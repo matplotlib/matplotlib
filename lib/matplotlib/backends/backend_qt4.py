@@ -12,6 +12,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.widgets import SubplotTool
+import matplotlib.backends.qt4_editor.figureoptions as figureoptions
 
 try:
     from PyQt4 import QtCore, QtGui, Qt
@@ -330,9 +331,15 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         a = self.addAction(self._icon('subplots.png'), 'Subplots',
                 self.configure_subplots)
         a.setToolTip('Configure subplots')
+
+        a = self.addAction(self._icon("qt4_editor_options.svg"),
+                           'Customize', self.edit_parameters)
+        a.setToolTip('Edit curves line and axes parameters')
+
         a = self.addAction(self._icon('filesave.svg'), 'Save',
                 self.save_figure)
         a.setToolTip('Save the figure')
+
 
         self.buttons = {}
 
@@ -351,6 +358,36 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
 
         # reference holder for subplots_adjust window
         self.adj_window = None
+
+    def edit_parameters(self):
+        allaxes = self.canvas.figure.get_axes()
+        if len(allaxes) == 1:
+            axes = allaxes[0]
+        else:
+            titles = []
+            for axes in allaxes:
+                title = axes.get_title()
+                ylabel = axes.get_ylabel()
+                if title:
+                    text = title
+                    if ylabel:
+                        text += ": "+ylabel
+                    text += " (%s)"
+                elif ylabel:
+                    text = "%s (%s)" % ylabel
+                else:
+                    text = "%s"
+                titles.append(text % repr(axes))
+            item, ok = QtGui.QInputDialog.getItem(self, 'Customize',
+                                                  'Select axes:', titles,
+                                                  0, False)
+            if ok:
+                axes = allaxes[titles.index(unicode(item))]
+            else:
+                return
+
+        figureoptions.figure_edit(axes, self)
+
 
     def dynamic_update( self ):
         self.canvas.draw()
