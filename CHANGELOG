@@ -1,3 +1,5 @@
+2010-01-03 Added rcParams['axes.color_cycle'] - EF
+
 2010-01-03 Added Pierre's qt4 formlayout editor and toolbar button - JDH
 
 2009-12-31 Add support for using math text as marker symbols (Thanks to tcb)

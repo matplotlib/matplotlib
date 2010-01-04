@@ -10,7 +10,11 @@ list may help describe what changes may be necessary in your code.
 Changes beyond 0.99.x
 =====================
 
-* You can now print several figures to one pdf file and modify the 
+* There is a new rc parameter ``axes.color_cycle``, and the color
+  cycle is now independent of the rc parameter ``lines.color``.
+  :func:`matplotlib.Axes.set_default_color_cycle` is deprecated.
+
+* You can now print several figures to one pdf file and modify the
   document information dictionary of a pdf file. See the docstrings
   of the class :class:`matplotlib.backends.backend_pdf.PdfPages` for
   more information.

@@ -1,5 +1,7 @@
 from __future__ import division, generators
 import math, sys, warnings, datetime, new
+from operator import itemgetter
+import itertools
 
 import numpy as np
 from numpy import ma
@@ -31,7 +33,6 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 
-from operator import itemgetter
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -115,11 +116,18 @@ def set_default_color_cycle(clist):
     :class:`Axes` to which it will apply; it will
     apply to all future axes.
 
-    *clist* is a sequence of mpl color specifiers
+    *clist* is a sequence of mpl color specifiers.
+
+    See also: :meth:`~matplotlib.axes.Axes.set_color_cycle`.
+
+    .. Note:: Deprecated 2010/01/03.
+              Set rcParams['axes.color_cycle'] directly.
 
     """
-    _process_plot_var_args.defaultColors = clist[:]
-    rcParams['lines.color'] = clist[0]
+    rcParams['axes.color_cycle'] = clist
+    warnings.warn("Set rcParams['axes.color_cycle'] directly",
+                                                    DeprecationWarning)
+
 
 class _process_plot_var_args:
     """
@@ -134,42 +142,18 @@ class _process_plot_var_args:
 
     an arbitrary number of *x*, *y*, *fmt* are allowed
     """
-
-    defaultColors = ['b','g','r','c','m','y','k']
     def __init__(self, axes, command='plot'):
         self.axes = axes
         self.command = command
-        self._clear_color_cycle()
+        self.set_color_cycle()
 
-    def _clear_color_cycle(self):
-        self.colors = _process_plot_var_args.defaultColors[:]
-        # if the default line color is a color format string, move it up
-        # in the que
-        try:
-            ind = self.colors.index(rcParams['lines.color'])
-        except ValueError:
-            self.firstColor = rcParams['lines.color']
-        else:
-            self.colors[0], self.colors[ind] = self.colors[ind], self.colors[0]
-            self.firstColor = self.colors[0]
-
-        self.Ncolors = len(self.colors)
-
-        self.count = 0
-
-    def set_color_cycle(self, clist):
-        self.colors = clist[:]
-        self.firstColor = self.colors[0]
-        self.Ncolors = len(self.colors)
-        self.count = 0
+    def set_color_cycle(self, clist=None):
+        if clist is None:
+            clist = rcParams['axes.color_cycle']
+        self._colors = itertools.cycle(clist)
 
     def _get_next_cycle_color(self):
-        if self.count==0:
-            color = self.firstColor
-        else:
-            color = self.colors[int(self.count % self.Ncolors)]
-        self.count += 1
-        return color
+        return self._colors.next()
 
     def __call__(self, *args, **kwargs):
 
@@ -907,9 +891,10 @@ class Axes(martist.Artist):
         """
         Set the color cycle for any future plot commands on this Axes.
 
-        clist is a list of mpl color specifiers.
+        *clist* is a list of mpl color specifiers.
         """
         self._get_lines.set_color_cycle(clist)
+        self._get_patches_for_fill.set_color_cycle(clist)
 
 
     def ishold(self):

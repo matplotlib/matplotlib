@@ -161,11 +161,11 @@ backend      : %(backend)s
 #text.markup         : 'plain'  # Affects how text, such as titles and labels, are
                                 # interpreted by default.
                                 # 'plain': As plain, unformatted text
-				# 'tex': As TeX-like text.  Text between $'s will be
-				# formatted as a TeX math expression.
-				# This setting has no effect when text.usetex is True.
-				# In that case, all text will be sent to TeX for
-				# processing.
+                                # 'tex': As TeX-like text.  Text between $'s will be
+                                # formatted as a TeX math expression.
+                                # This setting has no effect when text.usetex is True.
+                                # In that case, all text will be sent to TeX for
+                                # processing.
 
 #text.hinting : True # If True, text will be hinted, otherwise not.  This only
                      # affects the Agg backend.
@@ -184,8 +184,8 @@ backend      : %(backend)s
 #mathtext.fontset : cm # Should be 'cm' (Computer Modern), 'stix',
                        # 'stixsans' or 'custom'
 #mathtext.fallback_to_cm : True  # When True, use symbols from the Computer Modern
-			         # fonts when a symbol can not be found in one of
-				 # the custom math fonts.
+                                 # fonts when a symbol can not be found in one of
+                                 # the custom math fonts.
 
 #mathtext.default : it # The default font to use for math.
                        # Can be any of the LaTeX font names, including
@@ -211,6 +211,10 @@ backend      : %(backend)s
                                # first or larger than the second
 #axes.unicode_minus  : True    # use unicode for the minus symbol
                                # rather than hypen.  See http://en.wikipedia.org/wiki/Plus_sign#Plus_sign
+#axes.color_cycle    : b, g, r, c, m, y, k  # color cycle for plot lines
+                                            # as list of string colorspecs:
+                                            # single letter, long name, or
+                                            # web-style hex
 
 #polaraxes.grid      : True    # display grid on polar axes
 #axes3d.grid         : True    # display grid on 3d axes

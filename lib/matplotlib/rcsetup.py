@@ -207,6 +207,14 @@ def validate_color(s):
 
     raise ValueError('%s does not look like a color arg%s'%(s, msg))
 
+def validate_colorlist(s):
+    'return a list of colorspecs'
+    if type(s) is str:
+        return [validate_color(c.strip()) for c in s.split(',')]
+    else:
+        assert type(s) in [list, tuple]
+        return [validate_color(c) for c in s]
+
 def validate_stringlist(s):
     'return a list'
     if type(s) is str:
@@ -440,6 +448,9 @@ defaultParams = {
                                # of the axis range is smaller than the
                                # first or larger than the second
     'axes.unicode_minus'        : [True, validate_bool],
+    'axes.color_cycle'      : [['b','g','r','c','m','y','k'],
+                                    validate_colorlist], # cycle of plot
+                                                         # line colors
 
     'polaraxes.grid'        : [True, validate_bool],   # display polar grid or not
     'axes3d.grid'           : [True, validate_bool],   # display 3d grid

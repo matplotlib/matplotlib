@@ -13,7 +13,7 @@ yy.shape = 6,4
 mpl.rc('lines', linewidth=4)
 
 fig = plt.figure()
-mpl.axes.set_default_color_cycle(['r', 'g', 'b', 'c'])
+mpl.rcParams['axes.color_cycle'] = ['r', 'g', 'b', 'c']
 ax = fig.add_subplot(2,1,1)
 ax.plot(yy)
 ax.set_title('Changed default color cycle to rgbc')
