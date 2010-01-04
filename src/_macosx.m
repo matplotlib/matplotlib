@@ -539,7 +539,7 @@ GraphicsContext_set_alpha (GraphicsContext* self, PyObject* args)
         return NULL;
     }
     CGContextSetAlpha(cr, alpha);
- 
+
     self->color[3] = alpha;
 
     Py_INCREF(Py_None);
@@ -884,7 +884,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                   0,
                                   rect,
                                   QUANTIZE_AUTO,
-                                  1);
+                                  rgbFace == NULL);
     if (!iterator)
     {
         PyErr_SetString(PyExc_RuntimeError,
@@ -961,7 +961,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                           0,
                                           rect,
                                           QUANTIZE_AUTO,
-                                          1);
+                                          0);
             if (!iterator)
             {
                 Py_DECREF(hatchpath);
@@ -1146,14 +1146,14 @@ _set_offset(CGContextRef cr, PyObject* offsets, int index, PyObject* transform)
         Py_DECREF(translation);
         PyErr_SetString(PyExc_ValueError,
             "transform_point did not return a NumPy array");
-        return false; 
+        return false;
     }
     if (PyArray_NDIM(translation)!=1 || PyArray_DIM(translation, 0)!=2)
     {
         Py_DECREF(translation);
         PyErr_SetString(PyExc_ValueError,
             "transform_point did not return an approriate array");
-        return false; 
+        return false;
     }
     tx = (CGFloat)(*(double*)PyArray_GETPTR1(translation, 0));
     ty = (CGFloat)(*(double*)PyArray_GETPTR1(translation, 1));
@@ -1397,7 +1397,7 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
     Py_ssize_t Nlinestyles = PySequence_Size(linestyles);
     Py_ssize_t Naa         = PySequence_Size(antialiaseds);
     if (N < Nlinestyles) Nlinestyles = N;
-    if ((Nfacecolors == 0 && Nedgecolors == 0) || Np == 0) goto exit; 
+    if ((Nfacecolors == 0 && Nedgecolors == 0) || Np == 0) goto exit;
 
     /* Preset graphics context properties if possible */
     if (Naa==1)
@@ -1641,7 +1641,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         master.c = c;
         master.d = d;
         master.tx = tx;
-	master.ty = ty;
+        master.ty = ty;
     }
     else
     {
@@ -2255,7 +2255,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
 
     width = CTLineGetTypographicBounds(line, &ascent, &descent, NULL);
     rect = CTLineGetImageBounds(line, cr);
- 
+
     CFRelease(line);
 
     return Py_BuildValue("fff", width, rect.size.height, descent);
@@ -3022,7 +3022,7 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
     }
     /* NSSize contains CGFloat; cannot use size directly */
     if(!PyArg_ParseTuple(args, "u#dd",
-				&characters, &n, &width, &height)) return NULL;
+                                &characters, &n, &width, &height)) return NULL;
     size.width = width;
     size.height = height;
 
@@ -3036,7 +3036,7 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
     NSRect rect = [view bounds];
 
     NSString* filename = [NSString stringWithCharacters: characters
-						 length: (unsigned)n];
+                                                 length: (unsigned)n];
     NSString* extension = [filename pathExtension];
 
     /* Calling dataWithPDFInsideRect on the view causes its update status
@@ -3055,23 +3055,23 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
     if (! [extension isEqualToString: @"tiff"] &&
         ! [extension isEqualToString: @"tif"])
     {
-	NSBitmapImageFileType filetype;
-	NSBitmapImageRep* bitmapRep = [NSBitmapImageRep imageRepWithData: data];
-	if ([extension isEqualToString: @"bmp"])
-	    filetype = NSBMPFileType;
-	else if ([extension isEqualToString: @"gif"])
-	    filetype = NSGIFFileType;
-	else if ([extension isEqualToString: @"jpg"] ||
-	         [extension isEqualToString: @"jpeg"])
-	    filetype = NSJPEGFileType;
-	else if ([extension isEqualToString: @"png"])
-	    filetype = NSPNGFileType;
-	else
-	{   PyErr_SetString(PyExc_ValueError, "Unknown file type");
-	    return NULL;
-	}
+        NSBitmapImageFileType filetype;
+        NSBitmapImageRep* bitmapRep = [NSBitmapImageRep imageRepWithData: data];
+        if ([extension isEqualToString: @"bmp"])
+            filetype = NSBMPFileType;
+        else if ([extension isEqualToString: @"gif"])
+            filetype = NSGIFFileType;
+        else if ([extension isEqualToString: @"jpg"] ||
+                 [extension isEqualToString: @"jpeg"])
+            filetype = NSJPEGFileType;
+        else if ([extension isEqualToString: @"png"])
+            filetype = NSPNGFileType;
+        else
+        {   PyErr_SetString(PyExc_ValueError, "Unknown file type");
+            return NULL;
+        }
 
-	data = [bitmapRep representationUsingType:filetype properties:nil];
+        data = [bitmapRep representationUsingType:filetype properties:nil];
     }
 
     [data writeToFile: filename atomically: YES];
