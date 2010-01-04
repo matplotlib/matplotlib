@@ -248,7 +248,8 @@ class RendererPS(RendererBase):
         0 setlinewidth
 """ % locals())
         self._pswriter.write(
-            self._convert_path(Path.hatch(hatch), Affine2D().scale(72.0)))
+            self._convert_path(Path.hatch(hatch), Affine2D().scale(72.0),
+                               simplify=False))
         self._pswriter.write("""\
           stroke
      } bind
@@ -427,7 +428,7 @@ grestore
         # unflip
         im.flipud_out()
 
-    def _convert_path(self, path, transform, clip=False):
+    def _convert_path(self, path, transform, clip=False, simplify=None):
         ps = []
         last_points = None
         if clip:
@@ -435,7 +436,8 @@ grestore
                     self.height * 72.0)
         else:
             clip = None
-        for points, code in path.iter_segments(transform, clip=clip):
+        for points, code in path.iter_segments(transform, clip=clip,
+                                               simplify=simplify):
             if code == Path.MOVETO:
                 ps.append("%g %g m" % tuple(points))
             elif code == Path.LINETO:
@@ -458,7 +460,8 @@ grestore
         if id is None:
             id = 'c%x' % len(self._clip_paths)
             ps_cmd = ['/%s {' % id]
-            ps_cmd.append(self._convert_path(clippath, clippath_transform))
+            ps_cmd.append(self._convert_path(clippath, clippath_transform,
+                                             simplify=False))
             ps_cmd.extend(['clip', 'newpath', '} bind def\n'])
             self._pswriter.write('\n'.join(ps_cmd))
             self._clip_paths[(clippath, clippath_transform)] = id
@@ -468,9 +471,10 @@ grestore
         """
         Draws a Path instance using the given affine transform.
         """
+        clip = (rgbFace is None and gc.get_hatch_path() is None)
+        simplify = path.should_simplify and clip
         ps = self._convert_path(
-            path, transform,
-            clip=(rgbFace is None and gc.get_hatch_path() is None))
+            path, transform, clip=clip, simplify=simplify)
         self._draw_ps(ps, gc, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
@@ -491,7 +495,8 @@ grestore
 
         # construct the generic marker command:
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # dont want the translate to be global
-        ps_cmd.append(self._convert_path(marker_path, marker_trans))
+        ps_cmd.append(self._convert_path(marker_path, marker_trans,
+                                         simplify=False))
 
         if rgbFace:
             ps_cmd.extend(['gsave', ps_color, 'fill', 'grestore'])
@@ -518,7 +523,7 @@ grestore
             name = 'p%x_%x' % (self._path_collection_id, i)
             ps_cmd = ['/%s {' % name,
                       'newpath', 'translate']
-            ps_cmd.append(self._convert_path(path, transform))
+            ps_cmd.append(self._convert_path(path, transform, simplify=False))
             ps_cmd.extend(['} bind def\n'])
             write('\n'.join(ps_cmd))
             path_codes.append(name)
