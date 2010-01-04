@@ -118,6 +118,7 @@ more information and examples of using date locators and formatters.
 
 
 from __future__ import division
+import decimal
 import math
 import numpy as np
 from matplotlib import rcParams
@@ -507,23 +508,23 @@ class LogFormatter(Formatter):
         is ``False``
         """
         self._base = base+0.0
-        self.labelOnlyBase=labelOnlyBase
+        self.labelOnlyBase = labelOnlyBase
         self.decadeOnly = True
 
-    def base(self,base):
+    def base(self, base):
         'change the *base* for labeling - warning: should always match the base used for :class:`LogLocator`'
-        self._base=base
+        self._base = base
 
-    def label_minor(self,labelOnlyBase):
+    def label_minor(self, labelOnlyBase):
         'switch on/off minor ticks labeling'
-        self.labelOnlyBase=labelOnlyBase
+        self.labelOnlyBase = labelOnlyBase
 
 
     def __call__(self, x, pos=None):
         'Return the format for tick val *x* at position *pos*'
         vmin, vmax = self.axis.get_view_interval()
         d = abs(vmax - vmin)
-        b=self._base
+        b = self._base
         if x == 0.0:
             return '0'
         sign = np.sign(x)
@@ -533,13 +534,13 @@ class LogFormatter(Formatter):
         if not isDecade and self.labelOnlyBase: s = ''
         elif x>10000: s= '%1.0e'%x
         elif x<1: s =  '%1.0e'%x
-        else        : s =  self.pprint_val(x,d)
+        else        : s =  self.pprint_val(x, d)
         if sign == -1:
             s =  '-%s' % s
 
         return self.fix_minus(s)
 
-    def format_data(self,value):
+    def format_data(self, value):
         self.labelOnlyBase = False
         value = cbook.strip_math(self.__call__(value))
         self.labelOnlyBase = True
@@ -554,14 +555,14 @@ class LogFormatter(Formatter):
         return abs(x-n)<1e-10
 
     def nearest_long(self, x):
-        if x==0: return 0L
-        elif x>0: return long(x+0.5)
+        if x == 0: return 0L
+        elif x > 0: return long(x+0.5)
         else: return long(x-0.5)
 
     def pprint_val(self, x, d):
         #if the number is not too big and it's an int, format it as an
         #int
-        if abs(x)<1e4 and x==int(x): return '%d' % x
+        if abs(x) < 1e4 and x == int(x): return '%d' % x
 
         if d < 1e-2: fmt = '%1.3e'
         elif d < 1e-1: fmt = '%1.3f'
@@ -572,7 +573,7 @@ class LogFormatter(Formatter):
         s =  fmt % x
         #print d, x, fmt, s
         tup = s.split('e')
-        if len(tup)==2:
+        if len(tup) == 2:
             mantissa = tup[0].rstrip('0').rstrip('.')
             sign = tup[1][0].replace('+', '')
             exponent = tup[1][1:].lstrip('0')
@@ -645,10 +646,96 @@ class LogFormatterMathtext(LogFormatter):
             if usetex:
                 s = r'$%s%d^{%d}$'% (sign_string, b, self.nearest_long(fx))
             else:
-                s = r'$\mathdefault{%s%d^{%d}}$'% (sign_string, b, self.nearest_long(fx))
+                s = r'$\mathdefault{%s%d^{%d}}$'% (sign_string, b,
+                                                   self.nearest_long(fx))
 
         return s
 
+class EngFormatter(Formatter):
+    """
+    Formats axis values using engineering prefixes to represent powers of 1000,
+    plus a specified unit, eg. 10 MHz instead of 1e7.
+    """
+
+    # The SI engineering prefixes
+    ENG_PREFIXES = {
+        -24: "y",
+        -21: "z",
+        -18: "a",
+        -15: "f",
+        -12: "p",
+         -9: "n",
+         -6: u"\u03bc", # Greek letter mu
+         -3: "m",
+          0: "",
+          3: "k",
+          6: "M",
+          9: "G",
+         12: "T",
+         15: "P",
+         18: "E",
+         21: "Z",
+         24: "Y"
+      }
+
+    def __init__(self, unit="", places=None):
+        self.unit = unit
+        self.places = places
+
+    def __call__(self, x, pos=None):
+        s = "%s%s" % (self.format_eng(x), self.unit)
+        return self.fix_minus(s)
+
+    def format_eng(self, num):
+        """ Formats a number in engineering notation, appending a letter
+        representing the power of 1000 of the original number. Some examples:
+
+        >>> format_eng(0)       for self.places = 0
+        '0'
+
+        >>> format_eng(1000000) for self.places = 1
+        '1.0 M'
+
+        >>> format_eng("-1e-6") for self.places = 2
+        u'-1.00 \u03bc'
+
+        @param num: the value to represent
+        @type num: either a numeric value or a string that can be converted to
+                   a numeric value (as per decimal.Decimal constructor)
+
+        @return: engineering formatted string
+        """
+
+        dnum = decimal.Decimal(str(num))
+
+        sign = 1
+
+        if dnum < 0:
+            sign = -1
+            dnum = -dnum
+
+        if dnum != 0:
+            pow10 = decimal.Decimal(int(math.floor(dnum.log10()/3)*3))
+        else:
+            pow10 = decimal.Decimal(0)
+
+        pow10 = pow10.min(max(self.ENG_PREFIXES.keys()))
+        pow10 = pow10.max(min(self.ENG_PREFIXES.keys()))
+
+        prefix = self.ENG_PREFIXES[int(pow10)]
+
+        mant = sign*dnum/(10**pow10)
+
+        if self.places is None:
+            format_str = u"%g %s"
+        elif self.places == 0:
+            format_str = u"%i %s"
+        elif self.places > 0:
+            format_str = (u"%%.%if %%s" % self.places)
+
+        formatted = format_str % (mant, prefix)
+
+        return formatted.strip()
 
 class Locator(TickHelper):
     """
