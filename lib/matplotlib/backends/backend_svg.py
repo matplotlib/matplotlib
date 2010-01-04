@@ -101,7 +101,8 @@ class RendererSVG(RendererBase):
             self._svgwriter.write(' width="%d" height="%d" >\n' % (HATCH_SIZE, HATCH_SIZE))
             path_data = self._convert_path(
                 gc.get_hatch_path(),
-                Affine2D().scale(HATCH_SIZE).scale(1.0, -1.0).translate(0, HATCH_SIZE))
+                Affine2D().scale(HATCH_SIZE).scale(1.0, -1.0).translate(0, HATCH_SIZE),
+                simplify=False)
             if rgbFace is None:
                 fill = 'none'
             else:
@@ -159,7 +160,7 @@ class RendererSVG(RendererBase):
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
             clippath_trans = self._make_flip_transform(clippath_trans)
-            path_data = self._convert_path(clippath, clippath_trans)
+            path_data = self._convert_path(clippath, clippath_trans, simplify=False)
             path = '<path d="%s"/>' % path_data
         elif cliprect is not None:
             x, y, w, h = cliprect.bounds
@@ -210,7 +211,7 @@ class RendererSVG(RendererBase):
                 .scale(1.0, -1.0)
                 .translate(0.0, self.height))
 
-    def _convert_path(self, path, transform, clip=False):
+    def _convert_path(self, path, transform, clip=False, simplify=None):
         path_data = []
         appender = path_data.append
         path_commands = self._path_commands
@@ -219,7 +220,8 @@ class RendererSVG(RendererBase):
             clip = (0.0, 0.0, self.width, self.height)
         else:
             clip = None
-        for points, code in path.iter_segments(transform, clip=clip):
+        for points, code in path.iter_segments(transform, clip=clip,
+                                               simplify=simplify):
             if code == Path.CLOSEPOLY:
                 segment = 'z'
             else:
@@ -234,15 +236,18 @@ class RendererSVG(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         trans_and_flip = self._make_flip_transform(transform)
+        clip = (rgbFace is None and gc.get_hatch_path() is None)
+        simplify = path.should_simplify and clip
         path_data = self._convert_path(
-            path, trans_and_flip,
-            clip=(rgbFace is None and gc.get_hatch_path() is None))
+            path, trans_and_flip, clip=clip, simplify=simplify)
         self._draw_svg_element('path', 'd="%s"' % path_data, gc, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         write = self._svgwriter.write
 
-        key = self._convert_path(marker_path, marker_trans + Affine2D().scale(1.0, -1.0))
+        key = self._convert_path(marker_path,
+                                 marker_trans + Affine2D().scale(1.0, -1.0),
+                                 simplify=False)
         name = self._markers.get(key)
         if name is None:
             name = 'm%s' % md5(key).hexdigest()
@@ -276,7 +281,7 @@ class RendererSVG(RendererBase):
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
             master_transform, paths, all_transforms)):
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
-            d = self._convert_path(path, transform)
+            d = self._convert_path(path, transform, simplify=False)
             name = 'coll%x_%x_%s' % (self._path_collection_id, i,
                                      md5(d).hexdigest())
             write('<path id="%s" d="%s"/>\n' % (name, d))
