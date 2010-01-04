@@ -1068,7 +1068,8 @@ end"""
             # an API change
             self.output(*self.pathOperations(
                     Path.hatch(hatch_style[2]),
-                    Affine2D().scale(sidelen)))
+                    Affine2D().scale(sidelen),
+                    simplify=False))
             self.output(Op.stroke)
 
             self.endStream()
@@ -1192,7 +1193,7 @@ end"""
 
     def markerObject(self, path, trans, fillp, lw):
         """Return name of a marker XObject representing the given path."""
-        pathops = self.pathOperations(path, trans)
+        pathops = self.pathOperations(path, trans, simplify=False)
         key = (tuple(pathops), bool(fillp))
         result = self.markers.get(key)
         if result is None:
@@ -1221,10 +1222,11 @@ end"""
             self.endStream()
 
     @staticmethod
-    def pathOperations(path, transform, clip=None):
+    def pathOperations(path, transform, clip=None, simplify=None):
         cmds = []
         last_points = None
-        for points, code in path.iter_segments(transform, clip=clip):
+        for points, code in path.iter_segments(transform, clip=clip,
+                                               simplify=simplify):
             if code == Path.MOVETO:
                 # This is allowed anywhere in the path
                 cmds.extend(points)
@@ -1250,9 +1252,11 @@ end"""
     def writePath(self, path, transform, clip=False):
         if clip:
             clip = (0.0, 0.0, self.width * 72, self.height * 72)
+            simplify = path.should_simplify
         else:
             clip = None
-        cmds = self.pathOperations(path, transform, clip)
+            simplify = False
+        cmds = self.pathOperations(path, transform, clip, simplify=simplify)
         self.output(*cmds)
 
     def reserveObject(self, name=''):
@@ -1969,7 +1973,7 @@ class GraphicsContextPdf(GraphicsContextBase):
             if self._clippath != clippath:
                 path, affine = clippath.get_transformed_path_and_affine()
                 cmds.extend(
-                    PdfFile.pathOperations(path, affine) +
+                    PdfFile.pathOperations(path, affine, simplify=False) +
                     [Op.clip, Op.endpath])
         return cmds
 
