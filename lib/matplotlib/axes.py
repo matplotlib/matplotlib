@@ -150,10 +150,7 @@ class _process_plot_var_args:
     def set_color_cycle(self, clist=None):
         if clist is None:
             clist = rcParams['axes.color_cycle']
-        self._colors = itertools.cycle(clist)
-
-    def _get_next_cycle_color(self):
-        return self._colors.next()
+        self.color_cycle = itertools.cycle(clist)
 
     def __call__(self, *args, **kwargs):
 
@@ -225,7 +222,7 @@ class _process_plot_var_args:
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy() # Don't modify the original kw.
         if not 'color' in kw:
-            kw['color'] = self._get_next_cycle_color()
+            kw['color'] = self.color_cycle.next()
             # (can't use setdefault because it always evaluates
             # its second argument)
         seg = mlines.Line2D(x, y,
@@ -239,7 +236,7 @@ class _process_plot_var_args:
         try:
             facecolor = kw['color']
         except KeyError:
-            facecolor = self._get_next_cycle_color()
+            facecolor = self.color_cycle.next()
         seg = mpatches.Polygon(np.hstack(
                                 (x[:,np.newaxis],y[:,np.newaxis])),
                       facecolor = facecolor,
@@ -4866,7 +4863,7 @@ class Axes(martist.Artist):
 
         if ecolor is None:
             if l0 is None:
-                ecolor = self._get_lines._get_next_cycle_color()
+                ecolor = self._get_lines.color_cycle.next()
             else:
                 ecolor = l0.get_color()
 
@@ -7163,7 +7160,7 @@ class Axes(martist.Artist):
 
             if orientation == 'horizontal':
                 for m in n:
-                    color = self._get_lines._get_next_cycle_color()
+                    color = self._get_lines.color_cycle.next()
                     patch = self.barh(bins[:-1]+boffset, m, height=width,
                                       left=bottom, align='center', log=log,
                                       color=color)
@@ -7174,7 +7171,7 @@ class Axes(martist.Artist):
                     boffset += dw
             elif orientation == 'vertical':
                 for m in n:
-                    color = self._get_lines._get_next_cycle_color()
+                    color = self._get_lines.color_cycle.next()
                     patch = self.bar(bins[:-1]+boffset, m, width=width,
                                      bottom=bottom, align='center', log=log,
                                      color=color)
@@ -7219,7 +7216,7 @@ class Axes(martist.Artist):
                 elif orientation != 'vertical':
                     raise ValueError, 'invalid orientation: %s' % orientation
 
-                color = self._get_lines._get_next_cycle_color()
+                color = self._get_lines.color_cycle.next()
                 if fill:
                     patches.append( self.fill(x, y,
                         closed=False, facecolor=color) )
