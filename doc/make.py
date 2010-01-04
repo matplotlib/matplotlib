@@ -67,13 +67,13 @@ def latex():
 def clean():
     shutil.rmtree("build")
     shutil.rmtree("examples")
-    for pattern in ['doc/mpl_examples/api/*.png',
-                    'doc/mpl_examples/pylab_examples/*.png',
-                    'doc/mpl_examples/pylab_examples/*.pdf',
-                    'doc/mpl_examples/units/*.png',
-                    'doc/pyplots/tex_demo.png',
-                    'doc/_static/matplotlibrc',
-                    'doc/_templates/gallery.html']:
+    for pattern in ['mpl_examples/api/*.png',
+                    'mpl_examples/pylab_examples/*.png',
+                    'mpl_examples/pylab_examples/*.pdf',
+                    'mpl_examples/units/*.png',
+                    'pyplots/tex_demo.png',
+                    '_static/matplotlibrc',
+                    '_templates/gallery.html']:
         for filename in glob.glob(pattern):
             if os.path.exists(filename):
                 os.remove(filename)
