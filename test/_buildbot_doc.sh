@@ -10,4 +10,5 @@ easy_install sphinx
 
 cd doc
 
+python make.py clean
 python make.py all
