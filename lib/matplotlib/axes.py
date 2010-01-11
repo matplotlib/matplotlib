@@ -349,7 +349,7 @@ class Axes(martist.Artist):
           ================   =========================================
           Keyword            Description
           ================   =========================================
-          *adjustable*       [ 'box' | 'datalim' ]
+          *adjustable*       [ 'box' | 'datalim' | 'box-forced']
           *alpha*            float: the alpha transparency
           *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
                                'NW', 'W' ]
@@ -947,12 +947,17 @@ class Axes(martist.Artist):
 
         *adjustable*
 
-          =========   ============================
-          value       description
-          =========   ============================
-          'box'       change physical size of axes
-          'datalim'   change xlim or ylim
-          =========   ============================
+          ============   =====================================
+          value          description
+          ============   =====================================
+          'box'          change physical size of axes
+          'datalim'      change xlim or ylim
+          'box-forced'   same as 'box', but axes can be shared
+          ============   =====================================
+
+        'box' does not allow axes sharing, as this can cause
+        unintended side effect. For cases when sharing axes is
+        fine, use 'box-forced'.
 
         *anchor*
 
@@ -984,9 +989,9 @@ class Axes(martist.Artist):
 
     def set_adjustable(self, adjustable):
         """
-        ACCEPTS: [ 'box' | 'datalim' ]
+        ACCEPTS: [ 'box' | 'datalim' | 'box-forced']
         """
-        if adjustable in ('box', 'datalim'):
+        if adjustable in ('box', 'datalim', 'box-forced'):
             if self in self._shared_x_axes or self in self._shared_y_axes:
                 if adjustable == 'box':
                     raise ValueError(
@@ -1098,7 +1103,7 @@ class Axes(martist.Artist):
 
         figW,figH = self.get_figure().get_size_inches()
         fig_aspect = figH/figW
-        if self._adjustable == 'box':
+        if self._adjustable in ['box', 'box-forced']:
             if aspect_scale_mode == "log":
                 box_aspect = A * self.get_data_ratio_log()
             else:

@@ -1,3 +1,6 @@
+2009-01-11 adjustable of Axes can be "box-forced" which allow 
+           sharing axes. -JJL
+
 2009-01-11 Add add_click and pop_click methods in 
            BlockingContourLabeler. -JJL
 
