@@ -193,7 +193,7 @@ class BlockingMouseInput(BlockingInput):
         # consistent with matlab and sometimes quite useful, but will
         # require the user to test how many points were actually
         # returned before using data.
-        self.fig.canvas.stop_event_loop(event)
+        self.fig.canvas.stop_event_loop()
 
     def mouse_event_pop( self, event ):
         """
@@ -310,6 +310,12 @@ class BlockingContourLabeler( BlockingMouseInput ):
     def __init__(self,cs):
         self.cs = cs
         BlockingMouseInput.__init__(self, fig=cs.ax.figure )
+
+    def add_click(self, event):
+        self.button1(event)
+
+    def pop_click(self, event, index=-1):
+        self.button3(event)
 
     def button1(self,event):
         """
