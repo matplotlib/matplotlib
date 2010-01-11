@@ -898,7 +898,7 @@ class Line2D(Artist):
         height = ymax - ymin
         max_dim = max(width, height)
         path_trans = Affine2D() \
-            .translate(0.5 * -width, 0.5 * -height) \
+            .translate(-xmin + 0.5 * -width, -ymin + 0.5 * -height) \
             .scale((renderer.points_to_pixels(self.get_markersize()) / max_dim))
 
         rgbFace = self._get_rgb_face()
