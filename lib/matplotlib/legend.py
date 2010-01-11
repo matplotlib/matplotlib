@@ -284,9 +284,11 @@ in the normalized axes coordinate.
 
         # We use FancyBboxPatch to draw a legend frame. The location
         # and size of the box will be updated during the drawing time.
+        
         self.legendPatch = FancyBboxPatch(
             xy=(0.0, 0.0), width=1., height=1.,
-            facecolor='w', edgecolor='k',
+            facecolor=rcParams["axes.facecolor"],
+            edgecolor=rcParams["axes.edgecolor"],
             mutation_scale=self._fontsize,
             snap=True
             )
