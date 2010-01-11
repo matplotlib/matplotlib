@@ -1,3 +1,6 @@
+2009-01-11 The color of legend patch follows the rc parameters 
+           axes.facecolor and axes.edgecolor. -JJL
+
 2009-01-11 adjustable of Axes can be "box-forced" which allow 
            sharing axes. -JJL
 
