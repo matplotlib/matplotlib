@@ -1,3 +1,6 @@
+2009-01-16 Don't create minor ticks on top of existing major
+           ticks. Patch by Neil Crighton. -ADS
+
 2009-01-16 Ensure three minor ticks always drawn (SF# 2924245). Patch
            by Neil Crighton. -ADS
 

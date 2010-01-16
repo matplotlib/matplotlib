@@ -1334,8 +1334,13 @@ class AutoMinorLocator(Locator):
         vmin, vmax = self.axis.get_view_interval()
         if vmin > vmax:
             vmin,vmax = vmax,vmin
+        locs = locs[(vmin < locs) & (locs < vmax)]
 
-        return self.raise_if_exceeds(locs[(vmin < locs) & (locs < vmax)])
+        # don't create minor ticks on top of existing major ticks
+        diff = 0.5 * abs(locs[1] - locs[0])
+        locs = [l for l in locs if (np.abs(l - majorlocs) > diff).all()]
+
+        return self.raise_if_exceeds(np.array(locs))
 
 
 class OldAutoLocator(Locator):
