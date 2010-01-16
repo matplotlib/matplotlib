@@ -35,26 +35,84 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef __PyCXX_wrap_python_hxx__
-#define __PyCXX_wrap_python_hxx__
+#ifndef __PyCXX_config_hh__
+#define __PyCXX_config_hh__
 
-// On some platforms we have to include time.h to get select defined
-#if !defined(__WIN32__) && !defined(WIN32) && !defined(_WIN32) && !defined(_WIN64)
-#include <sys/time.h>
+//
+// Microsoft VC++ 6.0 has no traits
+//
+#if defined( _MSC_VER )
+
+#  define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
+
+#elif defined( __GNUC__ )
+#  if __GNUC__ >= 3
+#    define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
+#  else
+#    define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 0
 #endif
 
-// Prevent multiple conflicting definitions of swab from stdlib.h and unistd.h
-#if defined(__sun) || defined(sun)
-#if defined(_XPG4)
-#undef _XPG4
-#endif
+//
+//	Assume all other compilers do
+//
+#else
+
+// Macros to deal with deficiencies in compilers
+#  define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
 #endif
 
-// Python.h will redefine these and generate warning in the process
-#undef _XOPEN_SOURCE
-#undef _POSIX_C_SOURCE
-
-// pull in python definitions
-#include <Python.h>
-
+#if STANDARD_LIBRARY_HAS_ITERATOR_TRAITS
+#  define random_access_iterator_parent(itemtype) std::iterator<std::random_access_iterator_tag,itemtype,int>
+#else
+#  define random_access_iterator_parent(itemtype) std::random_access_iterator<itemtype, int>
 #endif
+
+//
+//	Which C++ standard is in use?
+//
+#if defined( _MSC_VER )
+#  if _MSC_VER <= 1200
+// MSVC++ 6.0
+#    define PYCXX_ISO_CPP_LIB 0
+#    define STR_STREAM <strstream>
+#    define TEMPLATE_TYPENAME class
+#  else
+#    define PYCXX_ISO_CPP_LIB 1
+#    define STR_STREAM <sstream>
+#    define TEMPLATE_TYPENAME typename
+#  endif
+#elif defined( __GNUC__ )
+#  if __GNUC__ >= 3
+#    define PYCXX_ISO_CPP_LIB 1
+#    define STR_STREAM <sstream>
+#    define TEMPLATE_TYPENAME typename
+#  else
+#    define PYCXX_ISO_CPP_LIB 0
+#    define STR_STREAM <strstream>
+#    define TEMPLATE_TYPENAME class
+#  endif
+#endif
+
+#if PYCXX_ISO_CPP_LIB
+#    define STR_STREAM <sstream>
+#    define OSTRSTREAM ostringstream
+#    define EXPLICIT_TYPENAME typename
+#    define EXPLICIT_CLASS class
+#    define TEMPLATE_TYPENAME typename
+#else
+#    define STR_STREAM <strstream>
+#    define OSTRSTREAM ostrstream
+#    define EXPLICIT_TYPENAME
+#    define EXPLICIT_CLASS
+#    define TEMPLATE_TYPENAME class
+#endif
+
+// before 2.5 Py_ssize_t was missing
+#ifndef PY_MAJOR_VERSION
+#error not defined PY_MAJOR_VERSION
+#endif
+#if PY_MAJOR_VERSION < 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION < 5)
+typedef int Py_ssize_t;
+#endif
+
+#endif //  __PyCXX_config_hh__

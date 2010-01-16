@@ -34,101 +34,10 @@
 // DAMAGE.
 //
 //-----------------------------------------------------------------------------
+#include "CXX/WrapPython.h"
 
-#ifndef __PyCXX_config_hh__
-#define __PyCXX_config_hh__
-
-//
-// Microsoft VC++ 6.0 has no traits
-//
-#if defined( _MSC_VER )
-
-#  define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
-
-#elif defined( __GNUC__ )
-#  if __GNUC__ >= 3
-#    define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
-#  else
-#    define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 0
-#endif
-
-//
-//	Assume all other compilers do
-//
+#if PY_MAJOR_VERSION == 2
+#include "CXX/Python2/Config.hxx"
 #else
-
-// Macros to deal with deficiencies in compilers
-#  define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
+#include "CXX/Python3/Config.hxx"
 #endif
-
-#if STANDARD_LIBRARY_HAS_ITERATOR_TRAITS
-#  define random_access_iterator_parent(itemtype) std::iterator<std::random_access_iterator_tag,itemtype,int>
-#else
-#  define random_access_iterator_parent(itemtype) std::random_access_iterator<itemtype, int>
-#endif
-
-//
-//	Which C++ standard is in use?
-//
-#if defined( _MSC_VER )
-#  if _MSC_VER <= 1200
-// MSVC++ 6.0
-#    define PYCXX_ISO_CPP_LIB 0
-#    define STR_STREAM <strstream>
-#    define TEMPLATE_TYPENAME class
-#  else
-#    define PYCXX_ISO_CPP_LIB 1
-#    define STR_STREAM <sstream>
-#    define TEMPLATE_TYPENAME typename
-#  endif
-#elif defined( __GNUC__ )
-#  if __GNUC__ >= 3
-#    define PYCXX_ISO_CPP_LIB 1
-#    define STR_STREAM <sstream>
-#    define TEMPLATE_TYPENAME typename
-#  else
-#    define PYCXX_ISO_CPP_LIB 0
-#    define STR_STREAM <strstream>
-#    define TEMPLATE_TYPENAME class
-#  endif
-#endif
-
-#if PYCXX_ISO_CPP_LIB
-#    define STR_STREAM <sstream>
-#    define OSTRSTREAM ostringstream
-#    define EXPLICIT_TYPENAME typename
-#    define EXPLICIT_CLASS class
-#    define TEMPLATE_TYPENAME typename
-#else
-#    define STR_STREAM <strstream>
-#    define OSTRSTREAM ostrstream
-#    define EXPLICIT_TYPENAME
-#    define EXPLICIT_CLASS
-#    define TEMPLATE_TYPENAME class
-#endif
-
-// before 2.5 Py_ssize_t was missing
-#ifndef PY_MAJOR_VERSION
-#error not defined PY_MAJOR_VERSION
-#endif
-#if PY_MAJOR_VERSION < 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION < 5)
-typedef int Py_ssize_t;
-#endif
-
-// hash_map container usage selection
-// 1) if PYCXX_USING_STD_MAP is defined PyCXX will be using std::map<> container
-//    implementation only.
-// 2) if compilers are used other than MS Visual Studio (7.1+) or GCC 3.x
-//    STANDARD_LIBRARY_HAS_HASH_MAP must be defined before compilation to
-//    make PyCXX using hash_map container.
-#if !defined( PYCXX_USING_STD_MAP )
-  #if defined( _MSC_VER ) || defined( __INTEL_COMPILER ) || defined ( __ICC ) || (defined( __GNUC__ ) && ( __GNUC__ > 3 ))
-  #  define PYCXX_USING_HASH_MAP
-  #else
-  #  if defined( STANDARD_LIBRARY_HAS_HASH_MAP ) && !defined( PYCXX_USING_HASH_MAP )
-  #     define PYCXX_USING_HASH_MAP
-  #  endif
-  #endif
-#endif
-
-#endif //  __PyCXX_config_hh__
