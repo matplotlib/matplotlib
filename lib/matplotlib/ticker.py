@@ -1320,15 +1320,13 @@ class AutoMinorLocator(Locator):
         except IndexError:
             raise ValueError('Need at least two major ticks to find minor '
                              'tick locations')
-        # see whether major step should be divided by 5, 4 or 2. This
+        # see whether major step should be divided by 5, 4. This
         # should cover most cases.
         temp = float(('%e' % majorstep).split('e')[0])
         if temp % 5 < 1e-10:
             minorstep = majorstep / 5.
-        elif temp % 2 < 1e-10:
-            minorstep = majorstep / 4.
         else:
-            minorstep = majorstep / 2.
+            minorstep = majorstep / 4.
 
         tmin = majorlocs[0] - majorstep
         tmax = majorlocs[-1] + majorstep

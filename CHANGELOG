@@ -1,3 +1,6 @@
+2009-01-16 Ensure three minor ticks always drawn (SF# 2924245). Patch
+           by Neil Crighton. -ADS
+
 2010-01-16 Applied patch by Ian Thomas to fix two contouring
            problems: now contourf handles interior masked regions,
            and the boundaries of line and filled contours coincide. - EF
