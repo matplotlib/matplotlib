@@ -50,12 +50,14 @@
  * The problem is that two disjoint curves cut through a saddle zone
  * (I reject the alternative of connecting the opposite points to make
  * a single self-intersecting curve, since those make ugly contour plots
- * -- I've tried it).  The real problem with saddle zones is that you
- * need to communicate the connectivity decision you make back to the
- * calling routine, since for the next contour level, we need to tell
- * the contour tracer to make the same decision as on the previous
- * level.  The input/output triangulation array is the solution to this
- * nasty problem.
+ * -- I've tried it).  The solution is to determine the z value of the
+ * centre of the zone, which is the mean of the z values of the four
+ * corner points.  If the centre z is higher than the contour level of
+ * interest and you are moving along the line with higher values on the
+ * left, turn right to leave the saddle zone.  If the centre z is lower
+ * than the contour level turn left.  Whether the centre z is higher
+ * than the 1 or 2 contour levels is stored in the saddle array so that
+ * it does not need to be recalculated in subsequent passes.
  *
  * Another complicating factor is that there may be logical holes in
  * the mesh -- zones which do not exist.  We want our contours to stop
@@ -175,6 +177,11 @@
  * or not, z value 0, 1, or 2 -- is kept in a mesh sized data array */
 typedef short Cdata;
 
+/* information to decide on correct contour direction in saddle zones
+ * is stored in a mesh sized array.  Only those entries corresponding
+ * to saddle zones have nonzero values in this array. */
+typedef char Saddle;
+
 /* here is the minimum structure required to tell where we are in the
  * mesh sized data array */
 typedef struct Csite Csite;
@@ -189,8 +196,8 @@ struct Csite
     long count;                 /* count of start markers visited */
     double zlevel[2];           /* contour levels, zlevel[1]<=zlevel[0]
                                  * signals single level case */
-    short *triangle;            /* triangulation array for the mesh */
-    char *reg;                   /* region array for the mesh (was int) */
+    Saddle *saddle;             /* saddle zone information for the mesh */
+    char *reg;                  /* region array for the mesh (was int) */
     Cdata *data;                /* added by EF */
     long edge0, left0;          /* starting site on this curve for closure */
     int level0;                 /* starting level for closure */
@@ -225,8 +232,6 @@ void print_Csite(Csite *Csite)
     printf("\n");
 }
 
-/* triangle only takes values of -1, 0, 1, so it could be a signed char. */
-/* most or all of the longs probably could be converted to ints with no loss */
 
 /* the Cdata array consists of the following bits:
  * Z_VALUE     (2 bits) 0, 1, or 2 function value at point
@@ -243,6 +248,7 @@ void print_Csite(Csite *Csite)
  * OPEN_END    marks an i-edge start point whose other endpoint is
  *             on a boundary for the single level case
  * ALL_DONE    marks final start point
+ * SLIT_DN_VISITED this slit downstroke hasn't/has been visited in pass 2
  */
 #define Z_VALUE   0x0003
 #define ZONE_EX   0x0004
@@ -257,6 +263,7 @@ void print_Csite(Csite *Csite)
 #define SLIT_DN   0x0800
 #define OPEN_END  0x1000
 #define ALL_DONE  0x2000
+#define SLIT_DN_VISITED 0x4000
 
 /* some helpful macros to find points relative to a given directed
  * edge -- points are designated 0, 1, 2, 3 CCW around zone with 0 and
@@ -271,6 +278,15 @@ void print_Csite(Csite *Csite)
 
 enum {kind_zone, kind_edge1, kind_edge2,
         kind_slit_up, kind_slit_down, kind_start_slit=16} point_kinds;
+
+/* Saddle zone array consists of the following bits:
+ * SADDLE_SET  whether zone's saddle data has been set.
+ * SADDLE_GT0  whether z of centre of zone is higher than site->level[0].
+ * SADDLE_GT1  whether z of centre of zone is higher than site->level[1].
+ */
+#define SADDLE_SET 0x01
+#define SADDLE_GT0 0x02
+#define SADDLE_GT1 0x04
 
 /* ------------------------------------------------------------------------ */
 
@@ -313,18 +329,17 @@ zone_crosser (Csite * site, int level, int pass2)
     long left0 = site->left0;
     int level0 = site->level0 == level;
     int two_levels = site->zlevel[1] > site->zlevel[0];
-    short *triangle = site->triangle;
+    Saddle* saddle = site->saddle;
 
     const double *x = pass2 ? site->x : 0;
     const double *y = pass2 ? site->y : 0;
-    const double *z = pass2 ? site->z : 0;
-    double zlevel = pass2 ? site->zlevel[level] : 0.0;
+    const double *z = site->z;
+    double zlevel = site->zlevel[level];
     double *xcp = pass2 ? site->xcp : 0;
     double *ycp = pass2 ? site->ycp : 0;
     short *kcp = pass2 ? site->kcp : 0;
 
     int z0, z1, z2, z3;
-    int keep_left = 0;          /* flag to try to minimize curvature in saddles */
     int done = 0;
     int n_kind;
 
@@ -402,29 +417,28 @@ zone_crosser (Csite * site, int level, int pass2)
         {
             if (z1 == z3)
             {
-                /* this is a saddle zone, need triangle to decide
-                 * -- set triangle if not already decided for this zone */
+                /* this is a saddle zone, determine whether to turn left or
+                 * right depending on height of centre of zone relative to
+                 * contour level.  Set saddle[zone] if not already decided. */
                 long zone = edge + (left > 0 ? left : 0);
-                if (triangle)
+                if (!(saddle[zone] & SADDLE_SET))
                 {
-                    if (!triangle[zone])
-                    {
-                        if (keep_left)
-                            triangle[zone] = jedge ? -1 : 1;
-                        else
-                            triangle[zone] = jedge ? 1 : -1;
-                    }
-                    if (triangle[zone] > 0 ? !jedge : jedge)
-                        goto bkwd;
+                    saddle[zone] = SADDLE_SET;
+                    double zcentre = (z[p0] + z[p0+left] + z[p1] + z[p1+left])/4.0;
+                    if (zcentre > site->zlevel[0])
+                        saddle[zone] |=
+                            (two_levels && zcentre > site->zlevel[1])
+                            ? SADDLE_GT0 | SADDLE_GT1 : SADDLE_GT0;
                 }
-                else
-                {
-                    if (keep_left)
-                        goto bkwd;
-                }
+
+                int turnRight = level == 2 ? (saddle[zone] & SADDLE_GT1)
+                                           : (saddle[zone] & SADDLE_GT0);
+                if (z1 ^ (level == 2))
+                    turnRight = !turnRight;
+                if (!turnRight)
+                    goto bkwd;
             }
             /* bend forward (right along curve) */
-            keep_left = 1;
             jedge = !jedge;
             edge = p1 + (left > 0 ? left : 0);
             {
@@ -437,7 +451,6 @@ zone_crosser (Csite * site, int level, int pass2)
         {
           bkwd:
             /* bend backward (left along curve) */
-            keep_left = 0;
             jedge = !jedge;
             edge = p0 + (left > 0 ? left : 0);
             {
@@ -590,17 +603,27 @@ edge_walker (Csite * site,  int pass2)
                     if (n_kind) kcp[n_kind] += kind_start_slit;
                     return slit_cutter (site, 0, pass2);
                 }
+                if (fwd < 0 && level0 && left < 0)
+                {
+                    if (n_kind) kcp[n_kind] += kind_start_slit;
+                    return slit_cutter (site, 0, pass2);
+                }
                 return 3;
             }
             else if (pass2)
             {
                 if (heads_up || (fwd < 0 && (data[edge] & SLIT_DN)))
                 {
-                    site->edge = edge;
-                    site->left = left;
-                    site->n = n + marked;
-                    if (n_kind) kcp[n_kind] += kind_start_slit;
-                    return slit_cutter (site, heads_up, pass2);
+                    if (!heads_up && !(data[edge] & SLIT_DN_VISITED))
+                        data[edge] |= SLIT_DN_VISITED;
+                    else
+                    {
+                        site->edge = edge;
+                        site->left = left;
+                        site->n = n + marked;
+                        if (n_kind) kcp[n_kind] += kind_start_slit;
+                        return slit_cutter (site, heads_up, pass2);
+                    }
                 }
             }
             else
@@ -1181,6 +1204,8 @@ data_init (Csite * site, long nchunk)
     /* place immediate stop mark if nothing found */
     if (!count)
         data[0] |= ALL_DONE;
+    else
+        for (i = 0; i < ijmax; ++i) site->saddle[i] = 0;
 
     /* initialize site */
     site->edge0 = site->edge00 = site->edge = 0;
@@ -1252,7 +1277,7 @@ cntr_new(void)
     if (site == NULL) return NULL;
     site->data = NULL;
     site->reg = NULL;
-    site->triangle = NULL;
+    site->saddle = NULL;
     site->xcp = NULL;
     site->ycp = NULL;
     site->kcp = NULL;
@@ -1268,7 +1293,6 @@ cntr_init(Csite *site, long iMax, long jMax, double *x, double *y,
 {
     long ijmax = iMax * jMax;
     long nreg = iMax * jMax + iMax + 1;
-    long i;
 
     site->imax = iMax;
     site->jmax = jMax;
@@ -1278,21 +1302,20 @@ cntr_init(Csite *site, long iMax, long jMax, double *x, double *y,
         PyMem_Free(site);
         return -1;
     }
-    site->triangle = (short *) PyMem_Malloc(sizeof(short) * ijmax);
-    if (site->triangle == NULL)
+    site->saddle = (Saddle*) PyMem_Malloc(sizeof(Saddle) * ijmax);
+    if (site->saddle == NULL)
     {
         PyMem_Free(site->data);
         PyMem_Free(site);
         return -1;
     }
-    for (i = 0; i < ijmax; i++) site->triangle[i] = 0;
     site->reg = NULL;
     if (mask != NULL)
     {
         site->reg = (char *) PyMem_Malloc(sizeof(char) * nreg);
         if (site->reg == NULL)
         {
-            PyMem_Free(site->triangle);
+            PyMem_Free(site->saddle);
             PyMem_Free(site->data);
             PyMem_Free(site);
             return -1;
@@ -1311,7 +1334,7 @@ cntr_init(Csite *site, long iMax, long jMax, double *x, double *y,
 
 void cntr_del(Csite *site)
 {
-    PyMem_Free(site->triangle);
+    PyMem_Free(site->saddle);
     PyMem_Free(site->reg);
     PyMem_Free(site->data);
     PyMem_Free(site);

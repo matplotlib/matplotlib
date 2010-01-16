@@ -3,34 +3,13 @@ from pylab import *
 origin = 'lower'
 #origin = 'upper'
 
-# The following controls only interior masking.
-test_masking = False  # There is a bug in filled contour masking with
-                      # interior masks.
-
-if test_masking:
-    # Use a coarse grid so only a few masked points are needed.
-    delta = 0.5
-else:
-    delta = 0.025
+delta = 0.025
 
 x = y = arange(-3.0, 3.01, delta)
 X, Y = meshgrid(x, y)
 Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 Z = 10 * (Z1 - Z2)
-
-# interior badmask doesn't work yet for filled contours
-if test_masking:
-    badmask = zeros(shape(Z))
-
-    badmask[5,5] = 1
-    badmask[5,6] = 1
-    Z[5,5] = 0
-    Z[5,6] = 0
-
-    badmask[0,0] = 1
-    Z[0,0] = 0
-    Z = ma.array(Z, mask=badmask)
 
 nr, nc = Z.shape
 
@@ -42,6 +21,10 @@ Z[-nr//6:, -nc//6:] = nan
 Z = ma.array(Z)
 # mask another corner:
 Z[:nr//6, :nc//6] = ma.masked
+
+# mask a circle in the middle:
+interior = sqrt((X**2) + (Y**2)) < 0.5
+Z[interior] = ma.masked
 
 
 # We are using automatic selection of contour levels;
@@ -63,7 +46,7 @@ CS2 = contour(CS, levels=CS.levels[::2],
                         origin=origin,
                         hold='on')
 
-title('Nonsense (with 2 masked corners)')
+title('Nonsense (3 masked regions)')
 xlabel('word length anomaly')
 ylabel('sentence length anomaly')
 
@@ -87,7 +70,7 @@ CS4 = contour(X, Y, Z, levels,
                        colors = ('k',),
                        linewidths = (3,),
                        origin = origin)
-title('Listed colors (with 2 masked corners)')
+title('Listed colors (3 masked regions)')
 clabel(CS4, fmt = '%2.1f', colors = 'w', fontsize=14)
 colorbar(CS3)
 
