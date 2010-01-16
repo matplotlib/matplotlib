@@ -1,10 +1,14 @@
-2009-01-11 The color of legend patch follows the rc parameters 
+2010-01-16 Applied patch by Ian Thomas to fix two contouring
+           problems: now contourf handles interior masked regions,
+           and the boundaries of line and filled contours coincide. - EF
+
+2009-01-11 The color of legend patch follows the rc parameters
            axes.facecolor and axes.edgecolor. -JJL
 
-2009-01-11 adjustable of Axes can be "box-forced" which allow 
+2009-01-11 adjustable of Axes can be "box-forced" which allow
            sharing axes. -JJL
 
-2009-01-11 Add add_click and pop_click methods in 
+2009-01-11 Add add_click and pop_click methods in
            BlockingContourLabeler. -JJL
 
 2010-01-03 Added rcParams['axes.color_cycle'] - EF
