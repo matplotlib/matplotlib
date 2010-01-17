@@ -112,43 +112,46 @@ def figure_edit(axes, parent=None):
     datalist = [(general, "Axes", "")]
     if has_curve:
         datalist.append((curves, "Curves", ""))
-    result = formlayout.fedit(datalist, title="Figure options", parent=parent,
-                   icon=get_icon('qt4_editor_options.svg'))
-    if result is None:
-        return
-
-    if has_curve:
-        general, curves = result
-    else:
-        general, = result
-
-    # Set / General
-    title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale = general
-    axes.set_xscale(xscale)
-    axes.set_yscale(yscale)
-    axes.set_title(title)
-    axes.set_xlim(xmin, xmax)
-    axes.set_xlabel(xlabel)
-    axes.set_ylim(ymin, ymax)
-    axes.set_ylabel(ylabel)
-
-    if has_curve:
-        # Set / Curves
-        for index, curve in enumerate(curves):
-            line = linedict[curvelabels[index]]
-            label, linestyle, linewidth, color, \
-                marker, markersize, markerfacecolor, markeredgecolor = curve
-            line.set_label(label)
-            line.set_linestyle(linestyle)
-            line.set_linewidth(linewidth)
-            line.set_color(color)
-            if marker is not 'none':
-                line.set_marker(marker)
-                line.set_markersize(markersize)
-                line.set_markerfacecolor(markerfacecolor)
-                line.set_markeredgecolor(markeredgecolor)
-
-    # Redraw
-    figure = axes.get_figure()
-    figure.canvas.draw()
-
+        
+    def apply_callback(data):
+        """This function will be called to apply changes"""
+        if has_curve:
+            general, curves = data
+        else:
+            general, = data
+            
+        # Set / General
+        title, xmin, xmax, xlabel, xscale, ymin, ymax, ylabel, yscale = general
+        axes.set_xscale(xscale)
+        axes.set_yscale(yscale)
+        axes.set_title(title)
+        axes.set_xlim(xmin, xmax)
+        axes.set_xlabel(xlabel)
+        axes.set_ylim(ymin, ymax)
+        axes.set_ylabel(ylabel)
+        
+        if has_curve:
+            # Set / Curves
+            for index, curve in enumerate(curves):
+                line = linedict[curvelabels[index]]
+                label, linestyle, linewidth, color, \
+                    marker, markersize, markerfacecolor, markeredgecolor = curve
+                line.set_label(label)
+                line.set_linestyle(linestyle)
+                line.set_linewidth(linewidth)
+                line.set_color(color)
+                if marker is not 'none':
+                    line.set_marker(marker)
+                    line.set_markersize(markersize)
+                    line.set_markerfacecolor(markerfacecolor)
+                    line.set_markeredgecolor(markeredgecolor)
+            
+        # Redraw
+        figure = axes.get_figure()
+        figure.canvas.draw()
+        
+    data = formlayout.fedit(datalist, title="Figure options", parent=parent,
+                            icon=get_icon('qt4_editor_options.svg'), apply=apply_callback)
+    if data is not None:
+        apply_callback(data)
+    

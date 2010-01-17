@@ -33,7 +33,11 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 """
 
-__version__ = '1.0.5'
+# History:
+# 1.0.7: added support for "Apply" button
+# 1.0.6: code cleaning
+
+__version__ = '1.0.7'
 __license__ = __doc__
 
 DEBUG = False
@@ -67,21 +71,21 @@ class ColorButton(QPushButton):
         QPushButton.__init__(self, parent)
         self.setFixedSize(20, 20)
         self.setIconSize(QSize(12, 12))
-        self.connect(self, SIGNAL("clicked()"), self.chooseColor)
+        self.connect(self, SIGNAL("clicked()"), self.choose_color)
         self._color = QColor()
     
-    def chooseColor(self):
+    def choose_color(self):
         rgba, valid = QColorDialog.getRgba(self._color.rgba(),
                                            self.parentWidget())
         if valid:
             color = QColor.fromRgba(rgba)
-            self.setColor(color)
+            self.set_color(color)
     
-    def color(self):
+    def get_color(self):
         return self._color
     
     @pyqtSignature("QColor")
-    def setColor(self, color):
+    def set_color(self, color):
         if color != self._color:
             self._color = color
             self.emit(SIGNAL("colorChanged(QColor)"), self._color)
@@ -89,7 +93,7 @@ class ColorButton(QPushButton):
             pixmap.fill(color)
             self.setIcon(QIcon(pixmap))
     
-    color = pyqtProperty("QColor", color, setColor)
+    color = pyqtProperty("QColor", get_color, set_color)
 
 
 def text_to_qcolor(text):
@@ -369,8 +373,10 @@ class FormTabWidget(QWidget):
 class FormDialog(QDialog):
     """Form Dialog"""
     def __init__(self, data, title="", comment="",
-                 icon=None, parent=None):
+                 icon=None, parent=None, apply=None):
         super(FormDialog, self).__init__(parent)
+
+        self.apply_callback = apply
         
         # Form
         if isinstance(data[0][0], (list, tuple)):
@@ -387,6 +393,9 @@ class FormDialog(QDialog):
         
         # Button box
         bbox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        if self.apply_callback is not None:
+            apply_btn = bbox.addButton(QDialogButtonBox.Apply)
+            self.connect(apply_btn, SIGNAL("clicked()"), self.apply)
         self.connect(bbox, SIGNAL("accepted()"), SLOT("accept()"))
         self.connect(bbox, SIGNAL("rejected()"), SLOT("reject()"))
         layout.addWidget(bbox)
@@ -406,17 +415,25 @@ class FormDialog(QDialog):
         self.data = None
         QDialog.reject(self)
         
+    def apply(self):
+        self.apply_callback(self.formwidget.get())
+        
     def get(self):
         """Return form result"""
         return self.data
 
 
-def fedit(data, title="", comment="", icon=None, parent=None):
+def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
     """
     Create form dialog and return result
     (if Cancel button is pressed, return None)
     
     data: datalist, datagroup
+    title: string
+    comment: string
+    icon: QIcon instance
+    parent: parent QWidget
+    apply: apply callback (function)
     
     datalist: list/tuple of (field_name, field_value)
     datagroup: list/tuple of (datalist *or* datagroup, title, comment)
@@ -440,7 +457,7 @@ def fedit(data, title="", comment="", icon=None, parent=None):
     if QApplication.startingUp():
         QApplication([])
         
-    dialog = FormDialog(data, title, comment, icon, parent)
+    dialog = FormDialog(data, title, comment, icon, parent, apply)
     if dialog.exec_():
         return dialog.get()
 
@@ -471,8 +488,11 @@ if __name__ == "__main__":
     
     #--------- datalist example
     datalist = create_datalist_example()
+    def apply_test(data):
+        print "data:", data
     print "result:", fedit(datalist, title="Example",
-                           comment="This is just an <b>example</b>.")
+                           comment="This is just an <b>example</b>.",
+                           apply=apply_test)
     
     #--------- datagroup example
     datagroup = create_datagroup_example()
