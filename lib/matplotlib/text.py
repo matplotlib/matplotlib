@@ -1438,6 +1438,14 @@ class Annotation(Text):
           # 5 points below the top border
           xy=(10,-5), xycoords='axes points'
 
+
+        The *annotation_clip* attribute contols the visibility of the
+        annotation when it goes outside the axes area. If True, the
+        annotation will only be drawn when the *xy* is inside the
+        axes. If False, the annotation will always be drawn regardless
+        of its position.  The default is *None*, which behave as True
+        only if *xycoords* is"data".
+
         Additional kwargs are Text properties:
 
         %(Text)s
