@@ -676,8 +676,17 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.filled:
             if self.linewidths is not None:
                 warnings.warn('linewidths is ignored by contourf')
+
             lowers = self._levels[:-1]
+            if self.zmin == lowers[0]:
+                # Include minimum values in lowest interval
+                lowers = lowers.copy() # so we don't change self._levels
+                if self.logscale:
+                    lowers[0] = 0.99 * self.zmin
+                else:
+                    lowers[0] -= 1
             uppers = self._levels[1:]
+
             for level, level_upper in zip(lowers, uppers):
                 nlist = C.trace(level, level_upper, nchunk = self.nchunk)
                 nseg = len(nlist)//2
@@ -756,14 +765,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         zmin = self.zmin
         self.locator.set_bounds(zmin, zmax)
         lev = self.locator()
-        zmargin = (zmax - zmin) * 0.000001 # so z < (zmax + zmargin)
-        if zmax >= lev[-1]:
-            lev[-1] += zmargin
-        if zmin <= lev[0]:
-            if self.logscale:
-                lev[0] = 0.99 * zmin
-            else:
-                lev[0] -= zmargin
         self._auto = True
         if self.filled:
             return lev
@@ -1140,6 +1141,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             points. This may never actually be advantageous, so this option may
             be removed. Chunking introduces artifacts at the chunk boundaries
             unless *antialiased* is *False*.
+
+        Note: contourf fills intervals that are closed at the top; that
+        is, for boundaries *z1* and *z2*, the filled region is::
+
+            z1 < z <= z2
+
+        There is one exception: if the lowest boundary coincides with
+        the minimum value of the *z* array, then that minimum value
+        will be included in the lowest interval.
 
         **Examples:**
 
