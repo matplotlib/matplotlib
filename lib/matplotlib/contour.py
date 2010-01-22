@@ -643,7 +643,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             if self.levels is None:
                 self.levels = args[0].levels
         else:
-            x, y, z = self._contour_args(*args)
+            x, y, z = self._contour_args(args, kwargs)
 
             x0 = ma.minimum(x)
             x1 = ma.maximum(x)
@@ -808,7 +808,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             y = y[::-1]
         return np.meshgrid(x,y)
 
-    def _check_xyz(self, args):
+    def _check_xyz(self, args, kwargs):
         '''
         For functions like contour, check that the dimensions
         of the input arrays match; if x and y are 1D, convert
@@ -817,9 +817,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Possible change: I think we should make and use an ArgumentError
         Exception class (here and elsewhere).
         '''
-        # We can strip away the x and y units
-        x = self.ax.convert_xunits( args[0] )
-        y = self.ax.convert_yunits( args[1] )
+        x, y = args[:2]
+        self.ax._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
+        x = self.ax.convert_xunits(x)
+        y = self.ax.convert_yunits(y)
 
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)
@@ -840,8 +841,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return x,y,z
 
 
-
-    def _contour_args(self, *args):
+    def _contour_args(self, args, kwargs):
         if self.filled: fn = 'contourf'
         else:           fn = 'contour'
         Nargs = len(args)
@@ -849,7 +849,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             z = ma.asarray(args[0], dtype=np.float64)
             x, y = self._initialize_x_y(z)
         elif Nargs <=4:
-            x,y,z = self._check_xyz(args[:3])
+            x,y,z = self._check_xyz(args[:3], kwargs)
         else:
             raise TypeError("Too many arguments to %s; see help(%s)" % (fn,fn))
         z = ma.masked_invalid(z, copy=False)
@@ -1103,8 +1103,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             are included. These added ranges are then mapped to the
             special colormap values which default to the ends of the
             colormap range, but can be set via
-            :meth:`matplotlib.cm.Colormap.set_under` and
-            :meth:`matplotlib.cm.Colormap.set_over` methods.
+            :meth:`matplotlib.colors.Colormap.set_under` and
+            :meth:`matplotlib.colors.Colormap.set_over` methods.
+
+          *xunits*, *yunits*: [ None | registered units ]
+            Override axis units by specifying an instance of a
+            :class:`matplotlib.units.ConversionInterface`.
+
 
         contour-only keyword arguments:
 
