@@ -1,3 +1,5 @@
+2010-01-25 Fixed a bug reported by Olle Engdegard, when using
+           histograms with stepfilled and log=True - MM
 
 2010-01-16 Upgraded CXX to 6.1.1 - JDH
 

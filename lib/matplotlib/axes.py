@@ -7216,6 +7216,8 @@ class Axes(martist.Artist):
 
             for m in n:
                 y[1:-1:2], y[2::2] = m, m
+                if log:
+                    y[y<1e-100]=1e-100
                 if orientation == 'horizontal':
                     x,y = y,x
                 elif orientation != 'vertical':
