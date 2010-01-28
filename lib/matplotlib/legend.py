@@ -38,6 +38,51 @@ from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransform
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 
 
+class DraggableLegend:
+    """helper code for a draggable legend -- see Legend.draggable"""
+
+    def __init__(self, legend):
+        self.legend = legend
+        self.gotLegend = False
+
+        c1 = legend.figure.canvas.mpl_connect('motion_notify_event', self.on_motion)
+        c2 = legend.figure.canvas.mpl_connect('pick_event', self.on_pick)
+        c3 = legend.figure.canvas.mpl_connect('button_release_event', self.on_release)
+        legend.set_picker(self.my_legend_picker)
+        self.cids = [c1, c2, c3]
+
+    def on_motion(self, evt):
+        if self.gotLegend:
+            dx = evt.x - self.mouse_x
+            dy = evt.y - self.mouse_y
+            loc_in_canvas = self.legend_x + dx, self.legend_y + dy
+            loc_in_norm_axes = self.legend.parent.transAxes.inverted().transform_point(loc_in_canvas)
+            self.legend._loc = tuple(loc_in_norm_axes)
+            self.legend.figure.canvas.draw()
+
+    def my_legend_picker(self, legend, evt):
+        return self.legend.legendPatch.contains(evt)
+
+    def on_pick(self, evt):
+        legend = self.legend
+        if evt.artist == legend:
+            bbox = self.legend.get_window_extent()
+            self.mouse_x = evt.mouseevent.x
+            self.mouse_y = evt.mouseevent.y
+            self.legend_x = bbox.xmin
+            self.legend_y = bbox.ymin
+            self.gotLegend = 1
+
+    def on_release(self, event):
+        if self.gotLegend:
+            self.gotLegend = False
+
+    def disconnect(self):
+        'disconnect the callbacks'
+        for cid in self.cids:
+            self.legend.figure.canvas.mpl_disconnect(cid)
+
+
 class Legend(Artist):
     """
     Place a legend on the axes at location loc.  Labels are a
@@ -182,7 +227,7 @@ in the normalized axes coordinate.
         self.texts = []
         self.legendHandles = []
         self._legend_title_box = None
-        
+
         localdict = locals()
 
         for name in propnames:
@@ -284,7 +329,7 @@ in the normalized axes coordinate.
 
         # We use FancyBboxPatch to draw a legend frame. The location
         # and size of the box will be updated during the drawing time.
-        
+
         self.legendPatch = FancyBboxPatch(
             xy=(0.0, 0.0), width=1., height=1.,
             facecolor=rcParams["axes.facecolor"],
@@ -316,6 +361,7 @@ in the normalized axes coordinate.
 
         self._last_fontsize_points = self._fontsize
 
+        self._draggable = None
 
     def _set_artist_props(self, a):
         """
@@ -584,7 +630,7 @@ in the normalized axes coordinate.
                 textbox = TextArea(lab, textprops=label_prop,
                                    multilinebaseline=True, minimumdescent=True)
                 text_list.append(textbox._text)
-                
+
                 labelboxes.append(textbox)
 
                 handlebox = DrawingArea(width=self.handlelength*fontsize,
@@ -597,7 +643,7 @@ in the normalized axes coordinate.
                 handleboxes.append(handlebox)
 
 
-        if len(handleboxes) > 0: 
+        if len(handleboxes) > 0:
 
             # We calculate number of lows in each column. The first
             # (num_largecol) columns will have (nrows+1) rows, and remaing
@@ -613,7 +659,7 @@ in the normalized axes coordinate.
                                [nrows] * num_smallcol)
         else:
             largecol, smallcol = [], []
-        
+
         handle_label = safezip(handleboxes, labelboxes)
         columnbox = []
         for i0, di in largecol+smallcol:
@@ -889,3 +935,16 @@ in the normalized axes coordinate.
         return ox, oy
 
 
+    def draggable(self):
+        """
+        toggle the draggable state; if on, you can drag the legend on
+        the canvas.  The DraggableLegend helper class is returned
+        """
+        if self._draggable is not None:
+            self._draggable.disconnect()
+            self._draggable = None
+        else:
+
+            self._draggable = DraggableLegend(self)
+
+        return self._draggable
