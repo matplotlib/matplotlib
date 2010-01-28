@@ -695,10 +695,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
                 paths = self._make_paths(segs, kinds)
 
+                # Default zorder taken from Collection
+                zorder = kwargs.get('zorder', 1)
                 col = collections.PathCollection(paths,
                                      antialiaseds = (self.antialiased,),
                                      edgecolors= 'none',
-                                     alpha=self.alpha)
+                                     alpha=self.alpha,
+                                     zorder=zorder)
                 self.ax.add_collection(col)
                 self.collections.append(col)
         else:
@@ -710,10 +713,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 nseg = len(nlist)//2
                 segs = nlist[:nseg]
                 #kinds = nlist[nseg:]
+
+                # Default zorder taken from LineCollection
+                zorder = kwargs.get('zorder', 2)
                 col = collections.LineCollection(segs,
                                      linewidths = width,
                                      linestyle = lstyle,
-                                     alpha=self.alpha)
+                                     alpha=self.alpha,
+                                     zorder=zorder)
 
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, False)
@@ -1228,4 +1235,3 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     ymin = lc[imin,1]
 
         return (conmin,segmin,imin,xmin,ymin,dmin)
-
