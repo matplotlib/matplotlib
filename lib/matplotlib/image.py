@@ -25,6 +25,7 @@ import matplotlib._png as _png
 from matplotlib._image import *
 
 from matplotlib.transforms import BboxBase
+import matplotlib.transforms as mtransforms
 
 class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
@@ -95,6 +96,12 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         self.axes = ax
 
         self._imcache = None
+
+        # this is an expetimental attribute, if True, unsampled image
+        # will be drawn using the affine transform that are
+        # appropriately skewed so that the given postition
+        # corresponds to the actual position in the coordinate. -JJL
+        self._image_skew_coordinate = None
 
         self.update(kwargs)
 
@@ -204,6 +211,36 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         return im, xmin, ymin, dxintv, dyintv, sx, sy
 
 
+    @staticmethod
+    def _get_rotate_and_skew_transform(x1, y1, x2, y2, x3, y3):
+        """
+        Retuen a transform that does
+         (x1, y1) -> (x1, y1)
+         (x2, y2) -> (x2, y2)
+         (x2, y1) -> (x3, y3)
+
+        It was intended to derive a skew transform that preserve the
+        lower-left corner (x1, y1) and top-right corner(x2,y2), but
+        change the the lower-right-corner(x2, y1) to a new position
+        (x3, y3).
+        """
+        tr1 = mtransforms.Affine2D()
+        tr1.translate(-x1, -y1)
+        x2a, y2a = tr1.transform_point((x2, y2))
+        x3a, y3a = tr1.transform_point((x3, y3))
+
+        inv_mat = 1./(x2a*y3a-y2a*x3a) * np.mat([[y3a, -y2a],[-x3a, x2a]])
+
+        a, b = (inv_mat * np.mat([[x2a], [x2a]])).flat
+        c, d = (inv_mat * np.mat([[y2a], [0]])).flat
+
+        tr2 = mtransforms.Affine2D.from_values(a, c, b, d, 0, 0)
+
+        tr = (tr1 + tr2 + mtransforms.Affine2D().translate(x1, y1)).inverted().get_affine()
+
+        return tr
+
+
     def _draw_unsampled_image(self, renderer, gc):
         """
         draw unsampled image. The renderer should support a draw_image method
@@ -227,11 +264,23 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         im._url = self.get_url()
 
         trans = self.get_transform() #axes.transData
-        xx1, yy1 = trans.transform_non_affine((xmin, ymin))
-        xx2, yy2 = trans.transform_non_affine((xmin+dxintv, ymin+dyintv))
+        xy = trans.transform_non_affine([(xmin, ymin),
+                                         (xmin+dxintv, ymin+dyintv)])
+        xx1, yy1 = xy[0]
+        xx2, yy2 = xy[1]
 
-        renderer.draw_image(gc, xx1, yy1, im, xx2-xx1, yy2-yy1,
-                            trans.get_affine())
+        if self._image_skew_coordinate:
+            # skew the image when required.
+            x_lrc, y_lrc = self._image_skew_coordinate
+            xy = trans.transform_non_affine([(x_lrc, y_lrc)])
+            xx3, yy3 = xy[0]
+
+            tr_rotate_skew = self._get_rotate_and_skew_transform(xx1, yy1, xx2, yy2, xx3, yy3)
+            tr = tr_rotate_skew+trans.get_affine()
+        else:
+            tr = trans.get_affine()
+
+        renderer.draw_image(gc, xx1, yy1, im, xx2-xx1, yy2-yy1, tr)
 
 
     def _check_unsampled_image(self, renderer):
