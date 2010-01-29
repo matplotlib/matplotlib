@@ -20,7 +20,7 @@ import matplotlib.artist as martist
 import matplotlib.text as mtext
 import numpy as np
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, \
-     IdentityTransform
+     IdentityTransform, BboxTransformFrom
 
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
@@ -168,14 +168,14 @@ class OffsetBox(martist.Artist):
         """
         self._offset = xy
 
-    def get_offset(self, width, height, xdescent, ydescent):
+    def get_offset(self, width, height, xdescent, ydescent, renderer):
         """
         Get the offset
 
         accepts extent of the box
         """
         if callable(self._offset):
-            return self._offset(width, height, xdescent, ydescent)
+            return self._offset(width, height, xdescent, ydescent, renderer)
         else:
             return self._offset
 
@@ -222,7 +222,7 @@ class OffsetBox(martist.Artist):
         get the bounding box in display space.
         '''
         w, h, xd, yd, offsets = self.get_extent_offsets(renderer)
-        px, py = self.get_offset(w, h, xd, yd)
+        px, py = self.get_offset(w, h, xd, yd, renderer)
         return mtransforms.Bbox.from_bounds(px-xd, py-yd, w, h)
 
     def draw(self, renderer):
@@ -233,7 +233,7 @@ class OffsetBox(martist.Artist):
 
         width, height, xdescent, ydescent, offsets = self.get_extent_offsets(renderer)
 
-        px, py = self.get_offset(width, height, xdescent, ydescent)
+        px, py = self.get_offset(width, height, xdescent, ydescent, renderer)
 
         for c, (ox, oy) in zip(self.get_visible_children(), offsets):
             c.set_offset((px+ox, py+oy))
@@ -946,7 +946,7 @@ class AnchoredOffsetbox(OffsetBox):
         '''
         self._update_offset_func(renderer)
         w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset(w, h, xd, yd)
+        ox, oy = self.get_offset(w, h, xd, yd, renderer)
         return Bbox.from_bounds(ox-xd, oy-yd, w, h)
 
 
@@ -996,7 +996,7 @@ class AnchoredOffsetbox(OffsetBox):
 
         width, height, xdescent, ydescent = self.get_extent(renderer)
 
-        px, py = self.get_offset(width, height, xdescent, ydescent)
+        px, py = self.get_offset(width, height, xdescent, ydescent, renderer)
 
         self.get_child().set_offset((px, py))
         self.get_child().draw(renderer)
@@ -1121,12 +1121,15 @@ class OffsetImage(OffsetBox):
 #         self.offset_transform.translate(xy[0], xy[1])
 
 
+
     def get_offset(self):
         """
         return offset of the container.
         """
         return self._offset
 
+    def get_children(self):
+        return [self.image]
 
     def get_window_extent(self, renderer):
         '''
@@ -1243,9 +1246,9 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
 
     def contains(self,event):
         t,tinfo = self.offsetbox.contains(event)
-        if self.arrow is not None:
-            a,ainfo=self.arrow.contains(event)
-            t = t or a
+        #if self.arrow_patch is not None:
+        #    a,ainfo=self.arrow_patch.contains(event)
+        #    t = t or a
 
         # self.arrow_patch is currently not checked as this can be a line - JJ
 
@@ -1379,6 +1382,150 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         self.offsetbox.draw(renderer)
 
 
+
+class DraggableBase(object):
+    """
+    helper code for a draggable artist (legend, offsetbox)
+    The derived class must override following two method.
+
+      def saveoffset(self):
+          pass
+
+      def update_offset(self, dx, dy):
+          pass
+
+    *saveoffset* is called when the object is picked for dragging and it is
+    meant to save reference position of the artist.
+
+    *update_offset* is called during the dragging. dx and dy is the pixel
+     offset from the point where the mouse drag started.
+
+    Optionally you may override following two methods.
+    
+      def artist_picker(self, artist, evt):
+          return self.ref_artist.contains(evt)
+
+      def finalize_offset(self):
+          pass
+
+    *artist_picker* is a picker method that will be
+     used. *finalize_offset* is called when the mouse is released. In
+     current implementaion of DraggableLegend and DraggableAnnotation,
+     *update_offset* places the artists simply in display
+     coordinates. And *finalize_offset* recalculate their position in
+     the normalized axes coordinate and set a relavant attribute.
+
+    """
+    def __init__(self, ref_artist):
+        self.ref_artist = ref_artist
+        self.got_artist = False
+
+        self.canvas = self.ref_artist.figure.canvas
+        c2 = self.canvas.mpl_connect('pick_event', self.on_pick)
+        c3 = self.canvas.mpl_connect('button_release_event', self.on_release)
+
+        ref_artist.set_picker(self.artist_picker)
+        self.cids = [c2, c3]
+
+    def on_motion(self, evt):
+        if self.got_artist:
+            dx = evt.x - self.mouse_x
+            dy = evt.y - self.mouse_y
+            self.update_offset(dx, dy)
+
+    def on_pick(self, evt):
+        if evt.artist == self.ref_artist:
+
+            self.save_offset()
+            self.mouse_x = evt.mouseevent.x
+            self.mouse_y = evt.mouseevent.y
+            self.got_artist = True
+
+            self._c1 = self.canvas.mpl_connect('motion_notify_event', self.on_motion)
+
+    def on_release(self, event):
+        if self.got_artist:
+            self.finalize_offset()
+            self.got_artist = False
+            self.canvas.mpl_disconnect(self._c1)
+
+    def disconnect(self):
+        'disconnect the callbacks'
+        for cid in self.cids:
+            self.canvas.mpl_disconnect(cid)
+
+    def artist_picker(self, artist, evt):
+        return self.ref_artist.contains(evt)
+
+    def save_offset(self):
+        pass
+
+    def update_offset(self, dx, dy):
+        pass
+        
+    def finalize_offset(self):
+        pass
+
+
+class DraggableOffsetBox(DraggableBase):
+    def __init__(self, ref_artist, offsetbox):
+        DraggableBase.__init__(self, ref_artist)
+        self.offsetbox = offsetbox
+
+    def save_offset(self):
+        offsetbox = self.offsetbox
+        renderer = offsetbox.figure._cachedRenderer
+        w, h, xd, yd = offsetbox.get_extent(renderer)
+        offset = offsetbox.get_offset(w, h, xd, yd, renderer)
+        self.offsetbox_x, self.offsetbox_y = offset
+
+    def update_offset(self, dx, dy):
+        loc_in_canvas = self.offsetbox_x + dx, self.offsetbox_y + dy
+        self.offsetbox.set_offset(loc_in_canvas)
+        self.offsetbox.figure.canvas.draw()
+        
+    def get_loc_in_canvas(self):
+
+        offsetbox=self.offsetbox
+        renderer = offsetbox.figure._cachedRenderer
+        w, h, xd, yd = offsetbox.get_extent(renderer)
+        ox, oy = offsetbox._offset
+        loc_in_canvas = (ox-xd, oy-yd)
+
+        return loc_in_canvas
+        
+
+class DraggableAnnotation(DraggableBase):
+    def __init__(self, annotation):
+        DraggableBase.__init__(self, annotation)
+        self.annotation = annotation
+
+    def save_offset(self):
+        ann = self.annotation
+        x, y = ann.xytext
+        if isinstance(ann.textcoords, tuple):
+            xcoord, ycoord = ann.textcoords
+            x1, y1 = ann._get_xy(x, y, xcoord)
+            x2, y2 = ann._get_xy(x, y, ycoord)
+            ox0, oy0 = x1, y2
+        else:
+            ox0, oy0 = ann._get_xy(x, y, ann.textcoords)
+
+        self.ox, self.oy = ox0, oy0
+        self.annotation.textcoords = "figure pixels"
+
+    def update_offset(self, dx, dy):
+        ann = self.annotation
+        ann.xytext = self.ox + dx, self.oy + dy
+        x, y = ann.xytext
+        xy = ann._get_xy(x, y, ann.textcoords)
+        self.canvas.draw()
+
+    def finalize_offset(self):
+        loc_in_canvas = self.annotation.xytext
+        self.annotation.textcoords = "axes fraction"
+        pos_axes_fraction = self.annotation.axes.transAxes.inverted().transform_point(loc_in_canvas)
+        self.annotation.xytext = tuple(pos_axes_fraction)
 
 
 if __name__ == "__main__":
