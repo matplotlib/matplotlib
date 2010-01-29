@@ -935,16 +935,32 @@ in the normalized axes coordinate.
         return ox, oy
 
 
-    def draggable(self):
+    def draggable(self, state=None):
         """
-        toggle the draggable state; if on, you can drag the legend on
-        the canvas.  The DraggableLegend helper class is returned
-        """
-        if self._draggable is not None:
-            self._draggable.disconnect()
-            self._draggable = None
-        else:
+        Set the draggable state -- if state is
 
-            self._draggable = DraggableLegend(self)
+          * None : toggle the current state
+
+          * True : turn draggable on
+
+          * False : turn draggable off
+          
+        If draggable is on, you can drag the legend on the canvas with
+        the mouse.  The DraggableLegend helper instance is returned if
+        draggable is on.
+        """
+        is_draggable = self._draggable is not None
+
+        # if state is None we'll toggle
+        if state is None:
+            state = not is_draggable
+            
+        if state:
+            if self._draggable is None:
+                self._draggable = DraggableLegend(self)
+        else:
+            if self._draggable is not None:
+                self._draggable.disconnect()
+            self._draggable = None
 
         return self._draggable
