@@ -1,3 +1,6 @@
+2010-01-29 Added draggable method to Legend to allow mouse drag
+placement.  Thanks Adam Fraser. JDH
+
 2010-01-25 Fixed a bug reported by Olle Engdegard, when using
            histograms with stepfilled and log=True - MM
 
