@@ -958,7 +958,7 @@ class AnchoredOffsetbox(OffsetBox):
         if fontsize is None:
             fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
 
-        def _offset(w, h, xd, yd, fontsize=fontsize, self=self):
+        def _offset(w, h, xd, yd, renderer, fontsize=fontsize, self=self):
             bbox = Bbox.from_bounds(0, 0, w, h)
             borderpad = self.borderpad*fontsize
             bbox_to_anchor = self.get_bbox_to_anchor()
