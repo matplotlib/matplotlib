@@ -37,7 +37,7 @@ ab = AnnotationBbox(imagebox, xy,
 
 ax.add_artist(ab)
 
-d3 = ab.draggable()
+d3 = ab.draggable(use_blit=True)
     
     
 plt.show()

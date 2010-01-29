@@ -39,9 +39,10 @@ from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea, Dragga
 
 
 class DraggableLegend(DraggableOffsetBox):
-    def __init__(self, legend):
+    def __init__(self, legend, use_blit=False):
         self.legend=legend
-        DraggableOffsetBox.__init__(self, legend, legend._legend_box)
+        DraggableOffsetBox.__init__(self, legend, legend._legend_box,
+                                    use_blit=use_blit)
 
     def artist_picker(self, legend, evt):
         return self.legend.legendPatch.contains(evt)
@@ -917,7 +918,7 @@ in the normalized axes coordinate.
         return ox, oy
 
 
-    def draggable(self, state=None):
+    def draggable(self, state=None, use_blit=False):
         """
         Set the draggable state -- if state is
 
@@ -939,7 +940,7 @@ in the normalized axes coordinate.
             
         if state:
             if self._draggable is None:
-                self._draggable = DraggableLegend(self)
+                self._draggable = DraggableLegend(self, use_blit)
         else:
             if self._draggable is not None:
                 self._draggable.disconnect()
