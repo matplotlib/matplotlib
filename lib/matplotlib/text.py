@@ -1402,6 +1402,9 @@ class _AnnotationBase(object):
         self.textcoords = textcoords
         self.set_annotation_clip(annotation_clip)
 
+        self._draggable = None
+
+
     def _get_xy(self, x, y, s):
         if s=='data':
             trans = self.axes.transData
@@ -1534,6 +1537,36 @@ class _AnnotationBase(object):
         return True
 
 
+    def draggable(self, state=None):
+        """
+        Set the draggable state -- if state is
+
+          * None : toggle the current state
+
+          * True : turn draggable on
+
+          * False : turn draggable off
+          
+        If draggable is on, you can drag the annotation on the canvas with
+        the mouse.  The DraggableAnnotation helper instance is returned if
+        draggable is on.
+        """
+        from matplotlib.offsetbox import DraggableAnnotation
+        is_draggable = self._draggable is not None
+
+        # if state is None we'll toggle
+        if state is None:
+            state = not is_draggable
+            
+        if state:
+            if self._draggable is None:
+                self._draggable = DraggableAnnotation(self)
+        else:
+            if self._draggable is not None:
+                self._draggable.disconnect()
+            self._draggable = None
+
+        return self._draggable
 
 
 class Annotation(Text, _AnnotationBase):
@@ -1661,6 +1694,7 @@ class Annotation(Text, _AnnotationBase):
         else:
             self.arrow_patch = None
 
+        
     def contains(self,event):
         t,tinfo = Text.contains(self,event)
         if self.arrow is not None:
@@ -1801,6 +1835,9 @@ class Annotation(Text, _AnnotationBase):
             self.arrow_patch.draw(renderer)
 
         Text.draw(self, renderer)
+
+
+
 
 
 docstring.interpd.update(Annotation=Annotation.__init__.__doc__)

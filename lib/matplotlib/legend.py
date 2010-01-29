@@ -33,54 +33,26 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
 from matplotlib.collections import LineCollection, RegularPolyCollection, \
      CircleCollection
-from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransformTo
+from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransformTo, BboxTransformFrom
 
-from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
+from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea, DraggableOffsetBox
 
 
-class DraggableLegend:
-    """helper code for a draggable legend -- see Legend.draggable"""
-
+class DraggableLegend(DraggableOffsetBox):
     def __init__(self, legend):
-        self.legend = legend
-        self.gotLegend = False
+        self.legend=legend
+        DraggableOffsetBox.__init__(self, legend, legend._legend_box)
 
-        c1 = legend.figure.canvas.mpl_connect('motion_notify_event', self.on_motion)
-        c2 = legend.figure.canvas.mpl_connect('pick_event', self.on_pick)
-        c3 = legend.figure.canvas.mpl_connect('button_release_event', self.on_release)
-        legend.set_picker(self.my_legend_picker)
-        self.cids = [c1, c2, c3]
-
-    def on_motion(self, evt):
-        if self.gotLegend:
-            dx = evt.x - self.mouse_x
-            dy = evt.y - self.mouse_y
-            loc_in_canvas = self.legend_x + dx, self.legend_y + dy
-            loc_in_norm_axes = self.legend.parent.transAxes.inverted().transform_point(loc_in_canvas)
-            self.legend._loc = tuple(loc_in_norm_axes)
-            self.legend.figure.canvas.draw()
-
-    def my_legend_picker(self, legend, evt):
+    def artist_picker(self, legend, evt):
         return self.legend.legendPatch.contains(evt)
 
-    def on_pick(self, evt):
-        legend = self.legend
-        if evt.artist == legend:
-            bbox = self.legend.get_window_extent()
-            self.mouse_x = evt.mouseevent.x
-            self.mouse_y = evt.mouseevent.y
-            self.legend_x = bbox.xmin
-            self.legend_y = bbox.ymin
-            self.gotLegend = 1
+    def finalize_offset(self):
+        loc_in_canvas = self.get_loc_in_canvas()
 
-    def on_release(self, event):
-        if self.gotLegend:
-            self.gotLegend = False
-
-    def disconnect(self):
-        'disconnect the callbacks'
-        for cid in self.cids:
-            self.legend.figure.canvas.mpl_disconnect(cid)
+        bbox = self.legend.get_bbox_to_anchor()
+        _bbox_transform = BboxTransformFrom(bbox)
+        self.legend._loc = tuple(_bbox_transform.transform_point(loc_in_canvas))
+        
 
 
 class Legend(Artist):
@@ -323,7 +295,6 @@ in the normalized axes coordinate.
                           'Falling back on "upper right".')
             loc = 1
 
-        self._loc = loc
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
 
@@ -357,6 +328,8 @@ in the normalized axes coordinate.
         # init with null renderer
         self._init_legend_box(handles, labels)
 
+        self._loc = loc
+
         self.set_title(title)
 
         self._last_fontsize_points = self._fontsize
@@ -372,6 +345,28 @@ in the normalized axes coordinate.
             a.set_axes(self.axes)
         a.set_transform(self.get_transform())
 
+
+    def _set_loc(self, loc):
+        # find_offset function will be provided to _legend_box and
+        # _legend_box will draw itself at the location of the return
+        # value of the find_offset.
+        self._loc_real = loc
+        if loc == 0:
+            _findoffset = self._findoffset_best
+        else:
+            _findoffset = self._findoffset_loc
+
+        #def findoffset(width, height, xdescent, ydescent):
+        #    return _findoffset(width, height, xdescent, ydescent, renderer)
+
+        self._legend_box.set_offset(_findoffset)
+
+        self._loc_real = loc
+
+    def _get_loc(self):
+        return self._loc_real
+
+    _loc = property(_get_loc, _set_loc)
 
     def _findoffset_best(self, width, height, xdescent, ydescent, renderer):
         "Helper function to locate the legend at its best position"
@@ -400,19 +395,6 @@ in the normalized axes coordinate.
 
         renderer.open_group('legend')
 
-
-        # find_offset function will be provided to _legend_box and
-        # _legend_box will draw itself at the location of the return
-        # value of the find_offset.
-        if self._loc == 0:
-            _findoffset = self._findoffset_best
-        else:
-            _findoffset = self._findoffset_loc
-
-        def findoffset(width, height, xdescent, ydescent):
-            return _findoffset(width, height, xdescent, ydescent, renderer)
-
-        self._legend_box.set_offset(findoffset)
 
         fontsize = renderer.points_to_pixels(self._fontsize)
 
