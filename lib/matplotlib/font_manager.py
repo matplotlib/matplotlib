@@ -1204,7 +1204,6 @@ class FontManager:
         for font in fontlist:
             if (directory is not None and
                 os.path.commonprefix([font.fname, directory]) != directory):
-                print directory, font.fname, os.path.commonprefix([font.fname, directory])
                 continue
             # Matching family should have highest priority, so it is multiplied
             # by 10.0
