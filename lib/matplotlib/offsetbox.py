@@ -1416,10 +1416,11 @@ class DraggableBase(object):
      the normalized axes coordinate and set a relavant attribute.
 
     """
-    def __init__(self, ref_artist):
+    def __init__(self, ref_artist, use_blit=False):
         self.ref_artist = ref_artist
         self.got_artist = False
-
+        self._use_blit = use_blit
+        
         self.canvas = self.ref_artist.figure.canvas
         c2 = self.canvas.mpl_connect('pick_event', self.on_pick)
         c3 = self.canvas.mpl_connect('button_release_event', self.on_release)
@@ -1432,22 +1433,43 @@ class DraggableBase(object):
             dx = evt.x - self.mouse_x
             dy = evt.y - self.mouse_y
             self.update_offset(dx, dy)
+            self.canvas.draw()
+
+    def on_motion_blit(self, evt):
+        if self.got_artist:
+            dx = evt.x - self.mouse_x
+            dy = evt.y - self.mouse_y
+            self.update_offset(dx, dy)
+            self.canvas.restore_region(self.background)
+            self.ref_artist.draw(self.ref_artist.figure._cachedRenderer)
+            self.canvas.blit(self.ref_artist.figure.bbox)
 
     def on_pick(self, evt):
         if evt.artist == self.ref_artist:
 
-            self.save_offset()
             self.mouse_x = evt.mouseevent.x
             self.mouse_y = evt.mouseevent.y
             self.got_artist = True
 
-            self._c1 = self.canvas.mpl_connect('motion_notify_event', self.on_motion)
+            if self._use_blit:
+                self.ref_artist.set_animated(True)
+                self.canvas.draw()
+                self.background = self.canvas.copy_from_bbox(self.ref_artist.figure.bbox)
+                self.ref_artist.draw(self.ref_artist.figure._cachedRenderer)
+                self.canvas.blit(self.ref_artist.figure.bbox)
+                self._c1 = self.canvas.mpl_connect('motion_notify_event', self.on_motion_blit)
+            else:
+                self._c1 = self.canvas.mpl_connect('motion_notify_event', self.on_motion)
+            self.save_offset()
 
     def on_release(self, event):
         if self.got_artist:
             self.finalize_offset()
             self.got_artist = False
             self.canvas.mpl_disconnect(self._c1)
+
+            if self._use_blit:
+                self.ref_artist.set_animated(False)
 
     def disconnect(self):
         'disconnect the callbacks'
@@ -1468,8 +1490,8 @@ class DraggableBase(object):
 
 
 class DraggableOffsetBox(DraggableBase):
-    def __init__(self, ref_artist, offsetbox):
-        DraggableBase.__init__(self, ref_artist)
+    def __init__(self, ref_artist, offsetbox, use_blit=False):
+        DraggableBase.__init__(self, ref_artist, use_blit=use_blit)
         self.offsetbox = offsetbox
 
     def save_offset(self):
@@ -1482,7 +1504,6 @@ class DraggableOffsetBox(DraggableBase):
     def update_offset(self, dx, dy):
         loc_in_canvas = self.offsetbox_x + dx, self.offsetbox_y + dy
         self.offsetbox.set_offset(loc_in_canvas)
-        self.offsetbox.figure.canvas.draw()
         
     def get_loc_in_canvas(self):
 
@@ -1496,8 +1517,8 @@ class DraggableOffsetBox(DraggableBase):
         
 
 class DraggableAnnotation(DraggableBase):
-    def __init__(self, annotation):
-        DraggableBase.__init__(self, annotation)
+    def __init__(self, annotation, use_blit=False):
+        DraggableBase.__init__(self, annotation, use_blit=use_blit)
         self.annotation = annotation
 
     def save_offset(self):
@@ -1519,7 +1540,6 @@ class DraggableAnnotation(DraggableBase):
         ann.xytext = self.ox + dx, self.oy + dy
         x, y = ann.xytext
         xy = ann._get_xy(x, y, ann.textcoords)
-        self.canvas.draw()
 
     def finalize_offset(self):
         loc_in_canvas = self.annotation.xytext

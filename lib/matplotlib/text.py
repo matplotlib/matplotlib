@@ -1537,7 +1537,7 @@ class _AnnotationBase(object):
         return True
 
 
-    def draggable(self, state=None):
+    def draggable(self, state=None, use_blit=False):
         """
         Set the draggable state -- if state is
 
@@ -1560,7 +1560,7 @@ class _AnnotationBase(object):
             
         if state:
             if self._draggable is None:
-                self._draggable = DraggableAnnotation(self)
+                self._draggable = DraggableAnnotation(self, use_blit)
         else:
             if self._draggable is not None:
                 self._draggable.disconnect()
