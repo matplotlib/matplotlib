@@ -320,7 +320,11 @@ class Artist(object):
         for a in self.get_children():
             # make sure the event happened in the same axes
             ax = getattr(a, 'axes', None)
-            if mouseevent.inaxes==ax:
+            if mouseevent.inaxes is None or mouseevent.inaxes==ax:
+                # we need to check if mouseevent.inaxes is None
+                # because some objects associated with an axes (eg a
+                # tick label) can be outside the bounding box of the
+                # axes and inaxes will be None
                 a.pick(mouseevent)
 
     def set_picker(self, picker):
