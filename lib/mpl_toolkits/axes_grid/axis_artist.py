@@ -226,7 +226,8 @@ class Ticks(Line2D, AttributeCopier):
         self.set_snap(True)
 
     def get_ref_artist(self):
-        return self._ref_artist.get_ticklines()[0]
+        #return self._ref_artist.get_ticklines()[0]
+        return self._ref_artist.majorTicks[0].tick1line
 
     def get_color(self):
         return self.get_attribute_from_ref_artist("color", "k")
@@ -630,7 +631,7 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         #self._extra_pad = 0
 
 
-    # attribute coper
+    # attribute copier
     def get_ref_artist(self):
         return self._axis.get_ticklabels()[0]
 
