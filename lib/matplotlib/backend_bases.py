@@ -40,6 +40,15 @@ import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
 
+
+
+_backend_d = {}
+
+def register_backend(format, backend_class):
+    _backend_d[format] = backend_class
+
+
+
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations.
 
@@ -1518,6 +1527,33 @@ class FigureCanvasBase:
             groupings[name].sort()
         return groupings
 
+
+    def _get_print_method(self, format):
+        method_name = 'print_%s' % format
+
+        # check for registered backends
+        if format in _backend_d:
+            backend_class = _backend_d[format]
+            
+            def _print_method(*args, **kwargs):
+                backend = self.switch_backends(backend_class)
+                print_method = getattr(backend, method_name)
+                return print_method(*args, **kwargs)
+
+            return _print_method
+            
+        if (format not in self.filetypes or
+            not hasattr(self, method_name)):
+            formats = self.filetypes.keys()
+            formats.sort()
+            raise ValueError(
+                'Format "%s" is not supported.\n'
+                'Supported formats: '
+                '%s.' % (format, ', '.join(formats)))
+
+        return getattr(self, method_name)
+
+
     def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', format=None, **kwargs):
         """
@@ -1573,16 +1609,8 @@ class FigureCanvasBase:
                     filename = filename.rstrip('.') + '.' + format
         format = format.lower()
 
-        method_name = 'print_%s' % format
-        if (format not in self.filetypes or
-            not hasattr(self, method_name)):
-            formats = self.filetypes.keys()
-            formats.sort()
-            raise ValueError(
-                'Format "%s" is not supported.\n'
-                'Supported formats: '
-                '%s.' % (format, ', '.join(formats)))
-
+        print_method = self._get_print_method(format)
+        
         if dpi is None:
             dpi = rcParams['savefig.dpi']
 
@@ -1609,7 +1637,8 @@ class FigureCanvasBase:
                 # the backend to support file-like object, i'm going
                 # to leave it as it is. However, a better solution
                 # than stringIO seems to be needed. -JJL
-                result = getattr(self, method_name)(
+                #result = getattr(self, method_name)(
+                result = print_method(
                     cStringIO.StringIO(),
                     dpi=dpi,
                     facecolor=facecolor,
@@ -1642,7 +1671,8 @@ class FigureCanvasBase:
             _bbox_inches_restore = None
 
         try:
-            result = getattr(self, method_name)(
+            #result = getattr(self, method_name)(
+            result = print_method(
                 filename,
                 dpi=dpi,
                 facecolor=facecolor,
