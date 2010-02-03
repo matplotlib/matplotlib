@@ -387,6 +387,16 @@ class RendererPS(RendererBase):
         """
         return True
 
+    def _get_image_h_w_bits_command(self, im):
+        if im.is_grayscale:
+            h, w, bits = self._gray(im)
+            imagecmd = "image"
+        else:
+            h, w, bits = self._rgb(im)
+            imagecmd = "false 3 colorimage"
+
+        return h, w, bits, imagecmd
+    
     def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
         """
         Draw the Image instance into the current axes; x is the
@@ -400,12 +410,7 @@ class RendererPS(RendererBase):
 
         im.flipud_out()
 
-        if im.is_grayscale:
-            h, w, bits = self._gray(im)
-            imagecmd = "image"
-        else:
-            h, w, bits = self._rgb(im)
-            imagecmd = "false 3 colorimage"
+        h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
         hexlines = '\n'.join(self._hex_lines(bits))
 
         if dx is None:
@@ -924,6 +929,8 @@ def new_figure_manager(num, *args, **kwargs):
     return manager
 
 class FigureCanvasPS(FigureCanvasBase):
+    _renderer_class = RendererPS
+
     def draw(self):
         pass
 
@@ -1057,7 +1064,8 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # mixed mode rendering
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
-        ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
+        ps_renderer = self._renderer_class(width, height, self._pswriter,
+                                           imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
             width, height, dpi, ps_renderer,
             bbox_inches_restore=_bbox_inches_restore)
@@ -1189,7 +1197,8 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # mixed mode rendering
         _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
-        ps_renderer = RendererPS(width, height, self._pswriter, imagedpi=dpi)
+        ps_renderer = self._renderer_class(width, height,
+                                           self._pswriter, imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
             width, height, dpi, ps_renderer,
             bbox_inches_restore=_bbox_inches_restore)
