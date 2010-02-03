@@ -6,6 +6,7 @@ import warnings
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 
 
+
 def adjust_bbox(fig, format, bbox_inches):
     """
     Temporarily adjust the figure so that only the specified area
@@ -46,11 +47,9 @@ def adjust_bbox(fig, format, bbox_inches):
         fig.transFigure.invalidate()
         fig.patch.set_bounds(0, 0, 1, 1)
 
-    if format in ["png", "raw", "rgba"]:
-        adjust_bbox_png(fig, bbox_inches)
-        return restore_bbox
-    elif format in ["pdf", "eps", "svg", "svgz"]:
-        adjust_bbox_pdf(fig, bbox_inches)
+    adjust_bbox_handler = _adjust_bbox_handler_d.get(format)
+    if adjust_bbox_handler is not None:
+        adjust_bbox_handler(fig, bbox_inches)
         return restore_bbox
     else:
         warnings.warn("bbox_inches option for %s backend is not implemented yet." % (format))
@@ -125,3 +124,8 @@ def process_figure_for_rasterizing(figure,
     return bbox_inches, r
 
 
+_adjust_bbox_handler_d = {}
+for format in ["png", "raw", "rgba"]:
+    _adjust_bbox_handler_d[format] = adjust_bbox_png
+for format in ["pdf", "eps", "svg", "svgz"]:
+    _adjust_bbox_handler_d[format] = adjust_bbox_pdf
