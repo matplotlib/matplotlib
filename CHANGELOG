@@ -1,3 +1,6 @@
+2010-02-03 Made plot_directive use a custom PlotWarning category, so that
+           warnings can be turned into fatal errors easily if desired. - FP
+
 2010-01-29 Added draggable method to Legend to allow mouse drag
 placement.  Thanks Adam Fraser. JDH
 
