@@ -161,6 +161,10 @@ class BlockingMouseInput(BlockingInput):
         '''
 
         event = self.events[-1]
+        if event.key is None:
+            # at least in mac os X gtk backend some key returns None.
+            return
+
         key = event.key.lower()
 
         if key in ['backspace', 'delete']:
@@ -382,10 +386,6 @@ class BlockingContourLabeler( BlockingMouseInput ):
         broken contour - once humpty-dumpty is broken, he can't be put
         back together.  In inline mode, this does nothing.
         """
-        # Remove this last event - not too important for clabel use
-        # since clabel normally doesn't have a maximum number of
-        # events, but best for cleanliness sake.
-        BlockingInput.pop(self)
 
         if self.inline:
             pass
