@@ -1,3 +1,5 @@
+2010-02-06 Added 'xy' scaling option to EllipseCollection. - EF
+
 2010-02-03 Made plot_directive use a custom PlotWarning category, so that
            warnings can be turned into fatal errors easily if desired. - FP
 
