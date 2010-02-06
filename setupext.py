@@ -1,8 +1,10 @@
 """
 Some helper functions for building the C extensions
 
-you may need to edit basedir to point to the default location of your
-required libs, eg, png, z, freetype
+You may need to use the "basedirlist" option in setup.cfg to point
+to the location of your required libs, eg, png, z, freetype,
+overriding the settings hard-coded in the "basedir" directory
+below.
 
 DARWIN
 
@@ -71,6 +73,7 @@ basedir = {
     'gnukfreebsd6' : ['/usr/local', '/usr'],
     'gnukfreebsd7' : ['/usr/local', '/usr'],
     'gnukfreebsd8' : ['/usr/local', '/usr'],
+    'gnu0' : ['/usr'],
     'aix5' : ['/usr/local'],
 }
 
