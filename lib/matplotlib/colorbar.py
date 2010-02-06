@@ -18,6 +18,7 @@ and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 '''
+import warnings
 
 import numpy as np
 import matplotlib as mpl
@@ -207,6 +208,7 @@ class ColorbarBase(cm.ScalarMappable):
                            filled=True,
                            ):
         self.ax = ax
+        self._patch_ax()
         if cmap is None: cmap = cm.get_cmap()
         if norm is None: norm = colors.Normalize()
         self.alpha = alpha
@@ -239,6 +241,13 @@ class ColorbarBase(cm.ScalarMappable):
         # The rest is in a method so we can recalculate when clim changes.
         self.draw_all()
 
+    def _patch_ax(self):
+        def _warn(*args, **kw):
+            warnings.warn("Use the colorbar set_ticks() method instead.")
+
+        self.ax.set_xticks = _warn
+        self.ax.set_yticks = _warn
+
     def draw_all(self):
         '''
         Calculate any free parameters based on the current cmap and norm,
@@ -252,6 +261,50 @@ class ColorbarBase(cm.ScalarMappable):
         if self.filled:
             self._add_solids(X, Y, C)
         self._set_label()
+
+    def update_ticks(self):
+        """
+        Force the update of the ticks and ticklabels. This must be
+        called whenever the tick locator and/or tick formatter changes.
+        """
+        ax = self.ax
+        ticks, ticklabels, offset_string = self._ticker()
+        if self.orientation == 'vertical':
+            ax.xaxis.set_ticks([])
+            ax.yaxis.set_label_position('right')
+            ax.yaxis.set_ticks_position('right')
+            ax.yaxis.set_ticks(ticks)
+            ax.set_yticklabels(ticklabels)
+            ax.yaxis.get_major_formatter().set_offset_string(offset_string)
+
+        else:
+            ax.yaxis.set_ticks([])
+            ax.xaxis.set_label_position('bottom')
+            ax.xaxis.set_ticks(ticks)
+            ax.set_xticklabels(ticklabels)
+            ax.xaxis.get_major_formatter().set_offset_string(offset_string)
+
+    def set_ticks(self, ticks, update_ticks=True):
+        """
+        set tick locations. Tick locations are updated immediately unless update_ticks is
+        *False*. To manually update the ticks, call *update_ticks* method explicitly.
+        """
+        self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
+        if update_ticks:
+            self.update_ticks()
+
+    def set_ticklabels(self, ticklabels, update_ticks=True):
+        """
+        set tick labels. Tick labels are updated immediately unless update_ticks is
+        *False*. To manually update the ticks, call *update_ticks* method explicitly.
+        """
+        if isinstance(self.locator, ticker.FixedLocator):
+            self.formatter = ticker.FixedFormatter(ticklabels)
+            if update_ticks:
+                self.update_ticks()
+        else:
+            warnings.warn("set_ticks() must have been called.")
+
 
     def _config_axes(self, X, Y):
         '''
@@ -275,21 +328,9 @@ class ColorbarBase(cm.ScalarMappable):
                  linewidth=0.01,
                  zorder=-1)
         ax.add_artist(self.patch)
-        ticks, ticklabels, offset_string = self._ticker()
-        if self.orientation == 'vertical':
-            ax.set_xticks([])
-            ax.yaxis.set_label_position('right')
-            ax.yaxis.set_ticks_position('right')
-            ax.set_yticks(ticks)
-            ax.set_yticklabels(ticklabels)
-            ax.yaxis.get_major_formatter().set_offset_string(offset_string)
 
-        else:
-            ax.set_yticks([])
-            ax.xaxis.set_label_position('bottom')
-            ax.set_xticks(ticks)
-            ax.set_xticklabels(ticklabels)
-            ax.xaxis.get_major_formatter().set_offset_string(offset_string)
+        self.update_ticks()
+
 
     def _set_label(self):
         if self.orientation == 'vertical':
