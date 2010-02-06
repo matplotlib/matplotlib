@@ -1,3 +1,7 @@
+2010-02-06 Added setup.cfg "basedirlist" option to override setting
+           in setupext.py "basedir" dictionary; added "gnu0"
+           platform requested by Benjamin Drung. - EF
+
 2010-02-06 Added 'xy' scaling option to EllipseCollection. - EF
 
 2010-02-03 Made plot_directive use a custom PlotWarning category, so that
