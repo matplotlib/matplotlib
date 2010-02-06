@@ -119,7 +119,8 @@ options = {'display_status': True,
            'build_macosx': 'auto',
            'build_image': True,
            'build_windowing': True,
-           'backend': None}
+           'backend': None,
+           'basedirlist': None}
 
 defines = [
         ('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API'),
@@ -161,6 +162,15 @@ if os.path.exists("setup.cfg"):
     try: options['backend'] = config.get("rc_options", "backend")
     except: pass
 
+    try: options['basedirlist'] = config.get("directories", "basedirlist")
+    except: pass
+
+# For get_base_flags:
+if options['basedirlist']:
+    basedirlist = options['basedirlist'].split()
+else:
+    basedirlist = basedir[sys.platform]
+print "basedirlist is:", basedirlist
 
 if options['display_status']:
     def print_line(char='='):
@@ -331,10 +341,10 @@ def check_for_libpng():
 
 def add_base_flags(module):
     incdirs = filter(os.path.exists,
-                     [os.path.join(p, 'include') for p in basedir[sys.platform] ])
+                     [os.path.join(p, 'include') for p in basedirlist ])
     libdirs = filter(os.path.exists,
-                     [os.path.join(p, 'lib')     for p in basedir[sys.platform] ]+
-                     [os.path.join(p, 'lib64')     for p in basedir[sys.platform] ] )
+                     [os.path.join(p, 'lib')     for p in basedirlist ]+
+                     [os.path.join(p, 'lib64')     for p in basedirlist ] )
 
     module.include_dirs.extend(incdirs)
     module.include_dirs.append('.')

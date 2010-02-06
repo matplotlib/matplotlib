@@ -4,6 +4,11 @@
 [egg_info]
 tag_svn_revision = 1
 
+[directories]
+# Uncomment to override the default basedir in setupext.py.
+# This can be a single directory or a space-delimited list of directories.
+#basedirlist = /usr
+
 [status]
 # To suppress display of the dependencies and their versions
 # at the top of the build log, uncomment the following line:
