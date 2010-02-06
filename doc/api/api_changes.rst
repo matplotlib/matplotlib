@@ -10,6 +10,19 @@ list may help describe what changes may be necessary in your code.
 Changes beyond 0.99.x
 =====================
 
+* The :class:'~matplotlib.collections.EllipseCollection' has been
+  changed in two ways:
+
+  + There is a new *units* option, 'xy', that scales the ellipse with
+    the data units.  This matches the :class:'~matplotlib.patches.Ellipse`
+    scaling.
+
+  + The *height* and *width* kwargs have been changed to specify
+    the height and width, again for consistency with
+    :class:'~matplotlib.patches.Ellipse`, and to better match
+    their names; previously they specified the half-height and
+    half-width.
+
 * There is a new rc parameter ``axes.color_cycle``, and the color
   cycle is now independent of the rc parameter ``lines.color``.
   :func:`matplotlib.Axes.set_default_color_cycle` is deprecated.

@@ -918,77 +918,79 @@ class EllipseCollection(Collection):
     def __init__(self, widths, heights, angles, units='points', **kwargs):
         """
         *widths*: sequence
-            half-lengths of first axes (e.g., semi-major axis lengths)
+            lengths of first axes (e.g., major axis lengths)
 
         *heights*: sequence
-            half-lengths of second axes
+            lengths of second axes
 
         *angles*: sequence
             angles of first axes, degrees CCW from the X-axis
 
-        *units*: ['points' | 'inches' | 'dots' | 'width' | 'height' | 'x' | 'y']
+        *units*: ['points' | 'inches' | 'dots' | 'width' | 'height'
+                        | 'x' | 'y' | 'xy']
             units in which majors and minors are given; 'width' and 'height'
             refer to the dimensions of the axes, while 'x' and 'y'
-            refer to the *offsets* data units.
+            refer to the *offsets* data units. 'xy' differs from all
+            others in that the angle as plotted varies with the
+            aspect ratio, and equals the specified angle only when
+            the aspect ratio is unity.  Hence it behaves the same
+            as the :class:`~matplotlib.patches.Ellipse` with
+            axes.transData as its transform.
 
         Additional kwargs inherited from the base :class:`Collection`:
 
         %(Collection)s
         """
         Collection.__init__(self,**kwargs)
-        self._widths = np.asarray(widths).ravel()
-        self._heights = np.asarray(heights).ravel()
+        self._widths = 0.5 * np.asarray(widths).ravel()
+        self._heights = 0.5 * np.asarray(heights).ravel()
         self._angles = np.asarray(angles).ravel() *(np.pi/180.0)
         self._units = units
         self.set_transform(transforms.IdentityTransform())
         self._transforms = []
         self._paths = [mpath.Path.unit_circle()]
-        self._initialized = False
 
-
-    def _init(self):
-        def on_dpi_change(fig):
-            self._transforms = []
-        self.figure.callbacks.connect('dpi_changed', on_dpi_change)
-        self._initialized = True
-
-    def set_transforms(self):
-        if not self._initialized:
-            self._init()
+    def _set_transforms(self):
+        """
+        Calculate transforms immediately before drawing.
+        """
         self._transforms = []
         ax = self.axes
         fig = self.figure
-        if self._units in ('x', 'y'):
-            if self._units == 'x':
-                dx0 = ax.viewLim.width
-                dx1 = ax.bbox.width
-            else:
-                dx0 = ax.viewLim.height
-                dx1 = ax.bbox.height
-            sc = dx1/dx0
+
+        if self._units == 'xy':
+            sc = 1
+        elif self._units == 'x':
+            sc = ax.bbox.width / ax.viewLim.width
+        elif self._units == 'y':
+            sc = ax.bbox.height / ax.viewLim.height
+        elif self._units == 'inches':
+            sc = fig.dpi
+        elif self._units == 'points':
+            sc = fig.dpi / 72.0
+        elif self._units == 'width':
+            sc = ax.bbox.width
+        elif self._units == 'height':
+            sc = ax.bbox.height
+        elif self._units == 'dots':
+            sc = 1.0
         else:
-            if self._units == 'inches':
-                sc = fig.dpi
-            elif self._units == 'points':
-                sc = fig.dpi / 72.0
-            elif self._units == 'width':
-                sc = ax.bbox.width
-            elif self._units == 'height':
-                sc = ax.bbox.height
-            elif self._units == 'dots':
-                sc = 1.0
-            else:
-                raise ValueError('unrecognized units: %s' % self._units)
+            raise ValueError('unrecognized units: %s' % self._units)
 
         _affine = transforms.Affine2D
         for x, y, a in zip(self._widths, self._heights, self._angles):
             trans = _affine().scale(x * sc, y * sc).rotate(a)
             self._transforms.append(trans)
 
+        if self._units == 'xy':
+            m = ax.transData.get_affine().get_matrix().copy()
+            m[:2, 2:] = 0
+            self.set_transform(_affine(m))
+
+
     def draw(self, renderer):
-        if True: ###not self._transforms:
-            self.set_transforms()
-        return Collection.draw(self, renderer)
+        self._set_transforms()
+        Collection.draw(self, renderer)
 
 class PatchCollection(Collection):
     """
