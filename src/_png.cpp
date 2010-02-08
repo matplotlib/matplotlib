@@ -336,7 +336,11 @@ _png_module::read_png(const Py::Tuple& args) {
 
   //free the png memory
   png_read_end(png_ptr, info_ptr);
+#ifndef png_infopp_NULL
+  png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+#else
   png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
+#endif
   if (close_file) {
     fclose(fp);
   }
