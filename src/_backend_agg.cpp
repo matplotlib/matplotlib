@@ -814,55 +814,99 @@ Py::Object
 RendererAgg::draw_image(const Py::Tuple& args) {
   _VERBOSE("RendererAgg::draw_image");
 
-  args.verify_length(4);
+  args.verify_length(4, 7); // 7 if affine matrix if given
 
   GCAgg gc(args[0], dpi);
-  double x = mpl_round(Py::Float(args[1]));
-  double y = mpl_round(Py::Float(args[2]));
   Image *image = static_cast<Image*>(args[3].ptr());
   bool has_clippath = false;
+  agg::trans_affine affine_trans;
+  bool has_affine = false;
+  double x, y, w, h;
+
+
+  if (args.size() == 7) {
+    has_affine = true;
+    x = Py::Float(args[1]);
+    y = Py::Float(args[2]);
+    w = Py::Float(args[4]);
+    h = Py::Float(args[5]);
+    affine_trans = py_to_agg_transformation_matrix(args[6].ptr());
+  } else {
+    x = mpl_round(Py::Float(args[1]));
+    y = mpl_round(Py::Float(args[2]));
+  }
+
 
   theRasterizer.reset_clipping();
   rendererBase.reset_clipping(true);
+  set_clipbox(gc.cliprect, theRasterizer);
   has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
   Py::Tuple empty;
   image->flipud_out(empty);
   pixfmt pixf(*(image->rbufOut));
 
-  if (has_clippath) {
+  if (has_affine | has_clippath) {
     agg::trans_affine mtx;
-    mtx *= agg::trans_affine_translation((int)x, (int)(height-(y+image->rowsOut)));
-
     agg::path_storage rect;
+
+    if (has_affine) {
+      mtx *= agg::trans_affine_scaling(1, -1);
+      mtx *= agg::trans_affine_translation(0, image->rowsOut);
+      mtx *= agg::trans_affine_scaling(w/(image->colsOut), h/(image->rowsOut));
+      mtx *= agg::trans_affine_translation(x, y);
+      mtx *= affine_trans;
+      mtx *= agg::trans_affine_scaling(1.0, -1.0);
+      mtx *= agg::trans_affine_translation(0.0, (double) height);
+    } else {
+      mtx *= agg::trans_affine_translation((int)x, (int)(height-(y+image->rowsOut)));
+    }
+
     rect.move_to(0, 0);
     rect.line_to(image->colsOut, 0);
     rect.line_to(image->colsOut, image->rowsOut);
     rect.line_to(0, image->rowsOut);
     rect.line_to(0, 0);
+
     agg::conv_transform<agg::path_storage> rect2(rect, mtx);
 
     agg::trans_affine inv_mtx(mtx);
     inv_mtx.invert();
 
+
     typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
-    typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-    typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
     typedef agg::image_accessor_clip<agg::pixfmt_rgba32> image_accessor_type;
     typedef agg::span_interpolator_linear<> interpolator_type;
     typedef agg::span_image_filter_rgba_nn<image_accessor_type, interpolator_type> image_span_gen_type;
-    typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, image_span_gen_type> renderer_type;
+
 
     color_span_alloc_type sa;
     image_accessor_type ia(pixf, agg::rgba8(0, 0, 0, 0));
     interpolator_type interpolator(inv_mtx);
     image_span_gen_type image_span_generator(ia, interpolator);
-    pixfmt_amask_type pfa(pixFmt, alphaMask);
-    amask_ren_type r(pfa);
-    renderer_type ri(r, sa, image_span_generator);
 
-    theRasterizer.add_path(rect2);
-    agg::render_scanlines(theRasterizer, slineP8, ri);
+
+    if (has_clippath) {
+      typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+      typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
+      typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, image_span_gen_type> renderer_type_alpha;
+      
+      pixfmt_amask_type pfa(pixFmt, alphaMask);
+      amask_ren_type r(pfa);
+      renderer_type_alpha ri(r, sa, image_span_generator);
+
+      theRasterizer.add_path(rect2);
+      agg::render_scanlines(theRasterizer, slineP8, ri);
+    } else {
+      typedef agg::renderer_base<pixfmt> ren_type;
+      typedef agg::renderer_scanline_aa<ren_type, color_span_alloc_type, image_span_gen_type> renderer_type;
+      ren_type r(pixFmt);
+      renderer_type ri(r, sa, image_span_generator);
+
+      theRasterizer.add_path(rect2);
+      agg::render_scanlines(theRasterizer, slineP8, ri);
+    }
+
   } else {
     set_clipbox(gc.cliprect, rendererBase);
     rendererBase.blend_from(pixf, 0, (int)x, (int)(height-(y+image->rowsOut)));
@@ -872,6 +916,9 @@ RendererAgg::draw_image(const Py::Tuple& args) {
 
   return Py::Object();
 }
+
+
+
 
 template<class path_t>
 void RendererAgg::_draw_path(path_t& path, bool has_clippath,

@@ -3,7 +3,7 @@
 
 """
 For the backends that supports draw_image with optional affine
-transform (e.g., ps backend), the image of the output should
+transform (e.g., agg, ps backend), the image of the output should
 have its boundary matches the red rectangles.
 """
 
@@ -33,7 +33,8 @@ if 1:
     ax = plt.subplot(111)
     Z = get_image()
     im = imshow_affine(ax, Z, interpolation='nearest', cmap=cm.jet,
-                       origin='lower', extent=[-2, 4, -3, 2])
+                       origin='lower',
+                       extent=[-2, 4, -3, 2], clip_on=True)
 
     trans_data2 = mtransforms.Affine2D().rotate_deg(30) + ax.transData
     im.set_transform(trans_data2)
@@ -48,4 +49,5 @@ if 1:
     ax.set_xlim(-3, 5)
     ax.set_ylim(-4, 4)
 
-    plt.savefig("demo_affine_image")
+    plt.show()
+    #plt.savefig("demo_affine_image")

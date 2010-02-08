@@ -261,6 +261,12 @@ class RendererAgg(RendererBase):
         # with the Agg backend
         return True
 
+    def option_scale_image(self):
+        """
+        agg backend support arbitrary scaling of image.
+        """
+        return True
+
     def restore_region(self, region, bbox=None, xy=None):
         """
         restore the saved region. if bbox (instance of BboxBase, or
