@@ -30,24 +30,37 @@ def imshow_affine(ax, z, *kl, **kwargs):
 
 
 if 1:
-    ax = plt.subplot(111)
-    Z = get_image()
-    im = imshow_affine(ax, Z, interpolation='nearest', cmap=cm.jet,
-                       origin='lower',
-                       extent=[-2, 4, -3, 2], clip_on=True)
 
-    trans_data2 = mtransforms.Affine2D().rotate_deg(30) + ax.transData
-    im.set_transform(trans_data2)
+    # image rotation
+    
+    ax1 = plt.subplot(121)
+    Z = get_image()
+    im1 = imshow_affine(ax1, Z, interpolation='nearest', cmap=cm.jet,
+                        origin='lower',
+                        extent=[-2, 4, -3, 2], clip_on=True)
+
+    trans_data2 = mtransforms.Affine2D().rotate_deg(30) + ax1.transData
+    im1.set_transform(trans_data2)
 
     # display intended extent of the image
-    x1, x2, y1, y2 = im.get_extent()
+    x1, x2, y1, y2 = im1.get_extent()
     x3, y3 = x2, y1
 
-    ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "r--", lw=3,
-            transform=trans_data2)
+    ax1.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "r--", lw=3,
+             transform=trans_data2)
 
-    ax.set_xlim(-3, 5)
-    ax.set_ylim(-4, 4)
+    ax1.set_xlim(-3, 5)
+    ax1.set_ylim(-4, 4)
+
+
+    # image skew
+
+    ax2 = plt.subplot(122)
+    im2 = ax2.imshow(Z, interpolation='nearest', cmap=cm.jet,
+                     origin='lower',
+                     extent=[-2, 4, -3, 2], clip_on=True)
+    im2._image_skew_coordinate = (3, -2)
+
 
     plt.show()
     #plt.savefig("demo_affine_image")
