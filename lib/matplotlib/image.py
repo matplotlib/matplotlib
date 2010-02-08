@@ -305,6 +305,9 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         if self._check_unsampled_image(renderer):
             self._draw_unsampled_image(renderer, gc)
         else:
+            if self._image_skew_coordinate is not None:
+                warnings.warn("Image will not be shown correctly with this backend.")
+
             im = self.make_image(renderer.get_image_magnification())
             if im is None:
                 return
