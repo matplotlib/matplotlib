@@ -130,12 +130,12 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
       png_init_io(png_ptr, fp);
     } else {
       png_set_write_fn(png_ptr, (void*)py_fileobj.ptr(),
-		       &write_png_data, &flush_png_data);
+                       &write_png_data, &flush_png_data);
     }
     png_set_IHDR(png_ptr, info_ptr,
-		 width, height, 8,
-		 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
-		 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+                 width, height, 8,
+                 PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
     // Save the dpi of the image in the file
     if (args.size() == 5) {
@@ -181,7 +181,7 @@ _png_module::read_png(const Py::Tuple& args) {
   args.verify_length(1);
   std::string fname = Py::String(args[0]);
 
-  png_byte header[8];	// 8 is the maximum size that can be checked
+  png_byte header[8];   // 8 is the maximum size that can be checked
 
   FILE *fp = fopen(fname.c_str(), "rb");
   if (!fp)
@@ -272,25 +272,29 @@ _png_module::read_png(const Py::Tuple& args) {
 
   for (png_uint_32 y = 0; y < height; y++) {
     png_byte* row = row_pointers[y];
-	for (png_uint_32 x = 0; x < width; x++) {
-	  size_t offset = y*A->strides[0] + x*A->strides[1];
-	  if (bit_depth == 16) {
-	    png_uint_16* ptr = &reinterpret_cast<png_uint_16*> (row)[x * dimensions[2]];
+        for (png_uint_32 x = 0; x < width; x++) {
+          size_t offset = y*A->strides[0] + x*A->strides[1];
+          if (bit_depth == 16) {
+            png_uint_16* ptr = &reinterpret_cast<png_uint_16*> (row)[x * dimensions[2]];
             for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
-	      *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
-	  } else {
-	    png_byte* ptr = &(row[x * dimensions[2]]);
-	    for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
-		{
-	      *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
-	    }
-	  }
+              *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
+          } else {
+            png_byte* ptr = &(row[x * dimensions[2]]);
+            for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
+                {
+              *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
+            }
+          }
     }
   }
 
   //free the png memory
   png_read_end(png_ptr, info_ptr);
+#ifndef png_infopp_NULL
+  png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+#else
   png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
+#endif
   fclose(fp);
   for (row = 0; row < height; row++)
     delete [] row_pointers[row];
