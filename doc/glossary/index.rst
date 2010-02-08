@@ -14,6 +14,11 @@ Glossary
   Cairo
       The `Cairo graphics <http://cairographics.org>`_ engine
 
+
+  dateutil
+      The `dateutil <http://labix.org/python-dateutil>`_ library
+      provides extensions to the standard datetime module
+
   EPS
       Encapsulated Postscript (`EPS <http://en.wikipedia.org/wiki/Encapsulated_PostScript>`_)
 
@@ -85,6 +90,14 @@ Glossary
       `python <http://python.org>`_ is an object oriented interpreted
       language widely used for scripting, application development, web
       application servers, scientific computing and more.
+
+
+  pytz
+      `pytz <http://pytz.sourceforge.net/>`_ provides the Olson tz
+      database in Python. it allows accurate and cross platform
+      timezone calculations and solves the issue of ambiguous times at
+      the end of daylight savings
+
 
   Qt
       `Qt <http://trolltech.com/products/qt/>`__ is a cross-platform
