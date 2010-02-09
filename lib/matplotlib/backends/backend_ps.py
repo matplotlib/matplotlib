@@ -396,7 +396,7 @@ class RendererPS(RendererBase):
             imagecmd = "false 3 colorimage"
 
         return h, w, bits, imagecmd
-    
+
     def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
         """
         Draw the Image instance into the current axes; x is the
@@ -1110,6 +1110,14 @@ class FigureCanvasPS(FigureCanvasBase):
                     for c in chars:
                         gind = cmap.get(c) or 0
                         glyph_ids.append(gind)
+
+                    fonttype = rcParams['ps.fonttype']
+
+                    # Can not use more than 255 characters from a
+                    # single font for Type 3
+                    if len(glyph_ids) > 255:
+                        fonttype = 42
+
                     # The ttf to ps (subsetting) support doesn't work for
                     # OpenType fonts that are Postscript inside (like the
                     # STIX fonts).  This will simply turn that off to avoid
@@ -1118,7 +1126,7 @@ class FigureCanvasPS(FigureCanvasBase):
                         raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
                     else:
                         fonttype = rcParams['ps.fonttype']
-                        convert_ttf_to_ps(font_filename, fh, rcParams['ps.fonttype'], glyph_ids)
+                        convert_ttf_to_ps(font_filename, fh, fonttype, glyph_ids)
         print >>fh, "end"
         print >>fh, "%%EndProlog"
 
@@ -1394,7 +1402,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None):
     """
 
     paper_option = "-sPAPERSIZE=%s" % ptype
-    
+
     psfile = tmpfile + '.ps'
     outfile = tmpfile + '.output'
     dpi = rcParams['ps.distiller.res']
@@ -1436,7 +1444,7 @@ def xpdf_distill(tmpfile, eps=False, ptype='letter', bbox=None):
 
     if eps: paper_option = "-dEPSCrop"
     else: paper_option = "-sPAPERSIZE=%s" % ptype
-    
+
     command = 'ps2pdf -dAutoFilterColorImages=false \
 -sColorImageFilter=FlateEncode %s "%s" "%s" > "%s"'% \
 (paper_option, tmpfile, pdffile, outfile)
