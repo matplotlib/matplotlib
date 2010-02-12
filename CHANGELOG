@@ -1,3 +1,7 @@
+2010-02-11 Added 'bootstrap' option to boxplot. This allows bootstrap
+           estimates of median confidence intervals. Based on an
+           initial patch by Paul Hobson. - ADS
+
 2010-02-06 Added setup.cfg "basedirlist" option to override setting
            in setupext.py "basedir" dictionary; added "gnu0"
            platform requested by Benjamin Drung. - EF
