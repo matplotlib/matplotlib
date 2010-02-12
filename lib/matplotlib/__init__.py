@@ -147,8 +147,10 @@ if not _python24:
 import numpy
 nn = numpy.__version__.split('.')
 if not (int(nn[0]) >= 1 and int(nn[1]) >= 1):
-    raise ImportError(
-            'numpy 1.1 or later is required; you have %s' % numpy.__version__)
+    if not (int(nn[0]) >= 2):
+        raise ImportError(
+                'numpy 1.1 or later is required; you have %s' %
+                numpy.__version__)
 
 def is_string_like(obj):
     if hasattr(obj, 'shape'): return 0
