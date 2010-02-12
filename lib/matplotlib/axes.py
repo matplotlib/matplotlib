@@ -4881,7 +4881,8 @@ class Axes(martist.Artist):
         return (l0, caplines, barcols)
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
-                positions=None, widths=None, patch_artist=False):
+                positions=None, widths=None, patch_artist=False,
+                bootstrap=None):
         """
         call signature::
 
@@ -4909,6 +4910,16 @@ class Axes(martist.Artist):
         *whis* (default 1.5) defines the length of the whiskers as
         a function of the inner quartile range.  They extend to the
         most extreme data point within ( ``whis*(75%-25%)`` ) data range.
+
+        *bootstrap* (default None) specifies whether to bootstrap the
+        confidence intervals around the median for notched
+        boxplots. If bootstrap==None, no bootstrapping is performed,
+        and notches are calculated using a Gaussian-based asymptotic
+        approximation (see McGill, R., Tukey, J.W., and Larsen, W.A.,
+        1978, and Kendall and Stuart, 1967). Otherwise, bootstrap
+        specifies the number of times to bootstrap the median to
+        determine it's 95% confidence intervals. Values between 1000
+        and 10000 are recommended.
 
         *positions* (default 1,2,...,n) sets the horizontal positions of
         the boxes. The ticks and limits are automatically set to match
@@ -5021,8 +5032,33 @@ class Axes(martist.Artist):
                 med_x = [box_x_min, box_x_max]
             # calculate 'notch' plot
             else:
-                notch_max = med + 1.57*iq/np.sqrt(row)
-                notch_min = med - 1.57*iq/np.sqrt(row)
+                if bootstrap is not None:
+                    # Do a bootstrap estimate of notch locations.
+                    def bootstrapMedian(data, N=5000):
+                        # determine 95% confidence intervals of the median
+                        M = len(data)
+                        percentile = [2.5,97.5]
+                        estimate = np.zeros(N)
+                        for n in range(N):
+                            bsIndex = np.random.random_integers(0,M-1,M)
+                            bsData = data[bsIndex]
+                            estimate[n] = mlab.prctile(bsData, 50)
+                        CI = mlab.prctile(estimate, percentile)
+                        return CI
+
+                    # get conf. intervals around median
+                    CI = bootstrapMedian(d, N=bootstrap)
+                    notch_max = CI[1]
+                    notch_min = CI[0]
+                else:
+                    # Estimate notch locations using Gaussian-based
+                    # asymptotic approximation.
+                    #
+                    # For discussion: McGill, R., Tukey, J.W.,
+                    # and Larsen, W.A. (1978) "Variations of
+                    # Boxplots", The American Statistician, 32:12-16.
+                    notch_max = med + 1.57*iq/np.sqrt(row)
+                    notch_min = med - 1.57*iq/np.sqrt(row)
                 # make our notched box vectors
                 box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max,
                          box_x_max, box_x_min, box_x_min, cap_x_min, box_x_min,
