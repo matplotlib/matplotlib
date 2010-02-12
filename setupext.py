@@ -516,9 +516,11 @@ def check_for_numpy():
         return False
     nn = numpy.__version__.split('.')
     if not (int(nn[0]) >= 1 and int(nn[1]) >= 1):
-        print_message(
-           'numpy 1.1 or later is required; you have %s' % numpy.__version__)
-        return False
+        if not (int(nn[0]) >= 2):
+            print_message(
+               'numpy 1.1 or later is required; you have %s' %
+               numpy.__version__)
+            return False
     module = Extension('test', [])
     add_numpy_flags(module)
     add_base_flags(module)
