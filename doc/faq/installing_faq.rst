@@ -146,11 +146,11 @@ generate postscript images from some numerical simulations, and still
 others in web application servers to dynamically serve up graphs.
 
 To support all of these use cases, matplotlib can target different
-outputs, and each of these capabililities is called a backend (the
+outputs, and each of these capabililities is called a backend; the
 "frontend" is the user facing code, ie the plotting code, whereas the
 "backend" does all the dirty work behind the scenes to make the
 figure.  There are two types of backends: user interface backends (for
-use in pygtk, wxpython, tkinter, qt or fltk) and hardcopy backends to
+use in pygtk, wxpython, tkinter, qt, macosx, or fltk) and hardcopy backends to
 make image files (PNG, SVG, PDF, PS).
 
 There are a two primary ways to configure your backend.  One is to set
@@ -183,10 +183,10 @@ from the canvas (the place where the drawing goes).  The canonical
 renderer for user interfaces is ``Agg`` which uses the `antigrain
 <http://antigrain.html>`_ C++ library to make a raster (pixel) image
 of the figure.  All of the user interfaces can be used with agg
-rendering, eg ``WXAgg``, ``GTKAgg``, ``QTAgg``, ``TkAgg``.  In
-addition, some of the user interfaces support other rendering engines.
-For example, with GTK, you can also select GDK rendering (backend
-``GTK``) or Cairo rendering (backend ``GTKCairo``).
+rendering, eg ``WXAgg``, ``GTKAgg``, ``QTAgg``, ``TkAgg``,
+``CocoaAgg``.  In addition, some of the user interfaces support other
+rendering engines.  For example, with GTK, you can also select GDK
+rendering (backend ``GTK``) or Cairo rendering (backend ``GTKCairo``).
 
 For the rendering engines, one can also distinguish between `vector
 <http://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
@@ -238,6 +238,7 @@ TkAgg          Agg rendering to a :term:`Tk` canvas (requires TkInter_)
 QtAgg          Agg rendering to a :term:`Qt` canvas (requires PyQt_)
 Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_)
 FLTKAgg        Agg rendering to a :term:`FLTK` canvas (requires pyFLTK_)
+macosx         Cocoa rendering in OSX windows
 ============   ================================================================
 
 .. _`Anti-Grain Geometry`: http://www.antigrain.com/

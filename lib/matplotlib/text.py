@@ -300,9 +300,13 @@ class Text(Artist):
         baseline = None
         for i, line in enumerate(lines):
             clean_line, ismath = self.is_math_text(line)
-            w, h, d = get_text_width_height_descent(clean_line,
-                                                    self._fontproperties,
-                                                    ismath=ismath)
+            if clean_line:
+                w, h, d = get_text_width_height_descent(clean_line,
+                                                        self._fontproperties,
+                                                        ismath=ismath)
+            else:
+                w, h, d = 0, 0, 0
+                
             if baseline is None:
                 baseline = h - d
             whs[i] = w, h

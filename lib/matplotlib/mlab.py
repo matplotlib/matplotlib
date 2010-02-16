@@ -277,10 +277,18 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         Pxy[:,i] = np.conjugate(fx[:numFreqs]) * fy[:numFreqs]
 
     # Scale the spectrum by the norm of the window to compensate for
-    # windowing loss; see Bendat & Piersol Sec 11.5.2.  Also include
-    # scaling factors for one-sided densities and dividing by the sampling
-    # frequency, if desired.
-    Pxy *= scaling_factor / (np.abs(windowVals)**2).sum()
+    # windowing loss; see Bendat & Piersol Sec 11.5.2. 
+    Pxy *= 1 / (np.abs(windowVals)**2).sum()
+
+    # Also include scaling factors for one-sided densities and dividing by the
+    # sampling frequency, if desired. Scale everything, except the DC component
+    # and the NFFT/2 component:    
+    Pxy[1:-1] *= scaling_factor
+
+    #But do scale those components by Fs, if required    
+    if scale_by_freq:
+        Pxy[[0,-1]] /= Fs 
+    
     t = 1./Fs * (ind + NFFT / 2.)
     freqs = float(Fs) / pad_to * np.arange(numFreqs)
 
