@@ -44,10 +44,29 @@ progress::
 matplotlib requires numpy version 1.1 or later.  Although it is not a
 requirement to use matplotlib, we strongly encourage you to install
 `ipython <http://ipython.scipy.org/dist>`_, which is an interactive
-shell for python that is matplotlib aware.  Once you have ipython,
-numpy and matplotlib installed, in ipython's "pylab" mode you have a
-matlab-like environment that automatically handles most of the
-configuration details for you, so you can get up and running quickly::
+shell for python that is matplotlib aware.
+
+Next we need to get matplotlib installed.  We provide prebuilt
+binaries for OS X and Windows on the matplotlib `download
+<http://sourceforge.net/projects/matplotlib/files/>`_ page.  Click on
+the latest release of the "matplotlib" package, choose your python
+version (2.5 or 2.6) and your platform (macosx or win32) and you
+should be good to go.  If you have any problems, please check the
+:ref:`installing-faq`, google around a little bit, and post a question
+the `mailing list
+<http://sourceforge.net/project/showfiles.php?group_id=80706>`_.  If
+you are on debian/unbuntu linux, it suffices to do::
+
+  > sudo apt-get install python-matplotlib
+
+Instructions for installing our OSX binaries are found in the FAQ
+:ref:`install_osx_binaries`.
+
+
+Once you have ipython, numpy and matplotlib installed, in ipython's
+"pylab" mode you have a matlab-like environment that automatically
+handles most of the configuration details for you, so you can get up
+and running quickly::
 
     johnh@flag:~> ipython -pylab
     Python 2.4.5 (#4, Apr 12 2008, 09:09:16)
@@ -60,20 +79,6 @@ configuration details for you, so you can get up and running quickly::
 
     In [2]: hist(x, 100)
 
-And a *voila*, a figure pops up.  But we are putting the cart ahead of
-the horse -- first we need to get matplotlib installed.  We provide
-prebuilt binaries for OS X and Windows on the matplotlib `download
-<http://sourceforge.net/projects/matplotlib/files/>`_ page.  Click on
-the latest release of the "matplotlib" package, choose your python
-version (2.4 or 2.5) and your platform (macosx or win32) and you
-should be good to go.  If you have any problems, please check the
-:ref:`installing-faq`, google around a little bit, and post a question
-the `mailing list
-<http://sourceforge.net/project/showfiles.php?group_id=80706>`_.
-
-Instructions for installing our OSX binaries are found in the FAQ
-ref:`install_osx_binaries`.
-
 Note that when testing matplotlib installations from the interactive
 python console, there are some issues relating to user interface
 toolkits and interactive settings that are discussed in
@@ -85,9 +90,9 @@ Installing from source
 ======================
 
 If you are interested perhaps in contributing to matplotlib
-development, or just like to build everything yourself, it is not
-difficult to build matplotlib from source.  Grab the latest *tar.gz*
-release file from `sourceforge
+development, running the latest greatest code, or just like to
+build everything yourself, it is not difficult to build matplotlib
+from source.  Grab the latest *tar.gz* release file from `sourceforge
 <http://sourceforge.net/project/showfiles.php?group_id=80706>`_, or if
 you want to develop matplotlib or just need the latest bugfixed
 version, grab the latest svn version :ref:`install-svn`.
@@ -173,17 +178,17 @@ backends and the capabilities they provide
     agg template source statically, so it will not affect anything on
     your system outside of matplotlib.
 
-pytz 2007g or later
+:term:`pytz` 2007g or later
     timezone handling for python datetime objects.  By default,
     matplotlib will install pytz if it isn't already installed on your
-    system.  To override the default, use setup.cfg to force or
+    system.  To override the default, use :file:`setup.cfg to force or
     prevent installation of pytz.
 
-dateutil 1.1 or later
-    extensions to python datetime handling.  By
-    default, matplotlib will install dateutil if it isn't already
-    installed on your system.  To override the default, use setup.cfg
-    to force or prevent installation of dateutil.
+:term:`dateutil` 1.1 or later
+    provides extensions to python datetime handling.  By default, matplotlib
+    will install dateutil if it isn't already installed on your
+    system.  To override the default, use :file:`setup.cfg` to force
+    or prevent installation of dateutil.
 
 
 
