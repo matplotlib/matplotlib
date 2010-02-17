@@ -4468,7 +4468,7 @@ show(PyObject* self)
     self = [super initWithFrame: rect];
     rubberband = NSZeroRect;
     inside = false;
-    tracking = nil;
+    tracking = 0;
     return self;
 }
 
