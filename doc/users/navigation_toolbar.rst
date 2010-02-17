@@ -39,11 +39,11 @@ The ``Pan/Zoom`` button
     the right mouse button to zoom, dragging it to a new position.
     The x axis will be zoomed in proportionate to the rightward
     movement and zoomed out proportionate to the leftward movement.
-    Ditto for the yaxis and up/down motions.  The point under your
+    Ditto for the y axis and up/down motions.  The point under your
     mouse when you begin the zoom remains stationary, allowing you to
     zoom to an arbitrary point in the figure.  You can use the
     modifier keys 'x', 'y' or 'CONTROL' to constrain the zoom to the x
-    axes, the y axes, or aspect ratio preserve, respectively.
+    axis, the y axis, or aspect ratio preserve, respectively.
 
     With polar plots, the pan and zoom functionality behaves
     differently.  The radius axis labels can be dragged using the left
