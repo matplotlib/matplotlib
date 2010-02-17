@@ -62,9 +62,21 @@ def _process_plot_format(fmt):
     # Is fmt just a colorspec?
     try:
         color = mcolors.colorConverter.to_rgb(fmt)
-        return linestyle, marker, color     # Yes.
+
+        # We need to differentiate grayscale '1.0' from tri_down marker '1'
+        try:
+            fmtint = str(int(fmt))
+        except ValueError:
+            return linestyle, marker, color         # Yes
+        else:
+            if fmt != fmtint: 
+                # user definitely doesn't want tri_down marker 
+                return linestyle, marker, color     # Yes
+            else:
+                # ignore converted color
+                color = None 
     except ValueError:
-        pass                                # No, not just a color.
+        pass                                        # No, not just a color.
 
     # handle the multi char special cases and strip them from the
     # string

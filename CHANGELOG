@@ -1,3 +1,7 @@
+2010-02-16 Committed TJ's filled marker patch for
+           left|right|bottom|top|full filled markers.  See
+           examples/pylab_examples/filledmarker_demo.py. JDH
+
 2010-02-11 Added 'bootstrap' option to boxplot. This allows bootstrap
            estimates of median confidence intervals. Based on an
            initial patch by Paul Hobson. - ADS
