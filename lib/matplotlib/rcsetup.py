@@ -546,9 +546,22 @@ defaultParams = {
 
     'path.simplify' : [True, validate_bool],
     'path.simplify_threshold' : [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
-    'agg.path.chunksize' : [0, validate_int]       # 0 to disable chunking;
-                                                   # recommend about 20000 to
-                                                   # enable. Experimental.
+    'agg.path.chunksize' : [0, validate_int],       # 0 to disable chunking;
+                                                    # recommend about 20000 to
+                                                    # enable. Experimental.
+    # key-mappings
+    'keymap.fullscreen' : ['f', validate_stringlist],   
+    'keymap.home' : [['h', 'r', 'home'], validate_stringlist],
+    'keymap.back' : [['left', 'c', 'backspace'], validate_stringlist],
+    'keymap.forward' : [['right', 'v'], validate_stringlist],
+    'keymap.pan' : ['p', validate_stringlist],
+    'keymap.zoom' : ['o', validate_stringlist],     
+    'keymap.save' : ['s', validate_stringlist],
+    'keymap.grid' : ['g', validate_stringlist],
+    'keymap.yscale' : ['l', validate_stringlist],
+    'keymap.xscale' : [['k', 'L'], validate_stringlist],
+    'keymap.all_axes' : ['a', validate_stringlist]
+
 }
 
 if __name__ == '__main__':

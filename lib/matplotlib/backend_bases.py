@@ -1888,50 +1888,85 @@ class FigureManagerBase:
         #    self.destroy() # how cruel to have to destroy oneself!
         #    return
 
-        if event.key == 'f':
+        # Load key-mappings from your matplotlibrc file.
+        fullscreen_keys = rcParams['keymap.fullscreen']
+        home_keys = rcParams['keymap.home']
+        back_keys = rcParams['keymap.back']
+        forward_keys = rcParams['keymap.forward']
+        pan_keys = rcParams['keymap.pan']
+        zoom_keys = rcParams['keymap.zoom']
+        save_keys = rcParams['keymap.save']
+        grid_keys = rcParams['keymap.grid']
+        toggle_yscale_keys = rcParams['keymap.yscale']
+        toggle_xscale_keys = rcParams['keymap.xscale']
+        all = rcParams['keymap.all_axes']
+
+        # toggle fullscreen mode (default key 'f')
+        if event.key in fullscreen_keys:
             self.full_screen_toggle()
 
-        # *h*ome or *r*eset mnemonic
-        elif event.key == 'h' or event.key == 'r' or event.key == "home":
+        # home or reset mnemonic  (default key 'h', 'home' and 'r')
+        elif event.key in home_keys:
             self.canvas.toolbar.home()
-        # c and v to enable left handed quick navigation
-        elif event.key == 'left' or event.key == 'c' or event.key == 'backspace':
+        # forward / backward keys to enable left handed quick navigation
+        # (default key for backward: 'left', 'backspace' and 'c')
+        elif event.key in back_keys:
             self.canvas.toolbar.back()
-        elif event.key == 'right' or event.key == 'v':
+        # (default key for forward: 'right' and 'v')
+        elif event.key in forward_keys:
             self.canvas.toolbar.forward()
-        # *p*an mnemonic
-        elif event.key == 'p':
+        # pan mnemonic (default key 'p')
+        elif event.key in pan_keys:
             self.canvas.toolbar.pan()
-        # z*o*om mnemonic
-        elif event.key == 'o':
+        # zoom mnemonic (default key 'o')
+        elif event.key in zoom_keys:
             self.canvas.toolbar.zoom()
-        elif event.key == 's':
+        # saving current figure (default key 's')
+        elif event.key in save_keys:
             self.canvas.toolbar.save_figure(self.canvas.toolbar)
 
         if event.inaxes is None:
             return
 
         # the mouse has to be over an axes to trigger these
-        if event.key == 'g':
+        # switching on/off a grid in current axes (default key 'g')
+        if event.key in grid_keys:
             event.inaxes.grid()
             self.canvas.draw()
-        elif event.key == 'l':
+        # toggle scaling of y-axes between 'log and 'linear' (default key 'l')
+        elif event.key in toggle_yscale_keys:
             ax = event.inaxes
             scale = ax.get_yscale()
-            if scale=='log':
+            if scale == 'log':
                 ax.set_yscale('linear')
                 ax.figure.canvas.draw()
-            elif scale=='linear':
+            elif scale == 'linear':
                 ax.set_yscale('log')
                 ax.figure.canvas.draw()
+        # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
+        elif event.key in toggle_xscale_keys:
+            ax = event.inaxes
+            scalex = ax.get_xscale()
+            if scalex == 'log':
+                ax.set_xscale('linear')
+                ax.figure.canvas.draw()
+            elif scalex == 'linear':
+                ax.set_xscale('log')
+                ax.figure.canvas.draw()
 
-        elif event.key is not None and (event.key.isdigit() and event.key!='0') or event.key=='a':
-            # 'a' enables all axes
-            if event.key!='a':
-                n=int(event.key)-1
+        elif event.key is not None and \
+                 (event.key.isdigit() and event.key!='0') or event.key in all:
+            # keys in list 'all' enables all axes (default key 'a'),
+            # otherwise if key is a number only enable this particular axes
+            # if it was the axes, where the event was raised
+            if not (event.key in all):
+                n = int(event.key)-1
             for i, a in enumerate(self.canvas.figure.get_axes()):
-                if event.x is not None and event.y is not None and a.in_axes(event):
-                    if event.key=='a':
+                # consider axes, in which the event was raised
+                # FIXME: Why only this axes?
+                if event.x is not None and event.y is not None \
+                       and a.in_axes(event):
+                    if event.key in all:
                         a.set_navigate(True)
                     else:
                         a.set_navigate(i==n)
