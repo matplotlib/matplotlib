@@ -79,6 +79,8 @@ The ``Save`` button
 Navigation Keyboard Shortcuts
 -----------------------------
 
+The following table holds all the default keys, which can be overwritten by use of your matplotlibrc (#keymap.\*).
+
 ================================== ==============================================
 Command                            Keyboard Shortcut(s)
 ================================== ==============================================
@@ -93,6 +95,7 @@ Constrain pan/zoom to x axis       hold **x**
 Constrain pan/zoom to y axis       hold **y**
 Preserve aspect ratio              hold **CONTROL**
 Toggle grid                        **g**
+Toggle x axis scale (log/linear)   **L** or **k**
 Toggle y axis scale (log/linear)   **l**
 ================================== ==============================================
 
