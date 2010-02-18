@@ -1923,7 +1923,7 @@ class FigureManagerBase:
             self.canvas.toolbar.zoom()
         # saving current figure (default key 's')
         elif event.key in save_keys:
-            self.canvas.toolbar.save_figure(self.canvas.toolbar)
+            self.canvas.toolbar.save_figure()
 
         if event.inaxes is None:
             return

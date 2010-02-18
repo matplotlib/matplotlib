@@ -392,7 +392,7 @@ class NavigationToolbarMac(_macosx.NavigationToolbar):
             axes[i].yaxis.zoom(direction)
         self.canvas.invalidate()
 
-    def save_figure(self):
+    def save_figure(self, *args):
         filename = _macosx.choose_save_file('Save the figure')
         if filename is None: # Cancel
             return
@@ -416,7 +416,7 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
     def set_cursor(self, cursor):
         _macosx.set_cursor(cursor)
 
-    def save_figure(self):
+    def save_figure(self, *args):
         filename = _macosx.choose_save_file('Save the figure')
         if filename is None: # Cancel
             return
