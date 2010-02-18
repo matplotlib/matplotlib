@@ -576,7 +576,7 @@ class NavigationToolbar(Tk.Frame):
             a.yaxis.zoom(direction)
         self.canvas.draw()
 
-    def save_figure(self):
+    def save_figure(self, *args):
         fs = FileDialog.SaveFileDialog(master=self.window,
                                        title='Save the figure')
         try:
@@ -703,7 +703,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         canvas.show()
         canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
-    def save_figure(self):
+    def save_figure(self, *args):
         from tkFileDialog import asksaveasfilename
         from tkMessageBox import showerror
         filetypes = self.canvas.get_supported_filetypes().copy()

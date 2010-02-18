@@ -422,7 +422,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
     def _get_canvas(self, fig):
         return FigureCanvasQT(fig)
 
-    def save_figure( self ):
+    def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
         sorted_filetypes = filetypes.items()
         sorted_filetypes.sort()

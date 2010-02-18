@@ -653,7 +653,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
             filetypes=self.canvas.get_supported_filetypes(),
             default_filetype=self.canvas.get_default_filetype())
 
-    def save_figure(self, button):
+    def save_figure(self, *args):
         fname, format = self.get_filechooser().get_filename_from_user()
         if fname:
             try:
@@ -908,7 +908,7 @@ class NavigationToolbar(gtk.Toolbar):
             filetypes=self.canvas.get_supported_filetypes(),
             default_filetype=self.canvas.get_default_filetype())
 
-    def save_figure(self, button):
+    def save_figure(self, *args):
         fname, format = self.get_filechooser().get_filename_from_user()
         if fname:
             try:
