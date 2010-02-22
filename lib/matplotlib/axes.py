@@ -5769,9 +5769,22 @@ class Axes(martist.Artist):
             transOffset = self.transData,
             )
 
+        if isinstance(norm, mcolors.LogNorm):
+            if (accum==0).any():
+                # make sure we have not zeros
+                accum += 1
+            
+
         # Transform accum if needed
         if bins=='log':
             accum = np.log10(accum+1)
+
+        # autoscale the norm with curren accum values if it hasn't
+        # been set
+        if norm is not None:
+            if norm.vmin is None and norm.vmax is None:
+                norm.autoscale(accum)
+  
         elif bins!=None:
             if not iterable(bins):
                 minimum, maximum = min(accum), max(accum)
