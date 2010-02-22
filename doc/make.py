@@ -65,8 +65,9 @@ def latex():
         print 'latex build has not been tested on windows'
 
 def clean():
-    shutil.rmtree("build")
-    shutil.rmtree("examples")
+    for dirpath in ['build', 'examples']:
+        if os.path.exists(dirpath):
+            shutil.rmtree(dirpath)
     for pattern in ['mpl_examples/api/*.png',
                     'mpl_examples/pylab_examples/*.png',
                     'mpl_examples/pylab_examples/*.pdf',
