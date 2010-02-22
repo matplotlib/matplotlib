@@ -79,6 +79,9 @@ and running quickly::
 
     In [2]: hist(x, 100)
 
+Instructions for installing our OSX binaries are found in the FAQ
+ref:`install_osx_binaries`.
+
 Note that when testing matplotlib installations from the interactive
 python console, there are some issues relating to user interface
 toolkits and interactive settings that are discussed in
