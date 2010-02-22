@@ -147,6 +147,7 @@ class TickHelper:
         def set_data_interval(self, vmin, vmax):
             self.dataLim.intervalx = vmin, vmax
 
+
     def set_axis(self, axis):
         self.axis = axis
 

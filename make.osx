@@ -25,7 +25,7 @@ clean:
 
 fetch:
 	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
-	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2", "libpng-${PNGVERSION}.tar.bz2")' &&\
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://download.sourceforge.net/libpng/libpng-${PNGVERSION}.tar.gz", "libpng-${PNGVERSION}.tar.bz2")' &&\
 	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2", "freetype-${FREETYPEVERSION}.tar.bz2")'
 
 
@@ -46,7 +46,7 @@ zlib:
 png: zlib
 	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
 	rm -rf libpng-${PNGVERSION} &&\
-	tar xvfj libpng-${PNGVERSION}.tar.bz2
+	tar xvfz libpng-${PNGVERSION}.tar.gz
 	cd libpng-${PNGVERSION} &&\
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
 	export CFLAGS=${CFLAGS} &&\

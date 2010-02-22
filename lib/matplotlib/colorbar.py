@@ -455,6 +455,10 @@ class ColorbarBase(cm.ScalarMappable):
         locator.set_data_interval(*intv)
         formatter.set_view_interval(*intv)
         formatter.set_data_interval(*intv)
+
+        # the dummy axis is expecting a minpos
+        locator.axis.get_minpos = lambda : intv[0]
+        formatter.axis.get_minpos = lambda : intv[0]
         b = np.array(locator())
         b, ticks = self._locate(b)
         formatter.set_locs(b)
