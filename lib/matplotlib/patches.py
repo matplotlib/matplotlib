@@ -631,19 +631,22 @@ class RegularPolygon(Patch):
     def _get_xy(self):
         return self._xy
     def _set_xy(self, xy):
+        self._xy = xy
         self._update_transform()
     xy = property(_get_xy, _set_xy)
 
     def _get_orientation(self):
         return self._orientation
-    def _set_orientation(self, xy):
-        self._orientation = xy
+    def _set_orientation(self, orientation):
+        self._orientation = orientation
+        self._update_transform()
     orientation = property(_get_orientation, _set_orientation)
 
     def _get_radius(self):
         return self._radius
-    def _set_radius(self, xy):
-        self._radius = xy
+    def _set_radius(self, radius):
+        self._radius = radius
+        self._update_transform()
     radius = property(_get_radius, _set_radius)
 
     def _get_numvertices(self):
