@@ -206,19 +206,19 @@ Renderer        Filetypes      Description
                                using the `Anti-Grain Geometry`_ engine
 PS              :term:`ps`     :term:`vector graphics` -- Postscript_ output
                 :term:`eps`
-PDF		:term:`pdf`    :term:`vector graphics` --
+PDF             :term:`pdf`    :term:`vector graphics` --
                                `Portable Document Format`_
 SVG             :term:`svg`    :term:`vector graphics` --
                                `Scalable Vector Graphics`_
 :term:`Cairo`   :term:`png`    :term:`vector graphics` --
                 :term:`ps`     `Cairo graphics`_
-	        :term:`pdf`
-	        :term:`svg`
-	        ...
+                :term:`pdf`
+                :term:`svg`
+                ...
 :term:`GDK`     :term:`png`    :term:`raster graphics` --
                 :term:`jpg`    the `Gimp Drawing Kit`_
-	        :term:`tiff`
-	        ...
+                :term:`tiff`
+                ...
 =============   ============   ================================================
 
 And here are the user interfaces and renderer combinations supported:
@@ -264,8 +264,8 @@ There is a `bug in PyGTK-2.4`_. You need to edit
 :file:`pygobject.h` to add the :cmacro:`G_BEGIN_DECLS` and :cmacro:`G_END_DECLS`
 macros, and rename :cdata:`typename` parameter to :cdata:`typename_`::
 
-  -			  const char *typename,
-  +			  const char *typename_,
+  -                       const char *typename,
+  +                       const char *typename_,
 
 .. _`bug in PyGTK-2.4`: http://bugzilla.gnome.org/show_bug.cgi?id=155304
 
@@ -294,20 +294,22 @@ Installing OSX binaries
 -----------------------
 
 If you want to install matplotlib from one of the binary installers we
-build, you have two choices: a dmg installer, which is a typical
+build, you have two choices: a mpkg installer, which is a typical
 Installer.app, or an binary OSX egg, which you can install via
 setuptools easy_install.
 
-The mkpg installer will have a "dmg" extension, and will have a name
-like :file:`matplotlib-0.99.0-py2.5-macosx10.5.dmg` depending on the
-python, matplotlib, and OSX versions.  Save this file and double
-click it, which will open up a folder with a file in it that has the
-mpkg extension.  Double click this to run the Installer.app, which
-will prompt you for a password if you need system wide installation
-privileges, and install to a directory like
-:file:`/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages`,
-again depedending on your python version.  This directory should be in
-your python path, so you can test your installation with::
+The mkpg installer will have a "zip" extension, and will have a name
+like file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5_mpkg.zip` depending on
+the python, matplotlib, and OSX versions.  You need to unzip this file
+using either the "unzip" command on OSX, or simply double clicking on
+it to run StuffIt Expander.  When you double click on the resultant
+mpkd directory, which will have a name like
+file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5.mpkg`, it will run the
+Installer.app, prompt you for a password if you need system wide
+installation privileges, and install to a directory like
+file:`/Library/Python/2.5/site-packages/`, again depedending on your
+python version.  This directory may not be in your python path, so you
+can test your installation with::
 
   > python -c 'import matplotlib; print matplotlib.__version__, matplotlib.__file__'
 
@@ -319,23 +321,9 @@ If you get an error like::
 
 then you will need to set your PYTHONPATH, eg::
 
-    export PYTHONPATH=/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages:$PYTHONPATH
+    export PYTHONPATH=/Library/Python/2.5/site-packages:$PYTHONPATH
 
-See also :ref:`environment-variables`.
-
-
-If you are upgrading your matplotlib using the dmg installer over an
-Enthought Python Distribution, you may get an error like "You must use
-a framework install of python".  EPD puts their python in a directory
-like :file:``//Library/Frameworks/Python.framework/Versions/4.3.0``
-where 4.3.0 is an EPD version number.  The mpl installer needs the
-`python` version number, so you need to create a symlink pointing your
-python version to the EPS version before installing matplotlib.  For
-example, for python veersion 2.5 and EPD version 4.3.0::
-
-  > cd /Library/Frameworks/Python.framework/Versions
-  > ln -s 4.3.0 2.5
-
+See also ref:`environment-variables`.
 
 .. _easy-install-osx-egg:
 
@@ -411,25 +399,25 @@ previous version of MPL was installed (Looks something like ``./matplotlib-0.98.
        #branch="release"
        branch="trunk"
        if [  $branch = "trunk" ]
-    	  then
-    	  echo getting the trunk
-    	  svn co https://matplotlib.svn.sourceforge.net/svnroot/$NAME/trunk/$NAME $NAME
-    	  cd $NAME
+          then
+          echo getting the trunk
+          svn co https://matplotlib.svn.sourceforge.net/svnroot/$NAME/trunk/$NAME $NAME
+          cd $NAME
 
-	fi
-	if [ $branch = "release" ]
-   	   then
-      	   echo getting the maintenance branch
-      	   svn co https://matplotlib.svn.sf.net/svnroot/matplotlib/branches/v${VERSION}_maint $NAME$VERSION
-      	   cd $NAME$VERSION
- 	fi
-  	export CFLAGS="-Os -arch i386"
-  	export LDFLAGS="-Os -arch i386"
-  	export PKG_CONFIG_PATH="/usr/x11/lib/pkgconfig"
-  	export ARCHFLAGS="-arch i386"
-  	python setup.py build
-  	python setup.py install #--prefix=$PREFIX #Use this if you don't want it installed into your default location
-	cd ..
+        fi
+        if [ $branch = "release" ]
+           then
+           echo getting the maintenance branch
+           svn co https://matplotlib.svn.sf.net/svnroot/matplotlib/branches/v${VERSION}_maint $NAME$VERSION
+           cd $NAME$VERSION
+        fi
+        export CFLAGS="-Os -arch i386"
+        export LDFLAGS="-Os -arch i386"
+        export PKG_CONFIG_PATH="/usr/x11/lib/pkgconfig"
+        export ARCHFLAGS="-arch i386"
+        python setup.py build
+        python setup.py install #--prefix=$PREFIX #Use this if you don't want it installed into your default location
+        cd ..
 
 Run this script (for example ``sh ./install-matplotlib-epd-osx.sh``) in the
 directory in which you want the source code to be placed, or simply type the

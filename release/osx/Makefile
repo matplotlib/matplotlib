@@ -22,86 +22,86 @@ CFLAGS_DEPS="-arch i386 -arch ppc -I${SRCDIR}/zlib-${ZLIBVERSION} -isysroot /Dev
 LDFLAGS_DEPS="-arch i386 -arch ppc -L${SRCDIR}/zlib-${ZLIBVERSION} -syslibroot,/Developer/SDKs/MacOSX10.4u.sdk"
 
 clean:
-	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
-	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
-	bdist_mpkg-${BDISTMPKGVERSION} \
-	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} \
-	matplotlib-${MPLVERSION} *~
+        rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
+        freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
+        bdist_mpkg-${BDISTMPKGVERSION} \
+        zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} \
+        matplotlib-${MPLVERSION} *~
 
 fetch:
-	curl -LO http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz &&\
-	curl -LO http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2 &&\
-	curl -LO http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2&&\
-	curl -LO http://pypi.python.org/packages/source/b/bdist_mpkg/bdist_mpkg-${BDISTMPKGVERSION}.tar.gz&&\
-	tar xvfz bdist_mpkg-${BDISTMPKGVERSION}.tar.gz &&\
-	echo "You need to install bdist_mpkg-${BDISTMPKGVERSION} now"
+        curl -LO http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz &&\
+        curl -LO http://internap.dl.sourceforge.net/sourceforge/libpng/libpng-${PNGVERSION}.tar.bz2 &&\
+        curl -LO http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2&&\
+        curl -LO http://pypi.python.org/packages/source/b/bdist_mpkg/bdist_mpkg-${BDISTMPKGVERSION}.tar.gz&&\
+        tar xvfz bdist_mpkg-${BDISTMPKGVERSION}.tar.gz &&\
+        echo "You need to install bdist_mpkg-${BDISTMPKGVERSION} now"
 
 
 
 zlib:
-	unset PKG_CONFIG_PATH &&\
-	rm -rf zlib-${ZLIBVERSION} &&\
-	tar xvfz zlib-${ZLIBVERSION}.tar.gz &&\
-	cd zlib-${ZLIBVERSION} &&\
-	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS_DEPS} &&\
-	export LDFLAGS=${LDFLAGS_DEPS} &&\
-	./configure &&\
-	MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS_ZLIB} LDFLAGS=${LDFLAGS_ZLIB} make -j3&& \
-	unset MACOSX_DEPLOYMENT_TARGET
+        unset PKG_CONFIG_PATH &&\
+        rm -rf zlib-${ZLIBVERSION} &&\
+        tar xvfz zlib-${ZLIBVERSION}.tar.gz &&\
+        cd zlib-${ZLIBVERSION} &&\
+        export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+        export CFLAGS=${CFLAGS_DEPS} &&\
+        export LDFLAGS=${LDFLAGS_DEPS} &&\
+        ./configure &&\
+        MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS_ZLIB} LDFLAGS=${LDFLAGS_ZLIB} make -j3&& \
+        unset MACOSX_DEPLOYMENT_TARGET
 
 png: zlib
-	unset PKG_CONFIG_PATH &&\
-	rm -rf libpng-${PNGVERSION} &&\
-	tar xvfj libpng-${PNGVERSION}.tar.bz2
-	cd libpng-${PNGVERSION} &&\
-	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS_DEPS} &&\
-	export LDFLAGS=${LDFLAGS_DEPS} &&\
-	./configure  --disable-dependency-tracking &&\
-	make -j3 &&\
-	cp .libs/libpng.a . &&\
-	unset MACOSX_DEPLOYMENT_TARGET
+        unset PKG_CONFIG_PATH &&\
+        rm -rf libpng-${PNGVERSION} &&\
+        tar xvfj libpng-${PNGVERSION}.tar.bz2
+        cd libpng-${PNGVERSION} &&\
+        export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+        export CFLAGS=${CFLAGS_DEPS} &&\
+        export LDFLAGS=${LDFLAGS_DEPS} &&\
+        ./configure  --disable-dependency-tracking &&\
+        make -j3 &&\
+        cp .libs/libpng.a . &&\
+        unset MACOSX_DEPLOYMENT_TARGET
 
 
 freetype: zlib
-	unset PKG_CONFIG_PATH &&\
-	rm -rf ${FREETYPEVERSION} &&\
-	tar xvfj freetype-${FREETYPEVERSION}.tar.bz2 &&\
-	cd freetype-${FREETYPEVERSION} &&\
-	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS_DEPS} &&\
-	export LDFLAGS=${LDFLAGS_DEPS} &&\
-	./configure &&\
-	make -j3 &&\
-	cp objs/.libs/libfreetype.a .  &&\
-	unset MACOSX_DEPLOYMENT_TARGET
+        unset PKG_CONFIG_PATH &&\
+        rm -rf ${FREETYPEVERSION} &&\
+        tar xvfj freetype-${FREETYPEVERSION}.tar.bz2 &&\
+        cd freetype-${FREETYPEVERSION} &&\
+        export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
+        export CFLAGS=${CFLAGS_DEPS} &&\
+        export LDFLAGS=${LDFLAGS_DEPS} &&\
+        ./configure &&\
+        make -j3 &&\
+        cp objs/.libs/libfreetype.a .  &&\
+        unset MACOSX_DEPLOYMENT_TARGET
 
 deps:
-	make zlib png freetype
+        make zlib png freetype
 
 installers:
-	unset PKG_CONFIG_PATH &&\
-	tar xvfz matplotlib-${MPLVERSION}.tar.gz && \
-	cd ${MPLSRC} && \
-	rm -rf build && \
-	cp ../data/setup.cfg ../data/ReadMe.txt . &&\
-	export CFLAGS=${CFLAGS} &&\
-	export LDFLAGS=${LDFLAGS} &&\
-	/Library/Frameworks/Python.framework/Versions/${PYVERSION}/bin/bdist_mpkg --readme=ReadMe.txt &&\
-	hdiutil create -srcdir dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.mpkg  dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.dmg &&\
-	${PYTHON} setupegg.py bdist_egg
+        unset PKG_CONFIG_PATH &&\
+        tar xvfz matplotlib-${MPLVERSION}.tar.gz && \
+        cd ${MPLSRC} && \
+        rm -rf build && \
+        cp ../data/setup.cfg ../data/ReadMe.txt . &&\
+        export CFLAGS=${CFLAGS} &&\
+        export LDFLAGS=${LDFLAGS} &&\
+        /Library/Frameworks/Python.framework/Versions/${PYVERSION}/bin/bdist_mpkg --readme=ReadMe.txt &&\
+        hdiutil create -srcdir dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.mpkg  dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.dmg &&\
+        ${PYTHON} setupegg.py bdist_egg
 
 upload:
-	rm -rf upload &&\
-	mkdir upload &&\
-	cp matplotlib-${MPLVERSION}.tar.gz upload/ &&\
-	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}_r0-py${PYVERSION}-macosx-10.3-fat.egg upload/matplotlib-${MPLVERSION}-macosx-py${PYVERSION}.egg &&\
-	cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.zip upload/matplotlib-${MPLVERSION}-py${PYVERSION}-mpkg.zip&&\
-	scp upload/* jdh2358@frs.sourceforge.net:uploads/
+        rm -rf upload &&\
+        mkdir upload &&\
+        cp matplotlib-${MPLVERSION}.tar.gz upload/ &&\
+        cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}_r0-py${PYVERSION}-macosx-10.3-fat.egg upload/matplotlib-${MPLVERSION}-macosx-py${PYVERSION}.egg &&\
+        cp matplotlib-${MPLVERSION}/dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx10.5.zip upload/matplotlib-${MPLVERSION}-py${PYVERSION}-mpkg.zip&&\
+        scp upload/* jdh2358@frs.sourceforge.net:uploads/
 
 all:
-	make clean fetch deps installers upload
+        make clean fetch deps installers upload
 
 
 
