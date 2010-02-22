@@ -138,9 +138,6 @@ class RendererCairo(RendererBase):
 
 
     def draw_path(self, gc, path, transform, rgbFace=None):
-        if len(path.vertices) > 18980:
-           raise ValueError("The Cairo backend can not draw paths longer than 18980 points.")
-
         ctx = gc.ctx
 
         transform = transform + \
