@@ -1017,7 +1017,8 @@ class RectangleSelector:
     """
     def __init__(self, ax, onselect, drawtype='box',
                  minspanx=None, minspany=None, useblit=False,
-                 lineprops=None, rectprops=None, spancoords='data'):
+                 lineprops=None, rectprops=None, spancoords='data',
+                 button=None):
 
         """
         Create a selector in ax.  When a selection is made, clear
@@ -1047,6 +1048,15 @@ class RectangleSelector:
         spancoords is one of 'data' or 'pixels'.  If 'data', minspanx
         and minspanx will be interpreted in the same coordinates as
         the x and ya axis, if 'pixels', they are in pixels
+
+        button is a list of integers indicating which mouse buttons should
+        be used for rectangle selection.  You can also specify a single
+        integer if only a single button is desired.  Default is None, which
+        does not limit which button can be used.
+        Note, typically:
+         1 = left mouse button
+         2 = center mouse button (scroll wheel)
+         3 = right mouse button
         """
         self.ax = ax
         self.visible = True
@@ -1084,6 +1094,11 @@ class RectangleSelector:
         self.minspanx = minspanx
         self.minspany = minspany
 
+        if button is None or isinstance(button, list):
+            self.validButtons = button
+        elif isinstance(button, int):
+            self.validButtons = [button]
+            
         assert(spancoords in ('data', 'pixels'))
 
         self.spancoords = spancoords
@@ -1109,6 +1124,12 @@ class RectangleSelector:
         if not self.canvas.widgetlock.available(self):
             return True
 
+        # Only do rectangle selection if event was triggered
+        # with a desired button
+        if self.validButtons is not None:
+            if not event.button in self.validButtons:
+                return True
+            
         # If no button was pressed yet ignore the event if it was out
         # of the axes
         if self.eventpress == None:
