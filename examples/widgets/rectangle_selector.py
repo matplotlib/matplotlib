@@ -30,5 +30,6 @@ print "\n      click  -->  release"
 # drawtype is 'box' or 'line' or 'none'
 LS = RectangleSelector(current_ax, line_select_callback,
                        drawtype='box',useblit=True,
+                       button = [1, 3], # don't use center mouse button
                        minspanx=5,minspany=5,spancoords='pixels')
 show()
