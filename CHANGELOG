@@ -1,3 +1,7 @@
+2010-02-24 Added pyplot.fig_subplot(), to create a figure and a group of
+	   subplots in a single call.  This offers an easier pattern than
+	   manually making figures and calling add_subplot() multiple times. FP
+	   
 2010-02-17 Added Gokhan's and Mattias' customizable keybindings patch
            for the toolbar.  You can now set the keymap.* properties
            in the matplotlibrc file.  Newbindings were added for

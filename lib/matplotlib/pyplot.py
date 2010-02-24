@@ -649,6 +649,80 @@ def subplot(*args, **kwargs):
     return a
 
 
+def fig_subplot(nrows=1, ncols=1, sharex=False, sharey=False,
+                subplot_kw=None, **fig_kw):
+    """Create a figure with a set of subplots already made.
+
+    This utility wrapper makes it convenient to create common layouts of
+    subplots, including the enclosing figure object, in a single call.
+
+    Keyword arguments:
+    
+    nrows : int
+      Number of rows of the subplot grid.  Defaults to 1.
+
+    nrows : int
+      Number of columns of the subplot grid.  Defaults to 1.
+
+    sharex : bool
+      If True, the X axis will be shared amongst all subplots.
+
+    sharex : bool
+      If True, the Y axis will be shared amongst all subplots.
+
+    subplot_kw : dict
+      Dict with keywords passed to the add_subplot() call used to create each
+      subplots.
+
+    fig_kw : dict
+      Dict with keywords passed to the figure() call.  Note that all keywords
+      not recognized above will be automatically included here.
+
+    Returns:
+
+    fig_axes : list    
+      A list containing [fig, ax1, ax2, ...], where fig is the Matplotlib
+      Figure object and the rest are the axes.
+
+    **Examples:**
+
+    x = np.linspace(0, 2*np.pi, 400)
+    y = np.sin(x**2)
+
+    # Just a figure and one subplot
+    f, ax = plt.fig_subplot()
+    ax.plot(x, y)
+    ax.set_title('Simple plot')
+    
+    # Two subplots, unpack the output immediately
+    f, ax1, ax2 = plt.fig_subplot(1, 2, sharey=True)
+    ax1.plot(x, y)
+    ax1.set_title('Sharing Y axis')
+    ax2.scatter(x, y)
+
+    # Four polar axes
+    plt.fig_subplot(2, 2, subplot_kw=dict(polar=True))
+    """
+
+    if subplot_kw is None:
+        subplot_kw = {}
+        
+    fig = figure(**fig_kw)
+
+    # Create first subplot separately, so we can share it if requested
+    ax1 = fig.add_subplot(nrows, ncols, 1, **subplot_kw)
+    if sharex:
+        subplot_kw['sharex'] = ax1
+    if sharey:
+        subplot_kw['sharey'] = ax1
+
+    # Valid indices for axes start at 1, since fig is at 0: 
+    axes = [ fig.add_subplot(nrows, ncols, i, **subplot_kw)
+             for i in range(2, nrows*ncols+1)]
+
+    return [fig, ax1] + axes
+
+
 def twinx(ax=None):
     """
     Make a second axes overlay *ax* (or the current axes if *ax* is
