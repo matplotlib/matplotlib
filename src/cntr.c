@@ -605,6 +605,9 @@ edge_walker (Csite * site,  int pass2)
                 }
                 if (fwd < 0 && level0 && left < 0)
                 {
+		    /* remove J0_START from this boundary edge as boundary is
+		     * included by the upwards slit from contour line below. */
+                    data[edge] &= ~J0_START;
                     if (n_kind) kcp[n_kind] += kind_start_slit;
                     return slit_cutter (site, 0, pass2);
                 }
