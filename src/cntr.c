@@ -420,19 +420,21 @@ zone_crosser (Csite * site, int level, int pass2)
                 /* this is a saddle zone, determine whether to turn left or
                  * right depending on height of centre of zone relative to
                  * contour level.  Set saddle[zone] if not already decided. */
+                int turnRight;
                 long zone = edge + (left > 0 ? left : 0);
                 if (!(saddle[zone] & SADDLE_SET))
                 {
+                    double zcentre;
                     saddle[zone] = SADDLE_SET;
-                    double zcentre = (z[p0] + z[p0+left] + z[p1] + z[p1+left])/4.0;
+                    zcentre = (z[p0] + z[p0+left] + z[p1] + z[p1+left])/4.0;
                     if (zcentre > site->zlevel[0])
                         saddle[zone] |=
                             (two_levels && zcentre > site->zlevel[1])
                             ? SADDLE_GT0 | SADDLE_GT1 : SADDLE_GT0;
                 }
 
-                int turnRight = level == 2 ? (saddle[zone] & SADDLE_GT1)
-                                           : (saddle[zone] & SADDLE_GT0);
+                turnRight = level == 2 ? (saddle[zone] & SADDLE_GT1)
+                                       : (saddle[zone] & SADDLE_GT0);
                 if (z1 ^ (level == 2))
                     turnRight = !turnRight;
                 if (!turnRight)
