@@ -2265,7 +2265,7 @@ def interval_contains_open(interval, val):
         ((a < b) and (a < val and b > val))
         or (b < val and a > val))
 
-def offset_copy(trans, fig, x=0.0, y=0.0, units='inches'):
+def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     '''
     Return a new transform with an added offset.
       args:
