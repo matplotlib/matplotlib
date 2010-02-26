@@ -16,7 +16,8 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.patches import bbox_artist, YAArrow, FancyBboxPatch, \
      FancyArrowPatch, Rectangle
 import matplotlib.transforms as mtransforms
-from matplotlib.transforms import Affine2D, Bbox
+from matplotlib.transforms import Affine2D, Bbox, Transform ,\
+     BboxBase,  BboxTransformTo
 from matplotlib.lines import Line2D
 
 from matplotlib.artist import allow_rasterization
@@ -306,7 +307,7 @@ class Text(Artist):
                                                         ismath=ismath)
             else:
                 w, h, d = 0, 0, 0
-                
+
             if baseline is None:
                 baseline = h - d
             whs[i] = w, h
@@ -1389,6 +1390,45 @@ class TextWithDash(Text):
 
 docstring.interpd.update(TextWithDash=artist.kwdoc(TextWithDash))
 
+
+class OffsetFrom(object):
+    def __init__(self, artist, ref_coord, unit="points"):
+        self._artist = artist
+        self._ref_coord= ref_coord
+        self.set_unit(unit)
+
+    def set_unit(self, unit):
+        assert unit in ["points", "pixels"]
+        self._unit = unit
+
+    def get_unit(self):
+        return self._unit
+
+    def _get_scale(self, renderer):
+        unit =  self.get_unit()
+        if unit == "pixels":
+            return 1.
+        else:
+            return renderer.points_to_pixels(1.)
+
+    def __call__(self, renderer):
+        if isinstance(self._artist, Artist):
+            bbox = self._artist.get_window_extent(renderer)
+            l, b, w, h = bbox.bounds
+            xf, yf = self._ref_coord
+            x, y = l+w*xf, b+h*yf
+        elif isinstance(self._artist, BboxBase):
+            l, b, w, h = self._artist.bounds
+            xf, yf = self._ref_coord
+            x, y = l+w*xf, b+h*yf
+        elif isinstance(self._artist, Transform):
+            x, y = self._artist.transform_point(self._ref_coord)
+
+        sc = self._get_scale(renderer)
+        tr = Affine2D().scale(sc, sc).translate(x, y)
+
+        return tr
+
 class _AnnotationBase(object):
     def __init__(self,
                  xy, xytext=None,
@@ -1408,101 +1448,168 @@ class _AnnotationBase(object):
 
         self._draggable = None
 
+    def _get_xy(self, renderer, x, y, s):
+        if isinstance(s, tuple):
+            s1, s2 = s
+        else:
+            s1, s2 = s, s
 
-    def _get_xy(self, x, y, s):
-        if s=='data':
-            trans = self.axes.transData
+        if s1 == 'data':
             x = float(self.convert_xunits(x))
+        if s2 == 'data':
             y = float(self.convert_yunits(y))
-            return trans.transform_point((x, y))
-        elif s=='offset points':
-            # convert the data point
-            dx, dy = self.xy
 
-            # prevent recursion
-            if self.xycoords == 'offset points':
-                return self._get_xy(dx, dy, 'data')
 
-            dx, dy = self._get_xy(dx, dy, self.xycoords)
+        tr = self._get_xy_transform(renderer, s)
+        x1, y1 = tr.transform_point((x, y))
+        return x1, y1
 
-            # convert the offset
-            dpi = self.figure.get_dpi()
-            x *= dpi/72.
-            y *= dpi/72.
+    def _get_xy_transform(self, renderer, s):
 
-            # add the offset to the data point
-            x += dx
-            y += dy
+        if isinstance(s, tuple):
+            s1, s2 = s
+            from matplotlib.transforms import blended_transform_factory
+            tr1 = self._get_xy_transform(renderer, s1)
+            tr2 = self._get_xy_transform(renderer, s2)
+            tr = blended_transform_factory(tr1, tr2)
+            return tr
 
-            return x, y
+        if callable(s):
+            tr = s(renderer)
+            if isinstance(tr, BboxBase):
+                return BboxTransformTo(tr)
+            elif isinstance(tr, Transform):
+                return tr
+            else:
+                raise RuntimeError("unknown return type ...")
+        if isinstance(s, Artist):
+            bbox = s.get_window_extent(renderer)
+            return BboxTransformTo(bbox)
+        elif isinstance(s, BboxBase):
+            return BboxTransformTo(s)
+        elif isinstance(s, Transform):
+            return s
+        elif not is_string_like(s):
+            raise RuntimeError("unknown coordinate type : %s" % (s,))
+
+        if s=='data':
+            return self.axes.transData
         elif s=='polar':
-            theta, r = x, y
-            x = r*np.cos(theta)
-            y = r*np.sin(theta)
-            trans = self.axes.transData
-            return trans.transform_point((x,y))
-        elif s=='figure points':
-            #points from the lower left corner of the figure
-            dpi = self.figure.dpi
-            l,b,w,h = self.figure.bbox.bounds
-            r = l+w
-            t = b+h
+            from matplotlib.projections import PolarAxes
+            tr = PolarAxes.PolarTransform()
+            trans = tr + self.axes.transData
+            return trans
+            
+        s_ = s.split()
+        if len(s_) != 2:
+            raise ValueError("%s is not a recognized coodinate" % s)
 
-            x *= dpi/72.
-            y *= dpi/72.
-            if x<0:
-                x = r + x
-            if y<0:
-                y = t + y
-            return x,y
-        elif s=='figure pixels':
-            #pixels from the lower left corner of the figure
-            l,b,w,h = self.figure.bbox.bounds
-            r = l+w
-            t = b+h
-            if x<0:
-                x = r + x
-            if y<0:
-                y = t + y
-            return x, y
-        elif s=='figure fraction':
-            #(0,0) is lower left, (1,1) is upper right of figure
-            trans = self.figure.transFigure
-            return trans.transform_point((x,y))
-        elif s=='axes points':
-            #points from the lower left corner of the axes
-            dpi = self.figure.dpi
-            l,b,w,h = self.axes.bbox.bounds
-            r = l+w
-            t = b+h
-            if x<0:
-                x = r + x*dpi/72.
-            else:
-                x = l + x*dpi/72.
-            if y<0:
-                y = t + y*dpi/72.
-            else:
-                y = b + y*dpi/72.
-            return x, y
-        elif s=='axes pixels':
-            #pixels from the lower left corner of the axes
+        bbox0, xy0 = None, None
 
-            l,b,w,h = self.axes.bbox.bounds
-            r = l+w
-            t = b+h
-            if x<0:
-                x = r + x
+        bbox_name, unit = s_
+        # if unit is offset-like
+        if bbox_name == "figure":
+            bbox0 = self.figure.bbox
+        elif bbox_name == "axes":
+            bbox0 = self.axes.bbox
+        # elif bbox_name == "bbox":
+        #     if bbox is None:
+        #         raise RuntimeError("bbox is specified as a coordinate but never set")
+        #     bbox0 = self._get_bbox(renderer, bbox)
+
+        if bbox0 is not None:
+            xy0 = bbox0.bounds[:2]
+        elif bbox_name == "offset":
+            xy0 = self._get_ref_xy(renderer)
+
+        if xy0 is not None:
+            # reference x, y in display coordinate
+            ref_x, ref_y = xy0
+            from matplotlib.transforms import Affine2D
+            if unit == "points":
+                dpi = self.figure.get_dpi()
+                tr = Affine2D().scale(dpi/72., dpi/72.)
+            elif unit == "pixels":
+                tr = Affine2D()
+            elif unit == "fontsize":
+                fontsize = self.get_size()
+                dpi = self.figure.get_dpi()
+                tr = Affine2D().scale(fontsize*dpi/72., fontsize*dpi/72.)
+            elif unit == "fraction":
+                w, h = bbox0.bounds[2:]
+                tr = Affine2D().scale(w, h)
             else:
-                x = l + x
-            if y<0:
-                y = t + y
-            else:
-                y = b + y
-            return x, y
-        elif s=='axes fraction':
-            #(0,0) is lower left, (1,1) is upper right of axes
-            trans = self.axes.transAxes
-            return trans.transform_point((x, y))
+                raise ValueError("%s is not a recognized coodinate" % s)
+
+            return tr.translate(ref_x, ref_y)
+
+        else:
+            raise ValueError("%s is not a recognized coodinate" % s)
+
+
+    def _get_ref_xy(self, renderer):
+        """
+        return x, y (in display coordinate) that is to be used for a reference
+        of any offset coordinate
+        """
+
+        if isinstance(self.xycoords, tuple):
+            s1, s2 = self.xycoords
+            if s1.split()[0] == "offset" or s2.split()[0] == "offset":
+                raise ValueError("xycoords should not be an offset coordinate")
+            x, y = self.xy
+            x1, y1 = self._get_xy(renderer, x, y, s1)
+            x2, y2 = self._get_xy(renderer, x, y, s2)
+            return x1, y2
+        elif is_string_like(self.xycoords) and self.xycoords.split()[0] == "offset":
+            raise ValueError("xycoords should not be an offset coordinate")
+        else:
+            x, y = self.xy
+            return self._get_xy(renderer, x, y, self.xycoords)
+        #raise RuntimeError("must be defined by the derived class")
+
+
+    # def _get_bbox(self, renderer):
+    #     if hasattr(bbox, "bounds"):
+    #         return bbox
+    #     elif hasattr(bbox, "get_window_extent"):
+    #         bbox = bbox.get_window_extent()
+    #         return bbox
+    #     else:
+    #         raise ValueError("A bbox instance is expected but got %s" % str(bbox))
+
+
+
+    def _get_xy_legacy(self, renderer, x, y, s):
+        """
+        only used when s in ['axes points', 'axes pixel', 'figure points', 'figure pixel'].
+        """
+        s_ = s.split()
+        bbox0, xy0 = None, None
+        bbox_name, unit = s_
+
+        if bbox_name == "figure":
+            bbox0 = self.figure.bbox
+        elif bbox_name == "axes":
+            bbox0 = self.axes.bbox
+
+        if unit == "points":
+            sc = self.figure.get_dpi()/72.
+        elif unit == "pixels":
+            sc = 1
+
+        l,b,r,t = bbox0.extents
+        if x<0:
+            x = r + x*sc
+        else:
+            x = l + x*sc
+        if y<0:
+            y = t + y*sc
+        else:
+            y = b + y*sc
+
+        return x, y
+    
 
     def set_annotation_clip(self, b):
         """
@@ -1524,7 +1631,7 @@ class _AnnotationBase(object):
     def _get_position_xy(self, renderer):
         "Return the pixel position of the the annotated point."
         x, y = self.xy
-        return self._get_xy(x, y, self.xycoords)
+        return self._get_xy(renderer, x, y, self.xycoords)
 
     def _check_xy(self, renderer, xy_pixel):
         """
@@ -1533,6 +1640,7 @@ class _AnnotationBase(object):
         """
 
         b = self.get_annotation_clip()
+
         if b or (b is None and self.xycoords == "data"):
             # check if self.xy is inside the axes.
             if not self.axes.contains_point(xy_pixel):
@@ -1550,7 +1658,7 @@ class _AnnotationBase(object):
           * True : turn draggable on
 
           * False : turn draggable off
-          
+
         If draggable is on, you can drag the annotation on the canvas with
         the mouse.  The DraggableAnnotation helper instance is returned if
         draggable is on.
@@ -1561,7 +1669,7 @@ class _AnnotationBase(object):
         # if state is None we'll toggle
         if state is None:
             state = not is_draggable
-            
+
         if state:
             if self._draggable is None:
                 self._draggable = DraggableAnnotation(self, use_blit)
@@ -1706,7 +1814,7 @@ class Annotation(Text, _AnnotationBase):
         else:
             self.arrow_patch = None
 
-        
+
     def contains(self,event):
         t,tinfo = Text.contains(self,event)
         if self.arrow is not None:
@@ -1737,7 +1845,8 @@ class Annotation(Text, _AnnotationBase):
         "Update the pixel positions of the annotation text and the arrow patch."
 
         x, y = self.xytext
-        self._x, self._y = self._get_xy(x, y, self.textcoords)
+        self._x, self._y = self._get_xy(renderer, x, y,
+                                        self.textcoords)
 
 
         x, y = xy_pixel

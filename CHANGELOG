@@ -1,3 +1,8 @@
+2010-02-25 refactor Annotation to support arbitrary Transform as xycoords 
+           or textcoords. Also, if a tuple of two coordinates is provided, 
+           they are interpreted as coordinates for each x and y position. 
+           -JJL
+
 2010-02-24 Added pyplot.fig_subplot(), to create a figure and a group of
 	   subplots in a single call.  This offers an easier pattern than
 	   manually making figures and calling add_subplot() multiple times. FP
