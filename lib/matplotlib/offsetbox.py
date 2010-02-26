@@ -1301,11 +1301,11 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         x, y = self.xytext
         if isinstance(self.textcoords, tuple):
             xcoord, ycoord = self.textcoords
-            x1, y1 = self._get_xy(x, y, xcoord)
-            x2, y2 = self._get_xy(x, y, ycoord)
+            x1, y1 = self._get_xy(renderer, x, y, xcoord)
+            x2, y2 = self._get_xy(renderer, x, y, ycoord)
             ox0, oy0 = x1, y2
         else:
-            ox0, oy0 = self._get_xy(x, y, self.textcoords)
+            ox0, oy0 = self._get_xy(renderer, x, y, self.textcoords)
 
         #self.offsetbox.set_bbox_to_anchor((ox0, oy0))
         w, h, xd, yd = self.offsetbox.get_extent(renderer)
@@ -1526,11 +1526,11 @@ class DraggableAnnotation(DraggableBase):
         x, y = ann.xytext
         if isinstance(ann.textcoords, tuple):
             xcoord, ycoord = ann.textcoords
-            x1, y1 = ann._get_xy(x, y, xcoord)
-            x2, y2 = ann._get_xy(x, y, ycoord)
+            x1, y1 = ann._get_xy(self.canvas.renderer, x, y, xcoord)
+            x2, y2 = ann._get_xy(self.canvas.renderer, x, y, ycoord)
             ox0, oy0 = x1, y2
         else:
-            ox0, oy0 = ann._get_xy(x, y, ann.textcoords)
+            ox0, oy0 = ann._get_xy(self.canvas.renderer, x, y, ann.textcoords)
 
         self.ox, self.oy = ox0, oy0
         self.annotation.textcoords = "figure pixels"
@@ -1539,7 +1539,7 @@ class DraggableAnnotation(DraggableBase):
         ann = self.annotation
         ann.xytext = self.ox + dx, self.oy + dy
         x, y = ann.xytext
-        xy = ann._get_xy(x, y, ann.textcoords)
+        xy = ann._get_xy(self.canvas.renderer, x, y, ann.textcoords)
 
     def finalize_offset(self):
         loc_in_canvas = self.annotation.xytext
