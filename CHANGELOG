@@ -1,3 +1,5 @@
+2010-02-25 add annotation_demo3.py that demonstrates new functionality. -JJL
+
 2010-02-25 refactor Annotation to support arbitrary Transform as xycoords 
            or textcoords. Also, if a tuple of two coordinates is provided, 
            they are interpreted as coordinates for each x and y position. 
