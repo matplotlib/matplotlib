@@ -76,17 +76,16 @@ t = ax2.annotate('xy=(0, 1)\nxycoords=("data", "axes fraction")',
 
 from matplotlib.text import OffsetFrom
 
-ax2.annotate('xy=(0.5, 0)\nxycoords="bbox fraction"\nxybbox=artist',
-             xy=(0.5, 0.),  xycoords=t.get_window_extent,
+ax2.annotate('xy=(0.5, 0)\nxycoords=artist',
+             xy=(0.5, 0.),  xycoords=t,
              xytext=(0, -20), textcoords='offset points',
              ha="center", va="top",
              bbox=bbox_args,
              arrowprops=arrow_args
              )
 
-ax2.annotate('xy=(0.8, 0.5)\nxycoords="bbox"\nxybbox=ax1.transData',
+ax2.annotate('xy=(0.8, 0.5)\nxycoords=ax1.transData',
              xy=(0.8, 0.5),  xycoords=ax1.transData,
-             #xytext=(0, 0), textcoords='data',
              xytext=(10, 10), textcoords=OffsetFrom(ax2.bbox, (0, 0), "points"),
              ha="left", va="bottom",
              bbox=bbox_args,
