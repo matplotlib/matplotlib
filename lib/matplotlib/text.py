@@ -1423,7 +1423,9 @@ class OffsetFrom(object):
             x, y = l+w*xf, b+h*yf
         elif isinstance(self._artist, Transform):
             x, y = self._artist.transform_point(self._ref_coord)
-
+        else:
+            raise RuntimeError("unknown type")
+            
         sc = self._get_scale(renderer)
         tr = Affine2D().scale(sc, sc).translate(x, y)
 
@@ -1779,6 +1781,11 @@ class Annotation(Text, _AnnotationBase):
           # 10 points to the right of the left border of the axes and
           # 5 points below the top border
           xy=(10,-5), xycoords='axes points'
+
+        You may use an instance of
+        :class:`~matplotlib.transforms.Transform` or
+        :class:`~matplotlib.artist.Artist`. See
+        :ref:`plotting-guide-annotation` for more details.
 
 
         The *annotation_clip* attribute contols the visibility of the

@@ -4,8 +4,11 @@
 Annotating Axes
 ****************
 
-Do not proceed unless you already have read
-:func:`~matplotlib.pyplot.text` and :func:`~matplotlib.pyplot.annotate`!
+Do not proceed unless you already have read :ref:`annotations-tutorial`,
+:func:`~matplotlib.pyplot.text` and
+:func:`~matplotlib.pyplot.annotate`!
+
+
 
 
 Annotating with Text with Box
@@ -182,31 +185,6 @@ lower-left corner and (1,1) means top-right.
 .. plot:: users/plotting/examples/annotate_simple04.py
 
 
-Using ConnectorPatch
-====================
-
-The ConnectorPatch is like an annotation without a text.  While the
-annotate function is recommended in most of situation, the
-ConnectorPatch is useful when you want to connect points in different
-axes. ::
-
-  from matplotlib.patches import ConnectionPatch
-  xy = (0.2, 0.2)
-  con = ConnectionPatch(xyA=xy, xyB=xy, coordsA="data", coordsB="data",
-                        axesA=ax1, axesB=ax2)
-  ax2.add_artist(con)
-
-The above code connects point xy in data coordinate of ``ax1`` to
-point xy int data coordinate of ``ax2``. Here is a simple example.
-
-.. plot:: users/plotting/examples/connect_simple01.py
-
-
-While the ConnectorPatch instance can be added to any axes, but you
-may want it to be added to the axes in the latter (?) of the axes
-drawing order to prevent overlap (?) by other axes.
-
-
 Placing Artist at the anchored location of the Axes
 ===================================================
 
@@ -281,6 +259,111 @@ legend (as a matter of fact, this is how the legend is created).
 
 Note that unlike the legend, the ``bbox_transform`` is set
 to IdentityTransform by default.
+
+Using Complex Coordinate with Annotation
+========================================
+
+The Annotation in matplotlib support several types of coordinate as
+described in :ref:`annotations-tutorial`. For an advanced user who wants
+more control, it supports a few other options.
+
+ 1. :class:`~matplotlib.transforms.Transform` instance. For example, ::
+
+      ax.annotate("Test", xy=(0.5, 0.5), xycoords=ax.transAxes)
+
+    is identical to ::
+
+      ax.annotate("Test", xy=(0.5, 0.5), xycoords="axes fraction")
+
+    With this, you can annotate a point in other axes. ::
+
+      ax1, ax2 = subplot(121), subplot(122)
+      ax2.annotate("Test", xy=(0.5, 0.5), xycoords=ax1.transData,
+                   xytext=(0.5, 0.5), textcoords=ax2.transData,
+                   arrowprops=dict(arrowstyle="->"))
+
+ 2. :class:`~matplotlib.artist.Artist` instance. The xy value (or
+    xytext) is interpreted as a fractional coordinate of the bbox
+    (return value of *get_window_extent*) of the artist. ::
+
+      an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
+                        va="center", ha="center",
+                        bbox=dict(boxstyle="round", fc="w"))
+      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1, # (1,0.5) of the an1's bbox
+                        xytext=(30,0), textcoords="offset points",
+                        va="center", ha="left",
+                        bbox=dict(boxstyle="round", fc="w"),
+                        arrowprops=dict(arrowstyle="->"))
+
+    .. plot:: users/plotting/examples/annotate_simple_coord01.py
+
+    Note that it is your responsibility that the extent of the
+    coordinate artist (*an1* in above example) is determined before *an2*
+    gets drawn. In most cases, it means that an2 needs to be drawn
+    later than *an1*.
+
+
+ 3. A callable object that returns an instance of either
+    :class:`~matplotlib.transforms.BboxBase` or
+    :class:`~matplotlib.transforms.Transform`. If a transform is
+    returned, it is same as 1 and if bbox is returned, it is same
+    as 2.  The callable object should take a single argument of
+    renderer instance. For example, following two commands give
+    identical results ::
+      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,
+                        xytext=(30,0), textcoords="offset points")
+      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1.get_window_extent,
+                        xytext=(30,0), textcoords="offset points")
+
+
+ 4. A tuple of two coordinate specification. The first item is for
+    x-coordinate and the second is for y-coordinate. For example, ::
+
+      annotate("Test", xy=(0.5, 1), xycoords=("data", "axes fraction"))
+
+    0.5 is in data coordinate, and 1 is in normalized axes coordinate.
+    You may use an atist or transform as with a tuple. For example, 
+
+    .. plot:: users/plotting/examples/annotate_simple_coord02.py
+       :include-source:
+
+
+ 5. Sometimes, you want your annotation with some "offset points", but
+    not from the annotated point but from other
+    point. :class:`~matplotlib.text.OffsetFrom` is a helper class for such
+    case.
+
+    .. plot:: users/plotting/examples/annotate_simple_coord03.py
+      :include-source:
+
+    You may take a look at this example :ref:`pylab_examples-annotation_demo3`.
+
+Using ConnectorPatch
+====================
+
+The ConnectorPatch is like an annotation without a text.  While the
+annotate function is recommended in most of situation, the
+ConnectorPatch is useful when you want to connect points in different
+axes. ::
+
+  from matplotlib.patches import ConnectionPatch
+  xy = (0.2, 0.2)
+  con = ConnectionPatch(xyA=xy, xyB=xy, coordsA="data", coordsB="data",
+                        axesA=ax1, axesB=ax2)
+  ax2.add_artist(con)
+
+The above code connects point xy in data coordinate of ``ax1`` to
+point xy int data coordinate of ``ax2``. Here is a simple example.
+
+.. plot:: users/plotting/examples/connect_simple01.py
+
+
+While the ConnectorPatch instance can be added to any axes, but you
+may want it to be added to the axes in the latter (?) of the axes
+drawing order to prevent overlap (?) by other axes.
+
+
+
 
 Advanced Topics
 ***************
