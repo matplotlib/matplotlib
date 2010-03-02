@@ -659,7 +659,7 @@ class Line2D(Artist):
         """
         Return the *xy* data as a Nx2 numpy array.
         """
-        if self._invalidy or self.invalidx:
+        if self._invalidy or self._invalidx:
             self.recache()
         return self._xy
 
@@ -831,7 +831,7 @@ class Line2D(Artist):
 
     def set_markerfacecolor(self, fc):
         """
-        Set the marker face color. 
+        Set the marker face color.
 
         ACCEPTS: any matplotlib color
         """
@@ -842,7 +842,7 @@ class Line2D(Artist):
 
     def set_markerfacecoloralt(self, fc):
         """
-        Set the alternate marker face color. 
+        Set the alternate marker face color.
 
         ACCEPTS: any matplotlib color
         """
@@ -1020,7 +1020,7 @@ class Line2D(Artist):
                                   path, path_trans, rgbFace)
             transform = transform.rotate_deg(180.)
             renderer.draw_markers(gc, righthalf, transform,
-                                  path, path_trans, rgbFace_alt)            
+                                  path, path_trans, rgbFace_alt)
 
 
     _draw_pixel_transform = Affine2D().translate(-0.5, -0.5)
@@ -1041,7 +1041,7 @@ class Line2D(Artist):
         rgbFace = self._get_rgb_face()
         fs = self.get_fillstyle()
         if fs=='full':
-            renderer.draw_markers(gc, Path.unit_circle(), transform, 
+            renderer.draw_markers(gc, Path.unit_circle(), transform,
                                   path, path_trans, rgbFace)
         else:
             rgbFace_alt = self._get_rgb_face(alt=True)
@@ -1118,7 +1118,7 @@ class Line2D(Artist):
                                   path, path_trans, rgbFace)
             renderer.draw_markers(gc, mpath_alt, transform,
                                   path, path_trans, rgbFace_alt)
-        
+
 
     def _draw_triangle_up(self, renderer, gc, path, path_trans):
         self._draw_triangle(renderer, gc, path, path_trans, 'up')
@@ -1190,7 +1190,7 @@ class Line2D(Artist):
                                   path, path_trans, rgbFace)
             renderer.draw_markers(gc, left, transform,
                                   path, path_trans, rgbFace_alt)
-            
+
 
     def _draw_thin_diamond(self, renderer, gc, path, path_trans):
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 3.0)
@@ -1238,7 +1238,7 @@ class Line2D(Artist):
                                   path, path_trans, rgbFace)
         else:
             verts = polypath.vertices
-            
+
             y = (1+np.sqrt(5))/4.
             top = Path([verts[0], verts[1], verts[4], verts[0]])
             bottom = Path([verts[1], verts[2], verts[3], verts[4], verts[1]])
@@ -1299,7 +1299,7 @@ class Line2D(Artist):
 
 
     def _draw_hexagon1(self, renderer, gc, path, path_trans):
-        gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)        
+        gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
         transform = Affine2D().scale(offset)
 
@@ -1338,7 +1338,7 @@ class Line2D(Artist):
 
 
     def _draw_hexagon2(self, renderer, gc, path, path_trans):
-        gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)        
+        gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5 * renderer.points_to_pixels(self._markersize)
         transform = Affine2D().scale(offset).rotate_deg(30)
 
