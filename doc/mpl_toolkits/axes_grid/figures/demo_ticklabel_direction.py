@@ -33,8 +33,8 @@ ax.axis["bottom"].set_axis_direction("top")
 ax.axis["right"].set_axis_direction("left")
 ax.axis["top"].set_axis_direction("bottom")
 
-ax.axis["left"].major_ticklabels.set_pad(0)
-ax.axis["bottom"].major_ticklabels.set_pad(10)
+#ax.axis["left"].major_ticklabels.set_pad(0)
+#ax.axis["bottom"].major_ticklabels.set_pad(10)
 
 
 
