@@ -1586,7 +1586,7 @@ class Line2D(Artist):
 
     def set_mfc(self, val):
         'alias for set_markerfacecolor'
-        self.set_markerfacecolor(val, alt=alt)
+        self.set_markerfacecolor(val)
 
     def set_mfcalt(self, val):
         'alias for set_markerfacecoloralt'
