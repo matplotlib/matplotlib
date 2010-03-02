@@ -389,6 +389,13 @@ class LabelBase(mtext.Text):
     def _get_offset_radius(self):
         return self._offset_radius
 
+
+    _get_opposite_direction = {"left":"right",
+                               "right":"left",
+                               "top":"bottom",
+                               "bottom":"top"}.__getitem__
+
+
     def _update(self, renderer):
         pass
 
@@ -664,6 +671,11 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         self._axis_direction = label_direction
         self.set_default_alignment(label_direction)
         self.set_default_angle(label_direction)
+
+
+    def invert_axis_direction(self):
+        label_direction = self._get_opposite_direction(self._axis_direction)
+        self.set_axis_direction(label_direction)
 
     def _get_ticklabels_offsets(self, renderer, label_direction):
         """
@@ -1021,6 +1033,15 @@ class AxisArtist(martist.Artist):
         else:
             self._ticklabel_add_angle = 0
 
+    def invert_ticklabel_direction(self):
+        self._ticklabel_add_angle = (self._ticklabel_add_angle + 180) % 360
+        self.major_ticklabels.invert_axis_direction()
+        self.minor_ticklabels.invert_axis_direction()
+
+    # def invert_ticks_direction(self):
+    #     self.major_ticks.set_tick_out(not self.major_ticks.get_tick_out())
+    #     self.minor_ticks.set_tick_out(not self.minor_ticks.get_tick_out())
+
     def set_axislabel_direction(self, label_direction):
         """
         Adjust the direction of the axislabel.
@@ -1190,9 +1211,10 @@ class AxisArtist(martist.Artist):
         # set extra pad for major and minor ticklabels:
         # use ticksize of majorticks even for minor ticks. not clear what is best.
 
+        dpi_cor = renderer.points_to_pixels(1.)
         if self.major_ticks.get_visible() and self.major_ticks.get_tick_out():
-            self.major_ticklabels._set_external_pad(self.major_ticks._ticksize)
-            self.minor_ticklabels._set_external_pad(self.major_ticks._ticksize)
+            self.major_ticklabels._set_external_pad(self.major_ticks._ticksize*dpi_cor)
+            self.minor_ticklabels._set_external_pad(self.major_ticks._ticksize*dpi_cor)
         else:
             self.major_ticklabels._set_external_pad(0)
             self.minor_ticklabels._set_external_pad(0)
@@ -1301,8 +1323,19 @@ class AxisArtist(martist.Artist):
 
         #pad_points = self.major_tick_pad
 
-        axislabel_pad = max([self.major_ticklabels._axislabel_pad,
-                             self.minor_ticklabels._axislabel_pad])
+        #print self._ticklabel_add_angle - self._axislabel_add_angle
+        #if abs(self._ticklabel_add_angle - self._axislabel_add_angle)%360 > 90:
+        if self._ticklabel_add_angle !=  self._axislabel_add_angle:
+            if (self.major_ticks.get_visible() and not self.major_ticks.get_tick_out()) \
+               or \
+               (self.minor_ticks.get_visible() and not self.major_ticks.get_tick_out()):
+                axislabel_pad = self.major_ticks._ticksize
+            else:
+                axislabel_pad = 0
+        else:
+            axislabel_pad = max([self.major_ticklabels._axislabel_pad,
+                                 self.minor_ticklabels._axislabel_pad])
+
 
         #label_offset =  axislabel_pad + self.LABELPAD
 
@@ -1341,6 +1374,7 @@ class AxisArtist(martist.Artist):
 
 
         self._draw_line(renderer)
+
         self._draw_ticks(renderer)
 
         #self._draw_offsetText(renderer)
