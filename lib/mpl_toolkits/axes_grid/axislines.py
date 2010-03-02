@@ -336,10 +336,15 @@ class AxisArtistHelperRectlinear:
             get_label_transform() returns a transform of (transAxes+offset)
             """
             loc = self._axis_direction
-            angle = dict(left=0,
-                         right=0,
-                         bottom=.5*np.pi,
-                         top=.5*np.pi)[loc]
+            #angle = dict(left=0,
+            #             right=0,
+            #             bottom=.5*np.pi,
+            #             top=.5*np.pi)[loc]
+
+            if self.nth_coord == 0:
+                angle = 0
+            else:
+                angle = 90
 
             _verts = [0.5, 0.5]
 
@@ -369,6 +374,11 @@ class AxisArtistHelperRectlinear:
             else:
                 angle_normal, angle_tangent = 0, 90
 
+            if self.nth_coord == 0:
+                angle_normal, angle_tangent = 90, 0
+            else:
+                angle_normal, angle_tangent = 0, 90
+                
             #angle = 90 - 90 * self.nth_coord
 
             major = self.axis.major
