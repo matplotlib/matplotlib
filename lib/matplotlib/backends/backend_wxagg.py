@@ -171,7 +171,7 @@ def _clipped_image_as_bitmap(image, bbox):
     """
     Convert the region of a wx.Image bounded by bbox to a wx.Bitmap.
     """
-    l, b, width, height = bbox.get_bounds()
+    l, b, width, height = bbox.bounds
     r = l + width
     t = b + height
 
@@ -238,7 +238,7 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
 
     Note: agg must be a backend_agg.RendererAgg instance.
     """
-    l, b, width, height = bbox.get_bounds()
+    l, b, width, height = bbox.bounds
     r = l + width
     t = b + height
 

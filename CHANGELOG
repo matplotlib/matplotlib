@@ -1,3 +1,26 @@
+2010-03-03 Manually brought in commits from branch via diff/patch (svnmerge is broken)
+
+  ------------------------------------------------------------------------
+  r8175 | leejjoon | 2010-03-03 10:03:30 -0800 (Wed, 03 Mar 2010) | 1 line
+
+  fix arguments of allow_rasterization.draw_wrapper
+  ------------------------------------------------------------------------
+  r8174 | jdh2358 | 2010-03-03 09:15:58 -0800 (Wed, 03 Mar 2010) | 1 line
+
+  added support for favicon in docs build
+  ------------------------------------------------------------------------
+  r8173 | jdh2358 | 2010-03-03 08:56:16 -0800 (Wed, 03 Mar 2010) | 1 line
+
+  applied Mattias get_bounds patch
+  ------------------------------------------------------------------------
+  r8172 | jdh2358 | 2010-03-03 08:31:42 -0800 (Wed, 03 Mar 2010) | 1 line
+
+  fix svnmerge download instructions
+  ------------------------------------------------------------------------
+  r8171 | jdh2358 | 2010-03-03 07:47:48 -0800 (Wed, 03 Mar 2010) | 1 line
+
+
+
 2010-02-25 add annotation_demo3.py that demonstrates new functionality. -JJL
 
 2010-02-25 refactor Annotation to support arbitrary Transform as xycoords 
