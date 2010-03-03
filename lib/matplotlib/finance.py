@@ -597,8 +597,8 @@ def volume_overlay3(ax, quotes,
     maxy = max([volume for d, open, close, high, low, volume in quotes])
     corners = (minpy, miny), (maxx, maxy)
     ax.update_datalim(corners)
-    #print 'datalim', ax.dataLim.get_bounds()
-    #print 'viewlim', ax.viewLim.get_bounds()
+    #print 'datalim', ax.dataLim.bounds
+    #print 'viewlim', ax.viewLim.bounds
 
     ax.add_collection(barCollection)
     ax.autoscale_view()

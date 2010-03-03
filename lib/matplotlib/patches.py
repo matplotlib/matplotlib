@@ -1383,12 +1383,12 @@ def bbox_artist(artist, renderer, props=None, fill=True):
     pad = props.pop('pad', 4)
     pad = renderer.points_to_pixels(pad)
     bbox = artist.get_window_extent(renderer)
-    l,b,w,h = bbox.bounds
-    l-=pad/2.
-    b-=pad/2.
-    w+=pad
-    h+=pad
-    r = Rectangle(xy=(l,b),
+    l, b, w, h = bbox.bounds
+    l -= pad/2.
+    b -= pad/2.
+    w += pad
+    h += pad
+    r = Rectangle(xy=(l, b),
                   width=w,
                   height=h,
                   fill=fill,
@@ -1407,8 +1407,8 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     to test whether the artist is returning the correct bbox.
     """
 
-    l,b,w,h = bbox.get_bounds()
-    r = Rectangle(xy=(l,b),
+    l, b, w, h = bbox.bounds
+    r = Rectangle(xy=(l, b),
                   width=w,
                   height=h,
                   edgecolor=color,
@@ -3174,7 +3174,7 @@ class ArrowStyle(_Style):
                 cos_t, sin_t = get_cos_sin(x1, y1, x0, y0)
                 verticesA, codesA = self._get_bracket(x0, y0, cos_t, sin_t,
                                                       self.widthA*scaleA,
-                                                      self.legnthA*scaleA)
+                                                      self.lengthA*scaleA)
                 vertices_list.append(verticesA)
                 codes_list.append(codesA)
 

@@ -419,7 +419,7 @@ interactive session illustrating what is going on:
     # and notice that the ax.add_patch method has set the axes
     # instance
     In [267]: print rect.get_axes()
-    Subplot(49,81.25)
+    Axes(0.125,0.1;0.775x0.8)
 
     # and the transformation has been set too
     In [268]: print rect.get_transform()
@@ -434,7 +434,7 @@ interactive session illustrating what is going on:
     (0.0, 1.0)
 
     # but the data limits have been updated to encompass the rectangle
-    In [271]: print ax.dataLim.get_bounds()
+    In [271]: print ax.dataLim.bounds
     (1.0, 1.0, 5.0, 12.0)
 
     # we can manually invoke the auto-scaling machinery
