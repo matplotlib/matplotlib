@@ -1414,12 +1414,12 @@ def bbox_artist(artist, renderer, props=None, fill=True):
     pad = props.pop('pad', 4)
     pad = renderer.points_to_pixels(pad)
     bbox = artist.get_window_extent(renderer)
-    l,b,w,h = bbox.bounds
-    l-=pad/2.
-    b-=pad/2.
-    w+=pad
-    h+=pad
-    r = Rectangle(xy=(l,b),
+    l, b, w, h = bbox.bounds
+    l -= pad/2.
+    b -= pad/2.
+    w += pad
+    h += pad
+    r = Rectangle(xy=(l, b),
                   width=w,
                   height=h,
                   fill=fill,
@@ -1438,8 +1438,8 @@ def draw_bbox(bbox, renderer, color='k', trans=None):
     to test whether the artist is returning the correct bbox.
     """
 
-    l,b,w,h = bbox.get_bounds()
-    r = Rectangle(xy=(l,b),
+    l, b, w, h = bbox.bounds
+    r = Rectangle(xy=(l, b),
                   width=w,
                   height=h,
                   edgecolor=color,

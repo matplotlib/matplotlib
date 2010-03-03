@@ -50,9 +50,9 @@ def allow_rasterization(draw):
             renderer.stop_rasterizing()
 
     # the axes class has a second argument inframe for its draw method.
-    def draw_wrapper(artist, renderer, *kl):
+    def draw_wrapper(artist, renderer, *args, **kwargs):
         before(artist, renderer)
-        draw(artist, renderer, *kl)
+        draw(artist, renderer, *args, **kwargs)
         after(artist, renderer)
 
     # "safe wrapping" to exactly replicate anything we haven't overridden above
