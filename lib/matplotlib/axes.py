@@ -69,12 +69,12 @@ def _process_plot_format(fmt):
         except ValueError:
             return linestyle, marker, color         # Yes
         else:
-            if fmt != fmtint: 
-                # user definitely doesn't want tri_down marker 
+            if fmt != fmtint:
+                # user definitely doesn't want tri_down marker
                 return linestyle, marker, color     # Yes
             else:
                 # ignore converted color
-                color = None 
+                color = None
     except ValueError:
         pass                                        # No, not just a color.
 
@@ -5773,18 +5773,16 @@ class Axes(martist.Artist):
             if (accum==0).any():
                 # make sure we have not zeros
                 accum += 1
-            
-
-        # Transform accum if needed
-        if bins=='log':
-            accum = np.log10(accum+1)
 
         # autoscale the norm with curren accum values if it hasn't
         # been set
         if norm is not None:
             if norm.vmin is None and norm.vmax is None:
                 norm.autoscale(accum)
-  
+
+        # Transform accum if needed
+        if bins=='log':
+            accum = np.log10(accum+1)
         elif bins!=None:
             if not iterable(bins):
                 minimum, maximum = min(accum), max(accum)

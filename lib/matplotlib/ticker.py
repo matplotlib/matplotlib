@@ -542,9 +542,10 @@ class LogFormatter(Formatter):
         return self.fix_minus(s)
 
     def format_data(self, value):
+        b = self.labelOnlyBase
         self.labelOnlyBase = False
         value = cbook.strip_math(self.__call__(value))
-        self.labelOnlyBase = True
+        self.labelOnlyBase = b
         return value
 
     def format_data_short(self,value):
