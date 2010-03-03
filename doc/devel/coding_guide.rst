@@ -75,8 +75,8 @@ The basic procedure is:
 
 * install ``svnmerge.py`` in your PATH::
 
-    > wget http://svn.collab.net/repos/svn/trunk/contrib/client-side/\
-      svnmerge/svnmerge.py
+    > wget http://svn.apache.org/repos/asf/subversion/trunk/contrib/\
+      client-side/svnmerge/svnmerge.py
 
 * get a svn checkout of the branch you'll be making bugfixes to and
   the trunk (see above)
