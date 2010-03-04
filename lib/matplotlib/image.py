@@ -592,6 +592,12 @@ class NonUniformImage(AxesImage):
                            **kwargs)
         AxesImage.set_interpolation(self, interp)
 
+    def _check_unsampled_image(self, renderer):
+        """
+        return False. Do not use unsampled image.
+        """
+        return False
+
     def make_image(self, magnification=1.0):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
