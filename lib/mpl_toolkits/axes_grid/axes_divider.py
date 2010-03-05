@@ -449,7 +449,6 @@ class AxesDivider(Divider):
             locator = self.new_locator(nx=len(self._horizontal)-1, ny=0)
 
         ax = self._get_new_axes(**kwargs)
-        locator = self.new_locator(nx=len(self._horizontal)-1, ny=0)
         ax.set_axes_locator(locator)
 
         return ax
