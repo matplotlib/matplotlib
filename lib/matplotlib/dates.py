@@ -3,8 +3,9 @@
 Matplotlib provides sophisticated date plotting capabilities, standing
 on the shoulders of python :mod:`datetime`, the add-on modules
 :mod:`pytz` and :mod:`dateutils`.  :class:`datetime` objects are
-converted to floating point numbers which represent the number of days
-since 0001-01-01 UTC.  The helper functions :func:`date2num`,
+converted to floating point numbers which represent time in days
+since 0001-01-01 UTC, plus 1.  For example, 0001-01-01, 06:00 is
+1.25, not 0.25.  The helper functions :func:`date2num`,
 :func:`num2date` and :func:`drange` are used to facilitate easy
 conversion to and from :mod:`datetime` and numeric ranges.
 
@@ -225,7 +226,7 @@ def date2num(d):
     *d* is either a :class:`datetime` instance or a sequence of datetimes.
 
     Return value is a floating point number (or sequence of floats)
-    which gives number of days (fraction part represents hours,
+    which gives one plus the number of days (fraction part represents hours,
     minutes, seconds) since 0001-01-01 00:00:00 UTC.
     """
     if not cbook.iterable(d): return _to_ordinalf(d)
@@ -235,17 +236,18 @@ def date2num(d):
 def julian2num(j):
     'Convert a Julian date (or sequence) to a matplotlib date (or sequence).'
     if cbook.iterable(j): j = np.asarray(j)
-    return j + 1721425.5
+    return j - 1721424.5
 
 def num2julian(n):
     'Convert a matplotlib date (or sequence) to a Julian date (or sequence).'
     if cbook.iterable(n): n = np.asarray(n)
-    return n - 1721425.5
+    return n + 1721424.5
 
 def num2date(x, tz=None):
     """
-    *x* is a float value which gives number of days (fraction part
-    represents hours, minutes, seconds) since 0001-01-01 00:00:00 UTC.
+    *x* is a float value which gives one plus the number of days
+    (fraction part represents hours, minutes, seconds) since
+    0001-01-01 00:00:00 UTC.
 
     Return value is a :class:`datetime` instance in timezone *tz* (default to
     rcparams TZ value).
