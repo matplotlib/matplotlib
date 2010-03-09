@@ -4,17 +4,22 @@
 PYVERSION=2.6
 PYTHON=python${PYVERSION}
 ZLIBVERSION=1.2.3
-PNGVERSION=1.2.40
+PNGVERSION=1.2.39
 FREETYPEVERSION=2.3.11
-MACOSX_DEPLOYMENT_TARGET=10.4
-OSX_SDK_VER=10.4u
-ARCH_FLAGS="-arch i386 -arch ppc -arch x86_64"
+MACOSX_DEPLOYMENT_TARGET=10.6
+OSX_SDK_VER=10.6
+ARCH_FLAGS="-arch i386-arch x86_64"
 
 ## You shouldn't need to configure past this point
 
+#PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig"
+#CFLAGS="${ARCH_FLAGS} -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
+#LDFLAGS="${ARCH_FLAGS} -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
+
 PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig"
-CFLAGS="${ARCH_FLAGS} -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
-LDFLAGS="${ARCH_FLAGS} -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
+CFLAGS="-arch i386 -arch x86_64 -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
+LDFLAGS="-arch i386 -arch x86_64 -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
+FFLAGS="-arch i386 -arch x86_64"
 
 clean:
 	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
@@ -23,9 +28,10 @@ clean:
 	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} \
 	build
 
+
 fetch:
 	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
-	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://download.sourceforge.net/libpng/libpng-${PNGVERSION}.tar.gz", "libpng-${PNGVERSION}.tar.bz2")' &&\
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://downloads.sourceforge.net/project/libpng/libpng-stable/${PNGVERSION}/libpng-${PNGVERSION}.tar.gz", "libpng-${PNGVERSION}.tar.gz")' &&\
 	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2", "freetype-${FREETYPEVERSION}.tar.bz2")'
 
 
@@ -34,7 +40,7 @@ fetch:
 zlib:
 	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
 	rm -rf zlib-${ZLIBVERSION} &&\
-	tar xvfz zlib-${ZLIBVERSION}.tar.gz &&\
+	tar xvfj zlib-${ZLIBVERSION}.tar.gz &&\
 	cd zlib-${ZLIBVERSION} &&\
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
 	export CFLAGS=${CFLAGS} &&\
@@ -46,7 +52,7 @@ zlib:
 png: zlib
 	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
 	rm -rf libpng-${PNGVERSION} &&\
-	tar xvfz libpng-${PNGVERSION}.tar.gz
+	tar xvfz libpng-${PNGVERSION}.tar.gz && \
 	cd libpng-${PNGVERSION} &&\
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
 	export CFLAGS=${CFLAGS} &&\
