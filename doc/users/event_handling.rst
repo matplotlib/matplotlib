@@ -111,6 +111,8 @@ following attributes
 Let's look a simple example of a canvas, where a simple line segment
 is created every time a mouse is pressed::
 
+    from matplotlib import pyplot as plt
+
     class LineBuilder:
         def __init__(self, line):
             self.line = line
@@ -132,6 +134,7 @@ is created every time a mouse is pressed::
     line, = ax.plot([0], [0])  # empty line
     linebuilder = LineBuilder(line)
 
+    plt.show()
 
 
 The :class:`~matplotlib.backend_bases.MouseEvent` that we just used is a
