@@ -166,8 +166,10 @@ class Legend(Artist):
         bbox_transform     the transform for the bbox. transAxes if None.
         ================   ==================================================================
 
-The dimensions of pad and spacing are given as a fraction of the
-_fontsize. Values from rcParams will be used if None.
+
+The pad and spacing parameters are measure in font-size units.  E.g.,
+a fontsize of 10 points and a handlelength=5 implies a handlelength of
+50 points.  Values from rcParams will be used if None.
 
 Users can specify any arbitrary location for the legend using the
 *bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance

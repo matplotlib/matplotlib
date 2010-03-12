@@ -3964,9 +3964,11 @@ class Axes(martist.Artist):
           *title* : string
             the legend title
 
-        Padding and spacing between various elements use following keywords
-        parameters. The dimensions of these values are given as a fraction
-        of the fontsize. Values from rcParams will be used if None.
+        Padding and spacing between various elements use following
+        keywords parameters. These values are measure in font-size
+        units. E.g., a fontsize of 10 points and a handlelength=5
+        implies a handlelength of 50 points.  Values from rcParams
+        will be used if None.
 
         ================   ==================================================================
         Keyword            Description
