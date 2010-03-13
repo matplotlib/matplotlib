@@ -1,3 +1,6 @@
+2010-03-13 fix the bug that handles for scatter are incorrectly set when 
+           dpi!=72. Thanks to Ray Speth for the bug report. -JJL
+
 ===============================================
 2009-09-21 Tagged for release 0.99.1
 
