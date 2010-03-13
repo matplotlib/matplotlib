@@ -1,3 +1,11 @@
+2010-03-13 Manually brought in commits from branch
+
+  ------------------------------------------------------------------------
+  r8191 | leejjoon | 2010-03-13 17:27:57 -0500 (Sat, 13 Mar 2010) | 1 line
+
+  fix the bug that handles for scatter are incorrectly set when dpi!=72. Thanks to Ray Speth for the bug report.
+
+
 2010-03-03 Manually brought in commits from branch via diff/patch (svnmerge is broken)
 
   ------------------------------------------------------------------------
