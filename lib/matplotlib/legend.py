@@ -623,6 +623,14 @@ in the normalized axes coordinate.
                                         xdescent=0., ydescent=descent)
 
                 handlebox.add_artist(handle)
+
+                # special case for collection instances
+                if isinstance(handle, RegularPolyCollection) or \
+                       isinstance(handle, CircleCollection):
+                    handle._transOffset = handlebox.get_transform()
+                    handle.set_transform(None)
+
+
                 if hasattr(handle, "_legmarker"):
                     handlebox.add_artist(handle._legmarker)
                 handleboxes.append(handlebox)
