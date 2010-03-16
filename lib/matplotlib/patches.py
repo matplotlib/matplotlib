@@ -246,7 +246,7 @@ class Patch(artist.Artist):
         """
         Set both the edgecolor and the facecolor.
 
-        ACCEPTS: matplotlib color arg or sequence of rgba tuples
+        ACCEPTS: matplotlib color spec
 
         .. seealso::
 
