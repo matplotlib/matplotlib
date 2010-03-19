@@ -13,6 +13,9 @@ for zdir, x, y, z in zip(zdirs, xs, ys, zs):
     label = '(%d, %d, %d), dir=%s' % (x, y, z, zdir)
     ax.text(x, y, z, label, zdir)
 
+ax.text(1, 1, 1, "red", color='red')
+ax.text2D(0.05, 0.95, "2D Text", transform=ax.transAxes)
+
 ax.set_xlim3d(0, 10)
 ax.set_ylim3d(0, 10)
 ax.set_zlim3d(0, 10)

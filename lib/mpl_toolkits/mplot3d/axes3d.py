@@ -2,12 +2,14 @@
 # axes3d.py, original mplot3d version by John Porter
 # Created: 23 Sep 2005
 # Parts fixed by Reinier Heeres <reinier@heeres.eu>
+# Minor additions by Ben Axelrod <baxelrod@coroware.com>
 
 """
 Module containing Axes3D, an object which can plot 3D objects on a
 2D matplotlib figure.
 """
 
+import warnings
 from matplotlib.axes import Axes, rcParams
 from matplotlib import cbook
 from matplotlib.transforms import Bbox
@@ -55,7 +57,7 @@ class Axes3D(Axes):
         if rect is None:
             rect = [0.0, 0.0, 1.0, 1.0]
         self.fig = fig
-        self.cids = []
+        self._cids = []
 
         azim = kwargs.pop('azim', -60)
         elev = kwargs.pop('elev', 30)
@@ -147,7 +149,7 @@ class Axes3D(Axes):
 
         # Calculate projection of collections and zorder them
         zlist = [(col.do_3d_projection(renderer), col) \
-                for col in self.collections]
+                 for col in self.collections]
         zlist.sort()
         zlist.reverse()
         for i, (z, col) in enumerate(zlist):
@@ -322,22 +324,51 @@ class Axes3D(Axes):
         M = np.dot(perspM, M0)
         return M
 
-    def mouse_init(self):
+    def mouse_init(self, rotate_btn=1, zoom_btn=3):
+        """Initializes mouse button callbacks to enable 3D rotation of
+        the axes.  Also optionally sets the mouse buttons for 3D rotation
+        and zooming.
+
+        ============  ================================================
+        Argument      Description
+        ============  ================================================
+        *rotate_btn*  The integer or list of integers specifying which mouse
+                      button or buttons to use for 3D rotation of the axes.
+                      Default = 1.
+
+        *zoom_btn*    The integer or list of integers specifying which mouse
+                      button or buttons to use to zoom the 3D axes.
+                      Default = 3.
+        ============  ================================================
+        """
         self.button_pressed = None
         canv = self.figure.canvas
         if canv != None:
             c1 = canv.mpl_connect('motion_notify_event', self._on_move)
             c2 = canv.mpl_connect('button_press_event', self._button_press)
             c3 = canv.mpl_connect('button_release_event', self._button_release)
-            self.cids = [c1, c2, c3]
+            self._cids = [c1, c2, c3]
+        else:
+            warnings.warn('Axes3D.figure.canvas is \'None\', mouse rotation disabled.  Set canvas then call Axes3D.mouse_init().')
+
+        self._rotate_btn = np.atleast_1d(rotate_btn)
+        self._zoom_btn = np.atleast_1d(zoom_btn)
 
     def cla(self):
-        # Disconnect the various events we set.
-        for cid in self.cids:
-            self.figure.canvas.mpl_disconnect(cid)
-        self.cids = []
+        """Clear axes and disable mouse button callbacks.
+        """
+        self.disable_mouse_rotation()
         Axes.cla(self)
         self.grid(rcParams['axes3d.grid'])
+
+    def disable_mouse_rotation(self):
+        """Disable mouse button callbacks.
+        """
+        # Disconnect the various events we set.
+        for cid in self._cids:
+            self.figure.canvas.mpl_disconnect(cid)
+
+        self._cids = []
 
     def _button_press(self, event):
         if event.inaxes == self:
@@ -426,9 +457,10 @@ class Axes3D(Axes):
     def _on_move(self, event):
         """Mouse moving
 
-        button-1 rotates
-        button-3 zooms
+        button-1 rotates by default.  Can be set explicitly in mouse_init().
+        button-3 zooms by default.  Can be set explicitly in mouse_init().
         """
+
         if not self.button_pressed:
             return
 
@@ -447,7 +479,8 @@ class Axes3D(Axes):
         h = (y1-y0)
         self.sx, self.sy = x, y
 
-        if self.button_pressed == 1:
+        # Rotation
+        if self.button_pressed in self._rotate_btn:
             # rotate viewing point
             # get the x and y pixel coords
             if dx == 0 and dy == 0:
@@ -456,12 +489,15 @@ class Axes3D(Axes):
             self.azim = art3d.norm_angle(self.azim - (dx/w)*180)
             self.get_proj()
             self.figure.canvas.draw()
-        elif self.button_pressed == 2:
+
+#        elif self.button_pressed == 2:
             # pan view
             # project xv,yv,zv -> xw,yw,zw
             # pan
-            pass
-        elif self.button_pressed == 3:
+#            pass
+
+        # Zoom
+        elif self.button_pressed in self._zoom_btn:
             # zoom view
             # hmmm..this needs some help from clipping....
             minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
@@ -476,7 +512,7 @@ class Axes3D(Axes):
             self.figure.canvas.draw()
 
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
-        '''Set xlabel. '''
+        '''Set xlabel.'''
 
         label = self.w_xaxis.get_label()
         label.set_text(xlabel)
@@ -511,13 +547,18 @@ class Axes3D(Axes):
         '''
         self._draw_grid = on
 
-    def text(self, x, y, z, s, zdir=None):
-        '''Add text to the plot.'''
-        text = Axes.text(self, x, y, s)
+    def text(self, x, y, z, s, zdir=None, **kwargs):
+        '''
+        Add text to the plot. kwargs will be passed on to Axes.text,
+        except for the `zdir` keyword, which sets the direction to be
+        used as the z direction.
+        '''
+        text = Axes.text(self, x, y, s, **kwargs)
         art3d.text_2d_to_3d(text, z, zdir)
         return text
 
     text3D = text
+    text2D = Axes.text
 
     def plot(self, xs, ys, *args, **kwargs):
         '''
@@ -591,6 +632,9 @@ class Axes3D(Axes):
         *shade*     Whether to shade the facecolors, default:
                     false when cmap specified, true otherwise
         ==========  ================================================
+
+        Other arguments are passed on to
+        :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection.__init__`
         '''
 
         had_data = self.has_data()
@@ -822,8 +866,9 @@ class Axes3D(Axes):
 
             colors = self._shade_colors(color, normals)
             colors2 = self._shade_colors(color, normals)
-            polycol = art3d.Poly3DCollection(polyverts, facecolors=colors,
-                edgecolors=colors2)
+            polycol = art3d.Poly3DCollection(polyverts,
+                                             facecolors=colors,
+                                             edgecolors=colors2)
             polycol.set_sort_zpos(z)
             self.add_collection3d(polycol)
 
@@ -848,6 +893,8 @@ class Axes3D(Axes):
 
         Other keyword arguments are passed on to
         :func:`~matplotlib.axes.Axes.contour`
+
+        Returns a :class:`~matplotlib.axes.Axes.contour`
         '''
 
         extend3d = kwargs.pop('extend3d', False)
@@ -881,7 +928,9 @@ class Axes3D(Axes):
         *X*, *Y*, *Z*: data points.
 
         Keyword arguments are passed on to
-        :func:`~matplotlib.axes.Axes.contour`
+        :func:`~matplotlib.axes.Axes.contourf`
+
+        Returns a :class:`~matplotlib.axes.Axes.contourf`
         '''
 
         had_data = self.has_data()
@@ -1005,24 +1054,60 @@ class Axes3D(Axes):
 
         return patches
 
-    def bar3d(self, x, y, z, dx, dy, dz, color='b'):
+    def bar3d(self, x, y, z, dx, dy, dz, color='b',
+              zsort='average', *args, **kwargs):
         '''
         Generate a 3D bar, or multiple bars.
 
         When generating multiple bars, x, y, z have to be arrays.
-        dx, dy, dz can still be scalars.
-        '''
+        dx, dy, dz can be arrays or scalars.
 
+        *color* can be:
+         - A single color value, to color all bars the same color.
+         - An array of colors of length N bars, to color each bar
+         independently.
+         - An array of colors of length 6, to color the faces of the bars
+         similarly.
+         - An array of colors of length 6 * N bars, to color each face
+         independently.
+
+         When coloring the faces of the boxes specifically, this is the order
+         of the coloring:
+          1. -Z (bottom of box)
+          2. +Z (top of box)
+          3. -Y
+          4. +Y
+          5. -X
+          6. +X
+
+        Keyword arguments are passed onto
+        :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+        '''
         had_data = self.has_data()
 
         if not cbook.iterable(x):
-            x, y, z = [x], [y], [z]
+            x = [x]
+        if not cbook.iterable(y):
+            y = [y]
+        if not cbook.iterable(z):
+            z = [z]
+
         if not cbook.iterable(dx):
-            dx, dy, dz = [dx], [dy], [dz]
+            dx = [dx]
+        if not cbook.iterable(dy):
+            dy = [dy]
+        if not cbook.iterable(dz):
+            dz = [dz]
+
         if len(dx) == 1:
             dx = dx * len(x)
-            dy = dy * len(x)
-            dz = dz * len(x)
+        if len(dy) == 1:
+            dy = dy * len(y)
+        if len(dz) == 1:
+            dz = dz * len(z)
+
+        if len(x) != len(y) or len(x) != len(z):
+            warnings.warn('x, y, and z must be the same length.')
 
         minx, miny, minz = 1e20, 1e20, 1e20
         maxx, maxy, maxz = -1e20, -1e20, -1e20
@@ -1053,14 +1138,34 @@ class Axes3D(Axes):
                     (xi + dxi, yi + dyi, zi + dzi), (xi + dxi, yi, zi + dzi)),
             ])
 
-        color = np.array(colorConverter.to_rgba(color))
-        normals = self._generate_normals(polys)
-        colors = self._shade_colors(color, normals)
+        facecolors = []
+        if color is None:
+            # no color specified
+            facecolors = [None] * len(x)
+        elif len(color) == len(x):
+            # bar colors specified, need to expand to number of faces
+            for c in color:
+                facecolors.extend([c] * 6)
+        else:
+            # a single color specified, or face colors specified explicitly
+            facecolors = list(colorConverter.to_rgba_array(color))
+            if len(facecolors) < len(x):
+                facecolors *= (6 * len(x))
 
-        col = art3d.Poly3DCollection(polys, facecolor=colors)
+        normals = self._generate_normals(polys)
+        sfacecolors = self._shade_colors(facecolors, normals)
+        col = art3d.Poly3DCollection(polys,
+                                     zsort=zsort,
+                                     facecolor=sfacecolors,
+                                     *args, **kwargs)
         self.add_collection(col)
 
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
+
+    def set_title(self, label, fontdict=None, **kwargs):
+        Axes.set_title(self, label, fontdict, **kwargs)
+        (x, y) = self.title.get_position()
+        self.title.set_y(0.92 * y)
 
 def get_test_data(delta=0.05):
     '''
