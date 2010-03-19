@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # art3d.py, original mplot3d version by John Porter
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
+# Minor additions by Ben Axelrod <baxelrod@coroware.com>
 
 '''
 Module containing 3D artist code and functions to convert 2D
@@ -15,6 +16,7 @@ from matplotlib.patches import Patch
 from matplotlib.colors import Normalize
 from matplotlib.cbook import iterable
 
+import warnings
 import numpy as np
 import math
 import proj3d
@@ -52,8 +54,15 @@ class Text3D(mtext.Text):
     Text object with 3D position and (in the future) direction.
     '''
 
-    def __init__(self, x=0, y=0, z=0, text='', zdir='z'):
-        mtext.Text.__init__(self, x, y, text)
+    def __init__(self, x=0, y=0, z=0, text='', zdir='z', **kwargs):
+        '''
+        *x*, *y*, *z*  Position of text
+        *text*         Text string to display
+        *zdir*         Direction of text
+
+        Keyword arguments are passed onto :func:`~matplotlib.text.Text`.
+        '''
+        mtext.Text.__init__(self, x, y, text, **kwargs)
         self.set_3d_properties(z, zdir)
 
     def set_3d_properties(self, z=0, zdir='z'):
@@ -86,6 +95,9 @@ class Line3D(lines.Line2D):
     '''
 
     def __init__(self, xs, ys, zs, *args, **kwargs):
+        '''
+        Keyword arguments are passed onto :func:`~matplotlib.lines.Line2D`.
+        '''
         lines.Line2D.__init__(self, [], [], *args, **kwargs)
         self._verts3d = xs, ys, zs
 
@@ -145,6 +157,9 @@ class Line3DCollection(LineCollection):
     '''
 
     def __init__(self, segments, *args, **kwargs):
+        '''
+        Keyword arguments are passed onto :func:`~matplotlib.collections.LineCollection`.
+        '''
         LineCollection.__init__(self, segments, *args, **kwargs)
 
     def set_segments(self, segments):
@@ -317,13 +332,44 @@ class Poly3DCollection(PolyCollection):
 
         *verts* should contain 3D coordinates.
 
+        Keyword arguments:
+        zsort, see set_zsort for options.
+
         Note that this class does a bit of magic with the _facecolors
         and _edgecolors properties.
         '''
 
+        self.set_zsort(kwargs.pop('zsort', True))
+
         PolyCollection.__init__(self, verts, *args, **kwargs)
-        self._zsort = 1
+
+    _zsort_functions = {
+        'average': np.average,
+        'min': np.min,
+        'max': np.max,
+    }
+
+    def set_zsort(self, zsort):
+        '''
+        Set z-sorting behaviour:
+            boolean: if True use default 'average'
+            string: 'average', 'min' or 'max'
+        '''
+
+        if zsort is True:
+            zsort = 'average'
+
+        if zsort is not False:
+            if zsort in self._zsort_functions:
+                zsortfunc = self._zsort_functions[zsort]
+            else:
+                return False
+        else:
+            zsortfunc = None
+
+        self._zsort = zsort
         self._sort_zpos = None
+        self._zsortfunc = zsortfunc
 
     def get_vector(self, segments3d):
         """Optimize points for projection"""
@@ -348,12 +394,13 @@ class Poly3DCollection(PolyCollection):
         PolyCollection.set_verts(self, [], closed)
 
     def set_3d_properties(self):
-        self._zsort = 1
         self._sort_zpos = None
+        self.set_zsort(True)
         self._facecolors3d = PolyCollection.get_facecolors(self)
         self._edgecolors3d = PolyCollection.get_edgecolors(self)
 
-    def set_sort_zpos(self, val):
+    def set_sort_zpos(self,val):
+        '''Set the position to use for z-sorting.'''
         self._sort_zpos = val
 
     def do_3d_projection(self, renderer):
@@ -381,7 +428,7 @@ class Poly3DCollection(PolyCollection):
 
         # if required sort by depth (furthest drawn first)
         if self._zsort:
-            z_segments_2d = [(np.average(zs), zip(xs, ys), fc, ec) for
+            z_segments_2d = [(self._zsortfunc(zs), zip(xs, ys), fc, ec) for
                     (xs, ys, zs), fc, ec in zip(xyzlist, cface, cedge)]
             z_segments_2d.sort(cmp=lambda x, y: cmp(y[0], x[0]))
         else:
@@ -468,9 +515,14 @@ def rotate_axes(xs, ys, zs, zdir):
 
 def iscolor(c):
     try:
-        return (len(c) == 4 or len(c) == 3) and hasattr(c[0], '__float__')
-    except (IndexError):
+        if len(c) == 4 or len(c) == 3:
+            if iterable(c[0]):
+                return False
+            if hasattr(c[0], '__float__'):
+                return True
+    except:
         return False
+    return False
 
 def get_colors(c, num):
     """Stretch the color argument to provide the required number num"""
@@ -484,6 +536,8 @@ def get_colors(c, num):
         return c
     elif iscolor(c):
         return [c] * num
+    elif len(c) == 0: #if edgecolor or facecolor is specified as 'none'
+        return [[0,0,0,0]] * num
     elif iscolor(c[0]):
         return [c[0]] * num
     else:

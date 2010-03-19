@@ -17,7 +17,7 @@ dx = 0.5 * np.ones_like(zpos)
 dy = dx.copy()
 dz = hist.flatten()
 
-ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b')
+ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
 
 plt.show()
 
