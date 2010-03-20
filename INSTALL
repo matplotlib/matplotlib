@@ -1,7 +1,7 @@
 
 INTRODUCTION
 
-  matplotlib requires at a minimum python 2.3, numpy, libpng and
+  matplotlib requires at a minimum python 2.4, numpy, libpng and
   freetype.  To get the most out of matplotlib, you will want to build
   some of the optional GUI and image extensions, discussed below.
   Matplotlib is known to work on linux, unix, win32 and OS X
