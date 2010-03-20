@@ -79,7 +79,6 @@ from matplotlib.backends import pylab_setup
 new_figure_manager, draw_if_interactive, show = pylab_setup()
 
 
-
 def findobj(o=None, match=None):
     if o is None:
         o = gcf()
@@ -649,7 +648,7 @@ def subplot(*args, **kwargs):
     return a
 
 
-def fig_subplot(nrows=1, ncols=1, sharex=False, sharey=False,
+def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
                 subplot_kw=None, **fig_kw):
     """Create a figure with a set of subplots already made.
 
@@ -661,7 +660,7 @@ def fig_subplot(nrows=1, ncols=1, sharex=False, sharey=False,
     nrows : int
       Number of rows of the subplot grid.  Defaults to 1.
 
-    nrows : int
+    ncols : int
       Number of columns of the subplot grid.  Defaults to 1.
 
     sharex : bool
@@ -669,6 +668,18 @@ def fig_subplot(nrows=1, ncols=1, sharex=False, sharey=False,
 
     sharex : bool
       If True, the Y axis will be shared amongst all subplots.
+
+    squeeze : bool
+    
+      If True, extra dimensions are squeezed out from the returned axis object:
+        - if only one subplot is constructed (nrows=ncols=1), the resulting
+        single Axis object is returned as a scalar.
+        - for Nx1 or 1xN subplots, the returned object is a 1-d numpy object
+        array of Axis objects are returned as numpy 1-d arrays.
+        - for NxM subplots with N>1 and M>1 are returned as a 2d array.
+
+      If False, no squeezing at all is done: the returned axis object is always
+      a 2-d array contaning Axis instances, even if it ends up being 1x1.
 
     subplot_kw : dict
       Dict with keywords passed to the add_subplot() call used to create each
@@ -680,28 +691,30 @@ def fig_subplot(nrows=1, ncols=1, sharex=False, sharey=False,
 
     Returns:
 
-    fig_axes : list    
-      A list containing [fig, ax1, ax2, ...], where fig is the Matplotlib
-      Figure object and the rest are the axes.
-
+    fig, ax : tuple
+      - fig is the Matplotlib Figure object
+      - ax can be either a single axis object or an array of axis objects if
+      more than one supblot was created.  The dimensions of the resulting array
+      can be controlled with the squeeze keyword, see above.
+      
     **Examples:**
 
     x = np.linspace(0, 2*np.pi, 400)
     y = np.sin(x**2)
 
     # Just a figure and one subplot
-    f, ax = plt.fig_subplot()
+    f, ax = plt.subplots()
     ax.plot(x, y)
     ax.set_title('Simple plot')
     
-    # Two subplots, unpack the output immediately
-    f, ax1, ax2 = plt.fig_subplot(1, 2, sharey=True)
+    # Two subplots, unpack the output array immediately
+    f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
     ax1.plot(x, y)
     ax1.set_title('Sharing Y axis')
     ax2.scatter(x, y)
 
     # Four polar axes
-    plt.fig_subplot(2, 2, subplot_kw=dict(polar=True))
+    plt.subplots(2, 2, subplot_kw=dict(polar=True))
     """
 
     if subplot_kw is None:
@@ -709,18 +722,35 @@ def fig_subplot(nrows=1, ncols=1, sharex=False, sharey=False,
         
     fig = figure(**fig_kw)
 
+    # Create empty object array to hold all axes.  It's easiest to make it 1-d
+    # so we can just append subplots upon creation, and then 
+    nplots = nrows*ncols
+    axarr = np.empty(nplots, dtype=object)
+
     # Create first subplot separately, so we can share it if requested
-    ax1 = fig.add_subplot(nrows, ncols, 1, **subplot_kw)
+    ax0 = fig.add_subplot(nrows, ncols, 1, **subplot_kw)
     if sharex:
-        subplot_kw['sharex'] = ax1
+        subplot_kw['sharex'] = ax0
     if sharey:
-        subplot_kw['sharey'] = ax1
+        subplot_kw['sharey'] = ax0
+    axarr[0] = ax0
+    
+    # Note off-by-one counting because add_subplot uses the matlab 1-based
+    # convention. 
+    for i in range(1, nplots):
+        axarr[i] = fig.add_subplot(nrows, ncols, i+1, **subplot_kw)
 
-    # Valid indices for axes start at 1, since fig is at 0: 
-    axes = [ fig.add_subplot(nrows, ncols, i, **subplot_kw)
-             for i in range(2, nrows*ncols+1)]
-
-    return [fig, ax1] + axes
+    if squeeze:
+        # Reshape the array to have the final desired dimension (nrow,ncol),
+        # though discarding unneeded dimensions that equal 1.  If we only have
+        # one subplot, just return it instead of a 1-element array.
+        if nplots==1:
+            return fig, axarr[0]
+        else:
+            return fig, axarr.reshape(nrows, ncols).squeeze()
+    else:
+        # returned axis array will be always 2-d, even if nrows=ncols=1
+        return fig, axarr.reshape(nrows, ncols)
 
 
 def twinx(ax=None):

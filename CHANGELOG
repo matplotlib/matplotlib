@@ -1,3 +1,7 @@
+2010-03-20 Changed plt.fig_subplot() to plt.subplots() after discussion on
+	   list, and changed its API to return axes as a numpy object array
+	   (with control of dimensions via squeeze keyword). FP.
+
 2010-03-13 Manually brought in commits from branch
 
   ------------------------------------------------------------------------
