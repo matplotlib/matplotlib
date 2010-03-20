@@ -17,6 +17,8 @@ if gtk.pygtk_version < pygtk_version_required:
                       % (gtk.pygtk_version + pygtk_version_required))
 del pygtk_version_required
 
+_new_tooltip_api =  (gtk.pygtk_version[1] >= 12)
+
 import matplotlib
 from matplotlib import verbose
 from matplotlib._pylab_helpers import Gcf
@@ -448,7 +450,7 @@ class FigureManagerGTK(FigureManagerBase):
                 # diong a blanket catch here, but an not sure what a
                 # better way is - JDH
                 verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
-                
+
         self.vbox = gtk.VBox()
         self.window.add(self.vbox)
         self.vbox.show()
@@ -618,7 +620,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
     def _init_toolbar2_4(self):
         basedir = os.path.join(matplotlib.rcParams['datapath'],'images')
-        self.tooltips = gtk.Tooltips()
+        if not _new_tooltip_api:
+            self.tooltips = gtk.Tooltips()
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
@@ -630,7 +633,10 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
             tbutton = gtk.ToolButton(image, text)
             self.insert(tbutton, -1)
             tbutton.connect('clicked', getattr(self, callback))
-            tbutton.set_tooltip(self.tooltips, tooltip_text, 'Private')
+            if _new_tooltip_api:
+                tbutton.set_tooltip_text(tooltip_text)
+            else:
+                tbutton.set_tooltip(self.tooltips, tooltip_text, 'Private')
 
         toolitem = gtk.SeparatorToolItem()
         self.insert(toolitem, -1)
@@ -760,7 +766,8 @@ class NavigationToolbar(gtk.Toolbar):
     def _create_toolitems_2_4(self):
         # use the GTK+ 2.4 GtkToolbar API
         iconSize = gtk.ICON_SIZE_SMALL_TOOLBAR
-        self.tooltips = gtk.Tooltips()
+        if not _new_tooltip_api:
+            self.tooltips = gtk.Tooltips()
 
         for text, tooltip_text, image_num, callback, callback_arg, scroll \
                 in self.toolitems:
@@ -778,15 +785,22 @@ class NavigationToolbar(gtk.Toolbar):
                 tbutton.connect('clicked', getattr(self, callback))
             if scroll:
                 tbutton.connect('scroll_event', getattr(self, callback))
-            tbutton.set_tooltip(self.tooltips, tooltip_text, 'Private')
+            if _new_tooltip_api:
+                tbutton.set_tooltip_text(tooltip_text)
+            else:
+                tbutton.set_tooltip(self.tooltips, tooltip_text, 'Private')
 
         # Axes toolitem, is empty at start, update() adds a menu if >=2 axes
         self.axes_toolitem = gtk.ToolItem()
         self.insert(self.axes_toolitem, 0)
-        self.axes_toolitem.set_tooltip (
-            self.tooltips,
-            tip_text='Select axes that controls affect',
-            tip_private = 'Private')
+        if _new_tooltip_api:
+            self.axes_toolitem.set_tooltip_text(
+                                'Select axes that controls affect')
+        else:
+            self.axes_toolitem.set_tooltip (
+                self.tooltips,
+                tip_text='Select axes that controls affect',
+                tip_private = 'Private')
 
         align = gtk.Alignment (xalign=0.5, yalign=0.5, xscale=0.0, yscale=0.0)
         self.axes_toolitem.add(align)
