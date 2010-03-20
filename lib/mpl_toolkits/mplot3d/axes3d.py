@@ -59,16 +59,16 @@ class Axes3D(Axes):
         self.fig = fig
         self._cids = []
 
-        azim = kwargs.pop('azim', -60)
-        elev = kwargs.pop('elev', 30)
+        self.initial_azim = kwargs.pop('azim', -60)
+        self.initial_elev = kwargs.pop('elev', 30)
 
         self.xy_viewLim = unit_bbox()
         self.zz_viewLim = unit_bbox()
         self.xy_dataLim = unit_bbox()
         self.zz_dataLim = unit_bbox()
-        # inihibit autoscale_view until the axises are defined
+        # inihibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
-        self.view_init(elev, azim)
+        self.view_init(self.initial_elev, self.initial_azim)
         self._ready = 0
         Axes.__init__(self, self.fig, rect,
                       frameon=True,
@@ -272,11 +272,31 @@ class Axes3D(Axes):
     def panpy(self, numsteps):
         print 'numsteps', numsteps
 
-    def view_init(self, elev, azim):
-        self.dist = 10
-        self.elev = elev
-        self.azim = azim
+    def view_init(self, elev=None, azim=None):
+        """
+        Set the elevation and azimuth of the axes.
 
+        This can be used to rotate the axes programatically.
+
+        'elev' stores the elevation angle in the z plane.
+        'azim' stores the azimuth angle in the x,y plane.
+
+        if elev or azim are None (default), then the initial value
+        is used which was specified in the :class:`Axes3D` constructor.
+        """
+        
+        self.dist = 10
+        
+        if elev is None:
+            self.elev = self.initial_elev
+        else:
+            self.elev = elev
+        
+        if azim is None:
+            self.azim = self.initial_azim
+        else:
+            self.azim = azim
+        
     def get_proj(self):
         """Create the projection matrix from the current viewing
         position.
