@@ -549,7 +549,18 @@ def delaxes(*args):
     draw_if_interactive()
     return ret
 
-
+def sca(ax):
+    """
+    Set the current Axes instance to *ax*.  The current Figure
+    is updated to the parent of *ax*.
+    """
+    managers = _pylab_helpers.Gcf.get_all_fig_managers()
+    for m in managers:
+        if ax in m.canvas.figure.axes:
+            _pylab_helpers.Gcf.set_active(m)
+            m.canvas.figure.sca(ax)
+            return
+    raise ValueError("Axes instance argument was not found in a figure.")
 
 
 def gca(**kwargs):
@@ -656,7 +667,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     subplots, including the enclosing figure object, in a single call.
 
     Keyword arguments:
-    
+
     nrows : int
       Number of rows of the subplot grid.  Defaults to 1.
 
@@ -670,7 +681,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
       If True, the Y axis will be shared amongst all subplots.
 
     squeeze : bool
-    
+
       If True, extra dimensions are squeezed out from the returned axis object:
         - if only one subplot is constructed (nrows=ncols=1), the resulting
         single Axis object is returned as a scalar.
@@ -696,7 +707,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
       - ax can be either a single axis object or an array of axis objects if
       more than one supblot was created.  The dimensions of the resulting array
       can be controlled with the squeeze keyword, see above.
-      
+
     **Examples:**
 
     x = np.linspace(0, 2*np.pi, 400)
@@ -706,7 +717,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     f, ax = plt.subplots()
     ax.plot(x, y)
     ax.set_title('Simple plot')
-    
+
     # Two subplots, unpack the output array immediately
     f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
     ax1.plot(x, y)
@@ -719,11 +730,11 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
     if subplot_kw is None:
         subplot_kw = {}
-        
+
     fig = figure(**fig_kw)
 
     # Create empty object array to hold all axes.  It's easiest to make it 1-d
-    # so we can just append subplots upon creation, and then 
+    # so we can just append subplots upon creation, and then
     nplots = nrows*ncols
     axarr = np.empty(nplots, dtype=object)
 
@@ -734,9 +745,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     if sharey:
         subplot_kw['sharey'] = ax0
     axarr[0] = ax0
-    
+
     # Note off-by-one counting because add_subplot uses the matlab 1-based
-    # convention. 
+    # convention.
     for i in range(1, nplots):
         axarr[i] = fig.add_subplot(nrows, ncols, i+1, **subplot_kw)
 
