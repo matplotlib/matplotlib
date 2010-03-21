@@ -2049,6 +2049,10 @@ class NavigationToolbar2:
         self._lastCursor = None
         self._init_toolbar()
         self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
+
+        self._ids_zoom = None
+        self._zoom_mode = None
+
         self._button_pressed = None # determined by the button pressed at start
 
         self.mode = ''  # a mode string for the status bar
@@ -2123,6 +2127,14 @@ class NavigationToolbar2:
                 if self._xypress:
                     x, y = event.x, event.y
                     lastx, lasty, a, ind, lim, trans = self._xypress[0]
+
+                    if self._zoom_mode == "x":
+                        x1, y1, x2, y2 = event.inaxes.bbox.extents
+                        y, lasty = y1, y2
+                    elif self._zoom_mode == "y":
+                        x1, y1, x2, y2 = event.inaxes.bbox.extents
+                        x, lastx = x1, x2
+                        
                     self.draw_rubberband(event, x, y, lastx, lasty)
             elif (self._active=='PAN' and
                   self._lastCursor != cursors.MOVE):
@@ -2225,8 +2237,26 @@ class NavigationToolbar2:
                     and a.get_navigate() and a.can_zoom():
                 self._xypress.append(( x, y, a, i, a.viewLim.frozen(), a.transData.frozen()))
 
+        id1 = self.canvas.mpl_connect('key_press_event',
+                                      self._switch_on_zoom_mode)
+        id2 = self.canvas.mpl_connect('key_release_event',
+                                      self._switch_off_zoom_mode)
+
+        self._ids_zoom = id1, id2
+        
+        self._zoom_mode = event.key
+
+
         self.press(event)
 
+    def _switch_on_zoom_mode(self, event):
+        self._zoom_mode = event.key
+        self.mouse_move(event)
+        
+    def _switch_off_zoom_mode(self, event):
+        self._zoom_mode = None
+        self.mouse_move(event)
+    
     def push_current(self):
         'push the current view limits and position onto the stack'
         lims = []; pos = []
@@ -2274,6 +2304,9 @@ class NavigationToolbar2:
     def release_zoom(self, event):
         'the release mouse button callback in zoom to rect mode'
         if not self._xypress: return
+
+        for zoom_id in self._ids_zoom:
+            self.canvas.mpl_disconnect(zoom_id)
 
         last_a = []
 
@@ -2334,8 +2367,13 @@ class NavigationToolbar2:
                     if y1 < Ymax: y1=Ymax
 
             if self._button_pressed == 1:
-                a.set_xlim((x0, x1))
-                a.set_ylim((y0, y1))
+                if self._zoom_mode == "x":
+                    a.set_xlim((x0, x1))
+                elif self._zoom_mode == "y":
+                    a.set_ylim((y0, y1))
+                else:
+                    a.set_xlim((x0, x1))
+                    a.set_ylim((y0, y1))
             elif self._button_pressed == 3:
                 if a.get_xscale()=='log':
                     alpha=np.log(Xmax/Xmin)/np.log(x1/x0)
@@ -2353,12 +2391,20 @@ class NavigationToolbar2:
                     alpha=(Ymax-Ymin)/(y1-y0)
                     ry1=alpha*(Ymin-y0)+Ymin
                     ry2=alpha*(Ymax-y0)+Ymin
-                a.set_xlim((rx1, rx2))
-                a.set_ylim((ry1, ry2))
+
+                if self._zoom_mode == "x":
+                    a.set_xlim((rx1, rx2))
+                elif self._zoom_mode == "y":
+                    a.set_ylim((ry1, ry2))
+                else:
+                    a.set_xlim((rx1, rx2))
+                    a.set_ylim((ry1, ry2))
 
         self.draw()
         self._xypress = None
         self._button_pressed = None
+
+        self._zoom_mode = None
 
         self.push_current()
         self.release(event)
