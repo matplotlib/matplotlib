@@ -1,3 +1,5 @@
+2010-03-20 Added pyplot.sca() function suggested by JJL. - EF
+
 2010-03-20 Added conditional support for new Tooltip API in gtk backend. - EF
 
 2010-03-20 Changed plt.fig_subplot() to plt.subplots() after discussion on
