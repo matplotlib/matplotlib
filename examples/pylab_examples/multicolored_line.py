@@ -28,9 +28,26 @@ segments = np.concatenate([points[:-1], points[1:]], axis=1)
 lc = LineCollection(segments, cmap=cmap, norm=norm)
 lc.set_array(z)
 lc.set_linewidth(3)
-plt.gca().add_collection(lc)
 
+fig1 = plt.figure()
+plt.gca().add_collection(lc)
 plt.xlim(x.min(), x.max())
 plt.ylim(-1.1, 1.1)
-plt.show()
 
+# Now do a second plot coloring the curve using a continuous colormap
+t = np.linspace(0, 10, 200)
+x = np.cos(np.pi * t)
+y = np.sin(t)
+points = np.array([x, y]).T.reshape(-1, 1, 2)
+segments = np.concatenate([points[:-1], points[1:]], axis=1)
+
+lc = LineCollection(segments, cmap=plt.get_cmap('copper'),
+    norm=plt.Normalize(0, 10))
+lc.set_array(t)
+lc.set_linewidth(3)
+
+fig2 = plt.figure()
+plt.gca().add_collection(lc)
+plt.xlim(-1, 1)
+plt.ylim(-1, 1)
+plt.show()
