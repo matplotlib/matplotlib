@@ -162,14 +162,17 @@ backends and the capabilities they provide
 :term:`pyqt` 4.0 or later
     The Qt4 widgets library python wrappers for the Qt4Agg backend
 
-:term:`pygtk` 2.2 or later
-    The python wrappers for the GTK widgets library for use with the GTK or GTKAgg backend
+:term:`pygtk` 2.4 or later
+    The python wrappers for the GTK widgets library for use with the
+    GTK or GTKAgg backend
 
 :term:`wxpython` 2.6 or later
-    The python wrappers for the wx widgets library for use with the WXAgg backend
+    The python wrappers for the wx widgets library for use with the
+    WXAgg backend
 
 :term:`wxpython` 2.8 or later
-    The python wrappers for the wx widgets library for use with the WX backend
+    The python wrappers for the wx widgets library for use with the
+    WX backend
 
 :term:`pyfltk` 1.0 or later
     The python wrappers of the FLTK widgets library for use with FLTKAgg
