@@ -1,3 +1,6 @@
+2010-03-22 fix incorrect rubber band during the zoom mode when mouse 
+           leaves the axes. -JJL
+
 2010-03-21 x/y key during the zoom mode only changes the x/y limits. -JJL
 
 2010-03-20 Added pyplot.sca() function suggested by JJL. - EF
