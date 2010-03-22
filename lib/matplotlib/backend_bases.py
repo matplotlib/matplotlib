@@ -2124,18 +2124,6 @@ class NavigationToolbar2:
                 if self._lastCursor != cursors.SELECT_REGION:
                     self.set_cursor(cursors.SELECT_REGION)
                     self._lastCursor = cursors.SELECT_REGION
-                if self._xypress:
-                    x, y = event.x, event.y
-                    lastx, lasty, a, ind, lim, trans = self._xypress[0]
-
-                    if self._zoom_mode == "x":
-                        x1, y1, x2, y2 = event.inaxes.bbox.extents
-                        y, lasty = y1, y2
-                    elif self._zoom_mode == "y":
-                        x1, y1, x2, y2 = event.inaxes.bbox.extents
-                        x, lastx = x1, x2
-                        
-                    self.draw_rubberband(event, x, y, lastx, lasty)
             elif (self._active=='PAN' and
                   self._lastCursor != cursors.MOVE):
                 self.set_cursor(cursors.MOVE)
@@ -2237,12 +2225,14 @@ class NavigationToolbar2:
                     and a.get_navigate() and a.can_zoom():
                 self._xypress.append(( x, y, a, i, a.viewLim.frozen(), a.transData.frozen()))
 
-        id1 = self.canvas.mpl_connect('key_press_event',
+        id1 = self.canvas.mpl_connect('motion_notify_event', self.drag_zoom)
+
+        id2 = self.canvas.mpl_connect('key_press_event',
                                       self._switch_on_zoom_mode)
-        id2 = self.canvas.mpl_connect('key_release_event',
+        id3 = self.canvas.mpl_connect('key_release_event',
                                       self._switch_off_zoom_mode)
 
-        self._ids_zoom = id1, id2
+        self._ids_zoom = id1, id2, id3
         
         self._zoom_mode = event.key
 
@@ -2301,6 +2291,29 @@ class NavigationToolbar2:
             a.drag_pan(self._button_pressed, event.key, event.x, event.y)
         self.dynamic_update()
 
+    def drag_zoom(self, event):
+        'the drag callback in zoom mode'
+
+        if self._xypress:
+            x, y = event.x, event.y
+            lastx, lasty, a, ind, lim, trans = self._xypress[0]
+
+            # adjust x, last, y, last 
+            x1, y1, x2, y2 = a.bbox.extents
+            x, lastx = max(min(x, lastx), x1), min(max(x, lastx), x2)
+            y, lasty = max(min(y, lasty), y1), min(max(y, lasty), y2)
+            
+            if self._zoom_mode == "x":
+                x1, y1, x2, y2 = a.bbox.extents
+                y, lasty = y1, y2
+            elif self._zoom_mode == "y":
+                x1, y1, x2, y2 = a.bbox.extents
+                x, lastx = x1, x2
+
+            self.draw_rubberband(event, x, y, lastx, lasty)
+
+
+
     def release_zoom(self, event):
         'the release mouse button callback in zoom to rect mode'
         if not self._xypress: return
@@ -2313,7 +2326,6 @@ class NavigationToolbar2:
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
             lastx, lasty, a, ind, lim, trans = cur_xypress
-
             # ignore singular clicks - 5 pixels is a threshold
             if abs(x-lastx)<5 or abs(y-lasty)<5:
                 self._xypress = None
