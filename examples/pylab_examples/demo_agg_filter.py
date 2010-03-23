@@ -1,9 +1,28 @@
 import matplotlib.pyplot as plt
 
 import numpy as np
-import scipy.ndimage as NI
 import matplotlib.cm as cm
 import matplotlib.mlab as mlab
+
+def smooth1d(x, window_len):
+    # copied from http://www.scipy.org/Cookbook/SignalSmooth
+
+    s=np.r_[2*x[0]-x[window_len:1:-1],x,2*x[-1]-x[-1:-window_len:-1]]
+    w = np.hanning(window_len)
+    y=np.convolve(w/w.sum(),s,mode='same')
+    return y[window_len-1:-window_len+1]
+
+def smooth2d(A, sigma=3):
+
+    window_len = max(int(sigma), 3)*2+1
+    A1 = np.array([smooth1d(x, window_len) for x in np.asarray(A)])
+    A2 = np.transpose(A1)
+    A3 = np.array([smooth1d(x, window_len) for x in A2])
+    A4 = np.transpose(A3)
+
+    return A4
+
+
 
 
 class BaseFilter(object):
@@ -58,8 +77,9 @@ class GaussianFilter(BaseFilter):
     def process_image(self, padded_src, dpi):
         #offsetx, offsety = int(self.offsets[0]), int(self.offsets[1])
         tgt_image = np.zeros_like(padded_src)
-        tgt_image[:,:,-1] = NI.gaussian_filter(padded_src[:,:,-1]*self.alpha,
-                                               self.sigma)
+        aa = smooth2d(padded_src[:,:,-1]*self.alpha,
+                      self.sigma)
+        tgt_image[:,:,-1] = aa
         tgt_image[:,:,:-1] = self.color
         return tgt_image
 
@@ -123,7 +143,7 @@ class GrowFilter(BaseFilter):
         alpha = new_im[:,:,3]
         alpha.fill(0)
         alpha[pad:-pad, pad:-pad] = im[:,:,-1]
-        alpha2 = NI.grey_dilation(alpha, size=(self.pixels, self.pixels))
+        alpha2 = np.clip(smooth2d(alpha, self.pixels) * 5, 0, 1)
         new_im[:,:,-1] = alpha2
         new_im[:,:,:-1] = self.color
         offsetx, offsety = -pad, -pad
@@ -208,7 +228,7 @@ def drop_shadow_line(ax):
                   mec="r", mfc="w", lw=5, mew=3, ms=10, label="Line 1")
 
 
-    gauss = DropShadowFilter(2)
+    gauss = DropShadowFilter(4)
 
     for l in [l1, l2]:
 
@@ -257,7 +277,7 @@ def drop_shadow_patches(ax):
     rects2 = ax.bar(ind+width+0.1, womenMeans, width, color='y', ec="w", lw=2)
 
     #gauss = GaussianFilter(1.5, offsets=(1,1), )
-    gauss = DropShadowFilter(1.5, offsets=(1,1), )
+    gauss = DropShadowFilter(5, offsets=(1,1), )
     shadow = FilteredArtistList(rects1+rects2, gauss)
     ax.add_artist(shadow)
     shadow.set_zorder(rects1[0].get_zorder()-0.1)
@@ -275,21 +295,21 @@ def light_filter_pie(ax):
     pies = ax.pie(fracs, explode=explode)
     ax.patch.set_visible(True)
 
-    light_filter = LightFilter(8)
+    light_filter = LightFilter(9)
     for p in pies[0]:
         p.set_agg_filter(light_filter)
         p.set_rasterized(True) # to support mixed-mode renderers
         p.set(ec="none",
               lw=2)
 
-    gauss = DropShadowFilter(3, offsets=(3,4), alpha=0.7)
+    gauss = DropShadowFilter(9, offsets=(3,4), alpha=0.7)
     shadow = FilteredArtistList(pies[0], gauss)
     ax.add_artist(shadow)
     shadow.set_zorder(pies[0][0].get_zorder()-0.1)
 
 
 if 1:
-
+ 
     plt.figure(1, figsize=(6, 6))
     plt.subplots_adjust(left=0.05, right=0.95)
 
