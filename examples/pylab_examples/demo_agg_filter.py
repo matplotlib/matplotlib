@@ -52,12 +52,12 @@ class OffsetFilter(BaseFilter):
             self.offsets = offsets
 
     def get_pad(self, dpi):
-        return max(*self.offsets)
+        return int(max(*self.offsets)/72.*dpi)
 
     def process_image(self, padded_src, dpi):
         ox, oy = self.offsets
-        a1 = np.roll(padded_src, ox, axis=1)
-        a2 = np.roll(a1, -oy, axis=0)
+        a1 = np.roll(padded_src, int(ox/72.*dpi), axis=1)
+        a2 = np.roll(a1, -int(oy/72.*dpi), axis=0)
         return a2
 
 class GaussianFilter(BaseFilter):
@@ -71,14 +71,14 @@ class GaussianFilter(BaseFilter):
             self.color=color
 
     def get_pad(self, dpi):
-        return int(self.sigma*3)
+        return int(self.sigma*3/72.*dpi)
 
 
     def process_image(self, padded_src, dpi):
         #offsetx, offsety = int(self.offsets[0]), int(self.offsets[1])
         tgt_image = np.zeros_like(padded_src)
         aa = smooth2d(padded_src[:,:,-1]*self.alpha,
-                      self.sigma)
+                      self.sigma/72.*dpi)
         tgt_image[:,:,-1] = aa
         tgt_image[:,:,:-1] = self.color
         return tgt_image
@@ -143,7 +143,7 @@ class GrowFilter(BaseFilter):
         alpha = new_im[:,:,3]
         alpha.fill(0)
         alpha[pad:-pad, pad:-pad] = im[:,:,-1]
-        alpha2 = np.clip(smooth2d(alpha, self.pixels) * 5, 0, 1)
+        alpha2 = np.clip(smooth2d(alpha, self.pixels/72.*dpi) * 5, 0, 1)
         new_im[:,:,-1] = alpha2
         new_im[:,:,:-1] = self.color
         offsetx, offsety = -pad, -pad
@@ -206,8 +206,10 @@ def filtered_text(ax):
                    fontsize=11)
 
     # change clable color to black
+    from matplotlib.patheffects import Normal
     for t in cl:
         t.set_color("k")
+        t.set_path_effects([Normal()]) # to force TextPath (i.e., same font in all backends)
 
     # Add white glows to improve visibility of labels.
     white_glows = FilteredArtistList(cl, GrowFilter(3))
