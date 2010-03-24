@@ -1106,7 +1106,7 @@ class Figure(Artist):
             #print 'calling on changed', m.get_cmap().name
             cb.set_cmap(m.get_cmap())
             cb.set_clim(m.get_clim())
-            cb.update_bruteforce(m)
+            cb.update_normal(m)
 
         self.cbid = mappable.callbacksSM.connect('changed', on_changed)
         mappable.set_colorbar(cb, cax)

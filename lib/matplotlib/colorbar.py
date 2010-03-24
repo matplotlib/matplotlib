@@ -223,6 +223,8 @@ class ColorbarBase(cm.ScalarMappable):
         self.filled = filled
         self.solids = None
         self.lines = None
+        self.outline = None
+        self.patch = None
         self.dividers = None
         self.set_label('')
         if cbook.iterable(ticks):
@@ -239,6 +241,7 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             self.formatter = format  # Assume it is a Formatter
         # The rest is in a method so we can recalculate when clim changes.
+        self.config_axis()
         self.draw_all()
 
     def _patch_ax(self):
@@ -260,6 +263,17 @@ class ColorbarBase(cm.ScalarMappable):
         self._config_axes(X, Y)
         if self.filled:
             self._add_solids(X, Y, C)
+
+    def config_axis(self):
+        ax = self.ax
+        if self.orientation == 'vertical':
+            ax.xaxis.set_ticks([])
+            ax.yaxis.set_label_position('right')
+            ax.yaxis.set_ticks_position('right')
+        else:
+            ax.yaxis.set_ticks([])
+            ax.xaxis.set_label_position('bottom')
+
         self._set_label()
 
     def update_ticks(self):
@@ -270,16 +284,11 @@ class ColorbarBase(cm.ScalarMappable):
         ax = self.ax
         ticks, ticklabels, offset_string = self._ticker()
         if self.orientation == 'vertical':
-            ax.xaxis.set_ticks([])
-            ax.yaxis.set_label_position('right')
-            ax.yaxis.set_ticks_position('right')
             ax.yaxis.set_ticks(ticks)
             ax.set_yticklabels(ticklabels)
             ax.yaxis.get_major_formatter().set_offset_string(offset_string)
 
         else:
-            ax.yaxis.set_ticks([])
-            ax.xaxis.set_label_position('bottom')
             ax.xaxis.set_ticks(ticks)
             ax.set_xticklabels(ticklabels)
             ax.xaxis.get_major_formatter().set_offset_string(offset_string)
@@ -317,12 +326,16 @@ class ColorbarBase(cm.ScalarMappable):
         ax.update_datalim(xy)
         ax.set_xlim(*ax.dataLim.intervalx)
         ax.set_ylim(*ax.dataLim.intervaly)
+        if self.outline is not None:
+            self.outline.remove()
         self.outline = lines.Line2D(xy[:, 0], xy[:, 1], color=mpl.rcParams['axes.edgecolor'],
                                     linewidth=mpl.rcParams['axes.linewidth'])
         ax.add_artist(self.outline)
         self.outline.set_clip_box(None)
         self.outline.set_clip_path(None)
         c = mpl.rcParams['axes.facecolor']
+        if self.patch is not None:
+            self.patch.remove()
         self.patch = patches.Polygon(xy, edgecolor=c,
                  facecolor=c,
                  linewidth=0.01,
@@ -394,6 +407,9 @@ class ColorbarBase(cm.ScalarMappable):
         col = self.ax.pcolor(*args, **kw)
         self.ax.hold(_hold)
         #self.add_observer(col) # We should observe, not be observed...
+
+        if self.solids is not None:
+            self.solids.remove()
         self.solids = col
         if self.drawedges:
             self.dividers = collections.LineCollection(self._edges(X,Y),
@@ -417,6 +433,9 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             xy = [zip(Y[i], X[i]) for i in range(N)]
         col = collections.LineCollection(xy, linewidths=linewidths)
+
+        if self.lines:
+            self.lines.remove()
         self.lines = col
         col.set_color(colors)
         self.ax.add_collection(col)
@@ -713,6 +732,19 @@ class Colorbar(ColorbarBase):
         #print 'tlinewidths:', tlinewidths
         ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
 
+    def update_normal(self, mappable):
+        '''
+        update solid, lines, etc. Unlike update_bruteforce, it does
+        not clear the axes.  This is meant to be called when the image
+        or contour plot to which this colorbar belongs is changed.
+        '''
+        self.draw_all()
+        if isinstance(self.mappable, contour.ContourSet):
+            CS = self.mappable
+            if not CS.filled:
+                self.add_lines(CS)
+
+
     def update_bruteforce(self, mappable):
         '''
         Manually change any contour line colors.  This is called
@@ -724,6 +756,7 @@ class Colorbar(ColorbarBase):
         # properties have been changed by methods other than the
         # colorbar methods, those changes will be lost.
         self.ax.cla()
+        self.config_axis()
         self.draw_all()
         #if self.vmin != self.norm.vmin or self.vmax != self.norm.vmax:
         #    self.ax.cla()

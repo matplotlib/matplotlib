@@ -1,3 +1,6 @@
+2010-03-24 refactor colorbar code so that no cla() is necessary when 
+           mappable is changed. -JJL
+
 2010-03-22 fix incorrect rubber band during the zoom mode when mouse 
            leaves the axes. -JJL
 
