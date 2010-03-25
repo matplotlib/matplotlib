@@ -318,7 +318,9 @@ class ScalarFormatter(Formatter):
     Tick location is a plain old number.  If useOffset==True and the data range
     is much smaller than the data average, then an offset will be determined
     such that the tick labels are meaningful. Scientific notation is used for
-    data < 1e-3 or data >= 1e4.
+    data < 10^-n or data >= 10^m, where n and m are the power limits set using
+    set_powerlimits((n,m)). The defaults for these are controlled by the
+    axes.formatter.limits rc parameter.
     """
 
     def __init__(self, useOffset=True, useMathText=False):
