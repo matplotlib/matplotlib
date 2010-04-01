@@ -21,8 +21,6 @@ def hinton(W, maxWeight=None, ax=None):
     ax.set_aspect('equal', 'box')
     ax.xaxis.set_major_locator(NullLocator())
     ax.yaxis.set_major_locator(NullLocator())
-    cmap = ListedColormap(['black', 'white'])
-    norm = BoundaryNorm([-1., 0., 1.], cmap.N)
 
     for (x,y),w in np.ndenumerate(W):
         color = 'white' if w > 0 else 'black'
@@ -44,6 +42,8 @@ def hinton(W, maxWeight=None, ax=None):
 #    X,Y = np.meshgrid(x, y)
 #    xy = np.array([X.flatten(),Y.flatten()]).T
 #    scaled_data = W.flatten() / maxWeight
+#    cmap = ListedColormap(['black', 'white'])
+#    norm = BoundaryNorm([-1., 0., 1.], cmap.N)
 
 #    rect_col = RegularPolyCollection(4, rotation=np.pi/4,
 #        sizes=np.abs(scaled_data) * 72 / ax.figure.get_dpi(), offsets=xy,
