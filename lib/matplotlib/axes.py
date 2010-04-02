@@ -5311,7 +5311,7 @@ class Axes(martist.Artist):
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
-        c_is_stringy = is_string_like(c) or cbook.is_sequence_of_strings(c)
+        c_is_stringy = is_string_like(c) or is_sequence_of_strings(c)
         if not c_is_stringy:
             c = np.asanyarray(c)
             if c.size == x.size:
@@ -6989,6 +6989,7 @@ class Axes(martist.Artist):
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
+             color=None,
              **kwargs):
         """
         call signature::
@@ -7002,16 +7003,21 @@ class Axes(martist.Artist):
         [*patches0*, *patches1*,...]) if the input contains multiple
         data.
 
+        Multiple data can be provided via *x* as a list of datasets
+        of potentially different length ([*x0*, *x1*, ...]), or as
+        a 2-D ndarray in which each column is a dataset.  Note that
+        the ndarray form is transposed relative to the list form.
+
+        Masked arrays are not supported at present.
+
         Keyword arguments:
 
           *bins*:
             Either an integer number of bins or a sequence giving the
-            bins.  *x* are the data to be binned. *x* can be an array,
-            a 2D array with multiple data in its columns, or a list of
-            arrays with data of different length.  Note, if *bins*
-            is an integer input argument=numbins, *bins* + 1 bin edges
-            will be returned, compatible with the semantics of
-            :func:`numpy.histogram` with the *new* = True argument.
+            bins.  If *bins* is an integer, *bins* + 1 bin edges
+            will be returned, consistent with :func:`numpy.histogram`
+            for numpy version >= 1.3, and with the *new* = True argument
+            in earlier versions.
             Unequally spaced bins are supported if *bins* is a sequence.
 
           *range*:
@@ -7090,6 +7096,9 @@ class Axes(martist.Artist):
             be filtered out and only the non-empty (*n*, *bins*,
             *patches*) will be returned.
 
+          *color*:
+
+
         kwargs are used to update the properties of the hist
         :class:`~matplotlib.patches.Rectangle` instances:
 
@@ -7117,65 +7126,74 @@ class Axes(martist.Artist):
         # NOTE: the range keyword overwrites the built-in func range !!!
         #       needs to be fixed in numpy                           !!!
 
+        # Validate string inputs here so we don't have to clutter
+        # subsequent code.
+        if histtype not in ['bar', 'barstacked', 'step', 'stepfilled']:
+            raise ValueError("histtype %s is not recognized" % histtype)
+
+        if align not in ['left', 'mid', 'right']:
+            raise ValueError("align kwarg %s is not recognized" % align)
+
+        if orientation not in [ 'horizontal', 'vertical']:
+            raise ValueError(
+                "orientation kwarg %s is not recognized" % orientation)
+
+
         if kwargs.get('width') is not None:
             raise DeprecationWarning(
                 'hist now uses the rwidth to give relative width '
                 'and not absolute width')
 
-        try:
-            # make sure a copy is created: don't use asarray
-            x = np.transpose(np.array(x))
-            if len(x.shape)==1:
-                x.shape = (1,x.shape[0])
-            elif len(x.shape)==2 and x.shape[1]<x.shape[0]:
-                warnings.warn('2D hist should be nsamples x nvariables; '
-                              'this looks transposed')
-        except ValueError:
-            # multiple hist with data of different length
-            if iterable(x[0]) and not is_string_like(x[0]):
-                tx = []
-                for i in xrange(len(x)):
-                    tx.append( np.array(x[i]) )
-                x = tx
+        if isinstance(x, np.ndarray):
+            # TODO: support masked arrays;
+            #       Why is the copy needed?
+            x = np.array(x, copy=True, subok=False)
+            if x.ndim == 2:
+                x = x.T
+            elif x.ndim == 1:
+                x.shape = (1, x.shape[0])
             else:
-                raise ValueError, 'Can not use provided data to create a histogram'
+                raise ValueError("x must be 1D or 2D")
+            if x.shape[1] < x.shape[0]:
+                warnings.warn('2D hist input should be nsamples x nvariables; '
+                              'this looks transposed')
+        else:
+            # multiple hist with data of different length
+            x = [np.array(xi) for xi in x]
+
+        nx = len(x) # number of datasets
 
         if weights is not None:
-            try:
-                w = np.transpose(np.array(weights))
-                if len(w.shape)==1:
+            if isinstance(w, np.ndarray):
+                w = np.array(weights)
+                if w.ndim == 2:
+                    w = w.T
+                elif w.ndim == 1:
                     w.shape = (1, w.shape[0])
-            except:
-                if iterable(weights[0]) and not is_string_like(weights[0]):
-                    tw = []
-                    for i in xrange(len(weights)):
-                        tw.append( np.array(weights[i]) )
-                    w = tw
                 else:
-                    raise ValueError, 'Can not use provided weights to create a hist'
+                    raise ValueError("weights must be 1D or 2D")
+            else:
+                w = [np.array(wi) for wi in weights]
 
-            if len(x) != len(w):
-                raise ValueError, 'weights should have the same shape as x'
-            for i in xrange(len(x)):
-                if len(x[i]) != len(w[i]):
-                    raise ValueError, 'weights should have the same shape as x'
+            if len(w) != nx:
+                raise ValueError('weights should have the same shape as x')
+            for i in xrange(nx):
+                if len(w[i]) != len(x[i]):
+                    raise ValueError(
+                        'weights should have the same shape as x')
         else:
-            w = [None]*len(x)
+            w = [None]*nx
 
         # Check whether bins or range are given explicitly. In that
         # case do not autoscale axes.
         binsgiven = (cbook.iterable(bins) or range != None)
 
-        # check the version of the numpy
+        hist_kwargs = dict(range=range, normed=bool(normed))
         if np.__version__ < "1.3": # version 1.1 and 1.2
-            hist_kwargs = dict(range=range,
-                               normed=bool(normed), new=True)
-        else: # version 1.3 and later, drop new=True
-            hist_kwargs = dict(range=range,
-                               normed=bool(normed))
+            hist_kwargs['new'] = True
 
         n = []
-        for i in xrange(len(x)):
+        for i in xrange(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
@@ -7195,59 +7213,49 @@ class Axes(martist.Artist):
 
         if histtype.startswith('bar'):
             totwidth = np.diff(bins)
-            stacked = False
 
-            if rwidth is not None: dr = min(1., max(0., rwidth))
-            elif len(n)>1: dr = 0.8
-            else: dr = 1.0
+            if rwidth is not None:
+                dr = min(1.0, max(0.0, rwidth))
+            elif len(n)>1:
+                dr = 0.8
+            else:
+                dr = 1.0
 
             if histtype=='bar':
-                width = dr*totwidth/len(n)
+                width = dr*totwidth/nx
                 dw = width
 
-                if len(n)>1:
-                    boffset = -0.5*dr*totwidth*(1.-1./len(n))
+                if nx > 1:
+                    boffset = -0.5*dr*totwidth*(1.0-1.0/nx)
                 else:
                     boffset = 0.0
+                stacked = False
             elif histtype=='barstacked':
                 width = dr*totwidth
                 boffset, dw = 0.0, 0.0
-
                 stacked = True
-            else:
-                raise ValueError, 'invalid histtype: %s' % histtype
 
             if align == 'mid' or align == 'edge':
                 boffset += 0.5*totwidth
             elif align == 'right':
                 boffset += totwidth
-            elif align != 'left' and align != 'center':
-                raise ValueError, 'invalid align: %s' % align
 
             if orientation == 'horizontal':
-                for m in n:
-                    color = self._get_lines.color_cycle.next()
-                    patch = self.barh(bins[:-1]+boffset, m, height=width,
-                                      left=bottom, align='center', log=log,
-                                      color=color)
-                    patches.append(patch)
-                    if stacked:
-                        if bottom is None: bottom = 0.0
-                        bottom += m
-                    boffset += dw
-            elif orientation == 'vertical':
-                for m in n:
-                    color = self._get_lines.color_cycle.next()
-                    patch = self.bar(bins[:-1]+boffset, m, width=width,
-                                     bottom=bottom, align='center', log=log,
-                                     color=color)
-                    patches.append(patch)
-                    if stacked:
-                        if bottom is None: bottom = 0.0
-                        bottom += m
-                    boffset += dw
-            else:
-                raise ValueError, 'invalid orientation: %s' % orientation
+                _barfunc = self.barh
+            else:  # orientation == 'vertical'
+                _barfunc = self.bar
+
+            for m in n:
+                color = self._get_lines.color_cycle.next()
+                patch = _barfunc(bins[:-1]+boffset, m, width, bottom,
+                                  align='center', log=log,
+                                  color=color)
+                patches.append(patch)
+                if stacked:
+                    if bottom is None:
+                        bottom = 0.0
+                    bottom += m
+                boffset += dw
 
         elif histtype.startswith('step'):
             x = np.zeros( 2*len(bins), np.float )
@@ -7259,21 +7267,15 @@ class Axes(martist.Artist):
                 x -= 0.5*(bins[1]-bins[0])
             elif align == 'right':
                 x += 0.5*(bins[1]-bins[0])
-            elif align != 'mid' and align != 'edge':
-                raise ValueError, 'invalid align: %s' % align
 
             if log:
                 y[0],y[-1] = 1e-100, 1e-100
                 if orientation == 'horizontal':
                     self.set_xscale('log')
-                elif orientation == 'vertical':
+                else:  # orientation == 'vertical'
                     self.set_yscale('log')
 
-            fill = False
-            if histtype == 'stepfilled':
-                fill = True
-            elif histtype != 'step':
-                raise ValueError, 'invalid histtype: %s' % histtype
+            fill = (histtype == 'stepfilled')
 
             for m in n:
                 y[1:-1:2], y[2::2] = m, m
@@ -7281,8 +7283,6 @@ class Axes(martist.Artist):
                     y[y<1e-100]=1e-100
                 if orientation == 'horizontal':
                     x,y = y,x
-                elif orientation != 'vertical':
-                    raise ValueError, 'invalid orientation: %s' % orientation
 
                 color = self._get_lines.color_cycle.next()
                 if fill:
@@ -7307,17 +7307,17 @@ class Axes(martist.Artist):
                 self.dataLim.intervaly = (ymin, ymax)
             self.autoscale_view()
 
-        else:
-            raise ValueError, 'invalid histtype: %s' % histtype
-
-        label = kwargs.pop('label', '')
+        label = kwargs.pop('label', '_nolegend_')
 
         if is_string_like(label):
-            labels = [label] + ['_nolegend_']*(len(patches)-1)
-        elif is_sequence_of_strings:
-            labels = list(label) + ['_nolegend_']*(len(patches)-1)
+            labels = [label]
+        elif is_sequence_of_strings(label):
+            labels = list(label)
         else:
-            raise ValueError, 'invalid label: must be string or sequence of strings'
+            raise ValueError(
+                'invalid label: must be string or sequence of strings')
+        if len(labels) < nx:
+            labels += ['_nolegend_'] * (nx - len(labels))
 
         for (patch, lbl) in zip(patches, labels):
             for p in patch:
@@ -7329,14 +7329,16 @@ class Axes(martist.Artist):
             self.set_autoscale_on(False)
             if orientation == 'vertical':
                 self.autoscale_view(scalex=False, scaley=True)
-                XL = self.xaxis.get_major_locator().view_limits(bins[0], bins[-1])
+                XL = self.xaxis.get_major_locator().view_limits(
+                                                            bins[0], bins[-1])
                 self.set_xbound(XL)
             else:
                 self.autoscale_view(scalex=True, scaley=False)
-                YL = self.yaxis.get_major_locator().view_limits(bins[0], bins[-1])
+                YL = self.yaxis.get_major_locator().view_limits(
+                                                            bins[0], bins[-1])
                 self.set_ybound(YL)
 
-        if len(n)==1:
+        if nx == 1:
             return n[0], bins, cbook.silent_list('Patch', patches[0])
         else:
             return n, bins, cbook.silent_list('Lists of Patches', patches)
