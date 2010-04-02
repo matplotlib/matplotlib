@@ -537,10 +537,11 @@ class Quiver(collections.PolyCollection):
             # points, regardless of the axis scaling (including log).
             angles, lengths = self._angles_lengths(U, V, eps=1)
         elif self.angles == 'xy' or self.scale_units == 'xy':
-            # We could refine this by calculating eps based on
-            # the magnitude of U, V relative to that of X, Y,
-            # to ensure we are always making small shifts in X, Y.
-            angles, lengths = self._angles_lengths(U, V, eps=0.001)
+            # Calculate eps based on the extents of the plot
+            # so that we don't end up with roundoff error from
+            # adding a small number to a large.
+            angles, lengths = self._angles_lengths(U, V,
+                eps=np.abs(self.ax.dataLim.extents).max() * 0.001)
         if self.scale_units == 'xy':
             a = lengths
         else:
