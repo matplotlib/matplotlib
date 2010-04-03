@@ -7097,7 +7097,9 @@ class Axes(martist.Artist):
             *patches*) will be returned.
 
           *color*:
-
+            Color spec or sequence of color specs, one per
+            dataset.  Default (*None*) uses the standard line
+            color sequence.
 
         kwargs are used to update the properties of the hist
         :class:`~matplotlib.patches.Rectangle` instances:
@@ -7162,6 +7164,14 @@ class Axes(martist.Artist):
             x = [np.array(xi) for xi in x]
 
         nx = len(x) # number of datasets
+
+        if color is None:
+            color = [self._get_lines.color_cycle.next()
+                                            for i in xrange(nx)]
+        else:
+            color = mcolors.colorConverter.to_rgba_array(color)
+            if len(color) != nx:
+                raise ValueError("color kwarg must have one color per dataset")
 
         if weights is not None:
             if isinstance(w, np.ndarray):
@@ -7245,11 +7255,10 @@ class Axes(martist.Artist):
             else:  # orientation == 'vertical'
                 _barfunc = self.bar
 
-            for m in n:
-                color = self._get_lines.color_cycle.next()
+            for m, c in zip(n, color):
                 patch = _barfunc(bins[:-1]+boffset, m, width, bottom,
                                   align='center', log=log,
-                                  color=color)
+                                  color=c)
                 patches.append(patch)
                 if stacked:
                     if bottom is None:
@@ -7277,20 +7286,19 @@ class Axes(martist.Artist):
 
             fill = (histtype == 'stepfilled')
 
-            for m in n:
+            for m, c in zip(n, color):
                 y[1:-1:2], y[2::2] = m, m
                 if log:
                     y[y<1e-100]=1e-100
                 if orientation == 'horizontal':
                     x,y = y,x
 
-                color = self._get_lines.color_cycle.next()
                 if fill:
                     patches.append( self.fill(x, y,
-                        closed=False, facecolor=color) )
+                        closed=False, facecolor=c) )
                 else:
                     patches.append( self.fill(x, y,
-                        closed=False, edgecolor=color, fill=False) )
+                        closed=False, edgecolor=c, fill=False) )
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
