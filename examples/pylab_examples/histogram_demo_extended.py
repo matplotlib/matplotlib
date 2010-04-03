@@ -63,13 +63,18 @@ P.ylim(0, 1.05)
 
 #
 # histogram has the ability to plot multiple data in parallel ...
+# Note the new color kwarg, used to override the default, which
+# uses the line color cycle.
 #
 P.figure()
 
 # create a new data-set
 x = mu + sigma*P.randn(1000,3)
 
-n, bins, patches = P.hist(x, 10, normed=1, histtype='bar')
+n, bins, patches = P.hist(x, 10, normed=1, histtype='bar',
+                            color=['crimson', 'burlywood', 'chartreuse'],
+                            label=['Crimson', 'Burlywood', 'Chartreuse'])
+P.legend()
 
 #
 # ... or we can stack the data

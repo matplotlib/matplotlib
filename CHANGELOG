@@ -1,7 +1,10 @@
-2010-03-24 refactor colorbar code so that no cla() is necessary when 
+2010-04-03 Added color kwarg to Axes.hist(), based on work by
+           Jeff Klukas. - EF
+
+2010-03-24 refactor colorbar code so that no cla() is necessary when
            mappable is changed. -JJL
 
-2010-03-22 fix incorrect rubber band during the zoom mode when mouse 
+2010-03-22 fix incorrect rubber band during the zoom mode when mouse
            leaves the axes. -JJL
 
 2010-03-21 x/y key during the zoom mode only changes the x/y limits. -JJL

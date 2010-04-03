@@ -10,6 +10,9 @@ list may help describe what changes may be necessary in your code.
 Changes beyond 0.99.x
 =====================
 
+* The :meth:`matplotlib.axes.Axes.hist` *color* kwarg now accepts
+  a sequence of color specs to match a sequence of datasets.
+
 * The :class:'~matplotlib.collections.EllipseCollection' has been
   changed in two ways:
 
@@ -19,7 +22,7 @@ Changes beyond 0.99.x
 
   + The *height* and *width* kwargs have been changed to specify
     the height and width, again for consistency with
-    :class:'~matplotlib.patches.Ellipse`, and to better match
+    :class:`~matplotlib.patches.Ellipse`, and to better match
     their names; previously they specified the half-height and
     half-width.
 
