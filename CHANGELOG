@@ -1,3 +1,6 @@
+2010-04-05 Speed up import: import pytz only if and when it is
+           needed.  It is not needed if the rc timezone is UTC. - EF
+
 2010-04-03 Added color kwarg to Axes.hist(), based on work by
            Jeff Klukas. - EF
 

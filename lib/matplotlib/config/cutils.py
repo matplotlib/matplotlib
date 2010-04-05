@@ -4,7 +4,6 @@
 
 # Stdlib imports
 import os
-import pytz
 import sys
 import tempfile
 import warnings

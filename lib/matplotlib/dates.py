@@ -92,15 +92,6 @@ Here all all the date formatters:
 """
 import re, time, math, datetime
 
-import pytz
-
-# compatability for 2008c and older versions
-try:
-   import pytz.zoneinfo
-except ImportError:
-   pytz.zoneinfo = pytz.tzinfo
-   pytz.zoneinfo.UTC = pytz.UTC
-
 import matplotlib
 import numpy as np
 
@@ -108,7 +99,6 @@ import matplotlib.units as units
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
-from pytz import timezone
 from dateutil.rrule import rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY, \
      MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY
 from dateutil.relativedelta import relativedelta
@@ -127,11 +117,28 @@ __all__ = ( 'date2num', 'num2date', 'drange', 'epoch2num',
             'seconds', 'minutes', 'hours', 'weeks')
 
 
+# Make a simple UTC instance so we don't always have to import
+# pytz.  From the python datetime library docs:
 
-UTC = pytz.timezone('UTC')
+class _UTC(datetime.tzinfo):
+    """UTC"""
+
+    def utcoffset(self, dt):
+        return datetime.timedelta(0)
+
+    def tzname(self, dt):
+        return "UTC"
+
+    def dst(self, dt):
+        return datetime.timedelta(0)
+
+UTC = _UTC()
 
 def _get_rc_timezone():
     s = matplotlib.rcParams['timezone']
+    if s == 'UTC':
+        return UTC
+    import pytz
     return pytz.timezone(s)
 
 
