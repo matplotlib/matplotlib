@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from pylab import *
 from matplotlib.dates import  DateFormatter, WeekdayLocator, HourLocator, \
-     DayLocator, MONDAY, timezone
+     DayLocator, MONDAY
 from matplotlib.finance import quotes_historical_yahoo, candlestick,\
      plot_day_summary, candlestick2
 
