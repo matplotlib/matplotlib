@@ -6989,7 +6989,7 @@ class Axes(martist.Artist):
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None,
+             color=None, label=None,
              **kwargs):
         """
         call signature::
@@ -7101,23 +7101,20 @@ class Axes(martist.Artist):
             dataset.  Default (*None*) uses the standard line
             color sequence.
 
-        kwargs are used to update the properties of the hist
-        :class:`~matplotlib.patches.Rectangle` instances:
+          *label*:
+            String, or sequence of strings to match multiple
+            datasets.  Bar charts yield multiple patches per
+            dataset, but only the first gets the label, so
+            that the legend command will work as expected::
 
-        %(Rectangle)s
+                ax.hist(10+2*np.random.randn(1000), label='men')
+                ax.hist(12+3*np.random.randn(1000), label='women', alpha=0.5)
+                ax.legend()
 
-        You can use labels for your histogram, and only the first
-        :class:`~matplotlib.patches.Rectangle` gets the label (the
-        others get the magic string '_nolegend_'.  This will make the
-        histograms work in the intuitive way for bar charts::
+        kwargs are used to update the properties of the
+        :class:`~matplotlib.patches.Patch` instances returned by *hist*:
 
-            ax.hist(10+2*np.random.randn(1000), label='men')
-            ax.hist(12+3*np.random.randn(1000), label='women', alpha=0.5)
-            ax.legend()
-
-        label can also be a sequence of strings. If multiple data is
-        provided in *x*, the labels are asigned sequentially to the
-        histograms.
+        %(Patch)s
 
         **Example:**
 
@@ -7315,9 +7312,9 @@ class Axes(martist.Artist):
                 self.dataLim.intervaly = (ymin, ymax)
             self.autoscale_view()
 
-        label = kwargs.pop('label', '_nolegend_')
-
-        if is_string_like(label):
+        if label is None:
+            labels = ['_nolegend_']
+        elif is_string_like(label):
             labels = [label]
         elif is_sequence_of_strings(label):
             labels = list(label)
