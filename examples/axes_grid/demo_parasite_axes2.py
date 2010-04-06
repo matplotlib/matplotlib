@@ -1,4 +1,4 @@
-from mpl_toolkits.axes_grid.parasite_axes import SubplotHost
+from mpl_toolkits.axes_grid1.parasite_axes import SubplotHost
 import matplotlib.pyplot as plt
 
 if 1:
@@ -6,24 +6,23 @@ if 1:
 
     host = SubplotHost(fig, 111)
 
-    host.set_ylabel("Density")
-    host.set_xlabel("Distance")
-
     par1 = host.twinx()
     par2 = host.twinx()
 
-    par1.set_ylabel("Temperature")
+    offset = 60
+    if hasattr(par2.axis["right"].line, "set_position"):
+        # use spine method
+        par2.axis["right"].line.set_position(('outward',offset))
+        # set_position calls axis.cla()
+        par2.axis["left"].toggle(all=False)
+    else:
+        new_axisline = par2.get_grid_helper().new_fixed_axis
+        par2.axis["right"] = new_axisline(loc="right",
+                                          axes=par2,
+                                          offset=(offset, 0))
+        
+    par2.axis["right"].toggle(all=True)
 
-    par2.axis["right"].set_visible(False)
-
-    offset = 60, 0
-    new_axisline = par2.get_grid_helper().new_fixed_axis
-    par2.axis["right2"] = new_axisline(loc="right",
-                                       axes=par2,
-                                       offset=offset)
-
-    par2.axis["right2"].label.set_visible(True)
-    par2.axis["right2"].set_label("Velocity")
 
     fig.add_axes(host)
     plt.subplots_adjust(right=0.75)
@@ -34,6 +33,7 @@ if 1:
     host.set_xlabel("Distance")
     host.set_ylabel("Density")
     par1.set_ylabel("Temperature")
+    par2.set_ylabel("Velocity")
 
     p1, = host.plot([0, 1, 2], [0, 1, 2], label="Density")
     p2, = par1.plot([0, 1, 2], [0, 3, 2], label="Temperature")
@@ -46,7 +46,7 @@ if 1:
 
     host.axis["left"].label.set_color(p1.get_color())
     par1.axis["right"].label.set_color(p2.get_color())
-    par2.axis["right2"].label.set_color(p3.get_color())
+    par2.axis["right"].label.set_color(p3.get_color())
 
     plt.draw()
     plt.show()

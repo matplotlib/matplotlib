@@ -1,3 +1,5 @@
+2010-04-06 modify axes_grid examples to use axes_grid1 and axisartist. -JJL
+
 2010-04-06 rebase axes_grid using axes_grid1 and axisartist modules. -JJL
 
 2010-04-06 axes_grid toolkit is splitted into two separate modules, 

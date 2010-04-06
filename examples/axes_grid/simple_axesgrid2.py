@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid import AxesGrid
+from mpl_toolkits.axes_grid1 import ImageGrid
 
 def get_demo_image():
     import numpy as np
@@ -10,7 +10,7 @@ def get_demo_image():
     return z, (-3,4,-4,3)
 
 F = plt.figure(1, (5.5, 3.5))
-grid = AxesGrid(F, 111, # similar to subplot(111)
+grid = ImageGrid(F, 111, # similar to subplot(111)
                 nrows_ncols = (1, 3),
                 axes_pad = 0.1,
                 add_all=True,

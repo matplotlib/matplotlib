@@ -1,11 +1,11 @@
 
 #clf()
-from mpl_toolkits.axes_grid.axes_grid import AxesGrid
+from mpl_toolkits.axes_grid1.axes_grid import ImageGrid
 
 def test_rotation_mode(fig, mode, subplot_location):
     ha_list = "left center right".split()
     va_list = "top center baseline bottom".split()
-    grid = AxesGrid(fig, subplot_location,
+    grid = ImageGrid(fig, subplot_location,
                     nrows_ncols=(len(va_list), len(ha_list)),
                     share_all=True, aspect=True, #label_mode='1',
                     cbar_mode=None)

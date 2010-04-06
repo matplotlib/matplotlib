@@ -1,12 +1,11 @@
 from matplotlib.transforms import Affine2D
 
-from mpl_toolkits.axes_grid.floating_axes import FloatingSubplot,\
-     GridHelperCurveLinear
+import mpl_toolkits.axisartist.floating_axes as floating_axes
 
 import numpy as np
-import  mpl_toolkits.axes_grid.angle_helper as angle_helper
+import  mpl_toolkits.axisartist.angle_helper as angle_helper
 from matplotlib.projections import PolarAxes
-from mpl_toolkits.axes_grid.grid_finder import FixedLocator, MaxNLocator, \
+from mpl_toolkits.axisartist.grid_finder import FixedLocator, MaxNLocator, \
      DictFormatter
 
 def setup_axes1(fig, rect):
@@ -15,9 +14,9 @@ def setup_axes1(fig, rect):
     """
     tr = Affine2D().scale(2, 1).rotate_deg(30)
 
-    grid_helper = GridHelperCurveLinear(tr, extremes=(0, 4, 0, 4))
+    grid_helper = floating_axes.GridHelperCurveLinear(tr, extremes=(0, 4, 0, 4))
 
-    ax1 = FloatingSubplot(fig, rect, grid_helper=grid_helper)
+    ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)
 
     grid_helper.grid_finder.grid_locator1._nbins = 4
@@ -45,7 +44,7 @@ def setup_axes2(fig, rect):
 
     grid_locator2 = MaxNLocator(2)
 
-    grid_helper = GridHelperCurveLinear(tr,
+    grid_helper = floating_axes.GridHelperCurveLinear(tr,
                                         extremes=(.5*pi, 0, 2, 1),
                                         grid_locator1=grid_locator1,
                                         grid_locator2=grid_locator2,
@@ -53,7 +52,7 @@ def setup_axes2(fig, rect):
                                         tick_formatter2=None,
                                         )
 
-    ax1 = FloatingSubplot(fig, rect, grid_helper=grid_helper)
+    ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)
 
     # create a parasite axes whose transData in RA, cz
@@ -88,7 +87,7 @@ def setup_axes3(fig, rect):
 
     ra0, ra1 = 8.*15, 14.*15
     cz0, cz1 = 0, 14000
-    grid_helper = GridHelperCurveLinear(tr,
+    grid_helper = floating_axes.GridHelperCurveLinear(tr,
                                         extremes=(ra0, ra1, cz0, cz1),
                                         grid_locator1=grid_locator1,
                                         grid_locator2=grid_locator2,
@@ -96,7 +95,7 @@ def setup_axes3(fig, rect):
                                         tick_formatter2=None,
                                         )
 
-    ax1 = FloatingSubplot(fig, rect, grid_helper=grid_helper)
+    ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)
 
     # adjust axis

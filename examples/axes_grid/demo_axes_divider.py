@@ -19,7 +19,7 @@ def demo_simple_image(ax):
 
 def demo_locatable_axes_hard(fig1):
 
-    from mpl_toolkits.axes_grid \
+    from mpl_toolkits.axes_grid1 \
          import SubplotDivider, LocatableAxes, Size
 
     divider = SubplotDivider(fig1, 2, 2, 2, aspect=True)
@@ -57,7 +57,7 @@ def demo_locatable_axes_hard(fig1):
 
 
 def demo_locatable_axes_easy(ax):
-    from mpl_toolkits.axes_grid import make_axes_locatable
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
 
     divider = make_axes_locatable(ax)
 
@@ -76,7 +76,7 @@ def demo_locatable_axes_easy(ax):
 
 
 def demo_images_side_by_sied(ax):
-    from mpl_toolkits.axes_grid import make_axes_locatable
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
 
     divider = make_axes_locatable(ax)
 

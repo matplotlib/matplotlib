@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from mpl_toolkits.axes_grid.inset_locator import inset_axes, zoomed_inset_axes
-from mpl_toolkits.axes_grid.anchored_artists import AnchoredSizeBar
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes, zoomed_inset_axes
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 
 
 def add_sizebar(ax, size):

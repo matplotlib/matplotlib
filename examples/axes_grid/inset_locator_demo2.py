@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
-from mpl_toolkits.axes_grid.inset_locator import zoomed_inset_axes
-from mpl_toolkits.axes_grid.inset_locator import mark_inset
+from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
+from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 import numpy as np
 

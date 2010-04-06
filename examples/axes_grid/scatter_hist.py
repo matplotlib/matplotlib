@@ -8,7 +8,7 @@ y = np.random.randn(1000)
 
 fig = plt.figure(1, figsize=(5.5,5.5))
 
-from mpl_toolkits.axes_grid import make_axes_locatable
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 axScatter = plt.subplot(111)
 divider = make_axes_locatable(axScatter)
