@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.parasite_axes import SubplotHost
+from mpl_toolkits.axes_grid1.parasite_axes import SubplotHost
 import numpy as np
 
 fig = plt.figure(1, (4,3))
@@ -12,7 +12,7 @@ ax.plot(xx, np.sin(xx))
 
 ax2 = ax.twin() # ax2 is responsible for "top" axis and "right" axis
 ax2.set_xticks([0., .5*np.pi, np.pi, 1.5*np.pi, 2*np.pi])
-ax2.set_xticklabels(["0", r"$\frac{1}{2}\pi$",
+ax2.set_xticklabels(["$0$", r"$\frac{1}{2}\pi$",
                      r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
 
 ax2.axis["right"].major_ticklabels.set_visible(False)

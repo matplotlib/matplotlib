@@ -1,6 +1,6 @@
 import matplotlib.transforms as mtransforms
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid.parasite_axes import SubplotHost
+from mpl_toolkits.axes_grid1.parasite_axes import SubplotHost
 
 obs = [["01_S1", 3.88, 0.14, 1970, 63],
        ["01_S4", 5.6, 0.82, 1622, 150],

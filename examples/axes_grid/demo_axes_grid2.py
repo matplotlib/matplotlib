@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid import ImageGrid
+from mpl_toolkits.axes_grid1 import ImageGrid
 import numpy as np
 
 def get_demo_image():
@@ -57,10 +57,10 @@ if 1:
 
     for ax, z in zip(grid, ZS):
         ax.cax.toggle_label(True)
-        axis = ax.cax.axis[ax.cax.orientation]
-        axis.label.set_text("counts s$^{-1}$")
-        axis.label.set_size(10)
-        axis.major_ticklabels.set_size(6)
+        #axis = ax.cax.axis[ax.cax.orientation]
+        #axis.label.set_text("counts s$^{-1}$")
+        #axis.label.set_size(10)
+        #axis.major_ticklabels.set_size(6)
 
     # changing the colorbar ticks
     grid[1].cax.set_xticks([-1, 0, 1])

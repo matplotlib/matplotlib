@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 
 
 def draw_text(ax):
-    from mpl_toolkits.axes_grid.anchored_artists import AnchoredText
+    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredText
     at = AnchoredText("Figure 1a",
                       loc=2, prop=dict(size=8), frameon=True,
                       )
@@ -18,7 +18,7 @@ def draw_text(ax):
     ax.add_artist(at2)
 
 def draw_circle(ax): # circle in the canvas coordinate
-    from mpl_toolkits.axes_grid.anchored_artists import AnchoredDrawingArea
+    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
     from matplotlib.patches import Circle
     ada = AnchoredDrawingArea(20, 20, 0, 0,
                               loc=1, pad=0., frameon=False)
@@ -27,7 +27,7 @@ def draw_circle(ax): # circle in the canvas coordinate
     ax.add_artist(ada)
 
 def draw_ellipse(ax):
-    from mpl_toolkits.axes_grid.anchored_artists import AnchoredEllipse
+    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredEllipse
     # draw an ellipse of width=0.1, height=0.15 in the data coordinate
     ae = AnchoredEllipse(ax.transData, width=0.1, height=0.15, angle=0.,
                          loc=3, pad=0.5, borderpad=0.4, frameon=True)
@@ -35,7 +35,7 @@ def draw_ellipse(ax):
     ax.add_artist(ae)
 
 def draw_sizebar(ax):
-    from mpl_toolkits.axes_grid.anchored_artists import AnchoredSizeBar
+    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
     # draw a horizontal bar with length of 0.1 in Data coordinate
     # (ax.transData) with a label underneath.
     asb =  AnchoredSizeBar(ax.transData,

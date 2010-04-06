@@ -1,8 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from demo_axes_divider import get_demo_image
-from mpl_toolkits.axes_grid.axes_rgb import make_rgb_axes, RGBAxes
+from mpl_toolkits.axes_grid1.axes_rgb import make_rgb_axes, RGBAxes
+
+def get_demo_image():
+    from matplotlib.cbook import get_sample_data
+    f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
+    z = np.load(f)
+    # z is a numpy array of 15x15
+    return z, (-3,4,-4,3)
+
+
 
 def get_rgb():
     Z, extent = get_demo_image()
@@ -67,9 +75,11 @@ def demo_rgb2():
     ax.RGB.set_ylim(0.9, 10.6)
 
     for ax1 in [ax.RGB, ax.R, ax.G, ax.B]:
-        for axisline in ax1._axislines.values():
-            axisline.line.set_color("w")
-            axisline.major_ticks.set_mec("w")
+        for sp1 in ax1.spines.values():
+            sp1.set_color("w")
+        for tick in ax1.xaxis.get_major_ticks() + ax1.yaxis.get_major_ticks():
+            tick.tick1line.set_mec("w")
+            tick.tick2line.set_mec("w")
 
     return ax
 
