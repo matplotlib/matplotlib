@@ -58,6 +58,8 @@ packages = [
     'mpl_toolkits',
     'mpl_toolkits.mplot3d',
     'mpl_toolkits.axes_grid',
+    'mpl_toolkits.axes_grid1',
+    'mpl_toolkits.axisartist',
     'matplotlib.sphinxext',
     # The following are deprecated and will be removed.
     'matplotlib.numerix',
