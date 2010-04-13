@@ -468,11 +468,6 @@ class Text(Artist):
         be updated before actually drawing the bbox.
         """
 
-        # For arrow_patch, use textbox as patchA by default.
-
-        if not isinstance(self.arrow_patch, FancyArrowPatch):
-            return
-
         if self._bbox_patch:
 
             trans = self.get_transform()
@@ -495,31 +490,6 @@ class Text(Artist):
             self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
             #self._bbox_patch.draw(renderer)
 
-        else:
-            props = self._bbox
-            if props is None: props = {}
-            props = props.copy() # don't want to alter the pad externally
-            pad = props.pop('pad', 4)
-            pad = renderer.points_to_pixels(pad)
-            if self.get_text() == "":
-                self.arrow_patch.set_patchA(None)
-                return
-
-            bbox = self.get_window_extent(renderer)
-            l,b,w,h = bbox.bounds
-            l-=pad/2.
-            b-=pad/2.
-            w+=pad
-            h+=pad
-            r = Rectangle(xy=(l,b),
-                          width=w,
-                          height=h,
-                          )
-            r.set_transform(mtransforms.IdentityTransform())
-            r.set_clip_on( False )
-            r.update(props)
-
-            self.arrow_patch.set_patchA(r)
 
     def _draw_bbox(self, renderer, posx, posy):
 
@@ -1425,7 +1395,7 @@ class OffsetFrom(object):
             x, y = self._artist.transform_point(self._ref_coord)
         else:
             raise RuntimeError("unknown type")
-            
+
         sc = self._get_scale(renderer)
         tr = Affine2D().scale(sc, sc).translate(x, y)
 
@@ -1501,7 +1471,7 @@ class _AnnotationBase(object):
             tr = PolarAxes.PolarTransform()
             trans = tr + self.axes.transData
             return trans
-            
+
         s_ = s.split()
         if len(s_) != 2:
             raise ValueError("%s is not a recognized coodinate" % s)
@@ -1611,7 +1581,7 @@ class _AnnotationBase(object):
             y = b + y*sc
 
         return x, y
-    
+
 
     def set_annotation_clip(self, b):
         """
@@ -1896,12 +1866,37 @@ class Annotation(Text, _AnnotationBase):
                 mutation_scale = renderer.points_to_pixels(mutation_scale)
                 self.arrow_patch.set_mutation_scale(mutation_scale)
 
-                if self._bbox_patch:
-                    patchA = d.pop("patchA", self._bbox_patch)
-                    self.arrow_patch.set_patchA(patchA)
+                if "patchA" in d:
+                    self.arrow_patch.set_patchA(d.pop("patchA"))
                 else:
-                    patchA = d.pop("patchA", self._bbox)
-                    self.arrow_patch.set_patchA(patchA)
+                    if self._bbox_patch:
+                        self.arrow_patch.set_patchA(self._bbox_patch)
+                    else:
+                        patchA = d.pop("patchA", None)
+                        props = self._bbox
+                        if props is None: props = {}
+                        props = props.copy() # don't want to alter the pad externally
+                        pad = props.pop('pad', 4)
+                        pad = renderer.points_to_pixels(pad)
+                        if self.get_text() == "":
+                            self.arrow_patch.set_patchA(None)
+                            return
+
+                        bbox = self.get_window_extent(renderer)
+                        l,b,w,h = bbox.bounds
+                        l-=pad/2.
+                        b-=pad/2.
+                        w+=pad
+                        h+=pad
+                        r = Rectangle(xy=(l,b),
+                                      width=w,
+                                      height=h,
+                                      )
+                        r.set_transform(mtransforms.IdentityTransform())
+                        r.set_clip_on( False )
+                        r.update(props)
+
+                        self.arrow_patch.set_patchA(r)
 
             else:
 
@@ -1933,6 +1928,34 @@ class Annotation(Text, _AnnotationBase):
                 self.arrow.set_clip_box(self.get_clip_box())
 
 
+    def update_bbox_position_size(self, renderer):
+        """
+        Update the location and the size of the bbox. This method
+        should be used when the position and size of the bbox needs to
+        be updated before actually drawing the bbox.
+        """
+
+        # For arrow_patch, use textbox as patchA by default.
+
+        if not isinstance(self.arrow_patch, FancyArrowPatch):
+            return
+
+        if self._bbox_patch:
+            posx, posy = self._x, self._y
+            print posx, posy
+
+            x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
+            self._bbox_patch.set_bounds(0., 0.,
+                                        w_box, h_box)
+            theta = self.get_rotation()/180.*math.pi
+            tr = mtransforms.Affine2D().rotate(theta)
+            tr = tr.translate(posx+x_box, posy+y_box)
+            self._bbox_patch.set_transform(tr)
+            fontsize_in_pixel = renderer.points_to_pixels(self.get_size())
+            self._bbox_patch.set_mutation_scale(fontsize_in_pixel)
+
+
+
     @allow_rasterization
     def draw(self, renderer):
         """
@@ -1944,13 +1967,12 @@ class Annotation(Text, _AnnotationBase):
         if not self.get_visible(): return
 
         xy_pixel = self._get_position_xy(renderer)
-
         if not self._check_xy(renderer, xy_pixel):
             return
 
         self._update_position_xytext(renderer, xy_pixel)
-
         self.update_bbox_position_size(renderer)
+
 
         if self.arrow is not None:
             if self.arrow.figure is None and self.figure is not None:
