@@ -159,7 +159,7 @@ class OffsetBox(martist.Artist):
             if a:
                 return a, b
         return False, {}
-    
+
     def set_offset(self, xy):
         """
         Set the offset
@@ -1307,11 +1307,10 @@ class AnnotationBbox(martist.Artist, _AnnotationBase):
         else:
             ox0, oy0 = self._get_xy(renderer, x, y, self.textcoords)
 
-        #self.offsetbox.set_bbox_to_anchor((ox0, oy0))
         w, h, xd, yd = self.offsetbox.get_extent(renderer)
 
         _fw, _fh = self._box_alignment
-        self.offsetbox.set_offset((ox0-_fw*w, oy0-_fh*h))
+        self.offsetbox.set_offset((ox0-_fw*w+xd, oy0-_fh*h+yd))
 
         # update patch position
         bbox = self.offsetbox.get_window_extent(renderer)
@@ -1401,7 +1400,7 @@ class DraggableBase(object):
      offset from the point where the mouse drag started.
 
     Optionally you may override following two methods.
-    
+
       def artist_picker(self, artist, evt):
           return self.ref_artist.contains(evt)
 
@@ -1420,7 +1419,7 @@ class DraggableBase(object):
         self.ref_artist = ref_artist
         self.got_artist = False
         self._use_blit = use_blit
-        
+
         self.canvas = self.ref_artist.figure.canvas
         c2 = self.canvas.mpl_connect('pick_event', self.on_pick)
         c3 = self.canvas.mpl_connect('button_release_event', self.on_release)
@@ -1484,7 +1483,7 @@ class DraggableBase(object):
 
     def update_offset(self, dx, dy):
         pass
-        
+
     def finalize_offset(self):
         pass
 
@@ -1504,7 +1503,7 @@ class DraggableOffsetBox(DraggableBase):
     def update_offset(self, dx, dy):
         loc_in_canvas = self.offsetbox_x + dx, self.offsetbox_y + dy
         self.offsetbox.set_offset(loc_in_canvas)
-        
+
     def get_loc_in_canvas(self):
 
         offsetbox=self.offsetbox
@@ -1514,7 +1513,7 @@ class DraggableOffsetBox(DraggableBase):
         loc_in_canvas = (ox-xd, oy-yd)
 
         return loc_in_canvas
-        
+
 
 class DraggableAnnotation(DraggableBase):
     def __init__(self, annotation, use_blit=False):
