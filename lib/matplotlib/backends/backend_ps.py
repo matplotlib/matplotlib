@@ -1156,7 +1156,11 @@ class FigureCanvasPS(FigureCanvasBase):
             fh = file(tmpfile)
             print >>outfile, fh.read()
         else:
+            f = open(outfile, 'w')
+            mode = os.stat(outfile).st_mode
+            f.close()
             shutil.move(tmpfile, outfile)
+            os.chmod(outfile, mode)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
                           orientation, isLandscape, papertype,
