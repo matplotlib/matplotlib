@@ -997,7 +997,6 @@ class FigureCanvasPS(FigureCanvasBase):
         """
         isEPSF = format == 'eps'
         passed_in_file_object = False
-        fd, tmpfile = mkstemp()
         if is_string_like(outfile):
             title = outfile
         elif is_writable_file_like(outfile):
@@ -1005,8 +1004,9 @@ class FigureCanvasPS(FigureCanvasBase):
             passed_in_file_object = True
         else:
             raise ValueError("outfile must be a path or a file-like object")
-        os.close(fd)
-        fh = file(tmpfile, 'w')
+
+        fd, tmpfile = mkstemp()
+        fh = os.fdopen(fd, 'w')
 
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
@@ -1153,12 +1153,11 @@ class FigureCanvasPS(FigureCanvasBase):
             xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
 
         if passed_in_file_object:
-            fh = file(tmpfile)
+            fh = open(tmpfile)
             print >>outfile, fh.read()
         else:
-            f = open(outfile, 'w')
+            open(outfile, 'w')
             mode = os.stat(outfile).st_mode
-            f.close()
             shutil.move(tmpfile, outfile)
             os.chmod(outfile, mode)
 
@@ -1175,8 +1174,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
         fd, tmpfile = mkstemp()
-        os.close(fd)
-        fh = file(tmpfile, 'w')
+        fh = os.fdopen(fd, 'w')
 
         self.figure.dpi = 72 # ignore the dpi kwarg
         width, height = self.figure.get_size_inches()
@@ -1301,7 +1299,11 @@ class FigureCanvasPS(FigureCanvasBase):
         if  isinstance(outfile, file):
             fh = file(tmpfile)
             print >>outfile, fh.read()
-        else: shutil.move(tmpfile, outfile)
+        else:
+            open(outfile, 'w')
+            mode = os.stat(outfile).st_mode
+            shutil.move(tmpfile, outfile)
+            os.chmod(outfile, mode)
 
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                     paperWidth, paperHeight, orientation):
