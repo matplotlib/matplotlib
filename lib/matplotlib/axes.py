@@ -6896,14 +6896,14 @@ class Axes(martist.Artist):
     def contour(self, *args, **kwargs):
         if not self._hold: self.cla()
         kwargs['filled'] = False
-        return mcontour.ContourSet(self, *args, **kwargs)
-    contour.__doc__ = mcontour.ContourSet.contour_doc
+        return mcontour.QuadContourSet(self, *args, **kwargs)
+    contour.__doc__ = mcontour.QuadContourSet.contour_doc
 
     def contourf(self, *args, **kwargs):
         if not self._hold: self.cla()
         kwargs['filled'] = True
-        return mcontour.ContourSet(self, *args, **kwargs)
-    contourf.__doc__ = mcontour.ContourSet.contour_doc
+        return mcontour.QuadContourSet(self, *args, **kwargs)
+    contourf.__doc__ = mcontour.QuadContourSet.contour_doc
 
     def clabel(self, CS, *args, **kwargs):
         return CS.clabel(*args, **kwargs)
