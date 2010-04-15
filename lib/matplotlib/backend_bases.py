@@ -298,6 +298,8 @@ class RendererBase:
                 xo, yo = toffsets[i % Noffsets]
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
+                if len(rgbFace) == 4 and rgbFace[3] == 0:
+                    rgbFace = None
             if Nedgecolors:
                 gc0.set_foreground(edgecolors[i % Nedgecolors])
                 if Nlinewidths:
@@ -1534,14 +1536,14 @@ class FigureCanvasBase:
         # check for registered backends
         if format in _backend_d:
             backend_class = _backend_d[format]
-            
+
             def _print_method(*args, **kwargs):
                 backend = self.switch_backends(backend_class)
                 print_method = getattr(backend, method_name)
                 return print_method(*args, **kwargs)
 
             return _print_method
-            
+
         if (format not in self.filetypes or
             not hasattr(self, method_name)):
             formats = self.filetypes.keys()
@@ -1610,7 +1612,7 @@ class FigureCanvasBase:
         format = format.lower()
 
         print_method = self._get_print_method(format)
-        
+
         if dpi is None:
             dpi = rcParams['savefig.dpi']
 
@@ -2233,7 +2235,7 @@ class NavigationToolbar2:
                                       self._switch_off_zoom_mode)
 
         self._ids_zoom = id1, id2, id3
-        
+
         self._zoom_mode = event.key
 
 
@@ -2242,11 +2244,11 @@ class NavigationToolbar2:
     def _switch_on_zoom_mode(self, event):
         self._zoom_mode = event.key
         self.mouse_move(event)
-        
+
     def _switch_off_zoom_mode(self, event):
         self._zoom_mode = None
         self.mouse_move(event)
-    
+
     def push_current(self):
         'push the current view limits and position onto the stack'
         lims = []; pos = []
@@ -2298,11 +2300,11 @@ class NavigationToolbar2:
             x, y = event.x, event.y
             lastx, lasty, a, ind, lim, trans = self._xypress[0]
 
-            # adjust x, last, y, last 
+            # adjust x, last, y, last
             x1, y1, x2, y2 = a.bbox.extents
             x, lastx = max(min(x, lastx), x1), min(max(x, lastx), x2)
             y, lasty = max(min(y, lasty), y1), min(max(y, lasty), y2)
-            
+
             if self._zoom_mode == "x":
                 x1, y1, x2, y2 = a.bbox.extents
                 y, lasty = y1, y2
