@@ -298,8 +298,6 @@ class RendererBase:
                 xo, yo = toffsets[i % Noffsets]
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
-                if len(rgbFace) == 4 and rgbFace[3] == 0:
-                    rgbFace = None
             if Nedgecolors:
                 gc0.set_foreground(edgecolors[i % Nedgecolors])
                 if Nlinewidths:
@@ -307,8 +305,11 @@ class RendererBase:
                 if Nlinestyles:
                     gc0.set_dashes(*linestyles[i % Nlinestyles])
             if rgbFace is not None and len(rgbFace)==4:
-                gc0.set_alpha(rgbFace[-1])
-                rgbFace = rgbFace[:3]
+                if rgbFace[3] == 0:
+                    rgbFace = None
+                else:
+                    gc0.set_alpha(rgbFace[-1])
+                    rgbFace = rgbFace[:3]
             gc0.set_antialiased(antialiaseds[i % Naa])
             if Nurls:
                 gc0.set_url(urls[i % Nurls])
