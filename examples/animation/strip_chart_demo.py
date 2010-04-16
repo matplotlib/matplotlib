@@ -9,7 +9,7 @@ uses the idle handler to trigger events.  You can plug this into a
 different GUI that supports animation (GTKAgg, TkAgg, WXAgg) and use
 your toolkits idle/timer functions.
 """
-import gobject, gtk
+import gobject
 import matplotlib
 matplotlib.use('GTKAgg')
 import numpy as np
