@@ -186,6 +186,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
     def destroy(self):
         #gtk.DrawingArea.destroy(self)
+        self.close_event()
         gobject.source_remove(self._idle_event_id)
         if self._idle_draw_id != 0:
             gobject.source_remove(self._idle_draw_id)

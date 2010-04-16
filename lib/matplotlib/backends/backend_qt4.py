@@ -104,6 +104,9 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         w,h = self.get_width_height()
         self.resize( w, h )
 
+        QtCore.QObject.connect(self, QtCore.SIGNAL('destroyed()'),
+            self.close_event)
+
     def __timerEvent(self, event):
         # hide until we can test and fix
         self.mpl_idle_event(event)

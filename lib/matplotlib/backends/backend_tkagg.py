@@ -177,6 +177,13 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         root = self._tkcanvas.winfo_toplevel()
         root.bind("<MouseWheel>", self.scroll_event_windows)
 
+        # Can't get destroy events by binding ot _tkcanvas. Therefore, bind
+        # to the window and filter.
+        def filter_destroy(evt):
+            if evt.widget is self._tkcanvas:
+                self.close_event()
+        root.bind("<Destroy>", filter_destroy)
+
         self._master = master
         self._tkcanvas.focus_set()
 
@@ -765,4 +772,3 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
 
 FigureManager = FigureManagerTkAgg
-
