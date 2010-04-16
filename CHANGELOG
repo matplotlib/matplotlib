@@ -1,8 +1,10 @@
+2010-04-16 Add a close_event to the backends. -RM
+
 2010-04-06 modify axes_grid examples to use axes_grid1 and axisartist. -JJL
 
 2010-04-06 rebase axes_grid using axes_grid1 and axisartist modules. -JJL
 
-2010-04-06 axes_grid toolkit is splitted into two separate modules, 
+2010-04-06 axes_grid toolkit is splitted into two separate modules,
            axes_grid1 and axisartist. -JJL
 
 2010-04-05 Speed up import: import pytz only if and when it is
