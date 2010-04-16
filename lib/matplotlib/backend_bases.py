@@ -920,6 +920,16 @@ class ResizeEvent(Event):
         Event.__init__(self, name, canvas)
         self.width, self.height = canvas.get_width_height()
 
+class CloseEvent(Event):
+    """
+    An event triggered by a figure being closed
+
+    In addition to the :class:`Event` attributes, the following event attributes are defined:
+    """
+    def __init__(self, name, canvas, guiEvent=None):
+        Event.__init__(self, name, canvas, guiEvent)
+        print 'Initing CloseEvent'
+
 class LocationEvent(Event):
     """
     A event that has a screen location
@@ -1157,7 +1167,8 @@ class FigureCanvasBase:
         'figure_enter_event',
         'figure_leave_event',
         'axes_enter_event',
-        'axes_leave_event'
+        'axes_leave_event',
+        'close_event'
         ]
 
 
@@ -1291,6 +1302,15 @@ class FigureCanvasBase:
 
         s = 'resize_event'
         event = ResizeEvent(s, self)
+        self.callbacks.process(s, event)
+
+    def close_event(self, guiEvent=None):
+        """
+        This method will be called by all functions connected to the
+        'close_event' with a :class:`CloseEvent`
+        """
+        s = 'close_event'
+        event = CloseEvent(s, self, guiEvent=guiEvent)
         self.callbacks.process(s, event)
 
     def key_press_event(self, key, guiEvent=None):
@@ -1742,6 +1762,7 @@ class FigureCanvasBase:
         - 'figure_leave_event',
         - 'axes_enter_event',
         - 'axes_leave_event'
+        - 'close_event'
 
         For the location events (button and key press/release), if the
         mouse is over the axes, the variable ``event.inaxes`` will be
