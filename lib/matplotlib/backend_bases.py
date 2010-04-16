@@ -1,3 +1,4 @@
+
 """
 Abstract base classes define the primitives that renderers and
 graphics contexts must implement to serve as a matplotlib backend
@@ -928,7 +929,6 @@ class CloseEvent(Event):
     """
     def __init__(self, name, canvas, guiEvent=None):
         Event.__init__(self, name, canvas, guiEvent)
-        print 'Initing CloseEvent'
 
 class LocationEvent(Event):
     """
