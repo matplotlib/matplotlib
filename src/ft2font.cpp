@@ -1329,8 +1329,8 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args) {
   long x = (long)xd;
   long y = (long)yd;
   FT_Vector sub_offset;
-  sub_offset.x = int(-(xd - (double)x) * 64.0);
-  sub_offset.y = int(-(yd - (double)y) * 64.0);
+  sub_offset.x = 0; // int((xd - (double)x) * 64.0);
+  sub_offset.y = 0; // int((yd - (double)y) * 64.0);
 
   if (!Glyph::check(args[3].ptr()))
     throw Py::TypeError("Usage: draw_glyph_to_bitmap(bitmap, x,y,glyph)");
@@ -1853,7 +1853,7 @@ FT2Font::init_type() {
   add_keyword_method("load_char", &FT2Font::load_char,
                      FT2Font::load_char__doc__);
   add_keyword_method("load_glyph", &FT2Font::load_glyph,
-		     FT2Font::load_glyph__doc__);
+                     FT2Font::load_glyph__doc__);
   add_keyword_method("set_text", &FT2Font::set_text,
                      FT2Font::set_text__doc__);
   add_varargs_method("set_size", &FT2Font::set_size,
@@ -1861,7 +1861,7 @@ FT2Font::init_type() {
   add_varargs_method("set_charmap", &FT2Font::set_charmap,
                      FT2Font::set_charmap__doc__);
   add_varargs_method("select_charmap", &FT2Font::select_charmap,
-		     FT2Font::select_charmap__doc__);
+                     FT2Font::select_charmap__doc__);
 
   add_varargs_method("get_width_height", &FT2Font::get_width_height,
                      FT2Font::get_width_height__doc__);
