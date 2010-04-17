@@ -320,6 +320,7 @@ static void _release_hatch(void* info)
 {   PyObject* manager;
 }
 - (Window*)initWithContentRect:(NSRect)rect styleMask:(unsigned int)mask backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation withManager: (PyObject*)theManager;
+- (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen;
 - (BOOL)closeButtonPressed;
 - (void)close;
 - (void)dealloc;
@@ -4394,6 +4395,16 @@ show(PyObject* self)
     manager = theManager;
     Py_INCREF(manager);
     return self;
+}
+
+- (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen
+{
+    /* Allow window sizes larger than the screen */
+    NSRect suggested = [super constrainFrameRect: rect toScreen: screen];
+    const CGFloat difference = rect.size.height - suggested.size.height;
+    suggested.origin.y -= difference;
+    suggested.size.height += difference;
+    return suggested;
 }
 
 - (BOOL)closeButtonPressed
