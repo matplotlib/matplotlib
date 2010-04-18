@@ -101,6 +101,7 @@ _misccommands = (
     'table',
     'text',
     'annotate',
+    'ticklabel_format',
     )
 
 cmappable = {

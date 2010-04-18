@@ -1880,6 +1880,11 @@ class Axes(martist.Artist):
                          be used for numbers outside the range
                          10`-m`:sup: to 10`n`:sup:.
                          Use (0,0) to include all numbers.
+          *useOffset*    [True | False | offset]; if True,
+                         the offset will be calculated as needed;
+                         if False, no offset will be used; if a
+                         numeric offset is specified, it will be
+                         used.
           *axis*         [ 'x' | 'y' | 'both' ]
           ============   =====================================
 
@@ -1892,13 +1897,14 @@ class Axes(martist.Artist):
         """
         style = kwargs.pop('style', '').lower()
         scilimits = kwargs.pop('scilimits', None)
+        useOffset = kwargs.pop('useOffset', None)
+        axis = kwargs.pop('axis', 'both').lower()
         if scilimits is not None:
             try:
                 m, n = scilimits
                 m+n+1  # check that both are numbers
             except (ValueError, TypeError):
                 raise ValueError("scilimits must be a sequence of 2 integers")
-        axis = kwargs.pop('axis', 'both').lower()
         if style[:3] == 'sci':
             sb = True
         elif style in ['plain', 'comma']:
@@ -1923,6 +1929,11 @@ class Axes(martist.Artist):
                     self.xaxis.major.formatter.set_powerlimits(scilimits)
                 if axis == 'both' or axis == 'y':
                     self.yaxis.major.formatter.set_powerlimits(scilimits)
+            if useOffset is not None:
+                if axis == 'both' or axis == 'x':
+                    self.xaxis.major.formatter.set_useOffset(useOffset)
+                if axis == 'both' or axis == 'y':
+                    self.yaxis.major.formatter.set_useOffset(useOffset)
         except AttributeError:
             raise AttributeError(
                 "This method only works with the ScalarFormatter.")

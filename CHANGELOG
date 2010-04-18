@@ -1,3 +1,6 @@
+2010-04-18 Control ScalarFormatter offsets directly and via the
+           Axes.ticklabel_format() method, and add that to pyplot. -EF
+
 2010-04-16 Add a close_event to the backends. -RM
 
 2010-04-06 modify axes_grid examples to use axes_grid1 and axisartist. -JJL

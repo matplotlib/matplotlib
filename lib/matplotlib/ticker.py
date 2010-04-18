@@ -321,21 +321,33 @@ class ScalarFormatter(Formatter):
     data < 10^-n or data >= 10^m, where n and m are the power limits set using
     set_powerlimits((n,m)). The defaults for these are controlled by the
     axes.formatter.limits rc parameter.
+
     """
 
     def __init__(self, useOffset=True, useMathText=False):
         # useOffset allows plotting small data ranges with large offsets:
         # for example: [1+1e-9,1+2e-9,1+3e-9]
         # useMathText will render the offset and scientific notation in mathtext
-        self._useOffset = useOffset
+        self.set_useOffset(useOffset)
         self._usetex = rcParams['text.usetex']
         self._useMathText = useMathText
-        self.offset = 0
         self.orderOfMagnitude = 0
         self.format = ''
         self._scientific = True
         self._powerlimits = rcParams['axes.formatter.limits']
 
+    def get_useOffset(self):
+        return self._useOffset
+
+    def set_useOffset(self, val):
+        if val in [True, False]:
+            self.offset = 0
+            self._useOffset = val
+        else:
+            self._useOffset = False
+            self.offset = val
+
+    useOffset = property(fget=get_useOffset, fset=set_useOffset)
 
     def fix_minus(self, s):
         'use a unicode minus rather than hyphen'
@@ -412,7 +424,8 @@ class ScalarFormatter(Formatter):
         if len(self.locs) > 0:
             vmin, vmax = self.axis.get_view_interval()
             d = abs(vmax-vmin)
-            if self._useOffset: self._set_offset(d)
+            if self._useOffset:
+                self._set_offset(d)
             self._set_orderOfMagnitude(d)
             self._set_format()
 
