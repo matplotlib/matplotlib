@@ -1,3 +1,7 @@
+2010-04-18 Control MaxNLocator parameters after instantiation,
+           and via Axes.locator_params method, with corresponding
+           pyplot function. -EF
+
 2010-04-18 Control ScalarFormatter offsets directly and via the
            Axes.ticklabel_format() method, and add that to pyplot. -EF
 

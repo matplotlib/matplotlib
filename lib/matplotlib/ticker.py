@@ -1052,37 +1052,74 @@ class MaxNLocator(Locator):
     """
     Select no more than N intervals at nice locations.
     """
-
-    def __init__(self, nbins = 10, steps = None,
-                 trim = True,
-                 integer=False,
-                 symmetric=False,
-                 prune=None):
+    default_params = dict(nbins = 10,
+                          steps = None,
+                          trim = True,
+                          integer=False,
+                          symmetric=False,
+                          prune=None)
+    def __init__(self, **kwargs):
         """
         Keyword args:
+
+        *nbins*
+            Maximum number of intervals; one less than max number of ticks.
+
+        *steps*
+            Sequence of nice numbers starting with 1 and ending with 10;
+            e.g., [1, 2, 4, 5, 10]
+
+        *integer*
+            If True, ticks will take only integer values.
+
+        *symmetric*
+            If True, autoscaling will result in a range symmetric
+            about zero.
+
         *prune*
+            ['lower' | 'upper' | 'both' | None]
             Remove edge ticks -- useful for stacked or ganged plots
             where the upper tick of one axes overlaps with the lower
-            tick of the axes above it.  One of 'lower' | 'upper' |
-            'both' | None.  If prune=='lower', the smallest tick will
+            tick of the axes above it.
+            If prune=='lower', the smallest tick will
             be removed.  If prune=='upper', the largest tick will be
             removed.  If prune=='both', the largest and smallest ticks
             will be removed.  If prune==None, no ticks will be removed.
 
         """
-        self._nbins = int(nbins)
-        self._trim = trim
-        self._integer = integer
-        self._symmetric = symmetric
-        self._prune = prune
-        if steps is None:
-            self._steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
-        else:
-            if int(steps[-1]) != 10:
-                steps = list(steps)
-                steps.append(10)
-            self._steps = steps
-        if integer:
+        # I left "trim" out; it defaults to True, and it is not
+        # clear that there is any use case for False, so we may
+        # want to remove that kwarg.  EF 2010/04/18
+        self.set_params(**self.default_params)
+        self.set_params(**kwargs)
+
+    def set_params(self, **kwargs):
+        if 'nbins' in kwargs:
+            self._nbins = int(kwargs['nbins'])
+        if 'trim' in kwargs:
+            self._trim = kwargs['trim']
+        if 'integer' in kwargs:
+            self._integer = kwargs['integer']
+        if 'symmetric' in kwargs:
+            self._symmetric = kwargs['symmetric']
+        if 'prune' in kwargs:
+            prune = kwargs['prune']
+            if prune is not None and prune not in ['upper', 'lower', 'both']:
+                raise ValueError(
+                    "prune must be 'upper', 'lower', 'both', or None")
+            self._prune = prune
+        if 'steps' in kwargs:
+            steps = kwargs['steps']
+            if steps is None:
+                self._steps = [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
+            else:
+                if int(steps[-1]) != 10:
+                    steps = list(steps)
+                    steps.append(10)
+                self._steps = steps
+        if 'integer' in kwargs:
+            self._integer = kwargs['integer']
+        if self._integer:
             self._steps = [n for n in self._steps if divmod(n,1)[1] < 0.001]
 
     def bin_boundaries(self, vmin, vmax):
