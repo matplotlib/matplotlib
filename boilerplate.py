@@ -102,6 +102,7 @@ _misccommands = (
     'text',
     'annotate',
     'ticklabel_format',
+    'locator_params',
     )
 
 cmappable = {
