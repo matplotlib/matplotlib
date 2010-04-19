@@ -1058,7 +1058,7 @@ class MaxNLocator(Locator):
                           integer=False,
                           symmetric=False,
                           prune=None)
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
         Keyword args:
 
@@ -1090,6 +1090,11 @@ class MaxNLocator(Locator):
         # I left "trim" out; it defaults to True, and it is not
         # clear that there is any use case for False, so we may
         # want to remove that kwarg.  EF 2010/04/18
+        if args:
+            kwargs['nbins'] = args[0]
+            if len(args) > 1:
+                raise ValueError(
+                    "Keywords are required for all arguments except 'nbins'")
         self.set_params(**self.default_params)
         self.set_params(**kwargs)
 
