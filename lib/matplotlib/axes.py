@@ -836,6 +836,8 @@ class Axes(martist.Artist):
 
         self._autoscaleXon = True
         self._autoscaleYon = True
+        self._xmargin = 0
+        self._ymargin = 0
         self._update_transScale()         # needed?
 
         self._get_lines = _process_plot_var_args(self)
@@ -1605,6 +1607,83 @@ class Axes(martist.Artist):
         """
         self._autoscaleYon = b
 
+    def set_xmargin(self, m):
+        """
+        Set padding of X data limits prior to autoscaling.
+
+        *m* times the data interval will be added to each
+        end of that interval before it is used in autoscaling.
+
+        accepts: float in range 0 to 1
+        """
+        if m < 0 or m > 1:
+            raise ValueError("margin must be in range 0 to 1")
+        self._xmargin = m
+
+    def set_ymargin(self, m):
+        """
+        Set padding of Y data limits prior to autoscaling.
+
+        *m* times the data interval will be added to each
+        end of that interval before it is used in autoscaling.
+
+        accepts: float in range 0 to 1
+        """
+        if m < 0 or m > 1:
+            raise ValueError("margin must be in range 0 to 1")
+        self._ymargin = m
+
+
+    def margins(self, *args, **kw):
+        """
+        Convenience method to set or retrieve autoscaling margins.
+
+        signatures::
+
+            margins()
+
+        returns xmargin, ymargin
+
+        ::
+
+            margins(margin, tight=True)
+
+            margins(xmargin, ymargin, tight=True)
+
+            margins(x=xmargin, y=ymargin, tight=True)
+
+        All three forms above set the xmargin and ymargin parameters.
+        All keyword parameters are optional.  A single argument
+        specifies both xmargin and ymargin.  The *tight* parameter
+        is passed to :meth:`autoscale_view`, which is executed after
+        a margin is changed.
+
+        Specifying any margin changes only the autoscaling; for example,
+        if *xmargin* is not zero, then *xmargin* times the X data
+        interval will be added to each end of that interval before
+        it is used in autoscaling.
+
+        """
+        if not args and not kw:
+            return self._ymargin, self._ymargin
+
+        tight = kw.pop('tight', False)
+        mx = kw.pop('x', None)
+        my = kw.pop('y', None)
+        if len(args) == 1:
+            mx = my = args[0]
+        elif len(args) == 2:
+            mx, my = args
+        else:
+            raise ValueError("more than two arguments were supplied")
+        if mx is not None:
+            self.set_xmargin(mx)
+        if my is not None:
+            self.set_ymargin(my)
+
+        self.autoscale_view(tight=tight, scalex=bool(mx), scaley=bool(my))
+
+
     def set_rasterization_zorder(self, z):
         """
         Set zorder value below which artists will be rasterized
@@ -1631,11 +1710,21 @@ class Axes(martist.Artist):
             dl = [ax.dataLim for ax in xshared]
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = bb.intervalx
+            if self._xmargin > 0:
+                delta = (x1 - x0) * self._xmargin
+                x0 -= delta
+                x1 += delta
+
         if scaley and self._autoscaleYon:
             yshared = self._shared_y_axes.get_siblings(self)
             dl = [ax.dataLim for ax in yshared]
             bb = mtransforms.BboxBase.union(dl)
             y0, y1 = bb.intervaly
+            if self._ymargin > 0:
+                delta = (y1 - y0) * self._ymargin
+                y0 -= delta
+                y1 += delta
+
         if (tight or (len(self.images)>0 and
                       len(self.lines)==0 and
                       len(self.patches)==0)):
@@ -1958,7 +2047,7 @@ class Axes(martist.Artist):
         of ticks and use tight bounds when plotting small
         subplots, for example::
 
-            ax.set_locator_params(tight=True, nbins=4)
+            ax.locator_params(tight=True, nbins=4)
 
         Because the locator is involved in autoscaling,
         :meth:`autoscale_view` is called automatically after
