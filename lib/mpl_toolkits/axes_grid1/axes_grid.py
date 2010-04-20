@@ -219,7 +219,7 @@ class Grid(object):
             axes_class = self._defaultLocatableAxesClass
             axes_class_args = {}
         else:
-            if isinstance(axes_class, maxes.Axes):
+            if issubclass(axes_class, maxes.Axes):
                 axes_class_args = {}
             else:
                 axes_class, axes_class_args = axes_class
