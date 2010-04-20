@@ -98,18 +98,19 @@ class TimerQT(TimerBase):
         functions add_callback and remove_callback can be used.
     '''
     def __init__(self):
-        from PyQt4.QtCore import QObject, SIGNAL, QTimer
         TimerBase.__init__(self)
         
         # Create a new timer and connect the timeout() signal to the
         # _on_timer method.
-        self._timer = QTimer()
-        QObject.connect(self._timer, SIGNAL('timeout()'), self._on_timer)
+        self._timer = QtCore.QTimer()
+        QtCore.QObject.connect(self._timer, QtCore.SIGNAL('timeout()'),
+            self._on_timer)
 
     def __del__(self):
         # Probably not necessary in practice, but is good behavior to disconnect
         TimerBase.__del__(self)
-        QObject.disconnect(self._timer , SIGNAL('timeout()'), self._on_timer)
+        QtCore.QObject.disconnect(self._timer , QtCore.SIGNAL('timeout()'),
+            self._on_timer)
 
     def _timer_set_single_shot(self):
         self._timer.setSingleShot(self._single)
