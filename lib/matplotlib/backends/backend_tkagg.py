@@ -13,7 +13,7 @@ import os.path
 import matplotlib
 from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
 
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
@@ -93,6 +93,42 @@ def new_figure_manager(num, *args, **kwargs):
     if matplotlib.is_interactive():
         figManager.show()
     return figManager
+
+
+class TimerTk(TimerBase):
+    '''
+    Subclass of :class:`backend_bases.TimerBase` that uses Tk's timer events.
+    
+    Attributes:
+    * interval: The time between timer events in milliseconds. Default
+        is 1000 ms.
+    * single_shot: Boolean flag indicating whether this timer should
+        operate as single shot (run once and then stop). Defaults to False.
+    * callbacks: Stores list of (func, args) tuples that will be called
+        upon timer events. This list can be manipulated directly, or the
+        functions add_callback and remove_callback can be used.
+    '''
+    def __init__(self, parent):
+        TimerBase.__init__(self)
+        self.parent = parent
+
+    def _timer_start(self):
+        self._timer = self.parent.after(self._interval, self._on_timer)
+
+    def _timer_stop(self):
+        if self._timer is not None:
+            self.parent.after_cancel(self._timer)
+        self._timer = None
+
+    def _on_timer(self):
+        TimerBase._on_timer(self)
+
+        # Tk after() is only a single shot, so we need to add code here to
+        # reset the timer if we're not operating in single shot mode.
+        if not self._single and len(self.callbacks) > 0:
+            self._timer = self.parent.after(self._interval, _self._on_timer)
+        else:
+            self._timer = None
 
 
 class FigureCanvasTkAgg(FigureCanvasAgg):
@@ -321,6 +357,14 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     def key_release(self, event):
         key = self._get_key(event)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
+
+    def new_timer(self):
+        """
+        Creates a new backend-specific subclass of
+        :class:`backend_bases.TimerBase`. This is useful for getting periodic
+        events through the backend's native event loop.
+        """
+        return TimerTk()
 
     def flush_events(self):
         self._master.update()
