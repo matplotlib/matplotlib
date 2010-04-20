@@ -9,6 +9,6 @@
 
 .. toctree::
 
-    overview.rst
     axes_divider.rst
-    axislines.rst
+    axisartist.rst
+

@@ -1,10 +1,7 @@
-from mpl_toolkits.axes_grid.parasite_axes import SubplotHost
+from mpl_toolkits.axes_grid1 import host_subplot
 import matplotlib.pyplot as plt
 
-fig = plt.figure(1)
-
-host = SubplotHost(fig, 111)
-fig.add_subplot(host)
+host = host_subplot(111)
 
 par = host.twinx()
 
@@ -15,10 +12,13 @@ par.set_ylabel("Temperature")
 p1, = host.plot([0, 1, 2], [0, 1, 2], label="Density")
 p2, = par.plot([0, 1, 2], [0, 3, 2], label="Temperature")
 
-host.axis["left"].label.set_color(p1.get_color())
-par.axis["right"].label.set_color(p2.get_color())
+leg = plt.legend()
 
-host.legend()
+host.yaxis.get_label().set_color(p1.get_color())
+leg.texts[0].set_color(p1.get_color())
+
+par.yaxis.get_label().set_color(p2.get_color())
+leg.texts[1].set_color(p2.get_color())
 
 plt.show()
 

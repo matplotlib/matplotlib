@@ -1,6 +1,9 @@
-========
-Overview
-========
+============================
+Overview of AxesGrid toolkit
+============================
+
+What is AxesGrid toolkit?
+=========================
 
 The matplotlib AxesGrid toolkit is a collection of helper classes,
 mainly to ease displaying (multiple) images in matplotlib.
@@ -9,30 +12,65 @@ mainly to ease displaying (multiple) images in matplotlib.
    :depth: 1
    :local:
 
-`AxesGrid`_, `RGB Axes`_ and `AxesDivider`_ are helper classes that
-deals with adjusting the location of (multiple) Axes, mainly for
-displaying images.  It provides a framework to adjust the position of
-multiple axes at the drawing time.  `ParasiteAxes`_ provides twinx(or
-twiny)-like features so that you can plot different data (e.g.,
-different y-scale) in a same Axes. `AxisLine`_ is a custom Axes
-class. Unlike default Axes in matpotlib, each axis (left, right, top
-and bottom) is associated with a separate artist (which is resposible
-to draw axis-line, ticks, ticklabels, label). `AnchoredArtists`_
+.. note:: 
+   AxesGrid toolkit has been a part of matplotlib since v
+   0.99. Originally, the toolkit had a single namespace of 
+   *axes_grid*. In more recent version (since svn r8226), the toolkit 
+   has divided into two separate namespace (*axes_grid1* and *axisartist*).
+   While *axes_grid* namespace is maintained for he backward compatibility,
+   use of *axes_grid1* and *axisartist* is recommended.
+
+.. warning:: 
+   *axes_grid* and *axisartist* (but not *axes_grid1*) uses
+   a custome Axes class (derived from the mpl's original Axes class).
+   As a sideeffect, some commands (mostly tick-related) do not work.
+   Use *axes_grid1* to avoid this, or see how things are different in
+   *axes_grid* and *axisartist* (LINK needed)
+
+
+AxesGrid toolkit has two namespaces (*axes_grid1* and *axisartist*).
+*axisartist* contains custome Axes class that is meant to support for
+curvilinear grids (e.g., the world coordinate system in astronomy).
+Unlike mpl's original Axes class which uses Axes.xaxis and Axes.yaxis
+to draw ticks, ticklines and etc., Axes in axisartist uses special
+artist (AxisArtist) which can handle tick, ticklines and etc. for
+curved coordinate systems.
+
+.. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axis.py
+
+Since it uses a special artists, some mpl commands that work on
+Axes.xaxis and Axes.yaxis may not work. See LINK for more detail.
+
+
+*axes_grid1* is a collection of helper classes to ease displaying
+(multiple) images with matplotlib.  In matplotlib, the axes location
+(and size) is specified in the normalized figure coordinates, which
+may not be ideal for displaying images that needs to have a given
+aspect ratio.  For example, it helps you to have a colobar whose
+height always matches that of the image.  `AxesGrid`_, `RGB Axes`_ and
+`AxesDivider`_ are helper classes that deals with adjusting the
+location of (multiple) Axes.  They provides a framework to adjust the
+position of multiple axes at the drawing time. `ParasiteAxes`_
+provides twinx(or twiny)-like features so that you can plot different
+data (e.g., different y-scale) in a same Axes. `AnchoredArtists`_
 includes custom artists which are placed at some anchored position,
 like the legend.
 
+.. plot:: mpl_toolkits/axes_grid/examples/demo_axes_grid.py
 
 
+AXES_GRID1
+==========
 
-AxesGrid
-========
+ImageGrid
+---------
 
 
 A class that creates a grid of Axes. In matplotlib, the axes location
 (and size) is specified in the normalized figure coordinates. This may
 not be ideal for images that needs to be displayed with a given aspect
 ratio.  For example, displaying images of a same size with some fixed
-padding between them cannot be easily done in matplotlib. AxesGrid is
+padding between them cannot be easily done in matplotlib. ImageGrid is
 used in such case.
 
 .. plot:: mpl_toolkits/axes_grid/examples/simple_axesgrid.py
@@ -60,7 +98,7 @@ used in such case.
 
 
 
-When initialized, AxesGrid creates given number (*ngrids* or *ncols* *
+When initialized, ImageGrid creates given number (*ngrids* or *ncols* *
 *nrows* if *ngrids* is None) of Axes instances. A sequence-like
 interface is provided to access the individual Axes instances (e.g.,
 grid[0] is the first Axes in the grid. See below for the order of
@@ -140,32 +178,10 @@ The examples below show what you can do with AxesGrid.
 .. plot:: mpl_toolkits/axes_grid/examples/demo_axes_grid.py
 
 
-RGB Axes
-========
-
-RGBAxes is a helper clase to conveniently show RGB composite
-images. Like AxesGrid, the location of axes are adjusted so that the
-area occupied by them fits in a given rectangle.  Also, the xaxis and
-yaxis of each axes are shared. ::
-
-    from mpl_toolkits.axes_grid.axes_rgb import RGBAxes
-
-    fig = plt.figure(1)
-    ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8])
-
-    r, g, b = get_rgb() # r,g,b are 2-d images
-    ax.imshow_rgb(r, g, b,
-                  origin="lower", interpolation="nearest")
-
-
-.. plot:: mpl_toolkits/axes_grid/figures/simple_rgb.py
-
-
-
 AxesDivider
-===========
+-----------
 
-Behind the scene, the AxesGrid class and the RGBAxes class utilize the
+Behind the scene, the ImageGrid class and the RGBAxes class utilize the
 AxesDivider class, whose role is to calculate the location of the axes
 at drawing time. While a more about the AxesDivider is (will be)
 explained in (yet to be written) AxesDividerGuide, direct use of the
@@ -181,43 +197,44 @@ divider for it. ::
 
 
 *make_axes_locatable* returns an isntance of the AxesLocator class,
-derived from the Locator. It has *new_vertical*, and *new_horizontal*
-methods. The *new_vertical* (*new_horizontal*) creates a new axes on
-the upper (right) side of the original axes.
+derived from the Locator. It provides *append_axes* method that
+creates a new axes on the given side of ("top", "right", "bottom" and
+"left") of the original axes.
+
+
+
+colorbar whose height (or width) in sync with the master axes
+-------------------------------------------------------------
+
+.. plot:: mpl_toolkits/axes_grid/figures/simple_colorbar.py
+   :include-source:
+
+
 
 
 scatter_hist.py with AxesDivider
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The "scatter_hist.py" example in mpl can be rewritten using
 *make_axes_locatable*. ::
 
-    from mpl_toolkits.axes_grid import make_axes_locatable
-
     axScatter = subplot(111)
-    divider = make_axes_locatable(axScatter)
-
-    # create new axes on the right and on the top of the current axes
-    # The first argument of the new_vertical(new_horizontal) method is
-    # the height (width) of the axes to be created in inches.
-    axHistx = divider.new_vertical(1.2, pad=0.1, sharex=axScatter)
-    axHisty = divider.new_horizontal(1.2, pad=0.1, sharey=axScatter)
-
-    fig.add_axes(axHistx)
-    fig.add_axes(axHisty)
-
-
-    # the scatter plot:
     axScatter.scatter(x, y)
     axScatter.set_aspect(1.)
 
+    # create new axes on the right and on the top of the current axes.
+    divider = make_axes_locatable(axScatter)
+    axHistx = divider.append_axes("top", size=1.2, pad=0.1, sharex=axScatter)
+    axHisty = divider.append_axes("right", size=1.2, pad=0.1, sharey=axScatter)
+
+    # the scatter plot:
     # histograms
     bins = np.arange(-lim, lim + binwidth, binwidth)
     axHistx.hist(x, bins=bins)
     axHisty.hist(y, bins=bins, orientation='horizontal')
 
-See the full source code below.
 
+See the full source code below.
 
 .. plot:: mpl_toolkits/axes_grid/examples/scatter_hist.py
 
@@ -229,85 +246,41 @@ accordingly.
 
 
 ParasiteAxes
-============
+------------
 
-The ParasiteAxes is a axes whose location is identical to its host
+The ParasiteAxes is an axes whose location is identical to its host
 axes. The location is adjusted in the drawing time, thus it works even
-if the host change its location (e.g., images). It provides *twinx*,
-*twiny* (similar to twinx and twiny in the matplotlib). Also it
-provides *twin*, which takes an arbitraty tranfromation that maps
-between the data coordinates of the host and the parasite axes.
-Artists in each axes are mergred and drawn acrroding to their zorder.
-It also modifies some behavior of the axes. For example, color cycle
-for plot lines are shared between host and parasites. Also, the legend
-command in host, creates a legend that includes lines in the parasite
-axes.
+if the host change its location (e.g., images). 
+
+In most cases, you first create a host axes, which provides a few
+method that can be used to create parasite axes. They are *twinx*,
+*twiny* (which are similar to twinx and twiny in the matplotlib) and
+*twin*. *twin* takes an arbitraty tranfromation that maps between the
+data coordinates of the host axes and the parasite axes.  *draw*
+method of the parasite axes are never called. Instead, host axes
+collects artists in parasite axes and draw them as if they belong to
+the host axes, i.e., artists in parasite axes are merged to those of
+the host axes and then drawn according to their zorder.  The host and
+parasite axes modifies some of the axes behavior. For example, color
+cycle for plot lines are shared between host and parasites. Also, the
+legend command in host, creates a legend that includes lines in the
+parasite axes.  To create a host axes, you may use *host_suplot* or
+*host_axes* command.
+
 
 Example 1. twinx
-----------------
+~~~~~~~~~~~~~~~~
 
 .. plot:: mpl_toolkits/axes_grid/figures/parasite_simple.py
    :include-source:
 
 Example 2. twin
----------------
+~~~~~~~~~~~~~~~
 
-A more sophiscated example using twin. Note that if you change the
-x-limit in the host axes, the x-limit of the parasite axes will change
-accordingly.
-
-
-.. plot:: mpl_toolkits/axes_grid/examples/parasite_simple2.py
-
-
-
-AxisLine
-========
-
-AxisLine is a custom (and very experimenta) Axes class, where each
-axis (left, right, top and bottom) have a separate artist associated
-(which is resposible to draw axis-line, ticks, ticklabels, label).
-Also, you can create your own axis, which can pass through a fixed
-position in the axes coordinate, or a fixed position in the data
-coordinate (i.e., the axis floats around when viewlimit changes).
-
-Most of the class in this toolkit is based on this class. And it has
-not been tested extensibly. You may go back to the original mpl
-behanvior, by ::
-
-  ax.toggle_axisline(False)
-
-The axes class, by default, provides 4 artists which are responsible
-to draw axis in "left","right","bottom" and "top". They are accessed
-as ax.axis["left"], ax.axis["right"], and so on, i.e., ax.axis is a
-dictionary that contains artists (note that ax.axis is still a
-callable methods and it behaves as an original Axes.axis method in
-mpl).
-
-For example, you can hide right, and top axis by ::
-
-  ax.axis["right"].set_visible(False)
-  ax.axis["top"].set_visible(False)
-
-
-.. plot:: mpl_toolkits/axes_grid/figures/simple_axisline3.py
-
-
-SubplotZero gives you two more additional (floating?) axis of x=0 and
-y=0 (in data coordinate)
-
-.. plot:: mpl_toolkits/axes_grid/figures/simple_axisline2.py
-   :include-source:
-
-
-Axisline with ParasiteAxes
---------------------------
-
-Most of axes class in the axes_grid toolkit, including ParasiteAxes,
-is based on the Axisline axes. The combination of the two can be
-useful in some case. For example, you can have different tick-location,
-tick-label, or tick-formatter for bottom and top (or left and right)
-axis. ::
+*twin* without a transform argument treat the parasite axes to have a
+same data transform as the host. This can be useful when you want the
+top(or right)-axis to have different tick-locations, tick-labels, or
+tick-formatter for bottom(or left)-axis. ::
 
   ax2 = ax.twin() # now, ax2 is responsible for "top" axis and "right" axis
   ax2.set_xticks([0., .5*np.pi, np.pi, 1.5*np.pi, 2*np.pi])
@@ -318,23 +291,17 @@ axis. ::
 .. plot:: mpl_toolkits/axes_grid/examples/simple_axisline4.py
 
 
-AxisLine Axes lets you create a custom axis, ::
 
-    # make new (right-side) yaxis, but wth some offset
-    offset = (20, 0)
-    new_axisline = ax.get_grid_helper().new_fixed_axis
-    ax.axis["right2"] = new_axisline(loc="right",
-                                     offset=offset)
+A more sophiscated example using twin. Note that if you change the
+x-limit in the host axes, the x-limit of the parasite axes will change
+accordingly.
 
 
-And, you can use it with parasiteAxes.
-
-
-.. plot:: mpl_toolkits/axes_grid/examples/demo_parasite_axes2.py
+.. plot:: mpl_toolkits/axes_grid/examples/parasite_simple2.py
 
 
 AnchoredArtists
-===============
+---------------
 
 It's a collection of artists whose location is anchored to the (axes)
 bbox, like the legend. It is derived from *OffsetBox* in mpl, and
@@ -348,7 +315,7 @@ coordinate.
 
 
 InsetLocator
-============
+------------
 
 :mod:`mpl_toolkits.axes_grid.inset_locator` provides helper classes
 and functions to place your (inset) axes at the anchored position of
@@ -389,19 +356,124 @@ represented by the inset axes.
    :include-source:
 
 
-Curvelinear Grid
-================
+RGB Axes
+~~~~~~~~
 
-You can draw a cuvelinear grid and ticks. Also a floating axis can be
-created. See :ref:`axislines-manual` for more details.
+RGBAxes is a helper clase to conveniently show RGB composite
+images. Like ImageGrid, the location of axes are adjusted so that the
+area occupied by them fits in a given rectangle.  Also, the xaxis and
+yaxis of each axes are shared. ::
+
+    from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
+
+    fig = plt.figure(1)
+    ax = RGBAxes(fig, [0.1, 0.1, 0.8, 0.8])
+
+    r, g, b = get_rgb() # r,g,b are 2-d images
+    ax.imshow_rgb(r, g, b,
+                  origin="lower", interpolation="nearest")
+
+
+.. plot:: mpl_toolkits/axes_grid/figures/simple_rgb.py
+
+
+AXISARTIST
+==========
+
+
+AxisArtist
+----------
+
+AxisArtist module provides a custom (and very experimental) Axes
+class, where each axis (left, right, top and bottom) have a separate
+artist associated which is resposible to draw axis-line, ticks,
+ticklabels, label.  Also, you can create your own axis, which can pass
+through a fixed position in the axes coordinate, or a fixed position
+in the data coordinate (i.e., the axis floats around when viewlimit
+changes).
+
+The axes class, by default, have its xaxis and yaxis invisible, and
+has 4 additional artists which are responsible to draw axis in
+"left","right","bottom" and "top".  They are accessed as
+ax.axis["left"], ax.axis["right"], and so on, i.e., ax.axis is a
+dictionary that contains artists (note that ax.axis is still a
+callable methods and it behaves as an original Axes.axis method in
+mpl).
+
+To create an axes, ::
+
+  import mpl_toolkits.axisartist as AA
+  fig = plt.figure(1)
+  ax = AA.Axes(fig, [0.1, 0.1, 0.8, 0.8])
+  fig.add_axes(ax)
+
+or to creat a subplot ::
+
+  ax = AA.Subplot(fig, 111)
+  fig.add_subplot(ax)
+
+For example, you can hide the right, and top axis by ::
+
+  ax.axis["right"].set_visible(False)
+  ax.axis["top"].set_visible(False)
+
+
+.. plot:: mpl_toolkits/axes_grid/figures/simple_axisline3.py
+
+
+It is also possible to add an extra axis. For example, you may have an
+horizontal axis at y=0 (in data coordinate). ::
+
+    ax.axis["y=0"] = ax.new_floating_axis(nth_coord=0, value=0)
+
+.. plot:: mpl_toolkits/axes_grid/figures/simple_axisartist1.py
+   :include-source:
+
+
+Or a fixed axis with some offset ::
+
+    # make new (right-side) yaxis, but wth some offset
+    ax.axis["right2"] = ax.new_fixed_axis(loc="right",
+				          offset=(20, 0))
+
+
+
+AxisArtist with ParasiteAxes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Most commands in the axes_grid toolkit1 can take a axes_class keyword
+argument, and the commands creates an axes of the given class. For example,
+to create a host subplot with axisartist.Axes, ::
+
+  import mpl_tookits.axisartist as AA
+  from mpl_toolkits.axes_grid1 import host_subplot
+
+  host = host_subplot(111, axes_class=AA.Axes)
+
+
+Here is an example that uses  parasiteAxes.
+
+
+.. plot:: mpl_toolkits/axes_grid/examples/demo_parasite_axes2.py
+
+
+
+Curvelinear Grid
+----------------
+
+The motivation behind the AxisArtist module is to support cuvelinear grid
+and ticks.
 
 .. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axis.py
 
+See :ref:`axisartist-manual` for more details.
+
 
 Floating Axes
-=============
+-------------
 
-An axes whose outer axis are defined as floating axis.
+This also suppport a Floating Axes whose outer axis are defined as
+floating axis.
 
 .. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axes.py
 
