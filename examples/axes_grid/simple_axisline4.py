@@ -1,12 +1,9 @@
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1.parasite_axes import SubplotHost
+from mpl_toolkits.axes_grid1 import host_subplot
+import mpl_toolkits.axisartist as AA
 import numpy as np
 
-fig = plt.figure(1, (4,3))
-
-ax = SubplotHost(fig, 111)
-fig.add_subplot(ax)
-
+ax = host_subplot(111, axes_class=AA.Axes)
 xx = np.arange(0, 2*np.pi, 0.01)
 ax.plot(xx, np.sin(xx))
 

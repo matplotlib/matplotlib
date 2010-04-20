@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-import mpl_toolkits.axes_grid.axislines as axislines
+import mpl_toolkits.axisartist as axisartist
 
 def setup_axes(fig, rect):
-    ax = axislines.Subplot(fig, rect)
+    ax = axisartist.Subplot(fig, rect)
     fig.add_axes(ax)
 
     ax.set_ylim(-0.1, 1.5)

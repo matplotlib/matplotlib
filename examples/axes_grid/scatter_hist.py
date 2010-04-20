@@ -10,27 +10,21 @@ fig = plt.figure(1, figsize=(5.5,5.5))
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+# the scatter plot:
 axScatter = plt.subplot(111)
+axScatter.scatter(x, y)
+axScatter.set_aspect(1.)
+
+# create new axes on the right and on the top of the current axes
+# The first argument of the new_vertical(new_horizontal) method is
+# the height (width) of the axes to be created in inches.
 divider = make_axes_locatable(axScatter)
-
-# create a new axes with a height of 1.2 inch above the axScatter
-axHistx = divider.new_vertical(1.2, pad=0.1, sharex=axScatter)
-
-# create a new axes with a width of 1.2 inch on the right side of the
-# axScatter
-axHisty = divider.new_horizontal(1.2, pad=0.1, sharey=axScatter)
-
-fig.add_axes(axHistx)
-fig.add_axes(axHisty)
-
+axHistx = divider.append_axes("top", 1.2, pad=0.1, sharex=axScatter)
+axHisty = divider.append_axes("right", 1.2, pad=0.1, sharey=axScatter)
 
 # make some labels invisible
 plt.setp(axHistx.get_xticklabels() + axHisty.get_yticklabels(),
          visible=False)
-
-# the scatter plot:
-axScatter.scatter(x, y)
-axScatter.set_aspect(1.)
 
 # now determine nice limits by hand:
 binwidth = 0.25
@@ -57,4 +51,3 @@ axHisty.set_xticks([0, 50, 100])
 
 plt.draw()
 plt.show()
-#plt.savefig("a.pdf")

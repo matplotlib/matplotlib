@@ -1,16 +1,16 @@
-.. _axislines-manual:
+.. _axisartist-manual:
 
-=========
-Axislines
-=========
+====================
+AXISARTIST namespace
+====================
 
-Axislines includes a derived Axes implementation. The
+The AxisArtist namesapce includes a derived Axes implementation. The
 biggest difference is that the artists responsible to draw axis line,
 ticks, ticklabel and axis labels are separated out from the mpl's Axis
-class, which are much more than artists in the original
-mpl. This change was strongly motivated to support curvlinear
-grid. Here are a few things that axes_grid.axislines.Axes is different
-from original Axes from mpl.
+class, which are much more than artists in the original mpl. This
+change was strongly motivated to support curvlinear grid. Here are a
+few things that mpl_tootlkits.axisartist.Axes is different from original
+Axes from mpl.
 
 * Axis elements (axis line(spine), ticks, ticklabel and axis labels)
   are drawn by a AxisArtist instance. Unlike Axis, left, right, top
@@ -19,7 +19,7 @@ from original Axes from mpl.
 
 * gridlines are drawn by a Gridlines instance. The change was
   motivated that in curvelinear coordinate, a gridline may not cross
-  axislines (i.e., no associated ticks). In the original Axes class,
+  axis-lines (i.e., no associated ticks). In the original Axes class,
   gridlines are tied to ticks.
 
 * ticklines can be rotated if necessary (i.e, along the gridlines)
@@ -32,21 +32,21 @@ In summary, all these changes was to support
 .. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axis.py
 
 
-*axes_grid.axislines.Axes* defines a *axis* attribute, which is a
-dictionary of AxisArtist instances. By default, the dictionary has 4
-AxisArtist instances, responsible for drawing of left, right, bottom
-and top axis.
+*mpl_toolkits.axisartist.Axes* class defines a *axis* attribute, which
+is a dictionary of AxisArtist instances. By default, the dictionary
+has 4 AxisArtist instances, responsible for drawing of left, right,
+bottom and top axis.
 
 xaxis and yaxis attributes are still available, however they are set
 to not visible. As separate artists are used for rendering axis, some
 axis-related method in mpl may have no effect.
-In addition to AxisArtist instances, the axes_grid.axislines.Axes will
+In addition to AxisArtist instances, the mpl_toolkits.axisartist.Axes will
 have *gridlines* attribute (Gridlines), which obviously draws grid
 lines.
 
 In both AxisArtist and Gridlines, the calculation of tick and grid
 location is delegated to an instance of GridHelper class.
-axes_grid.axislines.Axes class uses GridHelperRectlinear as a grid
+mpl_toolkits.axisartist.Axes class uses GridHelperRectlinear as a grid
 helper. The GridHelperRectlinear class is a wrapper around the *xaxis*
 and *yaxis* of mpl's original Axes, and it was meant to work as the
 way how mpl's original axes works. For example, tick location changes
@@ -208,7 +208,7 @@ You must understand some underlying concept of directions.
    .. plot:: mpl_toolkits/axes_grid/figures/axis_direction_demo_step01.py
 
    The direction, text angle, and alignments of the ticks, ticklabels and
-   axis-label is determined width respect to the reference direction
+   axis-label is determined with respect to the reference direction
 
  2. *ticklabel_direction* is either the right-hand side (+) of the
     reference direction or the left-hand side (-).
@@ -223,7 +223,7 @@ You must understand some underlying concept of directions.
 
  5. text rotation of ticklabels and label is determined in reference
     to the *ticklabel_direction* or *label_direction*,
-    respectively. The rotation of ticklabels and tlabel is anchored.
+    respectively. The rotation of ticklabels and label is anchored.
 
    .. plot:: mpl_toolkits/axes_grid/figures/axis_direction_demo_step04.py
 
@@ -331,7 +331,7 @@ GridHelper
 
 To actually define a curvelinear coordinate, you have to use your own
 grid helper. A generalised version of grid helper class is supplied
-and this class should be suffice in most of cases. A user may provide
+and this class should suffice in most of cases. A user may provide
 two functions which defines a transformation (and its inverse pair)
 from the curved coordinate to (rectlinear) image coordinate. Note that
 while ticks and grids are drawn for curved coordinate, the data
@@ -339,9 +339,9 @@ transform of the axes itself (ax.transData) is still rectlinear
 (image) coordinate. ::
 
 
-    from  mpl_toolkits.axes_grid.grid_helper_curvelinear \
+    from  mpl_toolkits.axisartist.grid_helper_curvelinear \
          import GridHelperCurveLinear
-    from mpl_toolkits.axes_grid.axislines import Subplot
+    from mpl_toolkits.axisartist import Subplot
 
     # from curved coordinate to rectlinear coordinate.
     def tr(x, y):
@@ -368,7 +368,7 @@ cycles. In those cases, a more customized version of grid helper is
 required. ::
 
 
-    import  mpl_toolkits.axes_grid.angle_helper as angle_helper
+    import  mpl_toolkits.axisartist.angle_helper as angle_helper
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
     # system in degree

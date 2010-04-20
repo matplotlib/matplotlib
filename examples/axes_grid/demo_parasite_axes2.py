@@ -1,31 +1,24 @@
-from mpl_toolkits.axes_grid1.parasite_axes import SubplotHost
+from mpl_toolkits.axes_grid1 import host_subplot
+import mpl_toolkits.axisartist as AA
 import matplotlib.pyplot as plt
 
 if 1:
-    fig = plt.figure(1)
 
-    host = SubplotHost(fig, 111)
+    host = host_subplot(111, axes_class=AA.Axes)
+    plt.subplots_adjust(right=0.75)
 
     par1 = host.twinx()
     par2 = host.twinx()
 
     offset = 60
-    if hasattr(par2.axis["right"].line, "set_position"):
-        # use spine method
-        par2.axis["right"].line.set_position(('outward',offset))
-        # set_position calls axis.cla()
-        par2.axis["left"].toggle(all=False)
-    else:
-        new_axisline = par2.get_grid_helper().new_fixed_axis
-        par2.axis["right"] = new_axisline(loc="right",
-                                          axes=par2,
-                                          offset=(offset, 0))
+    new_fixed_axis = par2.get_grid_helper().new_fixed_axis
+    par2.axis["right"] = new_fixed_axis(loc="right",
+                                        axes=par2,
+                                        offset=(offset, 0))
         
     par2.axis["right"].toggle(all=True)
 
 
-    fig.add_axes(host)
-    plt.subplots_adjust(right=0.75)
 
     host.set_xlim(0, 2)
     host.set_ylim(0, 2)

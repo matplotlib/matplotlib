@@ -1,14 +1,14 @@
 
 
 import numpy as np
-import  mpl_toolkits.axes_grid.angle_helper as angle_helper
-import  mpl_toolkits.axes_grid.grid_finder as grid_finder
+import  mpl_toolkits.axisartist.angle_helper as angle_helper
+import  mpl_toolkits.axisartist.grid_finder as grid_finder
 from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 
-import mpl_toolkits.axes_grid.axislines as axislines
+import mpl_toolkits.axisartist as axisartist
 
-from mpl_toolkits.axes_grid.grid_helper_curvelinear import GridHelperCurveLinear
+from mpl_toolkits.axisartist.grid_helper_curvelinear import GridHelperCurveLinear
 
 
 def setup_axes(fig, rect):
@@ -39,7 +39,7 @@ def setup_axes(fig, rect):
                                         )
 
 
-    ax1 = axislines.Subplot(fig, rect, grid_helper=grid_helper)
+    ax1 = axisartist.Subplot(fig, rect, grid_helper=grid_helper)
     ax1.axis[:].toggle(ticklabels=False)
 
     fig.add_subplot(ax1)

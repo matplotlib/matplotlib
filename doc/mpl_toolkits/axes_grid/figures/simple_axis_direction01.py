@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-import mpl_toolkits.axes_grid.axislines as axislines
+import mpl_toolkits.axisartist as axisartist
 
 fig = plt.figure(figsize=(4,2.5))
-ax1 = fig.add_subplot(axislines.Subplot(fig, "111"))
+ax1 = fig.add_subplot(axisartist.Subplot(fig, "111"))
 fig.subplots_adjust(right=0.8)
 
 ax1.axis["left"].major_ticklabels.set_axis_direction("top")
