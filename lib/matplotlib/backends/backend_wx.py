@@ -241,7 +241,6 @@ class TimerWx(TimerBase):
         functions add_callback and remove_callback can be used.
     '''
     def __init__(self, parent):
-        import wx
         TimerBase.__init__(self)
 
         # Create a new timer and connect the timer event to our handler.
