@@ -861,6 +861,137 @@ class GraphicsContextBase:
             return None
         return Path.hatch(self._hatch, density)
 
+
+class TimerBase(object):
+    '''
+    A base class for providing timer events, useful for things animations.
+    Backends need to implement a few specific methods in order to use their
+    own timing mechanisms so that the timer events are integrated into their
+    event loops.
+    
+    Mandatory functions that must be implemented:
+    * _timer_start: Contains backend-specific code for starting the timer
+    * _timer_stop: Contains backend-specific code for stopping the timer
+
+    Optional overrides:
+    * _timer_set_single_shot: Code for setting the timer to single shot
+        operating mode, if supported by the timer object. If not, the Timer
+        class itself will store the flag and the _on_timer method should
+        be overridden to support such behavior.
+    * _timer_set_interval: Code for setting the interval on the timer, if
+        there is a method for doing so on the timer object.
+    * _on_timer: This is the internal function that any timer object should
+        call, which will handle the task of running all callbacks that have
+        been set.
+    
+    Attributes:
+    * interval: The time between timer events in milliseconds. Default
+        is 1000 ms.
+    * single_shot: Boolean flag indicating whether this timer should
+        operate as single shot (run once and then stop). Defaults to False.
+    * callbacks: Stores list of (func, args) tuples that will be called
+        upon timer events. This list can be manipulated directly, or the
+        functions add_callback and remove_callback can be used.
+    '''
+    def __init__(self):
+        #Initialize empty callbacks list and setup default settings
+        self.callbacks = []
+        self._single = False
+        self._interval = 1000
+
+        # Default attribute for holding the GUI-specific timer object
+        self._timer = None
+
+    def __del__(self):
+        'Need to stop timer and possibly disconnect timer.'
+        self._timer_stop()
+
+    def start(self, interval=None):
+        '''
+        Start the timer object. `interval` is optional and will be used
+        to reset the timer interval first if provided.
+        '''
+        if interval is not None:
+            self.set_interval(interval)
+        self._timer_start()
+
+    def stop(self):
+        '''
+        Stop the timer.
+        '''
+        self._timer_stop()
+
+    def _timer_start(self):
+        #TODO: Could we potentially make a generic version through
+        #the use of Threads?
+        raise NotImplementedError('Needs to be implemented by subclass.')
+
+    def _timer_stop(self):
+        #TODO: Could we potentially make a generic version through
+        #the use of Threads?
+        raise NotImplementedError('Needs to be implemented by subclass.')
+
+    def _get_interval(self):
+        return self._interval
+
+    def _set_interval(self, interval):
+        self._interval = interval
+        self._timer_set_interval()
+
+    interval = property(_get_interval, _set_interval)
+
+    def _get_single_shot(self):
+        return self._single
+
+    def _set_single_shot(self, ss=True):
+        self._single = ss
+        self._timer_set_single_shot()
+
+    single_shot = property(_get_single_shot, _set_single_shot)
+
+    def add_callback(self, func, *args):
+        '''
+        Register `func` to be called by timer when the event fires. Any
+        additional arguments provided will be passed to `func`.
+        '''
+        self.callbacks.append((func, args))
+
+    def remove_callback(self, func, *args):
+        '''
+        Remove `func` from list of callbacks. `args` is optional and used
+        to distinguish between copies of the same function registered to be
+        called with different arguments.
+        '''
+        if args:
+            self.callbacks.remove((func, args))
+        else:
+            funcs = [c[0] for c in self.callbacks]
+            if func in funcs:
+                self.callbacks.pop(funcs.index(func))
+
+    def _timer_set_interval(self):
+        'Used to set interval on underlying timer object.'
+        pass
+
+    def _timer_set_single_shot(self):
+        'Used to set single shot on underlying timer object.'
+        pass
+
+    def _on_timer(self):
+        '''
+        Runs all function that have been registered as callbacks. Functions
+        can return False if they should not be called any more. If there
+        are no callbacks, the timer is automatically stopped.
+        '''
+        for func,args in self.callbacks:
+            ret = func(args)
+            if ret == False:
+                self.callbacks.remove((func,args))
+
+        if len(self.callbacks) == 0:
+            self.stop()
+
+
 class Event:
     """
     A matplotlib event.  Attach additional attributes as defined in
@@ -1455,7 +1586,6 @@ class FigureCanvasBase:
         event = IdleEvent(s, self, guiEvent=guiEvent)
         self.callbacks.process(s, event)
 
-
     def draw(self, *args, **kwargs):
         """
         Render the :class:`~matplotlib.figure.Figure`
@@ -1798,6 +1928,14 @@ class FigureCanvasBase:
             canvas.mpl_disconnect(cid)
         """
         return self.callbacks.disconnect(cid)
+
+    def new_timer(self):
+        """
+        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        This is useful for getting periodic events through the backend's native
+        event loop. Implemented only for backends with GUIs.
+        """
+        return TimerBase()
 
     def flush_events(self):
         """
