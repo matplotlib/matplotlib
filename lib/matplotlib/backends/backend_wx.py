@@ -190,7 +190,7 @@ import matplotlib
 from matplotlib import verbose
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureCanvasBase, FigureManagerBase, NavigationToolbar2, \
-     cursors
+     cursors, TimerBase
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.artist import Artist
 from matplotlib.cbook import exception_to_str, is_string_like, is_writable_file_like
@@ -225,6 +225,52 @@ def raise_msg_to_str(msg):
     if not is_string_like(msg):
         msg = '\n'.join(map(str, msg))
     return msg
+
+
+class TimerWx(TimerBase):
+    '''
+    Subclass of :class:`backend_bases.TimerBase` that uses WxTimer events.
+    
+    Attributes:
+    * interval: The time between timer events in milliseconds. Default
+        is 1000 ms.
+    * single_shot: Boolean flag indicating whether this timer should
+        operate as single shot (run once and then stop). Defaults to False.
+    * callbacks: Stores list of (func, args) tuples that will be called
+        upon timer events. This list can be manipulated directly, or the
+        functions add_callback and remove_callback can be used.
+    '''
+    def __init__(self, parent):
+        import wx
+        TimerBase.__init__(self)
+
+        # Create a new timer and connect the timer event to our handler.
+        # For WX, the events have to use a widget for binding.
+        self.parent = parent
+        self._timer = wx.Timer(self.parent, wx.NewId())
+        self.parent.Bind(wx.EVT_TIMER, self._on_timer, self._timer)
+
+     # Unbinding causes Wx to stop for some reason. Disabling for now.
+#    def __del__(self):
+#        import wx
+#        TimerBase.__del__(self)
+#        self.parent.Bind(wx.EVT_TIMER, None, self._timer)
+
+    def _timer_start(self):
+        self._timer.Start(self._interval, self._single)
+
+    def _timer_stop(self):
+        self._timer.Stop()
+
+    def _timer_set_interval(self):
+        self._timer_start()
+
+    def _timer_set_single_shot(self):
+        self._timer.start()
+
+    def _on_timer(self, *args):
+        TimerBase._on_timer(self)
+
 
 class RendererWx(RendererBase):
     """
@@ -938,7 +984,6 @@ The current aspect ration will be kept."""
         printout.Destroy()
         self.gui_repaint()
 
-
     def draw_idle(self):
         """
         Delay rendering until the GUI is idle.
@@ -977,6 +1022,14 @@ The current aspect ration will be kept."""
         self.figure.draw(self.renderer)
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC)
+
+    def new_timer(self):
+        """
+        Creates a new backend-specific subclass of
+        :class:`backend_bases.TimerBase`. This is useful for getting periodic
+        events through the backend's native event loop.
+        """
+        return TimerWx(self)
 
     def flush_events(self):
         wx.Yield()
