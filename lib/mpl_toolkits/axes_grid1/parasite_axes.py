@@ -505,11 +505,30 @@ def host_axes_class_factory(axes_class=None):
     return new_class
 
 def host_subplot_class_factory(axes_class):
-    host_axes = host_axes_class_factory(axes_class=Axes)
-    subplot_host = subplot_class_factory(HostAxes)
-    return subplot_host
+    host_axes_class = host_axes_class_factory(axes_class=axes_class)
+    subplot_host_class = subplot_class_factory(host_axes_class)
+    return subplot_host_class
 
 HostAxes = host_axes_class_factory(axes_class=Axes)
 SubplotHost = subplot_class_factory(HostAxes)
 
 
+def host_axes(*args, **kwargs):
+    import matplotlib.pyplot as plt
+    axes_class = kwargs.pop("axes_class", None)
+    host_axes_class = host_axes_class_factory(axes_class)
+    fig = plt.gcf()
+    ax = host_axes_class(fig, *args, **kwargs)
+    fig.add_axes(ax)
+    plt.draw_if_interactive()
+    return ax
+
+def host_subplot(*args, **kwargs):
+    import matplotlib.pyplot as plt
+    axes_class = kwargs.pop("axes_class", None)
+    host_subplot_class = host_subplot_class_factory(axes_class)
+    fig = plt.gcf()
+    ax = host_subplot_class(fig, *args, **kwargs)
+    fig.add_subplot(ax)
+    plt.draw_if_interactive()
+    return ax
