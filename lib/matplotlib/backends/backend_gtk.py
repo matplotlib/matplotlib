@@ -103,14 +103,12 @@ class TimerGTK(TimerBase):
         upon timer events. This list can be manipulated directly, or the
         functions add_callback and remove_callback can be used.
     '''
-    from gobject import timeout_add as _add_timeout
-    from gobject import source_remove as _remove_timeout
     def _timer_start(self):
-        self._timer = self._add_timeout(self._interval, self._on_timer)
+        self._timer = gobject.timeout_add(self._interval, self._on_timer)
 
     def _timer_stop(self):
         if self._timer is not None:
-            self._remove_timeout(self._timer)
+            gobject.source_remove(self._timer)
             self._timer = None
 
     def _timer_set_interval(self):
