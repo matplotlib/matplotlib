@@ -1,3 +1,8 @@
+2010-04-20 Added generic support for connecting to a timer for events. This
+           adds TimerBase, TimerGTK, TimerQT, TimerWx, and TimerTk to
+           the backends and a new_timer() method to each backend's
+           canvas to allow ease of creating a new timer. - RM
+
 2010-04-20 Added margins() Axes method and pyplot function. - EF
 
 2010-04-18 update the axes_grid documentation. -JJL
