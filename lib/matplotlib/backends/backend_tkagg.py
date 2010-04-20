@@ -108,8 +108,8 @@ class TimerTk(TimerBase):
         upon timer events. This list can be manipulated directly, or the
         functions add_callback and remove_callback can be used.
     '''
-    def __init__(self, parent):
-        TimerBase.__init__(self)
+    def __init__(self, parent, *args, **kwargs):
+        TimerBase.__init__(self, *args, **kwargs)
         self.parent = parent
 
     def _timer_start(self):
@@ -126,7 +126,7 @@ class TimerTk(TimerBase):
         # Tk after() is only a single shot, so we need to add code here to
         # reset the timer if we're not operating in single shot mode.
         if not self._single and len(self.callbacks) > 0:
-            self._timer = self.parent.after(self._interval, _self._on_timer)
+            self._timer = self.parent.after(self._interval, self._on_timer)
         else:
             self._timer = None
 
@@ -358,13 +358,21 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         key = self._get_key(event)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
-    def new_timer(self):
+    def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of
-        :class:`backend_bases.TimerBase`. This is useful for getting periodic
-        events through the backend's native event loop.
+        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        This is useful for getting periodic events through the backend's native
+        event loop. Implemented only for backends with GUIs.
+        
+        optional arguments:
+        
+        *interval*
+          Timer interval in milliseconds
+        *callbacks*
+          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
+          be executed by the timer every *interval*.
         """
-        return TimerTk()
+        return TimerTk(self._tkcanvas, *args, **kwargs)
 
     def flush_events(self):
         self._master.update()
