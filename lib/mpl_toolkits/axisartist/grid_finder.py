@@ -256,8 +256,9 @@ class MaxNLocator(mticker.MaxNLocator):
                  symmetric=False,
                  prune=None):
 
-        mticker.MaxNLocator.__init__(self, nbins, steps,
-                                     trim, integer, symmetric, prune)
+        mticker.MaxNLocator.__init__(self, nbins, steps=steps,
+                                     trim=trim, integer=integer,
+                                     symmetric=symmetric, prune=prune)
         self.create_dummy_axis()
 
 
