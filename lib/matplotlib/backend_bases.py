@@ -984,7 +984,7 @@ class TimerBase(object):
         are no callbacks, the timer is automatically stopped.
         '''
         for func,args in self.callbacks:
-            ret = func(args)
+            ret = func(*args)
             if ret == False:
                 self.callbacks.remove((func,args))
 
