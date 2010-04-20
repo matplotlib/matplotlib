@@ -97,8 +97,8 @@ class TimerQT(TimerBase):
         upon timer events. This list can be manipulated directly, or the
         functions add_callback and remove_callback can be used.
     '''
-    def __init__(self):
-        TimerBase.__init__(self)
+    def __init__(self, *args, **kwargs):
+        TimerBase.__init__(self, *args, **kwargs)
         
         # Create a new timer and connect the timeout() signal to the
         # _on_timer method.
@@ -232,13 +232,21 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 
         return key
 
-    def new_timer(self):
+    def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of
-        :class:`backend_bases.TimerBase`. This is useful for getting periodic
-        events through the backend's native event loop.
+        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        This is useful for getting periodic events through the backend's native
+        event loop. Implemented only for backends with GUIs.
+        
+        optional arguments:
+        
+        *interval*
+          Timer interval in milliseconds
+        *callbacks*
+          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
+          be executed by the timer every *interval*.
         """
-        return TimerQT()
+        return TimerQT(*args, **kwargs)
 
     def flush_events(self):
         Qt.qApp.processEvents()

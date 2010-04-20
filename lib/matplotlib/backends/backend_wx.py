@@ -240,8 +240,8 @@ class TimerWx(TimerBase):
         upon timer events. This list can be manipulated directly, or the
         functions add_callback and remove_callback can be used.
     '''
-    def __init__(self, parent):
-        TimerBase.__init__(self)
+    def __init__(self, parent, *args, **kwargs):
+        TimerBase.__init__(self, *args, **kwargs)
 
         # Create a new timer and connect the timer event to our handler.
         # For WX, the events have to use a widget for binding.
@@ -1022,13 +1022,21 @@ The current aspect ration will be kept."""
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC)
 
-    def new_timer(self):
+    def new_timer(self, *args, **kwargs):
         """
-        Creates a new backend-specific subclass of
-        :class:`backend_bases.TimerBase`. This is useful for getting periodic
-        events through the backend's native event loop.
+        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        This is useful for getting periodic events through the backend's native
+        event loop. Implemented only for backends with GUIs.
+        
+        optional arguments:
+        
+        *interval*
+          Timer interval in milliseconds
+        *callbacks*
+          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
+          be executed by the timer every *interval*.
         """
-        return TimerWx(self)
+        return TimerWx(self, *args, **kwargs)
 
     def flush_events(self):
         wx.Yield()

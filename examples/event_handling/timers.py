@@ -16,8 +16,7 @@ ax.plot(x, x*x)
 
 # Create a new timer object. Set the interval 500 milliseconds (1000 is default)
 # and tell the timer what function should be called.
-timer = fig.canvas.new_timer()
-timer.interval = 100
+timer = fig.canvas.new_timer(interval=100)
 timer.add_callback(update_title, ax)
 timer.start()
 

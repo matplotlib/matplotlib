@@ -893,11 +893,19 @@ class TimerBase(object):
         upon timer events. This list can be manipulated directly, or the
         functions add_callback and remove_callback can be used.
     '''
-    def __init__(self):
-        #Initialize empty callbacks list and setup default settings
-        self.callbacks = []
+    def __init__(self, interval=None, callbacks=None):
+        #Initialize empty callbacks list and setup default settings if necssary
+        if callbacks is None:
+            self.callbacks = []
+        else:
+            self.callbacks = callbacks[:] # Create a copy
+
+        if interval is None:
+            self._interval = 1000
+        else:
+            self._interval = interval
+
         self._single = False
-        self._interval = 1000
 
         # Default attribute for holding the GUI-specific timer object
         self._timer = None
@@ -949,21 +957,21 @@ class TimerBase(object):
 
     single_shot = property(_get_single_shot, _set_single_shot)
 
-    def add_callback(self, func, *args):
+    def add_callback(self, func, *args, **kwargs):
         '''
         Register `func` to be called by timer when the event fires. Any
         additional arguments provided will be passed to `func`.
         '''
-        self.callbacks.append((func, args))
+        self.callbacks.append((func, args, kwargs))
 
-    def remove_callback(self, func, *args):
+    def remove_callback(self, func, *args, **kwargs):
         '''
-        Remove `func` from list of callbacks. `args` is optional and used
-        to distinguish between copies of the same function registered to be
-        called with different arguments.
+        Remove `func` from list of callbacks. `args` and `kwargs` are optional
+        and used to distinguish between copies of the same function registered
+        to be called with different arguments.
         '''
-        if args:
-            self.callbacks.remove((func, args))
+        if args or kwargs:
+            self.callbacks.remove((func, args, kwargs))
         else:
             funcs = [c[0] for c in self.callbacks]
             if func in funcs:
@@ -983,10 +991,10 @@ class TimerBase(object):
         can return False if they should not be called any more. If there
         are no callbacks, the timer is automatically stopped.
         '''
-        for func,args in self.callbacks:
-            ret = func(*args)
+        for func,args,kwargs in self.callbacks:
+            ret = func(*args, **kwargs)
             if ret == False:
-                self.callbacks.remove((func,args))
+                self.callbacks.remove((func,args,kwargs))
 
         if len(self.callbacks) == 0:
             self.stop()
@@ -1929,13 +1937,21 @@ class FigureCanvasBase:
         """
         return self.callbacks.disconnect(cid)
 
-    def new_timer(self):
+    def new_timer(self, *args, **kwargs):
         """
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
+        
+        optional arguments:
+        
+        *interval*
+          Timer interval in milliseconds
+        *callbacks*
+          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
+          be executed by the timer every *interval*.
         """
-        return TimerBase()
+        return TimerBase(*args, **kwargs)
 
     def flush_events(self):
         """
