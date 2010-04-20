@@ -501,7 +501,8 @@ class AxesDivider(Divider):
         return ax
 
 
-    def append_axes(self, position, size, pad=None, **kwargs):
+    def append_axes(self, position, size, pad=None, add_to_figure=True,
+                    **kwargs):
         """
         create an axes at the given *position* with the same height
         (or width) of the main axes.
@@ -523,7 +524,8 @@ class AxesDivider(Divider):
         else:
             raise ValueError("the position must be one of left, right, bottom, or top")
 
-        self._fig.add_axes(ax)
+        if add_to_figure:
+            self._fig.add_axes(ax)
         return ax
 
     def get_aspect(self):

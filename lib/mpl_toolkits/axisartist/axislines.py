@@ -459,7 +459,7 @@ class GridHelperRectlinear(GridHelperBase):
                        offset=None,
                        axes=None,
                        ):
-
+ 
         if axes is None:
             warnings.warn("'new_fixed_axis' explicitly requires the axes keyword.")
             axes = self.axes
@@ -697,6 +697,17 @@ class Axes(maxes.Axes):
         self._grid_helper.invalidate()
 
 
+    def new_fixed_axis(self, loc, offset=None):
+        gh = self.get_grid_helper()
+        axis = gh.new_fixed_axis(loc,
+                                 nth_coord=None,
+                                 axis_direction=None,
+                                 offset=offset,
+                                 axes=self,
+                                 )
+        return axis
+
+
     def new_floating_axis(self, nth_coord, value,
                           axis_direction="bottom",
                           ):
@@ -757,7 +768,6 @@ class Axes(maxes.Axes):
 
 
 Subplot = maxes.subplot_class_factory(Axes)
-
 
 class AxesZero(Axes):
     def __init__(self, *kl, **kw):
