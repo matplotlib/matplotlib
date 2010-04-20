@@ -1,3 +1,5 @@
+2010-04-20 Added margins() Axes method and pyplot function. - EF
+
 2010-04-18 update the axes_grid documentation. -JJL
 
 2010-04-18 Control MaxNLocator parameters after instantiation,
