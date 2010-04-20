@@ -23,7 +23,7 @@ import matplotlib
 from matplotlib import verbose
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
 from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -88,6 +88,46 @@ def new_figure_manager(num, *args, **kwargs):
     # equals:
     #manager = FigureManagerGTK(FigureCanvasGTK(Figure(*args, **kwargs), num)
     return manager
+
+
+class TimerGTK(TimerBase):
+    '''
+    Subclass of :class:`backend_bases.TimerBase` that uses GTK for timer events.
+    
+    Attributes:
+    * interval: The time between timer events in milliseconds. Default
+        is 1000 ms.
+    * single_shot: Boolean flag indicating whether this timer should
+        operate as single shot (run once and then stop). Defaults to False.
+    * callbacks: Stores list of (func, args) tuples that will be called
+        upon timer events. This list can be manipulated directly, or the
+        functions add_callback and remove_callback can be used.
+    '''
+    from gobject import timeout_add as _add_timeout
+    from gobject import source_remove as _remove_timeout
+    def _timer_start(self):
+        self._timer = self._add_timeout(self._interval, self._on_timer)
+
+    def _timer_stop(self):
+        if self._timer is not None:
+            self._remove_timeout(self._timer)
+            self._timer = None
+
+    def _timer_set_interval(self):
+        if self._timer is not None:
+            self._timer_stop()
+            self._timer_start()
+
+    def _on_timer(self):
+        TimerBase._on_timer(self)
+        
+        # Gtk timeout_add() requires that the callback returns True if it
+        # is to be called again.
+        if len(self.callbacks) > 0 and not self._single:
+            return True
+        else:
+            self._timer = None
+            return False
 
 
 class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
@@ -410,6 +450,13 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def get_default_filetype(self):
         return 'png'
 
+    def new_timer(self):
+        """
+        Creates a new backend-specific subclass of
+        :class:`backend_bases.TimerBase`. This is useful for getting periodic
+        events through the backend's native event loop.
+        """
+        return TimerGTK()
 
     def flush_events(self):
         gtk.gdk.threads_enter()
