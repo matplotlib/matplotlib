@@ -7,7 +7,8 @@ import matplotlib
 from matplotlib import verbose
 from matplotlib.cbook import is_string_like, onetrue
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, IdleEvent, cursors
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, IdleEvent, \
+     cursors, TimerBase
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
@@ -81,6 +82,46 @@ def new_figure_manager( num, *args, **kwargs ):
     canvas = FigureCanvasQT( thisFig )
     manager = FigureManagerQT( canvas, num )
     return manager
+
+
+class TimerQT(TimerBase):
+    '''
+    Subclass of :class:`backend_bases.TimerBase` that uses Qt4 timer events.
+    
+    Attributes:
+    * interval: The time between timer events in milliseconds. Default
+        is 1000 ms.
+    * single_shot: Boolean flag indicating whether this timer should
+        operate as single shot (run once and then stop). Defaults to False.
+    * callbacks: Stores list of (func, args) tuples that will be called
+        upon timer events. This list can be manipulated directly, or the
+        functions add_callback and remove_callback can be used.
+    '''
+    def __init__(self):
+        from PyQt4.QtCore import QObject, SIGNAL, QTimer
+        TimerBase.__init__(self)
+        
+        # Create a new timer and connect the timeout() signal to the
+        # _on_timer method.
+        self._timer = QTimer()
+        QObject.connect(self._timer, SIGNAL('timeout()'), self._on_timer)
+
+    def __del__(self):
+        # Probably not necessary in practice, but is good behavior to disconnect
+        TimerBase.__del__(self)
+        QObject.disconnect(self._timer , SIGNAL('timeout()'), self._on_timer)
+
+    def _timer_set_single_shot(self):
+        self._timer.setSingleShot(self._single)
+
+    def _timer_set_interval(self):
+        self._timer.setInterval(self._interval)
+
+    def _timer_start(self):
+        self._timer.start()
+
+    def _timer_stop(self):
+        self._timer.stop()
 
 
 class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
@@ -189,6 +230,14 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             key = None
 
         return key
+
+    def new_timer(self):
+        """
+        Creates a new backend-specific subclass of
+        :class:`backend_bases.TimerBase`. This is useful for getting periodic
+        events through the backend's native event loop.
+        """
+        return TimerQT()
 
     def flush_events(self):
         Qt.qApp.processEvents()
