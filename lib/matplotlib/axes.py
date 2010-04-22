@@ -1710,44 +1710,40 @@ class Axes(martist.Artist):
         setting *scaley* to *False*.  The autoscaling preserves any
         axis direction reversal that has already been done.
         """
+        if tight is not None:
+            self._tight = bool(tight)
         # if image data only just use the datalim
+        _tight = self._tight or (len(self.images)>0 and
+                                 len(self.lines)==0 and
+                                 len(self.patches)==0)
+
         if scalex and self._autoscaleXon:
             xshared = self._shared_x_axes.get_siblings(self)
             dl = [ax.dataLim for ax in xshared]
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = bb.intervalx
+            x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False)
             if self._xmargin > 0:
                 delta = (x1 - x0) * self._xmargin
                 x0 -= delta
                 x1 += delta
+            if not _tight:
+                x0, x1 = self.xaxis.get_major_locator().view_limits(x0, x1)
+            self.set_xbound(x0, x1)
 
         if scaley and self._autoscaleYon:
             yshared = self._shared_y_axes.get_siblings(self)
             dl = [ax.dataLim for ax in yshared]
             bb = mtransforms.BboxBase.union(dl)
             y0, y1 = bb.intervaly
+            y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False)
             if self._ymargin > 0:
                 delta = (y1 - y0) * self._ymargin
                 y0 -= delta
                 y1 += delta
-
-        if tight is not None:
-            self._tight = bool(tight)
-        if (self._tight or (len(self.images)>0 and
-                      len(self.lines)==0 and
-                      len(self.patches)==0)):
-            if scalex and self._autoscaleXon:
-                self.set_xbound(x0, x1)
-            if scaley and self._autoscaleYon:
-                self.set_ybound(y0, y1)
-            return
-
-        if scalex and self._autoscaleXon:
-            XL = self.xaxis.get_major_locator().view_limits(x0, x1)
-            self.set_xbound(XL)
-        if scaley and self._autoscaleYon:
-            YL = self.yaxis.get_major_locator().view_limits(y0, y1)
-            self.set_ybound(YL)
+            if not _tight:
+                y0, y1 = self.yaxis.get_major_locator().view_limits(y0, y1)
+            self.set_ybound(y0, y1)
 
     #### Drawing
 
