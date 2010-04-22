@@ -838,6 +838,7 @@ class Axes(martist.Artist):
         self._autoscaleYon = True
         self._xmargin = 0
         self._ymargin = 0
+        self._tight = True
         self._update_transScale()         # needed?
 
         self._get_lines = _process_plot_var_args(self)
@@ -1231,7 +1232,7 @@ class Axes(martist.Artist):
             elif s in ('equal', 'tight', 'scaled', 'normal', 'auto', 'image'):
                 self.set_autoscale_on(True)
                 self.set_aspect('auto')
-                self.autoscale_view()
+                self.autoscale_view(tight=False)
                 # self.apply_aspect()
                 if s=='equal':
                     self.set_aspect('equal', adjustable='datalim')
@@ -1646,17 +1647,22 @@ class Axes(martist.Artist):
 
         ::
 
-            margins(margin, tight=True)
+            margins(margin)
 
-            margins(xmargin, ymargin, tight=True)
+            margins(xmargin, ymargin)
 
-            margins(x=xmargin, y=ymargin, tight=True)
+            margins(x=xmargin, y=ymargin)
+
+            margins(..., tight=False)
 
         All three forms above set the xmargin and ymargin parameters.
         All keyword parameters are optional.  A single argument
         specifies both xmargin and ymargin.  The *tight* parameter
         is passed to :meth:`autoscale_view`, which is executed after
-        a margin is changed.
+        a margin is changed; the default here is *True*, on the
+        assumption that when margins are specified, no additional
+        padding to match tick marks is usually desired.  Setting
+        *tight* to *None* will preserve the previous setting.
 
         Specifying any margin changes only the autoscaling; for example,
         if *xmargin* is not zero, then *xmargin* times the X data
@@ -1667,7 +1673,7 @@ class Axes(martist.Artist):
         if not args and not kw:
             return self._ymargin, self._ymargin
 
-        tight = kw.pop('tight', False)
+        tight = kw.pop('tight', True)
         mx = kw.pop('x', None)
         my = kw.pop('y', None)
         if len(args) == 1:
@@ -1697,7 +1703,7 @@ class Axes(martist.Artist):
         return self._rasterization_zorder
 
 
-    def autoscale_view(self, tight=False, scalex=True, scaley=True):
+    def autoscale_view(self, tight=None, scalex=True, scaley=True):
         """
         autoscale the view limits using the data limits. You can
         selectively autoscale only a single axis, eg, the xaxis by
@@ -1725,7 +1731,9 @@ class Axes(martist.Artist):
                 y0 -= delta
                 y1 += delta
 
-        if (tight or (len(self.images)>0 and
+        if tight is not None:
+            self._tight = bool(tight)
+        if (self._tight or (len(self.images)>0 and
                       len(self.lines)==0 and
                       len(self.patches)==0)):
             if scalex and self._autoscaleXon:
@@ -2027,7 +2035,7 @@ class Axes(martist.Artist):
             raise AttributeError(
                 "This method only works with the ScalarFormatter.")
 
-    def locator_params(self, axis='both', tight=False, **kwargs):
+    def locator_params(self, axis='both', tight=None, **kwargs):
         """
         Convenience method for controlling tick locators.
 
@@ -2038,7 +2046,8 @@ class Axes(martist.Artist):
             default is 'both'.
 
         *tight*
-            [True | False] Parameter passed to :meth:`autoscale_view`.
+            [True | False | None] Parameter passed to :meth:`autoscale_view`.
+            Default is None, for no change.
 
         Remaining keyword arguments are passed to directly to the
         :meth:`~matplotlib.ticker.MaxNLocator.set_params` method.
