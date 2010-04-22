@@ -7289,17 +7289,16 @@ class Axes(martist.Artist):
 
         if isinstance(x, np.ndarray):
             # TODO: support masked arrays;
-            #       Why is the copy needed?
-            x = np.array(x, copy=True, subok=False)
+            x = np.asarray(x)
             if x.ndim == 2:
-                x = x.T
+                x = x.T # 2-D input with columns as datasets; switch to rows
             elif x.ndim == 1:
-                x.shape = (1, x.shape[0])
+                x = x.reshape(1, x.shape[0])  # new view, single row
             else:
                 raise ValueError("x must be 1D or 2D")
             if x.shape[1] < x.shape[0]:
-                warnings.warn('2D hist input should be nsamples x nvariables; '
-                              'this looks transposed')
+                warnings.warn('2D hist input should be nsamples x nvariables;\n '
+                    'this looks transposed (shape is %d x %d)' % x.shape[::-1])
         else:
             # multiple hist with data of different length
             x = [np.array(xi) for xi in x]
