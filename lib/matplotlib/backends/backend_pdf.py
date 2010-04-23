@@ -654,7 +654,7 @@ class PdfFile(object):
         if 0:             flags |= 1 << 17 # TODO: small caps
         if 0:             flags |= 1 << 18 # TODO: force bold
 
-        ft2font = FT2Font(fontfile)
+        ft2font = FT2Font(str(fontfile))
 
         descriptor = {
             'Type':        Name('FontDescriptor'),

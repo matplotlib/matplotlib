@@ -311,7 +311,7 @@ class TextToPath(object):
 
             if font_and_encoding is None:
                 font_bunch =  self.tex_font_map[dvifont.texname]
-                font = FT2Font(font_bunch.filename)
+                font = FT2Font(str(font_bunch.filename))
                 try:
                     font.select_charmap(1094992451) # select ADOBE_CUSTOM
                 except ValueError:
