@@ -597,7 +597,7 @@ class TruetypeFonts(Fonts):
 
         cached_font = self._fonts.get(basename)
         if cached_font is None:
-            font = FT2Font(basename)
+            font = FT2Font(str(basename))
             cached_font = self.CachedFont(font)
             self._fonts[basename] = cached_font
             self._fonts[font.postscript_name] = cached_font

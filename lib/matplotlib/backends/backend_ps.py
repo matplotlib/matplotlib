@@ -1104,7 +1104,7 @@ class FigureCanvasPS(FigureCanvasBase):
         if not rcParams['ps.useafm']:
             for font_filename, chars in ps_renderer.used_characters.values():
                 if len(chars):
-                    font = FT2Font(font_filename)
+                    font = FT2Font(str(font_filename))
                     cmap = font.get_charmap()
                     glyph_ids = []
                     for c in chars:
