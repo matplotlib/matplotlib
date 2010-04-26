@@ -9,7 +9,6 @@ import gtk
 
 import matplotlib
 matplotlib.use('GTKAgg')
-from matplotlib import rcParams
 
 from pylab import *
 
