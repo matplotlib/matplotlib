@@ -5951,7 +5951,7 @@ class Axes(martist.Artist):
 
         corners = ((xmin, ymin), (xmax, ymax))
         self.update_datalim( corners)
-        self.autoscale_view()
+        self.autoscale_view(tight=True)
 
         # add the collection last
         self.add_collection(collection)
