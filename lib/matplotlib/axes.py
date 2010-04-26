@@ -838,7 +838,7 @@ class Axes(martist.Artist):
         self._autoscaleYon = True
         self._xmargin = 0
         self._ymargin = 0
-        self._tight = True
+        self._tight = False
         self._update_transScale()         # needed?
 
         self._get_lines = _process_plot_var_args(self)
@@ -1722,7 +1722,8 @@ class Axes(martist.Artist):
             dl = [ax.dataLim for ax in xshared]
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = bb.intervalx
-            x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False)
+            x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False,
+                                                     expander=0.05)
             if self._xmargin > 0:
                 delta = (x1 - x0) * self._xmargin
                 x0 -= delta
@@ -1736,7 +1737,8 @@ class Axes(martist.Artist):
             dl = [ax.dataLim for ax in yshared]
             bb = mtransforms.BboxBase.union(dl)
             y0, y1 = bb.intervaly
-            y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False)
+            y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False,
+                                                     expander=0.05)
             if self._ymargin > 0:
                 delta = (y1 - y0) * self._ymargin
                 y0 -= delta
