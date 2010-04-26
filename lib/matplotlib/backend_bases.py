@@ -930,14 +930,10 @@ class TimerBase(object):
         self._timer_stop()
 
     def _timer_start(self):
-        #TODO: Could we potentially make a generic version through
-        #the use of Threads?
-        raise NotImplementedError('Needs to be implemented by subclass.')
+        pass
 
     def _timer_stop(self):
-        #TODO: Could we potentially make a generic version through
-        #the use of Threads?
-        raise NotImplementedError('Needs to be implemented by subclass.')
+        pass
 
     def _get_interval(self):
         return self._interval
