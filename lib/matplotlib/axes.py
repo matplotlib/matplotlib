@@ -1722,14 +1722,20 @@ class Axes(martist.Artist):
             dl = [ax.dataLim for ax in xshared]
             bb = mtransforms.BboxBase.union(dl)
             x0, x1 = bb.intervalx
-            x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False,
-                                                     expander=0.05)
+            xlocator = self.xaxis.get_major_locator()
+            try:
+                # e.g. DateLocator has its own nonsingular()
+                x0, x1 = xlocator.nonsingular(x0, x1)
+            except AttributeError:
+                # Default nonsingular for, e.g., MaxNLocator
+                x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False,
+                                                         expander=0.05)
             if self._xmargin > 0:
                 delta = (x1 - x0) * self._xmargin
                 x0 -= delta
                 x1 += delta
             if not _tight:
-                x0, x1 = self.xaxis.get_major_locator().view_limits(x0, x1)
+                x0, x1 = xlocator.view_limits(x0, x1)
             self.set_xbound(x0, x1)
 
         if scaley and self._autoscaleYon:
@@ -1737,14 +1743,18 @@ class Axes(martist.Artist):
             dl = [ax.dataLim for ax in yshared]
             bb = mtransforms.BboxBase.union(dl)
             y0, y1 = bb.intervaly
-            y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False,
-                                                     expander=0.05)
+            ylocator = self.yaxis.get_major_locator()
+            try:
+                y0, y1 = ylocator.nonsingular(y0, y1)
+            except AttributeError:
+                y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False,
+                                                         expander=0.05)
             if self._ymargin > 0:
                 delta = (y1 - y0) * self._ymargin
                 y0 -= delta
                 y1 += delta
             if not _tight:
-                y0, y1 = self.yaxis.get_major_locator().view_limits(y0, y1)
+                y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
 
     #### Drawing
