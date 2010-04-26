@@ -637,6 +637,13 @@ type from within Python::
   import matplotlib
   matplotlib.test()
 
+To run a single test from the command line, you can provide
+a dot-separated path to the module and function, eg.
+(this is assuming the test is installed)::
+
+  nosetests matplotlib.tests.test_simplification:test_clipping
+
+
 Writing a simple test
 ---------------------
 
