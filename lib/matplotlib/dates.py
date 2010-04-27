@@ -509,8 +509,9 @@ class DateLocator(ticker.Locator):
 
     def nonsingular(self, vmin, vmax):
         unit = self._get_unit()
-        vmin -= 2*unit
-        vmax += 2*unit
+        if abs(vmax - vmin) < 1e-6:
+            vmin -= 2*unit
+            vmax += 2*unit
         return vmin, vmax
 
 class RRuleLocator(DateLocator):

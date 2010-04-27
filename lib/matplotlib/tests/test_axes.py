@@ -151,7 +151,7 @@ def test_fill_units():
     # Bottom-Left
     ax3 = fig.add_subplot( 223 )
     ax3.plot( [t], [value], yunits='deg', color='red' )
-    ax1.fill( [733525.0, 733525.0, 733526.0, 733526.0],
+    ax3.fill( [733525.0, 733525.0, 733526.0, 733526.0],
               [0*units.deg,  0*units.deg,  90*units.deg,    0*units.deg], 'b' )
 
     # Bottom-Right
