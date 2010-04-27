@@ -29,7 +29,7 @@ def test_image_interps():
 
     fig.savefig('image_interps')
 
-@image_comparison(baseline_images=['figimage-0', 'figimage-1'], extensions=['png'])
+@image_comparison(baseline_images=['figimage-0', 'figimage-1'], extensions=['png'], tol=1.5e-3)
 def test_figimage():
     'test the figimage method'
 
