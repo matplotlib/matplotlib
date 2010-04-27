@@ -46,7 +46,7 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
         return nose.tools.make_decorator(f)(failer)
     return known_fail_decorator
 
-def image_comparison(baseline_images=None,extensions=None):
+def image_comparison(baseline_images=None,extensions=None,tol=1e-3):
     """
     call signature::
 
@@ -118,7 +118,6 @@ def image_comparison(baseline_images=None,extensions=None):
                                 'image does not exist: %s'%expected)
 
                         # compare the images
-                        tol=1e-3 # default tolerance
                         err = compare_images( expected, actual, tol,
                                               in_decorator=True )
                         if err:
