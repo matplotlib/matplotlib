@@ -67,7 +67,7 @@ subplot(2,2,2)
 
 imshow(Z, extent=extent)
 v = axis()
-contour(Z, cset3.levels, hold='on', colors = 'k',
+contour(Z, levels, hold='on', colors = 'k',
         origin='upper', extent=extent)
 axis(v)
 title("Image, origin 'upper'")
@@ -76,7 +76,7 @@ subplot(2,2,3)
 
 imshow(Z, origin='lower', extent=extent)
 v = axis()
-contour(Z, cset3.levels, hold='on', colors = 'k',
+contour(Z, levels, hold='on', colors = 'k',
         origin='lower', extent=extent)
 axis(v)
 title("Image, origin 'lower'")
@@ -91,7 +91,7 @@ subplot(2,2,4)
 # domain that is contoured does not extend beyond these pixel centers.
 im = imshow(Z, interpolation='nearest', extent=extent)
 v = axis()
-contour(Z, cset3.levels, hold='on', colors = 'k',
+contour(Z, levels, hold='on', colors = 'k',
         origin='image', extent=extent)
 axis(v)
 ylim = get(gca(), 'ylim')

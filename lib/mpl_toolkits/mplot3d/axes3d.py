@@ -201,7 +201,7 @@ class Axes3D(Axes):
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
 
-    def autoscale_view(self, scalex=True, scaley=True, scalez=True):
+    def autoscale_view(self, scalex=True, scaley=True, scalez=True, **kw):
         # This method looks at the rectanglular volume (see above)
         # of data and decides how to scale the view portal to fit it.
 
@@ -284,19 +284,19 @@ class Axes3D(Axes):
         if elev or azim are None (default), then the initial value
         is used which was specified in the :class:`Axes3D` constructor.
         """
-        
+
         self.dist = 10
-        
+
         if elev is None:
             self.elev = self.initial_elev
         else:
             self.elev = elev
-        
+
         if azim is None:
             self.azim = self.initial_azim
         else:
             self.azim = azim
-        
+
     def get_proj(self):
         """Create the projection matrix from the current viewing
         position.

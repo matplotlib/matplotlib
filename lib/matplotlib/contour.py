@@ -147,7 +147,7 @@ class ContourLabeler:
 
         if len(args) == 0:
             levels = self.levels
-            indices = range(len(self.levels))
+            indices = range(len(levels))
         elif len(args) == 1:
             levlabs = list(args[0])
             indices, levels = [], []
@@ -674,7 +674,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self._process_levels()
 
         if self.colors is not None:
-            cmap = colors.ListedColormap(self.colors, N=len(self.layers))
+            ncolors = len(self.levels)
+            if self.filled:
+                ncolors -= 1
+            cmap = colors.ListedColormap(self.colors, N=ncolors)
         if self.filled:
             self.collections = cbook.silent_list('collections.PathCollection')
         else:
@@ -772,7 +775,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     havelimits = True
         if havelimits:
             self.ax.update_datalim([min, max])
-            self.ax.autoscale_view()
+            self.ax.autoscale_view(tight=True)
 
     def _get_allsegs_and_allkinds(self):
         """
@@ -881,13 +884,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.vmin = 2 * self.levels[0] - self.levels[1]
         if self.extend in ('both', 'max'):
             self.vmax = 2 * self.levels[-1] - self.levels[-2]
-        self.layers = self._levels # contour: a line is a thin layer
         if self.filled:
             self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
             if self.extend in ('both', 'min'):
                 self.layers[0] = 0.5 * (self.vmin + self._levels[1])
             if self.extend in ('both', 'max'):
                 self.layers[-1] = 0.5 * (self.vmax + self._levels[-2])
+        else:
+            self.layers = self.levels # contour: a line is a thin layer
+                         #  Use only original levels--no extended levels
 
     def _process_colors(self):
         """
@@ -903,11 +908,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         self.monochrome = self.cmap.monochrome
         if self.colors is not None:
-            i0, i1 = 0, len(self.layers)
+            i0, i1 = 0, len(self.levels)
+            if self.filled:
+                i1 -= 1
             if self.extend in ('both', 'min'):
                 i0 = -1
             if self.extend in ('both', 'max'):
-                i1 = i1 + 1
+                i1 += 1
             self.cvalues = range(i0, i1)
             self.set_norm(colors.NoNorm())
         else:
@@ -944,8 +951,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             tlinestyles = ['solid'] * Nlev
             if self.monochrome:
                 neg_ls = mpl.rcParams['contour.negative_linestyle']
+                eps = - (self.zmax - self.zmin) * 1e-15
                 for i, lev in enumerate(self.levels):
-                    if lev < 0.0:
+                    if lev < eps:
                         tlinestyles[i] = neg_ls
         else:
             if cbook.is_string_like(linestyles):
@@ -1073,6 +1081,8 @@ class QuadContourSet(ContourSet):
             C = args[0].Cntr
             if self.levels is None:
                 self.levels = args[0].levels
+            self.zmin = args[0].zmin
+            self.zmax = args[0].zmax
         else:
             x, y, z = self._contour_args(args, kwargs)
 
@@ -1081,7 +1091,7 @@ class QuadContourSet(ContourSet):
             y0 = ma.minimum(y)
             y1 = ma.maximum(y)
             self.ax.update_datalim([(x0,y0), (x1,y1)])
-            self.ax.autoscale_view()
+            self.ax.autoscale_view(tight=True)
             _mask = ma.getmask(z)
             if _mask is ma.nomask:
                 _mask = None
