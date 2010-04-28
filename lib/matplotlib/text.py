@@ -1942,7 +1942,6 @@ class Annotation(Text, _AnnotationBase):
 
         if self._bbox_patch:
             posx, posy = self._x, self._y
-            print posx, posy
 
             x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
             self._bbox_patch.set_bounds(0., 0.,
