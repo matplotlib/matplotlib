@@ -6157,7 +6157,8 @@ class Axes(martist.Artist):
         return patches
 
     @docstring.dedent_interpd
-    def fill_between(self, x, y1, y2=0, where=None, **kwargs):
+    def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
+                     **kwargs):
         """
         call signature::
 
@@ -6181,6 +6182,12 @@ class Axes(martist.Artist):
            it is a a N length numpy boolean array and the fill will
            only happen over the regions where ``where==True``
 
+        *interpolate*
+           If True, interpolate between the two lines to find the
+           precise point of intersection.  Otherwise, the start and
+           end points of the filled region will only occur on explicit
+           values in the *x* array.
+           
         *kwargs*
           keyword args passed on to the :class:`PolyCollection`
 
@@ -6236,17 +6243,41 @@ class Axes(martist.Artist):
             N = len(xslice)
             X = np.zeros((2*N+2, 2), np.float)
 
-            # the purpose of the next two lines is for when y2 is a
-            # scalar like 0 and we want the fill to go all the way
-            # down to 0 even if none of the y1 sample points do
-            X[0] = xslice[0], y2slice[0]
-            X[N+1] = xslice[-1], y2slice[-1]
+            if interpolate:
+                def get_interp_point(ind):
+                    x_values = x[ind-1:ind+1]
+                    diff_values = y1[ind-1:ind+1] - y2[ind-1:ind+1]
+                    y1_values = y1[ind-1:ind+1]
 
+                    if len(diff_values) == 2:
+                        if np.ma.is_masked(diff_values[1]):
+                            return x[ind-1], y1[ind-1]
+                        elif np.ma.is_masked(diff_values[0]):
+                            return x[ind], y1[ind]
+                    
+                    diff_order = diff_values.argsort()
+                    diff_root_x = np.interp(
+                        0, diff_values[diff_order], x_values[diff_order])
+                    diff_root_y = np.interp(diff_root_x, x_values, y1_values)
+                    return diff_root_x, diff_root_y
+                
+                start = get_interp_point(ind0)
+                end = get_interp_point(ind1)
+            else:
+                # the purpose of the next two lines is for when y2 is a
+                # scalar like 0 and we want the fill to go all the way
+                # down to 0 even if none of the y1 sample points do
+                start = xslice[0], y2slice[0]
+                end = xslice[-1], y2slice[-1]
+
+            X[0] = start
+            X[N+1] = end
+            
             X[1:N+1,0] = xslice
             X[1:N+1,1] = y1slice
             X[N+2:,0] = xslice[::-1]
             X[N+2:,1] = y2slice[::-1]
-
+                
             polys.append(X)
 
         collection = mcoll.PolyCollection(polys, **kwargs)
@@ -6256,7 +6287,6 @@ class Axes(martist.Artist):
         XY2 = np.array([x[where], y2[where]]).T
         self.dataLim.update_from_data_xy(XY1, self.ignore_existing_data_limits,
                                          updatex=True, updatey=True)
-
         self.dataLim.update_from_data_xy(XY2, self.ignore_existing_data_limits,
                                          updatex=False, updatey=True)
         self.add_collection(collection)
