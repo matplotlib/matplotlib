@@ -29,16 +29,16 @@ ax3.set_xlabel('x')
 fig = figure()
 ax = fig.add_subplot(211)
 ax.plot(x, y1, x, y2, color='black')
-ax.fill_between(x, y1, y2, where=y2>=y1, facecolor='green')
-ax.fill_between(x, y1, y2, where=y2<=y1, facecolor='red')
+ax.fill_between(x, y1, y2, where=y2>=y1, facecolor='green', interpolate=True)
+ax.fill_between(x, y1, y2, where=y2<=y1, facecolor='red', interpolate=True)
 ax.set_title('fill between where')
 
 # Test support for masked arrays.
 y2 = np.ma.masked_greater(y2, 1.0)
 ax1 = fig.add_subplot(212, sharex=ax)
 ax1.plot(x, y1, x, y2, color='black')
-ax1.fill_between(x, y1, y2, where=y2>=y1, facecolor='green')
-ax1.fill_between(x, y1, y2, where=y2<=y1, facecolor='red')
+ax1.fill_between(x, y1, y2, where=y2>=y1, facecolor='green', interpolate=True)
+ax1.fill_between(x, y1, y2, where=y2<=y1, facecolor='red', interpolate=True)
 ax1.set_title('Now regions with y2>1 are masked')
 
 # This example illustrates a problem; because of the data
