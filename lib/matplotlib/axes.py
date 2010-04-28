@@ -1975,9 +1975,9 @@ class Axes(martist.Artist):
 
         Optional keyword arguments:
 
-          ============   =====================================
+          ============   =========================================
           Keyword        Description
-          ============   =====================================
+          ============   =========================================
           *style*        [ 'sci' (or 'scientific') | 'plain' ]
                          plain turns off scientific notation
           *scilimits*    (m, n), pair of integers; if *style*
@@ -1991,7 +1991,7 @@ class Axes(martist.Artist):
                          numeric offset is specified, it will be
                          used.
           *axis*         [ 'x' | 'y' | 'both' ]
-          ============   =====================================
+          ============   =========================================
 
         Only the major ticks are affected.
         If the method is called when the

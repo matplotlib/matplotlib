@@ -1,6 +1,6 @@
 
 :mod:`mpl_toolkits.axes_grid.axis_artist`
-=======================================
+=========================================
 
 .. autoclass:: mpl_toolkits.axes_grid.axis_artist.AxisArtist
    :members:
