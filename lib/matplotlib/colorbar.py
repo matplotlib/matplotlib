@@ -779,6 +779,7 @@ class Colorbar(ColorbarBase):
         self.patch = None
         self.solids = None
         self.lines = None
+        self.dividers = None
         self.set_alpha(mappable.get_alpha())
         self.cmap = mappable.cmap
         self.norm = mappable.norm
