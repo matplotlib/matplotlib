@@ -477,7 +477,7 @@ public:
     /* Set simplify to true to perform simplification */
     PathSimplifier(VertexSource& source, bool do_simplify, double simplify_threshold) :
         m_source(&source), m_simplify(do_simplify),
-        m_simplify_threshold(simplify_threshold),
+        m_simplify_threshold(simplify_threshold*simplify_threshold),
         m_moveto(true), m_after_moveto(false),
         m_lastx(0.0), m_lasty(0.0), m_clipped(false),
         m_origdx(0.0), m_origdy(0.0),
