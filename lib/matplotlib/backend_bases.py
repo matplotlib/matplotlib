@@ -868,7 +868,7 @@ class TimerBase(object):
     Backends need to implement a few specific methods in order to use their
     own timing mechanisms so that the timer events are integrated into their
     event loops.
-    
+
     Mandatory functions that must be implemented:
     * _timer_start: Contains backend-specific code for starting the timer
     * _timer_stop: Contains backend-specific code for stopping the timer
@@ -883,7 +883,7 @@ class TimerBase(object):
     * _on_timer: This is the internal function that any timer object should
         call, which will handle the task of running all callbacks that have
         been set.
-    
+
     Attributes:
     * interval: The time between timer events in milliseconds. Default
         is 1000 ms.
@@ -1938,9 +1938,9 @@ class FigureCanvasBase:
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
-        
+
         optional arguments:
-        
+
         *interval*
           Timer interval in milliseconds
         *callbacks*
