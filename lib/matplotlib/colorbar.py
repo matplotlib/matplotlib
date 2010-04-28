@@ -160,8 +160,9 @@ class ColorbarBase(cm.ScalarMappable):
     Draw a colorbar in an existing axes.
 
     This is a base class for the :class:`Colorbar` class, which is the
-    basis for the :func:`~matplotlib.pyplot.colorbar` method and pylab
-    function.
+    basis for the :func:`~matplotlib.pyplot.colorbar` function and the
+    :meth:`~matplotlib.figure.Figure.colorbar` method, which are the
+    usual ways of creating a colorbar.
 
     It is also useful by itself for showing a colormap.  If the *cmap*
     kwarg is given but *boundaries* and *values* are left as None,
@@ -411,6 +412,9 @@ class ColorbarBase(cm.ScalarMappable):
         if self.solids is not None:
             self.solids.remove()
         self.solids = col
+        if self.dividers is not None:
+            self.dividers.remove()
+            self.dividers = None
         if self.drawedges:
             self.dividers = collections.LineCollection(self._edges(X,Y),
                               colors=(mpl.rcParams['axes.edgecolor'],),
@@ -684,6 +688,17 @@ class ColorbarBase(cm.ScalarMappable):
         self.alpha = alpha
 
 class Colorbar(ColorbarBase):
+    """
+    This class connects a :class:`ColorbarBase` to a
+    :class:`~matplotlib.cm.ScalarMappable` such as a
+    :class:`~matplotlib.image.AxesImage` generated via
+    :meth:`~matplotlib.axes.Axes.imshow`.
+
+    It is not intended to be instantiated directly; instead,
+    use :meth:`~matplotlib.figure.Figure.colorbar` or
+    :func:`~matplotlib.pyplot.colorbar` to make your colorbar.
+
+    """
     def __init__(self, ax, mappable, **kw):
         mappable.autoscale_None() # Ensure mappable.norm.vmin, vmax
                              # are set when colorbar is called,
@@ -747,20 +762,28 @@ class Colorbar(ColorbarBase):
 
     def update_bruteforce(self, mappable):
         '''
-        Manually change any contour line colors.  This is called
-        when the image or contour plot to which this colorbar belongs
-        is changed.
+        Destroy and rebuild the colorbar.  This is
+        intended to become obsolete, and will probably be
+        deprecated and then removed.  It is not called when
+        the pyplot.colorbar function or the Figure.colorbar
+        method are used to create the colorbar.
+
         '''
         # We are using an ugly brute-force method: clearing and
         # redrawing the whole thing.  The problem is that if any
         # properties have been changed by methods other than the
         # colorbar methods, those changes will be lost.
         self.ax.cla()
+        # clearing the axes will delete outline, patch, solids, and lines:
+        self.outline = None
+        self.patch = None
+        self.solids = None
+        self.lines = None
+        self.set_alpha(mappable.get_alpha())
+        self.cmap = mappable.cmap
+        self.norm = mappable.norm
         self.config_axis()
         self.draw_all()
-        #if self.vmin != self.norm.vmin or self.vmax != self.norm.vmax:
-        #    self.ax.cla()
-        #    self.draw_all()
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable
             if not CS.filled:
