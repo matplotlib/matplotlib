@@ -61,10 +61,16 @@ figure()
 # Now make a contour plot with the levels specified,
 # and with the colormap generated automatically from a list
 # of colors.
-levels = [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5]
+levels = [-1.5, -1, -0.5, 0, 0.5, 1]
 CS3 = contourf(X, Y, Z, levels,
                         colors = ('r', 'g', 'b'),
-                        origin=origin)
+                        origin=origin,
+                        extend='both')
+# Our data range extends outside the range of levels; make
+# data below the lowest contour level yellow, and above the
+# highest level cyan:
+CS3.cmap.set_under('yellow')
+CS3.cmap.set_over('cyan')
 
 CS4 = contour(X, Y, Z, levels,
                        colors = ('k',),
@@ -72,6 +78,9 @@ CS4 = contour(X, Y, Z, levels,
                        origin = origin)
 title('Listed colors (3 masked regions)')
 clabel(CS4, fmt = '%2.1f', colors = 'w', fontsize=14)
+
+# Notice that the colorbar command gets all the information it
+# needs from the ContourSet object, CS3.
 colorbar(CS3)
 
 show()
