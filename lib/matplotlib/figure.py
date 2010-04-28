@@ -1040,8 +1040,10 @@ class Figure(Artist):
             backend.  Most backends support png, pdf, ps, eps and svg.
 
           *transparent*:
-            If *True*, the figure patch and axes patches will all be
-            transparent.  This is useful, for example, for displaying
+            If *True*, the axes patches will all be transparent; the
+            figure patch will also be transparent unless facecolor
+            and/or edgecolor are specified via kwargs.
+            This is useful, for example, for displaying
             a plot on top of a colored background on a web page.  The
             transparency of these patches will be restored to their
             original values upon exit of this function.
@@ -1061,9 +1063,7 @@ class Figure(Artist):
 
         """
 
-        for key in ('dpi', 'facecolor', 'edgecolor'):
-            if key not in kwargs:
-                kwargs[key] = rcParams['savefig.%s'%key]
+        kwargs.setdefault('dpi', rcParams['savefig.dpi'])
 
         extension = rcParams['savefig.extension']
         if args and is_string_like(args[0]) and '.' not in args[0] and extension != 'auto':
@@ -1072,20 +1072,25 @@ class Figure(Artist):
 
         transparent = kwargs.pop('transparent', False)
         if transparent:
-            original_figure_alpha = self.patch.get_alpha()
-            self.patch.set_alpha(0.0)
-            original_axes_alpha = []
+            kwargs.setdefault('facecolor', 'none')
+            kwargs.setdefault('edgecolor', 'none')
+            original_axes_colors = []
             for ax in self.axes:
                 patch = ax.patch
-                original_axes_alpha.append(patch.get_alpha())
-                patch.set_alpha(0.0)
+                original_axes_colors.append((patch.get_facecolor(),
+                                             patch.get_edgecolor()))
+                patch.set_facecolor('none')
+                patch.set_edgecolor('none')
+        else:
+            kwargs.setdefault('facecolor', rcParams['savefig.facecolor'])
+            kwargs.setdefault('edgecolor', rcParams['savefig.edgecolor'])
 
         self.canvas.print_figure(*args, **kwargs)
 
         if transparent:
-            self.patch.set_alpha(original_figure_alpha)
-            for ax, alpha in zip(self.axes, original_axes_alpha):
-                ax.patch.set_alpha(alpha)
+            for ax, cc in zip(self.axes, original_axes_colors):
+                ax.patch.set_facecolor(cc[0])
+                ax.patch.set_edgecolor(cc[1])
 
     @docstring.dedent_interpd
     def colorbar(self, mappable, cax=None, ax=None, **kw):
