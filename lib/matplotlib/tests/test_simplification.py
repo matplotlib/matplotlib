@@ -69,7 +69,7 @@ def test_noise():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    assert len(simplified) == 2675
+    assert len(simplified) == 3884
 
 def test_sine_plus_noise():
     np.random.seed(0)
@@ -86,7 +86,7 @@ def test_sine_plus_noise():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    assert len(simplified) == 628
+    assert len(simplified) == 876
 
 @image_comparison(baseline_images=['simplify_curve'])
 def test_simplify_curve():
@@ -131,7 +131,7 @@ def test_fft_peaks():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    assert len(simplified) == 13
+    assert len(simplified) == 17
 
 def test_start_with_moveto():
     # Should be entirely clipped away to a single MOVETO
