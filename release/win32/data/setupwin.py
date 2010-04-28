@@ -1,12 +1,12 @@
 from distutils import cygwinccompiler
 
 try:
-	# Python 2.6
-	# Replace the msvcr func to return an []
-	cygwinccompiler.get_msvcr
-	cygwinccompiler.get_msvcr = lambda: []
+    # Python 2.6
+    # Replace the msvcr func to return an []
+    cygwinccompiler.get_msvcr
+    cygwinccompiler.get_msvcr = lambda: []
 
 except AttributeError:
-	pass
+    pass
 
 execfile('setup.py')

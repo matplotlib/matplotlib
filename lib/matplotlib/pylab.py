@@ -252,7 +252,7 @@ import numpy as np
 import numpy.ma as ma
 
 def load(*args, **kwargs): 
-    raise  NotImplementedError(load.__doc__)   		
+    raise  NotImplementedError(load.__doc__)        
 load.__doc__ = """\
     pylab no longer provides a load function, though the old pylab
     function is still available as matplotlib.mlab.load (you can refer
@@ -265,7 +265,7 @@ load.__doc__ = """\
 
 
 def save(*args, **kwargs): 
-    raise  NotImplementedError(save.__doc__)   		
+    raise  NotImplementedError(save.__doc__)        
 save.__doc__ = """\
     pylab no longer provides a save function, though the old pylab
     function is still available as matplotlib.mlab.save (you can still
