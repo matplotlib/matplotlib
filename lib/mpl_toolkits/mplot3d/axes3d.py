@@ -52,6 +52,7 @@ class Axes3D(Axes):
           ================   =========================================
           *azim*             Azimuthal viewing angle (default -60)
           *elev*             Elevation viewing angle (default 30)
+          ================   =========================================
         '''
 
         if rect is None:
@@ -349,9 +350,9 @@ class Axes3D(Axes):
         the axes.  Also optionally sets the mouse buttons for 3D rotation
         and zooming.
 
-        ============  ================================================
+        ============  =======================================================
         Argument      Description
-        ============  ================================================
+        ============  =======================================================
         *rotate_btn*  The integer or list of integers specifying which mouse
                       button or buttons to use for 3D rotation of the axes.
                       Default = 1.
@@ -359,7 +360,8 @@ class Axes3D(Axes):
         *zoom_btn*    The integer or list of integers specifying which mouse
                       button or buttons to use to zoom the 3D axes.
                       Default = 3.
-        ============  ================================================
+        ============  =======================================================
+        
         """
         self.button_pressed = None
         canv = self.figure.canvas
@@ -636,22 +638,20 @@ class Axes3D(Axes):
         but it also supports color mapping by supplying the *cmap*
         argument.
 
-        ==========  ================================================
-        Argument    Description
-        ==========  ================================================
-        *X*, *Y*,   Data values as numpy.arrays
-        *Z*
-        *rstride*   Array row stride (step size)
-        *cstride*   Array column stride (step size)
-        *color*     Color of the surface patches
-        *cmap*      A colormap for the surface patches.
-        *facecolors* Face colors for the individual patches
-        *norm*      An instance of Normalize to map values to colors
-        *vmin*      Minimum value to map
-        *vmax*      Maximum value to map
-        *shade*     Whether to shade the facecolors, default:
-                    false when cmap specified, true otherwise
-        ==========  ================================================
+        ============= ================================================
+        Argument      Description
+        ============= ================================================
+        *X*, *Y*, *Z* Data values as numpy.arrays
+        *rstride*     Array row stride (step size)
+        *cstride*     Array column stride (step size)
+        *color*       Color of the surface patches
+        *cmap*        A colormap for the surface patches.
+        *facecolors*  Face colors for the individual patches
+        *norm*        An instance of Normalize to map values to colors
+        *vmin*        Minimum value to map
+        *vmax*        Maximum value to map
+        *shade*       Whether to shade the facecolors
+        ============= ================================================
 
         Other arguments are passed on to
         :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection.__init__`
@@ -1083,16 +1083,21 @@ class Axes3D(Axes):
         dx, dy, dz can be arrays or scalars.
 
         *color* can be:
+        
          - A single color value, to color all bars the same color.
+         
          - An array of colors of length N bars, to color each bar
-         independently.
-         - An array of colors of length 6, to color the faces of the bars
-         similarly.
+           independently.
+           
+         - An array of colors of length 6, to color the faces of the
+           bars similarly.
+           
          - An array of colors of length 6 * N bars, to color each face
-         independently.
+           independently.
 
-         When coloring the faces of the boxes specifically, this is the order
-         of the coloring:
+         When coloring the faces of the boxes specifically, this is
+         the order of the coloring:
+         
           1. -Z (bottom of box)
           2. +Z (top of box)
           3. -Y
