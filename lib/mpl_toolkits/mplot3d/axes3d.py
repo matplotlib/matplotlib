@@ -779,7 +779,7 @@ class Axes3D(Axes):
         shade = np.array(shade)
         mask = ~np.isnan(shade)
 
-    	if len(shade[mask]) > 0:
+        if len(shade[mask]) > 0:
             norm = Normalize(min(shade[mask]), max(shade[mask]))
             if art3d.iscolor(color):
                 color = color.copy()

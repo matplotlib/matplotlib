@@ -241,7 +241,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             self._resize_callback(event)
 
         # compute desired figure size in inches
-	dpival = self.figure.dpi
+        dpival = self.figure.dpi
         winch = width/dpival
         hinch = height/dpival
         self.figure.set_size_inches(winch, hinch)
