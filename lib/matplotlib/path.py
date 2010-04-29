@@ -292,9 +292,13 @@ class Path(object):
         control points appropriately.
         """
         from transforms import Bbox
+        path = self
         if transform is not None:
             transform = transform.frozen()
-        return Bbox(get_path_extents(self, transform))
+            if not transform.is_affine:
+                path = self.transformed(transform)
+                transform = None
+        return Bbox(get_path_extents(path, transform))
 
     def intersects_path(self, other, filled=True):
         """
@@ -506,8 +510,8 @@ class Path(object):
     def unit_circle_righthalf(cls):
         """
         (staticmethod) Returns a :class:`Path` of the right half
-        of a unit circle. The circle is approximated using cubic Bezier 
-        curves.  This uses 4 splines around the circle using the approach 
+        of a unit circle. The circle is approximated using cubic Bezier
+        curves.  This uses 4 splines around the circle using the approach
         presented here:
 
           Lancaster, Don.  `Approximating a Circle or an Ellipse Using Four
@@ -536,7 +540,7 @@ class Path(object):
                  [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
                  [MAGIC, 1.0],
                  [0.0, 1.0],
-            
+
                  [0.0, -1.0]],
 
                 np.float_)

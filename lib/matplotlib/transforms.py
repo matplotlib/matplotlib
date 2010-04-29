@@ -1066,7 +1066,7 @@ class Transform(TransformNode):
         """
         Used by C/C++ -based backends to get at the array matrix data.
         """
-        return self.frozen().__array__()
+        raise NotImplementedError
 
     def transform(self, values):
         """
