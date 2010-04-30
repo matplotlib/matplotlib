@@ -849,11 +849,11 @@ class UnicodeFonts(TruetypeFonts):
         fontname, uniindex = self._map_virtual_font(
             fontname, font_class, uniindex)
 
+        new_fontname = fontname
+        
         # Only characters in the "Letter" class should be italicized in 'it'
         # mode.  Greek capital letters should be Roman.
         if found_symbol:
-            new_fontname = fontname
-
             if fontname == 'it':
                 if uniindex < 0x10000:
                     unistring = unichr(uniindex)
@@ -883,8 +883,8 @@ class UnicodeFonts(TruetypeFonts):
             else:
                 if fontname in ('it', 'regular') and isinstance(self, StixFonts):
                     return self._get_glyph('rm', font_class, sym, fontsize)
-                warn("Font '%s' does not have a glyph for '%s'" %
-                     (fontname, sym.encode('ascii', 'backslashreplace')),
+                warn("Font '%s' does not have a glyph for '%s' [U%x]" %
+                     (new_fontname, sym.encode('ascii', 'backslashreplace'), uniindex),
                      MathTextWarning)
                 warn("Substituting with a dummy symbol.", MathTextWarning)
                 fontname = 'rm'
