@@ -1056,15 +1056,18 @@ class FontManager:
 
         No match will return 1.0.
         """
+        family2 = family2.lower()
         for i, family1 in enumerate(families):
-            if family1.lower() in font_family_aliases:
+            family1 = family1.lower()
+            if family1 in font_family_aliases:
                 if family1 == 'sans':
                     family1 == 'sans-serif'
                 options = rcParams['font.' + family1]
+                options = [x.lower() for x in options]
                 if family2 in options:
                     idx = options.index(family2)
                     return 0.1 * (float(idx) / len(options))
-            elif family1.lower() == family2.lower():
+            elif family1 == family2:
                 return 0.0
         return 1.0
 
