@@ -21,7 +21,7 @@ Naming Conventions
 from __future__ import division
 import os, sys, warnings, gzip
 
-import numpy as npy
+import numpy as np
 
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
@@ -196,7 +196,7 @@ class RendererCairo(RendererBase):
 
            ctx.save()
            if angle:
-              ctx.rotate (-angle * npy.pi / 180)
+              ctx.rotate (-angle * np.pi / 180)
            ctx.set_font_size (size)
            ctx.show_text (s.encode("utf-8"))
            ctx.restore()
@@ -211,7 +211,7 @@ class RendererCairo(RendererBase):
         ctx.save()
         ctx.translate(x, y)
         if angle:
-           ctx.rotate (-angle * npy.pi / 180)
+           ctx.rotate (-angle * np.pi / 180)
 
         for font, fontsize, s, ox, oy in glyphs:
            ctx.new_path()
@@ -355,7 +355,7 @@ class GraphicsContextCairo(GraphicsContextBase):
             self.ctx.set_dash([], 0)  # switch dashes off
         else:
             self.ctx.set_dash (
-               self.renderer.points_to_pixels (npy.asarray(dashes)), offset)
+               self.renderer.points_to_pixels (np.asarray(dashes)), offset)
 
 
     def set_foreground(self, fg, isRGB=None):
@@ -469,7 +469,7 @@ class FigureCanvasCairo (FigureCanvasBase):
         ctx = renderer.gc.ctx
 
         if orientation == 'landscape':
-            ctx.rotate (npy.pi/2)
+            ctx.rotate (np.pi/2)
             ctx.translate (0, -height_in_points)
             # cairo/src/cairo_ps_surface.c
             # '%%Orientation: Portrait' is always written to the file header

@@ -36,7 +36,7 @@ from matplotlib.transforms import Affine2D
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 
 
-import numpy as npy
+import numpy as np
 import binascii
 import re
 try:
@@ -127,7 +127,7 @@ def seq_allequal(seq1, seq2):
     #ok, neither are None:, assuming iterable
 
     if len(seq1) != len(seq2): return False
-    return npy.alltrue(npy.equal(seq1, seq2))
+    return np.alltrue(np.equal(seq1, seq2))
 
 
 class RendererPS(RendererBase):
@@ -348,20 +348,20 @@ class RendererPS(RendererBase):
     def _rgb(self, im):
         h,w,s = im.as_rgba_str()
 
-        rgba = npy.fromstring(s, npy.uint8)
+        rgba = np.fromstring(s, np.uint8)
         rgba.shape = (h, w, 4)
         rgb = rgba[:,:,:3]
         return h, w, rgb.tostring()
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
-        rgba = npy.fromstring(rgbat[2], npy.uint8)
+        rgba = np.fromstring(rgbat[2], np.uint8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
-        rgba_f = rgba.astype(npy.float32)
+        rgba_f = rgba.astype(np.float32)
         r = rgba_f[:,:,0]
         g = rgba_f[:,:,1]
         b = rgba_f[:,:,2]
-        gray = (r*rc + g*gc + b*bc).astype(npy.uint8)
+        gray = (r*rc + g*gc + b*bc).astype(np.uint8)
         return rgbat[0], rgbat[1], gray.tostring()
 
     def _hex_lines(self, s, chars_per_line=128):
@@ -811,14 +811,14 @@ grestore
         shape = points.shape
         flat_points = points.reshape((shape[0] * shape[1], 2))
         flat_colors = colors.reshape((shape[0] * shape[1], 4))
-        points_min = npy.min(flat_points, axis=0) - (1 << 8)
-        points_max = npy.max(flat_points, axis=0) + (1 << 8)
+        points_min = np.min(flat_points, axis=0) - (1 << 8)
+        points_max = np.max(flat_points, axis=0) + (1 << 8)
         factor = float(0xffffffff) / (points_max - points_min)
 
         xmin, ymin = points_min
         xmax, ymax = points_max
 
-        streamarr = npy.empty(
+        streamarr = np.empty(
             (shape[0] * shape[1],),
             dtype=[('flags', 'u1'),
                    ('points', '>u4', (2,)),
@@ -1492,7 +1492,7 @@ def get_bbox_header(l, b, r, t):
     return a postscript header stringfor the given bbox (l, b, r, t)
     """
 
-    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, npy.ceil(r), npy.ceil(t))
+    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, np.ceil(r), np.ceil(t))
     hires_bbox_info = '%%%%HiResBoundingBox: %.6f %.6f %.6f %.6f' % (l, b, r, t)
 
     return '\n'.join([bbox_info, hires_bbox_info])
@@ -1537,7 +1537,7 @@ Here is the Ghostscript output:\n\n%s'% bbox_info)
         dy = (bbox[3]-bbox[1])/2
         l,b,r,t = (x-dx, y-dy, x+dx, y+dy)
 
-    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, npy.ceil(r), npy.ceil(t))
+    bbox_info = '%%%%BoundingBox: %d %d %d %d' % (l, b, np.ceil(r), np.ceil(t))
     hires_bbox_info = '%%%%HiResBoundingBox: %.6f %.6f %.6f %.6f' % (l, b, r, t)
 
     return '\n'.join([bbox_info, hires_bbox_info])

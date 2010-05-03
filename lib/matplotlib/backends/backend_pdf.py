@@ -13,7 +13,7 @@ import time
 import warnings
 import zlib
 
-import numpy as npy
+import numpy as np
 
 from cStringIO import StringIO
 from datetime import datetime
@@ -136,7 +136,7 @@ def pdfRepr(obj):
     # need to use %f with some precision.  Perhaps the precision
     # should adapt to the magnitude of the number?
     elif isinstance(obj, float):
-        if not npy.isfinite(obj):
+        if not np.isfinite(obj):
             raise ValueError, "Can only output finite numbers in PDF"
         r = "%.10f" % obj
         return r.rstrip('0').rstrip('.')
@@ -1088,8 +1088,8 @@ end"""
             shape = points.shape
             flat_points = points.reshape((shape[0] * shape[1], 2))
             flat_colors = colors.reshape((shape[0] * shape[1], 4))
-            points_min = npy.min(flat_points, axis=0) - (1 << 8)
-            points_max = npy.max(flat_points, axis=0) + (1 << 8)
+            points_min = np.min(flat_points, axis=0) - (1 << 8)
+            points_max = np.max(flat_points, axis=0) + (1 << 8)
             factor = float(0xffffffff) / (points_max - points_min)
 
             self.beginStream(
@@ -1105,7 +1105,7 @@ end"""
                              0, 1, 0, 1, 0, 1]
                   })
 
-            streamarr = npy.empty(
+            streamarr = np.empty(
                 (shape[0] * shape[1],),
                 dtype=[('flags', 'u1'),
                        ('points', '>u4', (2,)),
@@ -1137,7 +1137,7 @@ end"""
     def _rgb(self, im):
         h,w,s = im.as_rgba_str()
 
-        rgba = npy.fromstring(s, npy.uint8)
+        rgba = np.fromstring(s, np.uint8)
         rgba.shape = (h, w, 4)
         rgb = rgba[:,:,:3]
         a = rgba[:,:,3:]
@@ -1145,13 +1145,13 @@ end"""
 
     def _gray(self, im, rc=0.3, gc=0.59, bc=0.11):
         rgbat = im.as_rgba_str()
-        rgba = npy.fromstring(rgbat[2], npy.uint8)
+        rgba = np.fromstring(rgbat[2], np.uint8)
         rgba.shape = (rgbat[0], rgbat[1], 4)
-        rgba_f = rgba.astype(npy.float32)
+        rgba_f = rgba.astype(np.float32)
         r = rgba_f[:,:,0]
         g = rgba_f[:,:,1]
         b = rgba_f[:,:,2]
-        gray = (r*rc + g*gc + b*bc).astype(npy.uint8)
+        gray = (r*rc + g*gc + b*bc).astype(np.uint8)
         return rgbat[0], rgbat[1], gray.tostring()
 
     def writeImages(self):
@@ -2005,9 +2005,9 @@ class GraphicsContextPdf(GraphicsContextBase):
                 try:
                     different = bool(ours != theirs)
                 except ValueError:
-                    ours = npy.asarray(ours)
-                    theirs = npy.asarray(theirs)
-                    different = ours.shape != theirs.shape or npy.any(ours != theirs)
+                    ours = np.asarray(ours)
+                    theirs = np.asarray(theirs)
+                    different = ours.shape != theirs.shape or np.any(ours != theirs)
                 if different:
                     break
 
