@@ -22,7 +22,7 @@ TODO:
 """
 from __future__ import division
 
-import numpy as npy
+import numpy as np
 
 from matplotlib import verbose, rcParams
 from matplotlib.backend_bases import RendererBase,\
@@ -99,10 +99,10 @@ class RendererAgg(RendererBase):
         npts = path.vertices.shape[0]
         if (nmax > 100 and npts > nmax and path.should_simplify and
             rgbFace is None and gc.get_hatch() is None):
-            nch = npy.ceil(npts/float(nmax))
-            chsize = int(npy.ceil(npts/nch))
-            i0 = npy.arange(0, npts, chsize)
-            i1 = npy.zeros_like(i0)
+            nch = np.ceil(npts/float(nmax))
+            chsize = int(np.ceil(npts/nch))
+            i0 = np.arange(0, npts, chsize)
+            i1 = np.zeros_like(i0)
             i1[:-1] = i0[1:] - 1
             i1[-1] = npts
             for ii0, ii1 in zip(i0, i1):
@@ -196,7 +196,7 @@ class RendererAgg(RendererBase):
         im = self.texd.get(key)
         if im is None:
             Z = texmanager.get_grey(s, size, self.dpi)
-            Z = npy.array(Z * 255.0, npy.uint8)
+            Z = np.array(Z * 255.0, np.uint8)
 
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 
@@ -339,7 +339,7 @@ class RendererAgg(RendererBase):
         self._update_methods()
 
         if w > 0 and h > 0:
-            img = npy.fromstring(buffer, npy.uint8)
+            img = np.fromstring(buffer, np.uint8)
             img, ox, oy = post_processing(img.reshape((h, w, 4)) / 255.,
                                           self.dpi)
             image = fromarray(img, 1)

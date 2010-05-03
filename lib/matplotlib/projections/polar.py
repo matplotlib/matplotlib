@@ -1,7 +1,7 @@
 import math
 import warnings
 
-import numpy as npy
+import numpy as np
 
 import matplotlib
 rcParams = matplotlib.rcParams
@@ -36,13 +36,13 @@ class PolarAxes(Axes):
         is_separable = False
 
         def transform(self, tr):
-            xy   = npy.zeros(tr.shape, npy.float_)
+            xy   = np.zeros(tr.shape, np.float_)
             t    = tr[:, 0:1]
             r    = tr[:, 1:2]
             x    = xy[:, 0:1]
             y    = xy[:, 1:2]
-            x[:] = r * npy.cos(t)
-            y[:] = r * npy.sin(t)
+            x[:] = r * np.cos(t)
+            y[:] = r * np.sin(t)
             return xy
         transform.__doc__ = Transform.transform.__doc__
 
@@ -106,10 +106,10 @@ class PolarAxes(Axes):
         def transform(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:]
-            r = npy.sqrt(x*x + y*y)
-            theta = npy.arccos(x / r)
-            theta = npy.where(y < 0, 2 * npy.pi - theta, theta)
-            return npy.concatenate((theta, r), 1)
+            r = np.sqrt(x*x + y*y)
+            theta = np.arccos(x / r)
+            theta = np.where(y < 0, 2 * np.pi - theta, theta)
+            return np.concatenate((theta, r), 1)
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
@@ -125,14 +125,14 @@ class PolarAxes(Axes):
         def __call__(self, x, pos=None):
             # \u00b0 : degree symbol
             if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
-                return r"$%0.0f^\circ$" % ((x / npy.pi) * 180.0)
+                return r"$%0.0f^\circ$" % ((x / np.pi) * 180.0)
             else:
                 # we use unicode, rather than mathtext with \circ, so
                 # that it will work correctly with any arbitrary font
                 # (assuming it has a degree sign), whereas $5\circ$
                 # will only work correctly with one of the supported
                 # math fonts (Computer Modern and STIX)
-                return u"%0.0f\u00b0" % ((x / npy.pi) * 180.0)
+                return u"%0.0f\u00b0" % ((x / np.pi) * 180.0)
 
     class RadialLocator(Locator):
         """
@@ -196,7 +196,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         self.title.set_y(1.05)
 
         self.xaxis.set_major_formatter(self.ThetaFormatter())
-        angles = npy.arange(0.0, 360.0, 45.0)
+        angles = np.arange(0.0, 360.0, 45.0)
         self.set_thetagrids(angles)
         self.yaxis.set_major_locator(self.RadialLocator(self.yaxis.get_major_locator()))
 
@@ -254,7 +254,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         # axis so the gridlines from 0.0 to 1.0, now go from 0.0 to
         # 2pi.
         self._yaxis_transform = (
-            Affine2D().scale(npy.pi * 2.0, 1.0) +
+            Affine2D().scale(np.pi * 2.0, 1.0) +
             self.transData)
         # The r-axis labels are put at an angle and padded in the r-direction
         self._r_label1_position = Affine2D().translate(22.5, self._rpad)
@@ -344,8 +344,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
         ACCEPTS: sequence of floats
         """
-        angles = npy.asarray(angles, npy.float_)
-        self.set_xticks(angles * (npy.pi / 180.0))
+        angles = np.asarray(angles, np.float_)
+        self.set_xticks(angles * (np.pi / 180.0))
         if labels is not None:
             self.set_xticklabels(labels)
         elif fmt is not None:
@@ -384,7 +384,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
         ACCEPTS: sequence of floats
         """
-        radii = npy.asarray(radii)
+        radii = np.asarray(radii)
         rmin = radii.min()
         if rmin <= 0:
             raise ValueError('radial grids must be strictly positive')
@@ -411,7 +411,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
     def set_xlim(self, *args, **kargs):
         # The xlim is fixed, no matter what you do
-        self.viewLim.intervalx = (0.0, npy.pi * 2.0)
+        self.viewLim.intervalx = (0.0, np.pi * 2.0)
 
     def format_coord(self, theta, r):
         """
@@ -440,10 +440,10 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         return False
 
     def start_pan(self, x, y, button):
-        angle = self._r_label1_position.to_values()[4] / 180.0 * npy.pi
+        angle = self._r_label1_position.to_values()[4] / 180.0 * np.pi
         mode = ''
         if button == 1:
-            epsilon = npy.pi / 45.0
+            epsilon = np.pi / 45.0
             t, r = self.transData.inverted().transform_point((x, y))
             if t >= angle - epsilon and t <= angle + epsilon:
                 mode = 'drag_r_labels'
@@ -477,7 +477,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
                 dt = abs(dt1) * sign(dt0) * -1.0
             else:
                 dt = dt0 * -1.0
-            dt = (dt / npy.pi) * 180.0
+            dt = (dt / np.pi) * 180.0
 
             rpad = self._r_label1_position.to_values()[5]
             self._r_label1_position.clear().translate(
@@ -499,26 +499,26 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 # cubic bezier curves.
 
 #         def transform_path(self, path):
-#             twopi = 2.0 * npy.pi
-#             halfpi = 0.5 * npy.pi
+#             twopi = 2.0 * np.pi
+#             halfpi = 0.5 * np.pi
 
 #             vertices = path.vertices
 #             t0 = vertices[0:-1, 0]
 #             t1 = vertices[1:  , 0]
-#             td = npy.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
+#             td = np.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
 #             maxtd = td.max()
-#             interpolate = npy.ceil(maxtd / halfpi)
+#             interpolate = np.ceil(maxtd / halfpi)
 #             if interpolate > 1.0:
 #                 vertices = self.interpolate(vertices, interpolate)
 
 #             vertices = self.transform(vertices)
 
-#             result = npy.zeros((len(vertices) * 3 - 2, 2), npy.float_)
-#             codes = mpath.Path.CURVE4 * npy.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
+#             result = np.zeros((len(vertices) * 3 - 2, 2), np.float_)
+#             codes = mpath.Path.CURVE4 * np.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
 #             result[0] = vertices[0]
 #             codes[0] = mpath.Path.MOVETO
 
-#             kappa = 4.0 * ((npy.sqrt(2.0) - 1.0) / 3.0)
+#             kappa = 4.0 * ((np.sqrt(2.0) - 1.0) / 3.0)
 #             kappa = 0.5
 
 #             p0   = vertices[0:-1]
@@ -556,36 +556,36 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
 #             return mpath.Path(result, codes)
 
-#             twopi = 2.0 * npy.pi
-#             halfpi = 0.5 * npy.pi
+#             twopi = 2.0 * np.pi
+#             halfpi = 0.5 * np.pi
 
 #             vertices = path.vertices
 #             t0 = vertices[0:-1, 0]
 #             t1 = vertices[1:  , 0]
-#             td = npy.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
+#             td = np.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
 #             maxtd = td.max()
-#             interpolate = npy.ceil(maxtd / halfpi)
+#             interpolate = np.ceil(maxtd / halfpi)
 
 #             print "interpolate", interpolate
 #             if interpolate > 1.0:
 #                 vertices = self.interpolate(vertices, interpolate)
 
-#             result = npy.zeros((len(vertices) * 3 - 2, 2), npy.float_)
-#             codes = mpath.Path.CURVE4 * npy.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
+#             result = np.zeros((len(vertices) * 3 - 2, 2), np.float_)
+#             codes = mpath.Path.CURVE4 * np.ones((len(vertices) * 3 - 2, ), mpath.Path.code_type)
 #             result[0] = vertices[0]
 #             codes[0] = mpath.Path.MOVETO
 
-#             kappa = 4.0 * ((npy.sqrt(2.0) - 1.0) / 3.0)
-#             tkappa = npy.arctan(kappa)
-#             hyp_kappa = npy.sqrt(kappa*kappa + 1.0)
+#             kappa = 4.0 * ((np.sqrt(2.0) - 1.0) / 3.0)
+#             tkappa = np.arctan(kappa)
+#             hyp_kappa = np.sqrt(kappa*kappa + 1.0)
 
 #             t0 = vertices[0:-1, 0]
 #             t1 = vertices[1:  , 0]
 #             r0 = vertices[0:-1, 1]
 #             r1 = vertices[1:  , 1]
 
-#             td = npy.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
-#             td_scaled = td / (npy.pi * 0.5)
+#             td = np.where(t1 > t0, t1 - t0, twopi - (t0 - t1))
+#             td_scaled = td / (np.pi * 0.5)
 #             rd = r1 - r0
 #             r0kappa = r0 * kappa * td_scaled
 #             r1kappa = r1 * kappa * td_scaled
@@ -593,11 +593,11 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
 #             result[1::3, 0] = t0 + (tkappa * td_scaled)
 #             result[1::3, 1] = r0*hyp_kappa
-#             # result[1::3, 1] = r0 / npy.cos(tkappa * td_scaled) # npy.sqrt(r0*r0 + ravg_kappa*ravg_kappa)
+#             # result[1::3, 1] = r0 / np.cos(tkappa * td_scaled) # np.sqrt(r0*r0 + ravg_kappa*ravg_kappa)
 
 #             result[2::3, 0] = t1 - (tkappa * td_scaled)
 #             result[2::3, 1] = r1*hyp_kappa
-#             # result[2::3, 1] = r1 / npy.cos(tkappa * td_scaled) # npy.sqrt(r1*r1 + ravg_kappa*ravg_kappa)
+#             # result[2::3, 1] = r1 / np.cos(tkappa * td_scaled) # np.sqrt(r1*r1 + ravg_kappa*ravg_kappa)
 
 #             result[3::3, 0] = t1
 #             result[3::3, 1] = r1

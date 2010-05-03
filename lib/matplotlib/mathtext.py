@@ -3033,7 +3033,6 @@ class MathTextParser(object):
         Returns the offset of the baseline from the bottom of the
         image in pixels.
         """
-
         rgba, depth = self.to_rgba(texstr, color=color, dpi=dpi, fontsize=fontsize)
         numrows, numcols, tmp = rgba.shape
         _png.write_png(rgba.tostring(), numcols, numrows, filename)

@@ -96,7 +96,7 @@ cvs_id = '$Id$'
 
 
 import sys, os, os.path, math, StringIO, weakref, warnings
-import numpy as npy
+import numpy as np
 
 # Debugging settings here...
 # Debug level set here. If the debug level is less than 5, information
@@ -417,7 +417,7 @@ class RendererWx(RendererBase):
             w=self.width
             h=self.height
         rows, cols, image_str = im.as_rgba_str()
-        image_array = npy.fromstring(image_str, npy.uint8)
+        image_array = np.fromstring(image_str, np.uint8)
         image_array.shape = rows, cols, 4
         bitmap = wx.BitmapFromBufferRGBA(cols,rows,image_array)
         gc = self.get_gc()

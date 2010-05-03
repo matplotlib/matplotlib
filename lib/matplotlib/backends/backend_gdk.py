@@ -16,7 +16,7 @@ if gtk.pygtk_version < pygtk_version_required:
                       % (gtk.pygtk_version + pygtk_version_required))
 del pygtk_version_required
 
-import numpy as npy
+import numpy as np
 
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
@@ -109,7 +109,7 @@ class RendererGDK(RendererBase):
         im.flipud_out()
         rows, cols, image_str = im.as_rgba_str()
 
-        image_array = npy.fromstring(image_str, npy.uint8)
+        image_array = np.fromstring(image_str, np.uint8)
         image_array.shape = rows, cols, 4
 
         pixbuf = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,
@@ -174,13 +174,13 @@ class RendererGDK(RendererBase):
         N = imw * imh
 
         # a numpixels by num fonts array
-        Xall = npy.zeros((N,1), npy.uint8)
+        Xall = np.zeros((N,1), np.uint8)
 
         image_str = font_image.as_str()
-        Xall[:,0] = npy.fromstring(image_str, npy.uint8)
+        Xall[:,0] = np.fromstring(image_str, np.uint8)
 
         # get the max alpha at each pixel
-        Xs = npy.amax(Xall,axis=1)
+        Xs = np.amax(Xall,axis=1)
 
         # convert it to it's proper shape
         Xs.shape = imh, imw
@@ -381,7 +381,7 @@ class GraphicsContextGDK(GraphicsContextBase):
         if dash_list == None:
             self.gdkGC.line_style = gdk.LINE_SOLID
         else:
-            pixels = self.renderer.points_to_pixels(npy.asarray(dash_list))
+            pixels = self.renderer.points_to_pixels(np.asarray(dash_list))
             dl = [max(1, int(round(val))) for val in pixels]
             self.gdkGC.set_dashes(dash_offset, dl)
             self.gdkGC.line_style = gdk.LINE_ON_OFF_DASH
