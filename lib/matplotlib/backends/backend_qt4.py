@@ -318,6 +318,13 @@ class FigureManagerQT( FigureManagerBase ):
         QtCore.QObject.connect(self.toolbar, QtCore.SIGNAL("message"),
                 self.window.statusBar().showMessage)
 
+        # resize the main window so it will display the canvas with the
+        # requested size:
+        cs = canvas.sizeHint()
+        tbs = self.toolbar.sizeHint()
+        sbs = self.window.statusBar().sizeHint()
+        self.window.resize(cs.width(), cs.height()+tbs.height()+sbs.height())
+
         self.window.setCentralWidget(self.canvas)
 
         if matplotlib.is_interactive():
