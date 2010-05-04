@@ -6187,7 +6187,7 @@ class Axes(martist.Artist):
            precise point of intersection.  Otherwise, the start and
            end points of the filled region will only occur on explicit
            values in the *x* array.
-           
+
         *kwargs*
           keyword args passed on to the :class:`PolyCollection`
 
@@ -6254,13 +6254,13 @@ class Axes(martist.Artist):
                             return x[ind-1], y1[ind-1]
                         elif np.ma.is_masked(diff_values[0]):
                             return x[ind], y1[ind]
-                    
+
                     diff_order = diff_values.argsort()
                     diff_root_x = np.interp(
                         0, diff_values[diff_order], x_values[diff_order])
                     diff_root_y = np.interp(diff_root_x, x_values, y1_values)
                     return diff_root_x, diff_root_y
-                
+
                 start = get_interp_point(ind0)
                 end = get_interp_point(ind1)
             else:
@@ -6272,12 +6272,12 @@ class Axes(martist.Artist):
 
             X[0] = start
             X[N+1] = end
-            
+
             X[1:N+1,0] = xslice
             X[1:N+1,1] = y1slice
             X[N+2:,0] = xslice[::-1]
             X[N+2:,1] = y2slice[::-1]
-                
+
             polys.append(X)
 
         collection = mcoll.PolyCollection(polys, **kwargs)
@@ -7328,7 +7328,7 @@ class Axes(martist.Artist):
                 'hist now uses the rwidth to give relative width '
                 'and not absolute width')
 
-        if isinstance(x, np.ndarray):
+        if isinstance(x, np.ndarray) or not iterable(x[0]):
             # TODO: support masked arrays;
             x = np.asarray(x)
             if x.ndim == 2:
