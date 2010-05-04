@@ -3033,6 +3033,7 @@ class Axes(martist.Artist):
         self._set_artist_props(a)
         if kwargs.has_key('clip_on'):  a.set_clip_path(self.patch)
         self.texts.append(a)
+        a._remove_method = lambda h: self.texts.remove(h)
         return a
 
     #### Lines and spans
