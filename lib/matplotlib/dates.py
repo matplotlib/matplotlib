@@ -507,11 +507,18 @@ class DateLocator(ticker.Locator):
         """
         return 1
 
+    def _get_interval(self):
+        """
+        Return the number of units for each tick.
+        """
+        return 1
+    
     def nonsingular(self, vmin, vmax):
         unit = self._get_unit()
+        interval = self._get_interval()
         if abs(vmax - vmin) < 1e-6:
-            vmin -= 2*unit
-            vmax += 2*unit
+            vmin -= 2*unit*interval
+            vmax += 2*unit*interval
         return vmin, vmax
 
 class RRuleLocator(DateLocator):
@@ -542,8 +549,22 @@ class RRuleLocator(DateLocator):
             # The magic number!
             stop = _from_ordinalf( 3652059.9999999 )
 
-        self.rule.set(dtstart=start, until=stop)
+        self.rule.set(dtstart=start, until=stop, count=self.MAXTICKS + 1)
+
+        # estimate the number of ticks very approximately so we don't
+        # have to do a very expensive (and potentially near infinite)
+        # 'between' calculation, only to find out it will fail.
+        nmax, nmin = date2num((dmax, dmin))
+        estimate = (nmax - nmin) / (self._get_unit() * self._get_interval())
+        # This estimate is only an estimate, so be really conservative
+        # about bailing...
+        if estimate > self.MAXTICKS * 2:
+            raise RuntimeError(
+                'RRuleLocator estimated to generate %d ticks from %s to %s: exceeds Locator.MAXTICKS * 2 (%d) ' % (estimate, dmin, dmax, self.MAXTICKS * 2))
+            
         dates = self.rule.between(dmin, dmax, True)
+        if len(dates) == 0:
+            return date2num([dmin, dmax])
         return self.raise_if_exceeds(date2num(dates))
 
     def _get_unit(self):
@@ -552,14 +573,17 @@ class RRuleLocator(DateLocator):
         intelligent autoscaling.
         """
         freq = self.rule._rrule._freq
+        return self.get_unit_generic(freq)
+
+    def get_unit_generic(freq):
         if ( freq == YEARLY ):
-            return 365
+            return 365.0
         elif ( freq == MONTHLY ):
-            return 30
+            return 30.0
         elif ( freq == WEEKLY ):
-            return 7
+            return 7.0
         elif ( freq == DAILY ):
-            return 1
+            return 1.0
         elif ( freq == HOURLY ):
             return (1.0/24.0)
         elif ( freq == MINUTELY ):
@@ -569,7 +593,11 @@ class RRuleLocator(DateLocator):
         else:
             # error
             return -1   #or should this just return '1'?
+    get_unit_generic = staticmethod(get_unit_generic)
 
+    def _get_interval(self):
+        return self.rule._rrule._interval
+    
     def autoscale(self):
         """
         Set the view limits to include the data range.
@@ -702,23 +730,7 @@ class AutoDateLocator(DateLocator):
         self._locator = self.get_locator(dmin, dmax)
 
     def _get_unit(self):
-        if ( self._freq == YEARLY ):
-            return 365.0
-        elif ( self._freq == MONTHLY ):
-            return 30.0
-        elif ( self._freq == WEEKLY ):
-            return 7.0
-        elif ( self._freq == DAILY ):
-            return 1.0
-        elif ( self._freq == HOURLY ):
-            return 1.0/24
-        elif ( self._freq == MINUTELY ):
-            return 1.0/(24*60)
-        elif ( self._freq == SECONDLY ):
-            return 1.0/(24*3600)
-        else:
-            # error
-            return -1
+        return RRuleLocator.get_unit_generic(self._freq)
 
     def autoscale(self):
         'Try to choose the view limits intelligently.'
@@ -828,14 +840,6 @@ class YearLocator(DateLocator):
                           'tzinfo' : tz
                           }
 
-
-    def _get_unit(self):
-        """
-        Return how many days a unit of the locator is; used for
-        intelligent autoscaling.
-        """
-        return 365
-
     def __call__(self):
         dmin, dmax = self.viewlim_to_dt()
         ymin = self.base.le(dmin.year)
@@ -864,6 +868,7 @@ class YearLocator(DateLocator):
         vmax = date2num(vmax)
         return self.nonsingular(vmin, vmax)
 
+    
 class MonthLocator(RRuleLocator):
     """
     Make ticks on occurances of each month month, eg 1, 3, 12.
@@ -880,13 +885,6 @@ class MonthLocator(RRuleLocator):
         o = rrulewrapper(MONTHLY, bymonth=bymonth, bymonthday=bymonthday,
                          interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, o, tz)
-
-    def _get_unit(self):
-        """
-        Return how many days a unit of the locator is; used for
-        intelligent autoscaling.
-        """
-        return 30
 
 
 class WeekdayLocator(RRuleLocator):
@@ -909,13 +907,6 @@ class WeekdayLocator(RRuleLocator):
                          interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, o, tz)
 
-    def _get_unit(self):
-        """
-        return how many days a unit of the locator is; used for
-        intelligent autoscaling.
-        """
-        return 7
-
 
 class DayLocator(RRuleLocator):
     """
@@ -934,13 +925,7 @@ class DayLocator(RRuleLocator):
                          interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, o, tz)
 
-    def _get_unit(self):
-        """
-        Return how many days a unit of the locator is; used for
-        intelligent autoscaling.
-        """
-        return 1
-
+        
 class HourLocator(RRuleLocator):
     """
     Make ticks on occurances of each hour.
@@ -958,13 +943,7 @@ class HourLocator(RRuleLocator):
                             byminute=0, bysecond=0)
         RRuleLocator.__init__(self, rule, tz)
 
-    def _get_unit(self):
-        """
-        return how many days a unit of the locator is; use for
-        intelligent autoscaling
-        """
-        return 1/24.
-
+    
 class MinuteLocator(RRuleLocator):
     """
     Make ticks on occurances of each minute.
@@ -982,13 +961,7 @@ class MinuteLocator(RRuleLocator):
                             bysecond=0)
         RRuleLocator.__init__(self, rule, tz)
 
-    def _get_unit(self):
-        """
-        Return how many days a unit of the locator is; used for
-        intelligent autoscaling.
-        """
-        return 1./(24*60)
-
+        
 class SecondLocator(RRuleLocator):
     """
     Make ticks on occurances of each second.
@@ -1005,14 +978,6 @@ class SecondLocator(RRuleLocator):
         if bysecond is None: bysecond=range(60)
         rule = rrulewrapper(SECONDLY, bysecond=bysecond, interval=interval)
         RRuleLocator.__init__(self, rule, tz)
-
-    def _get_unit(self):
-        """
-        Return how many days a unit of the locator is; used for
-        intelligent autoscaling.
-        """
-        return 1./(24*60*60)
-
 
 
 def _close_to_dt(d1, d2, epsilon=5):
