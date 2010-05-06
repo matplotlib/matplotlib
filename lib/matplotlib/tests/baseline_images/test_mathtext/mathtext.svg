@@ -2,7 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
-<svg width="360pt" height="2268pt" viewBox="0 0 360 2268"
+<svg width="360pt" height="2304pt" viewBox="0 0 360 2304"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
    version="1.1"
@@ -10,8 +10,8 @@
 <filter id="colorAdd"><feComposite in="SourceGraphic" in2="BackgroundImage" operator="arithmetic" k2="1" k3="1"/></filter>
 <g id="figure1">
 <g id="patch1">
-<path style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M0.000000 2268.000000L360.000000 2268.000000L360.000000 0.000000
-L0.000000 0.000000L0.000000 2268.000000"/>
+<path style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M0.000000 2304.000000L360.000000 2304.000000L360.000000 0.000000
+L0.000000 0.000000L0.000000 2304.000000"/>
 </g>
 <g id="text1">
 <defs>
@@ -1292,6 +1292,20 @@ L0.000000 0.000000L0.000000 2268.000000"/>
 <use xlink:href="#c_154b07bef7bc7349a05439bf84e484db" transform="translate(8.191992,-9.307813)scale(0.084000)"/>
 <use xlink:href="#c_154b07bef7bc7349a05439bf84e484db" transform="translate(10.501172,-9.307813)scale(0.084000)"/>
 <use xlink:href="#c_4b4b135d81e9b78c16b841add313c4b1" transform="translate(5.882812,-1.144813)scale(0.084000)"/>
+</g>
+</g>
+</g>
+<g id="text64">
+<g id="mathtext64">
+<g style="fill: #000000" transform="translate(0.000000,2304.000000)">
+<use xlink:href="#c_06a7a4502300c60b4feec85758ecf628" transform="translate(0.000000,-3.859375)scale(0.108594)"/>
+<use xlink:href="#c_e88fa2b93f35d60a30fad6e23efd80d5" transform="translate(4.215424,-3.609375)scale(0.120000)"/>
+<use xlink:href="#c_06a7a4502300c60b4feec85758ecf628" transform="translate(9.459564,-3.859375)scale(0.108594)"/>
+<use xlink:href="#c_1a459ac34855d27ec37ccb0e66298d36" transform="translate(13.674988,-3.609375)scale(0.120000)"/>
+<use xlink:href="#c_61c20b1e4c944de7566e5fda525fb070" transform="translate(19.674988,-3.609375)scale(0.120000)"/>
+<use xlink:href="#c_e88fa2b93f35d60a30fad6e23efd80d5" transform="translate(28.997253,-3.609375)scale(0.120000)"/>
+<use xlink:href="#c_b865a8a4692360a5eaaff4ecf56eccf7" transform="translate(34.241394,-3.859375)scale(0.108594)"/>
+<use xlink:href="#c_b865a8a4692360a5eaaff4ecf56eccf7" transform="translate(38.456818,-3.859375)scale(0.108594)"/>
 </g>
 </g>
 </g>

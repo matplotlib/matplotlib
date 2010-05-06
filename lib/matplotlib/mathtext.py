@@ -2295,8 +2295,9 @@ class Parser(object):
         autoDelim   <<(Suppress(Literal(r"\left"))
                      + ((leftDelim | ambiDelim) | Error("Expected a delimiter"))
                      + Group(
-                         autoDelim
-                       ^ OneOrMore(simple))
+                         OneOrMore(
+                            autoDelim
+                          ^ simple))
                      + Suppress(Literal(r"\right"))
                      + ((rightDelim | ambiDelim) | Error("Expected a delimiter"))
                      )
