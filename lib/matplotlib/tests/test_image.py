@@ -3,6 +3,7 @@ import numpy as np
 from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
+from numpy.testing import assert_array_equal
 
 import cStringIO
 import os
@@ -65,6 +66,35 @@ def test_image_python_io():
 #     fig.savefig(fname)
 #     plt.imread(fname)
 #     os.remove(fname)
+
+def test_imsave():
+    # The goal here is that the user can specify an output logical DPI
+    # for the image, but this will not actually add any extra pixels
+    # to the image, it will merely be used for metadata purposes.
+
+    # So we do the traditional case (dpi == 1), and the new case (dpi
+    # == 100) and read the resulting PNG files back in and make sure
+    # the data is 100% identical.
+    from numpy import random
+    random.seed(1)
+    data = random.rand(256, 256)
+
+    buff_dpi1 = cStringIO.StringIO()
+    plt.imsave(buff_dpi1, data, dpi=1)
+    plt.imsave("test_dpi1.png", data, dpi=1)
+
+    buff_dpi100 = cStringIO.StringIO()
+    plt.imsave(buff_dpi100, data, dpi=100)
+    plt.imsave("test_dpi100.png", data, dpi=1)
+
+    buff_dpi1.seek(0)
+    arr_dpi1 = plt.imread(buff_dpi1)
+
+    buff_dpi100.seek(0)
+    arr_dpi100 = plt.imread(buff_dpi100)
+
+    assert_array_equal(arr_dpi1, arr_dpi100)
+
 
 if __name__=='__main__':
     import nose
