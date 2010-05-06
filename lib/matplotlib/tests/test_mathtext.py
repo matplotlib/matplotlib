@@ -81,7 +81,8 @@ math_tests = [
     r'${y}_{{x}_{2}}$',
     r'${x}_{92}^{31415}+\pi $',
     r'${x}_{{y}_{b}^{a}}^{{z}_{c}^{d}}$',
-    r'${y}_{3}^{\prime \prime \prime }$'
+    r'${y}_{3}^{\prime \prime \prime }$',
+    r"$\left( \xi \left( 1 - \xi \right) \right)$" # Bug 2969451
 ]
 
 def _run_all_tests():
