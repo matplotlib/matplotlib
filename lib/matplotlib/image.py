@@ -1113,7 +1113,8 @@ def imread(fname, format=None):
     return handler(fname)
 
 
-def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None, origin=None):
+def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
+           origin=None, dpi=100):
     """
     Saves a 2D :class:`numpy.array` as an image with one pixel per element.
     The output formats available depend on the backend being used.
@@ -1140,14 +1141,18 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None, origin=None
         [ 'upper' | 'lower' ] Indicates where the [0,0] index of
         the array is in the upper left or lower left corner of
         the axes. Defaults to the rc image.origin value.
+      *dpi*
+        The DPI to store in the metadata of the file.  This does not affect the
+        resolution of the output image.
     """
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from matplotlib.figure import Figure
 
-    fig = Figure(figsize=arr.shape[::-1], dpi=1, frameon=False)
+    figsize = [x / float(dpi) for x in arr.shape]
+    fig = Figure(figsize=figsize, dpi=dpi, frameon=False)
     canvas = FigureCanvas(fig)
-    fig.figimage(arr, cmap=cmap, vmin=vmin, vmax=vmax, origin=origin)
-    fig.savefig(fname, dpi=1, format=format)
+    im = fig.figimage(arr, cmap=cmap, vmin=vmin, vmax=vmax, origin=origin)
+    fig.savefig(fname, dpi=dpi, format=format)
 
 
 def pil_to_array( pilImage ):
