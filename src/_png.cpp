@@ -140,7 +140,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     // Save the dpi of the image in the file
     if (args.size() == 5) {
       double dpi = Py::Float(args[4]);
-      size_t dots_per_meter = (size_t)(dpi * 2.54 * 100.0);
+      size_t dots_per_meter = (size_t)(dpi / (2.54 / 100.0));
       png_set_pHYs(png_ptr, info_ptr, dots_per_meter, dots_per_meter, PNG_RESOLUTION_METER);
     }
 
