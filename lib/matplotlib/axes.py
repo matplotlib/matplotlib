@@ -5424,10 +5424,10 @@ class Axes(martist.Artist):
         particular:
 
           *edgecolors*:
-            'none' to plot faces with no outlines
+            The string 'none' to plot faces with no outlines
 
           *facecolors*:
-            'none' to plot unfilled outlines
+            The string 'none' to plot unfilled outlines
 
         Here are the standard descriptions of all the
         :class:`~matplotlib.collections.Collection` kwargs:
