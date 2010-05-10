@@ -420,7 +420,7 @@ void ttfont_header(TTStreamWriter& stream, struct TTFONT *font)
 -------------------------------------------------------------*/
 void ttfont_encoding(TTStreamWriter& stream, struct TTFONT *font, std::vector<int>& glyph_ids, font_type_enum target_type)
     {
-        stream.putline("/Encoding ISOLatin1Encoding def");
+        stream.putline("/Encoding StandardEncoding def");
 
         // if (target_type == PS_TYPE_3) {
         //     stream.printf("/Encoding [ ");
