@@ -1084,20 +1084,23 @@ class Axes(martist.Artist):
 
         aspect = self.get_aspect()
 
-        xscale, yscale = self.get_xscale(), self.get_yscale()
-        if xscale == "linear" and yscale == "linear":
+        if self.name != 'polar':
+            xscale, yscale = self.get_xscale(), self.get_yscale()
+            if xscale == "linear" and yscale == "linear":
+                aspect_scale_mode = "linear"
+            elif xscale == "log" and yscale == "log":
+                aspect_scale_mode = "log"
+            elif (xscale == "linear" and yscale == "log") or \
+                    (xscale == "log" and yscale == "linear"):
+                if aspect is not "auto":
+                    warnings.warn(
+                        'aspect is not supported for Axes with xscale=%s, yscale=%s' \
+                        % (xscale, yscale))
+                    aspect = "auto"
+            else: # some custom projections have their own scales.
+                pass
+        else:
             aspect_scale_mode = "linear"
-        elif xscale == "log" and yscale == "log":
-            aspect_scale_mode = "log"
-        elif (xscale == "linear" and yscale == "log") or \
-                 (xscale == "log" and yscale == "linear"):
-            if aspect is not "auto":
-                warnings.warn(
-                    'aspect is not supported for Axes with xscale=%s, yscale=%s' \
-                    % (xscale, yscale))
-                aspect = "auto"
-        else: # some custom projections have their own scales.
-            pass
 
         if aspect == 'auto':
             self.set_position( position , which='active')
