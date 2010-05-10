@@ -301,10 +301,6 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         self.viewLim.y0 = 0
         self.viewLim.y1 = rmax
         angle = self._r_label1_position.to_values()[4]
-        self._r_label1_position.clear().translate(
-            angle, rmax * self._rpad)
-        self._r_label2_position.clear().translate(
-            angle, -rmax * self._rpad)
 
     def get_rmax(self):
         return self.viewLim.ymax
