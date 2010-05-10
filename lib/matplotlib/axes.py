@@ -5778,8 +5778,12 @@ class Axes(martist.Artist):
         x = np.array(x, float)
         y = np.array(y, float)
         if xscale=='log':
+            if np.any(x <= 0.0):
+                raise ValueError("x contains non-positive values, so can not be log-scaled")
             x = np.log10(x)
         if yscale=='log':
+            if np.any(y <= 0.0):
+                raise ValueError("y contains non-positive values, so can not be log-scaled")
             y = np.log10(y)
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
