@@ -1196,13 +1196,14 @@ class LogLocator(Locator):
     Determine the tick locations for log axes
     """
 
-    def __init__(self, base=10.0, subs=[1.0]):
+    def __init__(self, base=10.0, subs=[1.0], numdecs=4):
         """
         place ticks on the location= base**i*subs[j]
         """
         self.base(base)
         self.subs(subs)
         self.numticks = 15
+        self.numdecs = numdecs
 
     def base(self,base):
         """
@@ -1227,6 +1228,14 @@ class LogLocator(Locator):
         b=self._base
 
         vmin, vmax = self.axis.get_view_interval()
+
+        if self.axis.axes.name == 'polar':
+            vmax = math.ceil(math.log(vmax) / math.log(b))
+            decades = np.arange(vmax - self.numdecs, vmax)
+            ticklocs = b ** decades
+
+            return ticklocs
+
         if vmin <= 0.0:
             vmin = self.axis.get_minpos()
             if vmin <= 0.0:
@@ -1265,9 +1274,15 @@ class LogLocator(Locator):
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
+        b = self._base
 
         if vmax<vmin:
             vmin, vmax = vmax, vmin
+
+        if self.axis.axes.name == 'polar':
+            vmax = math.ceil(math.log(vmax) / math.log(b))
+            vmin = b ** (vmax - self.numdecs)
+            return vmin, vmax
 
         minpos = self.axis.get_minpos()
 
