@@ -796,11 +796,13 @@ class Normalize:
         elif vmin==vmax:
             result = 0.0 * val
         else:
+            vmin = float(vmin)
+            vmax = float(vmax)
             if clip:
                 mask = ma.getmask(val)
                 val = ma.array(np.clip(val.filled(vmax), vmin, vmax),
                                 mask=mask)
-            result = (val-vmin) * (1.0/(vmax-vmin))
+            result = (val-vmin) / (vmax-vmin)
         if vtype == 'scalar':
             result = result[0]
         return result
@@ -809,6 +811,10 @@ class Normalize:
         if not self.scaled():
             raise ValueError("Not invertible until scaled")
         vmin, vmax = self.vmin, self.vmax
+        if vmin >= vmax:
+            raise ValueError("Inversion requires valid vmax > vmin")
+        vmin = float(vmin)
+        vmax = float(vmax)
 
         if cbook.iterable(value):
             val = ma.asarray(value)
@@ -816,18 +822,17 @@ class Normalize:
         else:
             return vmin + value * (vmax - vmin)
 
-
     def autoscale(self, A):
         '''
         Set *vmin*, *vmax* to min, max of *A*.
         '''
-        self.vmin = ma.minimum(A)
-        self.vmax = ma.maximum(A)
+        self.vmin = ma.min(A)
+        self.vmax = ma.max(A)
 
     def autoscale_None(self, A):
         ' autoscale only None-valued vmin or vmax'
-        if self.vmin is None: self.vmin = ma.minimum(A)
-        if self.vmax is None: self.vmax = ma.maximum(A)
+        if self.vmin is None: self.vmin = ma.min(A)
+        if self.vmax is None: self.vmax = ma.max(A)
 
     def scaled(self):
         'return true if vmin and vmax set'
