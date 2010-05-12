@@ -42,7 +42,7 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-import os, sys, glob, subprocess
+import os, sys, glob, subprocess, warnings
 try:
     set
 except NameError:
@@ -974,7 +974,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 5
+    __version__ = 6
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1001,6 +1001,9 @@ class FontManager:
         #  Load TrueType fonts and create font dictionary.
 
         self.ttffiles = findSystemFonts(paths) + findSystemFonts()
+        self.defaultFamily = {
+            'ttf': 'Bitstream Vera Sans',
+            'afm': 'Helvetica'}
         self.defaultFont = {}
 
         for fname in self.ttffiles:
@@ -1164,7 +1167,8 @@ class FontManager:
             return 1.0
         return abs(sizeval1 - sizeval2) / 72.0
 
-    def findfont(self, prop, fontext='ttf', directory=None):
+    def findfont(self, prop, fontext='ttf', directory=None,
+                 fallback_to_default=True):
         """
         Search the font list for the font that most closely matches
         the :class:`FontProperties` *prop*.
@@ -1180,6 +1184,10 @@ class FontManager:
 
         The result is cached, so subsequent lookups don't have to
         perform the O(n) nearest neighbor search.
+
+        If `fallback_to_default` is True, will fallback to the default
+        font family (usually "Bitstream Vera Sans" or "Helvetica") if
+        the first lookup hard-fails.
 
         See the `W3C Cascading Style Sheet, Level 1
         <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ documentation
@@ -1229,12 +1237,25 @@ class FontManager:
                 break
 
         if best_font is None or best_score >= 10.0:
-            verbose.report('findfont: Could not match %s. Returning %s' %
-                           (prop, self.defaultFont[fontext]))
-            result = self.defaultFont[fontext]
+            if fallback_to_default:
+                warnings.warn(
+                    'findfont: Font family %s not found. Falling back to %s' %
+                    (prop.get_family(), self.defaultFamily[fontext]))
+                default_prop = prop.copy()
+                default_prop.set_family(self.defaultFamily[fontext])
+                return self.findfont(default_prop, fontext, directory, False)
+            else:
+                # This is a hard fail -- we can't find anything reasonable,
+                # so just return the vera.ttf
+                warnings.warn(
+                    'findfont: Could not match %s. Returning %s' %
+                    (prop, self.defaultFont[fontext]),
+                    UserWarning)
+                result = self.defaultFont[fontext]
         else:
-            verbose.report('findfont: Matching %s to %s (%s) with score of %f' %
-                           (prop, best_font.name, best_font.fname, best_score))
+            verbose.report(
+                'findfont: Matching %s to %s (%s) with score of %f' %
+                (prop, best_font.name, best_font.fname, best_score))
             result = best_font.fname
 
         font_cache[hash(prop)] = result
