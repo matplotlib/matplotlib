@@ -401,7 +401,7 @@ class FontEntry(object):
         return "<Font '%s' (%s) %s %s %s %s>" % (
             self.name, os.path.basename(self.fname), self.style, self.variant,
             self.weight, self.stretch)
-    
+
 
 def ttfFontProperty(font):
     """
@@ -1065,7 +1065,7 @@ class FontManager:
         for i, family1 in enumerate(families):
             family1 = family1.lower()
             if family1 in font_family_aliases:
-                if family1 == 'sans':
+                if family1 in ('sans', 'sans serif'):
                     family1 == 'sans-serif'
                 options = rcParams['font.' + family1]
                 options = [x.lower() for x in options]
