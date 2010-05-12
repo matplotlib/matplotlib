@@ -1193,10 +1193,7 @@ class FontManager:
         <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_ documentation
         for a description of the font finding algorithm.
         """
-        debug = False
-        if prop is None:
-            prop = FontProperties()
-        if is_string_like(prop):
+        if not isinstance(prop, FontProperties):
             prop = FontProperties(prop)
         fname = prop.get_file()
         if fname is not None:
@@ -1210,9 +1207,10 @@ class FontManager:
             font_cache = self.ttf_lookup_cache
             fontlist = self.ttflist
 
-        cached = font_cache.get(hash(prop))
-        if cached:
-            return cached
+        if directory is None:
+            cached = font_cache.get(hash(prop))
+            if cached:
+                return cached
 
         best_score = 1e64
         best_font = None
@@ -1258,7 +1256,8 @@ class FontManager:
                 (prop, best_font.name, best_font.fname, best_score))
             result = best_font.fname
 
-        font_cache[hash(prop)] = result
+        if directory is None:
+            font_cache[hash(prop)] = result
         return result
 
 
