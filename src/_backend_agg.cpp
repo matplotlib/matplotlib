@@ -834,6 +834,8 @@ RendererAgg::draw_image(const Py::Tuple& args) {
   } else {
     x = mpl_round(Py::Float(args[1]));
     y = mpl_round(Py::Float(args[2]));
+    w = h = 0; /* w and h not used in this case, but assign to prevent
+                  warnings from the compiler */
   }
 
 
@@ -890,7 +892,7 @@ RendererAgg::draw_image(const Py::Tuple& args) {
       typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
       typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
       typedef agg::renderer_scanline_aa<amask_ren_type, color_span_alloc_type, image_span_gen_type> renderer_type_alpha;
-      
+
       pixfmt_amask_type pfa(pixFmt, alphaMask);
       amask_ren_type r(pfa);
       renderer_type_alpha ri(r, sa, image_span_generator);
