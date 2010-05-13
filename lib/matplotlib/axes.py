@@ -32,6 +32,7 @@ import matplotlib.table as mtable
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
+import matplotlib.tri as mtri
 
 
 iterable = cbook.iterable
@@ -8020,6 +8021,22 @@ class Axes(martist.Artist):
         'Remove minor ticks from the axes.'
         self.xaxis.set_minor_locator(mticker.NullLocator())
         self.yaxis.set_minor_locator(mticker.NullLocator())
+
+    def tricontour(self, *args, **kwargs):
+        return mtri.tricontour(self, *args, **kwargs)
+    tricontour.__doc__ = mtri.TriContourSet.tricontour_doc
+
+    def tricontourf(self, *args, **kwargs):
+        return mtri.tricontourf(self, *args, **kwargs)
+    tricontourf.__doc__ = mtri.TriContourSet.tricontour_doc
+
+    def tripcolor(self, *args, **kwargs):
+        return mtri.tripcolor(self, *args, **kwargs)
+    tripcolor.__doc__ = mtri.tripcolor.__doc__
+
+    def triplot(self, *args, **kwargs):
+        mtri.triplot(self, *args, **kwargs)
+    triplot.__doc__ = mtri.triplot.__doc__
 
 
 class SubplotBase:

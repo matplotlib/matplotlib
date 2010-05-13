@@ -102,6 +102,7 @@ BUILT_NXUTILS   = False
 BUILT_CONTOUR   = False
 BUILT_GDK       = False
 BUILT_PATH      = False
+BUILT_TRI       = False
 
 AGG_VERSION = 'agg24'
 TCL_TK_CACHE = None
@@ -1414,3 +1415,18 @@ def build_gdk(ext_modules, packages):
 
     BUILT_GDK = True
 
+
+def build_tri(ext_modules, packages):
+    global BUILT_TRI
+    if BUILT_TRI: return # only build it if you you haven't already
+
+    deps = ['lib/matplotlib/tri/_tri.cpp', 'src/mplutils.cpp']
+    deps.extend(glob.glob('CXX/*.cxx'))
+    deps.extend(glob.glob('CXX/*.c'))
+
+    module = Extension('matplotlib._tri', deps,
+                       define_macros=defines)
+    add_numpy_flags(module)
+    add_base_flags(module)
+    ext_modules.append(module)
+    BUILT_TRI = True
