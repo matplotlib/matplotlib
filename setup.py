@@ -42,7 +42,7 @@ from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
      check_for_qt, check_for_qt4, check_for_cairo, \
      check_provide_pytz, check_provide_dateutil,\
      check_for_dvipng, check_for_ghostscript, check_for_latex, \
-     check_for_pdftops, check_for_datetime, options, build_png
+     check_for_pdftops, check_for_datetime, options, build_png, build_tri
 #import distutils.sysconfig
 
 # jdh
@@ -68,6 +68,7 @@ packages = [
     'matplotlib.numerix.linear_algebra',
     'matplotlib.numerix.random_array',
     'matplotlib.numerix.fft',
+    'matplotlib.tri',
 
     ]
 
@@ -129,6 +130,7 @@ build_contour(ext_modules, packages)
 build_delaunay(ext_modules, packages)
 build_nxutils(ext_modules, packages)
 build_path(ext_modules, packages)
+build_tri(ext_modules, packages)
 
 print_raw("")
 print_raw("OPTIONAL BACKEND DEPENDENCIES")

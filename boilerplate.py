@@ -89,6 +89,10 @@ _plotcommands = (
     #'spy',
     'stem',
     'step',
+    'tricontour',
+    'tricontourf',
+    'tripcolor',
+    'triplot',
     'vlines',
     'xcorr',
     'barbs',
@@ -117,6 +121,9 @@ cmappable = {
     #'spy'    :  'sci(%(ret)s)',  ### may return image or Line2D
     'quiver' :  'sci(%(ret)s)',
     'specgram'  : 'sci(%(ret)s[-1])',
+    'tricontour' : 'if %(ret)s._A is not None: sci(%(ret)s)',
+    'tricontourf': 'if %(ret)s._A is not None: sci(%(ret)s)',
+    'tripcolor'  : 'sci(%(ret)s)',
 
 }
 
