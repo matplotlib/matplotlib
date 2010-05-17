@@ -7364,7 +7364,7 @@ class Axes(martist.Artist):
                 raise ValueError("color kwarg must have one color per dataset")
 
         if weights is not None:
-            if isinstance(w, np.ndarray):
+            if isinstance(weights, np.ndarray):
                 w = np.array(weights)
                 if w.ndim == 2:
                     w = w.T
