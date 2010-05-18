@@ -1527,7 +1527,8 @@ class _AnnotationBase(object):
 
         if isinstance(self.xycoords, tuple):
             s1, s2 = self.xycoords
-            if s1.split()[0] == "offset" or s2.split()[0] == "offset":
+            if (is_string_like(s1) and s1.split()[0] == "offset") \
+                   or (is_string_like(s2) and s2.split()[0] == "offset"):
                 raise ValueError("xycoords should not be an offset coordinate")
             x, y = self.xy
             x1, y1 = self._get_xy(renderer, x, y, s1)
