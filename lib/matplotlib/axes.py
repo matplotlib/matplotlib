@@ -8002,7 +8002,7 @@ class Axes(martist.Artist):
             bb.extend([bby1, bby2])
 
 
-        bb.extend([c.get_window_extent(renderer) for c in artists])
+        bb.extend([c.get_window_extent(renderer) for c in artists if c.get_visible()])
 
         _bbox = mtransforms.Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
 
