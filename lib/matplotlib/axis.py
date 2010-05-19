@@ -591,7 +591,7 @@ class Axis(artist.Artist):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
     def get_children(self):
-        children = [self.label]
+        children = [self.label, self.offsetText]
         majorticks = self.get_major_ticks()
         minorticks = self.get_minor_ticks()
 
