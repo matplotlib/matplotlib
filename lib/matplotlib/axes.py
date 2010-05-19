@@ -8039,6 +8039,8 @@ class Axes(martist.Artist):
     triplot.__doc__ = mtri.triplot.__doc__
 
 
+from gridspec import GridSpec, SubplotSpec
+
 class SubplotBase:
     """
     Base class for subplots, which are :class:`Axes` instances with
@@ -8062,90 +8064,61 @@ class SubplotBase:
 
         self.figure = fig
 
-        if len(args)==1:
-            s = str(args[0])
-            if len(s) != 3:
-                raise ValueError('Argument to subplot must be a 3 digits long')
-            rows, cols, num = map(int, s)
+        if len(args) == 1:
+            if isinstance(args[0], SubplotSpec):
+                self._subplotspec = args[0]
+
+            else:
+                s = str(args[0])
+                if len(s) != 3:
+                    raise ValueError('Argument to subplot must be a 3 digits long')
+                rows, cols, num = map(int, s)
+                self._subplotspec = GridSpec(rows, cols)[num-1]
+                # num - 1 for converting from matlab to python indexing
         elif len(args)==3:
             rows, cols, num = args
+            if isinstance(num, tuple) and len(num) == 2:
+                self._subplotspec = GridSpec(rows, cols)[num[0]-1:num[1]]
+            else:
+                self._subplotspec = GridSpec(rows, cols)[num-1]
+                # num - 1 for converting from matlab to python indexing
         else:
             raise ValueError(  'Illegal argument to subplot')
 
-
-        total = rows*cols
-        num -= 1    # convert from matlab to python indexing
-                    # ie num in range(0,total)
-        if num >= total:
-            raise ValueError( 'Subplot number exceeds total subplots')
-        self._rows = rows
-        self._cols = cols
-        self._num = num
 
         self.update_params()
 
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
 
+
+
     def get_geometry(self):
         'get the subplot geometry, eg 2,2,3'
-        return self._rows, self._cols, self._num+1
+        rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
+        return rows, cols, num1+1 # for compatibility
 
     # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
         'change subplot geometry, eg. from 1,1,1 to 2,2,3'
-        self._rows = numrows
-        self._cols = numcols
-        self._num = num-1
+        self._subplotspec = GridSpec(numrows, numcols)[num-1]
         self.update_params()
         self.set_position(self.figbox)
+
+    def get_subplotspec(self):
+        'get the SubplotSpec instance associated with the subplot'
+        return self._subplotspec
+
+    def set_subplotspec(self, subplotspec):
+        'set the SubplotSpec instance associated with the subplot'
+        self._subplotspec = subplotspec
 
     def update_params(self):
         'update the subplot position from fig.subplotpars'
 
-        rows = self._rows
-        cols = self._cols
-        num = self._num
-
-        pars = self.figure.subplotpars
-        left = pars.left
-        right = pars.right
-        bottom = pars.bottom
-        top = pars.top
-        wspace = pars.wspace
-        hspace = pars.hspace
-        totWidth = right-left
-        totHeight = top-bottom
-
-        figH = totHeight/(rows + hspace*(rows-1))
-        sepH = hspace*figH
-
-        figW = totWidth/(cols + wspace*(cols-1))
-        sepW = wspace*figW
-
-        rowNum, colNum =  divmod(num, cols)
-
-        figBottom = top - (rowNum+1)*figH - rowNum*sepH
-        figLeft = left + colNum*(figW + sepW)
-
-        self.figbox = mtransforms.Bbox.from_bounds(figLeft, figBottom,
-                                                   figW, figH)
-        self.rowNum = rowNum
-        self.colNum = colNum
-        self.numRows = rows
-        self.numCols = cols
-
-        if 0:
-            print 'rcn', rows, cols, num
-            print 'lbrt', left, bottom, right, top
-            print 'self.figBottom', self.figBottom
-            print 'self.figLeft', self.figLeft
-            print 'self.figW', self.figW
-            print 'self.figH', self.figH
-            print 'self.rowNum', self.rowNum
-            print 'self.colNum', self.colNum
-            print 'self.numRows', self.numRows
-            print 'self.numCols', self.numCols
+        self.figbox, self.rowNum, self.colNum, self.numRows, self.numCols = \
+                     self.get_subplotspec().get_position(self.figure,
+                                                         return_all=True)
 
 
     def is_first_col(self):
