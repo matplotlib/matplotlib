@@ -20,7 +20,7 @@
 
 
  Basic Example of using subplot2grid
-=====================================
+====================================
 
 To use subplot2grid, you provide geometry of the grid and the location
 of the subplot in the grid. For a simple single-cell subplot, ::
@@ -127,4 +127,5 @@ parameters are set to that of the locataion of the given SubplotSpec. ::
 
 
 .. plot:: users/plotting/examples/demo_gridspec04.py
+
 

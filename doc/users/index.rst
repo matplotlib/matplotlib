@@ -21,6 +21,7 @@ User's Guide
     index_text.rst
     image_tutorial.rst
     artists.rst
+    gridspec.rst
     legend_guide.rst
     event_handling.rst
     transforms_tutorial.rst
