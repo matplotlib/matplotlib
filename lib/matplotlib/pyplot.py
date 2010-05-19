@@ -12,7 +12,7 @@ from matplotlib import rcParams, rcParamsDefault, get_backend
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
 from matplotlib.artist import setp as _setp
-from matplotlib.axes import Axes
+from matplotlib.axes import Axes, Subplot
 from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for csv2rec, detrend_none, window_hanning
 from matplotlib.scale import get_scale_docs, get_scale_names
@@ -762,6 +762,44 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     else:
         # returned axis array will be always 2-d, even if nrows=ncols=1
         return fig, axarr.reshape(nrows, ncols)
+
+
+from gridspec import GridSpec
+def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
+    """
+
+    It creates a subplot in a grid of *shape*, at location of *loc*,
+    spanning *rowspan*, *colspan* cells in each direction.
+    The index for loc is 0-based. ::
+
+      subplot2grid(shape, loc, rowspan=1, colspan=1)
+
+    is identical to ::
+
+      gridspec=GridSpec(shape[0], shape[2])
+      subplotspec=gridspec.new_subplotspec(loc, rowspan, colspan)
+      subplot(subplotspec)
+
+
+    """
+
+    fig = gcf()
+    s1, s2 = shape
+    subplotspec = GridSpec(s1, s2).new_subplotspec(loc,
+                                                   rowspan=rowspan,
+                                                   colspan=colspan)
+    a = Subplot(fig, subplotspec, **kwargs)
+    fig.add_subplot(a)
+    bbox = a.bbox
+    byebye = []
+    for other in fig.axes:
+        if other==a: continue
+        if bbox.fully_overlaps(other.bbox):
+            byebye.append(other)
+    for ax in byebye: delaxes(ax)
+
+    draw_if_interactive()
+    return a
 
 
 def twinx(ax=None):
