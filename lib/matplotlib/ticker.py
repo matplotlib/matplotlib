@@ -1178,16 +1178,21 @@ class MaxNLocator(Locator):
 
 def decade_down(x, base=10):
     'floor x to the nearest lower decade'
-
+    if x == 0.0:
+        return -base
     lx = math.floor(math.log(x)/math.log(base))
     return base**lx
 
 def decade_up(x, base=10):
     'ceil x to the nearest higher decade'
+    if x == 0.0:
+        return base
     lx = math.ceil(math.log(x)/math.log(base))
     return base**lx
 
 def is_decade(x,base=10):
+    if x == 0.0:
+        return True
     lx = math.log(x)/math.log(base)
     return lx==int(lx)
 
