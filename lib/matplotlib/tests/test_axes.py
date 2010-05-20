@@ -87,7 +87,7 @@ def test_polar_annotations():
                 textcoords='figure fraction',
                 arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='left',
-                verticalalignment='bottom',
+                verticalalignment='baseline',
                 )
 
     fig.savefig( 'polar_axes' )
@@ -115,7 +115,7 @@ def test_polar_coord_annotations():
                 textcoords='polar',
                 arrowprops=dict(facecolor='black', shrink=0.05),
                 horizontalalignment='left',
-                verticalalignment='bottom',
+                verticalalignment='baseline',
                 clip_on=True, # clip to the axes bounding box
                 )
 

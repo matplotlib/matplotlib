@@ -1333,7 +1333,7 @@ class XAxis(Axis):
         """
         assert position == 'top' or position == 'bottom'
         if position == 'top':
-            self.label.set_verticalalignment('bottom')
+            self.label.set_verticalalignment('baseline')
         else:
             self.label.set_verticalalignment('top')
         self.label_position=position
@@ -1571,7 +1571,7 @@ class YAxis(Axis):
         offsetText = mtext.Text(x=0, y=0.5,
             fontproperties = font_manager.FontProperties(size=rcParams['ytick.labelsize']),
             color = rcParams['ytick.color'],
-            verticalalignment = 'bottom',
+            verticalalignment = 'baseline',
             horizontalalignment = 'left',
             )
         offsetText.set_transform(mtransforms.blended_transform_factory(

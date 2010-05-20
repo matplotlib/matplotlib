@@ -865,7 +865,7 @@ class Axes(martist.Artist):
         self.title =  mtext.Text(
             x=0.5, y=1.0, text='',
             fontproperties=props,
-            verticalalignment='bottom',
+            verticalalignment='baseline',
             horizontalalignment='center',
             )
         self.title.set_transform(self.transAxes + self.titleOffsetTrans)
@@ -2866,7 +2866,7 @@ class Axes(martist.Artist):
         """
         default = {
             'fontsize':rcParams['axes.titlesize'],
-            'verticalalignment' : 'bottom',
+            'verticalalignment' : 'baseline',
             'horizontalalignment' : 'center'
             }
 
@@ -2985,9 +2985,8 @@ class Axes(martist.Artist):
        %(Text)s
         """
         default = {
-            'verticalalignment' : 'bottom',
+            'verticalalignment' : 'baseline',
             'horizontalalignment' : 'left',
-            #'verticalalignment' : 'top',
             'transform' : self.transData,
             }
 
