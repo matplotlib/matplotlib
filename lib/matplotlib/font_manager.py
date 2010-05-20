@@ -106,6 +106,7 @@ weight_dict = {
 font_family_aliases = set([
         'serif',
         'sans-serif',
+        'sans serif',
         'cursive',
         'fantasy',
         'monospace',
