@@ -1070,7 +1070,7 @@ class FontManager:
             family1 = family1.lower()
             if family1 in font_family_aliases:
                 if family1 in ('sans', 'sans serif'):
-                    family1 == 'sans-serif'
+                    family1 = 'sans-serif'
                 options = rcParams['font.' + family1]
                 options = [x.lower() for x in options]
                 if family2 in options:
