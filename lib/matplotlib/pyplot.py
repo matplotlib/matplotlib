@@ -903,7 +903,7 @@ def title(s, *args, **kwargs):
     Default font override is::
 
       override = {'fontsize': 'medium',
-                  'verticalalignment': 'bottom',
+                  'verticalalignment': 'baseline',
                   'horizontalalignment': 'center'}
 
     .. seealso::

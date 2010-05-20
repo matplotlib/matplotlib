@@ -149,7 +149,7 @@ class Text(Artist):
     def __init__(self,
                  x=0, y=0, text='',
                  color=None,          # defaults to rc params
-                 verticalalignment='bottom',
+                 verticalalignment='baseline',
                  horizontalalignment='left',
                  multialignment=None,
                  fontproperties=None, # defaults to FontProperties()
