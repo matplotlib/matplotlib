@@ -810,11 +810,8 @@ class Normalize:
     def inverse(self, value):
         if not self.scaled():
             raise ValueError("Not invertible until scaled")
-        vmin, vmax = self.vmin, self.vmax
-        if vmin >= vmax:
-            raise ValueError("Inversion requires valid vmax > vmin")
-        vmin = float(vmin)
-        vmax = float(vmax)
+        vmin = float(self.vmin)
+        vmax = float(self.vmax)
 
         if cbook.iterable(value):
             val = ma.asarray(value)

@@ -512,7 +512,7 @@ class DateLocator(ticker.Locator):
         Return the number of units for each tick.
         """
         return 1
-    
+
     def nonsingular(self, vmin, vmax):
         unit = self._get_unit()
         interval = self._get_interval()
@@ -561,7 +561,7 @@ class RRuleLocator(DateLocator):
         if estimate > self.MAXTICKS * 2:
             raise RuntimeError(
                 'RRuleLocator estimated to generate %d ticks from %s to %s: exceeds Locator.MAXTICKS * 2 (%d) ' % (estimate, dmin, dmax, self.MAXTICKS * 2))
-            
+
         dates = self.rule.between(dmin, dmax, True)
         if len(dates) == 0:
             return date2num([dmin, dmax])
@@ -597,7 +597,7 @@ class RRuleLocator(DateLocator):
 
     def _get_interval(self):
         return self.rule._rrule._interval
-    
+
     def autoscale(self):
         """
         Set the view limits to include the data range.
@@ -868,7 +868,7 @@ class YearLocator(DateLocator):
         vmax = date2num(vmax)
         return self.nonsingular(vmin, vmax)
 
-    
+
 class MonthLocator(RRuleLocator):
     """
     Make ticks on occurances of each month month, eg 1, 3, 12.
@@ -925,7 +925,7 @@ class DayLocator(RRuleLocator):
                          interval=interval, **self.hms0d)
         RRuleLocator.__init__(self, o, tz)
 
-        
+
 class HourLocator(RRuleLocator):
     """
     Make ticks on occurances of each hour.
@@ -943,7 +943,7 @@ class HourLocator(RRuleLocator):
                             byminute=0, bysecond=0)
         RRuleLocator.__init__(self, rule, tz)
 
-    
+
 class MinuteLocator(RRuleLocator):
     """
     Make ticks on occurances of each minute.
@@ -961,7 +961,7 @@ class MinuteLocator(RRuleLocator):
                             bysecond=0)
         RRuleLocator.__init__(self, rule, tz)
 
-        
+
 class SecondLocator(RRuleLocator):
     """
     Make ticks on occurances of each second.
