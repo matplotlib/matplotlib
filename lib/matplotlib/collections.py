@@ -109,28 +109,30 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.update(kwargs)
         self._paths = None
 
-
-    def _get_value(self, val):
-        try: return (float(val), )
+    @staticmethod
+    def _get_value(val):
+        try:
+            return (float(val), )
         except TypeError:
             if cbook.iterable(val) and len(val):
-                try: float(val[0])
-                except TypeError: pass # raise below
-                except ValueError: pass
-                else: return val
+                try:
+                    float(val[0])
+                except (TypeError, ValueError):
+                    pass # raise below
+                else:
+                    return val
 
         raise TypeError('val must be a float or nonzero sequence of floats')
 
-    def _get_bool(self, val):
-        try: return (bool(val), )
-        except TypeError:
-            if cbook.iterable(val) and len(val):
-                try: bool(val[0])
-                except TypeError: pass # raise below
-                else: return val
-
-        raise TypeError('val must be a bool or nonzero sequence of them')
-
+    @staticmethod
+    def _get_bool(val):
+        if not cbook.iterable(val):
+            val = (val,)
+        try:
+            bool(val[0])
+        except (TypeError, IndexError):
+            raise TypeError('val must be a bool or nonzero sequence of them')
+        return val
 
     def get_paths(self):
         return self._paths
