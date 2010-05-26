@@ -29,9 +29,10 @@ clean:
 	build
 
 
+
 fetch:
-	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://www.zlib.net/zlib-${ZLIBVERSION}.tar.gz", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
-	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://downloads.sourceforge.net/project/libpng/libpng-stable/${PNGVERSION}/libpng-${PNGVERSION}.tar.gz", "libpng-${PNGVERSION}.tar.gz")' &&\
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://superb-sea2.dl.sourceforge.net/project/libpng/zlib/${ZLIBVERSION}/zlib-${ZLIBVERSION}.tar.gz", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://sourceforge.net/projects/libpng/files/libpng-stable/${PNGVERSION}/libpng-${PNGVERSION}.tar.gz/download", "libpng-${PNGVERSION}.tar.gz")' &&\
 	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2", "freetype-${FREETYPEVERSION}.tar.bz2")'
 
 
