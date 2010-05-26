@@ -40,7 +40,7 @@ fetch:
 zlib:
 	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
 	rm -rf zlib-${ZLIBVERSION} &&\
-	tar xvfj zlib-${ZLIBVERSION}.tar.gz &&\
+	tar xvfz zlib-${ZLIBVERSION}.tar.gz &&\
 	cd zlib-${ZLIBVERSION} &&\
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
 	export CFLAGS=${CFLAGS} &&\
