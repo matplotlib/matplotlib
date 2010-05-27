@@ -800,7 +800,7 @@ class RendererSVG(RendererBase):
         return self.width, self.height
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        if ismath == "TeX":
+        if rcParams['text.usetex']:
             size = prop.get_size_in_points()
             texmanager = self._text2path.get_texmanager()
             fontsize = prop.get_size_in_points()

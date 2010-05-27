@@ -565,26 +565,23 @@ class Text(Artist):
                 else:
                     renderer.draw_tex(gc, x, y, clean_line,
                                       self._fontproperties, angle)
-            gc.restore()
-            renderer.close_group('text')
-            return
+        else:
+            for line, wh, x, y in info:
+                x = x + posx
+                y = y + posy
+                if renderer.flipy():
+                    y = canvash-y
+                clean_line, ismath = self.is_math_text(line)
 
-        for line, wh, x, y in info:
-            x = x + posx
-            y = y + posy
-            if renderer.flipy():
-                y = canvash-y
-            clean_line, ismath = self.is_math_text(line)
-
-            if self.get_path_effects():
-                for path_effect in self.get_path_effects():
-                    path_effect.draw_text(renderer, gc, x, y, clean_line,
-                                          self._fontproperties, angle,
-                                          ismath=ismath)
-            else:
-                renderer.draw_text(gc, x, y, clean_line,
-                                   self._fontproperties, angle,
-                                   ismath=ismath)
+                if self.get_path_effects():
+                    for path_effect in self.get_path_effects():
+                        path_effect.draw_text(renderer, gc, x, y, clean_line,
+                                              self._fontproperties, angle,
+                                              ismath=ismath)
+                else:
+                    renderer.draw_text(gc, x, y, clean_line,
+                                       self._fontproperties, angle,
+                                       ismath=ismath)
 
         gc.restore()
         renderer.close_group('text')
