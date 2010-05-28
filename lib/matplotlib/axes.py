@@ -2184,9 +2184,9 @@ class Axes(martist.Artist):
 
         Keyword arguments:
 
-          *ymin*: scalar
+          *xmin*: scalar
             the min of the ylim
-          *ymax*: scalar
+          *xmax*: scalar
             the max of the ylim
           *emit*: [ True | False ]
             notify observers of lim change
