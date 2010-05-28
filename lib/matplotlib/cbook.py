@@ -13,6 +13,7 @@ import cPickle
 import os.path
 import random
 import urllib2
+import new
 
 import matplotlib
 
@@ -124,12 +125,87 @@ class CallbackRegistry:
        callbacks.disconnect(ideat)        # disconnect oneat
        callbacks.process('eat', 456)      # nothing will be called
 
+    In practice, one should always disconnect all callbacks when they
+    are no longer needed to avoid dangling references (and thus memory
+    leaks).  However, real code in matplotlib rarely does so, and due
+    to its design, it is rather difficult to place this kind of code.
+    To get around this, and prevent this class of memory leaks, we
+    instead store weak references to bound methods only, so when the
+    destination object needs to die, the CallbackRegistry won't keep
+    it alive.  The Python stdlib weakref module can not create weak
+    references to bound methods directly, so we need to create a proxy
+    object to handle weak references to bound methods (or regular free
+    functions).  This technique was shared by Peter Parente on his
+    `"Mindtrove" blog
+    <http://mindtrove.info/articles/python-weak-references/>`_.
     """
+    class BoundMethodProxy(object):
+        '''
+        Our own proxy object which enables weak references to bound and unbound
+        methods and arbitrary callables. Pulls information about the function,
+        class, and instance out of a bound method. Stores a weak reference to the
+        instance to support garbage collection.
+
+        @organization: IBM Corporation
+        @copyright: Copyright (c) 2005, 2006 IBM Corporation
+        @license: The BSD License
+
+        Minor bugfixes by Michael Droettboom
+        '''
+        def __init__(self, cb):
+            try:
+                try:
+                    self.inst = ref(cb.im_self)
+                except TypeError:
+                    self.inst = None
+                self.func = cb.im_func
+                self.klass = cb.im_class
+            except AttributeError:
+                self.inst = None
+                self.func = cb
+                self.klass = None
+
+        def __call__(self, *args, **kwargs):
+            '''
+            Proxy for a call to the weak referenced object. Take
+            arbitrary params to pass to the callable.
+
+            Raises `ReferenceError`: When the weak reference refers to
+            a dead object
+            '''
+            if self.inst is not None and self.inst() is None:
+                raise ReferenceError
+            elif self.inst is not None:
+                # build a new instance method with a strong reference to the instance
+                mtd = new.instancemethod(self.func, self.inst(), self.klass)
+            else:
+                # not a bound method, just return the func
+                mtd = self.func
+            # invoke the callable and return the result
+            return mtd(*args, **kwargs)
+
+        def __eq__(self, other):
+            '''
+            Compare the held function and instance with that held by
+            another proxy.
+            '''
+            try:
+                if self.inst is None:
+                    return self.func == other.func and other.inst is None
+                else:
+                    return self.func == other.func and self.inst() == other.inst()
+            except Exception:
+                return False
+
+        def __ne__(self, other):
+            '''
+            Inverse of __eq__.
+            '''
+            return not self.__eq__(other)
+
     def __init__(self, signals):
         '*signals* is a sequence of valid signals'
         self.signals = set(signals)
-        # callbacks is a dict mapping the signal to a dictionary
-        # mapping callback id to the callback function
         self.callbacks = dict([(s, dict()) for s in signals])
         self._cid = 0
 
@@ -146,8 +222,15 @@ class CallbackRegistry:
         func will be called
         """
         self._check_signal(s)
-        self._cid +=1
-        self.callbacks[s][self._cid] = func
+        proxy = self.BoundMethodProxy(func)
+        for cid, callback in self.callbacks[s].items():
+            # Clean out dead references
+            if callback.inst is not None and callback.inst() is None:
+                del self.callbacks[s][cid]
+            elif callback == proxy:
+                return cid
+        self._cid += 1
+        self.callbacks[s][self._cid] = proxy
         return self._cid
 
     def disconnect(self, cid):
@@ -155,9 +238,12 @@ class CallbackRegistry:
         disconnect the callback registered with callback id *cid*
         """
         for eventname, callbackd in self.callbacks.items():
-            try: del callbackd[cid]
-            except KeyError: continue
-            else: return
+            try:
+                del callbackd[cid]
+            except KeyError:
+                continue
+            else:
+                return
 
     def process(self, s, *args, **kwargs):
         """
@@ -165,8 +251,12 @@ class CallbackRegistry:
         callbacks on *s* will be called with *\*args* and *\*\*kwargs*
         """
         self._check_signal(s)
-        for func in self.callbacks[s].values():
-            func(*args, **kwargs)
+        for cid, proxy in self.callbacks[s].items():
+            # Clean out dead references
+            if proxy.inst is not None and proxy.inst() is None:
+                del self.callbacks[s][cid]
+            else:
+                proxy(*args, **kwargs)
 
 
 class Scheduler(threading.Thread):
