@@ -5,7 +5,8 @@ Pyplot tutorial
 ***************
 
 :mod:`matplotlib.pyplot` is a collection of command style functions
-that make matplotlib  work like matlab.  Each ``pyplot`` function makes
+that make matplotlib  work like `Matlab™ <http://www.mathworks.com>`_.
+Each ``pyplot`` function makes
 some change to a figure: eg, create a figure, create a plotting area
 in a figure, plot some lines in a plotting area, decorate the plot
 with labels, etc....  :mod:`matplotlib.pyplot` is stateful, in that it
@@ -29,10 +30,10 @@ you can issue the command::
 
     plt.plot([1,2,3,4], [1,4,9,16])
 
-For every x, y pair of arguments, there is a optional third argument
+For every x, y pair of arguments, there is an optional third argument
 which is the format string that indicates the color and line type of
 the plot.  The letters and symbols of the format string are from
-matlab, and you concatenate a color string with a line style string.
+Matlab, and you concatenate a color string with a line style string.
 The default format string is 'b-', which is a solid blue line.  For
 example, to plot the above with red circles, you would issue
 
@@ -86,7 +87,7 @@ several ways to set line properties
       lines = plt.plot(x1, y1, x2, y2)
       # use keyword args
       plt.setp(lines, color='r', linewidth=2.0)
-      # or matlab style string value pairs
+      # or Matlab style string value pairs
       plt.setp(lines, 'color', 'r', 'linewidth', 2.0)
 
 
@@ -204,6 +205,15 @@ this statefulness, annoying, don't despair, this is just a thin
 stateful wrapper around an object oriented API, which you can use
 instead (see :ref:`artist-tutorial`)
 
+If you are making a long sequence of figures, you need to be aware of one
+more thing: the memory required for a figure is not completely
+released until the figure is explicitly closed with
+:func:`~matplotlib.pyplot.close`.  Deleting all references to the
+figure, and/or using the window manager to kill the window in which
+the figure appears on the screen, is not enough, because pyplot
+maintains internal references until :func:`~matplotlib.pyplot.close`
+is called.
+
 .. _working-with-text:
 
 Working with text
@@ -270,3 +280,4 @@ variety of other coordinate systems one can choose -- see
 :ref:`annotations-tutorial` and :ref:`plotting-guide-annotation` for
 details.  More examples can be found in
 :ref:`pylab_examples-annotation_demo`.
+
