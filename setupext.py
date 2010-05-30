@@ -997,7 +997,7 @@ def add_tk_flags(module):
     message = None
     if sys.platform == 'win32':
         major, minor1, minor2, s, tmp = sys.version_info
-        if major == 2 and minor1 == 6:
+        if major == 2 and minor1 in [6, 7]:
             module.include_dirs.extend(['win32_static/include/tcl85'])
             module.libraries.extend(['tk85', 'tcl85'])
         elif major == 2 and minor1 in [3, 4, 5]:
