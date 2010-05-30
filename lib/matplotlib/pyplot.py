@@ -78,12 +78,11 @@ _backend_selection()
 from matplotlib.backends import pylab_setup
 new_figure_manager, draw_if_interactive, show = pylab_setup()
 
-
+@docstring.copy_dedent(Artist.findobj)
 def findobj(o=None, match=None):
     if o is None:
         o = gcf()
     return o.findobj(match)
-findobj.__doc__ = Artist.findobj.__doc__
 
 def switch_backend(newbackend):
     """
