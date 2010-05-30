@@ -850,6 +850,8 @@ class LogNorm(Normalize):
             vtype = 'scalar'
             val = ma.array([value]).astype(np.float)
 
+        val = ma.masked_less_equal(val, 0, copy=False)
+
         self.autoscale_None(val)
         vmin, vmax = self.vmin, self.vmax
         if vmin > vmax:
@@ -878,6 +880,24 @@ class LogNorm(Normalize):
             return vmin * ma.power((vmax/vmin), val)
         else:
             return vmin * pow((vmax/vmin), value)
+
+    def autoscale(self, A):
+        '''
+        Set *vmin*, *vmax* to min, max of *A*.
+        '''
+        A = ma.masked_less_equal(A, 0, copy=False)
+        self.vmin = ma.min(A)
+        self.vmax = ma.max(A)
+
+    def autoscale_None(self, A):
+        ' autoscale only None-valued vmin or vmax'
+        if self.vmin is not None and self.vmax is not None:
+            return
+        A = ma.masked_less_equal(A, 0, copy=False)
+        if self.vmin is None:
+            self.vmin = ma.min(A)
+        if self.vmax is None:
+            self.vmax = ma.max(A)
 
 class BoundaryNorm(Normalize):
     '''
