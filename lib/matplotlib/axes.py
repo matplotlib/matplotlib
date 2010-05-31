@@ -7230,9 +7230,9 @@ class Axes(martist.Artist):
             are ignored. If not provided, *range* is (x.min(), x.max()).
             Range has no effect if *bins* is a sequence.
 
-            If *bins* is a sequence or *range* is specified, autoscaling is
-            set off (*autoscale_on* is set to *False*) and the xaxis limits
-            are set to encompass the full specified bin range.
+            If *bins* is a sequence or *range* is specified, autoscaling
+            is based on the specified bin range instead of the
+            range of x.
 
           *normed*:
             If *True*, the first element of the return tuple will
@@ -7395,9 +7395,6 @@ class Axes(martist.Artist):
         else:
             w = [None]*nx
 
-        # Check whether bins or range are given explicitly. In that
-        # case use those values for autoscaling.
-        binsgiven = (cbook.iterable(bins) or range != None)
 
         # Save autoscale state for later restoration; turn autoscaling
         # off so we can do it all a single time at the end, instead
@@ -7410,6 +7407,20 @@ class Axes(martist.Artist):
         # Save the datalimits for the same reason:
         _saved_bounds = self.dataLim.bounds
 
+        # Check whether bins or range are given explicitly. In that
+        # case use those values for autoscaling.
+        binsgiven = (cbook.iterable(bins) or range != None)
+
+        # If bins are not specified either explicitly or via range,
+        # we need to figure out the range required for all datasets,
+        # and supply that to np.histogram.
+        if not binsgiven:
+            xmin = np.inf
+            xmax = -np.inf
+            for xi in x:
+                xmin = min(xmin, xi.min())
+                xmax = max(xmax, xi.max())
+            range = (xmin, xmax)
 
         hist_kwargs = dict(range=range, normed=bool(normed))
         if np.__version__ < "1.3": # version 1.1 and 1.2
