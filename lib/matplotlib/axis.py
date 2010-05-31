@@ -1187,6 +1187,16 @@ class Axis(artist.Artist):
         """
         Set the text values of the tick labels. Return a list of Text
         instances.  Use *kwarg* *minor=True* to select minor ticks.
+        All other kwargs are used to update the text object properties.
+        As for get_ticklabels, label1 (left or bottom) is
+        affected for a given tick only if its label1On attribute
+        is True, and similarly for label2.  The list of returned
+        label text objects consists of all such label1 objects followed
+        by all such label2 objects.
+
+        The input *ticklabels* is assumed to match the set of
+        tick locations, regardless of the state of label1On and
+        label2On.
 
         ACCEPTS: sequence of strings
         """
@@ -1201,13 +1211,19 @@ class Axis(artist.Artist):
 
         self.set_major_formatter( mticker.FixedFormatter(ticklabels) )
 
-        ret = []
+        ret1 = []
+        ret2 = []
         for i, tick in enumerate(ticks):
             if i<len(ticklabels):
-                tick.label1.set_text(ticklabels[i])
-                ret.append(tick.label1)
-            tick.label1.update(kwargs)
-        return ret
+                if tick.label1On:
+                    tick.label1.set_text(ticklabels[i])
+                    tick.label1.update(kwargs)
+                    ret1.append(tick.label1)
+                if tick.label2On:
+                    tick.label2.set_text(ticklabels[i])
+                    ret2.append(tick.label2)
+                    tick.label2.update(kwargs)
+        return ret1 + ret2
 
     def set_ticks(self, ticks, minor=False):
         """
