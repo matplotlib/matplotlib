@@ -7396,8 +7396,20 @@ class Axes(martist.Artist):
             w = [None]*nx
 
         # Check whether bins or range are given explicitly. In that
-        # case do not autoscale axes.
+        # case use those values for autoscaling.
         binsgiven = (cbook.iterable(bins) or range != None)
+
+        # Save autoscale state for later restoration; turn autoscaling
+        # off so we can do it all a single time at the end, instead
+        # of having it done by bar or fill and then having to be redone.
+        _saved_autoscalex = self.get_autoscalex_on()
+        _saved_autoscaley = self.get_autoscaley_on()
+        self.set_autoscalex_on(False)
+        self.set_autoscaley_on(False)
+
+        # Save the datalimits for the same reason:
+        _saved_bounds = self.dataLim.bounds
+
 
         hist_kwargs = dict(range=range, normed=bool(normed))
         if np.__version__ < "1.3": # version 1.1 and 1.2
@@ -7503,18 +7515,21 @@ class Axes(martist.Artist):
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
-                xmin, xmax = 0, self.dataLim.intervalx[1]
+                xmin0 = max(_saved_bounds[0]*0.9, 1e-100)
+                xmax = self.dataLim.intervalx[1]
                 for m in n:
                     xmin = np.amin(m[m!=0]) # filter out the 0 height bins
                 xmin = max(xmin*0.9, 1e-100)
+                xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
             elif orientation == 'vertical':
-                ymin, ymax = 0, self.dataLim.intervaly[1]
+                ymin0 = max(_saved_bounds[1]*0.9, 1e-100)
+                ymax = self.dataLim.intervaly[1]
                 for m in n:
                     ymin = np.amin(m[m!=0]) # filter out the 0 height bins
                 ymin = max(ymin*0.9, 1e-100)
+                ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
-            self.autoscale_view()
 
         if label is None:
             labels = ['_nolegend_']
@@ -7535,17 +7550,14 @@ class Axes(martist.Artist):
                 lbl = '_nolegend_'
 
         if binsgiven:
-            self.set_autoscale_on(False)
             if orientation == 'vertical':
-                self.autoscale_view(scalex=False, scaley=True)
-                XL = self.xaxis.get_major_locator().view_limits(
-                                                            bins[0], bins[-1])
-                self.set_xbound(XL)
+                self.update_datalim([(bins[0],0), (bins[-1],0)], updatey=False)
             else:
-                self.autoscale_view(scalex=True, scaley=False)
-                YL = self.yaxis.get_major_locator().view_limits(
-                                                            bins[0], bins[-1])
-                self.set_ybound(YL)
+                self.update_datalim([(0,bins[0]), (0,bins[-1])], updatex=False)
+
+        self.set_autoscalex_on(_saved_autoscalex)
+        self.set_autoscaley_on(_saved_autoscaley)
+        self.autoscale_view()
 
         if nx == 1:
             return n[0], bins, cbook.silent_list('Patch', patches[0])
