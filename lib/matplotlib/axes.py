@@ -39,6 +39,15 @@ iterable = cbook.iterable
 is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
 
+def _string_to_bool(s):
+    if not is_string_like(s):
+        return s
+    if s == 'on':
+        return True
+    if s == 'off':
+        return False
+    raise ValueError("string argument must be either 'on' or 'off'")
+
 def _process_plot_format(fmt):
     """
     Process a matlab(TM) style color/line style format string.  Return a
@@ -1954,7 +1963,8 @@ class Axes(martist.Artist):
 
           grid(self, b=None, **kwargs)
 
-        Set the axes grids on or off; *b* is a boolean
+        Set the axes grids on or off; *b* is a boolean.  (For Matlab
+        compatibility, *b* may also be a string, 'on' or 'off'.)
 
         If *b* is *None* and ``len(kwargs)==0``, toggle the grid state.  If
         *kwargs* are supplied, it is assumed that you want a grid and *b*
@@ -1968,7 +1978,9 @@ class Axes(martist.Artist):
 
         %(Line2D)s
         """
-        if len(kwargs): b = True
+        if len(kwargs):
+            b = True
+        b = _string_to_bool(b)
         self.xaxis.grid(b, **kwargs)
         self.yaxis.grid(b, **kwargs)
 

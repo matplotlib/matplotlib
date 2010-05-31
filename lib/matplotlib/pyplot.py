@@ -12,7 +12,7 @@ from matplotlib import rcParams, rcParamsDefault, get_backend
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
 from matplotlib.artist import setp as _setp
-from matplotlib.axes import Axes, Subplot
+from matplotlib.axes import Axes, Subplot, _string_to_bool
 from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for csv2rec, detrend_none, window_hanning
 from matplotlib.scale import get_scale_docs, get_scale_names
@@ -886,10 +886,12 @@ def subplot_tool(targetfig=None):
 def box(on=None):
     """
     Turn the axes box on or off according to *on*.
+    *on* may be a boolean or a string, 'on' or 'off'.
 
     If *on* is *None*, toggle state.
     """
     ax = gca()
+    on = _string_to_bool(on)
     if on is None:
         on = not ax.get_frame_on()
     ax.set_frame_on(on)
