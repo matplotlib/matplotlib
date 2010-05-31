@@ -1234,7 +1234,8 @@ class LogLocator(Locator):
 
         vmin, vmax = self.axis.get_view_interval()
 
-        if self.axis.axes.name == 'polar':
+        # dummy axis has no axes attribute
+        if hasattr(self.axis, 'axes') and self.axis.axes.name == 'polar':
             vmax = math.ceil(math.log(vmax) / math.log(b))
             decades = np.arange(vmax - self.numdecs, vmax)
             ticklocs = b ** decades
