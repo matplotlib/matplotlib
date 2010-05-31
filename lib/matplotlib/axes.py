@@ -2246,7 +2246,7 @@ class Axes(martist.Artist):
         %(scale_docs)s
         """
         self.xaxis.set_scale(value, **kwargs)
-        self.autoscale_view()
+        self.autoscale_view(scaley=False)
         self._update_transScale()
 
     def get_xticks(self, minor=False):
@@ -2420,7 +2420,7 @@ class Axes(martist.Artist):
         %(scale_docs)s
         """
         self.yaxis.set_scale(value, **kwargs)
-        self.autoscale_view()
+        self.autoscale_view(scalex=False)
         self._update_transScale()
 
     def get_yticks(self, minor=False):
