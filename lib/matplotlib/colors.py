@@ -526,16 +526,20 @@ class Colormap:
         if bytes:
             lut = (self._lut * 255).astype(np.uint8)
         else:
-            lut = self._lut.copy()
+            lut = self._lut.copy() # Don't let alpha modify original _lut.
 
         if alpha is not None:
             alpha = min(alpha, 1.0) # alpha must be between 0 and 1
             alpha = max(alpha, 0.0)
-            lut[:-1,-1] = alpha  # Don't assign global alpha to i_bad;
-                                       # it would defeat the purpose of the
-                                       # default behavior, which is to not
-                                       # show anything where data are missing.
-
+            if (lut[-1] == 0).all():
+                lut[:-1, -1] = alpha
+                # All zeros is taken as a flag for the default bad
+                # color, which is no color--fully transparent.  We
+                # don't want to override this.
+            else:
+                lut[:,-1] = alpha
+                # If the bad value is set to have a color, then we
+                # override its alpha just as for any other value.
 
         rgba = np.empty(shape=xa.shape+(4,), dtype=lut.dtype)
         lut.take(xa, axis=0, mode='clip', out=rgba)
@@ -546,20 +550,20 @@ class Colormap:
             rgba = tuple(rgba[0,:])
         return rgba
 
-    def set_bad(self, color = 'k', alpha = 1.0):
+    def set_bad(self, color = 'k', alpha = None):
         '''Set color to be used for masked values.
         '''
         self._rgba_bad = colorConverter.to_rgba(color, alpha)
         if self._isinit: self._set_extremes()
 
-    def set_under(self, color = 'k', alpha = 1.0):
+    def set_under(self, color = 'k', alpha = None):
         '''Set color to be used for low out-of-range values.
            Requires norm.clip = False
         '''
         self._rgba_under = colorConverter.to_rgba(color, alpha)
         if self._isinit: self._set_extremes()
 
-    def set_over(self, color = 'k', alpha = 1.0):
+    def set_over(self, color = 'k', alpha = None):
         '''Set color to be used for high out-of-range values.
            Requires norm.clip = False
         '''
