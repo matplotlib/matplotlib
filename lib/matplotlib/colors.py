@@ -482,7 +482,7 @@ class Colormap:
         self._isinit = False
 
 
-    def __call__(self, X, alpha=1.0, bytes=False):
+    def __call__(self, X, alpha=None, bytes=False):
         """
         *X* is either a scalar or an array (of any dimension).
         If scalar, a tuple of rgba values is returned, otherwise
@@ -490,18 +490,12 @@ class Colormap:
         are integers, then they are used as indices into the array.
         If they are floating point, then they must be in the
         interval (0.0, 1.0).
-        Alpha must be a scalar.
+        Alpha must be a scalar between 0 and 1, or None.
         If bytes is False, the rgba values will be floats on a
         0-1 scale; if True, they will be uint8, 0-255.
         """
 
         if not self._isinit: self._init()
-        alpha = min(alpha, 1.0) # alpha must be between 0 and 1
-        alpha = max(alpha, 0.0)
-        self._lut[:-1,-1] = alpha  # Don't assign global alpha to i_bad;
-                                   # it would defeat the purpose of the
-                                   # default behavior, which is to not
-                                   # show anything where data are missing.
         mask_bad = None
         if not cbook.iterable(X):
             vtype = 'scalar'
@@ -532,7 +526,17 @@ class Colormap:
         if bytes:
             lut = (self._lut * 255).astype(np.uint8)
         else:
-            lut = self._lut
+            lut = self._lut.copy()
+
+        if alpha is not None:
+            alpha = min(alpha, 1.0) # alpha must be between 0 and 1
+            alpha = max(alpha, 0.0)
+            lut[:-1,-1] = alpha  # Don't assign global alpha to i_bad;
+                                       # it would defeat the purpose of the
+                                       # default behavior, which is to not
+                                       # show anything where data are missing.
+
+
         rgba = np.empty(shape=xa.shape+(4,), dtype=lut.dtype)
         lut.take(xa, axis=0, mode='clip', out=rgba)
                     #  twice as fast as lut[xa];
