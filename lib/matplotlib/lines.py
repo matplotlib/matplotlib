@@ -305,6 +305,8 @@ class Line2D(Artist):
             # If line, return the nearby segment(s)
             ind = segment_hits(mouseevent.x,mouseevent.y,xt,yt,pixels)
 
+        ind += self.ind_offset
+
         # Debugging message
         if False and self._label != u'':
             print "Checking line",self._label,"at",mouseevent.x,mouseevent.y
@@ -496,12 +498,14 @@ class Line2D(Artist):
     def draw(self, renderer):
         if self._invalidy or self._invalidx:
             self.recache()
+        self.ind_offset = 0  # Needed for contains() method.
         if self._subslice and self.axes:
             # Need to handle monotonically decreasing case also...
             x0, x1 = self.axes.get_xbound()
             i0, = self._x.searchsorted([x0], 'left')
             i1, = self._x.searchsorted([x1], 'right')
             subslice = slice(max(i0-1, 0), i1+1)
+            self.ind_offset = subslice.start
             self._transform_path(subslice)
         if self._transformed_path is None:
             self._transform_path()
