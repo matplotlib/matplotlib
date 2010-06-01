@@ -9,7 +9,8 @@ import matplotlib.image as image
 
 
 class ItemProperties:
-    def __init__(self, fontsize=14, labelcolor='black', bgcolor='yellow', alpha=1.0):
+    def __init__(self, fontsize=14, labelcolor='black', bgcolor='yellow',
+                 alpha=1.0):
         self.fontsize = fontsize
         self.labelcolor = labelcolor
         self.bgcolor = bgcolor
@@ -21,8 +22,9 @@ class ItemProperties:
 class MenuItem(artist.Artist):
     parser = mathtext.MathTextParser("Bitmap")
     padx = 5
-    pady =5
-    def __init__(self, fig, labelstr, props=None, hoverprops=None, on_select=None):
+    pady = 5
+    def __init__(self, fig, labelstr, props=None, hoverprops=None,
+                 on_select=None):
         artist.Artist.__init__(self)
 
         self.set_figure(fig)
@@ -44,14 +46,15 @@ class MenuItem(artist.Artist):
             labelstr, fontsize=props.fontsize, dpi=fig.dpi)
 
         if props.fontsize!=hoverprops.fontsize:
-            raise NotImplementedError('support for different font sizes not implemented')
+            raise NotImplementedError(
+                        'support for different font sizes not implemented')
 
 
         self.labelwidth = x.shape[1]
         self.labelheight = x.shape[0]
 
         self.labelArray = np.zeros((x.shape[0], x.shape[1], 4))
-        self.labelArray[:,:,-1] = x/255.
+        self.labelArray[:, :, -1] = x/255.
 
         self.label = image.FigureImage(fig, origin='upper')
         self.label.set_array(self.labelArray)
@@ -95,9 +98,9 @@ class MenuItem(artist.Artist):
             props = self.props
 
         r, g, b = props.labelcolor_rgb
-        self.labelArray[:,:,0] = r
-        self.labelArray[:,:,1] = g
-        self.labelArray[:,:,2] = b
+        self.labelArray[:, :, 0] = r
+        self.labelArray[:, :, 1] = g
+        self.labelArray[:, :, 2] = b
         self.label.set_array(self.labelArray)
         self.rect.set(facecolor=props.bgcolor, alpha=props.alpha)
 
@@ -169,12 +172,9 @@ menuitems = []
 for label in ('open', 'close', 'save', 'save as', 'quit'):
     def on_select(item):
         print 'you selected', item.labelstr
-    item = MenuItem(fig, label, props=props, hoverprops=hoverprops, on_select=on_select)
+    item = MenuItem(fig, label, props=props, hoverprops=hoverprops,
+                    on_select=on_select)
     menuitems.append(item)
 
 menu = Menu(fig, menuitems)
 plt.show()
-
-
-
-
