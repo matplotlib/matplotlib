@@ -4306,6 +4306,9 @@ class Axes(martist.Artist):
         *xerr*, and *yerr* can be either scalars or sequences of
         length equal to the number of bars.  This enables you to use
         bar as the basis for stacked bar charts, or candlestick plots.
+        Detail: *xerr* and *yerr* are passed directly to
+        :meth:`errorbar`, so they can also have shape 2xN for
+        independent specification of lower and upper errors.
 
         Other optional kwargs:
 
@@ -4319,6 +4322,9 @@ class Axes(martist.Artist):
         color = kwargs.pop('color', None)
         edgecolor = kwargs.pop('edgecolor', None)
         linewidth = kwargs.pop('linewidth', None)
+        # Because xerr and yerr will be passed to errorbar,
+        # most dimension checking and processing will be left
+        # to the errorbar method.
         xerr = kwargs.pop('xerr', None)
         yerr = kwargs.pop('yerr', None)
         ecolor = kwargs.pop('ecolor', None)
@@ -4396,14 +4402,6 @@ class Axes(martist.Artist):
             if len(edgecolor) < nbars:
                 edgecolor *= nbars
 
-        if yerr is not None:
-            if not iterable(yerr):
-                yerr = [yerr]*nbars
-
-        if xerr is not None:
-            if not iterable(xerr):
-                xerr = [xerr]*nbars
-
         # FIXME: convert the following to proper input validation
         # raising ValueError; don't use assert for this.
         assert len(left)==nbars, "incompatible sizes: argument 'left' must be length %d or scalar" % nbars
@@ -4413,13 +4411,6 @@ class Axes(martist.Artist):
                                    nbars)
         assert len(bottom)==nbars, ("incompatible sizes: argument 'bottom' must be length %d or scalar" %
                                     nbars)
-
-        if yerr is not None and len(yerr)!=nbars:
-            raise ValueError(
-                "incompatible sizes: bar() argument 'yerr' must be len(%s) or scalar" % nbars)
-        if xerr is not None and len(xerr)!=nbars:
-            raise ValueError(
-                "incompatible sizes: bar() argument 'xerr' must be len(%s) or scalar" % nbars)
 
         patches = []
 
