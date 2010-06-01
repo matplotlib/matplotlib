@@ -8,28 +8,41 @@ and eventrelease are the same.
 
 """
 from matplotlib.widgets import RectangleSelector
-from pylab import subplot, arange, plot, sin, cos, pi, show
-def line_select_callback(event1, event2):
-    'event1 and event2 are the press and release events'
-    x1, y1 = event1.xdata, event1.ydata
-    x2, y2 = event2.xdata, event2.ydata
-    print "(%3.2f, %3.2f) --> (%3.2f, %3.2f)"%(x1,y1,x2,y2)
-    print " The button you used were: ",event1.button, event2.button
+import numpy as np
+import matplotlib.pyplot as plt
+
+def line_select_callback(eclick, erelease):
+    'eclick and erelease are the press and release events'
+    x1, y1 = eclick.xdata, eclick.ydata
+    x2, y2 = erelease.xdata, erelease.ydata
+    print "(%3.2f, %3.2f) --> (%3.2f, %3.2f)" % (x1, y1, x2, y2)
+    print " The button you used were: ", eclick.button, erelease.button
+
+def toggle_selector(event):
+    print ' Key pressed.'
+    if event.key in ['Q', 'q'] and toggle_selector.RS.active:
+        print ' RectangleSelector deactivated.'
+        toggle_selector.RS.set_active(False)
+    if event.key in ['A', 'a'] and not toggle_selector.RS.active:
+        print ' RectangleSelector activated.'
+        toggle_selector.RS.set_active(True)
 
 
-current_ax=subplot(111)                    # make a new plotingrange
-N=100000                                   # If N is large one can see improvement
-x=10.0*arange(N)/(N-1)                     # by use blitting!
+current_ax = plt.subplot(111)                    # make a new plotingrange
+N = 100000                                       # If N is large one can see
+x = np.linspace(0.0, 10.0, N)                    # improvement by use blitting!
 
-plot(x,sin(.2*pi*x),lw=3,c='b',alpha=.7)   # plot something
-plot(x,cos(.2*pi*x),lw=3.5,c='r',alpha=.5)
-plot(x,-sin(.2*pi*x),lw=3.5,c='g',alpha=.3)
+plt.plot(x, +np.sin(.2*np.pi*x), lw=3.5, c='b', alpha=.7)  # plot something
+plt.plot(x, +np.cos(.2*np.pi*x), lw=3.5, c='r', alpha=.5)
+plt.plot(x, -np.sin(.2*np.pi*x), lw=3.5, c='g', alpha=.3)
 
 print "\n      click  -->  release"
 
 # drawtype is 'box' or 'line' or 'none'
-LS = RectangleSelector(current_ax, line_select_callback,
-                       drawtype='box',useblit=True,
-                       button = [1, 3], # don't use center mouse button
-                       minspanx=5,minspany=5,spancoords='pixels')
-show()
+toggle_selector.RS = RectangleSelector(current_ax, line_select_callback,
+                                       drawtype='box', useblit=True,
+                                       button=[1,3], # don't use middle button
+                                       minspanx=5, minspany=5,
+                                       spancoords='pixels')
+plt.connect('key_press_event', toggle_selector)
+plt.show()
