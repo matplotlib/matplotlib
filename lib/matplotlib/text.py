@@ -963,9 +963,14 @@ class Text(Artist):
         """
         self._text = '%s' % (s,)
 
-    def is_math_text(self, s):
+    @staticmethod
+    def is_math_text(s):
         """
-        Returns True if the given string *s* contains any mathtext.
+        Returns a cleaned string and a boolean flag.
+        The flag indicates if the given string *s* contains any mathtext,
+        determined by counting unescaped dollar signs. If no mathtext
+        is present, the cleaned string has its dollar signs unescaped.
+        If usetex is on, the flag always has the value "TeX".
         """
         # Did we find an even number of non-escaped dollar signs?
         # If so, treat is as math text.

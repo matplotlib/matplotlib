@@ -17,6 +17,8 @@ import matplotlib.font_manager as font_manager
 import matplotlib.text as text
 import matplotlib.cbook as cbook
 import matplotlib.mlab as mlab
+import matplotlib.mathtext as mathtext
+import matplotlib.texmanager as texmanager
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -268,10 +270,21 @@ class ContourLabeler:
 
     def get_label_width(self, lev, fmt, fsize):
         "get the width of the label in points"
-        if cbook.is_string_like(lev):
-            lw = (len(lev)) * fsize
+        if not cbook.is_string_like(lev):
+            lev = self.get_text(lev, fmt)
+
+        lev, ismath = text.Text.is_math_text(lev)
+        if ismath == 'TeX':
+            if not hasattr(self, '_TeX_manager'):
+                self._TeX_manager = texmanager.TexManager()
+            lw, _, _ = self._TeX_manager.get_text_width_height_descent(lev, fsize)
+        elif ismath:
+            if not hasattr(self, '_mathtext_parser'):
+                self._mathtext_parser = mathtext.MathTextParser('bitmap')
+            img, _ = self._mathtext_parser.parse(lev, dpi=72, prop=self.labelFontProps)
+            lw = img.get_width() # at dpi=72, the units are PostScript points
         else:
-            lw = (len(self.get_text(lev,fmt))) * fsize
+            lw = (len(lev)) * fsize
 
         return lw
 
@@ -330,7 +343,7 @@ class ContourLabeler:
         if xsize == 1:
             ysize = nsize
         else:
-            ysize = labelwidth
+            ysize = int(labelwidth)
 
         XX = np.resize(linecontour[:,0],(xsize, ysize))
         YY = np.resize(linecontour[:,1],(xsize, ysize))
