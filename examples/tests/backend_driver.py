@@ -360,6 +360,8 @@ def drive(backend, directories, python=['python'], switches = []):
             'import matplotlib\n',
             'matplotlib.use("%s")\n' % backend,
             'from pylab import savefig\n',
+            'import numpy\n',
+            'numpy.seterr(invalid="ignore")\n',
             ))
         for line in file(fullpath):
             line_lstrip = line.lstrip()
