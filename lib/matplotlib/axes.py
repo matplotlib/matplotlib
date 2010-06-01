@@ -3087,7 +3087,8 @@ class Axes(martist.Artist):
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
 
-        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
+        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+        with the exception of 'transform':
 
         %(Line2D)s
 
@@ -3097,6 +3098,10 @@ class Axes(martist.Artist):
                 for example plot and source code
         """
 
+        if "transform" in kwargs:
+            raise ValueError(
+                "'transform' is not allowed as a kwarg;"
+                + "axhline generates its own transform.")
         ymin, ymax = self.get_ybound()
 
         # We need to strip away the units for comparison with
@@ -3147,7 +3152,8 @@ class Axes(martist.Artist):
 
             >>> axvline(x=.5, ymin=0.25, ymax=0.75)
 
-        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
+        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
+        with the exception of 'transform':
 
         %(Line2D)s
 
@@ -3157,6 +3163,10 @@ class Axes(martist.Artist):
                 for example plot and source code
         """
 
+        if "transform" in kwargs:
+            raise ValueError(
+                "'transform' is not allowed as a kwarg;"
+                + "axvline generates its own transform.")
         xmin, xmax = self.get_xbound()
 
         # We need to strip away the units for comparison with
