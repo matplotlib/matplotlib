@@ -228,10 +228,12 @@ from matplotlib.mlab import griddata, stineman_interp, slopes, \
 
 from matplotlib.mlab import window_hanning, window_none,  detrend, demean, \
      detrend_mean, detrend_none, detrend_linear, entropy, normpdf, levypdf, \
-     find, longest_contiguous_ones, longest_ones, prepca, prctile, prctile_rank, \
-     center_matrix, rk4, bivariate_normal, get_xyz_where, get_sparse_matrix, dist, \
+     find, longest_contiguous_ones, longest_ones, prepca, \
+     prctile, prctile_rank, \
+     center_matrix, rk4, bivariate_normal, get_xyz_where, \
+     get_sparse_matrix, dist, \
      dist_point_to_segment, segments_intersect, fftsurr, liaupunov, movavg, \
-     save, load, exp_safe, \
+     exp_safe, \
      amap, rms_flat, l1norm, l2norm, norm_flat, frange,  identity, \
      base_repr, binary_repr, log2, ispower2, \
      rec_append_fields, rec_drop_fields, rec_join, csv2rec, rec2csv, isvector
@@ -251,8 +253,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 
-def load(*args, **kwargs): 
-    raise  NotImplementedError(load.__doc__)        
+def load(*args, **kwargs):
+    raise  NotImplementedError(load.__doc__)
 load.__doc__ = """\
     pylab no longer provides a load function, though the old pylab
     function is still available as matplotlib.mlab.load (you can refer
@@ -264,8 +266,8 @@ load.__doc__ = """\
     """
 
 
-def save(*args, **kwargs): 
-    raise  NotImplementedError(save.__doc__)        
+def save(*args, **kwargs):
+    raise  NotImplementedError(save.__doc__)
 save.__doc__ = """\
     pylab no longer provides a save function, though the old pylab
     function is still available as matplotlib.mlab.save (you can still
