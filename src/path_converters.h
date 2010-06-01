@@ -233,9 +233,9 @@ class PathNanRemover : protected EmbeddedQueue<4> {
                 } while (MPL_notisfinite64(*x) || MPL_notisfinite64(*y));
                 return agg::path_cmd_move_to;
             }
-        }
 
-        return code;
+            return code;
+        }
     }
 };
 

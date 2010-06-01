@@ -12,8 +12,8 @@ using namespace std;
 
 extern "C" {
 
-static void reorder_edges(int npoints, int ntriangles, 
-    double *x, double *y, 
+static void reorder_edges(int npoints, int ntriangles,
+    double *x, double *y,
     int *edge_db, int *tri_edges, int *tri_nbrs)
 {
     int neighbors[3], nodes[3];
@@ -69,7 +69,7 @@ static void reorder_edges(int npoints, int ntriangles,
 
         // Not trusting me? Okay, let's go through it:
         // We have three edges to deal with and three nodes. Without loss
-        // of generality, let's label the nodes A, B, and C with (A, B) 
+        // of generality, let's label the nodes A, B, and C with (A, B)
         // forming the first edge in the order they arrive on input.
         // Then there are eight possibilities as to how the other edge-tuples
         // may be labeled, but only two variations that are going to affect the
@@ -85,7 +85,7 @@ static void reorder_edges(int npoints, int ntriangles,
         // The second test we need to perform is for counter-clockwiseness.
         // Again, there are only two variations that will affect the outcome:
         // either ABC is counter-clockwise, or it isn't. In the former case,
-        // we're done setting the node order, we just need to associate the 
+        // we're done setting the node order, we just need to associate the
         // appropriate neighbor triangles with their opposite nodes, something
         // which can be done by inspection. In the latter case, to order the
         // nodes counter-clockwise, we only have to switch B and C to get
@@ -113,7 +113,7 @@ static void reorder_edges(int npoints, int ntriangles,
 
 static PyObject* getMesh(int npoints, double *x, double *y)
 {
-    PyObject *vertices, *edge_db, *tri_edges, *tri_nbrs;
+    PyObject *vertices = NULL, *edge_db = NULL, *tri_edges = NULL, *tri_nbrs = NULL;
     PyObject *temp;
     int tri0, tri1, reg0, reg1;
     double tri0x, tri0y, tri1x, tri1y;
@@ -138,7 +138,7 @@ static PyObject* getMesh(int npoints, double *x, double *y)
     edge_db = PyArray_SimpleNew(2, dim, PyArray_INT);
     if (!edge_db) goto fail;
     edge_db_ptr = (int*)PyArray_DATA(edge_db);
-    
+
     dim[0] = numtri;
     vertices = PyArray_SimpleNew(2, dim, PyArray_DOUBLE);
     if (!vertices) goto fail;
@@ -192,7 +192,7 @@ static PyObject* getMesh(int npoints, double *x, double *y)
     // tri_edges contains lists of edges; convert to lists of nodes in
     // counterclockwise order and reorder tri_nbrs to match. Each node
     // corresponds to the edge opposite it in the triangle.
-    reorder_edges(npoints, numtri, x, y, edge_db_ptr, tri_edges_ptr, 
+    reorder_edges(npoints, numtri, x, y, edge_db_ptr, tri_edges_ptr,
         tri_nbrs_ptr);
 
     temp = Py_BuildValue("(OOOO)", vertices, edge_db, tri_edges, tri_nbrs);
@@ -221,7 +221,7 @@ static PyObject *linear_planes(int ntriangles, double *x, double *y, double *z,
     int i;
     double *planes_ptr;
     double x02, y02, z02, x12, y12, z12, xy0212;
-    
+
     dims[0] = ntriangles;
     dims[1] = 3;
     planes = PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
@@ -240,15 +240,15 @@ static PyObject *linear_planes(int ntriangles, double *x, double *y, double *z,
             xy0212 = y02/y12;
             INDEX3(planes_ptr,i,0) = (z02 - z12 * xy0212) / (x02 - x12 * xy0212);
             INDEX3(planes_ptr,i,1) = (z12 - INDEX3(planes_ptr,i,0)*x12) / y12;
-            INDEX3(planes_ptr,i,2) = (z[INDEX3(nodes,i,2)] - 
-                                      INDEX3(planes_ptr,i,0)*x[INDEX3(nodes,i,2)] - 
+            INDEX3(planes_ptr,i,2) = (z[INDEX3(nodes,i,2)] -
+                                      INDEX3(planes_ptr,i,0)*x[INDEX3(nodes,i,2)] -
                                       INDEX3(planes_ptr,i,1)*y[INDEX3(nodes,i,2)]);
         } else {
             xy0212 = x02/x12;
             INDEX3(planes_ptr,i,1) = (z02 - z12 * xy0212) / (y02 - y12 * xy0212);
             INDEX3(planes_ptr,i,0) = (z12 - INDEX3(planes_ptr,i,1)*y12) / x12;
-            INDEX3(planes_ptr,i,2) = (z[INDEX3(nodes,i,2)] - 
-                                      INDEX3(planes_ptr,i,0)*x[INDEX3(nodes,i,2)] - 
+            INDEX3(planes_ptr,i,2) = (z[INDEX3(nodes,i,2)] -
+                                      INDEX3(planes_ptr,i,0)*x[INDEX3(nodes,i,2)] -
                                       INDEX3(planes_ptr,i,1)*y[INDEX3(nodes,i,2)]);
         }
     }
@@ -256,24 +256,24 @@ static PyObject *linear_planes(int ntriangles, double *x, double *y, double *z,
     return (PyObject*)planes;
 }
 
-static double linear_interpolate_single(double targetx, double targety, 
+static double linear_interpolate_single(double targetx, double targety,
     double *x, double *y, int *nodes, int *neighbors,
     PyObject *planes, double defvalue, int start_triangle, int *end_triangle)
 {
     double *planes_ptr;
     planes_ptr = (double*)PyArray_DATA(planes);
     if (start_triangle == -1) start_triangle = 0;
-    *end_triangle = walking_triangles(start_triangle, targetx, targety, 
+    *end_triangle = walking_triangles(start_triangle, targetx, targety,
         x, y, nodes, neighbors);
     if (*end_triangle == -1) return defvalue;
-    return (targetx*INDEX3(planes_ptr,*end_triangle,0) + 
+    return (targetx*INDEX3(planes_ptr,*end_triangle,0) +
             targety*INDEX3(planes_ptr,*end_triangle,1) +
                     INDEX3(planes_ptr,*end_triangle,2));
 }
 
-static PyObject *linear_interpolate_grid(double x0, double x1, int xsteps, 
+static PyObject *linear_interpolate_grid(double x0, double x1, int xsteps,
     double y0, double y1, int ysteps,
-    PyObject *planes, double defvalue, 
+    PyObject *planes, double defvalue,
     int npoints, double *x, double *y, int *nodes, int *neighbors)
 {
     int ix, iy;
@@ -312,7 +312,7 @@ static PyObject *linear_interpolate_grid(double x0, double x1, int xsteps,
 static PyObject *compute_planes_method(PyObject *self, PyObject *args)
 {
     PyObject *pyx, *pyy, *pyz, *pynodes;
-    PyObject *x, *y, *z, *nodes;
+    PyObject *x = NULL, *y = NULL, *z = NULL, *nodes = NULL;
     int npoints, ntriangles;
 
     PyObject *planes;
@@ -351,7 +351,7 @@ static PyObject *compute_planes_method(PyObject *self, PyObject *args)
         goto fail;
     }
 
-    planes = linear_planes(ntriangles, (double*)PyArray_DATA(x), 
+    planes = linear_planes(ntriangles, (double*)PyArray_DATA(x),
         (double*)PyArray_DATA(y), (double*)PyArray_DATA(z), (int*)PyArray_DATA(nodes));
 
     Py_DECREF(x);
@@ -374,7 +374,7 @@ static PyObject *linear_interpolate_method(PyObject *self, PyObject *args)
     double x0, x1, y0, y1, defvalue;
     int xsteps, ysteps;
     PyObject *pyplanes, *pyx, *pyy, *pynodes, *pyneighbors, *grid;
-    PyObject *planes, *x, *y, *nodes, *neighbors;
+    PyObject *planes = NULL, *x = NULL, *y = NULL, *nodes = NULL, *neighbors = NULL;
     int npoints;
 
 
@@ -417,7 +417,7 @@ static PyObject *linear_interpolate_method(PyObject *self, PyObject *args)
         (PyObject*)planes, defvalue, npoints,
         (double*)PyArray_DATA(x), (double*)PyArray_DATA(y),
         (int*)PyArray_DATA(nodes), (int*)PyArray_DATA(neighbors));
-    
+
     Py_DECREF(x);
     Py_DECREF(y);
     Py_DECREF(planes);
@@ -455,7 +455,7 @@ static PyObject *nn_interpolate_unstructured_method(PyObject *self, PyObject *ar
 {
     PyObject *pyx, *pyy, *pyz, *pycenters, *pynodes, *pyneighbors, *pyintx, *pyinty;
     PyObject *x = NULL, *y = NULL, *z = NULL, *centers = NULL, *nodes = NULL,
-        *neighbors = NULL, *intx = NULL, *inty = NULL, *intz;
+        *neighbors = NULL, *intx = NULL, *inty = NULL, *intz = NULL;
     double defvalue;
     int size, npoints, ntriangles;
 
@@ -506,7 +506,7 @@ static PyObject *nn_interpolate_unstructured_method(PyObject *self, PyObject *ar
         return NULL;
     }
     ntriangles = PyArray_DIM(neighbors, 0);
-    if ((PyArray_DIM(nodes, 0) != ntriangles)  || 
+    if ((PyArray_DIM(nodes, 0) != ntriangles)  ||
         (PyArray_DIM(centers, 0) != ntriangles)) {
         PyErr_SetString(PyExc_ValueError, "centers,nodes,neighbors must be of equal length");
         CLEANUP
@@ -542,13 +542,13 @@ static PyObject *nn_interpolate_unstructured_method(PyObject *self, PyObject *ar
         return NULL;
     }
 
-    NaturalNeighbors nn(npoints, ntriangles, 
+    NaturalNeighbors nn(npoints, ntriangles,
         (double*)PyArray_DATA(x), (double*)PyArray_DATA(y),
-        (double*)PyArray_DATA(centers), (int*)PyArray_DATA(nodes), 
+        (double*)PyArray_DATA(centers), (int*)PyArray_DATA(nodes),
         (int*)PyArray_DATA(neighbors));
     size = PyArray_Size(intx);
-    nn.interpolate_unstructured((double*)PyArray_DATA(z), size, 
-        (double*)PyArray_DATA(intx), (double*)PyArray_DATA(inty), 
+    nn.interpolate_unstructured((double*)PyArray_DATA(z), size,
+        (double*)PyArray_DATA(intx), (double*)PyArray_DATA(inty),
         (double*)PyArray_DATA(intz), defvalue);
 
     Py_XDECREF(x);
@@ -575,13 +575,13 @@ static PyObject *nn_interpolate_unstructured_method(PyObject *self, PyObject *ar
 static PyObject *nn_interpolate_method(PyObject *self, PyObject *args)
 {
     PyObject *pyx, *pyy, *pyz, *pycenters, *pynodes, *pyneighbors, *grid;
-    PyObject *x, *y, *z, *centers, *nodes, *neighbors;
+    PyObject *x = NULL, *y = NULL, *z = NULL, *centers = NULL, *nodes = NULL, *neighbors = NULL;
     double x0, x1, y0, y1, defvalue;
     int xsteps, ysteps;
     int npoints, ntriangles;
     intp dims[2];
 
-    if (!PyArg_ParseTuple(args, "ddiddidOOOOOO", &x0, &x1, &xsteps, 
+    if (!PyArg_ParseTuple(args, "ddiddidOOOOOO", &x0, &x1, &xsteps,
         &y0, &y1, &ysteps, &defvalue, &pyx, &pyy, &pyz, &pycenters, &pynodes,
         &pyneighbors)) {
         return NULL;
@@ -629,7 +629,7 @@ static PyObject *nn_interpolate_method(PyObject *self, PyObject *args)
         return NULL;
     }
     ntriangles = PyArray_DIM(neighbors, 0);
-    if ((PyArray_DIM(nodes, 0) != ntriangles)  || 
+    if ((PyArray_DIM(nodes, 0) != ntriangles)  ||
         (PyArray_DIM(centers, 0) != ntriangles)) {
         PyErr_SetString(PyExc_ValueError, "centers,nodes,neighbors must be of equal length");
         CLEANUP
@@ -644,11 +644,11 @@ static PyObject *nn_interpolate_method(PyObject *self, PyObject *args)
         return NULL;
     }
 
-    NaturalNeighbors nn(npoints, ntriangles, 
+    NaturalNeighbors nn(npoints, ntriangles,
         (double*)PyArray_DATA(x), (double*)PyArray_DATA(y),
-        (double*)PyArray_DATA(centers), (int*)PyArray_DATA(nodes), 
+        (double*)PyArray_DATA(centers), (int*)PyArray_DATA(nodes),
         (int*)PyArray_DATA(neighbors));
-    nn.interpolate_grid((double*)PyArray_DATA(z), 
+    nn.interpolate_grid((double*)PyArray_DATA(z),
         x0, x1, xsteps,
         y0, y1, ysteps,
         (double*)PyArray_DATA(grid),
@@ -664,7 +664,7 @@ static PyObject *nn_interpolate_method(PyObject *self, PyObject *args)
 static PyObject *delaunay_method(PyObject *self, PyObject *args)
 {
     PyObject *pyx, *pyy, *mesh;
-    PyObject *x, *y;
+    PyObject *x = NULL, *y = NULL;
     int npoints;
 
     if (!PyArg_ParseTuple(args, "OO", &pyx, &pyy)) {
@@ -703,7 +703,7 @@ fail:
 }
 
 static PyMethodDef delaunay_methods[] = {
-    {"delaunay", (PyCFunction)delaunay_method, METH_VARARGS, 
+    {"delaunay", (PyCFunction)delaunay_method, METH_VARARGS,
         "Compute the Delaunay triangulation of a cloud of 2-D points.\n\n"
         "circumcenters, edges, tri_points, tri_neighbors = delaunay(x, y)\n\n"
         "x, y -- shape-(npoints,) arrays of floats giving the X and Y coordinates of the points\n"
@@ -730,7 +730,7 @@ static PyMethodDef delaunay_methods[] = {
 PyMODINIT_FUNC init_delaunay(void)
 {
     PyObject* m;
-    m = Py_InitModule3("_delaunay", delaunay_methods, 
+    m = Py_InitModule3("_delaunay", delaunay_methods,
         "Tools for computing the Delaunay triangulation and some operations on it.\n"
         );
     if (m == NULL)
