@@ -818,7 +818,7 @@ void clip_to_rect(PathIterator& path,
     }
 
     Polygon polygon1, polygon2;
-    double x, y;
+    double x = 0, y = 0;
     unsigned code = 0;
     path.rewind(0);
 

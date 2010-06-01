@@ -990,7 +990,8 @@ void
 #endif
 init_tri()
 {
-    static TriModule* triModule = new TriModule;
+    static TriModule* triModule = NULL;
+    triModule = new TriModule();
     import_array();
 }
 
