@@ -12,11 +12,17 @@ width = 0.35       # the width of the bars
 
 
 plt.subplot(111)
-rects1 = plt.bar(ind, menMeans, width, color='r', yerr=menStd)
+rects1 = plt.bar(ind, menMeans, width,
+                    color='r',
+                    yerr=menStd,
+                    error_kw=dict(elinewidth=6, ecolor='pink'))
 
 womenMeans = (25, 32, 34, 20, 25)
 womenStd =   (3, 5, 2, 3, 3)
-rects2 = plt.bar(ind+width, womenMeans, width, color='y', yerr=womenStd)
+rects2 = plt.bar(ind+width, womenMeans, width,
+                    color='y',
+                    yerr=womenStd,
+                    error_kw=dict(elinewidth=6, ecolor='yellow'))
 
 # add some
 plt.ylabel('Scores')

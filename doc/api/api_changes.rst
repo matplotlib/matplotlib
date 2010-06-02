@@ -10,6 +10,10 @@ list may help describe what changes may be necessary in your code.
 Changes beyond 0.99.x
 =====================
 
+* The :meth:`matplotlib.axes.Axes.bar` method accepts a *error_kw*
+  kwarg; it is a dictionary of kwargs to be passed to the
+  errorbar function.
+
 * The :meth:`matplotlib.axes.Axes.hist` *color* kwarg now accepts
   a sequence of color specs to match a sequence of datasets.
 

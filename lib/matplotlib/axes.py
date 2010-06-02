@@ -4288,6 +4288,10 @@ class Axes(martist.Artist):
           *ecolor*          specifies the color of any errorbar
           *capsize*         (default 3) determines the length in
                             points of the error bar caps
+          *error_kw*        dictionary of kwargs to be passed to
+                            errorbar method. *ecolor* and *capsize*
+                            may be specified here rather than as
+                            independent kwargs.
           *align*           'edge' (default) | 'center'
           *orientation*     'vertical' | 'horizontal'
           *log*             [False|True] False (default) leaves the
@@ -4322,13 +4326,18 @@ class Axes(martist.Artist):
         color = kwargs.pop('color', None)
         edgecolor = kwargs.pop('edgecolor', None)
         linewidth = kwargs.pop('linewidth', None)
+
         # Because xerr and yerr will be passed to errorbar,
         # most dimension checking and processing will be left
         # to the errorbar method.
         xerr = kwargs.pop('xerr', None)
         yerr = kwargs.pop('yerr', None)
+        error_kw = kwargs.pop('error_kw', dict())
         ecolor = kwargs.pop('ecolor', None)
         capsize = kwargs.pop('capsize', 3)
+        error_kw.setdefault('ecolor', ecolor)
+        error_kw.setdefault('capsize', capsize)
+
         align = kwargs.pop('align', 'edge')
         orientation = kwargs.pop('orientation', 'vertical')
         log = kwargs.pop('log', False)
@@ -4478,7 +4487,7 @@ class Axes(martist.Artist):
             self.errorbar(
                 x, y,
                 yerr=yerr, xerr=xerr,
-                fmt=None, ecolor=ecolor, capsize=capsize)
+                fmt=None, **error_kw)
 
         self.hold(holdstate) # restore previous hold state
 
@@ -4833,17 +4842,17 @@ class Axes(martist.Artist):
             If a scalar number, len(N) array-like object, or an Nx1 array-like
             object, errorbars are drawn +/- value.
 
-            If a rank-1, 2xN numpy array, errorbars are drawn at -row1 and
+            If a sequence of shape 2xN, errorbars are drawn at -row1 and
             +row2
 
           *fmt*: '-'
-            The plot format symbol for *y*. If *fmt* is *None*, just plot the
-            errorbars with no line symbols.  This can be useful for creating a
-            bar plot with errorbars.
+            The plot format symbol. If *fmt* is *None*, only the
+            errorbars are plotted.  This is used for adding
+            errorbars to a bar plot, for example.
 
           *ecolor*: [ None | mpl color ]
-            a matplotlib color arg which gives the color the errorbar lines; if
-            *None*, use the marker color.
+            a matplotlib color arg which gives the color the errorbar lines;
+            if *None*, use the marker color.
 
           *elinewidth*: scalar
             the linewidth of the errorbar lines. If *None*, use the linewidth.
@@ -4862,8 +4871,7 @@ class Axes(martist.Artist):
             type as *xerr* and *yerr*.
 
         All other keyword arguments are passed on to the plot command for the
-        markers, so you can add additional key=value pairs to control the
-        errorbar markers.  For example, this code makes big red squares with
+        markers, For example, this code makes big red squares with
         thick green edges::
 
           x,y,yerr = rand(3,10)
@@ -4878,12 +4886,16 @@ class Axes(martist.Artist):
 
         %(Line2D)s
 
-        Return value is a length 3 tuple.  The first element is the
-        :class:`~matplotlib.lines.Line2D` instance for the *y* symbol
-        lines.  The second element is a list of error bar cap lines,
-        the third element is a list of
-        :class:`~matplotlib.collections.LineCollection` instances for
-        the horizontal and vertical error ranges.
+        Returns (*plotline*, *caplines*, *barlinecols*):
+
+            *plotline*: :class:`~matplotlib.lines.Line2D` instance
+                *x*, *y* plot markers and/or line
+
+            *caplines*: list of error bar cap
+                :class:`~matplotlib.lines.Line2D` instances
+            *barlinecols*: list of
+                :class:`~matplotlib.collections.LineCollection` instances for
+                the horizontal and vertical error ranges.
 
         **Example:**
 
