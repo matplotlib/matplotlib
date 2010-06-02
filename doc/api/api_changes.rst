@@ -10,6 +10,21 @@ list may help describe what changes may be necessary in your code.
 Changes beyond 0.99.x
 =====================
 
+* There are three new Axes methods with corresponding pyplot
+  functions to facilitate autoscaling, tick location, and tick
+  label formatting:
+
+  + :meth:`matplotlib.axes.Axes.margins` sets margins used to
+    autoscale the :attr:`matplotlib.axes.Axes.viewLim` based on
+    the :attr:`matplotlib.axes.Axes.dataLim`.
+
+  + :meth:`matplotlib.axes.Axes.locator_params` allows one to
+    adjust axes locator parameters such as *nbins*.
+
+  + :meth:`matplotlib.axes.Axes.ticklabel_format` is a convenience
+    method for controlling the :class:`matplotlib.ticker.ScalarFormatter`
+    that is used by default with linear axes.
+
 * The :meth:`matplotlib.axes.Axes.bar` method accepts a *error_kw*
   kwarg; it is a dictionary of kwargs to be passed to the
   errorbar function.
