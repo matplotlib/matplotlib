@@ -663,6 +663,13 @@ class NonUniformImage(AxesImage):
         self._Ay = y
         self._imcache = None
 
+        # I am adding this in accor with _AxesImageBase.set_data --
+        # examples/pylab_examples/image_nonuniform.py was breaking on
+        # the call to _get_unsampled_image when the oldxslice attr was
+        # accessed - JDH 3/3/2010
+        self._oldxslice = None
+        self._oldyslice = None
+
     def set_array(self, *args):
         raise NotImplementedError('Method not supported')
 
