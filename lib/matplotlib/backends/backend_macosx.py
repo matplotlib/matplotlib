@@ -2,6 +2,7 @@ from __future__ import division
 
 import os
 import numpy
+import MacOS
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -222,6 +223,9 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
+    if not MacOS.WMAvailable():
+        import warnings
+        warnings.warn("Python is not installed as a framework. The MacOSX backend may not work correctly if Python is not installed as a framework. Please see the Python documentation for more information on installing Python as a framework on Mac OS X")
     FigureClass = kwargs.pop('FigureClass', Figure)
     figure = FigureClass(*args, **kwargs)
     canvas = FigureCanvasMac(figure)
