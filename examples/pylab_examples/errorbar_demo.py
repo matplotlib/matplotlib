@@ -1,46 +1,48 @@
 #!/usr/bin/env python
-from pylab import *
+import numpy as np
+import matplotlib.pyplot as plt
 
-t = arange(0.1, 4, 0.1)
-s = exp(-t)
-e = 0.1*abs(randn(len(s)))
-f = 0.1*abs(randn(len(s)))
-g = 2*e
-h = 2*f
+# example data
+x = np.arange(0.1, 4, 0.5)
+y = np.exp(-x)
 
-figure()
-errorbar(t, s, e, fmt='o')             # vertical symmetric
+# example variable error bar values
+yerr = 0.1 + 0.2*np.sqrt(x)
+xerr = 0.1 + yerr
 
-figure()
-errorbar(t, s, None, f, fmt='o')       # horizontal symmetric
+# First illustrate basic pyplot interface, using defaults where possible.
+plt.figure()
+plt.errorbar(x, y, xerr=0.2, yerr=0.4)
+plt.title("Simplest errorbars, 0.2 in x, 0.4 in y")
 
-figure()
-errorbar(t, s, e, f, fmt='o')          # both symmetric
+# Now switch to a more OO interface to exercise more features.
+fig, axs = plt.subplots(nrows=2, ncols=2, sharex=True)
+ax = axs[0,0]
+ax.errorbar(x, y, yerr=yerr, fmt='o')
+ax.set_title('Vert. symmetric')
 
-figure()
-errorbar(t, s, [e,g], [f,h], fmt='--o')  # both asymmetric
+# With 4 subplots, reduce the number of axis ticks to avoid crowding.
+ax.locator_params(nbins=4)
 
-figure()
-errorbar(t, s, [e,g], f, fmt='o', ecolor='g')      # both mixed
+ax = axs[0,1]
+ax.errorbar(x, y, xerr=xerr, fmt='o')
+ax.set_title('Hor. symmetric')
 
-figure()
-errorbar(t, s, e, [f,h], fmt='o')      # both mixed
+ax = axs[1,0]
+ax.errorbar(x, y, yerr=[yerr, 2*yerr], xerr=[xerr, 2*xerr], fmt='--o')
+ax.set_title('H, V asymmetric')
 
-figure()
-errorbar(t, s, [e,g], fmt='o')         # vertical asymmetric
-
-figure()
-errorbar(t, s, yerr=e, fmt='o')        # named
-
-figure()
-errorbar(t, s, xerr=f, fmt='o')        # named
-xlabel('Distance (m)')
-ylabel('Height (m)')
-title('Mean and standard error as a function of distance')
-
-figure()
-ax = subplot(111)
+ax = axs[1,1]
 ax.set_yscale('log')
-errorbar(t, s+2, e, f, fmt='o')          # both symmetric
+# Here we have to be careful to keep all y values positive:
+ylower = np.maximum(1e-2, y - yerr)
+yerr_lower = y - ylower
 
-show()
+ax.errorbar(x, y, yerr=[yerr_lower, 2*yerr], xerr=xerr,
+                            fmt='o', ecolor='g')
+ax.set_title('Mixed sym., log y')
+
+fig.suptitle('Variable errorbars')
+
+plt.show()
+
