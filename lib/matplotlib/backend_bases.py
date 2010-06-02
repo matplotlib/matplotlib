@@ -2062,6 +2062,9 @@ class FigureManagerBase:
         #    self.destroy() # how cruel to have to destroy oneself!
         #    return
 
+        if event.key is None:
+            return
+
         # Load key-mappings from your matplotlibrc file.
         fullscreen_keys = rcParams['keymap.fullscreen']
         home_keys = rcParams['keymap.home']
@@ -2128,8 +2131,7 @@ class FigureManagerBase:
                 ax.set_xscale('log')
                 ax.figure.canvas.draw()
 
-        elif event.key is not None and \
-                 (event.key.isdigit() and event.key!='0') or event.key in all:
+        elif (event.key.isdigit() and event.key!='0') or event.key in all:
             # keys in list 'all' enables all axes (default key 'a'),
             # otherwise if key is a number only enable this particular axes
             # if it was the axes, where the event was raised
