@@ -1088,8 +1088,8 @@ class QuadMesh(Collection):
     *shading* may be 'flat', 'faceted' or 'gouraud'
     """
     def __init__(self, meshWidth, meshHeight, coordinates, showedges,
-                 antialiased=True, shading='flat'):
-        Collection.__init__(self)
+                 antialiased=True, shading='flat', **kwargs):
+        Collection.__init__(self, **kwargs)
         self._meshWidth = meshWidth
         self._meshHeight = meshHeight
         self._coordinates = coordinates

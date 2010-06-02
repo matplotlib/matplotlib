@@ -1,3 +1,6 @@
+2010-06-01 Fix pcolormesh() and QuadMesh to pass on kwargs as
+           appropriate. - RM
+
 2010-05-18 Merge mpl_toolkits.gridspec into the main tree. - JJL
 
 2010-05-04 Improve backend_qt4 so it displays figures with the

@@ -6897,7 +6897,7 @@ class Axes(martist.Artist):
 
         collection = mcoll.QuadMesh(
             Nx - 1, Ny - 1, coords, showedges,
-            antialiased=antialiased, shading=shading)  # kwargs are not used
+            antialiased=antialiased, shading=shading, **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
