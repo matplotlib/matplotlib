@@ -42,7 +42,7 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
 
     where d is a floating poing representation of date, as returned by date2num
 
-    if adjust=True, use adjusted prices
+    if adjusted=True, use adjusted prices
     """
     results = []
 
