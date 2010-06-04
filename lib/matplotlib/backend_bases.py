@@ -1069,12 +1069,13 @@ class CloseEvent(Event):
 
 class LocationEvent(Event):
     """
-    A event that has a screen location
+    An event that has a screen location
 
     The following additional attributes are defined and shown with
-    their default values
+    their default values.
 
-    In addition to the :class:`Event` attributes, the following event attributes are defined:
+    In addition to the :class:`Event` attributes, the following
+    event attributes are defined:
 
     *x*
         x position - pixels from left of canvas
@@ -1148,8 +1149,16 @@ class LocationEvent(Event):
             last = LocationEvent.lastevent
             if last.inaxes!=self.inaxes:
                 # process axes enter/leave events
-                if last.inaxes is not None:
-                    last.canvas.callbacks.process('axes_leave_event', last)
+                try:
+                    if last.inaxes is not None:
+                        last.canvas.callbacks.process('axes_leave_event', last)
+                except:
+                    pass
+                    # See ticket 2901582.
+                    # I think this is a valid exception to the rule
+                    # against catching all exceptions; if anything goes
+                    # wrong, we simply want to move on and process the
+                    # current event.
                 if self.inaxes is not None:
                     self.canvas.callbacks.process('axes_enter_event', self)
 
@@ -1158,8 +1167,8 @@ class LocationEvent(Event):
             if self.inaxes is not None:
                 self.canvas.callbacks.process('axes_enter_event', self)
 
-
         LocationEvent.lastevent = self
+
 
 
 
