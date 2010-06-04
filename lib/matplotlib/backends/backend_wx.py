@@ -230,7 +230,7 @@ def raise_msg_to_str(msg):
 class TimerWx(TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses WxTimer events.
-    
+
     Attributes:
     * interval: The time between timer events in milliseconds. Default
         is 1000 ms.
@@ -1027,9 +1027,9 @@ The current aspect ration will be kept."""
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
-        
+
         optional arguments:
-        
+
         *interval*
           Timer interval in milliseconds
         *callbacks*
@@ -1546,6 +1546,8 @@ class FigureFrameWx(wx.Frame):
         return self.toolbar
 
     def Destroy(self, *args, **kwargs):
+        self.canvas.mpl_disconnect(self.toolbar._idDrag)
+        # Rationale for line above: see issue 2941338.
         wx.Frame.Destroy(self, *args, **kwargs)
         if self.toolbar is not None:
             self.toolbar.Destroy()
