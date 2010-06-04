@@ -372,7 +372,7 @@ class Axes(martist.Artist):
           Keyword            Description
           ================   =========================================
           *adjustable*       [ 'box' | 'datalim' | 'box-forced']
-          *alpha*            float: the alpha transparency
+          *alpha*            float: the alpha transparency (can be None)
           *anchor*           [ 'C', 'SW', 'S', 'SE', 'E', 'NE', 'N',
                                'NW', 'W' ]
           *aspect*           [ 'auto' | 'equal' | aspect_ratio ]
@@ -5338,14 +5338,14 @@ class Axes(martist.Artist):
 
     @docstring.dedent_interpd
     def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
-                    vmin=None, vmax=None, alpha=1.0, linewidths=None,
+                    vmin=None, vmax=None, alpha=None, linewidths=None,
                     faceted=True, verts=None,
                     **kwargs):
         """
         call signatures::
 
           scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
-                  vmin=None, vmax=None, alpha=1.0, linewidths=None,
+                  vmin=None, vmax=None, alpha=None, linewidths=None,
                   verts=None, **kwargs)
 
         Make a scatter plot of *x* versus *y*, where *x*, *y* are
@@ -5438,7 +5438,7 @@ class Axes(martist.Artist):
             *norm* instance, your settings for *vmin* and *vmax* will
             be ignored.
 
-          *alpha*: 0 <= scalar <= 1
+          *alpha*: 0 <= scalar <= 1  or None
             The alpha value for the patches
 
           *linewidths*: [ None | scalar | sequence ]
@@ -5656,7 +5656,7 @@ class Axes(martist.Artist):
     def hexbin(self, x, y, C = None, gridsize = 100, bins = None,
                     xscale = 'linear', yscale = 'linear', extent = None,
                     cmap=None, norm=None, vmin=None, vmax=None,
-                    alpha=1.0, linewidths=None, edgecolors='none',
+                    alpha=None, linewidths=None, edgecolors='none',
                     reduce_C_function = np.mean, mincnt=None, marginals=False,
                     **kwargs):
         """
@@ -5665,7 +5665,7 @@ class Axes(martist.Artist):
           hexbin(x, y, C = None, gridsize = 100, bins = None,
                  xscale = 'linear', yscale = 'linear',
                  cmap=None, norm=None, vmin=None, vmax=None,
-                 alpha=1.0, linewidths=None, edgecolors='none'
+                 alpha=None, linewidths=None, edgecolors='none'
                  reduce_C_function = np.mean, mincnt=None, marginals=True
                  **kwargs)
 
@@ -5744,7 +5744,7 @@ class Axes(martist.Artist):
             array *C* is used.  Note if you pass a norm instance, your settings
             for *vmin* and *vmax* will be ignored.
 
-          *alpha*: scalar
+          *alpha*: scalar between 0 and 1, or None
             the alpha value for the patches
 
           *linewidths*: [ None | scalar ]
@@ -6438,14 +6438,14 @@ class Axes(martist.Artist):
 
     @docstring.dedent_interpd
     def imshow(self, X, cmap=None, norm=None, aspect=None,
-               interpolation=None, alpha=1.0, vmin=None, vmax=None,
+               interpolation=None, alpha=None, vmin=None, vmax=None,
                origin=None, extent=None, shape=None, filternorm=1,
                filterrad=4.0, imlim=None, resample=None, url=None, **kwargs):
         """
         call signature::
 
           imshow(X, cmap=None, norm=None, aspect=None, interpolation=None,
-                 alpha=1.0, vmin=None, vmax=None, origin=None, extent=None,
+                 alpha=None, vmin=None, vmax=None, origin=None, extent=None,
                  **kwargs)
 
         Display the image in *X* to current axes.  *X* may be a float
@@ -6505,6 +6505,7 @@ class Axes(martist.Artist):
 
           *alpha*: scalar
             The alpha blending value, between 0 (transparent) and 1 (opaque)
+            or *None*
 
           *origin*: [ None | 'upper' | 'lower' ]
             Place the [0,0] index of the array in the upper left or lower left
@@ -6673,7 +6674,7 @@ class Axes(martist.Artist):
 
             An mpl color or sequence of colors will set the edge color
 
-          *alpha*: 0 <= scalar <= 1
+          *alpha*: 0 <= scalar <= 1   or *None*
             the alpha blending value
 
         Return value is a :class:`matplotlib.collection.Collection`
@@ -6729,7 +6730,7 @@ class Axes(martist.Artist):
 
         if not self._hold: self.cla()
 
-        alpha = kwargs.pop('alpha', 1.0)
+        alpha = kwargs.pop('alpha', None)
         norm = kwargs.pop('norm', None)
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
@@ -6858,7 +6859,7 @@ class Axes(martist.Artist):
 
             An mpl color or sequence of colors will set the edge color
 
-          *alpha*: 0 <= scalar <= 1
+          *alpha*: 0 <= scalar <= 1  or *None*
             the alpha blending value
 
         Return value is a :class:`matplotlib.collection.QuadMesh`
@@ -6878,7 +6879,7 @@ class Axes(martist.Artist):
         """
         if not self._hold: self.cla()
 
-        alpha = kwargs.pop('alpha', 1.0)
+        alpha = kwargs.pop('alpha', None)
         norm = kwargs.pop('norm', None)
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
@@ -7003,7 +7004,7 @@ class Axes(martist.Artist):
             luminance data.  If either are *None*, the min and max of the color
             array *C* is used.  If you pass a norm instance, *vmin* and *vmax*
             will be *None*.
-          *alpha*: 0 <= scalar <= 1
+          *alpha*: 0 <= scalar <= 1  or *None*
             the alpha blending value
 
         Return value is an image if a regular or rectangular grid
@@ -7014,7 +7015,7 @@ class Axes(martist.Artist):
 
         if not self._hold: self.cla()
 
-        alpha = kwargs.pop('alpha', 1.0)
+        alpha = kwargs.pop('alpha', None)
         norm = kwargs.pop('norm', None)
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)

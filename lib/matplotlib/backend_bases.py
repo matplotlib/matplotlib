@@ -727,6 +727,8 @@ class GraphicsContextBase:
         Set the alpha value used for blending - not supported on
         all backends
         """
+        if alpha is None:
+            alpha = 1.0
         self._alpha = alpha
 
     def set_antialiased(self, b):

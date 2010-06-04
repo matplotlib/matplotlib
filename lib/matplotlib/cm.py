@@ -160,21 +160,25 @@ class ScalarMappable:
         'set the colorbar image and axes associated with mappable'
         self.colorbar = im, ax
 
-    def to_rgba(self, x, alpha=1.0, bytes=False):
+    def to_rgba(self, x, alpha=None, bytes=False):
         '''Return a normalized rgba array corresponding to *x*. If *x*
         is already an rgb array, insert *alpha*; if it is already
         rgba, return it unchanged. If *bytes* is True, return rgba as
         4 uint8s instead of 4 floats.
         '''
+        if alpha is None:
+            _alpha = 1.0
+        else:
+            _alpha = alpha
         try:
             if x.ndim == 3:
                 if x.shape[2] == 3:
                     if x.dtype == np.uint8:
-                        alpha = np.array(alpha*255, np.uint8)
+                        _alpha = np.array(_alpha*255, np.uint8)
                     m, n = x.shape[:2]
                     xx = np.empty(shape=(m,n,4), dtype = x.dtype)
                     xx[:,:,:3] = x
-                    xx[:,:,3] = alpha
+                    xx[:,:,3] = _alpha
                 elif x.shape[2] == 4:
                     xx = x
                 else:
