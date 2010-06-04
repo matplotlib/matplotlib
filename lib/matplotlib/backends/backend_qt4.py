@@ -87,7 +87,7 @@ def new_figure_manager( num, *args, **kwargs ):
 class TimerQT(TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses Qt4 timer events.
-    
+
     Attributes:
     * interval: The time between timer events in milliseconds. Default
         is 1000 ms.
@@ -99,7 +99,7 @@ class TimerQT(TimerBase):
     '''
     def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
-        
+
         # Create a new timer and connect the timeout() signal to the
         # _on_timer method.
         self._timer = QtCore.QTimer()
@@ -237,9 +237,9 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
-        
+
         optional arguments:
-        
+
         *interval*
           Timer interval in milliseconds
         *callbacks*
@@ -341,7 +341,14 @@ class FigureManagerQT( FigureManagerBase ):
     def _widgetclosed( self ):
         if self.window._destroying: return
         self.window._destroying = True
-        Gcf.destroy(self.num)
+        try:
+            Gcf.destroy(self.num)
+        except AttributeError:
+            pass
+            # It seems that when the python session is killed,
+            # Gcf can get destroyed before the Gcf.destroy
+            # line is run, leading to a useless AttributeError.
+
 
     def _get_toolbar(self, canvas, parent):
         # must be inited after the window, drawingArea and figure

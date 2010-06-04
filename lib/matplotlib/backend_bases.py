@@ -1447,8 +1447,14 @@ class FigureCanvasBase:
         'close_event' with a :class:`CloseEvent`
         """
         s = 'close_event'
-        event = CloseEvent(s, self, guiEvent=guiEvent)
-        self.callbacks.process(s, event)
+        try:
+            event = CloseEvent(s, self, guiEvent=guiEvent)
+            self.callbacks.process(s, event)
+        except TypeError:
+            pass
+            # Suppress the TypeError when the python session is being killed.
+            # It may be that a better solution would be a mechanism to
+            # disconnect all callbacks upon shutdown.
 
     def key_press_event(self, key, guiEvent=None):
         """
