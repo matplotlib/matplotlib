@@ -65,8 +65,8 @@ def dvipng_hack_alpha():
                 'helpful')
             version = distutils.version.LooseVersion(version)
             return version < distutils.version.LooseVersion('1.6')
-    raise RuntimeError('Could not obtain dvipng version')
-
+    mpl.verbose.report('No dvipng was found', 'helpful')
+    return False
 
 
 class TexManager:
