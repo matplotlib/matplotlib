@@ -655,7 +655,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.linewidths = kwargs.get('linewidths', None)
         self.linestyles = kwargs.get('linestyles', None)
 
-        self.alpha = kwargs.get('alpha', 1.0)
+        self.alpha = kwargs.get('alpha', None)
         self.origin = kwargs.get('origin', None)
         self.extent = kwargs.get('extent', None)
         cmap = kwargs.get('cmap', None)

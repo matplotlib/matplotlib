@@ -78,7 +78,7 @@ class Artist(object):
         self._transformSet = False
         self._visible = True
         self._animated = False
-        self._alpha = 1.0
+        self._alpha = None
         self.clipbox = None
         self._clippath = None
         self._clipon = True

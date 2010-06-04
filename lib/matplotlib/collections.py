@@ -443,25 +443,27 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def set_alpha(self, alpha):
         """
         Set the alpha tranparencies of the collection.  *alpha* must be
-        a float.
+        a float or *None*.
 
-        ACCEPTS: float
+        ACCEPTS: float or None
         """
-        try: float(alpha)
-        except TypeError: raise TypeError('alpha must be a float')
-        else:
-            artist.Artist.set_alpha(self, alpha)
+        if alpha is not None:
             try:
-                self._facecolors = mcolors.colorConverter.to_rgba_array(
-                    self._facecolors_original, self._alpha)
-            except (AttributeError, TypeError, IndexError):
-                pass
-            try:
-                if self._edgecolors_original != 'face':
-                    self._edgecolors = mcolors.colorConverter.to_rgba_array(
-                        self._edgecolors_original, self._alpha)
-            except (AttributeError, TypeError, IndexError):
-                pass
+                float(alpha)
+            except TypeError:
+                raise TypeError('alpha must be a float or None')
+        artist.Artist.set_alpha(self, alpha)
+        try:
+            self._facecolors = mcolors.colorConverter.to_rgba_array(
+                self._facecolors_original, self._alpha)
+        except (AttributeError, TypeError, IndexError):
+            pass
+        try:
+            if self._edgecolors_original != 'face':
+                self._edgecolors = mcolors.colorConverter.to_rgba_array(
+                    self._edgecolors_original, self._alpha)
+        except (AttributeError, TypeError, IndexError):
+            pass
 
     def get_linewidths(self):
         return self._linewidths

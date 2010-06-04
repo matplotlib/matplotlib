@@ -197,7 +197,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def __init__(self, ax, cmap=None,
                            norm=None,
-                           alpha=1.0,
+                           alpha=None,
                            values=None,
                            boundaries=None,
                            orientation='vertical',

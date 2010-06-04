@@ -61,7 +61,7 @@ docstring.interpd.update(Text =  """
     ========================== =========================================================================
     Property                   Value
     ========================== =========================================================================
-    alpha                      float
+    alpha                      float or None
     animated                   [True | False]
     backgroundcolor            any matplotlib color
     bbox                       rectangle prop dict plus key 'pad' which is a pad in points

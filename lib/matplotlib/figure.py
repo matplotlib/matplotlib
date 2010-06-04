@@ -340,7 +340,7 @@ class Figure(Artist):
     def figimage(self, X,
                  xo=0,
                  yo=0,
-                 alpha=1.0,
+                 alpha=None,
                  norm=None,
                  cmap=None,
                  vmin=None,
@@ -380,7 +380,7 @@ class Figure(Artist):
                       None, the min and max of the luminance values will be
                       used.  Note if you pass a norm instance, the settings for
                       *vmin* and *vmax* will be ignored.
-          alpha       the alpha blending value, default is 1.0
+          alpha       the alpha blending value, default is None
           origin      [ 'upper' | 'lower' ] Indicates where the [0,0] index of
                       the array is in the upper left or lower left corner of
                       the axes. Defaults to the rc image.origin value
