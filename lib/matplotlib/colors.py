@@ -382,10 +382,17 @@ class ColorConverter:
                     if (c.ravel() > 1).any() or (c.ravel() < 0).any():
                         raise ValueError(
                             "number in rgba sequence is outside 0-1 range")
-                    # looks like rgba already, nothing to be done; do
-                    # we want to apply alpha here if
-                    # (c[:,3]==1).all() ?
-                    return np.asarray(c, np.float)
+                    result = np.asarray(c, np.float)
+                    if alpha is not None:
+                        if alpha > 1 or alpha < 0:
+                            raise ValueError("alpha must be in 0-1 range")
+                        result[:,3] = alpha
+                    return result
+                    # This alpha operation above is new, and depends
+                    # on higher levels to refrain from setting alpha
+                    # to values other than None unless there is
+                    # intent to override any existing alpha values.
+
             # It must be some other sequence of color specs.
             result = np.zeros((nc, 4), dtype=np.float)
             for i, cc in enumerate(c):

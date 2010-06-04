@@ -6278,13 +6278,14 @@ class Axes(martist.Artist):
 
             if interpolate:
                 def get_interp_point(ind):
-                    x_values = x[ind-1:ind+1]
-                    diff_values = y1[ind-1:ind+1] - y2[ind-1:ind+1]
-                    y1_values = y1[ind-1:ind+1]
+                    im1 = max(ind-1, 0)
+                    x_values = x[im1:ind+1]
+                    diff_values = y1[im1:ind+1] - y2[im1:ind+1]
+                    y1_values = y1[im1:ind+1]
 
                     if len(diff_values) == 2:
                         if np.ma.is_masked(diff_values[1]):
-                            return x[ind-1], y1[ind-1]
+                            return x[im1], y1[im1]
                         elif np.ma.is_masked(diff_values[0]):
                             return x[ind], y1[ind]
 
