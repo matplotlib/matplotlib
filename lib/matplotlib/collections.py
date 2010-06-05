@@ -596,6 +596,7 @@ class PolyCollection(Collection):
 
     set_paths = set_verts
 
+    @allow_rasterization
     def draw(self, renderer):
         if self._sizes is not None:
             self._transforms = [
@@ -904,6 +905,7 @@ class CircleCollection(Collection):
         "return sizes of circles"
         return self._sizes
 
+    @allow_rasterization
     def draw(self, renderer):
         # sizes is the area of the circle circumscribing the polygon
         # in points^2
@@ -991,7 +993,7 @@ class EllipseCollection(Collection):
             m[:2, 2:] = 0
             self.set_transform(_affine(m))
 
-
+    @allow_rasterization
     def draw(self, renderer):
         self._set_transforms()
         Collection.draw(self, renderer)
