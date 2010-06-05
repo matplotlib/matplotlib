@@ -769,6 +769,7 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         #self._set_offset_radius(r)
 
         for (x, y), a, l in self._locs_angles_labels:
+            if not l.strip(): continue
             self._set_ref_angle(a) #+ add_angle
             self.set_x(x)
             self.set_y(y)
@@ -811,6 +812,7 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
         """
         whd_list = []
         for (x, y), a, l in self._locs_angles_labels:
+            if not l.strip(): continue
             clean_line, ismath = self.is_math_text(l)
             whd = renderer.get_text_width_height_descent(
                 clean_line, self._fontproperties, ismath=ismath)
