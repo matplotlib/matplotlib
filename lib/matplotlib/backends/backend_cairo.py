@@ -96,6 +96,8 @@ class RendererCairo(RendererBase):
            cairo.ImageSurface (cairo.FORMAT_ARGB32,1,1))
         self.mathtext_parser = MathTextParser('Cairo')
 
+        RendererBase.__init__(self)
+
     def set_ctx_from_surface (self, surface):
         self.gc.ctx = cairo.Context (surface)
 
