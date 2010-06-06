@@ -1,5 +1,5 @@
 """
-Copyright (c) 2003-2005  Gustavo Niemeyer <gustavo@niemeyer.net>
+Copyright (c) 2003-2007  Gustavo Niemeyer <gustavo@niemeyer.net>
 
 This module offers extensions to the standard python 2.3+
 datetime module.
@@ -438,7 +438,7 @@ class tzfile(datetime.tzinfo):
 
         # The documentation says that utcoffset()-dst() must
         # be constant for every dt.
-        return self._find_ttinfo(dt, laststd=1).delta-tti.delta
+        return tti.delta-self._find_ttinfo(dt, laststd=1).delta
 
         # An alternative for that would be:
         #
@@ -492,12 +492,12 @@ class tzrange(datetime.tzinfo):
             self._dst_offset = self._std_offset+datetime.timedelta(hours=+1)
         else:
             self._dst_offset = ZERO
-        if start is None:
+        if dstabbr and start is None:
             self._start_delta = relativedelta.relativedelta(
                     hours=+2, month=4, day=1, weekday=relativedelta.SU(+1))
         else:
             self._start_delta = start
-        if end is None:
+        if dstabbr and end is None:
             self._end_delta = relativedelta.relativedelta(
                     hours=+1, month=10, day=31, weekday=relativedelta.SU(-1))
         else:
@@ -524,7 +524,7 @@ class tzrange(datetime.tzinfo):
     def _isdst(self, dt):
         if not self._start_delta:
             return False
-        year = datetime.date(dt.year,1,1)
+        year = datetime.datetime(dt.year,1,1)
         start = year+self._start_delta
         end = year+self._end_delta
         dt = dt.replace(tzinfo=None)
@@ -563,6 +563,11 @@ class tzstr(tzrange):
         if res is None:
             raise ValueError, "unknown string format"
 
+        # Here we break the compatibility with the TZ variable handling.
+        # GMT-3 actually *means* the timezone -3.
+        if res.stdabbr in ("GMT", "UTC"):
+            res.stdoffset *= -1
+
         # We must initialize it first, since _delta() needs
         # _std_offset and _dst_offset set. Use False in start/end
         # to avoid building it two times.
@@ -570,9 +575,13 @@ class tzstr(tzrange):
                          res.dstabbr, res.dstoffset,
                          start=False, end=False)
 
-        self._start_delta = self._delta(res.start)
-        if self._start_delta:
-            self._end_delta = self._delta(res.end, isend=1)
+        if not res.dstabbr:
+            self._start_delta = None
+            self._end_delta = None
+        else:
+            self._start_delta = self._delta(res.start)
+            if self._start_delta:
+                self._end_delta = self._delta(res.end, isend=1)
 
     def _delta(self, x, isend=0):
         kwargs = {}
@@ -753,6 +762,8 @@ class tzical:
             else:
                 i += 1
 
+        tzid = None
+        comps = []
         invtz = False
         comptype = None
         for line in lines:

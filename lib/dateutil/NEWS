@@ -1,3 +1,19 @@
+
+Version 1.5
+-----------
+
+- As reported by Mathieu Bridon, rrules were matching the bysecond rules
+  incorrectly against byminute in some circumstances when the SECONDLY
+  frequency was in use, due to a copy & paste bug.  The problem has been
+  unittested and corrected.
+
+- Adam Ryan reported a problem in the relativedelta implementation which
+  affected the yearday parameter in the month of January specifically.
+  This has been unittested and fixed.
+
+- Updated timezone information.
+
+
 Version 1.4.1
 -------------
 

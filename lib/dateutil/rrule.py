@@ -1,5 +1,5 @@
 """
-Copyright (c) 2003-2005  Gustavo Niemeyer <gustavo@niemeyer.net>
+Copyright (c) 2003-2010  Gustavo Niemeyer <gustavo@niemeyer.net>
 
 This module offers extensions to the standard python 2.3+
 datetime module.
@@ -439,7 +439,7 @@ class rrule(rrulebase):
                 (freq >= MINUTELY and
                  self._byminute and minute not in self._byminute) or
                 (freq >= SECONDLY and
-                 self._bysecond and minute not in self._bysecond)):
+                 self._bysecond and second not in self._bysecond)):
                 timeset = ()
             else:
                 timeset = gettimeset(hour, minute, second)
