@@ -12,12 +12,12 @@ from pytz.tzinfo import memorized_datetime, memorized_timedelta
 
 
 def build_tzinfo(zone, fp):
-    head_fmt = '>4s 16x 6l'
+    head_fmt = '>4s c 15x 6l'
     head_size = calcsize(head_fmt)
-    (magic,ttisgmtcnt,ttisstdcnt,leapcnt,
-     timecnt,typecnt,charcnt) =  unpack(head_fmt, fp.read(head_size))
-    
-    # Make sure it is a tzinfo(5) file
+    (magic, format, ttisgmtcnt, ttisstdcnt,leapcnt, timecnt,
+        typecnt, charcnt) =  unpack(head_fmt, fp.read(head_size))
+
+    # Make sure it is a tzfile(5) file
     assert magic == 'TZif'
 
     # Read out the transition times, localtime indices and ttinfo structures.
@@ -83,6 +83,15 @@ def build_tzinfo(zone, fp):
                     if not prev_inf[1]:
                         break
                 dst = inf[0] - prev_inf[0] # dst offset
+
+                if dst <= 0: # Bad dst? Look further.
+                    for j in range(i+1, len(transitions)):
+                        stdinf = ttinfo[lindexes[j]]
+                        if not stdinf[1]:
+                            dst = inf[0] - stdinf[0]
+                            if dst > 0:
+                                break # Found a useful std time.
+
             tzname = inf[2]
 
             # Round utcoffset and dst to the nearest minute or the

@@ -1,4 +1,7 @@
-# @(#)zone.tab	8.16
+# <pre>
+# @(#)zone.tab	8.35
+# This file is in the public domain, so clarified as of
+# 2009-05-17 by Arthur David Olson.
 #
 # TZ zone descriptions
 #
@@ -41,15 +44,17 @@ AQ	-6617+11031	Antarctica/Casey	Casey Station, Bailey Peninsula
 AQ	-7824+10654	Antarctica/Vostok	Vostok Station, S Magnetic Pole
 AQ	-6640+14001	Antarctica/DumontDUrville	Dumont-d'Urville Station, Terre Adelie
 AQ	-690022+0393524	Antarctica/Syowa	Syowa Station, E Ongul I
+AQ	-5430+15857	Antarctica/Macquarie	Macquarie Island Station, Macquarie Island
 AR	-3436-05827	America/Argentina/Buenos_Aires	Buenos Aires (BA, CF)
-AR	-3124-06411	America/Argentina/Cordoba	most locations (CB, CC, CN, ER, FM, LP, MN, NQ, RN, SA, SE, SF)
-AR	-3319-06621	America/Argentina/San_Luis	San Luis (SL)
+AR	-3124-06411	America/Argentina/Cordoba	most locations (CB, CC, CN, ER, FM, MN, SE, SF)
+AR	-2447-06525	America/Argentina/Salta	(SA, LP, NQ, RN)
 AR	-2411-06518	America/Argentina/Jujuy	Jujuy (JY)
 AR	-2649-06513	America/Argentina/Tucuman	Tucuman (TM)
 AR	-2828-06547	America/Argentina/Catamarca	Catamarca (CT), Chubut (CH)
 AR	-2926-06651	America/Argentina/La_Rioja	La Rioja (LR)
 AR	-3132-06831	America/Argentina/San_Juan	San Juan (SJ)
 AR	-3253-06849	America/Argentina/Mendoza	Mendoza (MZ)
+AR	-3319-06621	America/Argentina/San_Luis	San Luis (SL)
 AR	-5138-06913	America/Argentina/Rio_Gallegos	Santa Cruz (SC)
 AR	-5448-06818	America/Argentina/Ushuaia	Tierra del Fuego (TF)
 AS	-1416-17042	Pacific/Pago_Pago
@@ -92,14 +97,15 @@ BR	-1259-03831	America/Bahia	Bahia
 BR	-2332-04637	America/Sao_Paulo	S & SE Brazil (GO, DF, MG, ES, RJ, SP, PR, SC, RS)
 BR	-2027-05437	America/Campo_Grande	Mato Grosso do Sul
 BR	-1535-05605	America/Cuiaba	Mato Grosso
-BR	-0846-06354	America/Porto_Velho	W Para, Rondonia
+BR	-0226-05452	America/Santarem	W Para
+BR	-0846-06354	America/Porto_Velho	Rondonia
 BR	+0249-06040	America/Boa_Vista	Roraima
 BR	-0308-06001	America/Manaus	E Amazonas
 BR	-0640-06952	America/Eirunepe	W Amazonas
 BR	-0958-06748	America/Rio_Branco	Acre
 BS	+2505-07721	America/Nassau
 BT	+2728+08939	Asia/Thimphu
-BW	-2545+02555	Africa/Gaborone
+BW	-2439+02555	Africa/Gaborone
 BY	+5354+02734	Europe/Minsk
 BZ	+1730-08812	America/Belize
 CA	+4734-05243	America/St_Johns	Newfoundland Time, including SE Labrador
@@ -114,7 +120,7 @@ CA	+4901-08816	America/Nipigon	Eastern Time - Ontario & Quebec - places that did
 CA	+4823-08915	America/Thunder_Bay	Eastern Time - Thunder Bay, Ontario
 CA	+6344-06828	America/Iqaluit	Eastern Time - east Nunavut - most locations
 CA	+6608-06544	America/Pangnirtung	Eastern Time - Pangnirtung, Nunavut
-CA	+744144-0944945	America/Resolute	Eastern Time - Resolute, Nunavut
+CA	+744144-0944945	America/Resolute	Eastern Standard Time - Resolute, Nunavut
 CA	+484531-0913718	America/Atikokan	Eastern Standard Time - Atikokan, Ontario and Southampton I, Nunavut
 CA	+624900-0920459	America/Rankin_Inlet	Central Time - central Nunavut
 CA	+4953-09709	America/Winnipeg	Central Time - Manitoba & west Ontario
@@ -274,25 +280,28 @@ MW	-1547+03500	Africa/Blantyre
 MX	+1924-09909	America/Mexico_City	Central Time - most locations
 MX	+2105-08646	America/Cancun	Central Time - Quintana Roo
 MX	+2058-08937	America/Merida	Central Time - Campeche, Yucatan
-MX	+2540-10019	America/Monterrey	Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas
+MX	+2540-10019	America/Monterrey	Mexican Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas away from US border
+MX	+2550-09730	America/Matamoros	US Central Time - Coahuila, Durango, Nuevo Leon, Tamaulipas near US border
 MX	+2313-10625	America/Mazatlan	Mountain Time - S Baja, Nayarit, Sinaloa
-MX	+2838-10605	America/Chihuahua	Mountain Time - Chihuahua
+MX	+2838-10605	America/Chihuahua	Mexican Mountain Time - Chihuahua away from US border
+MX	+2934-10425	America/Ojinaga	US Mountain Time - Chihuahua near US border
 MX	+2904-11058	America/Hermosillo	Mountain Standard Time - Sonora
-MX	+3232-11701	America/Tijuana	Pacific Time
+MX	+3232-11701	America/Tijuana	US Pacific Time - Baja California near US border
+MX	+3018-11452	America/Santa_Isabel	Mexican Pacific Time - Baja California away from US border
 MY	+0310+10142	Asia/Kuala_Lumpur	peninsular Malaysia
 MY	+0133+11020	Asia/Kuching	Sabah & Sarawak
 MZ	-2558+03235	Africa/Maputo
 NA	-2234+01706	Africa/Windhoek
-NC	-2216+16530	Pacific/Noumea
+NC	-2216+16627	Pacific/Noumea
 NE	+1331+00207	Africa/Niamey
 NF	-2903+16758	Pacific/Norfolk
 NG	+0627+00324	Africa/Lagos
 NI	+1209-08617	America/Managua
 NL	+5222+00454	Europe/Amsterdam
 NO	+5955+01045	Europe/Oslo
-NP	+2743+08519	Asia/Katmandu
+NP	+2743+08519	Asia/Kathmandu
 NR	-0031+16655	Pacific/Nauru
-NU	-1901+16955	Pacific/Niue
+NU	-1901-16955	Pacific/Niue
 NZ	-3652+17446	Pacific/Auckland	most locations
 NZ	-4357-17633	Pacific/Chatham	Chatham Islands
 OM	+2336+05835	Asia/Muscat
@@ -321,18 +330,19 @@ RS	+4450+02030	Europe/Belgrade
 RU	+5443+02030	Europe/Kaliningrad	Moscow-01 - Kaliningrad
 RU	+5545+03735	Europe/Moscow	Moscow+00 - west Russia
 RU	+4844+04425	Europe/Volgograd	Moscow+00 - Caspian Sea
-RU	+5312+05009	Europe/Samara	Moscow+01 - Samara, Udmurtia
+RU	+5312+05009	Europe/Samara	Moscow - Samara, Udmurtia
 RU	+5651+06036	Asia/Yekaterinburg	Moscow+02 - Urals
 RU	+5500+07324	Asia/Omsk	Moscow+03 - west Siberia
 RU	+5502+08255	Asia/Novosibirsk	Moscow+03 - Novosibirsk
+RU	+5345+08707	Asia/Novokuznetsk	Moscow+03 - Novokuznetsk
 RU	+5601+09250	Asia/Krasnoyarsk	Moscow+04 - Yenisei River
 RU	+5216+10420	Asia/Irkutsk	Moscow+05 - Lake Baikal
 RU	+6200+12940	Asia/Yakutsk	Moscow+06 - Lena River
 RU	+4310+13156	Asia/Vladivostok	Moscow+07 - Amur River
 RU	+4658+14242	Asia/Sakhalin	Moscow+07 - Sakhalin Island
 RU	+5934+15048	Asia/Magadan	Moscow+08 - Magadan
-RU	+5301+15839	Asia/Kamchatka	Moscow+09 - Kamchatka
-RU	+6445+17729	Asia/Anadyr	Moscow+10 - Bering Sea
+RU	+5301+15839	Asia/Kamchatka	Moscow+08 - Kamchatka
+RU	+6445+17729	Asia/Anadyr	Moscow+08 - Bering Sea
 RW	-0157+03004	Africa/Kigali
 SA	+2438+04643	Asia/Riyadh
 SB	-0932+16012	Pacific/Guadalcanal
@@ -363,7 +373,7 @@ TK	-0922-17114	Pacific/Fakaofo
 TL	-0833+12535	Asia/Dili
 TM	+3757+05823	Asia/Ashgabat
 TN	+3648+01011	Africa/Tunis
-TO	-2110+17510	Pacific/Tongatapu
+TO	-2110-17510	Pacific/Tongatapu
 TR	+4101+02858	Europe/Istanbul
 TT	+1039-06131	America/Port_of_Spain
 TV	-0831+17913	Pacific/Funafuti
@@ -383,13 +393,13 @@ US	+381515-0854534	America/Kentucky/Louisville	Eastern Time - Kentucky - Louisvi
 US	+364947-0845057	America/Kentucky/Monticello	Eastern Time - Kentucky - Wayne County
 US	+394606-0860929	America/Indiana/Indianapolis	Eastern Time - Indiana - most locations
 US	+384038-0873143	America/Indiana/Vincennes	Eastern Time - Indiana - Daviess, Dubois, Knox & Martin Counties
-US	+411745-0863730	America/Indiana/Knox	Eastern Time - Indiana - Starke County
 US	+410305-0863611	America/Indiana/Winamac	Eastern Time - Indiana - Pulaski County
 US	+382232-0862041	America/Indiana/Marengo	Eastern Time - Indiana - Crawford County
+US	+382931-0871643	America/Indiana/Petersburg	Eastern Time - Indiana - Pike County
 US	+384452-0850402	America/Indiana/Vevay	Eastern Time - Indiana - Switzerland County
 US	+415100-0873900	America/Chicago	Central Time
 US	+375711-0864541	America/Indiana/Tell_City	Central Time - Indiana - Perry County
-US	+382931-0871643	America/Indiana/Petersburg	Central Time - Indiana - Pike County
+US	+411745-0863730	America/Indiana/Knox	Central Time - Indiana - Starke County
 US	+450628-0873651	America/Menominee	Central Time - Michigan - Dickinson, Gogebic, Iron & Menominee Counties
 US	+470659-1011757	America/North_Dakota/Center	Central Time - North Dakota - Oliver County
 US	+465042-1012439	America/North_Dakota/New_Salem	Central Time - North Dakota - Morton County (except Mandan area)
@@ -407,7 +417,7 @@ US	+211825-1575130	Pacific/Honolulu	Hawaii
 UY	-3453-05611	America/Montevideo
 UZ	+3940+06648	Asia/Samarkand	west Uzbekistan
 UZ	+4120+06918	Asia/Tashkent	east Uzbekistan
-VA	+4154+01227	Europe/Vatican
+VA	+415408+0122711	Europe/Vatican
 VC	+1309-06114	America/St_Vincent
 VE	+1030-06656	America/Caracas
 VG	+1827-06437	America/Tortola
