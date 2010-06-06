@@ -861,7 +861,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         simply asks for image width and margin for printing. """
 
         dmsg = """Width of output figure in inches.
-The current aspect ration will be kept."""
+The current aspect ratio will be kept."""
 
         dlg = wx.Dialog(self, -1, 'Page Setup for Printing' , (-1,-1))
         df = dlg.GetFont()
@@ -1546,8 +1546,11 @@ class FigureFrameWx(wx.Frame):
         return self.toolbar
 
     def Destroy(self, *args, **kwargs):
-        self.canvas.mpl_disconnect(self.toolbar._idDrag)
-        # Rationale for line above: see issue 2941338.
+        try:
+            self.canvas.mpl_disconnect(self.toolbar._idDrag)
+            # Rationale for line above: see issue 2941338.
+        except AttributeError:
+            pass # classic toolbar lacks the attribute
         wx.Frame.Destroy(self, *args, **kwargs)
         if self.toolbar is not None:
             self.toolbar.Destroy()
@@ -1707,6 +1710,8 @@ class MenuButtonWx(wx.Button):
         else:
             new = True
         self._menu.Check(evt.GetId(), new)
+        # Lines above would be deleted based on svn tracker ID 2841525;
+        # not clear whether this matters or not.
         self._toolbar.set_active(self.getActiveAxes())
         evt.Skip()
 
@@ -1720,7 +1725,11 @@ class MenuButtonWx(wx.Button):
                 self._menu.Append(menuId, "Axis %d" % i, "Select axis %d" % i, True)
                 self._menu.Check(menuId, True)
                 bind(self, wx.EVT_MENU, self._onMenuItemSelected, id=menuId)
-        self._toolbar.set_active(range(len(self._axisId)))
+        elif maxAxis < len(self._axisId):
+            for menuId in self._axisId[maxAxis:]:
+                self._menu.Delete(menuId)
+            self._axisId = self._axisId[:maxAxis]
+        self._toolbar.set_active(range(maxAxis))
 
     def getActiveAxes(self):
         """Return a list of the selected axes."""
@@ -2080,7 +2089,8 @@ class NavigationToolbarWx(wx.ToolBar):
 
     def update(self):
         """
-        Update the toolbar menu - called when (e.g.) a new subplot or axes are added
+        Update the toolbar menu - called when (e.g.) a new subplot
+        or axes are added
         """
         DEBUG_MSG("update()", 1, self)
         self._axes = self.canvas.figure.get_axes()
