@@ -691,9 +691,12 @@ class Figure(Artist):
         self.sca(a)
         return a
 
-    def clf(self):
+    def clf(self, keep_observers=False):
         """
-        Clear the figure
+        Clear the figure.
+
+        Set *keep_observers* to True if, for example,
+        a gui widget is tracking the axes in the figure.
         """
         self.suppressComposite = None
         self.callbacks = cbook.CallbackRegistry(('dpi_changed', ))
@@ -713,7 +716,8 @@ class Figure(Artist):
         self.texts=[]
         self.images = []
         self.legends = []
-        self._axobservers = []
+        if not keep_observers:
+            self._axobservers = []
 
     def clear(self):
         """
