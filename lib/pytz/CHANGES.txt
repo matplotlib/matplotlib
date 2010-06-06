@@ -1,0 +1,50 @@
+2004-07-25
+    
+    - Improved localtime handling, and added a localize() method enabling
+      correct creation of local times.
+
+2005-02-16
+
+    - Made available under the Zope Public Licence 2.1 (ZPL) and checked
+      into the Zope3 project. pytz may now be used and redistributed
+      under either the original MIT license or the ZPL 2.1.
+
+2005-05-13
+
+    - Move UTC into the top level pytz module and provide special
+      case pickle support for this singleton.
+
+2005-08-14
+
+    - Ensure all tzinfo instances are efficiently picklable.
+
+2005-12-31
+
+    - Add fixed offset timezone classes required by Zope 3
+    - Generate and distribute a PO template file listing all timezone
+      names. Translations are not yet available.
+
+2007-03-03
+
+    - Import work by James Henstridge, making pytz load timezone
+      information from zic compiled binaries at runtime rather than
+      processing them into Python classes.
+
+2007-03-26
+
+    - Update database to version 2007d
+    - Fix windows incompatibilities, working around limitations on that
+      platform.
+    - Fix 2.3 incompatibilities. Installation now requires distutils.
+    - Passing an invalid timezone name to timezone() now raises an
+      UnknownTimezoneError, which is a KeyError subclass for backwards
+      compatibility.
+
+2007-03-27
+
+    - Ensure API can accept Unicode strings (Bug #96957)
+
+2009-09-29
+
+    - Fix test_zdump tests and bugs the fixed tests picked up, including
+      the fix for Bug #427444.

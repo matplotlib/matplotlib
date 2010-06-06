@@ -68,23 +68,35 @@ class BaseTzInfo(tzinfo):
 class StaticTzInfo(BaseTzInfo):
     '''A timezone that has a constant offset from UTC
 
-    These timezones are rare, as most regions have changed their
-    offset from UTC at some point in their history
+    These timezones are rare, as most locations have changed their
+    offset at some point in their history
     '''
     def fromutc(self, dt):
         '''See datetime.tzinfo.fromutc'''
         return (dt + self._utcoffset).replace(tzinfo=self)
 
-    def utcoffset(self,dt):
-        '''See datetime.tzinfo.utcoffset'''
+    def utcoffset(self, dt, is_dst=None):
+        '''See datetime.tzinfo.utcoffset
+
+        is_dst is ignored for StaticTzInfo, and exists only to
+        retain compatibility with DstTzInfo.
+        '''
         return self._utcoffset
 
-    def dst(self,dt):
-        '''See datetime.tzinfo.dst'''
+    def dst(self, dt, is_dst=None):
+        '''See datetime.tzinfo.dst
+
+        is_dst is ignored for StaticTzInfo, and exists only to
+        retain compatibility with DstTzInfo.
+        '''
         return _notime
 
-    def tzname(self,dt):
-        '''See datetime.tzinfo.tzname'''
+    def tzname(self, dt, is_dst=None):
+        '''See datetime.tzinfo.tzname
+
+        is_dst is ignored for StaticTzInfo, and exists only to
+        retain compatibility with DstTzInfo.
+        '''
         return self._tzname
 
     def localize(self, dt, is_dst=False):
@@ -104,7 +116,7 @@ class StaticTzInfo(BaseTzInfo):
 
     def __reduce__(self):
         # Special pickle to zone remains a singleton and to cope with
-        # database changes.
+        # database changes. 
         return pytz._p, (self.zone,)
 
 
@@ -114,7 +126,6 @@ class DstTzInfo(BaseTzInfo):
     The offset might change if daylight savings time comes into effect,
     or at a point in history when the region decides to change their
     timezone definition.
-
     '''
     # Overridden in subclass
     _utc_transition_times = None # Sorted list of DST transition times in UTC
@@ -136,7 +147,7 @@ class DstTzInfo(BaseTzInfo):
             self._utcoffset, self._dst, self._tzname = self._transition_info[0]
             _tzinfos[self._transition_info[0]] = self
             for inf in self._transition_info[1:]:
-                if inf not in _tzinfos:
+                if not _tzinfos.has_key(inf):
                     _tzinfos[inf] = self.__class__(inf, _tzinfos)
 
     def fromutc(self, dt):
@@ -180,7 +191,6 @@ class DstTzInfo(BaseTzInfo):
         >>> before = eastern.normalize(before)
         >>> before.strftime(fmt)
         '2002-10-27 01:50:00 EDT (-0400)'
-
         '''
         if dt.tzinfo is None:
             raise ValueError, 'Naive time - no tzinfo set'
@@ -217,12 +227,6 @@ class DstTzInfo(BaseTzInfo):
         Use is_dst=None to raise an AmbiguousTimeError for ambiguous
         times at the end of daylight savings
 
-        >>> try:
-        ...     loc_dt1 = amdam.localize(dt, is_dst=None)
-        ... except AmbiguousTimeError:
-        ...     print 'Oops'
-        Oops
-
         >>> loc_dt1 = amdam.localize(dt, is_dst=None)
         Traceback (most recent call last):
             [...]
@@ -233,22 +237,70 @@ class DstTzInfo(BaseTzInfo):
         >>> amdam.localize(dt) == amdam.localize(dt, False)
         True
 
+        is_dst is also used to determine the correct timezone in the
+        wallclock times jumped over at the start of daylight savings time.
+
+        >>> pacific = timezone('US/Pacific')
+        >>> dt = datetime(2008, 3, 9, 2, 0, 0)
+        >>> ploc_dt1 = pacific.localize(dt, is_dst=True)
+        >>> ploc_dt2 = pacific.localize(dt, is_dst=False)
+        >>> ploc_dt1.strftime(fmt)
+        '2008-03-09 02:00:00 PDT (-0700)'
+        >>> ploc_dt2.strftime(fmt)
+        '2008-03-09 02:00:00 PST (-0800)'
+        >>> str(ploc_dt2 - ploc_dt1)
+        '1:00:00'
+
+        Use is_dst=None to raise a NonExistentTimeError for these skipped
+        times.
+
+        >>> loc_dt1 = pacific.localize(dt, is_dst=None)
+        Traceback (most recent call last):
+            [...]
+        NonExistentTimeError: 2008-03-09 02:00:00
         '''
         if dt.tzinfo is not None:
             raise ValueError, 'Not naive datetime (tzinfo is already set)'
 
-        # Find the possibly correct timezones. We probably just have one,
-        # but we might end up with two if we are in the end-of-DST
-        # transition period. Or possibly more in some particularly confused
-        # location...
+        # Find the two best possibilities.
         possible_loc_dt = set()
-        for tzinfo in self._tzinfos.values():
+        for delta in [timedelta(days=-1), timedelta(days=1)]:
+            loc_dt = dt + delta
+            idx = max(0, bisect_right(
+                self._utc_transition_times, loc_dt) - 1)
+            inf = self._transition_info[idx]
+            tzinfo = self._tzinfos[inf]
             loc_dt = tzinfo.normalize(dt.replace(tzinfo=tzinfo))
             if loc_dt.replace(tzinfo=None) == dt:
                 possible_loc_dt.add(loc_dt)
 
         if len(possible_loc_dt) == 1:
             return possible_loc_dt.pop()
+
+        # If there are no possibly correct timezones, we are attempting
+        # to convert a time that never happened - the time period jumped
+        # during the start-of-DST transition period.
+        if len(possible_loc_dt) == 0:
+            # If we refuse to guess, raise an exception.
+            if is_dst is None:
+                raise NonExistentTimeError(dt)
+
+            # If we are forcing the pre-DST side of the DST transition, we
+            # obtain the correct timezone by winding the clock forward a few
+            # hours.
+            elif is_dst:
+                return self.localize(
+                    dt + timedelta(hours=6), is_dst=True) - timedelta(hours=6)
+
+            # If we are forcing the post-DST side of the DST transition, we
+            # obtain the correct timezone by winding the clock back.
+            else:
+                return self.localize(
+                    dt - timedelta(hours=6), is_dst=False) + timedelta(hours=6)
+
+
+        # If we get this far, we have multiple possible timezones - this
+        # is an ambiguous case occuring during the end-of-DST transition.
 
         # If told to be strict, raise an exception since we have an
         # ambiguous case
@@ -285,17 +337,108 @@ class DstTzInfo(BaseTzInfo):
         filtered_possible_loc_dt.sort(mycmp)
         return filtered_possible_loc_dt[0]
 
-    def utcoffset(self, dt):
-        '''See datetime.tzinfo.utcoffset'''
-        return self._utcoffset
+    def utcoffset(self, dt, is_dst=None):
+        '''See datetime.tzinfo.utcoffset
 
-    def dst(self, dt):
-        '''See datetime.tzinfo.dst'''
-        return self._dst
+        The is_dst parameter may be used to remove ambiguity during DST
+        transitions.
 
-    def tzname(self, dt):
-        '''See datetime.tzinfo.tzname'''
-        return self._tzname
+        >>> from pytz import timezone
+        >>> tz = timezone('America/St_Johns')
+        >>> ambiguous = datetime(2009, 10, 31, 23, 30)
+
+        >>> tz.utcoffset(ambiguous, is_dst=False)
+        datetime.timedelta(-1, 73800)
+
+        >>> tz.utcoffset(ambiguous, is_dst=True)
+        datetime.timedelta(-1, 77400)
+
+        >>> tz.utcoffset(ambiguous)
+        Traceback (most recent call last):
+        [...]
+        AmbiguousTimeError: 2009-10-31 23:30:00
+        '''
+        if dt is None:
+            return None
+        elif dt.tzinfo is not self:
+            dt = self.localize(dt, is_dst)
+            return dt.tzinfo._utcoffset
+        else:
+            return self._utcoffset
+
+    def dst(self, dt, is_dst=None):
+        '''See datetime.tzinfo.dst
+
+        The is_dst parameter may be used to remove ambiguity during DST
+        transitions.
+
+        >>> from pytz import timezone
+        >>> tz = timezone('America/St_Johns')
+
+        >>> normal = datetime(2009, 9, 1)
+
+        >>> tz.dst(normal)
+        datetime.timedelta(0, 3600)
+        >>> tz.dst(normal, is_dst=False)
+        datetime.timedelta(0, 3600)
+        >>> tz.dst(normal, is_dst=True)
+        datetime.timedelta(0, 3600)
+
+        >>> ambiguous = datetime(2009, 10, 31, 23, 30)
+
+        >>> tz.dst(ambiguous, is_dst=False)
+        datetime.timedelta(0)
+        >>> tz.dst(ambiguous, is_dst=True)
+        datetime.timedelta(0, 3600)
+        >>> tz.dst(ambiguous)
+        Traceback (most recent call last):
+        [...]
+        AmbiguousTimeError: 2009-10-31 23:30:00
+        '''
+        if dt is None:
+            return None
+        elif dt.tzinfo is not self:
+            dt = self.localize(dt, is_dst)
+            return dt.tzinfo._dst
+        else:
+            return self._dst
+
+    def tzname(self, dt, is_dst=None):
+        '''See datetime.tzinfo.tzname
+
+        The is_dst parameter may be used to remove ambiguity during DST
+        transitions.
+
+        >>> from pytz import timezone
+        >>> tz = timezone('America/St_Johns')
+
+        >>> normal = datetime(2009, 9, 1)
+
+        >>> tz.tzname(normal)
+        'NDT'
+        >>> tz.tzname(normal, is_dst=False)
+        'NDT'
+        >>> tz.tzname(normal, is_dst=True)
+        'NDT'
+
+        >>> ambiguous = datetime(2009, 10, 31, 23, 30)
+
+        >>> tz.tzname(ambiguous, is_dst=False)
+        'NST'
+        >>> tz.tzname(ambiguous, is_dst=True)
+        'NDT'
+        >>> tz.tzname(ambiguous)
+        Traceback (most recent call last):
+        [...]
+        AmbiguousTimeError: 2009-10-31 23:30:00
+        '''
+        if dt is None:
+            return self.zone
+        elif dt.tzinfo is not self:
+            dt = self.localize(dt, is_dst)
+            return dt.tzinfo._tzname
+        else:
+            return self._tzname
 
     def __repr__(self):
         if self._dst:
@@ -322,7 +465,11 @@ class DstTzInfo(BaseTzInfo):
                 )
 
 
-class AmbiguousTimeError(Exception):
+class InvalidTimeError(Exception):
+    '''Base class for invalid time exceptions.'''
+
+
+class AmbiguousTimeError(InvalidTimeError):
     '''Exception raised when attempting to create an ambiguous wallclock time.
 
     At the end of a DST transition period, a particular wallclock time will
@@ -330,6 +477,15 @@ class AmbiguousTimeError(Exception):
     possibilities may be correct, unless further information is supplied.
 
     See DstTzInfo.normalize() for more info
+    '''
+
+
+class NonExistentTimeError(InvalidTimeError):
+    '''Exception raised when attempting to create a wallclock time that
+    cannot exist.
+
+    At the start of a DST transition period, the wallclock time jumps forward.
+    The instants jumped over never occur.
     '''
 
 
