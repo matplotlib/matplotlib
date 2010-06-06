@@ -1,5 +1,5 @@
 """
-Copyright (c) 2003-2005  Gustavo Niemeyer <gustavo@niemeyer.net>
+Copyright (c) 2003-2007  Gustavo Niemeyer <gustavo@niemeyer.net>
 
 This module offers extensions to the standard python 2.3+
 datetime module.
@@ -70,23 +70,23 @@ def easter(year, method=EASTER_WESTERN):
     if method < 3:
         # Old method
         i = (19*g+15)%30
-        j = (y+y/4+i)%7
+        j = (y+y//4+i)%7
         if method == 2:
             # Extra dates to convert Julian to Gregorian date
             e = 10
             if y > 1600:
-                e = e+y/100-16-(y/100-16)/4
+                e = e+y//100-16-(y//100-16)//4
     else:
         # New method
-        c = y/100
-        h = (c-c/4-(8*c+13)/25+19*g+15)%30
-        i = h-(h/28)*(1-(h/28)*(29/(h+1))*((21-g)/11))
-        j = (y+y/4+i+2-c+c/4)%7
+        c = y//100
+        h = (c-c//4-(8*c+13)//25+19*g+15)%30
+        i = h-(h//28)*(1-(h//28)*(29//(h+1))*((21-g)//11))
+        j = (y+y//4+i+2-c+c//4)%7
 
     # p can be from -6 to 56 corresponding to dates 22 March to 23 May
     # (later dates apply to method 2, although 23 May never actually occurs)
     p = i-j+e
-    d = 1+(p+27+(p+6)/40)%31
-    m = 3+(p+26)/30
-    return datetime.date(y,m,d)
+    d = 1+(p+27+(p+6)//40)%31
+    m = 3+(p+26)//30
+    return datetime.date(int(y),int(m),int(d))
 

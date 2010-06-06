@@ -1,5 +1,5 @@
 """
-Copyright (c) 2003-2005  Gustavo Niemeyer <gustavo@niemeyer.net>
+Copyright (c) 2003-2010  Gustavo Niemeyer <gustavo@niemeyer.net>
 
 This module offers extensions to the standard python 2.3+
 datetime module.
@@ -190,7 +190,7 @@ Here is the behavior of operations with relativedelta:
                     if yday <= ydays:
                         self.month = idx+1
                         if idx == 0:
-                            self.day = ydays
+                            self.day = yday
                         else:
                             self.day = yday-ydayidx[idx-1]
                         break
@@ -201,27 +201,27 @@ Here is the behavior of operations with relativedelta:
 
     def _fix(self):
         if abs(self.microseconds) > 999999:
-            s = self.microseconds/abs(self.microseconds)
+            s = self.microseconds//abs(self.microseconds)
             div, mod = divmod(self.microseconds*s, 1000000)
             self.microseconds = mod*s
             self.seconds += div*s
         if abs(self.seconds) > 59:
-            s = self.seconds/abs(self.seconds)
+            s = self.seconds//abs(self.seconds)
             div, mod = divmod(self.seconds*s, 60)
             self.seconds = mod*s
             self.minutes += div*s
         if abs(self.minutes) > 59:
-            s = self.minutes/abs(self.minutes)
+            s = self.minutes//abs(self.minutes)
             div, mod = divmod(self.minutes*s, 60)
             self.minutes = mod*s
             self.hours += div*s
         if abs(self.hours) > 23:
-            s = self.hours/abs(self.hours)
+            s = self.hours//abs(self.hours)
             div, mod = divmod(self.hours*s, 24)
             self.hours = mod*s
             self.days += div*s
         if abs(self.months) > 11:
-            s = self.months/abs(self.months)
+            s = self.months//abs(self.months)
             div, mod = divmod(self.months*s, 12)
             self.months = mod*s
             self.years += div*s
@@ -235,7 +235,7 @@ Here is the behavior of operations with relativedelta:
     def _set_months(self, months):
         self.months = months
         if abs(self.months) > 11:
-            s = self.months/abs(self.months)
+            s = self.months//abs(self.months)
             div, mod = divmod(self.months*s, 12)
             self.months = mod*s
             self.years = div*s
