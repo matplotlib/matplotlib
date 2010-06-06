@@ -135,7 +135,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         raise RuntimeError('The make_image method must be overridden.')
 
 
-    def _get_unsampled_image(self, A, image_extents, viewlim):
+    def _get_unsampled_image(self, A, image_extents, viewlim, noslice=False):
         """
         convert numpy array A with given extents ([x1, x2, y1, y2] in
         data coordinate) into the Image, given the vielim (should be a
@@ -150,7 +150,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         sx = dxintv/viewlim.width
         sy = dyintv/viewlim.height
         numrows, numcols = A.shape[:2]
-        if sx > 2:
+        if noslice is False and sx > 2:
             x0 = (viewlim.x0-xmin)/dxintv * numcols
             ix0 = max(0, int(x0 - self._filterrad))
             x1 = (viewlim.x1-xmin)/dxintv * numcols
@@ -164,7 +164,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         else:
             xslice = slice(0, numcols)
 
-        if sy > 2:
+        if noslice is False and sy > 2:
             y0 = (viewlim.y0-ymin)/dyintv * numrows
             iy0 = max(0, int(y0 - self._filterrad))
             y1 = (viewlim.y1-ymin)/dyintv * numrows
@@ -246,8 +246,11 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         draw unsampled image. The renderer should support a draw_image method
         with scale parameter.
         """
+
+
         im, xmin, ymin, dxintv, dyintv, sx, sy = \
-            self._get_unsampled_image(self._A, self.get_extent(), self.axes.viewLim)
+            self._get_unsampled_image(self._A, self.get_extent(),
+                                      self.axes.viewLim, noslice=True)
 
         if im is None: return # I'm not if this check is required. -JJL
 
@@ -264,18 +267,23 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         im._url = self.get_url()
 
         trans = self.get_transform() #axes.transData
-        xy = trans.transform_non_affine([(xmin, ymin),
-                                         (xmin+dxintv, ymin+dyintv)])
+        xy = trans.transform_non_affine(np.array([(xmin, ymin),
+                                                  (xmin+dxintv, ymin+dyintv)]))
         xx1, yy1 = xy[0]
         xx2, yy2 = xy[1]
 
         if self._image_skew_coordinate:
             # skew the image when required.
+            x_llc, x_trc, y_llc, y_trc = self.get_extent()
             x_lrc, y_lrc = self._image_skew_coordinate
-            xy = trans.transform_non_affine([(x_lrc, y_lrc)])
-            xx3, yy3 = xy[0]
+            xy = trans.transform_non_affine(np.array([(x_llc, y_llc),
+                                                      (x_trc, y_trc),
+                                                      (x_lrc, y_lrc)]))
+            _xx1, _yy1 = xy[0]
+            _xx2, _yy2 = xy[1]
+            _xx3, _yy3 = xy[2]
 
-            tr_rotate_skew = self._get_rotate_and_skew_transform(xx1, yy1, xx2, yy2, xx3, yy3)
+            tr_rotate_skew = self._get_rotate_and_skew_transform(_xx1, _yy1, _xx2, _yy2, _xx3, _yy3)
             tr = tr_rotate_skew+trans.get_affine()
         else:
             tr = trans.get_affine()
@@ -509,8 +517,21 @@ class AxesImage(_AxesImageBase):
         if self._A is None:
             raise RuntimeError('You must first set the image array or the image attribute')
 
+        # image is created in the canvas coordinate.
+        x1, x2, y1, y2 = self.get_extent()
+        trans = self.get_transform()
+        xy = trans.transform(np.array([(x1, y1),
+                                       (x2, y2),
+                                       ]))
+        _x1, _y1 = xy[0]
+        _x2, _y2 = xy[1]
+
+        transformed_viewLim = mtransforms.TransformedBbox(self.axes.viewLim,
+                                                          trans)
+
         im, xmin, ymin, dxintv, dyintv, sx, sy = \
-            self._get_unsampled_image(self._A, self.get_extent(), self.axes.viewLim)
+            self._get_unsampled_image(self._A, [_x1, _x2, _y1, _y2],
+                                      transformed_viewLim)
 
         fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
@@ -526,8 +547,8 @@ class AxesImage(_AxesImageBase):
         im.set_resample(self._resample)
 
         # the viewport translation
-        tx = (xmin-self.axes.viewLim.x0)/dxintv * numcols
-        ty = (ymin-self.axes.viewLim.y0)/dyintv * numrows
+        tx = (xmin-transformed_viewLim.x0)/dxintv * numcols
+        ty = (ymin-transformed_viewLim.y0)/dyintv * numrows
 
         l, b, r, t = self.axes.bbox.extents
         widthDisplay = (round(r*magnification) + 0.5) - (round(l*magnification) - 0.5)
