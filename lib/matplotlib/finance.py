@@ -42,7 +42,10 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
 
     where d is a floating poing representation of date, as returned by date2num
 
-    if adjusted=True, use adjusted prices
+    if adjusted=True, use adjusted prices.  Note that volume is not
+    adjusted and we are not able to handle volume adjustments properly
+    because the Yahoo CSV does not distinguish between split and
+    dividend adjustments.
     """
     results = []
 
@@ -68,10 +71,10 @@ def parse_yahoo_historical(fh, asobject=False, adjusted=True):
         volume = int(vals[5])
         if adjusted:
             aclose = float(vals[6])
-            m = aclose/close
-            open *= m
-            high *= m
-            low *= m
+            delta = aclose-close
+            open += delta
+            high += delta
+            low += delta
             close = aclose
 
         results.append((d, open, close, high, low, volume))
@@ -146,7 +149,10 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False, adjusted=True,
     if asobject is True, the return val is an object with attrs date,
     open, close, high, low, volume, which are equal length arrays
 
-    if adjust=True, use adjusted prices
+    if adjusted=True, use adjusted prices.  Note that volume is not
+    adjusted and we are not able to handle volume adjustments properly
+    because the Yahoo CSV does not distinguish between split and
+    dividend adjustments.
 
     Ex:
     sp = f.quotes_historical_yahoo('^GSPC', d1, d2, asobject=True, adjusted=True)
