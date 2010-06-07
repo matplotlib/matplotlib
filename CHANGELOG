@@ -1,3 +1,12 @@
+2010-06-06 Change the way we do split/dividend adjustments in
+           finance.py to handle dividends and fix the zero division bug reported
+           in sf bug 2949906.  Note that volume is not adjusted
+           because the Yahoo CSV does not distinguish between share
+           split and dividend adjustments making it near impossible to
+           get volume adjustement right (unless we want to guess based
+           on the size of the adjustment or scrape the html tables,
+           which we don't) - JDH
+
 2010-06-06 Updated dateutil to 1.5 and pytz to 2010h.
 
 2010-06-02 Add error_kw kwarg to Axes.bar(). - EF
