@@ -298,7 +298,7 @@ class Text(Artist):
                                                          ismath=False)
         offsety = lp_h * self._linespacing
 
-        baseline = None
+        baseline = 0
         for i, line in enumerate(lines):
             clean_line, ismath = self.is_math_text(line)
             if clean_line:
@@ -308,8 +308,6 @@ class Text(Artist):
             else:
                 w, h, d = 0, 0, 0
 
-            if baseline is None:
-                baseline = h - d
             whs[i] = w, h
 
             # For general multiline text, we will have a fixed spacing
@@ -326,8 +324,10 @@ class Text(Artist):
 
             horizLayout[i] = thisx, thisy-(d + d_yoffset), \
                              w, h
+            baseline = (h - d) - thisy
             thisy -= offsety + d_yoffset
             width = max(width, w)
+
 
         ymin = horizLayout[-1][1]
         ymax = horizLayout[0][1] + horizLayout[0][3]

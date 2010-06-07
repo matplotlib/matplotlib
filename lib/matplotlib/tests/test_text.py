@@ -64,3 +64,13 @@ def test_font_styles():
 
     fig.savefig('font_styles')
 
+@image_comparison(baseline_images=['multiline'])
+def test_multiline():
+    fig = plt.figure()
+    ax = plt.subplot( 1, 1, 1 )
+    ax.set_title("multiline\ntext alignment")
+
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    fig.savefig('multiline')
