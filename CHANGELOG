@@ -1,3 +1,5 @@
+2010-06-06 Updated dateutil to 1.5 and pytz to 2010h.
+
 2010-06-02 Add error_kw kwarg to Axes.bar(). - EF
 
 2010-06-01 Fix pcolormesh() and QuadMesh to pass on kwargs as
