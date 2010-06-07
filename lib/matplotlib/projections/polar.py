@@ -35,14 +35,31 @@ class PolarAxes(Axes):
         output_dims = 2
         is_separable = False
 
+        def __init__(self, axis=None):
+            Transform.__init__(self)
+            self._axis = axis
+
         def transform(self, tr):
             xy   = np.zeros(tr.shape, np.float_)
+            if self._axis is not None:
+                rmin = self._axis.viewLim.ymin
+            else:
+                rmin = 0
+
             t    = tr[:, 0:1]
             r    = tr[:, 1:2]
             x    = xy[:, 0:1]
             y    = xy[:, 1:2]
-            x[:] = r * np.cos(t)
-            y[:] = r * np.sin(t)
+
+            if rmin != 0:
+                r = r - rmin
+                mask = r < 0
+                x[:] = np.where(mask, np.nan, r * np.cos(t))
+                y[:] = np.where(mask, np.nan, r * np.sin(t))
+            else:
+                x[:] = r * np.cos(t)
+                y[:] = r * np.sin(t)
+
             return xy
         transform.__doc__ = Transform.transform.__doc__
 
@@ -61,7 +78,7 @@ class PolarAxes(Axes):
         transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
 
         def inverted(self):
-            return PolarAxes.InvertedPolarTransform()
+            return PolarAxes.InvertedPolarTransform(self._axis)
         inverted.__doc__ = Transform.inverted.__doc__
 
     class PolarAffine(Affine2DBase):
@@ -84,9 +101,9 @@ class PolarAxes(Axes):
         def get_matrix(self):
             if self._invalid:
                 limits_scaled = self._limits.transformed(self._scale_transform)
-                ymax = limits_scaled.ymax
+                yscale = limits_scaled.ymax - limits_scaled.ymin
                 affine = Affine2D() \
-                    .scale(0.5 / ymax) \
+                    .scale(0.5 / yscale) \
                     .translate(0.5, 0.5)
                 self._mtx = affine.get_matrix()
                 self._inverted = None
@@ -103,10 +120,16 @@ class PolarAxes(Axes):
         output_dims = 2
         is_separable = False
 
+        def __init__(self, axis=None):
+            Transform.__init__(self)
+            self._axis = axis
+
         def transform(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:]
             r = np.sqrt(x*x + y*y)
+            if self._axis is not None:
+                r += self._axis.viewLim.ymin
             theta = np.arccos(x / r)
             theta = np.where(y < 0, 2 * np.pi - theta, theta)
             return np.concatenate((theta, r), 1)
@@ -221,8 +244,12 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         # It is assumed that this part will have non-linear components
         self.transScale = TransformWrapper(IdentityTransform())
 
-        # A (possibly non-linear) projection on the (already scaled) data
-        self.transProjection = self.PolarTransform()
+        # A (possibly non-linear) projection on the (already scaled)
+        # data.  This one is aware of rmin
+        self.transProjection = self.PolarTransform(self)
+
+        # This one is not aware of rmin
+        self.transPureProjection = self.PolarTransform()
 
         # An affine transformation on the data, generally to limit the
         # range of the axes
@@ -237,7 +264,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         # equivalent to transData, except it always puts r == 1.0 at
         # the edge of the axis circle.
         self._xaxis_transform = (
-            self.transProjection +
+            self.transPureProjection +
             self.PolarAffine(IdentityTransform(), Bbox.unit()) +
             self.transAxes)
         # The theta labels are moved from radius == 0.0 to radius == 1.1
@@ -298,12 +325,22 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
                                                      (0.5, 0.5), 0.5)}
 
     def set_rmax(self, rmax):
-        self.viewLim.y0 = 0
         self.viewLim.y1 = rmax
-        angle = self._r_label1_position.to_values()[4]
 
     def get_rmax(self):
         return self.viewLim.ymax
+
+    def set_rmin(self, rmin):
+        self.viewLim.y0 = rmin
+
+    def get_rmin(self):
+        return self.viewLim.ymin
+
+    def set_rlim(self, rmin=None, rmax=None):
+        self.viewLim.y0 = rmin
+        self.viewLim.y1 = rmax
+
+    set_ylim = set_rlim
 
     def set_yscale(self, *args, **kwargs):
         Axes.set_yscale(self, *args, **kwargs)
