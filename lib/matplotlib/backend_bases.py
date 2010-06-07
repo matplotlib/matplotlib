@@ -300,7 +300,10 @@ class RendererBase:
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
-                gc0.set_foreground(edgecolors[i % Nedgecolors])
+                fg = edgecolors[i % Nedgecolors]
+                if Nfacecolors == 0 and len(fg)==4:
+                    gc0.set_alpha(fg[3])
+                gc0.set_foreground(fg)
                 if Nlinewidths:
                     gc0.set_linewidth(linewidths[i % Nlinewidths])
                 if Nlinestyles:
@@ -309,7 +312,7 @@ class RendererBase:
                 if rgbFace[3] == 0:
                     rgbFace = None
                 else:
-                    gc0.set_alpha(rgbFace[-1])
+                    gc0.set_alpha(rgbFace[3])
                     rgbFace = rgbFace[:3]
             gc0.set_antialiased(antialiaseds[i % Naa])
             if Nurls:
