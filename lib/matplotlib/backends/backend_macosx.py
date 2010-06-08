@@ -180,6 +180,11 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
         GraphicsContextBase.__init__(self)
         _macosx.GraphicsContext.__init__(self)
 
+    def set_alpha(self, alpha):
+        GraphicsContextBase.set_alpha(self, alpha)
+        _alpha = self.get_alpha()
+        _macosx.GraphicsContext.set_alpha(self, _alpha)
+
     def set_foreground(self, fg, isRGB=False):
         GraphicsContextBase.set_foreground(self, fg, isRGB)
         rgb = self.get_rgb()
