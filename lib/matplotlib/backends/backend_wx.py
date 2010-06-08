@@ -1423,31 +1423,21 @@ def draw_if_interactive():
 
 def show():
     """
-    Current implementation assumes that matplotlib is executed in a PyCrust
-    shell. It appears to be possible to execute wxPython applications from
-    within a PyCrust without having to ensure that wxPython has been created
-    in a secondary thread (e.g. SciPy gui_thread).
-
-    Unfortunately, gui_thread seems to introduce a number of further
-    dependencies on SciPy modules, which I do not wish to introduce
-    into the backend at this point. If there is a need I will look
-    into this in a later release.
+    Show all the figures and enter the wx main loop.
+    This should be the last line of your script.
     """
     DEBUG_MSG("show()", 3, None)
 
     for figwin in Gcf.get_all_fig_managers():
         figwin.frame.Show()
 
-    if show._needmain and not matplotlib.is_interactive():
-        # start the wxPython gui event if there is not already one running
+    needmain = not wx.App.IsMainLoopRunning()
+    if  needmain and len(Gcf.get_all_fig_managers())>0:
         wxapp = wx.GetApp()
         if wxapp is not None:
-            # wxPython 2.4 has no wx.App.IsMainLoopRunning() method
-            imlr = getattr(wxapp, 'IsMainLoopRunning', lambda: False)
-            if not imlr():
-                wxapp.MainLoop()
-        show._needmain = False
-show._needmain = True
+            wxapp.MainLoop()
+            # start the wxPython gui event if there is not already one running
+
 
 def new_figure_manager(num, *args, **kwargs):
     """
