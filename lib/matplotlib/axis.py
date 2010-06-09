@@ -1002,7 +1002,7 @@ class Axis(artist.Artist):
     def grid(self, b=None, which='major', **kwargs):
         """
         Set the axis grid on or off; b is a boolean. Use *which* =
-        'major' | 'minor' to set the grid for major or minor ticks.
+        'major' | 'minor' | 'both' to set the grid for major or minor ticks.
 
         If *b* is *None* and len(kwargs)==0, toggle the grid state.  If
         *kwargs* are supplied, it is assumed you want the grid on and *b*
@@ -1013,14 +1013,15 @@ class Axis(artist.Artist):
           xax.grid(color='r', linestyle='-', linewidth=2)
         """
         if len(kwargs): b = True
-        if which.lower().find('minor')>=0:
+        which = which.lower()
+        if which in ['minor', 'both']:
             if b is None: self._gridOnMinor = not self._gridOnMinor
             else: self._gridOnMinor = b
             for tick in self.minorTicks:  # don't use get_ticks here!
                 if tick is None: continue
                 tick.gridOn = self._gridOnMinor
                 if len(kwargs): artist.setp(tick.gridline,**kwargs)
-        if which.lower().find('major')>=0:
+        if which in ['major', 'both']:
             if b is None: self._gridOnMajor = not self._gridOnMajor
             else: self._gridOnMajor = b
             for tick in self.majorTicks:  # don't use get_ticks here!
