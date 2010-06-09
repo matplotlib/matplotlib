@@ -4,7 +4,7 @@
 
 2010-06-06 Change the way we do split/dividend adjustments in
            finance.py to handle dividends and fix the zero division bug reported
-           in sf bug 2949906.  Note that volume is not adjusted
+           in sf bug 2949906 and 2123566.  Note that volume is not adjusted
            because the Yahoo CSV does not distinguish between share
            split and dividend adjustments making it near impossible to
            get volume adjustement right (unless we want to guess based

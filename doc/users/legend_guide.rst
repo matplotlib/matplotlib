@@ -12,14 +12,14 @@ What to be displayed
 ====================
 
 The legend command has a following call signature::
-    
+
       legend(*args, **kwargs)
-    
+
 If len(args) is 2, the first argument should be a list of artist to be
 labeled, and the second argument should a list of string labels.  If
 len(args) is 0, it automatically generate the legend from label
 properties of the child artists by calling
-:meth:`~matplotlib.axes.Axes.get_legend_handles_labels` method. 
+:meth:`~matplotlib.axes.Axes.get_legend_handles_labels` method.
 For example, *ax.legend()* is equivalent to::
 
   handles, labels = ax.get_legend_handles_labels()
@@ -44,7 +44,7 @@ used as text labels. If label attribute is empty string or starts with
    * :class:`~matplotlib.patches.Patch`
    * :class:`~matplotlib.collections.LineCollection`
    * :class:`~matplotlib.collections.RegularPolyCollection`
- 
+
    Unfortunately, there is no easy workaround when you need legend for
    an artist not in the above list (You may use one of the supported
    artist as a proxy. See below), or customize it beyond what is
@@ -84,28 +84,28 @@ feeding them to legend call.::
   p1, = ax.plot([1,2,3], label="line 1")
   p2, = ax.plot([3,2,1], label="line 2")
   p3, = ax.plot([2,3,1], label="line 3")
-  
+
   handles, labels = ax.get_legend_handles_labels()
 
   # reverse the order
   ax.legend(handles[::-1], labels[::-1])
-  
+
   # or sort them by labels
   import operator
   hl = sorted(zip(handles, labels),
               key=operator.itemgetter(1))
   handles2, labels2 = zip(*hl)
-  
+
   ax.legend(handles2, labels2)
 
 
 Using Proxy Artist
 ------------------
 
-When you want to display legend for an artist not supported by the
-matplotlib, you may use other supported artist as a proxy. For
-example, you may creates an proxy artist without adding it to the axes
-(so the proxy artist will not be drawn in the main axes) and feet it
+When you want to display legend for an artist not supported by
+matplotlib, you may use another artist as a proxy. For
+example, you may create a proxy artist without adding it to the axes
+(so the proxy artist will not be drawn in the main axes) and feed it
 to the legend function.::
 
   p = Rectangle((0, 0), 1, 1, fc="r")
