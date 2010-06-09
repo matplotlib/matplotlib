@@ -93,7 +93,7 @@ def new_figure_manager(num, *args, **kwargs):
 class TimerGTK(TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses GTK for timer events.
-    
+
     Attributes:
     * interval: The time between timer events in milliseconds. Default
         is 1000 ms.
@@ -118,7 +118,7 @@ class TimerGTK(TimerBase):
 
     def _on_timer(self):
         TimerBase._on_timer(self)
-        
+
         # Gtk timeout_add() requires that the callback returns True if it
         # is to be called again.
         if len(self.callbacks) > 0 and not self._single:
@@ -453,9 +453,9 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
-        
+
         optional arguments:
-        
+
         *interval*
           Timer interval in milliseconds
         *callbacks*
