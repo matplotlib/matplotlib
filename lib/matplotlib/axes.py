@@ -1957,18 +1957,21 @@ class Axes(martist.Artist):
         self._axisbelow = b
 
     @docstring.dedent_interpd
-    def grid(self, b=None, **kwargs):
+    def grid(self, b=None, which='major', **kwargs):
         """
         call signature::
 
-          grid(self, b=None, **kwargs)
+          grid(self, b=None, which='major', **kwargs)
 
         Set the axes grids on or off; *b* is a boolean.  (For Matlab
         compatibility, *b* may also be a string, 'on' or 'off'.)
 
         If *b* is *None* and ``len(kwargs)==0``, toggle the grid state.  If
         *kwargs* are supplied, it is assumed that you want a grid and *b*
-        is thus set to *True*
+        is thus set to *True*.
+
+        *which* can be 'major' (default), 'minor', or 'both' to control
+        whether major tick grids, minor tick grids, or both are affected.
 
         *kawrgs* are used to set the grid line properties, eg::
 
@@ -1981,8 +1984,8 @@ class Axes(martist.Artist):
         if len(kwargs):
             b = True
         b = _string_to_bool(b)
-        self.xaxis.grid(b, **kwargs)
-        self.yaxis.grid(b, **kwargs)
+        self.xaxis.grid(b, which=which, **kwargs)
+        self.yaxis.grid(b, which=which, **kwargs)
 
     def ticklabel_format(self, **kwargs):
         """
