@@ -1398,7 +1398,7 @@ class Axes(martist.Artist):
         '''
         label = collection.get_label()
         if not label:
-            collection.set_label('collection%d'%len(self.collections))
+            collection.set_label('_collection%d'%len(self.collections))
         self.collections.append(collection)
         self._set_artist_props(collection)
 
