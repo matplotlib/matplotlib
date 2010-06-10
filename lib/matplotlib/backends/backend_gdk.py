@@ -308,7 +308,9 @@ class RendererGDK(RendererBase):
 
         layout, inkRect, logicalRect = self._get_pango_layout(s, prop)
         l, b, w, h = inkRect
-        return w, h+1, h + 1
+        ll, lb, lw, lh = logicalRect
+
+        return w, h + 1, h - lh
 
     def new_gc(self):
         return GraphicsContextGDK(renderer=self)
