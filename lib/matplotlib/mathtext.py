@@ -330,7 +330,7 @@ class MathtextBackendSvg(MathtextBackend):
     def render_glyph(self, ox, oy, info):
         oy = self.height - oy + info.offset
         thetext = unichr_safe(info.num)
-            
+
         self.svg_glyphs.append(
             (info.font, info.fontsize, thetext, ox, oy, info.metrics))
 
@@ -850,7 +850,7 @@ class UnicodeFonts(TruetypeFonts):
             fontname, font_class, uniindex)
 
         new_fontname = fontname
-        
+
         # Only characters in the "Letter" class should be italicized in 'it'
         # mode.  Greek capital letters should be Roman.
         if found_symbol:
@@ -923,11 +923,11 @@ class StixFonts(UnicodeFonts):
                  'nonunibf' : 'STIXNonUnicode:weight=bold',
 
                  0 : 'STIXGeneral',
-                 1 : 'STIXSize1',
-                 2 : 'STIXSize2',
-                 3 : 'STIXSize3',
-                 4 : 'STIXSize4',
-                 5 : 'STIXSize5'
+                 1 : 'STIXSizeOneSym',
+                 2 : 'STIXSizeTwoSym',
+                 3 : 'STIXSizeThreeSym',
+                 4 : 'STIXSizeFourSym',
+                 5 : 'STIXSizeFiveSym'
                  }
     use_cmex = False
     cm_fallback = False

@@ -975,7 +975,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 6
+    __version__ = 7
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
