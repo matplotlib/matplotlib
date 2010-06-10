@@ -992,7 +992,7 @@ class Figure(Artist):
 
           savefig(fname, dpi=None, facecolor='w', edgecolor='w',
                   orientation='portrait', papertype=None, format=None,
-                  transparent=False):
+                  transparent=False, bbox_inches=None, pad_inches=0.1):
 
         Save the current figure.
 
