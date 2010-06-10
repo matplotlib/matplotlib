@@ -1532,7 +1532,7 @@ RendererAgg::_draw_gouraud_triangle(const GCAgg& gc,
   theRasterizer.reset_clipping();
   rendererBase.reset_clipping(true);
   set_clipbox(gc.cliprect, theRasterizer);
-  /* TODO: Support clip paths */
+  bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
   trans *= agg::trans_affine_scaling(1.0, -1.0);
   trans *= agg::trans_affine_translation(0.0, (double)height);
@@ -1560,7 +1560,19 @@ RendererAgg::_draw_gouraud_triangle(const GCAgg& gc,
 
   theRasterizer.add_path(span_gen);
 
-  agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, span_alloc, span_gen);
+  if (has_clippath) {
+    typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+    typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
+    typedef agg::renderer_scanline_aa<amask_ren_type, span_alloc_t, span_gen_t>
+      amask_aa_renderer_type;
+
+    pixfmt_amask_type pfa(pixFmt, alphaMask);
+    amask_ren_type r(pfa);
+    amask_aa_renderer_type ren(r, span_alloc, span_gen);
+    agg::render_scanlines(theRasterizer, slineP8, ren);
+  } else {
+    agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, span_alloc, span_gen);
+  }
 }
 
 Py::Object
