@@ -370,6 +370,24 @@ class RendererSVG(RendererBase):
 
         self._n_gradients += 1
 
+    def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
+                               transform):
+        write = self._svgwriter.write
+
+        clipid = self._get_gc_clip_svg(gc)
+        if clipid is None:
+            clippath = ''
+        else:
+            clippath = 'clip-path="url(#%s)"' % clipid
+
+        write('<g %s>\n' % clippath)
+
+        transform = transform.frozen()
+        for tri, col in zip(triangles_array, colors_array):
+            self.draw_gouraud_triangle(gc, tri, col, transform)
+
+        write('</g>\n')
+
     def draw_image(self, gc, x, y, im):
         # MGDTODO: Support clippath here
         trans = [1,0,0,1,0,0]
