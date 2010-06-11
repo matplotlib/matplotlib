@@ -619,7 +619,11 @@ class ViewVCCachedServer(urllib2.BaseHandler):
         fname = cached[0]
 
         if asfileobj:
-            return file(fname)
+            if os.path.splitext(fname)[-1].lower() in ('.csv', '.xrc', '.txt'):
+                mode = 'r'
+            else:
+                mode = 'rb'
+            return open(fname, mode)
         else:
             return fname
 
