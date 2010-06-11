@@ -1228,8 +1228,9 @@ void __cleanup_path(VertexSource& source,
 void _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
                    bool remove_nans, bool do_clip,
                    const agg::rect_base<double>& rect,
-                   e_quantize_mode quantize_mode, bool do_simplify,
-                   bool return_curves, std::vector<double>& vertices,
+                   e_quantize_mode quantize_mode, double stroke_width,
+                   bool do_simplify, bool return_curves,
+                   std::vector<double>& vertices,
                    std::vector<npy_uint8>& codes) {
     typedef agg::conv_transform<PathIterator>  transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
@@ -1241,7 +1242,7 @@ void _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
     transformed_path_t tpath(path, trans);
     nan_removal_t      nan_removed(tpath, remove_nans, path.has_curves());
     clipped_t          clipped(nan_removed, do_clip, rect);
-    quantized_t        quantized(clipped, quantize_mode, path.total_vertices());
+    quantized_t        quantized(clipped, quantize_mode, path.total_vertices(), stroke_width);
     simplify_t         simplified(quantized, do_simplify, path.simplify_threshold());
 
     vertices.reserve(path.total_vertices() * 2);
@@ -1260,7 +1261,7 @@ void _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
 
 Py::Object _path_module::cleanup_path(const Py::Tuple& args)
 {
-    args.verify_length(7);
+    args.verify_length(8);
 
     PathIterator path(args[0]);
     agg::trans_affine trans = py_to_agg_transformation_matrix(args[1].ptr(), false);
@@ -1300,8 +1301,10 @@ Py::Object _path_module::cleanup_path(const Py::Tuple& args)
         quantize_mode = QUANTIZE_FALSE;
     }
 
+    double stroke_width = Py::Float(args[5]);
+
     bool simplify;
-    Py::Object simplify_obj = args[5];
+    Py::Object simplify_obj = args[6];
     if (simplify_obj.isNone())
     {
         simplify = path.should_simplify();
@@ -1311,13 +1314,13 @@ Py::Object _path_module::cleanup_path(const Py::Tuple& args)
         simplify = simplify_obj.isTrue();
     }
 
-    bool return_curves = args[6].isTrue();
+    bool return_curves = args[7].isTrue();
 
     std::vector<double> vertices;
     std::vector<npy_uint8> codes;
 
     _cleanup_path(path, trans, remove_nans, do_clip, clip_rect, quantize_mode,
-                  simplify, return_curves, vertices, codes);
+                  stroke_width, simplify, return_curves, vertices, codes);
 
     npy_intp length = codes.size();
     npy_intp dims[] = { length, 2, 0 };

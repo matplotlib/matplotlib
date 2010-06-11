@@ -535,14 +535,16 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
   transformed_path_t marker_path_transformed(marker_path, marker_trans);
   quantize_t         marker_path_quantized(marker_path_transformed,
                                            gc.quantize_mode,
-                                           marker_path.total_vertices());
+                                           marker_path.total_vertices(),
+                                           gc.linewidth);
   curve_t            marker_path_curve(marker_path_quantized);
 
   PathIterator path(path_obj);
   transformed_path_t path_transformed(path, trans);
   quantize_t         path_quantized(path_transformed,
                                     gc.quantize_mode,
-                                    path.total_vertices());
+                                    path.total_vertices(),
+                                    1.0);
   curve_t            path_curve(path_quantized);
   path_curve.rewind(0);
 
@@ -1106,7 +1108,7 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   transformed_path_t tpath(path, trans);
   nan_removed_t      nan_removed(tpath, true, path.has_curves());
   clipped_t          clipped(nan_removed, clip, width, height);
-  quantized_t        quantized(clipped, gc.quantize_mode, path.total_vertices());
+  quantized_t        quantized(clipped, gc.quantize_mode, path.total_vertices(), gc.linewidth);
   simplify_t         simplified(quantized, simplify, path.simplify_threshold());
   curve_t            curve(simplified);
 
@@ -1273,7 +1275,8 @@ RendererAgg::_draw_path_collection_generic
         transformed_path_t tpath(path, trans);
         nan_removed_t      nan_removed(tpath, true, has_curves);
         clipped_t          clipped(nan_removed, do_clip, width, height);
-        quantized_t        quantized(clipped, gc.quantize_mode, path.total_vertices());
+        quantized_t        quantized(clipped, gc.quantize_mode,
+                                     path.total_vertices(), gc.linewidth);
         if (has_curves) {
           quantized_curve_t curve(quantized);
           _draw_path(curve, has_clippath, face, gc);

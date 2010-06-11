@@ -378,6 +378,7 @@ class PathQuantizer
  private:
     VertexSource* m_source;
     bool          m_quantize;
+    double        m_quantize_value;
 
     static bool should_quantize(VertexSource& path,
                                 e_quantize_mode quantize_mode,
@@ -436,10 +437,17 @@ class PathQuantizer
         - QUANTIZE_FALSE: No quantization
     */
     PathQuantizer(VertexSource& source, e_quantize_mode quantize_mode,
-                  unsigned total_vertices=15) :
+                  unsigned total_vertices=15, double stroke_width=0.0) :
         m_source(&source)
     {
         m_quantize = should_quantize(source, quantize_mode, total_vertices);
+
+        if (m_quantize)
+        {
+            int odd_even = (int)mpl_round(stroke_width) % 2;
+            m_quantize_value = (odd_even) ? 0.5 : 0.0;
+        }
+
         source.rewind(0);
     }
 
@@ -454,8 +462,8 @@ class PathQuantizer
         code = m_source->vertex(x, y);
         if (m_quantize && agg::is_vertex(code))
         {
-            *x = mpl_round(*x) + 0.5;
-            *y = mpl_round(*y) + 0.5;
+            *x = mpl_round(*x) + m_quantize_value;
+            *y = mpl_round(*y) + m_quantize_value;
         }
         return code;
     }
