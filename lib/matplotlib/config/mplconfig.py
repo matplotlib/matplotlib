@@ -118,6 +118,7 @@ class MPLConfig(TConfig):
     class path(TConfig):
         simplify = T.false
         simplify_threshold = T.float(1.0 / 9.0)
+        snap = T.true
 
     class patch(TConfig):
         linewidth = T.Float(1.0)
@@ -444,7 +445,8 @@ class RcParamsWrapper(dict):
 
         # Path properties
         'path.simplify' : (self.tconfig.path, 'simplify'),
-        'path.simplify_threshold' : (self.tconfig.path, 'simplify_threshold')
+        'path.simplify_threshold' : (self.tconfig.path, 'simplify_threshold'),
+        'path.snap' : (self.tconfig.path, 'snap')
         }
 
     def __setitem__(self, key, val):

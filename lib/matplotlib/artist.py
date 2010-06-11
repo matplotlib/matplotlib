@@ -2,7 +2,7 @@ from __future__ import division
 import re, warnings
 import matplotlib
 import matplotlib.cbook as cbook
-from matplotlib import docstring
+from matplotlib import docstring, rcParams
 from transforms import Bbox, IdentityTransform, TransformedBbox, TransformedPath
 from path import Path
 
@@ -414,7 +414,10 @@ class Artist(object):
 
         Only supported by the Agg and MacOSX backends.
         """
-        return self._snap
+        if rcParams['path.snap']:
+            return self._snap
+        else:
+            return False
 
     def set_snap(self, snap):
         """

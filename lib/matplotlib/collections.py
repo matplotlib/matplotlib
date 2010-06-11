@@ -211,6 +211,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
+        gc.set_snap(self.get_snap())
 
         renderer.draw_path_collection(
             gc, transform.frozen(), paths, self.get_transforms(),
