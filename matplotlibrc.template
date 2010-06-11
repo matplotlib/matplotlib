@@ -63,10 +63,10 @@ backend      : %(backend)s
 # circles.  See
 # http://matplotlib.sourceforge.net/api/artist_api.html#module-matplotlib.patches
 # information on patch properties
-#patch.linewidth   	: 1.0     # edge width in points
-#patch.facecolor  	: blue
-#patch.edgecolor  	: black
-#patch.antialiased 	: True    # render patches in antialised (no jaggies)
+#patch.linewidth        : 1.0     # edge width in points
+#patch.facecolor        : blue
+#patch.edgecolor        : black
+#patch.antialiased      : True    # render patches in antialised (no jaggies)
 
 ### FONT
 #
@@ -268,12 +268,12 @@ backend      : %(backend)s
 
 # The figure subplot parameters.  All dimensions are fraction of the
 # figure width or height
-#figure.subplot.left	: 0.125  # the left side of the subplots of the figure
-#figure.subplot.right	: 0.9    # the right side of the subplots of the figure
-#figure.subplot.bottom	: 0.1    # the bottom of the subplots of the figure
-#figure.subplot.top	: 0.9    # the top of the subplots of the figure
-#figure.subplot.wspace	: 0.2    # the amount of width reserved for blank space between subplots
-#figure.subplot.hspace	: 0.2    # the amount of height reserved for white space between subplots
+#figure.subplot.left    : 0.125  # the left side of the subplots of the figure
+#figure.subplot.right   : 0.9    # the right side of the subplots of the figure
+#figure.subplot.bottom  : 0.1    # the bottom of the subplots of the figure
+#figure.subplot.top     : 0.9    # the top of the subplots of the figure
+#figure.subplot.wspace  : 0.2    # the amount of width reserved for blank space between subplots
+#figure.subplot.hspace  : 0.2    # the amount of height reserved for white space between subplots
 
 ### IMAGES
 #image.aspect : equal             # equal | auto | a number
@@ -297,12 +297,15 @@ backend      : %(backend)s
                                   # A value of 20000 is probably a good
                                   # starting point.
 ### SAVING FIGURES
-#path.simplify : False  # When True, simplify paths by removing "invisible"
+#path.simplify : True   # When True, simplify paths by removing "invisible"
                         # points to reduce file size and increase rendering
                         # speed
 #path.simplify_threshold : 0.1  # The threshold of similarity below which
                                 # vertices will be removed in the simplification
                                 # process
+#path.snap : True # When True, rectilinear axis-aligned paths will be snapped to
+                  # the nearest pixel when certain criteria are met.  When False,
+                  # paths will never be snapped.
 
 # the default savefig params can be different from the display params
 # Eg, you may want a higher resolution, or to make the figure
@@ -362,12 +365,12 @@ backend      : %(backend)s
 #verbose.fileo  : sys.stdout  # a log filename, sys.stdout or sys.stderr
 
 # Event keys to interact with figures/plots via keyboard.
-# Customize these settings according to your needs. 
-# Leave the field(s) empty if you don't need a key-map. (i.e., fullscreen : '') 
+# Customize these settings according to your needs.
+# Leave the field(s) empty if you don't need a key-map. (i.e., fullscreen : '')
 
-#keymap.fullscreen : f               # toggling    
+#keymap.fullscreen : f               # toggling
 #keymap.home : h, r, home            # home or reset mnemonic
-#keymap.back : left, c, backspace    # forward / backward keys to enable 
+#keymap.back : left, c, backspace    # forward / backward keys to enable
 #keymap.forward : right, v           #   left handed quick navigation
 #keymap.pan : p                      # pan mnemonic
 #keymap.zoom : o                     # zoom mnemonic

@@ -356,7 +356,7 @@ class Patch(artist.Artist):
         self._set_gc_clip(gc)
         gc.set_capstyle('projecting')
         gc.set_url(self._url)
-        gc.set_snap(self._snap)
+        gc.set_snap(self.get_snap())
 
         if (not self.fill or self._facecolor is None or
             (cbook.is_string_like(self._facecolor) and self._facecolor.lower()=='none')):
@@ -3845,6 +3845,7 @@ class FancyArrowPatch(Patch):
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
         gc.set_capstyle('round')
+        gc.set_snap(self.get_snap())
 
         if (not self.fill or self._facecolor is None or
             (cbook.is_string_like(self._facecolor) and self._facecolor.lower()=='none')):

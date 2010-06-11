@@ -476,7 +476,8 @@ defaultParams = {
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
 
     'path.simplify' : [True, validate_bool],
-    'path.simplify_threshold' : [1.0 / 9.0, ValidateInterval(0.0, 1.0)]
+    'path.simplify_threshold' : [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
+    'path.snap' : [True, validate_bool]
 }
 
 if __name__ == '__main__':
