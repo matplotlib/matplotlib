@@ -289,6 +289,7 @@ static void _draw_hatch(void *info, CGContextRef cr)
                                         0,
                                         rect,
                                         QUANTIZE_FALSE,
+                                        1.0,
                                         0);
     Py_DECREF(transform);
     if (!iterator)
@@ -662,6 +663,7 @@ GraphicsContext_set_clip_path (GraphicsContext* self, PyObject* args)
                                         0,
                                         rect,
                                         QUANTIZE_AUTO,
+                                        1.0,
                                         0);
     Py_DECREF(transform);
     if (!iterator)
@@ -889,6 +891,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                   0,
                                   rect,
                                   QUANTIZE_AUTO,
+                                  CGContextGetLineWidth(self),
                                   rgbFace == NULL);
     if (!iterator)
     {
@@ -966,6 +969,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                           0,
                                           rect,
                                           QUANTIZE_AUTO,
+                                          CGContextGetLineWidth(self),
                                           0);
             if (!iterator)
             {
@@ -1042,6 +1046,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
                                  0,
                                  rect,
                                  mode,
+                                 CGContextGetLineWidth(self),
                                  0);
     if (!iterator)
     {
@@ -1063,6 +1068,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
                                  1,
                                  rect,
                                  QUANTIZE_TRUE,
+                                 1.0,
                                  0);
     if (!iterator)
     {
@@ -1326,6 +1332,17 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
                                      0,
                                      rect,
                                      mode,
+                                     1.0,
+                                     /* Hardcoding stroke width to 1.0
+                                        here, but for true
+                                        correctness, the paths would
+                                        need to be set up for each
+                                        different linewidth that may
+                                        be applied below.  This
+                                        difference is very minute in
+                                        practice, so this hardcoding
+                                        is probably ok for now.  --
+                                        MGD */
                                      0);
         Py_DECREF(transform);
         Py_DECREF(path);
@@ -1362,6 +1379,7 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
                                       0,
                                       rect,
                                       QUANTIZE_AUTO,
+                                      1.0,
                                       0);
         if (!iterator)
         {
@@ -1669,6 +1687,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
                                             0,
                                             rect,
                                             QUANTIZE_AUTO,
+                                            1.0,
                                             0);
         if (iterator)
         {
@@ -2654,6 +2673,7 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
                                             0,
                                             rect,
                                             QUANTIZE_AUTO,
+                                            1.0,
                                             0);
         if (iterator)
         {

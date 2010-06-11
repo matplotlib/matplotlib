@@ -188,7 +188,8 @@ class Path(object):
         return len(self.vertices)
 
     def iter_segments(self, transform=None, remove_nans=True, clip=None,
-                      quantize=False, simplify=None, curves=True):
+                      quantize=False, stroke_width=1.0, simplify=None,
+                      curves=True):
         """
         Iterates over all of the curve segments in the path.  Each
         iteration returns a 2-tuple (*vertices*, *code*), where
@@ -209,6 +210,9 @@ class Path(object):
 
         *quantize*: if None, auto-quantize.  If True, force quantize,
          and if False, don't quantize.
+
+        *stroke_width*: the width of the stroke being drawn.  Needed
+         as a hint for the quantizer.
 
         *simplify*: if True, perform simplification, to remove
          vertices that do not affect the appearance of the path.  If
@@ -232,7 +236,7 @@ class Path(object):
         STOP         = self.STOP
 
         vertices, codes = cleanup_path(self, transform, remove_nans, clip,
-                                       quantize, simplify, curves)
+                                       quantize, stroke_width, simplify, curves)
         len_vertices = len(vertices)
 
         i = 0
