@@ -140,8 +140,8 @@ class RendererCairo(RendererBase):
 
 
     def draw_path(self, gc, path, transform, rgbFace=None):
-        if len(path.vertices) > 18980:   
-            raise ValueError("The Cairo backend can not draw paths longer than 18980 points.")   
+        if len(path.vertices) > 18980:
+            raise ValueError("The Cairo backend can not draw paths longer than 18980 points.")
 
         ctx = gc.ctx
 
@@ -315,9 +315,10 @@ class GraphicsContextCairo(GraphicsContextBase):
 
 
     def set_alpha(self, alpha):
-        self._alpha = alpha
+        GraphicsContextBase.set_alpha(self, alpha)
+        _alpha = self.get_alpha()
         rgb = self._rgb
-        self.ctx.set_source_rgba (rgb[0], rgb[1], rgb[2], alpha)
+        self.ctx.set_source_rgba (rgb[0], rgb[1], rgb[2], _alpha)
 
 
     #def set_antialiased(self, b):
