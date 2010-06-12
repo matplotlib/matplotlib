@@ -8,7 +8,7 @@ import os.path
 import Tkinter as Tk, FileDialog
 
 # Paint image to Tk photo blitter extension
-import import matplotlib.backends.tkagg as tkagg
+import matplotlib.backends.tkagg as tkagg
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
