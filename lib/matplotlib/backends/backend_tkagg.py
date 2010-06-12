@@ -3,17 +3,20 @@
 from __future__ import division
 
 import os, sys, math
+import os.path
 
 import Tkinter as Tk, FileDialog
-import tkagg                 # Paint image to Tk photo blitter extension
-from backend_agg import FigureCanvasAgg
 
-import os.path
+# Paint image to Tk photo blitter extension
+import import matplotlib.backends.tkagg as tkagg
+
+from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 import matplotlib
 from matplotlib.cbook import is_string_like
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
+from matplotlib.backend_bases import RendererBase, GraphicsContextBase
+from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase,
+from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
 
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
@@ -61,24 +64,42 @@ def draw_if_interactive():
             figManager.show()
 
 
-def show():
+def show(block=False):
     """
-    Show all the figures and enter the gtk mainloop
+    Show all figures.
 
-    This should be the last line of your script.  This function sets
-    interactive mode to True, as detailed on
-    http://matplotlib.sf.net/interactive.html
+    Temporary, experimental kwarg *block* defaults to False to
+    provide the behavior present throughout mpl history to date:
+    interactive mode is forced on, and show does not block.
+
+    Set *block* to True to test the proposed new behavior,
+    consistent with other backends, in which show does not affect
+    interactive mode, and always blocks until all figures are closed.
+    In addition, the rcParam['tk.pythoninspect'] is ignored.
+
+    Use this kwarg only for testing; other backends do not accept
+    a kwarg to show, and might never do so.
     """
     for manager in Gcf.get_all_fig_managers():
         manager.show()
-    import matplotlib
-    matplotlib.interactive(True)
-    if rcParams['tk.pythoninspect']:
-        os.environ['PYTHONINSPECT'] = '1'
-    if show._needmain:
+    if block:
+        # proposed new behavior; seems to make this backend consistent
+        # with others, with no drawbacks identified yet.
         Tk.mainloop()
-        show._needmain = False
-show._needmain = True
+    else:
+        # long-time behavior: non-blocking, forces interactive mode
+        import matplotlib
+        matplotlib.interactive(True)
+        if rcParams['tk.pythoninspect']:
+            os.environ['PYTHONINSPECT'] = '1'
+        if show._needmain:
+            Tk.mainloop()
+            show._needmain = False
+
+show._needmain = True   # This can go away if we eliminate block=False option.
+
+
+
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -98,7 +119,7 @@ def new_figure_manager(num, *args, **kwargs):
 class TimerTk(TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses Tk's timer events.
-    
+
     Attributes:
     * interval: The time between timer events in milliseconds. Default
         is 1000 ms.
@@ -213,7 +234,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         root = self._tkcanvas.winfo_toplevel()
         root.bind("<MouseWheel>", self.scroll_event_windows)
 
-        # Can't get destroy events by binding ot _tkcanvas. Therefore, bind
+        # Can't get destroy events by binding to _tkcanvas. Therefore, bind
         # to the window and filter.
         def filter_destroy(evt):
             if evt.widget is self._tkcanvas:
@@ -363,9 +384,9 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
         This is useful for getting periodic events through the backend's native
         event loop. Implemented only for backends with GUIs.
-        
+
         optional arguments:
-        
+
         *interval*
           Timer interval in milliseconds
         *callbacks*
@@ -449,17 +470,15 @@ class FigureManagerTkAgg(FigureManagerBase):
         this function doesn't segfault but causes the
         PyEval_RestoreThread: NULL state bug on win32
         """
-
-        def destroy(*args):
-            self.window = None
-            Gcf.destroy(self._num)
-
-        if not self._shown: self.canvas._tkcanvas.bind("<Destroy>", destroy)
         _focus = windowing.FocusManager()
         if not self._shown:
+            def destroy(*args):
+                self.window = None
+                Gcf.destroy(self._num)
+            self.canvas._tkcanvas.bind("<Destroy>", destroy)
             self.window.deiconify()
             # anim.py requires this
-            if sys.platform=='win32' : self.window.update()
+            self.window.update()
         else:
             self.canvas.draw_idle()
         self._shown = True
