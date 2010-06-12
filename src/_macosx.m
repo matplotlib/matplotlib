@@ -864,6 +864,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
     PyObject* path;
     PyObject* transform;
     PyObject* rgbFace;
+    float linewidth;
 
     int n;
 
@@ -878,9 +879,10 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "OO|O",
+    if(!PyArg_ParseTuple(args, "OOf|O",
                                &path,
                                &transform,
+                               &linewidth,
                                &rgbFace)) return NULL;
 
     if(rgbFace==Py_None) rgbFace = NULL;
@@ -891,7 +893,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                   0,
                                   rect,
                                   QUANTIZE_AUTO,
-                                  CGContextGetLineWidth(self),
+                                  linewidth,
                                   rgbFace == NULL);
     if (!iterator)
     {
@@ -969,7 +971,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                           0,
                                           rect,
                                           QUANTIZE_AUTO,
-                                          CGContextGetLineWidth(self),
+                                          linewidth,
                                           0);
             if (!iterator)
             {
@@ -995,6 +997,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
     PyObject* marker_transform;
     PyObject* path;
     PyObject* transform;
+    float linewidth;
     PyObject* rgbFace;
 
     int ok;
@@ -1015,11 +1018,12 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "OOOO|O",
+    if(!PyArg_ParseTuple(args, "OOOOf|O",
                                &marker_path,
                                &marker_transform,
                                &path,
                                &transform,
+                               &linewidth,
                                &rgbFace)) return NULL;
 
     if(rgbFace==Py_None) rgbFace = NULL;
@@ -1046,7 +1050,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
                                  0,
                                  rect,
                                  mode,
-                                 CGContextGetLineWidth(self),
+                                 linewidth,
                                  0);
     if (!iterator)
     {
