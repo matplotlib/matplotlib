@@ -52,12 +52,14 @@ class RendererMac(RendererBase):
     def draw_path(self, gc, path, transform, rgbFace=None):
         if rgbFace is not None:
             rgbFace = tuple(rgbFace)
-        gc.draw_path(path, transform, rgbFace)
+        linewidth = gc.get_linewidth()
+        gc.draw_path(path, transform, linewidth, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         if rgbFace is not None:
             rgbFace = tuple(rgbFace)
-        gc.draw_markers(marker_path, marker_trans, path, trans, rgbFace)
+        linewidth = gc.get_linewidth()
+        gc.draw_markers(marker_path, marker_trans, path, trans, linewidth, rgbFace)
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offsetTrans, facecolors, edgecolors,
