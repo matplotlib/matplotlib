@@ -53,7 +53,7 @@ class DraggableLegend(DraggableOffsetBox):
         bbox = self.legend.get_bbox_to_anchor()
         _bbox_transform = BboxTransformFrom(bbox)
         self.legend._loc = tuple(_bbox_transform.transform_point(loc_in_canvas))
-        
+
 
 
 class Legend(Artist):
@@ -256,7 +256,7 @@ in the normalized axes coordinate.
             self._scatteryoffsets = np.array([3./8., 4./8., 2.5/8.])
         else:
             self._scatteryoffsets = np.asarray(scatteryoffsets)
-        reps =  int(self.numpoints / len(self._scatteryoffsets)) + 1
+        reps =  int(self.scatterpoints / len(self._scatteryoffsets)) + 1
         self._scatteryoffsets = np.tile(self._scatteryoffsets, reps)[:self.scatterpoints]
 
         # _legend_box is an OffsetBox instance that contains all
@@ -519,6 +519,9 @@ in the normalized axes coordinate.
                 legline_marker.set_clip_box(None)
                 legline_marker.set_clip_path(None)
                 legline_marker.set_linestyle('None')
+                if self.markerscale !=1:
+                    newsz = legline_marker.get_markersize()*self.markerscale
+                    legline_marker.set_markersize(newsz)
                 # we don't want to add this to the return list because
                 # the texts and handles are assumed to be in one-to-one
                 # correpondence.
@@ -554,11 +557,8 @@ in the normalized axes coordinate.
                 #ydata = self._scatteryoffsets
                 ydata = height*self._scatteryoffsets
 
-                size_max, size_min = max(handle.get_sizes()),\
-                                     min(handle.get_sizes())
-                # we may need to scale these sizes by "markerscale"
-                # attribute. But other handle types does not seem
-                # to care about this attribute and it is currently ignored.
+                size_max, size_min = max(handle.get_sizes())*self.markerscale**2,\
+                                     min(handle.get_sizes())*self.markerscale**2
                 if self.scatterpoints < 4:
                     sizes = [.5*(size_max+size_min), size_max,
                              size_min]
@@ -582,11 +582,8 @@ in the normalized axes coordinate.
 
                 ydata = height*self._scatteryoffsets
 
-                size_max, size_min = max(handle.get_sizes()),\
-                                     min(handle.get_sizes())
-                # we may need to scale these sizes by "markerscale"
-                # attribute. But other handle types does not seem
-                # to care about this attribute and it is currently ignored.
+                size_max, size_min = max(handle.get_sizes())*self.markerscale**2,\
+                                     min(handle.get_sizes())*self.markerscale**2
                 if self.scatterpoints < 4:
                     sizes = [.5*(size_max+size_min), size_max,
                              size_min]
@@ -937,7 +934,7 @@ in the normalized axes coordinate.
           * True : turn draggable on
 
           * False : turn draggable off
-          
+
         If draggable is on, you can drag the legend on the canvas with
         the mouse.  The DraggableLegend helper instance is returned if
         draggable is on.
@@ -947,7 +944,7 @@ in the normalized axes coordinate.
         # if state is None we'll toggle
         if state is None:
             state = not is_draggable
-            
+
         if state:
             if self._draggable is None:
                 self._draggable = DraggableLegend(self, use_blit)
