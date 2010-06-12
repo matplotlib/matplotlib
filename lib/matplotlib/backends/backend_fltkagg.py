@@ -26,7 +26,7 @@ from matplotlib.backend_bases import \
      NavigationToolbar2, cursors
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
-import matplotlib.windowing as windowing
+import matplotlib.backends.windowing as windowing
 from matplotlib.widgets import SubplotTool
 
 

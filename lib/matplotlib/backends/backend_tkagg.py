@@ -11,6 +11,7 @@ import Tkinter as Tk, FileDialog
 import matplotlib.backends.tkagg as tkagg
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+import matplotlib.backends.windowing as windowing
 
 import matplotlib
 from matplotlib.cbook import is_string_like
@@ -21,7 +22,6 @@ from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
 
-import matplotlib.windowing as windowing
 from matplotlib.widgets import SubplotTool
 
 import matplotlib.cbook as cbook
