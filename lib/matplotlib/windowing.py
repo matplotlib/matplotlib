@@ -1,9 +1,17 @@
+"""
+MS Windows-specific helper for TkAgg and FltkAgg backends.
+
+With rcParams['tk.window_focus'] default of False, it is
+effectively disabled.
+
+It uses a tiny C++ extension module to access MS Win functions.
+"""
 from matplotlib import rcParams
 
 try:
     if not rcParams['tk.window_focus']:
         raise ImportError
-    from _windowing import GetForegroundWindow, SetForegroundWindow
+    from matplotlib._windowing import GetForegroundWindow, SetForegroundWindow
 except ImportError:
     def GetForegroundWindow():
         return 0
