@@ -491,9 +491,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         if self.window is not None:
             #self.toolbar.destroy()
             self.window.destroy()
-
-            pass
-        self.window = None
+            self.window = None
 
     def set_window_title(self, title):
         self.window.wm_title(title)

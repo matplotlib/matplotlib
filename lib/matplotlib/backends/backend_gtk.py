@@ -551,7 +551,7 @@ class FigureManagerGTK(FigureManagerBase):
         self.canvas.destroy()
         if self.toolbar:
             self.toolbar.destroy()
-        self.__dict__.clear()
+        self.__dict__.clear()   #Is this needed? Other backends don't have it.
 
         if Gcf.get_num_fig_managers()==0 and \
                not matplotlib.is_interactive() and \
