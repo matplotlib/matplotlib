@@ -57,7 +57,7 @@ in mind.
 * Can you add a test to :file:`unit/nose_tests.py` to test your changes?
 
 * If you have altered extension code, do you pass
-  :file:`unit/memleak_hawaii.py`?
+  :file:`unit/memleak_hawaii3.py`?
 
 * if you have added new files or directories, or reorganized existing
   ones, are the new files included in the match patterns in
