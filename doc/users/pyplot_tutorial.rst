@@ -75,7 +75,7 @@ several ways to set line properties
   one line so it is a list of length 1.  I use tuple unpacking in the
   ``line, = plot(x, y, 'o')`` to get the first element of the list::
 
-		     line, = plt.plot(x, y, '-')
+      line, = plt.plot(x, y, '-')
       line.set_antialiased(False) # turn off antialising
 
 * Use the :func:`~matplotlib.pyplot.setp` command.  The example below
