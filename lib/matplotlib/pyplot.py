@@ -315,21 +315,15 @@ def close(*args):
         figManager = _pylab_helpers.Gcf.get_active()
         if figManager is None: return
         else:
-            figManager.canvas.mpl_disconnect(figManager._cidgcf)
             _pylab_helpers.Gcf.destroy(figManager.num)
     elif len(args)==1:
         arg = args[0]
         if arg=='all':
-            for manager in _pylab_helpers.Gcf.get_all_fig_managers():
-                manager.canvas.mpl_disconnect(manager._cidgcf)
-                _pylab_helpers.Gcf.destroy(manager.num)
+            _pylab_helpers.Gcf.destroy_all()
         elif isinstance(arg, int):
             _pylab_helpers.Gcf.destroy(arg)
         elif isinstance(arg, Figure):
-            for manager in _pylab_helpers.Gcf.get_all_fig_managers():
-                if manager.canvas.figure==arg:
-                    manager.canvas.mpl_disconnect(manager._cidgcf)
-                    _pylab_helpers.Gcf.destroy(manager.num)
+            _pylab_helpers.Gcf.destroy_fig(arg)
         else:
             raise TypeError('Unrecognized argument type %s to close'%type(arg))
     else:

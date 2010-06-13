@@ -4,8 +4,12 @@ Manage figures for pyplot interface.
 
 import sys, gc
 
+import atexit
+import traceback
+
+
 def error_msg(msg):
-    print >>sys.stderr, msgs
+    print >>sys.stderr, msg
 
 class Gcf(object):
     """
@@ -34,10 +38,10 @@ class Gcf(object):
         If figure manager *num* exists, make it the active
         figure and return the manager; otherwise return *None*.
         """
-        figManager = Gcf.figs.get(num, None)
-        if figManager is not None:
-            Gcf.set_active(figManager)
-        return figManager
+        manager = Gcf.figs.get(num, None)
+        if manager is not None:
+            Gcf.set_active(manager)
+        return manager
 
     @staticmethod
     def destroy(num):
@@ -48,20 +52,34 @@ class Gcf(object):
         window "destroy" and "delete" events.
         """
         if not Gcf.has_fignum(num): return
-        figManager = Gcf.figs[num]
+        manager = Gcf.figs[num]
+        manager.canvas.mpl_disconnect(manager._cidgcf)
 
         # There must be a good reason for the following careful
         # rebuilding of the activeQue; what is it?
         oldQue = Gcf._activeQue[:]
         Gcf._activeQue = []
         for f in oldQue:
-            if f != figManager:
+            if f != manager:
                 Gcf._activeQue.append(f)
 
         del Gcf.figs[num]
         #print len(Gcf.figs.keys()), len(Gcf._activeQue)
-        figManager.destroy()
+        manager.destroy()
         gc.collect()
+
+    @staticmethod
+    def destroy_fig(fig):
+        "*fig* is a Figure instance"
+        for manager in Gcf.figs.values():
+            if manager.canvas.figure == fig:
+                Gcf.destroy(manager.num)
+
+    @staticmethod
+    def destroy_all():
+        for manager in Gcf.figs.values():
+            Gcf.destroy(manager.num)
+
 
     @staticmethod
     def has_fignum(num):
@@ -104,4 +122,8 @@ class Gcf(object):
             if m != manager: Gcf._activeQue.append(m)
         Gcf._activeQue.append(manager)
         Gcf.figs[manager.num] = manager
+
+atexit.register(Gcf.destroy_all)
+
+
 
