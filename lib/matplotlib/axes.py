@@ -4777,6 +4777,7 @@ class Axes(martist.Artist):
                               #props={'facecolor':w.get_facecolor()}
                               )
                 shad.set_zorder(0.9*w.get_zorder())
+                shad.set_label('_nolegend_')
                 self.add_patch(shad)
 
 
