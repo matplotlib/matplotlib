@@ -145,12 +145,10 @@ if not _python24:
     raise ImportError('matplotlib requires Python 2.4 or later')
 
 import numpy
-nn = numpy.__version__.split('.')
-if not (int(nn[0]) >= 1 and int(nn[1]) >= 1):
-    if not (int(nn[0]) >= 2):
-        raise ImportError(
-                'numpy 1.1 or later is required; you have %s' %
-                numpy.__version__)
+nmajor, nminor = [int(n) for n in numpy.__version__.split('.')[:2]]
+if not (nmajor > 1 or (nmajor == 1 and nminor >= 1)):
+    raise ImportError(
+            'numpy 1.1 or later is required; you have %s' % numpy.__version__)
 
 def is_string_like(obj):
     if hasattr(obj, 'shape'): return 0
