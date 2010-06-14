@@ -8,9 +8,10 @@ import sys
 import tempfile
 import warnings
 
-# matplotlib imports
-from matplotlib.verbose import verbose
-from matplotlib.rcsetup import defaultParams
+# imports from local modules that duplicate
+#      functionality in matplotlib.__init__
+from matplotlib.config.verbose import verbose
+from matplotlib.config.rcsetup import defaultParams
 
 def is_string_like(obj):
     try: obj + ''
