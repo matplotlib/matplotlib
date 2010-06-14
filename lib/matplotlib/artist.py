@@ -1082,25 +1082,25 @@ class ArtistInspector:
 
 
 
-def getp(o, property=None):
+def getp(obj, property=None):
     """
-    Return the value of handle property.  property is an optional string
+    Return the value of object's property.  *property* is an optional string
     for the property you want to return
 
     Example usage::
 
-        getp(o)  # get all the object properties
-        getp(o, 'linestyle')  # get the linestyle property
+        getp(obj)  # get all the object properties
+        getp(obj, 'linestyle')  # get the linestyle property
 
-    *o* is a :class:`Artist` instance, eg
+    *obj* is a :class:`Artist` instance, eg
     :class:`~matplotllib.lines.Line2D` or an instance of a
     :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
     If the *property* is 'somename', this function returns
 
-      o.get_somename()
+      obj.get_somename()
 
     :func:`getp` can be used to query all the gettable properties with
-    ``getp(o)``. Many properties have aliases for shorter typing, e.g.
+    ``getp(obj)``. Many properties have aliases for shorter typing, e.g.
     'lw' is an alias for 'linewidth'.  In the output, aliases and full
     property names will be listed as:
 
@@ -1111,21 +1111,20 @@ def getp(o, property=None):
       linewidth or lw = 2
     """
 
-    insp = ArtistInspector(o)
 
     if property is None:
+        insp = ArtistInspector(obj)
         ret = insp.pprint_getters()
         print '\n'.join(ret)
         return
 
-    func = getattr(o, 'get_' + property)
-
+    func = getattr(obj, 'get_' + property)
     return func()
 
 # alias
 get = getp
 
-def setp(h, *args, **kwargs):
+def setp(obj, *args, **kwargs):
     """
     matplotlib supports the use of :func:`setp` ("set property") and
     :func:`getp` to set and get object properties, as well as to do
@@ -1160,7 +1159,7 @@ def setp(h, *args, **kwargs):
       >>> lines = plot(x, y1, x, y2)
       >>> setp(lines, linewidth=2, color='r')
 
-    :func:`setp` works with the matlab(TM) style string/value pairs or
+    :func:`setp` works with the matlab style string/value pairs or
     with python kwargs.  For example, the following are equivalent::
 
       >>> setp(lines, 'linewidth', 2, 'color', r')  # matlab style
@@ -1168,7 +1167,7 @@ def setp(h, *args, **kwargs):
       >>> setp(lines, linewidth=2, color='r')       # python style
     """
 
-    insp = ArtistInspector(h)
+    insp = ArtistInspector(obj)
 
     if len(kwargs)==0 and len(args)==0:
         print '\n'.join(insp.pprint_setters())
@@ -1178,8 +1177,10 @@ def setp(h, *args, **kwargs):
         print insp.pprint_setters(prop=args[0])
         return
 
-    if not cbook.iterable(h): h = [h]
-    else: h = cbook.flatten(h)
+    if not cbook.iterable(obj):
+        objs = [obj]
+    else:
+        objs = cbook.flatten(obj)
 
 
     if len(args)%2:
@@ -1191,11 +1192,11 @@ def setp(h, *args, **kwargs):
     funcvals.extend(kwargs.items())
 
     ret = []
-    for o in h:
+    for o in objs:
         for s, val in funcvals:
             s = s.lower()
             funcName = "set_%s"%s
-            func = getattr(o,funcName)
+            func = getattr(o, funcName)
             ret.extend( [func(val)] )
     return [x for x in cbook.flatten(ret)]
 
