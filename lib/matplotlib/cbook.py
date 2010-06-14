@@ -23,11 +23,14 @@ major, minor1, minor2, s, tmp = sys.version_info
 # On some systems, locale.getpreferredencoding returns None,
 # which can break unicode; and the sage project reports that
 # some systems have incorrect locale specifications, e.g.,
-# an encoding instead of a valid locale name.
+# an encoding instead of a valid locale name.  Another
+# pathological case that has been reported is an empty string.
 
 try:
-    preferredencoding = locale.getpreferredencoding()
-except (ValueError, ImportError):
+    preferredencoding = locale.getpreferredencoding().strip()
+    if not preferredencoding:
+        preferredencoding = None
+except (ValueError, ImportError, AttributeError):
     preferredencoding = None
 
 def unicode_safe(s):
