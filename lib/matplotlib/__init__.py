@@ -126,8 +126,10 @@ The default file location is given in the following order
 
 import sys, os, tempfile
 
-from rcsetup import defaultParams, validate_backend, validate_toolbar
-from rcsetup import validate_cairo_format
+from matplotlib.rcsetup import (defaultParams,
+                                validate_backend,
+                                validate_toolbar,
+                                validate_cairo_format)
 
 major, minor1, minor2, s, tmp = sys.version_info
 _python24 = major>=2 and minor1>=4
@@ -478,27 +480,32 @@ def _get_data_path():
         return path
 
     path = os.sep.join([os.path.dirname(__file__), 'mpl-data'])
-    if os.path.isdir(path): return path
+    if os.path.isdir(path):
+        return path
 
     # setuptools' namespace_packages may highjack this init file
     # so need to try something known to be in matplotlib, not basemap
     import matplotlib.afm
     path = os.sep.join([os.path.dirname(matplotlib.afm.__file__), 'mpl-data'])
-    if os.path.isdir(path): return path
+    if os.path.isdir(path):
+        return path
 
     # py2exe zips pure python, so still need special check
     if getattr(sys,'frozen',None):
-        path = os.path.join(os.path.split(sys.path[0])[0], 'mpl-data')
-        if os.path.isdir(path): return path
-        else:
-            # Try again assuming we need to step up one more directory
-            path = os.path.join(os.path.split(os.path.split(sys.path[0])[0])[0],
-                                'mpl-data')
-        if os.path.isdir(path): return path
-        else:
-            # Try again assuming sys.path[0] is a dir not a exe
-            path = os.path.join(sys.path[0], 'mpl-data')
-            if os.path.isdir(path): return path
+        exe_path = os.path.dirname(sys.executable)
+        path = os.path.join(exe_path, 'mpl-data')
+        if os.path.isdir(path):
+            return path
+
+        # Try again assuming we need to step up one more directory
+        path = os.path.join(os.path.split(exe_path)[0], 'mpl-data')
+        if os.path.isdir(path):
+            return path
+
+        # Try again assuming sys.path[0] is a dir not a exe
+        path = os.path.join(sys.path[0], 'mpl-data')
+        if os.path.isdir(path):
+            return path
 
     raise RuntimeError('Could not find the matplotlib data files')
 
@@ -813,11 +820,12 @@ def rcdefaults():
 if NEWCONFIG:
     #print "importing from reorganized config system!"
     try:
-        from config import rcParams, rcdefaults, mplConfig, save_config
+        from matplotlib.config import (rcParams, rcdefaults,
+                                        mplConfig, save_config)
         verbose.set_level(rcParams['verbose.level'])
         verbose.set_fileo(rcParams['verbose.fileo'])
     except:
-        from config import rcParams, rcdefaults
+        from matplotlib.config import rcParams, rcdefaults
 
 _use_error_msg = """ This call to matplotlib.use() has no effect
 because the the backend has already been chosen;
