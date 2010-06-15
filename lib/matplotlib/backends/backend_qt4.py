@@ -129,6 +129,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     keyvald = { QtCore.Qt.Key_Control : 'control',
                 QtCore.Qt.Key_Shift : 'shift',
                 QtCore.Qt.Key_Alt : 'alt',
+                QtCore.Qt.Key_Return : 'enter'
                }
     # left 1, middle 2, right 3
     buttond = {1:1, 2:3, 4:2}
@@ -314,16 +315,19 @@ class FigureManagerQT( FigureManagerBase ):
         self.window._destroying = False
 
         self.toolbar = self._get_toolbar(self.canvas, self.window)
-        self.window.addToolBar(self.toolbar)
-        QtCore.QObject.connect(self.toolbar, QtCore.SIGNAL("message"),
-                self.window.statusBar().showMessage)
+        if self.toolbar is not None:
+            self.window.addToolBar(self.toolbar)
+            QtCore.QObject.connect(self.toolbar, QtCore.SIGNAL("message"),
+                                   self.window.statusBar().showMessage)
+            tbs_height = self.toolbar.sizeHint().height()
+        else:
+            tbs_height = 0
 
         # resize the main window so it will display the canvas with the
         # requested size:
         cs = canvas.sizeHint()
-        tbs = self.toolbar.sizeHint()
         sbs = self.window.statusBar().sizeHint()
-        self.window.resize(cs.width(), cs.height()+tbs.height()+sbs.height())
+        self.window.resize(cs.width(), cs.height()+tbs_height+sbs.height())
 
         self.window.setCentralWidget(self.canvas)
 
@@ -335,7 +339,8 @@ class FigureManagerQT( FigureManagerBase ):
 
         def notify_axes_change( fig ):
            # This will be called whenever the current axes is changed
-           if self.toolbar != None: self.toolbar.update()
+           if self.toolbar is not None:
+               self.toolbar.update()
         self.canvas.figure.add_axobserver( notify_axes_change )
 
     def _widgetclosed( self ):
