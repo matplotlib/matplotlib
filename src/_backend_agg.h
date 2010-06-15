@@ -123,7 +123,7 @@ public:
   typedef std::vector<std::pair<double, double> > dash_t;
   double dashOffset;
   dash_t dashes;
-  e_quantize_mode quantize_mode;
+  e_snap_mode snap_mode;
 
   Py::Object hatchpath;
 

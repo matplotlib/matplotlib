@@ -270,11 +270,11 @@ GCAgg::_set_snap( const Py::Object& gc) {
   Py::Callable method(method_obj);
   Py::Object py_snap = method.apply(Py::Tuple());
   if (py_snap.isNone()) {
-    quantize_mode = QUANTIZE_AUTO;
+    snap_mode = SNAP_AUTO;
   } else if (py_snap.isTrue()) {
-    quantize_mode = QUANTIZE_TRUE;
+    snap_mode = SNAP_TRUE;
   } else {
-    quantize_mode = QUANTIZE_FALSE;
+    snap_mode = SNAP_FALSE;
   }
 }
 
@@ -506,8 +506,8 @@ bool RendererAgg::render_clippath(const Py::Object& clippath, const agg::trans_a
 Py::Object
 RendererAgg::draw_markers(const Py::Tuple& args) {
   typedef agg::conv_transform<PathIterator>                  transformed_path_t;
-  typedef PathQuantizer<transformed_path_t>                  quantize_t;
-  typedef agg::conv_curve<quantize_t>                        curve_t;
+  typedef PathSnapper<transformed_path_t>                    snap_t;
+  typedef agg::conv_curve<snap_t>                            curve_t;
   typedef agg::conv_stroke<curve_t>                          stroke_t;
   typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
   typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
@@ -533,19 +533,19 @@ RendererAgg::draw_markers(const Py::Tuple& args) {
 
   PathIterator       marker_path(marker_path_obj);
   transformed_path_t marker_path_transformed(marker_path, marker_trans);
-  quantize_t         marker_path_quantized(marker_path_transformed,
-                                           gc.quantize_mode,
-                                           marker_path.total_vertices(),
-                                           gc.linewidth);
-  curve_t            marker_path_curve(marker_path_quantized);
+  snap_t             marker_path_snapped(marker_path_transformed,
+                                         gc.snap_mode,
+                                         marker_path.total_vertices(),
+                                         gc.linewidth);
+  curve_t            marker_path_curve(marker_path_snapped);
 
   PathIterator path(path_obj);
   transformed_path_t path_transformed(path, trans);
-  quantize_t         path_quantized(path_transformed,
-                                    gc.quantize_mode,
-                                    path.total_vertices(),
-                                    1.0);
-  curve_t            path_curve(path_quantized);
+  snap_t             path_snapped(path_transformed,
+                                  gc.snap_mode,
+                                  path.total_vertices(),
+                                  1.0);
+  curve_t            path_curve(path_snapped);
   path_curve.rewind(0);
 
   facepair_t face = _get_rgba_face(face_obj, gc.alpha);
@@ -1079,8 +1079,8 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   typedef agg::conv_transform<PathIterator>  transformed_path_t;
   typedef PathNanRemover<transformed_path_t> nan_removed_t;
   typedef PathClipper<nan_removed_t>         clipped_t;
-  typedef PathQuantizer<clipped_t>           quantized_t;
-  typedef PathSimplifier<quantized_t>        simplify_t;
+  typedef PathSnapper<clipped_t>             snapped_t;
+  typedef PathSimplifier<snapped_t>          simplify_t;
   typedef agg::conv_curve<simplify_t>        curve_t;
 
   _VERBOSE("RendererAgg::draw_path");
@@ -1108,8 +1108,8 @@ RendererAgg::draw_path(const Py::Tuple& args) {
   transformed_path_t tpath(path, trans);
   nan_removed_t      nan_removed(tpath, true, path.has_curves());
   clipped_t          clipped(nan_removed, clip, width, height);
-  quantized_t        quantized(clipped, gc.quantize_mode, path.total_vertices(), gc.linewidth);
-  simplify_t         simplified(quantized, simplify, path.simplify_threshold());
+  snapped_t          snapped(clipped, gc.snap_mode, path.total_vertices(), gc.linewidth);
+  simplify_t         simplified(snapped, simplify, path.simplify_threshold());
   curve_t            curve(simplified);
 
   try {
@@ -1141,8 +1141,8 @@ RendererAgg::_draw_path_collection_generic
   typedef agg::conv_transform<typename PathGenerator::path_iterator> transformed_path_t;
   typedef PathNanRemover<transformed_path_t>                         nan_removed_t;
   typedef PathClipper<nan_removed_t>                                 clipped_t;
-  typedef PathQuantizer<clipped_t>                                   quantized_t;
-  typedef agg::conv_curve<quantized_t>                               quantized_curve_t;
+  typedef PathSnapper<clipped_t>                                     snapped_t;
+  typedef agg::conv_curve<snapped_t>                                 snapped_curve_t;
   typedef agg::conv_curve<clipped_t>                                 curve_t;
 
   PyArrayObject* offsets    = NULL;
@@ -1275,13 +1275,13 @@ RendererAgg::_draw_path_collection_generic
         transformed_path_t tpath(path, trans);
         nan_removed_t      nan_removed(tpath, true, has_curves);
         clipped_t          clipped(nan_removed, do_clip, width, height);
-        quantized_t        quantized(clipped, gc.quantize_mode,
-                                     path.total_vertices(), gc.linewidth);
+        snapped_t          snapped(clipped, gc.snap_mode,
+                                   path.total_vertices(), gc.linewidth);
         if (has_curves) {
-          quantized_curve_t curve(quantized);
+          snapped_curve_t curve(snapped);
           _draw_path(curve, has_clippath, face, gc);
         } else {
-          _draw_path(quantized, has_clippath, face, gc);
+          _draw_path(snapped, has_clippath, face, gc);
         }
       } else {
         gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));

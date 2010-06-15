@@ -12,8 +12,8 @@ class PathCleanupIterator
     typedef agg::conv_transform<PathIterator>  transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t>         clipped_t;
-    typedef PathQuantizer<clipped_t>           quantized_t;
-    typedef PathSimplifier<quantized_t>        simplify_t;
+    typedef PathSnapper<clipped_t>             snapped_t;
+    typedef PathSimplifier<snapped_t>          simplify_t;
 
     Py::Object         m_path_obj;
     PathIterator       m_path_iter;
@@ -21,14 +21,14 @@ class PathCleanupIterator
     transformed_path_t m_transformed;
     nan_removal_t      m_nan_removed;
     clipped_t          m_clipped;
-    quantized_t        m_quantized;
+    snapped_t          m_snapped;
     simplify_t         m_simplify;
 
 public:
     PathCleanupIterator(PyObject* path, agg::trans_affine trans,
                         bool remove_nans, bool do_clip,
                         const agg::rect_base<double>& rect,
-                        e_quantize_mode quantize_mode, double stroke_width,
+                        e_snap_mode snap_mode, double stroke_width,
                         bool do_simplify) :
         m_path_obj(path, true),
         m_path_iter(m_path_obj),
@@ -36,9 +36,9 @@ public:
         m_transformed(m_path_iter, m_transform),
         m_nan_removed(m_transformed, remove_nans, m_path_iter.has_curves()),
         m_clipped(m_nan_removed, do_clip, rect),
-        m_quantized(m_clipped, quantize_mode, m_path_iter.total_vertices(),
-                    stroke_width),
-        m_simplify(m_quantized, do_simplify && m_path_iter.should_simplify(),
+        m_snapped(m_clipped, snap_mode, m_path_iter.total_vertices(),
+                  stroke_width),
+        m_simplify(m_snapped, do_simplify && m_path_iter.should_simplify(),
                    m_path_iter.simplify_threshold())
     {
         Py_INCREF(path);
@@ -55,7 +55,7 @@ extern "C" {
     void*
     get_path_iterator(
         PyObject* path, PyObject* trans, int remove_nans, int do_clip,
-        double rect[4], e_quantize_mode quantize_mode, double stroke_width,
+        double rect[4], e_snap_mode snap_mode, double stroke_width,
         int do_simplify)
     {
         agg::trans_affine agg_trans = py_to_agg_transformation_matrix(trans, false);
@@ -63,7 +63,7 @@ extern "C" {
 
         PathCleanupIterator* pipeline = new PathCleanupIterator(
             path, agg_trans, remove_nans != 0, do_clip != 0,
-            clip_rect, quantize_mode, stroke_width, do_simplify != 0);
+            clip_rect, snap_mode, stroke_width, do_simplify != 0);
 
         return (void*)pipeline;
     }
