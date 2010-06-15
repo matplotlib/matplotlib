@@ -3,17 +3,17 @@
 
 #include <Python.h>
 
-enum e_quantize_mode
+enum e_snap_mode
 {
-    QUANTIZE_AUTO,
-    QUANTIZE_FALSE,
-    QUANTIZE_TRUE
+    SNAP_AUTO,
+    SNAP_FALSE,
+    SNAP_TRUE
 };
 
 void*
 get_path_iterator(
     PyObject* path, PyObject* trans, int remove_nans, int do_clip,
-    double rect[4], enum e_quantize_mode quantize_mode, double stroke_width,
+    double rect[4], enum e_snap_mode snap_mode, double stroke_width,
     int do_simplify);
 
 unsigned

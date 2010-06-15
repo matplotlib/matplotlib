@@ -288,7 +288,7 @@ static void _draw_hatch(void *info, CGContextRef cr)
                                         0,
                                         0,
                                         rect,
-                                        QUANTIZE_FALSE,
+                                        SNAP_FALSE,
                                         1.0,
                                         0);
     Py_DECREF(transform);
@@ -446,13 +446,13 @@ static CGMutablePathRef _create_path(void* iterator)
     return p;
 }
 
-static int _get_snap(GraphicsContext* self, enum e_quantize_mode* mode)
+static int _get_snap(GraphicsContext* self, enum e_snap_mode* mode)
 {
     PyObject* snap = PyObject_CallMethod((PyObject*)self, "get_snap", "");
     if(!snap) return 0;
-    if(snap==Py_None) *mode = QUANTIZE_AUTO;
-    else if (PyBool_Check(snap)) *mode = QUANTIZE_TRUE;
-    else *mode = QUANTIZE_FALSE;
+    if(snap==Py_None) *mode = SNAP_AUTO;
+    else if (PyBool_Check(snap)) *mode = SNAP_TRUE;
+    else *mode = SNAP_FALSE;
     Py_DECREF(snap);
     return 1;
 }
@@ -662,7 +662,7 @@ GraphicsContext_set_clip_path (GraphicsContext* self, PyObject* args)
                                         0,
                                         0,
                                         rect,
-                                        QUANTIZE_AUTO,
+                                        SNAP_AUTO,
                                         1.0,
                                         0);
     Py_DECREF(transform);
@@ -892,7 +892,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                   1,
                                   0,
                                   rect,
-                                  QUANTIZE_AUTO,
+                                  SNAP_AUTO,
                                   linewidth,
                                   rgbFace == NULL);
     if (!iterator)
@@ -970,7 +970,7 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                                           1,
                                           0,
                                           rect,
-                                          QUANTIZE_AUTO,
+                                          SNAP_AUTO,
                                           linewidth,
                                           0);
             if (!iterator)
@@ -1006,7 +1006,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
     CGMutablePathRef marker;
     void* iterator;
     double rect[4] = {0.0, 0.0, self->size.width, self->size.height};
-    enum e_quantize_mode mode;
+    enum e_snap_mode mode;
     double xc, yc;
     unsigned code;
 
@@ -1071,7 +1071,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
                                  1,
                                  1,
                                  rect,
-                                 QUANTIZE_TRUE,
+                                 SNAP_TRUE,
                                  1.0,
                                  0);
     if (!iterator)
@@ -1225,7 +1225,7 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
     /* --------- Prepare some variables for the path iterator ------------- */
     void* iterator;
     double rect[4] = {0.0, 0.0, self->size.width, self->size.height};
-    enum e_quantize_mode mode;
+    enum e_snap_mode mode;
     ok = _get_snap(self, &mode);
     if (!ok)
     {
@@ -1382,7 +1382,7 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
                                       0,
                                       0,
                                       rect,
-                                      QUANTIZE_AUTO,
+                                      SNAP_AUTO,
                                       1.0,
                                       0);
         if (!iterator)
@@ -1690,7 +1690,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
                                             0,
                                             0,
                                             rect,
-                                            QUANTIZE_AUTO,
+                                            SNAP_AUTO,
                                             1.0,
                                             0);
         if (iterator)
@@ -2676,7 +2676,7 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
                                             0,
                                             0,
                                             rect,
-                                            QUANTIZE_AUTO,
+                                            SNAP_AUTO,
                                             1.0,
                                             0);
         if (iterator)

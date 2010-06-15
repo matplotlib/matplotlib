@@ -26,7 +26,7 @@
       Agg where coordinates can not be larger than 24-bit signed
       integers.
 
-   4. PathQuantizer: Rounds the path to the nearest center-pixels.
+   4. PathSnapper: Rounds the path to the nearest center-pixels.
       This makes rectilinear curves look much better.
 
    5. PathSimplifier: Removes line segments from highly dense paths
@@ -361,36 +361,36 @@ class PathClipper
 };
 
 /************************************************************
- PathQuantizer rounds vertices to their nearest center-pixels.  This
+ PathSnapper rounds vertices to their nearest center-pixels.  This
  makes rectilinear paths (rectangles, horizontal and vertical lines
  etc.) look much cleaner.
 */
-enum e_quantize_mode
+enum e_snap_mode
 {
-    QUANTIZE_AUTO,
-    QUANTIZE_FALSE,
-    QUANTIZE_TRUE
+    SNAP_AUTO,
+    SNAP_FALSE,
+    SNAP_TRUE
 };
 
 template<class VertexSource>
-class PathQuantizer
+class PathSnapper
 {
  private:
     VertexSource* m_source;
-    bool          m_quantize;
-    double        m_quantize_value;
+    bool          m_snap;
+    double        m_snap_value;
 
-    static bool should_quantize(VertexSource& path,
-                                e_quantize_mode quantize_mode,
-                                unsigned total_vertices) {
+    static bool should_snap(VertexSource& path,
+                            e_snap_mode snap_mode,
+                            unsigned total_vertices) {
         // If this contains only straight horizontal or vertical lines, it should be
-        // quantized to the nearest pixels
+        // snapped to the nearest pixels
         double x0, y0, x1, y1;
         unsigned code;
 
-        switch (quantize_mode)
+        switch (snap_mode)
         {
-        case QUANTIZE_AUTO:
+        case SNAP_AUTO:
             if (total_vertices > 1024)
             {
                 return false;
@@ -420,9 +420,9 @@ class PathQuantizer
             }
 
             return true;
-        case QUANTIZE_FALSE:
+        case SNAP_FALSE:
             return false;
-        case QUANTIZE_TRUE:
+        case SNAP_TRUE:
             return true;
         }
 
@@ -431,21 +431,21 @@ class PathQuantizer
 
  public:
     /*
-      quantize_mode should be one of:
-        - QUANTIZE_AUTO: Examine the path to determine if it should be quantized
-        - QUANTIZE_TRUE: Force quantization
-        - QUANTIZE_FALSE: No quantization
+      snap_mode should be one of:
+        - SNAP_AUTO: Examine the path to determine if it should be snapped
+        - SNAP_TRUE: Force snapping
+        - SNAP_FALSE: No snapping
     */
-    PathQuantizer(VertexSource& source, e_quantize_mode quantize_mode,
+    PathSnapper(VertexSource& source, e_snap_mode snap_mode,
                   unsigned total_vertices=15, double stroke_width=0.0) :
         m_source(&source)
     {
-        m_quantize = should_quantize(source, quantize_mode, total_vertices);
+        m_snap = should_snap(source, snap_mode, total_vertices);
 
-        if (m_quantize)
+        if (m_snap)
         {
-            int odd_even = (int)mpl_round(stroke_width) % 2;
-            m_quantize_value = (odd_even) ? 0.5 : 0.0;
+            int is_odd = (int)mpl_round(stroke_width) % 2;
+            m_snap_value = (is_odd) ? 0.5 : 0.0;
         }
 
         source.rewind(0);
@@ -460,17 +460,17 @@ class PathQuantizer
     {
         unsigned code;
         code = m_source->vertex(x, y);
-        if (m_quantize && agg::is_vertex(code))
-        {
-            *x = mpl_round(*x) + m_quantize_value;
-            *y = mpl_round(*y) + m_quantize_value;
+        if (m_snap && agg::is_vertex(code))
+       {
+            *x = mpl_round(*x) + m_snap_value;
+            *y = mpl_round(*y) + m_snap_value;
         }
         return code;
     }
 
-    inline bool is_quantizing()
+    inline bool is_snapping()
     {
-        return m_quantize;
+        return m_snap;
     }
 };
 

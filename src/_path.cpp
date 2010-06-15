@@ -55,7 +55,7 @@ public:
         add_varargs_method("convert_path_to_polygons", &_path_module::convert_path_to_polygons,
                            "convert_path_to_polygons(path, trans, width, height)");
         add_varargs_method("cleanup_path", &_path_module::cleanup_path,
-                           "cleanup_path(path, trans, remove_nans, clip, quantize, simplify, curves)");
+                           "cleanup_path(path, trans, remove_nans, clip, snap, simplify, curves)");
         initialize("Helper functions for paths");
     }
 
@@ -1228,22 +1228,22 @@ void __cleanup_path(VertexSource& source,
 void _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
                    bool remove_nans, bool do_clip,
                    const agg::rect_base<double>& rect,
-                   e_quantize_mode quantize_mode, double stroke_width,
+                   e_snap_mode snap_mode, double stroke_width,
                    bool do_simplify, bool return_curves,
                    std::vector<double>& vertices,
                    std::vector<npy_uint8>& codes) {
     typedef agg::conv_transform<PathIterator>  transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t>         clipped_t;
-    typedef PathQuantizer<clipped_t>           quantized_t;
-    typedef PathSimplifier<quantized_t>        simplify_t;
+    typedef PathSnapper<clipped_t>             snapped_t;
+    typedef PathSimplifier<snapped_t>          simplify_t;
     typedef agg::conv_curve<simplify_t>        curve_t;
 
     transformed_path_t tpath(path, trans);
     nan_removal_t      nan_removed(tpath, remove_nans, path.has_curves());
     clipped_t          clipped(nan_removed, do_clip, rect);
-    quantized_t        quantized(clipped, quantize_mode, path.total_vertices(), stroke_width);
-    simplify_t         simplified(quantized, do_simplify, path.simplify_threshold());
+    snapped_t          snapped(clipped, snap_mode, path.total_vertices(), stroke_width);
+    simplify_t         simplified(snapped, do_simplify, path.simplify_threshold());
 
     vertices.reserve(path.total_vertices() * 2);
     codes.reserve(path.total_vertices());
@@ -1286,19 +1286,19 @@ Py::Object _path_module::cleanup_path(const Py::Tuple& args)
         do_clip = true;
     }
 
-    Py::Object quantize_obj = args[4];
-    e_quantize_mode quantize_mode;
-    if (quantize_obj.isNone())
+    Py::Object snap_obj = args[4];
+    e_snap_mode snap_mode;
+    if (snap_obj.isNone())
     {
-        quantize_mode = QUANTIZE_AUTO;
+        snap_mode = SNAP_AUTO;
     }
-    else if (quantize_obj.isTrue())
+    else if (snap_obj.isTrue())
     {
-        quantize_mode = QUANTIZE_TRUE;
+        snap_mode = SNAP_TRUE;
     }
     else
     {
-        quantize_mode = QUANTIZE_FALSE;
+        snap_mode = SNAP_FALSE;
     }
 
     double stroke_width = Py::Float(args[5]);
@@ -1319,7 +1319,7 @@ Py::Object _path_module::cleanup_path(const Py::Tuple& args)
     std::vector<double> vertices;
     std::vector<npy_uint8> codes;
 
-    _cleanup_path(path, trans, remove_nans, do_clip, clip_rect, quantize_mode,
+    _cleanup_path(path, trans, remove_nans, do_clip, clip_rect, snap_mode,
                   stroke_width, simplify, return_curves, vertices, codes);
 
     npy_intp length = codes.size();
