@@ -44,7 +44,7 @@ typedef agg::rasterizer_scanline_aa<> rasterizer;
 Image::Image() :
   bufferIn(NULL), rbufIn(NULL), colsIn(0), rowsIn(0),
   bufferOut(NULL), rbufOut(NULL), colsOut(0), rowsOut(0),  BPP(4),
-  interpolation(BILINEAR), aspect(ASPECT_FREE), bg(1,1,1,0) {
+  interpolation(BILINEAR), aspect(ASPECT_FREE), bg(1,1,1,0), resample(true) {
   _VERBOSE("Image::Image");
 }
 
@@ -196,7 +196,7 @@ Image::as_rgba_str(const Py::Tuple& args, const Py::Dict& kwargs) {
   std::pair<agg::int8u*,bool> bufpair = _get_output_buffer();
 
   Py::Object ret =  Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut,
-					       bufpair.first, colsOut*rowsOut*4));
+                                               bufpair.first, colsOut*rowsOut*4));
 
   if (bufpair.second) delete [] bufpair.first;
   return ret;
@@ -229,7 +229,7 @@ Image::color_conv(const Py::Tuple& args) {
 
   agg::rendering_buffer rtmp;
   rtmp.attach(reinterpret_cast<unsigned char*>(buf), colsOut, rowsOut,
-	      row_len);
+              row_len);
 
   switch (format) {
   case 0:
@@ -259,7 +259,7 @@ Image::buffer_rgba(const Py::Tuple& args) {
   args.verify_length(0);
   int row_len = colsOut * 4;
   PyObject* o = Py_BuildValue("lls#", rowsOut, colsOut,
-			      rbufOut, row_len * rowsOut);
+                              rbufOut, row_len * rowsOut);
   return Py::asObject(o);
 }
 
@@ -362,9 +362,9 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   typedef agg::span_allocator<agg::rgba8> span_alloc_type;
   span_alloc_type sa;
   agg::rgba8 background(agg::rgba8(int(255*bg.r),
-				   int(255*bg.g),
-				   int(255*bg.b),
-				   int(255*bg.a)));
+                                   int(255*bg.g),
+                                   int(255*bg.b),
+                                   int(255*bg.a)));
 
   // the image path
   agg::path_storage path;
@@ -396,11 +396,11 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
 
     case NEAREST:
       {
-	typedef agg::span_image_filter_rgba_nn<img_accessor_type, interpolator_type> span_gen_type;
-	typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
-	span_gen_type sg(ia, interpolator);
-	renderer_type ri(rb, sa, sg);
-	agg::render_scanlines(ras, sl, ri);
+        typedef agg::span_image_filter_rgba_nn<img_accessor_type, interpolator_type> span_gen_type;
+        typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+        span_gen_type sg(ia, interpolator);
+        renderer_type ri(rb, sa, sg);
+        agg::render_scanlines(ras, sl, ri);
       }
       break;
 
@@ -414,22 +414,22 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
           case HAMMING:  filter.calculate(agg::image_filter_hamming(), norm); break;
           case HERMITE:  filter.calculate(agg::image_filter_hermite(), norm); break;
         }
-	if (resample)
-	  {
-	    typedef agg::span_image_resample_rgba_affine<img_accessor_type> span_gen_type;
-	    typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
-	    span_gen_type sg(ia, interpolator, filter);
-	    renderer_type ri(rb, sa, sg);
-	    agg::render_scanlines(ras, sl, ri);
-	  }
-	else
-	  {
-	    typedef agg::span_image_filter_rgba_2x2<img_accessor_type, interpolator_type> span_gen_type;
-	    typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
-	    span_gen_type sg(ia, interpolator, filter);
-	    renderer_type ri(rb, sa, sg);
-	    agg::render_scanlines(ras, sl, ri);
-	  }
+        if (resample)
+          {
+            typedef agg::span_image_resample_rgba_affine<img_accessor_type> span_gen_type;
+            typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+            span_gen_type sg(ia, interpolator, filter);
+            renderer_type ri(rb, sa, sg);
+            agg::render_scanlines(ras, sl, ri);
+          }
+        else
+          {
+            typedef agg::span_image_filter_rgba_2x2<img_accessor_type, interpolator_type> span_gen_type;
+            typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+            span_gen_type sg(ia, interpolator, filter);
+            renderer_type ri(rb, sa, sg);
+            agg::render_scanlines(ras, sl, ri);
+          }
       }
       break;
     case BILINEAR:
@@ -463,22 +463,22 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
           case LANCZOS: filter.calculate(agg::image_filter_lanczos(radius), norm); break;
           case BLACKMAN: filter.calculate(agg::image_filter_blackman(radius), norm); break;
           }
-	if (resample)
-	  {
-	    typedef agg::span_image_resample_rgba_affine<img_accessor_type> span_gen_type;
-	    typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
-	    span_gen_type sg(ia, interpolator, filter);
-	    renderer_type ri(rb, sa, sg);
-	    agg::render_scanlines(ras, sl, ri);
-	  }
-	else
-	  {
-	    typedef agg::span_image_filter_rgba<img_accessor_type, interpolator_type> span_gen_type;
-	    typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
-	    span_gen_type sg(ia, interpolator, filter);
-	    renderer_type ri(rb, sa, sg);
-	    agg::render_scanlines(ras, sl, ri);
-	  }
+        if (resample)
+          {
+            typedef agg::span_image_resample_rgba_affine<img_accessor_type> span_gen_type;
+            typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+            span_gen_type sg(ia, interpolator, filter);
+            renderer_type ri(rb, sa, sg);
+            agg::render_scanlines(ras, sl, ri);
+          }
+        else
+          {
+            typedef agg::span_image_filter_rgba<img_accessor_type, interpolator_type> span_gen_type;
+            typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+            span_gen_type sg(ia, interpolator, filter);
+            renderer_type ri(rb, sa, sg);
+            agg::render_scanlines(ras, sl, ri);
+          }
       }
       break;
 
@@ -660,7 +660,7 @@ Image::init_type() {
   behaviors().supportSetattr();
 
   add_varargs_method( "apply_rotation", &Image::apply_rotation, Image::apply_rotation__doc__);
-  add_varargs_method( "apply_scaling",	&Image::apply_scaling, Image::apply_scaling__doc__);
+  add_varargs_method( "apply_scaling",  &Image::apply_scaling, Image::apply_scaling__doc__);
   add_varargs_method( "apply_translation", &Image::apply_translation, Image::apply_translation__doc__);
   add_keyword_method( "as_rgba_str", &Image::as_rgba_str, Image::as_rgba_str__doc__);
   add_varargs_method( "color_conv", &Image::color_conv, Image::color_conv__doc__);
@@ -744,25 +744,25 @@ _image_module::from_images(const Py::Tuple& args) {
     size_t ind=0;
     for (size_t j=0; j<thisim->rowsOut; j++) {
       for (size_t i=0; i<thisim->colsOut; i++) {
-	thisx = i+ox;
+        thisx = i+ox;
 
-	if (isflip)
-	  thisy = thisim->rowsOut - j + oy;
-	else
-	  thisy = j+oy;
+        if (isflip)
+          thisy = thisim->rowsOut - j + oy;
+        else
+          thisy = j+oy;
 
 
-	if (thisx>=numcols || thisy>=numrows) {
-	  ind +=4;
-	  continue;
-	}
+        if (thisx>=numcols || thisy>=numrows) {
+          ind +=4;
+          continue;
+        }
 
-	pixfmt::color_type p;
-	p.r = *(thisim->bufferOut+ind++);
-	p.g = *(thisim->bufferOut+ind++);
-	p.b = *(thisim->bufferOut+ind++);
-	p.a = *(thisim->bufferOut+ind++);
-	pixf.blend_pixel(thisx, thisy, p, 255);
+        pixfmt::color_type p;
+        p.r = *(thisim->bufferOut+ind++);
+        p.g = *(thisim->bufferOut+ind++);
+        p.b = *(thisim->bufferOut+ind++);
+        p.a = *(thisim->bufferOut+ind++);
+        pixf.blend_pixel(thisx, thisy, p, 255);
       }
     }
   }
@@ -854,20 +854,20 @@ _image_module::fromarray(const Py::Tuple& args) {
 
     for (size_t rownum=0; rownum<imo->rowsIn; rownum++) {
       for (size_t colnum=0; colnum<imo->colsIn; colnum++) {
-	offset = rownum*A->strides[0] + colnum*A->strides[1];
-	r = *(double *)(A->data + offset);
-	g = *(double *)(A->data + offset + A->strides[2] );
-	b = *(double *)(A->data + offset + 2*A->strides[2] );
+        offset = rownum*A->strides[0] + colnum*A->strides[1];
+        r = *(double *)(A->data + offset);
+        g = *(double *)(A->data + offset + A->strides[2] );
+        b = *(double *)(A->data + offset + 2*A->strides[2] );
 
-	if (rgba)
-	  alpha = *(double *)(A->data + offset + 3*A->strides[2] );
-	else
-	  alpha = 1.0;
+        if (rgba)
+          alpha = *(double *)(A->data + offset + 3*A->strides[2] );
+        else
+          alpha = 1.0;
 
-	*buffer++ = int(255*r);         // red
-	*buffer++ = int(255*g);         // green
-	*buffer++ = int(255*b);         // blue
-	*buffer++ = int(255*alpha);     // alpha
+        *buffer++ = int(255*r);         // red
+        *buffer++ = int(255*g);         // green
+        *buffer++ = int(255*b);         // blue
+        *buffer++ = int(255*alpha);     // alpha
 
       }
     }
@@ -963,19 +963,19 @@ _image_module::fromarray2(const Py::Tuple& args) {
     const size_t N = imo->rowsIn * imo->colsIn;
     size_t i = 0;
     while (i<N) {
-	r = *(double *)(A->data++);
-	g = *(double *)(A->data++);
-	b = *(double *)(A->data++);
+        r = *(double *)(A->data++);
+        g = *(double *)(A->data++);
+        b = *(double *)(A->data++);
 
-	if (rgba)
-	  alpha = *(double *)(A->data++);
-	else
-	  alpha = 1.0;
+        if (rgba)
+          alpha = *(double *)(A->data++);
+        else
+          alpha = 1.0;
 
-	*buffer++ = int(255*r);         // red
-	*buffer++ = int(255*g);         // green
-	*buffer++ = int(255*b);         // blue
-	*buffer++ = int(255*alpha);     // alpha
+        *buffer++ = int(255*r);         // red
+        *buffer++ = int(255*g);         // green
+        *buffer++ = int(255*b);         // blue
+        *buffer++ = int(255*alpha);     // alpha
 
       }
 
