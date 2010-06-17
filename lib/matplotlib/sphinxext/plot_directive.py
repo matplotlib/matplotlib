@@ -194,7 +194,8 @@ def run_code(plot_path, function_name, plot_code):
     # it can get at its data files, if any.  Add its path to sys.path
     # so it can import any helper modules sitting beside it.
     if plot_code is not None:
-        exec(plot_code)
+        exec_code = 'import numpy as np; import matplotlib.pyplot as plt\n%s'%plot_code
+        exec(exec_code)
     else:
         pwd = os.getcwd()
         path, fname = os.path.split(plot_path)
