@@ -1122,7 +1122,10 @@ class LocationEvent(Event):
             return
 
         # Find all axes containing the mouse
-        axes_list = [a for a in self.canvas.figure.get_axes() if a.in_axes(self)]
+        if self.canvas.mouse_grabber is None:
+            axes_list = [a for a in self.canvas.figure.get_axes() if a.in_axes(self)]
+        else:
+            axes_list = [self.canvas.mouse_grabber]
 
         if len(axes_list) == 0: # None found
             self.inaxes = None
@@ -1332,6 +1335,7 @@ class FigureCanvasBase:
         self._lastx, self._lasty = None, None
         self.button_pick_id = self.mpl_connect('button_press_event',self.pick)
         self.scroll_pick_id = self.mpl_connect('scroll_event',self.pick)
+        self.mouse_grabber = None # the axes currently grabbing mouse
 
         if False:
             ## highlight the artists that are hit
@@ -1609,6 +1613,26 @@ class FigureCanvasBase:
         s = 'idle_event'
         event = IdleEvent(s, self, guiEvent=guiEvent)
         self.callbacks.process(s, event)
+
+    def grab_mouse(self, ax):
+        """
+        Set the child axes which are currently grabbing the mouse events.
+        Usually called by the widgets themselves.
+        It is an error to call this if the mouse is already grabbed by
+        another axes.
+        """
+        if self.mouse_grabber not in (None, ax):
+            raise RuntimeError('two different attempted to grab mouse input')
+        self.mouse_grabber = ax
+
+    def release_mouse(self, ax):
+        """
+        Release the mouse grab held by the axes, ax.
+        Usually called by the widgets.
+        It is ok to call this even if you ax doesn't have the mouse grab currently.
+        """
+        if self.mouse_grabber is ax:
+            self.mouse_grabber = None
 
     def draw(self, *args, **kwargs):
         """
