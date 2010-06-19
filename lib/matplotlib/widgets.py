@@ -106,6 +106,7 @@ class Button(Widget):
 
 
         ax.figure.canvas.mpl_connect('button_press_event', self._click)
+        ax.figure.canvas.mpl_connect('button_release_event', self._release)
         ax.figure.canvas.mpl_connect('motion_notify_event', self._motion)
         ax.set_navigate(False)
         ax.set_axis_bgcolor(color)
@@ -117,8 +118,21 @@ class Button(Widget):
         self._lastcolor = color
 
     def _click(self, event):
-        if event.inaxes != self.ax: return
-        if not self.eventson: return
+        if event.inaxes != self.ax:
+            return
+        if not self.eventson:
+            return
+        if event.canvas.mouse_grabber != self.ax:
+            event.canvas.grab_mouse(self.ax)
+
+    def _release(self, event):
+        if event.canvas.mouse_grabber != self.ax:
+            return
+        event.canvas.release_mouse(self.ax)
+        if not self.eventson:
+            return
+        if event.inaxes != self.ax: 
+            return
         for cid, func in self.observers.items():
             func(event)
 
@@ -209,6 +223,7 @@ class Slider(Widget):
         ax.set_navigate(False)
 
         ax.figure.canvas.mpl_connect('button_press_event', self._update)
+        ax.figure.canvas.mpl_connect('button_release_event', self._update)
         if dragging:
             ax.figure.canvas.mpl_connect('motion_notify_event', self._update)
         self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
@@ -227,14 +242,35 @@ class Slider(Widget):
         self.closedmax = closedmax
         self.slidermin = slidermin
         self.slidermax = slidermax
+        self.drag_active  = False
 
     def _update(self, event):
         'update the slider position'
-        if event.button !=1: return
-        if event.inaxes != self.ax: return
+        if event.button != 1:
+            return
+
+        if event.name == 'button_press_event' and event.inaxes == self.ax:
+            self.drag_active = True
+            event.canvas.grab_mouse(self.ax)
+
+        if not self.drag_active: 
+            return
+        
+        elif ((event.name == 'button_release_event') 
+             or (event.name == 'button_press_event' and event.inaxes != self.ax)):
+            self.drag_active = False
+            event.canvas.release_mouse(self.ax)
+            return
+
         val = event.xdata
-        if not self.closedmin and val<=self.valmin: return
-        if not self.closedmax and val>=self.valmax: return
+        if val <= self.valmin:
+            if not self.closedmin:
+                return
+            val = self.valmin
+        elif val >= self.valmax:
+            if not self.closedmax:
+                return
+            val = self.valmax
 
         if self.slidermin is not None:
             if val<=self.slidermin.val: return
