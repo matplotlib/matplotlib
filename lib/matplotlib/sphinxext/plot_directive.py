@@ -366,8 +366,13 @@ def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
 
     if options.has_key('include-source'):
         if plot_code is None:
+            if sphinx_version > (1,):
+                include_prefix = '/'
+            else:
+                include_prefix = setup.app.builder.srcdir
+
             lines.extend(
-                ['.. include:: %s' % os.path.join(setup.app.builder.srcdir, plot_path),
+                ['.. include:: %s' % os.path.join(include_prefix, plot_path),
                  '    :literal:'])
             if options.has_key('encoding'):
                 lines.append('    :encoding: %s' % options['encoding'])
