@@ -5,10 +5,9 @@ from matplotlib.dates import  DateFormatter, WeekdayLocator, HourLocator, \
 from matplotlib.finance import quotes_historical_yahoo, candlestick,\
      plot_day_summary, candlestick2
 
-import datetime
-
-date1 = datetime.date( 2004, 2, 1)
-date2 = datetime.date( 2004, 4, 12 )
+# (Year, month, day) tuples suffice as args for quotes_historical_yahoo
+date1 = ( 2004, 2, 1)
+date2 = ( 2004, 4, 12 )
 
 
 mondays = WeekdayLocator(MONDAY)        # major ticks on the mondays
@@ -16,9 +15,8 @@ alldays    = DayLocator()              # minor ticks on the days
 weekFormatter = DateFormatter('%b %d')  # Eg, Jan 12
 dayFormatter = DateFormatter('%d')      # Eg, 12
 
-quotes = quotes_historical_yahoo(
-    'INTC', date1, date2)
-if not quotes:
+quotes = quotes_historical_yahoo('INTC', date1, date2)
+if len(quotes) == 0:
     raise SystemExit
 
 fig = figure()
