@@ -23,7 +23,7 @@ monthsFmt = DateFormatter("%b '%y")
 
 
 quotes = quotes_historical_yahoo('INTC', date1, date2)
-if not quotes:
+if len(quotes) == 0:
     print 'Found no quotes'
     raise SystemExit
 

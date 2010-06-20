@@ -27,7 +27,7 @@ yearsFmt = DateFormatter('%Y')
 
 quotes = quotes_historical_yahoo(
     'INTC', date1, date2)
-if not quotes:
+if len(quotes) == 0:
     raise SystemExit
 
 dates = [q[0] for q in quotes]

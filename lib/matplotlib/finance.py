@@ -11,90 +11,130 @@ try:
     from hashlib import md5
 except ImportError:
     from md5 import md5 #Deprecated in 2.5
-
-try: import datetime
-except ImportError:
-    raise ImportError('The finance module requires datetime support (python2.3)')
+import datetime
 
 import numpy as np
 
 from matplotlib import verbose, get_configdir
-from dates import date2num
-from matplotlib.cbook import Bunch
+from matplotlib.dates import date2num
+from matplotlib.cbook import iterable, is_string_like
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import colorConverter
-from lines import Line2D, TICKLEFT, TICKRIGHT
-from patches import Rectangle
+from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
+from matplotlib.patches import Rectangle
 from matplotlib.transforms import Affine2D
-
 
 
 configdir = get_configdir()
 cachedir = os.path.join(configdir, 'finance.cache')
 
 
-def parse_yahoo_historical(fh, asobject=False, adjusted=True):
+stock_dt = np.dtype([('date', object),
+                     ('year', np.int16),
+                     ('month', np.int8),
+                     ('day', np.int8),
+                     ('d', np.float),     # mpl datenum
+                     ('open', np.float),
+                     ('close', np.float),
+                     ('high', np.float),
+                     ('low', np.float),
+                     ('volume', np.int),
+                     ('aclose', np.float)])
+
+
+def parse_yahoo_historical(fh, adjusted=True, asobject=False):
     """
-    Parse the historical data in file handle fh from yahoo finance and return
-    results as a list of
+    Parse the historical data in file handle fh from yahoo finance.
 
-    d, open, close, high, low, volume
+    *adjusted*
+      If True (default) replace open, close, high, low, and volume with
+      their adjusted values.
+      The adjustment is by a scale factor, S = adjusted_close/close.
+      Adjusted volume is actual volume divided by S;
+      Adjusted prices are actual prices multiplied by S.  Hence,
+      the product of price and volume is unchanged by the adjustment.
 
-    where d is a floating poing representation of date, as returned by date2num
+    *asobject*
+      If False (default for compatibility with earlier versions)
+      return a list of tuples containing
 
-    if adjusted=True, use adjusted prices.  Note that volume is not
-    adjusted and we are not able to handle volume adjustments properly
-    because the Yahoo CSV does not distinguish between split and
-    dividend adjustments.
+        d, open, close, high, low, volume
+
+      If None (preferred alternative to False), return
+      a 2-D ndarray corresponding to the list of tuples.
+
+      Otherwise return a numpy recarray with
+
+        date, year, month, day, d, open, close, high, low,
+        volume, adjusted_close
+
+      where d is a floating poing representation of date,
+      as returned by date2num, and date is a python standard
+      library datetime.date instance.
+
+      The name of this kwarg is a historical artifact.  Formerly,
+      True returned a cbook Bunch
+      holding 1-D ndarrays.  The behavior of a numpy recarray is
+      very similar to the Bunch.
+
     """
-    results = []
 
     lines = fh.readlines()
 
-    datefmt = None
+    results = []
+
+    datefmt = '%Y-%m-%d'
 
     for line in lines[1:]:
 
         vals = line.split(',')
-
-        if len(vals)!=7: continue
+        if len(vals)!=7:
+            continue      # add warning?
         datestr = vals[0]
-        if datefmt is None:
-            try:
-                datefmt = '%Y-%m-%d'
-                dt = datetime.date(*time.strptime(datestr, datefmt)[:3])
-            except ValueError:
-                datefmt = '%d-%b-%y'  # Old Yahoo--cached file?
-        dt = datetime.date(*time.strptime(datestr, datefmt)[:3])
-        d = date2num(dt)
+        #dt = datetime.date(*time.strptime(datestr, datefmt)[:3])
+        # Using strptime doubles the runtime. With the present
+        # format, we don't need it.
+        dt = datetime.date(*[int(val) for val in datestr.split('-')])
+        dnum = date2num(dt)
         open, high, low, close =  [float(val) for val in vals[1:5]]
         volume = int(vals[5])
-        if adjusted:
-            aclose = float(vals[6])
-            delta = aclose-close
-            open += delta
-            high += delta
-            low += delta
-            close = aclose
+        aclose = float(vals[6])
 
-        results.append((d, open, close, high, low, volume))
+        results.append((dt, dt.year, dt.month, dt.day,
+                        dnum, open, close, high, low, volume, aclose))
     results.reverse()
-    if asobject:
-        if len(results)==0: return None
-        else:
-            date, open, close, high, low, volume = map(np.asarray, zip(*results))
-        return Bunch(date=date, open=open, close=close, high=high, low=low, volume=volume)
-    else:
+    d = np.array(results, dtype=stock_dt)
+    if adjusted:
+        scale = d['aclose'] / d['close']
+        scale[np.isinf(scale)] = np.nan
+        d['open'] *= scale
+        d['close'] *= scale
+        d['high'] *= scale
+        d['low'] *= scale
 
-        return results
+    if not asobject:
+        # 2-D sequence; formerly list of tuples, now ndarray
+        ret = np.zeros((len(d), 6), dtype=np.float)
+        ret[:,0] = d['d']
+        ret[:,1] = d['open']
+        ret[:,2] = d['close']
+        ret[:,3] = d['high']
+        ret[:,4] = d['low']
+        ret[:,5] = d['volume']
+        if asobject is None:
+            return ret
+        return [tuple(row) for row in ret]
+
+    return d.view(np.recarray)  # Close enough to former Bunch return
+
 
 def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
     """
     Fetch historical data for ticker between date1 and date2.  date1 and
-    date2 are datetime instances
+    date2 are date or datetime instances, or (year, month, day) sequences.
 
     Ex:
-    fh = fetch_historical_yahoo('^GSPC', d1, d2)
+    fh = fetch_historical_yahoo('^GSPC', (2000, 1, 1), (2001, 12, 31))
 
     cachename is the name of the local file cache.  If None, will
     default to the md5 hash or the url (which incorporates the ticker
@@ -106,8 +146,14 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
     ticker = ticker.upper()
 
 
-    d1 = (date1.month-1, date1.day, date1.year)
-    d2 = (date2.month-1, date2.day, date2.year)
+    if iterable(date1):
+        d1 = (date1[1]-1, date1[2], date1[0])
+    else:
+        d1 = (date1.month-1, date1.day, date1.year)
+    if iterable(date2):
+        d2 = (date2[1]-1, date2[2], date2[0])
+    else:
+        d2 = (date2.month-1, date2.day, date2.year)
 
 
     urlFmt = 'http://table.finance.yahoo.com/table.csv?a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&s=%s&y=0&g=d&ignore=.csv'
@@ -123,7 +169,8 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
         fh = file(cachename)
         verbose.report('Using cachefile %s for %s'%(cachename, ticker))
     else:
-        if not os.path.isdir(cachedir): os.mkdir(cachedir)
+        if not os.path.isdir(cachedir):
+            os.mkdir(cachedir)
         urlfh = urlopen(url)
 
         fh = file(cachename, 'w')
@@ -135,27 +182,18 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
     return fh
 
 
-def quotes_historical_yahoo(ticker, date1, date2, asobject=False, adjusted=True, cachename=None):
+def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
+                                        adjusted=True, cachename=None):
     """
     Get historical data for ticker between date1 and date2.  date1 and
-    date2 are datetime instances
+    date2 are datetime instances or (year, month, day) sequences.
 
-    results are a list of tuples
-
-      (d, open, close, high, low, volume)
-
-    where d is a floating poing representation of date, as returned by date2num
-
-    if asobject is True, the return val is an object with attrs date,
-    open, close, high, low, volume, which are equal length arrays
-
-    if adjusted=True, use adjusted prices.  Note that volume is not
-    adjusted and we are not able to handle volume adjustments properly
-    because the Yahoo CSV does not distinguish between split and
-    dividend adjustments.
+    See :func:`parse_yahoo_historical` for explanation of output formats
+    and the *asobject* and *adjusted* kwargs.
 
     Ex:
-    sp = f.quotes_historical_yahoo('^GSPC', d1, d2, asobject=True, adjusted=True)
+    sp = f.quotes_historical_yahoo('^GSPC', d1, d2,
+                                asobject=True, adjusted=True)
     returns = (sp.open[1:] - sp.open[:-1])/sp.open[1:]
     [n,bins,patches] = hist(returns, 100)
     mu = mean(returns)
@@ -167,10 +205,18 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False, adjusted=True,
     default to the md5 hash or the url (which incorporates the ticker
     and date range)
     """
+    # Maybe enable a warning later as part of a slow transition
+    # to using None instead of False.
+    #if asobject is False:
+    #    warnings.warn("Recommend changing to asobject=None")
 
     fh = fetch_historical_yahoo(ticker, date1, date2, cachename)
 
-    try: ret = parse_yahoo_historical(fh, asobject, adjusted)
+    try:
+        ret = parse_yahoo_historical(fh, asobject=asobject,
+                                            adjusted=adjusted)
+        if len(ret) == 0:
+            return None
     except IOError, exc:
         warnings.warn('urlopen() failure\n' + url + '\n' + exc.strerror[1])
         return None
@@ -181,7 +227,7 @@ def plot_day_summary(ax, quotes, ticksize=3,
                      colorup='k', colordown='r',
                      ):
     """
-    quotes is a list of (time, open, close, high, low, ...) tuples
+    quotes is a sequence of (time, open, close, high, low, ...) sequences
 
     Represent the time, open, close, high, low as a vertical line
     ranging from low to high.  The left tick is the open and the right
@@ -195,9 +241,6 @@ def plot_day_summary(ax, quotes, ticksize=3,
     colordown   : the color of the lines where close <  open
     return value is a list of lines added
     """
-
-
-
 
     lines = []
     for q in quotes:
@@ -244,9 +287,9 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
 
     """
 
-    quotes is a list of (time, open, close, high, low, ...)  tuples.
-    As long as the first 5 elements of the tuples are these values,
-    the tuple can be as long as you want (eg it may store volume).
+    quotes is a sequence of (time, open, close, high, low, ...) sequences.
+    As long as the first 5 elements are these values,
+    the record can be as long as you want (eg it may store volume).
 
     time must be in float days format - see date2num
 
@@ -263,11 +306,10 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
 
     return value is lines, patches where lines is a list of lines
     added and patches is a list of the rectangle patches added
+
     """
 
-
     OFFSET = width/2.0
-
 
     lines = []
     patches = []
