@@ -754,7 +754,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
         self.macros = {} # dict from wx id to seq of macros
 
-        self.Printer_Init()
+        # printer attributes and methods deprecated, 2010/06/19
+        self._printerData = None
+        self._printerPageData = None
+        self.printer_width = 5.5
+        self.printer_margin = 0.5
 
     def Destroy(self, *args, **kwargs):
         wx.Panel.Destroy(self, *args, **kwargs)
@@ -769,7 +773,12 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         wx.TheClipboard.Close()
 
     def Printer_Init(self):
-        """initialize printer settings using wx methods"""
+        """
+        initialize printer settings using wx methods
+
+        Deprecated.
+        """
+        warnings.warn("Printer* methods will be removed", DeprecationWarning)
         self.printerData = wx.PrintData()
         self.printerData.SetPaperId(wx.PAPER_LETTER)
         self.printerData.SetPrintMode(wx.PRINT_MODE_PRINTER)
@@ -781,14 +790,37 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         self.printer_width = 5.5
         self.printer_margin= 0.5
 
+    def _get_printerData(self):
+        if self._printerData is None:
+            warnings.warn("Printer* methods will be removed", DeprecationWarning)
+            self._printerData = wx.PrintData()
+            self._printerData.SetPaperId(wx.PAPER_LETTER)
+            self._printerData.SetPrintMode(wx.PRINT_MODE_PRINTER)
+        return self._printerData
+    printerData = property(_get_printerData)
+
+    def _get_printerPageData(self):
+        if self._printerPageData is None:
+            warnings.warn("Printer* methods will be removed", DeprecationWarning)
+            self._printerPageData= wx.PageSetupDialogData()
+            self._printerPageData.SetMarginBottomRight((25,25))
+            self._printerPageData.SetMarginTopLeft((25,25))
+            self._printerPageData.SetPrintData(self.printerData)
+        return self._printerPageData
+    printerPageData = property(_get_printerPageData)
+
     def Printer_Setup(self, event=None):
-        """set up figure for printing.  The standard wx Printer
+        """
+        set up figure for printing.  The standard wx Printer
         Setup Dialog seems to die easily. Therefore, this setup
-        simply asks for image width and margin for printing. """
+        simply asks for image width and margin for printing.
+        Deprecated.
+        """
 
         dmsg = """Width of output figure in inches.
 The current aspect ratio will be kept."""
 
+        warnings.warn("Printer* methods will be removed", DeprecationWarning)
         dlg = wx.Dialog(self, -1, 'Page Setup for Printing' , (-1,-1))
         df = dlg.GetFont()
         df.SetWeight(wx.NORMAL)
@@ -844,9 +876,14 @@ The current aspect ratio will be kept."""
         return
 
     def Printer_Setup2(self, event=None):
-        """set up figure for printing.  Using the standard wx Printer
-        Setup Dialog. """
+        """
+        set up figure for printing.  Using the standard wx Printer
+        Setup Dialog.
 
+        Deprecated.
+        """
+
+        warnings.warn("Printer* methods will be removed", DeprecationWarning)
         if hasattr(self, 'printerData'):
             data = wx.PageSetupDialogData()
             data.SetPrintData(self.printerData)
@@ -865,7 +902,12 @@ The current aspect ratio will be kept."""
         dlg.Destroy()
 
     def Printer_Preview(self, event=None):
-        """ generate Print Preview with wx Print mechanism"""
+        """
+        generate Print Preview with wx Print mechanism
+
+        Deprecated.
+        """
+        warnings.warn("Printer* methods will be removed", DeprecationWarning)
         po1  = PrintoutWx(self, width=self.printer_width,
                           margin=self.printer_margin)
         po2  = PrintoutWx(self, width=self.printer_width,
@@ -886,7 +928,12 @@ The current aspect ratio will be kept."""
         self.gui_repaint()
 
     def Printer_Print(self, event=None):
-        """ Print figure using wx Print mechanism"""
+        """
+        Print figure using wx Print mechanism
+
+        Deprecated.
+        """
+        warnings.warn("Printer* methods will be removed", DeprecationWarning)
         pdd = wx.PrintDialogData()
         # SetPrintData for 2.4 combatibility
         pdd.SetPrintData(self.printerData)
