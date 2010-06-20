@@ -260,12 +260,20 @@ class MaxNLocator(mticker.MaxNLocator):
                                      trim=trim, integer=integer,
                                      symmetric=symmetric, prune=prune)
         self.create_dummy_axis()
-
+        self._factor = None
 
     def __call__(self, v1, v2):
-        self.set_bounds(v1, v2)
-        locs = mticker.MaxNLocator.__call__(self)
-        return np.array(locs), len(locs), None
+        if self._factor is not None:
+            self.set_bounds(v1*self._factor, v2*self._factor)
+            locs = mticker.MaxNLocator.__call__(self)
+            return np.array(locs), len(locs), self._factor
+        else:
+            self.set_bounds(v1, v2)
+            locs = mticker.MaxNLocator.__call__(self)
+            return np.array(locs), len(locs), None
+
+    def set_factor(self, f):
+        self._factor = f
 
 
 class FixedLocator(object):
@@ -287,11 +295,14 @@ class FormatterPrettyPrint(object):
     def __init__(self):
         self._fmt = mticker.ScalarFormatter()
         self._fmt.create_dummy_axis()
+        self._ignore_factor = True
 
     def __call__(self, direction, factor, values):
-        if factor is None:
-            factor = 1.
-        values = [v/factor for v in values]
+        if not self._ignore_factor:
+            if factor is None:
+                factor = 1.
+            values = [v/factor for v in values]
+        #values = [v for v in values]
         self._fmt.set_locs(values)
         return [self._fmt(v) for v in values]
 
