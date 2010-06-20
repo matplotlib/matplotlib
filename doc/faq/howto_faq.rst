@@ -218,9 +218,6 @@ behavior by specifying the coordinates of the label.  The example
 below shows the default behavior in the left subplots, and the manual
 setting in the right subplots.
 
-.. plot:: pyplots/align_ylabels.py
-   :include-source:
-
 .. _date-index-plots:
 
 Skip dates where there is no data
