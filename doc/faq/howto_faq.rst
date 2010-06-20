@@ -178,9 +178,6 @@ Here is that gets a bounding box in relative figure coordinates (0..1)
 of each of the labels and uses it to move the left of the subplots
 over so that the tick labels fit in the figure
 
-.. plot:: pyplots/auto_subplots_adjust.py
-   :include-source:
-
 .. _howto-ticks:
 
 Configure the tick linewidths
