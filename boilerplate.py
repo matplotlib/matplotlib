@@ -107,6 +107,7 @@ _misccommands = (
     'annotate',
     'ticklabel_format',
     'locator_params',
+    'tick_params',
     'margins',
     )
 

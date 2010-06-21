@@ -60,7 +60,16 @@ class Tick(artist.Artist):
 
     """
     def __init__(self, axes, loc, label,
-                 size   = None,  # points
+
+                 size = None,  # points
+                 width = None,
+                 color = None,
+                 tickdir = None,
+                 pad = None,
+                 labelsize = None,
+                 labelcolor = None,
+                 zorder = None,
+
                  gridOn = None, # defaults to axes.grid
                  tick1On = True,
                  tick2On = True,
@@ -71,7 +80,7 @@ class Tick(artist.Artist):
         """
         bbox is the Bound2D bounding box in display coords of the Axes
         loc is the tick location in data coords
-        size is the tick size in relative, axes coords
+        size is the tick size in points
         """
         artist.Artist.__init__(self)
 
@@ -81,26 +90,46 @@ class Tick(artist.Artist):
         self.axes = axes
 
         name = self.__name__.lower()
+        self._name = name
+
+        self._loc = loc
+
         if size is None:
             if major:
                 size = rcParams['%s.major.size'%name]
-                pad = rcParams['%s.major.pad'%name]
             else:
                 size = rcParams['%s.minor.size'%name]
-                pad = rcParams['%s.minor.pad'%name]
-
-        self._tickdir = rcParams['%s.direction'%name]
-        if self._tickdir == 'in':
-            self._xtickmarkers = (mlines.TICKUP, mlines.TICKDOWN)
-            self._ytickmarkers = (mlines.TICKRIGHT, mlines.TICKLEFT)
-            self._pad = pad
-        else:
-            self._xtickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
-            self._ytickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
-            self._pad = pad + size
-
-        self._loc = loc
         self._size = size
+
+        self._width = width # can be None for marker default
+
+        if color is None:
+            color = rcParams['%s.color' % name]
+        self._color = color
+
+        if pad is None:
+            if major:
+                pad = rcParams['%s.major.pad'%name]
+            else:
+                pad = rcParams['%s.minor.pad'%name]
+        self._base_pad = pad
+
+        if labelcolor is None:
+            labelcolor = rcParams['%s.color' % name]
+        self._labelcolor = labelcolor
+
+        if labelsize is None:
+            labelsize = rcParams['%s.labelsize' % name]
+        self._labelsize = labelsize
+
+        if zorder is None:
+            if major:
+                zorder = mlines.Line2D.zorder + 0.01
+            else:
+                zorder = mlines.Line2D.zorder
+        self._zorder = zorder
+
+        self.apply_tickdir(tickdir)
 
         self.tick1line = self._get_tick1line()
         self.tick2line = self._get_tick2line()
@@ -117,6 +146,20 @@ class Tick(artist.Artist):
         self.label2On = label2On
 
         self.update_position(loc)
+
+    def apply_tickdir(self, tickdir):
+        if tickdir is None:
+            tickdir = rcParams['%s.direction' % self._name]
+        self._tickdir = tickdir
+
+        if self._tickdir == 'in':
+            self._xtickmarkers = (mlines.TICKUP, mlines.TICKDOWN)
+            self._ytickmarkers = (mlines.TICKRIGHT, mlines.TICKLEFT)
+            self._pad = self._base_pad
+        else:
+            self._xtickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
+            self._ytickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
+            self._pad = self._base_pad + self._size
 
     def get_children(self):
         children = [self.tick1line, self.tick2line, self.gridline, self.label1, self.label2]
@@ -242,15 +285,13 @@ class XTick(Tick):
         # x in data coords, y in axes coords
         #t =  mtext.Text(
         trans, vert, horiz = self.axes.get_xaxis_text1_transform(self._pad)
-        size = rcParams['xtick.labelsize']
         t = mtext.Text(
             x=0, y=0,
-            fontproperties=font_manager.FontProperties(size=size),
-            color=rcParams['xtick.color'],
+            fontproperties=font_manager.FontProperties(size=self._labelsize),
+            color=self._labelcolor,
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
-
         t.set_transform(trans)
         self._set_artist_props(t)
         return t
@@ -262,11 +303,10 @@ class XTick(Tick):
         # x in data coords, y in axes coords
         #t =  mtext.Text(
         trans, vert, horiz = self.axes.get_xaxis_text2_transform(self._pad)
-
         t = mtext.Text(
             x=0, y=1,
-            fontproperties=font_manager.FontProperties(size=rcParams['xtick.labelsize']),
-            color=rcParams['xtick.color'],
+            fontproperties=font_manager.FontProperties(size=self._labelsize),
+            color=self._labelcolor,
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
@@ -278,10 +318,12 @@ class XTick(Tick):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
         l = mlines.Line2D(xdata=(0,), ydata=(0,),
-                   color='k',
+                   color=self._color,
                    linestyle = 'None',
                    marker = self._xtickmarkers[0],
                    markersize=self._size,
+                   markeredgewidth=self._width,
+                   zorder=self._zorder,
                    )
         l.set_transform(self.axes.get_xaxis_transform(which='tick1'))
         self._set_artist_props(l)
@@ -291,10 +333,12 @@ class XTick(Tick):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
         l = mlines.Line2D( xdata=(0,), ydata=(1,),
-                       color='k',
+                       color=self._color,
                        linestyle = 'None',
                        marker = self._xtickmarkers[1],
                        markersize=self._size,
+                       markeredgewidth=self._width,
+                       zorder=self._zorder,
                        )
 
         l.set_transform(self.axes.get_xaxis_transform(which='tick2'))
@@ -372,13 +416,11 @@ class YTick(Tick):
     def _get_text1(self):
         'Get the default Text instance'
         # x in axes coords, y in data coords
-        #t =  mtext.Text(
         trans, vert, horiz = self.axes.get_yaxis_text1_transform(self._pad)
-
         t = mtext.Text(
             x=0, y=0,
-            fontproperties=font_manager.FontProperties(size=rcParams['ytick.labelsize']),
-            color=rcParams['ytick.color'],
+            fontproperties=font_manager.FontProperties(size=self._labelsize),
+            color=self._labelcolor,
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
@@ -390,13 +432,11 @@ class YTick(Tick):
     def _get_text2(self):
         'Get the default Text instance'
         # x in axes coords, y in data coords
-        #t =  mtext.Text(
         trans, vert, horiz = self.axes.get_yaxis_text2_transform(self._pad)
-
         t = mtext.Text(
             x=1, y=0,
-            fontproperties=font_manager.FontProperties(size=rcParams['ytick.labelsize']),
-            color=rcParams['ytick.color'],
+            fontproperties=font_manager.FontProperties(size=self._labelsize),
+            color=self._labelcolor,
             verticalalignment=vert,
             horizontalalignment=horiz,
             )
@@ -408,11 +448,14 @@ class YTick(Tick):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
 
-        l = mlines.Line2D( (0,), (0,), color='k',
+        l = mlines.Line2D( (0,), (0,),
+                    color=self._color,
                     marker = self._ytickmarkers[0],
                     linestyle = 'None',
                     markersize=self._size,
-                       )
+                    markeredgewidth=self._width,
+                    zorder=self._zorder,
+                    )
         l.set_transform(self.axes.get_yaxis_transform(which='tick1'))
         self._set_artist_props(l)
         return l
@@ -420,12 +463,14 @@ class YTick(Tick):
     def _get_tick2line(self):
         'Get the default line2D instance'
         # x in axes coords, y in data coords
-        l = mlines.Line2D( (1,), (0,), color='k',
+        l = mlines.Line2D( (1,), (0,),
+                    color=self._color,
                     marker = self._ytickmarkers[1],
                     linestyle = 'None',
                     markersize=self._size,
+                    markeredgewidth=self._width,
+                    zorder=self._zorder,
                     )
-
         l.set_transform(self.axes.get_yaxis_transform(which='tick2'))
         self._set_artist_props(l)
         return l
@@ -549,6 +594,10 @@ class Axis(artist.Artist):
         self.minorTicks = []
         self.pickradius = pickradius
 
+        # Initialize here for testing; later add API
+        self._major_tick_kw = dict()
+        self._minor_tick_kw = dict()
+
         self.cla()
         self.set_scale('linear')
 
@@ -631,10 +680,16 @@ class Axis(artist.Artist):
         self.label.set_text('')
         self._set_artist_props(self.label)
 
+        self.reset_ticks()
+
+        self.converter = None
+        self.units = None
+        self.set_units(None)
+
+    def reset_ticks(self):
         # build a few default ticks; grow as necessary later; only
         # define 1 so properties set on ticks will be copied as they
         # grow
-
         cbook.popall(self.majorTicks)
         cbook.popall(self.minorTicks)
 
@@ -643,9 +698,83 @@ class Axis(artist.Artist):
         self._lastNumMajorTicks = 1
         self._lastNumMinorTicks = 1
 
-        self.converter = None
-        self.units = None
-        self.set_units(None)
+    def set_tick_params(self, which='major', reset=False, **kw):
+        """
+        Set appearance parameters for ticks and ticklabels.
+
+        For documentation of keyword arguments, see
+        :meth:`matplotlib.axes.Axes.tick_params`.
+        """
+        dicts = []
+        if which == 'major' or which == 'both':
+            dicts.append(self._major_tick_kw)
+        if which == 'minor' or which == 'both':
+            dicts.append(self._minor_tick_kw)
+        kwtrans = self._translate_tick_kw(kw, to_init_kw=True)
+        for d in dicts:
+            if reset:
+                d.clear()
+            d.update(kwtrans)
+        self.reset_ticks()
+
+    @staticmethod
+    def _translate_tick_kw(kw, to_init_kw=True):
+        # We may want to move the following function to
+        # a more visible location; or maybe there already
+        # is something like this.
+        def _bool(arg):
+            if cbook.is_string_like(arg):
+                if arg.lower() == 'on':
+                    return True
+                if arg.lower() == 'off':
+                    return False
+                raise ValueError('String "%s" should be "on" or "off"' % arg)
+            return bool(arg)
+        # The following lists may be moved to a more
+        # accessible location.
+        kwkeys0 = ['size', 'width', 'color', 'tickdir', 'pad',
+                  'labelsize', 'labelcolor', 'zorder',
+                  'tick1On', 'tick2On', 'label1On', 'label2On']
+        kwkeys1 = ['length', 'direction', 'left', 'bottom', 'right', 'top',
+                    'labelleft', 'labelbottom', 'labelright', 'labeltop']
+        kwkeys = kwkeys0 + kwkeys1
+        kwtrans = dict()
+        if to_init_kw:
+            if 'length' in kw:
+                kwtrans['size'] = kw.pop('length')
+            if 'direction' in kw:
+                kwtrans['tickdir'] = kw.pop('direction')
+            if 'left' in kw:
+                kwtrans['tick1On'] = _bool(kw.pop('left'))
+            if 'bottom' in kw:
+                kwtrans['tick1On'] = _bool(kw.pop('bottom'))
+            if 'right' in kw:
+                kwtrans['tick2On'] = _bool(kw.pop('right'))
+            if 'top' in kw:
+                kwtrans['tick2On'] = _bool(kw.pop('top'))
+
+            if 'labelleft' in kw:
+                kwtrans['label1On'] = _bool(kw.pop('labelleft'))
+            if 'labelbottom' in kw:
+                kwtrans['label1On'] = _bool(kw.pop('labelbottom'))
+            if 'labelright' in kw:
+                kwtrans['label2On'] = _bool(kw.pop('labelright'))
+            if 'labeltop' in kw:
+                kwtrans['label2On'] = _bool(kw.pop('labeltop'))
+            if 'colors' in kw:
+                c = kw.pop('colors')
+                kwtrans['color'] = c
+                kwtrans['labelcolor'] = c
+            # Maybe move the checking up to the caller of this method.
+            for key in kw:
+                if key not in kwkeys:
+                    raise ValueError(
+                        "keyword %s is not recognized; valid keywords are %s"
+                        % (key, kwkeys))
+            kwtrans.update(kw)
+        else:
+            raise NotImplementedError("Inverse translation is deferred")
+        return kwtrans
 
     def set_clip_path(self, clippath, transform=None):
         artist.Artist.set_clip_path(self, clippath, transform)
@@ -1303,13 +1432,18 @@ class XAxis(Axis):
         return inaxis, {}
 
     def _get_tick(self, major):
-        return XTick(self.axes, 0, '', major=major)
+        if major:
+            tick_kw = self._major_tick_kw
+        else:
+            tick_kw = self._minor_tick_kw
+        return XTick(self.axes, 0, '', major=major, **tick_kw)
 
     def _get_label(self):
         # x in axes coords, y in display coords (to be updated at draw
         # time by _update_label_positions)
         label = mtext.Text(x=0.5, y=0,
-            fontproperties = font_manager.FontProperties(size=rcParams['axes.labelsize']),
+            fontproperties = font_manager.FontProperties(
+                                          size=rcParams['axes.labelsize']),
             color = rcParams['axes.labelcolor'],
             verticalalignment='top',
             horizontalalignment='center',
@@ -1325,7 +1459,8 @@ class XAxis(Axis):
     def _get_offset_text(self):
         # x in axes coords, y in display coords (to be updated at draw time)
         offsetText = mtext.Text(x=1, y=0,
-            fontproperties = font_manager.FontProperties(size=rcParams['xtick.labelsize']),
+            fontproperties = font_manager.FontProperties(
+                                          size=rcParams['xtick.labelsize']),
             color = rcParams['xtick.color'],
             verticalalignment='top',
             horizontalalignment='right',
@@ -1562,7 +1697,11 @@ class YAxis(Axis):
         return inaxis, {}
 
     def _get_tick(self, major):
-        return YTick(self.axes, 0, '', major=major)
+        if major:
+            tick_kw = self._major_tick_kw
+        else:
+            tick_kw = self._minor_tick_kw
+        return YTick(self.axes, 0, '', major=major, **tick_kw)
 
 
     def _get_label(self):
@@ -1570,7 +1709,8 @@ class YAxis(Axis):
         # y in axes coords
         label = mtext.Text(x=0, y=0.5,
             # todo: get the label position
-            fontproperties=font_manager.FontProperties(size=rcParams['axes.labelsize']),
+            fontproperties=font_manager.FontProperties(
+                                        size=rcParams['axes.labelsize']),
             color    = rcParams['axes.labelcolor'],
             verticalalignment='center',
             horizontalalignment='right',
@@ -1586,7 +1726,8 @@ class YAxis(Axis):
     def _get_offset_text(self):
         # x in display coords, y in axes coords (to be updated at draw time)
         offsetText = mtext.Text(x=0, y=0.5,
-            fontproperties = font_manager.FontProperties(size=rcParams['ytick.labelsize']),
+            fontproperties = font_manager.FontProperties(
+                                          size=rcParams['ytick.labelsize']),
             color = rcParams['ytick.color'],
             verticalalignment = 'baseline',
             horizontalalignment = 'left',
