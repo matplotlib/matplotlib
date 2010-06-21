@@ -2168,13 +2168,17 @@ class Axes(martist.Artist):
         """
         if axis in ['x', 'both']:
             xkw = dict(kwargs)
-            xkw.pop('top', None)
-            xkw.pop('bottom', None)
+            xkw.pop('left', None)
+            xkw.pop('right', None)
+            xkw.pop('labelleft', None)
+            xkw.pop('labelright', None)
             self.xaxis.set_tick_params(**xkw)
         if axis in ['y', 'both']:
             ykw = dict(kwargs)
-            ykw.pop('left', None)
-            ykw.pop('right', None)
+            ykw.pop('top', None)
+            ykw.pop('bottom', None)
+            ykw.pop('labeltop', None)
+            ykw.pop('labelbottom', None)
             self.yaxis.set_tick_params(**ykw)
 
     def set_axis_off(self):
