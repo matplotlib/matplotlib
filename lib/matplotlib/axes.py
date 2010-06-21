@@ -6740,16 +6740,16 @@ class Axes(martist.Artist):
           *shading*: [ 'flat' | 'faceted' ]
             If 'faceted', a black grid is drawn around each rectangle; if
             'flat', edges are not drawn. Default is 'flat', contrary to
-            Matlab(TM).
+            Matlab.
 
             This kwarg is deprecated; please use 'edgecolors' instead:
-              * shading='flat' -- edgecolors='None'
+              * shading='flat' -- edgecolors='none'
               * shading='faceted  -- edgecolors='k'
 
-          *edgecolors*: [ None | 'None' | color | color sequence]
+          *edgecolors*: [ None | 'none' | color | color sequence]
             If *None*, the rc setting is used by default.
 
-            If 'None', edges will not be visible.
+            If 'none', edges will not be visible.
 
             An mpl color or sequence of colors will set the edge color
 
@@ -6805,6 +6805,16 @@ class Axes(martist.Artist):
         :class:`~matplotlib.collection.PolyCollection` properties:
 
         %(PolyCollection)s
+
+        Note: the default *antialiaseds* is taken from
+        rcParams['patch.antialiased'], which defaults to *True*.
+        In some cases, particularly if *alpha* is 1,
+        you may be able to reduce rendering artifacts (light or
+        dark patch boundaries) by setting it to *False*.  An
+        alternative it to set *edgecolors* to 'face'.  Unfortunately,
+        there seems to be no single combination of parameters that
+        eliminates artifacts under all conditions.
+
         """
 
         if not self._hold: self.cla()
@@ -6850,19 +6860,22 @@ class Axes(martist.Artist):
                              axis=1)
         verts = xy.reshape((npoly, 5, 2))
 
-        #verts = zip(zip(X1,Y1),zip(X2,Y2),zip(X3,Y3),zip(X4,Y4))
-
         C = compress(ravelmask, ma.filled(C[0:Ny-1,0:Nx-1]).ravel())
 
-
         if shading == 'faceted':
-            edgecolors = (0,0,0,1),
-            linewidths = (0.25,)
+            edgecolors = 'k',
         else:
-            edgecolors = 'face'
-            linewidths = (1.0,)
+            edgecolors = 'none'
+        linewidths = (0.25,)
+        # Not sure if we want to have the following, or just trap
+        # invalid kwargs and raise an exception.
+        if 'edgecolor' in kwargs:
+            kwargs['edgecolors'] = kwargs.pop('edgecolor')
+        if 'linewidth' in kwargs:
+            kwargs['linewidths'] = kwargs.pop('linewidth')
+        if 'antialiased' in kwargs:
+            kwargs['antialiaseds'] = kwargs.pop('antialiased')
         kwargs.setdefault('edgecolors', edgecolors)
-        kwargs.setdefault('antialiaseds', (0,))
         kwargs.setdefault('linewidths', linewidths)
 
         collection = mcoll.PolyCollection(verts, **kwargs)
