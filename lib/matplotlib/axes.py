@@ -2101,6 +2101,81 @@ class Axes(martist.Artist):
             self.yaxis.get_major_locator().set_params(**kwargs)
         self.autoscale_view(tight=tight, scalex=_x, scaley=_y)
 
+    def tick_params(self, axis='both', **kwargs):
+        """
+        Convenience method for changing the appearance of ticks and
+        tick labels.
+
+        Keyword arguments:
+
+        *axis*
+            ['x' | 'y' | 'both']  Axis on which to operate;
+            default is 'both'.
+
+        *reset*
+            [True | False] If *True*, set all parameters to defaults
+            before processing other keyword arguments.  Default is
+            *False*.
+
+        *which*
+            ['major' | 'minor' | 'both'] Default is 'major': apply
+            arguments to major ticks only.
+
+        *direction*
+            ['in' | 'out'] Puts ticks inside or outside the axes.
+
+        *length*
+            Tick length in points.
+
+        *width*
+            Tick width in points.
+
+        *color*
+            Tick color; accepts any mpl color spec.
+
+        *pad*
+            Distance in points between tick and label.
+
+        *labelsize*
+            Tick label font size in points or as a string (e.g. 'large').
+
+        *labelcolor*
+            Tick label color; mpl color spec.
+
+        *colors*
+            Changes the tick color and the label color to the same value:
+            mpl color spec.
+
+        *zorder*
+            Tick and label zorder.
+
+        *bottom*, *top*, *left*, *right*
+            Boolean or ['on' | 'off'], controls whether to draw the
+            respective ticks.
+
+        *labelbottom*, *labeltop*, *labelleft*, *labelright*
+            Boolean or ['on' | 'off'], controls whether to draw the
+            respective tick labels.
+
+        Example::
+
+            ax.tick_params(direction='out', length=6, width=2, colors='r')
+
+        This will make all major ticks be red, pointing out of the box,
+        and with dimensions 6 points by 2 points.  Tick labels will
+        also be red.
+
+        """
+        if axis in ['x', 'both']:
+            xkw = dict(kwargs)
+            xkw.pop('top', None)
+            xkw.pop('bottom', None)
+            self.xaxis.set_tick_params(**xkw)
+        if axis in ['y', 'both']:
+            ykw = dict(kwargs)
+            ykw.pop('left', None)
+            ykw.pop('right', None)
+            self.yaxis.set_tick_params(**ykw)
 
     def set_axis_off(self):
         """turn off the axis"""

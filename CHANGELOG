@@ -1,3 +1,7 @@
+2010-06-20 Added Axes.tick_params and corresponding pyplot function
+           to control tick and tick label appearance after an Axes
+           has been created. - EF
+
 2010-06-09 Allow Axes.grid to control minor gridlines; allow
            Axes.grid and Axis.grid to control major and minor
            gridlines in the same method call. - EF
