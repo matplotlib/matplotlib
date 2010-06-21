@@ -13,17 +13,24 @@
 {% block relbar1 %}
 <!-- Piwik -->
 <script type="text/javascript">
-var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/matplotlib/" : "http://apps.sourceforge.net/piwik/matplotlib/");
-document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
-</script><script type="text/javascript">
-piwik_action_name = '';
-piwik_idsite = 1;
-piwik_url = pkBaseURL + "piwik.php";
-piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+if ("matplotlib.sourceforge.net" == document.location.hostname ||
+    "matplotlib.sf.net" == document.location.hostname) {
+  var pkBaseURL = (("https:" == document.location.protocol) ? "https://apps.sourceforge.net/piwik/matplotlib/" : "http://apps.sourceforge.net/piwik/matplotlib/");
+  document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+}
 </script>
-<object><noscript><p><img src="http://apps.sourceforge.net/piwik/matplotlib/piwik.php?idsite=1" alt="piwik"/></p></noscript></object>
+<script type="text/javascript">
+if ("matplotlib.sourceforge.net" == document.location.hostname ||
+    "matplotlib.sf.net" == document.location.hostname) {
+  piwik_action_name = '';
+  piwik_idsite = 1;
+  piwik_url = pkBaseURL + "piwik.php";
+  piwik_log(piwik_action_name, piwik_idsite, piwik_url);
+  document.write(unescape('%3Cobject%3E%3Cnoscript%3E%3Cp%3E%3Cimg src="http://apps.sourceforge.net/piwik/matplotlib/piwik.php?idsite=1" alt="piwik"/%3E%3C/p%3E%3C/noscript%3E%3C/object%3E'));
+}
+</script>
 <!-- End Piwik Tag -->
-<link rel="shortcut icon" href="_static/favicon.ico"> 
+<link rel="shortcut icon" href="_static/favicon.ico">
 
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
 <a href="{{ pathto('index') }}"><img src="{{
