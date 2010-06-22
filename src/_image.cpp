@@ -353,6 +353,7 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   agg::rasterizer_scanline_aa<> ras;
   agg::scanline_u8 sl;
 
+  ras.clip_box(0, 0, numcols, numrows);
 
   //srcMatrix *= resizingMatrix;
   //imageMatrix *= resizingMatrix;
