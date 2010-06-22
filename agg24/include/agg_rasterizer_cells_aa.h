@@ -179,16 +179,15 @@ namespace agg
     template<class Cell>
     AGG_INLINE void rasterizer_cells_aa<Cell>::add_curr_cell()
     {
-        static Py::Exception e(
-            Py::OverflowError(
-                "Agg rendering complexity exceeded. Consider downsampling or decimating your data."));
-
-
         if(m_curr_cell.area | m_curr_cell.cover)
         {
             if((m_num_cells & cell_block_mask) == 0)
             {
                 if(m_num_blocks >= cell_block_limit) {
+                    static Py::Exception e(
+                        Py::OverflowError(
+                            "Agg rendering complexity exceeded. Consider downsampling or decimating your data."));
+
                     /* If this exception is thrown too often, one can
                        increase cell_block_limit */
                     throw e;
