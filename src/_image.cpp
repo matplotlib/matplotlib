@@ -39,7 +39,7 @@
 typedef agg::pixfmt_rgba32 pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::span_interpolator_linear<> interpolator_type;
-typedef agg::rasterizer_scanline_aa<> rasterizer;
+typedef agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> rasterizer;
 
 
 Image::Image() :
@@ -351,7 +351,7 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   pixfmt pixf(*rbufOut);
   renderer_base rb(pixf);
   rb.clear(bg);
-  agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> ras;
+  rasterizer ras;
   agg::scanline_u8 sl;
 
   ras.clip_box(0, 0, numcols, numrows);
