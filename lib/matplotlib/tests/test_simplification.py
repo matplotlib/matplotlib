@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 from pylab import *
 import numpy as np
 from matplotlib import patches, path, transforms
+
+from nose.tools import raises
+import cStringIO
+
 nan = np.nan
 Path = path.Path
 
@@ -164,6 +168,24 @@ AAj1//+nPwAA/////w=="""
     segs = list(segs)
     assert len(segs) == 1
     assert segs[0][1] == Path.MOVETO
+
+@raises(OverflowError)
+def test_throw_rendering_complexity_exceeded():
+    rcParams['path.simplify'] = False
+
+    xx = np.arange(200000)
+    yy = np.random.rand(200000)
+    yy[1000] = np.nan
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(xx, yy)
+    try:
+        fig.savefig(cStringIO.StringIO())
+    except e:
+        raise e
+    else:
+        rcParams['path.simplify'] = True
+
 
 if __name__=='__main__':
     import nose
