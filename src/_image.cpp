@@ -29,6 +29,7 @@
 #include "agg_span_image_filter_rgb.h"
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
+#include "agg_rasterizer_sl_clip.h"
 #include "util/agg_color_conv_rgb8.h"
 #include "_image.h"
 #include "mplutils.h"
@@ -350,7 +351,7 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs) {
   pixfmt pixf(*rbufOut);
   renderer_base rb(pixf);
   rb.clear(bg);
-  agg::rasterizer_scanline_aa<> ras;
+  agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> ras;
   agg::scanline_u8 sl;
 
   ras.clip_box(0, 0, numcols, numrows);
