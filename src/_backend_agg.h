@@ -55,7 +55,7 @@ typedef agg::pixfmt_rgba32 pixfmt;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::renderer_scanline_aa_solid<renderer_base> renderer_aa;
 typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
-typedef agg::rasterizer_scanline_aa<> rasterizer;
+typedef agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> rasterizer;
 
 typedef agg::scanline_p8 scanline_p8;
 typedef agg::scanline_bin scanline_bin;
