@@ -88,7 +88,7 @@ protected:
     }
 
     inline bool
-    queue_flush(unsigned *cmd, double *x, double *y)
+    queue_pop(unsigned *cmd, double *x, double *y)
     {
         if (queue_nonempty())
         {
@@ -159,7 +159,7 @@ public:
         if (m_has_curves)
         {
             /* This is the slow method for when there might be curves. */
-            if (queue_flush(&code, x, y))
+            if (queue_pop(&code, x, y))
             {
                 return code;
             }
@@ -216,7 +216,7 @@ public:
                 }
             }
 
-            if (queue_flush(&code, x, y))
+            if (queue_pop(&code, x, y))
             {
                 return code;
             }
@@ -567,7 +567,7 @@ public:
            the queue before proceeding to the main loop below.
            -- Michael Droettboom */
 
-        if (queue_flush(&cmd, x, y))
+        if (queue_pop(&cmd, x, y))
         {
             return cmd;
         }
@@ -740,7 +740,7 @@ public:
 
         /* Return the first item in the queue, if any, otherwise
            indicate that we're done. */
-        if (queue_flush(&cmd, x, y))
+        if (queue_pop(&cmd, x, y))
         {
             return cmd;
         }
