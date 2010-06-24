@@ -1304,7 +1304,7 @@ RendererAgg::draw_path(const Py::Tuple& args)
 
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.0, (double)height);
-    bool clip = !face.first && gc.hatchpath.isNone();
+    bool clip = !face.first && gc.hatchpath.isNone() && !path.has_curves();
     bool simplify = path.should_simplify() && clip;
 
     transformed_path_t tpath(path, trans);
@@ -1498,7 +1498,7 @@ RendererAgg::_draw_path_collection_generic
                 }
             }
 
-            bool do_clip = !face.first && gc.hatchpath.isNone();
+            bool do_clip = !face.first && gc.hatchpath.isNone() && !has_curves;
 
             if (check_snap)
             {
