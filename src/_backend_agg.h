@@ -263,8 +263,8 @@ protected:
 
     void
     _draw_gouraud_triangle(
-        const GCAgg& gc,
-        const double* points, const double* colors, agg::trans_affine trans);
+        const double* points, const double* colors,
+        agg::trans_affine trans, bool has_clippath);
 
 private:
     void create_alpha_buffers();
