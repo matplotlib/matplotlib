@@ -1824,18 +1824,14 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
 }
 
 void
-RendererAgg::_draw_gouraud_triangle(const GCAgg& gc, const double* points,
+RendererAgg::_draw_gouraud_triangle(const double* points,
                                     const double* colors,
-                                    agg::trans_affine trans)
+                                    agg::trans_affine trans,
+                                    bool has_clippath)
 {
     typedef agg::rgba8                                         color_t;
     typedef agg::span_gouraud_rgba<color_t>                    span_gen_t;
     typedef agg::span_allocator<color_t>                       span_alloc_t;
-
-    theRasterizer.reset_clipping();
-    rendererBase.reset_clipping(true);
-    set_clipbox(gc.cliprect, theRasterizer);
-    bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.0, (double)height);
@@ -1897,6 +1893,11 @@ RendererAgg::draw_gouraud_triangle(const Py::Tuple& args)
     PyArrayObject* points = NULL;
     PyArrayObject* colors = NULL;
 
+    theRasterizer.reset_clipping();
+    rendererBase.reset_clipping(true);
+    set_clipbox(gc.cliprect, theRasterizer);
+    bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
+
     try
     {
         points = (PyArrayObject*)PyArray_ContiguousFromAny
@@ -1916,7 +1917,8 @@ RendererAgg::draw_gouraud_triangle(const Py::Tuple& args)
         }
 
         _draw_gouraud_triangle(
-            gc, (double*)PyArray_DATA(points), (double*)PyArray_DATA(colors), trans);
+          (double*)PyArray_DATA(points), (double*)PyArray_DATA(colors),
+          trans, has_clippath);
     }
     catch (...)
     {
@@ -1951,6 +1953,11 @@ RendererAgg::draw_gouraud_triangles(const Py::Tuple& args)
     PyArrayObject* points = NULL;
     PyArrayObject* colors = NULL;
 
+    theRasterizer.reset_clipping();
+    rendererBase.reset_clipping(true);
+    set_clipbox(gc.cliprect, theRasterizer);
+    bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
+
     try
     {
         points = (PyArrayObject*)PyArray_ContiguousFromAny
@@ -1976,7 +1983,9 @@ RendererAgg::draw_gouraud_triangles(const Py::Tuple& args)
 
         for (int i = 0; i < PyArray_DIM(points, 0); ++i)
         {
-            _draw_gouraud_triangle(gc, (double*)PyArray_GETPTR1(points, i), (double*)PyArray_GETPTR1(colors, i), trans);
+            _draw_gouraud_triangle(
+              (double*)PyArray_GETPTR1(points, i),
+              (double*)PyArray_GETPTR1(colors, i), trans, has_clippath);
         }
     }
     catch (...)
