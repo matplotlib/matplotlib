@@ -611,11 +611,9 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.win = window
         gtk.Toolbar.__init__(self)
         NavigationToolbar2.__init__(self, canvas)
-        self._idle_draw_id = 0
 
     def set_message(self, s):
-        if self._idle_draw_id == 0:
-            self.message.set_label(s)
+        self.message.set_label(s)
 
     def set_cursor(self, cursor):
         self.canvas.window.set_cursor(cursord[cursor])
@@ -644,7 +642,8 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         h = abs(y1 - y0)
 
         rect = [int(val)for val in min(x0,x1), min(y0, y1), w, h]
-        try: lastrect, imageBack = self._imageBack
+        try:
+            lastrect, imageBack = self._imageBack
         except AttributeError:
             #snap image back
             if event.inaxes is None:
@@ -655,16 +654,9 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
             b = int(height)-(b+h)
             axrect = l,b,w,h
             self._imageBack = axrect, drawable.get_image(*axrect)
-            drawable.draw_rectangle(gc, False, *rect)
-            self._idle_draw_id = 0
         else:
-            def idle_draw(*args):
-                drawable.draw_image(gc, imageBack, 0, 0, *lastrect)
-                drawable.draw_rectangle(gc, False, *rect)
-                self._idle_draw_id = 0
-                return False
-            if self._idle_draw_id == 0:
-                self._idle_draw_id = gobject.idle_add(idle_draw)
+            drawable.draw_image(gc, imageBack, 0, 0, *lastrect)
+        drawable.draw_rectangle(gc, False, *rect)
 
 
     def _init_toolbar(self):
