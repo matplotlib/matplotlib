@@ -65,71 +65,74 @@ class _wxagg_module : public Py::ExtensionModule<_wxagg_module>
 {
 public:
 
-  _wxagg_module()
-    : Py::ExtensionModule<_wxagg_module>( "_wxkagg" )
-  {
-    add_varargs_method("convert_agg_to_wx_image",
-        &_wxagg_module::convert_agg_to_wx_image,
-        "Convert the region of the agg buffer bounded by bbox to a wx.Image."
-        "  If bbox\nis None, the entire buffer is converted.\n\nNote: agg must"
-        " be a backend_agg.RendererAgg instance.");
+    _wxagg_module()
+            : Py::ExtensionModule<_wxagg_module>("_wxkagg")
+    {
+        add_varargs_method("convert_agg_to_wx_image",
+                           &_wxagg_module::convert_agg_to_wx_image,
+                           "Convert the region of the agg buffer bounded by bbox to a wx.Image."
+                           "  If bbox\nis None, the entire buffer is converted.\n\nNote: agg must"
+                           " be a backend_agg.RendererAgg instance.");
 
-    add_varargs_method("convert_agg_to_wx_bitmap",
-        &_wxagg_module::convert_agg_to_wx_bitmap,
-        "Convert the region of the agg buffer bounded by bbox to a wx.Bitmap."
-        "  If bbox\nis None, the entire buffer is converted.\n\nNote: agg must"
-        " be a backend_agg.RendererAgg instance.");
+        add_varargs_method("convert_agg_to_wx_bitmap",
+                           &_wxagg_module::convert_agg_to_wx_bitmap,
+                           "Convert the region of the agg buffer bounded by bbox to a wx.Bitmap."
+                           "  If bbox\nis None, the entire buffer is converted.\n\nNote: agg must"
+                           " be a backend_agg.RendererAgg instance.");
 
-    initialize( "The _wxagg module" );
-  }
+        initialize("The _wxagg module");
+    }
 
-  virtual ~_wxagg_module() {}
+    virtual ~_wxagg_module() {}
 
 private:
 
-  Py::Object convert_agg_to_wx_image(const Py::Tuple &args)
-  {
-    args.verify_length(2);
+    Py::Object convert_agg_to_wx_image(const Py::Tuple &args)
+    {
+        args.verify_length(2);
 
-    RendererAgg* aggRenderer = static_cast<RendererAgg*>(
-        args[0].getAttr("_renderer").ptr());
+        RendererAgg* aggRenderer = static_cast<RendererAgg*>(
+                                       args[0].getAttr("_renderer").ptr());
 
-    Py::Object clipbox = args[1];
+        Py::Object clipbox = args[1];
 
-    // convert the buffer
-    wxImage *image = convert_agg2image(aggRenderer, clipbox);
+        // convert the buffer
+        wxImage *image = convert_agg2image(aggRenderer, clipbox);
 
-    // wrap a wx.Image around the result and return it
-    PyObject *pyWxImage = wxPyConstructObject(image, _T("wxImage"), 1);
-    if (pyWxImage == NULL) {
-        throw Py::MemoryError(
-            "_wxagg.convert_agg_to_wx_image(): could not create the wx.Image");
+        // wrap a wx.Image around the result and return it
+        PyObject *pyWxImage = wxPyConstructObject(image, _T("wxImage"), 1);
+        if (pyWxImage == NULL)
+        {
+            throw Py::MemoryError(
+                "_wxagg.convert_agg_to_wx_image(): could not create the wx.Image");
+        }
+
+        return Py::asObject(pyWxImage);
     }
 
-    return Py::asObject(pyWxImage);
-  }
 
+    Py::Object convert_agg_to_wx_bitmap(const Py::Tuple &args)
+    {
+        args.verify_length(2);
 
-  Py::Object convert_agg_to_wx_bitmap(const Py::Tuple &args) {
-    args.verify_length(2);
+        RendererAgg* aggRenderer = static_cast<RendererAgg*>(
+            args[0].getAttr("_renderer").ptr());
 
-    RendererAgg* aggRenderer = static_cast<RendererAgg*>(
-       args[0].getAttr("_renderer").ptr());
+        Py::Object clipbox = args[1];
 
-    Py::Object clipbox = args[1];
+        // convert the buffer
+        wxBitmap *bitmap = convert_agg2bitmap(aggRenderer, clipbox);
 
-    // convert the buffer
-    wxBitmap *bitmap = convert_agg2bitmap(aggRenderer, clipbox);
+        // wrap a wx.Bitmap around the result and return it
+        PyObject *pyWxBitmap = wxPyConstructObject(bitmap, _T("wxBitmap"), 1);
+        if (pyWxBitmap == NULL)
+        {
+            throw Py::MemoryError(
+                "_wxagg.convert_agg_to_wx_bitmap(): could not create the wx.Bitmap");
+        }
 
-    // wrap a wx.Bitmap around the result and return it
-    PyObject *pyWxBitmap = wxPyConstructObject(bitmap, _T("wxBitmap"), 1);
-    if (pyWxBitmap == NULL) {
-        throw Py::MemoryError(
-          "_wxagg.convert_agg_to_wx_bitmap(): could not create the wx.Bitmap");
+        return Py::asObject(pyWxBitmap);
     }
-
-    return Py::asObject(pyWxBitmap);
-  }
 };
 
 
@@ -148,21 +151,25 @@ static wxImage *convert_agg2image(RendererAgg *aggRenderer, Py::Object clipbox)
 
     double l, b, r, t;
 
-    if (!py_convert_bbox(clipbox.ptr(), l, b, r, t)) {
+    if (!py_convert_bbox(clipbox.ptr(), l, b, r, t))
+    {
         // Convert everything: rgba => rgb -> image
         srcBuffer = aggRenderer->pixBuffer;
         srcWidth  = (int) aggRenderer->get_width();
         srcHeight = (int) aggRenderer->get_height();
-        srcStride = (int) aggRenderer->get_width()*4;
-    } else {
+        srcStride = (int) aggRenderer->get_width() * 4;
+    }
+    else
+    {
         // Convert a region: rgba => clipped rgba => rgb -> image
-        srcWidth = (int) (r-l);
-        srcHeight = (int) (t-b);
-        srcStride = srcWidth*4;
+        srcWidth = (int)(r - l);
+        srcHeight = (int)(t - b);
+        srcStride = srcWidth * 4;
 
         deleteSrcBuffer = true;
         srcBuffer = new agg::int8u[srcStride*srcHeight];
-        if (srcBuffer == NULL) {
+        if (srcBuffer == NULL)
+        {
             throw Py::MemoryError(
                 "_wxagg::convert_agg2image(): could not allocate `srcBuffer'");
         }
@@ -179,18 +186,21 @@ static wxImage *convert_agg2image(RendererAgg *aggRenderer, Py::Object clipbox)
         pixfmt pf(rbuf);
         renderer_base rndr(pf);
         rndr.copy_from(aggRenderer->renderingBuffer, &region,
-            (int)-l, (int)(t-h));
+                       (int) - l, (int)(t - h));
     }
 
     // allocate the RGB data array
 
     // use malloc(3) because wxImage will use free(3)
     agg::int8u *destBuffer = (agg::int8u *) malloc(
-        sizeof(agg::int8u)*srcWidth*3*srcHeight);
+                                 sizeof(agg::int8u) * srcWidth * 3 * srcHeight);
 
-    if (destBuffer == NULL) {
+    if (destBuffer == NULL)
+    {
         if (deleteSrcBuffer)
+        {
             delete [] srcBuffer;
+        }
 
         throw Py::MemoryError(
             "_wxagg::convert_agg2image(): could not allocate `destBuffer'");
@@ -207,9 +217,12 @@ static wxImage *convert_agg2image(RendererAgg *aggRenderer, Py::Object clipbox)
 
     // Create a wxImage using the RGB data
     wxImage *image = new wxImage(srcWidth, srcHeight, destBuffer);
-    if (image == NULL) {
+    if (image == NULL)
+    {
         if (deleteSrcBuffer)
+        {
             delete [] srcBuffer;
+        }
 
         free(destBuffer);
         throw Py::MemoryError(
@@ -217,7 +230,9 @@ static wxImage *convert_agg2image(RendererAgg *aggRenderer, Py::Object clipbox)
     }
 
     if (deleteSrcBuffer)
+    {
         delete [] srcBuffer;
+    }
 
     return image;
 }
@@ -233,7 +248,8 @@ static wxBitmap *convert_agg2bitmap(RendererAgg *aggRenderer, Py::Object clipbox
     image->Destroy();
     delete image;
 
-    if (bitmap == NULL) {
+    if (bitmap == NULL)
+    {
         throw Py::MemoryError(
             "_wxagg::convert_agg2bitmap(): could not allocate `bitmap'");
     }
@@ -247,11 +263,11 @@ static wxBitmap *convert_agg2bitmap(RendererAgg *aggRenderer, Py::Object clipbox
 //
 
 extern "C"
-DL_EXPORT(void)
-  init_wxagg(void)
+    DL_EXPORT(void)
+    init_wxagg(void)
 {
-  wxPyCoreAPI_IMPORT();
-  //suppress an unused variable warning by creating _wxagg_module in two lines
-  static _wxagg_module* _wxagg = NULL;
-  _wxagg = new _wxagg_module;
+    wxPyCoreAPI_IMPORT();
+    //suppress an unused variable warning by creating _wxagg_module in two lines
+    static _wxagg_module* _wxagg = NULL;
+    _wxagg = new _wxagg_module;
 };

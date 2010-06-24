@@ -13,8 +13,6 @@
 #include "agg_path_storage.h"
 #include "agg_trans_affine.h"
 
-// MGDTODO: Un-CXX-ify this module
-
 struct XY
 {
     double x;
@@ -28,7 +26,7 @@ class _path_module : public Py::ExtensionModule<_path_module>
 {
 public:
     _path_module()
-            : Py::ExtensionModule<_path_module>( "_path" )
+            : Py::ExtensionModule<_path_module>("_path")
     {
         add_varargs_method("point_in_path", &_path_module::point_in_path,
                            "point_in_path(x, y, path, trans)");
@@ -115,7 +113,8 @@ private:
 // Input 2D polygon _pgon_ with _numverts_ number of vertices and test point
 // _point_, returns 1 if inside, 0 if outside.
 template<class T>
-bool point_in_path_impl(const double tx, const double ty, T& path)
+bool
+point_in_path_impl(const double tx, const double ty, T& path)
 {
     int yflag0, yflag1, inside_flag;
     double vtx0, vty0, vtx1, vty1, sx, sy;
@@ -129,7 +128,9 @@ bool point_in_path_impl(const double tx, const double ty, T& path)
     do
     {
         if (code != agg::path_cmd_move_to)
+        {
             code = path.vertex(&x, &y);
+        }
 
         sx = vtx0 = x;
         sy = vty0 = y;
@@ -147,41 +148,47 @@ bool point_in_path_impl(const double tx, const double ty, T& path)
 
             // The following cases denote the beginning on a new subpath
             if (code == agg::path_cmd_stop ||
-                (code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
+                    (code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
             {
                 x = sx;
                 y = sy;
             }
             else if (code == agg::path_cmd_move_to)
+            {
                 break;
+            }
 
             yflag1 = (vty1 >= ty);
-            // Check if endpoints straddle (are on opposite sides) of X axis
-            // (i.e. the Y's differ); if so, +X ray could intersect this edge.
-            // The old test also checked whether the endpoints are both to the
-            // right or to the left of the test point.  However, given the faster
-            // intersection point computation used below, this test was found to
-            // be a break-even proposition for most polygons and a loser for
-            // triangles (where 50% or more of the edges which survive this test
-            // will cross quadrants and so have to have the X intersection computed
-            // anyway).  I credit Joseph Samosky with inspiring me to try dropping
-            // the "both left or both right" part of my code.
+            // Check if endpoints straddle (are on opposite sides) of
+            // X axis (i.e. the Y's differ); if so, +X ray could
+            // intersect this edge.  The old test also checked whether
+            // the endpoints are both to the right or to the left of
+            // the test point.  However, given the faster intersection
+            // point computation used below, this test was found to be
+            // a break-even proposition for most polygons and a loser
+            // for triangles (where 50% or more of the edges which
+            // survive this test will cross quadrants and so have to
+            // have the X intersection computed anyway).  I credit
+            // Joseph Samosky with inspiring me to try dropping the
+            // "both left or both right" part of my code.
             if (yflag0 != yflag1)
             {
                 // Check intersection of pgon segment with +X ray.
-                // Note if >= point's X; if so, the ray hits it.
-                // The division operation is avoided for the ">=" test by checking
-                // the sign of the first vertex wrto the test point; idea inspired
-                // by Joseph Samosky's and Mark Haigh-Hutchinson's different
-                // polygon inclusion tests.
-                if ( ((vty1-ty) * (vtx0-vtx1) >=
-                      (vtx1-tx) * (vty0-vty1)) == yflag1 )
+                // Note if >= point's X; if so, the ray hits it.  The
+                // division operation is avoided for the ">=" test by
+                // checking the sign of the first vertex wrto the test
+                // point; idea inspired by Joseph Samosky's and Mark
+                // Haigh-Hutchinson's different polygon inclusion
+                // tests.
+                if (((vty1 - ty) * (vtx0 - vtx1) >=
+                        (vtx1 - tx) * (vty0 - vty1)) == yflag1)
                 {
                     inside_flag ^= 1;
                 }
             }
 
-            // Move to the next pair of vertices, retaining info as possible.
+            // Move to the next pair of vertices, retaining info as
+            // possible.
             yflag0 = yflag1;
             vtx0 = vtx1;
             vty0 = vty1;
@@ -195,35 +202,43 @@ bool point_in_path_impl(const double tx, const double ty, T& path)
         yflag1 = (vty1 >= ty);
         if (yflag0 != yflag1)
         {
-            if ( ((vty1-ty) * (vtx0-vtx1) >=
-                  (vtx1-tx) * (vty0-vty1)) == yflag1 )
+            if (((vty1 - ty) * (vtx0 - vtx1) >=
+                    (vtx1 - tx) * (vty0 - vty1)) == yflag1)
             {
                 inside_flag ^= 1;
             }
         }
 
         if (inside_flag != 0)
+        {
             return true;
+        }
     }
     while (code != agg::path_cmd_stop);
 
     return (inside_flag != 0);
 }
 
-inline bool point_in_path(double x, double y, PathIterator& path, const agg::trans_affine& trans)
+inline bool
+point_in_path(double x, double y, PathIterator& path,
+              const agg::trans_affine& trans)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
     typedef agg::conv_curve<transformed_path_t> curve_t;
 
     if (path.total_vertices() < 3)
+    {
         return false;
+    }
 
     transformed_path_t trans_path(path, trans);
     curve_t curved_path(trans_path);
     return point_in_path_impl(x, y, curved_path);
 }
 
-inline bool point_on_path(double x, double y, double r, PathIterator& path, const agg::trans_affine& trans)
+inline bool
+point_on_path(double x, double y, double r, PathIterator& path,
+              const agg::trans_affine& trans)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
     typedef agg::conv_curve<transformed_path_t> curve_t;
@@ -236,7 +251,8 @@ inline bool point_on_path(double x, double y, double r, PathIterator& path, cons
     return point_in_path_impl(x, y, stroked_path);
 }
 
-Py::Object _path_module::point_in_path(const Py::Tuple& args)
+Py::Object
+_path_module::point_in_path(const Py::Tuple& args)
 {
     args.verify_length(4);
 
@@ -246,11 +262,14 @@ Py::Object _path_module::point_in_path(const Py::Tuple& args)
     agg::trans_affine trans = py_to_agg_transformation_matrix(args[3].ptr(), false);
 
     if (::point_in_path(x, y, path, trans))
+    {
         return Py::Int(1);
+    }
     return Py::Int(0);
 }
 
-Py::Object _path_module::point_on_path(const Py::Tuple& args)
+Py::Object
+_path_module::point_on_path(const Py::Tuple& args)
 {
     args.verify_length(5);
 
@@ -261,13 +280,16 @@ Py::Object _path_module::point_on_path(const Py::Tuple& args)
     agg::trans_affine trans = py_to_agg_transformation_matrix(args[4].ptr());
 
     if (::point_on_path(x, y, r, path, trans))
+    {
         return Py::Int(1);
+    }
     return Py::Int(0);
 }
 
-void get_path_extents(PathIterator& path, const agg::trans_affine& trans,
-                      double* x0, double* y0, double* x1, double* y1,
-                      double* xm, double* ym)
+void
+get_path_extents(PathIterator& path, const agg::trans_affine& trans,
+                 double* x0, double* y0, double* x1, double* y1,
+                 double* xm, double* ym)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
@@ -284,7 +306,9 @@ void get_path_extents(PathIterator& path, const agg::trans_affine& trans,
     while ((code = curved_path.vertex(&x, &y)) != agg::path_cmd_stop)
     {
         if ((code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
+        {
             continue;
+        }
         if (x < *x0) *x0 = x;
         if (y < *y0) *y0 = y;
         if (x > *x1) *x1 = x;
@@ -296,7 +320,8 @@ void get_path_extents(PathIterator& path, const agg::trans_affine& trans,
     }
 }
 
-Py::Object _path_module::get_path_extents(const Py::Tuple& args)
+Py::Object
+_path_module::get_path_extents(const Py::Tuple& args)
 {
     args.verify_length(2);
 
@@ -312,7 +337,9 @@ Py::Object _path_module::get_path_extents(const Py::Tuple& args)
         extents = (PyArrayObject*)PyArray_SimpleNew
                   (2, extent_dims, PyArray_DOUBLE);
         if (extents == NULL)
+        {
             throw Py::MemoryError("Could not allocate result array");
+        }
         extents_data = (double*)PyArray_DATA(extents);
 
         extents_data[0] = std::numeric_limits<double>::infinity();
@@ -324,9 +351,8 @@ Py::Object _path_module::get_path_extents(const Py::Tuple& args)
         xm = std::numeric_limits<double>::infinity();
         ym = std::numeric_limits<double>::infinity();
 
-        ::get_path_extents(path, trans,
-                           &extents_data[0], &extents_data[1], &extents_data[2], &extents_data[3],
-                           &xm, &ym);
+        ::get_path_extents(path, trans, &extents_data[0], &extents_data[1],
+                           &extents_data[2], &extents_data[3], &xm, &ym);
     }
     catch (...)
     {
@@ -337,16 +363,20 @@ Py::Object _path_module::get_path_extents(const Py::Tuple& args)
     return Py::Object((PyObject*)extents, true);
 }
 
-Py::Object _path_module::update_path_extents(const Py::Tuple& args)
+Py::Object
+_path_module::update_path_extents(const Py::Tuple& args)
 {
     args.verify_length(5);
 
     double x0, y0, x1, y1;
     PathIterator path(args[0]);
-    agg::trans_affine trans = py_to_agg_transformation_matrix(args[1].ptr(), false);
+    agg::trans_affine trans = py_to_agg_transformation_matrix(
+        args[1].ptr(), false);
+
     if (!py_convert_bbox(args[2].ptr(), x0, y0, x1, y1))
     {
-        throw Py::ValueError("Must pass Bbox object as arg 3 of update_path_extents");
+        throw Py::ValueError(
+            "Must pass Bbox object as arg 3 of update_path_extents");
     }
     Py::Object minpos_obj = args[3];
     bool ignore = bool(Py::Int(args[4]));
@@ -355,10 +385,12 @@ Py::Object _path_module::update_path_extents(const Py::Tuple& args)
     PyArrayObject* input_minpos = NULL;
     try
     {
-        input_minpos = (PyArrayObject*)PyArray_FromObject(minpos_obj.ptr(), PyArray_DOUBLE, 1, 1);
+        input_minpos = (PyArrayObject*)PyArray_FromObject(
+            minpos_obj.ptr(), PyArray_DOUBLE, 1, 1);
         if (!input_minpos || PyArray_DIM(input_minpos, 0) != 2)
         {
-            throw Py::TypeError("Argument 4 to update_path_extents must be a length-2 numpy array.");
+            throw Py::TypeError(
+                "Argument 4 to update_path_extents must be a length-2 numpy array.");
         }
         xm = *(double*)PyArray_GETPTR1(input_minpos, 0);
         ym = *(double*)PyArray_GETPTR1(input_minpos, 1);
@@ -381,13 +413,17 @@ Py::Object _path_module::update_path_extents(const Py::Tuple& args)
     try
     {
         extents = (PyArrayObject*)PyArray_SimpleNew
-            (2, extent_dims, PyArray_DOUBLE);
+                  (2, extent_dims, PyArray_DOUBLE);
         if (extents == NULL)
+        {
             throw Py::MemoryError("Could not allocate result array");
+        }
         minpos = (PyArrayObject*)PyArray_SimpleNew
-            (1, minpos_dims, PyArray_DOUBLE);
+                 (1, minpos_dims, PyArray_DOUBLE);
         if (minpos == NULL)
+        {
             throw Py::MemoryError("Could not allocate result array");
+        }
 
         extents_data = (double*)PyArray_DATA(extents);
         minpos_data = (double*)PyArray_DATA(minpos);
@@ -413,7 +449,8 @@ Py::Object _path_module::update_path_extents(const Py::Tuple& args)
                 extents_data[0] = x0;
                 extents_data[2] = x1;
             }
-            if (y0 > y1) {
+            if (y0 > y1)
+            {
                 extents_data[1] = std::numeric_limits<double>::infinity();
                 extents_data[3] = -std::numeric_limits<double>::infinity();
             }
@@ -426,9 +463,9 @@ Py::Object _path_module::update_path_extents(const Py::Tuple& args)
             minpos_data[1] = ym;
         }
 
-        ::get_path_extents(path, trans,
-                           &extents_data[0], &extents_data[1], &extents_data[2], &extents_data[3],
-                           &minpos_data[0], &minpos_data[1]);
+        ::get_path_extents(path, trans, &extents_data[0], &extents_data[1],
+                           &extents_data[2], &extents_data[3], &minpos_data[0],
+                           &minpos_data[1]);
 
         changed = (extents_data[0] != x0 ||
                    extents_data[1] != y0 ||
@@ -456,7 +493,8 @@ Py::Object _path_module::update_path_extents(const Py::Tuple& args)
     return result;
 }
 
-Py::Object _path_module::get_path_collection_extents(const Py::Tuple& args)
+Py::Object
+_path_module::get_path_collection_extents(const Py::Tuple& args)
 {
     args.verify_length(5);
 
@@ -472,7 +510,8 @@ Py::Object _path_module::get_path_collection_extents(const Py::Tuple& args)
 
     try
     {
-        offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
+        offsets = (PyArrayObject*)PyArray_FromObject(
+            offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
         if (!offsets ||
             (PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) ||
             (PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0))
@@ -521,8 +560,8 @@ Py::Object _path_module::get_path_collection_extents(const Py::Tuple& args)
 
             if (Noffsets)
             {
-                double xo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
-                double yo                = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
+                double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
+                double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
                 offset_trans.transform(&xo, &yo);
                 trans *= agg::trans_affine_translation(xo, yo);
             }
@@ -546,7 +585,8 @@ Py::Object _path_module::get_path_collection_extents(const Py::Tuple& args)
     return result;
 }
 
-Py::Object _path_module::point_in_path_collection(const Py::Tuple& args)
+Py::Object
+_path_module::point_in_path_collection(const Py::Tuple& args)
 {
     args.verify_length(9);
 
@@ -561,10 +601,11 @@ Py::Object _path_module::point_in_path_collection(const Py::Tuple& args)
     agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7].ptr());
     bool                    filled           = Py::Int(args[8]);
 
-    PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
+    PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(
+        offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
     if (!offsets ||
-        (PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) ||
-        (PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0))
+            (PyArray_NDIM(offsets) == 2 && PyArray_DIM(offsets, 1) != 2) ||
+            (PyArray_NDIM(offsets) == 1 && PyArray_DIM(offsets, 0) != 0))
     {
         Py_XDECREF(offsets);
         throw Py::ValueError("Offsets array must be Nx2");
@@ -583,7 +624,7 @@ Py::Object _path_module::point_in_path_collection(const Py::Tuple& args)
     for (i = 0; i < Ntransforms; ++i)
     {
         agg::trans_affine trans = py_to_agg_transformation_matrix
-            (transforms_obj[i].ptr(), false);
+                                  (transforms_obj[i].ptr(), false);
         trans *= master_transform;
         transforms.push_back(trans);
     }
@@ -627,8 +668,9 @@ Py::Object _path_module::point_in_path_collection(const Py::Tuple& args)
     return result;
 }
 
-bool path_in_path(PathIterator& a, const agg::trans_affine& atrans,
-                  PathIterator& b, const agg::trans_affine& btrans)
+bool
+path_in_path(PathIterator& a, const agg::trans_affine& atrans,
+             PathIterator& b, const agg::trans_affine& btrans)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
     typedef agg::conv_curve<transformed_path_t> curve_t;
@@ -650,20 +692,23 @@ bool path_in_path(PathIterator& a, const agg::trans_affine& atrans,
     return true;
 }
 
-Py::Object _path_module::path_in_path(const Py::Tuple& args)
+Py::Object
+_path_module::path_in_path(const Py::Tuple& args)
 {
     args.verify_length(4);
 
     PathIterator a(args[0]);
-    agg::trans_affine atrans = py_to_agg_transformation_matrix(args[1].ptr(), false);
+    agg::trans_affine atrans = py_to_agg_transformation_matrix(
+        args[1].ptr(), false);
     PathIterator b(args[2]);
-    agg::trans_affine btrans = py_to_agg_transformation_matrix(args[3].ptr(), false);
+    agg::trans_affine btrans = py_to_agg_transformation_matrix(
+        args[3].ptr(), false);
 
     return Py::Int(::path_in_path(a, atrans, b, btrans));
 }
 
-/** The clip_path_to_rect code here is a clean-room implementation of the
-    Sutherland-Hodgman clipping algorithm described here:
+/** The clip_path_to_rect code here is a clean-room implementation of
+    the Sutherland-Hodgman clipping algorithm described here:
 
   http://en.wikipedia.org/wiki/Sutherland-Hodgman_clipping_algorithm
 */
@@ -672,91 +717,101 @@ typedef std::vector<XY> Polygon;
 
 namespace clip_to_rect_filters
 {
-/* There are four different passes needed to create/remove vertices
-   (one for each side of the rectangle).  The differences between those
-   passes are encapsulated in these functor classes.
-*/
-struct bisectx
-{
-    double m_x;
-
-    bisectx(double x) : m_x(x) {}
-
-    inline void bisect(double sx, double sy, double px, double py,
-                       double* bx, double* by) const
+    /* There are four different passes needed to create/remove
+       vertices (one for each side of the rectangle).  The differences
+       between those passes are encapsulated in these functor classes.
+    */
+    struct bisectx
     {
-        *bx = m_x;
-        double dx = px - sx;
-        double dy = py - sy;
-        *by = sy + dy * ((m_x - sx) / dx);
-    }
-};
+        double m_x;
 
-struct xlt : public bisectx
-{
-    xlt(double x) : bisectx(x) {}
+        bisectx(double x) : m_x(x) {}
 
-    inline bool is_inside(double x, double y) const
+        inline void
+        bisect(double sx, double sy, double px, double py, double* bx,
+               double* by) const
+        {
+            *bx = m_x;
+            double dx = px - sx;
+            double dy = py - sy;
+            *by = sy + dy * ((m_x - sx) / dx);
+        }
+    };
+
+    struct xlt : public bisectx
     {
-        return x <= m_x;
-    }
-};
+        xlt(double x) : bisectx(x) {}
 
-struct xgt : public bisectx
-{
-    xgt(double x) : bisectx(x) {}
+        inline bool
+        is_inside(double x, double y) const
+        {
+            return x <= m_x;
+        }
+    };
 
-    inline bool is_inside(double x, double y) const
+    struct xgt : public bisectx
     {
-        return x >= m_x;
-    }
-};
+        xgt(double x) : bisectx(x) {}
 
-struct bisecty
-{
-    double m_y;
+        inline bool
+        is_inside(double x, double y) const
+        {
+            return x >= m_x;
+        }
+    };
 
-    bisecty(double y) : m_y(y) {}
-
-    inline void bisect(double sx, double sy, double px, double py, double* bx, double* by) const
+    struct bisecty
     {
-        *by = m_y;
-        double dx = px - sx;
-        double dy = py - sy;
-        *bx = sx + dx * ((m_y - sy) / dy);
-    }
-};
+        double m_y;
 
-struct ylt : public bisecty
-{
-    ylt(double y) : bisecty(y) {}
+        bisecty(double y) : m_y(y) {}
 
-    inline bool is_inside(double x, double y) const
+        inline void
+        bisect(double sx, double sy, double px, double py, double* bx,
+               double* by) const
+        {
+            *by = m_y;
+            double dx = px - sx;
+            double dy = py - sy;
+            *bx = sx + dx * ((m_y - sy) / dy);
+        }
+    };
+
+    struct ylt : public bisecty
     {
-        return y <= m_y;
-    }
-};
+        ylt(double y) : bisecty(y) {}
 
-struct ygt : public bisecty
-{
-    ygt(double y) : bisecty(y) {}
+        inline bool
+        is_inside(double x, double y) const
+        {
+            return y <= m_y;
+        }
+    };
 
-    inline bool is_inside(double x, double y) const
+    struct ygt : public bisecty
     {
-        return y >= m_y;
-    }
-};
+        ygt(double y) : bisecty(y) {}
+
+        inline bool
+        is_inside(double x, double y) const
+        {
+            return y >= m_y;
+        }
+    };
 }
 
 template<class Filter>
-inline void clip_to_rect_one_step(const Polygon& polygon, Polygon& result, const Filter& filter)
+inline void
+clip_to_rect_one_step(const Polygon& polygon, Polygon& result, const Filter& filter)
 {
     double sx, sy, px, py, bx, by;
     bool sinside, pinside;
     result.clear();
 
     if (polygon.size() == 0)
+    {
         return;
+    }
 
     sx = polygon.back().x;
     sy = polygon.back().y;
@@ -784,9 +839,10 @@ inline void clip_to_rect_one_step(const Polygon& polygon, Polygon& result, const
     }
 }
 
-void clip_to_rect(PathIterator& path,
-                  double x0, double y0, double x1, double y1,
-                  bool inside, std::vector<Polygon>& results)
+void
+clip_to_rect(PathIterator& path,
+             double x0, double y0, double x1, double y1,
+             bool inside, std::vector<Polygon>& results)
 {
     double xmin, ymin, xmax, ymax;
     if (x0 < x1)
@@ -829,15 +885,21 @@ void clip_to_rect(PathIterator& path,
         do
         {
             if (code == agg::path_cmd_move_to)
+            {
                 polygon1.push_back(XY(x, y));
+            }
 
             code = path.vertex(&x, &y);
 
             if (code == agg::path_cmd_stop)
+            {
                 break;
+            }
 
             if (code != agg::path_cmd_move_to)
+            {
                 polygon1.push_back(XY(x, y));
+            }
         }
         while ((code & agg::path_cmd_end_poly) != agg::path_cmd_end_poly);
 
@@ -850,12 +912,15 @@ void clip_to_rect(PathIterator& path,
 
         // Empty polygons aren't very useful, so skip them
         if (polygon1.size())
+        {
             results.push_back(polygon1);
+        }
     }
     while (code != agg::path_cmd_stop);
 }
 
-Py::Object _path_module::clip_path_to_rect(const Py::Tuple &args)
+Py::Object
+_path_module::clip_path_to_rect(const Py::Tuple &args)
 {
     args.verify_length(3);
 
@@ -865,7 +930,9 @@ Py::Object _path_module::clip_path_to_rect(const Py::Tuple &args)
 
     double x0, y0, x1, y1;
     if (!py_convert_bbox(bbox_obj.ptr(), x0, y0, x1, y1))
+    {
         throw Py::TypeError("Argument 2 to clip_to_rect must be a Bbox object.");
+    }
 
     std::vector<Polygon> results;
 
@@ -875,7 +942,10 @@ Py::Object _path_module::clip_path_to_rect(const Py::Tuple &args)
     dims[1] = 2;
     PyObject* py_results = PyList_New(results.size());
     if (!py_results)
+    {
         throw Py::RuntimeError("Error creating results list");
+    }
+
     try
     {
         for (std::vector<Polygon>::const_iterator p = results.begin(); p != results.end(); ++p)
@@ -883,7 +953,8 @@ Py::Object _path_module::clip_path_to_rect(const Py::Tuple &args)
             size_t size = p->size();
             dims[0] = p->size();
             PyArrayObject* pyarray = (PyArrayObject*)PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
-            if (pyarray == NULL) {
+            if (pyarray == NULL)
+            {
                 throw Py::MemoryError("Could not allocate result array");
             }
             for (size_t i = 0; i < size; ++i)
@@ -906,7 +977,8 @@ Py::Object _path_module::clip_path_to_rect(const Py::Tuple &args)
     return Py::Object(py_results, true);
 }
 
-Py::Object _path_module::affine_transform(const Py::Tuple& args)
+Py::Object
+_path_module::affine_transform(const Py::Tuple& args)
 {
     args.verify_length(2);
 
@@ -935,7 +1007,9 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
         if (!transform ||
             PyArray_DIM(transform, 0) != 3 ||
             PyArray_DIM(transform, 1) != 3)
+        {
             throw Py::ValueError("Invalid transform.");
+        }
 
         double a, b, c, d, e, f;
         {
@@ -958,8 +1032,9 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
         }
 
         result = (PyArrayObject*)PyArray_SimpleNew
-          (PyArray_NDIM(vertices), PyArray_DIMS(vertices), PyArray_DOUBLE);
-        if (result == NULL) {
+                 (PyArray_NDIM(vertices), PyArray_DIMS(vertices), PyArray_DOUBLE);
+        if (result == NULL)
+        {
             throw Py::MemoryError("Could not allocate memory for path");
         }
         if (PyArray_NDIM(vertices) == 2)
@@ -977,8 +1052,8 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
                 x = *(double*)(vertex_in);
                 y = *(double*)(vertex_in + stride1);
 
-                *vertex_out++ = a*x + c*y + e;
-                *vertex_out++ = b*x + d*y + f;
+                *vertex_out++ = a * x + c * y + e;
+                *vertex_out++ = b * x + d * y + f;
 
                 vertex_in += stride0;
             }
@@ -992,8 +1067,8 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
             double y;
             x = *(double*)(vertex_in);
             y = *(double*)(vertex_in + stride0);
-            *vertex_out++ = a*x + c*y + e;
-            *vertex_out++ = b*x + d*y + f;
+            *vertex_out++ = a * x + c * y + e;
+            *vertex_out++ = b * x + d * y + f;
         }
     }
     catch (...)
@@ -1010,7 +1085,8 @@ Py::Object _path_module::affine_transform(const Py::Tuple& args)
     return Py::Object((PyObject*)result, true);
 }
 
-Py::Object _path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args)
+Py::Object
+_path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args)
 {
     args.verify_length(2);
 
@@ -1024,9 +1100,13 @@ Py::Object _path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args)
     if (py_convert_bbox(bbox.ptr(), ax0, ay0, ax1, ay1))
     {
         if (ax1 < ax0)
+        {
             std::swap(ax0, ax1);
+        }
         if (ay1 < ay0)
+        {
             std::swap(ay0, ay1);
+        }
 
         size_t num_bboxes = bboxes.size();
         for (size_t i = 0; i < num_bboxes; ++i)
@@ -1035,14 +1115,20 @@ Py::Object _path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args)
             if (py_convert_bbox(bbox_b.ptr(), bx0, by0, bx1, by1))
             {
                 if (bx1 < bx0)
+                {
                     std::swap(bx0, bx1);
+                }
                 if (by1 < by0)
+                {
                     std::swap(by0, by1);
+                }
                 if (!((bx1 <= ax0) ||
                       (by1 <= ay0) ||
                       (bx0 >= ax1) ||
                       (by0 >= ay1)))
+                {
                     ++count;
+                }
             }
             else
             {
@@ -1058,31 +1144,37 @@ Py::Object _path_module::count_bboxes_overlapping_bbox(const Py::Tuple& args)
     return Py::Int(count);
 }
 
-inline bool segments_intersect(const double& x1, const double& y1,
-                               const double& x2, const double& y2,
-                               const double& x3, const double& y3,
-                               const double& x4, const double& y4)
+inline bool
+segments_intersect(const double& x1, const double& y1,
+                   const double& x2, const double& y2,
+                   const double& x3, const double& y3,
+                   const double& x4, const double& y4)
 {
-    double den = ((y4-y3)*(x2-x1)) - ((x4-x3)*(y2-y1));
+    double den = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
     if (den == 0.0)
+    {
         return false;
+    }
 
-    double n1 = ((x4-x3)*(y1-y3)) - ((y4-y3)*(x1-x3));
-    double n2 = ((x2-x1)*(y1-y3)) - ((y2-y1)*(x1-x3));
+    double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
+    double n2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
 
-    double u1 = n1/den;
-    double u2 = n2/den;
+    double u1 = n1 / den;
+    double u2 = n2 / den;
 
     return (u1 >= 0.0 && u1 <= 1.0 &&
             u2 >= 0.0 && u2 <= 1.0);
 }
 
-bool path_intersects_path(PathIterator& p1, PathIterator& p2)
+bool
+path_intersects_path(PathIterator& p1, PathIterator& p2)
 {
     typedef agg::conv_curve<PathIterator> curve_t;
 
     if (p1.total_vertices() < 2 || p2.total_vertices() < 2)
+    {
         return false;
+    }
 
     curve_t c1(p1);
     curve_t c2(p2);
@@ -1098,7 +1190,9 @@ bool path_intersects_path(PathIterator& p1, PathIterator& p2)
         while (c2.vertex(&x22, &y22) != agg::path_cmd_stop)
         {
             if (segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22))
+            {
                 return true;
+            }
             x21 = x22;
             y21 = y22;
         }
@@ -1109,7 +1203,8 @@ bool path_intersects_path(PathIterator& p1, PathIterator& p2)
     return false;
 }
 
-Py::Object _path_module::path_intersects_path(const Py::Tuple& args)
+Py::Object
+_path_module::path_intersects_path(const Py::Tuple& args)
 {
     args.verify_length(2, 3);
 
@@ -1133,21 +1228,28 @@ Py::Object _path_module::path_intersects_path(const Py::Tuple& args)
     }
 }
 
-void _add_polygon(Py::List& polygons, const std::vector<double>& polygon) {
+void
+_add_polygon(Py::List& polygons, const std::vector<double>& polygon)
+{
     if (polygon.size() == 0)
+    {
         return;
+    }
     npy_intp polygon_dims[] = { polygon.size() / 2, 2, 0 };
     PyArrayObject* polygon_array = NULL;
     polygon_array = (PyArrayObject*)PyArray_SimpleNew
-        (2, polygon_dims, PyArray_DOUBLE);
+                    (2, polygon_dims, PyArray_DOUBLE);
     if (!polygon_array)
+    {
         throw Py::MemoryError("Error creating polygon array");
+    }
     double* polygon_data = (double*)PyArray_DATA(polygon_array);
     memcpy(polygon_data, &polygon[0], polygon.size() * sizeof(double));
     polygons.append(Py::Object((PyObject*)polygon_array, true));
 }
 
-Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
+Py::Object
+_path_module::convert_path_to_polygons(const Py::Tuple& args)
 {
     typedef agg::conv_transform<PathIterator>  transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
@@ -1211,9 +1313,11 @@ Py::Object _path_module::convert_path_to_polygons(const Py::Tuple& args)
 }
 
 template<class VertexSource>
-void __cleanup_path(VertexSource& source,
-                    std::vector<double>& vertices,
-                    std::vector<npy_uint8>& codes) {
+void
+__cleanup_path(VertexSource& source,
+               std::vector<double>& vertices,
+               std::vector<npy_uint8>& codes)
+{
     unsigned code;
     double x, y;
     do
@@ -1222,16 +1326,19 @@ void __cleanup_path(VertexSource& source,
         vertices.push_back(x);
         vertices.push_back(y);
         codes.push_back((npy_uint8)code);
-    } while (code != agg::path_cmd_stop);
+    }
+    while (code != agg::path_cmd_stop);
 }
 
-void _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
-                   bool remove_nans, bool do_clip,
-                   const agg::rect_base<double>& rect,
-                   e_snap_mode snap_mode, double stroke_width,
-                   bool do_simplify, bool return_curves,
-                   std::vector<double>& vertices,
-                   std::vector<npy_uint8>& codes) {
+void
+_cleanup_path(PathIterator& path, const agg::trans_affine& trans,
+              bool remove_nans, bool do_clip,
+              const agg::rect_base<double>& rect,
+              e_snap_mode snap_mode, double stroke_width,
+              bool do_simplify, bool return_curves,
+              std::vector<double>& vertices,
+              std::vector<npy_uint8>& codes)
+{
     typedef agg::conv_transform<PathIterator>  transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removal_t;
     typedef PathClipper<nan_removal_t>         clipped_t;
@@ -1259,7 +1366,8 @@ void _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
     }
 }
 
-Py::Object _path_module::cleanup_path(const Py::Tuple& args)
+Py::Object
+_path_module::cleanup_path(const Py::Tuple& args)
 {
     args.verify_length(8);
 
@@ -1328,16 +1436,17 @@ Py::Object _path_module::cleanup_path(const Py::Tuple& args)
     PyArrayObject* vertices_obj = NULL;
     PyArrayObject* codes_obj = NULL;
     Py::Tuple result(2);
-    try {
+    try
+    {
         vertices_obj = (PyArrayObject*)PyArray_SimpleNew
-            (2, dims, PyArray_DOUBLE);
+                       (2, dims, PyArray_DOUBLE);
         if (vertices_obj == NULL)
         {
             throw Py::MemoryError("Could not allocate result array");
         }
 
         codes_obj = (PyArrayObject*)PyArray_SimpleNew
-            (1, dims, PyArray_UINT8);
+                    (1, dims, PyArray_UINT8);
         if (codes_obj == NULL)
         {
             throw Py::MemoryError("Could not allocate result array");
