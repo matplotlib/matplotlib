@@ -51,7 +51,8 @@ public:
     }
 };
 
-extern "C" {
+extern "C"
+{
     void*
     get_path_iterator(
         PyObject* path, PyObject* trans, int remove_nans, int do_clip,

@@ -26,19 +26,23 @@ void _VERBOSE(const std::string&);
 #undef  MAX
 #define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
-inline double mpl_round(double v) {
-  return (double)(int)(v + ((v >= 0.0) ? 0.5 : -0.5));
+inline double mpl_round(double v)
+{
+    return (double)(int)(v + ((v >= 0.0) ? 0.5 : -0.5));
 }
 
 class Printf
 {
 private :
-  char *buffer;
+    char *buffer;
 public :
-  Printf(const char *, ...);
-  ~Printf();
-  std::string str() {return buffer;}
-  friend std::ostream &operator <<(std::ostream &, const Printf &);
+    Printf(const char *, ...);
+    ~Printf();
+    std::string str()
+    {
+        return buffer;
+    }
+    friend std::ostream &operator <<(std::ostream &, const Printf &);
 };
 
 #endif

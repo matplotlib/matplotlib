@@ -66,78 +66,84 @@ typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_
 
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
-class BufferRegion : public Py::PythonExtension<BufferRegion> {
+class BufferRegion : public Py::PythonExtension<BufferRegion>
+{
 public:
-  BufferRegion(const agg::rect_i &r, bool freemem=true) :
-  rect(r), freemem(freemem) {
-    width = r.x2 - r.x1;
-    height = r.y2 - r.y1;
-    stride = width * 4;
-    data = new agg::int8u[stride * height];
-  }
-  agg::int8u* data;
-  agg::rect_i rect;
-  int width;
-  int height;
-  int stride;
-
-  bool freemem;
-
-  // set the x and y corners of the rectangle
-  Py::Object set_x(const Py::Tuple &args);
-  Py::Object set_y(const Py::Tuple &args);
-
-  Py::Object get_extents(const Py::Tuple &args);
-
-  Py::Object to_string(const Py::Tuple &args);
-  Py::Object to_string_argb(const Py::Tuple &args);
-  static void init_type(void);
-
-  virtual ~BufferRegion() {
-    if (freemem) {
-      delete [] data;
-      data = NULL;
+    BufferRegion(const agg::rect_i &r, bool freemem = true) :
+        rect(r), freemem(freemem)
+    {
+        width = r.x2 - r.x1;
+        height = r.y2 - r.y1;
+        stride = width * 4;
+        data = new agg::int8u[stride * height];
     }
-  };
+
+    agg::int8u* data;
+    agg::rect_i rect;
+    int width;
+    int height;
+    int stride;
+
+    bool freemem;
+
+    // set the x and y corners of the rectangle
+    Py::Object set_x(const Py::Tuple &args);
+    Py::Object set_y(const Py::Tuple &args);
+
+    Py::Object get_extents(const Py::Tuple &args);
+
+    Py::Object to_string(const Py::Tuple &args);
+    Py::Object to_string_argb(const Py::Tuple &args);
+    static void init_type(void);
+
+    virtual ~BufferRegion()
+    {
+        if (freemem)
+        {
+            delete [] data;
+            data = NULL;
+        }
+    };
 };
 
-class GCAgg {
+class GCAgg
+{
 public:
-  GCAgg(const Py::Object& gc, double dpi);
+    GCAgg(const Py::Object& gc, double dpi);
 
-  double dpi;
-  bool isaa;
+    double dpi;
+    bool isaa;
 
-  agg::line_cap_e cap;
-  agg::line_join_e join;
+    agg::line_cap_e cap;
+    agg::line_join_e join;
 
-  double linewidth;
-  double alpha;
-  agg::rgba color;
+    double linewidth;
+    double alpha;
+    agg::rgba color;
 
-  Py::Object cliprect;
-  Py::Object clippath;
-  agg::trans_affine clippath_trans;
+    Py::Object cliprect;
+    Py::Object clippath;
+    agg::trans_affine clippath_trans;
 
-  //dashes
-  typedef std::vector<std::pair<double, double> > dash_t;
-  double dashOffset;
-  dash_t dashes;
-  e_snap_mode snap_mode;
+    //dashes
+    typedef std::vector<std::pair<double, double> > dash_t;
+    double dashOffset;
+    dash_t dashes;
+    e_snap_mode snap_mode;
 
-  Py::Object hatchpath;
+    Py::Object hatchpath;
 
 protected:
-  agg::rgba get_color(const Py::Object& gc);
-  double points_to_pixels( const Py::Object& points);
-  void _set_linecap(const Py::Object& gc) ;
-  void _set_joinstyle(const Py::Object& gc) ;
-  void _set_dashes(const Py::Object& gc) ;
-  void _set_clip_rectangle( const Py::Object& gc);
-  void _set_clip_path( const Py::Object& gc);
-  void _set_antialiased( const Py::Object& gc);
-  void _set_snap( const Py::Object& gc);
-  void _set_hatch_path( const Py::Object& gc);
+    agg::rgba get_color(const Py::Object& gc);
+    double points_to_pixels(const Py::Object& points);
+    void _set_linecap(const Py::Object& gc) ;
+    void _set_joinstyle(const Py::Object& gc) ;
+    void _set_dashes(const Py::Object& gc) ;
+    void _set_clip_rectangle(const Py::Object& gc);
+    void _set_clip_path(const Py::Object& gc);
+    void _set_antialiased(const Py::Object& gc);
+    void _set_snap(const Py::Object& gc);
+    void _set_hatch_path(const Py::Object& gc);
 };
 
 
@@ -146,87 +152,100 @@ protected:
 //}
 
 // the renderer
-class RendererAgg: public Py::PythonExtension<RendererAgg> {
-  typedef std::pair<bool, agg::rgba> facepair_t;
+class RendererAgg: public Py::PythonExtension<RendererAgg>
+{
+    typedef std::pair<bool, agg::rgba> facepair_t;
 public:
-  RendererAgg(unsigned int width, unsigned int height, double dpi, int debug);
-  static void init_type(void);
+    RendererAgg(unsigned int width, unsigned int height, double dpi, int debug);
+    static void init_type(void);
 
-  unsigned int get_width() { return width;}
-  unsigned int get_height() { return height;}
-  // the drawing methods
-  //Py::Object _draw_markers_nocache(const Py::Tuple & args);
-  //Py::Object _draw_markers_cache(const Py::Tuple & args);
-  Py::Object draw_markers(const Py::Tuple & args);
-  Py::Object draw_text_image(const Py::Tuple & args);
-  Py::Object draw_image(const Py::Tuple & args);
-  Py::Object draw_path(const Py::Tuple & args);
-  Py::Object draw_path_collection(const Py::Tuple & args);
-  Py::Object draw_quad_mesh(const Py::Tuple& args);
-  Py::Object draw_gouraud_triangle(const Py::Tuple& args);
-  Py::Object draw_gouraud_triangles(const Py::Tuple& args);
+    unsigned int get_width()
+    {
+        return width;
+    }
 
-  Py::Object write_rgba(const Py::Tuple & args);
-  Py::Object tostring_rgb(const Py::Tuple & args);
-  Py::Object tostring_argb(const Py::Tuple & args);
-  Py::Object tostring_bgra(const Py::Tuple & args);
-  Py::Object tostring_rgba_minimized(const Py::Tuple & args);
-  Py::Object buffer_rgba(const Py::Tuple & args);
-  Py::Object clear(const Py::Tuple & args);
+    unsigned int get_height()
+    {
+        return height;
+    }
 
-  Py::Object copy_from_bbox(const Py::Tuple & args);
-  Py::Object restore_region(const Py::Tuple & args);
-  Py::Object restore_region2(const Py::Tuple & args);
+    // the drawing methods
+    //Py::Object _draw_markers_nocache(const Py::Tuple & args);
+    //Py::Object _draw_markers_cache(const Py::Tuple & args);
+    Py::Object draw_markers(const Py::Tuple & args);
+    Py::Object draw_text_image(const Py::Tuple & args);
+    Py::Object draw_image(const Py::Tuple & args);
+    Py::Object draw_path(const Py::Tuple & args);
+    Py::Object draw_path_collection(const Py::Tuple & args);
+    Py::Object draw_quad_mesh(const Py::Tuple& args);
+    Py::Object draw_gouraud_triangle(const Py::Tuple& args);
+    Py::Object draw_gouraud_triangles(const Py::Tuple& args);
 
-  virtual ~RendererAgg();
+    Py::Object write_rgba(const Py::Tuple & args);
+    Py::Object tostring_rgb(const Py::Tuple & args);
+    Py::Object tostring_argb(const Py::Tuple & args);
+    Py::Object tostring_bgra(const Py::Tuple & args);
+    Py::Object tostring_rgba_minimized(const Py::Tuple & args);
+    Py::Object buffer_rgba(const Py::Tuple & args);
+    Py::Object clear(const Py::Tuple & args);
 
-  static const size_t PIXELS_PER_INCH;
-  unsigned int width, height;
-  double dpi;
-  size_t NUMBYTES;  //the number of bytes in buffer
+    Py::Object copy_from_bbox(const Py::Tuple & args);
+    Py::Object restore_region(const Py::Tuple & args);
+    Py::Object restore_region2(const Py::Tuple & args);
 
-  agg::int8u *pixBuffer;
-  agg::rendering_buffer renderingBuffer;
+    virtual ~RendererAgg();
 
-  agg::int8u *alphaBuffer;
-  agg::rendering_buffer alphaMaskRenderingBuffer;
-  alpha_mask_type alphaMask;
-  agg::pixfmt_gray8 pixfmtAlphaMask;
-  renderer_base_alpha_mask_type rendererBaseAlphaMask;
-  renderer_alpha_mask_type rendererAlphaMask;
-  agg::scanline_p8 scanlineAlphaMask;
+    static const size_t PIXELS_PER_INCH;
+    unsigned int width, height;
+    double dpi;
+    size_t NUMBYTES;  //the number of bytes in buffer
 
-  scanline_p8 slineP8;
-  scanline_bin slineBin;
-  pixfmt pixFmt;
-  renderer_base rendererBase;
-  renderer_aa rendererAA;
-  renderer_bin rendererBin;
-  rasterizer theRasterizer;
+    agg::int8u *pixBuffer;
+    agg::rendering_buffer renderingBuffer;
 
-  Py::Object lastclippath;
-  agg::trans_affine lastclippath_transform;
+    agg::int8u *alphaBuffer;
+    agg::rendering_buffer alphaMaskRenderingBuffer;
+    alpha_mask_type alphaMask;
+    agg::pixfmt_gray8 pixfmtAlphaMask;
+    renderer_base_alpha_mask_type rendererBaseAlphaMask;
+    renderer_alpha_mask_type rendererAlphaMask;
+    agg::scanline_p8 scanlineAlphaMask;
 
-  static const size_t HATCH_SIZE = 72;
-  agg::int8u hatchBuffer[HATCH_SIZE * HATCH_SIZE * 4];
-  agg::rendering_buffer hatchRenderingBuffer;
+    scanline_p8 slineP8;
+    scanline_bin slineBin;
+    pixfmt pixFmt;
+    renderer_base rendererBase;
+    renderer_aa rendererAA;
+    renderer_bin rendererBin;
+    rasterizer theRasterizer;
 
-  const int debug;
+    Py::Object lastclippath;
+    agg::trans_affine lastclippath_transform;
+
+    static const size_t HATCH_SIZE = 72;
+    agg::int8u hatchBuffer[HATCH_SIZE * HATCH_SIZE * 4];
+    agg::rendering_buffer hatchRenderingBuffer;
+
+    const int debug;
 
 protected:
-  double points_to_pixels( const Py::Object& points);
-  double points_to_pixels_snapto( const Py::Object& points);
-  agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
-  facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
-  template<class R>
-  void set_clipbox(const Py::Object& cliprect, R& rasterizer);
-  bool render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans);
-  template<class PathIteratorType>
-  void _draw_path(PathIteratorType& path, bool has_clippath,
-                  const facepair_t& face, const GCAgg& gc);
-  template<class PathGenerator, int check_snap, int has_curves>
-  Py::Object
-  _draw_path_collection_generic
+    double points_to_pixels(const Py::Object& points);
+    double points_to_pixels_snapto(const Py::Object& points);
+    agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
+    facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
+
+    template<class R>
+    void set_clipbox(const Py::Object& cliprect, R& rasterizer);
+
+    bool render_clippath(const Py::Object& clippath, const agg::trans_affine& clippath_trans);
+
+    template<class PathIteratorType>
+    void _draw_path(PathIteratorType& path, bool has_clippath,
+                    const facepair_t& face, const GCAgg& gc);
+
+    template<class PathGenerator, int check_snap, int has_curves>
+    Py::Object
+    _draw_path_collection_generic
     (GCAgg&                         gc,
      agg::trans_affine              master_transform,
      const Py::Object&              cliprect,
@@ -242,35 +261,35 @@ protected:
      const Py::SeqBase<Py::Object>& linestyles_obj,
      const Py::SeqBase<Py::Int>&    antialiaseds);
 
-  void
-  _draw_gouraud_triangle(
-      const GCAgg& gc,
-      const double* points, const double* colors, agg::trans_affine trans);
+    void
+    _draw_gouraud_triangle(
+        const GCAgg& gc,
+        const double* points, const double* colors, agg::trans_affine trans);
 
 private:
-  void create_alpha_buffers();
+    void create_alpha_buffers();
 };
 
 // the extension module
 class _backend_agg_module : public Py::ExtensionModule<_backend_agg_module>
 {
 public:
-  _backend_agg_module()
-    : Py::ExtensionModule<_backend_agg_module>( "_backend_agg" )
-  {
-    RendererAgg::init_type();
-    BufferRegion::init_type();
+    _backend_agg_module()
+        : Py::ExtensionModule<_backend_agg_module>("_backend_agg")
+    {
+        RendererAgg::init_type();
+        BufferRegion::init_type();
 
-    add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer,
-                       "RendererAgg(width, height, dpi)");
-    initialize( "The agg rendering backend" );
-  }
+        add_keyword_method("RendererAgg", &_backend_agg_module::new_renderer,
+                           "RendererAgg(width, height, dpi)");
+        initialize("The agg rendering backend");
+    }
 
-  virtual ~_backend_agg_module() {}
+    virtual ~_backend_agg_module() {}
 
 private:
 
-  Py::Object new_renderer (const Py::Tuple &args, const Py::Dict &kws);
+    Py::Object new_renderer(const Py::Tuple &args, const Py::Dict &kws);
 };
 
 
