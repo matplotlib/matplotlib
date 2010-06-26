@@ -1,9 +1,9 @@
 """
 
-Numerical python functions written for compatability with matlab(TM)
+Numerical python functions written for compatability with MATLAB
 commands with the same names.
 
-Matlab(TM) compatible functions
+MATLAB compatible functions
 -------------------------------
 
 :func:`cohere`
@@ -41,10 +41,10 @@ Matlab(TM) compatible functions
 Miscellaneous functions
 -------------------------
 
-Functions that don't exist in matlab(TM), but are useful anyway:
+Functions that don't exist in MATLAB, but are useful anyway:
 
 :meth:`cohere_pairs`
-    Coherence over all pairs.  This is not a matlab function, but we
+    Coherence over all pairs.  This is not a MATLAB function, but we
     compute coherence a lot in my lab, and we compute it for a lot of
     pairs.  This function is optimized to do this efficiently by
     caching the direct FFTs.
@@ -245,7 +245,7 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         raise ValueError("sides must be one of: 'default', 'onesided', or "
             "'twosided'")
 
-    # Matlab divides by the sampling frequency so that density function
+    # MATLAB divides by the sampling frequency so that density function
     # has units of dB/Hz and can be integrated by the plotted frequency
     # values. Perform the same scaling here.
     if scale_by_freq:
@@ -277,18 +277,18 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         Pxy[:,i] = np.conjugate(fx[:numFreqs]) * fy[:numFreqs]
 
     # Scale the spectrum by the norm of the window to compensate for
-    # windowing loss; see Bendat & Piersol Sec 11.5.2. 
+    # windowing loss; see Bendat & Piersol Sec 11.5.2.
     Pxy *= 1 / (np.abs(windowVals)**2).sum()
 
     # Also include scaling factors for one-sided densities and dividing by the
     # sampling frequency, if desired. Scale everything, except the DC component
-    # and the NFFT/2 component:    
+    # and the NFFT/2 component:
     Pxy[1:-1] *= scaling_factor
 
-    #But do scale those components by Fs, if required    
+    #But do scale those components by Fs, if required
     if scale_by_freq:
-        Pxy[[0,-1]] /= Fs 
-    
+        Pxy[[0,-1]] /= Fs
+
     t = 1./Fs * (ind + NFFT / 2.)
     freqs = float(Fs) / pad_to * np.arange(numFreqs)
 
@@ -315,7 +315,7 @@ docstring.interpd.update(PSD=cbook.dedent("""
       *detrend*: callable
           The function applied to each segment before fft-ing,
           designed to remove the mean or linear trend.  Unlike in
-          matlab, where the *detrend* parameter is a vector, in
+          MATLAB, where the *detrend* parameter is a vector, in
           matplotlib is it a function.  The :mod:`~matplotlib.pylab`
           module defines :func:`~matplotlib.pylab.detrend_none`,
           :func:`~matplotlib.pylab.detrend_mean`, and
@@ -356,7 +356,7 @@ docstring.interpd.update(PSD=cbook.dedent("""
           Specifies whether the resulting density values should be scaled
           by the scaling frequency, which gives density in units of Hz^-1.
           This allows for integration over the returned frequency values.
-          The default is True for MatLab compatibility.
+          The default is True for MATLAB compatibility.
 """))
 
 @docstring.dedent_interpd
@@ -785,7 +785,7 @@ def prepca(P, frac=0):
       - *fracVar* : the fraction of the variance accounted for by each
          component returned
 
-    A similar function of the same name was in the Matlab (TM)
+    A similar function of the same name was in the MATLAB 
     R13 Neural Network Toolbox but is not found in later versions;
     its successor seems to be called "processpcs".
     """
@@ -1732,7 +1732,7 @@ def ispower2(n):
 
 def isvector(X):
     """
-    Like the Matlab (TM) function with the same name, returns *True*
+    Like the MATLAB function with the same name, returns *True*
     if the supplied numpy array or matrix *X* looks like a vector,
     meaning it has a one non-singleton axis (i.e., it can have
     multiple axes, but all must have length 1, except for one of
@@ -2719,7 +2719,7 @@ def griddata(x,y,z,xi,yi,interp='nn'):
     # remove masked points.
     if hasattr(z,'mask'):
         # make sure mask is not a scalar boolean array.
-        if a.mask.ndim: 
+        if a.mask.ndim:
             x = x.compress(z.mask == False)
             y = y.compress(z.mask == False)
             z = z.compressed()

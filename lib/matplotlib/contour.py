@@ -1234,8 +1234,8 @@ class QuadContourSet(ContourSet):
         filled contours, respectively.  Except as noted, function
         signatures and return values are the same for both versions.
 
-        :func:`~matplotlib.pyplot.contourf` differs from the Matlab
-        (TM) version in that it does not draw the polygon edges.
+        :func:`~matplotlib.pyplot.contourf` differs from the MATLAB
+        version in that it does not draw the polygon edges.
         To draw edges, add line contours with
         calls to :func:`~matplotlib.pyplot.contour`.
 
