@@ -28,7 +28,7 @@
 #
 # you could change the radial bounding box (zoom out) by setting the
 # ylim (radial coordinate is the second argument to the plot command,
-# as in matlab(TM), though this is not advised currently because it is not
+# as in MATLAB, though this is not advised currently because it is not
 # clear to me how the axes should behave in the change of view limits.
 # Please advise me if you have opinions.  Likewise, the pan/zoom
 # controls probably do not do what you think they do and are better
@@ -48,7 +48,7 @@ rc('xtick', labelsize=15)
 rc('ytick', labelsize=15)
 
 # force square figure and square axes looks better for polar, IMO
-width, height = matplotlib.rcParams['figure.figsize'] 
+width, height = matplotlib.rcParams['figure.figsize']
 size = min(width, height)
 # make a square figure
 fig = figure(figsize=(size, size))

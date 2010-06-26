@@ -2,7 +2,7 @@
 """
 matplotlib gives you 4 ways to specify colors,
 
-    1) as a single letter string, ala matlab
+    1) as a single letter string, ala MATLAB
 
     2) as an html style hex string or html color name
 

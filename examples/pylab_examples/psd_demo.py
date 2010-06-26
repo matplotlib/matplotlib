@@ -19,7 +19,7 @@ psd(s, 512, 1/dt)
 
 show()
 """
-% compare with matlab(TM)
+% compare with MATLAB
 dt = 0.01;
 t = [0:dt:10];
 nse = randn(size(t));
