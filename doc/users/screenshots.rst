@@ -97,7 +97,7 @@ Pie charts
 ==========
 
 The :func:`~matplotlib.pyplot.pie` command
-uses a matlab(TM) compatible syntax to produce pie charts.  Optional
+uses a MATLAB compatible syntax to produce pie charts.  Optional
 features include auto-labeling the percentage of area, exploding one
 or more wedges out from the center of the pie, and a shadow effect.
 Take a close look at the attached code that produced this figure; nine
@@ -230,7 +230,7 @@ Legends
 =======
 
 The :func:`~matplotlib.pyplot.legend` command automatically
-generates figure legends, with Matlab compatible legend placement
+generates figure legends, with MATLAB compatible legend placement
 commands.  Thanks to Charles Twardy for input on the legend
 command
 
