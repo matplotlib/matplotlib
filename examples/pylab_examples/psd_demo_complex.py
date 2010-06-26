@@ -1,6 +1,6 @@
-#This is a ported version of a Matlab example from the signal processing
+#This is a ported version of a MATLAB example from the signal processing
 #toolbox that showed some difference at one time between Matplotlib's and
-#MatLab's scaling of the PSD.  This differs from psd_demo3.py in that
+#MATLAB's scaling of the PSD.  This differs from psd_demo3.py in that
 #this uses a complex signal, so we can see that complex PSD's work properly
 import numpy as np
 import matplotlib.pyplot as plt

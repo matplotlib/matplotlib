@@ -1,6 +1,6 @@
 """
 
-matlab(TM) and pylab allow you to use setp and get to set and get
+MATLAB and pylab allow you to use setp and get to set and get
 object properties, as well as to do introspection on the object
 
 set

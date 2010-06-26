@@ -87,7 +87,7 @@ print 'Done.'                       # Let the user know what's happening.
 
 for i in range(len(y)) :
     #
-    # The next four lines are just like Matlab.
+    # The next four lines are just like MATLAB.
     #
     plt.plot(x,y[i],'b.')
     plt.axis((x[0],x[-1],-0.25,1))
