@@ -25,7 +25,7 @@ banner += """
 
 Welcome to matplotlib.
 
-    help(matplotlib) -- shows a list of all matlab(TM) compatible commands provided
+    help(matplotlib) -- some general information about matplotlib
     help(plotting) -- shows a list of plot specific commands
 
 """
