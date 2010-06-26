@@ -56,8 +56,10 @@ _Plotting commands
   imshow   - plot image data
   ishold   - return the hold state of the current axes
   legend   - make an axes legend
+  locator_params - adjust parameters used in locating axis ticks
   loglog   - a log log plot
   matshow  - display a matrix in a new figure preserving aspect
+  margins  - set margins used in autoscaling
   pcolor   - make a pseudocolor plot
   pcolormesh - make a pseudocolor plot using a quadrilateral mesh
   pie      - make a pie chart
@@ -86,6 +88,8 @@ _Plotting commands
   table    - add a table to the plot
   text     - add some text at location x,y to the current axes
   thetagrids - customize the radial theta grids and labels for polar
+  tick_params - control the appearance of ticks and tick labels
+  ticklabel_format - control the format of tick labels
   title    - add a title to the current axes
   xcorr   - plot the autocorrelation function of x and y
   xlim     - set/get the xlimits
