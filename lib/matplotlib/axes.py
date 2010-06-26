@@ -50,7 +50,7 @@ def _string_to_bool(s):
 
 def _process_plot_format(fmt):
     """
-    Process a matlab(TM) style color/line style format string.  Return a
+    Process a MATLAB style color/line style format string.  Return a
     (*linestyle*, *color*) tuple as a result of the processing.  Default
     values are ('-', 'b').  Example format strings include:
 
@@ -1963,7 +1963,7 @@ class Axes(martist.Artist):
 
           grid(self, b=None, which='major', **kwargs)
 
-        Set the axes grids on or off; *b* is a boolean.  (For Matlab
+        Set the axes grids on or off; *b* is a boolean.  (For MATLAB
         compatibility, *b* may also be a string, 'on' or 'off'.)
 
         If *b* is *None* and ``len(kwargs)==0``, toggle the grid state.  If
@@ -5187,7 +5187,7 @@ class Axes(martist.Artist):
 
         - *vert* = 1 (default) makes the boxes vertical.
         - *vert* = 0 makes horizontal boxes.  This seems goofy, but
-          that's how Matlab did it.
+          that's how MATLAB did it.
 
         *whis* (default 1.5) defines the length of the whiskers as
         a function of the inner quartile range.  They extend to the
@@ -6744,7 +6744,7 @@ class Axes(martist.Artist):
           *shading*: [ 'flat' | 'faceted' ]
             If 'faceted', a black grid is drawn around each rectangle; if
             'flat', edges are not drawn. Default is 'flat', contrary to
-            Matlab.
+            MATLAB.
 
             This kwarg is deprecated; please use 'edgecolors' instead:
               * shading='flat' -- edgecolors='none'
@@ -6765,7 +6765,7 @@ class Axes(martist.Artist):
 
         .. _axes-pcolor-grid-orientation:
 
-        The grid orientation follows the Matlab(TM) convention: an
+        The grid orientation follows the MATLAB convention: an
         array *C* with shape (*nrows*, *ncolumns*) is plotted with
         the column number as *X* and the row number as *Y*, increasing
         up; hence it is plotted the way the array would be printed,
@@ -6800,7 +6800,7 @@ class Axes(martist.Artist):
 
           pcolor(C.T)
 
-        Matlab :func:`pcolor` always discards the last row and column
+        MATLAB :func:`pcolor` always discards the last row and column
         of *C*, but matplotlib displays the last row and column if *X* and
         *Y* are not specified, or if *X* and *Y* have one more row and
         column than *C*.
@@ -6942,7 +6942,7 @@ class Axes(martist.Artist):
           *shading*: [ 'flat' | 'faceted' | 'gouraud' ]
             If 'faceted', a black grid is drawn around each rectangle; if
             'flat', edges are not drawn. Default is 'flat', contrary to
-            Matlab(TM).
+            MATLAB.
 
             This kwarg is deprecated; please use 'edgecolors' instead:
               * shading='flat' -- edgecolors='None'
@@ -8219,14 +8219,14 @@ class SubplotBase:
                     raise ValueError('Argument to subplot must be a 3 digits long')
                 rows, cols, num = map(int, s)
                 self._subplotspec = GridSpec(rows, cols)[num-1]
-                # num - 1 for converting from matlab to python indexing
+                # num - 1 for converting from MATLAB to python indexing
         elif len(args)==3:
             rows, cols, num = args
             if isinstance(num, tuple) and len(num) == 2:
                 self._subplotspec = GridSpec(rows, cols)[num[0]-1:num[1]]
             else:
                 self._subplotspec = GridSpec(rows, cols)[num-1]
-                # num - 1 for converting from matlab to python indexing
+                # num - 1 for converting from MATLAB to python indexing
         else:
             raise ValueError(  'Illegal argument to subplot')
 

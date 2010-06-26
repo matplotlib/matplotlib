@@ -3,7 +3,9 @@ This is a procedural interface to the matplotlib object-oriented
 plotting library.
 
 The following plotting commands are provided; the majority have
-Matlab(TM) analogs and similar argument.
+MATLAB |reg| [*]_ analogs and similar arguments.
+
+.. |reg| unicode:: 0xAE
 
 _Plotting commands
   acorr     - plot the autocorrelation function
@@ -196,6 +198,9 @@ _Other
   trapz     - trapezoidal integration
 
 __end
+
+.. [*] MATLAB is a registered trademark of The MathWorks, Inc.
+
 
 """
 import sys, warnings

@@ -1,3 +1,19 @@
+"""
+Provides a MATLAB-like plotting framework.
+
+:mod:`~matplotlib.pylab` combines pyplot with numpy into a single namespace.
+This is convenient for interactive work, but for programming it
+is recommended that the namespaces be kept separate, e.g.::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    x = np.arange(0, 5, 0.1);
+    y = np.sin(x)
+    plt.plot(x, y)
+
+"""
+
 import sys
 
 import matplotlib
@@ -197,7 +213,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
 
     If *num* is an integer, and ``figure(num)`` already exists, make it
     active and return a reference to it.  If ``figure(num)`` does not exist
-    it will be created.  Numbering starts at 1, matlab style::
+    it will be created.  Numbering starts at 1, MATLAB style::
 
       figure(1)
 
@@ -739,7 +755,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         subplot_kw['sharey'] = ax0
     axarr[0] = ax0
 
-    # Note off-by-one counting because add_subplot uses the matlab 1-based
+    # Note off-by-one counting because add_subplot uses the MATLAB 1-based
     # convention.
     for i in range(1, nplots):
         axarr[i] = fig.add_subplot(nrows, ncols, i+1, **subplot_kw)
@@ -947,7 +963,7 @@ def axis(*v, **kwargs):
     changes *x* and *y* axis limits such that all data is shown. If
     all data is already shown, it will move it to the center of the
     figure without modifying (*xmax* - *xmin*) or (*ymax* -
-    *ymin*). Note this is slightly different than in matlab.
+    *ymin*). Note this is slightly different than in MATLAB.
 
       >>> axis('image')
 

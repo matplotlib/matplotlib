@@ -702,7 +702,7 @@ class GraphicsContextBase:
     def get_rgb(self):
         """
         returns a tuple of three floats from 0-1.  color can be a
-        matlab format string, a html hex color string, or a rgb tuple
+        MATLAB format string, a html hex color string, or a rgb tuple
         """
         return self._rgb
 
@@ -781,7 +781,7 @@ class GraphicsContextBase:
 
     def set_foreground(self, fg, isRGB=False):
         """
-        Set the foreground color.  fg can be a matlab format string, a
+        Set the foreground color.  fg can be a MATLAB format string, a
         html hex color string, an rgb unit tuple, or a float between 0
         and 1.  In the latter case, grayscale is used.
 
@@ -2072,7 +2072,7 @@ class FigureCanvasBase:
 
 class FigureManagerBase:
     """
-    Helper class for matlab mode, wraps everything up into a neat bundle
+    Helper class for pyplot mode, wraps everything up into a neat bundle
 
     Public attibutes:
 

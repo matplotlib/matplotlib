@@ -1,8 +1,12 @@
 """
 This is an object-orient plotting library.
 
-A procedural interface is provided by the companion pylab module,
+A procedural interface is provided by the companion pyplot module,
 which may be imported directly, e.g::
+
+    from pyplot import *
+
+To include numpy functions, use::
 
     from pylab import *
 
@@ -11,9 +15,11 @@ or using ipython::
     ipython -pylab
 
 For the most part, direct use of the object-oriented library is
-encouraged when programming rather than working interactively.  The
-exceptions are the pylab commands :func:`~matplotlib.pyplot.figure`,
+encouraged when programming; pyplot is primarily for working
+interactively.  The
+exceptions are the pyplot commands :func:`~matplotlib.pyplot.figure`,
 :func:`~matplotlib.pyplot.subplot`,
+:func:`~matplotlib.pyplot.subplots`,
 :func:`~matplotlib.backends.backend_qt4agg.show`, and
 :func:`~pyplot.savefig`, which can greatly simplify scripting.
 
@@ -86,6 +92,10 @@ The base matplotlib namespace includes:
 
 matplotlib is written by John D. Hunter (jdh2358 at gmail.com) and a
 host of others.
+
+Occasionally the internal documentation (python docstrings) will refer
+to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
+
 """
 from __future__ import generators
 
@@ -897,7 +907,7 @@ def tk_window_focus():
 
 # Now allow command line to override
 
-# Allow command line access to the backend with -d (matlab compatible
+# Allow command line access to the backend with -d (MATLAB compatible
 # flag)
 
 for s in sys.argv[1:]:

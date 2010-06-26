@@ -1159,10 +1159,10 @@ def setp(obj, *args, **kwargs):
       >>> lines = plot(x, y1, x, y2)
       >>> setp(lines, linewidth=2, color='r')
 
-    :func:`setp` works with the matlab style string/value pairs or
+    :func:`setp` works with the MATLAB style string/value pairs or
     with python kwargs.  For example, the following are equivalent::
 
-      >>> setp(lines, 'linewidth', 2, 'color', r')  # matlab style
+      >>> setp(lines, 'linewidth', 2, 'color', r')  # MATLAB style
 
       >>> setp(lines, linewidth=2, color='r')       # python style
     """
