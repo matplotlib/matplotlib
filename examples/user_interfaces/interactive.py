@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 """Multithreaded interactive interpreter with GTK and Matplotlib support.
 
+WARNING:
+As of 2010/06/25, this is not working, at least on Linux.
+I have disabled it as a runnable script. - EF
+
+
 Usage:
 
   pyint-gtk.py -> starts shell with gtk thread running separately
@@ -183,7 +188,7 @@ class MatplotLibInterpreter(GTKInterpreter):
     specific GTK hooks in it."""
 
     def __init__(self,banner=None):
-        banner = """\nWelcome to matplotlib, a matlab-like python environment.
+        banner = """\nWelcome to matplotlib, a MATLAB-like python environment.
     help(matlab)   -> help on matlab compatible commands from matplotlib.
     help(plotting) -> help on plotting commands.
     """
@@ -221,6 +226,9 @@ class MatplotLibInterpreter(GTKInterpreter):
             matplotlib.interactive(1)   # turn on interaction
 
 if __name__ == '__main__':
+    print "This demo is not presently functional, so running"
+    print "it as a script has been disabled."
+    sys.exit()
     # Quick sys.argv hack to extract the option and leave filenames in sys.argv.
     # For real option handling, use optparse or getopt.
     if len(sys.argv) > 1 and sys.argv[1]=='-pylab':
