@@ -5,7 +5,7 @@ Pyplot tutorial
 ***************
 
 :mod:`matplotlib.pyplot` is a collection of command style functions
-that make matplotlib  work like `Matlab™ <http://www.mathworks.com>`_.
+that make matplotlib  work like MATLAB.
 Each ``pyplot`` function makes
 some change to a figure: eg, create a figure, create a plotting area
 in a figure, plot some lines in a plotting area, decorate the plot
@@ -33,7 +33,7 @@ you can issue the command::
 For every x, y pair of arguments, there is an optional third argument
 which is the format string that indicates the color and line type of
 the plot.  The letters and symbols of the format string are from
-Matlab, and you concatenate a color string with a line style string.
+MATLAB, and you concatenate a color string with a line style string.
 The default format string is 'b-', which is a solid blue line.  For
 example, to plot the above with red circles, you would issue
 
@@ -79,15 +79,15 @@ several ways to set line properties
       line.set_antialiased(False) # turn off antialising
 
 * Use the :func:`~matplotlib.pyplot.setp` command.  The example below
-  uses a Matlab-style command to set multiple properties
+  uses a MATLAB-style command to set multiple properties
   on a list of lines.  ``setp`` works transparently with a list of objects
   or a single object.  You can either use python keyword arguments or
-  Matlab-style string/value pairs::
+  MATLAB-style string/value pairs::
 
       lines = plt.plot(x1, y1, x2, y2)
       # use keyword args
       plt.setp(lines, color='r', linewidth=2.0)
-      # or Matlab style string value pairs
+      # or MATLAB style string value pairs
       plt.setp(lines, 'color', 'r', 'linewidth', 2.0)
 
 
@@ -150,7 +150,7 @@ Working with multiple figures and axes
 ======================================
 
 
-Matlab, and :mod:`~matplotlib.pyplot`, have the concept of the current
+MATLAB, and :mod:`~matplotlib.pyplot`, have the concept of the current
 figure and the current axes.  All plotting commands apply to the
 current axes.  The function :func:`~matplotlib.pyplot.gca` returns the
 current axes (a :class:`matplotlib.axes.Axes` instance), and

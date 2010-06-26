@@ -64,7 +64,7 @@ Instructions for installing our OSX binaries are found in the FAQ
 
 
 Once you have ipython, numpy and matplotlib installed, in ipython's
-"pylab" mode you have a matlab-like environment that automatically
+"pylab" mode you have a MATLAB-like environment that automatically
 handles most of the configuration details for you, so you can get up
 and running quickly::
 

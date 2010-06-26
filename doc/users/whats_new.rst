@@ -130,7 +130,7 @@ psd amplitude scaling
 Ryan May did a lot of work to rationalize the amplitude scaling of
 :func:`~matplotlib.pyplot.psd` and friends.  See
 :ref:`pylab_examples-psd_demo2`. and :ref:`pylab_examples-psd_demo3`.
-The changes should increase `MATLAB™ <http://www.mathworks.com>`_
+The changes should increase MATLAB
 compatabililty and increase scaling options.
 
 .. _fill-between:
@@ -167,7 +167,7 @@ Here are the 0.98.4 notes from the CHANGELOG::
 
     Updated spectral methods (psd, csd, etc.) to scale one-sided
     densities by a factor of 2 and, optionally, scale all densities by
-    the sampling frequency.  This gives better MatLab
+    the sampling frequency.  This gives better MATLAB
     compatibility. -RM
 
     Fixed alignment of ticks in colorbars. -MGD

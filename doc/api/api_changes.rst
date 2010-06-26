@@ -179,7 +179,7 @@ Changes for 0.98.x
   to scale one-sided densities by a factor of 2.  Also, optionally
   scale the densities by the sampling frequency, which gives true values
   of densities that can be integrated by the returned frequency values.
-  This also gives better MatLab compatibility.  The corresponding
+  This also gives better MATLAB compatibility.  The corresponding
   :class:`matplotlib.axes.Axes` methods and :mod:`matplotlib.pyplot`
   functions were updated as well.
 
@@ -1094,7 +1094,7 @@ Changes for 0.72
   - pylab figure now defaults to num=None, which creates a new figure
     with a guaranteed unique number
 
-  - contour method syntax changed - now it is matlab compatible
+  - contour method syntax changed - now it is MATLAB compatible
 
       unchanged: contour(Z)
       old: contour(Z, x=Y, y=Y)
@@ -1183,7 +1183,7 @@ Changes for 0.65
 ::
 
 
-  mpl_connect and mpl_disconnect in the matlab interface renamed to
+  mpl_connect and mpl_disconnect in the MATLAB interface renamed to
   connect and disconnect
 
   Did away with the text methods for angle since they were ambiguous.
@@ -1272,7 +1272,7 @@ Changes for 0.54.3
 Changes for 0.54
 ================
 
-matlab interface
+MATLAB interface
 ----------------
 
 dpi
@@ -1289,7 +1289,7 @@ screen to get true sizes.
 pcolor and scatter
 ~~~~~~~~~~~~~~~~~~
 
-There are two changes to the matlab interface API, both involving the
+There are two changes to the MATLAB interface API, both involving the
 patch drawing commands.  For efficiency, pcolor and scatter have been
 rewritten to use polygon collections, which are a new set of objects
 from matplotlib.collections designed to enable efficient handling of
@@ -1323,7 +1323,7 @@ property, eg to have different line widths, see matplotlib.collections
 for a discussion on how to set the properties as a sequence.
 
 For scatter, the size argument is now in points^2 (the area of the
-symbol in points) as in matlab and is not in data coords as before.
+symbol in points) as in MATLAB and is not in data coords as before.
 Using sizes in data coords caused several problems.  So you will need
 to adjust your size arguments accordingly or use scatter_classic.
 
@@ -1491,7 +1491,7 @@ Changes for 0.50
 
   * backends must implement FigureCanvasBackend (the thing that
     controls the figure and handles the events if any) and
-    FigureManagerBackend (wraps the canvas and the window for matlab
+    FigureManagerBackend (wraps the canvas and the window for MATLAB
     interface).  FigureCanvasBase implements a backend switching
     mechanism
 
@@ -1514,9 +1514,9 @@ Changes for 0.50
 
   Migrating code:
 
-  Matlab interface:
+  MATLAB interface:
 
-    The only API change for those using the matlab interface is in how
+    The only API change for those using the MATLAB interface is in how
     you call figure redraws for dynamically updating figures.  In the
     old API, you did
 
@@ -1653,7 +1653,7 @@ Changes for 0.40
   - new module transforms supplies Bound1D, Bound2D and Transform
     instances and more
 
-  - Changes to the matlab helpers API
+  - Changes to the MATLAB helpers API
 
     * _matlab_helpers.GcfBase is renamed by Gcf.  Backends no longer
       need to derive from this class.  Instead, they provide a factory
