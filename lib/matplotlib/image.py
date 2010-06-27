@@ -24,7 +24,7 @@ import matplotlib._png as _png
 # the image namespace:
 from matplotlib._image import *
 
-from matplotlib.transforms import BboxBase
+from matplotlib.transforms import BboxBase, Bbox
 import matplotlib.transforms as mtransforms
 
 class _AxesImageBase(martist.Artist, cm.ScalarMappable):
@@ -135,7 +135,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         raise RuntimeError('The make_image method must be overridden.')
 
 
-    def _get_unsampled_image(self, A, image_extents, viewlim, noslice=False):
+    def _get_unsampled_image(self, A, image_extents, viewlim):
         """
         convert numpy array A with given extents ([x1, x2, y1, y2] in
         data coordinate) into the Image, given the vielim (should be a
@@ -150,7 +150,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         sx = dxintv/viewlim.width
         sy = dyintv/viewlim.height
         numrows, numcols = A.shape[:2]
-        if noslice is False and sx > 2:
+        if sx > 2:
             x0 = (viewlim.x0-xmin)/dxintv * numcols
             ix0 = max(0, int(x0 - self._filterrad))
             x1 = (viewlim.x1-xmin)/dxintv * numcols
@@ -164,7 +164,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         else:
             xslice = slice(0, numcols)
 
-        if noslice is False and sy > 2:
+        if sy > 2:
             y0 = (viewlim.y0-ymin)/dyintv * numrows
             iy0 = max(0, int(y0 - self._filterrad))
             y1 = (viewlim.y1-ymin)/dyintv * numrows
@@ -248,9 +248,57 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         """
 
 
+        trans = self.get_transform() #axes.transData
+
+        # convert the coordinates to the intermediate coordinate (ic).
+        # The transformation from the ic to the canvas is a pure
+        # affine transfor.
+
+        # A straight-forward way is to use the non-affine part of the
+        # original transform for conversion to the ic.
+
+        # firs, convert the image extent to the ic
+        x_llc, x_trc, y_llc, y_trc = self.get_extent()
+
+        xy = trans.transform_non_affine(np.array([(x_llc, y_llc),
+                                                  (x_trc, y_trc)]))
+
+        _xx1, _yy1 = xy[0]
+        _xx2, _yy2 = xy[1]
+
+        extent_in_ic = _xx1, _xx2, _yy1, _yy2
+
+        # define trans_ic_to_canvas : unless _image_skew_coordinate is
+        # set, it is simply a affine part of the original transform.
+        if self._image_skew_coordinate:
+            # skew the image when required.
+            x_lrc, y_lrc = self._image_skew_coordinate
+            xy2 = trans.transform_non_affine(np.array([(x_lrc, y_lrc)]))
+            _xx3, _yy3 = xy2[0]
+
+            tr_rotate_skew = self._get_rotate_and_skew_transform(_xx1, _yy1,
+                                                                 _xx2, _yy2,
+                                                                 _xx3, _yy3)
+            trans_ic_to_canvas = tr_rotate_skew+trans.get_affine()
+        else:
+            trans_ic_to_canvas = trans.get_affine()
+
+        # Now, viewLim in the ic.  It can be roated and can be
+        # skewed. Make it big enough.
+        x1, y1, x2, y2 = self.axes.bbox.extents
+        trans_canvas_to_ic = trans_ic_to_canvas.inverted()
+        xy_ = trans_canvas_to_ic.transform(np.array([(x1, y1),
+                                                     (x2, y1),
+                                                     (x2, y2),
+                                                     (x1, y2)]))
+        x1_, x2_ = min(xy_[:,0]), max(xy_[:,0])
+        y1_, y2_ = min(xy_[:,1]), max(xy_[:,1])
+        viewLim_in_ic =  Bbox.from_extents(x1_, y1_, x2_, y2_)
+
+
+        # get the image, sliced if necessary. This is done in the ic.
         im, xmin, ymin, dxintv, dyintv, sx, sy = \
-            self._get_unsampled_image(self._A, self.get_extent(),
-                                      self.axes.viewLim, noslice=True)
+            self._get_unsampled_image(self._A, extent_in_ic, viewLim_in_ic)
 
         if im is None: return # I'm not if this check is required. -JJL
 
@@ -262,33 +310,14 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         im.reset_matrix()
         numrows, numcols = im.get_size()
 
-        im.resize(numcols, numrows) # just to create im.bufOut that is required by backends. There may be better solution -JJL
+        im.resize(numcols, numrows) # just to create im.bufOut that
+                                    # is required by backends. There
+                                    # may be better solution -JJL
 
         im._url = self.get_url()
 
-        trans = self.get_transform() #axes.transData
-        xy = trans.transform_non_affine(np.array([(xmin, ymin),
-                                                  (xmin+dxintv, ymin+dyintv)]))
-        xx1, yy1 = xy[0]
-        xx2, yy2 = xy[1]
-
-        if self._image_skew_coordinate:
-            # skew the image when required.
-            x_llc, x_trc, y_llc, y_trc = self.get_extent()
-            x_lrc, y_lrc = self._image_skew_coordinate
-            xy = trans.transform_non_affine(np.array([(x_llc, y_llc),
-                                                      (x_trc, y_trc),
-                                                      (x_lrc, y_lrc)]))
-            _xx1, _yy1 = xy[0]
-            _xx2, _yy2 = xy[1]
-            _xx3, _yy3 = xy[2]
-
-            tr_rotate_skew = self._get_rotate_and_skew_transform(_xx1, _yy1, _xx2, _yy2, _xx3, _yy3)
-            tr = tr_rotate_skew+trans.get_affine()
-        else:
-            tr = trans.get_affine()
-
-        renderer.draw_image(gc, xx1, yy1, im, xx2-xx1, yy2-yy1, tr)
+        renderer.draw_image(gc, xmin, ymin, im, dxintv, dyintv,
+                            trans_ic_to_canvas)
 
 
     def _check_unsampled_image(self, renderer):
