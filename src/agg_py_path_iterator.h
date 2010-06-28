@@ -24,8 +24,8 @@ class PathIterator
        underlying data arrays, so that Python reference counting can
        work.
     */
-    PyArrayObject* m_vertices;
-    PyArrayObject* m_codes;
+    Py::Object m_vertices;
+    Py::Object m_codes;
 
     size_t m_iterator;
     size_t m_total_vertices;
@@ -39,7 +39,7 @@ class PathIterator
 public:
     /* path_obj is an instance of the class Path as defined in path.py */
     inline PathIterator(const Py::Object& path_obj) :
-            m_vertices(NULL), m_codes(NULL), m_iterator(0), m_should_simplify(false),
+            m_vertices(), m_codes(), m_iterator(0), m_should_simplify(false),
             m_simplify_threshold(1.0 / 9.0)
     {
         Py::Object vertices_obj           = path_obj.getAttr("vertices");
@@ -47,45 +47,42 @@ public:
         Py::Object should_simplify_obj    = path_obj.getAttr("should_simplify");
         Py::Object simplify_threshold_obj = path_obj.getAttr("simplify_threshold");
 
-        m_vertices = (PyArrayObject*)PyArray_FromObject
-                     (vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
-        if (!m_vertices ||
-                PyArray_DIM(m_vertices, 1) != 2)
+        PyObject* vertices_arr = PyArray_FromObject(vertices_obj.ptr(), PyArray_DOUBLE, 2, 2);
+        if (!vertices_arr)
         {
-            Py_XDECREF(m_vertices);
-            m_vertices = NULL;
+            throw Py::ValueError("Invalid vertices array.");
+        }
+
+        m_vertices = Py::Object(vertices_arr, true);
+        if (PyArray_DIM(m_vertices.ptr(), 1) != 2)
+        {
             throw Py::ValueError("Invalid vertices array.");
         }
 
         if (codes_obj.ptr() != Py_None)
         {
-            m_codes = (PyArrayObject*)PyArray_FromObject
-                      (codes_obj.ptr(), PyArray_UINT8, 1, 1);
-            if (!m_codes)
+            PyObject* codes_arr = PyArray_FromObject(codes_obj.ptr(), PyArray_UINT8, 1, 1);
+
+            if (!codes_arr)
             {
-                Py_XDECREF(m_vertices);
-                m_vertices = NULL;
                 throw Py::ValueError("Invalid codes array.");
             }
-            if (PyArray_DIM(m_codes, 0) != PyArray_DIM(m_vertices, 0))
+
+            m_codes = Py::Object(codes_arr, true);
+            if (PyArray_DIM(m_codes.ptr(), 0) != PyArray_DIM(m_vertices.ptr(), 0))
             {
-                Py_XDECREF(m_vertices);
-                m_vertices = NULL;
-                Py_XDECREF(m_codes);
-                m_codes = NULL;
                 throw Py::ValueError("Codes array is wrong length");
             }
         }
 
         m_should_simplify    = should_simplify_obj.isTrue();
-        m_total_vertices     = PyArray_DIM(m_vertices, 0);
+        m_total_vertices     = PyArray_DIM(m_vertices.ptr(), 0);
         m_simplify_threshold = Py::Float(simplify_threshold_obj);
     }
 
     ~PathIterator()
     {
-        Py_XDECREF(m_vertices);
-        Py_XDECREF(m_codes);
+
     }
 
     inline unsigned vertex(double* x, double* y)
@@ -94,13 +91,13 @@ public:
 
         const size_t idx = m_iterator++;
 
-        char* pair = (char*)PyArray_GETPTR2(m_vertices, idx, 0);
+        char* pair = (char*)PyArray_GETPTR2(m_vertices.ptr(), idx, 0);
         *x = *(double*)pair;
-        *y = *(double*)(pair + PyArray_STRIDE(m_vertices, 1));
+        *y = *(double*)(pair + PyArray_STRIDE(m_vertices.ptr(), 1));
 
-        if (m_codes)
+        if (!m_codes.isNone())
         {
-            return (unsigned)(*(char *)PyArray_GETPTR1(m_codes, idx));
+            return (unsigned)(*(char *)PyArray_GETPTR1(m_codes.ptr(), idx));
         }
         else
         {
@@ -130,7 +127,7 @@ public:
 
     inline bool has_curves()
     {
-        return m_codes != NULL;
+        return !m_codes.isNone();
     }
 };
 

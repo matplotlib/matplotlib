@@ -864,14 +864,12 @@ _image_module::fromarray(const Py::Tuple& args)
 
     Py::Object x = args[0];
     int isoutput = Py::Int(args[1]);
-    //PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_DOUBLE, 2, 3);
     PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), PyArray_DOUBLE, 2, 3);
-
     if (A == NULL)
     {
         throw Py::ValueError("Array must be rank 2 or 3 of doubles");
     }
-
+    Py::Object A_obj((PyObject *)A, true);
 
     Image* imo = new Image;
 
@@ -924,7 +922,6 @@ _image_module::fromarray(const Py::Tuple& args)
 
         if (A->dimensions[2] != 3 && A->dimensions[2] != 4)
         {
-            Py_XDECREF(A);
             throw Py::ValueError(Printf("3rd dimension must be length 3 (RGB) or 4 (RGBA); found %d", A->dimensions[2]).str());
         }
 
@@ -959,11 +956,9 @@ _image_module::fromarray(const Py::Tuple& args)
     }
     else     // error
     {
-        Py_XDECREF(A);
         throw Py::ValueError("Illegal array rank; must be rank; must 2 or 3");
     }
     buffer -= NUMBYTES;
-    Py_XDECREF(A);
 
     return Py::asObject(imo);
 }
@@ -986,12 +981,11 @@ _image_module::fromarray2(const Py::Tuple& args)
     Py::Object x = args[0];
     int isoutput = Py::Int(args[1]);
     PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_DOUBLE, 2, 3);
-    //PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), PyArray_DOUBLE, 2, 3);
-
     if (A == NULL)
     {
         throw Py::ValueError("Array must be rank 2 or 3 of doubles");
     }
+    Py::Object A_obj((PyObject*)A, true);
 
     Image* imo = new Image;
 
@@ -1043,7 +1037,6 @@ _image_module::fromarray2(const Py::Tuple& args)
     {
         if (A->dimensions[2] != 3 && A->dimensions[2] != 4)
         {
-            Py_XDECREF(A);
             throw Py::ValueError(Printf("3rd dimension must be length 3 (RGB) or 4 (RGBA); found %d", A->dimensions[2]).str());
 
         }
@@ -1072,11 +1065,9 @@ _image_module::fromarray2(const Py::Tuple& args)
     }
     else     // error
     {
-        Py_XDECREF(A);
         throw Py::ValueError("Illegal array rank; must be rank; must 2 or 3");
     }
     buffer -= NUMBYTES;
-    Py_XDECREF(A);
 
     return Py::asObject(imo);
 }
@@ -1104,6 +1095,8 @@ _image_module::frombyte(const Py::Tuple& args)
     {
         throw Py::ValueError("Array must have 3 dimensions");
     }
+    Py::Object A_obj((PyObject*)A, true);
+
     if (A->dimensions[2] < 3 || A->dimensions[2] > 4)
     {
         throw Py::ValueError("Array dimension 3 must have size 3 or 4");
@@ -1146,7 +1139,6 @@ _image_module::frombyte(const Py::Tuple& args)
         buffer -= N;
         arrbuf -= imo->rowsIn * imo->colsIn;
     }
-    Py_XDECREF(A);
 
     if (isoutput)
     {
@@ -1456,18 +1448,9 @@ void _pcolor_cleanup(PyArrayObject* x, PyArrayObject* y,  PyArrayObject *d,
                      unsigned int * rowstarts , unsigned int*colstarts ,
                      float *acols , float *arows)
 {
-    if (x)
-    {
-        Py_XDECREF(x);
-    }
-    if (y)
-    {
-        Py_XDECREF(y);
-    }
-    if (d)
-    {
-        Py_XDECREF(d);
-    }
+    Py_XDECREF(x);
+    Py_XDECREF(y);
+    Py_XDECREF(d);
     if (rowstarts)
     {
         PyMem_Free(rowstarts);
@@ -1494,7 +1477,9 @@ _image_module::pcolor(const Py::Tuple& args)
 
 
     if (args.length() != 7)
+    {
         throw Py::TypeError("Incorrect number of arguments (7 expected)");
+    }
 
     Py::Object xp = args[0];
     Py::Object yp = args[1];
@@ -1510,7 +1495,10 @@ _image_module::pcolor(const Py::Tuple& args)
     }
 
     if (bounds.length() != 4)
+    {
         throw Py::TypeError("Incorrect number of bounds (4 expected)");
+    }
+
     float x_min = Py::Float(bounds[0]);
     float x_max = Py::Float(bounds[1]);
     float y_min = Py::Float(bounds[2]);
@@ -1529,8 +1517,8 @@ _image_module::pcolor(const Py::Tuple& args)
     PyArrayObject *x = NULL;
     PyArrayObject *y = NULL;
     PyArrayObject *d = NULL;
-    unsigned int * rowstarts = NULL;
-    unsigned int*colstarts = NULL;
+    unsigned int *rowstarts = NULL;
+    unsigned int *colstarts = NULL;
     float *acols = NULL;
     float *arows = NULL;
 
@@ -1704,6 +1692,23 @@ _image_module::pcolor(const Py::Tuple& args)
 
 }
 
+void _pcolor2_cleanup(PyArrayObject* x, PyArrayObject* y, PyArrayObject *d,
+                      PyArrayObject* bg, int *irows, int*jcols)
+{
+    Py_XDECREF(x);
+    Py_XDECREF(y);
+    Py_XDECREF(d);
+    Py_XDECREF(bg);
+    if (irows)
+    {
+        PyMem_Free(irows);
+    }
+    if (jcols)
+    {
+        PyMem_Free(jcols);
+    }
+}
+
 
 char __image_module_pcolor2__doc__[] =
     "pcolor2(x, y, data, rows, cols, bounds, bg)\n"
@@ -1748,33 +1753,39 @@ _image_module::pcolor2(const Py::Tuple& args)
 
     // Check we have something to output to
     if (rows == 0 || cols == 0)
+    {
         throw Py::ValueError("rows or cols is zero; there are no pixels");
+    }
+
+    PyArrayObject* x = NULL;
+    PyArrayObject* y = NULL;
+    PyArrayObject* d = NULL;
+    PyArrayObject* bg = NULL;
+    int* irows = NULL;
+    int* jcols = NULL;
 
     // Get numpy arrays
-    PyArrayObject *x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(),
-                       PyArray_DOUBLE, 1, 1);
+    x = (PyArrayObject *) PyArray_ContiguousFromObject(xp.ptr(), PyArray_DOUBLE, 1, 1);
     if (x == NULL)
+    {
+        _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("x is of incorrect type (wanted 1D double)");
-    PyArrayObject *y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(),
-                       PyArray_DOUBLE, 1, 1);
+    }
+    y = (PyArrayObject *) PyArray_ContiguousFromObject(yp.ptr(), PyArray_DOUBLE, 1, 1);
     if (y == NULL)
     {
-        Py_XDECREF(x);
+        _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("y is of incorrect type (wanted 1D double)");
     }
-    PyArrayObject *d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(),
-                       PyArray_UBYTE, 3, 3);
+    d = (PyArrayObject *) PyArray_ContiguousFromObject(dp.ptr(), PyArray_UBYTE, 3, 3);
     if (d == NULL)
     {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
+        _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("data is of incorrect type (wanted 3D uint8)");
     }
     if (d->dimensions[2] != 4)
     {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
-        Py_XDECREF(d);
+        _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("data must be in RGBA format");
     }
 
@@ -1783,49 +1794,33 @@ _image_module::pcolor2(const Py::Tuple& args)
     int ny = y->dimensions[0];
     if (nx != d->dimensions[1] + 1 || ny != d->dimensions[0] + 1)
     {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
-        Py_XDECREF(d);
+        _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("data and axis bin boundary dimensions are incompatible");
     }
 
-    PyArrayObject *bg = (PyArrayObject *) PyArray_ContiguousFromObject(bgp.ptr(),
-                        PyArray_UBYTE, 1, 1);
+    bg = (PyArrayObject *) PyArray_ContiguousFromObject(bgp.ptr(), PyArray_UBYTE, 1, 1);
     if (bg == NULL)
     {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
-        Py_XDECREF(d);
+        _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("bg is of incorrect type (wanted 1D uint8)");
     }
     if (bg->dimensions[0] != 4)
     {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
-        Py_XDECREF(d);
-        Py_XDECREF(bg);
+        _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::ValueError("bg must be in RGBA format");
     }
 
-
     // Allocate memory for pointer arrays
-    int * irows = reinterpret_cast<int*>(PyMem_Malloc(sizeof(int) * rows));
+    irows = reinterpret_cast<int*>(PyMem_Malloc(sizeof(int) * rows));
     if (irows == NULL)
     {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
-        Py_XDECREF(d);
-        Py_XDECREF(bg);
+        _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::MemoryError("Cannot allocate memory for lookup table");
     }
-    int * jcols = reinterpret_cast<int*>(PyMem_Malloc(sizeof(int) * cols));
+    jcols = reinterpret_cast<int*>(PyMem_Malloc(sizeof(int) * cols));
     if (jcols == NULL)
     {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
-        Py_XDECREF(d);
-        Py_XDECREF(bg);
-        PyMem_Free(irows);
+        _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::MemoryError("Cannot allocate memory for lookup table");
     }
 
@@ -1839,12 +1834,7 @@ _image_module::pcolor2(const Py::Tuple& args)
     agg::int8u *buffer = new agg::int8u[NUMBYTES];
     if (buffer == NULL)
     {
-        Py_XDECREF(x);
-        Py_XDECREF(y);
-        Py_XDECREF(d);
-        Py_XDECREF(bg);
-        PyMem_Free(irows);
-        PyMem_Free(jcols);
+        _pcolor2_cleanup(x, y, d, bg, irows, jcols);
         throw Py::MemoryError("Could not allocate memory for image");
     }
 
@@ -1886,12 +1876,7 @@ _image_module::pcolor2(const Py::Tuple& args)
     imo->bufferOut = buffer;
     imo->rbufOut->attach(imo->bufferOut, imo->colsOut, imo->rowsOut, imo->colsOut * imo->BPP);
 
-    Py_XDECREF(x);
-    Py_XDECREF(y);
-    Py_XDECREF(d);
-    Py_XDECREF(bg);
-    PyMem_Free(irows);
-    PyMem_Free(jcols);
+    _pcolor2_cleanup(x, y, d, bg, irows, jcols);
 
     return Py::asObject(imo);
 }
