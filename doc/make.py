@@ -52,12 +52,8 @@ def latex():
         # Produce pdf.
         os.chdir('build/latex')
 
-        # Copying the makefile produced by sphinx...
-        if (os.system('pdflatex Matplotlib.tex') or
-            os.system('pdflatex Matplotlib.tex') or
-            os.system('makeindex -s python.ist Matplotlib.idx') or
-            os.system('makeindex -s python.ist modMatplotlib.idx') or
-            os.system('pdflatex Matplotlib.tex')):
+        # Call the makefile produced by sphinx...
+        if os.system('make'):
             raise SystemExit("Rendering LaTeX failed.")
 
         os.chdir('../..')
