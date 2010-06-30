@@ -93,8 +93,8 @@ class Axes3D(Axes):
         ydwl = (0.95/self.dist)
         ydw = (0.9/self.dist)
 
-        Axes.set_xlim(self, -xdwl, xdw)
-        Axes.set_ylim(self, -ydwl, ydw)
+        Axes.set_xlim(self, -xdwl, xdw, auto=None)
+        Axes.set_ylim(self, -ydwl, ydw, auto=None)
 
     def create_axes(self):
         self.w_xaxis = axis3d.XAxis('x', self.xy_viewLim.intervalx,
@@ -361,7 +361,7 @@ class Axes3D(Axes):
                       button or buttons to use to zoom the 3D axes.
                       Default = 3.
         ============  =======================================================
-        
+
         """
         self.button_pressed = None
         canv = self.figure.canvas
@@ -1083,21 +1083,21 @@ class Axes3D(Axes):
         dx, dy, dz can be arrays or scalars.
 
         *color* can be:
-        
+
          - A single color value, to color all bars the same color.
-         
+
          - An array of colors of length N bars, to color each bar
            independently.
-           
+
          - An array of colors of length 6, to color the faces of the
            bars similarly.
-           
+
          - An array of colors of length 6 * N bars, to color each face
            independently.
 
          When coloring the faces of the boxes specifically, this is
          the order of the coloring:
-         
+
           1. -Z (bottom of box)
           2. +Z (top of box)
           3. -Y

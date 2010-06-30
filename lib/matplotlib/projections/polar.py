@@ -336,11 +336,12 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
     def get_rmin(self):
         return self.viewLim.ymin
 
-    def set_rlim(self, rmin=None, rmax=None):
-        self.viewLim.y0 = rmin
-        self.viewLim.y1 = rmax
-
-    set_ylim = set_rlim
+    def set_rlim(self, *args, **kwargs):
+        if 'rmin' in kwargs:
+            kwargs['ymin'] = kwargs.pop('rmin')
+        if 'rmax' in kwargs:
+            kwargs['ymax'] = kwargs.pop('rmax')
+        return self.set_ylim(*args, **kwargs)
 
     def set_yscale(self, *args, **kwargs):
         Axes.set_yscale(self, *args, **kwargs)

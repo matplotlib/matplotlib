@@ -1715,6 +1715,45 @@ class Axes(martist.Artist):
         """
         return self._rasterization_zorder
 
+    def autoscale(self, enable=True, axis='both', tight=None):
+        """
+        Convenience method for simple axis view autoscaling.
+        It turns autoscaling on or off, and then,
+        if autoscaling for either axis is on, it performs
+        the autoscaling on the specified axis or axes.
+
+        *enable*: [True | False | None]
+            True (default) turns autoscaling on, False turns it off.
+            None leaves the autoscaling state unchanged.
+
+        *axis*: ['x' | 'y' | 'both']
+            which axis to operate on; default is 'both'
+
+        *tight*: [True | False | None]
+            If True, set view limits to data limits;
+            if False, let the locator and margins expand the view limits;
+            if None, use tight scaling if the only artist is an image,
+            otherwise treat *tight* as False.
+            The *tight* setting is retained for future autoscaling
+            until it is explicitly changed.
+
+
+        Returns None.
+        """
+        if enable is None:
+            scalex = True
+            scaley = True
+        else:
+            scalex = False
+            scaley = False
+            if axis in ['x', 'both']:
+                self._autoscaleXon = bool(enable)
+                scalex = self._autoscaleXon
+            if axis in ['y', 'both']:
+                self._autoscaleYon = bool(enable)
+                scaley = self._autoscaleYon
+        self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley)
+
 
     def autoscale_view(self, tight=None, scalex=True, scaley=True):
         """
@@ -2209,7 +2248,7 @@ class Axes(martist.Artist):
     def invert_xaxis(self):
         "Invert the x-axis."
         left, right = self.get_xlim()
-        self.set_xlim(right, left)
+        self.viewLim.intervalx = (right, left)
 
     def xaxis_inverted(self):
         'Returns True if the x-axis is inverted.'
@@ -2233,6 +2272,7 @@ class Axes(martist.Artist):
         """
         Set the lower and upper numerical bounds of the x-axis.
         This method will honor axes inversion regardless of parameter order.
+        It will not change the _autoscaleXon attribute.
         """
         if upper is None and iterable(lower):
             lower,upper = lower
@@ -2244,14 +2284,14 @@ class Axes(martist.Artist):
 
         if self.xaxis_inverted():
             if lower < upper:
-                self.set_xlim(upper, lower)
+                self.set_xlim(upper, lower, auto=None)
             else:
-                self.set_xlim(lower, upper)
+                self.set_xlim(lower, upper, auto=None)
         else:
             if lower < upper:
-                self.set_xlim(lower, upper)
+                self.set_xlim(lower, upper, auto=None)
             else:
-                self.set_xlim(upper, lower)
+                self.set_xlim(upper, lower, auto=None)
 
     def get_xlim(self):
         """
@@ -2259,31 +2299,44 @@ class Axes(martist.Artist):
         """
         return tuple(self.viewLim.intervalx)
 
-    def set_xlim(self, xmin=None, xmax=None, emit=True, **kwargs):
+    def set_xlim(self, xmin=None, xmax=None, emit=True, auto=False):
         """
         call signature::
 
-          set_xlim(self, *args, **kwargs)
+          set_xlim(self, *args, **kwargs):
 
-        Set the limits for the xaxis
-
-        Returns the current xlimits as a length 2 tuple: [*xmin*, *xmax*]
+        Set the data limits for the xaxis
 
         Examples::
 
-          set_xlim((valmin, valmax))
-          set_xlim(valmin, valmax)
-          set_xlim(xmin=1) # xmax unchanged
-          set_xlim(xmax=1) # xmin unchanged
+          set_xlim((left, right))
+          set_xlim(left, right)
+          set_xlim(xmin=1) # right unchanged
+          set_xlim(xmax=1) # left unchanged
 
         Keyword arguments:
 
           *xmin*: scalar
-            the min of the ylim
+            the left xlim
           *xmax*: scalar
-            the max of the ylim
+            the right xlim
           *emit*: [ True | False ]
             notify observers of lim change
+          *auto*: [ True | False | None ]
+            turn *x* autoscaling on (True), off (False; default),
+            or leave unchanged (None)
+
+        Note: the kwarg terminology may be confusing.  The first value,
+        *xmin*, is the left, and the second, *xmax*, is the right.
+        For example, suppose *x* is years before present.
+        Then one might use::
+
+          set_ylim(5000, 0)
+
+        so 5000 years ago is on the left of the plot and the
+        present is on the right.
+
+        Returns the current xlimits as a length 2 tuple
 
         ACCEPTS: len(2) sequence of floats
         """
@@ -2307,6 +2360,8 @@ class Axes(martist.Artist):
         xmin, xmax = self.xaxis.limit_range_for_scale(xmin, xmax)
 
         self.viewLim.intervalx = (xmin, xmax)
+        if auto is not None:
+            self._autoscaleXon = bool(auto)
 
         if emit:
             self.callbacks.process('xlim_changed', self)
@@ -2391,25 +2446,26 @@ class Axes(martist.Artist):
 
     def invert_yaxis(self):
         "Invert the y-axis."
-        left, right = self.get_ylim()
-        self.set_ylim(right, left)
+        bottom, top = self.get_ylim()
+        self.viewLim.intervaly = (top, bottom)
 
     def yaxis_inverted(self):
         'Returns True if the y-axis is inverted.'
-        left, right = self.get_ylim()
-        return right < left
+        bottom, top = self.get_ylim()
+        return top < bottom
 
     def get_ybound(self):
         "Return y-axis numerical bounds in the form of lowerBound < upperBound"
-        left, right = self.get_ylim()
-        if left < right:
-            return left, right
+        bottom, top = self.get_ylim()
+        if bottom < top:
+            return bottom, top
         else:
-            return right, left
+            return top, bottom
 
     def set_ybound(self, lower=None, upper=None):
         """Set the lower and upper numerical bounds of the y-axis.
            This method will honor axes inversion regardless of parameter order.
+           It will not change the _autoscaleYon attribute.
         """
         if upper is None and iterable(lower):
             lower,upper = lower
@@ -2421,14 +2477,14 @@ class Axes(martist.Artist):
 
         if self.yaxis_inverted():
             if lower < upper:
-                self.set_ylim(upper, lower)
+                self.set_ylim(upper, lower, auto=None)
             else:
-                self.set_ylim(lower, upper)
+                self.set_ylim(lower, upper, auto=None)
         else:
             if lower < upper:
-                self.set_ylim(lower, upper)
+                self.set_ylim(lower, upper, auto=None)
             else:
-                self.set_ylim(upper, lower)
+                self.set_ylim(upper, lower, auto=None)
 
     def get_ylim(self):
         """
@@ -2436,27 +2492,42 @@ class Axes(martist.Artist):
         """
         return tuple(self.viewLim.intervaly)
 
-    def set_ylim(self, ymin=None, ymax=None, emit=True, **kwargs):
+    def set_ylim(self, ymin=None, ymax=None, emit=True, auto=False):
         """
         call signature::
 
           set_ylim(self, *args, **kwargs):
 
-        Set the limits for the yaxis; v = [ymin, ymax]::
+        Set the data limits for the yaxis
 
-          set_ylim((valmin, valmax))
-          set_ylim(valmin, valmax)
-          set_ylim(ymin=1) # ymax unchanged
-          set_ylim(ymax=1) # ymin unchanged
+        Examples::
+
+          set_ylim((bottom, top))
+          set_ylim(bottom, top)
+          set_ylim(ymin=1) # top unchanged
+          set_ylim(ymax=1) # bottom unchanged
 
         Keyword arguments:
 
           *ymin*: scalar
-            the min of the ylim
+            the bottom ylim
           *ymax*: scalar
-            the max of the ylim
+            the top ylim
           *emit*: [ True | False ]
             notify observers of lim change
+          *auto*: [ True | False | None ]
+            turn *y* autoscaling on (True), off (False; default),
+            or leave unchanged (None)
+
+        Note: the kwarg terminology may be confusing.  The first value,
+        *ymin*, is the bottom, and the second, *ymax*, is the top.
+        For example, suppose *y* is depth in the ocean.
+        Then one might use::
+
+          set_ylim(5000, 0)
+
+        so 5000 m depth is at the bottom of the plot and the
+        surface, 0 m, is at the top.
 
         Returns the current ylimits as a length 2 tuple
 
@@ -2480,7 +2551,10 @@ class Axes(martist.Artist):
 
         ymin, ymax = mtransforms.nonsingular(ymin, ymax, increasing=False)
         ymin, ymax = self.yaxis.limit_range_for_scale(ymin, ymax)
+
         self.viewLim.intervaly = (ymin, ymax)
+        if auto is not None:
+            self._autoscaleYon = bool(auto)
 
         if emit:
             self.callbacks.process('ylim_changed', self)
@@ -6647,14 +6721,10 @@ class Axes(martist.Artist):
             im.autoscale_None()
         im.set_url(url)
 
-        xmin, xmax, ymin, ymax = im.get_extent()
+        # update ax.dataLim, and, if autoscaling, set viewLim
+        # to tightly fit the image, regardless of dataLim.
+        im.set_extent(im.get_extent())
 
-        corners = (xmin, ymin), (xmax, ymax)
-        self.update_datalim(corners)
-        if self._autoscaleXon:
-            self.set_xlim((xmin, xmax))
-        if self._autoscaleYon:
-            self.set_ylim((ymin, ymax))
         self.images.append(im)
         im._remove_method = lambda h: self.images.remove(h)
 

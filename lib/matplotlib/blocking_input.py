@@ -19,6 +19,7 @@ This provides several classes used for blocking interaction with figure windows:
 
 from matplotlib import path, verbose
 from matplotlib.cbook import is_sequence_of_strings
+import matplotlib.lines as mlines
 
 class BlockingInput(object):
     """
@@ -222,18 +223,10 @@ class BlockingMouseInput(BlockingInput):
 
         # If desired plot up click
         if self.show_clicks:
-
-            # make sure we don't mess with the axes zoom
-            xlim = event.inaxes.get_xlim()
-            ylim = event.inaxes.get_ylim()
-
-            # plot the clicks
-            self.marks.extend(
-                event.inaxes.plot([event.xdata,], [event.ydata,], 'r+') )
-
-            # before we draw, make sure to reset the limits
-            event.inaxes.set_xlim(xlim)
-            event.inaxes.set_ylim(ylim)
+            line = mlines.Line2D([event.xdata], [event.ydata],
+                                 marker='+', color='r')
+            event.inaxes.add_line(line)
+            self.marks.append(line)
             self.fig.canvas.draw()
 
 
@@ -247,16 +240,9 @@ class BlockingMouseInput(BlockingInput):
 
         if self.show_clicks:
 
-            # make sure we don't mess with the axes zoom
-            xlim = event.inaxes.get_xlim()
-            ylim = event.inaxes.get_ylim()
-
             mark = self.marks.pop(index)
             mark.remove()
 
-            # before we draw, make sure to reset the limits
-            event.inaxes.set_xlim(xlim)
-            event.inaxes.set_ylim(ylim)
             self.fig.canvas.draw()
             # NOTE: I do NOT understand why the above 3 lines does not work
             # for the keyboard backspace event on windows XP wxAgg.
@@ -275,19 +261,10 @@ class BlockingMouseInput(BlockingInput):
     def cleanup(self,event=None):
         # clean the figure
         if self.show_clicks:
-            if event:
-                # make sure we don't mess with the axes zoom
-                xlim = event.inaxes.get_xlim()
-                ylim = event.inaxes.get_ylim()
 
             for mark in self.marks:
                 mark.remove()
             self.marks = []
-
-            if event:
-                # before we draw, make sure to reset the limits
-                event.inaxes.set_xlim(xlim)
-                event.inaxes.set_ylim(ylim)
 
             self.fig.canvas.draw()
 

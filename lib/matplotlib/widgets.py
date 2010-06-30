@@ -131,7 +131,7 @@ class Button(Widget):
         event.canvas.release_mouse(self.ax)
         if not self.eventson:
             return
-        if event.inaxes != self.ax: 
+        if event.inaxes != self.ax:
             return
         for cid, func in self.observers.items():
             func(event)
@@ -253,10 +253,10 @@ class Slider(Widget):
             self.drag_active = True
             event.canvas.grab_mouse(self.ax)
 
-        if not self.drag_active: 
+        if not self.drag_active:
             return
-        
-        elif ((event.name == 'button_release_event') 
+
+        elif ((event.name == 'button_release_event')
              or (event.name == 'button_press_event' and event.inaxes != self.ax)):
             self.drag_active = False
             event.canvas.release_mouse(self.ax)
@@ -1134,7 +1134,7 @@ class RectangleSelector:
             self.validButtons = button
         elif isinstance(button, int):
             self.validButtons = [button]
-            
+
         assert(spancoords in ('data', 'pixels'))
 
         self.spancoords = spancoords
@@ -1165,7 +1165,7 @@ class RectangleSelector:
         if self.validButtons is not None:
             if not event.button in self.validButtons:
                 return True
-            
+
         # If no button was pressed yet ignore the event if it was out
         # of the axes
         if self.eventpress == None:
