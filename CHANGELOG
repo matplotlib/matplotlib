@@ -1,3 +1,11 @@
+2010-06-30 Added autoscale convenience method and corresponding
+           pyplot function for simplified control of autoscaling;
+           and changed axis, set_xlim, and set_ylim so that by
+           default, they turn off the autoscaling on the relevent
+           axis or axes.  Therefore one can call set_xlim before
+           plotting a line, for example, and the limits will be
+           retained. - EF
+
 2010-06-20 Added Axes.tick_params and corresponding pyplot function
            to control tick and tick label appearance after an Axes
            has been created. - EF
