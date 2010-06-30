@@ -10,10 +10,21 @@ list may help describe what changes may be necessary in your code.
 Changes beyond 0.99.x
 =====================
 
-* There are four new Axes methods with corresponding pyplot
+* The default behavior of :meth:`matplotlib.axes.Axes.set_xlim`,
+  :meth:`matplotlib.axes.Axes.set_ylim`, and
+  :meth:`matplotlib.axes.Axes.axis`, and their corresponding
+  pyplot functions, has been changed: when view limits are
+  set explicitly with one of these methods, autoscaling is turned
+  off for the matching axis. A new *auto* kwarg is available to
+  control this behavior.
+
+* There are five new Axes methods with corresponding pyplot
   functions to facilitate autoscaling, tick location, and tick
   label formatting, and the general appearance of ticks and
   tick labels:
+
+  + :meth:`matplotlib.axes.Axes.autoscale` turns autoscaling
+    on or off, and applies it.
 
   + :meth:`matplotlib.axes.Axes.margins` sets margins used to
     autoscale the :attr:`matplotlib.axes.Axes.viewLim` based on
