@@ -77,7 +77,7 @@ def test_too_many_date_ticks():
     tf = datetime.datetime(2000, 1, 20)
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
-    ax.set_xlim((t0,tf))
+    ax.set_xlim((t0,tf), auto=True)
     ax.plot([],[])
     from matplotlib.dates import DayLocator, DateFormatter, HourLocator
     ax.xaxis.set_major_locator(DayLocator())

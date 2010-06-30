@@ -17,6 +17,7 @@ _Plotting commands
   axhspan   - draw a horizontal bar across axes
   axvspan   - draw a vertical bar across axes
   axis      - Set or return the current axis limits
+  autoscale - turn axis autoscaling on or off, and apply it
   bar       - make a bar chart
   barh      - a horizontal bar chart
   broken_barh - a set of horizontal bars with gaps

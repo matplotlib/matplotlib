@@ -109,6 +109,7 @@ _misccommands = (
     'locator_params',
     'tick_params',
     'margins',
+    'autoscale',
     )
 
 cmappable = {
