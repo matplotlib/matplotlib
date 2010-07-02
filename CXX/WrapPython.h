@@ -44,7 +44,11 @@
 #endif
 
 // Prevent multiple conflicting definitions of swab from stdlib.h and unistd.h
+#if defined(__sun) || defined(sun)
+#if defined(_XPG4)
 #undef _XPG4
+#endif
+#endif
 
 // Python.h will redefine these and generate warning in the process
 #undef _XOPEN_SOURCE
