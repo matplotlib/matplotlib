@@ -48,6 +48,9 @@
 #if defined(_XPG4)
 #undef _XPG4
 #endif
+#if defined(_XPG3)
+#undef _XPG3
+#endif
 #endif
 
 // Python.h will redefine these and generate warning in the process
