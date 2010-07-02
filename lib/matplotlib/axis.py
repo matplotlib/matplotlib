@@ -84,7 +84,8 @@ class Tick(artist.Artist):
         """
         artist.Artist.__init__(self)
 
-        if gridOn is None: gridOn = rcParams['axes.grid']
+        if gridOn is None:
+            gridOn = rcParams['axes.grid']
 
         self.set_figure(axes.figure)
         self.axes = axes
@@ -148,18 +149,11 @@ class Tick(artist.Artist):
         self.update_position(loc)
 
     def apply_tickdir(self, tickdir):
-        if tickdir is None:
-            tickdir = rcParams['%s.direction' % self._name]
-        self._tickdir = tickdir
+        """
+        Calculate self._pad and self._tickmarkers
+        """
+        pass
 
-        if self._tickdir == 'in':
-            self._xtickmarkers = (mlines.TICKUP, mlines.TICKDOWN)
-            self._ytickmarkers = (mlines.TICKRIGHT, mlines.TICKLEFT)
-            self._pad = self._base_pad
-        else:
-            self._xtickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
-            self._ytickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
-            self._pad = self._base_pad + self._size
 
     def get_children(self):
         children = [self.tick1line, self.tick2line, self.gridline, self.label1, self.label2]
@@ -271,6 +265,47 @@ class Tick(artist.Artist):
     def set_view_interval(self, vmin, vmax, ignore=False):
         raise NotImplementedError('Derived must override')
 
+    def _apply_params(self, **kw):
+        switchkw = ['gridOn', 'tick1On', 'tick2On', 'label1On', 'label2On']
+        switches = [k for k in kw if k in switchkw]
+        for k in switches:
+            setattr(self, k, kw.pop(k))
+        dirpad = [k for k in kw if k in ['pad', 'tickdir']]
+        if dirpad:
+            self._base_pad = kw.pop('pad', self._base_pad)
+            self.apply_tickdir(kw.pop('tickdir', self._tickdir))
+            trans = self._get_text1_transform()[0]
+            self.label1.set_transform(trans)
+            trans = self._get_text2_transform()[0]
+            self.label2.set_transform(trans)
+            self.tick1line.set_marker(self._tickmarkers[0])
+            self.tick2line.set_marker(self._tickmarkers[1])
+        tick_kw = dict([kv for kv in kw.items()
+                             if kv[0] in ['color', 'zorder']])
+        if tick_kw:
+            self.tick1line.set(**tick_kw)
+            self.tick2line.set(**tick_kw)
+            for k, v in tick_kw.items():
+                setattr(self, '_'+k, v)
+        tick_list = [kv for kv in kw.items() if kv[0] in ['size', 'width']]
+        for k, v in tick_list:
+            setattr(self, '_'+k, v)
+            if k == 'size':
+                self.tick1line.set_markersize(v)
+                self.tick2line.set_markersize(v)
+            else:
+                self.tick1line.set_markeredgewidth(v)
+                self.tick2line.set_markeredgewidth(v)
+        label_list = [k for k in kw.items()
+                                if k[0] in ['labelsize', 'labelcolor']]
+        if label_list:
+            label_kw = dict([(k[5:], v) for (k, v) in label_list])
+            self.label1.set(**label_kw)
+            self.label2.set(**label_kw)
+            for k, v in label_kw.items():
+                setattr(self, '_'+k, v)
+
+
 
 class XTick(Tick):
     """
@@ -278,13 +313,33 @@ class XTick(Tick):
     the label text and the grid line
     """
     __name__ = 'xtick'
+
+    def _get_text1_transform(self):
+        return self.axes.get_xaxis_text1_transform(self._pad)
+
+    def _get_text2_transform(self):
+        return self.axes.get_xaxis_text2_transform(self._pad)
+
+    def apply_tickdir(self, tickdir):
+        if tickdir is None:
+            tickdir = rcParams['%s.direction' % self._name]
+        self._tickdir = tickdir
+
+        if self._tickdir == 'in':
+            self._tickmarkers = (mlines.TICKUP, mlines.TICKDOWN)
+            self._pad = self._base_pad
+        else:
+            self._tickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
+            self._pad = self._base_pad + self._size
+
+
     def _get_text1(self):
         'Get the default Text instance'
         # the y loc is 3 points below the min of y axis
         # get the affine as an a,b,c,d,tx,ty list
         # x in data coords, y in axes coords
         #t =  mtext.Text(
-        trans, vert, horiz = self.axes.get_xaxis_text1_transform(self._pad)
+        trans, vert, horiz = self._get_text1_transform()
         t = mtext.Text(
             x=0, y=0,
             fontproperties=font_manager.FontProperties(size=self._labelsize),
@@ -302,7 +357,7 @@ class XTick(Tick):
         'Get the default Text 2 instance'
         # x in data coords, y in axes coords
         #t =  mtext.Text(
-        trans, vert, horiz = self.axes.get_xaxis_text2_transform(self._pad)
+        trans, vert, horiz = self._get_text2_transform()
         t = mtext.Text(
             x=0, y=1,
             fontproperties=font_manager.FontProperties(size=self._labelsize),
@@ -320,7 +375,7 @@ class XTick(Tick):
         l = mlines.Line2D(xdata=(0,), ydata=(0,),
                    color=self._color,
                    linestyle = 'None',
-                   marker = self._xtickmarkers[0],
+                   marker = self._tickmarkers[0],
                    markersize=self._size,
                    markeredgewidth=self._width,
                    zorder=self._zorder,
@@ -335,7 +390,7 @@ class XTick(Tick):
         l = mlines.Line2D( xdata=(0,), ydata=(1,),
                        color=self._color,
                        linestyle = 'None',
-                       marker = self._xtickmarkers[1],
+                       marker = self._tickmarkers[1],
                        markersize=self._size,
                        markeredgewidth=self._width,
                        zorder=self._zorder,
@@ -412,11 +467,30 @@ class YTick(Tick):
     """
     __name__ = 'ytick'
 
+    def _get_text1_transform(self):
+        return self.axes.get_yaxis_text1_transform(self._pad)
+
+    def _get_text2_transform(self):
+        return self.axes.get_yaxis_text2_transform(self._pad)
+
+    def apply_tickdir(self, tickdir):
+        if tickdir is None:
+            tickdir = rcParams['%s.direction' % self._name]
+        self._tickdir = tickdir
+
+        if self._tickdir == 'in':
+            self._tickmarkers = (mlines.TICKRIGHT, mlines.TICKLEFT)
+            self._pad = self._base_pad
+        else:
+            self._tickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
+            self._pad = self._base_pad + self._size
+
+
     # how far from the y axis line the right of the ticklabel are
     def _get_text1(self):
         'Get the default Text instance'
         # x in axes coords, y in data coords
-        trans, vert, horiz = self.axes.get_yaxis_text1_transform(self._pad)
+        trans, vert, horiz = self._get_text1_transform()
         t = mtext.Text(
             x=0, y=0,
             fontproperties=font_manager.FontProperties(size=self._labelsize),
@@ -432,7 +506,7 @@ class YTick(Tick):
     def _get_text2(self):
         'Get the default Text instance'
         # x in axes coords, y in data coords
-        trans, vert, horiz = self.axes.get_yaxis_text2_transform(self._pad)
+        trans, vert, horiz = self._get_text2_transform()
         t = mtext.Text(
             x=1, y=0,
             fontproperties=font_manager.FontProperties(size=self._labelsize),
@@ -450,7 +524,7 @@ class YTick(Tick):
 
         l = mlines.Line2D( (0,), (0,),
                     color=self._color,
-                    marker = self._ytickmarkers[0],
+                    marker = self._tickmarkers[0],
                     linestyle = 'None',
                     markersize=self._size,
                     markeredgewidth=self._width,
@@ -465,7 +539,7 @@ class YTick(Tick):
         # x in axes coords, y in data coords
         l = mlines.Line2D( (1,), (0,),
                     color=self._color,
-                    marker = self._ytickmarkers[1],
+                    marker = self._tickmarkers[1],
                     linestyle = 'None',
                     markersize=self._size,
                     markeredgewidth=self._width,
@@ -715,7 +789,15 @@ class Axis(artist.Artist):
             if reset:
                 d.clear()
             d.update(kwtrans)
-        self.reset_ticks()
+        if reset:
+            self.reset_ticks()
+        else:
+            if which == 'major' or which == 'both':
+                 for tick in self.majorTicks:
+                    tick._apply_params(**self._major_tick_kw)
+            if which == 'minor' or which == 'both':
+                 for tick in self.minorTicks:
+                    tick._apply_params(**self._minor_tick_kw)
 
     @staticmethod
     def _translate_tick_kw(kw, to_init_kw=True):
@@ -733,7 +815,7 @@ class Axis(artist.Artist):
         # The following lists may be moved to a more
         # accessible location.
         kwkeys0 = ['size', 'width', 'color', 'tickdir', 'pad',
-                  'labelsize', 'labelcolor', 'zorder',
+                  'labelsize', 'labelcolor', 'zorder', 'gridOn',
                   'tick1On', 'tick2On', 'label1On', 'label2On']
         kwkeys1 = ['length', 'direction', 'left', 'bottom', 'right', 'top',
                     'labelleft', 'labelbottom', 'labelright', 'labeltop']
@@ -1144,20 +1226,25 @@ class Axis(artist.Artist):
         if len(kwargs): b = True
         which = which.lower()
         if which in ['minor', 'both']:
-            if b is None: self._gridOnMinor = not self._gridOnMinor
-            else: self._gridOnMinor = b
+            if b is None:
+                self._gridOnMinor = not self._gridOnMinor
+            else:
+                self._gridOnMinor = b
             for tick in self.minorTicks:  # don't use get_ticks here!
                 if tick is None: continue
                 tick.gridOn = self._gridOnMinor
                 if len(kwargs): artist.setp(tick.gridline,**kwargs)
+            self._minor_tick_kw['gridOn'] = self._gridOnMinor
         if which in ['major', 'both']:
-            if b is None: self._gridOnMajor = not self._gridOnMajor
-            else: self._gridOnMajor = b
+            if b is None:
+                self._gridOnMajor = not self._gridOnMajor
+            else:
+                self._gridOnMajor = b
             for tick in self.majorTicks:  # don't use get_ticks here!
                 if tick is None: continue
                 tick.gridOn = self._gridOnMajor
                 if len(kwargs): artist.setp(tick.gridline,**kwargs)
-
+            self._major_tick_kw['gridOn'] = self._gridOnMajor
 
     def update_units(self, data):
         """
@@ -1552,50 +1639,30 @@ class XAxis(Axis):
         """
         Set the ticks position (top, bottom, both, default or none)
         both sets the ticks to appear on both positions, but does not
-        change the tick labels.  default resets the tick positions to
-        the default: ticks on both positions, labels at bottom.  none
-        can be used if you don't want any ticks.
+        change the tick labels.  'default' resets the tick positions to
+        the default: ticks on both positions, labels at bottom.  'none'
+        can be used if you don't want any ticks. 'none' and 'both'
+        affect only the ticks, not the labels.
 
         ACCEPTS: [ 'top' | 'bottom' | 'both' | 'default' | 'none' ]
         """
-        assert position in ('top', 'bottom', 'both', 'default', 'none')
-
-
-        # The first ticks of major & minor ticks should always be
-        # included, otherwise, the information can be lost. Thus, use
-        # majorTicks instead of get_major_ticks() which may return
-        # empty list.
-        ticks = list( self.majorTicks ) # a copy
-        ticks.extend( self.minorTicks )
-
         if position == 'top':
-            for t in ticks:
-                t.tick1On = False
-                t.tick2On = True
-                t.label1On = False
-                t.label2On = True
+            self.set_tick_params(which='both', top=True, labeltop=True,
+                                 bottom=False, labelbottom=False)
         elif position == 'bottom':
-            for t in ticks:
-                t.tick1On = True
-                t.tick2On = False
-                t.label1On = True
-                t.label2On = False
-        elif position == 'default':
-            for t in ticks:
-                t.tick1On = True
-                t.tick2On = True
-                t.label1On = True
-                t.label2On = False
+            self.set_tick_params(which='both', top=False, labeltop=False,
+                                 bottom=True, labelbottom=True)
+        elif position == 'both':
+            self.set_tick_params(which='both', top=True,
+                                 bottom=True)
         elif position == 'none':
-            for t in ticks:
-                t.tick1On = False
-                t.tick2On = False
+            self.set_tick_params(which='both', top=False,
+                                 bottom=False)
+        elif position == 'default':
+            self.set_tick_params(which='both', top=True, labeltop=False,
+                                 bottom=True, labelbottom=True)
         else:
-            for t in ticks:
-                t.tick1On = True
-                t.tick2On = True
-        for t in ticks:
-            t.update_position(t._loc)
+            raise ValueError("invalid position: %s" % position)
 
     def tick_top(self):
         'use ticks only on top'
@@ -1829,45 +1896,23 @@ class YAxis(Axis):
 
         ACCEPTS: [ 'left' | 'right' | 'both' | 'default' | 'none' ]
         """
-        assert position in ('left', 'right', 'both', 'default', 'none')
-
-        # The first ticks of major & minor ticks should always be
-        # included, otherwise, the information can be lost. Thus, use
-        # majorTicks instead of get_major_ticks() which may return
-        # empty list.
-        ticks = list( self.majorTicks ) # a copy
-        ticks.extend( self.minorTicks )
-
         if position == 'right':
-            self.set_offset_position('right')
-            for t in ticks:
-                t.tick1On = False
-                t.tick2On = True
-                t.label1On = False
-                t.label2On = True
+            self.set_tick_params(which='both', right=True, labelright=True,
+                                 left=False, labelleft=False)
         elif position == 'left':
-            self.set_offset_position('left')
-            for t in ticks:
-                t.tick1On = True
-                t.tick2On = False
-                t.label1On = True
-                t.label2On = False
-        elif position == 'default':
-            self.set_offset_position('left')
-            for t in ticks:
-                t.tick1On = True
-                t.tick2On = True
-                t.label1On = True
-                t.label2On = False
+            self.set_tick_params(which='both', right=False, labelright=False,
+                                 left=True, labelleft=True)
+        elif position == 'both':
+            self.set_tick_params(which='both', right=True,
+                                 left=True)
         elif position == 'none':
-            for t in ticks:
-                t.tick1On = False
-                t.tick2On = False
+            self.set_tick_params(which='both', right=False, labelright=False,
+                                 left=False, labelleft=False)
+        elif position == 'default':
+            self.set_tick_params(which='both', right=True, labelright=False,
+                                 left=True, labelleft=True)
         else:
-            self.set_offset_position('left')
-            for t in ticks:
-                t.tick1On = True
-                t.tick2On = True
+            raise ValueError("invalid position: %s" % position)
 
     def tick_right(self):
         'use ticks only on right'
