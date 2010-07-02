@@ -118,7 +118,7 @@ GridSpec using SubplotSpec
 ==========================
 
 You can create GridSpec from the SubplotSpec, in which case its layout
-parameters are set to that of the locataion of the given SubplotSpec. ::
+parameters are set to that of the location of the given SubplotSpec. ::
 
   gs0 = gridspec.GridSpec(1, 2)
 
@@ -134,13 +134,13 @@ GridSpec with Varying Cell Sizes
 
 By default, GridSpec creates cells of equal sizes. You can adjust
 relative heights and widths of rows and columns. Note that absolute
-values are meaningless, onlt their relative ratios matter. ::
+values are meaningless, only their relative ratios matter. ::
 
   gs = gridspec.GridSpec(2, 2,
                          width_ratios=[1,2],
                          height_ratios=[4,1]
                          )
-  
+
   ax1 = plt.subplot(gs[0])
   ax2 = plt.subplot(gs[1])
   ax3 = plt.subplot(gs[2])

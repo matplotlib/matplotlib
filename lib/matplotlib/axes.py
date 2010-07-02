@@ -8254,7 +8254,7 @@ class Axes(martist.Artist):
     triplot.__doc__ = mtri.triplot.__doc__
 
 
-from gridspec import GridSpec, SubplotSpec
+from matplotlib.gridspec import GridSpec, SubplotSpec
 
 class SubplotBase:
     """
