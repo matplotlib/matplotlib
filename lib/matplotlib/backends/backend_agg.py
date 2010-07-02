@@ -269,11 +269,11 @@ class RendererAgg(RendererBase):
 
     def restore_region(self, region, bbox=None, xy=None):
         """
-        restore the saved region. if bbox (instance of BboxBase, or
+        Restore the saved region. If bbox (instance of BboxBase, or
         its extents) is given, only the region specified by the bbox
         will be restored. *xy* (a tuple of two floasts) optionally
-        specify the new position (of the LLC of the originally region,
-        not the LLC of the bbox) that the region will be restored.
+        specifies the new position (the LLC of the original region,
+        not the LLC of the bbox) where the region will be restored.
 
         >>> region = renderer.copy_from_bbox()
         >>> x1, y1, x2, y2 = region.get_extents()
@@ -445,4 +445,3 @@ class FigureCanvasAgg(FigureCanvasBase):
                        renderer.width, renderer.height,
                        filename_or_obj, self.figure.dpi)
         renderer.dpi = original_dpi
-
