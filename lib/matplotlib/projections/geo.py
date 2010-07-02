@@ -55,6 +55,9 @@ class GeoAxes(Axes):
         self.yaxis.set_minor_locator(NullLocator())
         self.xaxis.set_ticks_position('none')
         self.yaxis.set_ticks_position('none')
+        self.yaxis.set_tick_params(label1On=True)
+        # Why do we need to turn on yaxis tick labels, but
+        # xaxis tick labels are already on?
 
         self.grid(rcParams['axes.grid'])
 

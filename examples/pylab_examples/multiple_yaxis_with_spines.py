@@ -54,8 +54,13 @@ if 1:
     par1.yaxis.label.set_color(p2.get_color())
     par2.yaxis.label.set_color(p3.get_color())
 
+    tkw = dict(size=4, width=1.5)
+    host.tick_params(axis='y', colors=p1.get_color(), **tkw)
+    par1.tick_params(axis='y', colors=p2.get_color(), **tkw)
+    par2.tick_params(axis='y', colors=p3.get_color(), **tkw)
+    host.tick_params(axis='x', **tkw)
+
     lines = [p1, p2, p3]
     host.legend(lines, [l.get_label() for l in lines])
-    plt.draw()
     plt.show()
 

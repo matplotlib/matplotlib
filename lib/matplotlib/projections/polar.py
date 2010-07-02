@@ -226,6 +226,9 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         self.grid(rcParams['polaraxes.grid'])
         self.xaxis.set_ticks_position('none')
         self.yaxis.set_ticks_position('none')
+        self.yaxis.set_tick_params(label1On=True)
+        # Why do we need to turn on yaxis tick labels, but
+        # xaxis tick labels are already on?
 
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
