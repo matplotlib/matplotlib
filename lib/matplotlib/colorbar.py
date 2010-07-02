@@ -299,7 +299,11 @@ class ColorbarBase(cm.ScalarMappable):
         set tick locations. Tick locations are updated immediately unless update_ticks is
         *False*. To manually update the ticks, call *update_ticks* method explicitly.
         """
-        self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
+        if cbook.iterable(ticks):
+            self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
+        else:
+            self.locator = ticks
+
         if update_ticks:
             self.update_ticks()
 
@@ -842,5 +846,3 @@ def make_axes(parent, **kw):
     cax = fig.add_axes(pbcb)
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
-
-
