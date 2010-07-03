@@ -830,7 +830,7 @@ class Axes(martist.Artist):
             self.xaxis.major = self._sharex.xaxis.major
             self.xaxis.minor = self._sharex.xaxis.minor
             x0, x1 = self._sharex.get_xlim()
-            self.set_xlim(x0, x1, emit=False)
+            self.set_xlim(x0, x1, emit=False, auto=None)
             self.xaxis.set_scale(self._sharex.xaxis.get_scale())
         else:
             self.xaxis.set_scale('linear')
@@ -839,7 +839,7 @@ class Axes(martist.Artist):
             self.yaxis.major = self._sharey.yaxis.major
             self.yaxis.minor = self._sharey.yaxis.minor
             y0, y1 = self._sharey.get_ylim()
-            self.set_ylim(y0, y1, emit=False)
+            self.set_ylim(y0, y1, emit=False, auto=None)
             self.yaxis.set_scale(self._sharey.yaxis.get_scale())
         else:
             self.yaxis.set_scale('linear')
@@ -1678,7 +1678,7 @@ class Axes(martist.Artist):
         *tight* to *None* will preserve the previous setting.
 
         Specifying any margin changes only the autoscaling; for example,
-        if *xmargin* is not zero, then *xmargin* times the X data
+        if *xmargin* is not None, then *xmargin* times the X data
         interval will be added to each end of that interval before
         it is used in autoscaling.
 
@@ -1700,7 +1700,10 @@ class Axes(martist.Artist):
         if my is not None:
             self.set_ymargin(my)
 
-        self.autoscale_view(tight=tight, scalex=bool(mx), scaley=bool(my))
+        scalex = (mx is not None)
+        scaley = (my is not None)
+
+        self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley)
 
 
     def set_rasterization_zorder(self, z):
@@ -2368,7 +2371,8 @@ class Axes(martist.Artist):
             # Call all of the other x-axes that are shared with this one
             for other in self._shared_x_axes.get_siblings(self):
                 if other is not self:
-                    other.set_xlim(self.viewLim.intervalx, emit=False)
+                    other.set_xlim(self.viewLim.intervalx,
+                                            emit=False, auto=auto)
                     if (other.figure != self.figure and
                         other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
@@ -2561,7 +2565,8 @@ class Axes(martist.Artist):
             # Call all of the other y-axes that are shared with this one
             for other in self._shared_y_axes.get_siblings(self):
                 if other is not self:
-                    other.set_ylim(self.viewLim.intervaly, emit=False)
+                    other.set_ylim(self.viewLim.intervaly,
+                                            emit=False, auto=auto)
                     if (other.figure != self.figure and
                         other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
