@@ -117,7 +117,7 @@ class MPLConfig(TConfig):
 
     class path(TConfig):
         simplify = T.false
-        simplify_threshold = T.float(1.0 / 9.0)
+        simplify_threshold = T.Float(1.0 / 9.0)
         snap = T.true
 
     class patch(TConfig):
