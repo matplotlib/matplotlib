@@ -21,7 +21,7 @@ vertices += [(4,4), (5,5), (5, 4), (0,0)]
 vertices = np.array(vertices, float)
 path = Path(vertices, codes)
 
-pathpatch = PathPatch(path, facecolor='red', edgecolor='green')
+pathpatch = PathPatch(path, facecolor='None', edgecolor='green')
 
 fig = plt.figure()
 ax = fig.add_subplot(111)

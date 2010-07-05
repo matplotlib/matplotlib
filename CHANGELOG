@@ -1,3 +1,8 @@
+2010-07-05 Added Ben Root's patch to put 3D plots in arbitrary axes,
+           allowing you to mix 3d and 2d in different axes/subplots or
+           to have multiple 3D plots in one figure.  See
+           examples/mplot3d/subplot3d_demo.py - JDH
+
 2010-07-05 Preferred kwarg names in set_xlim are now 'left' and
            'right'; in set_ylim, 'bottom' and 'top'; original
            kwargs are still accepted without complaint. - EF
