@@ -97,14 +97,7 @@ def show():
     """
     for manager in Gcf.get_all_fig_managers():
         manager.show()
-    #mainloop, if an fltk program exist no need to call that
-    #threaded (and interractive) version
-    if show._needmain:
-        Fltk.Fl.run()
-        show._needmain = False
-
-show._needmain = True
-
+    Fltk.Fl.run()
 
 def new_figure_manager(num, *args, **kwargs):
     """

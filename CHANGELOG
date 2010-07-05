@@ -1,3 +1,8 @@
+2010-07-05 TkAgg and FltkAgg backends are now consistent with other
+           interactive backends: when used in scripts from the
+           command line (not from ipython -pylab), show blocks,
+           and can be called more than once.
+
 2010-07-02 Modified CXX/WrapPython.h to fix "swab bug" on solaris so
            mpl can compile on Solaris with CXX6 in the trunk.  Closes
            tracker bug 3022815 - JDH

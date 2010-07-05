@@ -319,7 +319,6 @@ backend      : %(backend)s
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
-#tk.pythoninspect  : False    # tk sets PYTHONINSEPCT
 
 # ps backend params
 #ps.papersize      : letter   # auto, letter, legal, ledger, A0-A10, B0-B10

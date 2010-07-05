@@ -297,6 +297,11 @@ def validate_negative_linestyle_legacy(s):
         warnings.warn("Deprecated negative_linestyle specification; use 'solid' or 'dashed'")
         return (0, dashes)  # (offset, (solid, blank))
 
+def validate_tkpythoninspect(s):
+    # Introduced 2010/07/05
+    warnings.warn("tk.pythoninspect is obsolete, and has no effect")
+    return validate_bool(s)
+
 validate_legend_loc = ValidateInStrings('legend_loc',[
   'best',
   'upper right',
@@ -526,7 +531,7 @@ defaultParams = {
 
     'cairo.format'       : ['png', validate_cairo_format],
     'tk.window_focus'    : [False, validate_bool],  # Maintain shell focus for TkAgg
-    'tk.pythoninspect'   : [False, validate_bool],  # Set PYTHONINSPECT
+    'tk.pythoninspect'   : [False, validate_tkpythoninspect],  # obsolete
     'ps.papersize'       : ['letter', validate_ps_papersize], # Set the papersize/type
     'ps.useafm'          : [False, validate_bool],  # Set PYTHONINSPECT
     'ps.usedistiller'    : [False, validate_ps_distiller], # use ghostscript or xpdf to distill ps output

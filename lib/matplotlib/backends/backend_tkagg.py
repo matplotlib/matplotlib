@@ -64,42 +64,14 @@ def draw_if_interactive():
             figManager.show()
 
 
-def show(block=False):
+def show():
     """
     Show all figures.
 
-    Temporary, experimental kwarg *block* defaults to False to
-    provide the behavior present throughout mpl history to date:
-    interactive mode is forced on, and show does not block.
-
-    Set *block* to True to test the proposed new behavior,
-    consistent with other backends, in which show does not affect
-    interactive mode, and always blocks until all figures are closed.
-    In addition, the rcParam['tk.pythoninspect'] is ignored.
-
-    Use this kwarg only for testing; other backends do not accept
-    a kwarg to show, and might never do so.
     """
     for manager in Gcf.get_all_fig_managers():
         manager.show()
-    if block:
-        # proposed new behavior; seems to make this backend consistent
-        # with others, with no drawbacks identified yet.
-        Tk.mainloop()
-    else:
-        # long-time behavior: non-blocking, forces interactive mode
-        import matplotlib
-        matplotlib.interactive(True)
-        if rcParams['tk.pythoninspect']:
-            os.environ['PYTHONINSPECT'] = '1'
-        if show._needmain:
-            Tk.mainloop()
-            show._needmain = False
-
-show._needmain = True   # This can go away if we eliminate block=False option.
-
-
-
+    Tk.mainloop()
 
 def new_figure_manager(num, *args, **kwargs):
     """
