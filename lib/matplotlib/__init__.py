@@ -107,10 +107,6 @@ import os, re, shutil, subprocess, sys, warnings
 import distutils.sysconfig
 import distutils.version
 
-
-NEWCONFIG = False
-
-
 # Needed for toolkit setuptools support
 if 0:
     try:
@@ -826,16 +822,6 @@ def rcdefaults():
     matplotlib load time.
     """
     rcParams.update(rcParamsDefault)
-
-if NEWCONFIG:
-    #print "importing from reorganized config system!"
-    try:
-        from matplotlib.config import (rcParams, rcdefaults,
-                                        mplConfig, save_config)
-        verbose.set_level(rcParams['verbose.level'])
-        verbose.set_fileo(rcParams['verbose.fileo'])
-    except:
-        from matplotlib.config import rcParams, rcdefaults
 
 _use_error_msg = """ This call to matplotlib.use() has no effect
 because the the backend has already been chosen;
