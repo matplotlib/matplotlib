@@ -16,7 +16,10 @@ Changes beyond 0.99.x
   pyplot functions, has been changed: when view limits are
   set explicitly with one of these methods, autoscaling is turned
   off for the matching axis. A new *auto* kwarg is available to
-  control this behavior.
+  control this behavior. The limit kwargs have been renamed to
+  *left* and *right* instead of *xmin* and *xmax*, and *bottom*
+  and *top* instead of *ymin* and *ymax*.  The old names may still
+  be used, however.
 
 * There are five new Axes methods with corresponding pyplot
   functions to facilitate autoscaling, tick location, and tick
