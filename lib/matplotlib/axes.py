@@ -2298,11 +2298,11 @@ class Axes(martist.Artist):
 
     def get_xlim(self):
         """
-        Get the x-axis range [*xmin*, *xmax*]
+        Get the x-axis range [*left*, *right*]
         """
         return tuple(self.viewLim.intervalx)
 
-    def set_xlim(self, xmin=None, xmax=None, emit=True, auto=False):
+    def set_xlim(self, left=None, right=None, emit=True, auto=False, **kw):
         """
         call signature::
 
@@ -2314,23 +2314,23 @@ class Axes(martist.Artist):
 
           set_xlim((left, right))
           set_xlim(left, right)
-          set_xlim(xmin=1) # right unchanged
-          set_xlim(xmax=1) # left unchanged
+          set_xlim(left=1) # right unchanged
+          set_xlim(right=1) # left unchanged
 
         Keyword arguments:
 
-          *xmin*: scalar
-            the left xlim
-          *xmax*: scalar
-            the right xlim
+          *left*: scalar
+            the left xlim; *xmin*, the previous name, may still be used
+          *right*: scalar
+            the right xlim; *xmax*, the previous name, may still be used
           *emit*: [ True | False ]
             notify observers of lim change
           *auto*: [ True | False | None ]
             turn *x* autoscaling on (True), off (False; default),
             or leave unchanged (None)
 
-        Note: the kwarg terminology may be confusing.  The first value,
-        *xmin*, is the left, and the second, *xmax*, is the right.
+        Note: the *left* (formerly *xmin*) value may be greater than
+        the *right* (formerly *xmax*).
         For example, suppose *x* is years before present.
         Then one might use::
 
@@ -2343,26 +2343,34 @@ class Axes(martist.Artist):
 
         ACCEPTS: len(2) sequence of floats
         """
-        if xmax is None and iterable(xmin):
-            xmin,xmax = xmin
+        if 'xmin' in kw:
+            left = kw.pop('xmin')
+        if 'xmax' in kw:
+            right = kw.pop('xmax')
+        if kw:
+            raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
+        if right is None and iterable(left):
+            left,right = left
 
-        self._process_unit_info(xdata=(xmin, xmax))
-        if xmin is not None:
-            xmin = self.convert_xunits(xmin)
-        if xmax is not None:
-            xmax = self.convert_xunits(xmax)
+        self._process_unit_info(xdata=(left, right))
+        if left is not None:
+            left = self.convert_xunits(left)
+        if right is not None:
+            right = self.convert_xunits(right)
 
-        old_xmin,old_xmax = self.get_xlim()
-        if xmin is None: xmin = old_xmin
-        if xmax is None: xmax = old_xmax
+        old_left, old_right = self.get_xlim()
+        if left is None: left = old_left
+        if right is None: right = old_right
 
-        if xmin==xmax:
-            warnings.warn('Attempting to set identical xmin==xmax results in singular transformations; automatically expanding.  xmin=%s, xmax=%s'%(xmin, xmax))
-        xmin, xmax = mtransforms.nonsingular(xmin, xmax, increasing=False)
-        xmin, xmax = self.xaxis.limit_range_for_scale(xmin, xmax)
+        if left==right:
+            warnings.warn(('Attempting to set identical left==right results\n'
+                   + 'in singular transformations; automatically expanding.\n'
+                   + 'left=%s, right=%s') % (left, right))
+        left, right = mtransforms.nonsingular(left, right, increasing=False)
+        left, right = self.xaxis.limit_range_for_scale(left, right)
 
-        self.viewLim.intervalx = (xmin, xmax)
+        self.viewLim.intervalx = (left, right)
         if auto is not None:
             self._autoscaleXon = bool(auto)
 
@@ -2377,7 +2385,7 @@ class Axes(martist.Artist):
                         other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
 
-        return xmin, xmax
+        return left, right
 
     def get_xscale(self):
         'return the xaxis scale string: %s' % (
@@ -2492,11 +2500,11 @@ class Axes(martist.Artist):
 
     def get_ylim(self):
         """
-        Get the y-axis range [*ymin*, *ymax*]
+        Get the y-axis range [*bottom*, *top*]
         """
         return tuple(self.viewLim.intervaly)
 
-    def set_ylim(self, ymin=None, ymax=None, emit=True, auto=False):
+    def set_ylim(self, bottom=None, top=None, emit=True, auto=False, **kw):
         """
         call signature::
 
@@ -2508,23 +2516,23 @@ class Axes(martist.Artist):
 
           set_ylim((bottom, top))
           set_ylim(bottom, top)
-          set_ylim(ymin=1) # top unchanged
-          set_ylim(ymax=1) # bottom unchanged
+          set_ylim(bottom=1) # top unchanged
+          set_ylim(top=1) # bottom unchanged
 
         Keyword arguments:
 
-          *ymin*: scalar
-            the bottom ylim
-          *ymax*: scalar
-            the top ylim
+          *bottom*: scalar
+            the bottom ylim; the previous name, *ymin*, may still be used
+          *top*: scalar
+            the top ylim; the previous name, *ymax*, may still be used
           *emit*: [ True | False ]
             notify observers of lim change
           *auto*: [ True | False | None ]
             turn *y* autoscaling on (True), off (False; default),
             or leave unchanged (None)
 
-        Note: the kwarg terminology may be confusing.  The first value,
-        *ymin*, is the bottom, and the second, *ymax*, is the top.
+        Note: the *bottom* (formerly *ymin*) value may be greater than
+        the *top* (formerly *ymax*).
         For example, suppose *y* is depth in the ocean.
         Then one might use::
 
@@ -2537,26 +2545,35 @@ class Axes(martist.Artist):
 
         ACCEPTS: len(2) sequence of floats
         """
-        if ymax is None and iterable(ymin):
-            ymin,ymax = ymin
+        if 'ymin' in kw:
+            bottom = kw.pop('ymin')
+        if 'ymax' in kw:
+            top = kw.pop('ymax')
+        if kw:
+            raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
-        if ymin is not None:
-            ymin = self.convert_yunits(ymin)
-        if ymax is not None:
-            ymax = self.convert_yunits(ymax)
+        if top is None and iterable(bottom):
+            bottom,top = bottom
 
-        old_ymin,old_ymax = self.get_ylim()
+        if bottom is not None:
+            bottom = self.convert_yunits(bottom)
+        if top is not None:
+            top = self.convert_yunits(top)
 
-        if ymin is None: ymin = old_ymin
-        if ymax is None: ymax = old_ymax
+        old_bottom, old_top = self.get_ylim()
 
-        if ymin==ymax:
-            warnings.warn('Attempting to set identical ymin==ymax results in singular transformations; automatically expanding.  ymin=%s, ymax=%s'%(ymin, ymax))
+        if bottom is None: bottom = old_bottom
+        if top is None: top = old_top
 
-        ymin, ymax = mtransforms.nonsingular(ymin, ymax, increasing=False)
-        ymin, ymax = self.yaxis.limit_range_for_scale(ymin, ymax)
+        if bottom==top:
+            warnings.warn(('Attempting to set identical bottom==top results\n'
+                   + 'in singular transformations; automatically expanding.\n'
+                   + 'bottom=%s, top=%s') % (bottom, top))
 
-        self.viewLim.intervaly = (ymin, ymax)
+        bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
+        bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
+
+        self.viewLim.intervaly = (bottom, top)
         if auto is not None:
             self._autoscaleYon = bool(auto)
 
@@ -2571,7 +2588,7 @@ class Axes(martist.Artist):
                         other.figure.canvas is not None):
                         other.figure.canvas.draw_idle()
 
-        return ymin, ymax
+        return bottom, top
 
     def get_yscale(self):
         'return the xaxis scale string: %s' % (
