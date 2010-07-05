@@ -37,6 +37,7 @@ class Axes3D(Axes):
     """
     3D axes object.
     """
+    name = '3d'
 
     def __init__(self, fig, rect=None, *args, **kwargs):
         '''
@@ -1210,3 +1211,11 @@ def get_test_data(delta=0.05):
     Z = Z * 500
     return X, Y, Z
 
+
+
+########################################################
+# Register Axes3D as a 'projection' object available 
+# for use just like any other axes
+########################################################
+import matplotlib.projections as proj
+proj.projection_registry.register(Axes3D)
