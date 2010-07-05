@@ -446,7 +446,7 @@ class Axes3D(Axes):
         if self.M is None:
             return ''
 
-        if self.button_pressed == 1:
+        if self.button_pressed in self._rotate_btn:
             return 'azimuth=%d deg, elevation=%d deg ' % (self.azim, self.elev)
             # ignore xd and yd and display angles instead
 
