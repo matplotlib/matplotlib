@@ -4,9 +4,9 @@ This is an object-orient plotting library.
 A procedural interface is provided by the companion pyplot module,
 which may be imported directly, e.g::
 
-    from pyplot import *
+    from matplotlib.pyplot import *
 
-To include numpy functions, use::
+To include numpy functions too, use::
 
     from pylab import *
 
@@ -90,8 +90,8 @@ The base matplotlib namespace includes:
         for the first time.  In particular, it must be called
         **before** importing pylab (if pylab is imported).
 
-matplotlib is written by John D. Hunter (jdh2358 at gmail.com) and a
-host of others.
+matplotlib was initially written by John D. Hunter (jdh2358 at
+gmail.com) and is now developed and maintained by a host of others.
 
 Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
@@ -99,7 +99,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import generators
 
-__version__  = '1.0rc1'
+__version__  = '1.0.0svn'
 __revision__ = '$Revision$'
 __date__     = '$Date$'
 
