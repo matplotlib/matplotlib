@@ -1,4 +1,9 @@
+import matplotlib.axes
+from matplotlib.cbook import ls_mapper
+from matplotlib.patches import PathPatch
+from matplotlib.path import Path
 from matplotlib.tri.triangulation import Triangulation
+import numpy as np
 
 def triplot(ax, *args, **kwargs):
     """
@@ -43,16 +48,29 @@ def triplot(ax, *args, **kwargs):
     # If draw both lines and markers at the same time, e.g.
     #     ax.plot(x[edges].T, y[edges].T, *args, **kwargs)
     # then the markers are drawn more than once which is incorrect if alpha<1.
-    # Hence draw of lines and markers separately.
+    # Hence draw lines and markers separately.
 
-    # Draw lines without markers.
-    marker = kwargs.pop('marker', None)
-    kwargs['marker'] = ''
-    ax.plot(x[edges].T, y[edges].T, *args, **kwargs)
-    if marker is None:
-        kwargs.pop('marker')
-    else:
-        kwargs['marker'] = marker
+    # Decode plot format string, e.g. 'ro-'
+    fmt = ''
+    if len(args) > 0:
+        fmt = args[0]
+    linestyle, marker, color = matplotlib.axes._process_plot_format(fmt)
+
+    # Draw lines without markers, if lines are required.
+    if linestyle is not None and linestyle is not 'None':
+        kw = kwargs.copy()
+        kw.pop('marker', None)     # Ignore marker if set.
+        kw['linestyle'] = ls_mapper[linestyle]
+        kw['edgecolor'] = color
+        kw['facecolor'] = None
+
+        vertices = np.column_stack((x[edges].flatten(), y[edges].flatten()))
+        codes = ([Path.MOVETO] + [Path.LINETO])*len(edges)
+
+        path = Path(vertices, codes)
+        pathpatch = PathPatch(path, **kw)
+
+        ax.add_patch(pathpatch)
 
     # Draw markers without lines.
     # Should avoid drawing markers for points that are not in any triangle?
