@@ -445,3 +445,13 @@ class FigureCanvasAgg(FigureCanvasBase):
                        renderer.width, renderer.height,
                        filename_or_obj, self.figure.dpi)
         renderer.dpi = original_dpi
+
+    def print_to_buffer(self):
+        FigureCanvasAgg.draw(self)
+        renderer = self.get_renderer()
+        original_dpi = renderer.dpi
+        renderer.dpi = self.figure.dpi
+        result = (renderer._renderer.buffer_rgba(0, 0),
+                  (int(renderer.width), int(renderer.height)))
+        renderer.dpi = original_dpi
+        return result

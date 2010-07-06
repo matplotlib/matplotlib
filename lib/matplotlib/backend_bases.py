@@ -41,7 +41,11 @@ import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
 
-
+try:
+    import Image
+    _has_pil = True
+except ImportError:
+    _has_pil = False
 
 _backend_d = {}
 
@@ -1720,6 +1724,40 @@ class FigureCanvasBase:
         from backends.backend_svg import FigureCanvasSVG # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svgz(*args, **kwargs)
+
+    if _has_pil:
+        filetypes['jpg'] = filetypes['jpeg'] = 'Joint Photographic Experts Group'
+        def print_jpg(self, filename_or_obj, *args, **kwargs):
+            """
+            Supported kwargs:
+
+            *quality*: The image quality, on a scale from 1 (worst) to
+                95 (best). The default is 75. Values above 95 should
+                be avoided; 100 completely disables the JPEG
+                quantization stage.
+
+            *optimize*: If present, indicates that the encoder should
+                make an extra pass over the image in order to select
+                optimal encoder settings.
+
+            *progressive*: If present, indicates that this image
+                should be stored as a progressive JPEG file.
+            """
+            from backends.backend_agg import FigureCanvasAgg # lazy import
+            agg = self.switch_backends(FigureCanvasAgg)
+            buf, size = agg.print_to_buffer()
+            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
+            return image.save(filename_or_obj, **kwargs)
+        print_jpeg = print_jpg
+
+        filetypes['tif'] = filetypes['tiff'] = 'Tagged Image File Format'
+        def print_tif(self, filename_or_obj, *args, **kwargs):
+            from backends.backend_agg import FigureCanvasAgg # lazy import
+            agg = self.switch_backends(FigureCanvasAgg)
+            buf, size = agg.print_to_buffer()
+            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
+            return image.save(filename_or_obj)
+        print_tiff = print_tif
 
     def get_supported_filetypes(self):
         return self.filetypes

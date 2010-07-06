@@ -5,30 +5,33 @@ correctly.  It may be edited with emacs' table mode.
 
 Each cell specifies the backend that actually handles the file format.
 A cell with a '+' in it denotes the rasterizer and the file writing
-infrastructure as separate pieces.  
+infrastructure as separate pieces.
 
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
 |        |bmp  |emf  |eps  |jpeg   |pcx  |pdf   |png   |ps   |raw  |svg  |svgz |tiff |xpm  |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
-|Agg     |     |emf  |ps   |       |     |pdf   |agg * |ps   |agg  |svg  |svg  |     |     |
+|Agg     |     |emf  |ps   |agg +  |     |pdf   |agg * |ps   |agg  |svg  |svg  |agg +|     |
+|        |     |     |     |pil    |     |      |      |     |     |     |     |pil  |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
 |Cairo   |     |emf  |ps   |       |     |cairo |cairo |cairo|agg  |cairo|cairo|     |     |
 |[1]     |     |     |[2]  |       |     |      |*     |     |     |     |     |     |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
-|CocoaAgg|     |emf  |ps   |       |     |pdf   |agg * |ps   |agg  |svg  |svg  |     |     |
+|CocoaAgg|     |emf  |ps   |agg +  |     |pdf   |agg * |ps   |agg  |svg  |svg  |agg +|     |
+|        |     |     |     |pil    |     |      |      |     |     |     |     |pil  |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
 |Emf     |     |emf *|     |       |     |      |      |     |     |     |     |     |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
-|FltkAgg |     |emf  |ps   |       |     |pdf   |agg * |ps   |agg  |svg  |svg  |     |     |
+|FltkAgg |     |emf  |ps   |agg +  |     |pdf   |agg * |ps   |agg  |svg  |svg  |agg +|     |
+|        |     |     |     |pil    |     |      |      |     |     |     |     |pil  |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
 |Gd      |     |     |     |       |     |      |gd *  |     |     |     |     |     |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
-|Gtk     |     |emf  |ps   |gdk +  |     |pdf   |gdk + |ps   |agg  |svg  |svg  |     |     |
-|(gdk)   |     |     |     |pixbuf |     |      |pixbuf|     |     |     |     |     |     |
+|Gtk     |     |emf  |ps   |gdk +  |     |pdf   |gdk + |ps   |agg  |svg  |svg  |agg +|     |
+|(gdk)   |     |     |     |pixbuf |     |      |pixbuf|     |     |     |     |pil  |     |
 |        |     |     |     |       |     |      |*     |     |     |     |     |     |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
-|GtkAgg  |     |emf  |ps   |agg +  |     |pdf   |agg + |ps   |agg  |svg  |svg  |     |     |
-|        |     |     |     |pixbuf |     |      |pixbuf|     |     |     |     |     |     |
+|GtkAgg  |     |emf  |ps   |agg +  |     |pdf   |agg + |ps   |agg  |svg  |svg  |agg +|     |
+|        |     |     |     |pixbuf |     |      |pixbuf|     |     |     |     |pil  |     |
 |        |     |     |     |       |     |      |*     |     |     |     |     |     |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
 |GtkCairo|     |emf  |ps   |cairo +|     |cairo |cairo |cairo|agg  |cairo|cairo|     |     |
@@ -41,18 +44,22 @@ infrastructure as separate pieces.
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
 |Ps      |     |     |ps   |       |     |      |      |ps * |     |     |     |     |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
-|QtAgg   |     |emf  |ps   |       |     |pdf   |agg * |ps   |agg  |svg  |svg  |     |     |
+|QtAgg   |     |emf  |ps   |agg +  |     |pdf   |agg * |ps   |agg  |svg  |svg  |agg +|     |
+|        |     |     |     |pil    |     |      |      |     |     |     |     |pil  |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
-|Qt4Agg  |     |emf  |ps   |       |     |pdf   |agg * |ps   |agg  |svg  |svg  |     |     |
+|Qt4Agg  |     |emf  |ps   |agg +  |     |pdf   |agg * |ps   |agg  |svg  |svg  |agg +|     |
+|        |     |     |     |pil    |     |      |      |     |     |     |     |pil  |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
 |Svg     |     |     |     |       |     |      |      |     |     |svg *|svg  |     |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
-|TkAgg   |     |emf  |ps   |       |     |pdf   |agg * |ps   |agg  |svg  |svg  |     |     |
+|TkAgg   |     |emf  |ps   |agg +  |     |pdf   |agg * |ps   |agg  |svg  |svg  |agg +|     |
+|        |     |     |     |pil    |     |      |      |     |     |     |     |pil  |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
 |Wx      |wx + |emf  |ps   |wx + wx|wx + |pdf   |wx +  |ps   |agg  |svg  |svg  |wx + |wx + |
 |        |wx   |     |     |       |wx   |      |wx *  |     |     |     |     |wx   |wx   |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
-|WxAgg   |     |emf  |ps   |       |     |pdf   |agg * |ps   |agg  |svg  |svg  |     |     |
+|WxAgg   |     |emf  |ps   |agg +  |     |pdf   |agg * |ps   |agg  |svg  |svg  |agg +|     |
+|        |     |     |     |pil    |     |      |      |     |     |     |     |pil  |     |
 +--------+-----+-----+-----+-------+-----+------+------+-----+-----+-----+-----+-----+-----+
 
 * Default filetype for the backend
