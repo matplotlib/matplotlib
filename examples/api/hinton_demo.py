@@ -8,7 +8,7 @@ from matplotlib.ticker import NullLocator
 
 def hinton(W, maxWeight=None, ax=None):
     """
-    Draws a Hinton diagram for visualizing a weight matrix. 
+    Draws a Hinton diagram for visualizing a weight matrix.
     """
     if not ax:
         fig = plt.figure()
@@ -23,13 +23,14 @@ def hinton(W, maxWeight=None, ax=None):
     ax.yaxis.set_major_locator(NullLocator())
 
     for (x,y),w in np.ndenumerate(W):
-        color = 'white' if w > 0 else 'black'
+        if w > 0: color = 'white'
+        else:     color = 'black'
         size = np.sqrt(np.abs(w))
         rect = Rectangle([x - size / 2, y - size / 2], size, size,
             facecolor=color, edgecolor=color)
         ax.add_patch(rect)
     ax.autoscale_view()
-    
+
     # Reverse the yaxis limits
     ax.set_ylim(*ax.get_ylim()[::-1])
 
