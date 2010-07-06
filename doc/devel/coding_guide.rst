@@ -24,15 +24,11 @@ Checking out the main source::
    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/\
    matplotlib mpl --username=youruser --password=yourpass
 
-Branch checkouts, eg the maintenance branch::
+Branch checkouts, eg the 1.0.x maintenance branch::
 
    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/\
-   v0_99_maint mpl99 --username=youruser --password=yourpass
+   v1_0_maint mpl1 --username=youruser --password=yourpass
 
-The current release of the trunk is in the 0.99.x maintenance branch::
-
-   svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/\
-   v0_99_maint mpl99 --username=youruser --password=yourpass
 
 
 Committing changes
@@ -96,7 +92,7 @@ The basic procedure is:
        svnmerge.py merge -S BRANCHNAME
 
   Where BRANCHNAME is the name of the branch to merge *from*,
-  e.g. v0_99_maint.
+  e.g. v1_0_maint.
 
   If you wish to merge only specific revisions (in an unusual
   situation), do::
@@ -130,17 +126,17 @@ Setting up svnmerge
    with this.
 
 * Creating a new branch from the trunk (if the release version is
-  0.99 at revision 6573)::
+  1.0 at revision 8503)::
 
       > svn copy \
-      https://matplotlib.svn.sf.net/svnroot/matplotlib/trunk/matplotlib@7315 \
-      https://matplotlib.svn.sf.net/svnroot/matplotlib/branches/v0_99_maint \
-      -m "Creating maintenance branch for 0.99"
+      https://matplotlib.svn.sf.net/svnroot/matplotlib/trunk/matplotlib@8503 \
+      https://matplotlib.svn.sf.net/svnroot/matplotlib/branches/v1_0_maint \
+      -m "Creating maintenance branch for 1.0"
 
 * You can add a new branch for the trunk to "track" using
   "svnmerge.py init", e.g., from a working copy of the trunk::
 
-      > svnmerge.py init https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v0_99_maint
+      > svnmerge.py init https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/branches/v1_0_maint
       property 'svnmerge-integrated' set on '.'
 
   After doing a "svn commit" on this, this merge tracking is available
@@ -150,7 +146,7 @@ Setting up svnmerge
 * Tracking can later be removed with the "svnmerge.py uninit" command,
   e.g.::
 
-      > svnmerge.py -S v0_99_maint uninit
+      > svnmerge.py -S v1_0_maint uninit
 
 .. _using-git:
 
