@@ -179,7 +179,9 @@ class FormatterHMS(object):
     def __call__(self, direction, factor, values): # hour
         if len(values) == 0:
             return []
-        ss = [[-1, 1][v>0] for v in values]
+        #ss = [[-1, 1][v>0] for v in values]  #not py24 compliant
+        values = np.asarray(values)
+        ss = np.where(values>0, 1, -1)
         values = np.abs(values)/15.
 
         if factor == 1:
@@ -221,7 +223,9 @@ class FormatterDMS(object):
     def __call__(self, direction, factor, values):
         if len(values) == 0:
             return []
-        ss = [[-1, 1][v>0] for v in values]
+        #ss = [[-1, 1][v>0] for v in values] #not py24 compliant
+        values = np.asarray(values)
+        ss = np.where(values>0, 1, -1)
         values = np.abs(values)
         if factor == 1:
             return ["$%d^{\circ}$" % (s*int(v),) for (s, v) in zip(ss, values)]
