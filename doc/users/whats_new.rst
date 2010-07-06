@@ -27,7 +27,7 @@ Sophisticated subplot grid layout
 
 Jae-Joon Lee has written :mod:`~matplotlib.gridspec`, a new module for
 doing complex subplot layouts, featuring row and column spans and
-more.  See :ref:`gridspec` for a tutorial overview.
+more.  See :ref:`gridspec-guide` for a tutorial overview.
 
 .. plot:: users/plotting/examples/demo_gridspec01.py
 
@@ -116,15 +116,18 @@ Much improved software carpentry
 ---------------------------------
 
 The matplotlib trunk is probably in as good a shape as it has ever
-been, thanks to improved software carpentry.  We now have a buildbot
-which runs a suite of nose regression tests on every svn commit,
-auto-generating a set of images and comparing them against a set of
-known-goods, sending emails to developers on failures with a
-pixel-by-pixel image comparison.  Releases and release bugfixes happen
-in branches, allowing active new feature development to happen in the
-trunk while keeping the release branches stable.  Thanks to Andrew
-Straw, Michael Droettboom and other matplotlib developers for the
-heavy lifting.
+been, thanks to improved `software carpentry
+<http://software-carpentry.org/>`_.  We now have a `buildbot
+<http://buildbot.net/trac>`_ which runs a suite of `nose
+<http://code.google.com/p/python-nose/>`_ regression tests on every
+svn commit, auto-generating a set of images and comparing them against
+a set of known-goods, sending emails to developers on failures with a
+pixel-by-pixel `image comparison
+<http://mpl.code.astraw.com/overview.html>`_.  Releases and release
+bugfixes happen in branches, allowing active new feature development
+to happen in the trunk while keeping the release branches stable.
+Thanks to Andrew Straw, Michael Droettboom and other matplotlib
+developers for the heavy lifting.
 
 Bugfix marathon
 ----------------
