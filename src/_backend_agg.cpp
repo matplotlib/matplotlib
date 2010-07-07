@@ -796,6 +796,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
             delete[] fillCache;
         if (strokeCache != staticStrokeCache)
             delete[] strokeCache;
+        theRasterizer.reset_clipping();
+        rendererBase.reset_clipping(true);
         throw;
     }
 
@@ -803,6 +805,9 @@ RendererAgg::draw_markers(const Py::Tuple& args)
         delete[] fillCache;
     if (strokeCache != staticStrokeCache)
         delete[] strokeCache;
+
+    theRasterizer.reset_clipping();
+    rendererBase.reset_clipping(true);
 
     return Py::Object();
 }
@@ -1086,6 +1091,7 @@ RendererAgg::draw_image(const Py::Tuple& args)
     {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(pixf, 0, (int)x, (int)(height - (y + image->rowsOut)));
+        rendererBase.reset_clipping(true);
     }
 
     image->flipud_out(empty);
