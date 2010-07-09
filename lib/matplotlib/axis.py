@@ -1423,10 +1423,8 @@ class Axis(artist.Artist):
             self.set_minor_formatter(mticker.FixedFormatter(ticklabels))
             ticks = self.get_minor_ticks()
         else:
-            self.set_major_formatter( mticker.FixedFormatter(ticklabels) )
+            self.set_major_formatter(mticker.FixedFormatter(ticklabels))
             ticks = self.get_major_ticks()
-
-        self.set_major_formatter( mticker.FixedFormatter(ticklabels) )
 
         ret1 = []
         ret2 = []
@@ -1985,5 +1983,3 @@ class YAxis(Axis):
                 self.axes.dataLim.intervaly = ymin, ymax
             if not viewMutated:
                 self.axes.viewLim.intervaly = ymin, ymax
-
-
