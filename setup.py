@@ -76,7 +76,7 @@ py_modules = ['pylab']
 
 ext_modules = []
 
-for line in file('lib/matplotlib/__init__.py').readlines():
+for line in open('lib/matplotlib/__init__.py').readlines():
     if (line.startswith('__version__')):
         exec(line.strip())
 
@@ -235,7 +235,7 @@ if hasdatetime: # dates require python23 datetime
         # only add them if we need them
         if provide_pytz:
             add_pytz()
-            print 'adding pytz'
+            print_raw("adding pytz")
         if provide_dateutil: add_dateutil()
 
 print_raw("")
@@ -251,14 +251,14 @@ print_line()
 
 # Write the default matplotlibrc file
 if options['backend']: rc['backend'] = options['backend']
-template = file('matplotlibrc.template').read()
-file('lib/matplotlib/mpl-data/matplotlibrc', 'w').write(template%rc)
+template = open('matplotlibrc.template').read()
+open('lib/matplotlib/mpl-data/matplotlibrc', 'w').write(template%rc)
 
 # Write the default matplotlib.conf file
-template = file('lib/matplotlib/mpl-data/matplotlib.conf.template').read()
+template = open('lib/matplotlib/mpl-data/matplotlib.conf.template').read()
 template = template.replace("datapath = ", "#datapath = ")
 template = template.replace("    use = 'Agg'", "    use = '%s'"%rc['backend'])
-file('lib/matplotlib/mpl-data/matplotlib.conf', 'w').write(template)
+open('lib/matplotlib/mpl-data/matplotlib.conf', 'w').write(template)
 
 try: additional_params # has setupegg.py provided
 except NameError: additional_params = {}
@@ -267,8 +267,8 @@ for mod in ext_modules:
     if options['verbose']:
         mod.extra_compile_args.append('-DVERBOSE')
 
-print 'pymods', py_modules
-print 'packages', packages
+print_raw("pymods %s" % py_modules)
+print_raw("packages %s" % packages)
 distrib = setup(name="matplotlib",
       version= __version__,
       description = "Python plotting package",
