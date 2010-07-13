@@ -541,8 +541,7 @@ class Text(Artist):
         gc.set_foreground(self.get_color())
         gc.set_alpha(self.get_alpha())
         gc.set_url(self._url)
-        if self.get_clip_on():
-            gc.set_clip_rectangle(self.clipbox)
+        self._set_gc_clip(gc)
 
         if self._bbox:
             bbox_artist(self, renderer, self._bbox)
