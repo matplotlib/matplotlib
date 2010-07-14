@@ -25,7 +25,7 @@ def text3d(ax, (x, y, z), s, zdir="z", size=None, angle=0, usetex=False,
 
 
 fig = plt.figure()
-ax = Axes3D(fig)
+ax = fig.add_subplot(111, projection='3d')
 
 p = Circle((5, 5), 3)
 ax.add_patch(p)

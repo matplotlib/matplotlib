@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 mpl.rcParams['legend.fontsize'] = 10
 
 fig = plt.figure()
-ax = Axes3D(fig)
+ax = fig.gca(projection='3d')
 theta = np.linspace(-4 * np.pi, 4 * np.pi, 100)
 z = np.linspace(-2, 2, 100)
 r = z**2 + 1
