@@ -33,6 +33,10 @@ if major==2 and minor1<4 or major<2:
 
 import glob
 from distutils.core import setup
+try:
+    from distutils.command.build_py import build_py_2to3 as build_py
+except ImportError:
+    from distutils.command.build_py import build_py
 from setupext import build_agg, build_gtkagg, build_tkagg,\
      build_macosx, build_ft2font, build_image, build_windowing, build_path, \
      build_contour, build_delaunay, build_nxutils, build_gdk, \
@@ -270,5 +274,6 @@ distrib = setup(name="matplotlib",
       ext_modules = ext_modules,
       package_dir = {'': 'lib'},
       package_data = package_data,
+      cmdclass = {'build_py': build_py},
       **additional_params
       )

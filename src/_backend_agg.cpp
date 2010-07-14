@@ -102,7 +102,11 @@ Py::Object
 BufferRegion::to_string(const Py::Tuple &args)
 {
     // owned=true to prevent memory leak
+    #if PY_MAJOR_VERSION >= 3
+    return Py::Bytes(PyBytes_FromStringAndSize((const char*)data, height*stride), true);
+    #else
     return Py::String(PyString_FromStringAndSize((const char*)data, height*stride), true);
+    #endif
 }
 
 
@@ -152,12 +156,20 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
     unsigned char tmp;
     size_t i, j;
 
-    PyObject* str = PyString_FromStringAndSize(
-                        (const char*)data, height * stride);
+    #if PY_MAJOR_VERSION >= 3
+    PyObject* str = PyBytes_FromStringAndSize((const char*)data, height * stride);
+    if (PyBytes_AsStringAndSize(str, (char**)&begin, &length))
+    {
+        throw Py::TypeError("Could not create memory for blit");
+    }
+    #else
+    PyObject* str = PyString_FromStringAndSize((const char*)data, height * stride);
     if (PyString_AsStringAndSize(str, (char**)&begin, &length))
     {
         throw Py::TypeError("Could not create memory for blit");
     }
+    #endif
+
 
     pix = begin;
     end = begin + (height * stride);
@@ -200,7 +212,7 @@ void
 GCAgg::_set_antialiased(const Py::Object& gc)
 {
     _VERBOSE("GCAgg::antialiased");
-    isaa = Py::Int(gc.getAttr("_antialiased"));
+    isaa = gc.getAttr("_antialiased").as_bool();
 }
 
 
@@ -1509,7 +1521,7 @@ RendererAgg::_draw_path_collection_generic
 
         if (check_snap)
         {
-            gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
+            gc.isaa = antialiaseds[i % Naa].as_bool();
 
             transformed_path_t tpath(path, trans);
             nan_removed_t      nan_removed(tpath, true, has_curves);
@@ -1528,7 +1540,7 @@ RendererAgg::_draw_path_collection_generic
         }
         else
         {
-            gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
+            gc.isaa = antialiaseds[i % Naa].as_bool();
 
             transformed_path_t tpath(path, trans);
             nan_removed_t      nan_removed(tpath, true, has_curves);
@@ -1741,8 +1753,8 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
     Py::Object              offsets_obj      = args[5];
     agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[6].ptr());
     Py::Object              facecolors_obj   = args[7];
-    bool                    antialiased      = (bool)Py::Int(args[8]);
-    bool                    showedges        = (bool)Py::Int(args[9]);
+    bool                    antialiased      = args[8].as_bool();
+    bool                    showedges        = args[9].as_bool();
     bool                    free_edgecolors  = false;
 
     QuadMeshGenerator path_generator(mesh_width, mesh_height, coordinates.ptr());
@@ -1981,6 +1993,12 @@ RendererAgg::write_rgba(const Py::Tuple& args)
     FILE *fp = NULL;
     bool close_file = false;
     Py::Object py_fileobj = Py::Object(args[0]);
+
+    #if PY_MAJOR_VERSION >= 3
+    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
+    PyErr_Clear();
+    #endif
+
     if (py_fileobj.isString())
     {
         std::string fileName = Py::String(py_fileobj);
@@ -1996,6 +2014,15 @@ RendererAgg::write_rgba(const Py::Tuple& args)
         }
         close_file = true;
     }
+    #if PY_MAJOR_VERSION >= 3
+    else if (fd != -1)
+    {
+        if (write(fd, pixBuffer, NUMBYTES) != (ssize_t)NUMBYTES)
+        {
+            throw Py::RuntimeError("Error writing to file");
+        }
+    }
+    #else
     else if (PyFile_CheckExact(py_fileobj.ptr()))
     {
         fp = PyFile_AsFile(py_fileobj.ptr());
@@ -2004,6 +2031,7 @@ RendererAgg::write_rgba(const Py::Tuple& args)
             throw Py::RuntimeError("Error writing to file");
         }
     }
+    #endif
     else
     {
         PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(),
@@ -2154,7 +2182,14 @@ RendererAgg::buffer_rgba(const Py::Tuple& args)
     int starth = Py::Int(args[1]);
     int row_len = width * 4;
     int start = row_len * starth + startw * 4;
+    /* PY3KTODO: Buffers are different */
+    #if PY_MAJOR_VERSION >= 3
+    return Py::asObject(PyByteArray_FromStringAndSize(
+                            (const char *)pixBuffer + start,
+                            row_len*height - start));
+    #else
     return Py::asObject(PyBuffer_FromMemory(pixBuffer + start, row_len*height - start));
+    #endif
 }
 
 
@@ -2298,8 +2333,8 @@ Py::Object _backend_agg_module::new_renderer(const Py::Tuple &args,
         debug = 0;
     }
 
-    unsigned int width = (unsigned int)Py::Int(args[0]);
-    unsigned int height = (unsigned int)Py::Int(args[1]);
+    unsigned int width = (int)Py::Int(args[0]);
+    unsigned int height = (int)Py::Int(args[1]);
     double dpi = Py::Float(args[2]);
 
     if (width > 1 << 15 || height > 1 << 15)
@@ -2392,8 +2427,13 @@ void RendererAgg::init_type()
 }
 
 extern "C"
-    DL_EXPORT(void)
-    init_backend_agg(void)
+#if PY_MAJOR_VERSION >= 3
+PyMODINIT_FUNC
+PyInit__backend_agg(void)
+#else
+PyMODINIT_FUNC
+init_backend_agg(void)
+#endif
 {
     //static _backend_agg_module* _backend_agg = new _backend_agg_module;
 
@@ -2403,4 +2443,8 @@ extern "C"
 
     static _backend_agg_module* _backend_agg = NULL;
     _backend_agg = new _backend_agg_module;
+
+    #if PY_MAJOR_VERSION >= 3
+    return _backend_agg->module().ptr();
+    #endif
 }

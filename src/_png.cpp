@@ -114,6 +114,10 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     }
 
     Py::Object py_fileobj = Py::Object(args[3]);
+#if PY_MAJOR_VERSION >= 3
+    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
+    PyErr_Clear();
+#endif
     if (py_fileobj.isString())
     {
         std::string fileName = Py::String(py_fileobj);
@@ -125,10 +129,17 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
         }
         close_file = true;
     }
+#if PY_MAJOR_VERSION >= 3
+    else if (fd != -1)
+    {
+        fp = fdopen(fd, "w");
+    }
+#else
     else if (PyFile_CheckExact(py_fileobj.ptr()))
     {
         fp = PyFile_AsFile(py_fileobj.ptr());
     }
+#endif
     else
     {
         PyObject* write_method = PyObject_GetAttrString(
@@ -247,7 +258,12 @@ static void _read_png_data(PyObject* py_file_obj, png_bytep data, png_size_t len
     {
         result = PyObject_CallFunction(read_method, (char *)"i", length);
     }
+#if PY_MAJOR_VERSION >= 3
+    PyObject* utf8_result = PyUnicode_AsUTF8String(result);
+    if (PyBytes_AsStringAndSize(utf8_result, &buffer, &bufflen) == 0)
+#else
     if (PyString_AsStringAndSize(result, &buffer, &bufflen) == 0)
+#endif
     {
         if (bufflen == (Py_ssize_t)length)
         {
@@ -274,6 +290,11 @@ _png_module::read_png(const Py::Tuple& args)
     bool close_file = false;
 
     Py::Object py_fileobj = Py::Object(args[0]);
+#if PY_MAJOR_VERSION >= 3
+    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
+    PyErr_Clear();
+#endif
+
     if (py_fileobj.isString())
     {
         std::string fileName = Py::String(py_fileobj);
@@ -285,10 +306,16 @@ _png_module::read_png(const Py::Tuple& args)
         }
         close_file = true;
     }
+#if PY_MAJOR_VERSION >= 3
+    else if (fd != -1) {
+        fp = fdopen(fd, "r");
+    }
+#else
     else if (PyFile_CheckExact(py_fileobj.ptr()))
     {
         fp = PyFile_AsFile(py_fileobj.ptr());
     }
+#endif
     else
     {
         PyObject* read_method = PyObject_GetAttrString(py_fileobj.ptr(), "read");
@@ -478,11 +505,20 @@ _png_module::read_png(const Py::Tuple& args)
 }
 
 extern "C"
-    DL_EXPORT(void)
-    init_png(void)
+#if PY_MAJOR_VERSION >= 3
+PyMODINIT_FUNC
+PyInit__png(void)
+#else
+PyMODINIT_FUNC
+init_png(void)
+#endif
 {
     import_array();
 
     static _png_module* _png = NULL;
     _png = new _png_module;
+
+#if PY_MAJOR_VERSION >= 3
+    return _png->module().ptr();
+#endif
 }

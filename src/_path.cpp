@@ -385,7 +385,7 @@ _path_module::update_path_extents(const Py::Tuple& args)
             "Must pass Bbox object as arg 3 of update_path_extents");
     }
     Py::Object minpos_obj = args[3];
-    bool ignore = bool(Py::Int(args[4]));
+    bool ignore = args[4].as_bool();
 
     double xm, ym;
     PyArrayObject* input_minpos = NULL;
@@ -605,7 +605,7 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
     Py::SeqBase<Py::Object> transforms_obj   = args[5];
     Py::SeqBase<Py::Object> offsets_obj      = args[6];
     agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7].ptr());
-    bool                    filled           = Py::Int(args[8]);
+    bool                    filled           = args[8].as_bool();
 
     PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(
         offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
@@ -934,7 +934,7 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
 
     PathIterator path(args[0]);
     Py::Object bbox_obj = args[1];
-    bool inside = Py::Int(args[2]);
+    bool inside = args[2].as_bool();
 
     double x0, y0, x1, y1;
     if (!py_convert_bbox(bbox_obj.ptr(), x0, y0, x1, y1))
@@ -1481,12 +1481,22 @@ _path_module::cleanup_path(const Py::Tuple& args)
     return result;
 }
 
+#if PY_MAJOR_VERSION >= 3
 extern "C"
-    DL_EXPORT(void)
-    init_path(void)
+PyMODINIT_FUNC
+PyInit__path(void)
+#else
+extern "C"
+PyMODINIT_FUNC
+init_path(void)
+#endif
 {
     static _path_module* _path = NULL;
     _path = new _path_module;
 
     import_array();
+
+    #if PY_MAJOR_VERSION >= 3
+    return _path->module().ptr();
+    #endif
 }
