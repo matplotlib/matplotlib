@@ -7,13 +7,15 @@ mplot3d tutorial
 
 Getting started
 ===============
-Create a new :class:`matplotlib.figure.Figure` and an
-:class:`~mpl_toolkits.mplot3d.Axes3D` object in it::
+An Axes3D object is created just like any other axes using
+the projection='3d' keyword.
+Create a new :class:`matplotlib.figure.Figure` and
+add a new axes to it of type :class:`~mpl_toolkits.mplot3d.Axes3D`::
 
-  import pylab
-  fig = pylab.figure()
+  import matplotlib.pyplot as plt
   from mpl_toolkits.mplot3d import Axes3D
-  ax = Axes3D(fig)
+  fig = pyplt.figure()
+  ax = fig.add_subplot(111, projection='3d')
 
 Line plots
 ====================
@@ -39,6 +41,7 @@ Surface plots
 
 .. plot:: mpl_examples/mplot3d/surface3d_demo.py
 .. plot:: mpl_examples/mplot3d/surface3d_demo2.py
+.. plot:: mpl_examples/mplot3d/surface3d_demo3.py
 
 Contour plots
 =============
@@ -46,6 +49,7 @@ Contour plots
 
 .. plot:: mpl_examples/mplot3d/contour3d_demo.py
 .. plot:: mpl_examples/mplot3d/contour3d_demo2.py
+.. plot:: mpl_examples/mplot3d/contour3d_demo3.py
 
 Filled contour plots
 ====================
@@ -75,3 +79,11 @@ Text
 
 .. plot:: mpl_examples/mplot3d/text3d_demo.py
 
+Subplotting
+====================
+Having multiple 3D plots in a single figure is the same
+as it is for 2D plots. And you can mix 2D and 3D plots
+into the same figure.
+
+.. plot:: mpl_examples/mplot3d/subplot3d_demo.py
+.. plot:: mpl_examples/mplot3d/mixed_subplots_demo.py

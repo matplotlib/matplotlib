@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 fig = plt.figure()
-ax = Axes3D(fig)
+ax = fig.gca(projection='3d')
 X = np.arange(-5, 5, 0.25)
 xlen = len(X)
 Y = np.arange(-5, 5, 0.25)

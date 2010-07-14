@@ -5,7 +5,7 @@ import numpy as np
 plt.ion()
 
 fig = plt.figure()
-ax = axes3d.Axes3D(fig)
+ax = fig.add_subplot(111, projection='3d')
 X, Y, Z = axes3d.get_test_data(0.1)
 ax.plot_wireframe(X, Y, Z, rstride=5, cstride=5)
 

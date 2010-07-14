@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 step = 0.04
 maxval = 1.0
 fig = plt.figure()
-ax = Axes3D(fig)
+ax = fig.add_subplot(111, projection='3d')
 
 # create supporting points in polar coordinates
 r = np.linspace(0,1.25,50)

@@ -1,3 +1,6 @@
+"""
+A very simple 'animation' of a 3D plot
+"""
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +12,7 @@ def generate(X, Y, phi):
 
 plt.ion()
 fig = plt.figure()
-ax = axes3d.Axes3D(fig)
+ax = fig.add_subplot(111, projection='3d')
 
 xs = np.linspace(-1, 1, 50)
 ys = np.linspace(-1, 1, 50)
