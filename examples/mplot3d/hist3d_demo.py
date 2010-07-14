@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 fig = plt.figure()
-ax = Axes3D(fig)
+ax = fig.add_subplot(111, projection='3d')
 x, y = np.random.rand(2, 100) * 4
 hist, xedges, yedges = np.histogram2d(x, y, bins=4)
 

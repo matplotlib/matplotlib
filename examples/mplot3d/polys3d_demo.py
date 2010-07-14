@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 fig = plt.figure()
-ax = Axes3D(fig)
+ax = fig.gca(projection='3d')
 
 cc = lambda arg: colorConverter.to_rgba(arg, alpha=0.6)
 

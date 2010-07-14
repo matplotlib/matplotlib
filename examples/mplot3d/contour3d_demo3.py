@@ -2,7 +2,7 @@ from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
-ax = axes3d.Axes3D(fig)
+ax = fig.gca(projection='3d')
 X, Y, Z = axes3d.get_test_data(0.05)
 ax.plot_surface(X, Y, Z, rstride=8, cstride=8, alpha=0.3)
 cset = ax.contour(X, Y, Z, zdir='z', offset=-100)

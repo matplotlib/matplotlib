@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
-ax = Axes3D(fig)
+ax = fig.gca(projection='3d')
 
 x = np.linspace(0, 1, 100)
 y = np.sin(x * 2 * np.pi) / 2 + 0.5

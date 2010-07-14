@@ -2,7 +2,7 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
-ax = Axes3D(fig)
+ax = fig.gca(projection='3d')
 
 zdirs = (None, 'x', 'y', 'z', (1, 1, 0), (1, 1, 1))
 xs = (2, 6, 4, 9, 7, 2)
