@@ -1684,7 +1684,7 @@ class Axes(martist.Artist):
 
         """
         if not args and not kw:
-            return self._ymargin, self._ymargin
+            return self._xmargin, self._ymargin
 
         tight = kw.pop('tight', True)
         mx = kw.pop('x', None)
