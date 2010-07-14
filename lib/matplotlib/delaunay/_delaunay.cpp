@@ -726,16 +726,40 @@ static PyMethodDef delaunay_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+#if PY_MAJOR_VERSION >= 3
+static PyModuleDef delaunay_module = {
+    PyModuleDef_HEAD_INIT,
+    "_delaunay",
+    "Tools for computing the Delaunay triangulation and some operations on it.\n",
+    -1,
+    delaunay_methods,
+    NULL, NULL, NULL, NULL
+};
 
+PyMODINIT_FUNC
+PyInit__delaunay(void)
+{
+    PyObject* m;
+    // import_array():
+
+    m = PyModule_Create(&delaunay_module);
+    if (m == NULL)
+        return NULL;
+
+    return m;
+}
+#else
 PyMODINIT_FUNC init_delaunay(void)
 {
     PyObject* m;
+    import_array();
+
     m = Py_InitModule3("_delaunay", delaunay_methods,
         "Tools for computing the Delaunay triangulation and some operations on it.\n"
         );
     if (m == NULL)
         return;
-    import_array();
 }
+#endif
 
 } // extern "C"

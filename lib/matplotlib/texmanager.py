@@ -236,7 +236,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         tex = fontcmd % tex
 
         if rcParams['text.latex.unicode']:
-            unicode_preamble = """\usepackage{ucs}
+            unicode_preamble = r"""\usepackage{ucs}
 \usepackage[utf8x]{inputenc}"""
         else:
             unicode_preamble = ''
@@ -288,7 +288,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         tex = fontcmd % tex
 
         if rcParams['text.latex.unicode']:
-            unicode_preamble = """\usepackage{ucs}
+            unicode_preamble = r"""\usepackage{ucs}
 \usepackage[utf8x]{inputenc}"""
         else:
             unicode_preamble = ''

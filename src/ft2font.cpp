@@ -285,9 +285,11 @@ FT2Image::py_as_str(const Py::Tuple & args)
     args.verify_length(0);
 
     return Py::asObject
-      (PyString_FromStringAndSize((const char *)_buffer,
-                                  _width*_height)
-       );
+#if PY_MAJOR_VERSION >= 3
+      (PyBytes_FromStringAndSize((const char *)_buffer, _width*_height));
+#else
+      (PyString_FromStringAndSize((const char *)_buffer, _width*_height));
+#endif
 }
 
 char FT2Image::as_array__doc__[] =
@@ -1515,7 +1517,7 @@ FT2Font::get_glyph_name(const Py::Tuple & args)
     }
 
     char buffer[128];
-    if (FT_Get_Glyph_Name(face, (FT_UInt) Py::Int(args[0]), buffer, 128))
+    if (FT_Get_Glyph_Name(face, (FT_UInt) (unsigned long)Py::Int(args[0]), buffer, 128))
     {
         throw Py::RuntimeError("Could not get glyph names.");
     }
@@ -2122,11 +2124,18 @@ char ft2font_new__doc__[] =
 #if defined(_MSC_VER)
 DL_EXPORT(void)
 #elif defined(__cplusplus)
-extern "C" void
+extern "C"
 #else
 void
 #endif
+
+#if PY_MAJOR_VERSION >= 3
+PyMODINIT_FUNC
+PyInit_ft2font(void)
+#else
+PyMODINIT_FUNC
 initft2font(void)
+#endif
 {
     static ft2font_module* ft2font = new ft2font_module;
     import_array();
@@ -2180,6 +2189,10 @@ initft2font(void)
     {
         throw Py::RuntimeError("Could not find initialize the freetype2 library");
     }
+
+    #if PY_MAJOR_VERSION >= 3
+    return ft2font->module().ptr();
+    #endif
 }
 
 ft2font_module::~ft2font_module()

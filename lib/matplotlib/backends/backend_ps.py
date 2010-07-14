@@ -1269,7 +1269,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     else: angle = 0
 
     if rcParams['text.latex.unicode']:
-        unicode_preamble = """\usepackage{ucs}
+        unicode_preamble = r"""\usepackage{ucs}
 \usepackage[utf8x]{inputenc}"""
     else:
         unicode_preamble = ''

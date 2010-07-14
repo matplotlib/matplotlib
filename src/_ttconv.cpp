@@ -86,7 +86,11 @@ int pyiterable_to_vector_int(PyObject* object, void* address)
     PyObject* item;
     while ((item = PyIter_Next(iterator)))
     {
+        #if PY_MAJOR_VERSION >= 3
+        long value = PyLong_AsLong(item);
+        #else
         long value = PyInt_AsLong(item);
+        #endif
         Py_DECREF(item);
         if (value == -1 && PyErr_Occurred())
         {
@@ -169,7 +173,11 @@ public:
 
     virtual void add_pair(const char* a, const char* b)
     {
+        #if PY_MAJOR_VERSION >= 3
+        PyObject* value = PyUnicode_FromString(b);
+        #else
         PyObject* value = PyString_FromString(b);
+        #endif
         if (value)
         {
             if (PyDict_SetItemString(_dict, a, value))
@@ -271,17 +279,36 @@ static PyMethodDef ttconv_methods[] =
     {0, 0, 0, 0}  /* Sentinel */
 };
 
-#ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
-#define PyMODINIT_FUNC void
-#endif
+static const char* module_docstring =
+    "Module to handle converting and subsetting TrueType "
+    "fonts to Postscript Type 3, Postscript Type 42 and "
+    "Pdf Type 3 fonts.";
+
+#if PY_MAJOR_VERSION >= 3
+static PyModuleDef ttconv_module = {
+    PyModuleDef_HEAD_INIT,
+    "ttconv",
+    module_docstring,
+    -1,
+    ttconv_methods,
+    NULL, NULL, NULL, NULL
+};
+
+PyMODINIT_FUNC
+PyInit_ttconv(void)
+{
+    PyObject* m;
+
+    m = PyModule_Create(&ttconv_module);
+
+    return m;
+}
+#else
 PyMODINIT_FUNC
 initttconv(void)
 {
     PyObject* m;
 
-    m = Py_InitModule3("ttconv", ttconv_methods,
-                       "Module to handle converting and subsetting TrueType "
-                       "fonts to Postscript Type 3, Postscript Type 42 and "
-                       "Pdf Type 3 fonts.");
+    m = Py_InitModule3("ttconv", ttconv_methods, module_docstring);
 }
-
+#endif

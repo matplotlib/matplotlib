@@ -13,7 +13,10 @@ import cPickle
 import os.path
 import random
 import urllib2
-import new
+if sys.hexversion > 0x03000000:
+    import types
+else:
+    import new
 
 import matplotlib
 
@@ -183,7 +186,10 @@ class CallbackRegistry:
                 raise ReferenceError
             elif self.inst is not None:
                 # build a new instance method with a strong reference to the instance
-                mtd = new.instancemethod(self.func, self.inst(), self.klass)
+                if sys.hexversion >= 0x03000000:
+                    mtd = types.MethodType(self.func, self.inst(), self.klass)
+                else:
+                    mtd = new.instancemethod(self.func, self.inst(), self.klass)
             else:
                 # not a bound method, just return the func
                 mtd = self.func

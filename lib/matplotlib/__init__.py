@@ -130,13 +130,18 @@ The default file location is given in the following order
 
 import sys, os, tempfile
 
+if sys.hexversion >= 0x03000000:
+    def ascii(s): return bytes(s, 'ascii')
+else:
+    ascii = str
+
 from matplotlib.rcsetup import (defaultParams,
                                 validate_backend,
                                 validate_toolbar,
                                 validate_cairo_format)
 
 major, minor1, minor2, s, tmp = sys.version_info
-_python24 = major>=2 and minor1>=4
+_python24 = (major == 2 and minor1 >= 4) or major >= 3
 
 # the havedate check was a legacy from old matplotlib which preceeded
 # datetime support
@@ -172,7 +177,7 @@ def _is_writable_dir(p):
     except TypeError: return False
     try:
         t = tempfile.TemporaryFile(dir=p)
-        t.write('1')
+        t.write(ascii('1'))
         t.close()
     except OSError: return False
     else: return True
