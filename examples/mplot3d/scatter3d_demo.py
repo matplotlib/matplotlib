@@ -6,7 +6,7 @@ def randrange(n, vmin, vmax):
     return (vmax-vmin)*np.random.rand(n) + vmin
 
 fig = plt.figure()
-ax = Axes3D(fig)
+ax = fig.add_subplot(111, projection='3d')
 n = 100
 for c, m, zl, zh in [('r', 'o', -50, -25), ('b', '^', -30, -5)]:
     xs = randrange(n, 23, 32)
