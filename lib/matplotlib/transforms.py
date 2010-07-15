@@ -31,7 +31,8 @@ themselves.
 
 import numpy as np
 from numpy import ma
-from matplotlib._path import affine_transform
+from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
+    update_path_extents)
 from numpy.linalg import inv
 
 from weakref import WeakKeyDictionary
@@ -43,7 +44,6 @@ except NameError:
 
 import cbook
 from path import Path
-from _path import count_bboxes_overlapping_bbox, update_path_extents
 
 DEBUG = False
 if DEBUG:
@@ -2329,4 +2329,3 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     elif not units == 'inches':
         raise ValueError('units must be dots, points, or inches')
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)
-
