@@ -1886,11 +1886,12 @@ class YAxis(Axis):
 
     def set_ticks_position(self, position):
         """
-        Set the ticks position (left, right, both or default)
-        both sets the ticks to appear on both positions, but
-        does not change the tick labels.
-        default resets the tick positions to the default:
-        ticks on both positions, labels on the left.
+        Set the ticks position (left, right, both, default or none)
+        'both' sets the ticks to appear on both positions, but does not
+        change the tick labels.  'default' resets the tick positions to
+        the default: ticks on both positions, labels at left.  'none'
+        can be used if you don't want any ticks. 'none' and 'both'
+        affect only the ticks, not the labels.
 
         ACCEPTS: [ 'left' | 'right' | 'both' | 'default' | 'none' ]
         """
@@ -1904,8 +1905,8 @@ class YAxis(Axis):
             self.set_tick_params(which='both', right=True,
                                  left=True)
         elif position == 'none':
-            self.set_tick_params(which='both', right=False, labelright=False,
-                                 left=False, labelleft=False)
+            self.set_tick_params(which='both', right=False,
+                                 left=False)
         elif position == 'default':
             self.set_tick_params(which='both', right=True, labelright=False,
                                  left=True, labelleft=True)
