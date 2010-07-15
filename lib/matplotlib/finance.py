@@ -170,18 +170,18 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
     if cachename is None:
         cachename = os.path.join(cachedir, md5(url).hexdigest())
     if os.path.exists(cachename):
-        fh = file(cachename)
+        fh = open(cachename)
         verbose.report('Using cachefile %s for %s'%(cachename, ticker))
     else:
         if not os.path.isdir(cachedir):
             os.mkdir(cachedir)
         urlfh = urlopen(url)
 
-        fh = file(cachename, 'w')
+        fh = open(cachename, 'w')
         fh.write(urlfh.read())
         fh.close()
         verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
-        fh = file(cachename, 'r')
+        fh = open(cachename, 'r')
 
     return fh
 

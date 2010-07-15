@@ -440,7 +440,7 @@ def to_filehandle(fname, flag='rU', return_opened=False):
             import bz2
             fh = bz2.BZ2File(fname, flag)
         else:
-            fh = file(fname, flag)
+            fh = open(fname, flag)
         opened = True
     elif hasattr(fname, 'seek'):
         fh = fname

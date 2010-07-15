@@ -14,7 +14,7 @@ either
 It is pretty easy to use, and requires only built-in python libs::
 
     >>> from afm import AFM
-    >>> fh = file('ptmr8a.afm')
+    >>> fh = open('ptmr8a.afm')
     >>> afm = AFM(fh)
     >>> afm.string_width_height('What the heck?')
     (6220.0, 683)
@@ -499,6 +499,6 @@ if __name__=='__main__':
     pathname = '/usr/local/share/fonts/afms/adobe'
 
     for fname in os.listdir(pathname):
-        fh = file(os.path.join(pathname,fname))
+        fh = open(os.path.join(pathname,fname))
         afm = AFM(fh)
         w,h =  afm.string_width_height('John Hunter is the Man!')

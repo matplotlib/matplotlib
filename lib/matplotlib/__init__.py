@@ -220,7 +220,7 @@ class Verbose:
             self.fileo = std[fname]
         else:
             try:
-                fileo = file(fname, 'w')
+                fileo = open(fname, 'w')
             except IOError:
                 raise ValueError('Verbose object could not open log file "%s" for writing.\nCheck your matplotlibrc verbose.fileo setting'%fname)
             else:
@@ -695,7 +695,7 @@ def rc_params(fail_on_error=False):
 
     cnt = 0
     rc_temp = {}
-    for line in file(fname):
+    for line in open(fname):
         cnt += 1
         strippedline = line.split('#',1)[0].strip()
         if not strippedline: continue
