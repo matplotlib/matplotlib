@@ -71,7 +71,13 @@ def show():
     """
     for manager in Gcf.get_all_fig_managers():
         manager.show()
-    Tk.mainloop()
+    try:
+        if not show._needmain: # might have been added by ipython
+            return
+    except AttributeError:
+        pass
+    if not matplotlib.is_interactive():
+        Tk.mainloop()
 
 def new_figure_manager(num, *args, **kwargs):
     """
