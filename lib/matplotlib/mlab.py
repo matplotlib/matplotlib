@@ -1336,7 +1336,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
             import gzip
             fh = gzip.open(fname,'wb')
         else:
-            fh = file(fname,'w')
+            fh = open(fname,'w')
     elif hasattr(fname, 'seek'):
         fh = fname
     else:
