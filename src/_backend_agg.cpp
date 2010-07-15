@@ -212,7 +212,7 @@ void
 GCAgg::_set_antialiased(const Py::Object& gc)
 {
     _VERBOSE("GCAgg::antialiased");
-    isaa = gc.getAttr("_antialiased").as_bool();
+    isaa = Py::Boolean(gc.getAttr("_antialiased"));
 }
 
 
@@ -1521,7 +1521,7 @@ RendererAgg::_draw_path_collection_generic
 
         if (check_snap)
         {
-            gc.isaa = antialiaseds[i % Naa].as_bool();
+            gc.isaa = Py::Boolean(antialiaseds[i % Naa]);
 
             transformed_path_t tpath(path, trans);
             nan_removed_t      nan_removed(tpath, true, has_curves);
@@ -1540,7 +1540,7 @@ RendererAgg::_draw_path_collection_generic
         }
         else
         {
-            gc.isaa = antialiaseds[i % Naa].as_bool();
+            gc.isaa = Py::Boolean(antialiaseds[i % Naa]);
 
             transformed_path_t tpath(path, trans);
             nan_removed_t      nan_removed(tpath, true, has_curves);
@@ -1753,8 +1753,8 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
     Py::Object              offsets_obj      = args[5];
     agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[6].ptr());
     Py::Object              facecolors_obj   = args[7];
-    bool                    antialiased      = args[8].as_bool();
-    bool                    showedges        = args[9].as_bool();
+    bool                    antialiased      = Py::Boolean(args[8]);
+    bool                    showedges        = Py::Boolean(args[9]);
     bool                    free_edgecolors  = false;
 
     QuadMeshGenerator path_generator(mesh_width, mesh_height, coordinates.ptr());
