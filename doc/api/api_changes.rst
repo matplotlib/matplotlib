@@ -117,6 +117,21 @@ Changes beyond 0.99.x
 
     draw_image(self, gc, x, y, im)
 
+* There are four new Axes methods with corresponding pyplot
+  functions that deal with unstructured triangular grids:
+
+  + :meth:`matplotlib.axes.Axes.tricontour` draws contour lines
+    on a triangular grid.
+
+  + :meth:`matplotlib.axes.Axes.tricontourf` draws filled contours
+    on a triangular grid.
+
+  + :meth:`matplotlib.axes.Axes.tripcolor` draws a pseudocolor
+    plot on a triangular grid.
+
+  + :meth:`matplotlib.axes.Axes.triplot` draws a triangular grid
+    as lines and/or markers.
+
 Changes in 0.99
 ======================
 

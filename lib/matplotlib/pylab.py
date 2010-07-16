@@ -92,6 +92,10 @@ _Plotting commands
   tick_params - control the appearance of ticks and tick labels
   ticklabel_format - control the format of tick labels
   title    - add a title to the current axes
+  tricontour - make a contour plot on a triangular grid
+  tricontourf - make a filled contour plot on a triangular grid
+  tripcolor - make a pseudocolor plot on a triangular grid
+  triplot - plot a triangular grid
   xcorr   - plot the autocorrelation function of x and y
   xlim     - set/get the xlimits
   ylim     - set/get the ylimits
