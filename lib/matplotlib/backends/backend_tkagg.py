@@ -18,9 +18,10 @@ from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
 from matplotlib.backend_bases import NavigationToolbar2, cursors, TimerBase
+from matplotlib.backend_bases import ShowBase
+from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.figure import Figure
-from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.widgets import SubplotTool
 
@@ -63,21 +64,11 @@ def draw_if_interactive():
         if figManager is not None:
             figManager.show()
 
-
-def show():
-    """
-    Show all figures.
-
-    """
-    for manager in Gcf.get_all_fig_managers():
-        manager.show()
-    try:
-        if not show._needmain: # might have been added by ipython
-            return
-    except AttributeError:
-        pass
-    if not matplotlib.is_interactive():
+class Show(ShowBase):
+    def mainloop(self):
         Tk.mainloop()
+
+show = Show()
 
 def new_figure_manager(num, *args, **kwargs):
     """
