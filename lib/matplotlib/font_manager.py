@@ -235,13 +235,12 @@ def OSXFontDirectory():
     within them.
     """
     fontpaths = []
-    def add(arg,directory,files):
-        fontpaths.append(directory)
 
     for fontdir in OSXFontDirectories:
         try:
             if os.path.isdir(fontdir):
-                os.path.walk(fontdir, add, None)
+                for root, dirs, files in os.walk(fontdir):
+                    fontpaths.append(root)
         except (IOError, OSError, TypeError, ValueError):
             pass
     return fontpaths
@@ -274,13 +273,12 @@ def x11FontDirectory():
     within them.
     """
     fontpaths = []
-    def add(arg,directory,files):
-        fontpaths.append(directory)
 
     for fontdir in X11FontDirectories:
         try:
             if os.path.isdir(fontdir):
-                os.path.walk(fontdir, add, None)
+                for root, dirs, files in os.walk(fontdir):
+                    fontpaths.append(root)
         except (IOError, OSError, TypeError, ValueError):
             pass
     return fontpaths
@@ -304,6 +302,7 @@ def get_fontconfig_fonts(fontext='ttf'):
         return fontfiles
 
     if pipe.returncode == 0:
+        output = str(output)
         for line in output.split('\n'):
             fname = line.split(':')[0]
             if (os.path.splitext(fname)[1][1:] in fontext and
@@ -945,7 +944,8 @@ def pickle_dump(data, filename):
     Equivalent to pickle.dump(data, open(filename, 'w'))
     but closes the file to prevent filehandle leakage.
     """
-    fh = open(filename, 'w')
+    fh = open(filename, 'wb')
+    print data
     try:
         pickle.dump(data, fh)
     finally:
@@ -956,7 +956,7 @@ def pickle_load(filename):
     Equivalent to pickle.load(open(filename, 'r'))
     but closes the file to prevent filehandle leakage.
     """
-    fh = open(filename, 'r')
+    fh = open(filename, 'rb')
     try:
         data = pickle.load(fh)
     finally:
@@ -975,7 +975,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 7
+    __version__ = 8
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1337,6 +1337,19 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         return result
 
 else:
+    if sys.hexversion >= 0x03000000:
+        _fmcache = os.path.join(get_configdir(), 'fontList.py3k.cache')
+    else:
+        _fmcache = os.path.join(get_configdir(), 'fontList.py3k.cache')
+
+    fontManager = None
+
+    def _rebuild():
+        global fontManager
+        fontManager = FontManager()
+        pickle_dump(fontManager, _fmcache)
+        verbose.report("generated new fontManager")
+
     try:
         fontManager = pickle_load(_fmcache)
         if (not hasattr(fontManager, '_version') or

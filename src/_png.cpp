@@ -222,24 +222,30 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     }
     catch (...)
     {
-        if (fp && close_file)
-        {
-            fclose(fp);
-        }
-        delete [] row_pointers;
-        /* Changed calls to png_destroy_write_struct to follow
-           http://www.libpng.org/pub/png/libpng-manual.txt.
-           This ensures the info_ptr memory is released.
-        */
         if (png_ptr && info_ptr)
         {
             png_destroy_write_struct(&png_ptr, &info_ptr);
         }
+        delete [] row_pointers;
+        if (fp && close_file)
+        {
+            fclose(fp);
+        }
+        /* Changed calls to png_destroy_write_struct to follow
+           http://www.libpng.org/pub/png/libpng-manual.txt.
+           This ensures the info_ptr memory is released.
+        */
         throw;
     }
 
     png_destroy_write_struct(&png_ptr, &info_ptr);
     delete [] row_pointers;
+#if PY_MAJOR_VERSION >= 3
+    if (fp)
+    {
+        fflush(fp);
+    }
+#endif
     if (fp && close_file)
     {
         fclose(fp);

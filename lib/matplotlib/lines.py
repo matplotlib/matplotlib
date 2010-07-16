@@ -1823,4 +1823,4 @@ docstring.interpd.update(Line2D = artist.kwdoc(Line2D))
 
 # You can not set the docstring of an instancemethod,
 # but you can on the underlying function.  Go figure.
-docstring.dedent_interpd(Line2D.__init__.im_func)
+docstring.dedent_interpd(Line2D.__init__)

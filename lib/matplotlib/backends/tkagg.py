@@ -1,4 +1,4 @@
-import _tkagg
+from matplotlib import _tkagg
 import Tkinter as Tk
 
 def blit(photoimage, aggimage, bbox=None, colormode=1):

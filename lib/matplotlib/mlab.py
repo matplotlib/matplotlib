@@ -148,7 +148,6 @@ import numpy as np
 ma = np.ma
 from matplotlib import verbose
 
-import matplotlib.nxutils as nxutils
 import matplotlib.cbook as cbook
 from matplotlib import docstring
 
@@ -2964,6 +2963,7 @@ def inside_poly(points, verts):
     Return value is a sequence of indices into points for the points
     that are inside the polygon.
     """
+    # PY3KTODO: Reimplement in terms of _path module
     res, =  np.nonzero(nxutils.points_inside_poly(points, verts))
     return res
 

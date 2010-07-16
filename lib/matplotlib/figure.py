@@ -17,7 +17,7 @@ import artist
 from artist import Artist, allow_rasterization
 from axes import Axes, SubplotBase, subplot_class_factory
 from cbook import flatten, allequal, Stack, iterable, is_string_like
-import _image
+from matplotlib import _image
 import colorbar as cbar
 from image import FigureImage
 from matplotlib import rcParams
