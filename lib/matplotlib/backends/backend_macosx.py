@@ -7,6 +7,8 @@ import MacOS
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2
+from matplotlib.backend_bases import ShowBase
+
 from matplotlib.cbook import maxdict
 from matplotlib.figure import Figure
 from matplotlib.path import Path
@@ -20,19 +22,16 @@ from matplotlib.widgets import SubplotTool
 import matplotlib
 from matplotlib.backends import _macosx
 
-def show():
-    """Show all the figures and enter the Cocoa mainloop.
-    This function will not return until all windows are closed or
-    the interpreter exits."""
-    # Having a Python-level function "show" wrapping the built-in
-    # function "show" in the _macosx extension module allows us to
-    # to add attributes to "show". This is something ipython does.
-    _macosx.show()
+class Show(ShowBase):
+    def mainloop(self):
+        _macosx.show()
+
+show = Show()
 
 class RendererMac(RendererBase):
     """
     The renderer handles drawing/rendering operations. Most of the renderer's
-    methods forwards the command to the renderer's graphics context. The
+    methods forward the command to the renderer's graphics context. The
     renderer does not wrap a C object and is written in pure Python.
     """
 
