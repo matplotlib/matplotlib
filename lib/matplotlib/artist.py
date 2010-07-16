@@ -485,7 +485,7 @@ class Artist(object):
         :class:`~matplotlib.transforms.Transform`) |
         :class:`~matplotlib.patches.Patch` | None ]
         """
-        from patches import Patch, Rectangle
+        from matplotlib.patches import Patch, Rectangle
 
         success = False
         if transform is None:

@@ -39,7 +39,7 @@ except ImportError:
     from distutils.command.build_py import build_py
 from setupext import build_agg, build_gtkagg, build_tkagg,\
      build_macosx, build_ft2font, build_image, build_windowing, build_path, \
-     build_contour, build_delaunay, build_nxutils, build_gdk, \
+     build_contour, build_delaunay, build_gdk, \
      build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, \
      check_for_tk, check_for_macosx, check_for_numpy, \
@@ -128,7 +128,6 @@ build_ft2font(ext_modules, packages)
 build_ttconv(ext_modules, packages)
 build_contour(ext_modules, packages)
 build_delaunay(ext_modules, packages)
-build_nxutils(ext_modules, packages)
 build_path(ext_modules, packages)
 build_tri(ext_modules, packages)
 

@@ -429,7 +429,7 @@ for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
     docstring.interpd.update({k:patchdoc})
 
 # define Patch.__init__ docstring after the class has been added to interpd
-docstring.dedent_interpd(Patch.__init__.im_func)
+docstring.dedent_interpd(Patch.__init__)
 
 class Shadow(Patch):
     def __str__(self):

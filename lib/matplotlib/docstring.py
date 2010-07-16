@@ -1,29 +1,31 @@
 from matplotlib import cbook
+import sys
+import types
 
 class Substitution(object):
     """
     A decorator to take a function's docstring and perform string
     substitution on it.
-    
+
     This decorator should be robust even if func.__doc__ is None
     (for example, if -OO was passed to the interpreter)
-    
+
     Usage: construct a docstring.Substitution with a sequence or
     dictionary suitable for performing substitution; then
     decorate a suitable function with the constructed object. e.g.
-    
+
     sub_author_name = Substitution(author='Jason')
-    
+
     @sub_author_name
     def some_function(x):
         "%(author)s wrote this function"
-    
+
     # note that some_function.__doc__ is now "Jason wrote this function"
-    
+
     One can also use positional arguments.
-    
+
     sub_first_last_names = Substitution('Edgar Allen', 'Poe')
-    
+
     @sub_first_last_names
     def some_function(x):
         "%s %s wrote the Raven"
@@ -56,16 +58,16 @@ class Appender(object):
     """
     A function decorator that will append an addendum to the docstring
     of the target function.
-    
+
     This decorator should be robust even if func.__doc__ is None
     (for example, if -OO was passed to the interpreter).
-    
+
     Usage: construct a docstring.Appender with a string to be joined to
     the original docstring. An optional 'join' parameter may be supplied
     which will be used to join the docstring and addendum. e.g.
-    
+
     add_copyright = Appender("Copyright (c) 2009", join='\n')
-    
+
     @add_copyright
     def my_dog(has='fleas'):
         "This docstring will have a copyright below"
@@ -100,6 +102,8 @@ interpd = Substitution()
 def dedent_interpd(func):
     """A special case of the interpd that first performs a dedent on
     the incoming docstring"""
+    if isinstance(func, types.MethodType) and sys.hexversion <= 0x03000000:
+        func = func.im_func
     return interpd(dedent(func))
 
 def copy_dedent(source):

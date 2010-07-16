@@ -22,8 +22,6 @@ from matplotlib.lines import Line2D
 
 from matplotlib.artist import allow_rasterization
 
-import matplotlib.nxutils as nxutils
-
 from matplotlib.path import Path
 import matplotlib.font_manager as font_manager
 from matplotlib.ft2font import FT2Font
@@ -212,11 +210,8 @@ class Text(Artist):
 
         r = l+w
         t = b+h
-        xyverts = (l,b), (l, t), (r, t), (r, b)
         x, y = mouseevent.x, mouseevent.y
-        inside = nxutils.pnpoly(x, y, xyverts)
-
-        return inside,{}
+        return x >= l and x <= r and y >= t and y <= b
 
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x, y in display coords'
@@ -1007,7 +1002,7 @@ class Text(Artist):
         self.set_fontproperties(fp)
 
 docstring.interpd.update(Text = artist.kwdoc(Text))
-docstring.dedent_interpd(Text.__init__.im_func)
+docstring.dedent_interpd(Text.__init__)
 
 
 class TextWithDash(Text):

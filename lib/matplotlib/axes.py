@@ -1,5 +1,5 @@
 from __future__ import division, generators
-import math, sys, warnings, datetime, new
+import math, sys, warnings, datetime
 from operator import itemgetter
 import itertools
 
@@ -8468,9 +8468,15 @@ def subplot_class_factory(axes_class=None):
 
     new_class = _subplot_classes.get(axes_class)
     if new_class is None:
-        new_class = new.classobj("%sSubplot" % (axes_class.__name__),
-                                 (SubplotBase, axes_class),
-                                 {'_axes_class': axes_class})
+        if sys.hexversion >= 0x03000000:
+            new_class = type("%sSubplot" % (axes_class.__name__),
+                             (SubplotBase, axes_class),
+                             {'_axes_class': axes_class})
+        else:
+            import new
+            new_class = new.classobj("%sSubplot" % (axes_class.__name__),
+                                     (SubplotBase, axes_class),
+                                     {'_axes_class': axes_class})
         _subplot_classes[axes_class] = new_class
 
     return new_class

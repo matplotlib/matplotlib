@@ -105,7 +105,6 @@ BUILT_TKAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
 BUILT_DELAUNAY  = False
-BUILT_NXUTILS   = False
 BUILT_CONTOUR   = False
 BUILT_GDK       = False
 BUILT_PATH      = False
@@ -1278,22 +1277,6 @@ def build_contour(ext_modules, packages):
     ext_modules.append(module)
 
     BUILT_CONTOUR = True
-
-
-def build_nxutils(ext_modules, packages):
-    global BUILT_NXUTILS
-    if BUILT_NXUTILS: return # only build it if you you haven't already
-    module = Extension(
-        'matplotlib.nxutils',
-        [ 'src/nxutils.c'],
-        include_dirs=numpy_inc_dirs,
-        define_macros=defines
-        )
-    add_numpy_flags(module)
-    add_base_flags(module)
-    ext_modules.append(module)
-
-    BUILT_NXUTILS = True
 
 
 def build_gdk(ext_modules, packages):
