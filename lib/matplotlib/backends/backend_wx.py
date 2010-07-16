@@ -24,6 +24,8 @@ cvs_id = '$Id$'
 import sys, os, os.path, math, StringIO, weakref, warnings
 import numpy as np
 
+
+
 # Debugging settings here...
 # Debug level set here. If the debug level is less than 5, information
 # messages (progressively more info for lower value) are printed. In addition,
@@ -117,6 +119,8 @@ from matplotlib import verbose
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureCanvasBase, FigureManagerBase, NavigationToolbar2, \
      cursors, TimerBase
+from matplotlib.backend_bases import ShowBase
+
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.artist import Artist
 from matplotlib.cbook import exception_to_str, is_string_like, is_writable_file_like
@@ -1394,23 +1398,15 @@ def draw_if_interactive():
         if figManager is not None:
             figManager.canvas.draw_idle()
 
-def show():
-    """
-    Show all the figures and enter the wx main loop.
-    This should be the last line of your script.
-    """
-    DEBUG_MSG("show()", 3, None)
+class Show(ShowBase):
+    def mainloop(self):
+        needmain = not wx.App.IsMainLoopRunning()
+        if needmain:
+            wxapp = wx.GetApp()
+            if wxapp is not None:
+                wxapp.MainLoop()
 
-    for figwin in Gcf.get_all_fig_managers():
-        figwin.frame.Show()
-
-    needmain = not wx.App.IsMainLoopRunning()
-    if  needmain and len(Gcf.get_all_fig_managers())>0:
-        wxapp = wx.GetApp()
-        if wxapp is not None:
-            wxapp.MainLoop()
-            # start the wxPython gui event if there is not already one running
-
+show = Show()
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -1555,6 +1551,8 @@ class FigureManagerWx(FigureManagerBase):
         # attach a show method to the figure
         self.canvas.figure.show = showfig
 
+    def show(self):
+        self.frame.Show()
 
     def destroy(self, *args):
         DEBUG_MSG("destroy()", 1, self)

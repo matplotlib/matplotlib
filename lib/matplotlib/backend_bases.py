@@ -21,6 +21,11 @@ graphics contexts must implement to serve as a matplotlib backend
     pressed, x and y locations in pixel and
     :class:`~matplotlib.axes.Axes` coordinates.
 
+:class:`ShowBase`
+    The base class for the Show class of each interactive backend;
+    the 'show' callable is then set to Show.__call__, inherited from
+    ShowBase.
+
 """
 
 from __future__ import division
@@ -33,6 +38,8 @@ import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
 #import matplotlib.path as path
 from matplotlib import rcParams
+from matplotlib import is_interactive
+from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 import cStringIO
@@ -51,6 +58,36 @@ _backend_d = {}
 
 def register_backend(format, backend_class):
     _backend_d[format] = backend_class
+
+
+class ShowBase(object):
+    """
+    Simple base class to generate a show() callable in backends.
+
+    Subclass must override mainloop() method.
+    """
+    def __call__(self):
+        """
+        Show all figures.
+        """
+        managers = Gcf.get_all_fig_managers()
+        if not managers:
+            return
+
+        for manager in managers:
+            manager.show()
+
+        try:
+            if not self._needmain:  # ipython flag
+                return
+        except AttributeError:
+            pass
+
+        if not is_interactive():
+            self.mainloop()
+
+    def mainloop(self):
+        pass
 
 
 

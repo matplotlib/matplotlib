@@ -8,6 +8,8 @@ from matplotlib import verbose
 from matplotlib.cbook import is_string_like, onetrue
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
+from matplotlib.backend_bases import ShowBase
+
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
@@ -54,22 +56,12 @@ def _create_qApp():
 
 _create_qApp.qAppCreatedHere = False
 
-def show():
-    """
-    Show all the figures and enter the qt main loop
-    This should be the last line of your script
-    """
-    for manager in Gcf.get_all_fig_managers():
-        manager.window.show()
+class Show(ShowBase):
+    def mainloop(self):
+        if _create_qApp.qAppCreatedHere:
+            qt.qApp.exec_loop()
 
-    if DEBUG: print 'Inside show'
-
-    figManager =  Gcf.get_active()
-    if figManager != None:
-        figManager.canvas.draw()
-
-    if _create_qApp.qAppCreatedHere:
-        qt.qApp.exec_loop()
+show = Show()
 
 
 def new_figure_manager( num, *args, **kwargs ):
@@ -281,6 +273,9 @@ class FigureManagerQT( FigureManagerBase ):
         'set the canvas size in pixels'
         self.window.resize(width, height)
 
+    def show(self):
+        self.window.show()
+
     def destroy( self, *args ):
         if self.window._destroying: return
         self.window._destroying = True
@@ -358,6 +353,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
 
         # reference holder for subplots_adjust window
         self.adj_window = None
+
 
     def destroy( self ):
         for text, tooltip_text, image_file, callback in self.toolitems:
