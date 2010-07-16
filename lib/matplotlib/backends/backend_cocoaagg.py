@@ -30,6 +30,8 @@ from PyObjCTools import NibClassBuilder, AppHelper
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
+from matplotlib.backend_bases import ShowBase
+
 from backend_agg import FigureCanvasAgg
 from matplotlib._pylab_helpers import Gcf
 
@@ -41,9 +43,23 @@ def new_figure_manager(num, *args, **kwargs):
     canvas = FigureCanvasCocoaAgg(thisFig)
     return FigureManagerCocoaAgg(canvas, num)
 
-def show():
-    for manager in Gcf.get_all_fig_managers():
-        manager.show()
+## Below is the original show() function:
+#def show():
+#    for manager in Gcf.get_all_fig_managers():
+#        manager.show()
+#
+## It appears that this backend is unusual in having a separate
+## run function invoked for each figure, instead of a single
+## mainloop.  Presumably there is no blocking at all.
+##
+## Using the Show class below should cause no difference in
+## behavior.
+
+class Show(ShowBase):
+    def mainloop(self):
+        pass
+
+show = Show()
 
 def draw_if_interactive():
     if matplotlib.is_interactive():

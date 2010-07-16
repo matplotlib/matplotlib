@@ -20,10 +20,11 @@ del pygtk_version_required
 _new_tooltip_api =  (gtk.pygtk_version[1] >= 12)
 
 import matplotlib
-from matplotlib import verbose
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
+from matplotlib.backend_bases import ShowBase
+
 from matplotlib.backends.backend_gdk import RendererGDK, FigureCanvasGDK
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -65,17 +66,12 @@ def draw_if_interactive():
             figManager.canvas.draw_idle()
 
 
-def show(mainloop=True):
-    """
-    Show all the figures and enter the gtk main loop
-    This should be the last line of your script
-    """
-    for manager in Gcf.get_all_fig_managers():
-        manager.window.show()
+class Show(ShowBase):
+    def mainloop(self):
+        if gtk.main_level() == 0:
+            gtk.main()
 
-    if mainloop and gtk.main_level() == 0 and \
-                            len(Gcf.get_all_fig_managers())>0:
-        gtk.main()
+show = Show()
 
 def new_figure_manager(num, *args, **kwargs):
     """

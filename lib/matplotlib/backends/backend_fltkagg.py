@@ -24,23 +24,13 @@ from matplotlib.cbook import is_string_like
 from matplotlib.backend_bases import \
      RendererBase, GraphicsContextBase, FigureManagerBase, FigureCanvasBase,\
      NavigationToolbar2, cursors
+from matplotlib.backend_bases import ShowBase
+
+
 from matplotlib.figure import Figure
 from matplotlib._pylab_helpers import Gcf
 import matplotlib.backends.windowing as windowing
 from matplotlib.widgets import SubplotTool
-
-
-import thread,time
-
-Fl_running=thread.allocate_lock()
-def Fltk_run_interactive():
-    global Fl_running
-    if Fl_running.acquire(0):
-      while True:
-        Fltk.Fl.check()
-        time.sleep(0.005)
-    else:
-        print "fl loop already running"
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
@@ -75,29 +65,12 @@ def draw_if_interactive():
         if figManager is not None:
             figManager.canvas.draw()
 
+class Show(ShowBase):
+    def mainloop(self):
+        Fltk.Fl.run()
 
-def ishow():
-    """
-    Show all the figures and enter the fltk mainloop in another thread
-    This allows to keep hand in interractive python session
-    Warning: does not work under windows
-    This should be the last line of your script
-    """
-    for manager in Gcf.get_all_fig_managers():
-        manager.show()
-    if show._needmain:
-        thread.start_new_thread(Fltk_run_interactive,())
-    show._needmain = False
+show = Show()
 
-def show():
-    """
-    Show all the figures and enter the fltk mainloop
-
-    This should be the last line of your script
-    """
-    for manager in Gcf.get_all_fig_managers():
-        manager.show()
-    Fltk.Fl.run()
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -249,8 +222,9 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
-def destroy_figure(ptr,figman):
+def destroy_figure(ptr, figman):
     figman.window.hide()
+    Fltk.Fl.wait(0)         # This is needed to make the last figure vanish.
     Gcf.destroy(figman._num)
 
 class FigureManagerFltkAgg(FigureManagerBase):
@@ -300,6 +274,11 @@ class FigureManagerFltkAgg(FigureManagerBase):
         _focus = windowing.FocusManager()
         self.canvas.draw()
         self.window.redraw()
+
+    def destroy(self):
+        self.window.hide()
+        Fltk.Fl.wait(0)         # This is needed to make the last figure vanish.
+        Gcf.destroy(self._num)
 
     def set_window_title(self, title):
         self.window_title=title
