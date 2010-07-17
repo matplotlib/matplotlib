@@ -641,14 +641,14 @@ class TextArea(OffsetBox):
         bbox, info = self._text._get_layout(renderer)
         w, h = bbox.width, bbox.height
 
-        line = info[0][0] # first line
-
+        line = info[-1][0] # last line
         _, hh, dd = renderer.get_text_width_height_descent(
             line, self._text._fontproperties, ismath=ismath)
-
+        d = dd  # the baseline of the last line
 
         self._baseline_transform.clear()
-        d = h-(hh-dd)  # the baseline of the first line
+
+
         if len(info) > 1 and self._multilinebaseline:
             d_new = 0.5 * h  - 0.5 * (h_ - d_)
             self._baseline_transform.translate(0, d - d_new)
