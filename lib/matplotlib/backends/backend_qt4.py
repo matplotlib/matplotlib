@@ -150,6 +150,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         FigureCanvasBase.enter_notify_event(self, event)
 
     def leaveEvent(self, event):
+        QtGui.QApplication.restoreOverrideCursor()
         FigureCanvasBase.leave_notify_event(self, event)
 
     def mousePressEvent( self, event ):
