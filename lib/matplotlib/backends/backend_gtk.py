@@ -33,6 +33,7 @@ from matplotlib.widgets import SubplotTool
 
 from matplotlib import lines
 from matplotlib import cbook
+from matplotlib import verbose
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 
@@ -1223,7 +1224,6 @@ try:
 except:
     window_icon = None
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
-
 
 def error_msg_gtk(msg, parent=None):
     if parent is not None: # find the toplevel gtk.Window
