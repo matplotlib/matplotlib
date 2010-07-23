@@ -95,6 +95,19 @@ def test_imsave():
 
     assert_array_equal(arr_dpi1, arr_dpi100)
 
+@image_comparison(baseline_images=['image_clip'])
+def test_image_clip():
+    from math import pi
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='hammer')
+
+    d = [[1,2],[3,4]]
+
+    ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
+
+    fig.savefig('image_clip')
+
 
 if __name__=='__main__':
     import nose
