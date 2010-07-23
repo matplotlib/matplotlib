@@ -338,6 +338,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
         gc.set_clip_path(self.get_clip_path())
+        print self.get_clip_path()
 
         if self._check_unsampled_image(renderer):
             self._draw_unsampled_image(renderer, gc)
@@ -540,6 +541,8 @@ class AxesImage(_AxesImageBase):
                                 resample = resample,
                                 **kwargs
                                 )
+
+        print "__init__", self.get_clip_on()
 
 
     def make_image(self, magnification=1.0):
