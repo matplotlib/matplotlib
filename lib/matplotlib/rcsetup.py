@@ -347,8 +347,8 @@ class ValidateInterval:
 defaultParams = {
     'backend'           : ['Agg', validate_backend], # agg is certainly present
     'backend_fallback'  : [True, validate_bool], # agg is certainly present
-    'numerix'           : ['obsolete', validate_numerix],
-    'maskedarray'       : ['obsolete', validate_maskedarray], #to be removed
+    #'numerix'           : ['obsolete', validate_numerix],
+    #'maskedarray'       : ['obsolete', validate_maskedarray], #to be removed
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [None, validate_path_exists],   # handled by _get_data_path_cached
     'units'             : [False, validate_bool],
@@ -385,7 +385,7 @@ defaultParams = {
     'font.variant'      : ['normal', str],           #
     'font.stretch'      : ['normal', str],           #
     'font.weight'       : ['normal', str],           #
-    'font.size'         : [12.0, validate_float], #
+    'font.size'         : [12, validate_float],      # Base font size in points
     'font.serif'        : [['Bitstream Vera Serif', 'DejaVu Serif',
                             'New Century Schoolbook', 'Century Schoolbook L',
                             'Utopia', 'ITC Bookman', 'Bookman',
@@ -412,12 +412,15 @@ defaultParams = {
     'text.latex.preamble' : [[''], validate_stringlist],
     'text.latex.preview' : [False, validate_bool],
     'text.dvipnghack'     : [None, validate_bool_maybe_none],
-    'text.fontstyle'      : ['normal', str],
-    'text.fontangle'      : ['normal', str],
-    'text.fontvariant'    : ['normal', str],
-    'text.fontweight'     : ['normal', str],
-    'text.fontsize'       : ['medium', validate_fontsize],
     'text.hinting'        : [True, validate_bool],
+
+    # The following are deprecated and replaced by, e.g., 'font.style'
+    #'text.fontstyle'      : ['normal', str],
+    #'text.fontangle'      : ['normal', str],
+    #'text.fontvariant'    : ['normal', str],
+    #'text.fontweight'     : ['normal', str],
+    #'text.fontsize'       : ['medium', validate_fontsize],
+
 
     'mathtext.cal'        : ['cursive', validate_font_properties],
     'mathtext.rm'         : ['serif', validate_font_properties],
@@ -482,9 +485,6 @@ defaultParams = {
     'legend.markerscale' : [1.0, validate_float], # the relative size of legend markers vs. original
 
     'legend.shadow'        : [False, validate_bool],
-
-
-
 
     # tick properties
     'xtick.major.size' : [4, validate_float],      # major xtick size in points
