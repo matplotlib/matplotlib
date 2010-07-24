@@ -632,24 +632,49 @@ class RcParams(dict):
 
     validate = dict([ (key, converter) for key, (default, converter) in \
                      defaultParams.iteritems() ])
+    msg_depr = "%s is deprecated and replaced with %s; please use the latter."
+    msg_depr_ignore = "%s is deprecated and ignored. Use %s"
 
     def __setitem__(self, key, val):
         try:
             if key in _deprecated_map.keys():
                 alt = _deprecated_map[key]
-                warnings.warn('%s is deprecated in matplotlibrc. Use %s \
-instead.'% (key, alt))
+                warnings.warn(self.msg_depr % (key, alt))
                 key = alt
             elif key in _deprecated_ignore_map:
                 alt = _deprecated_ignore_map[key]
-                warnings.warn('%s is deprecated. Use %s instead.'% (key, alt))
+                warnings.warn(self.msg_depr_ignore % (key, alt))
                 return
             cval = self.validate[key](val)
             dict.__setitem__(self, key, cval)
         except KeyError:
             raise KeyError('%s is not a valid rc parameter.\
-See rcParams.keys() for a list of valid parameters.'%key)
+See rcParams.keys() for a list of valid parameters.' % (key,))
 
+    def __getitem__(self, key):
+        if key in _deprecated_map.keys():
+            alt = _deprecated_map[key]
+            warnings.warn(self.msg_depr % (key, alt))
+            key = alt
+        elif key in _deprecated_ignore_map:
+            alt = _deprecated_ignore_map[key]
+            warnings.warn(self.msg_depr_ignore % (key, alt))
+            key = alt
+        return dict.__getitem__(self, key)
+
+    def keys(self):
+        """
+        Return sorted list of keys.
+        """
+        k = dict.keys(self)
+        k.sort()
+        return k
+
+    def values(self):
+        """
+        Return values in order of sorted keys.
+        """
+        return [self[k] for k in self.keys()]
 
 def rc_params(fail_on_error=False):
     'Return the default params updated from the values in the rc file'
@@ -810,11 +835,11 @@ def rc(group, **kwargs):
         for k,v in kwargs.items():
             name = aliases.get(k) or k
             key = '%s.%s' % (g, name)
-            if key not in rcParams:
+            try:
+                rcParams[key] = v
+            except KeyError:
                 raise KeyError('Unrecognized key "%s" for group "%s" and name "%s"' %
                                (key, g, name))
-
-            rcParams[key] = v
 
 def rcdefaults():
     """
