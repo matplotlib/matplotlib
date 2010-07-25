@@ -616,7 +616,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.canvas.window.set_cursor(cursord[cursor])
 
     def release(self, event):
-        try: del self._imageBack
+        try: del self._pixmapBack
         except AttributeError: pass
 
     def dynamic_update(self):
@@ -640,7 +640,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
         rect = [int(val)for val in min(x0,x1), min(y0, y1), w, h]
         try:
-            lastrect, imageBack = self._imageBack
+            lastrect, pixmapBack = self._pixmapBack
         except AttributeError:
             #snap image back
             if event.inaxes is None:
@@ -650,9 +650,10 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
             l,b,w,h = [int(val) for val in ax.bbox.bounds]
             b = int(height)-(b+h)
             axrect = l,b,w,h
-            self._imageBack = axrect, drawable.get_image(*axrect)
+            self._pixmapBack = axrect, gtk.gdk.Pixmap(drawable, w, h)
+            self._pixmapBack[1].draw_drawable(gc, drawable, l, b, 0, 0, w, h)
         else:
-            drawable.draw_image(gc, imageBack, 0, 0, *lastrect)
+            drawable.draw_drawable(gc, pixmapBack, 0, 0, *lastrect)
         drawable.draw_rectangle(gc, False, *rect)
 
 
