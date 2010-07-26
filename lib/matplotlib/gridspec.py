@@ -70,7 +70,7 @@ class GridSpecBase(object):
     def get_height_ratios(self):
         return self._row_height_ratios
 
-    
+
     def get_grid_positions(self, fig):
         """
         return lists of bottom and top position of rows, left and
@@ -116,7 +116,7 @@ class GridSpecBase(object):
 
         sepWidths = [0] + ([sepW] * (ncols-1))
         cellWs = np.add.accumulate(np.ravel(zip(sepWidths, cellWidths)))
-            
+
 
 
         figTops = [top - cellHs[2*rowNum] for rowNum in range(nrows)]
@@ -126,7 +126,7 @@ class GridSpecBase(object):
 
 
         return figBottoms, figTops, figLefts, figRights
-        
+
 
     def __getitem__(self, key):
         """
@@ -287,7 +287,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
 
     def get_subplot_params(self, fig=None):
         """
-        return a dictionary of subplot layout parameters. 
+        return a dictionary of subplot layout parameters.
         """
 
         if fig is None:
@@ -324,7 +324,7 @@ class SubplotSpec(object):
     """
     specifies the location of the subplot in the given *GridSpec*.
     """
-    
+
     def __init__(self, gridspec, num1, num2=None):
         """
         The subplot will occupy the num1-th cell of the given
