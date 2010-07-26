@@ -8295,6 +8295,7 @@ class SubplotBase:
         being created.  *plotNum* starts at 1 in the upper left
         corner and increases to the right.
 
+
         If *numRows* <= *numCols* <= *plotNum* < 10, *args* can be the
         decimal integer *numRows* * 100 + *numCols* * 10 + *plotNum*.
         """
@@ -8304,24 +8305,27 @@ class SubplotBase:
         if len(args) == 1:
             if isinstance(args[0], SubplotSpec):
                 self._subplotspec = args[0]
-
             else:
-                s = str(args[0])
-                if len(s) != 3:
-                    raise ValueError('Argument to subplot must be a 3 digits long')
-                rows, cols, num = map(int, s)
+                try:
+                    s = str(int(args[0]))
+                    rows, cols, num = map(int, s)
+                except ValueError:
+                    raise ValueError(
+                         'Single argument to subplot must be a 3-digit integer')
                 self._subplotspec = GridSpec(rows, cols)[num-1]
                 # num - 1 for converting from MATLAB to python indexing
         elif len(args)==3:
             rows, cols, num = args
+            rows = int(rows)
+            cols = int(cols)
             if isinstance(num, tuple) and len(num) == 2:
+                num = [int(n) for n in num]
                 self._subplotspec = GridSpec(rows, cols)[num[0]-1:num[1]]
             else:
-                self._subplotspec = GridSpec(rows, cols)[num-1]
+                self._subplotspec = GridSpec(rows, cols)[int(num)-1]
                 # num - 1 for converting from MATLAB to python indexing
         else:
-            raise ValueError(  'Illegal argument to subplot')
-
+            raise ValueError('Illegal argument(s) to subplot: %s' % (args,))
 
         self.update_params()
 
