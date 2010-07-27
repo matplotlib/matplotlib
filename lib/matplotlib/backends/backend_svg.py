@@ -389,7 +389,12 @@ class RendererSVG(RendererBase):
         write('</g>\n')
 
     def draw_image(self, gc, x, y, im):
-        # MGDTODO: Support clippath here
+        clipid = self._get_gc_clip_svg(gc)
+        if clipid is None:
+            clippath = ''
+        else:
+            clippath = 'clip-path="url(#%s)"' % clipid
+
         trans = [1,0,0,1,0,0]
         transstr = ''
         if rcParams['svg.image_noscale']:
@@ -410,7 +415,9 @@ class RendererSVG(RendererBase):
             self._svgwriter.write('<a xlink:href="%s">' % url)
         self._svgwriter.write (
             '<image x="%f" y="%f" width="%f" height="%f" '
-            '%s xlink:href="'%(x/trans[0], (self.height-y)/trans[3]-h, w, h, transstr)
+            '%s %s xlink:href="' % (
+                x/trans[0], (self.height-y)/trans[3]-h, w, h,
+                transstr, clippath)
             )
 
         if rcParams['svg.image_inline']:

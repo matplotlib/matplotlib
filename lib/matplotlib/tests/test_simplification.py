@@ -29,7 +29,7 @@ def test_clipping():
     ax.set_yticks([])
     fig.savefig('clipping')
 
-@image_comparison(baseline_images=['overflow'])
+@image_comparison(baseline_images=['overflow'], tol=1e-2)
 def test_overflow():
     x = np.array([1.0,2.0,3.0,2.0e5])
     y = np.arange(len(x))
