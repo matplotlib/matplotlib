@@ -797,8 +797,7 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
     subplotspec = GridSpec(s1, s2).new_subplotspec(loc,
                                                    rowspan=rowspan,
                                                    colspan=colspan)
-    a = Subplot(fig, subplotspec, **kwargs)
-    fig.add_subplot(a)
+    a = fig.add_subplot(subplotspec, **kwargs)
     bbox = a.bbox
     byebye = []
     for other in fig.axes:
