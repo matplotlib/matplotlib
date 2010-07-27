@@ -1,4 +1,5 @@
 import numpy as np
+from numpy import ma
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
@@ -393,7 +394,7 @@ def test_imshow():
     ax.imshow(r)
     fig.savefig('imshow')
 
-@image_comparison(baseline_images=['imshow_clip'])
+@image_comparison(baseline_images=['imshow_clip'], tol=1e-2)
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
 
@@ -438,7 +439,7 @@ def test_polycollection_joinstyle():
 
     fig.savefig('polycollection_joinstyle')
 
-@image_comparison(baseline_images=['fill_between_interpolate'])
+@image_comparison(baseline_images=['fill_between_interpolate'], tol=1e-2)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -472,6 +473,36 @@ def test_symlog():
     ax.set_ylim(-1,10000000)
 
     fig.savefig('symlog')
+
+@image_comparison(baseline_images=['pcolormesh'])
+def test_pcolormesh():
+    n = 12
+    x = np.linspace(-1.5,1.5,n)
+    y = np.linspace(-1.5,1.5,n*2)
+    X,Y = np.meshgrid(x,y);
+    Qx = np.cos(Y) - np.cos(X)
+    Qz = np.sin(Y) + np.sin(X)
+    Qx = (Qx + 1.1)
+    Z = np.sqrt(X**2 + Y**2)/5;
+    Z = (Z - Z.min()) / (Z.max() - Z.min())
+
+    # The color array can include masked values:
+    Zm = ma.masked_where(np.fabs(Qz) < 0.5*np.amax(Qz), Z)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(121)
+    ax.pcolormesh(Qx,Qz,Z,  lw=0.5, edgecolors='k')
+    ax.set_title('lw=0.5')
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    ax = fig.add_subplot(122)
+    ax.pcolormesh(Qx,Qz,Z, lw=3, edgecolors='k')
+    ax.set_title('lw=3')
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    fig.savefig('pcolormesh')
 
 if __name__=='__main__':
     import nose
