@@ -1091,9 +1091,9 @@ RendererAgg::draw_image(const Py::Tuple& args)
     {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(pixf, 0, (int)x, (int)(height - (y + image->rowsOut)));
-        rendererBase.reset_clipping(true);
     }
 
+    rendererBase.reset_clipping(true);
     image->flipud_out(empty);
 
     return Py::Object();
@@ -1747,7 +1747,7 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
     Py::SeqBase<Py::Object> transforms_obj;
     Py::Object edgecolors_obj;
     Py::Tuple linewidths(1);
-    linewidths[0] = Py::Float(1.0);
+    linewidths[0] = Py::Float(gc.linewidth);
     Py::SeqBase<Py::Object> linestyles_obj;
     Py::Tuple antialiaseds(1);
     antialiaseds[0] = Py::Int(antialiased ? 1 : 0);

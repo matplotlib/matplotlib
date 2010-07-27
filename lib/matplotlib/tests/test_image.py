@@ -104,7 +104,7 @@ def test_image_clip():
 
     d = [[1,2],[3,4]]
 
-    ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
+    im = ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
 
     fig.savefig('image_clip')
 
