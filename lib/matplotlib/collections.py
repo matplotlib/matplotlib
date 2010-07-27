@@ -1228,6 +1228,7 @@ class QuadMesh(Collection):
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
+        gc.set_linewidth(self.get_linewidth()[0])
 
         if self._shading == 'gouraud':
             triangles, colors = self.convert_mesh_to_triangles(
