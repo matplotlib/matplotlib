@@ -7699,13 +7699,15 @@ class Axes(martist.Artist):
 
             x[0::2], x[1::2] = bins, bins
 
+            minimum = min(bins)
+
             if align == 'left' or align == 'center':
                 x -= 0.5*(bins[1]-bins[0])
             elif align == 'right':
                 x += 0.5*(bins[1]-bins[0])
 
             if log:
-                y[0],y[-1] = 1e-100, 1e-100
+                y[0],y[-1] = minimum, minimum
                 if orientation == 'horizontal':
                     self.set_xscale('log')
                 else:  # orientation == 'vertical'
@@ -7716,7 +7718,7 @@ class Axes(martist.Artist):
             for m, c in zip(n, color):
                 y[1:-1:2], y[2::2] = m, m
                 if log:
-                    y[y<1e-100]=1e-100
+                    y[y<minimum]=minimum
                 if orientation == 'horizontal':
                     x,y = y,x
 
@@ -7729,19 +7731,19 @@ class Axes(martist.Artist):
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
-                xmin0 = max(_saved_bounds[0]*0.9, 1e-100)
+                xmin0 = max(_saved_bounds[0]*0.9, minimum)
                 xmax = self.dataLim.intervalx[1]
                 for m in n:
                     xmin = np.amin(m[m!=0]) # filter out the 0 height bins
-                xmin = max(xmin*0.9, 1e-100)
+                xmin = max(xmin*0.9, minimum)
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
             elif orientation == 'vertical':
-                ymin0 = max(_saved_bounds[1]*0.9, 1e-100)
+                ymin0 = max(_saved_bounds[1]*0.9, minimum)
                 ymax = self.dataLim.intervaly[1]
                 for m in n:
                     ymin = np.amin(m[m!=0]) # filter out the 0 height bins
-                ymin = max(ymin*0.9, 1e-100)
+                ymin = max(ymin*0.9, minimum)
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
 
