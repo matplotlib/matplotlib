@@ -13,7 +13,8 @@ from matplotlib.patches import Circle
 from matplotlib.path import Path
 from matplotlib.ticker import Formatter, Locator, FormatStrFormatter
 from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
-    BboxTransformTo, IdentityTransform, Transform, TransformWrapper
+    BboxTransformTo, IdentityTransform, Transform, TransformWrapper, \
+    ScaledTranslation, blended_transform_factory
 import matplotlib.spines as mspines
 
 class PolarAxes(Axes):
@@ -287,13 +288,17 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             Affine2D().scale(np.pi * 2.0, 1.0) +
             self.transData)
         # The r-axis labels are put at an angle and padded in the r-direction
-        self._r_label1_position = Affine2D().translate(22.5, self._rpad)
+        self._r_label1_position = ScaledTranslation(
+            22.5, self._rpad,
+            blended_transform_factory(Affine2D(), BboxTransformTo(self.viewLim)))
         self._yaxis_text1_transform = (
             self._r_label1_position +
             Affine2D().scale(1.0 / 360.0, 1.0) +
             self._yaxis_transform
             )
-        self._r_label2_position = Affine2D().translate(22.5, self._rpad)
+        self._r_label2_position = ScaledTranslation(
+            22.5, -self._rpad,
+            blended_transform_factory(Affine2D(), BboxTransformTo(self.viewLim)))
         self._yaxis_text2_transform = (
             self._r_label2_position +
             Affine2D().scale(1.0 / 360.0, 1.0) +
@@ -435,9 +440,10 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             angle = self._r_label1_position.to_values()[4]
         if rpad is not None:
             self._rpad = rpad
-        rmax = self.get_rmax()
-        self._r_label1_position.clear().translate(angle, self._rpad * rmax)
-        self._r_label2_position.clear().translate(angle, -self._rpad * rmax)
+        self._r_label1_position._t = (angle, self._rpad)
+        self._r_label1_position.invalidate()
+        self._r_label2_position._t = (angle, -self._rpad)
+        self._r_label2_position.invalidate()
         for t in self.yaxis.get_ticklabels():
             t.update(kwargs)
         return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
@@ -516,11 +522,11 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
                 dt = dt0 * -1.0
             dt = (dt / np.pi) * 180.0
 
-            rpad = self._r_label1_position.to_values()[5]
-            self._r_label1_position.clear().translate(
-                p.r_label_angle - dt, rpad)
-            self._r_label2_position.clear().translate(
-                p.r_label_angle - dt, -rpad)
+            rpad = self._rpad
+            self._r_label1_position._t = (p.r_label_angle - dt, rpad)
+            self._r_label1_position.invalidate()
+            self._r_label2_position._t = (p.r_label_angle - dt, -rpad)
+            self._r_label2_position.invalidate()
 
         elif p.mode == 'zoom':
             startt, startr = p.trans_inverse.transform_point((p.x, p.y))
