@@ -147,8 +147,14 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         dyintv = ymax-ymin
 
         # the viewport scale factor
-        sx = dxintv/viewlim.width
-        sy = dyintv/viewlim.height
+        if viewlim.width == 0.0 and dxintv == 0.0:
+            sx = 1.0
+        else:
+            sx = dxintv/viewlim.width
+        if viewlim.height == 0.0 and dyintv == 0.0:
+            sy = 1.0
+        else:
+            sy = dyintv/viewlim.height
         numrows, numcols = A.shape[:2]
         if sx > 2:
             x0 = (viewlim.x0-xmin)/dxintv * numcols
@@ -576,8 +582,16 @@ class AxesImage(_AxesImageBase):
         im.set_resample(self._resample)
 
         # the viewport translation
-        tx = (xmin-transformed_viewLim.x0)/dxintv * numcols
-        ty = (ymin-transformed_viewLim.y0)/dyintv * numrows
+        if dxintv == 0.0:
+            tx = 0.0
+        else:
+            tx = (xmin-transformed_viewLim.x0)/dxintv * numcols
+        if dyintv == 0.0:
+            ty = 0.0
+        else:
+            ty = (ymin-transformed_viewLim.y0)/dyintv * numrows
+
+        im.apply_translation(tx, ty)
 
         l, b, r, t = self.axes.bbox.extents
         widthDisplay = (round(r*magnification) + 0.5) - (round(l*magnification) - 0.5)
@@ -586,7 +600,7 @@ class AxesImage(_AxesImageBase):
 
         # resize viewport to display
         rx = widthDisplay / numcols
-        ry = heightDisplay  / numrows
+        ry = heightDisplay / numrows
         im.apply_scaling(rx*sx, ry*sy)
         im.resize(int(widthDisplay+0.5), int(heightDisplay+0.5),
                   norm=self._filternorm, radius=self._filterrad)
