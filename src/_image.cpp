@@ -392,7 +392,6 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs)
 
     // the image path
     agg::path_storage path;
-    agg::int8u *bufferPad = NULL;
     agg::rendering_buffer rbufPad;
 
     double x0, y0, x1, y1;
@@ -541,9 +540,7 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs)
 
     }
 
-    delete [] bufferPad;
     return Py::Object();
-
 }
 
 
