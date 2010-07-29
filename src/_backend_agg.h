@@ -230,7 +230,6 @@ public:
 
 protected:
     double points_to_pixels(const Py::Object& points);
-    double points_to_pixels_snapto(const Py::Object& points);
     agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
     facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
 
