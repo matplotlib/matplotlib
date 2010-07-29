@@ -7551,6 +7551,8 @@ class Axes(martist.Artist):
                 'hist now uses the rwidth to give relative width '
                 'and not absolute width')
 
+        # Massage 'x' for processing.
+        # NOTE: Be sure any changes here is also done below to 'weights'
         if isinstance(x, np.ndarray) or not iterable(x[0]):
             # TODO: support masked arrays;
             x = np.asarray(x)
@@ -7577,8 +7579,9 @@ class Axes(martist.Artist):
             if len(color) != nx:
                 raise ValueError("color kwarg must have one color per dataset")
 
+        # We need to do to 'weights' what was done to 'x'
         if weights is not None:
-            if isinstance(weights, np.ndarray):
+            if isinstance(weights, np.ndarray) or not iterable(weights[0]) :
                 w = np.array(weights)
                 if w.ndim == 2:
                     w = w.T
