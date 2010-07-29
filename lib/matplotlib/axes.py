@@ -5549,22 +5549,22 @@ class Axes(martist.Artist):
           *marker*:
             can be one of:
 
-            =====   ==============
-            Value   Description
-            =====   ==============
-            's'     square
-            'o'     circle
-            '^'     triangle up
-            '>'     triangle right
-            'v'     triangle down
-            '<'     triangle left
-            'd'     diamond
-            'p'     pentagram
-            'h'     hexagon
-            '8'     octagon
-            '+'     plus
-            'x'     cross
-            =====   ==============
+            =======   ==============
+            Value     Description
+            =======   ==============
+            ``'s'``   square
+            ``'o'``   circle
+            ``'^'``   triangle up
+            ``'>'``   triangle right
+            ``'v'``   triangle down
+            ``'<'``   triangle left
+            ``'d'``   diamond
+            ``'p'``   pentagon
+            ``'h'``   hexagon
+            ``'8'``   octagon
+            ``'+'``   plus
+            ``'x'``   cross
+            =======   ==============
 
             The marker can also be a tuple (*numsides*, *style*,
             *angle*), which will create a custom, regular symbol.
@@ -5655,7 +5655,7 @@ class Axes(martist.Artist):
             'v' : (3,math.pi,0),       # triangle down
             '<' : (3,3*math.pi/2.0,0), # triangle left
             'd' : (4,0,0),             # diamond
-            'p' : (5,0,0),             # pentagram
+            'p' : (5,0,0),             # pentagon
             'h' : (6,0,0),             # hexagon
             '8' : (8,0,0),             # octagon
             '+' : (4,0,2),             # plus
