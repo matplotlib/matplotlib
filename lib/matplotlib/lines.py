@@ -712,13 +712,13 @@ class Line2D(Artist):
         ================    =================
         linestyle           description
         ================    =================
-        '-'                 solid
-        '--'                dashed
-        '-.'                dash_dot
-        ':'                 dotted
-        'None'              draw nothing
-        ' '                 draw nothing
-        ''                  draw nothing
+        ``'-'``             solid
+        ``'--'``            dashed
+        ``'-.'``            dash_dot
+        ``':'``             dotted
+        ``'None'``          draw nothing
+        ``' '``             draw nothing
+        ``''``              draw nothing
         ================    =================
 
         'steps' is equivalent to 'steps-pre' and is maintained for
@@ -729,8 +729,8 @@ class Line2D(Artist):
             :meth:`set_drawstyle`
                To set the drawing style (stepping) of the plot.
 
-        ACCEPTS: [ '-' | '--' | '-.' | ':' | 'None' | ' ' | '' ] and
-        any drawstyle in combination with a linestyle, e.g. 'steps--'.
+        ACCEPTS: [ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` | ``' '`` | ``''`` ]
+        and any drawstyle in combination with a linestyle, e.g. ``'steps--'``.
         """
 
         for ds in self.drawStyleKeys:  # long names are first in the list
@@ -759,28 +759,28 @@ class Line2D(Artist):
         ========== ==========================
         marker     description
         ========== ==========================
-        '.'        point
-        ','        pixel
-        'o'        circle
-        'v'        triangle_down
-        '^'        triangle_up
-        '<'        triangle_left
-        '>'        triangle_right
-        '1'        tri_down
-        '2'        tri_up
-        '3'        tri_left
-        '4'        tri_right
-        's'        square
-        'p'        pentagon
-        '*'        star
-        'h'        hexagon1
-        'H'        hexagon2
-        '+'        plus
-        'x'        x
-        'D'        diamond
-        'd'        thin_diamond
-        '|'        vline
-        '_'        hline
+        ``'.'``    point
+        ``','``    pixel
+        ``'o'``    circle
+        ``'v'``    triangle_down
+        ``'^'``    triangle_up
+        ``'<'``    triangle_left
+        ``'>'``    triangle_right
+        ``'1'``    tri_down
+        ``'2'``    tri_up
+        ``'3'``    tri_left
+        ``'4'``    tri_right
+        ``'s'``    square
+        ``'p'``    pentagon
+        ``'*'``    star
+        ``'h'``    hexagon1
+        ``'H'``    hexagon2
+        ``'+'``    plus
+        ``'x'``    x
+        ``'D'``    diamond
+        ``'d'``    thin_diamond
+        ``'|'``    vline
+        ``'_'``    hline
         TICKLEFT   tickleft
         TICKRIGHT  tickright
         TICKUP     tickup
@@ -789,19 +789,23 @@ class Line2D(Artist):
         CARETRIGHT caretright
         CARETUP    caretup
         CARETDOWN  caretdown
-        'None'     nothing
-        ' '        nothing
-        ''         nothing
+        ``'None'`` nothing
+        ``' '``    nothing
+        ``''``     nothing
         '$...$'    render the string using mathtext
         ========== ==========================
 
 
 
-        ACCEPTS: [ '+' | '*' | ',' | '.' | '1' | '2' | '3' | '4'
-                 | '<' | '>' | 'D' | 'H' | '^' | '_' | 'd'
-                 | 'h' | 'o' | 'p' | 's' | 'v' | 'x' | '|'
+        ACCEPTS: [ ``'+'`` | ``'*'`` | ``','`` | ``'.'`` 
+                 | ``'1'`` | ``'2'`` | ``'3'`` | ``'4'``
+                 | ``'<'`` | ``'>'`` | ``'D'`` | ``'H'`` 
+                 | ``'^'`` | ``'_'`` | ``'d'`` | ``'h'`` 
+                 | ``'o'`` | ``'p'`` | ``'s'`` | ``'v'`` 
+                 | ``'x'`` | ``'|'``
                  | TICKUP | TICKDOWN | TICKLEFT | TICKRIGHT
-                 | 'None' | ' ' | '' | '$...$']
+                 | CARETUP | CARETDOWN | CARETLEFT | CARETRIGHT
+                 | ``'None'`` | ``' '`` | ``''`` | '$...$']
 
         """
         if marker in self._markers:

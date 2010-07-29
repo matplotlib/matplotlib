@@ -826,7 +826,7 @@ class ArtistInspector:
         for a line that begins with ACCEPTS:
 
         Eg., for a line linestyle, return
-        [ '-' | '--' | '-.' | ':' | 'steps' | 'None' ]
+        "[ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ``'None'`` ]"
         """
 
         name = 'set_%s'%attr
