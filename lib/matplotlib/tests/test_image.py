@@ -77,21 +77,22 @@ def test_imsave():
     # the data is 100% identical.
     from numpy import random
     random.seed(1)
-    data = random.rand(256, 256)
+    data = random.rand(256, 128)
 
     buff_dpi1 = cStringIO.StringIO()
     plt.imsave(buff_dpi1, data, dpi=1)
-    plt.imsave("test_dpi1.png", data, dpi=1)
 
     buff_dpi100 = cStringIO.StringIO()
     plt.imsave(buff_dpi100, data, dpi=100)
-    plt.imsave("test_dpi100.png", data, dpi=1)
 
     buff_dpi1.seek(0)
     arr_dpi1 = plt.imread(buff_dpi1)
 
     buff_dpi100.seek(0)
     arr_dpi100 = plt.imread(buff_dpi100)
+
+    assert arr_dpi1.shape == (256, 128, 4)
+    assert arr_dpi100.shape == (256, 128, 4)
 
     assert_array_equal(arr_dpi1, arr_dpi100)
 
