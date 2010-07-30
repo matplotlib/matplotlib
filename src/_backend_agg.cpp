@@ -2245,18 +2245,6 @@ RendererAgg::rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha)
 
 
 double
-RendererAgg::points_to_pixels_snapto(const Py::Object& points)
-{
-    // convert a value in points to pixels depending on renderer dpi and
-    // screen pixels per inch
-    // snap return pixels to grid
-    _VERBOSE("RendererAgg::points_to_pixels_snapto");
-    double p = Py::Float(points) ;
-    return (int)(p*dpi / 72.0) + 0.5;
-}
-
-
-double
 RendererAgg::points_to_pixels(const Py::Object& points)
 {
     _VERBOSE("RendererAgg::points_to_pixels");
