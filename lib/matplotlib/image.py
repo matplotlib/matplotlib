@@ -1225,7 +1225,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from matplotlib.figure import Figure
 
-    figsize = [x / float(dpi) for x in arr.shape]
+    figsize = [x / float(dpi) for x in arr.shape[::-1]]
     fig = Figure(figsize=figsize, dpi=dpi, frameon=False)
     canvas = FigureCanvas(fig)
     im = fig.figimage(arr, cmap=cmap, vmin=vmin, vmax=vmax, origin=origin)
