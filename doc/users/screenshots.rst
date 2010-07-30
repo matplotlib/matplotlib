@@ -188,13 +188,9 @@ techniques, not market analysis!
 Basemap demo
 ============
 
-Jeff Whitaker provided this example showing how to efficiently plot a
-collection of lines over a colormap image using the
-:ref:`toolkit_basemap` .  Many map projections are handled via the
-proj4 library: cylindrical equidistant, mercator, lambert conformal
-conic, lambert azimuthal equal area, albers equal area conic and
-stereographic.  See the `tutorial
-<http://www.scipy.org/wikis/topical_software/Maps>`_ entry on the wiki.
+Jeff Whitaker's :ref:`toolkit_basemap` add-on toolkit makes it possible to plot data on many
+different map projections.  This example shows how to plot contours, markers and text
+on an orthographic projection, with NASA's "blue marble" satellite image as a background.
 
 .. plot:: pyplots/plotmap.py
 
