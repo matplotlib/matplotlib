@@ -128,6 +128,12 @@ class GridSpecBase(object):
         return figBottoms, figTops, figLefts, figRights
 
 
+    def __iter__(self):
+        nrows, ncols = self.get_geometry()
+        total = nrows*ncols
+
+        return iter([self.__getitem__(i) for i in range(total)])
+
     def __getitem__(self, key):
         """
         create and return a SuplotSpec instance.
