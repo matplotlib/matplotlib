@@ -279,13 +279,19 @@ class MaxNLocator(mticker.MaxNLocator):
 class FixedLocator(object):
     def __init__(self, locs):
         self._locs = locs
+        self._factor = None
 
 
     def __call__(self, v1, v2):
-        v1, v2 = sorted([v1, v2])
+        if self._factor is None:
+            v1, v2 = sorted([v1, v2])
+        else:
+            v1, v2 = sorted([v1*self._factor, v2*self._factor])
         locs = np.array([l for l in self._locs if ((v1 <= l) and (l <= v2))])
-        return locs, len(locs), None
+        return locs, len(locs), self._factor
 
+    def set_factor(self, f):
+        self._factor = f
 
 
 
