@@ -7401,10 +7401,12 @@ class Axes(martist.Artist):
              **kwargs):
         """
         call signature::
-
-          hist(x, bins=10, range=None, normed=False, cumulative=False,
-               bottom=None, histtype='bar', align='mid',
-               orientation='vertical', rwidth=None, log=False, **kwargs)
+  
+          def hist(x, bins=10, range=None, normed=False, weights=None,
+                 cumulative=False, bottom=None, histtype='bar', align='mid',
+                 orientation='vertical', rwidth=None, log=False,
+                 color=None, label=None,
+                 **kwargs):
 
         Compute and draw the histogram of *x*. The return value is a
         tuple (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*,
@@ -7567,7 +7569,7 @@ class Axes(martist.Artist):
                     'this looks transposed (shape is %d x %d)' % x.shape[::-1])
         else:
             # multiple hist with data of different length
-            x = [np.array(xi) for xi in x]
+            x = [np.asarray(xi) for xi in x]
 
         nx = len(x) # number of datasets
 
@@ -7582,7 +7584,7 @@ class Axes(martist.Artist):
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
             if isinstance(weights, np.ndarray) or not iterable(weights[0]) :
-                w = np.array(weights)
+                w = np.asarray(weights)
                 if w.ndim == 2:
                     w = w.T
                 elif w.ndim == 1:
@@ -7590,7 +7592,7 @@ class Axes(martist.Artist):
                 else:
                     raise ValueError("weights must be 1D or 2D")
             else:
-                w = [np.array(wi) for wi in weights]
+                w = [np.asarray(wi) for wi in weights]
 
             if len(w) != nx:
                 raise ValueError('weights should have the same shape as x')
