@@ -896,7 +896,7 @@ class Axes3D(Axes):
         for col in colls:
             self.collections.remove(col)
 
-    def contour(self, X, Y, Z, levels=10, **kwargs):
+    def contour(self, X, Y, Z, *args, **kwargs):
         '''
         Create a 3D contour plot.
 
@@ -912,7 +912,7 @@ class Axes3D(Axes):
                     lines on this position in plane normal to zdir
         ==========  ================================================
 
-        Other keyword arguments are passed on to
+        The positional and other keyword arguments are passed on to
         :func:`~matplotlib.axes.Axes.contour`
 
         Returns a :class:`~matplotlib.axes.Axes.contour`
@@ -926,7 +926,7 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
-        cset = Axes.contour(self, jX, jY, jZ, **kwargs)
+        cset = Axes.contour(self, jX, jY, jZ, *args, **kwargs)
 
         zdir = '-' + zdir
         if extend3d:
@@ -948,7 +948,7 @@ class Axes3D(Axes):
 
         *X*, *Y*, *Z*: data points.
 
-        Keyword arguments are passed on to
+        The positional and keyword arguments are passed on to
         :func:`~matplotlib.axes.Axes.contourf`
 
         Returns a :class:`~matplotlib.axes.Axes.contourf`
