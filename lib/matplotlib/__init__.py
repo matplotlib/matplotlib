@@ -456,6 +456,8 @@ def _get_configdir():
 
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
+        if not os.path.exists(configdir):
+            os.makedirs(configdir)
         if not _is_writable_dir(configdir):
             raise RuntimeError('Could not write to MPLCONFIGDIR="%s"'%configdir)
         return configdir
