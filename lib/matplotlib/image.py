@@ -596,7 +596,6 @@ class AxesImage(_AxesImageBase):
         l, b, r, t = self.axes.bbox.extents
         widthDisplay = (round(r*magnification) + 0.5) - (round(l*magnification) - 0.5)
         heightDisplay = (round(t*magnification) + 0.5) - (round(b*magnification) - 0.5)
-        im.apply_translation(tx, ty)
 
         # resize viewport to display
         rx = widthDisplay / numcols
