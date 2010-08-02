@@ -109,6 +109,19 @@ def test_image_clip():
 
     fig.savefig('image_clip')
 
+@image_comparison(baseline_images=['imshow'])
+def test_imshow():
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure()
+    arr = np.arange(100).reshape((10, 10))
+    ax = fig.add_subplot(111)
+    ax.imshow(arr, interpolation="bilinear", extent=(1,2,1,2))
+    ax.set_xlim(0,3)
+    ax.set_ylim(0,3)
+
+    fig.savefig('imshow')
 
 if __name__=='__main__':
     import nose
