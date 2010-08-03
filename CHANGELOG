@@ -1,3 +1,7 @@
+2010-08-03 Add support for MPLSETUPCFG variable for custom setup.cfg
+           filename.  Used by sage buildbot to build an mpl w/ no gui
+           support - JDH
+
 2010-08-01 Create directory specified by MPLCONFIGDIR if it does
            not exist. - ADS
 
