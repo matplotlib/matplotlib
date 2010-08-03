@@ -158,7 +158,7 @@ class SortedStringsScrolledWindow(gtk.ScrolledWindow):
                     val = model.get_value(thisiter, self.i)
                     try: val = float(val.strip().rstrip('%'))
                     except ValueError: pass
-                    if npy.isnan(val): val = npy.inf # force nan to sort uniquely
+                    if mlab.safe_isnan(val): val = npy.inf # force nan to sort uniquely
                     dsu.append((val, rownum))
                 dsu.sort()
                 if not self.num%2: dsu.reverse()
