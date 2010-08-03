@@ -138,10 +138,11 @@ defines = [
         ('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API'),
         ('PYCXX_ISO_CPP_LIB', '1')]
 
+setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 # Based on the contents of setup.cfg, determine the build options
-if os.path.exists("setup.cfg"):
+if os.path.exists(setup_cfg):
     config = configparser.SafeConfigParser()
-    config.read("setup.cfg")
+    config.read(setup_cfg)
 
     try: options['display_status'] = not config.getboolean("status", "suppress")
     except: pass
