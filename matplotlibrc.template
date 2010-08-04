@@ -158,15 +158,6 @@ backend      : %(backend)s
                              # correction off.  None will try and
                              # guess based on your dvipng version
 
-#text.markup         : 'plain'  # Affects how text, such as titles and labels, are
-                                # interpreted by default.
-                                # 'plain': As plain, unformatted text
-                                # 'tex': As TeX-like text.  Text between $'s will be
-                                # formatted as a TeX math expression.
-                                # This setting has no effect when text.usetex is True.
-                                # In that case, all text will be sent to TeX for
-                                # processing.
-
 #text.hinting : True # If True, text will be hinted, otherwise not.  This only
                      # affects the Agg backend.
 
