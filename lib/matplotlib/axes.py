@@ -7401,7 +7401,7 @@ class Axes(martist.Artist):
              **kwargs):
         """
         call signature::
-  
+
           def hist(x, bins=10, range=None, normed=False, weights=None,
                  cumulative=False, bottom=None, histtype='bar', align='mid',
                  orientation='vertical', rwidth=None, log=False,
@@ -7584,7 +7584,7 @@ class Axes(martist.Artist):
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
             if isinstance(weights, np.ndarray) or not iterable(weights[0]) :
-                w = np.asarray(weights)
+                w = np.array(weights)
                 if w.ndim == 2:
                     w = w.T
                 elif w.ndim == 1:
