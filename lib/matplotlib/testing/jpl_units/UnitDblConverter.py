@@ -79,11 +79,7 @@ class UnitDblConverter( units.ConversionInterface ):
       else:
          label = None
 
-      if ( label == "rad" ):
-         # If the axis units are in radians, then use a special function for
-         # applying format control.
-         majfmt = ticker.FuncFormatter( rad_fn )
-      elif ( label == "deg" ) and isinstance( axis.axes, polar.PolarAxes ):
+      if ( label == "deg" ) and isinstance( axis.axes, polar.PolarAxes ):
          # If we want degrees for a polar plot, use the PolarPlotFormatter
          majfmt = polar.PolarAxes.ThetaFormatter()
       else:

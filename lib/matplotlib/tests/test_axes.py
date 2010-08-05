@@ -279,10 +279,12 @@ def test_polar_wrap():
 @image_comparison(baseline_images=['polar_units'])
 def test_polar_units():
     import matplotlib.testing.jpl_units as units
+    from nose.tools import assert_true
     units.register()
 
     pi = np.pi
     deg = units.UnitDbl( 1.0, "deg" )
+    km = units.UnitDbl( 1.0, "km" )
 
     x1 = [ pi/6.0, pi/4.0, pi/3.0, pi/2.0 ]
     x2 = [ 30.0*deg, 45.0*deg, 60.0*deg, 90.0*deg ]
@@ -298,6 +300,12 @@ def test_polar_units():
     # polar( x2, y2, color = "green" )
 
     fig.savefig( 'polar_units' )
+
+    # make sure runits and theta units work
+    y1 = [ y*km for y in y1 ]
+    plt.polar( x2, y1, color = "blue", thetaunits="rad", runits="km" )
+    assert_true( isinstance(plt.gca().get_xaxis().get_major_formatter(), units.UnitDblFormatter) )
+
 
 @image_comparison(baseline_images=['polar_rmin'])
 def test_polar_rmin():
