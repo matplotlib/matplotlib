@@ -1,3 +1,10 @@
+2010-08-05 Added keyword arguments 'thetaunits' and 'runits' for polar
+           plots.  Fixed PolarAxes so that when it set default
+           Formatters, it marked them as such.  Fixed semilogx and
+           semilogy to no longer blindly reset the ticker information
+           on the non-log axis.  Axes.arrow can now accept unitized
+           data. - JRE
+
 2010-08-03 Add support for MPLSETUPCFG variable for custom setup.cfg
            filename.  Used by sage buildbot to build an mpl w/ no gui
            support - JDH

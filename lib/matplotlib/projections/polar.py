@@ -220,6 +220,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         self.title.set_y(1.05)
 
         self.xaxis.set_major_formatter(self.ThetaFormatter())
+        self.xaxis.isDefault_majfmt = True
         angles = np.arange(0.0, 360.0, 45.0)
         self.set_thetagrids(angles)
         self.yaxis.set_major_locator(self.RadialLocator(self.yaxis.get_major_locator()))

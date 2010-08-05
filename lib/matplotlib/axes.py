@@ -178,7 +178,11 @@ class _process_plot_var_args:
 
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             xunits = kwargs.pop( 'xunits', self.axes.xaxis.units)
+            if self.axes.name == 'polar':
+                xunits = kwargs.pop( 'thetaunits', xunits )
             yunits = kwargs.pop( 'yunits', self.axes.yaxis.units)
+            if self.axes.name == 'polar':
+                yunits = kwargs.pop( 'runits', yunits )
             if xunits!=self.axes.xaxis.units:
                 self.axes.xaxis.set_units(xunits)
             if yunits!=self.axes.yaxis.units:
@@ -1554,6 +1558,8 @@ class Axes(martist.Artist):
         # process kwargs 2nd since these will override default units
         if kwargs is not None:
             xunits = kwargs.pop( 'xunits', self.xaxis.units)
+            if self.name == 'polar':
+                xunits = kwargs.pop( 'thetaunits', xunits )
             if xunits!=self.xaxis.units:
                 #print '\tkw setting xunits', xunits
                 self.xaxis.set_units(xunits)
@@ -1563,6 +1569,8 @@ class Axes(martist.Artist):
                     self.xaxis.update_units(xdata)
 
             yunits = kwargs.pop('yunits', self.yaxis.units)
+            if self.name == 'polar':
+                yunits = kwargs.pop( 'runits', yunits )
             if yunits!=self.yaxis.units:
                 #print '\tkw setting yunits', yunits
                 self.yaxis.set_units(yunits)
@@ -3953,7 +3961,6 @@ class Axes(martist.Artist):
              }
 
         self.set_xscale('log', **d)
-        self.set_yscale('linear')
         b =  self._hold
         self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
@@ -4004,7 +4011,6 @@ class Axes(martist.Artist):
              'nonposy': kwargs.pop('nonposy', 'mask'),
              }
         self.set_yscale('log', **d)
-        self.set_xscale('linear')
         b =  self._hold
         self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
@@ -6286,6 +6292,13 @@ class Axes(martist.Artist):
 
         .. plot:: mpl_examples/pylab_examples/arrow_demo.py
         """
+        # Strip away units for the underlying patch since units
+        # do not make sense to most patch-like code
+        x = self.convert_xunits(x)
+        y = self.convert_yunits(y)
+        dx = self.convert_xunits(dx)
+        dy = self.convert_yunits(dy)
+
         a = mpatches.FancyArrow(x, y, dx, dy, **kwargs)
         self.add_artist(a)
         return a
