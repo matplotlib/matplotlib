@@ -107,17 +107,6 @@ def validate_backend(s):
     else: return _validate_standard_backends(s)
 
 
-def validate_numerix(v):
-    # 2009/02/24: start warning; later, remove all traces
-    try:
-        if v == 'obsolete':
-            return v
-    except ValueError:
-        pass
-    warnings.warn('rcParams key "numerix" is obsolete and has no effect;\n'
-                  ' please delete it from your matplotlibrc file')
-
-
 validate_toolbar = ValidateInStrings('toolbar',[
     'None','classic','toolbar2',
     ], ignorecase=True)
@@ -347,8 +336,6 @@ class ValidateInterval:
 defaultParams = {
     'backend'           : ['Agg', validate_backend], # agg is certainly present
     'backend_fallback'  : [True, validate_bool], # agg is certainly present
-    #'numerix'           : ['obsolete', validate_numerix],
-    #'maskedarray'       : ['obsolete', validate_maskedarray], #to be removed
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [None, validate_path_exists],   # handled by _get_data_path_cached
     'units'             : [False, validate_bool],

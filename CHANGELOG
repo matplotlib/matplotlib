@@ -1,3 +1,6 @@
+2010-08-12 Removed all traces of numerix module after 17 months of
+           deprecation warnings. - EF
+
 2010-08-05 Added keyword arguments 'thetaunits' and 'runits' for polar
            plots.  Fixed PolarAxes so that when it set default
            Formatters, it marked them as such.  Fixed semilogx and
