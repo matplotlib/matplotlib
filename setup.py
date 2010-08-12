@@ -54,20 +54,12 @@ packages = [
     'matplotlib.testing',
     'matplotlib.testing.jpl_units',
     'matplotlib.tests',
-#   'matplotlib.toolkits',
     'mpl_toolkits',
     'mpl_toolkits.mplot3d',
     'mpl_toolkits.axes_grid',
     'mpl_toolkits.axes_grid1',
     'mpl_toolkits.axisartist',
     'matplotlib.sphinxext',
-    # The following are deprecated and will be removed.
-    'matplotlib.numerix',
-    'matplotlib.numerix.mlab',
-    'matplotlib.numerix.ma',
-    'matplotlib.numerix.linear_algebra',
-    'matplotlib.numerix.random_array',
-    'matplotlib.numerix.fft',
     'matplotlib.tri',
 
     ]
