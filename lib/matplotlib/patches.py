@@ -55,6 +55,7 @@ class Patch(artist.Artist):
     def __init__(self,
                  edgecolor=None,
                  facecolor=None,
+                 color=None,
                  linewidth=None,
                  linestyle=None,
                  antialiased = None,
@@ -74,20 +75,22 @@ class Patch(artist.Artist):
         if linestyle is None: linestyle = "solid"
         if antialiased is None: antialiased = mpl.rcParams['patch.antialiased']
 
-        if 'color' in kwargs:
+        self._fill = True # needed for set_facecolor call
+        if color is not None:
             if (edgecolor is not None or
                 facecolor is not None):
                 import warnings
                 warnings.warn("Setting the 'color' property will override"
                               "the edgecolor or facecolor properties. ")
-
-        self.set_edgecolor(edgecolor)
-        self.set_facecolor(facecolor)
+            self.set_color(color)
+        else:
+            self.set_edgecolor(edgecolor)
+            self.set_facecolor(facecolor)
         self.set_linewidth(linewidth)
         self.set_linestyle(linestyle)
         self.set_antialiased(antialiased)
         self.set_hatch(hatch)
-        self.fill = fill
+        self.set_fill(fill)
         self._combined_transform = transforms.IdentityTransform()
 
         self.set_path_effects(path_effects)
@@ -98,7 +101,7 @@ class Patch(artist.Artist):
         """
         Return a copy of the vertices used in this patch
 
-        If the patch contains Bézier curves, the curves will be
+        If the patch contains Bezier curves, the curves will be
         interpolated by line segments.  To access the curves as
         curves, use :meth:`get_path`.
         """
@@ -223,7 +226,7 @@ class Patch(artist.Artist):
         ACCEPTS: mpl color spec, or None for default, or 'none' for no color
         """
         if color is None: color = mpl.rcParams['patch.edgecolor']
-        self._edgecolor = color
+        self._edgecolor = colors.colorConverter.to_rgba(color, self._alpha)
 
     def set_ec(self, color):
         """alias for set_edgecolor"""
@@ -236,7 +239,12 @@ class Patch(artist.Artist):
         ACCEPTS: mpl color spec, or None for default, or 'none' for no color
         """
         if color is None: color = mpl.rcParams['patch.facecolor']
-        self._facecolor = color
+        self._original_facecolor = color # save: otherwise changing _fill
+                                         # may lose alpha information
+        self._facecolor = colors.colorConverter.to_rgba(color, self._alpha)
+        if not self._fill:
+            self._facecolor = list(self._facecolor)
+            self._facecolor[3] = 0
 
     def set_fc(self, color):
         """alias for set_facecolor"""
@@ -256,6 +264,21 @@ class Patch(artist.Artist):
         self.set_facecolor(c)
         self.set_edgecolor(c)
 
+    def set_alpha(self, alpha):
+        """
+        Set the alpha tranparency of the patch.
+
+        ACCEPTS: float or None
+        """
+        if alpha is not None:
+            try:
+                float(alpha)
+            except TypeError:
+                raise TypeError('alpha must be a float or None')
+        artist.Artist.set_alpha(self, alpha)
+        self.set_facecolor(self._original_facecolor) # using self._fill and self._alpha
+        self._edgecolor = colors.colorConverter.to_rgba(
+                                        self._edgecolor[:3], self._alpha)
 
     def set_linewidth(self, w):
         """
@@ -289,11 +312,12 @@ class Patch(artist.Artist):
 
         ACCEPTS: [True | False]
         """
-        self.fill = b
+        self._fill = b
+        self.set_facecolor(self._original_facecolor)
 
     def get_fill(self):
         'return whether fill is set'
-        return self.fill
+        return self._fill
 
     def set_hatch(self, hatch):
         """
@@ -345,12 +369,14 @@ class Patch(artist.Artist):
         renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
 
-        if cbook.is_string_like(self._edgecolor) and self._edgecolor.lower()=='none':
-            gc.set_linewidth(0)
-        else:
-            gc.set_foreground(self._edgecolor)
-            gc.set_linewidth(self._linewidth)
-            gc.set_linestyle(self._linestyle)
+        gc.set_alpha(self._edgecolor[3])
+        gc.set_foreground(self._edgecolor, isRGB=True)
+
+        lw = self._linewidth
+        if self._edgecolor[3] == 0:
+            lw = 0
+        gc.set_linewidth(lw)
+        gc.set_linestyle(self._linestyle)
 
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
@@ -358,15 +384,9 @@ class Patch(artist.Artist):
         gc.set_url(self._url)
         gc.set_snap(self.get_snap())
 
-        if (not self.fill or self._facecolor is None or
-            (cbook.is_string_like(self._facecolor) and self._facecolor.lower()=='none')):
-            rgbFace = None
-            gc.set_alpha(1.0)
-        else:
-            r, g, b, a = colors.colorConverter.to_rgba(self._facecolor, self._alpha)
-            rgbFace = (r, g, b)
-            gc.set_alpha(a)
-
+        rgbFace = self._facecolor
+        if rgbFace[3] == 0:
+            rgbFace = None # (some?) renderers expect this as no-fill signal
 
         if self._hatch:
             gc.set_hatch(self._hatch )
@@ -3823,7 +3843,7 @@ class FancyArrowPatch(Patch):
                                                 )
 
         #if not fillable:
-        #    self.fill = False
+        #    self._fill = False
 
         return _path, fillable
 
@@ -3831,31 +3851,27 @@ class FancyArrowPatch(Patch):
 
     def draw(self, renderer):
         if not self.get_visible(): return
-        #renderer.open_group('patch')
+
+        renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
 
+        gc.set_alpha(self._edgecolor[3])
+        gc.set_foreground(self._edgecolor, isRGB=True)
 
-        if cbook.is_string_like(self._edgecolor) and self._edgecolor.lower()=='none':
-            gc.set_linewidth(0)
-        else:
-            gc.set_foreground(self._edgecolor)
-            gc.set_linewidth(self._linewidth)
-            gc.set_linestyle(self._linestyle)
+        lw = self._linewidth
+        if self._edgecolor[3] == 0:
+            lw = 0
+        gc.set_linewidth(lw)
+        gc.set_linestyle(self._linestyle)
 
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
         gc.set_capstyle('round')
         gc.set_snap(self.get_snap())
 
-        if (not self.fill or self._facecolor is None or
-            (cbook.is_string_like(self._facecolor) and self._facecolor.lower()=='none')):
-            rgbFace = None
-            gc.set_alpha(1.0)
-        else:
-            r, g, b, a = colors.colorConverter.to_rgba(self._facecolor, self._alpha)
-            rgbFace = (r, g, b)
-            gc.set_alpha(a)
-
+        rgbFace = self._facecolor
+        if rgbFace[3] == 0:
+            rgbFace = None # (some?) renderers expect this as no-fill signal
 
         if self._hatch:
             gc.set_hatch(self._hatch )
@@ -3870,7 +3886,6 @@ class FancyArrowPatch(Patch):
 
         affine = transforms.IdentityTransform()
 
-        renderer.open_group('patch', self.get_gid())
 
         if self.get_path_effects():
             for path_effect in self.get_path_effects():

@@ -785,7 +785,7 @@ def prepca(P, frac=0):
       - *fracVar* : the fraction of the variance accounted for by each
          component returned
 
-    A similar function of the same name was in the MATLAB 
+    A similar function of the same name was in the MATLAB
     R13 Neural Network Toolbox but is not found in later versions;
     its successor seems to be called "processpcs".
     """
@@ -2108,7 +2108,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     - *checkrows*: is the number of rows to check to validate the column
       data type.  When set to zero all rows are validated.
 
-    - *converted*: if not *None*, is a dictionary mapping column number or
+    - *converterd*: if not *None*, is a dictionary mapping column number or
       munged column name to a converter function.
 
     - *names*: if not None, is a list of header names.  In this case, no
