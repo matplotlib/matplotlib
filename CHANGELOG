@@ -1,3 +1,5 @@
+2010-08-14 Fix bug in patch alpha handling, and in bar color kwarg - EF
+
 2010-07-20 Return Qt4's default cursor when leaving the canvas - DSD
 
 2010-07-06 Tagging for mpl 1.0 at r8502
