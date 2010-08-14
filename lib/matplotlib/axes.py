@@ -4585,6 +4585,8 @@ class Axes(martist.Artist):
             color = [None] * nbars
         else:
             color = list(mcolors.colorConverter.to_rgba_array(color))
+            if len(color) == 0:     # until to_rgba_array is changed
+                color = [[0,0,0,0]]
             if len(color) < nbars:
                 color *= nbars
 
@@ -4592,6 +4594,8 @@ class Axes(martist.Artist):
             edgecolor = [None] * nbars
         else:
             edgecolor = list(mcolors.colorConverter.to_rgba_array(edgecolor))
+            if len(edgecolor) == 0:     # until to_rgba_array is changed
+                edgecolor = [[0,0,0,0]]
             if len(edgecolor) < nbars:
                 edgecolor *= nbars
 

@@ -118,7 +118,7 @@ class RendererSVG(RendererBase):
                 '<rect x="0" y="0" width="%d" height="%d" fill="%s"/>' %
                 (HATCH_SIZE+1, HATCH_SIZE+1, fill))
             path = '<path d="%s" fill="%s" stroke="%s" stroke-width="1.0"/>' % (
-                path_data, rgb2hex(gc.get_rgb()[:3]), rgb2hex(gc.get_rgb()[:3]))
+                path_data, rgb2hex(gc.get_rgb()), rgb2hex(gc.get_rgb()))
             self._svgwriter.write(path)
             self._svgwriter.write('\n  </pattern>\n</defs>')
             self._hatchd[dictkey] = id
@@ -135,7 +135,7 @@ class RendererSVG(RendererBase):
             if rgbFace is None:
                 fill = 'none'
             else:
-                fill = rgb2hex(rgbFace[:3])
+                fill = rgb2hex(rgbFace)
 
         offset, seq = gc.get_dashes()
         if seq is None:
@@ -149,7 +149,7 @@ class RendererSVG(RendererBase):
             return 'fill: %s; stroke: %s; stroke-width: %f; ' \
                 'stroke-linejoin: %s; stroke-linecap: %s; %s opacity: %f' % (
                          fill,
-                         rgb2hex(gc.get_rgb()[:3]),
+                         rgb2hex(gc.get_rgb()),
                          linewidth,
                          gc.get_joinstyle(),
                          _capstyle_d[gc.get_capstyle()],
@@ -469,7 +469,7 @@ class RendererSVG(RendererBase):
         glyph_map=self._glyph_map
 
         text2path = self._text2path
-        color = rgb2hex(gc.get_rgb()[:3])
+        color = rgb2hex(gc.get_rgb())
         fontsize = prop.get_size_in_points()
 
         write = self._svgwriter.write
@@ -592,7 +592,7 @@ class RendererSVG(RendererBase):
         y -= font.get_descent() / 64.0
 
         fontsize = prop.get_size_in_points()
-        color = rgb2hex(gc.get_rgb()[:3])
+        color = rgb2hex(gc.get_rgb())
         write = self._svgwriter.write
 
         if rcParams['svg.embed_char_paths']:
@@ -730,7 +730,7 @@ class RendererSVG(RendererBase):
             self.mathtext_parser.parse(s, 72, prop)
         svg_glyphs = svg_elements.svg_glyphs
         svg_rects = svg_elements.svg_rects
-        color = rgb2hex(gc.get_rgb()[:3])
+        color = rgb2hex(gc.get_rgb())
         write = self._svgwriter.write
 
         style = "fill: %s" % color

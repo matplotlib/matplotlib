@@ -217,8 +217,8 @@ def is_color_like(c):
 
 
 def rgb2hex(rgb):
-    'Given a len 3 rgb tuple of 0-1 floats, return the hex string'
-    return '#%02x%02x%02x' % tuple([round(val*255) for val in rgb])
+    'Given an rgb or rgba sequence of 0-1 floats, return the hex string'
+    return '#%02x%02x%02x' % tuple([round(val*255) for val in rgb[:3]])
 
 hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
 

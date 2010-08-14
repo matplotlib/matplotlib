@@ -1,3 +1,5 @@
+2010-08-14 Fix bug in patch alpha handling, and in bar color kwarg - EF
+
 2010-08-12 Removed all traces of numerix module after 17 months of
            deprecation warnings. - EF
 
