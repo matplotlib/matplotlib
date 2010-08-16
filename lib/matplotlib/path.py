@@ -443,7 +443,7 @@ class Path(object):
             codes[0] = cls.MOVETO
             codes[1:-1] = cls.LINETO
             codes[-1] = cls.CLOSEPOLY
-            path = cls(verts)
+            path = cls(verts, codes)
             if numVertices <= 16:
                 cls._unit_regular_polygons[(numVertices, innerCircle)] = path
         return path
