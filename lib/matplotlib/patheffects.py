@@ -60,7 +60,7 @@ class _Base(object):
 
         if isinstance(renderer, MixedModeRenderer):
             renderer = renderer._renderer
-            
+
         path, transform = RendererBase._get_text_path_transform(renderer,
                                                                 x, y, s,
                                                                 prop, angle,
@@ -168,7 +168,7 @@ class SimplePatchShadow(_Base):
         gc0.copy_properties(gc)
 
         if self._shadow_rgbFace is None:
-            r,g,b = rgbFace
+            r,g,b = rgbFace[:3]
             rho = 0.3
             r = rho*r
             g = rho*g
