@@ -224,7 +224,8 @@ point_in_path(double x, double y, PathIterator& path,
               const agg::trans_affine& trans)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
-    typedef agg::conv_curve<transformed_path_t> curve_t;
+    typedef PathNanRemover<transformed_path_t> no_nans_t;
+    typedef agg::conv_curve<no_nans_t> curve_t;
 
     if (path.total_vertices() < 3)
     {
@@ -232,7 +233,8 @@ point_in_path(double x, double y, PathIterator& path,
     }
 
     transformed_path_t trans_path(path, trans);
-    curve_t curved_path(trans_path);
+    no_nans_t no_nans_path(trans_path, true, path.has_curves());
+    curve_t curved_path(no_nans_path);
     return point_in_path_impl(x, y, curved_path);
 }
 
@@ -241,11 +243,13 @@ point_on_path(double x, double y, double r, PathIterator& path,
               const agg::trans_affine& trans)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
-    typedef agg::conv_curve<transformed_path_t> curve_t;
+    typedef PathNanRemover<transformed_path_t> no_nans_t;
+    typedef agg::conv_curve<no_nans_t> curve_t;
     typedef agg::conv_stroke<curve_t> stroke_t;
 
     transformed_path_t trans_path(path, trans);
-    curve_t curved_path(trans_path);
+    no_nans_t nan_removed_path(trans_path, true, path.has_curves());
+    curve_t curved_path(nan_removed_path);
     stroke_t stroked_path(curved_path);
     stroked_path.width(r * 2.0);
     return point_in_path_impl(x, y, stroked_path);
@@ -673,13 +677,15 @@ path_in_path(PathIterator& a, const agg::trans_affine& atrans,
              PathIterator& b, const agg::trans_affine& btrans)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
-    typedef agg::conv_curve<transformed_path_t> curve_t;
+    typedef PathNanRemover<transformed_path_t> no_nans_t;
+    typedef agg::conv_curve<no_nans_t> curve_t;
 
     if (a.total_vertices() < 3)
         return false;
 
     transformed_path_t b_path_trans(b, btrans);
-    curve_t b_curved(b_path_trans);
+    no_nans_t b_no_nans(b_path_trans, true, b.has_curves());
+    curve_t b_curved(b_no_nans);
 
     double x, y;
     b_curved.rewind(0);
@@ -1169,15 +1175,19 @@ segments_intersect(const double& x1, const double& y1,
 bool
 path_intersects_path(PathIterator& p1, PathIterator& p2)
 {
-    typedef agg::conv_curve<PathIterator> curve_t;
+    typedef PathNanRemover<PathIterator> no_nans_t;
+    typedef agg::conv_curve<no_nans_t> curve_t;
 
     if (p1.total_vertices() < 2 || p2.total_vertices() < 2)
     {
         return false;
     }
 
-    curve_t c1(p1);
-    curve_t c2(p2);
+    no_nans_t n1(p1, true, p1.has_curves());
+    no_nans_t n2(p2, true, p2.has_curves());
+
+    curve_t c1(n1);
+    curve_t c2(n2);
 
     double x11, y11, x12, y12;
     double x21, y21, x22, y22;
@@ -1211,6 +1221,7 @@ _path_module::path_intersects_path(const Py::Tuple& args)
     PathIterator p1(args[0]);
     PathIterator p2(args[1]);
     bool filled = false;
+
     if (args.size() == 3)
     {
         filled = args[2].isTrue();
