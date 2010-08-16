@@ -384,7 +384,8 @@ class Path(object):
         """
         if cls._unit_rectangle is None:
             cls._unit_rectangle = \
-                cls([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]])
+                cls([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]],
+                    [cls.MOVETO, cls.LINETO, cls.LINETO, cls.LINETO, cls.CLOSEPOLY])
         return cls._unit_rectangle
 
     _unit_regular_polygons = WeakValueDictionary()
@@ -407,8 +408,13 @@ class Path(object):
             # "points-up"
             theta += np.pi / 2.0
             verts = np.concatenate((np.cos(theta), np.sin(theta)), 1)
-            path = cls(verts)
-            cls._unit_regular_polygons[numVertices] = path
+            codes = np.empty((numVertices,))
+            codes[0] = cls.MOVETO
+            codes[1:-1] = cls.LINETO
+            codes[-1] = cls.CLOSEPOLY
+            path = cls(verts, codes)
+            if numVertices <= 16:
+                cls._unit_regular_polygons[numVertices] = path
         return path
 
     _unit_regular_stars = WeakValueDictionary()
@@ -433,8 +439,13 @@ class Path(object):
             r = np.ones(ns2 + 1)
             r[1::2] = innerCircle
             verts = np.vstack((r*np.cos(theta), r*np.sin(theta))).transpose()
+            codes = np.empty((ns2,))
+            codes[0] = cls.MOVETO
+            codes[1:-1] = cls.LINETO
+            codes[-1] = cls.CLOSEPOLY
             path = cls(verts)
-            cls._unit_regular_polygons[(numVertices, innerCircle)] = path
+            if numVertices <= 16:
+                cls._unit_regular_polygons[(numVertices, innerCircle)] = path
         return path
 
     @classmethod
