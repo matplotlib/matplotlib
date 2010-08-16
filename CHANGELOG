@@ -1,3 +1,7 @@
+2010-08-16 Handle NaN's correctly in path analysis routines.  Fixes a
+           bug where the best location for a legend was not calculated
+           correctly when the line contains NaNs. - MGD
+
 2010-08-14 Fix bug in patch alpha handling, and in bar color kwarg - EF
 
 2010-08-12 Removed all traces of numerix module after 17 months of
