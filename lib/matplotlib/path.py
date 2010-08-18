@@ -408,7 +408,7 @@ class Path(object):
             # "points-up"
             theta += np.pi / 2.0
             verts = np.concatenate((np.cos(theta), np.sin(theta)), 1)
-            codes = np.empty((numVertices,))
+            codes = np.empty((numVertices + 1,))
             codes[0] = cls.MOVETO
             codes[1:-1] = cls.LINETO
             codes[-1] = cls.CLOSEPOLY
