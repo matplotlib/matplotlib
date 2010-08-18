@@ -2107,6 +2107,31 @@ class BboxTransformTo(Affine2DBase):
     get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
 
 
+class BboxTransformToMaxOnly(BboxTransformTo):
+    """
+    :class:`BboxTransformTo` is a transformation that linearly
+    transforms points from the unit bounding box to a given
+    :class:`Bbox` with a fixed upper left of (0, 0).
+    """
+    def __repr__(self):
+        return "BboxTransformToMaxOnly(%s)" % (self._boxout)
+    __str__ = __repr__
+
+    def get_matrix(self):
+        if self._invalid:
+            xmax, ymax = self._boxout.max
+            if DEBUG and (xmax == 0 or ymax == 0):
+                raise ValueError("Transforming to a singular bounding box.")
+            self._mtx = np.array([[xmax,  0.0, 0.0],
+                                  [ 0.0, ymax, 0.0],
+                                  [ 0.0,  0.0, 1.0]],
+                                 np.float_)
+            self._inverted = None
+            self._invalid = 0
+        return self._mtx
+    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
+
+
 class BboxTransformFrom(Affine2DBase):
     """
     :class:`BboxTransformFrom` linearly transforms points from a given

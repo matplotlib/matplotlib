@@ -14,7 +14,7 @@ from matplotlib.path import Path
 from matplotlib.ticker import Formatter, Locator, FormatStrFormatter
 from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
     BboxTransformTo, IdentityTransform, Transform, TransformWrapper, \
-    ScaledTranslation, blended_transform_factory
+    ScaledTranslation, blended_transform_factory, BboxTransformToMaxOnly
 import matplotlib.spines as mspines
 
 class PolarAxes(Axes):
@@ -41,16 +41,16 @@ class PolarAxes(Axes):
             self._axis = axis
 
         def transform(self, tr):
-            xy   = np.zeros(tr.shape, np.float_)
+            xy = np.empty(tr.shape, np.float_)
             if self._axis is not None:
                 rmin = self._axis.viewLim.ymin
             else:
                 rmin = 0
 
-            t    = tr[:, 0:1]
-            r    = tr[:, 1:2]
-            x    = xy[:, 0:1]
-            y    = xy[:, 1:2]
+            t = tr[:, 0:1]
+            r = tr[:, 1:2]
+            x = xy[:, 0:1]
+            y = xy[:, 1:2]
 
             if rmin != 0:
                 r = r - rmin
@@ -188,7 +188,7 @@ class PolarAxes(Axes):
 
         def view_limits(self, vmin, vmax):
             vmin, vmax = self.base.view_limits(vmin, vmax)
-            return 0, vmax
+            return vmin, vmax
 
 
     def __init__(self, *args, **kwargs):
@@ -290,7 +290,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         # The r-axis labels are put at an angle and padded in the r-direction
         self._r_label1_position = ScaledTranslation(
             22.5, self._rpad,
-            blended_transform_factory(Affine2D(), BboxTransformTo(self.viewLim)))
+            blended_transform_factory(
+                Affine2D(), BboxTransformToMaxOnly(self.viewLim)))
         self._yaxis_text1_transform = (
             self._r_label1_position +
             Affine2D().scale(1.0 / 360.0, 1.0) +
@@ -298,7 +299,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             )
         self._r_label2_position = ScaledTranslation(
             22.5, -self._rpad,
-            blended_transform_factory(Affine2D(), BboxTransformTo(self.viewLim)))
+            blended_transform_factory(
+                Affine2D(), BboxTransformToMaxOnly(self.viewLim)))
         self._yaxis_text2_transform = (
             self._r_label2_position +
             Affine2D().scale(1.0 / 360.0, 1.0) +
