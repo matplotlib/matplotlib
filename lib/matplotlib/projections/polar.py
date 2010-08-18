@@ -188,7 +188,7 @@ class PolarAxes(Axes):
 
         def view_limits(self, vmin, vmax):
             vmin, vmax = self.base.view_limits(vmin, vmax)
-            return vmin, vmax
+            return 0, vmax
 
 
     def __init__(self, *args, **kwargs):
