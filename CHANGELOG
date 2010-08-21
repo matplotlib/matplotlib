@@ -1,3 +1,11 @@
+2010-08-21 Change Axis.set_view_interval() so that when updating an
+           existing interval, it respects the orientation of that
+           interval, and can enlarge but not reduce the interval.
+           This fixes a bug in which Axis.set_ticks would
+           change the view limits of an inverted axis. Whether
+           set_ticks should be affecting the viewLim at all remains
+           an open question. - EF
+
 2010-08-16 Handle NaN's correctly in path analysis routines.  Fixes a
            bug where the best location for a legend was not calculated
            correctly when the line contains NaNs. - MGD
