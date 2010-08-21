@@ -1696,11 +1696,21 @@ class XAxis(Axis):
         return self.axes.viewLim.intervalx
 
     def set_view_interval(self, vmin, vmax, ignore=False):
+        """
+        If *ignore* is *False*, the order of vmin, vmax
+        does not matter; the original axis orientation will
+        be preserved.
+        """
         if ignore:
             self.axes.viewLim.intervalx = vmin, vmax
         else:
             Vmin, Vmax = self.get_view_interval()
-            self.axes.viewLim.intervalx = min(vmin, Vmin), max(vmax, Vmax)
+            if Vmin < Vmax:
+                self.axes.viewLim.intervalx = (min(vmin, vmax, Vmin),
+                                               max(vmin, vmax, Vmax))
+            else:
+                self.axes.viewLim.intervalx = (max(vmin, vmax, Vmin),
+                                               min(vmin, vmax, Vmax))
 
     def get_minpos(self):
         return self.axes.dataLim.minposx
@@ -1947,11 +1957,21 @@ class YAxis(Axis):
         return self.axes.viewLim.intervaly
 
     def set_view_interval(self, vmin, vmax, ignore=False):
+        """
+        If *ignore* is *False*, the order of vmin, vmax
+        does not matter; the original axis orientation will
+        be preserved.
+        """
         if ignore:
             self.axes.viewLim.intervaly = vmin, vmax
         else:
             Vmin, Vmax = self.get_view_interval()
-            self.axes.viewLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
+            if Vmin < Vmax:
+                self.axes.viewLim.intervaly = (min(vmin, vmax, Vmin),
+                                               max(vmin, vmax, Vmax))
+            else:
+                self.axes.viewLim.intervaly = (max(vmin, vmax, Vmin),
+                                               min(vmin, vmax, Vmax))
 
     def get_minpos(self):
         return self.axes.dataLim.minposy
