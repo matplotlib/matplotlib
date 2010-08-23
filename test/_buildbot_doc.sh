@@ -8,8 +8,8 @@ source $TARGET/bin/activate
 echo "removing MPL config dir"
 python -c "import shutil,matplotlib; x=matplotlib.get_configdir(); shutil.rmtree(x)"
 
-echo "calling 'easy_install Sphinx==1.0.1'"
-easy_install "Sphinx==1.0.1"
+echo "calling 'easy_install Sphinx'"
+easy_install Sphinx
 
 echo "calling 'cd doc'"
 cd doc
