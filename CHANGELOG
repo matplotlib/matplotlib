@@ -1,3 +1,8 @@
+2010-08-21 Remove unused and inappropriate methods from Tick classes:
+           set_view_interval, get_minpos, and get_data_interval are
+           properly found in the Axis class and don't need to be
+           duplicated in XTick and YTick. - EF
+
 2010-08-21 Change Axis.set_view_interval() so that when updating an
            existing interval, it respects the orientation of that
            interval, and can enlarge but not reduce the interval.
