@@ -73,6 +73,11 @@ class Axis(maxis.XAxis):
         self.v_interval = v_intervalx
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
+
+        self.set_rotate_label(kwargs.get('rotate_label', None))
+
+
+    def init3d(self):
         self.line = mlines.Line2D(xdata=(0, 0), ydata=(0, 0),
                                  linewidth=0.75,
                                  color=(0, 0, 0, 1),
@@ -80,11 +85,11 @@ class Axis(maxis.XAxis):
                            )
 
         # Store dummy data in Polygon object
-        self.has_pane = True
         self.pane = mpatches.Polygon(np.array([[0,0], [0,1], [1,0], [0,0]]),
                                     alpha=0.8,
                                     facecolor=(1,1,1,0),
                                     edgecolor=(1,1,1,0))
+        self.set_pane_color(self._AXINFO[self.adir]['color'])
 
         self.axes._set_artist_props(self.line)
         self.axes._set_artist_props(self.pane)
@@ -92,7 +97,6 @@ class Axis(maxis.XAxis):
         self.axes._set_artist_props(self.gridlines)
         self.axes._set_artist_props(self.label)
         self.label._transform = self.axes.transData
-        self.set_rotate_label(kwargs.get('rotate_label', None))
 
     def get_tick_positions(self):
         majorLocs = self.major.locator()
@@ -110,14 +114,16 @@ class Axis(maxis.XAxis):
             t.label2.set_transform(self.axes.transData)
         return ticks
 
-    def set_pane(self, xys, color):
-        if self.has_pane:
-            xys = np.asarray(xys)
-            xys = xys[:,:2]
-            self.pane.xy = xys
-            self.pane.set_edgecolor(color)
-            self.pane.set_facecolor(color)
-            self.pane.set_alpha(color[-1])
+    def set_pane_pos(self, xys):
+        xys = np.asarray(xys)
+        xys = xys[:,:2]
+        self.pane.xy = xys
+
+    def set_pane_color(self, color):
+        '''Set pane color to a RGBA tuple'''
+        self.pane.set_edgecolor(color)
+        self.pane.set_facecolor(color)
+        self.pane.set_alpha(color[-1])
 
     def set_rotate_label(self, val):
         '''
@@ -161,7 +167,7 @@ class Axis(maxis.XAxis):
         else:
             plane = self._PLANES[2 * index + 1]
         xys = [tc[p] for p in plane]
-        self.set_pane(xys, info['color'])
+        self.set_pane_pos(xys)
         self.pane.draw(renderer)
 
         renderer.close_group('pane3d')
@@ -225,25 +231,26 @@ class Axis(maxis.XAxis):
         self.label.set_va('center')
         self.label.draw(renderer)
 
-        # Grid points at end of one plane
-        xyz1 = copy.deepcopy(xyz0)
-        newindex = (index + 1) % 3
-        newval = get_flip_min_max(xyz1[0], newindex, mins, maxs)
-        for i in range(len(majorLocs)):
-            xyz1[i][newindex] = newval
+        if len(xyz0) > 0:
+            # Grid points at end of one plane
+            xyz1 = copy.deepcopy(xyz0)
+            newindex = (index + 1) % 3
+            newval = get_flip_min_max(xyz1[0], newindex, mins, maxs)
+            for i in range(len(majorLocs)):
+                xyz1[i][newindex] = newval
 
-        # Grid points at end of the other plane
-        xyz2 = copy.deepcopy(xyz0)
-        newindex = (index + 2) %  3
-        newval = get_flip_min_max(xyz2[0], newindex, mins, maxs)
-        for i in range(len(majorLocs)):
-            xyz2[i][newindex] = newval
+            # Grid points at end of the other plane
+            xyz2 = copy.deepcopy(xyz0)
+            newindex = (index + 2) %  3
+            newval = get_flip_min_max(xyz2[0], newindex, mins, maxs)
+            for i in range(len(majorLocs)):
+                xyz2[i][newindex] = newval
 
-        lines = zip(xyz1, xyz0, xyz2)
-        if self.axes._draw_grid:
-            self.gridlines.set_segments(lines)
-            self.gridlines.set_color([(0.9,0.9,0.9,1)] * len(lines))
-            self.gridlines.draw(renderer, project=True)
+            lines = zip(xyz1, xyz0, xyz2)
+            if self.axes._draw_grid:
+                self.gridlines.set_segments(lines)
+                self.gridlines.set_color([(0.9,0.9,0.9,1)] * len(lines))
+                self.gridlines.draw(renderer, project=True)
 
         # Draw ticks
         tickdir = info['tickdir']
@@ -284,18 +291,22 @@ class Axis(maxis.XAxis):
         renderer.close_group('axis3d')
 
     def get_view_interval(self):
-        """return the Interval instance for this axis view limits"""
+        """return the Interval instance for this 3d axis view limits"""
         return self.v_interval
+        
+    def set_view_interval(self, vmin, vmax, ignore=False):
+        if ignore:
+            self.v_interval = vmin, vmax
+        else:
+            Vmin, Vmax = self.get_view_interval()
+            self.v_interval = min(vmin, Vmin), max(vmax, Vmax)
 
-# Each type of axis should be looking in a different place for its
-# current data limits so we do this with classes.  I think there is
-# a lot more that I can and should move down into these classes also.
+# Use classes to look at different data limits
 
 class XAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.xy_dataLim.intervalx
-
 
 class YAxis(Axis):
     def get_data_interval(self):
