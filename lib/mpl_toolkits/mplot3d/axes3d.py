@@ -58,7 +58,6 @@ class Axes3D(Axes):
 
         if rect is None:
             rect = [0.0, 0.0, 1.0, 1.0]
-        self.fig = fig
         self._cids = []
 
         self.initial_azim = kwargs.pop('azim', -60)
@@ -72,19 +71,27 @@ class Axes3D(Axes):
         # they can't be defined until Axes.__init__ has been called
         self.view_init(self.initial_elev, self.initial_azim)
         self._ready = 0
-        Axes.__init__(self, self.fig, rect,
-                      frameon=True,
-                      xticks=[], yticks=[], *args, **kwargs)
 
+        Axes.__init__(self, fig, rect,
+                      frameon=True,
+                      *args, **kwargs)
+        # Disable drawing of axes by base class
+        Axes.set_axis_off(self)
+        self._axis3don = True
         self.M = None
 
         self._ready = 1
         self.mouse_init()
-        self.create_axes()
         self.set_top_view()
 
         self.axesPatch.set_linewidth(0)
-        self.fig.add_axes(self)
+        self.figure.add_axes(self)
+
+    def set_axis_off(self):
+        self._axis3don = False
+
+    def set_axis_on(self):
+        self._axis3don = True
 
     def set_top_view(self):
         # this happens to be the right view for the viewing coordinates
@@ -97,13 +104,23 @@ class Axes3D(Axes):
         Axes.set_xlim(self, -xdwl, xdw, auto=None)
         Axes.set_ylim(self, -ydwl, ydw, auto=None)
 
-    def create_axes(self):
+    def _init_axis(self):
+        '''Init 3d axes; overrides creation of regular X/Y axes'''
         self.w_xaxis = axis3d.XAxis('x', self.xy_viewLim.intervalx,
                             self.xy_dataLim.intervalx, self)
+        self.xaxis = self.w_xaxis
         self.w_yaxis = axis3d.YAxis('y', self.xy_viewLim.intervaly,
                             self.xy_dataLim.intervaly, self)
+        self.yaxis = self.w_yaxis
         self.w_zaxis = axis3d.ZAxis('z', self.zz_viewLim.intervalx,
                             self.zz_dataLim.intervalx, self)
+        self.zaxis = self.w_zaxis
+
+        for ax in self.xaxis, self.yaxis, self.zaxis:
+            ax.init3d()
+
+    def get_children(self):
+        return [self.zaxis,] + Axes.get_children(self)
 
     def unit_cube(self, vals=None):
         minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
@@ -165,12 +182,16 @@ class Axes3D(Axes):
         for i, (z, patch) in enumerate(zlist):
             patch.zorder = i
 
-        axes = (self.w_xaxis, self.w_yaxis, self.w_zaxis)
-        for ax in axes:
-            ax.draw_pane(renderer)
-        for ax in axes:
-            ax.draw(renderer)
+        if self._axis3don:
+            axes = (self.w_xaxis, self.w_yaxis, self.w_zaxis)
+            # Draw panes first
+            for ax in axes:
+                ax.draw_pane(renderer)
+            # Then axes
+            for ax in axes:
+                ax.draw(renderer)
 
+        # Then rest
         Axes.draw(self, renderer)
 
     def get_axis_position(self):
@@ -240,18 +261,21 @@ class Axes3D(Axes):
         lims = self._determine_lims(*args, **kwargs)
         self.xy_viewLim.intervalx = lims
         return lims
+    set_xlim = set_xlim3d
 
     def set_ylim3d(self, *args, **kwargs):
         '''Set 3D y limits.'''
         lims = self._determine_lims(*args, **kwargs)
         self.xy_viewLim.intervaly = lims
         return lims
+    set_ylim = set_ylim3d
 
     def set_zlim3d(self, *args, **kwargs):
         '''Set 3D z limits.'''
         lims = self._determine_lims(*args, **kwargs)
         self.zz_viewLim.intervalx = lims
         return lims
+    set_zlim = set_zlim3d
 
     def get_xlim3d(self):
         '''Get 3D x limits.'''
@@ -264,6 +288,17 @@ class Axes3D(Axes):
     def get_zlim3d(self):
         '''Get 3D z limits.'''
         return self.zz_viewLim.intervalx
+    get_zlim = get_zlim3d
+
+    def set_zticks(self,*args,**kwargs):
+        """
+        Set 3d z tick locations and (optionally labels).
+        See set_xticks3d for more details.
+        """
+        return self.w_zaxis.set_ticks(*args, **kwargs)
+        
+    def get_zticks(self):
+        return self.w_zaxis.get_ticks()
 
     def clabel(self, *args, **kwargs):
         return None
@@ -722,8 +757,9 @@ class Axes3D(Axes):
 
                 # Only need vectors to shade if no cmap
                 if cmap is None and shade:
-                    v1 = np.array(ps2[0]) - np.array(ps2[1])
-                    v2 = np.array(ps2[2]) - np.array(ps2[0])
+                    i1, i2, i3 = 0, int(len(ps2)/3), int(2*len(ps2)/3)
+                    v1 = np.array(ps2[i1]) - np.array(ps2[i2])
+                    v2 = np.array(ps2[i2]) - np.array(ps2[i3])
                     normals.append(np.cross(v1, v2))
 
         polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
@@ -896,6 +932,16 @@ class Axes3D(Axes):
         for col in colls:
             self.collections.remove(col)
 
+    def add_contour_set(self, cset, extend3d=False, stride=5, zdir='z', offset=None):
+        zdir = '-' + zdir
+        if extend3d:
+            self._3d_extend_contour(cset, stride)
+        else:
+            for z, linec in zip(cset.levels, cset.collections):
+                if offset is not None:
+                    z = offset
+                art3d.line_collection_2d_to_3d(linec, z, zdir=zdir)
+
     def contour(self, X, Y, Z, *args, **kwargs):
         '''
         Create a 3D contour plot.
@@ -927,20 +973,48 @@ class Axes3D(Axes):
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         cset = Axes.contour(self, jX, jY, jZ, *args, **kwargs)
-
-        zdir = '-' + zdir
-        if extend3d:
-            self._3d_extend_contour(cset, stride)
-        else:
-            for z, linec in zip(cset.levels, cset.collections):
-                if offset is not None:
-                    z = offset
-                art3d.line_collection_2d_to_3d(linec, z, zdir=zdir)
+        self.add_contour_set(cset, extend3d, stride, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset
 
     contour3D = contour
+
+    def tricontour(self, X, Y, Z, *args, **kwargs):
+        '''
+        Create a 3D contour plot.
+
+        ==========  ================================================
+        Argument    Description
+        ==========  ================================================
+        *X*, *Y*,   Data values as numpy.arrays
+        *Z*
+        *extend3d*  Whether to extend contour in 3D (default: False)
+        *stride*    Stride (step size) for extending contour
+        *zdir*      The direction to use: x, y or z (default)
+        *offset*    If specified plot a projection of the contour
+                    lines on this position in plane normal to zdir
+        ==========  ================================================
+
+        Other keyword arguments are passed on to
+        :func:`~matplotlib.axes.Axes.tricontour`
+
+        Returns a :class:`~matplotlib.axes.Axes.contour`
+        '''
+
+        extend3d = kwargs.pop('extend3d', False)
+        stride = kwargs.pop('stride', 5)
+        zdir = kwargs.pop('zdir', 'z')
+        offset = kwargs.pop('offset', None)
+
+        had_data = self.has_data()
+
+        jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
+        cset = Axes.tricontour(self, jX, jY, jZ, *args, **kwargs)
+        self.add_contour_set(cset, extend3d, stride, zdir, offset)
+
+        self.auto_scale_xyz(X, Y, Z, had_data)
+        return cset
 
     def contourf(self, X, Y, Z, *args, **kwargs):
         '''
@@ -968,6 +1042,43 @@ class Axes3D(Axes):
 
     contourf3D = contourf
 
+    def tricontourf(self, X, Y, Z, offset=None, zdir='z', *args, **kwargs):
+        '''
+        Create a 3D contourf plot.
+
+        ==========  ================================================
+        Argument    Description
+        ==========  ================================================
+        *X*, *Y*,   Data values as numpy.arrays
+        *Z*
+        *extend3d*  Whether to extend contour in 3D (default: False)
+        *stride*    Stride (step size) for extending contour
+        *zdir*      The direction to use: x, y or z (default)
+        *offset*    If specified plot a projection of the contour
+                    lines on this position in plane normal to zdir
+        ==========  ================================================
+
+        Other keyword arguments are passed on to
+        :func:`~matplotlib.axes.Axes.tricontour`
+
+        Returns a :class:`~matplotlib.axes.Axes.contour`
+        '''
+
+        zdir = '-' + zdir
+        had_data = self.has_data()
+
+        cset = Axes.tricontourf(self, X, Y, Z, *args, **kwargs)
+        levels = cset.levels
+        colls = cset.collections
+        for z1, linec in zip(levels, colls):
+            if offset is not None:
+                z1 = offset
+            art3d.poly_collection_2d_to_3d(linec, z1, zdir=zdir)
+            linec.set_sort_zpos(z1)
+
+        self.auto_scale_xyz(X, Y, Z, had_data)
+        return cset
+
     def add_collection3d(self, col, zs=0, zdir='z'):
         '''
         Add a 3d collection object to the plot.
@@ -993,20 +1104,31 @@ class Axes3D(Axes):
 
         Axes.add_collection(self, col)
 
-    def scatter(self, xs, ys, zs=0, zdir='z', *args, **kwargs):
+    def scatter(self, xs, ys, zs=0, zdir='z', s=20, c='b', *args, **kwargs):
         '''
         Create a scatter plot.
 
         ==========  ================================================
         Argument    Description
-        ==========  ================================================
+        ==========  ==========================================================
         *xs*, *ys*  Positions of data points.
         *zs*        Either an array of the same length as *xs* and
                     *ys* or a single value to place all points in
                     the same plane. Default is 0.
         *zdir*      Which direction to use as z ('x', 'y' or 'z')
                     when plotting a 2d set.
-        ==========  ================================================
+        *s*         size in points^2.  It is a scalar or an array of the same
+                    length as *x* and *y*.
+
+        *c*         a color. *c* can be a single color format string, or a
+                    sequence of color specifications of length *N*, or a
+                    sequence of *N* numbers to be mapped to colors using the
+                    *cmap* and *norm* specified via kwargs (see below). Note
+                    that *c* should not be a single numeric RGB or RGBA
+                    sequence because that is indistinguishable from an array
+                    of values to be colormapped.  *c* can be a 2-D array in
+                    which the rows are RGB or RGBA, however.
+        ==========  ==========================================================
 
         Keyword arguments are passed on to
         :func:`~matplotlib.axes.Axes.scatter`.
@@ -1016,7 +1138,25 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
-        patches = Axes.scatter(self, xs, ys, *args, **kwargs)
+        xs = np.ma.ravel(xs)
+        ys = np.ma.ravel(ys)
+        zs = np.ma.ravel(zs)
+        if xs.size != ys.size:
+            raise ValueError("x and y must be the same size")
+        if xs.size != zs.size and zs.size == 1:
+            zs = np.array(zs[0] * xs.size)
+
+        s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
+
+        cstr = cbook.is_string_like(c) or cbook.is_sequence_of_strings(c)
+        if not cstr:
+            c = np.asanyarray(c)
+            if c.size == xs.size:
+                c = np.ma.ravel(c)
+
+        xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
+
+        patches = Axes.scatter(self, xs, ys, s=s, c=c, *args, **kwargs)
         if not cbook.iterable(zs):
             is_2d = True
             zs = np.ones(len(xs)) * zs
