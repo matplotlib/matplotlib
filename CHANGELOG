@@ -1,3 +1,5 @@
+2010-08-25 Add new framework for doing animations with examples.- RM
+
 2010-08-21 Remove unused and inappropriate methods from Tick classes:
            set_view_interval, get_minpos, and get_data_interval are
            properly found in the Axis class and don't need to be
