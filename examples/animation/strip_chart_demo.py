@@ -6,7 +6,7 @@ import matplotlib
 import numpy as np
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
-from animation import FuncAnimation
+import matplotlib.animation as animation
 
 class Scope:
     def __init__(self, ax, maxt=10, dt=0.01):
@@ -45,5 +45,6 @@ def emitter(p=0.01):
 fig = plt.figure()
 ax = fig.add_subplot(111)
 scope = Scope(ax)
-ani = FuncAnimation(fig, scope.update, emitter, interval=10, blit=True)
+ani = animation.FuncAnimation(fig, scope.update, emitter, interval=10,
+    blit=True)
 plt.show()

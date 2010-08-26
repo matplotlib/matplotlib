@@ -3,7 +3,7 @@ A simple example of an animated plot
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from animation import FuncAnimation
+import matplotlib.animation as animation
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
@@ -20,6 +20,6 @@ def init():
     line.set_ydata(np.ma.array(x, mask=True))
     return line,
 
-ani = FuncAnimation(fig, animate, np.arange(1, 200), init_func=init,
+ani = animation.FuncAnimation(fig, animate, np.arange(1, 200), init_func=init,
     interval=25, blit=True)
 plt.show()

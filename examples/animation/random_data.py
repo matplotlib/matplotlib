@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from animation import FuncAnimation
+import matplotlib.animation as animation
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
@@ -14,5 +14,5 @@ def update(data):
 def data_gen():
     while True: yield np.random.rand(10)
 
-ani = FuncAnimation(fig, update, data_gen, interval=100)
+ani = animation.FuncAnimation(fig, update, data_gen, interval=100)
 plt.show()
