@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.path as path
-from animation import FuncAnimation
+import matplotlib.animation as animation
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
@@ -58,5 +58,5 @@ def animate(i):
     verts[1::5,1] = top
     verts[2::5,1] = top
 
-ani = FuncAnimation(fig, animate, 100, repeat=False)
+ani = animation.FuncAnimation(fig, animate, 100, repeat=False)
 plt.show()

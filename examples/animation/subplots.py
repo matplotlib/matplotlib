@@ -1,14 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-from animation import TimedAnimation
+import matplotlib.animation as animation
 
 # This example uses subclassing, but there is no reason that the proper function
 # couldn't be set up and then use FuncAnimation. The code is long, but not
 # really complex. The length is due solely to the fact that there are a total
 # of 9 lines that need to be changed for the animation as well as 3 subplots
 # that need initial set up.
-class SubplotAnimation(TimedAnimation):
+class SubplotAnimation(animation.TimedAnimation):
     def __init__(self):
         fig = plt.figure()
         ax1 = fig.add_subplot(1, 2, 1)
@@ -54,7 +54,7 @@ class SubplotAnimation(TimedAnimation):
         ax3.set_xlim(-1, 1)
         ax3.set_ylim(0, 800)
 
-        TimedAnimation.__init__(self, fig, interval=50, blit=True)
+        animation.TimedAnimation.__init__(self, fig, interval=50, blit=True)
 
     def _draw_frame(self, framedata):
         i = framedata

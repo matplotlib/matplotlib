@@ -4,7 +4,7 @@ An animated image
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from animation import FuncAnimation
+import matplotlib.animation as animation
 
 fig = plt.figure()
 
@@ -23,5 +23,5 @@ def updatefig(*args):
     im.set_array(f(x,y))
     return im,
 
-ani = FuncAnimation(fig, updatefig, interval=50, blit=True)
+ani = animation.FuncAnimation(fig, updatefig, interval=50, blit=True)
 plt.show()

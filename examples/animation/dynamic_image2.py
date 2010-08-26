@@ -4,7 +4,7 @@ An animated image
 """
 import numpy as np
 import matplotlib.pyplot as plt
-from animation import ArtistAnimation
+import matplotlib.animation as animation
 
 fig = plt.figure()
 
@@ -20,5 +20,6 @@ for i in range(60):
     y += np.pi / 20.
     ims.append([plt.imshow(f(x, y), cmap=plt.get_cmap('jet'))])
 
-ani = ArtistAnimation(fig, ims, interval=50, blit=True, repeat_delay=1000)
+ani = animation.ArtistAnimation(fig, ims, interval=50, blit=True,
+    repeat_delay=1000)
 plt.show()
