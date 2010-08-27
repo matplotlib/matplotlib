@@ -8,6 +8,8 @@
 #   * Currently broken with Qt4 for widgets that don't start on screen
 #   * Still a few edge cases that aren't working correctly
 #   * Can this integrate better with existing matplotlib animation artist flag?
+#     - If animated removes from default draw(), perhaps we could use this to
+#       simplify initial draw.
 # * Example
 #   * Frameless animation - pure procedural with no loop
 #   * Need example that uses something like inotify or subprocess
@@ -15,17 +17,8 @@
 # * Movies
 #   * Library to make movies?
 #   * RC parameter for config?
+#   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
-from datetime import datetime
-
-def traceme(func):
-    def wrapper(*args):
-        print '%s -- Calling: %s %s' % (datetime.now(), func.__name__, str(args))
-        ret = func(*args)
-        print 'Returned: %s' % func.__name__
-        return ret
-    return wrapper
-
 import itertools
 from matplotlib.cbook import iterable
 
@@ -117,7 +110,11 @@ class Animation(object):
         # Create a new sequence of frames for saved data. This is different
         # from new_frame_seq() to give the ability to save 'live' generated
         # frame information to be saved later.
+        # TODO: Right now, after closing the figure, saving a movie won't
+        # work since GUI widgets are gone. Either need to remove extra code
+        # to allow for this non-existant use case or find a way to make it work.
         for idx,data in enumerate(self.new_saved_frame_seq()):
+            #TODO: Need to see if turning off blit is really necessary
             self._draw_next_frame(data, blit=False)
             fname = '%s%04d.png' % (frame_prefix, idx)
             fnames.append(fname)
