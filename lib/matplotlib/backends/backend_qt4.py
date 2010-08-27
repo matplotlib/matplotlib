@@ -50,11 +50,16 @@ def _create_qApp():
     if QtGui.QApplication.startingUp():
         if DEBUG: print "Starting up QApplication"
         global qApp
-        qApp = QtGui.QApplication( [" "] )
-        QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
-                            qApp, QtCore.SLOT( "quit()" ) )
-        #remember that matplotlib created the qApp - will be used by show()
-        _create_qApp.qAppCreatedHere = True
+        app = QtGui.QApplication.instance()
+        if app is None:
+            qApp = QtGui.QApplication( [" "] )
+            QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
+                                qApp, QtCore.SLOT( "quit()" ) )
+            #remember that matplotlib created the qApp - will be used by show()
+            _create_qApp.qAppCreatedHere = True
+        else:
+            qApp = app
+            _create_qApp.qAppCreatedHere = False
 
 _create_qApp.qAppCreatedHere = False
 
