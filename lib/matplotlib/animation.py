@@ -26,6 +26,7 @@ def traceme(func):
         return ret
     return wrapper
 
+import itertools
 from matplotlib.cbook import iterable
 
 class Animation(object):
@@ -78,6 +79,7 @@ class Animation(object):
         self.event_source.add_callback(self._step)
         self.event_source.start()
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
+        self._first_draw_id = None # So we can check on save
 
     def _stop(self, *args):
         # On stop we disconnect all of our events.
@@ -103,6 +105,14 @@ class Animation(object):
         image files.  This prefix will have a frame number (i.e. 0001) appended
         when saving individual frames.
         '''
+        # Need to disconnect the first draw callback, since we'll be doing
+        # draws. Otherwise, we'll end up starting the animation.
+        if self._first_draw_id is not None:
+            self._fig.canvas.mpl_disconnect(self._first_draw_id)
+            reconnect_first_draw = True
+        else:
+            reconnect_first_draw = False
+
         fnames = []
         # Create a new sequence of frames for saved data. This is different
         # from new_frame_seq() to give the ability to save 'live' generated
@@ -120,6 +130,11 @@ class Animation(object):
             import os
             for fname in fnames:
                 os.remove(fname)
+
+        # Reconnect signal for first draw if necessary
+        if reconnect_first_draw:
+            self._first_draw_id = self._fig.canvas.mpl_connect('draw_event',
+                self._start)
 
     def ffmpeg_cmd(self, fname, fps, codec, frame_prefix):
         # Returns the command line parameters for subprocess to use
@@ -401,7 +416,6 @@ class FuncAnimation(TimedAnimation):
         # be a generator. An iterable will be used as is, and anything else
         # will be treated as a number of frames.
         if frames is None:
-            import itertools
             self._iter_gen = itertools.count
         elif callable(frames):
             self._iter_gen = frames
@@ -417,17 +431,28 @@ class FuncAnimation(TimedAnimation):
             self.save_count = 100
 
         self._init_func = init_func
-        self._save_seq = []
+
+        # Needs to be initialized so the draw functions work without checking
+        self._save_seq = [] 
 
         TimedAnimation.__init__(self, fig, **kwargs)
+
+        # Need to reset the saved seq, since right now it will contain data
+        # for a single frame from init, which is not what we want.
+        self._save_seq = []
 
     def new_frame_seq(self):
         # Use the generating function to generate a new frame sequence
         return self._iter_gen()
 
     def new_saved_frame_seq(self):
-        # Generate an iterator for the sequence of saved data.
-        return iter(self._save_seq)
+        # Generate an iterator for the sequence of saved data. If there are
+        # no saved frames, generate a new frame sequence and take the first
+        # save_count entries in it.
+        if self._save_seq:
+            return iter(self._save_seq)
+        else:
+            return itertools.islice(self.new_frame_seq(), self.save_count)
 
     def _init_draw(self):
         # Initialize the drawing either using the given init_func or by
