@@ -157,8 +157,8 @@ class GridSpecBase(object):
                 col1, col2 = k2, k2+1
 
 
-            num1 = row1*nrows + col1
-            num2 = (row2-1)*nrows + (col2-1)
+            num1 = row1*ncols + col1
+            num2 = (row2-1)*ncols + (col2-1)
 
         # single key
         else:
