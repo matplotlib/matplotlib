@@ -312,12 +312,17 @@ class Patch(artist.Artist):
 
         ACCEPTS: [True | False]
         """
-        self._fill = b
+        self._fill = bool(b)
         self.set_facecolor(self._original_facecolor)
 
     def get_fill(self):
         'return whether fill is set'
         return self._fill
+
+    # Make fill a property so as to preserve the long-standing
+    # but somewhat inconsistent behavior in which fill was an
+    # attribute.
+    fill = property(get_fill, set_fill)
 
     def set_hatch(self, hatch):
         """
