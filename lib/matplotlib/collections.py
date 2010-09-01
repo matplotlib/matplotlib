@@ -1034,7 +1034,7 @@ class PatchCollection(Collection):
 
         if match_original:
             def determine_facecolor(patch):
-                if patch.fill:
+                if patch.get_fill():
                     return patch.get_facecolor()
                 return [0, 0, 0, 0]
 
