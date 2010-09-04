@@ -31,7 +31,7 @@ Excel Tools
 
 mpl_toolkits.exceltools provides some utilities for working with
 Excel.  This toolkit ships with matplotlib, but requires
-`pyExcelerator <http://sourceforge.net/projects/pyexcelerator>`_
+`xlwt <http://pypi.python.org/pypi/xlwt>`_
 
 .. _toolkit_natgrid:
 
