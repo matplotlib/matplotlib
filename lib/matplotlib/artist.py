@@ -92,7 +92,11 @@ class Artist(object):
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
         self._propobservers = {} # a dict from oids to funcs
-        self.axes = None
+        try:
+            self.axes = None
+        except AttributeError:
+            # Handle self.axes as a read-only property, as in Figure.
+            pass
         self._remove_method = None
         self._url = None
         self._gid = None
