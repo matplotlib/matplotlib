@@ -7451,6 +7451,12 @@ class Axes(martist.Artist):
               pdf, bins, patches = ax.hist(...)
               print np.sum(pdf * np.diff(bins))
 
+            .. Note:: Until numpy release 1.5, the underlying numpy
+                      histogram function was incorrect with *normed*=*True*
+                      if bin sizes were unequal.  MPL inherited that
+                      error.  It is now corrected within MPL when using
+                      earlier numpy versions
+
           *weights*
             An array of weights, of the same shape as *x*.  Each value in
             *x* only contributes its associated weight towards the bin
@@ -7632,7 +7638,10 @@ class Axes(martist.Artist):
                 xmax = max(xmax, xi.max())
             range = (xmin, xmax)
 
-        hist_kwargs = dict(range=range, normed=bool(normed))
+        #hist_kwargs = dict(range=range, normed=bool(normed))
+        # We will handle the normed kwarg within mpl until we
+        # get to the point of requiring numpy >= 1.5.
+        hist_kwargs = dict(range=range)
         if np.__version__ < "1.3": # version 1.1 and 1.2
             hist_kwargs['new'] = True
 
@@ -7641,7 +7650,20 @@ class Axes(martist.Artist):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
+            if normed:
+                db = np.diff(bins)
+                m = (m.astype(float) / db) / m.sum()
             n.append(m)
+        if normed and db.std() > 0.01 * db.mean():
+            warnings.warn("""
+            This release fixes a normalization bug in the NumPy histogram
+            function prior to version 1.5, occuring with non-uniform
+            bin widths. The returned and plotted value is now a density:
+                n / (N * bin width),
+            where n is the bin count and N the total number of points.
+            """)
+
+
 
         if cumulative:
             slc = slice(None)
