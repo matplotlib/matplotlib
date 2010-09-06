@@ -82,6 +82,14 @@ class AxesStack(Stack):
             hash(key)
         except TypeError:
             raise ValueError("first argument, %s, is not a valid key" % key)
+
+        a_existing = self.get(key)
+        if a_existing is not None:
+            Stack.remove(self, (key, a_existing))
+            warnings.Warn(
+                    "key %s already existed; Axes is being replaced" % key)
+            # I don't think the above should ever happen.
+
         if a in self:
             return None
         return Stack.push(self, (key, a))
@@ -648,15 +656,14 @@ class Figure(Artist):
 
         %(Axes)s
         """
+        if not len(args): return
 
         key = self._make_key(*args, **kwargs)
-
         ax = self._axstack.get(key)
         if ax is not None:
             self.sca(ax)
             return ax
 
-        if not len(args): return
         if isinstance(args[0], Axes):
             a = args[0]
             assert(a.get_figure() is self)
@@ -674,8 +681,7 @@ class Figure(Artist):
 
             a = projection_factory(projection, self, rect, **kwargs)
 
-        if a not in self._axstack:
-            self._axstack.add(key, a)
+        self._axstack.add(key, a)
         self.sca(a)
         return a
 
@@ -708,15 +714,17 @@ class Figure(Artist):
 
         %(Axes)s
         """
-
-        kwargs = kwargs.copy()
-
         if not len(args): return
+
+        if len(args) == 1 and isinstance(args[0], int):
+            args = tuple([int(c) for c in str(args[0])])
 
         if isinstance(args[0], SubplotBase):
             a = args[0]
             assert(a.get_figure() is self)
+            key = self._make_key(*args, **kwargs)
         else:
+            kwargs = kwargs.copy()
             ispolar = kwargs.pop('polar', False)
             projection = kwargs.pop('projection', None)
             if ispolar:
@@ -729,6 +737,7 @@ class Figure(Artist):
 
             projection_class = get_projection_class(projection)
 
+            # Remake the key without projection kwargs:
             key = self._make_key(*args, **kwargs)
             ax = self._axstack.get(key)
             if ax is not None:
@@ -737,6 +746,11 @@ class Figure(Artist):
                     return ax
                 else:
                     self._axstack.remove(ax)
+                    # Undocumented convenience behavior:
+                    # subplot(111); subplot(111, projection='polar')
+                    # will replace the first with the second.
+                    # Without this, add_subplot would be simpler and
+                    # more similar to add_axes.
 
             a = subplot_class_factory(projection_class)(self, *args, **kwargs)
         self._axstack.add(key, a)
