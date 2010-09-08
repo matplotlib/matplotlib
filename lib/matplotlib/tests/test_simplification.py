@@ -141,7 +141,7 @@ def test_fft_peaks():
 
     print len(simplified)
 
-    assert len(simplified) == 17
+    assert len(simplified) == 20
 
 def test_start_with_moveto():
     # Should be entirely clipped away to a single MOVETO
@@ -212,8 +212,8 @@ def test_clipper():
 
 @image_comparison(baseline_images=['para_equal_perp'])
 def test_para_equal_perp():
-    x = np.array([0, 1, 2, 1, 0, -1, 0, 1])
-    y = np.array([1, 1, 2, 1, 0, -1, 0, 0])
+    x = np.array([0, 1, 2, 1, 0, -1, 0, 1] + [1] * 128)
+    y = np.array([1, 1, 2, 1, 0, -1, 0, 0] + [0] * 128)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
