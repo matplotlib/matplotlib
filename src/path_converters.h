@@ -682,24 +682,30 @@ public:
                    min of our final line) */
                 double paradNorm2 = paradx * paradx + parady * parady;
 
-                m_lastMax = false;
-                if (totdot >= 0.0)
-                {
-                    if (paradNorm2 > m_dnorm2Max)
+                if (perpdNorm2 == paradNorm2) {
+                    _push(&m_lastx, &m_lasty);
+                    _push(x, y);
+                    break;
+                } else {
+                    m_lastMax = false;
+                    if (totdot >= 0.0)
                     {
-                        m_lastMax = true;
-                        m_dnorm2Max = paradNorm2;
-                        m_nextX = *x;
-                        m_nextY = *y;
+                        if (paradNorm2 > m_dnorm2Max)
+                        {
+                            m_lastMax = true;
+                            m_dnorm2Max = paradNorm2;
+                            m_nextX = *x;
+                            m_nextY = *y;
+                        }
                     }
-                }
-                else
-                {
-                    if (paradNorm2 < m_dnorm2Min)
+                    else
                     {
-                        m_dnorm2Min = paradNorm2;
-                        m_nextX = *x;
-                        m_nextY = *y;
+                        if (paradNorm2 < m_dnorm2Min)
+                        {
+                            m_dnorm2Min = paradNorm2;
+                            m_nextX = *x;
+                            m_nextY = *y;
+                        }
                     }
                 }
 
