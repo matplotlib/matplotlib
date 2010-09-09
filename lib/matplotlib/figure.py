@@ -41,25 +41,35 @@ class AxesStack(Stack):
     """
     Specialization of the Stack to handle all
     tracking of Axes in a Figure.  This requires storing
-    key, axes pairs. The key is based on the args and kwargs
-    used in generating the Axes.
+    key, (ind, axes) pairs. The key is based on the args and kwargs
+    used in generating the Axes. ind is a serial number for tracking
+    the order in which axes were added.
     """
+    def __init__(self):
+        Stack.__init__(self)
+        self._ind = 0
+
     def as_list(self):
         """
         Return a list of the Axes instances that have been added to the figure
         """
-        return [a for k, a in self._elements]
+        ia_list = [a for k, a in self._elements]
+        ia_list.sort()
+        return [a for i, a in ia_list]
 
     def get(self, key):
         """
         Return the Axes instance that was added with *key*.
         If it is not present, return None.
         """
-        return dict(self._elements).get(key)
+        item = dict(self._elements).get(key)
+        if item is None:
+            return None
+        return item[1]
 
     def _entry_from_axes(self, e):
-        k = dict([(a, k) for (k, a) in self._elements])[e]
-        return k, e
+        ind, k = dict([(a, (ind, k)) for (k, (ind, a)) in self._elements])[e]
+        return (k, (ind, e))
 
     def remove(self, a):
         Stack.remove(self, self._entry_from_axes(a))
@@ -92,13 +102,14 @@ class AxesStack(Stack):
 
         if a in self:
             return None
-        return Stack.push(self, (key, a))
+        self._ind += 1
+        return Stack.push(self, (key, (self._ind, a)))
 
     def __call__(self):
         if not len(self._elements):
             return self._default
         else:
-            return self._elements[self._pos][1]
+            return self._elements[self._pos][1][1]
 
     def __contains__(self, a):
         return a in self.as_list()
