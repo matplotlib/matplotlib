@@ -21,6 +21,9 @@ CFLAGS="-arch i386 -arch x86_64 -I${PREFIX}/include -I${PREFIX}/include/freetype
 LDFLAGS="-arch i386 -arch x86_64 -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
 FFLAGS="-arch i386 -arch x86_64"
 
+check-prefix:
+	@if [ ! -d "$(PREFIX)" ]; then echo Set PREFIX to a directory - see README.osx; exit 1; fi
+
 clean:
 	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
 	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
@@ -38,7 +41,7 @@ fetch:
 
 
 
-zlib:
+zlib: check-prefix
 	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
 	rm -rf zlib-${ZLIBVERSION} &&\
 	tar xvfz zlib-${ZLIBVERSION}.tar.gz &&\
@@ -50,7 +53,7 @@ zlib:
 	MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS} LDFLAGS=${LDFLAGS} make -j3 install&& \
 	unset MACOSX_DEPLOYMENT_TARGET
 
-png: zlib
+png: zlib check-prefix
 	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
 	rm -rf libpng-${PNGVERSION} &&\
 	tar xvfz libpng-${PNGVERSION}.tar.gz && \
@@ -64,7 +67,7 @@ png: zlib
 	unset MACOSX_DEPLOYMENT_TARGET
 
 
-freetype: zlib
+freetype: zlib check-prefix
 	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
 	rm -rf ${FREETYPEVERSION} &&\
 	tar xvfj freetype-${FREETYPEVERSION}.tar.bz2 &&\
@@ -88,7 +91,7 @@ mpl_build:
 	export LDFLAGS=${LDFLAGS} &&\
 	${PYTHON} setup.py build
 
-mpl_install:
+mpl_install: check-prefix
 	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
 	export CFLAGS=${CFLAGS} &&\
@@ -96,7 +99,7 @@ mpl_install:
 	${PYTHON} setup.py install --prefix=${PREFIX}
 
 
-binaries:
+binaries: check-prefix
 	unset PKG_CONFIG_PATH &&\
 	cp release/osx/data/setup.cfg release/osx/data/ReadMe.txt . &&\
 	export CFLAGS=${CFLAGS} &&\
