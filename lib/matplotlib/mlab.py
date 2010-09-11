@@ -2719,7 +2719,7 @@ def griddata(x,y,z,xi,yi,interp='nn'):
     # remove masked points.
     if hasattr(z,'mask'):
         # make sure mask is not a scalar boolean array.
-        if a.mask.ndim:
+        if z.mask.ndim:
             x = x.compress(z.mask == False)
             y = y.compress(z.mask == False)
             z = z.compressed()
