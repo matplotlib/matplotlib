@@ -101,6 +101,9 @@ class TimerGTK(TimerBase):
         functions add_callback and remove_callback can be used.
     '''
     def _timer_start(self):
+        # Need to stop it, otherwise we potentially leak a timer id that will
+        # never be stopped.
+        self._timer_stop()
         self._timer = gobject.timeout_add(self._interval, self._on_timer)
 
     def _timer_stop(self):
@@ -109,6 +112,7 @@ class TimerGTK(TimerBase):
             self._timer = None
 
     def _timer_set_interval(self):
+        # Only stop and restart it if the timer has already been started
         if self._timer is not None:
             self._timer_stop()
             self._timer_start()

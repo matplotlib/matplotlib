@@ -520,7 +520,7 @@ public:
         m_moveto(true), m_after_moveto(false),
         m_lastx(0.0), m_lasty(0.0), m_clipped(false),
         m_origdx(0.0), m_origdy(0.0),
-        m_origdNorm2(0.0), m_dnorm2Max(0.0), m_dnorm2Min(0.0),
+        m_origdNorm2(0.0), m_dnorm2Max(0.0),
         m_lastMax(false), m_nextX(0.0), m_nextY(0.0),
         m_lastWrittenX(0.0), m_lastWrittenY(0.0)
     {
@@ -637,7 +637,6 @@ public:
 
                 //set all the variables to reflect this new orig vector
                 m_dnorm2Max = m_origdNorm2;
-                m_dnorm2Min = 0.0;
                 m_lastMax = true;
 
                 m_nextX = m_lastWrittenX = m_lastx = *x;
@@ -677,13 +676,11 @@ public:
                 /* check if the current vector is parallel or
                    anti-parallel to the orig vector. If it is
                    parallel, test if it is the longest of the vectors
-                   we are merging in that direction. If anti-p, test
-                   if it is the longest in the opposite direction (the
-                   min of our final line) */
+                   we are merging in that direction. */
                 double paradNorm2 = paradx * paradx + parady * parady;
 
                 m_lastMax = false;
-                if (totdot >= 0.0)
+                if (totdot > 0.0)
                 {
                     if (paradNorm2 > m_dnorm2Max)
                     {
@@ -695,12 +692,9 @@ public:
                 }
                 else
                 {
-                    if (paradNorm2 < m_dnorm2Min)
-                    {
-                        m_dnorm2Min = paradNorm2;
-                        m_nextX = *x;
-                        m_nextY = *y;
-                    }
+                    _push(&m_lastx, &m_lasty);
+                    _push(x, y);
+                    break;
                 }
 
                 m_lastx = *x;
@@ -764,7 +758,6 @@ private:
     double m_origdy;
     double m_origdNorm2;
     double m_dnorm2Max;
-    double m_dnorm2Min;
     bool   m_lastMax;
     double m_nextX;
     double m_nextY;
@@ -799,7 +792,6 @@ private:
         m_origdNorm2 = m_origdx * m_origdx + m_origdy * m_origdy;
 
         m_dnorm2Max = m_origdNorm2;
-        m_dnorm2Min = 0.0;
         m_lastMax = true;
         m_lastWrittenX = m_queue[m_queue_write-1].x;
         m_lastWrittenY = m_queue[m_queue_write-1].y;
