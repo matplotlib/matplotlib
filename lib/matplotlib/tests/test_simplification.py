@@ -73,6 +73,8 @@ def test_noise():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
+    print len(simplified)
+
     assert len(simplified) == 3884
 
 def test_sine_plus_noise():
@@ -89,6 +91,8 @@ def test_sine_plus_noise():
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
+
+    print len(simplified)
 
     assert len(simplified) == 876
 
@@ -135,7 +139,9 @@ def test_fft_peaks():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    assert len(simplified) == 17
+    print len(simplified)
+
+    assert len(simplified) == 20
 
 def test_start_with_moveto():
     # Should be entirely clipped away to a single MOVETO
@@ -203,6 +209,17 @@ def test_clipper():
 
     ax.set_xlim(5, 9)
     fig.savefig('clipper_edge')
+
+@image_comparison(baseline_images=['para_equal_perp'])
+def test_para_equal_perp():
+    x = np.array([0, 1, 2, 1, 0, -1, 0, 1] + [1] * 128)
+    y = np.array([1, 1, 2, 1, 0, -1, 0, 0] + [0] * 128)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x + 1, y + 1)
+    ax.plot(x + 1, y + 1, 'ro')
+    fig.savefig('para_equal_perp')
 
 if __name__=='__main__':
     import nose
