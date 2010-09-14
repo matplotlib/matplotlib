@@ -132,9 +132,9 @@ class BezierPath(mlines.Line2D):
         if self._invalid:
             self.recache()
 
+        if not self._visible: return
         renderer.open_group('line2d')
 
-        if not self._visible: return
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
 
