@@ -325,6 +325,11 @@ class RendererSVG(RendererBase):
         # opposite edge.  Underlying these three gradients is a solid
         # triangle whose color is the average of all three points.
 
+        avg_color = np.sum(colors[:, :], axis=0) / 3.0
+        # Just skip fully-transparent triangles
+        if avg_color[-1] == 0.0:
+            return
+
         trans_and_flip = self._make_flip_transform(trans)
         tpoints = trans_and_flip.transform(points)
         write = self._svgwriter.write
@@ -334,7 +339,7 @@ class RendererSVG(RendererBase):
             x1, y1 = points[i]
             x2, y2 = points[(i + 1) % 3]
             x3, y3 = points[(i + 2) % 3]
-            c = colors[i][:3]
+            c = colors[i][:]
 
             if x2 == x3:
                 xb = x2
@@ -352,8 +357,8 @@ class RendererSVG(RendererBase):
 
             write('<linearGradient id="GR%x_%d" x1="%f" y1="%f" x2="%f" y2="%f" gradientUnits="userSpaceOnUse">' %
                   (self._n_gradients, i, x1, y1, xb, yb))
-            write('<stop offset="0" stop-color="%s" stop-opacity="1.0"/>' % rgb2hex(c))
-            write('<stop offset="1" stop-color="%s" stop-opacity="0.0"/>' % rgb2hex(c))
+            write('<stop offset="0" style="stop-color:%s;stop-opacity:%f"/>' % (rgb2hex(c), c[-1]))
+            write('<stop offset="1" style="stop-color:%s;stop-opacity:0"/>' % rgb2hex(c))
             write('</linearGradient>')
 
         # Define the triangle itself as a "def" since we use it 4 times
@@ -361,11 +366,11 @@ class RendererSVG(RendererBase):
               (self._n_gradients, x1, y1, x2, y2, x3, y3))
         write('</defs>\n')
 
-        avg_color = np.sum(colors[:, :3], axis=0) / 3.0
-        write('<use xlink:href="#GT%x" fill="%s"/>\n' %
-              (self._n_gradients, rgb2hex(avg_color)))
+        avg_color = np.sum(colors[:, :], axis=0) / 3.0
+        write('<use xlink:href="#GT%x" fill="%s" fill-opacity="%f"/>\n' %
+              (self._n_gradients, rgb2hex(avg_color), avg_color[-1]))
         for i in range(3):
-            write('<use xlink:href="#GT%x" fill="url(#GR%x_%d)" filter="url(#colorAdd)"/>\n' %
+            write('<use xlink:href="#GT%x" fill="url(#GR%x_%d)" fill-opacity="1" filter="url(#colorAdd)"/>\n' %
                   (self._n_gradients, self._n_gradients, i))
 
         self._n_gradients += 1
