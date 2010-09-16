@@ -1,4 +1,4 @@
-2010-09-15 Remove unused _wxagg extension. - EF
+2010-09-15 Remove unused _wxagg extension and numerix.h. - EF
 
 2010-08-25 Add new framework for doing animations with examples.- RM
 
