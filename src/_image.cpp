@@ -924,7 +924,7 @@ _image_module::fromarray(const Py::Tuple& args)
 
         int rgba = A->dimensions[2] == 4;
         double r, g, b, alpha;
-        int offset = 0;
+        size_t offset = 0;
 
         for (size_t rownum = 0; rownum < imo->rowsIn; rownum++)
         {
