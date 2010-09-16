@@ -58,7 +58,6 @@ tag_svn_revision = 1
 #gtk = False
 #gtkagg = False
 #tkagg = False
-#wxagg = False
 #macosx = False
 
 [rc_options]
@@ -74,10 +73,3 @@ tag_svn_revision = 1
 #
 #backend = Agg
 #
-# The numerix module was historically used to provide
-# compatibility between the Numeric, numarray, and NumPy array
-# packages. Now that NumPy has emerge as the universal array
-# package for python, numerix is not really necessary and is
-# maintained to provide backward compatibility. Do not change
-# this unless you have a compelling reason to do so.
-#numerix = numpy

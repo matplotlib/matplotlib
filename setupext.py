@@ -102,7 +102,6 @@ BUILT_GTKAGG    = False
 BUILT_IMAGE     = False
 BUILT_MACOSX    = False
 BUILT_TKAGG     = False
-BUILT_WXAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
 BUILT_DELAUNAY  = False
@@ -127,7 +126,6 @@ options = {'display_status': True,
            'build_gtk': 'auto',
            'build_gtkagg': 'auto',
            'build_tkagg': 'auto',
-           'build_wxagg': 'auto',
            'build_macosx': 'auto',
            'build_image': True,
            'build_windowing': True,
@@ -165,9 +163,6 @@ if os.path.exists(setup_cfg):
 
     try: options['build_tkagg'] = config.getboolean("gui_support", "tkagg")
     except: options['build_tkagg'] = 'auto'
-
-    try: options['build_wxagg'] = config.getboolean("gui_support", "wxagg")
-    except: options['build_wxagg'] = 'auto'
 
     try: options['build_macosx'] = config.getboolean("gui_support", "macosx")
     except: options['build_macosx'] = 'auto'
@@ -710,97 +705,6 @@ def add_pygtk_flags(module):
     if sys.platform == 'win32' and win32_compiler == 'msvc' and 'm' in module.libraries:
         module.libraries.remove('m')
 
-
-def check_for_wx():
-    gotit = False
-    explanation = None
-    try:
-        import wx
-    except ImportError:
-        explanation = 'wxPython not found'
-    else:
-        if getattr(wx, '__version__', '0.0')[0:3] >= '2.8':
-            print_status("wxPython", wx.__version__)
-            return True
-        elif sys.platform == 'win32' and win32_compiler == 'mingw32':
-            explanation = "The wxAgg extension can not be built using the mingw32 compiler on Windows, since the default wxPython binary is built using MS Visual Studio"
-        else:
-            wxconfig = find_wx_config()
-            if wxconfig is None:
-                explanation = """
-WXAgg's accelerator requires `wx-config'.
-
-The `wx-config\' executable could not be located in any directory of the
-PATH environment variable. If you want to build WXAgg, and wx-config is
-in some other location or has some other name, set the WX_CONFIG
-environment variable to the full path of the executable like so:
-
-export WX_CONFIG=/usr/lib/wxPython-2.6.1.0-gtk2-unicode/bin/wx-config
-"""
-            elif not check_wxpython_broken_macosx104_version(wxconfig):
-                explanation = 'WXAgg\'s accelerator not building because a broken wxPython (installed by Apple\'s Mac OS X) was found.'
-            else:
-                gotit = True
-
-    if gotit:
-        module = Extension("test", [])
-        add_wx_flags(module, wxconfig)
-        if not find_include_file(
-            module.include_dirs,
-            os.path.join("wx", "wxPython", "wxPython.h")):
-            explanation = ("Could not find wxPython headers in any of %s" %
-                               ", ".join(["'%s'" % x for x in module.include_dirs]))
-
-    if gotit:
-        print_status("wxPython", wx.__version__)
-    else:
-        print_status("wxPython", "no")
-    if explanation is not None:
-        print_message(explanation)
-    return gotit
-
-def find_wx_config():
-    """If the WX_CONFIG environment variable has been set, returns it value.
-    Otherwise, search for `wx-config' in the PATH directories and return the
-    first match found.  Failing that, return None.
-    """
-
-    wxconfig = os.getenv('WX_CONFIG')
-    if wxconfig is not None:
-        return wxconfig
-
-    path = os.getenv('PATH') or ''
-    for dir in path.split(':'):
-        wxconfig = os.path.join(dir, 'wx-config')
-        if os.path.exists(wxconfig):
-            return wxconfig
-
-    return None
-
-def check_wxpython_broken_macosx104_version(wxconfig):
-    """Determines if we're using a broken wxPython installed by Mac OS X 10.4"""
-    if sys.platform == 'darwin':
-        if wxconfig == '/usr/bin/wx-config':
-            version_full = getoutput(wxconfig + ' --version-full')
-            if version_full == '2.5.3.1':
-                return False
-    return True
-
-def add_wx_flags(module, wxconfig):
-    """
-    Add the module flags to build extensions which use wxPython.
-    """
-
-    if sys.platform == 'win32': # just added manually
-        wxlibs = ['wxexpath', 'wxjpegh', 'wxmsw26uh',
-                  'wxmsw26uh_animate', 'wxmsw26uh_gizmos', 'wxmsw26uh_gizmos_xrc',
-                  'wxmsw26uh_gl', 'wxmsw26uh_stc', 'wxpngh', 'wxregexuh', 'wxtiffh', 'wxzlibh']
-        module.libraries.extend(wxlibs)
-        module.libraries.extend(wxlibs)
-        return
-
-    get_pkgconfig(module, '', flags='--cppflags --libs', pkg_config_exec='wx-config')
-
 # Make sure you use the Tk version given by Tkinter.TkVersion
 # or else you'll build for a wrong version of the Tcl
 # interpreter (leading to nasty segfaults).
@@ -1199,25 +1103,6 @@ def build_tkagg(ext_modules, packages):
     ext_modules.append(module)
     BUILT_TKAGG = True
 
-
-def build_wxagg(ext_modules, packages):
-     global BUILT_WXAGG
-     if BUILT_WXAGG:
-         return
-
-     deps = ['src/_wxagg.cpp', 'src/mplutils.cpp']
-     deps.extend(glob.glob('CXX/*.cxx'))
-     deps.extend(glob.glob('CXX/*.c'))
-
-     module = Extension('matplotlib.backends._wxagg', deps)
-
-     add_agg_flags(module)
-     add_ft2font_flags(module)
-     wxconfig = find_wx_config()
-     add_wx_flags(module, wxconfig)
-
-     ext_modules.append(module)
-     BUILT_WXAGG = True
 
 def build_macosx(ext_modules, packages):
     global BUILT_MACOSX
