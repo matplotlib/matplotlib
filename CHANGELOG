@@ -1,3 +1,5 @@
+2010-09-15 Remove unused _wxagg extension. - EF
+
 2010-08-25 Add new framework for doing animations with examples.- RM
 
 2010-08-21 Remove unused and inappropriate methods from Tick classes:

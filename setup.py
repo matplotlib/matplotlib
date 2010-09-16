@@ -33,12 +33,12 @@ if major==2 and minor1<4 or major<2:
 
 import glob
 from distutils.core import setup
-from setupext import build_agg, build_gtkagg, build_tkagg, build_wxagg,\
+from setupext import build_agg, build_gtkagg, build_tkagg,\
      build_macosx, build_ft2font, build_image, build_windowing, build_path, \
      build_contour, build_delaunay, build_nxutils, build_gdk, \
      build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, \
-     check_for_tk, check_for_wx, check_for_macosx, check_for_numpy, \
+     check_for_tk, check_for_macosx, check_for_numpy, \
      check_for_qt, check_for_qt4, check_for_cairo, \
      check_provide_pytz, check_provide_dateutil,\
      check_for_dvipng, check_for_ghostscript, check_for_latex, \
@@ -155,17 +155,6 @@ if options['build_tkagg']:
         options['build_agg'] = 1
         build_tkagg(ext_modules, packages)
         rc['backend'] = 'TkAgg'
-
-if options['build_wxagg']:
-    if check_for_wx() or (options['build_wxagg'] is True):
-        options['build_agg'] = 1
-        import wx
-        if getattr(wx, '__version__', '0.0')[0:3] < '2.8' :
-            build_wxagg(ext_modules, packages)
-            wxagg_backend_status = "yes"
-        else:
-            print_message("WxAgg extension not required for wxPython >= 2.8")
-        rc['backend'] = 'WXAgg'
 
 hasgtk = check_for_gtk()
 if options['build_gtk']:
