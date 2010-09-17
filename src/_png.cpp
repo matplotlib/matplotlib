@@ -1,9 +1,8 @@
-#include <png.h>
+/* Python API mandates Python.h is included *first* */
+#include "Python.h"
 
-// To remove a gcc warning
-#ifdef _POSIX_C_SOURCE
-#undef _POSIX_C_SOURCE
-#endif
+#define PNG_SKIP_SETJMP_CHECK
+#include <png.h>
 
 // TODO: Un CXX-ify this module
 #include "CXX/Extensions.hxx"
