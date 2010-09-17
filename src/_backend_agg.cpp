@@ -4,9 +4,6 @@
 /* Python API mandates Python.h is included *first* */
 #include "Python.h"
 
-#define PNG_SKIP_SETJMP_CHECK
-#include <png.h>
-
 #include "ft2font.h"
 #include "_image.h"
 #include "_backend_agg.h"

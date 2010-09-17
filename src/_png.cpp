@@ -1,8 +1,26 @@
-/* Python API mandates Python.h is included *first* */
-#include "Python.h"
 
-#define PNG_SKIP_SETJMP_CHECK
-#include <png.h>
+/* For linux, png.h must be imported before Python.h because
+   png.h needs to be the one to define setjmp.
+   Undefining _POSIX_C_SOURCE and _XOPEN_SOURCE stops a couple
+   of harmless warnings.
+*/
+
+#ifdef __linux__
+#   include <png.h>
+#   ifdef _POSIX_C_SOURCE
+#       undef _POSIX_C_SOURCE
+#   endif
+#   ifdef _XOPEN_SOURCE
+#       undef _XOPEN_SOURCE
+#   endif
+#   include "Python.h"
+#else
+
+/* Python API mandates Python.h is included *first* */
+#   include "Python.h"
+
+#   include <png.h>
+#endif
 
 // TODO: Un CXX-ify this module
 #include "CXX/Extensions.hxx"
