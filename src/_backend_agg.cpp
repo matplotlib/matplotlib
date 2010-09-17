@@ -1,11 +1,11 @@
 /* A rewrite of _backend_agg using PyCXX to handle ref counting, etc..
  */
-#include <png.h>
 
-// To remove a gcc warning
-#ifdef _POSIX_C_SOURCE
-#undef _POSIX_C_SOURCE
-#endif
+/* Python API mandates Python.h is included *first* */
+#include "Python.h"
+
+#define PNG_SKIP_SETJMP_CHECK
+#include <png.h>
 
 #include "ft2font.h"
 #include "_image.h"
