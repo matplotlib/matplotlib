@@ -1,8 +1,4 @@
-// To remove a gcc warning
-#ifdef _POSIX_C_SOURCE
-#undef _POSIX_C_SOURCE
-#endif
-
+/* Python API mandates Python.h is included *first* */
 #include "Python.h"
 #include <string>
 
