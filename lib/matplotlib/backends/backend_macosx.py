@@ -15,7 +15,6 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.colors import colorConverter
 
 
-
 from matplotlib.widgets import SubplotTool
 
 import matplotlib
@@ -103,6 +102,10 @@ class RendererMac(RendererBase):
         self.gc.save()
         self.gc.set_hatch(None)
         return self.gc
+
+    def draw_gouraud_triangle(self, gc, points, colors, transform):
+        points = transform.transform(points)
+        gc.draw_gouraud_triangle(points, colors)
 
     def draw_image(self, gc, x, y, im):
         im.flipud_out()
@@ -228,7 +231,7 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if not _macosx.get_main_display_id():
+    if not _macosx.verify_main_display():
         import warnings
         warnings.warn("Python is not installed as a framework. The MacOSX backend may not work correctly if Python is not installed as a framework. Please see the Python documentation for more information on installing Python as a framework on Mac OS X")
     FigureClass = kwargs.pop('FigureClass', Figure)

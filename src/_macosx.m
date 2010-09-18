@@ -1876,6 +1876,346 @@ exit:
     return Py_None;
 }
 
+static int _find_minimum(CGFloat values[3])
+{
+    int i = 0;
+    CGFloat minimum = values[0];
+    if (values[1] < minimum)
+    {
+        minimum = values[1];
+        i = 1;
+    }
+    if (values[2] < minimum)
+        i = 2;
+    return i;
+}
+ 
+static int _find_maximum(CGFloat values[3])
+{
+    int i = 0;
+    CGFloat maximum = values[0];
+    if (values[1] > maximum)
+    {
+        maximum = values[1];
+        i = 1;
+    }
+    if (values[2] > maximum)
+        i = 2;
+    return i;
+}
+ 
+static void
+_rgba_color_evaluator(void* info, const CGFloat input[], CGFloat outputs[])
+{
+    const CGFloat c1 = input[0];
+    const CGFloat c0 = 1.0 - c1;
+    CGFloat(* color)[4] = info;
+    outputs[0] = c0 * color[0][0] + c1 * color[1][0];
+    outputs[1] = c0 * color[0][1] + c1 * color[1][1];
+    outputs[2] = c0 * color[0][2] + c1 * color[1][2];
+    outputs[3] = c0 * color[0][3] + c1 * color[1][3];
+}
+
+static void
+_gray_color_evaluator(void* info, const CGFloat input[], CGFloat outputs[])
+{
+    const CGFloat c1 = input[0];
+    const CGFloat c0 = 1.0 - c1;
+    CGFloat(* color)[2] = info;
+    outputs[0] = c0 * color[0][0] + c1 * color[1][0];
+    outputs[1] = c0 * color[0][1] + c1 * color[1][1];
+}
+
+static int
+_shade_one_color(CGContextRef cr, CGFloat colors[3], CGPoint points[3], int icolor)
+{
+    const int imin = _find_minimum(colors);
+    const int imax = _find_maximum(colors);
+
+    float numerator;
+    float denominator;
+    float ac;
+    float as;
+    float phi;
+    float distance;
+    CGPoint start;
+    CGPoint end;
+    static CGFunctionCallbacks callbacks = {0, &_rgba_color_evaluator, free};
+    CGFloat domain[2] = {0.0, 1.0};
+    CGFloat range[8] = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 1.0};
+    CGFunctionRef function;
+
+    CGFloat(* rgba)[4] = malloc(2*sizeof(CGFloat[4]));
+    if (!rgba) return -1;
+    else {
+        rgba[0][0] = 0.0;
+        rgba[0][1] = 0.0;
+        rgba[0][2] = 0.0;
+        rgba[0][3] = 1.0;
+        rgba[1][0] = 0.0;
+        rgba[1][1] = 0.0;
+        rgba[1][2] = 0.0;
+        rgba[1][3] = 1.0;
+    }
+
+    denominator = (points[1].x-points[0].x)*(points[2].y-points[0].y)
+                - (points[2].x-points[0].x)*(points[1].y-points[0].y);
+    numerator = (colors[1]-colors[0])*(points[2].y-points[0].y)
+              - (colors[2]-colors[0])*(points[1].y-points[0].y);
+    ac = numerator / denominator;
+    numerator = (colors[2]-colors[0])*(points[1].x-points[0].x)
+              - (colors[1]-colors[0])*(points[2].x-points[0].x);
+    as = numerator / denominator;
+    phi = atan2(as, ac);
+
+    start.x = points[imin].x;
+    start.y = points[imin].y;
+
+    rgba[0][icolor] = colors[imin];
+    rgba[1][icolor] = colors[imax];
+
+    distance = (points[imax].x-points[imin].x) * cos(phi) + (points[imax].y-points[imin].y) * sin(phi);
+
+    end.x = start.x + distance * cos(phi);
+    end.y = start.y + distance * sin(phi);
+
+    function = CGFunctionCreate(rgba,
+                                1, /* one input (position) */
+                                domain,
+                                4, /* rgba output */
+                                range,
+                                &callbacks);
+    if (function)
+    {
+        CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        CGShadingRef shading = CGShadingCreateAxial(colorspace,
+                                                    start,
+                                                    end,
+                                                    function,
+                                                    true,
+                                                    true);
+        CGFunctionRelease(function);
+        if (shading)
+        {
+            CGContextDrawShading(cr, shading);
+            CGShadingRelease(shading);
+            return 1;
+        }
+    }
+    free(rgba);
+    return -1;
+}
+
+static CGRect _find_enclosing_rect(CGPoint points[3])
+{
+    CGFloat left = points[0].x;
+    CGFloat right = points[0].x;
+    CGFloat bottom = points[0].y;
+    CGFloat top = points[0].y;
+    if (points[1].x < left) left = points[1].x;
+    if (points[1].x > right) right = points[1].x;
+    if (points[2].x < left) left = points[2].x;
+    if (points[2].x > right) right = points[2].x;
+    if (points[1].y < bottom) bottom = points[1].y;
+    if (points[1].y > top) top = points[1].y;
+    if (points[2].y < bottom) bottom = points[2].y;
+    if (points[2].y > top) top = points[2].y;
+    return CGRectMake(left,bottom,right-left,top-bottom);
+}
+
+static int
+_shade_alpha(CGContextRef cr, CGFloat alphas[3], CGPoint points[3])
+{
+    const int imin = _find_minimum(alphas);
+    const int imax = _find_maximum(alphas);
+
+    if (alphas[imin]==1.0) return 0;
+
+    CGRect rect = _find_enclosing_rect(points);
+    const size_t width = (size_t)rect.size.width;
+    const size_t height = (size_t)rect.size.height;
+    if (width==0 || height==0) return 0;
+
+    void* data = malloc(width*height);
+
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceGray();
+    CGContextRef bitmap = CGBitmapContextCreate(data,
+                                                width,
+                                                height,
+                                                8,
+                                                width,
+                                                colorspace,
+                                                0);
+    CGColorSpaceRelease(colorspace);
+
+    if (imin==imax)
+    {
+        CGRect bitmap_rect = rect;
+        bitmap_rect.origin = CGPointZero;
+        CGContextSetGrayFillColor(bitmap, alphas[0], 1.0);
+        CGContextFillRect(bitmap, bitmap_rect);
+    }
+    else
+    {
+        float numerator;
+        float denominator;
+        float ac;
+        float as;
+        float phi;
+        float distance;
+        CGPoint start;
+        CGPoint end;
+        CGFloat(*gray)[2] = malloc(2*sizeof(CGFloat[2]));
+
+        static CGFunctionCallbacks callbacks = {0, &_gray_color_evaluator, free};
+        CGFloat domain[2] = {0.0, 1.0};
+        CGFloat range[2] = {0.0, 1.0};
+        CGShadingRef shading = NULL;
+        CGFunctionRef function;
+
+        gray[0][1] = 1.0;
+        gray[1][1] = 1.0;
+
+        denominator = (points[1].x-points[0].x)*(points[2].y-points[0].y)
+                    - (points[2].x-points[0].x)*(points[1].y-points[0].y);
+        numerator = (alphas[1]-alphas[0])*(points[2].y-points[0].y)
+                  - (alphas[2]-alphas[0])*(points[1].y-points[0].y);
+        ac = numerator / denominator;
+        numerator = (alphas[2]-alphas[0])*(points[1].x-points[0].x)
+                  - (alphas[1]-alphas[0])*(points[2].x-points[0].x);
+        as = numerator / denominator;
+        phi = atan2(as, ac);
+
+        start.x = points[imin].x - rect.origin.x;
+        start.y = points[imin].y - rect.origin.y;
+
+        gray[0][0] = alphas[imin];
+        gray[1][0] = alphas[imax];
+
+        distance = (points[imax].x-points[imin].x) * cos(phi) + (points[imax].y-points[imin].y) * sin(phi);
+
+        end.x = start.x + distance * cos(phi);
+        end.y = start.y + distance * sin(phi);
+
+        function = CGFunctionCreate(gray,
+                                    1, /* one input (position) */
+                                    domain,
+                                    1, /* one output (gray level) */
+                                    range,
+                                    &callbacks);
+        if (function)
+        {
+            shading = CGShadingCreateAxial(colorspace,
+                                           start,
+                                           end,
+                                           function,
+                                           true,
+                                           true);
+            CGFunctionRelease(function);
+        }
+        if (shading)
+        {
+            CGContextDrawShading(bitmap, shading);
+            CGShadingRelease(shading);
+        }
+        else
+        {
+            free(gray);
+        }
+    }
+
+    CGImageRef mask = CGBitmapContextCreateImage(bitmap);
+    CGContextClipToMask(cr, rect, mask);
+    CGImageRelease(mask);
+    free(data);
+    return 0;
+}
+
+static PyObject*
+GraphicsContext_draw_gouraud_triangle (GraphicsContext* self, PyObject* args)
+
+{
+    PyObject* coordinates;
+    PyObject* colors;
+
+    CGPoint points[3];
+    CGFloat intensity[3];
+
+    int i = 0;
+
+    CGContextRef cr = self->cr;
+    if (!cr)
+    {
+        PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
+        return NULL;
+    }
+
+    if(!PyArg_ParseTuple(args, "OO", &coordinates, &colors)) return NULL;
+
+    /* ------------------- Check coordinates array ------------------------ */
+
+    coordinates = PyArray_FromObject(coordinates, NPY_DOUBLE, 2, 2);
+    if (!coordinates ||
+        PyArray_DIM(coordinates, 0) != 3 || PyArray_DIM(coordinates, 1) != 2)
+    {
+        PyErr_SetString(PyExc_ValueError, "Invalid coordinates array");
+        Py_XDECREF(coordinates);
+        return NULL;
+    }
+    points[0].x = *((double*)(PyArray_GETPTR2(coordinates, 0, 0)));
+    points[0].y = *((double*)(PyArray_GETPTR2(coordinates, 0, 1)));
+    points[1].x = *((double*)(PyArray_GETPTR2(coordinates, 1, 0)));
+    points[1].y = *((double*)(PyArray_GETPTR2(coordinates, 1, 1)));
+    points[2].x = *((double*)(PyArray_GETPTR2(coordinates, 2, 0)));
+    points[2].y = *((double*)(PyArray_GETPTR2(coordinates, 2, 1)));
+
+    /* ------------------- Check colors array ----------------------------- */
+
+    colors = PyArray_FromObject(colors, NPY_DOUBLE, 2, 2);
+    if (!colors ||
+        PyArray_DIM(colors, 0) != 3 || PyArray_DIM(colors, 1) != 4)
+    {
+        PyErr_SetString(PyExc_ValueError, "colors must by a 3x4 array");
+        Py_DECREF(coordinates);
+        Py_XDECREF(colors);
+        return NULL;
+    }
+
+    /* ----- Draw the gradients separately for each color component ------- */
+    CGContextSaveGState(cr);
+    CGContextMoveToPoint(cr, points[0].x, points[0].y);
+    CGContextAddLineToPoint(cr, points[1].x, points[1].y);
+    CGContextAddLineToPoint(cr, points[2].x, points[2].y);
+    CGContextClip(cr);
+    intensity[0] = *((double*)(PyArray_GETPTR2(colors, 0, 3)));
+    intensity[1] = *((double*)(PyArray_GETPTR2(colors, 1, 3)));
+    intensity[2] = *((double*)(PyArray_GETPTR2(colors, 2, 3)));
+    if (_shade_alpha(cr, intensity, points)!=-1) {
+        CGContextBeginTransparencyLayer(cr, NULL);
+        CGContextSetBlendMode(cr, kCGBlendModeScreen);
+        for (i = 0; i < 3; i++)
+        {
+            intensity[0] = *((double*)(PyArray_GETPTR2(colors, 0, i)));
+            intensity[1] = *((double*)(PyArray_GETPTR2(colors, 1, i)));
+            intensity[2] = *((double*)(PyArray_GETPTR2(colors, 2, i)));
+            if (!_shade_one_color(cr, intensity, points, i)) break;
+        }
+        CGContextEndTransparencyLayer(cr);
+    }
+    CGContextRestoreGState(cr);
+
+    Py_DECREF(coordinates);
+    Py_DECREF(colors);
+
+    if (i < 3) /* break encountered */
+    {
+        PyErr_SetString(PyExc_MemoryError, "insufficient memory in draw_gouraud_triangle");
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
 #ifdef COMPILING_FOR_10_5
 static CTFontRef
@@ -2790,6 +3130,11 @@ static PyMethodDef GraphicsContext_methods[] = {
      (PyCFunction)GraphicsContext_draw_quad_mesh,
      METH_VARARGS,
      "Draws a mesh in the graphics context."
+    },
+    {"draw_gouraud_triangle",
+     (PyCFunction)GraphicsContext_draw_gouraud_triangle,
+     METH_VARARGS,
+     "Draws a Gouraud-shaded triangle in the graphics context."
     },
     {"draw_text",
      (PyCFunction)GraphicsContext_draw_text,
@@ -5139,14 +5484,15 @@ show(PyObject* self)
 }
 
 static PyObject*
-get_main_display_id(PyObject* self)
+verify_main_display(PyObject* self)
 {
     CGDirectDisplayID display = CGMainDisplayID();
     if (display == 0) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to obtain the display ID of the main display");
         return NULL;
     }
-    return PyInt_FromLong(display);
+    Py_INCREF(Py_True);
+    return Py_True;
 }
 
 static struct PyMethodDef methods[] = {
@@ -5165,10 +5511,10 @@ static struct PyMethodDef methods[] = {
     METH_VARARGS,
     "Sets the active cursor."
    },
-   {"get_main_display_id",
-    (PyCFunction)get_main_display_id,
+   {"verify_main_display",
+    (PyCFunction)verify_main_display,
     METH_NOARGS,
-    "Returns the display ID of the main display. This function fails if Python is not built as a framework."
+    "Verifies if the main display can be found. This function fails if Python is not built as a framework."
    },
    {NULL,          NULL, 0, NULL}/* sentinel */
 };
