@@ -11,6 +11,7 @@ eg to make an overbar you do \bar{o} or to make an o umlaut you do
 """
 from pylab import *
 
+axes([0.1, 0.15, 0.8, 0.75])
 plot(range(10))
 
 title(r'$\ddot{o}\acute{e}\grave{e}\hat{O}\breve{i}\bar{A}\tilde{n}\vec{q}$', fontsize=20)
