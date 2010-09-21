@@ -1169,7 +1169,7 @@ class FontManager:
         return abs(sizeval1 - sizeval2) / 72.0
 
     def findfont(self, prop, fontext='ttf', directory=None,
-                 fallback_to_default=True):
+                 fallback_to_default=True, rebuild_if_missing=True):
         """
         Search the font list for the font that most closely matches
         the :class:`FontProperties` *prop*.
@@ -1257,6 +1257,16 @@ class FontManager:
                 (prop, best_font.name, best_font.fname, best_score))
             result = best_font.fname
 
+        if not os.path.isfile(result):
+            if rebuild_if_missing:
+                verbose.report(
+                    'findfont: Found a missing font file.  Rebuilding cache.')
+                _rebuild()
+                return fontManager.findfont(
+                    prop, fontext, directory, True, False)
+            else:
+                raise ValueError("No valid font could be found")
+
         if directory is None:
             font_cache[hash(prop)] = result
         return result
@@ -1279,6 +1289,16 @@ def is_opentype_cff_font(filename):
             _is_opentype_cff_font_cache[filename] = result
         return result
     return False
+
+fontManager = None
+
+_fmcache = os.path.join(get_configdir(), 'fontList.cache')
+
+def _rebuild():
+    global fontManager
+    fontManager = FontManager()
+    pickle_dump(fontManager, _fmcache)
+    verbose.report("generated new fontManager")
 
 # The experimental fontconfig-based backend.
 if USE_FONTCONFIG and sys.platform != 'win32':
@@ -1317,16 +1337,6 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         return result
 
 else:
-    _fmcache = os.path.join(get_configdir(), 'fontList.cache')
-
-    fontManager = None
-
-    def _rebuild():
-        global fontManager
-        fontManager = FontManager()
-        pickle_dump(fontManager, _fmcache)
-        verbose.report("generated new fontManager")
-
     try:
         fontManager = pickle_load(_fmcache)
         if (not hasattr(fontManager, '_version') or
