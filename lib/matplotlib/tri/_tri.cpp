@@ -559,10 +559,10 @@ void TriContourGenerator::clear_visited_flags(bool include_boundaries)
         // Clear _boundaries_visited.
         for (BoundariesVisited::iterator it = _boundaries_visited.begin();
                 it != _boundaries_visited.end(); ++it)
-            fill(it->begin(), it->end(), false);
+            std::fill(it->begin(), it->end(), false);
 
         // Clear _boundaries_used.
-        fill(_boundaries_used.begin(), _boundaries_used.end(), false);
+        std::fill(_boundaries_used.begin(), _boundaries_used.end(), false);
     }
 }
 
