@@ -757,6 +757,8 @@ Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `citeulike <http://www.citeul
 	  Type = {Editorial Material},
 	  Volume = {9},
 	  Year = {2007},
-	  Abstract = {Matplotlib is a 2D graphics package used for Python for application development, interactive scripting, and publication-quality image generation across user interfaces and operating systems.},
+	  Abstract = {Matplotlib is a 2D graphics package used for Python for application
+                      development, interactive scripting, and publication-quality image
+                      generation across user interfaces and operating systems.},
 	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}
 
