@@ -9,6 +9,7 @@ from math import sqrt
 from matplotlib.path import Path
 
 from operator import xor
+import warnings
 
 
 # some functions
@@ -323,6 +324,22 @@ def get_cos_sin(x0, y0, x1, y1):
     d = (dx*dx + dy*dy)**.5
     return dx/d, dy/d
 
+def check_if_parallel(dx1, dy1, dx2, dy2, tolerence=1.e-5):
+    """ returns
+       * 1 if two lines are parralel in same direction
+       * -1 if two lines are parralel in opposite direction
+       * 0 otherwise
+    """
+    theta1 = np.arctan2(dx1, dy1)
+    theta2 = np.arctan2(dx2, dy2)
+    dtheta = np.abs(theta1 - theta2)
+    if  dtheta < tolerence:
+        return 1
+    elif np.abs(dtheta - np.pi) < tolerence:
+        return -1
+    else:
+        return False
+
 
 def get_parallels(bezier2, width):
     """
@@ -338,10 +355,18 @@ def get_parallels(bezier2, width):
     cmx, cmy = bezier2[1]
     c2x, c2y = bezier2[2]
 
-    # t1 and t2 is the anlge between c1 and cm, cm, c2.
-    # They are also a angle of the tangential line of the path at c1 and c2
-    cos_t1, sin_t1 = get_cos_sin(c1x, c1y, cmx, cmy)
-    cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c2x, c2y)
+    parallel_test = check_if_parallel(c1x-cmx, c1y-cmy, cmx-c2x, cmy-c2y)
+
+    if parallel_test == -1:
+        warnings.warn("Lines do not intersect. A straight line is used instead.")
+        #cmx, cmy = 0.5*(c1x+c2x), 0.5*(c1y+c2y)
+        cos_t1, sin_t1 = get_cos_sin(c1x, c1y, c2x, c2y)
+        cos_t2, sin_t2 = cos_t1, sin_t1
+    else:
+        # t1 and t2 is the anlge between c1 and cm, cm, c2.  They are
+        # also a angle of the tangential line of the path at c1 and c2
+        cos_t1, sin_t1 = get_cos_sin(c1x, c1y, cmx, cmy)
+        cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c2x, c2y)
 
     # find c1_left, c1_right which are located along the lines
     # throught c1 and perpendicular to the tangential lines of the
@@ -355,11 +380,21 @@ def get_parallels(bezier2, width):
     # find cm_left which is the intersectng point of a line through
     # c1_left with angle t1 and a line throught c2_left with angle
     # t2. Same with cm_right.
-    cmx_left, cmy_left = get_intersection(c1x_left, c1y_left, cos_t1, sin_t1,
-                                        c2x_left, c2y_left, cos_t2, sin_t2)
+    if parallel_test != 0:
+        # a special case for a straight line, i.e., angle between two
+        # lines are smaller than some (arbitrtay) value.
+        cmx_left, cmy_left = \
+                  0.5*(c1x_left+c2x_left), 0.5*(c1y_left+c2y_left)
+        cmx_right, cmy_right = \
+                   0.5*(c1x_right+c2x_right), 0.5*(c1y_right+c2y_right)
+    else:
+        cmx_left, cmy_left = \
+                  get_intersection(c1x_left, c1y_left, cos_t1, sin_t1,
+                                   c2x_left, c2y_left, cos_t2, sin_t2)
 
-    cmx_right, cmy_right = get_intersection(c1x_right, c1y_right, cos_t1, sin_t1,
-                                          c2x_right, c2y_right, cos_t2, sin_t2)
+        cmx_right, cmy_right = \
+                   get_intersection(c1x_right, c1y_right, cos_t1, sin_t1,
+                                    c2x_right, c2y_right, cos_t2, sin_t2)
 
     # the parralel bezier lines are created with control points of
     # [c1_left, cm_left, c2_left] and [c1_right, cm_right, c2_right]
