@@ -46,6 +46,13 @@ disconnect the callback, just call::
 
     fig.canvas.mpl_disconnect(cid)
 
+.. note::
+   The canvas retains only weak references to the callbacks.  Therefore
+   if a callback is a method of a class instance, you need to retain
+   a reference to that instance.  Otherwise the instance will be
+   garbage-collected and the callback will vanish.
+
+
 Here are the events that you can connect to, the class instances that
 are sent back to you when the event occurs, and the event descriptions
 
