@@ -1495,7 +1495,12 @@ class Axes(martist.Artist):
         return tab
 
     def relim(self):
-        'recompute the data limits based on current artists'
+        """
+        Recompute the data limits based on current artists.
+
+        At present, :class:`~matplotlib.collections.Collection`
+        instances are not supported.
+        """
         # Collections are deliberately not supported (yet); see
         # the TODO note in artists.py.
         self.dataLim.ignore(True)
@@ -1768,10 +1773,16 @@ class Axes(martist.Artist):
 
     def autoscale_view(self, tight=None, scalex=True, scaley=True):
         """
-        autoscale the view limits using the data limits. You can
+        Autoscale the view limits using the data limits. You can
         selectively autoscale only a single axis, eg, the xaxis by
         setting *scaley* to *False*.  The autoscaling preserves any
         axis direction reversal that has already been done.
+
+        The data limits are not updated automatically when artist
+        data are changed after the artist has been added to an
+        Axes instance.  In that case, use
+        :meth:`matplotlib.axes.Axes.relim`
+        prior to calling autoscale_view.
         """
         if tight is not None:
             self._tight = bool(tight)
@@ -5060,7 +5071,7 @@ class Axes(martist.Artist):
             type as *xerr* and *yerr*.
 
         All other keyword arguments are passed on to the plot command for the
-        markers, For example, this code makes big red squares with
+        markers. For example, this code makes big red squares with
         thick green edges::
 
           x,y,yerr = rand(3,10)
@@ -5094,6 +5105,8 @@ class Axes(martist.Artist):
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         if not self._hold: self.cla()
+        holdstate = self._hold
+        self._hold = True
 
         # make sure all the args are iterable; use lists not arrays to
         # preserve units
@@ -5266,6 +5279,7 @@ class Axes(martist.Artist):
             l.set_color(ecolor)
 
         self.autoscale_view()
+        self._hold = holdstate
         return (l0, caplines, barcols)
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,

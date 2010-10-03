@@ -34,7 +34,8 @@ def revcmap(data):
                 # each time, so the colors are identical
                 # and the result is shades of gray.
         else:
-            valnew = [(1.0 - a, b, c) for a, b, c in reversed(val)]
+            # Flip x and exchange the y values facing x = 0 and x = 1.
+            valnew = [(1.0 - x, y1, y0) for x, y0, y1 in reversed(val)]
         data_r[key] = valnew
     return data_r
 
