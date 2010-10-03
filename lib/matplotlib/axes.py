@@ -5065,7 +5065,7 @@ class Axes(martist.Artist):
             type as *xerr* and *yerr*.
 
         All other keyword arguments are passed on to the plot command for the
-        markers, For example, this code makes big red squares with
+        markers. For example, this code makes big red squares with
         thick green edges::
 
           x,y,yerr = rand(3,10)
@@ -5099,6 +5099,8 @@ class Axes(martist.Artist):
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         if not self._hold: self.cla()
+        holdstate = self._hold
+        self._hold = True
 
         # make sure all the args are iterable; use lists not arrays to
         # preserve units
@@ -5271,6 +5273,7 @@ class Axes(martist.Artist):
             l.set_color(ecolor)
 
         self.autoscale_view()
+        self._hold = holdstate
         return (l0, caplines, barcols)
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
