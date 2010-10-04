@@ -1910,13 +1910,15 @@ RendererAgg::draw_gouraud_triangles(const Py::Tuple& args)
     Py::Object        points_obj = args[1];
     Py::Object        colors_obj = args[2];
     agg::trans_affine trans      = py_to_agg_transformation_matrix(args[3].ptr());
+    double            c_points[6];
+    double            c_colors[12];
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
     set_clipbox(gc.cliprect, theRasterizer);
     bool has_clippath = render_clippath(gc.clippath, gc.clippath_trans);
 
-    PyArrayObject* points = (PyArrayObject*)PyArray_ContiguousFromAny
+    PyArrayObject* points = (PyArrayObject*)PyArray_FromObject
         (points_obj.ptr(), PyArray_DOUBLE, 3, 3);
     if (!points ||
         PyArray_DIM(points, 1) != 3 || PyArray_DIM(points, 2) != 2)
@@ -1926,7 +1928,7 @@ RendererAgg::draw_gouraud_triangles(const Py::Tuple& args)
     }
     points_obj = Py::Object((PyObject*)points, true);
 
-    PyArrayObject* colors = (PyArrayObject*)PyArray_ContiguousFromAny
+    PyArrayObject* colors = (PyArrayObject*)PyArray_FromObject
         (colors_obj.ptr(), PyArray_DOUBLE, 3, 3);
     if (!colors ||
         PyArray_DIM(colors, 1) != 3 || PyArray_DIM(colors, 2) != 4)
@@ -1943,9 +1945,20 @@ RendererAgg::draw_gouraud_triangles(const Py::Tuple& args)
 
     for (int i = 0; i < PyArray_DIM(points, 0); ++i)
     {
+        for (int j = 0; j < 3; ++j) {
+            for (int k = 0; k < 2; ++k) {
+                c_points[j*2+k] = *(double *)PyArray_GETPTR3(points, i, j, k);
+            }
+        }
+
+        for (int j = 0; j < 3; ++j) {
+            for (int k = 0; k < 4; ++k) {
+                c_colors[j*4+k] = *(double *)PyArray_GETPTR3(colors, i, j, k);
+            }
+        }
+
         _draw_gouraud_triangle(
-            (double*)PyArray_GETPTR1(points, i),
-            (double*)PyArray_GETPTR1(colors, i), trans, has_clippath);
+                c_points, c_colors, trans, has_clippath);
     }
 
     return Py::Object();
