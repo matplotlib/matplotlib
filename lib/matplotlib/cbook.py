@@ -1210,6 +1210,12 @@ def reverse_dict(d):
     'reverse the dictionary -- may lose data if values are not unique!'
     return dict([(v,k) for k,v in d.items()])
 
+def restrict_dict(d, keys):
+    """
+    Return a dictionary that contains those keys that appear in both
+    d and keys, with values from d.
+    """
+    return dict([(k,v) for (k,v) in d.iteritems() if k in keys])
 
 def report_memory(i=0):  # argument may go away
     'return the memory consumed by process'
