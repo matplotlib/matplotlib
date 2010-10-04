@@ -1784,7 +1784,9 @@ class FigureCanvasBase:
             agg = self.switch_backends(FigureCanvasAgg)
             buf, size = agg.print_to_buffer()
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            return image.save(filename_or_obj, **kwargs)
+            options = cbook.restrict_dict(kwargs, ['quality', 'optimize',
+                                                   'progressive'])
+            return image.save(filename_or_obj, **options)
         print_jpeg = print_jpg
 
         filetypes['tif'] = filetypes['tiff'] = 'Tagged Image File Format'
