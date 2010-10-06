@@ -6,6 +6,7 @@ MaskedArray = ma.MaskedArray
 from cbook import dedent
 from ticker import NullFormatter, ScalarFormatter, LogFormatterMathtext, Formatter
 from ticker import NullLocator, LogLocator, AutoLocator, SymmetricalLogLocator, FixedLocator
+from ticker import is_decade
 from transforms import Transform, IdentityTransform
 from matplotlib import docstring
 
@@ -318,19 +319,22 @@ class SymmetricalLogScale(ScaleBase):
         def __init__(self, base, linthresh):
             Transform.__init__(self)
             self.base = base
-            self.linthresh = linthresh
+            self.linthresh = abs(linthresh)
             self._log_base = np.log(base)
-            self._linadjust = (np.log(linthresh) / self._log_base) / linthresh
+            self._logb_linthresh = np.log(linthresh) / self._log_base
+            self._logb_minlog = np.floor(self._logb_linthresh - 1e-10)
+            self._linadjust = np.abs((np.log(linthresh) - self._logb_minlog) /
+                                     linthresh)
 
         def transform(self, a):
             a = np.asarray(a)
             sign = np.sign(a)
             masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
-            log = sign * ma.log(np.abs(masked)) / self._log_base
+            log = sign * (ma.log(np.abs(masked)) / self._log_base - self._logb_minlog)
             if masked.mask.any():
                 return np.asarray(ma.where(masked.mask,
-                                            a * self._linadjust,
-                                            log))
+                                           a * self._linadjust,
+                                           log))
             else:
                 return np.asarray(log)
 

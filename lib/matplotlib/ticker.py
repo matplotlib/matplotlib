@@ -1180,20 +1180,20 @@ def decade_down(x, base=10):
     'floor x to the nearest lower decade'
     if x == 0.0:
         return -base
-    lx = math.floor(math.log(x)/math.log(base))
+    lx = np.floor(np.log(x)/np.log(base))
     return base**lx
 
 def decade_up(x, base=10):
     'ceil x to the nearest higher decade'
     if x == 0.0:
         return base
-    lx = math.ceil(math.log(x)/math.log(base))
+    lx = np.ceil(np.log(x)/np.log(base))
     return base**lx
 
 def is_decade(x,base=10):
     if x == 0.0:
         return True
-    lx = math.log(x)/math.log(base)
+    lx = np.log(x)/np.log(base)
     return lx==int(lx)
 
 class LogLocator(Locator):
@@ -1268,15 +1268,12 @@ class LogLocator(Locator):
             stride += 1
 
         decades = np.arange(math.floor(vmin),
-                             math.ceil(vmax)+stride, stride)
+                            math.ceil(vmax)+stride, stride)
+        ticklocs = self._transform.inverted().transform(decades)
         if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
-            ticklocs = []
-            for decadeStart in b**decades:
-                ticklocs.extend( subs*decadeStart )
-        else:
-            ticklocs = b**decades
+            ticklocs = np.ravel(np.outer(subs, ticklocs))
 
-        return self.raise_if_exceeds(np.array(ticklocs))
+        return self.raise_if_exceeds(np.asarray(ticklocs))
 
     def view_limits(self, vmin, vmax):
         'Try to choose the view limits intelligently'
