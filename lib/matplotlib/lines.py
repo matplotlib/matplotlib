@@ -248,6 +248,7 @@ class Line2D(Artist):
         # chance to init axes (and hence unit support)
         self.update(kwargs)
         self.pickradius = pickradius
+        self.ind_offset = 0
         if is_numlike(self._picker):
             self.pickradius = self._picker
 
@@ -283,6 +284,8 @@ class Line2D(Artist):
         if len(self._xy)==0: return False,{}
 
         # Convert points to pixels
+        if self._transformed_path is None:
+            self._transform_path()
         path, affine = self._transformed_path.get_transformed_path_and_affine()
         path = affine.transform_path(path)
         xy = path.vertices
