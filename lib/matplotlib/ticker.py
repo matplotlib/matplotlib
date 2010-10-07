@@ -127,7 +127,6 @@ from matplotlib import transforms as mtransforms
 
 
 
-
 class TickHelper:
     axis = None
     class DummyAxis:
@@ -1269,9 +1268,17 @@ class LogLocator(Locator):
 
         decades = np.arange(math.floor(vmin),
                             math.ceil(vmax)+stride, stride)
-        ticklocs = self._transform.inverted().transform(decades)
-        if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
-            ticklocs = np.ravel(np.outer(subs, ticklocs))
+        if hasattr(self, '_transform'):
+            ticklocs = self._transform.inverted().transform(decades)
+            if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
+                ticklocs = np.ravel(np.outer(subs, ticklocs))
+        else:
+            if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
+                ticklocs = []
+                for decadeStart in b**decades:
+                    ticklocs.extend( subs*decadeStart )
+            else:
+                ticklocs = b**decades
 
         return self.raise_if_exceeds(np.asarray(ticklocs))
 
