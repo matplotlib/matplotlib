@@ -27,6 +27,11 @@
 #include "numpy/arrayobject.h"
 #include "mplutils.h"
 
+// As reported in [3082058] build _png.so on aix
+#ifdef _AIX
+#undef jmpbuf
+#endif
+
 // the extension module
 class _png_module : public Py::ExtensionModule<_png_module>
 {
@@ -163,7 +168,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
             throw Py::RuntimeError("Could not create info struct");
         }
 
-        if (setjmp(png_ptr->jmpbuf))
+        if (setjmp(png_jmpbuf(png_ptr)))
         {
             throw Py::RuntimeError("Error building image");
         }
