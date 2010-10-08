@@ -1784,12 +1784,13 @@ class Axes(martist.Artist):
         :meth:`matplotlib.axes.Axes.relim`
         prior to calling autoscale_view.
         """
-        if tight is not None:
-            self._tight = bool(tight)
-        # if image data only just use the datalim
-        _tight = self._tight or (len(self.images)>0 and
-                                 len(self.lines)==0 and
-                                 len(self.patches)==0)
+        if tight is None:
+            # if image data only just use the datalim
+            _tight = self._tight or (len(self.images)>0 and
+                                     len(self.lines)==0 and
+                                     len(self.patches)==0)
+        else:
+            _tight = self._tight = bool(tight)
 
         if scalex and self._autoscaleXon:
             xshared = self._shared_x_axes.get_siblings(self)
