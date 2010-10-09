@@ -1758,8 +1758,6 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     /* Preset graphics context properties if possible */
     CGContextSetShouldAntialias(cr, antialiased);
 
-    CGContextSetLineWidth(cr, 0.0);
-
     if (Nfacecolors==1)
     {
         const double r = *(double*)PyArray_GETPTR2(facecolors, 0, 0);
@@ -1822,6 +1820,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 
             CGContextMoveToPoint(cr, points[3].x, points[3].y);
             CGContextAddLines(cr, points, 4);
+            CGContextClosePath(cr);
 
             if (Nfacecolors > 1)
             {
