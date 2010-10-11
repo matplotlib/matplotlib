@@ -5,7 +5,7 @@ import numpy
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2
+     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, TimerBase
 from matplotlib.backend_bases import ShowBase
 
 from matplotlib.cbook import maxdict
@@ -240,6 +240,24 @@ def new_figure_manager(num, *args, **kwargs):
     manager = FigureManagerMac(canvas, num)
     return manager
 
+class TimerMac(_macosx.Timer, TimerBase):
+    '''
+    Subclass of :class:`backend_bases.TimerBase` that uses CoreFoundation
+    run loops for timer events.
+
+    Attributes:
+    * interval: The time between timer events in milliseconds. Default
+        is 1000 ms.
+    * single_shot: Boolean flag indicating whether this timer should
+        operate as single shot (run once and then stop). Defaults to False.
+    * callbacks: Stores list of (func, args) tuples that will be called
+        upon timer events. This list can be manipulated directly, or the
+        functions add_callback and remove_callback can be used.
+    '''
+    # completely implemented at the C-level (in _macosx.Timer)
+
+
+
 class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
     """
     The canvas the figure renders into.  Calls the draw and print fig
@@ -310,6 +328,21 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
     def get_default_filetype(self):
         return 'png'
 
+    def new_timer(self, *args, **kwargs):
+        """
+        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
+        This is useful for getting periodic events through the backend's native
+        event loop. Implemented only for backends with GUIs.
+
+        optional arguments:
+
+        *interval*
+          Timer interval in milliseconds
+        *callbacks*
+          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
+          be executed by the timer every *interval*.
+        """
+        return TimerMac(*args, **kwargs)
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     """

@@ -5494,6 +5494,195 @@ verify_main_display(PyObject* self)
     return Py_True;
 }
 
+typedef struct {
+    PyObject_HEAD
+    CFRunLoopTimerRef timer;
+} Timer;
+
+static PyObject*
+Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
+{
+    Timer* self = (Timer*)type->tp_alloc(type, 0);
+    if (!self) return NULL;
+    self->timer = NULL;
+    return (PyObject*) self;
+}
+
+static void
+Timer_dealloc(Timer* self)
+{
+    if (self->timer) {
+        PyObject* attribute;
+        CFRunLoopTimerContext context;
+        CFRunLoopTimerGetContext(self->timer, &context);
+        attribute = context.info;
+        Py_DECREF(attribute);
+        CFRunLoopRef runloop = CFRunLoopGetCurrent();
+        if (runloop) {
+            CFRunLoopRemoveTimer(runloop, self->timer, kCFRunLoopCommonModes);
+        }
+        CFRelease(self->timer);
+        self->timer = NULL;
+    }
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject*
+Timer_repr(Timer* self)
+{
+    return PyString_FromFormat("Timer object %p wrapping CFRunLoopTimerRef %p",
+                               (void*) self, (void*)(self->timer));
+}
+
+static char Timer_doc[] =
+"A Timer object wraps a CFRunLoopTimerRef and can add it to the event loop.\n";
+
+static void timer_callback(CFRunLoopTimerRef timer, void* info)
+{
+    PyObject* method = info;
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* result = PyObject_CallFunction(method, NULL);
+    if (result==NULL) PyErr_Print();
+    PyGILState_Release(gstate);
+}
+
+static PyObject*
+Timer__timer_start(Timer* self, PyObject* args)
+{
+    CFRunLoopRef runloop;
+    CFRunLoopTimerRef timer;
+    CFRunLoopTimerContext context;
+    double milliseconds;
+    CFTimeInterval interval;
+    PyObject* attribute;
+    PyObject* failure;
+    runloop = CFRunLoopGetCurrent();
+    if (!runloop) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to obtain run loop");
+        return NULL;
+    }
+    context.version = 0;
+    context.retain = 0;
+    context.release = 0;
+    context.copyDescription = 0;
+    attribute = PyObject_GetAttrString((PyObject*)self, "_interval");
+    if (attribute==NULL)
+    {
+        PyErr_SetString(PyExc_AttributeError, "Timer has no attribute '_interval'");
+        return NULL;
+    }
+    milliseconds = PyFloat_AsDouble(attribute);
+    failure = PyErr_Occurred();
+    Py_DECREF(attribute);
+    if (failure) return NULL;
+    attribute = PyObject_GetAttrString((PyObject*)self, "_single");
+    if (attribute==NULL)
+    {
+        PyErr_SetString(PyExc_AttributeError, "Timer has no attribute '_single'");
+        return NULL;
+    }
+    switch (PyObject_IsTrue(attribute)) {
+        case 1:
+            interval = 0;
+            break;
+        case 0:
+            interval = milliseconds / 1000.0;
+            break;
+        case -1:
+        default:
+            PyErr_SetString(PyExc_ValueError, "Cannot interpret _single attribute as True of False");
+            return NULL;
+    }
+    attribute = PyObject_GetAttrString((PyObject*)self, "_on_timer");
+    if (attribute==NULL)
+    {
+        PyErr_SetString(PyExc_AttributeError, "Timer has no attribute '_on_timer'");
+        return NULL;
+    }
+    if (!PyMethod_Check(attribute)) {
+        PyErr_SetString(PyExc_RuntimeError, "_on_timer should be a Python method");
+        return NULL;
+    }
+    context.info = attribute;
+    timer = CFRunLoopTimerCreate(kCFAllocatorDefault,
+                                 0,
+                                 interval,
+                                 0,
+                                 0,
+                                 timer_callback,
+                                 &context);
+    if (!timer) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to create timer");
+        return NULL;
+    }
+    Py_INCREF(attribute);
+    if (self->timer) {
+        CFRunLoopTimerGetContext(self->timer, &context);
+        attribute = context.info;
+        Py_DECREF(attribute);
+        CFRunLoopRemoveTimer(runloop, self->timer, kCFRunLoopCommonModes);
+        CFRelease(self->timer);
+    }
+    CFRunLoopAddTimer(runloop, timer, kCFRunLoopCommonModes);
+    /* Don't release the timer here, since the run loop may be destroyed and
+     * the timer lost before we have a chance to decrease the reference count
+     * of the attribute */
+    self->timer = timer;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMethodDef Timer_methods[] = {
+    {"_timer_start",
+     (PyCFunction)Timer__timer_start,
+     METH_VARARGS,
+     "Initialize and start the timer."
+    },
+    {NULL}  /* Sentinel */
+};
+
+static PyTypeObject TimerType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_macosx.Timer",           /*tp_name*/
+    sizeof(Timer),             /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Timer_dealloc,     /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    (reprfunc)Timer_repr,      /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
+    Timer_doc,                 /* tp_doc */
+    0,                         /* tp_traverse */
+    0,                         /* tp_clear */
+    0,                         /* tp_richcompare */
+    0,                         /* tp_weaklistoffset */
+    0,                         /* tp_iter */
+    0,                         /* tp_iternext */
+    Timer_methods,             /* tp_methods */
+    0,                         /* tp_members */
+    0,                         /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,                         /* tp_init */
+    0,                         /* tp_alloc */
+    Timer_new,                 /* tp_new */
+};
+
 static struct PyMethodDef methods[] = {
    {"show",
     (PyCFunction)show,
@@ -5528,6 +5717,7 @@ void init_macosx(void)
     if (PyType_Ready(&FigureManagerType) < 0) return;
     if (PyType_Ready(&NavigationToolbarType) < 0) return;
     if (PyType_Ready(&NavigationToolbar2Type) < 0) return;
+    if (PyType_Ready(&TimerType) < 0) return;
 
     m = Py_InitModule4("_macosx",
                        methods,
@@ -5540,11 +5730,13 @@ void init_macosx(void)
     Py_INCREF(&FigureManagerType);
     Py_INCREF(&NavigationToolbarType);
     Py_INCREF(&NavigationToolbar2Type);
+    Py_INCREF(&TimerType);
     PyModule_AddObject(m, "GraphicsContext", (PyObject*) &GraphicsContextType);
     PyModule_AddObject(m, "FigureCanvas", (PyObject*) &FigureCanvasType);
     PyModule_AddObject(m, "FigureManager", (PyObject*) &FigureManagerType);
     PyModule_AddObject(m, "NavigationToolbar", (PyObject*) &NavigationToolbarType);
     PyModule_AddObject(m, "NavigationToolbar2", (PyObject*) &NavigationToolbar2Type);
+    PyModule_AddObject(m, "Timer", (PyObject*) &TimerType);
 
     PyOS_InputHook = wait_for_stdin;
 }
