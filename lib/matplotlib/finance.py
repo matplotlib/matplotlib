@@ -47,13 +47,17 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
     Parse the historical data in file handle fh from yahoo finance.
 
     *adjusted*
-      If True (default) replace open, close, high, low, and volume with
-      their adjusted values.
-      The adjustment is by a scale factor, S = adjusted_close/close.
-      Adjusted volume is actual volume divided by S;
-      Adjusted prices are actual prices multiplied by S.  Hence,
-      the product of price and volume is unchanged by the adjustment.
+      If True (default) replace open, close, high, and low prices with
+      their adjusted values. The adjustment is by a scale factor, S =
+      adjusted_close/close. Adjusted prices are actual prices
+      multiplied by S.
 
+      Volume is not adjusted as it is already backward split adjusted
+      by Yahoo. If you want to compute dollars traded, multiply volume
+      by the adjusted close, regardless of whether you choose adjusted
+      = True|False.
+
+    
     *asobject*
       If False (default for compatibility with earlier versions)
       return a list of tuples containing
