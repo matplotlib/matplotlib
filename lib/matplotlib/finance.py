@@ -4,7 +4,7 @@ financial data.   User contributions welcome!
 
 """
 #from __future__ import division
-import os, time, warnings
+import os, warnings
 from urllib2 import urlopen
 
 try:
@@ -17,7 +17,7 @@ import numpy as np
 
 from matplotlib import verbose, get_configdir
 from matplotlib.dates import date2num
-from matplotlib.cbook import iterable, is_string_like
+from matplotlib.cbook import iterable
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import colorConverter
 from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
@@ -218,7 +218,7 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
         if len(ret) == 0:
             return None
     except IOError, exc:
-        warnings.warn('urlopen() failure\n' + url + '\n' + exc.strerror[1])
+        warnings.warn('fh failure\n%s'%(exc.strerror[1]))
         return None
 
     return ret
