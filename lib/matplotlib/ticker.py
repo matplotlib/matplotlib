@@ -1243,7 +1243,7 @@ class LogLocator(Locator):
 
         if vmin <= 0.0:
             vmin = self.axis.get_minpos()
-            if vmin <= 0.0:
+            if vmin <= 0.0 or not np.isfinite(vmin):
                 raise ValueError(
                     "Data has no positive values, and therefore can not be log-scaled.")
 
@@ -1296,7 +1296,7 @@ class LogLocator(Locator):
 
         minpos = self.axis.get_minpos()
 
-        if minpos<=0:
+        if minpos<=0 or not np.isfinite(minpos):
             raise ValueError(
                 "Data has no positive values, and therefore can not be log-scaled.")
 
