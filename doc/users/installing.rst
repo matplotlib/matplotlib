@@ -131,6 +131,17 @@ dependencies with a package manager, you may need to install the
 development packages (look for a "-dev" postfix) in addition to the
 libraries themselves.
 
+.. note::
+
+    If you are on debian/ubuntu, you can get all the dependencies
+    required to build matplotlib with::
+
+      sudo apt-get build_dep python-matplotlib
+
+    This does not build matplotlib, but it does get the install the
+    build dependencies, which will make building from svn easy.
+
+
 :term:`python` 2.4 (or later but not python3)
     matplotlib requires python 2.4 or later (`download <http://www.python.org/download/>`__)
 

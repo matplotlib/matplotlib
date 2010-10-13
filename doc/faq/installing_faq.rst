@@ -106,6 +106,17 @@ and build and install as usual with::
   > cd matplotlib
   > python setup.py install
 
+.. note::
+
+    If you are on debian/ubuntu, you can get all the dependencies
+    required to build matplotlib with::
+
+      sudo apt-get build_dep python-matplotlib
+
+    This does not build matplotlib, but it does get the install the
+    build dependencies, which will make building from svn easy.
+
+
 If you want to be able to follow the development branch as it changes just replace
 the last step with (Make sure you have **setuptools** installed)::
 
@@ -116,8 +127,10 @@ Then, if you want to update your **matplotlib** at any time, just do::
 
   > svn update
 
-When you run `svn update`, if the output shows that only Python files have been updated, you are all set.
-If C files have changed, you need to run the `python setupegg develop` command again to compile them.
+
+When you run `svn update`, if the output shows that only Python files
+have been updated, you are all set.  If C files have changed, you need
+to run the `python setupegg develop` command again to compile them.
 
 There is more information on :ref:`using Subversion <using-svn>` in
 the developer docs.
