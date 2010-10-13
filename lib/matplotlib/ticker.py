@@ -546,7 +546,7 @@ class LogFormatter(Formatter):
         sign = np.sign(x)
         # only label the decades
         fx = math.log(abs(x))/math.log(b)
-        isDecade = self.is_decade(fx)
+        isDecade = is_decade(fx)
         if not isDecade and self.labelOnlyBase: s = ''
         elif x>10000: s= '%1.0e'%x
         elif x<1: s =  '%1.0e'%x
@@ -566,15 +566,6 @@ class LogFormatter(Formatter):
     def format_data_short(self,value):
         'return a short formatted string representation of a number'
         return '%-12g'%value
-
-    def is_decade(self, x):
-        n = self.nearest_long(x)
-        return abs(x-n)<1e-10
-
-    def nearest_long(self, x):
-        if x == 0: return 0L
-        elif x > 0: return long(x+0.5)
-        else: return long(x-0.5)
 
     def pprint_val(self, x, d):
         #if the number is not too big and it's an int, format it as an
@@ -617,7 +608,7 @@ class LogFormatterExponent(LogFormatter):
         sign = np.sign(x)
         # only label the decades
         fx = math.log(abs(x))/math.log(b)
-        isDecade = self.is_decade(fx)
+        isDecade = is_decade(fx)
         if not isDecade and self.labelOnlyBase: s = ''
         #if 0: pass
         elif fx>10000: s= '%1.0e'%fx
@@ -644,7 +635,7 @@ class LogFormatterMathtext(LogFormatter):
             return '$0$'
         sign = np.sign(x)
         fx = math.log(abs(x))/math.log(b)
-        isDecade = self.is_decade(fx)
+        isDecade = is_decade(fx)
 
         usetex = rcParams['text.usetex']
 
@@ -661,10 +652,10 @@ class LogFormatterMathtext(LogFormatter):
                 s = '$\mathdefault{%s%d^{%.2f}}$'% (sign_string, b, fx)
         else:
             if usetex:
-                s = r'$%s%d^{%d}$'% (sign_string, b, self.nearest_long(fx))
+                s = r'$%s%d^{%d}$'% (sign_string, b, nearest_long(fx))
             else:
                 s = r'$\mathdefault{%s%d^{%d}}$'% (sign_string, b,
-                                                   self.nearest_long(fx))
+                                                   nearest_long(fx))
 
         return s
 
@@ -1190,11 +1181,16 @@ def decade_up(x, base=10):
     lx = math.ceil(math.log(x)/math.log(base))
     return base**lx
 
-def is_decade(x,base=10):
+def nearest_long(x):
+    if x == 0: return 0L
+    elif x > 0: return long(x+0.5)
+    else: return long(x-0.5)
+
+def is_decade(x, base=10):
     if x == 0.0:
         return True
     lx = math.log(x)/math.log(base)
-    return lx==int(lx)
+    return abs(lx - nearest_long(lx)) < 1e-10
 
 class LogLocator(Locator):
     """
@@ -1212,7 +1208,7 @@ class LogLocator(Locator):
 
     def base(self,base):
         """
-        set the base of the log scaling (major tick every base**i, i interger)
+        set the base of the log scaling (major tick every base**i, i integer)
         """
         self._base=base+0.0
 
