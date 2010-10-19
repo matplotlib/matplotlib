@@ -261,6 +261,18 @@ inseparable transformations like the
 
    plt.show()
 
+.. note::
+
+  The blended transformations where x is in data coords and y in axes
+  coordinates is so useful that we have helper methods to return the
+  versions mpl uses internally for drawing ticks, ticklabels, etc.
+  The methods are :meth:`matplotlib.axes.Axes.get_xaxis_transform` and
+  :meth:`matplotlib.axes.Axes.get_yaxis_transform`.  So in the example
+  above, the call to
+  :meth:`~matplotlib.transforms.blended_transform_factory` can be
+  replaced by ``get_xaxis_transform``::
+
+    trans = ax.get_xaxis_transform()
 
 .. offset-transforms-shadow:
 
@@ -268,8 +280,8 @@ Using offset transforms to create a shadow effect
 =================================================
 
 One use of transformations is to create a new transformation that is
-offset from another annotation, eg to place one object shifted a bit
-relative to another object.  Typically you want the shift to be in
+offset from another transformation, eg to place one object shifted a
+bit relative to another object.  Typically you want the shift to be in
 some physical dimension, like points or inches rather than in data
 coordinates, so that the shift effect is constant at different zoom
 levels and dpi settings.
@@ -301,8 +313,11 @@ operator in::
     shadow_transform = ax.transData + offset
 
 showing that can chain transformations using the addition operator.
-This code says: first apply the data transformation ``ax.transData`` and
-then translate the data by `dx` and `dy` points.
+This code says: first apply the data transformation ``ax.transData``
+and then translate the data by `dx` and `dy` points.  In typography,
+a`point <http://en.wikipedia.org/wiki/Point_%28typography%29>`_ is
+1/72 inches, and by specifying your offsets in points, your figure
+will look the same regardless of the dpi resolution it is saved in.
 
 .. plot::
    :include-source:
