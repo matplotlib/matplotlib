@@ -608,7 +608,7 @@ class LogFormatterExponent(LogFormatter):
         sign = np.sign(x)
         # only label the decades
         fx = math.log(abs(x))/math.log(b)
-        isDecade = is_decade(fx)
+        isDecade = is_close_to_int(fx)
         if not isDecade and self.labelOnlyBase: s = ''
         #if 0: pass
         elif fx>10000: s= '%1.0e'%fx
@@ -630,14 +630,17 @@ class LogFormatterMathtext(LogFormatter):
     def __call__(self, x, pos=None):
         'Return the format for tick val *x* at position *pos*'
         b = self._base
+        usetex = rcParams['text.usetex']
+
         # only label the decades
         if x == 0:
-            return '$0$'
+            if usetex:
+                return '$0$'
+            else:
+                return '$\mathdefault{0}$'
         sign = np.sign(x)
         fx = math.log(abs(x))/math.log(b)
-        isDecade = is_decade(fx)
-
-        usetex = rcParams['text.usetex']
+        isDecade = is_close_to_int(fx)
 
         if sign == -1:
             sign_string = '-'
@@ -1187,12 +1190,17 @@ def nearest_long(x):
     else: return long(x-0.5)
 
 def is_decade(x, base=10):
-y    if not np.isfinite(x):
+    if not np.isfinite(x):
         return False
     if x == 0.0:
         return True
     lx = math.log(x)/math.log(base)
-    return abs(lx - nearest_long(lx)) < 1e-10
+    return is_close_to_int(lx)
+
+def is_close_to_int(x):
+    if not np.isfinite(x):
+        return False
+    return abs(x - nearest_long(x)) < 1e-10
 
 class LogLocator(Locator):
     """
