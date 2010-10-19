@@ -1187,6 +1187,8 @@ def nearest_long(x):
     else: return long(x-0.5)
 
 def is_decade(x, base=10):
+y    if not np.isfinite(x):
+        return False
     if x == 0.0:
         return True
     lx = math.log(x)/math.log(base)
