@@ -420,21 +420,19 @@ void ttfont_header(TTStreamWriter& stream, struct TTFONT *font)
 -------------------------------------------------------------*/
 void ttfont_encoding(TTStreamWriter& stream, struct TTFONT *font, std::vector<int>& glyph_ids, font_type_enum target_type)
     {
-        stream.putline("/Encoding StandardEncoding def");
+        if (target_type == PS_TYPE_3) {
+            stream.printf("/Encoding [ ");
 
-        // if (target_type == PS_TYPE_3) {
-        //     stream.printf("/Encoding [ ");
+            for (std::vector<int>::const_iterator i = glyph_ids.begin();
+                 i != glyph_ids.end(); ++i) {
+                const char* name = ttfont_CharStrings_getname(font, *i);
+                stream.printf("/%s ", name);
+            }
 
-        //     for (std::vector<int>::const_iterator i = glyph_ids.begin();
-        //          i != glyph_ids.end(); ++i) {
-        //         const char* name = ttfont_CharStrings_getname(font, *i);
-        //         stream.printf("/%s ", name);
-        //     }
-
-        //     stream.printf("] def\n");
-        // } else {
-        //     stream.putline("/Encoding StandardEncoding def");
-        // }
+            stream.printf("] def\n");
+        } else {
+            stream.putline("/Encoding StandardEncoding def");
+        }
     } /* end of ttfont_encoding() */
 
 /*-----------------------------------------------------------
