@@ -610,8 +610,6 @@ grestore
         draw a Text instance
         """
         # local to avoid repeated attribute lookups
-
-
         write = self._pswriter.write
         if debugPS:
             write("% text\n")
@@ -622,69 +620,7 @@ grestore
         elif ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
-        elif isinstance(s, unicode):
-            return self.draw_unicode(gc, x, y, s, prop, angle)
-
         elif rcParams['ps.useafm']:
-            font = self._get_font_afm(prop)
-
-            l,b,w,h = font.get_str_bbox(s)
-
-            fontsize = prop.get_size_in_points()
-            l *= 0.001*fontsize
-            b *= 0.001*fontsize
-            w *= 0.001*fontsize
-            h *= 0.001*fontsize
-
-            if angle==90: l,b = -b, l # todo generalize for arb rotations
-
-            pos = _nums_to_str(x-l, y-b)
-            thetext = '(%s)' % s
-            fontname = font.get_fontname()
-            fontsize = prop.get_size_in_points()
-            rotate = '%1.1f rotate' % angle
-            setcolor = '%1.3f %1.3f %1.3f setrgbcolor' % gc.get_rgb()[:3]
-            #h = 0
-            ps = """\
-gsave
-/%(fontname)s findfont
-%(fontsize)s scalefont
-setfont
-%(pos)s moveto
-%(rotate)s
-%(thetext)s
-%(setcolor)s
-show
-grestore
-    """ % locals()
-            self._draw_ps(ps, gc, None)
-
-        else:
-            font = self._get_font_ttf(prop)
-            font.set_text(s, 0, flags=LOAD_NO_HINTING)
-            self.track_characters(font, s)
-
-            self.set_color(*gc.get_rgb())
-            self.set_font(font.get_sfnt()[(1,0,0,6)], prop.get_size_in_points())
-            write("%s m\n"%_nums_to_str(x,y))
-            if angle:
-                write("gsave\n")
-                write("%s rotate\n"%_num_to_str(angle))
-            descent = font.get_descent() / 64.0
-            if descent:
-                write("0 %s rmoveto\n"%_num_to_str(descent))
-            write("(%s) show\n"%quote_ps_string(s))
-            if angle:
-                write("grestore\n")
-
-    def new_gc(self):
-        return GraphicsContextPS()
-
-    def draw_unicode(self, gc, x, y, s, prop, angle):
-        """draw a unicode string.  ps doesn't have unicode support, so
-        we have to do this the hard way
-        """
-        if rcParams['ps.useafm']:
             self.set_color(*gc.get_rgb())
 
             font = self._get_font_afm(prop)
@@ -771,6 +707,9 @@ grestore
 grestore
 """ % locals()
             self._pswriter.write(ps)
+
+    def new_gc(self):
+        return GraphicsContextPS()
 
     def draw_mathtext(self, gc,
         x, y, s, prop, angle):
@@ -1125,7 +1064,6 @@ class FigureCanvasPS(FigureCanvasBase):
                     if is_opentype_cff_font(font_filename):
                         raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
                     else:
-                        fonttype = rcParams['ps.fonttype']
                         convert_ttf_to_ps(font_filename, fh, fonttype, glyph_ids)
         print >>fh, "end"
         print >>fh, "%%EndProlog"
