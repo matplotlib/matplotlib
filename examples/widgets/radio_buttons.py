@@ -20,17 +20,17 @@ def hzfunc(label):
 radio.on_clicked(hzfunc)
 
 rax = axes([0.05, 0.4, 0.15, 0.15], axisbg=axcolor)
-radio = RadioButtons(rax, ('red', 'blue', 'green'))
+radio2 = RadioButtons(rax, ('red', 'blue', 'green'))
 def colorfunc(label):
     l.set_color(label)
     draw()
-radio.on_clicked(colorfunc)
+radio2.on_clicked(colorfunc)
 
 rax = axes([0.05, 0.1, 0.15, 0.15], axisbg=axcolor)
-radio = RadioButtons(rax, ('-', '--', '-.', 'steps', ':'))
+radio3 = RadioButtons(rax, ('-', '--', '-.', 'steps', ':'))
 def stylefunc(label):
     l.set_linestyle(label)
     draw()
-radio.on_clicked(stylefunc)
+radio3.on_clicked(stylefunc)
 
 show()
