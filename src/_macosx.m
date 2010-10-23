@@ -346,6 +346,7 @@ static void _release_hatch(void* info)
 - (void)windowDidResize:(NSNotification*)notification;
 - (View*)initWithFrame:(NSRect)rect;
 - (void)setCanvas: (PyObject*)newCanvas;
+- (void)windowWillClose:(NSNotification*)notification;
 - (BOOL)windowShouldClose:(NSNotification*)notification;
 - (BOOL)isFlipped;
 - (void)mouseEntered:(NSEvent*)event;
@@ -4933,6 +4934,20 @@ set_cursor(PyObject* unused, PyObject* args)
                             userData: nil
                         assumeInside: NO];
     [self setNeedsDisplay: YES];
+}
+
+- (void)windowWillClose:(NSNotification*)notification
+{
+    PyGILState_STATE gstate;
+    PyObject* result;
+
+    gstate = PyGILState_Ensure();
+    result = PyObject_CallMethod(canvas, "close_event", "");
+    if(result)
+        Py_DECREF(result);
+    else
+        PyErr_Print();
+    PyGILState_Release(gstate);
 }
 
 - (BOOL)windowShouldClose:(NSNotification*)notification
