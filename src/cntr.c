@@ -1,3 +1,5 @@
+/* -*- mode: c; c-basic-offset: 4 -*- */
+
 /*
   cntr.c
   General purpose contour tracer for quadrilateral meshes.

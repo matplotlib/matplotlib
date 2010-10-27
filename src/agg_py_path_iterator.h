@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 #ifndef __AGG_PY_PATH_ITERATOR_H__
 #define __AGG_PY_PATH_ITERATOR_H__
 

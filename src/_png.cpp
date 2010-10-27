@@ -1,3 +1,4 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
 
 /* For linux, png.h must be imported before Python.h because
    png.h needs to be the one to define setjmp.

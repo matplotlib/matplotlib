@@ -1,3 +1,5 @@
+/* -*- mode: c; c-basic-offset: 4 -*- */
+
 /*
  * Modified for use within matplotlib
  * 5 July 2007
@@ -48,37 +50,37 @@ struct TTFONT
     TTFONT();
     ~TTFONT();
 
-    const char *filename;		/* Name of TT file */
-    FILE *file;				/* the open TT file */
-    font_type_enum  target_type;	/* 42 or 3 for PS, or -3 for PDF */
+    const char *filename;               /* Name of TT file */
+    FILE *file;                         /* the open TT file */
+    font_type_enum  target_type;        /* 42 or 3 for PS, or -3 for PDF */
 
-    ULONG numTables;			/* number of tables present */
-    char *PostName;			/* Font's PostScript name */
-    char *FullName;			/* Font's full name */
-    char *FamilyName;			/* Font's family name */
-    char *Style;			/* Font's style string */
-    char *Copyright;			/* Font's copyright string */
-    char *Version;			/* Font's version string */
-    char *Trademark;			/* Font's trademark string */
-    int llx,lly,urx,ury;		/* bounding box */
+    ULONG numTables;                    /* number of tables present */
+    char *PostName;                     /* Font's PostScript name */
+    char *FullName;                     /* Font's full name */
+    char *FamilyName;                   /* Font's family name */
+    char *Style;                        /* Font's style string */
+    char *Copyright;                    /* Font's copyright string */
+    char *Version;                      /* Font's version string */
+    char *Trademark;                    /* Font's trademark string */
+    int llx,lly,urx,ury;                /* bounding box */
 
-    Fixed TTVersion;			/* Truetype version number from offset table */
-    Fixed MfrRevision;			/* Revision number of this font */
+    Fixed TTVersion;                    /* Truetype version number from offset table */
+    Fixed MfrRevision;                  /* Revision number of this font */
 
-    BYTE *offset_table; 		/* Offset table in memory */
-    BYTE *post_table;			/* 'post' table in memory */
+    BYTE *offset_table;                 /* Offset table in memory */
+    BYTE *post_table;                   /* 'post' table in memory */
 
-    BYTE *loca_table;			/* 'loca' table in memory */
-    BYTE *glyf_table;			/* 'glyf' table in memory */
-    BYTE *hmtx_table;			/* 'hmtx' table in memory */
+    BYTE *loca_table;                   /* 'loca' table in memory */
+    BYTE *glyf_table;                   /* 'glyf' table in memory */
+    BYTE *hmtx_table;                   /* 'hmtx' table in memory */
 
     USHORT numberOfHMetrics;
-    int unitsPerEm;			/* unitsPerEm converted to int */
-    int HUPM;				/* half of above */
+    int unitsPerEm;                     /* unitsPerEm converted to int */
+    int HUPM;                           /* half of above */
 
-    int numGlyphs;			/* from 'post' table */
+    int numGlyphs;                      /* from 'post' table */
 
-    int indexToLocFormat;		/* short or long offsets */
+    int indexToLocFormat;               /* short or long offsets */
 };
 
 ULONG getULONG(BYTE *p);

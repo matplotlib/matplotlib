@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 #ifndef __PATH_CONVERTERS_H__
 #define __PATH_CONVERTERS_H__
 

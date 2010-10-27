@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 /* A python interface to freetype2 */
 #ifndef _FT2FONT_H
 #define _FT2FONT_H
