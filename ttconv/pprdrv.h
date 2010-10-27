@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 /*
  * Modified for use within matplotlib
  * 5 July 2007
@@ -84,7 +86,7 @@ class TTException {
 ** code you want to have included.
 */
 #ifdef DEBUG
-#define DEBUG_TRUETYPE 		/* truetype fonts, conversion to Postscript */
+#define DEBUG_TRUETYPE          /* truetype fonts, conversion to Postscript */
 #endif
 
 /* Do not change anything below this line. */

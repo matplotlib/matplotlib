@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 #include <Python.h>
 #define NO_IMPORT_ARRAY
 #include "numpy/arrayobject.h"

@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 /* _backend_agg.h - A rewrite of _backend_agg using PyCXX to handle
    ref counting, etc..
 */

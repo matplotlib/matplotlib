@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 #include "ft2font.h"
 #include "mplutils.h"
 #include <sstream>

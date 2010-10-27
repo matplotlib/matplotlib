@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 /* Python API mandates Python.h is included *first* */
 #include "Python.h"
 #include <string>

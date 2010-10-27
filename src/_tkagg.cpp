@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 /*
  * The Python Imaging Library.
  * $Id$
