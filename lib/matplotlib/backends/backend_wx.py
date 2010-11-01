@@ -775,6 +775,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         wx.TheClipboard.Open()
         wx.TheClipboard.SetData(bmp_obj)
         wx.TheClipboard.Close()
+        wx.TheClipboard.Flush()
 
     def Printer_Init(self):
         """
