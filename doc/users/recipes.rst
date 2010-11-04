@@ -8,6 +8,66 @@ Here is a collection of short tutorials, examples and code snippets
 that illustrate some of the useful idioms and tricks to make snazzier
 figures and overcome some matplotlib warts.
 
+
+Sharing axis limits and views
+=============================
+
+It's common to make two or more plots which share an axis, eg two
+subplots with time as a common axis.  When you pan and zoom around on
+one, you want the other to move around with you.  To facilitate this,
+matplotlib Axes support a ``sharex`` and ``sharey`` attribute.  When
+you create a :func:`~matplotlib.pyplot.subplot` or
+:func:`~matplotlib.pyplot.axes` instance, you can pass in a keyword
+indicating what axes you want to share with
+
+.. sourcecode:: ipython
+
+   In [96]: t = np.arange(0, 10, 0.01)
+
+   In [97]: ax1 = plt.subplot(211)
+
+   In [98]: ax1.plot(t, np.sin(2*np.pi*t))
+   Out[98]: [<matplotlib.lines.Line2D object at 0x98719ec>]
+
+   In [99]: ax2 = plt.subplot(212, sharex=ax1)
+
+   In [100]: ax2.plot(t, np.sin(4*np.pi*t))
+   Out[100]: [<matplotlib.lines.Line2D object at 0xb7d8fec>]
+
+Easily creating subplots
+========================
+
+In early versions of matplotlib, if you wanted to use the pythonic API
+and create a figure instance and from that create a grid of subplots,
+possibly with shared axes, it involved a fair amount of boilerplate
+code.  Eg
+
+.. sourcecode:: python
+
+   # old style
+   fig = plt.figure()
+   ax1 = fig.add_subplot(221)
+   ax2 = fig.add_subplot(222, sharex=ax1, sharey=ax1)
+   ax3 = fig.add_subplot(223, sharex=ax1, sharey=ax1)
+   ax3 = fig.add_subplot(224, sharex=ax1, sharey=ax1)
+
+Fernando Perez has provided a nice top level method to create in
+:func:`~matplotlib.pyplots.subplots` (note the "s" at the end)
+everything at once, and turn off x and y sharing for the whole bunch.
+You can either unpack the axes individually::
+
+  # new style method 1
+  fig, (ax1, ax2, ax3, ax4) = plt.subplots(2, 2, sharex=True, sharey=True)
+  ax1.plot(x)
+
+or get them back as a numrows x numcolumns object array which supports
+numpy indexing::
+
+  # new style method 2
+  fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
+  axs[0,0].plot(x)
+
+
 Fixing common date annoyances
 =============================
 
@@ -23,7 +83,9 @@ objects in a numpy record array::
   In [64]: r = np.load(datafile).view(np.recarray)
 
   In [65]: r.dtype
-  Out[65]: dtype([('date', '|O4'), ('', '|V4'), ('open', '<f8'), ('high', '<f8'), ('low', '<f8'), ('close', '<f8'), ('volume', '<i8'), ('adj_close', '<f8')])
+  Out[65]: dtype([('date', '|O4'), ('', '|V4'), ('open', '<f8'),
+                  ('high', '<f8'), ('low', '<f8'), ('close', '<f8'),
+                  ('volume', '<i8'),  ('adj_close', '<f8')])
 
   In [66]: r.date
   Out[66]:
@@ -48,7 +110,7 @@ squashed together::
    r = np.load(datafile).view(np.recarray)
    plt.figure()
    plt.plot(r.date, r.close)
-   plt.show()
+   plt.title('Default date handling can cause overlapping labels')
 
 Another annoyance is that if you hover the mouse over a the window and
 look in the lower right corner of the matplotlib toolbar at the x and
@@ -63,7 +125,7 @@ returns a string.  matplotlib has a number of date formatters built
 im, so we'll use one of those.
 
 .. plot::
-
+   :include-source:
 
    import matplotlib.cbook as cbook
    datafile = cbook.get_sample_data('goog.npy')
@@ -78,17 +140,19 @@ im, so we'll use one of those.
    # toolbar
    import matplotlib.dates as mdates
    ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
+   plt.title('autfmt_xdate fixes the labels')
 
-
+Now when you hover your mouse over the plotted data, you'll see date
+format strings like 2004-12-01.
 
 Fill Between and Alpha
 ======================
 
-The :method:`~matplotlib.axes.Axes.fill_between` function generates a
+The :meth:`~matplotlib.axes.Axes.fill_between` function generates a
 shaded region between a min and max boundary that is useful for
 illustrating ranges.  It has a very handy ``where`` argument to
 combine filling with logical ranges, eg to just fill in a curve over
-some threshold value.  
+some threshold value.
 
 At it's most basic level, ``fill_between`` can be use to enhance a
 graphs visual appearance. Let's compare two graphs of a financial
@@ -118,7 +182,6 @@ right.
    ax1.set_ylabel('price')
    fig.suptitle('Google (GOOG) daily closing price')
    fig.autofmt_xdate()
-   plt.show()
 
 The alpha channel is not necessary here, but it can be used to soften
 colors for more visually appealing plots.  In other examples, as we'll
@@ -167,8 +230,6 @@ alpha channel is useful, not just aesthetic.
    ax.set_xlabel('num steps')
    ax.set_ylabel('position')
    ax.grid()
-   plt.show()
-
 
 
 The where keyword argument is very handy for highlighting certain
@@ -214,11 +275,74 @@ one sigma boundary, and shade that region blue.
    ax.set_xlabel('num steps')
    ax.set_ylabel('position')
    ax.grid()
-   plt.show()
 
 
 Another handy use of filled regions is to highlight horizontal or
 vertical spans of an axes -- for that matplotlib has some helper
-functions :method:`~matplotlib.axes.Axes.axhspan` and
-:method:`~matplotlib.axes.Axes.axvspan` and example
+functions :meth:`~matplotlib.axes.Axes.axhspan` and
+:meth:`~matplotlib.axes.Axes.axvspan` and example
 :ref:`pylab_examples-axhspan_demo`.
+
+
+Transparent, fancy legends
+==========================
+
+Sometimes you know what your data looks like before you plot it, and
+mak know for instance that there won't be much data in the upper right
+hand corner.  Then you can safely create a legend that doesn't overlay
+your data::
+
+  ax.legend(loc='upper right')
+
+Other times you don't know where your data is, and loc='best' will try
+and place the legend::
+
+  ax.legend(loc='upper right')
+
+but still, your legend may overlap your data, and in these cases it's
+nice to make the legend frame transparent.
+
+
+.. plot::
+   :include-source:
+
+   np.random.seed(1234)
+   fig, ax = plt.subplots(1)
+   ax.plot(np.random.randn(300), 'o-', label='normal distribution')
+   ax.plot(np.random.rand(300), 's-', label='uniform distribution')
+   ax.set_ylim(-3, 3)
+   leg = ax.legend(loc='best', fancybox=True)
+   leg.get_frame().set_alpha(0.5)
+
+   ax.set_title('fancy, transparent legends')
+
+
+Placing text boxes
+==================
+
+When decorating axes with text boxes, two useful tricks are to place
+the text in axes coordinates (see :ref:`transforms_tutorial`), so the
+text doesn't move around with changes in x or y limits.  You can also
+use the bbox property of text to surround the text with a
+:class:`~matplotlib.patches.Patch` instance -- the boox keyword argument
+takes a dictionary with keys that are Patch properties.
+
+.. plot::
+   :include-source:
+
+   np.random.seed(1234)
+   fig, ax = plt.subplots(1)
+   x = 30*np.random.randn(10000)
+   mu = x.mean()
+   median = np.median(x)
+   sigma = x.std()
+   textstr = '$\mu=%.2f$\n$\mathrm{median}=%.2f$\n$\sigma=%.2f$'%(mu, median, sigma)
+
+   ax.hist(x, 50)
+   # these are matplotlib.patch.Patch properies
+   props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+
+   # place a text box in upper left in axes coords
+   ax.text(0.05, 0.95, textstr, transform=ax.transAxes, fontsize=14,
+	   verticalalignment='top', bbox=props)
+
