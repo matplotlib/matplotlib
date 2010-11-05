@@ -25,11 +25,11 @@ class PathClippedImagePatch(mpatches.PathPatch):
     """
     def __init__(self, path, bbox_image, **kwargs):
         mpatches.PathPatch.__init__(self, path, **kwargs)
-        self._facecolor = "none"
         self._init_bbox_image(bbox_image)
 
     def set_facecolor(self, color):
-        pass
+        """simply ignore facecolor"""
+        mpatches.PathPatch.set_facecolor(self, "none")
     
     def _init_bbox_image(self, im):
 
