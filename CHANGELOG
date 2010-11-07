@@ -1,3 +1,7 @@
+2010-11-07 New rc parameters examples.download and examples.directory
+           allow bypassing the download mechanism in get_sample_data. 
+           - JKS
+
 2010-10-04 Fix JPEG saving bug: only accept the kwargs documented
            by PIL for JPEG files. - JKS
 
