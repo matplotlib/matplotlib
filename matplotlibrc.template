@@ -370,3 +370,12 @@ backend      : %(backend)s
 #keymap.xscale : L, k                # toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 # enable all axes
 
+# Control downloading of example data. Various examples download some
+# data from the Matplotlib svn repository to avoid distributing extra
+# files, but sometimes you want to avoid that. In that case set
+# examples.download to False and examples.directory to the directory
+# where you have a checkout of
+# https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data
+
+#examples.download : True  # False to bypass downloading mechanism
+#examples.directory : ''   # absolute directory to look in if download is false

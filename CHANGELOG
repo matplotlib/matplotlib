@@ -1,3 +1,7 @@
+2010-11-07 New rc parameters examples.download and examples.directory
+           allow bypassing the download mechanism in get_sample_data. 
+           - JKS
+
 2010-08-21 Change Axis.set_view_interval() so that when updating an
            existing interval, it respects the orientation of that
            interval, and can enlarge but not reduce the interval.

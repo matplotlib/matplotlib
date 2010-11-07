@@ -649,8 +649,19 @@ def get_sample_data(fname, asfileobj=True):
       svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data
 
     and svn add the data file you want to support.  This is primarily
-    intended for use in mpl examples that need custom data
+    intended for use in mpl examples that need custom data.
+
+    To bypass all downloading, set the rc parameter examples.download to False
+    and examples.directory to the directory where we should look.
     """
+
+    if not matplotlib.rcParams['examples.download']:
+        directory = matplotlib.rcParams['examples.directory']
+        f = os.path.join(directory, fname)
+        if asfileobj:
+            return open(f, 'rb')
+        else:
+            return f
 
     myserver = get_sample_data.myserver
     if myserver is None:

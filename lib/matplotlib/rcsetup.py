@@ -566,7 +566,11 @@ defaultParams = {
     'keymap.grid' : ['g', validate_stringlist],
     'keymap.yscale' : ['l', validate_stringlist],
     'keymap.xscale' : [['k', 'L'], validate_stringlist],
-    'keymap.all_axes' : ['a', validate_stringlist]
+    'keymap.all_axes' : ['a', validate_stringlist],
+
+    # sample data
+    'examples.download' : [True, validate_bool],
+    'examples.directory' : ['', str],
 
 }
 
