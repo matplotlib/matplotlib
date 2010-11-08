@@ -2350,7 +2350,7 @@ class NavigationToolbar2:
         self._init_toolbar()
         self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.mouse_move)
 
-        self._ids_zoom = None
+        self._ids_zoom = []
         self._zoom_mode = None
 
         self._button_pressed = None # determined by the button pressed at start
@@ -2616,10 +2616,11 @@ class NavigationToolbar2:
 
     def release_zoom(self, event):
         'the release mouse button callback in zoom to rect mode'
-        if not self._xypress: return
-
         for zoom_id in self._ids_zoom:
             self.canvas.mpl_disconnect(zoom_id)
+        self._ids_zoom = []
+
+        if not self._xypress: return
 
         last_a = []
 
