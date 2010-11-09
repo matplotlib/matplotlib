@@ -39,8 +39,19 @@ from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea, Dragga
 
 
 class DraggableLegend(DraggableOffsetBox):
-    def __init__(self, legend, use_blit=False):
+    def __init__(self, legend, use_blit=False, update="loc"):
+        """
+        update : If "loc", update *loc* parameter of
+                 legend upon finalizing. If "bbox", update
+                 *bbox_to_anchor* parameter.
+        """
         self.legend=legend
+
+        if update in ["loc", "bbox"]:
+            self._update = update
+        else:
+            raise ValueError("update parameter '%s' is not supported." % update)
+
         DraggableOffsetBox.__init__(self, legend, legend._legend_box,
                                     use_blit=use_blit)
 
@@ -50,6 +61,14 @@ class DraggableLegend(DraggableOffsetBox):
     def finalize_offset(self):
         loc_in_canvas = self.get_loc_in_canvas()
 
+        if self._update == "loc":
+            self._update_loc(loc_in_canvas)
+        elif self._update == "bbox":
+            self._update_bbox_to_anchor(loc_in_canvas)
+        else:
+            raise RuntimeError("update parameter '%s' is not supported." % self.update)
+        
+    def _update_loc(self, loc_in_canvas):
         bbox = self.legend.get_bbox_to_anchor()
 
         # if bbox has zero width or height, the transformation is
@@ -60,6 +79,14 @@ class DraggableLegend(DraggableOffsetBox):
             
         _bbox_transform = BboxTransformFrom(bbox)
         self.legend._loc = tuple(_bbox_transform.transform_point(loc_in_canvas))
+
+
+    def _update_bbox_to_anchor(self, loc_in_canvas):
+
+        tr = self.legend.axes.transAxes
+        loc_in_bbox = tr.transform_point(loc_in_canvas)
+
+        self.legend.set_bbox_to_anchor(loc_in_bbox)
 
 
 class Legend(Artist):
@@ -931,7 +958,7 @@ in the normalized axes coordinate.
         return ox, oy
 
 
-    def draggable(self, state=None, use_blit=False):
+    def draggable(self, state=None, use_blit=False, update="loc"):
         """
         Set the draggable state -- if state is
 
@@ -944,6 +971,10 @@ in the normalized axes coordinate.
         If draggable is on, you can drag the legend on the canvas with
         the mouse.  The DraggableLegend helper instance is returned if
         draggable is on.
+
+        The update parameter control which parameter of the legend changes
+        when dragged. If update is "loc", the *loc* paramter of the legend
+        is changed. If "bbox", the *bbox_to_anchor* parameter is changed.
         """
         is_draggable = self._draggable is not None
 
@@ -953,7 +984,7 @@ in the normalized axes coordinate.
 
         if state:
             if self._draggable is None:
-                self._draggable = DraggableLegend(self, use_blit)
+                self._draggable = DraggableLegend(self, use_blit, update=update)
         else:
             if self._draggable is not None:
                 self._draggable.disconnect()
