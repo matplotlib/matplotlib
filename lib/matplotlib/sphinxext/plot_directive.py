@@ -210,6 +210,7 @@ def run_code(plot_path, function_name, plot_code, context=False):
 
     if plot_code is not None:
         exec_code = 'import numpy as np; import matplotlib.pyplot as plt\n%s'%plot_code
+        #print 'CONTEXT', context, plot_context, exec_code
         if context:
             exec(exec_code, None, plot_context)
         else:
@@ -279,6 +280,8 @@ def render_figures(plot_path, function_name, plot_code, tmpdir, destdir,
     basedir, fname = os.path.split(plot_path)
     basename, ext = os.path.splitext(fname)
 
+
+
     all_exists = True
 
     # Look for single-figure output files first
@@ -288,7 +291,7 @@ def render_figures(plot_path, function_name, plot_code, tmpdir, destdir,
             all_exists = False
             break
 
-    if all_exists:
+    if not context and all_exists:
         return 1
 
     # Then look for multi-figure output files, assuming
@@ -307,7 +310,7 @@ def render_figures(plot_path, function_name, plot_code, tmpdir, destdir,
         else:
             break
 
-    if i != 0:
+    if not context and i != 0:
         return i
 
     # We didn't find the files, so build them
@@ -321,12 +324,16 @@ def render_figures(plot_path, function_name, plot_code, tmpdir, destdir,
         warnings.warn(s, PlotWarning)
         return 0
 
-    num_figs = run_savefig(plot_path, basename, tmpdir, destdir, formats)
+    if not all_exists:
+        num_figs = run_savefig(plot_path, basename, tmpdir, destdir, formats)
 
-    if '__plot__' in sys.modules:
-        del sys.modules['__plot__']
+        if '__plot__' in sys.modules:
+            del sys.modules['__plot__']
 
-    return num_figs
+        return num_figs
+    else:
+        return 1
+
 
 def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
                     options, state_machine):

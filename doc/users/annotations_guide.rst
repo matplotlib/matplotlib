@@ -310,6 +310,7 @@ more control, it supports a few other options.
     as 2.  The callable object should take a single argument of
     renderer instance. For example, following two commands give
     identical results ::
+
       an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,
                         xytext=(30,0), textcoords="offset points")
       an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1.get_window_extent,
@@ -322,7 +323,7 @@ more control, it supports a few other options.
       annotate("Test", xy=(0.5, 1), xycoords=("data", "axes fraction"))
 
     0.5 is in data coordinate, and 1 is in normalized axes coordinate.
-    You may use an atist or transform as with a tuple. For example, 
+    You may use an atist or transform as with a tuple. For example,
 
     .. plot:: users/plotting/examples/annotate_simple_coord02.py
        :include-source:
