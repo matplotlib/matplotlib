@@ -1,4 +1,4 @@
-.. _gridspec-guide:
+\.. _gridspec-guide:
 
 
 ************************************************
@@ -23,7 +23,7 @@
 ====================================
 
 To use subplot2grid, you provide geometry of the grid and the location
-of the subplot in the grid. For a simple single-cell subplot, ::
+of the subplot in the grid. For a simple single-cell subplot::
 
   ax = plt.subplot2grid((2,2),(0, 0))
 
