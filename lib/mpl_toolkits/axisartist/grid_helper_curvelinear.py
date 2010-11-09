@@ -11,6 +11,8 @@ from  axis_artist import AxisArtist
 from matplotlib.transforms import Affine2D, IdentityTransform
 import numpy as np
 
+from matplotlib.path import Path
+
 class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
     """
     Helper class for a fixed axis.
@@ -76,6 +78,8 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         self.grid_helper = grid_helper
         self._extremes = None, None
 
+        self._get_line_path = None # a method that returns a Path.
+        self._line_num_points = 100 # number of points to create a line
 
     def set_extremes(self, e1, e2):
         self._extremes = e1, e2
@@ -125,12 +129,12 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
         #e1, e2 = self._extremes # ranges of other coordinates
         if self.nth_coord == 0:
-            xx0 = np.linspace(self.value, self.value, 100)
-            yy0 = np.linspace(extremes[2], extremes[3], 100)
+            xx0 = np.linspace(self.value, self.value, self._line_num_points)
+            yy0 = np.linspace(extremes[2], extremes[3], self._line_num_points)
             xx, yy = grid_finder.transform_xy(xx0, yy0)
         elif self.nth_coord == 1:
-            xx0 = np.linspace(extremes[0], extremes[1], 100)
-            yy0 = np.linspace(self.value, self.value, 100)
+            xx0 = np.linspace(extremes[0], extremes[1], self._line_num_points)
+            yy0 = np.linspace(self.value, self.value, self._line_num_points)
             xx, yy = grid_finder.transform_xy(xx0, yy0)
 
         grid_info["line_xy"] = xx, yy
@@ -285,10 +289,12 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
     def get_line(self, axes):
         self.update_lim(axes)
-        from matplotlib.path import Path
-        xx, yy = self.grid_info["line_xy"]
+        x, y = self.grid_info["line_xy"]
 
-        return Path(zip(xx, yy))
+        if self._get_line_path is None:
+            return Path(zip(x, y))
+        else:
+            return self._get_line_path(axes, x, y)
 
 
 
