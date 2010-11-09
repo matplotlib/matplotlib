@@ -42,6 +42,15 @@ link to the source in HTML).  If this source file is in a non-UTF8 or
 non-ASCII encoding, the encoding must be specified using the
 `:encoding:` option.
 
+If the `:context:` option is plotted, the code will be run in the
+context of all previous plot directives for which the context option
+was specified.  This only applies to inline code plot directives, not
+those run from files.
+
+If the ``:nofigs:`` option is specified, the code block will be run,
+but no figures will be inserted.  This is usually useful with the
+``:context:`` option.
+
 The set of file formats to generate can be specified with the
 `plot_formats` configuration variable.
 
@@ -176,6 +185,10 @@ Exception occurred rendering plot.
 
 template_content_indent = '      '
 
+# the context of the plot for all directives specified with the
+# :context: option
+plot_context = dict()
+
 def out_of_date(original, derived):
     """
     Returns True if derivative is out-of-date wrt original,
@@ -185,17 +198,23 @@ def out_of_date(original, derived):
             (os.path.exists(original) and
              os.stat(derived).st_mtime < os.stat(original).st_mtime))
 
-def run_code(plot_path, function_name, plot_code):
+def run_code(plot_path, function_name, plot_code, context=False):
     """
     Import a Python module from a path, and run the function given by
     name, if function_name is not None.
     """
+
     # Change the working directory to the directory of the example, so
     # it can get at its data files, if any.  Add its path to sys.path
     # so it can import any helper modules sitting beside it.
+
     if plot_code is not None:
         exec_code = 'import numpy as np; import matplotlib.pyplot as plt\n%s'%plot_code
-        exec(exec_code)
+        if context:
+            exec(exec_code, None, plot_context)
+        else:
+            exec(exec_code)
+
     else:
         pwd = os.getcwd()
         path, fname = os.path.split(plot_path)
@@ -251,7 +270,7 @@ def clear_state():
     matplotlib.rcParams['figure.figsize'] = (5.5, 4.5)
 
 def render_figures(plot_path, function_name, plot_code, tmpdir, destdir,
-                   formats):
+                   formats, context=False):
     """
     Run a pyplot script and save the low and high res PNGs and a PDF
     in outdir.
@@ -293,9 +312,10 @@ def render_figures(plot_path, function_name, plot_code, tmpdir, destdir,
 
     # We didn't find the files, so build them
 
-    clear_state()
+    if not context:
+        clear_state()
     try:
-        run_code(plot_path, function_name, plot_code)
+        run_code(plot_path, function_name, plot_code, context=context)
     except:
         s = cbook.exception_to_str("Exception running plot %s" % plot_path)
         warnings.warn(s, PlotWarning)
@@ -310,6 +330,16 @@ def render_figures(plot_path, function_name, plot_code, tmpdir, destdir,
 
 def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
                     options, state_machine):
+    context = options.has_key('context')
+    if context:
+        # remove for figure directive
+        del options['context']
+
+    nofigs = options.has_key('nofigs')
+    if nofigs:
+        # remove for figure directive
+        del options['nofigs']
+
     formats = setup.config.plot_formats
     if type(formats) == str:
         formats = eval(formats)
@@ -356,7 +386,7 @@ def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
 
     # Generate the figures, and return the number of them
     num_figs = render_figures(plot_path, function_name, plot_code, tmpdir,
-                              destdir, formats)
+                              destdir, formats, context=context)
 
     # Now start generating the lines of output
     lines = []
@@ -386,32 +416,33 @@ def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
     else:
         lines = []
 
-    if num_figs > 0:
-        options = ['%s:%s: %s' % (template_content_indent, key, val)
-                   for key, val in options.items()]
-        options = "\n".join(options)
+    if not nofigs:
+        if num_figs > 0:
+            options = ['%s:%s: %s' % (template_content_indent, key, val)
+                       for key, val in options.items()]
+            options = "\n".join(options)
 
-        for i in range(num_figs):
-            if num_figs == 1:
-                outname = basename
-            else:
-                outname = "%s_%02d" % (basename, i)
+            for i in range(num_figs):
+                if num_figs == 1:
+                    outname = basename
+                else:
+                    outname = "%s_%02d" % (basename, i)
 
-            # Copy the linked-to files to the destination within the build tree,
-            # and add a link for them
-            links = []
-            if plot_code is None:
-                links.append('`source code <%(linkdir)s/%(basename)s.py>`__')
-            for format, dpi in formats[1:]:
-                links.append('`%s <%s/%s.%s>`__' % (format, linkdir, outname, format))
-            if len(links):
-                links = '[%s]' % (', '.join(links) % locals())
-            else:
-                links = ''
+                # Copy the linked-to files to the destination within the build tree,
+                # and add a link for them
+                links = []
+                if plot_code is None:
+                    links.append('`source code <%(linkdir)s/%(basename)s.py>`__')
+                for format, dpi in formats[1:]:
+                    links.append('`%s <%s/%s.%s>`__' % (format, linkdir, outname, format))
+                if len(links):
+                    links = '[%s]' % (', '.join(links) % locals())
+                else:
+                    links = ''
 
-            lines.extend((template % locals()).split('\n'))
-    else:
-        lines.extend((exception_template % locals()).split('\n'))
+                lines.extend((template % locals()).split('\n'))
+        else:
+            lines.extend((exception_template % locals()).split('\n'))
 
     if len(lines):
         state_machine.insert_input(
@@ -496,6 +527,8 @@ def setup(app):
                'align': align,
                'class': directives.class_option,
                'include-source': directives.flag,
+               'context': directives.flag,
+               'nofigs': directives.flag,
                'encoding': directives.encoding }
 
     app.add_directive('plot', plot_directive, True, (0, 2, 0), **options)
