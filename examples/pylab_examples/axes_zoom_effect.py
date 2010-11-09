@@ -100,21 +100,19 @@ def zoom_effect02(ax1, ax2, **kwargs):
     return c1, c2, bbox_patch1, bbox_patch2, p
 
 
-if __name__ == "__main__":
-   import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
-   plt.figure(1, figsize=(5,5))
-   ax1 = plt.subplot(221)
-   ax2 = plt.subplot(212)
-   ax2.set_xlim(0, 1)
-   ax2.set_xlim(0, 5)
-   zoom_effect01(ax1, ax2, 0.2, 0.8)
+plt.figure(1, figsize=(5,5))
+ax1 = plt.subplot(221)
+ax2 = plt.subplot(212)
+ax2.set_xlim(0, 1)
+ax2.set_xlim(0, 5)
+zoom_effect01(ax1, ax2, 0.2, 0.8)
 
 
-   ax1 = plt.subplot(222)
-   ax1.set_xlim(2, 3)
-   ax2.set_xlim(0, 5)
-   zoom_effect02(ax1, ax2)
+ax1 = plt.subplot(222)
+ax1.set_xlim(2, 3)
+ax2.set_xlim(0, 5)
+zoom_effect02(ax1, ax2)
 
-   plt.show()
-
+plt.show()
