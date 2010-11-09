@@ -56,20 +56,29 @@ Fernando Perez has provided a nice top level method to create in
 everything at once, and turn off x and y sharing for the whole bunch.
 You can either unpack the axes individually::
 
-  # new style method 1
-  fig, (ax1, ax2, ax3, ax4) = plt.subplots(2, 2, sharex=True, sharey=True)
+  # new style method 1; unpack the axes
+  fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharex=True, sharey=True)
   ax1.plot(x)
 
 or get them back as a numrows x numcolumns object array which supports
 numpy indexing::
 
-  # new style method 2
+  # new style method 2; use an axes array
   fig, axs = plt.subplots(2, 2, sharex=True, sharey=True)
   axs[0,0].plot(x)
 
 
+
 Fixing common date annoyances
 =============================
+
+
+.. plot::
+   :nofigs:
+   :context:
+
+   # clear the state for context use below
+   plt.close('all')
 
 matplotlib allows you to natively plots python datetime instances, and
 for the most part does a good job picking tick locations and string
@@ -97,13 +106,15 @@ which means it is a 4-byte python object pointer; in this case the
 objects are datetime.date instances, which we can see when we print
 some samples in the ipython terminal window.
 
-If you plot the data, you will see that the x tick labels are all
-squashed together::
+If you plot the data, ::
 
   In [67]: plot(r.date, r.close)
   Out[67]: [<matplotlib.lines.Line2D object at 0x92a6b6c>]
 
+you will see that the x tick labels are all squashed together.
+
 .. plot::
+   :context:
 
    import matplotlib.cbook as cbook
    datafile = cbook.get_sample_data('goog.npy')
@@ -113,23 +124,22 @@ squashed together::
    plt.title('Default date handling can cause overlapping labels')
 
 Another annoyance is that if you hover the mouse over a the window and
-look in the lower right corner of the matplotlib toolbar at the x and
-y coordinates, you see that the x locations are formatted the same way
-the tick labels are, eg "Dec 2004".  What we'd like is for the
-location in the toolbar to have a higher degree of precision, eg
-giving us the exact date out mouse is hovering over.  To fix the first
-problem, we can use method:`matplotlib.figure.Figure.autofmt_xdate()`
-and to fix the second problem we can use the ``ax.fmt_xdata``
-attribute which can be set to any function that takes a position and
-returns a string.  matplotlib has a number of date formatters built
-im, so we'll use one of those.
+look in the lower right corner of the matplotlib toolbar
+(:ref:`navigation-toolbar`) at the x and y coordinates, you see that
+the x locations are formatted the same way the tick labels are, eg
+"Dec 2004".  What we'd like is for the location in the toolbar to have
+a higher degree of precision, eg giving us the exact date out mouse is
+hovering over.  To fix the first problem, we can use
+method:`matplotlib.figure.Figure.autofmt_xdate` and to fix the second
+problem we can use the ``ax.fmt_xdata`` attribute which can be set to
+any function that takes a scalar and returns a string.  matplotlib has
+a number of date formatters built in, so we'll use one of those.
 
 .. plot::
    :include-source:
+   :context:
 
-   import matplotlib.cbook as cbook
-   datafile = cbook.get_sample_data('goog.npy')
-   r = np.load(datafile).view(np.recarray)
+   plt.close('all')
    fig, ax = plt.subplots(1)
    ax.plot(r.date, r.close)
 
@@ -140,10 +150,10 @@ im, so we'll use one of those.
    # toolbar
    import matplotlib.dates as mdates
    ax.fmt_xdata = mdates.DateFormatter('%Y-%m-%d')
-   plt.title('autfmt_xdate fixes the labels')
+   plt.title('fig.autofmt_xdate fixes the labels')
 
 Now when you hover your mouse over the plotted data, you'll see date
-format strings like 2004-12-01.
+format strings like 2004-12-01 in the toolbar.
 
 Fill Between and Alpha
 ======================
@@ -154,13 +164,16 @@ illustrating ranges.  It has a very handy ``where`` argument to
 combine filling with logical ranges, eg to just fill in a curve over
 some threshold value.
 
-At it's most basic level, ``fill_between`` can be use to enhance a
+At its most basic level, ``fill_between`` can be use to enhance a
 graphs visual appearance. Let's compare two graphs of a financial
 times with a simple line plot on the left and a filled line on the
 right.
 
 .. plot::
    :include-source:
+
+   import matplotlib.pyplot as plt
+   import numpy as np
 
    import matplotlib.cbook as cbook
 
@@ -180,6 +193,9 @@ right.
        ax.grid(True)
 
    ax1.set_ylabel('price')
+   for label in ax2.get_yticklabels():
+       label.set_visible(False)
+
    fig.suptitle('Google (GOOG) daily closing price')
    fig.autofmt_xdate()
 
@@ -193,21 +209,24 @@ your figures in PNG, PDF or SVG.
 
 Our next example computes two populations of random walkers with a
 different mean and standard deviation of the normal distributions from
-which there steps are drawn.  We use shared regions to plot +/- one
+which the steps are drawn.  We use shared regions to plot +/- one
 standard deviation of the mean position of the population.  Here the
 alpha channel is useful, not just aesthetic.
 
 .. plot::
    :include-source:
 
+   import matplotlib.pyplot as plt
+   import numpy as np
+
    Nsteps, Nwalkers = 100, 250
    t = np.arange(Nsteps)
 
-   # an Nsteps x Nwalkers array of random walk steps
+   # an (Nsteps x Nwalkers) array of random walk steps
    S1 = 0.002 + 0.01*np.random.randn(Nsteps, Nwalkers)
    S2 = 0.004 + 0.02*np.random.randn(Nsteps, Nwalkers)
 
-   # an Nsteps x Nwalkers array of random walker positions
+   # an (Nsteps x Nwalkers) array of random walker positions
    X1 = S1.cumsum(axis=0)
    X2 = S2.cumsum(axis=0)
 
@@ -232,16 +251,16 @@ alpha channel is useful, not just aesthetic.
    ax.grid()
 
 
-The where keyword argument is very handy for highlighting certain
-regions of the graph.  Where takes a boolean mask the same length as
-the x, ymin and ymax arguments, and only fills in the region where the
-boolean mask is True.  In the example below, we take a a single random
-walker and compute the analytic mean and standard deviation of the
-population positions.  The population mean is shown as the black
+The ``where`` keyword argument is very handy for highlighting certain
+regions of the graph.  ``where`` takes a boolean mask the same length
+as the x, ymin and ymax arguments, and only fills in the region where
+the boolean mask is True.  In the example below, we simulate a single
+random walker and compute the analytic mean and standard deviation of
+the population positions.  The population mean is shown as the black
 dashed line, and the plus/minus one sigma deviation from the mean is
 showsn as the yellow filled region.  We use the where mask
-``X>upper_bound`` to find the region where the walker is above the
-one sigma boundary, and shade that region blue.
+``X>upper_bound`` to find the region where the walker is above the one
+sigma boundary, and shade that region blue.
 
 .. plot::
    :include-source:
@@ -258,7 +277,7 @@ one sigma boundary, and shade that region blue.
    S = mu + sigma*np.random.randn(Nsteps)
    X = S.cumsum()
 
-   # the 1 sigma upper and lower population bounds
+   # the 1 sigma upper and lower analytic population bounds
    lower_bound = mu*t - sigma*np.sqrt(t)
    upper_bound = mu*t + sigma*np.sqrt(t)
 
@@ -323,9 +342,9 @@ Placing text boxes
 When decorating axes with text boxes, two useful tricks are to place
 the text in axes coordinates (see :ref:`transforms_tutorial`), so the
 text doesn't move around with changes in x or y limits.  You can also
-use the bbox property of text to surround the text with a
-:class:`~matplotlib.patches.Patch` instance -- the boox keyword argument
-takes a dictionary with keys that are Patch properties.
+use the ``bbox`` property of text to surround the text with a
+:class:`~matplotlib.patches.Patch` instance -- the ``bbox`` keyword
+argument takes a dictionary with keys that are Patch properties.
 
 .. plot::
    :include-source:
