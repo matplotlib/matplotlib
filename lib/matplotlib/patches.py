@@ -2899,29 +2899,12 @@ class ArrowStyle(_Style):
             super(ArrowStyle._Curve, self).__init__()
 
 
-        def _get_pad_projected(self, x0, y0, x1, y1, linewidth):
-            # when no arrow head is drawn
-
-            dx, dy = x0 - x1, y0 - y1
-            cp_distance = math.sqrt(dx**2 + dy**2)
-
-            # padx_projected, pady_projected : amount of pad to account
-            # projection of the wedge
-            padx_projected = (.5*linewidth)
-            pady_projected = (.5*linewidth)
-
-            # apply pad for projected edge
-            ddx = padx_projected * dx / cp_distance
-            ddy = pady_projected * dy / cp_distance
-
-            return ddx, ddy
-
         def _get_arrow_wedge(self, x0, y0, x1, y1,
                              head_dist, cos_t, sin_t, linewidth
                              ):
             """
             Return the paths for arrow heads. Since arrow lines are
-            drawn with capstyle=projected, The arrow is goes beyond the
+            drawn with capstyle=projected, The arrow goes beyond the
             desired point. This method also returns the amount of the path
             to be shrinked so that it does not overshoot.
             """
@@ -2932,14 +2915,13 @@ class ArrowStyle(_Style):
             dx, dy = x0 - x1, y0 - y1
             cp_distance = math.sqrt(dx**2 + dy**2)
 
-            # padx_projected, pady_projected : amount of pad for account
-            # the overshooting of the projection of the wedge
-            padx_projected = (.5*linewidth / cos_t)
-            pady_projected = (.5*linewidth / sin_t)
+            # pad_projected : amount of pad to account the
+            # overshooting of the projection of the wedge
+            pad_projected = (.5*linewidth / sin_t)
 
             # apply pad for projected edge
-            ddx = padx_projected * dx / cp_distance
-            ddy = pady_projected * dy / cp_distance
+            ddx = pad_projected * dx / cp_distance
+            ddy = pad_projected * dy / cp_distance
 
             # offset for arrow wedge
             dx, dy = dx / cp_distance * head_dist, dy / cp_distance * head_dist
@@ -2948,7 +2930,7 @@ class ArrowStyle(_Style):
             dx2, dy2 = cos_t * dx - sin_t * dy, sin_t * dx + cos_t * dy
 
             vertices_arrow = [(x1+ddx+dx1, y1+ddy+dy1),
-                              (x1+ddx, y1++ddy),
+                              (x1+ddx, y1+ddy),
                               (x1+ddx+dx2, y1+ddy+dy2)]
             codes_arrow = [Path.MOVETO,
                            Path.LINETO,
@@ -3625,6 +3607,7 @@ class FancyArrowPatch(Patch):
                  shrinkB=2.,
                  mutation_scale=1.,
                  mutation_aspect=None,
+                 dpi_cor=1.,
                  **kwargs):
         """
         If *posA* and *posB* is given, a path connecting two point are
@@ -3692,8 +3675,26 @@ class FancyArrowPatch(Patch):
         self._mutation_scale=mutation_scale
         self._mutation_aspect=mutation_aspect
 
+        self.set_dpi_cor(dpi_cor)
         #self._draw_in_display_coordinate = True
 
+    def set_dpi_cor(self, dpi_cor):
+        """
+        dpi_cor is currently used for linewidth-related things and
+        shink factor. Mutation scale is not affected by this.
+        """
+        
+        self._dpi_cor = dpi_cor
+
+    def get_dpi_cor(self):
+        """
+        dpi_cor is currently used for linewidth-related things and
+        shink factor. Mutation scale is not affected by this.
+        """
+        
+        return self._dpi_cor
+
+        
     def set_positions(self, posA, posB):
         """ set the begin end end positions of the connecting
         path. Use current vlaue if None.
@@ -3814,8 +3815,8 @@ class FancyArrowPatch(Patch):
     def get_path(self):
         """
         return the path of the arrow in the data coordinate. Use
-        get_path_in_displaycoord() medthod to retrieve the arrow path
-        in the disaply coord.
+        get_path_in_displaycoord() method to retrieve the arrow path
+        in the disaply coord.  
         """
         _path, fillable = self.get_path_in_displaycoord()
 
@@ -3830,14 +3831,16 @@ class FancyArrowPatch(Patch):
         Return the mutated path of the arrow in the display coord
         """
 
+        dpi_cor = self.get_dpi_cor()
+
         if self._posA_posB is not None:
             posA = self.get_transform().transform_point(self._posA_posB[0])
             posB = self.get_transform().transform_point(self._posA_posB[1])
             _path = self.get_connectionstyle()(posA, posB,
                                                patchA=self.patchA,
                                                patchB=self.patchB,
-                                               shrinkA=self.shrinkA,
-                                               shrinkB=self.shrinkB
+                                               shrinkA=self.shrinkA*dpi_cor,
+                                               shrinkB=self.shrinkB*dpi_cor
                                                )
         else:
             _path = self.get_transform().transform_path(self._path_original)
@@ -3846,7 +3849,7 @@ class FancyArrowPatch(Patch):
 
         _path, fillable = self.get_arrowstyle()(_path,
                                                 self.get_mutation_scale(),
-                                                self.get_linewidth(),
+                                                self.get_linewidth()*dpi_cor,
                                                 self.get_mutation_aspect()
                                                 )
 
@@ -3887,7 +3890,11 @@ class FancyArrowPatch(Patch):
         if self._hatch:
             gc.set_hatch(self._hatch )
 
-
+        # FIXME : dpi_cor is for the dpi-dependecy of the
+        # linewidth. There could be room for improvement.
+        # 
+        #dpi_cor = renderer.points_to_pixels(1.)
+        self.set_dpi_cor(renderer.points_to_pixels(1.))
         path, fillable = self.get_path_in_displaycoord()
 
         if not cbook.iterable(fillable):
@@ -3940,6 +3947,7 @@ class ConnectionPatch(FancyArrowPatch):
                  mutation_scale=10.,
                  mutation_aspect=None,
                  clip_on=False,
+                 dpi_cor=1.,
                  **kwargs):
         """
         Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*
@@ -4013,6 +4021,7 @@ class ConnectionPatch(FancyArrowPatch):
                                  mutation_scale=mutation_scale,
                                  mutation_aspect=mutation_aspect,
                                  clip_on=clip_on,
+                                 dpi_cor=dpi_cor,
                                  **kwargs)
 
         # if True, draw annotation only if self.xy is inside the axes
@@ -4144,6 +4153,8 @@ class ConnectionPatch(FancyArrowPatch):
         Return the mutated path of the arrow in the display coord
         """
 
+        dpi_cor = self.get_dpi_cor()
+        
         x, y = self.xy1
         posA = self._get_xy(x, y, self.coords1, self.axesA)
 
@@ -4153,15 +4164,15 @@ class ConnectionPatch(FancyArrowPatch):
         _path = self.get_connectionstyle()(posA, posB,
                                            patchA=self.patchA,
                                            patchB=self.patchB,
-                                           shrinkA=self.shrinkA,
-                                           shrinkB=self.shrinkB
+                                           shrinkA=self.shrinkA*dpi_cor,
+                                           shrinkB=self.shrinkB*dpi_cor
                                            )
 
 
 
         _path, fillable = self.get_arrowstyle()(_path,
                                                 self.get_mutation_scale(),
-                                                self.get_linewidth(),
+                                                self.get_linewidth()*dpi_cor,
                                                 self.get_mutation_aspect()
                                                 )
 
