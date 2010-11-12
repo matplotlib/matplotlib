@@ -96,6 +96,7 @@ class Axis(maxis.XAxis):
         self.gridlines = art3d.Line3DCollection([], )
         self.axes._set_artist_props(self.gridlines)
         self.axes._set_artist_props(self.label)
+        # Need to be able to place the label at the correct location
         self.label._transform = self.axes.transData
 
     def get_tick_positions(self):
@@ -215,13 +216,23 @@ class Axis(maxis.XAxis):
             xyz0.append(coord)
 
         # Draw labels
-        dy = pep[1][1] - pep[1][0]
-        dx = pep[0][1] - pep[0][0]
+        peparray = np.asanyarray(pep)
+        # The transAxes transform is used because the Text object
+        # rotates the text relative to the display coordinate system.
+        # Therefore, if we want the labels to remain parallel to the
+        # axis regardless of the aspect ratio, we need to convert the
+        # edge points of the plane to display coordinates and calculate
+        # an angle from that.
+        # TODO: Maybe Text objects should handle this themselves?
+        dx, dy = (self.axes.transAxes.transform(peparray[0:2, 1]) - 
+                  self.axes.transAxes.transform(peparray[0:2, 0]))
 
         lxyz = 0.5*(edgep1 + edgep2)
 
         labeldeltas = 1.3 * deltas
-        lxyz = move_from_center(lxyz, centers, labeldeltas)
+        axmask = [True, True, True]
+        axmask[index] = False
+        lxyz = move_from_center(lxyz, centers, labeldeltas, axmask)
         tlx, tly, tlz = proj3d.proj_transform(lxyz[0], lxyz[1], lxyz[2], \
                 renderer.M)
         self.label.set_position((tlx, tly))
@@ -229,6 +240,7 @@ class Axis(maxis.XAxis):
             angle = art3d.norm_text_angle(math.degrees(math.atan2(dy, dx)))
             self.label.set_rotation(angle)
         self.label.set_va('center')
+        self.label.set_ha('center')
         self.label.draw(renderer)
 
         if len(xyz0) > 0:
