@@ -1,3 +1,5 @@
+2010-11-12 Fixed the placement and angle of axis labels in 3D plots. - BVR
+
 2010-11-07 New rc parameters examples.download and examples.directory
            allow bypassing the download mechanism in get_sample_data. 
            - JKS
