@@ -534,7 +534,6 @@ class ContourLabeler:
         t.remove()
 
     def labels(self, inline, inline_spacing):
-        trans = self.ax.transData # A bit of shorthand
 
         if self._use_clabeltext:
             add_label = self.add_label_clabeltext
@@ -546,6 +545,7 @@ class ContourLabeler:
             self.labelCValueList ):
 
             con = self.collections[icon]
+            trans = con.get_transform()
             lw = self.get_label_width(lev, self.labelFmt, fsize)
             additions = []
             paths = con.get_paths()
@@ -1037,13 +1037,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         for icon in indices:
             con = self.collections[icon]
+            trans = con.get_transform()
             paths = con.get_paths()
             for segNum, linepath in enumerate(paths):
                 lc = linepath.vertices
 
                 # transfer all data points to screen coordinates if desired
                 if pixel:
-                    lc = self.ax.transData.transform(lc)
+                    lc = trans.transform(lc)
 
                 ds = (lc[:,0]-x)**2 + (lc[:,1]-y)**2
                 d = min( ds )
