@@ -500,6 +500,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._linestyles = other._linestyles
         self._pickradius = other._pickradius
 
+        # update_from for scalarmappable
+        self._A = other._A
+        self.norm = other.norm
+        self.cmap = other.cmap
+        # self.update_dict = other.update_dict # do we need to copy this? -JJL
+
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
 # function and they will be overridden after object defn
