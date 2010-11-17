@@ -212,10 +212,11 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
 
     #Make sure we're dealing with a numpy array. If y and x were the same
     #object to start with, keep them that way
-
     x = np.asarray(x)
     if not same_data:
         y = np.asarray(y)
+    else:
+        y = x
 
     # zero pad x and y up to NFFT if they are shorter than NFFT
     if len(x)<NFFT:
