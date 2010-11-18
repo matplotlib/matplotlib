@@ -299,6 +299,7 @@ There are long and short forms for some of them.
     ``\hat a`` or ``\^a``          :math:`\hat a`
     ``\tilde a`` or ``\~a``        :math:`\tilde a`
     ``\vec a``                     :math:`\vec a`
+    ``\overline{abc}``             :math:`\overline{abc}`
     ============================== =================================
 
 In addition, there are two special accents that automatically adjust
