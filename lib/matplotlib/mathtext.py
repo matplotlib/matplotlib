@@ -2251,7 +2251,6 @@ class Parser(object):
                         | Error(r"Expected \genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}"))
                      ).setParseAction(self.genfrac).setName("genfrac")
 
-
         sqrt         = Group(
                        Suppress(Literal(r"\sqrt"))
                      + Optional(
@@ -2263,6 +2262,11 @@ class Parser(object):
                      + (group | Error("Expected \sqrt{value}"))
                      ).setParseAction(self.sqrt).setName("sqrt")
 
+        overline    = Group(
+                      Suppress(Literal(r"\overline"))
+                    + (group | Error("Expected \overline{value}"))
+                    ).setParseAction(self.overline).setName("overline")
+
         placeable   <<(function
                      ^ (c_over_c | symbol)
                      ^ accent
@@ -2272,6 +2276,7 @@ class Parser(object):
                      ^ binom
                      ^ genfrac
                      ^ sqrt
+                     ^ overline
                      )
 
         simple      <<(space
@@ -2843,6 +2848,33 @@ class Parser(object):
                        Kern(-check.width * 0.5),
                        check,                    # Check
                        rightside])               # Body
+        return [hlist]
+
+    def overline(self, s, loc, toks):
+        assert(len(toks)==1)
+        assert(len(toks[0])==1)
+
+        body = toks[0][0]
+
+        state = self.get_state()
+        thickness = state.font_output.get_underline_thickness(
+            state.font, state.fontsize, state.dpi)
+
+        height = body.height - body.shift_amount + thickness * 3.0
+        depth = body.depth + body.shift_amount
+
+        # Put a little extra space to the left and right of the body
+        padded_body = Hlist([Hbox(thickness * 2.0),
+                             body,
+                             Hbox(thickness * 2.0)])
+        rightside = Vlist([Hrule(state),
+                           Fill(),
+                           padded_body])
+        # Stretch the glue between the hrule and the body
+        rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
+                        depth, 'exactly')
+
+        hlist = Hlist([rightside])
         return [hlist]
 
     def _auto_sized_delimiter(self, front, middle, back):
