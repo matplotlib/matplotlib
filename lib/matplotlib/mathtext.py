@@ -2863,13 +2863,11 @@ class Parser(object):
         height = body.height - body.shift_amount + thickness * 3.0
         depth = body.depth + body.shift_amount
 
-        # Put a little extra space to the left and right of the body
-        padded_body = Hlist([Hbox(thickness * 2.0),
-                             body,
-                             Hbox(thickness * 2.0)])
+        # Place overline above body
         rightside = Vlist([Hrule(state),
                            Fill(),
-                           padded_body])
+                           Hlist([body])])
+
         # Stretch the glue between the hrule and the body
         rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
                         depth, 'exactly')
