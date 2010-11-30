@@ -26,8 +26,11 @@ major, minor1, minor2, s, tmp = sys.version_info
 # an encoding instead of a valid locale name.  Another
 # pathological case that has been reported is an empty string.
 
+# On some systems, getpreferredencoding sets the locale, which has
+# side effects.  Passing False eliminates those side effects.
+
 try:
-    preferredencoding = locale.getpreferredencoding().strip()
+    preferredencoding = locale.getpreferredencoding(False).strip()
     if not preferredencoding:
         preferredencoding = None
 except (ValueError, ImportError, AttributeError):
