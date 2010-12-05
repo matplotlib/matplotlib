@@ -378,4 +378,4 @@ backend      : %(backend)s
 # https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data
 
 #examples.download : True  # False to bypass downloading mechanism
-#examples.directory : ''   # absolute directory to look in if download is false
+#examples.directory : ''   # directory to look in if download is false
