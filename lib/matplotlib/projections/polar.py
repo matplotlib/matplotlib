@@ -88,10 +88,10 @@ class PolarAxes(Axes):
         that maximum radius rests on the edge of the axes circle.
         """
         def __init__(self, scale_transform, limits):
-            u"""
+            """
             *limits* is the view limit of the data.  The only part of
             its bounds that is used is ymax (for the radius maximum).
-            The theta range is always fixed to (0, 2\u03c0).
+            The theta range is always fixed to (0, 2pi).
             """
             Affine2DBase.__init__(self)
             self._scale_transform = scale_transform
@@ -141,10 +141,9 @@ class PolarAxes(Axes):
         inverted.__doc__ = Transform.inverted.__doc__
 
     class ThetaFormatter(Formatter):
-        u"""
-        Used to format the *theta* tick labels.  Converts the
-        native unit of radians into degrees and adds a degree symbol
-        (\u00b0).
+        """
+        Used to format the *theta* tick labels.  Converts the native
+        unit of radians into degrees and adds a degree symbol.
         """
         def __call__(self, x, pos=None):
             # \u00b0 : degree symbol
