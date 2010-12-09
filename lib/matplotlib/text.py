@@ -551,6 +551,9 @@ class Text(Artist):
 
         if rcParams['text.usetex']:
             for line, wh, x, y in info:
+                if not np.isfinite(x) or not np.isfinite(y):
+                    continue
+
                 x = x + posx
                 y = y + posy
                 if renderer.flipy():
@@ -566,6 +569,9 @@ class Text(Artist):
                                       self._fontproperties, angle)
         else:
             for line, wh, x, y in info:
+                if not np.isfinite(x) or not np.isfinite(y):
+                    continue
+
                 x = x + posx
                 y = y + posy
                 if renderer.flipy():
@@ -974,6 +980,8 @@ class Text(Artist):
         # Did we find an even number of non-escaped dollar signs?
         # If so, treat is as math text.
         if rcParams['text.usetex']:
+            if s == ' ':
+                s = r'\ '
             return s, 'TeX'
 
         if cbook.is_math_text(s):
