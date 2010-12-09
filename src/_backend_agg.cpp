@@ -554,7 +554,7 @@ RendererAgg::restore_region2(const Py::Tuple& args)
     }
     catch (Py::TypeError)
     {
-        throw Py::TypeError("Invalid input arguments to draw_text_image");
+        throw Py::TypeError("Invalid input arguments to restore_region2");
     }
 
 
