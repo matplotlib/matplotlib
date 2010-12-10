@@ -797,11 +797,11 @@ class Line2D(Artist):
 
 
 
-        ACCEPTS: [ ``'+'`` | ``'*'`` | ``','`` | ``'.'`` 
+        ACCEPTS: [ ``'+'`` | ``'*'`` | ``','`` | ``'.'``
                  | ``'1'`` | ``'2'`` | ``'3'`` | ``'4'``
-                 | ``'<'`` | ``'>'`` | ``'D'`` | ``'H'`` 
-                 | ``'^'`` | ``'_'`` | ``'d'`` | ``'h'`` 
-                 | ``'o'`` | ``'p'`` | ``'s'`` | ``'v'`` 
+                 | ``'<'`` | ``'>'`` | ``'D'`` | ``'H'``
+                 | ``'^'`` | ``'_'`` | ``'d'`` | ``'h'``
+                 | ``'o'`` | ``'p'`` | ``'s'`` | ``'v'``
                  | ``'x'`` | ``'|'``
                  | TICKUP | TICKDOWN | TICKLEFT | TICKRIGHT
                  | CARETUP | CARETDOWN | CARETLEFT | CARETRIGHT
@@ -1069,12 +1069,17 @@ class Line2D(Artist):
                                   path, path_trans, rgbFace_alt)
 
 
-    _triangle_path = Path([[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [0.0, 1.0]])
+    _triangle_path = Path([[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [0.0, 1.0]],
+                          [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
     # Going down halfway looks to small.  Golden ratio is too far.
-    _triangle_path_u = Path([[0.0, 1.0], [-3/5., -1/5.], [3/5., -1/5.], [0.0, 1.0]])
-    _triangle_path_d = Path([[-3/5., -1/5.], [3/5., -1/5.], [1.0, -1.0], [-1.0, -1.0], [-3/5., -1/5.]])
-    _triangle_path_l = Path([[0.0, 1.0], [0.0, -1.0], [-1.0, -1.0], [0.0, 1.0]])
-    _triangle_path_r = Path([[0.0, 1.0], [0.0, -1.0], [1.0, -1.0], [0.0, 1.0]])
+    _triangle_path_u = Path([[0.0, 1.0], [-3/5., -1/5.], [3/5., -1/5.], [0.0, 1.0]],
+                            [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+    _triangle_path_d = Path([[-3/5., -1/5.], [3/5., -1/5.], [1.0, -1.0], [-1.0, -1.0], [-3/5., -1/5.]],
+                            [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+    _triangle_path_l = Path([[0.0, 1.0], [0.0, -1.0], [-1.0, -1.0], [0.0, 1.0]],
+                            [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+    _triangle_path_r = Path([[0.0, 1.0], [0.0, -1.0], [1.0, -1.0], [0.0, 1.0]],
+                            [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
     def _draw_triangle(self, renderer, gc, path, path_trans, direction):
         gc.set_snap(renderer.points_to_pixels(self._markersize) >= 5.0)
         offset = 0.5*renderer.points_to_pixels(self._markersize)
