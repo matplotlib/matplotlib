@@ -345,7 +345,8 @@ void ttfont_header(TTStreamWriter& stream, struct TTFONT *font)
     ** specification on which the font is based and the
     ** font manufacturer's revision number for the font.
     */
-    if( font->target_type == PS_TYPE_42 )
+    if( font->target_type == PS_TYPE_42 ||
+        font->target_type == PS_TYPE_42_3_HYBRID)
         {
         stream.printf("%%!PS-TrueTypeFont-%d.%d-%d.%d\n",
                 font->TTVersion.whole, font->TTVersion.fraction,
@@ -368,11 +369,13 @@ void ttfont_header(TTStreamWriter& stream, struct TTFONT *font)
     /* We created this file. */
     if( font->target_type == PS_TYPE_42 )
         stream.putline("%%Creator: Converted from TrueType to type 42 by PPR");
+    else if (font->target_type == PS_TYPE_42_3_HYBRID)
+        stream.putline("%%Creator: Converted from TypeType to type 42/type 3 hybrid by PPR");
     else
-        stream.putline("%%Creator: Converted from TrueType by PPR");
+        stream.putline("%%Creator: Converted from TrueType to type 3 by PPR");
 
     /* If VM usage information is available, print it. */
-    if( font->target_type == PS_TYPE_42 )
+    if( font->target_type == PS_TYPE_42 || font->target_type == PS_TYPE_42_3_HYBRID)
         {
         VMMin = (int)getULONG( font->post_table + 16 );
         VMMax = (int)getULONG( font->post_table + 20 );
@@ -382,7 +385,7 @@ void ttfont_header(TTStreamWriter& stream, struct TTFONT *font)
 
     /* Start the dictionary which will eventually */
     /* become the font. */
-    if( font->target_type != PS_TYPE_3 )
+    if(font->target_type == PS_TYPE_42)
         {
         stream.putline("15 dict begin");
         }
@@ -403,13 +406,17 @@ void ttfont_header(TTStreamWriter& stream, struct TTFONT *font)
     stream.printf("/FontName /%s def\n",font->PostName);
     stream.putline("/PaintType 0 def");
 
-    if(font->target_type == PS_TYPE_42)
+    if(font->target_type == PS_TYPE_42 || font->target_type == PS_TYPE_42_3_HYBRID)
         stream.putline("/FontMatrix[1 0 0 1 0 0]def");
     else
         stream.putline("/FontMatrix[.001 0 0 .001 0 0]def");
 
     stream.printf("/FontBBox[%d %d %d %d]def\n",font->llx,font->lly,font->urx,font->ury);
-    stream.printf("/FontType %d def\n", font->target_type );
+    if (font->target_type == PS_TYPE_42 || font->target_type == PS_TYPE_42_3_HYBRID) {
+        stream.printf("/FontType 42 def\n", font->target_type );
+    } else {
+        stream.printf("/FontType 3 def\n", font->target_type );
+    }
     } /* end of ttfont_header() */
 
 /*-------------------------------------------------------------
@@ -420,7 +427,7 @@ void ttfont_header(TTStreamWriter& stream, struct TTFONT *font)
 -------------------------------------------------------------*/
 void ttfont_encoding(TTStreamWriter& stream, struct TTFONT *font, std::vector<int>& glyph_ids, font_type_enum target_type)
     {
-        if (target_type == PS_TYPE_3) {
+      if (target_type == PS_TYPE_3 || target_type == PS_TYPE_42_3_HYBRID) {
             stream.printf("/Encoding [ ");
 
             for (std::vector<int>::const_iterator i = glyph_ids.begin();
@@ -605,13 +612,16 @@ void sfnts_glyf_table(TTStreamWriter& stream, struct TTFONT *font, ULONG oldoffs
     int c;
     ULONG total=0;              /* running total of bytes written to table */
     int x;
+    bool loca_is_local=false;
 
     #ifdef DEBUG_TRUETYPE
     debug("sfnts_glyf_table(font,%d)", (int)correct_total_length);
     #endif
 
-    assert(font->loca_table == NULL);
-    font->loca_table = GetTable(font,"loca");
+    if (font->loca_table == NULL) {
+        font->loca_table = GetTable(font,"loca");
+        loca_is_local = true;
+    }
 
     /* Seek to proper position in the file. */
     fseek( font->file, oldoffset, SEEK_SET );
@@ -661,8 +671,10 @@ void sfnts_glyf_table(TTStreamWriter& stream, struct TTFONT *font, ULONG oldoffs
 
         }
 
-    free(font->loca_table);
-    font->loca_table = NULL;
+    if (loca_is_local) {
+        free(font->loca_table);
+        font->loca_table = NULL;
+    }
 
     /* Pad out to full length from table directory */
     while( total < correct_total_length )
@@ -953,9 +965,9 @@ void ttfont_CharStrings(TTStreamWriter& stream, struct TTFONT *font, std::vector
 
     /* Emmit one key-value pair for each glyph. */
     for(std::vector<int>::const_iterator i = glyph_ids.begin();
-        i != glyph_ids.end(); ++i)
-        {
-        if(font->target_type == PS_TYPE_42)     /* type 42 */
+        i != glyph_ids.end(); ++i) {
+        if((font->target_type == PS_TYPE_42 || font->target_type == PS_TYPE_42_3_HYBRID)
+           && *i < 256) /* type 42 */
             {
             stream.printf("/%s %d def\n",ttfont_CharStrings_getname(font, *i), *i);
             }
@@ -980,7 +992,7 @@ void ttfont_trailer(TTStreamWriter& stream, struct TTFONT *font)
     {
     /* If we are generating a type 3 font, we need to provide */
     /* a BuildGlyph and BuildChar proceedures. */
-    if( font->target_type == PS_TYPE_3 )
+      if(font->target_type == PS_TYPE_3 || font->target_type == PS_TYPE_42_3_HYBRID)
         {
         stream.put_char('\n');
 
@@ -1010,7 +1022,7 @@ void ttfont_trailer(TTStreamWriter& stream, struct TTFONT *font)
     /* I found out how to do this by examining a TrueType font */
     /* generated by a Macintosh.  That is where the TrueType interpreter */
     /* setup instructions and part of BuildGlyph came from. */
-    else if( font->target_type == PS_TYPE_42 )
+    if (font->target_type == PS_TYPE_42 || font->target_type == PS_TYPE_42_3_HYBRID)
         {
         stream.put_char('\n');
 
@@ -1111,6 +1123,28 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
     /* Decide what type of PostScript font we will be generating. */
     font.target_type = target_type;
 
+    if (font.target_type == PS_TYPE_42) {
+        bool has_low = false;
+        bool has_high = false;
+
+        for(std::vector<int>::const_iterator i = glyph_ids.begin();
+            i != glyph_ids.end(); ++i) {
+            if (*i > 255) {
+                has_high = true;
+                if (has_low) break;
+            } else {
+                has_low = true;
+                if (has_high) break;
+            }
+        }
+
+        if (has_high && has_low) {
+            font.target_type = PS_TYPE_42_3_HYBRID;
+        } else if (has_high && !has_low) {
+            font.target_type = PS_TYPE_3;
+        }
+    }
+
     /* Save the file name for error messages. */
     font.filename=filename;
 
@@ -1177,7 +1211,8 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
     /* If we are generating a Type 3 font, we will need to */
     /* have the 'loca' and 'glyf' tables arround while */
     /* we are generating the CharStrings. */
-    if(font.target_type == PS_TYPE_3 || font.target_type == PDF_TYPE_3)
+    if(font.target_type == PS_TYPE_3 || font.target_type == PDF_TYPE_3 ||
+       font.target_type == PS_TYPE_42_3_HYBRID)
         {
         BYTE *ptr;                      /* We need only one value */
         ptr = GetTable(&font, "hhea");
@@ -1198,7 +1233,8 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
         for (int x = 0; x < font.numGlyphs; ++x) {
             glyph_ids.push_back(x);
         }
-    } else if (font.target_type == PS_TYPE_3) {
+    } else if (font.target_type == PS_TYPE_3 ||
+               font.target_type == PS_TYPE_42_3_HYBRID) {
         ttfont_add_glyph_dependencies(&font, glyph_ids);
     }
 
@@ -1222,7 +1258,8 @@ void insert_ttfont(const char *filename, TTStreamWriter& stream,
 
     /* If we are generating a type 42 font, */
     /* emmit the sfnts array. */
-    if( font.target_type == PS_TYPE_42 )
+    if(font.target_type == PS_TYPE_42 ||
+       font.target_type == PS_TYPE_42_3_HYBRID)
       ttfont_sfnts(stream, &font);
 
     /* Emmit the CharStrings array. */
