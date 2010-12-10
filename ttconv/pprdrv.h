@@ -94,6 +94,7 @@ class TTException {
 enum font_type_enum {
   PS_TYPE_3  = 3,
   PS_TYPE_42 = 42,
+  PS_TYPE_42_3_HYBRID = 43,
   PDF_TYPE_3 = -3
 };
 
