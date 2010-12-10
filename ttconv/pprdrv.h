@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 /*
  * Modified for use within matplotlib
  * 5 July 2007
@@ -27,35 +29,37 @@
  * function.  This both removes the hardcoding of output to go to stdout
  * and makes output thread-safe.  Michael Droettboom [06-07-07]
  */
-class TTStreamWriter {
+class TTStreamWriter
+{
  private:
-  // Private copy and assignment
-  TTStreamWriter& operator=(const TTStreamWriter& other);
-  TTStreamWriter(const TTStreamWriter& other);
+    // Private copy and assignment
+    TTStreamWriter& operator=(const TTStreamWriter& other);
+    TTStreamWriter(const TTStreamWriter& other);
 
  public:
-  TTStreamWriter() { }
-  virtual ~TTStreamWriter() { }
+    TTStreamWriter() { }
+    virtual ~TTStreamWriter() { }
 
-  virtual void write(const char*) = 0;
+    virtual void write(const char*) = 0;
 
-  virtual void printf(const char* format, ...);
-  virtual void put_char(int val);
-  virtual void puts(const char* a);
-  virtual void putline(const char* a);
+    virtual void printf(const char* format, ...);
+    virtual void put_char(int val);
+    virtual void puts(const char* a);
+    virtual void putline(const char* a);
 };
 
-class TTDictionaryCallback {
- private:
-  // Private copy and assignment
-  TTDictionaryCallback& operator=(const TTStreamWriter& other);
-  TTDictionaryCallback(const TTStreamWriter& other);
+class TTDictionaryCallback
+{
+private:
+    // Private copy and assignment
+    TTDictionaryCallback& operator=(const TTStreamWriter& other);
+    TTDictionaryCallback(const TTStreamWriter& other);
 
- public:
-  TTDictionaryCallback() { }
-  virtual ~TTDictionaryCallback() { }
+public:
+    TTDictionaryCallback() { }
+    virtual ~TTDictionaryCallback() { }
 
-  virtual void add_pair(const char* key, const char* value) = 0;
+    virtual void add_pair(const char* key, const char* value) = 0;
 };
 
 void replace_newlines_with_spaces(char* a);
@@ -63,14 +67,18 @@ void replace_newlines_with_spaces(char* a);
 /*
  * A simple class for all ttconv exceptions.
  */
-class TTException {
-  const char* message;
-  TTException& operator=(const TTStreamWriter& other);
-  TTException(const TTStreamWriter& other);
+class TTException
+{
+    const char* message;
+    TTException& operator=(const TTStreamWriter& other);
+    TTException(const TTStreamWriter& other);
 
- public:
-  TTException(const char* message_) : message(message_) { }
-  const char* getMessage() { return message; }
+public:
+    TTException(const char* message_) : message(message_) { }
+    const char* getMessage()
+    {
+        return message;
+    }
 };
 
 /*
@@ -89,11 +97,12 @@ class TTException {
 
 /* Do not change anything below this line. */
 
-enum font_type_enum {
-  PS_TYPE_3  = 3,
-  PS_TYPE_42 = 42,
-  PS_TYPE_42_3_HYBRID = 43,
-  PDF_TYPE_3 = -3
+enum font_type_enum
+{
+    PS_TYPE_3  = 3,
+    PS_TYPE_42 = 42,
+    PS_TYPE_42_3_HYBRID = 43,
+    PDF_TYPE_3 = -3
 };
 
 /* routines in pprdrv_tt.c */
