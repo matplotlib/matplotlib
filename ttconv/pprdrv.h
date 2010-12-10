@@ -84,7 +84,7 @@ class TTException {
 ** code you want to have included.
 */
 #ifdef DEBUG
-#define DEBUG_TRUETYPE 		/* truetype fonts, conversion to Postscript */
+#define DEBUG_TRUETYPE          /* truetype fonts, conversion to Postscript */
 #endif
 
 /* Do not change anything below this line. */
@@ -92,6 +92,7 @@ class TTException {
 enum font_type_enum {
   PS_TYPE_3  = 3,
   PS_TYPE_42 = 42,
+  PS_TYPE_42_3_HYBRID = 43,
   PDF_TYPE_3 = -3
 };
 

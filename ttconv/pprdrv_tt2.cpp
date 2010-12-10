@@ -709,10 +709,15 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
             stream.printf("%d 0 %d %d %d %d d1\n",
                           topost(advance_width),
                           topost(llx), topost(lly), topost(urx), topost(ury) );
-    } else
+    } else if (font->target_type == PS_TYPE_42_3_HYBRID) {
+        stream.printf("pop gsave .001 .001 scale %d 0 %d %d %d %d setcachedevice\n",
+                      topost(advance_width),
+                      topost(llx), topost(lly), topost(urx), topost(ury) );
+    } else {
         stream.printf("%d 0 %d %d %d %d _sc\n",
                       topost(advance_width),
                       topost(llx), topost(lly), topost(urx), topost(ury) );
+    }
 
     /* If it is a simple glyph, convert it, */
     /* otherwise, close the stack business. */
@@ -724,6 +729,10 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
         {
           do_composite(stream, font, glyph);
         }
+
+    if (font->target_type == PS_TYPE_42_3_HYBRID) {
+        stream.printf("\ngrestore\n");
+    }
 
     stack_end(stream);
 }
