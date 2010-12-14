@@ -659,7 +659,7 @@ class NonUniformImage(AxesImage):
         interp = kwargs.pop('interpolation', 'nearest')
         AxesImage.__init__(self, ax,
                            **kwargs)
-        AxesImage.set_interpolation(self, interp)
+        self.set_interpolation(interp)
 
     def _check_unsampled_image(self, renderer):
         """
