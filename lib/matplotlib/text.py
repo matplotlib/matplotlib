@@ -143,6 +143,9 @@ class Text(Artist):
     Handle storing and drawing of text in window or data coordinates.
     """
     zorder = 3
+
+    cached = maxdict(50)
+
     def __str__(self):
         return "Text(%g,%g,%s)"%(self._y,self._y,repr(self._text))
 
@@ -168,7 +171,6 @@ class Text(Artist):
         """
 
         Artist.__init__(self)
-        self.cached = maxdict(5)
         self._x, self._y = x, y
 
         if color is None: color = rcParams['text.color']
