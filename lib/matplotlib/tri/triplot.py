@@ -1,4 +1,3 @@
-import matplotlib.axes
 from matplotlib.cbook import ls_mapper
 from matplotlib.patches import PathPatch
 from matplotlib.path import Path
@@ -39,6 +38,8 @@ def triplot(ax, *args, **kwargs):
 
         .. plot:: mpl_examples/pylab_examples/triplot_demo.py
     """
+    import matplotlib.axes
+
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
 
     x = tri.x

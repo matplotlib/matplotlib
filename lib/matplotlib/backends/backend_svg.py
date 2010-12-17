@@ -860,7 +860,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         if is_string_like(filename):
             fh_to_close = svgwriter = codecs.open(filename, 'w', 'utf-8')
         elif is_writable_file_like(filename):
-            svgwriter = codecs.EncodedFile(filename, 'utf-8')
+            svgwriter = codecs.getwriter('utf-8')(filename)
             fh_to_close = None
         else:
             raise ValueError("filename must be a path or a file-like object")
@@ -869,10 +869,10 @@ class FigureCanvasSVG(FigureCanvasBase):
     def print_svgz(self, filename, *args, **kwargs):
         if is_string_like(filename):
             gzipwriter = gzip.GzipFile(filename, 'w')
-            fh_to_close = svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
+            fh_to_close = svgwriter = codecs.getwriter('utf-8')(gzipwriter)
         elif is_writable_file_like(filename):
             fh_to_close = gzipwriter = gzip.GzipFile(fileobj=filename, mode='w')
-            svgwriter = codecs.EncodedFile(gzipwriter, 'utf-8')
+            svgwriter = codecs.getwriter('utf-8')(gzipwriter)
         else:
             raise ValueError("filename must be a path or a file-like object")
         return self._print_svg(filename, svgwriter, fh_to_close)
