@@ -182,7 +182,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         y = self.figure.bbox.height - event.y()
         # from QWheelEvent::delta doc
         steps = event.delta()/120
-        if (event.orientation() == Qt.Qt.Vertical):
+        if (event.orientation() == QtCore.Qt.Vertical):
             FigureCanvasBase.scroll_event( self, x, y, steps)
             if DEBUG: print 'scroll event : delta = %i, steps = %i ' % (event.delta(),steps)
 
@@ -450,7 +450,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
                         text += ": "+ylabel
                     text += " (%s)"
                 elif ylabel:
-                    text = "%s (%s)" % ylabel
+                    text = "%%s (%s)" % ylabel
                 else:
                     text = "%s"
                 titles.append(text % repr(axes))
