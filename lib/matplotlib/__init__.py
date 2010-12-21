@@ -637,7 +637,7 @@ class RcParams(dict):
 
     def __setitem__(self, key, val):
         try:
-            if key in _deprecated_map.keys():
+            if key in _deprecated_map:
                 alt = _deprecated_map[key]
                 warnings.warn(self.msg_depr % (key, alt))
                 key = alt
@@ -652,7 +652,7 @@ class RcParams(dict):
 See rcParams.keys() for a list of valid parameters.' % (key,))
 
     def __getitem__(self, key):
-        if key in _deprecated_map.keys():
+        if key in _deprecated_map:
             alt = _deprecated_map[key]
             warnings.warn(self.msg_depr % (key, alt))
             key = alt
