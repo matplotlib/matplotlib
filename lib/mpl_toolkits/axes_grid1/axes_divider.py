@@ -59,15 +59,30 @@ class Divider(object):
         self._aspect = aspect
         self._xrefindex = 0
         self._yrefindex = 0
+        self._locator = None
+
+    def get_horizontal_sizes(self, renderer):
+        return [s.get_size(renderer) for s in self.get_horizontal()]
+
+    def get_vertical_sizes(self, renderer):
+        return [s.get_size(renderer) for s in self.get_vertical()]
+
+    def get_vsize_hsize(self):
+
+        from axes_size import AddList
+
+        vsize = AddList(self.get_vertical())
+        hsize = AddList(self.get_horizontal())
+
+        return vsize, hsize
 
 
     @staticmethod
-    def _calc_k(l, total_size, renderer):
+    def _calc_k(l, total_size):
 
         rs_sum, as_sum = 0., 0.
 
-        for s in l:
-            _rs, _as = s.get_size(renderer)
+        for _rs, _as in l:
             rs_sum += _rs
             as_sum += _as
 
@@ -79,12 +94,13 @@ class Divider(object):
 
 
     @staticmethod
-    def _calc_offsets(l, k, renderer):
+    def _calc_offsets(l, k):
 
         offsets = [0.]
 
-        for s in l:
-            _rs, _as = s.get_size(renderer)
+        #for s in l:
+        for _rs, _as in l:
+            #_rs, _as = s.get_size(renderer)
             offsets.append(offsets[-1] + _rs*k + _as)
 
         return offsets
@@ -168,8 +184,19 @@ class Divider(object):
         "return aspect"
         return self._aspect
 
+    def set_locator(self, _locator):
+        self._locator = _locator
 
-    def locate(self, nx, ny, nx1=None, ny1=None, renderer=None):
+    def get_locator(self):
+        return self._locator
+
+    def get_position_runtime(self, ax, renderer):
+        if self._locator is None:
+            return self.get_position()
+        else:
+            return self._locator(ax, renderer).bounds
+
+    def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
         """
 
         :param nx, nx1: Integers specifying the column-position of the
@@ -182,15 +209,17 @@ class Divider(object):
 
 
         figW,figH = self._fig.get_size_inches()
-        x, y, w, h = self.get_position()
+        x, y, w, h = self.get_position_runtime(axes, renderer)
 
-        k_h = self._calc_k(self._horizontal, figW*w, renderer)
-        k_v = self._calc_k(self._vertical, figH*h, renderer)
+        hsizes = self.get_horizontal_sizes(renderer)
+        vsizes = self.get_vertical_sizes(renderer)
+        k_h = self._calc_k(hsizes, figW*w)
+        k_v = self._calc_k(vsizes, figH*h)
 
         if self.get_aspect():
             k = min(k_h, k_v)
-            ox = self._calc_offsets(self._horizontal, k, renderer)
-            oy = self._calc_offsets(self._vertical, k, renderer)
+            ox = self._calc_offsets(hsizes, k)
+            oy = self._calc_offsets(vsizes, k)
 
             ww = (ox[-1] - ox[0])/figW
             hh = (oy[-1] - oy[0])/figH
@@ -200,8 +229,8 @@ class Divider(object):
             x0, y0 = pb1_anchored.x0, pb1_anchored.y0
 
         else:
-            ox = self._calc_offsets(self._horizontal, k_h, renderer)
-            oy = self._calc_offsets(self._vertical, k_v, renderer)
+            ox = self._calc_offsets(hsizes, k_h)
+            oy = self._calc_offsets(vsizes, k_v)
             x0, y0 = x, y
 
 
@@ -274,6 +303,7 @@ class AxesLocator(object):
                                          self._ny + _yrefindex,
                                          self._nx1 + _xrefindex,
                                          self._ny1 + _yrefindex,
+                                         axes,
                                          renderer)
 
 
@@ -378,13 +408,20 @@ class AxesDivider(Divider):
     Divider based on the pre-existing axes.
     """
 
-    def __init__(self, axes):
+    def __init__(self, axes, xref=None, yref=None):
         """
         :param axes: axes
         """
         self._axes = axes
-        self._xref = Size.AxesX(axes)
-        self._yref = Size.AxesY(axes)
+        if xref==None:
+            self._xref = Size.AxesX(axes)
+        else:
+            self._xref = xref
+        if yref==None:
+            self._yref = Size.AxesY(axes)
+        else:
+            self._yref = yref
+
         Divider.__init__(self, fig=axes.get_figure(), pos=None,
                          horizontal=[self._xref], vertical=[self._yref],
                          aspect=None, anchor="C")
@@ -553,6 +590,194 @@ class AxesDivider(Divider):
 
 
 
+
+
+
+class HBoxDivider(SubplotDivider):
+
+
+    def __init__(self, fig, *args, **kwargs):
+        SubplotDivider.__init__(self, fig, *args, **kwargs)
+
+
+    @staticmethod
+    def _determine_karray(equivalent_sizes, appended_sizes,
+                          max_equivalent_size,
+                          total_appended_size):
+
+
+        n = len(equivalent_sizes)
+        import numpy as np
+        A = np.mat(np.zeros((n+1, n+1), dtype="d"))
+        B = np.zeros((n+1), dtype="d")
+        # AxK = B
+
+        # populated A
+        for i, (r, a) in enumerate(equivalent_sizes):
+            A[i,i] = r
+            A[i,-1] = -1
+            B[i] = -a
+        A[-1,:-1] = [r for r, a in appended_sizes]
+        B[-1] = total_appended_size - sum([a for rs, a in appended_sizes])
+
+        karray_H = (A.I*np.mat(B).T).A1
+        karray = karray_H[:-1]
+        H = karray_H[-1]
+
+        if H > max_equivalent_size:
+            karray = (max_equivalent_size - \
+                      np.array([a for r, a in equivalent_sizes])) \
+                      / np.array([r for r, a in equivalent_sizes])
+        return karray
+
+
+    @staticmethod
+    def _calc_offsets(appended_sizes, karray):
+        offsets = [0.]
+
+        #for s in l:
+        for (r, a), k in zip(appended_sizes, karray):
+            offsets.append(offsets[-1] + r*k + a)
+
+        return offsets
+
+
+    def new_locator(self, nx, nx1=None):
+        """
+        returns a new locator
+        (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
+        specified cell.
+
+        :param nx, nx1: Integers specifying the column-position of the
+          cell. When nx1 is None, a single nx-th column is
+          specified. Otherwise location of columns spanning between nx
+          to nx1 (but excluding nx1-th column) is specified.
+
+        :param ny, ny1: same as nx and nx1, but for row positions.
+        """
+        return AxesLocator(self, nx, 0, nx1, None)
+
+
+    def _locate(self, x, y, w, h,
+                y_equivalent_sizes, x_appended_sizes,
+                figW, figH):
+        """
+
+        :param nx, nx1: Integers specifying the column-position of the
+          cell. When nx1 is None, a single nx-th column is
+          specified. Otherwise location of columns spanning between nx
+          to nx1 (but excluding nx1-th column) is specified.
+
+        :param ny, ny1: same as nx and nx1, but for row positions.
+        """
+
+
+        equivalent_sizes = y_equivalent_sizes
+        appended_sizes = x_appended_sizes
+
+        max_equivalent_size = figH*h
+        total_appended_size = figW*w
+        karray = self._determine_karray(equivalent_sizes, appended_sizes,
+                                        max_equivalent_size,
+                                        total_appended_size)
+
+        ox = self._calc_offsets(appended_sizes, karray)
+
+        ww = (ox[-1] - ox[0])/figW
+        ref_h = equivalent_sizes[0]
+        hh = (karray[0]*ref_h[0] + ref_h[1])/figH
+        pb = mtransforms.Bbox.from_bounds(x, y, w, h)
+        pb1 = mtransforms.Bbox.from_bounds(x, y, ww, hh)
+        pb1_anchored = pb1.anchored(self.get_anchor(), pb)
+        x0, y0 = pb1_anchored.x0, pb1_anchored.y0
+
+        return x0, y0, ox, hh
+
+    def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
+        """
+
+        :param nx, nx1: Integers specifying the column-position of the
+          cell. When nx1 is None, a single nx-th column is
+          specified. Otherwise location of columns spanning between nx
+          to nx1 (but excluding nx1-th column) is specified.
+
+        :param ny, ny1: same as nx and nx1, but for row positions.
+        """
+
+
+        figW,figH = self._fig.get_size_inches()
+        x, y, w, h = self.get_position_runtime(axes, renderer)
+
+        y_equivalent_sizes = self.get_vertical_sizes(renderer)
+        x_appended_sizes = self.get_horizontal_sizes(renderer)
+        x0, y0, ox, hh = self._locate(x, y, w, h,
+                                      y_equivalent_sizes, x_appended_sizes,
+                                      figW, figH)
+        if nx1 is None:
+            nx1=nx+1
+
+        x1, w1 = x0 + ox[nx]/figW, (ox[nx1] - ox[nx])/figW
+        y1, h1 = y0, hh
+
+        return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
+
+
+
+class VBoxDivider(HBoxDivider):
+    """
+    The Divider class whose rectangle area is specified as a subplot grometry.
+    """
+
+
+    def new_locator(self, ny, ny1=None):
+        """
+        returns a new locator
+        (:class:`mpl_toolkits.axes_grid.axes_divider.AxesLocator`) for
+        specified cell.
+
+        :param nx, nx1: Integers specifying the column-position of the
+          cell. When nx1 is None, a single nx-th column is
+          specified. Otherwise location of columns spanning between nx
+          to nx1 (but excluding nx1-th column) is specified.
+
+        :param ny, ny1: same as nx and nx1, but for row positions.
+        """
+        return AxesLocator(self, 0, ny, None, ny1)
+
+
+    def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
+        """
+
+        :param nx, nx1: Integers specifying the column-position of the
+          cell. When nx1 is None, a single nx-th column is
+          specified. Otherwise location of columns spanning between nx
+          to nx1 (but excluding nx1-th column) is specified.
+
+        :param ny, ny1: same as nx and nx1, but for row positions.
+        """
+
+
+        figW,figH = self._fig.get_size_inches()
+        x, y, w, h = self.get_position_runtime(axes, renderer)
+
+        x_equivalent_sizes = self.get_horizontal_sizes(renderer)
+        y_appended_sizes = self.get_vertical_sizes(renderer)
+
+        y0, x0, oy, ww = self._locate(y, x, h, w,
+                                      x_equivalent_sizes, y_appended_sizes,
+                                      figH, figW)
+        if ny1 is None:
+            ny1=ny+1
+
+        x1, w1 = x0, ww
+        y1, h1 = y0 + oy[ny]/figH, (oy[ny1] - oy[ny])/figH
+
+        return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
+
+
+
+
+
 class LocatableAxesBase:
     def __init__(self, *kl, **kw):
 
@@ -617,139 +842,3 @@ from mpl_axes import Axes
 LocatableAxes = locatable_axes_factory(Axes)
 
 
-
-def get_demo_image():
-    # prepare image
-    delta = 0.5
-
-    extent = (-3,4,-4,3)
-    import numpy as np
-    x = np.arange(-3.0, 4.001, delta)
-    y = np.arange(-4.0, 3.001, delta)
-    X, Y = np.meshgrid(x, y)
-    import matplotlib.mlab as mlab
-    Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
-    Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
-    Z = (Z1 - Z2) * 10
-
-    return Z, extent
-
-def demo_locatable_axes():
-    import matplotlib.pyplot as plt
-
-    fig1 = plt.figure(1, (6, 6))
-    fig1.clf()
-
-    ## PLOT 1
-    # simple image & colorbar
-    ax = fig1.add_subplot(2, 2, 1)
-
-    Z, extent = get_demo_image()
-
-    im = ax.imshow(Z, extent=extent, interpolation="nearest")
-    cb = plt.colorbar(im)
-    plt.setp(cb.ax.get_yticklabels(), visible=False)
-
-
-    ## PLOT 2
-    # image and colorbar whose location is adjusted in the drawing time.
-    # a hard way
-
-    divider = SubplotDivider(fig1, 2, 2, 2, aspect=True)
-
-    # axes for image
-    ax = LocatableAxes(fig1, divider.get_position())
-
-    # axes for coloarbar
-    ax_cb = LocatableAxes(fig1, divider.get_position())
-
-    h = [Size.AxesX(ax), # main axes
-         Size.Fixed(0.05), # padding, 0.1 inch
-         Size.Fixed(0.2), # colorbar, 0.3 inch
-         ]
-
-    v = [Size.AxesY(ax)]
-
-    divider.set_horizontal(h)
-    divider.set_vertical(v)
-
-    ax.set_axes_locator(divider.new_locator(nx=0, ny=0))
-    ax_cb.set_axes_locator(divider.new_locator(nx=2, ny=0))
-
-    fig1.add_axes(ax)
-    fig1.add_axes(ax_cb)
-
-    ax_cb.yaxis.set_ticks_position("right")
-
-    Z, extent = get_demo_image()
-
-    im = ax.imshow(Z, extent=extent, interpolation="nearest")
-    plt.colorbar(im, cax=ax_cb)
-    plt.setp(ax_cb.get_yticklabels(), visible=False)
-
-    plt.draw()
-    #plt.colorbar(im, cax=ax_cb)
-
-
-    ## PLOT 3
-    # image and colorbar whose location is adjusted in the drawing time.
-    # a easy way
-
-    ax = fig1.add_subplot(2, 2, 3)
-    divider = make_axes_locatable(ax)
-
-    ax_cb = divider.new_horizontal(size="5%", pad=0.05)
-    fig1.add_axes(ax_cb)
-
-    im = ax.imshow(Z, extent=extent, interpolation="nearest")
-    plt.colorbar(im, cax=ax_cb)
-    plt.setp(ax_cb.get_yticklabels(), visible=False)
-
-
-    ## PLOT 4
-    # two images side by sied with fixed padding.
-
-    ax = fig1.add_subplot(2, 2, 4)
-    divider = make_axes_locatable(ax)
-
-    ax2 = divider.new_horizontal(size="100%", pad=0.05)
-    fig1.add_axes(ax2)
-
-    ax.imshow(Z, extent=extent, interpolation="nearest")
-    ax2.imshow(Z, extent=extent, interpolation="nearest")
-    plt.setp(ax2.get_yticklabels(), visible=False)
-    plt.draw()
-    plt.show()
-
-
-def demo_fixed_size_axes():
-    import matplotlib.pyplot as plt
-
-    fig2 = plt.figure(2, (6, 6))
-
-    # The first items are for padding and the second items are for the axes.
-    # sizes are in inch.
-    h = [Size.Fixed(1.0), Size.Fixed(4.5)]
-    v = [Size.Fixed(0.7), Size.Fixed(5.)]
-
-    divider = Divider(fig2, (0.0, 0.0, 1., 1.), h, v, aspect=False)
-    # the width and height of the rectangle is ignored.
-
-    ax = LocatableAxes(fig2, divider.get_position())
-    ax.set_axes_locator(divider.new_locator(nx=1, ny=1))
-
-    fig2.add_axes(ax)
-
-    ax.plot([1,2,3])
-
-    plt.draw()
-    plt.show()
-    #plt.colorbar(im, cax=ax_cb)
-
-
-
-
-
-if __name__ == "__main__":
-    demo_locatable_axes()
-    demo_fixed_size_axes()

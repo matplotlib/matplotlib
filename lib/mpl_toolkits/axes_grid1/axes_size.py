@@ -16,7 +16,39 @@ import matplotlib.cbook as cbook
 
 class _Base(object):
     "Base class"
-    pass
+
+    def __rmul__(self, other):
+        float(other) # just to check if number if given
+        return Fraction(other, self)
+
+    def __add__(self, other):
+        if isinstance(other, _Base):
+            return Add(self, other)
+        else:
+            float(other)
+            other = Fixed(other)
+            return Add(self, other)
+
+
+class Add(_Base):
+    def __init__(self, a, b):
+        self._a = a
+        self._b = b
+
+    def get_size(self, renderer):
+        a_rel_size, a_abs_size = self._a.get_size(renderer)
+        b_rel_size, b_abs_size = self._b.get_size(renderer)
+        return a_rel_size + b_rel_size, a_abs_size + b_abs_size
+
+class AddList(_Base):
+    def __init__(self, add_list):
+        self._list = add_list
+
+    def get_size(self, renderer):
+        sum_rel_size = sum([a.get_size(renderer)[0] for a in self._list])
+        sum_abs_size = sum([a.get_size(renderer)[1] for a in self._list])
+        return sum_rel_size, sum_abs_size
+
 
 class Fixed(_Base):
     "Simple fixed size  with absolute part = *fixed_size* and relative part = 0"

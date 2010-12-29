@@ -1,3 +1,5 @@
+2010-12-29 Implment axes_divider.HBox and VBox. -JJL
+
 2010-11-22 Fixed error with Hammer projection. - BVR
 
 2010-11-12 Fixed the placement and angle of axis labels in 3D plots. - BVR
