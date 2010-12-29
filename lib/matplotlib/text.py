@@ -603,7 +603,7 @@ class Text(Artist):
 
     def get_font_properties(self):
         'alias for get_fontproperties'
-        return self.get_fontproperties
+        return self.get_fontproperties()
 
     def get_family(self):
         "Return the list of font families used for font lookup"
