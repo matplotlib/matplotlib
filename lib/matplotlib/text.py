@@ -1443,6 +1443,9 @@ class _AnnotationBase(object):
             y = float(self.convert_yunits(y))
 
 
+        if s in ['axes points', 'axes pixel', 'figure points', 'figure pixel']:
+                 return self._get_xy_legacy(renderer, x, y, s)
+
         tr = self._get_xy_transform(renderer, s)
         x1, y1 = tr.transform_point((x, y))
         return x1, y1
