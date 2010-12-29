@@ -75,15 +75,18 @@ class RendererAgg(RendererBase):
         else:
             return LOAD_NO_HINTING
 
+    # for filtering to work with rasterization, methods needs to be wrapped.
+    # maybe there is better way to do it.
     def draw_markers(self, *kl, **kw):
-        # for filtering to work with rastrization, methods needs to be wrapped.
-        # maybe there is better way to do it.
         return self._renderer.draw_markers(*kl, **kw)
 
+    def draw_path_collection(self, *kl, **kw):
+        return self._renderer.draw_path_collection(*kl, **kw)
+        
     def _update_methods(self):
         #self.draw_path = self._renderer.draw_path  # see below
         #self.draw_markers = self._renderer.draw_markers
-        self.draw_path_collection = self._renderer.draw_path_collection
+        #self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.draw_gouraud_triangle = self._renderer.draw_gouraud_triangle
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
@@ -325,6 +328,10 @@ class RendererAgg(RendererBase):
         The saved renderer is restored and the returned image from
         post_processing is plotted (using draw_image) on it.
         """
+
+        # WARNING.
+        # For agg_filter to work, the rendere's method need
+        # to overridden in the class. See draw_markers, and draw_path_collections
 
         from matplotlib._image import fromarray
 
