@@ -1386,14 +1386,41 @@ class RendererPdf(RendererBase):
     def get_image_magnification(self):
         return self.image_dpi/72.0
 
-    def draw_image(self, gc, x, y, im):
+    def option_scale_image(self):
+        """
+        pdf backend support arbitrary scaling of image.
+        """
+        return True
+
+    def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
         self.check_gc(gc)
 
         h, w = im.get_size_out()
-        h, w = 72.0*h/self.image_dpi, 72.0*w/self.image_dpi
+
+        if dx is None:
+            w = 72.0*w/self.image_dpi
+        else:
+            w = dx
+
+        if dy is None:
+            h = 72.0*h/self.image_dpi
+        else:
+            h = dy
+        
         imob = self.file.imageObject(im)
-        self.file.output(Op.gsave, w, 0, 0, h, x, y, Op.concat_matrix,
-                         imob, Op.use_xobject, Op.grestore)
+
+        if transform is None:
+            self.file.output(Op.gsave,
+                             w, 0, 0, h, x, y, Op.concat_matrix,
+                             imob, Op.use_xobject, Op.grestore)
+        else:
+            tr1, tr2, tr3, tr4, tr5, tr6 = transform.to_values()
+
+            self.file.output(Op.gsave,
+                             tr1, tr2, tr3, tr4, tr5, tr6, Op.concat_matrix,
+                             w, 0, 0, h, x, y, Op.concat_matrix,
+                             imob, Op.use_xobject, Op.grestore)
+        
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         self.check_gc(gc, rgbFace)
