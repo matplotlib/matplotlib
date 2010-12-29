@@ -8293,10 +8293,12 @@ class Axes(martist.Artist):
         if self.xaxis.get_visible():
             artists.append(self.xaxis.label)
             bbx1, bbx2 = self.xaxis.get_ticklabel_extents(renderer)
+            self.xaxis._update_label_position([bbx1], [bbx2])
             bb.extend([bbx1, bbx2])
         if self.yaxis.get_visible():
             artists.append(self.yaxis.label)
             bby1, bby2 = self.yaxis.get_ticklabel_extents(renderer)
+            self.yaxis._update_label_position([bby1], [bby2])
             bb.extend([bby1, bby2])
 
 

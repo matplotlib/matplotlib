@@ -260,6 +260,32 @@ class Divider(object):
         """
         return AxesLocator(self, nx, ny, nx1, ny1)
 
+    def append_size(self, position, size):
+
+        if position == "left":
+            self._horizontal.insert(0, size)
+            self._xrefindex += 1
+        elif position == "right":
+            self._horizontal.append(size)
+        elif position == "bottom":
+            self._vertical.insert(0, size)
+            self._yrefindex += 1
+        elif position == "top":
+            self._vertical.append(size)
+        else:
+            raise ValueError("the position must be one of left, right, bottom, or top")
+
+
+    def add_auto_adjustable_area(self, 
+                                 use_axes, pad=0.1,
+                                 adjust_dirs=["left", "right", "bottom", "top"],
+                                 ):
+        from axes_size import Padded, SizeFromFunc, GetExtentHelper
+        for d in adjust_dirs:
+            helper = GetExtentHelper(use_axes, d)
+            size = SizeFromFunc(helper)
+            padded_size = Padded(size, pad) # pad in inch
+            self.append_size(d, padded_size)
 
 
 class AxesLocator(object):
@@ -836,6 +862,17 @@ def make_axes_locatable(axes):
 
     return divider
 
+def make_axes_area_auto_adjustable(ax, 
+                                   use_axes=None, pad=0.1,
+                                   adjust_dirs=["left", "right", "bottom", "top"]):
+    
+    divider = make_axes_locatable(ax)
+
+    if use_axes is None:
+        use_axes = ax
+
+    divider.add_auto_adjustable_area(use_axes=use_axes, pad=pad,
+                                     adjust_dirs=adjust_dirs)
 
 #from matplotlib.axes import Axes
 from mpl_axes import Axes

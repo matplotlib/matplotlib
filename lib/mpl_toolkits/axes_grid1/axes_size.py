@@ -12,7 +12,7 @@ values are used.
 """
 
 import matplotlib.cbook as cbook
-
+from matplotlib.axes import Axes
 
 class _Base(object):
     "Base class"
@@ -237,4 +237,55 @@ def from_any(size, fraction_ref=None):
 
     raise ValueError("Unknown format")
 
+
+class SizeFromFunc(_Base):
+    def __init__(self, func):
+        self._func = func
+
+    def get_size(self, renderer):
+        rel_size = 0.
+
+        bb = self._func(renderer)
+        dpi = renderer.points_to_pixels(72.)
+        abs_size = bb/dpi
+
+        return rel_size, abs_size
+
+class GetExtentHelper(object):
+    def _get_left(tight_bbox, axes_bbox):
+        return axes_bbox.xmin - tight_bbox.xmin
+
+    def _get_right(tight_bbox, axes_bbox):
+        return tight_bbox.xmax - axes_bbox.xmax
+
+    def _get_bottom(tight_bbox, axes_bbox):
+        return axes_bbox.ymin - tight_bbox.ymin
+
+    def _get_top(tight_bbox, axes_bbox):
+        return tight_bbox.ymax - axes_bbox.ymax
+
+    _get_func_map = dict(left=_get_left,
+                         right=_get_right,
+                         bottom=_get_bottom,
+                         top=_get_top)
+
+    del _get_left, _get_right, _get_bottom, _get_top
+    
+    def __init__(self, ax, direction):
+        if isinstance(ax, Axes):
+            self._ax_list = [ax]
+        else:
+            self._ax_list = ax
+            
+        try:
+            self._get_func = self._get_func_map[direction]
+        except KeyError:
+            print "direction must be one of left, right, bottom, top"
+            raise
+
+    def __call__(self, renderer):
+        vl = [self._get_func(ax.get_tightbbox(renderer),
+                             ax.bbox) for ax in self._ax_list]
+        return max(vl)
+    
 
