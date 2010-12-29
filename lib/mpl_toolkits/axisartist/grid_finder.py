@@ -298,8 +298,8 @@ class FixedLocator(object):
 # Tick Formatter
 
 class FormatterPrettyPrint(object):
-    def __init__(self):
-        self._fmt = mticker.ScalarFormatter()
+    def __init__(self, useMathText=True):
+        self._fmt = mticker.ScalarFormatter(useMathText=useMathText)
         self._fmt.create_dummy_axis()
         self._ignore_factor = True
 
