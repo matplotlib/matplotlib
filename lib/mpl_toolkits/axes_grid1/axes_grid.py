@@ -413,6 +413,24 @@ class Grid(object):
             ax = self.axes_llc
             _tick_only(ax, bottom_on=False, left_on=False)
 
+    def set_axes_locator(self, locator):
+        self._divider.set_locator(locator)
+
+    def get_axes_locator(self):
+        return self._divider.get_locator()
+
+    def get_vsize_hsize(self):
+
+        return self._divider.get_vsize_hsize()
+#         from axes_size import AddList
+
+#         vsize = AddList(self._divider.get_vertical())
+#         hsize = AddList(self._divider.get_horizontal())
+
+#         return vsize, hsize
+
+
+
 
 class ImageGrid(Grid):
     """
