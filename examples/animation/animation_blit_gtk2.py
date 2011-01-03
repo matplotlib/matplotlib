@@ -20,9 +20,9 @@ import matplotlib.pyplot as plt
 
 class UpdateLine(object):
     def get_bg_bbox(self):
-        
+
         return self.ax.bbox.padded(-3)
-    
+
     def __init__(self, canvas, ax):
         self.cnt = 0
         self.canvas = canvas
@@ -31,7 +31,7 @@ class UpdateLine(object):
         self.prev_time = time.time()
         self.start_time = self.prev_time
         self.prev_pixel_offset = 0.
-        
+
 
         self.x0 = 0
         self.phases = np.random.random_sample((20,)) * np.pi * 2
@@ -70,7 +70,7 @@ class UpdateLine(object):
         # restore the clean slate background
         self.canvas.restore_region(self.background1)
 
-        # restore subregion (x1+dx, y1, x2, y2) of the second bg 
+        # restore subregion (x1+dx, y1, x2, y2) of the second bg
         # in a offset position (x1-dx, y1)
         x1, y1, x2, y2 = self.background2.get_extents()
         self.canvas.restore_region(self.background2,
@@ -82,18 +82,18 @@ class UpdateLine(object):
     def on_draw(self, *args):
         self.save_bg()
         return False
-    
+
     def update_line(self, *args):
 
         if self.background1 is None:
             return True
-        
+
         cur_time = time.time()
         pixel_offset = int((cur_time - self.start_time)*100.)
         dx_pixel = pixel_offset - self.prev_pixel_offset
         self.prev_pixel_offset = pixel_offset
         dx_data = self.get_dx_data(dx_pixel) #cur_time - self.prev_time)
-        
+
         x0 = self.x0
         self.x0 += dx_data
         self.prev_time = cur_time
@@ -109,7 +109,7 @@ class UpdateLine(object):
 
         self.line.set_color(self.color_cycle.next())
 
-        # now plot line segment within [x0, x0+dx_data], 
+        # now plot line segment within [x0, x0+dx_data],
         # Note that we're only plotting a line between [x0, x0+dx_data].
         xx = np.array([x0, self.x0])
         self.line.set_xdata(xx)
