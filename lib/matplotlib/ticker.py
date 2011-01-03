@@ -1193,7 +1193,7 @@ def is_decade(x, base=10):
         return False
     if x == 0.0:
         return True
-    lx = np.log(x)/np.log(base)
+    lx = np.log(np.abs(x))/np.log(base)
     return is_close_to_int(lx)
 
 def is_close_to_int(x):
