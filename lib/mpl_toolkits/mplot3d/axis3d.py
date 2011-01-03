@@ -96,8 +96,10 @@ class Axis(maxis.XAxis):
         self.gridlines = art3d.Line3DCollection([], )
         self.axes._set_artist_props(self.gridlines)
         self.axes._set_artist_props(self.label)
+        self.axes._set_artist_props(self.offsetText)
         # Need to be able to place the label at the correct location
         self.label._transform = self.axes.transData
+        self.offsetText._transform = self.axes.transData
 
     def get_tick_positions(self):
         majorLocs = self.major.locator()
@@ -205,6 +207,7 @@ class Axis(maxis.XAxis):
         edgep2 = edgep1.copy()
         edgep2[juggled[1]] = get_flip_min_max(edgep2, juggled[1], mins, maxs)
         pep = proj3d.proj_trans_points([edgep1, edgep2], renderer.M)
+        centpt = proj3d.proj_transform(centers[0], centers[1], centers[2], renderer.M)
         self.line.set_data((pep[0][0], pep[0][1]), (pep[1][0], pep[1][1]))
         self.line.draw(renderer)
 
@@ -243,6 +246,75 @@ class Axis(maxis.XAxis):
         self.label.set_ha('center')
         self.label.draw(renderer)
 
+
+        # Draw Offset text
+        
+        # Which of the two edge points do we want to
+        # use for locating the offset text?
+        if juggled[2] == 2 :
+            outeredgep = edgep1
+            outerindex = 0
+        else :
+            outeredgep = edgep2
+            outerindex = 1
+
+        pos = copy.copy(outeredgep)
+        pos = move_from_center(pos, centers, labeldeltas, axmask)
+        olx, oly, olz = proj3d.proj_transform(pos[0], pos[1], pos[2], renderer.M)
+        self.offsetText.set_text( self.major.formatter.get_offset() )
+        self.offsetText.set_position( (olx, oly) )
+        angle = art3d.norm_text_angle(math.degrees(math.atan2(dy, dx)))
+        self.offsetText.set_rotation(angle)
+        # Must set rotation mode to "anchor" so that
+        # the alignment point is used as the "fulcrum" for rotation.
+        self.offsetText.set_rotation_mode('anchor')
+
+        #-----------------------------------------------------------------------
+        # Note: the following statement for determining the proper alignment of
+        #       the offset text. This was determined entirely by trial-and-error
+        #       and should not be in any way considered as "the way".  There are
+        #       still some edge cases where alignment is not quite right, but
+        #       this seems to be more of a geometry issue (in other words, I
+        #       might be using the wrong reference points).
+        #
+        #   (TT, FF, TF, FT) are the shorthand for the tuple of
+        #     (centpt[info['tickdir']] <= peparray[info['tickdir'], outerindex],
+        #      centpt[index] <= peparray[index, outerindex])
+        #
+        #   Three-letters (e.g., TFT, FTT) are short-hand for the array
+        #    of bools from the variable 'highs'.
+        # ---------------------------------------------------------------------
+        if centpt[info['tickdir']] > peparray[info['tickdir'], outerindex] :
+            # if FT and if highs has an even number of Trues
+            if (centpt[index] <= peparray[index, outerindex]
+                and ((len(highs.nonzero()[0]) % 2) == 0)) :
+                # Usually, this means align right, except for the FTT case,
+                # in which offset for axis 1 and 2 are aligned left.
+                if highs.tolist() == [False, True, True] and index in (1, 2) :
+                    align = 'left'
+                else :
+                    align = 'right'
+            else :
+                # The FF case
+                align = 'left'
+        else :
+            # if TF and if highs has an even number of Trues
+            if (centpt[index] > peparray[index, outerindex]
+                and ((len(highs.nonzero()[0]) % 2) == 0)) :
+                # Usually mean align left, except if it is axis 2
+                if index == 2 :
+                    align = 'right'
+                else :
+                    align = 'left'
+            else :
+                # The TT case
+                align = 'right'
+
+        self.offsetText.set_va('center')
+        self.offsetText.set_ha(align)
+        self.offsetText.draw(renderer)
+
+        # Draw grid lines
         if len(xyz0) > 0:
             # Grid points at end of one plane
             xyz1 = copy.deepcopy(xyz0)

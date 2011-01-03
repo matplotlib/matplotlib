@@ -1,3 +1,5 @@
+2011-01-03 Added display of ticker offset to 3d plots. - BVR
+
 2011-01-03 Turn off tick labeling on interior subplots for
            pyplots.subplots when sharex/sharey is True. - JDH
 
