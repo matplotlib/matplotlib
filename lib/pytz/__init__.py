@@ -9,7 +9,7 @@ on how to use these modules.
 '''
 
 # The Olson database is updated several times a year.
-OLSON_VERSION = '2010h'
+OLSON_VERSION = '2010o'
 VERSION = OLSON_VERSION
 # Version format for a patch release - only one so far.
 #VERSION = OLSON_VERSION + '.2'
@@ -358,7 +358,7 @@ class _FixedOffset(datetime.tzinfo):
         return FixedOffset, (self._minutes, )
 
     def dst(self, dt):
-        return None
+        return ZERO
 
     def tzname(self, dt):
         return None
@@ -387,12 +387,16 @@ def FixedOffset(offset, _tzinfos = {}):
         pytz.FixedOffset(-330)
         >>> one.utcoffset(datetime.datetime.now())
         datetime.timedelta(-1, 66600)
+        >>> one.dst(datetime.datetime.now())
+        datetime.timedelta(0)
 
         >>> two = FixedOffset(1380)
         >>> two
         pytz.FixedOffset(1380)
         >>> two.utcoffset(datetime.datetime.now())
         datetime.timedelta(0, 82800)
+        >>> two.dst(datetime.datetime.now())
+        datetime.timedelta(0)
 
     The datetime.timedelta must be between the range of -1 and 1 day,
     non-inclusive.
@@ -530,6 +534,7 @@ all_timezones = \
  'America/Atikokan',
  'America/Atka',
  'America/Bahia',
+ 'America/Bahia_Banderas',
  'America/Barbados',
  'America/Belem',
  'America/Belize',
@@ -956,6 +961,7 @@ all_timezones = \
  'Pacific/Apia',
  'Pacific/Auckland',
  'Pacific/Chatham',
+ 'Pacific/Chuuk',
  'Pacific/Easter',
  'Pacific/Efate',
  'Pacific/Enderbury',
@@ -981,6 +987,7 @@ all_timezones = \
  'Pacific/Pago_Pago',
  'Pacific/Palau',
  'Pacific/Pitcairn',
+ 'Pacific/Pohnpei',
  'Pacific/Ponape',
  'Pacific/Port_Moresby',
  'Pacific/Rarotonga',
@@ -1095,6 +1102,7 @@ common_timezones = \
  'America/Asuncion',
  'America/Atikokan',
  'America/Bahia',
+ 'America/Bahia_Banderas',
  'America/Barbados',
  'America/Belem',
  'America/Belize',
@@ -1155,6 +1163,7 @@ common_timezones = \
  'America/Maceio',
  'America/Managua',
  'America/Manaus',
+ 'America/Marigot',
  'America/Martinique',
  'America/Matamoros',
  'America/Mazatlan',
@@ -1195,6 +1204,8 @@ common_timezones = \
  'America/Santo_Domingo',
  'America/Sao_Paulo',
  'America/Scoresbysund',
+ 'America/Shiprock',
+ 'America/St_Barthelemy',
  'America/St_Johns',
  'America/St_Kitts',
  'America/St_Lucia',
@@ -1220,8 +1231,10 @@ common_timezones = \
  'Antarctica/McMurdo',
  'Antarctica/Palmer',
  'Antarctica/Rothera',
+ 'Antarctica/South_Pole',
  'Antarctica/Syowa',
  'Antarctica/Vostok',
+ 'Arctic/Longyearbyen',
  'Asia/Aden',
  'Asia/Almaty',
  'Asia/Amman',
@@ -1331,6 +1344,7 @@ common_timezones = \
  'Europe/Athens',
  'Europe/Belgrade',
  'Europe/Berlin',
+ 'Europe/Bratislava',
  'Europe/Brussels',
  'Europe/Bucharest',
  'Europe/Budapest',
@@ -1338,35 +1352,46 @@ common_timezones = \
  'Europe/Copenhagen',
  'Europe/Dublin',
  'Europe/Gibraltar',
+ 'Europe/Guernsey',
  'Europe/Helsinki',
+ 'Europe/Isle_of_Man',
  'Europe/Istanbul',
+ 'Europe/Jersey',
  'Europe/Kaliningrad',
  'Europe/Kiev',
  'Europe/Lisbon',
+ 'Europe/Ljubljana',
  'Europe/London',
  'Europe/Luxembourg',
  'Europe/Madrid',
  'Europe/Malta',
+ 'Europe/Mariehamn',
  'Europe/Minsk',
  'Europe/Monaco',
  'Europe/Moscow',
  'Europe/Oslo',
  'Europe/Paris',
+ 'Europe/Podgorica',
  'Europe/Prague',
  'Europe/Riga',
  'Europe/Rome',
  'Europe/Samara',
+ 'Europe/San_Marino',
+ 'Europe/Sarajevo',
  'Europe/Simferopol',
+ 'Europe/Skopje',
  'Europe/Sofia',
  'Europe/Stockholm',
  'Europe/Tallinn',
  'Europe/Tirane',
  'Europe/Uzhgorod',
  'Europe/Vaduz',
+ 'Europe/Vatican',
  'Europe/Vienna',
  'Europe/Vilnius',
  'Europe/Volgograd',
  'Europe/Warsaw',
+ 'Europe/Zagreb',
  'Europe/Zaporozhye',
  'Europe/Zurich',
  'GMT',
@@ -1384,6 +1409,7 @@ common_timezones = \
  'Pacific/Apia',
  'Pacific/Auckland',
  'Pacific/Chatham',
+ 'Pacific/Chuuk',
  'Pacific/Easter',
  'Pacific/Efate',
  'Pacific/Enderbury',
@@ -1409,14 +1435,13 @@ common_timezones = \
  'Pacific/Pago_Pago',
  'Pacific/Palau',
  'Pacific/Pitcairn',
- 'Pacific/Ponape',
+ 'Pacific/Pohnpei',
  'Pacific/Port_Moresby',
  'Pacific/Rarotonga',
  'Pacific/Saipan',
  'Pacific/Tahiti',
  'Pacific/Tarawa',
  'Pacific/Tongatapu',
- 'Pacific/Truk',
  'Pacific/Wake',
  'Pacific/Wallis',
  'US/Alaska',

@@ -29,15 +29,28 @@ canvas.draw()
 # for profiling
 tstart = time.time()
 
+def on_draw(event):
+    background = canvas.copy_from_bbox(ax.bbox)
+    if on_draw.background is None:
+        gobject.idle_add(update_line)
+
+    on_draw.background = background
+
+on_draw.background = None
+
+fig.canvas.mpl_connect('draw_event', on_draw)
+
 def update_line(*args):
-    print 'you are here', update_line.cnt
-    if update_line.background is None:
-        update_line.background = canvas.copy_from_bbox(ax.bbox)
+    if on_draw.background is None:
+        return True
+
+    print 'frame', update_line.cnt
 
     # restore the clean slate background
-    canvas.restore_region(update_line.background)
+    canvas.restore_region(on_draw.background)
     # update the data
     line.set_ydata(np.sin(x+update_line.cnt/10.0))
+
     # just draw the animated artist
     ax.draw_artist(line)
 
@@ -54,14 +67,6 @@ def update_line(*args):
     return True
 
 update_line.cnt = 0
-update_line.background = None
-
-
-def start_anim(event):
-    gobject.idle_add(update_line)
-    canvas.mpl_disconnect(start_anim.cid)
-
-start_anim.cid = canvas.mpl_connect('draw_event', start_anim)
 
 
 
