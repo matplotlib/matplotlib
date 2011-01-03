@@ -696,7 +696,6 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         rows, cols = Z.shape
-        tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
         rstride = kwargs.pop('rstride', 10)
         cstride = kwargs.pop('cstride', 10)
 
@@ -719,21 +718,27 @@ class Axes3D(Axes):
             fcolors = self._shade_colors_lightsource(Z, cmap, lightsource)
 
         polys = []
-        normals = []
+        # Only need these vectors to shade if there is no cmap
+        if cmap is None and shade :
+            totpts = int(np.ceil(float(rows - 1) / rstride) *
+                         np.ceil(float(cols - 1) / cstride))
+            v1 = np.empty((totpts, 3))
+            v2 = np.empty((totpts, 3))
+            # This indexes the vertex points
+            which_pt = 0
+
+
         #colset contains the data for coloring: either average z or the facecolor
         colset = []
-        for rs in np.arange(0, rows-1, rstride):
-            for cs in np.arange(0, cols-1, cstride):
+        for rs in xrange(0, rows-1, rstride):
+            for cs in xrange(0, cols-1, cstride):  
                 ps = []
-                corners = []
-                for a, ta in [(X, tX), (Y, tY), (Z, tZ)]:
-                    ztop = a[rs][cs:min(cols, cs+cstride+1)]
-                    zleft = ta[min(cols-1, cs+cstride)][rs:min(rows, rs+rstride+1)]
-                    zbase = a[min(rows-1, rs+rstride)][cs:min(cols, cs+cstride+1):]
-                    zbase = zbase[::-1]
-                    zright = ta[cs][rs:min(rows, rs+rstride+1):]
-                    zright = zright[::-1]
-                    corners.append([ztop[0], ztop[-1], zbase[0], zbase[-1]])
+                for a in (X, Y, Z) :
+                    ztop = a[rs,cs:min(cols, cs+cstride+1)]
+                    zleft = a[rs+1:min(rows, rs+rstride+1),
+                              min(cols-1, cs+cstride)]
+                    zbase = a[min(rows-1, rs+rstride), cs:min(cols, cs+cstride+1):][::-1]
+                    zright = a[rs:min(rows-1, rs+rstride):, cs][::-1]
                     z = np.concatenate((ztop, zleft, zbase, zright))
                     ps.append(z)
 
@@ -741,13 +746,8 @@ class Axes3D(Axes):
                 # are removed here.
                 ps = zip(*ps)
                 lastp = np.array([])
-                ps2 = []
-                avgzsum = 0.0
-                for p in ps:
-                    if p != lastp:
-                        ps2.append(p)
-                        lastp = p
-                        avgzsum += p[2]
+                ps2 = [ps[0]] + [ps[i] for i in xrange(1, len(ps)) if ps[i] != ps[i-1]]
+                avgzsum = sum(p[2] for p in ps2)
                 polys.append(ps2)
 
                 if fcolors is not None:
@@ -758,9 +758,13 @@ class Axes3D(Axes):
                 # Only need vectors to shade if no cmap
                 if cmap is None and shade:
                     i1, i2, i3 = 0, int(len(ps2)/3), int(2*len(ps2)/3)
-                    v1 = np.array(ps2[i1]) - np.array(ps2[i2])
-                    v2 = np.array(ps2[i2]) - np.array(ps2[i3])
-                    normals.append(np.cross(v1, v2))
+                    v1[which_pt] = np.array(ps2[i1]) - np.array(ps2[i2])
+                    v2[which_pt] = np.array(ps2[i2]) - np.array(ps2[i3])
+                    which_pt += 1
+        if cmap is None and shade:
+            normals = np.cross(v1, v2)
+        else :
+            normals = []
 
         polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
 
@@ -808,12 +812,8 @@ class Axes3D(Axes):
         *color* can also be an array of the same length as *normals*.
         '''
 
-        shade = []
-        for n in normals:
-            n = n / proj3d.mod(n)
-            shade.append(np.dot(n, [-1, -1, 0.5]))
-
-        shade = np.array(shade)
+        shade = np.array([np.dot(n / proj3d.mod(n), [-1, -1, 0.5])
+                          for n in normals])
         mask = ~np.isnan(shade)
 
         if len(shade[mask]) > 0:
@@ -821,11 +821,10 @@ class Axes3D(Axes):
             if art3d.iscolor(color):
                 color = color.copy()
                 color[3] = 1
-                colors = [color * (0.5 + norm(v) * 0.5) for v in shade]
+                colors = np.outer(0.5 + norm(shade) * 0.5, color)
             else:
-                colors = [np.array(colorConverter.to_rgba(c)) * \
-                            (0.5 + norm(v) * 0.5) \
-                            for c, v in zip(color, shade)]
+                colors = colorConverter.to_rgba_array(color) * \
+                            (0.5 + 0.5 * norm(shade)[:, np.newaxis])
         else:
             colors = color.copy()
 
