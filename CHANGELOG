@@ -1,3 +1,6 @@
+2011-01-03 Turn off tick labeling on interior subplots for
+           pyplots.subplots when sharex/sharey is True. - JDH
+
 2010-12-29 Implment axes_divider.HBox and VBox. -JJL
 
 2010-11-22 Fixed error with Hammer projection. - BVR

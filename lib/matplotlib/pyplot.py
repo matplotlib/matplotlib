@@ -684,10 +684,14 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
       Number of columns of the subplot grid.  Defaults to 1.
 
     sharex : bool
-      If True, the X axis will be shared amongst all subplots.
+      If True, the X axis will be shared amongst all subplots.  If
+      True and you have multiple rows, the x tick labels on all but
+      the last row of plots will have visible set to False
 
-    sharex : bool
-      If True, the Y axis will be shared amongst all subplots.
+    sharey : bool
+      If True, the Y axis will be shared amongst all subplots. If
+      True and you have multiple columns, the y tick labels on all but
+      the first column of plots will have visible set to False
 
     squeeze : bool
 
@@ -760,17 +764,37 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     for i in range(1, nplots):
         axarr[i] = fig.add_subplot(nrows, ncols, i+1, **subplot_kw)
 
+
+
+    # returned axis array will be always 2-d, even if nrows=ncols=1
+    axarr = axarr.reshape(nrows, ncols)
+
+
+    # turn off redundant tick labeling
+    if sharex and nrows>1:
+        # turn off all but the bottom row
+        for ax in axarr[:-1,:].flat:
+            for label in ax.get_xticklabels():
+                label.set_visible(False)
+
+
+    if sharey and ncols>1:
+        # turn off all but the first column
+        for ax in axarr[:,1:].flat:
+            for label in ax.get_yticklabels():
+                label.set_visible(False)
+
     if squeeze:
         # Reshape the array to have the final desired dimension (nrow,ncol),
         # though discarding unneeded dimensions that equal 1.  If we only have
         # one subplot, just return it instead of a 1-element array.
         if nplots==1:
-            return fig, axarr[0]
+            ret = fig, axarr[0,0]
         else:
-            return fig, axarr.reshape(nrows, ncols).squeeze()
-    else:
-        # returned axis array will be always 2-d, even if nrows=ncols=1
-        return fig, axarr.reshape(nrows, ncols)
+            ret = fig, axarr.squeeze()
+
+
+    return ret
 
 
 from gridspec import GridSpec
