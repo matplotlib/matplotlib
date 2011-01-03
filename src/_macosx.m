@@ -5,6 +5,17 @@
 #include "numpy/arrayobject.h"
 #include "path_cleanup.h"
 
+/* Must define Py_TYPE for Python 2.5 or older */
+#ifndef Py_TYPE
+# define Py_TYPE(o) ((o)->ob_type)
+#endif
+
+/* Must define PyVarObject_HEAD_INIT for Python 2.5 or older */
+#ifndef PyVarObject_HEAD_INIT
+#define PyVarObject_HEAD_INIT(type, size)       \
+        PyObject_HEAD_INIT(type) size,
+#endif
+
 /* Proper way to check for the OS X version we are compiling for, from
    http://developer.apple.com/documentation/DeveloperTools/Conceptual/cross_development */
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
@@ -488,14 +499,18 @@ GraphicsContext_dealloc(GraphicsContext *self)
     ngc--;
     if (ngc==0) _dealloc_atsui();
 
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 #endif
 
 static PyObject*
 GraphicsContext_repr(GraphicsContext* self)
 {
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromFormat("GraphicsContext object %p wrapping the Quartz 2D graphics context %p", (void*)self, (void*)(self->cr));
+#else
     return PyString_FromFormat("GraphicsContext object %p wrapping the Quartz 2D graphics context %p", (void*)self, (void*)(self->cr));
+#endif
 }
 
 static PyObject*
@@ -2236,6 +2251,9 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
 #else
     ATSFontRef font = 0;
 #endif
+#if PY_MAJOR_VERSION >= 3
+    PyObject* ascii = NULL;
+#endif
 
     const int k = (strcmp(italic, "italic") ? 0 : 2)
                 + (strcmp(weight, "bold") ? 0 : 1);
@@ -2416,8 +2434,14 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
     for (i = 0; i < n; i++)
     {
         PyObject* item = PyList_GET_ITEM(family, i);
+#if PY_MAJOR_VERSION >= 3
+        ascii = PyUnicode_AsASCIIString(item);
+        if(!ascii) return 0;
+        temp = PyBytes_AS_STRING(ascii);
+#else
         if(!PyString_Check(item)) return 0;
         temp = PyString_AS_STRING(item);
+#endif
         for (j = 0; j < NMAP; j++)
         {    if (!strcmp(map[j].name, temp))
              {    temp = psnames[map[j].index][k];
@@ -2444,6 +2468,10 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
             name = temp;
             break;
         }
+#if PY_MAJOR_VERSION >= 3
+        Py_DECREF(ascii);
+        ascii = NULL;
+#endif
     }
     if(!font)
     {   string = CFStringCreateWithCString(kCFAllocatorDefault,
@@ -2458,6 +2486,9 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
     }
 #ifndef COMPILING_FOR_10_5
     CGContextSelectFont(cr, name, size, kCGEncodingMacRoman);
+#endif
+#if PY_MAJOR_VERSION >= 3
+    Py_XDECREF(ascii);
 #endif
     return font;
 }
@@ -2958,11 +2989,19 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
     CGDataProviderRef provider;
     double rect[4] = {0.0, 0.0, self->size.width, self->size.height};
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyBytes_Check(image))
+    {
+        PyErr_SetString(PyExc_RuntimeError, "image is not a byte array");
+        return NULL;
+    }
+#else
     if (!PyString_Check(image))
     {
         PyErr_SetString(PyExc_RuntimeError, "image is not a string");
         return NULL;
     }
+#endif
 
     const size_t bytesPerComponent = 1;
     const size_t bitsPerComponent = 8 * bytesPerComponent;
@@ -2978,8 +3017,13 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
     }
 
     Py_INCREF(image);
+#if PY_MAJOR_VERSION >= 3
+    n = PyByteArray_GET_SIZE(image);
+    data = PyByteArray_AS_STRING(image);
+#else
     n = PyString_GET_SIZE(image);
     data = PyString_AsString(image);
+#endif
 
     provider = CGDataProviderCreateWithData(image,
                                             data,
@@ -3161,8 +3205,7 @@ static char GraphicsContext_doc[] =
 "set_joinstyle, etc.).\n";
 
 static PyTypeObject GraphicsContextType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_macosx.GraphicsContext", /*tp_name*/
     sizeof(GraphicsContext),   /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -3247,14 +3290,19 @@ FigureCanvas_dealloc(FigureCanvas* self)
         [self->view setCanvas: NULL];
         [self->view release];
     }
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject*
 FigureCanvas_repr(FigureCanvas* self)
 {
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromFormat("FigureCanvas object %p wrapping NSView %p",
+                               (void*)self, (void*)(self->view));
+#else
     return PyString_FromFormat("FigureCanvas object %p wrapping NSView %p",
                                (void*)self, (void*)(self->view));
+#endif
 }
 
 static PyObject*
@@ -3588,8 +3636,7 @@ static char FigureCanvas_doc[] =
 "A FigureCanvas object wraps a Cocoa NSView object.\n";
 
 static PyTypeObject FigureCanvasType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_macosx.FigureCanvas",    /*tp_name*/
     sizeof(FigureCanvas),      /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -3720,8 +3767,13 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 static PyObject*
 FigureManager_repr(FigureManager* self)
 {
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromFormat("FigureManager object %p wrapping NSWindow %p",
+                               (void*) self, (void*)(self->window));
+#else
     return PyString_FromFormat("FigureManager object %p wrapping NSWindow %p",
                                (void*) self, (void*)(self->window));
+#endif
 }
 
 static void
@@ -3734,7 +3786,7 @@ FigureManager_dealloc(FigureManager* self)
         [window close];
         [pool release];
     }
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject*
@@ -3765,8 +3817,7 @@ static char FigureManager_doc[] =
 "A FigureManager object wraps a Cocoa NSWindow object.\n";
 
 static PyTypeObject FigureManagerType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_macosx.FigureManager",   /*tp_name*/
     sizeof(FigureManager),     /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -4101,13 +4152,17 @@ static void
 NavigationToolbar_dealloc(NavigationToolbar *self)
 {
     [self->handler release];
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject*
 NavigationToolbar_repr(NavigationToolbar* self)
 {
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromFormat("NavigationToolbar object %p", (void*)self);
+#else
     return PyString_FromFormat("NavigationToolbar object %p", (void*)self);
+#endif
 }
 
 static char NavigationToolbar_doc[] =
@@ -4214,7 +4269,11 @@ NavigationToolbar_get_active (NavigationToolbar* self)
     {
         if(states[i]==1)
         {
+#if PY_MAJOR_VERSION >= 3
+            PyList_SET_ITEM(list, j, PyLong_FromLong(i));
+#else
             PyList_SET_ITEM(list, j, PyInt_FromLong(i));
+#endif
             j++;
         }
     }
@@ -4237,8 +4296,7 @@ static PyMethodDef NavigationToolbar_methods[] = {
 };
 
 static PyTypeObject NavigationToolbarType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_macosx.NavigationToolbar", /*tp_name*/
     sizeof(NavigationToolbar), /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -4623,13 +4681,17 @@ static void
 NavigationToolbar2_dealloc(NavigationToolbar2 *self)
 {
     [self->handler release];
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject*
 NavigationToolbar2_repr(NavigationToolbar2* self)
 {
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromFormat("NavigationToolbar2 object %p", (void*)self);
+#else
     return PyString_FromFormat("NavigationToolbar2 object %p", (void*)self);
+#endif
 }
 
 static char NavigationToolbar2_doc[] =
@@ -4662,8 +4724,7 @@ static PyMethodDef NavigationToolbar2_methods[] = {
 };
 
 static PyTypeObject NavigationToolbar2Type = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_macosx.NavigationToolbar2", /*tp_name*/
     sizeof(NavigationToolbar2), /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -5539,14 +5600,19 @@ Timer_dealloc(Timer* self)
         CFRelease(self->timer);
         self->timer = NULL;
     }
-    self->ob_type->tp_free((PyObject*)self);
+    Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject*
 Timer_repr(Timer* self)
 {
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_FromFormat("Timer object %p wrapping CFRunLoopTimerRef %p",
+                               (void*) self, (void*)(self->timer));
+#else
     return PyString_FromFormat("Timer object %p wrapping CFRunLoopTimerRef %p",
                                (void*) self, (void*)(self->timer));
+#endif
 }
 
 static char Timer_doc[] =
@@ -5657,8 +5723,7 @@ static PyMethodDef Timer_methods[] = {
 };
 
 static PyTypeObject TimerType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
+    PyVarObject_HEAD_INIT(NULL, 0)
     "_macosx.Timer",           /*tp_name*/
     sizeof(Timer),             /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -5722,23 +5787,52 @@ static struct PyMethodDef methods[] = {
    {NULL,          NULL, 0, NULL}/* sentinel */
 };
 
+#if PY_MAJOR_VERSION >= 3
+
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "_macosx",
+    "Mac OS X native backend",
+    -1,
+    methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+PyObject* PyInit__macosx(void)
+
+#else
+
 void init_macosx(void)
-{   PyObject *m;
+#endif
+{   PyObject *module;
 
     import_array();
 
-    if (PyType_Ready(&GraphicsContextType) < 0) return;
-    if (PyType_Ready(&FigureCanvasType) < 0) return;
-    if (PyType_Ready(&FigureManagerType) < 0) return;
-    if (PyType_Ready(&NavigationToolbarType) < 0) return;
-    if (PyType_Ready(&NavigationToolbar2Type) < 0) return;
-    if (PyType_Ready(&TimerType) < 0) return;
+    if (PyType_Ready(&GraphicsContextType) < 0
+     || PyType_Ready(&FigureCanvasType) < 0
+     || PyType_Ready(&FigureManagerType) < 0
+     || PyType_Ready(&NavigationToolbarType) < 0
+     || PyType_Ready(&NavigationToolbar2Type) < 0
+     || PyType_Ready(&TimerType) < 0)
+#if PY_MAJOR_VERSION >= 3
+        return NULL;
+#else
+        return;
+#endif
 
-    m = Py_InitModule4("_macosx",
-                       methods,
-                       "Mac OS X native backend",
-                       NULL,
-                       PYTHON_API_VERSION);
+#if PY_MAJOR_VERSION >= 3
+    module = PyModule_Create(&moduledef);
+    if (module==NULL) return NULL;
+#else
+    module = Py_InitModule4("_macosx",
+                            methods,
+                            "Mac OS X native backend",
+                            NULL,
+                            PYTHON_API_VERSION);
+#endif
 
     Py_INCREF(&GraphicsContextType);
     Py_INCREF(&FigureCanvasType);
@@ -5746,12 +5840,12 @@ void init_macosx(void)
     Py_INCREF(&NavigationToolbarType);
     Py_INCREF(&NavigationToolbar2Type);
     Py_INCREF(&TimerType);
-    PyModule_AddObject(m, "GraphicsContext", (PyObject*) &GraphicsContextType);
-    PyModule_AddObject(m, "FigureCanvas", (PyObject*) &FigureCanvasType);
-    PyModule_AddObject(m, "FigureManager", (PyObject*) &FigureManagerType);
-    PyModule_AddObject(m, "NavigationToolbar", (PyObject*) &NavigationToolbarType);
-    PyModule_AddObject(m, "NavigationToolbar2", (PyObject*) &NavigationToolbar2Type);
-    PyModule_AddObject(m, "Timer", (PyObject*) &TimerType);
+    PyModule_AddObject(module, "GraphicsContext", (PyObject*) &GraphicsContextType);
+    PyModule_AddObject(module, "FigureCanvas", (PyObject*) &FigureCanvasType);
+    PyModule_AddObject(module, "FigureManager", (PyObject*) &FigureManagerType);
+    PyModule_AddObject(module, "NavigationToolbar", (PyObject*) &NavigationToolbarType);
+    PyModule_AddObject(module, "NavigationToolbar2", (PyObject*) &NavigationToolbar2Type);
+    PyModule_AddObject(module, "Timer", (PyObject*) &TimerType);
 
     PyOS_InputHook = wait_for_stdin;
 }
