@@ -7378,6 +7378,7 @@ class Axes(martist.Artist):
             frameon=False)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
+        ax2.yaxis.set_offset_position('right')
         self.yaxis.tick_left()
         ax2.xaxis.set_visible(False)
         return ax2
