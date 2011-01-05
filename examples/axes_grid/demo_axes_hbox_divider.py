@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
 import mpl_toolkits.axes_grid1.axes_size as Size
 
-def make_heights_equal(fig, ax1, ax2, pad):
+def make_heights_equal(fig, rect, ax1, ax2, pad):
     # pad in inches
     
     h1, v1 = Size.AxesX(ax1), Size.AxesY(ax1)
@@ -12,7 +12,7 @@ def make_heights_equal(fig, ax1, ax2, pad):
     pad_v = Size.Scaled(1)
     pad_h = Size.Fixed(pad)
 
-    my_divider = HBoxDivider(fig, 111,
+    my_divider = HBoxDivider(fig, rect,
                              horizontal=[h1, pad_h, h2],
                              vertical=[v1, pad_v, v2])
 
@@ -33,8 +33,9 @@ if __name__ == "__main__":
 
     ax1.imshow(arr1, interpolation="nearest")
     ax2.imshow(arr2, interpolation="nearest")
-    
-    make_heights_equal(fig1, ax1, ax2, pad=0.5)
+
+    rect = 111 # subplot param for combined axes
+    make_heights_equal(fig1, rect, ax1, ax2, pad=0.5) # pad in inches
     
     for ax in [ax1, ax2]:
         ax.locator_params(nbins=4)
@@ -43,6 +44,9 @@ if __name__ == "__main__":
     ax3 = plt.axes([0.5, 0.5, 0.001, 0.001], frameon=False)
     ax3.xaxis.set_visible(False)
     ax3.yaxis.set_visible(False)
-    ax3.annotate("Location of two axes are adjusted\n so that they have an equal height\n while maintaining their aspect ratios", (0.5, 0.5),
+    ax3.annotate("Location of two axes are adjusted\n so that they have equal heights\n while maintaining their aspect ratios", (0.5, 0.5),
                  xycoords="axes fraction", va="center", ha="center",
-                 bbox=dict(fc="w"))
+                 bbox=dict(boxstyle="round, pad=1", fc="w"))
+
+    plt.show()
+    
