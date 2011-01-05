@@ -145,6 +145,8 @@ class GridSpecBase(object):
             else:
                 if k1 < 0:
                     k1 += nrows
+                if k1 >= nrows or k1 < 0 :
+                    raise IndexError("index out of range")
                 row1, row2 = k1, k1+1
 
 
@@ -153,6 +155,8 @@ class GridSpecBase(object):
             else:
                 if k2 < 0:
                     k2 += ncols
+                if k2 >= ncols or k2 < 0 :
+                    raise IndexError("index out of range")
                 col1, col2 = k2, k2+1
 
 
@@ -167,6 +171,8 @@ class GridSpecBase(object):
             else:
                 if key < 0:
                     key += total
+                if key >= total or key < 0 :
+                    raise IndexError("index out of range")
                 num1, num2 = key, None
 
 
