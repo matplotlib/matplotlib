@@ -4399,16 +4399,6 @@ set_cursor(PyObject* unused, PyObject* args)
     return Py_None;
 }
 
-static char show__doc__[] = "Show all the figures and enter the main loop.\nThis function does not return until all Matplotlib windows are closed,\nand is normally not needed in interactive sessions.";
-
-static PyObject*
-show(PyObject* self)
-{
-    if(nwin > 0) [NSApp run];
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 @implementation Window
 - (Window*)initWithContentRect:(NSRect)rect styleMask:(unsigned int)mask backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation withManager: (PyObject*)theManager
 {
@@ -5139,11 +5129,32 @@ show(PyObject* self)
 }
 @end
 
+
+static PyObject*
+show(PyObject* self)
+{
+    if(nwin > 0) [NSApp run];
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject*
+verify_main_display(PyObject* self)
+{
+    CGDirectDisplayID display = CGMainDisplayID();
+    if (display == 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to obtain the display ID of the main display");
+        return NULL;
+    }
+    Py_INCREF(Py_True);
+    return Py_True;
+}
+
 static struct PyMethodDef methods[] = {
    {"show",
     (PyCFunction)show,
     METH_NOARGS,
-    show__doc__
+    "Show all the figures and enter the main loop.\nThis function does not return until all Matplotlib windows are closed,\nand is normally not needed in interactive sessions."
    },
    {"choose_save_file",
     (PyCFunction)choose_save_file,
@@ -5155,11 +5166,17 @@ static struct PyMethodDef methods[] = {
     METH_VARARGS,
     "Sets the active cursor."
    },
+   {"verify_main_display",
+    (PyCFunction)verify_main_display,
+    METH_NOARGS,
+    "Verifies if the main display can be found. This function fails if Python is not built as a framework."
+   },
    {NULL,          NULL, 0, NULL}/* sentinel */
 };
 
 void init_macosx(void)
 {   PyObject *m;
+
     import_array();
 
     if (PyType_Ready(&GraphicsContextType) < 0) return;
