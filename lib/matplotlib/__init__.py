@@ -762,6 +762,7 @@ Please do not ask for support with these customizations active.
 
 # this is the instance used by the matplotlib classes
 rcParams = rc_params()
+rcParamsOrig = rcParams.copy()
 
 rcParamsDefault = RcParams([ (key, default) for key, (default, converter) in \
                     defaultParams.iteritems() ])
@@ -843,10 +844,18 @@ def rc(group, **kwargs):
 
 def rcdefaults():
     """
-    Restore the default rc params - the ones that were created at
-    matplotlib load time.
+    Restore the default rc params - these are not the params loaded by
+    the rc file, but mpl's internal params.  See rc_file_defaults for
+    reloading the default params from the rc file
     """
     rcParams.update(rcParamsDefault)
+
+def rc_file_defaults():
+    """
+    Restore the default rc params from the original matplotlib rc that
+    was loaded
+    """
+    rcParams.update(rcParamsOrig)
 
 _use_error_msg = """ This call to matplotlib.use() has no effect
 because the the backend has already been chosen;

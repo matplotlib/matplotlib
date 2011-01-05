@@ -232,7 +232,7 @@ lines.linewidth   : 1.5     # line width in points
 
 ### FIGURE
 # See http://matplotlib.sourceforge.net/matplotlib.figure.html#Figure
-figure.figsize   : 6, 4    # figure size in inches
+figure.figsize   : 5.5, 4.5    # figure size in inches
 #figure.dpi       : 80      # figure dots per inch
 #figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
 #figure.edgecolor : white   # figure edgecolor

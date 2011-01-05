@@ -272,7 +272,11 @@ class FormWidget(QWidget):
                 field.setCurrentIndex(selindex)
             elif isinstance(value, bool):
                 field = QCheckBox(self)
-                field.setCheckState(Qt.Checked if value else Qt.Unchecked)
+                if value:
+                    field.setCheckState(Qt.Checked)
+                else:
+                    field.setCheckedState(Qt.Unchecked)
+                               
             elif isinstance(value, float):
                 field = QLineEdit(repr(value), self)
             elif isinstance(value, int):
