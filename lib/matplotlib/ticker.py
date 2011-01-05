@@ -1194,7 +1194,7 @@ def is_decade(x, base=10):
         return False
     if x == 0.0:
         return True
-    lx = math.log(x)/math.log(base)
+    lx = math.log(abs(x))/math.log(base)
     return is_close_to_int(lx)
 
 def is_close_to_int(x):
