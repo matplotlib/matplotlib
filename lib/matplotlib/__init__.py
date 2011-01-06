@@ -762,6 +762,21 @@ Please do not ask for support with these customizations active.
 
 # this is the instance used by the matplotlib classes
 rcParams = rc_params()
+
+if rcParams['examples.directory']:
+    # paths that are intended to be relative to matplotlib_fname()
+    # are allowed for the examples.directory parameter.
+    # However, we will need to fully qualify the path because
+    # Sphinx requires absolute paths.
+    if not os.path.isabs(rcParams['examples.directory']):
+        _basedir, _fname = os.path.split(matplotlib_fname())
+        # Sometimes matplotlib_fname() can return relative paths,
+        # Also, using realpath() guarentees that Sphinx will use
+        # the same path that matplotlib sees (in case of weird symlinks).
+        _basedir = os.path.realpath(_basedir)
+        _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
+        rcParams['examples.directory'] = _fullpath
+
 rcParamsOrig = rcParams.copy()
 
 rcParamsDefault = RcParams([ (key, default) for key, (default, converter) in \
@@ -769,6 +784,8 @@ rcParamsDefault = RcParams([ (key, default) for key, (default, converter) in \
 
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(rcParams['ps.usedistiller'])
 rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
+
+
 
 def rc(group, **kwargs):
     """
