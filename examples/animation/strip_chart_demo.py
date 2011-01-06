@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 class Scope:
-    def __init__(self, ax, maxt=10, dt=0.01):
+    def __init__(self, ax, maxt=2, dt=0.02):
         self.ax = ax
         self.dt = dt
         self.maxt = maxt
@@ -26,6 +26,7 @@ class Scope:
             self.tdata = [self.tdata[-1]]
             self.ydata = [self.ydata[-1]]
             self.ax.set_xlim(self.tdata[0], self.tdata[0] + self.maxt)
+            self.ax.figure.canvas.draw()
 
         t = self.tdata[-1] + self.dt
         self.tdata.append(t)
@@ -33,7 +34,8 @@ class Scope:
         self.line.set_data(self.tdata, self.ydata)
         return self.line,
 
-def emitter(p=0.01):
+
+def emitter(p=0.03):
     'return a random value with probability p, else 0'
     while True:
         v = np.random.rand(1)
@@ -45,6 +47,10 @@ def emitter(p=0.01):
 fig = plt.figure()
 ax = fig.add_subplot(111)
 scope = Scope(ax)
+
+# pass a generator in "emitter" to produce data for the update func
 ani = animation.FuncAnimation(fig, scope.update, emitter, interval=10,
     blit=True)
+
+
 plt.show()

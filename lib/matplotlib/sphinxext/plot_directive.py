@@ -265,7 +265,10 @@ def run_savefig(plot_path, basename, tmpdir, destdir, formats):
 
 def clear_state():
     plt.close('all')
-    matplotlib.rc_file_defaults()
+    matplotlib.rcdefaults()
+    # Set a default figure size that doesn't overflow typical browser
+    # windows.  The script is free to override it if necessary.
+    matplotlib.rcParams['figure.figsize'] = (5.5, 4.5)
 
 def render_figures(plot_path, function_name, plot_code, tmpdir, destdir,
                    formats, context=False):
