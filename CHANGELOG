@@ -1,9 +1,11 @@
+2011-01-04 Tag 1.0.1 for release at r8896
+
 2010-11-22 Fixed error with Hammer projection. - BVR
 
 2010-11-12 Fixed the placement and angle of axis labels in 3D plots. - BVR
 
 2010-11-07 New rc parameters examples.download and examples.directory
-           allow bypassing the download mechanism in get_sample_data. 
+           allow bypassing the download mechanism in get_sample_data.
            - JKS
 
 2010-08-21 Change Axis.set_view_interval() so that when updating an
