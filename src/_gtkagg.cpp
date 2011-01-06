@@ -138,6 +138,7 @@ init_gtkagg(void)
 {
     init_pygobject();
     init_pygtk();
+
     import_array();
     //suppress unused warning by creating in two lines
     static _gtkagg_module* _gtkagg = NULL;
