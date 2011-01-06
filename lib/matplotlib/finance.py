@@ -38,7 +38,7 @@ stock_dt = np.dtype([('date', object),
                      ('close', np.float),
                      ('high', np.float),
                      ('low', np.float),
-                     ('volume', np.int),
+                     ('volume', np.float),
                      ('aclose', np.float)])
 
 
@@ -57,7 +57,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
       by the adjusted close, regardless of whether you choose adjusted
       = True|False.
 
-    
+
     *asobject*
       If False (default for compatibility with earlier versions)
       return a list of tuples containing
@@ -101,7 +101,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
         dt = datetime.date(*[int(val) for val in datestr.split('-')])
         dnum = date2num(dt)
         open, high, low, close =  [float(val) for val in vals[1:5]]
-        volume = int(vals[5])
+        volume = float(vals[5])
         aclose = float(vals[6])
 
         results.append((dt, dt.year, dt.month, dt.day,

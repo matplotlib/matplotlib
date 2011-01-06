@@ -1,6 +1,6 @@
-*************
+*******************
 matplotlib gridspec
-*************
+*******************
 
 
 :mod:`matplotlib.gridspec`
