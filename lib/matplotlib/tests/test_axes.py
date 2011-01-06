@@ -512,6 +512,13 @@ def test_pcolormesh():
 
     fig.savefig('pcolormesh')
 
+
+@image_comparison(baseline_images=['canonical'])
+def test_canonical():
+    fig, ax = plt.subplots()
+    ax.plot([1,2,3])
+    fig.savefig('canonical')
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)

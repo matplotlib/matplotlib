@@ -807,7 +807,6 @@ class Figure(Artist):
         Render the figure using :class:`matplotlib.backend_bases.RendererBase` instance renderer
         """
         # draw the figure bounding box, perhaps none for white figure
-        #print 'figure draw'
         if not self.get_visible(): return
         renderer.open_group('figure')
 
