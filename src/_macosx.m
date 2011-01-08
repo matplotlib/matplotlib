@@ -3363,7 +3363,6 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [window setDelegate: view];
     [window makeFirstResponder: view];
     [[window contentView] addSubview: view];
-    [view release];
     [window makeKeyAndOrderFront: nil];
 
     nwin++;
@@ -4448,6 +4447,10 @@ set_cursor(PyObject* unused, PyObject* args)
     gstate = PyGILState_Ensure();
     Py_DECREF(manager);
     PyGILState_Release(gstate);
+   /* The reference count of the view that was added as a subview to the
+    * content view of this window was increased during the call to addSubview,
+    * and is decreased during the call to [super dealloc].
+    */
     [super dealloc];
 }
 @end
