@@ -4212,6 +4212,7 @@ class Axes(martist.Artist):
             handles.extend([c for c in self.collections
                             if isinstance(c, cls)])
 
+        handles.extend([c for c in self.containers])
         return handles
 
 
