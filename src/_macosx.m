@@ -1904,7 +1904,7 @@ static int _find_minimum(CGFloat values[3])
         i = 2;
     return i;
 }
- 
+
 static int _find_maximum(CGFloat values[3])
 {
     int i = 0;
@@ -1918,7 +1918,7 @@ static int _find_maximum(CGFloat values[3])
         i = 2;
     return i;
 }
- 
+
 static void
 _rgba_color_evaluator(void* info, const CGFloat input[], CGFloat outputs[])
 {
