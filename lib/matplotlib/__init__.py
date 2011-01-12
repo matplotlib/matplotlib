@@ -904,10 +904,11 @@ def use(arg, warn=True):
     if 'matplotlib.backends' in sys.modules:
         if warn: warnings.warn(_use_error_msg)
         return
-    arg = arg.lower()
     if arg.startswith('module://'):
         name = arg
     else:
+        # Lowercase only non-module backend names (modules are case-sensitive)
+        arg = arg.lower()
         be_parts = arg.split('.')
         name = validate_backend(be_parts[0])
         if len(be_parts) > 1:
