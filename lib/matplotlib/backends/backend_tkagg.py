@@ -101,8 +101,10 @@ class TimerTk(TimerBase):
     def __init__(self, parent, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
         self.parent = parent
+        self._timer = None
 
     def _timer_start(self):
+        self._timer_stop()
         self._timer = self.parent.after(self._interval, self._on_timer)
 
     def _timer_stop(self):
