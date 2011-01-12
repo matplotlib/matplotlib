@@ -47,7 +47,7 @@ Axes.xaxis and Axes.yaxis may not work. See LINK for more detail.
 (and size) is specified in the normalized figure coordinates, which
 may not be ideal for displaying images that needs to have a given
 aspect ratio.  For example, it helps you to have a colobar whose
-height always matches that of the image.  `AxesGrid`_, `RGB Axes`_ and
+height always matches that of the image.  `ImageGrid`_, `RGB Axes`_ and
 `AxesDivider`_ are helper classes that deals with adjusting the
 location of (multiple) Axes.  They provides a framework to adjust the
 position of multiple axes at the drawing time. `ParasiteAxes`_
