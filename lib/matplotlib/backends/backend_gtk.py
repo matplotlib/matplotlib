@@ -993,8 +993,9 @@ class FileChooserDialog(gtk.FileChooserDialog):
                   filetypes = [],
                   default_filetype = None
                   ):
-        super (FileChooserDialog, self).__init__ (title, parent, action,
-                                                  buttons)
+        super(FileChooserDialog, self).__init__ (title, parent, action,
+                                                 buttons)
+        super(FileChooserDialog, self).set_do_overwrite_confirmation(True)
         self.set_default_response (gtk.RESPONSE_OK)
 
         if not path: path = os.getcwd() + os.sep
