@@ -46,7 +46,7 @@ class BlitQT(FigureCanvas):
             self.draw()
             self.ax_background = self.copy_from_bbox(self.ax.bbox)
 
-        self.restore_region(self.ax_background, bbox=self.ax.bbox)
+        self.restore_region(self.ax_background)
 
         # update the data
         self.sin_line.set_ydata(np.sin(self.x+self.cnt/10.0))
