@@ -941,6 +941,14 @@ class Axes3D(Axes):
                     z = offset
                 art3d.line_collection_2d_to_3d(linec, z, zdir=zdir)
 
+    def add_contourf_set(self, cset, zdir='z', offset=None) :
+        zdir = '-' + zdir
+        for z, linec in zip(cset.levels, cset.collections) :
+            if offset is not None :
+                z = offset
+            art3d.poly_collection_2d_to_3d(linec, z, zdir=zdir)
+            linec.set_sort_zpos(z)
+
     def contour(self, X, Y, Z, *args, **kwargs):
         '''
         Create a 3D contour plot.
@@ -1017,9 +1025,17 @@ class Axes3D(Axes):
 
     def contourf(self, X, Y, Z, *args, **kwargs):
         '''
-        Plot filled 3D contours.
+        Create a 3D contourf plot.
 
-        *X*, *Y*, *Z*: data points.
+        ==========  ================================================
+        Argument    Description
+        ==========  ================================================
+        *X*, *Y*,   Data values as numpy.arrays
+        *Z*
+        *zdir*      The direction to use: x, y or z (default)
+        *offset*    If specified plot a projection of the filled contour
+                    on this position in plane normal to zdir
+        ==========  ================================================
 
         The positional and keyword arguments are passed on to
         :func:`~matplotlib.axes.Axes.contourf`
@@ -1027,14 +1043,14 @@ class Axes3D(Axes):
         Returns a :class:`~matplotlib.axes.Axes.contourf`
         '''
 
+        zdir = kwargs.pop('zdir', 'z')
+        offset = kwargs.pop('offset', None)
+
         had_data = self.has_data()
 
-        cset = Axes.contourf(self, X, Y, Z, *args, **kwargs)
-        levels = cset.levels
-        colls = cset.collections
-        for z1, z2, linec in zip(levels, levels[1:], colls):
-            art3d.poly_collection_2d_to_3d(linec, z1)
-            linec.set_sort_zpos(z1)
+        jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
+        cset = Axes.contourf(self, jX, jY, jZ, *args, **kwargs)
+        self.add_contourf_set(cset, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset
@@ -1063,17 +1079,10 @@ class Axes3D(Axes):
         Returns a :class:`~matplotlib.axes.Axes.contour`
         '''
 
-        zdir = '-' + zdir
         had_data = self.has_data()
 
         cset = Axes.tricontourf(self, X, Y, Z, *args, **kwargs)
-        levels = cset.levels
-        colls = cset.collections
-        for z1, linec in zip(levels, colls):
-            if offset is not None:
-                z1 = offset
-            art3d.poly_collection_2d_to_3d(linec, z1, zdir=zdir)
-            linec.set_sort_zpos(z1)
+        self.add_contourf_set(cset, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset
