@@ -1,3 +1,6 @@
+2011-01-13 Added zdir and offset arguments to contourf3d to
+           bring contourf3d in feature parity with contour3d. - BVR
+
 2011-01-04 Tag 1.0.1 for release at r8896
 
 2011-01-03 Added display of ticker offset to 3d plots. - BVR
