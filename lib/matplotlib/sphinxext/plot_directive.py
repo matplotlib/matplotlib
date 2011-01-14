@@ -346,7 +346,7 @@ def _plot_directive(plot_path, basedir, function_name, plot_code, caption,
         del options['nofigs']
 
     formats = setup.config.plot_formats
-    if type(formats) == str:
+    if isinstance(formats, basestring):
         formats = eval(formats)
 
     fname = os.path.basename(plot_path)
