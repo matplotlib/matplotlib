@@ -662,7 +662,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.colors = kwargs.get('colors', None)
         norm = kwargs.get('norm', None)
         self.extend = kwargs.get('extend', 'neither')
-        self.antialiased = kwargs.get('antialiased', True)
+        self.antialiased = kwargs.get('antialiased', None)
+        if self.antialiased is None and self.filled:
+            self.antialiased = False # eliminate artifacts; we are not
+                                     # stroking the boundaries.
+            # The default for line contours will be taken from
+            # the LineCollection default, which uses the
+            # rcParams['lines.antialiased']
+
         self.nchunk = kwargs.get('nchunk', 0)
         self.locator = kwargs.get('locator', None)
         if (isinstance(norm, colors.LogNorm)
@@ -734,11 +741,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             tlinewidths = self._process_linewidths()
             self.tlinewidths = tlinewidths
             tlinestyles = self._process_linestyles()
+            aa = self.antialiased
+            if aa is not None:
+                aa = (self.antialiased,)
             for level, width, lstyle, segs in \
                     zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
                 # Default zorder taken from LineCollection
                 zorder = kwargs.get('zorder', 2)
                 col = collections.LineCollection(segs,
+                                     antialiaseds = aa,
                                      linewidths = width,
                                      linestyle = lstyle,
                                      alpha=self.alpha,
@@ -1358,6 +1369,10 @@ class QuadContourSet(ContourSet):
             Override axis units by specifying an instance of a
             :class:`matplotlib.units.ConversionInterface`.
 
+          *antialiased*: [ True | False ]
+            enable antialiasing, overriding the defaults.  For
+            filled contours, the default is True.  For line contours,
+            it is taken from rcParams['lines.antialiased'].
 
         contour-only keyword arguments:
 
@@ -1384,9 +1399,6 @@ class QuadContourSet(ContourSet):
             will be used.
 
         contourf-only keyword arguments:
-
-          *antialiased*: [ True | False ]
-            enable antialiasing
 
           *nchunk*: [ 0 | integer ]
             If 0, no subdivision of the domain. Specify a positive integer to
