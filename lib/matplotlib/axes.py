@@ -6921,14 +6921,14 @@ class Axes(martist.Artist):
 
         %(PolyCollection)s
 
-        Note: the default *antialiaseds* is taken from
+        Note: the default *antialiaseds* is False if the default
+        *edgecolors*="none" is used.  This eliminates artificial lines
+        at patch boundaries, and works regardless of the value of
+        alpha.  If *edgecolors* is not "none", then the default
+        *antialiaseds* is taken from
         rcParams['patch.antialiased'], which defaults to *True*.
-        In some cases, particularly if *alpha* is 1,
-        you may be able to reduce rendering artifacts (light or
-        dark patch boundaries) by setting it to *False*.  An
-        alternative it to set *edgecolors* to 'face'.  Unfortunately,
-        there seems to be no single combination of parameters that
-        eliminates artifacts under all conditions.
+        Stroking the edges may be preferred if *alpha* is 1, but
+        will cause artifacts otherwise.
 
         """
 
@@ -6977,21 +6977,28 @@ class Axes(martist.Artist):
 
         C = compress(ravelmask, ma.filled(C[0:Ny-1,0:Nx-1]).ravel())
 
+        linewidths = (0.25,)
+        if 'linewidth' in kwargs:
+            kwargs['linewidths'] = kwargs.pop('linewidth')
+        kwargs.setdefault('linewidths', linewidths)
+
         if shading == 'faceted':
             edgecolors = 'k',
         else:
             edgecolors = 'none'
-        linewidths = (0.25,)
-        # Not sure if we want to have the following, or just trap
-        # invalid kwargs and raise an exception.
         if 'edgecolor' in kwargs:
             kwargs['edgecolors'] = kwargs.pop('edgecolor')
-        if 'linewidth' in kwargs:
-            kwargs['linewidths'] = kwargs.pop('linewidth')
+        ec = kwargs.setdefault('edgecolors', edgecolors)
+
+        # aa setting will default via collections to patch.antialiased
+        # unless the boundary is not stroked, in which case the
+        # default will be False; with unstroked boundaries, aa
+        # makes artifacts that are often disturbing.
         if 'antialiased' in kwargs:
             kwargs['antialiaseds'] = kwargs.pop('antialiased')
-        kwargs.setdefault('edgecolors', edgecolors)
-        kwargs.setdefault('linewidths', linewidths)
+        if 'antialiaseds' not in kwargs and ec.lower() == "none":
+                kwargs['antialiaseds'] = False
+
 
         collection = mcoll.PolyCollection(verts, **kwargs)
 
