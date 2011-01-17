@@ -10,7 +10,7 @@ def atan2(dy, dx):
         return math.atan2(dy, dx)
 
 # FIXME : The current algorithm seems to return incorrect angle when the line
-# ends at the boudnary.
+# ends at the boundary.
 
 def clip(xlines, ylines, x0, clip="right"):
 

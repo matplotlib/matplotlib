@@ -27,7 +27,7 @@ def demo_locatable_axes_hard(fig1):
     # axes for image
     ax = LocatableAxes(fig1, divider.get_position())
 
-    # axes for coloarbar
+    # axes for colorbar
     ax_cb = LocatableAxes(fig1, divider.get_position())
 
     h = [Size.AxesX(ax), # main axes
@@ -117,7 +117,7 @@ def demo():
 
 
     ## PLOT 4
-    # two images side by sied with fixed padding.
+    # two images side by side with fixed padding.
 
     ax = fig1.add_subplot(2, 2, 4)
     demo_images_side_by_sied(ax)

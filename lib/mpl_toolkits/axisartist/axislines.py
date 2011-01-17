@@ -3,7 +3,7 @@ Axislines includes modified implementation of the Axes class. The
 biggest difference is that the artists responsible to draw axis line,
 ticks, ticklabel and axis labels are separated out from the mpl's Axis
 class, which are much more than artists in the original
-mpl. Originally, this change was motivated to support curvlinear
+mpl. Originally, this change was motivated to support curvilinear
 grid. Here are a few reasons that I came up with new axes class.
 
 
@@ -11,7 +11,7 @@ grid. Here are a few reasons that I came up with new axes class.
    different ticks (tick locations and labels). This is not possible
    with the current mpl, although some twin axes trick can help.
 
- * Curvelinear grid.
+ * Curvilinear grid.
 
  * angled ticks.
 
@@ -109,7 +109,7 @@ class AxisArtistHelper(object):
             return trans
 
         def get_tick_iterators(self, axes):
-            # iter : iteratoable object that yields (c, angle, l) where
+            # iter : iteratable object that yields (c, angle, l) where
             # c, angle, l is position, tick angle, and label
 
             return iter_major, iter_minor
@@ -639,7 +639,7 @@ class Axes(maxes.Axes):
 
         self.axes._set_artist_props(gridlines)
         # gridlines.set_clip_path(self.axes.patch)
-        # set_clip_path need to be defered after Axes.cla is completed.
+        # set_clip_path need to be deferred after Axes.cla is completed.
         # It is done inside the cla.
 
         self.gridlines = gridlines
@@ -662,7 +662,7 @@ class Axes(maxes.Axes):
 
     def grid(self, b=None, which='major', **kwargs):
         """
-        Toggel the gridlines, and optionally set the properties of the lines.
+        Toggle the gridlines, and optionally set the properties of the lines.
         """
         # their are some discrepancy between the behavior of grid in
         # axes_grid and the original mpl's grid, because axes_grid

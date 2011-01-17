@@ -187,7 +187,7 @@ class Grid(object):
           Keyword           Default   Description
           ================  ========  =========================================
           direction         "row"     [ "row" | "column" ]
-          axes_pad          0.02      float| pad betweein axes given in inches
+          axes_pad          0.02      float| pad between axes given in inches
           add_all           True      [ True | False ]
           share_all         False     [ True | False ]
           share_x           True      [ True | False ]
@@ -475,7 +475,7 @@ class ImageGrid(Grid):
           Keyword           Default   Description
           ================  ========  =========================================
           direction         "row"     [ "row" | "column" ]
-          axes_pad          0.02      float| pad betweein axes given in inches
+          axes_pad          0.02      float| pad between axes given in inches
           add_all           True      [ True | False ]
           share_all         False     [ True | False ]
           aspect            True      [ True | False ]
