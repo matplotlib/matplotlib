@@ -130,8 +130,8 @@ def select_step(v1, v2, nv, hour=False):
     levs = np.arange(math.floor(f1/step), math.ceil(f2/step)+0.5,
                      1, dtype="i") * step
 
-    # n : number valid levels. If there is a cycle, e.g., [0, 90, 180,
-    # 270, 360], the a grid line needs to be extend from 0 to 360, so
+    # n : number of valid levels. If there is a cycle, e.g., [0, 90, 180,
+    # 270, 360], the grid line needs to be extended from 0 to 360, so
     # we need to return the whole array. However, the last level (360)
     # needs to be ignored often. In this case, so we return n=4.
 
@@ -288,7 +288,7 @@ class ExtremeFinderCycle(ExtremeFinderSimple):
         get extreme values.
 
         x1, y1, x2, y2 in image coordinates (0-based)
-        nx, ny : number of dvision in each axis
+        nx, ny : number of divisions in each axis
         """
         x_, y_ = np.linspace(x1, x2, self.nx), np.linspace(y1, y2, self.ny)
         x, y = np.meshgrid(x_, y_)

@@ -1,5 +1,5 @@
 """
-An experimental support for curvelinear grid.
+An experimental support for curvilinear grid.
 """
 
 
@@ -225,7 +225,7 @@ class ExtremeFinderFixed(ExtremeFinderSimple):
         get extreme values.
 
         x1, y1, x2, y2 in image coordinates (0-based)
-        nx, ny : number of dvision in each axis
+        nx, ny : number of division in each axis
         """
         #lon_min, lon_max, lat_min, lat_max = self._extremes
         return self._extremes
@@ -241,7 +241,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
                  tick_formatter2=None):
         """
         aux_trans : a transform from the source (curved) coordinate to
-        target (rectlinear) coordinate. An instance of MPL's Transform
+        target (rectilinear) coordinate. An instance of MPL's Transform
         (inverse transform should be defined) or a tuple of two callable
         objects which defines the transform and its inverse. The callables
         need take two arguments of array of source coordinates and
@@ -320,7 +320,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         return axisline
 
 
-    # new_floating_axis will inheirt the grid_helper's extremes.
+    # new_floating_axis will inherit the grid_helper's extremes.
 
     # def new_floating_axis(self, nth_coord,
     #                       value,

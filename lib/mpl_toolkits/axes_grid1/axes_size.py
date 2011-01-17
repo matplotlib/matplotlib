@@ -1,6 +1,6 @@
 
 """
-provides a classese of simlpe units that will be used with AxesDivider
+provides a classes of simple units that will be used with AxesDivider
 class (or others) to determine the size of each axes. The unit
 classes define `get_size` method that returns a tuple of two floats,
 meaning relative and absolute sizes, respectively.

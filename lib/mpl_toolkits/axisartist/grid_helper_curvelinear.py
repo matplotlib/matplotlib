@@ -1,5 +1,5 @@
 """
-An experimental support for curvelinear grid.
+An experimental support for curvilinear grid.
 """
 
 from itertools import chain
@@ -309,7 +309,7 @@ class GridHelperCurveLinear(GridHelperBase):
                  tick_formatter2=None):
         """
         aux_trans : a transform from the source (curved) coordinate to
-        target (rectlinear) coordinate. An instance of MPL's Transform
+        target (rectilinear) coordinate. An instance of MPL's Transform
         (inverse transform should be defined) or a tuple of two callable
         objects which defines the transform and its inverse. The callables
         need take two arguments of array of source coordinates and

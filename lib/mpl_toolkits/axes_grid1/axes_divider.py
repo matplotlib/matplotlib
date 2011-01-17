@@ -3,8 +3,8 @@ The axes_divider module provide helper classes to adjust the positions of
 multiple axes at the drawing time.
 
  Divider: this is the class that is used calculates the axes
-    position. It divides the given renctangular area into several sub
-    rectangles. You intialize the divider by setting the horizontal
+    position. It divides the given rectangular area into several sub
+    rectangles. You initialize the divider by setting the horizontal
     and vertical list of sizes that the division will be based on. You
     then use the new_locator method, whose return value is a callable
     object that can be used to set the axes_locator of the axes.
@@ -23,8 +23,8 @@ import axes_size as Size
 class Divider(object):
     """
     This is the class that is used calculates the axes position. It
-    divides the given renctangular area into several
-    sub-rectangles. You intialize the divider by setting the
+    divides the given rectangular area into several
+    sub-rectangles. You initialize the divider by setting the
     horizontal and vertical lists of sizes
     (:mod:`mpl_toolkits.axes_grid.axes_size`) that the division will
     be based on. You then use the new_locator method to create a
@@ -44,11 +44,11 @@ class Divider(object):
         :param vertical: list of sizes
                     (:mod:`~mpl_toolkits.axes_grid.axes_size`)
                     for vertical division
-        :param aspect: if True, the overall rectalngular area is reduced
+        :param aspect: if True, the overall rectangular area is reduced
                     so that the relative part of the horizontal and
                     vertical scales have same scale.
-        :param anchor: Detrmine how the reduced rectangle is placed
-                       when aspect is True,
+        :param anchor: Determine how the reduced rectangle is placed
+                       when aspect is True.
         """
 
         self._fig = fig
@@ -290,7 +290,7 @@ class Divider(object):
 
 class AxesLocator(object):
     """
-    A simple callable object, initiallized with AxesDivider class,
+    A simple callable object, initialized with AxesDivider class,
     returns the position and size of the given cell.
     """
     def __init__(self, axes_divider, nx, ny, nx1=None, ny1=None):
@@ -336,7 +336,7 @@ class AxesLocator(object):
 
 class SubplotDivider(Divider):
     """
-    The Divider class whose rectangle area is specified as a subplot grometry.
+    The Divider class whose rectangle area is specified as a subplot geometry.
     """
 
 
@@ -475,18 +475,17 @@ class AxesDivider(Divider):
 
         :param size: A width of the axes. A :mod:`~mpl_toolkits.axes_grid.axes_size`
           instance or if float or string is given, *from_any*
-          fucntion is used to create one, with *ref_size* set to AxesX instance
+          function is used to create one, with *ref_size* set to AxesX instance
           of the current axes.
         :param pad: pad between the axes. It takes same argument as *size*.
         :param pack_start: If False, the new axes is appended at the end
           of the list, i.e., it became the right-most axes. If True, it is
-          inseted at the start of the list, and becomes the left-most axes.
+          inserted at the start of the list, and becomes the left-most axes.
 
-        All extra keywords argument is passed to when creating a axes.
-        if *axes_class* is given, the new axes will be created as an
+        All extra keywords arguments are passed to the created axes.
+        If *axes_class* is given, the new axes will be created as an
         instance of the given class. Otherwise, the same class of the
-        main axes will be used.  if Not provided
-
+        main axes will be used.
         """
 
         if pad:
@@ -522,18 +521,17 @@ class AxesDivider(Divider):
 
         :param size: A height of the axes. A :mod:`~mpl_toolkits.axes_grid.axes_size`
           instance or if float or string is given, *from_any*
-          fucntion is used to create one, with *ref_size* set to AxesX instance
+          function is used to create one, with *ref_size* set to AxesX instance
           of the current axes.
         :param pad: pad between the axes. It takes same argument as *size*.
         :param pack_start: If False, the new axes is appended at the end
           of the list, i.e., it became the top-most axes. If True, it is
-          inseted at the start of the list, and becomes the bottom-most axes.
+          inserted at the start of the list, and becomes the bottom-most axes.
 
-        All extra keywords argument is passed to when creating a axes.
-        if *axes_class* is given, the new axes will be created as an
+        All extra keywords arguments are passed to the created axes.
+        If *axes_class* is given, the new axes will be created as an
         instance of the given class. Otherwise, the same class of the
-        main axes will be used.  if Not provided
-
+        main axes will be used.
         """
 
         if pad:
@@ -751,7 +749,7 @@ class HBoxDivider(SubplotDivider):
 
 class VBoxDivider(HBoxDivider):
     """
-    The Divider class whose rectangle area is specified as a subplot grometry.
+    The Divider class whose rectangle area is specified as a subplot geometry.
     """
 
 

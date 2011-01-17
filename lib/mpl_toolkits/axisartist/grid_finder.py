@@ -19,7 +19,7 @@ class ExtremeFinderSimple(object):
         get extreme values.
 
         x1, y1, x2, y2 in image coordinates (0-based)
-        nx, ny : number of dvision in each axis
+        nx, ny : number of division in each axis
         """
         x_, y_ = np.linspace(x1, x2, self.nx), np.linspace(y1, y2, self.ny)
         x, y = np.meshgrid(x_, y_)
@@ -31,9 +31,10 @@ class ExtremeFinderSimple(object):
         return self._add_pad(lon_min, lon_max, lat_min, lat_max)
 
     def _add_pad(self, lon_min, lon_max, lat_min, lat_max):
-        # a small amound of padding is added because the current
-        # clipping algorithms seems to fail when the gidline ends at
-        # the bbox boundary.
+        """ a small amount of padding is added because the current
+        clipping algorithms seems to fail when the gridline ends at
+        the bbox boundary.
+        """
         dlon = (lon_max - lon_min) / self.nx
         dlat = (lat_max - lat_min) / self.ny
 
@@ -205,7 +206,7 @@ class GridFinderBase(object):
                      "tick_formatter2"]:
                 setattr(self, k, kw[k])
             else:
-                raise ValueError("unknwonw update property")
+                raise ValueError("unknown update property '%s'" % k)
 
 
 
@@ -220,7 +221,7 @@ class GridFinder(GridFinderBase):
                  tick_formatter1=None,
                  tick_formatter2=None):
         """
-        transform : transfrom from the image coordinate (which will be
+        transform : transform from the image coordinate (which will be
         the transData of the axes to the world coordinate.
 
         or transform = (transform_xy, inv_transform_xy)

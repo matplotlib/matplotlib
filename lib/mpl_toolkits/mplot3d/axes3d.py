@@ -225,7 +225,7 @@ class Axes3D(Axes):
         self.autoscale_view()
 
     def autoscale_view(self, scalex=True, scaley=True, scalez=True, **kw):
-        # This method looks at the rectanglular volume (see above)
+        # This method looks at the rectangular volume (see above)
         # of data and decides how to scale the view portal to fit it.
 
         self.set_top_view()

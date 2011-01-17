@@ -10,7 +10,7 @@ axis_artist.py module provides axis-related artists. They are
 The main artist class is a AxisArtist and a GridlinesCollection. The
 GridlinesCollection is responsible for drawing grid lines and the
 AxisArtist is responsible for all other artists. The AxisArtist class
-has attributest that are associated with each type of artists.
+has attributes that are associated with each type of artists.
 
  * line : axis line
  * major_ticks : major tick lines
@@ -25,11 +25,14 @@ axis is
 
   ax.axis["bottom"]
 
-where *ax* is an instance of axes (mpl_toolkits.axislines.Axes).
-Thus, ax.axis["bottom"].line is an artist associated with the axis line, and ax.axis["bottom"].major_ticks is an artist associated with the major tick lines.
+where *ax* is an instance of axes (mpl_toolkits.axislines.Axes).  Thus,
+ax.axis["bottom"].line is an artist associated with the axis line, and
+ax.axis["bottom"].major_ticks is an artist associated with the major tick
+lines.
 
 You can change the colors, fonts, line widths, etc. of these artists
-by calling sutable set method. For example, to change the color of the major ticks of the bottom axis to red,
+by calling suitable set method. For example, to change the color of the major
+ticks of the bottom axis to red,
 
   ax.axis["bottom"].major_ticks.set_color("r")
 
@@ -39,7 +42,7 @@ to be changed from the side of the grid_helper.
 axis_direction
 --------------
 
-AxisArtist, AxisLabel, TickLabels have *axis_drection* attribute,
+AxisArtist, AxisLabel, TickLabels have *axis_direction* attribute,
 which adjusts the location, angle, etc.,. The *axis_direction* must be
 one of [left, right, bottom, top] and they follow the matplotlib
 convention for the rectangle axis.
@@ -62,7 +65,7 @@ to the ticklabel), which gives 0 for bottom axis.
  ticklabels angle       90    0      -90  180
  axislabel angle        180   0     0     180
  ticklabel va           center baseline center baseline
- axislabel va           center top      center btoom
+ axislabel va           center top      center bottom
  ticklabel ha           right  center   right  center
  axislabel ha           right  center   right  center
 
@@ -177,7 +180,7 @@ class AttributeCopier(object):
         self._ref_artist = artist
 
     def get_ref_artist(self):
-        raise RuntimeError("get_ref_artist must overriden")
+        raise RuntimeError("get_ref_artist must overridden")
     #return self._ref_artist
 
     def get_attribute_from_ref_artist(self, attr_name, default_value):
@@ -257,7 +260,7 @@ class Ticks(Line2D, AttributeCopier):
 
     def set_ticksize(self, ticksize):
         """
-        set lenth of the ticks in points.
+        set length of the ticks in points.
         """
         self._ticksize = ticksize
 
@@ -490,7 +493,7 @@ def test_labelbase():
 class AxisLabel(LabelBase, AttributeCopier):
     """
     Axis Label. Derived from Text. The position of the text is updated
-    in the fly, so chaning text position has no effect. Otherwise, the
+    in the fly, so changing text position has no effect. Otherwise, the
     properties can be changed as a normal Text.
 
     To change the pad between ticklabels and axis label, use set_pad.
@@ -587,7 +590,7 @@ class AxisLabel(LabelBase, AttributeCopier):
         property                 left       bottom    right      top
         =====================    ========== ========= ========== ==========
         axislabel angle          180        0         0          180
-        axislabel va             center     top       center     btoom
+        axislabel va             center     top       center     bottom
         axislabel ha             right      center    right      center
         =====================    ========== ========= ========== ==========
 
@@ -808,7 +811,7 @@ class TickLabels(AxisLabel, AttributeCopier): # mtext.Text
 
     def get_texts_widths_heights_descents(self, renderer):
         """
-        return a list of width, height, descent for ticklaels.
+        return a list of width, height, descent for ticklabels.
         """
         whd_list = []
         for (x, y), a, l in self._locs_angles_labels:
@@ -981,7 +984,7 @@ class AxisArtist(martist.Artist):
         ticklabel va             center     baseline  center     baseline
         ticklabel ha             right      center    right      center
         axislabel angle          180        0         0          180
-        axislabel va             center     top       center     btoom
+        axislabel va             center     top       center     bottom
         axislabel ha             right      center    right      center
         =====================    ========== ========= ========== ==========
 

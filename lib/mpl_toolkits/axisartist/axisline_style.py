@@ -6,7 +6,7 @@ import numpy as np
 class _FancyAxislineStyle:
     class SimpleArrow(FancyArrowPatch):
         """
-        The artist class that will be returend for SimpleArrow style.
+        The artist class that will be returned for SimpleArrow style.
         """
         _ARROW_STYLE = "->"
 
@@ -60,7 +60,7 @@ class _FancyAxislineStyle:
         def draw(self, renderer):
             """
             Draw the axis line.
-             1) transform the path to the display cooridnate.
+             1) transform the path to the display coordinate.
              2) extend the path to make a room for arrow
              3) update the path of the FancyArrowPatch.
              4) draw
@@ -75,7 +75,7 @@ class _FancyAxislineStyle:
 
     class FilledArrow(SimpleArrow):
         """
-        The artist class that will be returend for SimpleArrow style.
+        The artist class that will be returned for SimpleArrow style.
         """
         _ARROW_STYLE = "-|>"
 
@@ -115,7 +115,7 @@ class AxislineStyle(_Style):
 
         def __init__(self):
             """
-            initializtion.
+            initialization.
             """
             super(AxislineStyle._Base, self).__init__()
 
