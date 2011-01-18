@@ -37,6 +37,7 @@ from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransform
 
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea, DraggableOffsetBox
 
+from matplotlib.container import ErrorbarContainer, BarContainer
 import legend_handler
 
 
@@ -69,7 +70,7 @@ class DraggableLegend(DraggableOffsetBox):
             self._update_bbox_to_anchor(loc_in_canvas)
         else:
             raise RuntimeError("update parameter '%s' is not supported." % self.update)
-        
+
     def _update_loc(self, loc_in_canvas):
         bbox = self.legend.get_bbox_to_anchor()
 
@@ -78,7 +79,7 @@ class DraggableLegend(DraggableOffsetBox):
         if bbox.width ==0 or bbox.height ==0:
             self.legend.set_bbox_to_anchor(None)
             bbox = self.legend.get_bbox_to_anchor()
-            
+
         _bbox_transform = BboxTransformFrom(bbox)
         self.legend._loc = tuple(_bbox_transform.transform_point(loc_in_canvas))
 
@@ -476,12 +477,15 @@ in the normalized axes coordinate.
             return renderer.points_to_pixels(self._fontsize)
 
 
-    _default_handler_map = {Line2D:legend_handler.HandlerLine2D(),
-                            Patch:legend_handler.HandlerPatch(),
-                            LineCollection:legend_handler.HandlerLineCollection(),
-                            RegularPolyCollection:legend_handler.HandlerRegularPolyCollection(),
-                            CircleCollection:legend_handler.HandlerCircleCollection()
-                            }
+    _default_handler_map = {
+        ErrorbarContainer:legend_handler.HandlerErrorbar(),
+        Line2D:legend_handler.HandlerLine2D(),
+        Patch:legend_handler.HandlerPatch(),
+        LineCollection:legend_handler.HandlerLineCollection(),
+        RegularPolyCollection:legend_handler.HandlerRegularPolyCollection(),
+        CircleCollection:legend_handler.HandlerCircleCollection(),
+        BarContainer:legend_handler.HandlerPatch(update_func=legend_handler.update_from_first_child)
+        }
 
     def get_legend_handler_map(self):
         if self._handler_map:
@@ -492,20 +496,21 @@ in the normalized axes coordinate.
             return self._default_handler_map
 
     def get_legend_handler(self, legend_handler_map, orig_handle):
-            if orig_handle in legend_handler_map:
-                handler = legend_handler_map[orig_handle]
+        legend_handler_keys = legend_handler_map.keys()
+        if orig_handle in legend_handler_keys:
+            handler = legend_handler_map[orig_handle]
+        else:
+
+            for handle_type in type(orig_handle).mro():
+                if handle_type in legend_handler_map:
+                    handler = legend_handler_map[handle_type]
+                    break
             else:
-                
-                for handle_type in type(orig_handle).mro():
-                    if handle_type in legend_handler_map:
-                        handler = legend_handler_map[handle_type]
-                        break
-                else:
-                    handler = None
+                handler = None
 
-            return handler
+        return handler
 
-        
+
     def _init_legend_box(self, handles, labels):
         """
         Initiallize the legend_box. The legend_box is an instance of
@@ -562,7 +567,7 @@ in the normalized axes coordinate.
                 warnings.warn("Legend does not support %s\nUse proxy artist instead.\n\nhttp://matplotlib.sourceforge.net/users/legend_guide.html#using-proxy-artist\n" % (str(orig_handle),))
                 handle_list.append(None)
                 continue
-            
+
             textbox = TextArea(lab, textprops=label_prop,
                                multilinebaseline=True, minimumdescent=True)
             text_list.append(textbox._text)
@@ -578,7 +583,7 @@ in the normalized axes coordinate.
                              fontsize,
                              handlebox)
             handle_list.append(handle)
-                
+
 
 
 

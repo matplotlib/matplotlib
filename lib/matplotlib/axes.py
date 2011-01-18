@@ -34,7 +34,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 
-from matplotlib.container import BarContainer
+from matplotlib.container import BarContainer, ErrorbarContainer
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -1507,6 +1507,7 @@ class Axes(martist.Artist):
         if not label:
             container.set_label('_container%d'%len(self.containers))
         self.containers.append(container)
+        container.set_remove_method(lambda h: self.containers.remove(container))
         return container
 
 
@@ -4200,19 +4201,25 @@ class Axes(martist.Artist):
 
     def _get_legend_handles(self):
         "return artists that will be used as handles for legend"
-        handles = self.lines[:]
-        handles.extend(self.patches)
+        handles_original = self.lines + self.patches + \
+                           self.collections + self.containers
 
         # collections
         legend_map_keys = mlegend.Legend._default_handler_map.keys()
-        collection_types = [cls for cls in legend_map_keys \
-                            if issubclass(cls, mcoll.Collection)]
+        #collection_types = [cls for cls in legend_map_keys \
+        #                    if issubclass(cls, mcoll.Collection)]
 
-        for cls in collection_types:
-            handles.extend([c for c in self.collections
-                            if isinstance(c, cls)])
+        handles = []
+        for h in handles_original:
+            if h.get_label().startswith('_'):
+                continue
 
-        handles.extend([c for c in self.containers])
+            # check subclass
+            for cls in legend_map_keys:
+                if isinstance(h, cls):
+                    handles.append(h)
+                    break
+
         return handles
 
 
@@ -4231,8 +4238,7 @@ class Axes(martist.Artist):
         labels = []
         for handle in self._get_legend_handles():
             label = handle.get_label()
-            if (label is not None and
-                label != '' and not label.startswith('_')):
+            if (label is not None and label != ''):
                 handles.append(handle)
                 labels.append(label)
 
@@ -5140,6 +5146,8 @@ class Axes(martist.Artist):
         holdstate = self._hold
         self._hold = True
 
+        label = kwargs.pop("label", None)
+
         # make sure all the args are iterable; use lists not arrays to
         # preserve units
         if not iterable(x):
@@ -5159,7 +5167,7 @@ class Axes(martist.Artist):
         l0 = None
 
         if barsabove and fmt is not None:
-            l0, = self.plot(x,y,fmt,**kwargs)
+            l0, = self.plot(x,y,fmt,label="_nolegend_", **kwargs)
 
         barcols = []
         caplines = []
@@ -5312,7 +5320,14 @@ class Axes(martist.Artist):
 
         self.autoscale_view()
         self._hold = holdstate
-        return (l0, caplines, barcols)
+
+        errorbar_container = ErrorbarContainer((l0, tuple(caplines), tuple(barcols)),
+                                               has_xerr=(xerr is not None),
+                                               has_yerr=(yerr is not None),
+                                               label=label)
+        self.containers.append(errorbar_container)
+        
+        return errorbar_container # (l0, caplines, barcols)
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
