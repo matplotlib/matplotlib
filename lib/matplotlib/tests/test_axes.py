@@ -474,7 +474,7 @@ def test_symlog():
 
     fig.savefig('symlog')
 
-@image_comparison(baseline_images=['pcolormesh'])
+@image_comparison(baseline_images=['pcolormesh'], tol=0.02)
 def test_pcolormesh():
     n = 12
     x = np.linspace(-1.5,1.5,n)
