@@ -1,3 +1,4 @@
+import matplotlib.cbook as cbook
 
 class Container(tuple):
     """
@@ -16,8 +17,19 @@ class Container(tuple):
         self._oid = 0  # an observer id
         self._propobservers = {} # a dict from oids to funcs
 
+        self._remove_method = None
+
         self.set_label(label)
 
+    def set_remove_method(self, f):
+        self._remove_method = f
+
+    def remove(self):
+        for c in self:
+            c.remove()
+
+        if self._remove_method:
+            self._remove_method()
 
     def get_label(self):
         """
@@ -68,9 +80,8 @@ class Container(tuple):
         for oid, func in self._propobservers.items():
             func(self)
 
-    def remove(self):
-        for c in self:
-            c.remove()
+    def get_children(self):
+        return list(cbook.flatten(self))
 
 
 class BarContainer(Container):
@@ -81,14 +92,12 @@ class BarContainer(Container):
         Container.__init__(self, patches, **kwargs)
 
 
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
+class ErrorbarContainer(Container):
 
-    plt.clf()
-    bb1 = plt.bar([0, 1, 2], [2, 3, 1], label="test", width=0.4)
-    bb2 = plt.bar([0.5, 1.5, 2.5], [2, 3, 1], label="test2", color="red", width=0.4)
-    #cont1 = Container(bb1, err=3)
+    def __init__(self, lines, has_xerr=False, has_yerr=False, **kwargs):
+        self.lines = lines
+        self.has_xerr = has_xerr
+        self.has_yerr = has_yerr
+        Container.__init__(self, lines, **kwargs)
 
-
-    #aa = BarContainer(("a",), errorbar=1)
 
