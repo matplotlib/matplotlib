@@ -523,6 +523,10 @@ class Colormap:
                 np.clip(xa * self.N, -1, self.N, out=xa)
             else:
                 xa = np.clip(xa * self.N, -1, self.N)
+
+            # ensure that all 'under' values will still have negative
+            # value after casting to int
+            np.putmask(xa, xa<0.0, -1)
             xa = xa.astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
