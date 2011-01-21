@@ -818,13 +818,13 @@ class Axes3D(Axes):
 
         if len(shade[mask]) > 0:
             norm = Normalize(min(shade[mask]), max(shade[mask]))
-            if art3d.iscolor(color):
-                color = color.copy()
-                color[3] = 1
-                colors = np.outer(0.5 + norm(shade) * 0.5, color)
-            else:
-                colors = colorConverter.to_rgba_array(color) * \
-                            (0.5 + 0.5 * norm(shade)[:, np.newaxis])
+            color = colorConverter.to_rgba_array(color)
+            # shape of color should be (M, 4) (where M is number of faces)
+            # shape of shade should be (M,)
+            # colors should have final shape of (M, 4)
+            alpha = color[:, 3]
+            colors = (0.5 + norm(shade)[:, np.newaxis] * 0.5) * color
+            colors[:, 3] = alpha
         else:
             colors = color.copy()
 
