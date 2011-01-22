@@ -25,6 +25,7 @@ def _reverser(f):
     return freversed
 
 def revcmap(data):
+    """Can only handle specification *data* in dictionary format."""
     data_r = {}
     for key, val in data.iteritems():
         if callable(val):
@@ -39,31 +40,50 @@ def revcmap(data):
         data_r[key] = valnew
     return data_r
 
+def _reverse_cmap_spec(spec):
+    """Reverses cmap specification *spec*, can handle both dict and tuple
+    type specs."""
+    
+    if 'red' in spec:
+        return revcmap(spec)
+    else:
+        revspec = list(reversed(spec))
+        if len(revspec[0]) == 2:    # e.g., (1, (1.0, 0.0, 1.0))
+            revspec = [(1.0 - a, b) for a, b in revspec]
+        return revspec
+
+def _generate_cmap(name, lutsize):
+    """Generates the requested cmap from it's name *name*.  The lut size is 
+    *lutsize*."""
+    
+    spec = datad[name]
+
+    # Generate the colormap object.
+    if 'red' in spec:
+        return colors.LinearSegmentedColormap(name, spec, lutsize)
+    else:
+        return colors.LinearSegmentedColormap.from_list(spec, spec, lutsize)
+
 LUTSIZE = mpl.rcParams['image.lut']
 
 _cmapnames = datad.keys()  # need this list because datad is changed in loop
 
-for cmapname in _cmapnames:
-    cmapname_r = cmapname+'_r'
-    cmapspec = datad[cmapname]
-    if 'red' in cmapspec:
-        datad[cmapname_r] = revcmap(cmapspec)
-        cmap_d[cmapname] = colors.LinearSegmentedColormap(
-                                cmapname, cmapspec, LUTSIZE)
-        cmap_d[cmapname_r] = colors.LinearSegmentedColormap(
-                                cmapname_r, datad[cmapname_r], LUTSIZE)
-    else:
-        revspec = list(reversed(cmapspec))
-        if len(revspec[0]) == 2:    # e.g., (1, (1.0, 0.0, 1.0))
-            revspec = [(1.0 - a, b) for a, b in revspec]
-        datad[cmapname_r] = revspec
+# Generate the reversed specifications ...
 
-        cmap_d[cmapname] = colors.LinearSegmentedColormap.from_list(
-                                cmapname, cmapspec, LUTSIZE)
-        cmap_d[cmapname_r] = colors.LinearSegmentedColormap.from_list(
-                                cmapname_r, revspec, LUTSIZE)
+for cmapname in _cmapnames:
+    spec = datad[cmapname]
+    spec_reversed = _reverse_cmap_spec(spec)
+    datad[cmapname + '_r'] = spec_reversed
+
+# Precache the cmaps with ``lutsize = LUTSIZE`` ...
+
+# Use datad.keys() to also add the reversed ones added in the section above:
+for cmapname in datad.keys():
+    cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
 
 locals().update(cmap_d)
+
+# Continue with definitions ...
 
 def register_cmap(name=None, cmap=None, data=None, lut=None):
     """
@@ -128,7 +148,7 @@ def get_cmap(name=None, lut=None):
         if lut is None:
             return cmap_d[name]
         elif name in datad:
-            return colors.LinearSegmentedColormap(name,  datad[name], lut)
+            return _generate_cmap(name, lut)
         else:
             raise ValueError("Colormap %s is not recognized" % name)
 
