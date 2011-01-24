@@ -76,29 +76,36 @@ class Handler(object):
         return a_list[0]
 
 
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize,
+                       trans):
+
+        raise NotImplementedError('Derived must override')
+
+
 class HandlerLine2D(Handler):
-    def __init__(self, marker_pad=0.3, npoints=None, **kw):
+    def __init__(self, marker_pad=0.3, numpoints=None, **kw):
         Handler.__init__(self, **kw)
         self._marker_pad = marker_pad
-        self._npoints = npoints
+        self._numpoints = numpoints
 
-    def get_npoints(self, legend):
-        if self._npoints is None:
+    def get_numpoints(self, legend):
+        if self._numpoints is None:
             return legend.numpoints
         else:
-            return self._npoints
+            return self._numpoints
 
     def get_xdata(self, legend, xdescent, ydescent, width, height, fontsize):
-        npoints = self.get_npoints(legend)
+        numpoints = self.get_numpoints(legend)
 
-        if npoints > 1:
+        if numpoints > 1:
             # we put some pad here to compensate the size of the
             # marker
             xdata = np.linspace(-xdescent+self._marker_pad*fontsize,
                                 width-self._marker_pad*fontsize,
-                                npoints)
+                                numpoints)
             xdata_marker = xdata
-        elif npoints == 1:
+        elif numpoints == 1:
             xdata = np.linspace(-xdescent, width, 2)
             xdata_marker = [0.5*width-0.5*xdescent]
 
@@ -184,11 +191,11 @@ class HandlerPatch(Handler):
 
 class HandlerLineCollection(HandlerLine2D):
 
-    def get_npoints(self, legend):
-        if self._npoints is None:
+    def get_numpoints(self, legend):
+        if self._numpoints is None:
             return legend.scatterpoints
         else:
-            return self._npoints
+            return self._numpoints
 
     def _default_update_prop(self, legend_handle, orig_handle):
         lw = orig_handle.get_linewidth()[0]
@@ -234,11 +241,11 @@ class HandlerRegularPolyCollection(HandlerLine2D):
         self._scatteryoffsets = scatteryoffsets
         self._sizes = sizes
 
-    def get_npoints(self, legend):
-        if self._npoints is None:
+    def get_numpoints(self, legend):
+        if self._numpoints is None:
             return legend.scatterpoints
         else:
-            return self._npoints
+            return self._numpoints
 
     def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
         if self._scatteryoffsets is None:
@@ -254,12 +261,12 @@ class HandlerRegularPolyCollection(HandlerLine2D):
             size_max = max(orig_handle.get_sizes())*legend.markerscale**2
             size_min = min(orig_handle.get_sizes())*legend.markerscale**2
 
-            npoints = self.get_npoints(legend)
-            if npoints < 4:
+            numpoints = self.get_numpoints(legend)
+            if numpoints < 4:
                 sizes = [.5*(size_max+size_min), size_max,
                          size_min]
             else:
-                sizes = (size_max-size_min)*np.linspace(0,1,npoints)+size_min
+                sizes = (size_max-size_min)*np.linspace(0,1,numpoints)+size_min
         else:
             sizes = self._sizes #[:legend.scatterpoints]
 
@@ -321,12 +328,12 @@ class HandlerCircleCollection(HandlerRegularPolyCollection):
 
 class HandlerErrorbar(HandlerLine2D):
     def __init__(self, xerr_size=0.5, yerr_size=None,
-                 marker_pad=0.3, npoints=None, **kw):
+                 marker_pad=0.3, numpoints=None, **kw):
 
         self._xerr_size = xerr_size
         self._yerr_size = yerr_size
 
-        HandlerLine2D.__init__(self, marker_pad=marker_pad, npoints=npoints,
+        HandlerLine2D.__init__(self, marker_pad=marker_pad, numpoints=numpoints,
                                **kw)
 
     def get_err_size(self, legend, xdescent, ydescent, width, height, fontsize):
@@ -430,11 +437,11 @@ class HandlerErrorbar(HandlerLine2D):
 
 
 
-class HandlerMulti(Handler):
-    def __init__(self, *handle_list, **kwargs):
+class HandlerTuple(Handler):
+    def __init__(self, **kwargs):
         Handler.__init__(self, **kwargs)
 
-        self._handle_list = handle_list
+        #self._handle_list = handle_list
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
@@ -442,7 +449,7 @@ class HandlerMulti(Handler):
 
         handler_map = legend.get_legend_handler_map()
         a_list = []
-        for handle1 in self._handle_list:
+        for handle1 in orig_handle:
             handler = legend.get_legend_handler(handler_map, handle1)
             _a_list = handler.create_artists(legend, handle1,
                                              xdescent, ydescent, width, height,
