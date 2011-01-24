@@ -484,7 +484,8 @@ in the normalized axes coordinate.
         LineCollection:legend_handler.HandlerLineCollection(),
         RegularPolyCollection:legend_handler.HandlerRegularPolyCollection(),
         CircleCollection:legend_handler.HandlerCircleCollection(),
-        BarContainer:legend_handler.HandlerPatch(update_func=legend_handler.update_from_first_child)
+        BarContainer:legend_handler.HandlerPatch(update_func=legend_handler.update_from_first_child),
+        tuple:legend_handler.HandlerTuple(),
         }
 
     def get_legend_handler_map(self):
