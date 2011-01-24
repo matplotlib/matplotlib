@@ -13,7 +13,7 @@ ax.add_patch(c)
 
 
 
-from matplotlib.legend_handler import HandlerPatch, HandlerMulti
+from matplotlib.legend_handler import HandlerPatch
 
 def make_legend_ellipse(legend, orig_handle,
                         xdescent, ydescent,
@@ -23,8 +23,8 @@ def make_legend_ellipse(legend, orig_handle,
 
     return p
 
-plt.legend([c, "handle 2"], ["Label 1", "Label 2"],
+plt.legend([c, (l1, l2)], ["Label 1", "Label 2"],
            handler_map={mpatches.Circle:HandlerPatch(patch_func=make_legend_ellipse),
-                        "handle 2":HandlerMulti(l1, l2)})
+                        })
 
 plt.show()
