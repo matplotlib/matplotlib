@@ -4705,8 +4705,10 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
     NSText* messagebox = self->messagebox;
 
     if (messagebox)
-    {   NSString* text = [NSString stringWithUTF8String: message];
+    {   NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+        NSString* text = [NSString stringWithUTF8String: message];
         [messagebox setString: text];
+        [pool release];
     }
 
     Py_INCREF(Py_None);
