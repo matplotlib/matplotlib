@@ -1157,7 +1157,7 @@ def imread(fname, format=None):
 
     def pilread():
         'try to load the image with PIL or return None'
-        try: import Image
+        try: from PIL import Image
         except ImportError: return None
         image = Image.open( fname )
         return pil_to_array(image)
