@@ -54,7 +54,7 @@ if 0:
 
 if 0:
     # pass off to PIL
-    import Image
+    from PIL import Image
     im = Image.fromstring( "RGB", (w,h), s)
     im.show()
 

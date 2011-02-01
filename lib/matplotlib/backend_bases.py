@@ -49,7 +49,7 @@ import matplotlib.textpath as textpath
 from matplotlib.path import Path
 
 try:
-    import Image
+    from PIL import Image
     _has_pil = True
 except ImportError:
     _has_pil = False
