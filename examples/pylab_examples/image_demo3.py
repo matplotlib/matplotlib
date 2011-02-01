@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from pylab import *
 try:
-    import Image
+    from PIL import Image
 except ImportError, exc:
     raise SystemExit("PIL must be installed to run this example")
 
