@@ -138,7 +138,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     def _get_unsampled_image(self, A, image_extents, viewlim):
         """
         convert numpy array A with given extents ([x1, x2, y1, y2] in
-        data coordinate) into the Image, given the vielim (should be a
+        data coordinate) into the Image, given the viewlim (should be a
         bbox instance).  Image will be clipped if the extents is
         significantly larger than the viewlim.
         """
@@ -193,17 +193,17 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             self._oldyslice = yslice
 
         if self._imcache is None:
-            if self._A.dtype == np.uint8 and len(self._A.shape) == 3:
+            if self._A.dtype == np.uint8 and self._A.ndim == 3:
                 im = _image.frombyte(self._A[yslice,xslice,:], 0)
                 im.is_grayscale = False
             else:
                 if self._rgbacache is None:
-                    x = self.to_rgba(self._A, self._alpha)
+                    x = self.to_rgba(self._A, self._alpha, bytes=True)
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
-                im = _image.fromarray(x[yslice,xslice], 0)
-                if len(self._A.shape) == 2:
+                im = _image.frombyte(x[yslice,xslice,:], 0)
+                if self._A.ndim == 2:
                     im.is_grayscale = self.cmap.is_gray()
                 else:
                     im.is_grayscale = False
