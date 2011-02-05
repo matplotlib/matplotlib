@@ -1233,7 +1233,7 @@ def restrict_dict(d, keys):
 
 def report_memory(i=0):  # argument may go away
     'return the memory consumed by process'
-    from subprocess import Popen, PIPE
+    from subprocess import Popen, PIPE, check_output
     pid = os.getpid()
     if sys.platform=='sunos5':
         a2 = Popen('ps -p %d -o osz' % pid, shell=True,
@@ -1247,7 +1247,12 @@ def report_memory(i=0):  # argument may go away
         a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
             stdout=PIPE).stdout.readlines()
         mem = int(a2[1].split()[0])
-
+    elif sys.platform.startswith('win'):
+        a2 = check_output(["tasklist", "/nh", "/fi", "pid eq %d" % pid])
+        mem = int(a2.strip().split()[-2].replace(',',''))
+    else:
+        raise NotImplementedError(
+                "We don't have a memory monitor for %s" % sys.platform)
     return mem
 
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
