@@ -1,3 +1,8 @@
+2011-02-05 Speed up Normalize and LogNorm by using in-place
+           operations and by using float32 for float32 inputs
+           and for ints of 2 bytes or shorter; based on
+           patch by Christoph Gohlke. - EF
+
 2011-02-04 Changed imshow to use rgba as uint8 from start to
            finish, instead of going through an intermediate
            step as double precision; thanks to Christoph Gohlke. - EF

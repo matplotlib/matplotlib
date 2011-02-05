@@ -1,5 +1,5 @@
 import numpy
-from pylab import figure, show
+from matplotlib.pyplot import figure, show
 
 
 
@@ -7,7 +7,7 @@ from pylab import figure, show
 class IndexTracker:
     def __init__(self, ax, X):
         self.ax = ax
-        ax.set_title('use scroll wheen to navigate images')
+        ax.set_title('use scroll wheel to navigate images')
 
         self.X = X
         rows,cols,self.slices = X.shape
@@ -28,7 +28,7 @@ class IndexTracker:
 
     def update(self):
         self.im.set_data(self.X[:,:,self.ind])
-        ax.set_ylabel('slice %s'%self.ind)        
+        ax.set_ylabel('slice %s'%self.ind)
         self.im.axes.figure.canvas.draw()
 
 
