@@ -43,7 +43,7 @@ def revcmap(data):
 def _reverse_cmap_spec(spec):
     """Reverses cmap specification *spec*, can handle both dict and tuple
     type specs."""
-    
+
     if 'red' in spec:
         return revcmap(spec)
     else:
@@ -53,9 +53,9 @@ def _reverse_cmap_spec(spec):
         return revspec
 
 def _generate_cmap(name, lutsize):
-    """Generates the requested cmap from it's name *name*.  The lut size is 
+    """Generates the requested cmap from it's name *name*.  The lut size is
     *lutsize*."""
-    
+
     spec = datad[name]
 
     # Generate the colormap object.
