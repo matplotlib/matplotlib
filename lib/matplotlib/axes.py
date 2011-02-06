@@ -4211,7 +4211,7 @@ class Axes(martist.Artist):
 
         handles = []
         for h in handles_original:
-            if h.get_label().startswith('_'):
+            if h.get_label() == "_nolegend_": #.startswith('_'):
                 continue
 
             # check subclass
