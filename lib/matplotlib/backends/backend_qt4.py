@@ -18,7 +18,7 @@ from matplotlib.widgets import SubplotTool
 import matplotlib.backends.qt4_editor.figureoptions as figureoptions
 
 try:
-    from PyQt4 import QtCore, QtGui, Qt
+    from PyQt4 import QtCore, QtGui
 except ImportError:
     raise ImportError("Qt4 backend requires that PyQt4 is installed.")
 
@@ -248,7 +248,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         return TimerQT(*args, **kwargs)
 
     def flush_events(self):
-        Qt.qApp.processEvents()
+        QtGui.qApp.processEvents()
 
     def start_event_loop(self,timeout):
         FigureCanvasBase.start_event_loop_default(self,timeout)
@@ -272,13 +272,13 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 # http://old.nabble.com/Qt4-backend:-critical-bug-with-PyQt4-v4.6%2B-td26205716.html
 # Once a release of Qt/PyQt is available without the bug, the version check
 # below can be tightened further to only be applied in the necessary versions.
-if Qt.PYQT_VERSION_STR.startswith('4.6'):
+if QtCore.PYQT_VERSION_STR.startswith('4.6'):
     class FigureWindow(QtGui.QMainWindow):
        def __init__(self):
            super(FigureWindow, self).__init__()
        def closeEvent(self, event):
            super(FigureWindow, self).closeEvent(event)
-           self.emit(Qt.SIGNAL('destroyed()'))
+           self.emit(QtCore.SIGNAL('destroyed()'))
 else:
     FigureWindow = QtGui.QMainWindow
 # /end pyqt hackish bugfix
