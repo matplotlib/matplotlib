@@ -428,13 +428,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 self._is_stroked = False
         except AttributeError:
             pass
-        if c == 'face':
-            self._edgecolors = 'face'
-            self._edgecolors_original = 'face'
-        else:
-            if c is None: c = mpl.rcParams['patch.edgecolor']
-            self._edgecolors_original = c
-            self._edgecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
+        try:
+            if c.lower() == 'face':
+                self._edgecolors = 'face'
+                self._edgecolors_original = 'face'
+                return
+        except AttributeError:
+            pass
+        if c is None:
+            c = mpl.rcParams['patch.edgecolor']
+        self._edgecolors_original = c
+        self._edgecolors = mcolors.colorConverter.to_rgba_array(c, self._alpha)
 
 
     def set_edgecolors(self, c):
