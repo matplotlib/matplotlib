@@ -479,9 +479,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         If the scalar mappable array is not none, update colors
         from scalar data
         """
-        if self._A is None: return
+        if self._A is None:
+            return
         if self._A.ndim > 1:
             raise ValueError('Collections can only map rank 1 arrays')
+        if not self.check_update("array"):
+            return
         if self._is_filled:
             self._facecolors = self.to_rgba(self._A, self._alpha)
         elif self._is_stroked:
@@ -807,7 +810,7 @@ class LineCollection(Collection):
         The default is 5 pt.
 
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
-        If the :class:`~matplotlib.cm.ScalarMappable` matrix
+        If the :class:`~matplotlib.cm.ScalarMappable` array
         :attr:`~matplotlib.cm.ScalarMappable._A` is not None (ie a call to
         :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
         draw time a call to scalar mappable will be made to set the colors.
@@ -1215,8 +1218,7 @@ class QuadMesh(Collection):
 
         offsets = np.asarray(offsets, np.float_)
 
-        if self.check_update('array'):
-            self.update_scalarmappable()
+        self.update_scalarmappable()
 
         if not transform.is_affine:
             coordinates = self._coordinates.reshape(
