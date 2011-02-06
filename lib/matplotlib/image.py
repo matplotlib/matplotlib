@@ -97,7 +97,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         self._imcache = None
 
-        # this is an expetimental attribute, if True, unsampled image
+        # this is an experimental attribute, if True, unsampled image
         # will be drawn using the affine transform that are
         # appropriately skewed so that the given postition
         # corresponds to the actual position in the coordinate. -JJL
@@ -797,6 +797,9 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         self.axes = ax
         self._rgbacache = None
+        # There is little point in caching the image itself because
+        # it needs to be remade if the bbox or viewlim change,
+        # so caching does help with zoom/pan/resize.
         self.update(kwargs)
         self.set_data(x, y, A)
 
@@ -811,7 +814,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         height = (round(t) + 0.5) - (round(b) - 0.5)
         width = width * magnification
         height = height * magnification
-        if self.check_update('array'):
+        if self._rgbacache is None:
             A = self.to_rgba(self._A, alpha=self._alpha, bytes=True)
             self._rgbacache = A
             if self._A.ndim == 2:
@@ -827,9 +830,14 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         im.is_grayscale = self.is_grayscale
         return im
 
+    def changed(self):
+        self._rgbacache = None
+        cm.ScalarMappable.changed(self)
+
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
         im = self.make_image(renderer.get_image_magnification())
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
@@ -871,7 +879,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         self._A = A
         self._Ax = x
         self._Ay = y
-        self.update_dict['array'] = True
+        self._rgbacache = None
 
     def set_array(self, *args):
         raise NotImplementedError('Method not supported')
