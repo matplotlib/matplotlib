@@ -1054,10 +1054,14 @@ def xlim(*args, **kwargs):
       xlim(xmax=3) # adjust the max leaving min unchanged
       xlim(xmin=1) # adjust the min leaving max unchanged
 
+    Setting limits turns autoscaling off for the x-axis.
+
     The new axis limits are returned as a length 2 tuple.
 
     """
     ax = gca()
+    if not args and not kwargs:
+        return ax.get_xlim()
     ret = ax.set_xlim(*args, **kwargs)
     draw_if_interactive()
     return ret
@@ -1077,9 +1081,13 @@ def ylim(*args, **kwargs):
       ylim(ymax=3) # adjust the max leaving min unchanged
       ylim(ymin=1) # adjust the min leaving max unchanged
 
+    Setting limits turns autoscaling off for the y-axis.
+
     The new axis limits are returned as a length 2 tuple.
     """
     ax = gca()
+    if not args and not kwargs:
+        return ax.get_ylim()
     ret = ax.set_ylim(*args, **kwargs)
     draw_if_interactive()
     return ret
