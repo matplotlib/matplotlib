@@ -5,7 +5,7 @@ The basic idea is to load two images (they can be different shapes) and plot
 them to the same axes with hold "on".  Then, toggle the visible property of
 them using keypress event handling
 
-If you want two images with sifferent shapes to be plotted with the same
+If you want two images with different shapes to be plotted with the same
 extent, they must have the same "extent" property
 
 As usual, we'll define some random images for demo.  Real data is much more
