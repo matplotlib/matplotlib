@@ -654,7 +654,8 @@ class NonUniformImage(AxesImage):
     def __init__(self, ax, **kwargs):
         """
         kwargs are identical to those for AxesImage, except
-        that 'interpolation' defaults to 'nearest'
+        that 'interpolation' defaults to 'nearest', and 'bilinear'
+        is the only alternative.
         """
         interp = kwargs.pop('interpolation', 'nearest')
         AxesImage.__init__(self, ax,
@@ -712,7 +713,7 @@ class NonUniformImage(AxesImage):
             A.shape = A.shape[0:2]
         if len(A.shape) == 2:
             if A.dtype != np.uint8:
-                A = (self.cmap(self.norm(A))*255).astype(np.uint8)
+                A = self.to_rgba(A, alpha=self._alpha, bytes=True)
                 self.is_grayscale = self.cmap.is_gray()
             else:
                 A = np.repeat(A[:,:,np.newaxis], 4, 2)
@@ -956,7 +957,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
-        x = self.to_rgba(self._A, self._alpha)
+        x = self.to_rgba(self._A, self._alpha, bytes=True)
         self.magnification = magnification
         # if magnification is not one, we need to resize
         ismag = magnification!=1
@@ -965,7 +966,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
             isoutput = 0
         else:
             isoutput = 1
-        im = _image.fromarray(x, isoutput)
+        im = _image.frombyte(x, isoutput)
         fc = self.figure.get_facecolor()
         im.set_bg( *mcolors.colorConverter.to_rgba(fc, 0) )
         im.is_grayscale = (self.cmap.name == "gray" and
@@ -1078,11 +1079,11 @@ class BboxImage(_AxesImageBase):
                 im.is_grayscale = False
             else:
                 if self._rgbacache is None:
-                    x = self.to_rgba(self._A, self._alpha)
+                    x = self.to_rgba(self._A, self._alpha, bytes=True)
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
-                im = _image.fromarray(x, 0)
+                im = _image.frombyte(x, 0)
                 if len(self._A.shape) == 2:
                     im.is_grayscale = self.cmap.is_gray()
                 else:
