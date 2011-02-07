@@ -714,21 +714,29 @@ class PsfontsMap(object):
         subsetting, but I have no example of << in my TeX installation.
         """
         texname, psname = words[:2]
-        effects, encoding, filename = '', None, None
+        effects, encodings, filename = '', [], None
         for word in words[2:]:
             if not word.startswith('<'):
                 effects = word
             else:
                 word = word.lstrip('<')
                 if word.startswith('['):
-                    assert encoding is None
-                    encoding = word[1:]
+                    encodings.append(word[1:])
                 elif word.endswith('.enc'):
-                    assert encoding is None
-                    encoding = word
+                    encodings.append(word)
                 else:
                     assert filename is None
                     filename = word
+
+        if len(encodings) > 1:
+            # TODO this is a stopgap workaround, need to handle this correctly
+            matplotlib.verbose.report('Multiple encodings for %s = %s, skipping'
+                                      % (texname, psname), 'debug')
+            return
+        elif len(encodings) == 1:
+            encoding, = encodings
+        else:
+            encoding = None
 
         eff = effects.split()
         effects = {}
