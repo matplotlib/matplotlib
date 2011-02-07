@@ -1131,10 +1131,9 @@ def xscale(*args, **kwargs):
     %(scale_docs)s
     """
     ax = gca()
-    ret = ax.set_xscale(*args, **kwargs)
+    ax.set_xscale(*args, **kwargs)
     draw_if_interactive()
-    return ret
-
+    
 @docstring.dedent_interpd
 def yscale(*args, **kwargs):
     """
@@ -1149,10 +1148,9 @@ def yscale(*args, **kwargs):
     %(scale_docs)s
     """
     ax = gca()
-    ret = ax.set_yscale(*args, **kwargs)
+    ax.set_yscale(*args, **kwargs)
     draw_if_interactive()
-    return ret
-
+    
 def xticks(*args, **kwargs):
     """
     Set/Get the xlimits of the current ticklocs and labels::
