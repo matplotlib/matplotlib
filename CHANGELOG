@@ -1,3 +1,5 @@
+2011-02-07 Quick workaround for dviread bug #3175113 - JKS
+
 2011-02-05 Add cbook memory monitoring for Windows, using
            tasklist. - EF
 
