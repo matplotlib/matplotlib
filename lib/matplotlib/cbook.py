@@ -1233,7 +1233,7 @@ def restrict_dict(d, keys):
 
 def report_memory(i=0):  # argument may go away
     'return the memory consumed by process'
-    from subprocess import Popen, PIPE, check_output
+    from subprocess import Popen, PIPE
     pid = os.getpid()
     if sys.platform=='sunos5':
         a2 = Popen('ps -p %d -o osz' % pid, shell=True,
@@ -1248,7 +1248,13 @@ def report_memory(i=0):  # argument may go away
             stdout=PIPE).stdout.readlines()
         mem = int(a2[1].split()[0])
     elif sys.platform.startswith('win'):
-        a2 = check_output(["tasklist", "/nh", "/fi", "pid eq %d" % pid])
+        try:
+            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
+                stdout=PIPE).stdout.read()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Windows only if "
+                "the 'tasklist' program is found")
         mem = int(a2.strip().split()[-2].replace(',',''))
     else:
         raise NotImplementedError(
