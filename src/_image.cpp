@@ -1085,7 +1085,7 @@ _image_module::frombyte(const Py::Tuple& args)
     Py::Object x = args[0];
     int isoutput = Py::Int(args[1]);
 
-    PyArrayObject *A = (PyArrayObject *) PyArray_ContiguousFromObject(x.ptr(), PyArray_UBYTE, 3, 3);
+    PyArrayObject *A = (PyArrayObject *) PyArray_FromObject(x.ptr(), PyArray_UBYTE, 3, 3);
     if (A == NULL)
     {
         throw Py::ValueError("Array must have 3 dimensions");
@@ -1104,35 +1104,86 @@ _image_module::frombyte(const Py::Tuple& args)
 
     agg::int8u *arrbuf;
     agg::int8u *buffer;
+    agg::int8u *dstbuf;
 
     arrbuf = reinterpret_cast<agg::int8u *>(A->data);
 
     size_t NUMBYTES(imo->colsIn * imo->rowsIn * imo->BPP);
-    buffer = new agg::int8u[NUMBYTES];
+    buffer = dstbuf = new agg::int8u[NUMBYTES];
 
     if (buffer == NULL) //todo: also handle allocation throw
     {
         throw Py::MemoryError("_image_module::frombyte could not allocate memory");
     }
 
-    const size_t N = imo->rowsIn * imo->colsIn * imo->BPP;
-    size_t i = 0;
-    if (A->dimensions[2] == 4)
+    if PyArray_ISCONTIGUOUS(A)
     {
-        memmove(buffer, arrbuf, N);
+        if (A->dimensions[2] == 4)
+        {
+            memmove(dstbuf, arrbuf, imo->rowsIn * imo->colsIn * 4);
+        }
+        else
+        {
+            size_t i = imo->rowsIn * imo->colsIn;
+            while (i--)
+            {
+                *dstbuf++ = *arrbuf++;
+                *dstbuf++ = *arrbuf++;
+                *dstbuf++ = *arrbuf++;
+                *dstbuf++ = 255;
+            }
+        }
+    }
+    else if ((A->strides[1] == 4) && (A->strides[2] == 1))
+    {
+        const size_t N = imo->colsIn * 4;
+        const size_t stride = A->strides[0];
+        for (size_t rownum = 0; rownum < imo->rowsIn; rownum++)
+        {
+            memmove(dstbuf, arrbuf, N);
+            arrbuf += stride;
+            dstbuf += N;
+        }
+    }
+    else if ((A->strides[1] == 3) && (A->strides[2] == 1))
+    {
+        const size_t stride = A->strides[0] - imo->colsIn * 3;
+        for (size_t rownum = 0; rownum < imo->rowsIn; rownum++)
+        {
+            for (size_t colnum = 0; colnum < imo->colsIn; colnum++)
+            {
+                *dstbuf++ = *arrbuf++;
+                *dstbuf++ = *arrbuf++;
+                *dstbuf++ = *arrbuf++;
+                *dstbuf++ = 255;
+            }
+            arrbuf += stride;
+        }
     }
     else
     {
-        while (i < N)
+        PyArrayIterObject *iter;
+        iter = (PyArrayIterObject *)PyArray_IterNew((PyObject *)A);
+        if (A->dimensions[2] == 4)
         {
-            memmove(buffer, arrbuf, 3);
-            buffer += 3;
-            arrbuf += 3;
-            *buffer++ = 255;
-            i += 4;
+            while (iter->index < iter->size) {
+                *dstbuf++ = *((unsigned char *)iter->dataptr);
+                PyArray_ITER_NEXT(iter);
+            }
         }
-        buffer -= N;
-        arrbuf -= imo->rowsIn * imo->colsIn;
+        else
+        {
+            while (iter->index < iter->size) {
+                *dstbuf++ = *((unsigned char *)iter->dataptr);
+                PyArray_ITER_NEXT(iter);
+                *dstbuf++ = *((unsigned char *)iter->dataptr);
+                PyArray_ITER_NEXT(iter);
+                *dstbuf++ = *((unsigned char *)iter->dataptr);
+                PyArray_ITER_NEXT(iter);
+                *dstbuf++ = 255;
+            }
+        }
+        Py_DECREF(iter);
     }
 
     if (isoutput)
