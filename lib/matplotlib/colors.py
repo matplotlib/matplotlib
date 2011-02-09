@@ -853,8 +853,11 @@ class Normalize:
                 mask = ma.getmask(result)
                 result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                   mask=mask)
-            result -= vmin
-            result /= vmax - vmin
+            # ma division is very slow; we can take a shortcut
+            resdat = result.data
+            resdat -= vmin
+            resdat /= (vmax - vmin)
+            result = np.ma.array(resdat, mask=result.mask, copy=False)
         if is_scalar:
             result = result[0]
         return result
