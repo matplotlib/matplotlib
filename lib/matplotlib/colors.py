@@ -921,9 +921,17 @@ class LogNorm(Normalize):
                                 mask=mask)
             #result = (ma.log(result)-np.log(vmin))/(np.log(vmax)-np.log(vmin))
             # in-place equivalent of above can be much faster
-            np.ma.log(result, result)
-            result -= np.log(vmin)
-            result /= (np.log(vmax) - np.log(vmin))
+            resdat = result.data
+            mask = result.mask
+            if mask is np.ma.nomask:
+                mask = (resdat <= 0)
+            else:
+                mask |= resdat <= 0
+            np.putmask(resdat, mask, 1)
+            np.log(resdat, resdat)
+            resdat -= np.log(vmin)
+            resdat /= (np.log(vmax) - np.log(vmin))
+            result = np.ma.array(resdat, mask=mask, copy=False)
         if is_scalar:
             result = result[0]
         return result
