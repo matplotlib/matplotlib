@@ -547,6 +547,8 @@ class Colormap:
         if alpha is not None:
             alpha = min(alpha, 1.0) # alpha must be between 0 and 1
             alpha = max(alpha, 0.0)
+            if bytes:
+                alpha = int(alpha * 255)
             if (lut[-1] == 0).all():
                 lut[:-1, -1] = alpha
                 # All zeros is taken as a flag for the default bad
