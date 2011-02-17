@@ -329,10 +329,9 @@ class MathtextBackendSvg(MathtextBackend):
 
     def render_glyph(self, ox, oy, info):
         oy = self.height - oy + info.offset
-        thetext = unichr_safe(info.num)
 
         self.svg_glyphs.append(
-            (info.font, info.fontsize, thetext, ox, oy, info.metrics))
+            (info.font, info.fontsize, info.num, ox, oy, info.metrics))
 
     def render_rect_filled(self, x1, y1, x2, y2):
         self.svg_rects.append(
