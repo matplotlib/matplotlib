@@ -59,6 +59,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
     scalar mappable will be made to set the face colors.
     """
     _offsets = np.array([], np.float_)
+    # _offsets must be a Nx2 array!
+    _offsets.shape = (0, 2)
     _transOffset = transforms.IdentityTransform()
     _transforms = []
 
@@ -95,10 +97,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         self._uniform_offsets = None
         self._offsets = np.array([], np.float_)
+        # Force _offsets to be Nx2
+        self._offsets.shape = (0, 2)
         if offsets is not None:
             offsets = np.asarray(offsets)
-            if len(offsets.shape) == 1:
-                offsets = offsets[np.newaxis,:]  # Make it Nx2.
+            offsets.shape = (-1, 2)             # Make it Nx2
             if transOffset is not None:
                 self._offsets = offsets
                 self._transOffset = transOffset
@@ -148,13 +151,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transOffset = self._transOffset
         offsets = self._offsets
         paths = self.get_paths()
+
+
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(p) for p in paths]
             transform = transform.get_affine()
         if not transOffset.is_affine:
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
+
         offsets = np.asarray(offsets, np.float_)
+        offsets.shape = (-1, 2)                     # Make it Nx2
 
         result = mpath.get_path_collection_extents(
             transform.frozen(), paths, self.get_transforms(),
@@ -176,6 +183,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         offsets = self._offsets
         paths = self.get_paths()
 
+
         if self.have_units():
             paths = []
             for path in self.get_paths():
@@ -184,17 +192,19 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 xs = self.convert_xunits(xs)
                 ys = self.convert_yunits(ys)
                 paths.append(mpath.Path(zip(xs, ys), path.codes))
-            if len(self._offsets):
-                xs = self.convert_xunits(self._offsets[:,0])
-                ys = self.convert_yunits(self._offsets[:,1])
+
+            if offsets.size > 0:
+                xs = self.convert_xunits(offsets[:,0])
+                ys = self.convert_yunits(offsets[:,1])
                 offsets = zip(xs, ys)
 
         offsets = np.asarray(offsets, np.float_)
+        offsets.shape = (-1, 2)             # Make it Nx2
 
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path) for path in paths]
             transform = transform.get_affine()
-        if not transOffset.is_affine:
+        if not transOffset.is_affine :
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
@@ -258,8 +268,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ACCEPTS: float or sequence of floats
         """
         offsets = np.asarray(offsets, np.float_)
-        if len(offsets.shape) == 1:
-            offsets = offsets[np.newaxis,:]  # Make it Nx2.
+        offsets.shape = (-1, 2)             # Make it Nx2
         #This decision is based on how they are initialized above
         if self._uniform_offsets is None:
             self._offsets = offsets
@@ -1221,6 +1230,7 @@ class QuadMesh(Collection):
                 offsets = zip(xs, ys)
 
         offsets = np.asarray(offsets, np.float_)
+        offsets.shape = (-1, 2)                 # Make it Nx2
 
         self.update_scalarmappable()
 
