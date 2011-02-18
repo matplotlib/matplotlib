@@ -5832,24 +5832,17 @@ class Axes(martist.Artist):
             else:
                 collection.autoscale_None()
 
-        temp_x = x
-        temp_y = y
-
-        minx = np.amin(temp_x)
-        maxx = np.amax(temp_x)
-        miny = np.amin(temp_y)
-        maxy = np.amax(temp_y)
-
-        w = maxx-minx
-        h = maxy-miny
-
         # the pad is a little hack to deal with the fact that we don't
         # want to transform all the symbols whose scales are in points
         # to data coords to get the exact bounding box for efficiency
         # reasons.  It can be done right if this is deemed important
-        padx, pady = 0.05*w, 0.05*h
-        corners = (minx-padx, miny-pady), (maxx+padx, maxy+pady)
-        self.update_datalim( corners)
+        # Also, only bother with this padding if there is anything to draw.
+        if self._xmargin < 0.05 and x.size > 0 :
+            self.set_xmargin(0.05)
+
+        if self._ymargin < 0.05 and x.size > 0 :
+            self.set_ymargin(0.05)
+
         self.autoscale_view()
 
         # add the collection last

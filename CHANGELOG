@@ -1,3 +1,6 @@
+2011-02-18 scatter([], []) is now valid.  Also fixed issues
+           with empty collections - BVR
+
 2011-02-07 Quick workaround for dviread bug #3175113 - JKS
 
 2011-02-05 Add cbook memory monitoring for Windows, using
