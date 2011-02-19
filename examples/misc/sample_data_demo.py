@@ -1,6 +1,6 @@
 """
 Grab mpl data from the ~/.matplotlib/sample_data cache if it exists, else
-fetch it from svn and cache it
+fetch it from github and cache it
 """
 import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
