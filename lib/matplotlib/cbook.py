@@ -448,12 +448,13 @@ def to_filehandle(fname, flag='rU', return_opened=False):
 def is_scalar_or_string(val):
     return is_string_like(val) or not iterable(val)
 
-class ViewVCCachedServer(urllib2.BaseHandler):
+class ViewVCCachedServer(urllib2.HTTPSHandler):
     """
     Urllib2 handler that takes care of caching files.
     The file cache.pck holds the directory of files that have been cached.
     """
     def __init__(self, cache_dir, baseurl):
+        urllib2.HTTPSHandler.__init__(self)
         self.cache_dir = cache_dir
         self.baseurl = baseurl
         self.read_cache()
@@ -544,7 +545,7 @@ class ViewVCCachedServer(urllib2.BaseHandler):
     # http_error_304 for handling 304 Not Modified responses
     # http_response for postprocessing requests
 
-    def http_request(self, req):
+    def https_request(self, req):
         """
         Make the request conditional if we have a cached file.
         """
@@ -555,20 +556,21 @@ class ViewVCCachedServer(urllib2.BaseHandler):
             req.add_header("If-Modified-Since", lastmod)
         return req
 
-    def http_error_304(self, req, fp, code, msg, hdrs):
+    def https_error_304(self, req, fp, code, msg, hdrs):
         """
         Read the file from the cache since the server has no newer version.
         """
         url = req.get_full_url()
         fn, _, _ = self.cache[url]
-        matplotlib.verbose.report('ViewVCCachedServer: reading data file from cache file "%s"'
-                                  %fn, 'debug')
+        matplotlib.verbose.report(
+            'ViewVCCachedServer: reading data file from cache file "%s"' %fn,
+            'debug')
         file = open(fn, 'rb')
         handle = urllib2.addinfourl(file, hdrs, url)
         handle.code = 304
         return handle
 
-    def http_response(self, req, response):
+    def https_response(self, req, response):
         """
         Update the cache with the returned file.
         """
@@ -589,7 +591,7 @@ class ViewVCCachedServer(urllib2.BaseHandler):
     def get_sample_data(self, fname, asfileobj=True):
         """
         Check the cachedirectory for a sample_data file.  If it does
-        not exist, fetch it with urllib from the svn repo and
+        not exist, fetch it with urllib from the git repo and
         store it in the cachedir.
 
         If asfileobj is True, a file object will be returned.  Else the
@@ -637,9 +639,9 @@ class ViewVCCachedServer(urllib2.BaseHandler):
 def get_sample_data(fname, asfileobj=True):
     """
     Check the cachedirectory ~/.matplotlib/sample_data for a sample_data
-    file.  If it does not exist, fetch it with urllib from the mpl svn repo
+    file.  If it does not exist, fetch it with urllib from the mpl git repo
 
-      http://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data/
+      https://github.com/matplotlib/sample_data/raw/master
 
     and store it in the cachedir.
 
@@ -647,11 +649,11 @@ def get_sample_data(fname, asfileobj=True):
     path to the file as a string will be returned
 
     To add a datafile to this directory, you need to check out
-    sample_data from matplotlib svn::
+    sample_data from matplotlib git::
 
-      svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data
+      git clone git@github.com:matplotlib/sample_data
 
-    and svn add the data file you want to support.  This is primarily
+    and git add the data file you want to support.  This is primarily
     intended for use in mpl examples that need custom data.
 
     To bypass all downloading, set the rc parameter examples.download to False
@@ -670,12 +672,13 @@ def get_sample_data(fname, asfileobj=True):
     if myserver is None:
         configdir = matplotlib.get_configdir()
         cachedir = os.path.join(configdir, 'sample_data')
-        baseurl = 'http://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data/'
+        baseurl = 'https://github.com/matplotlib/sample_data/raw/master/'
         myserver = get_sample_data.myserver = ViewVCCachedServer(cachedir, baseurl)
 
     return myserver.get_sample_data(fname, asfileobj=asfileobj)
 
 get_sample_data.myserver = None
+
 def flatten(seq, scalarp=is_scalar_or_string):
     """
     this generator flattens nested containers such as
