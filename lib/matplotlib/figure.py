@@ -312,25 +312,17 @@ class Figure(Artist):
         *ha*
             the horizontal alignment of the xticklabels
         """
-        allsubplots = np.alltrue([hasattr(ax, 'is_last_row') for ax in self.axes])
-        if len(self.axes)==1:
-            for label in ax.get_xticklabels():
-                label.set_ha(ha)
-                label.set_rotation(rotation)
-        else:
-            if allsubplots:
-                for ax in self.get_axes():
-                    if ax.is_last_row():
-                        for label in ax.get_xticklabels():
-                            label.set_ha(ha)
-                            label.set_rotation(rotation)
-                    else:
-                        for label in ax.get_xticklabels():
-                            label.set_visible(False)
-                        ax.set_xlabel('')
+        for ax in self.get_axes():
+            if hasattr(ax, 'is_last_row') and ax.is_last_row():
+                for label in ax.get_xticklabels():
+                    label.set_ha(ha)
+                    label.set_rotation(rotation)
+            else:
+                for label in ax.get_xticklabels():
+                    label.set_visible(False)
+                ax.set_xlabel('')
 
-        if allsubplots:
-            self.subplots_adjust(bottom=bottom)
+        self.subplots_adjust(bottom=bottom)
 
     def get_children(self):
         'get a list of artists contained in the figure'
