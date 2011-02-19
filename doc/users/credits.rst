@@ -126,7 +126,7 @@ Sigve Tjoraand, Ted Drain, James Evans
   features including custom unit types, datetime support, scale free
   ellipses, broken bar plots and more.  The JPL team wrote the unit
   testing image comparison `infrastructure
-  <http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/matplotlib/test>`_
+  <https://github.com/matplotlib/matplotlib/trunk/matplotlib/test>`_
   for regression test image comparisons.
 
 James Amundson
@@ -140,7 +140,7 @@ Eric Firing
 
 Daishi Harada
   added support for "Dashed Text".  See `dashpointlabel.py
-  <examples/pylab_examples/dashpointlabel.py>`_ and
+  <https://github.com/matplotlib/matplotlib/blob/master/examples/pylab_examples/dashpointlabel.py>`_ and
   :class:`~matplotlib.text.TextWithDash`.
 
 Nicolas Young

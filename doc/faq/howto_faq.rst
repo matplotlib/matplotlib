@@ -525,15 +525,8 @@ Contributing: howto
 Submit a patch
 -----------------
 
-First obtain a copy of matplotlib svn (see :ref:`install-svn`) and
-make your changes to the matplotlib source code or documentation and
-apply a `svn diff`.  If it is feasible, do your diff from the top
-level directory, the one that contains :file:`setup.py`.  Eg,::
-
-    > cd /path/to/matplotlib/source
-    > svn diff > mypatch.diff
-
-and then post your patch to the `matplotlib-devel
+See :ref:`making-patches` if you have any questions about how
+to create a patch. Once you've created a patch, post it to the `matplotlib-devel
 <http://sourceforge.net/mail/?group_id=80706>`_ mailing list.  If you
 do not get a response within 24 hours, post your patch to the
 sourceforge patch `tracker
@@ -545,14 +538,14 @@ list.
 
 If you have made lots of local changes and do not want to a diff
 against the entire tree, but rather against a single directory or
-file, that is fine, but we do prefer svn diffs against the top level
+file, that is fine, but we do prefer diffs against the top level
 (where setup.py lives) since it is nice to have a consistent way to
 apply them.
 
 If you are posting a patch to fix a code bug, please explain your
 patch in words -- what was broken before and how you fixed it.  Also,
 even if your patch is particularly simple, just a few lines or a
-single function replacement, we encourage people to submit svn diffs
+single function replacement, we encourage people to submit diffs
 against HEAD or the branch they are patching.  It just makes life
 simpler for us, since we (fortunately) get a lot of contributions, and
 want to receive them in a standard format.  If possible, for any
@@ -619,7 +612,7 @@ your documents.
 
 Once your documentation contributions are working (and hopefully
 tested by actually *building* the docs) you can submit them as a patch
-against svn.  See :ref:`install-svn` and :ref:`how-to-submit-patch`.
+against git.  See :ref:`install-git` and :ref:`how-to-submit-patch`.
 Looking for something to do?  Search for `TODO <../search.html?q=todo>`_.
 
 

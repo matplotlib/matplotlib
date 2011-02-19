@@ -249,7 +249,7 @@ little differently. These figures are not to be generated during the
 documentation build, in order to keep the prerequisites to the documentation
 effort as low as possible. Please run the :file:`doc/pyplots/make.py` script
 when adding such figures, and commit the script **and** the images to
-svn. Please also add a line to the README in doc/pyplots for any additional
+git. Please also add a line to the README in doc/pyplots for any additional
 requirements necessary to generate a new figure. Once these steps have been
 taken, these figures can be included in the usual way::
 

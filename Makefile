@@ -36,12 +36,12 @@ build_osx105:
 
 
 jdh_doc_snapshot:
-	svn up;\
+	git checkout;\
 	python setup.py install --prefix=~/dev;\
 	cd doc;\
 	rm -rf build;\
 	python make.py clean;\
-	svn up;\
+	git checkout;\
 	python make.py html latex sf sfpdf;
 
 
