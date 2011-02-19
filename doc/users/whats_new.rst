@@ -120,7 +120,7 @@ been, thanks to improved `software carpentry
 <http://software-carpentry.org/>`_.  We now have a `buildbot
 <http://buildbot.net/trac>`_ which runs a suite of `nose
 <http://code.google.com/p/python-nose/>`_ regression tests on every
-svn commit, auto-generating a set of images and comparing them against
+git commit, auto-generating a set of images and comparing them against
 a set of known-goods, sending emails to developers on failures with a
 pixel-by-pixel `image comparison
 <http://mpl.code.astraw.com/overview.html>`_.  Releases and release

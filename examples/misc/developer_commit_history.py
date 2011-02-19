@@ -2,7 +2,7 @@
 report how many days it has been since each developer committed.  You
 must do an
 
-svn log > log.txt
+git log > log.txt
 
 and place the output next to this file before running
 
@@ -14,7 +14,7 @@ import matplotlib.cbook as cbook
 todate = cbook.todate('%Y-%m-%d')
 today = datetime.date.today()
 if not os.path.exists('log.txt'):
-    print('You must place the "svn log" output into a file "log.txt"')
+    print('You must place the "git log" output into a file "log.txt"')
     raise SystemExit
 
 parse = False

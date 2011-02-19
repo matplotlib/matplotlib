@@ -92,14 +92,14 @@ install directory.  To cleanly rebuild:
    <locating-matplotlib-install>`
 
 
-.. _install-svn:
+.. _install-git:
 
-Install from svn
+Install from git
 ================
 
 Checking out the main source::
 
-   svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib
+   git clone git://github.com/matthew-brett/gitwash.git
 
 and build and install as usual with::
 
@@ -114,7 +114,7 @@ and build and install as usual with::
       sudo apt-get build_dep python-matplotlib
 
     This does not build matplotlib, but it does get the install the
-    build dependencies, which will make building from svn easy.
+    build dependencies, which will make building from git easy.
 
 
 If you want to be able to follow the development branch as it changes just replace
@@ -125,20 +125,16 @@ the last step with (Make sure you have **setuptools** installed)::
 This creates links in the right places and installs the command line script to the appropriate places.
 Then, if you want to update your **matplotlib** at any time, just do::
 
-  > svn update
+  > git pull
 
-
-When you run `svn update`, if the output shows that only Python files
+When you run `git pull`, if the output shows that only Python files
 have been updated, you are all set.  If C files have changed, you need
 to run the `python setupegg develop` command again to compile them.
 
-There is more information on :ref:`using Subversion <using-svn>` in
-the developer docs.
+There is more information on using git in the
+:ref:`development quickstart <development-quickstart>`
+documentation.
 
-Install from git
-================
-
-See :ref:`using-git`.
 
 Backends
 ========
@@ -436,7 +432,7 @@ Run this script (for example ``sh ./install-matplotlib-epd-osx.sh``) in the
 directory in which you want the source code to be placed, or simply type the
 commands in the terminal command line. This script sets some local variable
 (CFLAGS, LDFLAGS, PKG_CONFIG_PATH, ARCHFLAGS), removes previous installations,
-checks out the source from svn, builds and installs it. The backend seems to be
+checks out the source from git, builds and installs it. The backend seems to be
 set to MacOSX.
 
 
