@@ -127,18 +127,18 @@ a bug and can not be quickly solved, you may be asked to file a bug in
 the tracker so the issue doesn't get lost.
 
 
-.. _svn-trouble:
+.. _git-trouble:
 
-Problems with recent svn versions
-===============================================================
+Problems with recent git versions
+=================================
 
 First make sure you have a clean build and install (see
-:ref:`clean-install`), get the latest svn update, install it and run a
+:ref:`clean-install`), get the latest git update, install it and run a
 simple test script in debug mode::
 
     rm -rf build
     rm -rf /path/to/site-packages/matplotlib*
-    svn up
+    git pull
     python setup.py install > build.out
     python examples/pylab_examples/simple_plot.py --verbose-debug > run.out
 

@@ -37,10 +37,12 @@ Branching
 ============
 
 Once all the tests are passing and you are ready to do a release, you
-need to create a release branch and configure svn-merge to use it;
-Michael Droettboom should probably handle this step, but if he is not
-available see instructions at :ref:`setting-up-svnmerge`.  On the
-bracnh, do any additional testing you want to do, and then build
+need to create a release branch::
+
+   git checkout -b v1.1.x
+   git push git@github.com:matplotlib/matplotlib.git v1.1.x
+
+On the branch, do any additional testing you want to do, and then build
 binaries and source distributions for testing as release candidates.
 
 
@@ -53,9 +55,7 @@ Packaging
 * Make sure the :file:`MANIFEST.in` us up to date and remove
   :file:`MANIFEST` so it will be rebuilt by MANIFEST.in
 
-* run `svn-clean
-  <http://svn.collab.net/repos/svn/trunk/contrib/client-side/svn-clean>`_
-  from in the mpl svn directory before building the sdist
+* run `git clean` in the mpl git directory before building the sdist
 
 * unpack the sdist and make sure you can build from that directory
 
@@ -92,8 +92,8 @@ replacing 'jdh2358' with your sourceforge login.
 
 
 Any changes to fix bugs in the release candidate should be fixed in
-the release branch and merged into the trunk with svn-merge; see
-:ref:`svn-merge`.  When the release candidate is signed off on, build
+the release branch and merged into the trunk with `git merge`; see
+:ref:`git merge`.  When the release candidate is signed off on, build
 the final sdist, binaries and eggs, and upload them to the sourceforge
 release area.
 
@@ -110,7 +110,7 @@ Uploading
 
 * ftp the source and binaries to the anonymous FTP site::
 
-    mpl> svn-clean
+    mpl> git clean
     mpl> python setup.py sdist
     mpl> cd dist/
     dist> sftp jdh2358@frs.sourceforge.net

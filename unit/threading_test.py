@@ -2,7 +2,7 @@
 """
 Test by Karen Tracey for threading problem reported in 
 http://www.mail-archive.com/matplotlib-devel@lists.sourceforge.net/msg04819.html
-and solved by JDH with svn r7008.
+and solved by JDH in git commit 175e3ec5bed9144.
 """
 
 import os
