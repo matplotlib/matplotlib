@@ -13,7 +13,7 @@ Overview
 
    git clone git@github.com:your-user-name/matplotlib.git
    cd matplotlib
-   git remote add upstream git://github.com/ipython/matplotlib.git
+   git remote add upstream git://github.com/matplotlib/matplotlib.git
 
 In detail
 =========
@@ -46,7 +46,7 @@ Linking your repository to the upstream repo
 ::
 
    cd matplotlib
-   git remote add upstream git://github.com/ipython/matplotlib.git
+   git remote add upstream git://github.com/matplotlib/matplotlib.git
 
 ``upstream`` here is just the arbitrary name we're using to refer to the
 main matplotlib_ repository at `matplotlib github`_.
@@ -59,8 +59,8 @@ use it to merge into our own code.
 Just for your own satisfaction, show yourself that you now have a new
 'remote', with ``git remote -v show``, giving you something like::
 
-   upstream	git://github.com/ipython/matplotlib.git (fetch)
-   upstream	git://github.com/ipython/matplotlib.git (push)
+   upstream	git://github.com/matplotlib/matplotlib.git (fetch)
+   upstream	git://github.com/matplotlib/matplotlib.git (push)
    origin	git@github.com:your-user-name/matplotlib.git (fetch)
    origin	git@github.com:your-user-name/matplotlib.git (push)
 

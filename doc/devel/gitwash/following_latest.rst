@@ -18,7 +18,7 @@ Get the local copy of the code
 
 From the command line::
 
-   git clone git://github.com/ipython/matplotlib.git
+   git clone git://github.com/matplotlib/matplotlib.git
 
 You now have a copy of the code tree in the new ``matplotlib`` directory.
 
