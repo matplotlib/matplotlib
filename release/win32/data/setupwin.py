@@ -10,3 +10,4 @@ except AttributeError:
     pass
 
 execfile('setup.py')
+
