@@ -26,7 +26,8 @@ check-prefix:
 clean:
 	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.gz \
 	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
-	bdist_mpkg-${BDISTMPKGVERSION} \
+	bdist_mpkg-${BDISTMPKGVERSION} setupext.pyc \
+    lib/matplotlib/mpl-data/matplotlib.conf lib/matplotlib/mpl-data/matplotlibrc \
 	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} \
 	build
 
