@@ -25,7 +25,7 @@ check-prefix:
 	@if [ ! -d "$(PREFIX)" ]; then echo Set PREFIX to a directory - see README.osx; exit 1; fi
 
 clean:
-	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
+	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.gz \
 	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
 	bdist_mpkg-${BDISTMPKGVERSION} \
 	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} \
