@@ -1,7 +1,6 @@
 # build mpl into a local install dir with
-# PREFIX=/Users/jdhunter/dev make -f make.osx fetch deps mpl_install
+# PREFIX=/Users/jdhunter/dev [PYVERSION=2.6] make -f make.osx fetch deps mpl_install
 MPLVERSION=1.0rc1
-PYVERSION=2.6
 PYTHON=python${PYVERSION}
 ZLIBVERSION=1.2.3
 PNGVERSION=1.2.39
