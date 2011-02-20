@@ -95,7 +95,7 @@ mpl_install: check-prefix
 	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
 	export CFLAGS=${CFLAGS} &&\
 	export LDFLAGS=${LDFLAGS} &&\
-	${PYTHON} setup.py install --prefix=${PREFIX}
+	${PYTHON} setup.py install
 
 
 binaries: check-prefix
