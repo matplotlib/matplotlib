@@ -9,6 +9,7 @@ import matplotlib
 import numpy as np
 import matplotlib.cm as cm
 import matplotlib.mlab as mlab
+import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 
 matplotlib.rcParams['xtick.direction'] = 'out'
@@ -68,7 +69,15 @@ for l,s in zip( CS.levels, strs ):
 # Label every other level using strings
 plt.clabel(CS,CS.levels[::2],inline=True,fmt=fmt,fontsize=10)
 
-##################################################
-# Show the hole thing
-##################################################
+# Use a Formatter
+
+plt.figure()
+
+CS = plt.contour(X, Y, 100**Z, locator=plt.LogLocator())
+fmt = ticker.LogFormatterMathtext()
+fmt.create_dummy_axis()
+plt.clabel(CS, CS.levels, fmt=fmt)
+plt.title("$100^Z$")
+
 plt.show()
+
