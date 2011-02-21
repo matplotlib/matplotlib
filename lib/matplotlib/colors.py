@@ -1006,19 +1006,21 @@ def rgb_to_hsv(arr):
     convert rgb values in a numpy array to hsv values
     input and output arrays should have shape (M,N,3)
     """
-    out = np.empty_like(arr)
+    out = np.zeros_like(arr)
     arr_max = arr.max(-1)
+    ipos = arr_max > 0
     delta = arr.ptp(-1)
-    s = delta / arr_max
-    s[delta==0] = 0
+    s = np.zeros_like(delta)
+    s[ipos] = delta[ipos] / arr_max[ipos]
+    ipos = delta > 0
     # red is max
-    idx = (arr[:,:,0] == arr_max)
+    idx = (arr[:,:,0] == arr_max) & ipos
     out[idx, 0] = (arr[idx, 1] - arr[idx, 2]) / delta[idx]
     # green is max
-    idx = (arr[:,:,1] == arr_max)
+    idx = (arr[:,:,1] == arr_max) & ipos
     out[idx, 0] = 2. + (arr[idx, 2] - arr[idx, 0] ) / delta[idx]
     # blue is max
-    idx = (arr[:,:,2] == arr_max)
+    idx = (arr[:,:,2] == arr_max) & ipos
     out[idx, 0] = 4. + (arr[idx, 0] - arr[idx, 1] ) / delta[idx]
     out[:,:,0] = (out[:,:,0]/6.0) % 1.0
     out[:,:,1] = s
