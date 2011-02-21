@@ -31,6 +31,13 @@ Here is an example ``.gitconfig`` file::
   [merge]
           summary = true
 
+  [apply]
+          whitespace = fix
+
+  [core]
+          autocrlf = input
+
+
 You can edit this file directly or you can use the ``git config --global``
 command::
 
