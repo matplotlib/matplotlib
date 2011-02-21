@@ -7428,7 +7428,7 @@ class Axes(martist.Artist):
 
     @docstring.dedent_interpd
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
-             cumulative=False, bottom=None, histtype='bar', align='mid',
+             cumulative=False, bottom=None, histtype=None, align='mid',
              orientation='vertical', rwidth=None, log=False,
              color=None, label=None,
              **kwargs):
@@ -7436,7 +7436,7 @@ class Axes(martist.Artist):
         call signature::
 
           def hist(x, bins=10, range=None, normed=False, weights=None,
-                 cumulative=False, bottom=None, histtype='bar', align='mid',
+                 cumulative=False, bottom=None, histtype=None, align='mid',
                  orientation='vertical', rwidth=None, log=False,
                  color=None, label=None,
                  **kwargs):
@@ -7506,7 +7506,8 @@ class Axes(martist.Artist):
             such that the first bin equals 1.
 
           *histtype*: [ 'bar' | 'barstacked' | 'step' | 'stepfilled' ]
-            The type of histogram to draw.
+            The type of histogram to draw. If (*None*), the rc value is
+            used (by default, 'bar')
 
               - 'bar' is a traditional bar-type histogram.  If multiple data
                 are given the bars are aranged side by side.
@@ -7576,6 +7577,8 @@ class Axes(martist.Artist):
 
         # Validate string inputs here so we don't have to clutter
         # subsequent code.
+        if histtype is None:
+          histtype = rcParams['hist.histtype']
         if histtype not in ['bar', 'barstacked', 'step', 'stepfilled']:
             raise ValueError("histtype %s is not recognized" % histtype)
 
@@ -7786,8 +7789,7 @@ class Axes(martist.Artist):
                     patches.append( self.fill(x, y,
                         closed=False, facecolor=c) )
                 else:
-                    patches.append( self.fill(x, y,
-                        closed=False, edgecolor=c, fill=False) )
+                    patches.append( self.plot(x, y,color=c) )
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':

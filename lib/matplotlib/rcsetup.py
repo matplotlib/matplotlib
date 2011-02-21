@@ -258,6 +258,10 @@ validate_ps_papersize = ValidateInStrings('ps_papersize',[
     'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10',
     ], ignorecase=True)
 
+validate_hist_histtype = ValidateInStrings('histtype',[
+    'bar', 'barstacked', 'step', 'stepfilled',
+    ], ignorecase=True)
+
 def validate_ps_distiller(s):
     if type(s) is str:
         s = s.lower()
@@ -427,7 +431,9 @@ defaultParams = {
     'image.resample'      : [False, validate_bool],
 
     'contour.negative_linestyle' : ['dashed', validate_negative_linestyle_legacy],
-
+    
+    'hist.histtype' : ['bar', validate_hist_histtype],
+    
     # axes props
     'axes.axisbelow'        : [False, validate_bool],
     'axes.hold'             : [True, validate_bool],
