@@ -1905,9 +1905,13 @@ FT2Font::get_sfnt_table(const Py::Tuple & args)
             pclt["typeFamily"]         = Py::Int((short) t->TypeFamily);
             pclt["capHeight"]          = Py::Int((short) t->CapHeight);
             pclt["symbolSet"]          = Py::Int((short) t->SymbolSet);
+            #if PY3K
             pclt["typeFace"]           = Py::String((char *) t->TypeFace, 16, "latin-1");
-            pclt["characterComplement"] = Py::Bytes((char *)
-                                                     t->CharacterComplement, 8);
+            pclt["characterComplement"] = Py::Bytes((char *) t->CharacterComplement, 8);
+            #else
+            pclt["typeFace"]           = Py::String((char *) t->TypeFace, 16);
+            pclt["characterComplement"] = Py::String((char *) t->CharacterComplement, 8);
+            #endif
             // pclt["filename"]           = Py::String((char *) t->FileName, 6);
             pclt["strokeWeight"]       = Py::Int((int) t->StrokeWeight);
             pclt["widthType"]          = Py::Int((int) t->WidthType);
