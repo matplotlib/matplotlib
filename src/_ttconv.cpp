@@ -175,10 +175,27 @@ public:
 
     virtual void add_pair(const char* a, const char* b)
     {
+        const char *p;
+
+        /* Each glyph includes bounding box information, but xpdf and
+           ghostscript can't handle it in a Form XObject (they
+           segfault!!!), so we remove it from the stream here.  It's
+           not needed anyway, since the Form XObject includes it in
+           its BBox value. */
+        p = b;
+        for (p = b; *p != 0; ++p) {
+            if (*p == 'd') {
+                if (*(p + 1) == '1') {
+                    p += 2;
+                    break;
+                }
+            }
+        }
+
         #if PY3K
-        PyObject* value = PyUnicode_FromString(b);
+        PyObject* value = PyBytes_FromString(p);
         #else
-        PyObject* value = PyString_FromString(b);
+        PyObject* value = PyString_FromString(p);
         #endif
         if (value)
         {
@@ -247,7 +264,7 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds)
 static PyMethodDef ttconv_methods[] =
 {
     {
-        "convert_ttf_to_ps", (PyCFunction)convert_ttf_to_ps, METH_KEYWORDS,
+        "convert_ttf_to_ps", (PyCFunction)convert_ttf_to_ps, METH_VARARGS | METH_KEYWORDS,
         "convert_ttf_to_ps(filename, output, fonttype, glyph_ids)\n"
         "\n"
         "Converts the Truetype font into a Type 3 or Type 42 Postscript font, "
@@ -265,7 +282,7 @@ static PyMethodDef ttconv_methods[] =
         "composite glyphs, then the component glyphs will also be included."
     },
     {
-        "get_pdf_charprocs", (PyCFunction)py_get_pdf_charprocs, METH_KEYWORDS,
+        "get_pdf_charprocs", (PyCFunction)py_get_pdf_charprocs, METH_VARARGS | METH_KEYWORDS,
         "get_pdf_charprocs(filename, glyph_ids)\n"
         "\n"
         "Given a Truetype font file, returns a dictionary containing the PDF Type 3\n"
