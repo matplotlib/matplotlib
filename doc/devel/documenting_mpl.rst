@@ -229,9 +229,9 @@ included.
 
 The path should be relative to the ``doc`` directory.  Any plots
 specific to the documentation should be added to the ``doc/pyplots``
-directory and committed to SVN.  Plots from the ``examples`` directory
+directory and committed to git.  Plots from the ``examples`` directory
 may be referenced through the symlink ``mpl_examples`` in the ``doc``
-directory.  eg.::
+directory.  e.g.::
 
   .. plot:: mpl_examples/pylab_examples/simple_plot.py
 
@@ -249,7 +249,7 @@ little differently. These figures are not to be generated during the
 documentation build, in order to keep the prerequisites to the documentation
 effort as low as possible. Please run the :file:`doc/pyplots/make.py` script
 when adding such figures, and commit the script **and** the images to
-svn. Please also add a line to the README in doc/pyplots for any additional
+git. Please also add a line to the README in doc/pyplots for any additional
 requirements necessary to generate a new figure. Once these steps have been
 taken, these figures can be included in the usual way::
 

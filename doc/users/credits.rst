@@ -120,13 +120,13 @@ Jeffrey Whitaker
   at `NOAA <http://www.boulder.noaa.gov>`_ wrote the
   :ref:`toolkit_basemap` tookit
 
-Sigve Tjoraand, Ted Drain, James Evans 
+Sigve Tjoraand, Ted Drain, James Evans
   and colleagues at the `JPL <http://www.jpl.nasa.gov>`_ collaborated
   on the QtAgg backend and sponsored development of a number of
   features including custom unit types, datetime support, scale free
   ellipses, broken bar plots and more.  The JPL team wrote the unit
   testing image comparison `infrastructure
-  <http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/matplotlib/test>`_
+  <https://github.com/matplotlib/matplotlib/tree/master/test>`_
   for regression test image comparisons.
 
 James Amundson
@@ -155,7 +155,7 @@ The `brainvisa <http://brainvisa.info>`_ Orsay team and Fernando Perez
 Charlie Moad
   contributed work to matplotlib's Cocoa support and has done a lot of work on the OSX and win32 binary releases.
 
-Jouni K. Seppänen 
+Jouni K. Seppänen
   wrote the PDF backend and contributed numerous
   fixes to the code, to tex support and to the get_sample_data handler
 

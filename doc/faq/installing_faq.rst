@@ -92,14 +92,18 @@ install directory.  To cleanly rebuild:
    <locating-matplotlib-install>`
 
 
-.. _install-svn:
+.. _install-git:
 
-Install from svn
+Install from git
 ================
 
-Checking out the main source::
+Clone the main source using one of::
 
-   svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/matplotlib matplotlib
+   git clone git@github.com:matplotlib/matplotlib.git
+
+or::
+
+   git clone git://github.com/matplotlib/matplotlib.git
 
 and build and install as usual with::
 
@@ -114,12 +118,13 @@ the last step with (Make sure you have **setuptools** installed)::
 This creates links in the right places and installs the command line script to the appropriate places.
 Then, if you want to update your **matplotlib** at any time, just do::
 
-  > svn update
+  > git pull
 
-When you run `svn update`, if the output shows that only Python files have been updated, you are all set.
-If C files have changed, you need to run the `python setupegg develop` command again to compile them.
+When you run `git pull`, if the output shows that only Python files have been
+updated, you are all set. If C files have changed, you need to run the `python
+setupegg.py develop` command again to compile them.
 
-There is more information on :ref:`using Subversion <using-svn>` in
+There is more information on :ref:`using git <using-git>` in
 the developer docs.
 
 Install from git
@@ -393,38 +398,33 @@ previous version of MPL was installed (Looks something like ``./matplotlib-0.98.
 
 3. Save the following as a shell script , for example ``./install-matplotlib-epd-osx.sh`` ::
 
-       NAME=matplotlib
-       VERSION=0_99
-       PREFIX=$HOME
-       #branch="release"
-       branch="trunk"
-       if [  $branch = "trunk" ]
-          then
-          echo getting the trunk
-          svn co https://matplotlib.svn.sourceforge.net/svnroot/$NAME/trunk/$NAME $NAME
-          cd $NAME
-
-        fi
-        if [ $branch = "release" ]
-           then
-           echo getting the maintenance branch
-           svn co https://matplotlib.svn.sf.net/svnroot/matplotlib/branches/v${VERSION}_maint $NAME$VERSION
-           cd $NAME$VERSION
-        fi
-        export CFLAGS="-Os -arch i386"
-        export LDFLAGS="-Os -arch i386"
-        export PKG_CONFIG_PATH="/usr/x11/lib/pkgconfig"
-        export ARCHFLAGS="-arch i386"
-        python setup.py build
-        python setup.py install #--prefix=$PREFIX #Use this if you don't want it installed into your default location
-        cd ..
+   NAME=matplotlib
+   VERSION=v1.0.x
+   PREFIX=$HOME
+   #branch="release"
+   branch="trunk"
+   git clone git://github.com/matplotlib/matplotlib.git
+   cd matplotlib
+   if [ $branch = "release" ]
+       then
+       echo getting the maintenance branch
+       git checkout -b $VERSION origin/$VERSION
+   fi
+   export CFLAGS="-Os -arch i386"
+   export LDFLAGS="-Os -arch i386"
+   export PKG_CONFIG_PATH="/usr/x11/lib/pkgconfig"
+   export ARCHFLAGS="-arch i386"
+   python setup.py build
+   # use --prefix if you don't want it installed in the default location:
+   python setup.py install #--prefix=$PREFIX
+   cd ..
 
 Run this script (for example ``sh ./install-matplotlib-epd-osx.sh``) in the
 directory in which you want the source code to be placed, or simply type the
 commands in the terminal command line. This script sets some local variable
 (CFLAGS, LDFLAGS, PKG_CONFIG_PATH, ARCHFLAGS), removes previous installations,
-checks out the source from svn, builds and installs it. The backend seems to be
-set to MacOSX.
+checks out the source from github, builds and installs it. The backend seems
+to be set to MacOSX.
 
 
 Windows questions

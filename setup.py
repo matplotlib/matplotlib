@@ -209,9 +209,10 @@ if hasdatetime: # dates require python23 datetime
         packages.append('pytz')
 
         resources = ['zone.tab', 'locales/pytz.pot']
-        for dirpath, dirnames, filenames in os.walk(os.path.join('lib', 'pytz', 'zoneinfo')):
+        for dirpath, dirnames, filenames in os.walk(
+            os.path.join('lib', 'pytz', 'zoneinfo')
+            ):
 
-            if '.svn' in dirpath: continue
             # remove the 'pytz' part of the path
             basepath = os.path.join(*dirpath.split(os.path.sep)[2:])
             #print dirpath, basepath
