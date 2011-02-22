@@ -18,7 +18,7 @@ If you find TeX expressions that don't parse or render properly,
 please email mdroe@stsci.edu, but please check KNOWN ISSUES below first.
 """
 from __future__ import division
-import os
+import os, sys
 from cStringIO import StringIO
 from math import ceil
 try:
@@ -2828,7 +2828,7 @@ class Parser(object):
                            padded_body])
         # Stretch the glue between the hrule and the body
         rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
-                        depth, 'exactly')
+                        'exactly', depth)
 
         # Add the root and shift it upward so it is above the tick.
         # The value of 0.6 is a hard-coded hack ;)
@@ -2869,7 +2869,7 @@ class Parser(object):
 
         # Stretch the glue between the hrule and the body
         rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
-                        depth, 'exactly')
+                        'exactly', depth)
 
         hlist = Hlist([rightside])
         return [hlist]
