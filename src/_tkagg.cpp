@@ -20,10 +20,6 @@
 #include "_backend_agg.h"
 #include "agg_py_transforms.h"
 
-#if PY_MAJOR_VERSION >= 3
-#define PY3K 1
-#endif
-
 extern "C"
 {
 #ifdef __APPLE__

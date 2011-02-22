@@ -102,7 +102,7 @@ Py::Object
 BufferRegion::to_string(const Py::Tuple &args)
 {
     // owned=true to prevent memory leak
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
     return Py::Bytes(PyBytes_FromStringAndSize((const char*)data, height*stride), true);
     #else
     return Py::String(PyString_FromStringAndSize((const char*)data, height*stride), true);
@@ -156,7 +156,7 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
     unsigned char tmp;
     size_t i, j;
 
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
     PyObject* str = PyBytes_FromStringAndSize((const char*)data, height * stride);
     if (PyBytes_AsStringAndSize(str, (char**)&begin, &length))
     {
@@ -1994,7 +1994,7 @@ RendererAgg::write_rgba(const Py::Tuple& args)
     bool close_file = false;
     Py::Object py_fileobj = Py::Object(args[0]);
 
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
     int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
     PyErr_Clear();
     #endif
@@ -2014,7 +2014,7 @@ RendererAgg::write_rgba(const Py::Tuple& args)
         }
         close_file = true;
     }
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
     else if (fd != -1)
     {
         if (write(fd, pixBuffer, NUMBYTES) != (ssize_t)NUMBYTES)
@@ -2087,7 +2087,11 @@ RendererAgg::tostring_rgb(const Py::Tuple& args)
     }
 
     //todo: how to do this with native CXX
+    #if PY3K
+    PyObject* o = Py_BuildValue("y#", buf_tmp, row_len * height);
+    #else
     PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * height);
+    #endif
 
     delete [] buf_tmp;
     return Py::asObject(o);
@@ -2123,7 +2127,12 @@ RendererAgg::tostring_argb(const Py::Tuple& args)
     }
 
     //todo: how to do this with native CXX
+
+    #if PY3K
+    PyObject* o = Py_BuildValue("y#", buf_tmp, row_len * height);
+    #else
     PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * height);
+    #endif
     delete [] buf_tmp;
     return Py::asObject(o);
 }
@@ -2162,9 +2171,11 @@ RendererAgg::tostring_bgra(const Py::Tuple& args)
     }
 
     //todo: how to do this with native CXX
-    PyObject* o = Py_BuildValue("s#",
-                                buf_tmp,
-                                row_len * height);
+    #if PY3K
+    PyObject* o = Py_BuildValue("y#", buf_tmp, row_len * height);
+    #else
+    PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * height);
+    #endif
     delete [] buf_tmp;
     return Py::asObject(o);
 }
@@ -2183,10 +2194,10 @@ RendererAgg::buffer_rgba(const Py::Tuple& args)
     int row_len = width * 4;
     int start = row_len * starth + startw * 4;
     /* PY3KTODO: Buffers are different */
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
     return Py::asObject(PyByteArray_FromStringAndSize(
-                            (const char *)pixBuffer + start,
-                            row_len*height - start));
+                                (const char *)pixBuffer + start,
+                                row_len*height - start));
     #else
     return Py::asObject(PyBuffer_FromMemory(pixBuffer + start, row_len*height - start));
     #endif
@@ -2427,7 +2438,7 @@ void RendererAgg::init_type()
 }
 
 extern "C"
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
 PyMODINIT_FUNC
 PyInit__backend_agg(void)
 #else
@@ -2444,7 +2455,7 @@ init_backend_agg(void)
     static _backend_agg_module* _backend_agg = NULL;
     _backend_agg = new _backend_agg_module;
 
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
     return _backend_agg->module().ptr();
     #endif
 }

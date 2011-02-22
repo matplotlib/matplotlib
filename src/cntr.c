@@ -22,6 +22,12 @@
 #include <stdio.h>
 #include "numpy/arrayobject.h"
 
+#if PY_MAJOR_VERSION >= 3
+#define PY3K 1
+#else
+#define PY3K 0
+#endif
+
 /* Note that all arrays in these routines are Fortran-style,
    in the sense that the "i" index varies fastest; the dimensions
    of the corresponding C array are z[jmax][imax] in the notation
@@ -1745,7 +1751,7 @@ static void
 Cntr_dealloc(Cntr* self)
 {
     Cntr_clear(self);
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
         Py_TYPE(self)->tp_free((PyObject*)self);
     #else
         self->ob_type->tp_free((PyObject*)self);
@@ -1919,7 +1925,7 @@ static PyMethodDef Cntr_methods[] = {
 };
 
 static PyTypeObject CntrType = {
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
         PyVarObject_HEAD_INIT(NULL, 0)
     #else
         PyObject_HEAD_INIT(NULL)
@@ -1968,7 +1974,7 @@ static PyMethodDef module_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
 static PyModuleDef cntr_module = {
     PyModuleDef_HEAD_INIT,
     "_cntr",
@@ -1995,7 +2001,7 @@ init_cntr(void)
         ERROR_RETURN;
     }
 
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
         m = PyModule_Create(&cntr_module);
     #else
         m = Py_InitModule3("_cntr", module_methods,
@@ -2013,7 +2019,7 @@ init_cntr(void)
     Py_INCREF(&CntrType);
     PyModule_AddObject(m, "Cntr", (PyObject *)&CntrType);
 
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
         return m;
     #endif
 }

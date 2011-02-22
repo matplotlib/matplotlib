@@ -285,7 +285,7 @@ FT2Image::py_as_str(const Py::Tuple & args)
     args.verify_length(0);
 
     return Py::asObject
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
       (PyBytes_FromStringAndSize((const char *)_buffer, _width*_height));
 #else
       (PyString_FromStringAndSize((const char *)_buffer, _width*_height));
@@ -2129,7 +2129,7 @@ extern "C"
 void
 #endif
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
 PyMODINIT_FUNC
 PyInit_ft2font(void)
 #else
@@ -2190,7 +2190,7 @@ initft2font(void)
         throw Py::RuntimeError("Could not find initialize the freetype2 library");
     }
 
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
     return ft2font->module().ptr();
     #endif
 }
