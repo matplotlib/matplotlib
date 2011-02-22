@@ -98,7 +98,7 @@ build everything yourself, it is not difficult to build matplotlib
 from source.  Grab the latest *tar.gz* release file from `sourceforge
 <http://sourceforge.net/project/showfiles.php?group_id=80706>`_, or if
 you want to develop matplotlib or just need the latest bugfixed
-version, grab the latest svn version :ref:`install-svn`.
+version, grab the latest git version :ref:`install-git`.
 
 Once you have satisfied the requirements detailed below (mainly
 python, numpy, libpng and freetype), you build matplotlib in the usual
@@ -109,7 +109,7 @@ way::
   python setup.py install
 
 We provide a `setup.cfg
-<http://matplotlib.svn.sourceforge.net/viewvc/matplotlib/trunk/matplotlib/setup.cfg.template?view=markup>`_
+<https://github.com/matplotlib/matplotlib/raw/master/setup.cfg.template>`_
 file that lives along :file:`setup.py` which you can use to customize
 the build process, for example, which default backend to use, whether
 some of the optional libraries that matplotlib ships with are
@@ -210,7 +210,7 @@ The build situation on OSX is complicated by the various places one
 can get the png and freetype requirements from (darwinports, fink,
 /usr/X11R6) and the different architectures (x86, ppc, universal) and
 the different OSX version (10.4 and 10.5). We recommend that you build
-the way we do for the OSX release: by grabbing the tarbar or svn
+the way we do for the OSX release: by grabbing the tarbar or git
 repository, cd-ing into the release/osx dir, and following the
 instruction in the README.  This directory has a Makefile which will
 automatically grab the zlib, png and freetype dependencies from the
