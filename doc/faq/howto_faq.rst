@@ -525,35 +525,51 @@ Contributing: howto
 Submit a patch
 -----------------
 
-First obtain a copy of matplotlib svn (see :ref:`install-svn`) and
-make your changes to the matplotlib source code or documentation and
-apply a `svn diff`.  If it is feasible, do your diff from the top
-level directory, the one that contains :file:`setup.py`.  Eg,::
+If you have a github account, or are willing to make one, make a private fork
+of the repository at `<https://github.com/matplotlib/matplotlib.git>`_. Then
+clone the repository::
 
-    > cd /path/to/matplotlib/source
-    > svn diff > mypatch.diff
+   git clone git@github.com:your_github_id/matplotlib.git
 
-and then post your patch to the `matplotlib-devel
-<http://sourceforge.net/mail/?group_id=80706>`_ mailing list.  If you
-do not get a response within 24 hours, post your patch to the
-sourceforge patch `tracker
-<http://sourceforge.net/tracker2/?atid=560722&group_id=80706&func=browse>`_,
-and follow up on the mailing list with a link to the sourceforge patch
-submissions.  If you still do not hear anything within a week (this
-shouldn't happen!), send us a kind and gentle reminder on the mailing
-list.
+if you don't have a github account::
 
-If you have made lots of local changes and do not want to a diff
-against the entire tree, but rather against a single directory or
-file, that is fine, but we do prefer svn diffs against the top level
-(where setup.py lives) since it is nice to have a consistent way to
-apply them.
+   git clone git://github.com/matplotlib/matplotlib.git
+
+If your changes are relative to a release branch, change branches, for example::
+
+   git checkout v1.0.x
+
+Then make a new branch::
+
+   cd matplotlib
+   git checkout -b topic
+
+Make your changes, making commits as you see fit. To submit the changes, if you
+don't have a github account::
+
+   git diff topic v1.0.x > topic.diff
+
+Post your patch the :file:`topic.diff` to the  `matplotlib-devel
+<http://sourceforge.net/mail/?group_id=80706>`_ mailing list.
+
+If you do have a github account, push the topic branch to your fork::
+
+   git push origin topic
+
+Then visit your profile at github, select the new branch, and file a pull
+request.
+
+If you don't want to create a github account::
+
+   git clone git://github.com/matplotlib/matplotlib.git
+   cd matplotlib
+   git checkout
 
 If you are posting a patch to fix a code bug, please explain your
 patch in words -- what was broken before and how you fixed it.  Also,
 even if your patch is particularly simple, just a few lines or a
-single function replacement, we encourage people to submit svn diffs
-against HEAD or the branch they are patching.  It just makes life
+single function replacement, we encourage people to submit git diffs
+against HEAD of the branch they are patching.  It just makes life
 simpler for us, since we (fortunately) get a lot of contributions, and
 want to receive them in a standard format.  If possible, for any
 non-trivial change, please include a complete, free-standing example
@@ -619,7 +635,7 @@ your documents.
 
 Once your documentation contributions are working (and hopefully
 tested by actually *building* the docs) you can submit them as a patch
-against svn.  See :ref:`install-svn` and :ref:`how-to-submit-patch`.
+against git.  See :ref:`install-git` and :ref:`how-to-submit-patch`.
 Looking for something to do?  Search for `TODO <../search.html?q=todo>`_.
 
 

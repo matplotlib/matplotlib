@@ -13,6 +13,7 @@
    :maxdepth: 2
 
    coding_guide.rst
+   gitwash/index.rst
    documenting_mpl.rst
    release_guide.rst
    transformations.rst

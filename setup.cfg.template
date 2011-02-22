@@ -2,7 +2,6 @@
 # build options.
 
 [egg_info]
-tag_svn_revision = 1
 
 [directories]
 # Uncomment to override the default basedir in setupext.py.
