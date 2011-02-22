@@ -312,15 +312,22 @@ class Figure(Artist):
         *ha*
             the horizontal alignment of the xticklabels
         """
-        for ax in self.get_axes():
-            if hasattr(ax, 'is_last_row') and ax.is_last_row():
-                for label in ax.get_xticklabels():
-                    label.set_ha(ha)
-                    label.set_rotation(rotation)
-            else:
-                for label in ax.get_xticklabels():
-                    label.set_visible(False)
-                ax.set_xlabel('')
+        if len(self.axes)==1:
+            # Always operate on the ticklabels if there is a single
+            # Axes object in the figure.
+            for label in ax.get_xticklabels():
+                label.set_ha(ha)
+                label.set_rotation(rotation)
+        else:
+            for ax in self.get_axes():
+                if hasattr(ax, 'is_last_row') and ax.is_last_row():
+                    for label in ax.get_xticklabels():
+                        label.set_ha(ha)
+                        label.set_rotation(rotation)
+                else:
+                    for label in ax.get_xticklabels():
+                        label.set_visible(False)
+                    ax.set_xlabel('')
 
         self.subplots_adjust(bottom=bottom)
 
