@@ -182,6 +182,12 @@ else:
     basedirlist = basedir[sys.platform]
 print("basedirlist is: %s" % basedirlist)
 
+def make_extension(*args, **kwargs):
+    ext = Extension(*args, **kwargs)
+    for dir in basedirlist:
+        ext.include_dirs.append(os.path.join(dir, 'include'))
+    return ext
+
 if options['display_status']:
     def print_line(char='='):
         print(char * 76)
@@ -321,7 +327,7 @@ def find_include_file(include_dirs, filename):
     return False
 
 def check_for_freetype():
-    module = Extension('test', [])
+    module = make_extension('test', [])
     add_base_flags(module)
     if not get_pkgconfig(module, 'freetype2'):
         basedirs = module.include_dirs[:]  # copy the list to avoid inf loop!
@@ -337,7 +343,7 @@ def check_for_freetype():
     return True
 
 def check_for_libpng():
-    module = Extension("test", [])
+    module = make_extension("test", [])
     get_pkgconfig(module, 'libpng')
     add_base_flags(module)
 
@@ -529,7 +535,7 @@ def check_for_numpy():
                'numpy 1.1 or later is required; you have %s' %
                numpy.__version__)
             return False
-    module = Extension('test', [])
+    module = make_extension('test', [])
     add_numpy_flags(module)
     add_base_flags(module)
 
@@ -609,7 +615,7 @@ def check_for_gtk():
             gotit = True
 
     if gotit:
-        module = Extension('test', [])
+        module = make_extension('test', [])
         add_pygtk_flags(module)
         if not find_include_file(module.include_dirs, os.path.join("gtk", "gtk.h")):
             explanation = (
@@ -714,7 +720,10 @@ def check_for_tk():
     gotit = False
     explanation = None
     try:
-        import Tkinter
+        if sys.version_info[0] < 3:
+            import Tkinter
+        else:
+            import tkinter as Tkinter
     except ImportError:
         explanation = 'TKAgg requires Tkinter'
     except RuntimeError:
@@ -726,18 +735,18 @@ def check_for_tk():
             gotit = True
 
     if gotit:
-        module = Extension('test', [])
+        module = make_extension('test', [])
         try:
             explanation = add_tk_flags(module)
-        except RuntimeError:
-            # This deals with the change in exception handling syntax in
-            # python 3. If we only need to support >= 2.6, we can just use the
-            # commented out lines below.
-            exc_type,exc,tb = sys.exc_info()
-            explanation = str(exc)
-            gotit = False
-#        except RuntimeError, e:
-#            explanation = str(e)
+        # except RuntimeError:
+        #     # This deals with the change in exception handling syntax in
+        #     # python 3. If we only need to support >= 2.6, we can just use the
+        #     # commented out lines below.
+        #     exc_type,exc,tb = sys.exc_info()
+        #     explanation = str(exc)
+        #     gotit = False
+        except RuntimeError as e:
+            explanation = str(e)
         else:
             if not find_include_file(module.include_dirs, "tk.h"):
                 message = 'Tkinter present, but header files are not found. ' + \
@@ -1029,7 +1038,7 @@ def build_windowing(ext_modules, packages):
        windows better, .e.g.  maintaining focus on win32"""
     global BUILT_WINDOWING
     if BUILT_WINDOWING: return # only build it if you you haven't already
-    module = Extension('matplotlib._windowing',
+    module = make_extension('matplotlib._windowing',
                        ['src/_windowing.cpp'],
                        )
     add_windowing_flags(module)
@@ -1043,7 +1052,7 @@ def build_ft2font(ext_modules, packages):
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
-    module = Extension('matplotlib.ft2font', deps,
+    module = make_extension('matplotlib.ft2font', deps,
                        define_macros=defines)
     add_ft2font_flags(module)
     ext_modules.append(module)
@@ -1057,7 +1066,7 @@ def build_ttconv(ext_modules, packages):
             'ttconv/pprdrv_tt2.cpp',
             'ttconv/ttutil.cpp']
 
-    module = Extension('matplotlib.ttconv', deps,
+    module = make_extension('matplotlib.ttconv', deps,
                        define_macros=defines)
     add_base_flags(module)
     ext_modules.append(module)
@@ -1070,7 +1079,7 @@ def build_gtkagg(ext_modules, packages):
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
-    module = Extension('matplotlib.backends._gtkagg',
+    module = make_extension('matplotlib.backends._gtkagg',
                        deps,
                        define_macros=defines
                        )
@@ -1093,7 +1102,7 @@ def build_tkagg(ext_modules, packages):
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
-    module = Extension('matplotlib.backends._tkagg',
+    module = make_extension('matplotlib.backends._tkagg',
                        deps,
                        define_macros=defines
                        )
@@ -1116,7 +1125,7 @@ def build_macosx(ext_modules, packages):
             'CXX/IndirectPythonInterface.cxx',
             'src/agg_py_transforms.cpp',
             'src/path_cleanup.cpp']
-    module = Extension('matplotlib.backends._macosx',
+    module = make_extension('matplotlib.backends._macosx',
                        deps,
                        extra_link_args = ['-framework','Cocoa'],
                        define_macros=defines
@@ -1134,7 +1143,7 @@ def build_png(ext_modules, packages):
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
-    module = Extension(
+    module = make_extension(
         'matplotlib._png',
         deps,
         include_dirs=numpy_inc_dirs,
@@ -1166,7 +1175,7 @@ def build_agg(ext_modules, packages):
     deps.extend(glob.glob('CXX/*.c'))
     temp_copy('src/_backend_agg.cpp', 'src/backend_agg.cpp')
     deps.append('src/backend_agg.cpp')
-    module = Extension(
+    module = make_extension(
         'matplotlib.backends._backend_agg',
         deps,
         include_dirs=numpy_inc_dirs,
@@ -1199,7 +1208,7 @@ def build_path(ext_modules, packages):
     deps.extend(['src/agg_py_transforms.cpp',
                  'src/path_cleanup.cpp',
                  'src/path.cpp'])
-    module = Extension(
+    module = make_extension(
         'matplotlib._path',
         deps,
         include_dirs=numpy_inc_dirs,
@@ -1228,7 +1237,7 @@ def build_image(ext_modules, packages):
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
-    module = Extension(
+    module = make_extension(
         'matplotlib._image',
         deps,
         include_dirs=numpy_inc_dirs,
@@ -1251,7 +1260,7 @@ def build_delaunay(ext_modules, packages):
     sourcefiles=["_delaunay.cpp", "VoronoiDiagramGenerator.cpp",
                  "delaunay_utils.cpp", "natneighbors.cpp"]
     sourcefiles = [os.path.join('lib/matplotlib/delaunay',s) for s in sourcefiles]
-    delaunay = Extension('matplotlib._delaunay',sourcefiles,
+    delaunay = make_extension('matplotlib._delaunay',sourcefiles,
                          include_dirs=numpy_inc_dirs,
                          define_macros=defines
                          )
@@ -1266,7 +1275,7 @@ def build_contour(ext_modules, packages):
     global BUILT_CONTOUR
     if BUILT_CONTOUR: return # only build it if you you haven't already
 
-    module = Extension(
+    module = make_extension(
         'matplotlib._cntr',
         [ 'src/cntr.c'],
         include_dirs=numpy_inc_dirs,
@@ -1284,7 +1293,7 @@ def build_gdk(ext_modules, packages):
     if BUILT_GDK: return # only build it if you you haven't already
 
     temp_copy('src/_backend_gdk.c', 'src/backend_gdk.c')
-    module = Extension(
+    module = make_extension(
         'matplotlib.backends._backend_gdk',
         ['src/backend_gdk.c'],
         libraries = [],
@@ -1308,7 +1317,7 @@ def build_tri(ext_modules, packages):
     deps.extend(glob.glob('CXX/*.cxx'))
     deps.extend(glob.glob('CXX/*.c'))
 
-    module = Extension('matplotlib._tri', deps,
+    module = make_extension('matplotlib._tri', deps,
                        define_macros=defines)
     add_numpy_flags(module)
     add_base_flags(module)
