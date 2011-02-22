@@ -135,7 +135,7 @@ defines = [
         ('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API'),
         ('PYCXX_ISO_CPP_LIB', '1')]
 
-if sys.hexversion >= 0x03000000:
+if sys.version_info[0] >= 3:
     defines.append(('PYCXX_PYTHON_2TO3', '1'))
 
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')

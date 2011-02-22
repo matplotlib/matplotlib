@@ -130,7 +130,7 @@ The default file location is given in the following order
 
 import sys, os, tempfile
 
-if sys.hexversion >= 0x03000000:
+if sys.version_info[0] >= 3:
     def ascii(s): return bytes(s, 'ascii')
 else:
     ascii = str
