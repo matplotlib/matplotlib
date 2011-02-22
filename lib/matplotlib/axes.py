@@ -1,5 +1,4 @@
 from __future__ import division, generators
-from matplotlib import IS_PY3K
 import math, sys, warnings, datetime
 from operator import itemgetter
 import itertools
@@ -8469,7 +8468,7 @@ def subplot_class_factory(axes_class=None):
 
     new_class = _subplot_classes.get(axes_class)
     if new_class is None:
-        if IS_PY3K:
+        if sys.version_info[0] >= 3:
             new_class = type("%sSubplot" % (axes_class.__name__),
                              (SubplotBase, axes_class),
                              {'_axes_class': axes_class})
