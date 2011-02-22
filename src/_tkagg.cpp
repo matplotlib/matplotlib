@@ -261,7 +261,7 @@ static PyMethodDef functions[] =
     {NULL, NULL} /* sentinel */
 };
 
-#ifdef PY3K
+#if PY3K
 static PyModuleDef _tkagg_module = {
     PyModuleDef_HEAD_INIT,
     "_tkagg",
