@@ -178,7 +178,7 @@ class RendererSVG(RendererBase):
 
         id = self._clipd.get(path)
         if id is None:
-            id = 'p%s' % md5(path).hexdigest()
+            id = 'p%s' % md5(path.encode('ascii')).hexdigest()
             self._svgwriter.write('<defs>\n  <clipPath id="%s">\n' % id)
             self._svgwriter.write(path)
             self._svgwriter.write('\n  </clipPath>\n</defs>')
@@ -257,7 +257,7 @@ class RendererSVG(RendererBase):
                                  simplify=False)
         name = self._markers.get(key)
         if name is None:
-            name = 'm%s' % md5(key).hexdigest()
+            name = 'm%s' % md5(key.encode('ascii')).hexdigest()
             write('<defs><path id="%s" d="%s"/></defs>\n' % (name, key))
             self._markers[key] = name
 
@@ -711,7 +711,7 @@ class RendererSVG(RendererBase):
             if step[0] != 4:
                 currx, curry = step[-2], -step[-1]
         path_data = ''.join(path_data)
-        char_num = 'c_%s' % md5(path_data).hexdigest()
+        char_num = 'c_%s' % md5(path_data.encode('ascii')).hexdigest()
         path_element = '<path id="%s" d="%s"/>\n' % (char_num, ''.join(path_data))
         self._char_defs[char_id] = char_num
         return path_element
