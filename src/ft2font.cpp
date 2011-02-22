@@ -1637,7 +1637,8 @@ FT2Font::get_sfnt(const Py::Tuple & args)
         key[2] = Py::Int(sfnt.language_id);
         key[3] = Py::Int(sfnt.name_id);
         names[key] = Py::String((char *) sfnt.string,
-                                (int) sfnt.string_len);
+                                (int) sfnt.string_len,
+                                "latin-1");
     }
     return names;
 }

@@ -240,7 +240,8 @@ def OSXFontDirectory():
         try:
             if os.path.isdir(fontdir):
                 for root, dirs, files in os.walk(fontdir):
-                    fontpaths.append(root)
+                    for dir in dirs:
+                        fontpaths.append(os.path.join(root, dir))
         except (IOError, OSError, TypeError, ValueError):
             pass
     return fontpaths
@@ -278,7 +279,8 @@ def x11FontDirectory():
         try:
             if os.path.isdir(fontdir):
                 for root, dirs, files in os.walk(fontdir):
-                    fontpaths.append(root)
+                    for dir in dirs:
+                        fontpaths.append(os.path.join(root, dir))
         except (IOError, OSError, TypeError, ValueError):
             pass
     return fontpaths
@@ -604,8 +606,7 @@ def createFontList(fontfiles, fontext='ttf'):
                 verbose.report("Cannot handle unicode filenames")
                 #print >> sys.stderr, 'Bad file is', fpath
                 continue
-            try: prop = ttfFontProperty(font)
-            except: continue
+            prop = ttfFontProperty(font)
 
         fontlist.append(prop)
     return fontlist
@@ -1290,14 +1291,6 @@ def is_opentype_cff_font(filename):
     return False
 
 fontManager = None
-
-_fmcache = os.path.join(get_configdir(), 'fontList.cache')
-
-def _rebuild():
-    global fontManager
-    fontManager = FontManager()
-    pickle_dump(fontManager, _fmcache)
-    verbose.report("generated new fontManager")
 
 # The experimental fontconfig-based backend.
 if USE_FONTCONFIG and sys.platform != 'win32':
