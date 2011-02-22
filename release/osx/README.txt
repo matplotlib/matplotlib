@@ -87,9 +87,9 @@ Build the mpl sdist::
 
     cd ../..
     python setup.py sdist
-    mv dist/matplotlib-0.98.6svn.tar.gz release/osx/
+    mv dist/matplotlib-0.98.6.tar.gz release/osx/
 
-Set the version number in the Makefile to 0.98.6svn and build the
+Set the version number in the Makefile to 0.98.6 and build the
 installers ::
 
     cd release/osx

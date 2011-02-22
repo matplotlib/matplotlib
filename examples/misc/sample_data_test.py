@@ -1,11 +1,11 @@
 """
-Demonstrate how get_sample_data works with svn revisions in the data.
+Demonstrate how get_sample_data works with git revisions in the data.
 
-    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data
+    git clone git@github.com/matplotlib/sample_data.git
 
 and edit testdata.csv to add a new row.  After committing the changes,
 when you rerun this script you will get the updated data (and the new
-svn version will be cached in ~/.matplotlib/sample_data)
+git version will be cached in ~/.matplotlib/sample_data)
 """
 
 import matplotlib.mlab as mlab

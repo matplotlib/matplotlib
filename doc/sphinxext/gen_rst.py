@@ -31,8 +31,8 @@ def generate_example_rst(app):
     datad = {}
     for root, subFolders, files in os.walk(rootdir):
         for fname in files:
-            if ( fname.startswith('.') or fname.startswith('#') or fname.startswith('_') or
-                 fname.find('.svn')>=0 or not fname.endswith('.py') ):
+            if ( fname.startswith('.') or fname.startswith('#')
+                 or fname.startswith('_') or not fname.endswith('.py') ):
                 continue
 
             fullpath = os.path.join(root,fname)
