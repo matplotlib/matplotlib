@@ -13,7 +13,7 @@ import cPickle
 import os.path
 import random
 import urllib2
-if sys.hexversion > 0x03000000:
+if sys.version_info[0] >= 3:
     import types
 else:
     import new
@@ -186,7 +186,7 @@ class CallbackRegistry:
                 raise ReferenceError
             elif self.inst is not None:
                 # build a new instance method with a strong reference to the instance
-                if sys.hexversion >= 0x03000000:
+                if sys.version_info[0] >= 3:
                     mtd = types.MethodType(self.func, self.inst())
                 else:
                     mtd = new.instancemethod(self.func, self.inst(), self.klass)

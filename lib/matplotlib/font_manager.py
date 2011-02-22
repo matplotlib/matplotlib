@@ -1337,10 +1337,10 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         return result
 
 else:
-    if sys.hexversion >= 0x03000000:
+    if sys.version_info[0] >= 3:
         _fmcache = os.path.join(get_configdir(), 'fontList.py3k.cache')
     else:
-        _fmcache = os.path.join(get_configdir(), 'fontList.py3k.cache')
+        _fmcache = os.path.join(get_configdir(), 'fontList.cache')
 
     fontManager = None
 
