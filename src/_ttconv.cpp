@@ -6,6 +6,8 @@
   Python wrapper for TrueType conversion library in ../ttconv.
  */
 
+#include "mplutils.h"
+
 #include <Python.h>
 #include "ttconv/pprdrv.h"
 #include <vector>
@@ -86,7 +88,7 @@ int pyiterable_to_vector_int(PyObject* object, void* address)
     PyObject* item;
     while ((item = PyIter_Next(iterator)))
     {
-        #if PY_MAJOR_VERSION >= 3
+        #if PY3K
         long value = PyLong_AsLong(item);
         #else
         long value = PyInt_AsLong(item);
@@ -173,7 +175,7 @@ public:
 
     virtual void add_pair(const char* a, const char* b)
     {
-        #if PY_MAJOR_VERSION >= 3
+        #if PY3K
         PyObject* value = PyUnicode_FromString(b);
         #else
         PyObject* value = PyString_FromString(b);
@@ -284,7 +286,7 @@ static const char* module_docstring =
     "fonts to Postscript Type 3, Postscript Type 42 and "
     "Pdf Type 3 fonts.";
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
 static PyModuleDef ttconv_module = {
     PyModuleDef_HEAD_INIT,
     "ttconv",

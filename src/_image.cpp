@@ -223,7 +223,7 @@ Image::color_conv(const Py::Tuple& args)
     int format = Py::Int(args[0]);
     PyObject* py_buffer = NULL;
     int row_len = colsOut * 4;
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
     unsigned char* buf = (unsigned char *)malloc(row_len * rowsOut);
     if (buf == NULL)
         throw Py::MemoryError("Image::color_conv could not allocate memory");
@@ -259,7 +259,7 @@ Image::color_conv(const Py::Tuple& args)
         throw Py::ValueError("Image::color_conv unknown format");
     }
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
     py_buffer = PyByteArray_FromStringAndSize((char *)buf, row_len * rowsOut);
     if (py_buffer == NULL) {
         free(buf);
@@ -1944,7 +1944,7 @@ _image_module::pcolor2(const Py::Tuple& args)
     return Py::asObject(imo);
 }
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
 PyMODINIT_FUNC
 PyInit__image(void)
 #else
@@ -1980,7 +1980,7 @@ init_image(void)
     d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
     d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
     return _image->module().ptr();
 #endif
 }

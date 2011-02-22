@@ -114,7 +114,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     }
 
     Py::Object py_fileobj = Py::Object(args[3]);
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
     int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
     PyErr_Clear();
 #endif
@@ -129,7 +129,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
         }
         close_file = true;
     }
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
     else if (fd != -1)
     {
         fp = fdopen(fd, "w");
@@ -240,7 +240,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
 
     png_destroy_write_struct(&png_ptr, &info_ptr);
     delete [] row_pointers;
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
     if (fp)
     {
         fflush(fp);
@@ -264,7 +264,7 @@ static void _read_png_data(PyObject* py_file_obj, png_bytep data, png_size_t len
     {
         result = PyObject_CallFunction(read_method, (char *)"i", length);
     }
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
     PyObject* utf8_result = PyUnicode_AsUTF8String(result);
     if (PyBytes_AsStringAndSize(utf8_result, &buffer, &bufflen) == 0)
 #else
@@ -296,7 +296,7 @@ _png_module::read_png(const Py::Tuple& args)
     bool close_file = false;
 
     Py::Object py_fileobj = Py::Object(args[0]);
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
     int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
     PyErr_Clear();
 #endif
@@ -312,7 +312,7 @@ _png_module::read_png(const Py::Tuple& args)
         }
         close_file = true;
     }
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
     else if (fd != -1) {
         fp = fdopen(fd, "r");
     }
@@ -511,7 +511,7 @@ _png_module::read_png(const Py::Tuple& args)
 }
 
 extern "C"
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
 PyMODINIT_FUNC
 PyInit__png(void)
 #else
@@ -524,7 +524,7 @@ init_png(void)
     static _png_module* _png = NULL;
     _png = new _png_module;
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
     return _png->module().ptr();
 #endif
 }

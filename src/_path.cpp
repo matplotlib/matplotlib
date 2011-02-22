@@ -1481,7 +1481,7 @@ _path_module::cleanup_path(const Py::Tuple& args)
     return result;
 }
 
-#if PY_MAJOR_VERSION >= 3
+#if PY3K
 extern "C"
 PyMODINIT_FUNC
 PyInit__path(void)
@@ -1496,7 +1496,7 @@ init_path(void)
 
     import_array();
 
-    #if PY_MAJOR_VERSION >= 3
+    #if PY3K
     return _path->module().ptr();
     #endif
 }
