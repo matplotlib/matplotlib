@@ -945,7 +945,6 @@ def pickle_dump(data, filename):
     but closes the file to prevent filehandle leakage.
     """
     fh = open(filename, 'wb')
-    print data
     try:
         pickle.dump(data, fh)
     finally:
@@ -975,7 +974,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 8
+    __version__ = 100
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
