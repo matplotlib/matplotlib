@@ -15,7 +15,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.widgets import SubplotTool
-import matplotlib.backends.qt4_editor.figureoptions as figureoptions
+# import matplotlib.backends.qt4_editor.figureoptions as figureoptions
 
 try:
     from PyQt4 import QtCore, QtGui
@@ -413,9 +413,11 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
                 self.configure_subplots)
         a.setToolTip('Configure subplots')
 
-        a = self.addAction(self._icon("qt4_editor_options.svg"),
-                           'Customize', self.edit_parameters)
-        a.setToolTip('Edit curves line and axes parameters')
+        # PY3K: Disabling the Qt4 form editor for now, since it
+        # requires some serious updates
+        # a = self.addAction(self._icon("qt4_editor_options.svg"),
+        #                    'Customize', self.edit_parameters)
+        # a.setToolTip('Edit curves line and axes parameters')
 
         a = self.addAction(self._icon('filesave.svg'), 'Save',
                 self.save_figure)
