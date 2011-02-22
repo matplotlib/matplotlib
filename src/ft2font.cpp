@@ -1786,9 +1786,15 @@ FT2Font::get_sfnt_table(const Py::Tuple & args)
         }
     case 2:
         {
+            #if PY3K
+            char os_2_dict[] = "{s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:h,"
+                "s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:y#, s:(llll),"
+                "s:y#, s:h, s:h, s:h}";
+            #else
             char os_2_dict[] = "{s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:h,"
                 "s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:h, s:s#, s:(llll),"
                 "s:s#, s:h, s:h, s:h}";
+            #endif
             TT_OS2 *t = (TT_OS2 *)table;
             return Py::asObject(Py_BuildValue(os_2_dict,
                                               "version", (unsigned)t->version,
@@ -1899,10 +1905,10 @@ FT2Font::get_sfnt_table(const Py::Tuple & args)
             pclt["typeFamily"]         = Py::Int((short) t->TypeFamily);
             pclt["capHeight"]          = Py::Int((short) t->CapHeight);
             pclt["symbolSet"]          = Py::Int((short) t->SymbolSet);
-            pclt["typeFace"]           = Py::String((char *) t->TypeFace, 16);
-            pclt["characterComplement"] = Py::String((char *)
+            pclt["typeFace"]           = Py::String((char *) t->TypeFace, 16, "latin-1");
+            pclt["characterComplement"] = Py::Bytes((char *)
                                                      t->CharacterComplement, 8);
-            pclt["filename"]           = Py::String((char *) t->FileName, 6);
+            // pclt["filename"]           = Py::String((char *) t->FileName, 6);
             pclt["strokeWeight"]       = Py::Int((int) t->StrokeWeight);
             pclt["widthType"]          = Py::Int((int) t->WidthType);
             pclt["serifStyle"]         = Py::Int((int) t->SerifStyle);
