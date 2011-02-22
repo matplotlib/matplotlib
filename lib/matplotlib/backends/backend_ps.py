@@ -8,6 +8,8 @@ from __future__ import division
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
+if sys.version_info[0] < 3:
+    import cStringIO
 
 try:
     from hashlib import md5
@@ -947,8 +949,11 @@ class FigureCanvasPS(FigureCanvasBase):
             raise ValueError("outfile must be a path or a file-like object")
 
         fd, tmpfile = mkstemp()
-        raw_fh = os.fdopen(fd, 'wb')
-        fh = io.TextIOWrapper(raw_fh, encoding="ascii")
+        raw_fh = io.open(fd, 'wb')
+        if sys.version_info[0] >= 3:
+            fh = io.TextIOWrapper(raw_fh, encoding="ascii")
+        else:
+            fh = raw_fh
 
         # find the appropriate papertype
         width, height = self.figure.get_size_inches()
@@ -1001,7 +1006,10 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            self._pswriter = io.StringIO()
+            if sys.version_info[0] >= 3:
+                self._pswriter = io.StringIO()
+            else:
+                self._pswriter = cStringIO.StringIO()
 
 
         # mixed mode rendering
