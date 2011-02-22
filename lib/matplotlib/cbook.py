@@ -187,7 +187,7 @@ class CallbackRegistry:
             elif self.inst is not None:
                 # build a new instance method with a strong reference to the instance
                 if sys.hexversion >= 0x03000000:
-                    mtd = types.MethodType(self.func, self.inst(), self.klass)
+                    mtd = types.MethodType(self.func, self.inst())
                 else:
                     mtd = new.instancemethod(self.func, self.inst(), self.klass)
             else:
