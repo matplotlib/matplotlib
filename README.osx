@@ -9,5 +9,5 @@ lib, png or freetype on your system
 
 Example usage::
 
-  PREFIX=/Users/jdhunter/dev make -f make.osx fetch deps mpl_install
+  PREFIX=/Users/jdhunter/dev [PYVERSION=2.6] make -f make.osx fetch deps mpl_install
 
