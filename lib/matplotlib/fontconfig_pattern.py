@@ -19,9 +19,13 @@ information.
 # dependency problems, or an undesired dependency on traits even
 # when the traits-based config framework is not used.
 
-import re
-from matplotlib.pyparsing import Literal, ZeroOrMore, \
-    Optional, Regex, StringEnd, ParseException, Suppress
+import re, sys
+if sys.version_info[0] >= 3:
+    from matplotlib.pyparsing_py3 import Literal, ZeroOrMore, \
+         Optional, Regex, StringEnd, ParseException, Suppress
+else:
+    from matplotlib.pyparsing_py2 import Literal, ZeroOrMore, \
+         Optional, Regex, StringEnd, ParseException, Suppress
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub
