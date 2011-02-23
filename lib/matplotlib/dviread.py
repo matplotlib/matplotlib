@@ -25,6 +25,11 @@ import matplotlib.cbook as mpl_cbook
 import numpy as np
 import struct
 import subprocess
+import sys
+
+if sys.version_info[0] >= 3:
+    def ord(x):
+        return x
 
 _dvistate = mpl_cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
 
@@ -117,7 +122,7 @@ class Dvi(object):
         False if there were no more pages.
         """
         while True:
-            byte = ord(self.file.read(1))
+            byte = ord(self.file.read(1)[0])
             self._dispatch(byte)
 #             if self.state == _dvistate.inpage:
 #                 matplotlib.verbose.report(
@@ -351,15 +356,23 @@ class Dvi(object):
         self.f = k
 
     def _xxx(self, special):
-        matplotlib.verbose.report(
-            'Dvi._xxx: encountered special: %s'
-            % ''.join([(32 <= ord(ch) < 127) and ch
-                       or '<%02x>' % ord(ch)
-                       for ch in special]),
-            'debug')
+        if sys.version_info[0] >= 3:
+            matplotlib.verbose.report(
+                'Dvi._xxx: encountered special: %s'
+                % ''.join([(32 <= ord(ch) < 127) and chr(ch)
+                           or '<%02x>' % ord(ch)
+                           for ch in special]),
+                'debug')
+        else:
+            matplotlib.verbose.report(
+                'Dvi._xxx: encountered special: %s'
+                % ''.join([(32 <= ord(ch) < 127) and ch
+                           or '<%02x>' % ord(ch)
+                           for ch in special]),
+                'debug')
 
     def _fnt_def(self, k, c, s, d, a, l, n):
-        tfm = _tfmfile(n[-l:])
+        tfm = _tfmfile(n[-l:].decode('ascii'))
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError, 'tfm checksum mismatch: %s'%n
         # It seems that the assumption behind the following check is incorrect:
@@ -367,7 +380,7 @@ class Dvi(object):
         #    raise ValueError, 'tfm design size mismatch: %d in dvi, %d in %s'%\
         #        (d, tfm.design_size, n)
 
-        vf = _vffile(n[-l:])
+        vf = _vffile(n[-l:].decode('ascii'))
 
         self.fonts[k] = DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
 
@@ -391,22 +404,22 @@ class DviFont(object):
     The size is in Adobe points (converted from TeX points).
 
     .. attribute:: texname
-    
+
        Name of the font as used internally by TeX and friends. This
        is usually very different from any external font names, and
        :class:`dviread.PsfontsMap` can be used to find the external
        name of the font.
 
     .. attribute:: size
-    
+
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
 
     .. attribute:: widths
-    
+
        Widths of glyphs in glyph-space units, typically 1/1000ths of
        the point size.
-    
+
     """
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
@@ -459,7 +472,7 @@ class DviFont(object):
             else:
                 result.append(_mul2012(value, self._scale))
         return result
-    
+
 class Vf(Dvi):
     """
     A virtual font (\*.vf file) containing subroutines for dvi files.
@@ -586,9 +599,9 @@ class Tfm(object):
     .. attribute:: height
 
        Height of each character.
-    
+
     .. attribute:: depth
-        
+
        Depth of each character.
     """
     __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
@@ -830,14 +843,14 @@ def find_tex_file(filename, format=None):
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]
-    
+
     matplotlib.verbose.report('find_tex_file(%s): %s' \
                                   % (filename,cmd), 'debug')
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     result = pipe.communicate()[0].rstrip()
     matplotlib.verbose.report('find_tex_file result: %s' % result,
                               'debug')
-    return result
+    return result.decode('ascii')
 
 def _read_nointr(pipe, bufsize=-1):
     while True:
@@ -848,7 +861,7 @@ def _read_nointr(pipe, bufsize=-1):
                 continue
             else:
                 raise
-        
+
 
 # With multiple text objects per figure (e.g. tick labels) we may end
 # up reading the same tfm and vf files many times, so we implement a

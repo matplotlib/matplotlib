@@ -59,10 +59,11 @@ def dvipng_hack_alpha():
         stderr=STDOUT, close_fds=(sys.platform!='win32'))
     stdin, stdout = p.stdin, p.stdout
     for line in stdout:
-        if line.startswith('dvipng '):
+        if line.startswith(b'dvipng '):
             version = line.split()[-1]
             mpl.verbose.report('Found dvipng version %s'% version,
                 'helpful')
+            version = version.decode('ascii')
             version = distutils.version.LooseVersion(version)
             return version < distutils.version.LooseVersion('1.6')
     mpl.verbose.report('No dvipng was found', 'helpful')
@@ -228,7 +229,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         """
         basefile = self.get_basefile(tex, fontsize)
         texfile = '%s.tex'%basefile
-        fh = open(texfile, 'w')
+        fh = open(texfile, 'wb')
         custom_preamble = self.get_custom_preamble()
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
                    'monospace'  : r'{\ttfamily %s}'}.get(self.font_family,
