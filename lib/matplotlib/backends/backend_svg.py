@@ -1,6 +1,6 @@
 from __future__ import division
 
-import os, codecs, base64, tempfile, urllib, gzip, cStringIO
+import os, base64, tempfile, urllib, gzip, io
 
 import numpy as np
 
@@ -427,12 +427,12 @@ class RendererSVG(RendererBase):
 
         if rcParams['svg.image_inline']:
             self._svgwriter.write("data:image/png;base64,\n")
-            stringio = cStringIO.StringIO()
+            bytesio = io.BytesIO()
             im.flipud_out()
             rows, cols, buffer = im.as_rgba_str()
-            _png.write_png(buffer, cols, rows, stringio)
+            _png.write_png(buffer, cols, rows, bytesio)
             im.flipud_out()
-            self._svgwriter.write(base64.encodestring(stringio.getvalue()))
+            self._svgwriter.write(base64.encodestring(bytesio.getvalue()))
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
@@ -858,9 +858,9 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     def print_svg(self, filename, *args, **kwargs):
         if is_string_like(filename):
-            fh_to_close = svgwriter = codecs.open(filename, 'w', 'utf-8')
+            fh_to_close = svgwriter = io.open(filename, 'w', encoding='utf-8')
         elif is_writable_file_like(filename):
-            svgwriter = codecs.getwriter('utf-8')(filename)
+            svgwriter = io.TextIOWrapper(filename, encoding='utf-8')
             fh_to_close = None
         else:
             raise ValueError("filename must be a path or a file-like object")
@@ -868,14 +868,16 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     def print_svgz(self, filename, *args, **kwargs):
         if is_string_like(filename):
-            gzipwriter = gzip.GzipFile(filename, 'w')
-            fh_to_close = svgwriter = codecs.getwriter('utf-8')(gzipwriter)
+            gzipwriter = gzip.GzipFile(filename, 'wb')
+            fh_to_close = svgwriter = io.TextIOWrapper(
+                gzipwriter, encoding='utf-8')
         elif is_writable_file_like(filename):
-            fh_to_close = gzipwriter = gzip.GzipFile(fileobj=filename, mode='w')
-            svgwriter = codecs.getwriter('utf-8')(gzipwriter)
+            fh_to_close = gzipwriter = gzip.GzipFile(fileobj=filename, mode='wb')
+            svgwriter = io.TextIOWrapper(
+                gzipwriter, encoding='utf-8')
         else:
             raise ValueError("filename must be a path or a file-like object")
-        return self._print_svg(filename, svgwriter, fh_to_close)
+        return self._print_svg(filename, svgwriter, fh_to_close, **kwargs)
 
     def _print_svg(self, filename, svgwriter, fh_to_close=None, **kwargs):
         self.figure.set_dpi(72.0)
@@ -902,7 +904,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         self.figure.draw(renderer)
         renderer.finalize()
         if fh_to_close is not None:
-            svgwriter.close()
+            fh_to_close.close()
 
     def get_default_filetype(self):
         return 'svg'
