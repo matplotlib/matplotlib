@@ -330,7 +330,7 @@ class Figure(Artist):
                         label.set_visible(False)
                     ax.set_xlabel('')
 
-                self.subplots_adjust(bottom=bottom)
+            self.subplots_adjust(bottom=bottom)
 
     def get_children(self):
         'get a list of artists contained in the figure'
