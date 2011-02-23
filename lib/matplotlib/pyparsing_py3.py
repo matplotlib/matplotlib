@@ -815,11 +815,10 @@ class ParserElement(object):
                             numargs -= 1
 
 
-        print ("adding function %s with %d args" % (f.func_name,numargs))
+        # print ("adding function %s with %d args" % (f.func_name,numargs))
         if numargs == 3:
             return f
         else:
-            print hasattr(f.__call__, '__self__')
             if numargs > 3:
                 def tmp(s,l,t):
                     return f(s,l,t)
