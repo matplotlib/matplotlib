@@ -315,6 +315,7 @@ class Figure(Artist):
         if len(self.axes)==1:
             # Always operate on the ticklabels if there is a single
             # Axes object in the figure.
+            ax = self.get_axes()[0]
             for label in ax.get_xticklabels():
                 label.set_ha(ha)
                 label.set_rotation(rotation)
@@ -329,7 +330,7 @@ class Figure(Artist):
                         label.set_visible(False)
                     ax.set_xlabel('')
 
-        self.subplots_adjust(bottom=bottom)
+                self.subplots_adjust(bottom=bottom)
 
     def get_children(self):
         'get a list of artists contained in the figure'
