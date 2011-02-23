@@ -1453,14 +1453,18 @@ class Axis(artist.Artist):
         self.major.locator.zoom(direction)
 
 
-    def axis_date(self):
+    def axis_date(self, tz=None):
         """
         Sets up x-axis ticks and labels that treat the x data as dates.
+        *tz* is the time zone to use in labeling dates.
         """
         import datetime
         # should be enough to inform the unit conversion interface
         # dates are comng in
-        self.update_units(datetime.date(2009,1,1))
+        if tz:
+            self.update_units(tz.localize(datetime.datetime(2009,1,1)))
+        else:
+            self.update_units(datetime.datetime(2009,1,1))
 
 
 class XAxis(Axis):

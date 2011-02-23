@@ -1111,8 +1111,12 @@ class DateConverter(units.ConversionInterface):
         'return the unit AxisInfo'
         # make sure that the axis does not start at 0
 
-        majloc = AutoDateLocator(tz=unit)
-        majfmt = AutoDateFormatter(majloc, tz=unit)
+        tz = None
+        if getattr(unit, "tzinfo", None):
+            tz = unit.tzinfo
+        
+        majloc = AutoDateLocator(tz=tz)
+        majfmt = AutoDateFormatter(majloc, tz=tz)
         datemin = datetime.date(2000, 1, 1)
         datemax = datetime.date(2010, 1, 1)
 
@@ -1127,7 +1131,7 @@ class DateConverter(units.ConversionInterface):
     @staticmethod
     def default_units(x, axis):
         'Return the default unit for *x* or None'
-        return None
+        return x
 
 
 units.registry[datetime.date] = DateConverter()
