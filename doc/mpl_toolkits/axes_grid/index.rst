@@ -38,5 +38,4 @@ Documentation
 
    users/overview.rst
    users/index.rst
-   howtos/index.rst
    api/index.rst

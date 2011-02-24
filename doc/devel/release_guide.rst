@@ -92,10 +92,7 @@ replacing 'jdh2358' with your sourceforge login.
 
 
 Any changes to fix bugs in the release candidate should be fixed in
-the release branch and merged into the trunk with `git merge`; see
-:ref:`git merge`.  When the release candidate is signed off on, build
-the final sdist, binaries and eggs, and upload them to the sourceforge
-release area.
+the release branch and merged into the trunk.
 
 
 .. _release-uploading:

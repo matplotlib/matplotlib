@@ -1,9 +1,9 @@
 .. _gridspec-guide:
 
 
-************************************************
- Customizing Location of Subplot Using GridSpec
-************************************************
+**********************************************
+Customizing Location of Subplot Using GridSpec
+**********************************************
 
     ``GridSpec``
         specifies the geometry of the grid that a subplot will be
@@ -19,8 +19,8 @@
         0-based indexing and let subplot to occupy multiple cells.
 
 
- Basic Example of using subplot2grid
-====================================
+Basic Example of using subplot2grid
+===================================
 
 To use subplot2grid, you provide geometry of the grid and the location
 of the subplot in the grid. For a simple single-cell subplot::
