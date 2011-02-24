@@ -9,17 +9,13 @@ import numpy as np
 
 from pylab import title, colorbar, show, axes, cm, arange, figure, \
                   text
+from matplotlib.cbook import get_sample_data
 
 # read in topo data (on a regular lat/lon grid)
 # longitudes go from 20 to 380.
-# you can get this data from matplolib svn matplotlib/htdocs/screenshots/data/
-datadir = '/home/jdhunter/python/svn/matplotlib/trunk/htdocs/screenshots/data/'
-if not os.path.exists(datadir):
-    raise SystemExit('You need to download the data with svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/htdocs/screenshots/data/" and set the datadir variable in %s'%__file__)
-
-topoin = np.loadtxt(os.path.join(datadir, 'etopo20data.gz'))
-lons = np.loadtxt(os.path.join(datadir, 'etopo20lons.gz'))
-lats = np.loadtxt(os.path.join(datadir, 'etopo20lats.gz'))
+topoin = np.loadtxt(get_sample_data('screenshots/etopo20data.gz').name)
+lons = np.loadtxt(get_sample_data('screenshots/etopo20lons.gz').name)
+lats = np.loadtxt(get_sample_data('screenshots/etopo20lats.gz').name)
 # shift data so lons go from -180 to 180 instead of 20 to 380.
 topoin,lons = shiftgrid(180.,topoin,lons,start=False)
 

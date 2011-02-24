@@ -8,7 +8,7 @@ are unit aware.  We don't assume any particular units implementation,
 rather a units implementation must provide a ConversionInterface, and
 the register with the Registry converter dictionary.  For example,
 here is a complete implementation which support plotting with native
-datetime objects
+datetime objects::
 
 
     import matplotlib.units as units
