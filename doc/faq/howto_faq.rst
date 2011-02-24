@@ -525,45 +525,7 @@ Contributing: howto
 Submit a patch
 -----------------
 
-If you have a github account, or are willing to make one, make a private fork
-of the repository at `<https://github.com/matplotlib/matplotlib.git>`_. Then
-clone the repository::
-
-   git clone git@github.com:your_github_id/matplotlib.git
-
-if you don't have a github account::
-
-   git clone git://github.com/matplotlib/matplotlib.git
-
-If your changes are relative to a release branch, change branches, for example::
-
-   git checkout v1.0.x
-
-Then make a new branch::
-
-   cd matplotlib
-   git checkout -b topic
-
-Make your changes, making commits as you see fit. To submit the changes, if you
-don't have a github account::
-
-   git diff topic v1.0.x > topic.diff
-
-Post your patch the :file:`topic.diff` to the  `matplotlib-devel
-<http://sourceforge.net/mail/?group_id=80706>`_ mailing list.
-
-If you do have a github account, push the topic branch to your fork::
-
-   git push origin topic
-
-Then visit your profile at github, select the new branch, and file a pull
-request.
-
-If you don't want to create a github account::
-
-   git clone git://github.com/matplotlib/matplotlib.git
-   cd matplotlib
-   git checkout
+See :ref:`making-patches` for information on how to make a patch with git.
 
 If you are posting a patch to fix a code bug, please explain your
 patch in words -- what was broken before and how you fixed it.  Also,

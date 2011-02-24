@@ -4080,7 +4080,7 @@ class Axes(martist.Artist):
 
             :meth:`~matplotlib.axes.Axes.plot` or
             :meth:`~matplotlib.axes.Axes.vlines`
-               For documentation on valid kwargs.
+            For documentation on valid kwargs.
 
         **Example:**
 
@@ -5971,7 +5971,7 @@ class Axes(martist.Artist):
         :class:`~matplotlib.collections.PolyCollection` instance; use
         :meth:`~matplotlib.collection.PolyCollection.get_array` on
         this :class:`~matplotlib.collections.PolyCollection` to get
-        the counts in each hexagon..  If marginals is True, horizontal
+        the counts in each hexagon. If marginals is True, horizontal
         bar and vertical bar (both PolyCollections) will be attached
         to the return collection as attributes *hbar* and *vbar*
 

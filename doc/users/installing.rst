@@ -98,7 +98,7 @@ build everything yourself, it is not difficult to build matplotlib
 from source.  Grab the latest *tar.gz* release file from `sourceforge
 <http://sourceforge.net/project/showfiles.php?group_id=80706>`_, or if
 you want to develop matplotlib or just need the latest bugfixed
-version, grab the latest git version :ref:`install-git`.
+version, grab the latest git version :ref:`install-from-git`.
 
 Once you have satisfied the requirements detailed below (mainly
 python, numpy, libpng and freetype), you build matplotlib in the usual
@@ -201,7 +201,7 @@ backends and the capabilities they provide
 :term:`pytz` 2007g or later
     timezone handling for python datetime objects.  By default,
     matplotlib will install pytz if it isn't already installed on your
-    system.  To override the default, use :file:`setup.cfg to force or
+    system.  To override the default, use :file:`setup.cfg` to force or
     prevent installation of pytz.
 
 :term:`dateutil` 1.1 or later
