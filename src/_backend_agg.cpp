@@ -2193,11 +2193,12 @@ RendererAgg::buffer_rgba(const Py::Tuple& args)
     int starth = Py::Int(args[1]);
     int row_len = width * 4;
     int start = row_len * starth + startw * 4;
-    /* PY3KTODO: Buffers are different */
+
     #if PY3K
-    return Py::asObject(PyByteArray_FromStringAndSize(
-                                (const char *)pixBuffer + start,
-                                row_len*height - start));
+    Py_buffer view;
+    PyBuffer_FillInfo(&view, NULL, (void *)((const char *)pixBuffer + start),
+                      row_len*height - start, 1, PyBUF_SIMPLE);
+    return Py::asObject(PyMemoryView_FromBuffer(&view));
     #else
     return Py::asObject(PyBuffer_FromMemory(pixBuffer + start, row_len*height - start));
     #endif
