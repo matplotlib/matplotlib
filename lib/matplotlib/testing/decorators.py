@@ -30,7 +30,7 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
             try:
                 # Always run the test (to generate images).
                 result = f(*args, **kwargs)
-            except Exception, err:
+            except Exception as err:
                 if fail_condition:
                     if known_exception_class is not None:
                         if not isinstance(err,known_exception_class):

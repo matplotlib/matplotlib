@@ -244,7 +244,7 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
 
     path_iter = path.iter_segments()
 
-    ctl_points, command = path_iter.next()
+    ctl_points, command = next(path_iter)
     begin_inside = inside(ctl_points[-2:]) # true if begin point is inside
 
     bezier_path = None

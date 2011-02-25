@@ -288,7 +288,7 @@ class TextToPath(object):
         else:
             dvifile = texmanager.make_dvi(s, self.FONT_SCALE)
             dvi = dviread.Dvi(dvifile, self.DPI)
-        page = iter(dvi).next()
+        page = next(iter(dvi))
         dvi.close()
 
 

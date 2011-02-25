@@ -4,7 +4,7 @@ A PostScript backend, which can produce both PostScript .ps and .eps
 
 # PY3KTODO: Get rid of "print >>fh" syntax
 
-from __future__ import division
+from __future__ import division, print_function
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
@@ -186,7 +186,7 @@ class RendererPS(RendererBase):
         used_characters[1].update([ord(x) for x in s])
 
     def merge_used_characters(self, other):
-        for stat_key, (realpath, charset) in other.items():
+        for stat_key, (realpath, charset) in other.iteritems():
             used_characters = self.used_characters.setdefault(
                 stat_key, (realpath, set()))
             used_characters[1].update(charset)
@@ -239,7 +239,7 @@ class RendererPS(RendererBase):
 
     def create_hatch(self, hatch):
         sidelen = 72
-        if self._hatches.has_key(hatch):
+        if hatch in self._hatches:
             return self._hatches[hatch]
         name = 'H%d' % len(self._hatches)
         self._pswriter.write("""\
@@ -901,7 +901,7 @@ class FigureCanvasPS(FigureCanvasBase):
             pass
         elif papertype not in papersize:
             raise RuntimeError( '%s is not a valid papertype. Use one \
-                    of %s'% (papertype, ', '.join( papersize.keys() )) )
+                    of %s'% (papertype, ', '.join( papersize.iterkeys() )) )
 
         orientation = kwargs.pop("orientation", "portrait").lower()
         if orientation == 'landscape': isLandscape = True
@@ -1029,30 +1029,30 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(origedgecolor)
 
         # write the PostScript headers
-        if isEPSF: print >>fh, "%!PS-Adobe-3.0 EPSF-3.0"
-        else: print >>fh, "%!PS-Adobe-3.0"
-        if title: print >>fh, "%%Title: "+title
-        print >>fh, ("%%Creator: matplotlib version "
-                     +__version__+", http://matplotlib.sourceforge.net/")
-        print >>fh, "%%CreationDate: "+time.ctime(time.time())
-        print >>fh, "%%Orientation: " + orientation
-        if not isEPSF: print >>fh, "%%DocumentPaperSizes: "+papertype
-        print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
-        if not isEPSF: print >>fh, "%%Pages: 1"
-        print >>fh, "%%EndComments"
+        if isEPSF: print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
+        else: print("%!PS-Adobe-3.0", file=fh)
+        if title: print("%%Title: "+title, file=fh)
+        print(("%%Creator: matplotlib version "
+                     +__version__+", http://matplotlib.sourceforge.net/"), file=fh)
+        print("%%CreationDate: "+time.ctime(time.time()), file=fh)
+        print("%%Orientation: " + orientation, file=fh)
+        if not isEPSF: print("%%DocumentPaperSizes: "+papertype, file=fh)
+        print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
+        if not isEPSF: print("%%Pages: 1", file=fh)
+        print("%%EndComments", file=fh)
 
         Ndict = len(psDefs)
-        print >>fh, "%%BeginProlog"
+        print("%%BeginProlog", file=fh)
         if not rcParams['ps.useafm']:
             Ndict += len(ps_renderer.used_characters)
-        print >>fh, "/mpldict %d dict def"%Ndict
-        print >>fh, "mpldict begin"
+        print("/mpldict %d dict def"%Ndict, file=fh)
+        print("mpldict begin", file=fh)
         for d in psDefs:
             d=d.strip()
             for l in d.split('\n'):
-                print >>fh, l.strip()
+                print(l.strip(), file=fh)
         if not rcParams['ps.useafm']:
-            for font_filename, chars in ps_renderer.used_characters.values():
+            for font_filename, chars in ps_renderer.used_characters.itervalues():
                 if len(chars):
                     font = FT2Font(str(font_filename))
                     cmap = font.get_charmap()
@@ -1077,24 +1077,24 @@ class FigureCanvasPS(FigureCanvasBase):
                     else:
                         fh.flush()
                         convert_ttf_to_ps(font_filename, raw_fh, fonttype, glyph_ids)
-        print >>fh, "end"
-        print >>fh, "%%EndProlog"
+        print("end", file=fh)
+        print("%%EndProlog", file=fh)
 
-        if not isEPSF: print >>fh, "%%Page: 1 1"
-        print >>fh, "mpldict begin"
+        if not isEPSF: print("%%Page: 1 1", file=fh)
+        print("mpldict begin", file=fh)
         #print >>fh, "gsave"
-        print >>fh, "%s translate"%_nums_to_str(xo, yo)
-        if rotation: print >>fh, "%d rotate"%rotation
-        print >>fh, "%s clipbox"%_nums_to_str(width*72, height*72, 0, 0)
+        print("%s translate"%_nums_to_str(xo, yo), file=fh)
+        if rotation: print("%d rotate"%rotation, file=fh)
+        print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
 
         # write the figure
-        print >>fh, self._pswriter.getvalue()
+        print(self._pswriter.getvalue(), file=fh)
 
         # write the trailer
         #print >>fh, "grestore"
-        print >>fh, "end"
-        print >>fh, "showpage"
-        if not isEPSF: print >>fh, "%%EOF"
+        print("end", file=fh)
+        print("showpage", file=fh)
+        if not isEPSF: print("%%EOF", file=fh)
         fh.close()
 
         if rcParams['ps.usedistiller'] == 'ghostscript':
@@ -1104,7 +1104,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if passed_in_file_object:
             fh = open(tmpfile, 'rb')
-            print >>outfile, fh.read()
+            print(fh.read(), file=outfile)
         else:
             open(outfile, 'w')
             mode = os.stat(outfile).st_mode
@@ -1172,37 +1172,37 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(origedgecolor)
 
         # write the Encapsulated PostScript headers
-        print >>fh, "%!PS-Adobe-3.0 EPSF-3.0"
-        if title: print >>fh, "%%Title: "+title
-        print >>fh, ("%%Creator: matplotlib version "
-                     +__version__+", http://matplotlib.sourceforge.net/")
-        print >>fh, "%%CreationDate: "+time.ctime(time.time())
-        print >>fh, "%%%%BoundingBox: %d %d %d %d" % bbox
-        print >>fh, "%%EndComments"
+        print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
+        if title: print("%%Title: "+title, file=fh)
+        print(("%%Creator: matplotlib version "
+                     +__version__+", http://matplotlib.sourceforge.net/"), file=fh)
+        print("%%CreationDate: "+time.ctime(time.time()), file=fh)
+        print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
+        print("%%EndComments", file=fh)
 
         Ndict = len(psDefs)
-        print >>fh, "%%BeginProlog"
-        print >>fh, "/mpldict %d dict def"%Ndict
-        print >>fh, "mpldict begin"
+        print("%%BeginProlog", file=fh)
+        print("/mpldict %d dict def"%Ndict, file=fh)
+        print("mpldict begin", file=fh)
         for d in psDefs:
             d=d.strip()
             for l in d.split('\n'):
-                print >>fh, l.strip()
-        print >>fh, "end"
-        print >>fh, "%%EndProlog"
+                print(l.strip(), file=fh)
+        print("end", file=fh)
+        print("%%EndProlog", file=fh)
 
-        print >>fh, "mpldict begin"
+        print("mpldict begin", file=fh)
         #print >>fh, "gsave"
-        print >>fh, "%s translate"%_nums_to_str(xo, yo)
-        print >>fh, "%s clipbox"%_nums_to_str(width*72, height*72, 0, 0)
+        print("%s translate"%_nums_to_str(xo, yo), file=fh)
+        print("%s clipbox"%_nums_to_str(width*72, height*72, 0, 0), file=fh)
 
         # write the figure
-        print >>fh, self._pswriter.getvalue()
+        print(self._pswriter.getvalue(), file=fh)
 
         # write the trailer
         #print >>fh, "grestore"
-        print >>fh, "end"
-        print >>fh, "showpage"
+        print("end", file=fh)
+        print("showpage", file=fh)
         fh.close()
 
         if isLandscape: # now we are ready to rotate
@@ -1312,7 +1312,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     else:
         try:
             latexh.write(s)
-        except UnicodeEncodeError, err:
+        except UnicodeEncodeError as err:
             verbose.report("You are using unicode and latex, but have "
                            "not enabled the matplotlib 'text.latex.unicode' "
                            "rcParam.", 'helpful')
@@ -1518,21 +1518,21 @@ def pstoeps(tmpfile, bbox, rotated=False):
     # Modify the header:
     while line:
         if line.startswith('%!PS'):
-            print >>epsh, "%!PS-Adobe-3.0 EPSF-3.0"
-            print >>epsh, bbox_info
+            print("%!PS-Adobe-3.0 EPSF-3.0", file=epsh)
+            print(bbox_info, file=epsh)
         elif line.startswith('%%EndComments'):
             epsh.write(line)
-            print >>epsh, '%%BeginProlog'
-            print >>epsh, 'save'
-            print >>epsh, 'countdictstack'
-            print >>epsh, 'mark'
-            print >>epsh, 'newpath'
-            print >>epsh, '/showpage {} def'
-            print >>epsh, '/setpagedevice {pop} def'
-            print >>epsh, '%%EndProlog'
-            print >>epsh, '%%Page 1 1'
+            print('%%BeginProlog', file=epsh)
+            print('save', file=epsh)
+            print('countdictstack', file=epsh)
+            print('mark', file=epsh)
+            print('newpath', file=epsh)
+            print('/showpage {} def', file=epsh)
+            print('/setpagedevice {pop} def', file=epsh)
+            print('%%EndProlog', file=epsh)
+            print('%%Page 1 1', file=epsh)
             if rotate:
-                print >>epsh, rotate
+                print(rotate, file=epsh)
             break
         elif line.startswith('%%Bound') \
             or line.startswith('%%HiResBound') \
@@ -1548,11 +1548,11 @@ def pstoeps(tmpfile, bbox, rotated=False):
     line = tmph.readline()
     while line:
         if line.startswith('%%Trailer'):
-            print >>epsh, '%%Trailer'
-            print >>epsh, 'cleartomark'
-            print >>epsh, 'countdictstack'
-            print >>epsh, 'exch sub { end } repeat'
-            print >>epsh, 'restore'
+            print('%%Trailer', file=epsh)
+            print('cleartomark', file=epsh)
+            print('countdictstack', file=epsh)
+            print('exch sub { end } repeat', file=epsh)
+            print('restore', file=epsh)
             if rcParams['ps.usedistiller'] == 'xpdf':
                 # remove extraneous "end" operator:
                 line = tmph.readline()

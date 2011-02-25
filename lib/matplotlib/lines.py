@@ -273,10 +273,11 @@ class Line2D(Artist):
 
         TODO: sort returned indices by distance
         """
-        if callable(self._contains): return self._contains(self,mouseevent)
+        if callable(self._contains):
+            return self._contains(self,mouseevent)
 
         if not is_numlike(self.pickradius):
-            raise ValueError,"pick radius should be a distance"
+            raise ValueError("pick radius should be a distance")
 
         # Make sure we have data to plot
         if self._invalidy or self._invalidx:
@@ -311,12 +312,12 @@ class Line2D(Artist):
         ind += self.ind_offset
 
         # Debugging message
-        if False and self._label != u'':
-            print "Checking line",self._label,"at",mouseevent.x,mouseevent.y
-            print 'xt', xt
-            print 'yt', yt
+        if False and self._label != '':
+            print("Checking line",self._label,"at",mouseevent.x,mouseevent.y)
+            print('xt', xt)
+            print('yt', yt)
             #print 'dx,dy', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
-            print 'ind',ind
+            print('ind',ind)
 
         # Return the point(s) within radius
         return len(ind)>0,dict(ind=ind)

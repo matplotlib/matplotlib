@@ -97,7 +97,7 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 
 """
-from __future__ import generators
+from __future__ import print_function
 
 __version__  = '1.1.0'
 
@@ -233,7 +233,7 @@ class Verbose:
 
         """
         if self.ge(level):
-            print >>self.fileo, s
+            print(s, file=self.fileo)
             return True
         return False
 
@@ -550,7 +550,7 @@ def get_py2exe_datafiles():
         root = root.replace(tail, 'mpl-data')
         root = root[root.index('mpl-data'):]
         d[root] = files
-    return d.items()
+    return list(d.items())
 
 
 def matplotlib_fname():
@@ -569,10 +569,10 @@ def matplotlib_fname():
 
     oldname = os.path.join( os.getcwd(), '.matplotlibrc')
     if os.path.exists(oldname):
-        print >> sys.stderr, """\
+        print("""\
 WARNING: Old rc filename ".matplotlibrc" found in working dir
   and and renamed to new default rc file name "matplotlibrc"
-  (no leading"dot"). """
+  (no leading"dot"). """, file=sys.stderr)
         shutil.move('.matplotlibrc', 'matplotlibrc')
 
     home = get_home()
@@ -580,9 +580,9 @@ WARNING: Old rc filename ".matplotlibrc" found in working dir
     if os.path.exists(oldname):
         configdir = get_configdir()
         newname = os.path.join(configdir, 'matplotlibrc')
-        print >> sys.stderr, """\
+        print("""\
 WARNING: Old rc filename "%s" found and renamed to
-  new default rc file name "%s"."""%(oldname, newname)
+  new default rc file name "%s"."""%(oldname, newname), file=sys.stderr)
 
         shutil.move(oldname, newname)
 
@@ -679,7 +679,7 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
         """
         Return values in order of sorted keys.
         """
-        return [self[k] for k in self.keys()]
+        return [self[k] for k in self.iterkeys()]
 
 def rc_params(fail_on_error=False):
     'Return the default params updated from the values in the rc file'
@@ -721,7 +721,7 @@ def rc_params(fail_on_error=False):
                 ret[key] = val # try to convert to proper type or raise
             else:
                 try: ret[key] = val # try to convert to proper type or skip
-                except Exception, msg:
+                except Exception as msg:
                     warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file \
 "%s"\n\t%s' % (val, cnt, line, fname, msg))
 
@@ -734,19 +734,19 @@ def rc_params(fail_on_error=False):
                 ret[key] = val # try to convert to proper type or raise
             else:
                 try: ret[key] = val # try to convert to proper type or skip
-                except Exception, msg:
+                except Exception as msg:
                     warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file \
 "%s"\n\t%s' % (val, cnt, line, fname, msg))
         elif key in _deprecated_ignore_map:
             warnings.warn('%s is deprecated. Update your matplotlibrc to use %s instead.'% (key, _deprecated_ignore_map[key]))
 
         else:
-            print >> sys.stderr, """
+            print("""
 Bad key "%s" on line %d in
 %s.
 You probably need to get an updated matplotlibrc file from
 http://matplotlib.sf.net/_static/matplotlibrc or from the matplotlib source
-distribution""" % (key, cnt, fname)
+distribution""" % (key, cnt, fname), file=sys.stderr)
 
     if ret['datapath'] is None:
         ret['datapath'] = get_data_path()
@@ -855,7 +855,7 @@ def rc(group, **kwargs):
     if is_string_like(group):
         group = (group,)
     for g in group:
-        for k,v in kwargs.items():
+        for k,v in kwargs.iteritems():
             name = aliases.get(k) or k
             key = '%s.%s' % (g, name)
             try:
@@ -980,7 +980,7 @@ def test(verbosity=0):
     """run the matplotlib test suite"""
     import nose
     import nose.plugins.builtin
-    from testing.noseclasses import KnownFailure
+    from .testing.noseclasses import KnownFailure
     from nose.plugins.manager import PluginManager
 
     # store the old values before overriding
@@ -1004,4 +1004,4 @@ verbose.report('verbose.level %s'%verbose.level)
 verbose.report('interactive is %s'%rcParams['interactive'])
 verbose.report('units is %s'%rcParams['units'])
 verbose.report('platform is %s'%sys.platform)
-verbose.report('loaded modules: %s'%sys.modules.keys(), 'debug')
+verbose.report('loaded modules: %s'%sys.modules.iterkeys(), 'debug')

@@ -12,6 +12,7 @@ import numpy as np
 import shutil
 import subprocess
 import sys
+from functools import reduce
 
 #=======================================================================
 
@@ -32,7 +33,7 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
       exMsg = "You haven't specified a 'relTol' relative tolerance "
       exMsg += "or a 'absTol' absolute tolerance function argument.  "
       exMsg += "You must specify one."
-      raise ValueError, exMsg
+      raise ValueError(exMsg)
 
    msg = ""
 
@@ -112,10 +113,10 @@ def convert(filename):
    '''
    base, extension = filename.rsplit('.', 1)
    if extension not in converter:
-      raise ImageComparisonFailure, "Don't know how to convert %s files to png" % extension
+      raise ImageComparisonFailure("Don't know how to convert %s files to png" % extension)
    newname = base + '_' + extension + '.png'
    if not os.path.exists(filename):
-      raise IOError, "'%s' does not exist" % filename
+      raise IOError("'%s' does not exist" % filename)
    cmd = converter[extension](filename, newname)
    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
    stdout, stderr = pipe.communicate()
@@ -126,7 +127,7 @@ def convert(filename):
          msg += "Standard output:\n%s\n" % stdout
       if stderr:
          msg += "Standard error:\n%s\n" % stderr
-      raise IOError, msg
+      raise IOError(msg)
    return newname
 
 verifiers = { }
@@ -136,7 +137,7 @@ def verify(filename):
    Verify the file through some sort of verification tool.
    """
    if not os.path.exists(filename):
-      raise IOError, "'%s' does not exist" % filename
+      raise IOError("'%s' does not exist" % filename)
    base, extension = filename.rsplit('.', 1)
    verifier = verifiers.get(extension, None)
    if verifier is not None:
@@ -150,7 +151,7 @@ def verify(filename):
             msg += "Standard output:\n%s\n" % stdout
          if stderr:
             msg += "Standard error:\n%s\n" % stderr
-         raise IOError, msg
+         raise IOError(msg)
 
 # Turning this off, because it seems to cause multiprocessing issues
 if matplotlib.checkdep_xmllint() and False:
@@ -178,13 +179,13 @@ def compare_images( expected, actual, tol, in_decorator=False ):
 
    try:
       from PIL import Image, ImageOps, ImageFilter
-   except ImportError, e:
+   except ImportError as e:
       msg = "Image Comparison requires the Python Imaging Library to " \
             "be installed.  To run tests without using PIL, then use " \
             "the '--without-tag=PIL' command-line option.\n"           \
             "Importing PIL failed with the following error:\n%s" % e
       if in_decorator:
-         raise NotImplementedError, e
+         raise NotImplementedError(e)
       else:
          return msg
 

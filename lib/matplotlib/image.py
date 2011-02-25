@@ -3,7 +3,7 @@ The image module supports basic image loading, rescaling and display
 operations.
 
 """
-from __future__ import division
+from __future__ import division, print_function
 import os, warnings
 
 import numpy as np
@@ -51,7 +51,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     }
 
     # reverse interp dict
-    _interpdr = dict([ (v,k) for k,v in _interpd.items()])
+    _interpdr = dict([ (v,k) for k,v in _interpd.iteritems()])
 
     interpnames = _interpd.keys()
 
@@ -861,9 +861,9 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
             y = np.asarray(y, np.float64).ravel()
 
         if A.shape[:2] != (y.size-1, x.size-1):
-            print A.shape
-            print y.size
-            print x.size
+            print(A.shape)
+            print(y.size)
+            print(x.size)
             raise ValueError("Axes don't match array shape")
         if A.ndim not in [2, 3]:
             raise ValueError("A must be 2D or 3D")
@@ -1181,7 +1181,7 @@ def imread(fname, format=None):
     else:
         ext = format
 
-    if ext not in handlers.keys():
+    if ext not in handlers.iterkeys():
         im = pilread()
         if im is None:
             raise ValueError('Only know how to handle extensions: %s; with PIL installed matplotlib can handle more images' % handlers.keys())

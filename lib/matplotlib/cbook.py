@@ -2,8 +2,8 @@
 A collection of utility functions and classes.  Many (but not all)
 from the Python Cookbook -- hence the name cbook
 """
-from __future__ import generators
-import re, os, errno, sys, StringIO, traceback, locale, threading, types
+from __future__ import print_function
+import re, os, errno, sys, io, traceback, locale, threading, types
 import time, datetime
 import warnings
 import numpy as np
@@ -13,6 +13,7 @@ import cPickle
 import os.path
 import random
 import urllib2
+from functools import reduce
 if sys.version_info[0] >= 3:
     import types
 else:
@@ -263,7 +264,7 @@ class CallbackRegistry:
         callbacks on *s* will be called with *\*args* and *\*\*kwargs*
         """
         self._check_signal(s)
-        for cid, proxy in self.callbacks[s].items():
+        for cid, proxy in self.callbacks[s].iteritems():
             # Clean out dead references
             if proxy.inst is not None and proxy.inst() is None:
                 del self.callbacks[s][cid]
@@ -371,7 +372,7 @@ class Bunch:
 
 
     def __repr__(self):
-        keys = self.__dict__.keys()
+        keys = self.__dict__.iterkeys()
         return 'Bunch(%s)'%', '.join(['%s=%s'%(k,self.__dict__[k]) for k in keys])
 
 def unique(x):
@@ -490,12 +491,12 @@ class ViewVCCachedServer(urllib2.HTTPSHandler):
         f.close()
 
         # Earlier versions did not have the full paths in cache.pck
-        for url, (fn, x, y) in cache.items():
+        for url, (fn, x, y) in cache.iteritems():
             if not os.path.isabs(fn):
                 cache[url] = (self.in_cache_dir(fn), x, y)
 
         # If any files are deleted, drop them from the cache
-        for url, (fn, _, _) in cache.items():
+        for url, (fn, _, _) in cache.iteritems():
             if not os.path.exists(fn):
                 del cache[url]
 
@@ -507,7 +508,7 @@ class ViewVCCachedServer(urllib2.HTTPSHandler):
         cache.pck.
         """
         # TODO: remove empty subdirectories
-        listed = set(fn for (_, (fn, _, _)) in self.cache.items())
+        listed = set(fn for (_, (fn, _, _)) in self.cache.iteritems())
         existing = reduce(set.union,
                           (set(os.path.join(dirpath, fn) for fn in filenames)
                           for (dirpath, _, filenames) in os.walk(self.cache_dir)))
@@ -587,7 +588,7 @@ class ViewVCCachedServer(urllib2.HTTPSHandler):
         else:
             data = response.read()
             self.cache_file(req.get_full_url(), data, response.headers)
-            result = urllib2.addinfourl(StringIO.StringIO(data),
+            result = urllib2.addinfourl(io.StringIO(data),
                                         response.headers,
                                         req.get_full_url())
             result.code = response.code
@@ -620,7 +621,7 @@ class ViewVCCachedServer(urllib2.HTTPSHandler):
                                   % url, 'debug')
         try:
             response = self.opener.open(url)
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             # could be a missing network connection
             error = str(e)
 
@@ -780,7 +781,7 @@ class Xlator(dict):
 
     def _make_regex(self):
         """ Build re object based on the keys of the current dictionary """
-        return re.compile("|".join(map(re.escape, self.keys())))
+        return re.compile("|".join(map(re.escape, self.iterkeys())))
 
     def __call__(self, match):
         """ Handler invoked for each regex *match* """
@@ -836,7 +837,7 @@ class Null:
 
 
 
-def mkdirs(newdir, mode=0777):
+def mkdirs(newdir, mode=0o777):
     """
     make directory *newdir* recursively, and set *mode*.  Equivalent to ::
 
@@ -851,7 +852,7 @@ def mkdirs(newdir, mode=0777):
                 if not os.path.exists(thispart):
                     os.makedirs(thispart, mode)
 
-    except OSError, err:
+    except OSError as err:
         # Reraise the error unless it's about an already existing directory
         if err.errno != errno.EEXIST or not os.path.isdir(newdir):
             raise
@@ -925,7 +926,7 @@ def get_split_ind(seq, N):
 
     sLen = 0
     # todo: use Alex's xrange pattern from the cbook for efficiency
-    for (word, ind) in zip(seq, range(len(seq))):
+    for (word, ind) in zip(seq, xrange(len(seq))):
         sLen += len(word) + 1  # +1 to account for the len(' ')
         if sLen>=N: return ind
     return len(seq)
@@ -1058,8 +1059,8 @@ def pieces(seq, num=2):
 
 def exception_to_str(s = None):
 
-    sh = StringIO.StringIO()
-    if s is not None: print >>sh, s
+    sh = io.StringIO()
+    if s is not None: print(s, file=sh)
     traceback.print_exc(file=sh)
     return sh.getvalue()
 
@@ -1231,7 +1232,7 @@ def finddir(o, match, case=False):
 
 def reverse_dict(d):
     'reverse the dictionary -- may lose data if values are not unique!'
-    return dict([(v,k) for k,v in d.items()])
+    return dict([(v,k) for k,v in d.iteritems()])
 
 def restrict_dict(d, keys):
     """
@@ -1321,18 +1322,18 @@ class MemoryMonitor:
         dn = int(n/segments)
         ii = range(0, n, dn)
         ii[-1] = n-1
-        print
-        print 'memory report: i, mem, dmem, dmem/nloops'
-        print 0, self._mem[0]
+        print()
+        print('memory report: i, mem, dmem, dmem/nloops')
+        print(0, self._mem[0])
         for i in range(1, len(ii)):
             di = ii[i] - ii[i-1]
             if di == 0:
                 continue
             dm = self._mem[ii[i]] - self._mem[ii[i-1]]
-            print '%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
-                                            dm, dm / float(di))
+            print('%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
+                                            dm, dm / float(di)))
         if self._overflow:
-            print "Warning: array size was too small for the number of calls."
+            print("Warning: array size was too small for the number of calls.")
 
     def xy(self, i0=0, isub=1):
         x = np.arange(i0, self._n, isub)
@@ -1371,7 +1372,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
             outstream.write("   %s -- " % str(type(step)))
             if isinstance(step, dict):
-                for key, val in step.items():
+                for key, val in step.iteritems():
                     if val is next:
                         outstream.write("[%s]" % repr(key))
                         break
@@ -1461,7 +1462,7 @@ class Grouper(object):
         Clean dead weak references from the dictionary
         """
         mapping = self._mapping
-        for key, val in mapping.items():
+        for key, val in mapping.iteritems():
             if key() is None:
                 del mapping[key]
                 val.remove(key)
@@ -1788,7 +1789,7 @@ def align_iterators(func, *iterables):
 
         def iternext(self):
             try:
-                self.value = self.it.next()
+                self.value = next(self.it)
                 self.key = func(self.value)
             except StopIteration:
                 self.value = self.key = None
@@ -1799,14 +1800,14 @@ def align_iterators(func, *iterables):
                 retval = self.value
                 self.iternext()
             elif self.key and key > self.key:
-                raise ValueError, "Iterator has been left behind"
+                raise ValueError("Iterator has been left behind")
             return retval
 
     # This can be made more efficient by not computing the minimum key for each iteration
     iters = [myiter(it) for it in iterables]
     minvals = minkey = True
     while 1:
-        minvals = (filter(None, [it.key for it in iters]))
+        minvals = ([_f for _f in [it.key for it in iters] if _f])
         if minvals:
             minkey = min(minvals)
             yield (minkey, [it(minkey) for it in iters])

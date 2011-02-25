@@ -626,7 +626,7 @@ class NavigationToolbar(Tk.Frame):
         self.lastDir = os.path.dirname(fname)
         try:
             self.canvas.print_figure(fname)
-        except IOError, msg:
+        except IOError as msg:
             err = '\n'.join(map(str, msg))
             msg = 'Failed to save %s: Error msg was\n\n%s' % (
                 fname, err)
@@ -775,7 +775,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
             try:
                 # This method will handle the delegation to the correct type
                 self.canvas.print_figure(fname)
-            except Exception, e:
+            except Exception as e:
                 showerror("Error saving file", str(e))
 
     def set_active(self, ind):

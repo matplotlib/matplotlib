@@ -67,7 +67,7 @@ class DraggableLegend(DraggableOffsetBox):
             self._update_bbox_to_anchor(loc_in_canvas)
         else:
             raise RuntimeError("update parameter '%s' is not supported." % self.update)
-        
+
     def _update_loc(self, loc_in_canvas):
         bbox = self.legend.get_bbox_to_anchor()
 
@@ -76,7 +76,7 @@ class DraggableLegend(DraggableOffsetBox):
         if bbox.width ==0 or bbox.height ==0:
             self.legend.set_bbox_to_anchor(None)
             bbox = self.legend.get_bbox_to_anchor()
-            
+
         _bbox_transform = BboxTransformFrom(bbox)
         self.legend._loc = tuple(_bbox_transform.transform_point(loc_in_canvas))
 
@@ -259,7 +259,7 @@ in the normalized axes coordinate.
         bbox = parent.bbox
         axessize_fontsize = min(bbox.width, bbox.height)/self._fontsize
 
-        for k, v in deprecated_kwds.items():
+        for k, v in deprecated_kwds.iteritems():
             # use deprecated value if not None and if their newer
             # counter part is None.
             if localdict[k] is not None and localdict[v] is None:
@@ -317,12 +317,12 @@ in the normalized axes coordinate.
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back on "best"; '
                                   'valid locations are\n\t%s\n'
-                                  % (loc, '\n\t'.join(self.codes.keys())))
+                                  % (loc, '\n\t'.join(self.codes.iterkeys())))
                     loc = 0
                 else:
                     warnings.warn('Unrecognized location "%s". Falling back on "upper right"; '
                                   'valid locations are\n\t%s\n'
-                                   % (loc, '\n\t'.join(self.codes.keys())))
+                                   % (loc, '\n\t'.join(self.codes.iterkeys())))
                     loc = 1
             else:
                 loc = self.codes[loc]

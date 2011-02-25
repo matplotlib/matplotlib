@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import numpy as np
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif
@@ -8,7 +10,7 @@ import numpy as np
 from matplotlib import patches, path, transforms
 
 from nose.tools import raises
-import cStringIO
+import io
 
 nan = np.nan
 Path = path.Path
@@ -73,7 +75,7 @@ def test_noise():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    print len(simplified)
+    print(len(simplified))
 
     assert len(simplified) == 3884
 
@@ -139,7 +141,7 @@ def test_fft_peaks():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    print len(simplified)
+    print(len(simplified))
 
     assert len(simplified) == 20
 
@@ -186,7 +188,7 @@ def test_throw_rendering_complexity_exceeded():
     ax = fig.add_subplot(111)
     ax.plot(xx, yy)
     try:
-        fig.savefig(cStringIO.StringIO())
+        fig.savefig(io.StringIO())
     except e:
         raise e
     else:

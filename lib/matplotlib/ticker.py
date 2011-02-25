@@ -506,7 +506,7 @@ class ScalarFormatter(Formatter):
             else:
                 s = ('%se%s%s' %(significand, sign, exponent)).rstrip('e')
                 return s
-        except IndexError, msg:
+        except IndexError as msg:
             return s
 
 

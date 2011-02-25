@@ -28,7 +28,7 @@ graphics contexts must implement to serve as a matplotlib backend
 
 """
 
-from __future__ import division
+from __future__ import division, print_function
 import os, warnings, time
 
 import numpy as np
@@ -1411,7 +1411,7 @@ class FigureCanvasBase:
         # Try deleting that artist, or its parent if you
         # can't delete the artist
         while h:
-            print "Removing",h
+            print("Removing",h)
             if h.remove():
                 self.draw_idle()
                 break
@@ -1803,7 +1803,7 @@ class FigureCanvasBase:
 
     def get_supported_filetypes_grouped(self):
         groupings = {}
-        for ext, name in self.filetypes.items():
+        for ext, name in self.filetypes.iteritems():
             groupings.setdefault(name, []).append(ext)
             groupings[name].sort()
         return groupings
@@ -1825,7 +1825,7 @@ class FigureCanvasBase:
 
         if (format not in self.filetypes or
             not hasattr(self, method_name)):
-            formats = self.filetypes.keys()
+            formats = self.filetypes.iterkeys()
             formats.sort()
             raise ValueError(
                 'Format "%s" is not supported.\n'
