@@ -94,7 +94,7 @@ def test_sine_plus_noise():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    print len(simplified)
+    print(len(simplified))
 
     assert len(simplified) == 876
 
