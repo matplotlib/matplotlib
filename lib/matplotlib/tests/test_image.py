@@ -53,7 +53,7 @@ def test_image_python_io():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot([1,2,3])
-    buffer = io.StringIO()
+    buffer = io.BytesIO()
     fig.savefig(buffer)
     buffer.seek(0)
     plt.imread(buffer)
@@ -79,10 +79,10 @@ def test_imsave():
     random.seed(1)
     data = random.rand(256, 128)
 
-    buff_dpi1 = io.StringIO()
+    buff_dpi1 = io.BytesIO()
     plt.imsave(buff_dpi1, data, dpi=1)
 
-    buff_dpi100 = io.StringIO()
+    buff_dpi100 = io.BytesIO()
     plt.imsave(buff_dpi100, data, dpi=100)
 
     buff_dpi1.seek(0)
