@@ -290,15 +290,49 @@ class Axes3D(Axes):
         return self.zz_viewLim.intervalx
     get_zlim = get_zlim3d
 
-    def set_zticks(self,*args,**kwargs):
+    def set_zticks(self, *args, **kwargs):
         """
-        Set 3d z tick locations and (optionally labels).
-        See set_xticks3d for more details.
+        Set z-axis tick locations.
+        See set_xticks for more details.
+
+        Note that minor ticks are not supported at this time.
         """
         return self.w_zaxis.set_ticks(*args, **kwargs)
         
-    def get_zticks(self):
-        return self.w_zaxis.get_ticks()
+    def get_zticks(self, *args, **kwargs):
+        """
+        Get the z-axis tick objects.
+        See get_xticks for more details.
+
+        Note that minor ticks are not supported at this time.
+        """
+        return self.w_zaxis.get_ticks(*args, **kwargs)
+
+    def set_zticklabels(self, *args, **kwargs) :
+        """
+        Set z-axis tick labels.
+        See set_xticklabels for more details.
+
+        Note that minor ticks are not supported at this time.
+        """
+        return self.w_zaxis.set_ticklabels(*args, **kwargs)
+
+    def get_zticklabels(self, *args, **kwargs) :
+        """
+        Get ztick labels as a list of Text instances.
+        Set get_xticklabels for more details.
+
+        Note that minor ticks are not supported at this time.
+        """
+        return self.w_zaxis.get_ticklabels(*args, **kwargs)
+
+    def get_zticklines(self) :
+        """
+        Get ztick lines as a list of Line2D instances.
+        Note that this function is provided merely for completeness.
+        These lines are re-calculated as the display changes.
+        """
+        return self.w_zaxis.get_ticklines()
 
     def clabel(self, *args, **kwargs):
         return None
