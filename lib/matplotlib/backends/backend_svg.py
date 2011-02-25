@@ -432,7 +432,8 @@ class RendererSVG(RendererBase):
             rows, cols, buffer = im.as_rgba_str()
             _png.write_png(buffer, cols, rows, bytesio)
             im.flipud_out()
-            self._svgwriter.write(base64.encodestring(bytesio.getvalue()))
+            self._svgwriter.write(
+                base64.encodestring(bytesio.getvalue()).decode('ascii'))
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])

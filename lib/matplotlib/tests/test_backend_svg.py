@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import io
+import sys
+from io import BytesIO
 import xml.parsers.expat
 from matplotlib.testing.decorators import knownfailureif
 
@@ -18,7 +19,7 @@ def test_visibility():
     for artist in b:
         artist.set_visible(False)
 
-    fd = io.StringIO()
+    fd = BytesIO()
     fig.savefig(fd,format='svg')
 
     fd.seek(0)
