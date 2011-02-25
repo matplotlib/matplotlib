@@ -306,7 +306,7 @@ def checkdep_pdftops():
         s = subprocess.Popen(['pdftops','-v'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         for line in s.stderr:
-            if 'version' in line:
+            if b'version' in line:
                 v = line.split()[-1]
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
@@ -317,7 +317,7 @@ def checkdep_inkscape():
         s = subprocess.Popen(['inkscape','-V'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         for line in s.stdout:
-            if 'Inkscape' in line:
+            if b'Inkscape' in line:
                 v = line.split()[1]
                 break
         return v
@@ -329,7 +329,7 @@ def checkdep_xmllint():
         s = subprocess.Popen(['xmllint','--version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         for line in s.stderr:
-            if 'version' in line:
+            if b'version' in line:
                 v = line.split()[-1]
                 break
         return v
