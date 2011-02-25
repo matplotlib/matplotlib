@@ -5,6 +5,7 @@ try:
 except NameError:
     import sets
     set = sets.Set
+from itertools import izip
 
 import numpy as np
 
