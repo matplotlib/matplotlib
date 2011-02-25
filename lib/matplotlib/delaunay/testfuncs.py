@@ -439,7 +439,7 @@ def quality(func, mesh, interpolator='nn', n=33):
 
 
     r2 = 1.0 - SSE/SSM
-    print func.func_name, r2, SSE, SSM, numgood
+    print(func.func_name, r2, SSE, SSM, numgood)
     return r2
 
 def allquality(interpolator='nn', allfuncs=allfuncs, data=data, n=33):
