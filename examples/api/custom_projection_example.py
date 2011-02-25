@@ -26,8 +26,8 @@ class HammerAxes(Axes):
     """
     # The projection must specify a name.  This will be used be the
     # user to select the projection, i.e. ``subplot(111,
-    # projection='hammer')``.
-    name = 'hammer'
+    # projection='custom_hammer')``.
+    name = 'custom_hammer'
 
     def __init__(self, *args, **kwargs):
         Axes.__init__(self, *args, **kwargs)
@@ -237,7 +237,7 @@ class HammerAxes(Axes):
         return Circle((0.5, 0.5), 0.5)
 
     def _gen_axes_spines(self):
-        return {'hammer':mspines.Spine.circular_spine(self,
+        return {'custom_hammer':mspines.Spine.circular_spine(self,
                                                       (0.5, 0.5), 0.5)}
 
     # Prevent the user from applying scales to one or both of the
@@ -449,7 +449,7 @@ register_projection(HammerAxes)
 # Now make a simple example using the custom projection.
 from pylab import *
 
-subplot(111, projection="hammer")
+subplot(111, projection="custom_hammer")
 p = plot([-1, 1, 1], [-1, -1, 1], "o-")
 grid(True)
 
