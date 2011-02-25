@@ -82,25 +82,73 @@ math_tests = [
     r'${x}_{92}^{31415}+\pi $',
     r'${x}_{{y}_{b}^{a}}^{{z}_{c}^{d}}$',
     r'${y}_{3}^{\prime \prime \prime }$',
-    r"$\left( \xi \left( 1 - \xi \right) \right)$" # Bug 2969451
+    r"$\left( \xi \left( 1 - \xi \right) \right)$", # Bug 2969451
 ]
 
-def _run_all_tests():
-    fig = plt.figure(figsize=(5, len(math_tests) / 2.0))
-    for i, test in enumerate(math_tests):
-        fig.text(0, float(len(math_tests) - i - 1) / len(math_tests), test)
+digits = "0123456789"
+uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+lowercase = "abcdefghijklmnopqrstuvwxyz"
+uppergreek = (r"\Gamma \Delta \Theta \Lambda \Xi \Pi \Sigma \Upsilon \Phi \Psi "
+              r"\Omega")
+lowergreek = (r"\alpha \beta \gamma \delta \epsilon \zeta \eta \theta \iota "
+              r"\lambda \mu \nu \xi \pi \kappa \rho \sigma \tau \upsilon "
+              r"\phi \chi \psi")
+all = [digits, uppercase, lowercase, uppergreek, lowergreek]
+
+font_test_specs = [
+    ([], all),
+    (['mathrm'], all),
+    (['mathbf'], all),
+    (['mathit'], all),
+    (['mathtt'], [digits, uppercase, lowercase]),
+    (['mathcircled'], [digits, uppercase, lowercase]),
+    (['mathrm', 'mathcircled'], [digits, uppercase, lowercase]),
+    (['mathbf', 'mathcircled'], [digits, uppercase, lowercase]),
+    (['mathbb'], [digits, uppercase, lowercase,
+                  r'\Gamma \Pi \Sigma \gamma \pi']),
+    (['mathrm', 'mathbb'], [digits, uppercase, lowercase,
+                            r'\Gamma \Pi \Sigma \gamma \pi']),
+    (['mathbf', 'mathbb'], [digits, uppercase, lowercase,
+                            r'\Gamma \Pi \Sigma \gamma \pi']),
+    (['mathcal'], [uppercase]),
+    (['mathfrak'], [uppercase, lowercase]),
+    (['mathbf', 'mathfrak'], [uppercase, lowercase]),
+    (['mathscr'], [uppercase, lowercase]),
+    (['mathsf'], [digits, uppercase, lowercase]),
+    (['mathrm', 'mathsf'], [digits, uppercase, lowercase]),
+    (['mathbf', 'mathsf'], [digits, uppercase, lowercase])
+    ]
+
+font_tests = []
+for fonts, chars in font_test_specs:
+    wrapper = [' '.join(fonts), ' $']
+    for font in fonts:
+        wrapper.append(r'\%s{' % font)
+    wrapper.append('%s')
+    for font in fonts:
+        wrapper.append('}')
+    wrapper.append('$')
+    wrapper = ''.join(wrapper)
+
+    for set in chars:
+        font_tests.append(wrapper % set)
+
+def _run_all_tests(tests):
+    fig = plt.figure(figsize=(5, len(tests) / 2.0))
+    for i, test in enumerate(tests):
+        fig.text(0, float(len(tests) - i - 1) / len(tests), test)
     return fig
 
 @image_comparison(baseline_images=['mathtext'])
 def test_mathtext():
-    fig = _run_all_tests()
+    fig = _run_all_tests(math_tests)
     fig.savefig('mathtext')
 
 @image_comparison(baseline_images=['mathtext_stix'])
 def test_mathtext_stix():
     matplotlib.rcParams['mathtext.fontset'] = 'stix'
 
-    fig = _run_all_tests()
+    fig = _run_all_tests(math_tests)
     fig.savefig('mathtext_stix')
 
     matplotlib.rcParams['mathtext.fontset'] = 'cm'
@@ -109,9 +157,30 @@ def test_mathtext_stix():
 def test_mathtext_stixsans():
     matplotlib.rcParams['mathtext.fontset'] = 'stixsans'
 
-    fig = _run_all_tests()
+    fig = _run_all_tests(math_tests)
     fig.savefig('mathtext_stixsans')
 
     matplotlib.rcParams['mathtext.fontset'] = 'cm'
 
+@image_comparison(baseline_images=['mathtext_font'])
+def test_mathtext_font():
+    fig = _run_all_tests(font_tests)
+    fig.savefig('mathtext_font')
 
+@image_comparison(baseline_images=['mathtext_font_stix'])
+def test_mathtext_font_stix():
+    matplotlib.rcParams['mathtext.fontset'] = 'stix'
+
+    fig = _run_all_tests(font_tests)
+    fig.savefig('mathtext_font_stix')
+
+    matplotlib.rcParams['mathtext.fontset'] = 'cm'
+
+@image_comparison(baseline_images=['mathtext_font_stixsans'])
+def test_mathtext_font_stixsans():
+    matplotlib.rcParams['mathtext.fontset'] = 'stixsans'
+
+    fig = _run_all_tests(font_tests)
+    fig.savefig('mathtext_font_stixsans')
+
+    matplotlib.rcParams['mathtext.fontset'] = 'cm'
