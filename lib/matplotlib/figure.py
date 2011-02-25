@@ -626,7 +626,7 @@ class Figure(Artist):
                 ret.append(a)
             return tuple(ret)
 
-        key = fixlist(args), fixitems(kwargs.items())
+        key = fixlist(args), fixitems(kwargs.iteritems())
         return key
 
     @docstring.dedent_interpd

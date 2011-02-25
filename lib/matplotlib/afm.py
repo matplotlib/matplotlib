@@ -34,6 +34,8 @@ AUTHOR:
   John D. Hunter <jdh2358@gmail.com>
 """
 
+from __future__ import print_function
+
 import sys, os, re
 from _mathtext_data import uni2type1
 
@@ -143,10 +145,10 @@ def _parse_header(fh):
         #key, val = line.split(' ', 1)
         try: d[key] = headerConverters[key](val)
         except ValueError:
-            print >>sys.stderr, 'Value error parsing header in AFM:', key, val
+            print('Value error parsing header in AFM:', key, val, file=sys.stderr)
             continue
         except KeyError:
-            print >>sys.stderr, 'Found an unknown keyword in AFM header (was %s)' % key
+            print('Found an unknown keyword in AFM header (was %s)' % key, file=sys.stderr)
             continue
         if key=='StartCharMetrics': return d
     raise RuntimeError('Bad parse')

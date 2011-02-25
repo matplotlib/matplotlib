@@ -502,7 +502,7 @@ def save_figure(ptr,base):
 
     try:
         base.canvas.print_figure(fname, format=format)
-    except IOError, msg:
+    except IOError as msg:
         err = '\n'.join(map(str, msg))
         msg = 'Failed to save %s: Error msg was\n\n%s' % (
             fname, err)

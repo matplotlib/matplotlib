@@ -709,8 +709,8 @@ def levypdf(x, gamma, alpha):
     N = len(x)
 
     if N%2 != 0:
-        raise ValueError, 'x must be an event length array; try\n' + \
-              'x = np.linspace(minx, maxx, N), where N is even'
+        raise ValueError('x must be an event length array; try\n' + \
+              'x = np.linspace(minx, maxx, N), where N is even')
 
 
     dx = x[1]-x[0]
@@ -1255,7 +1255,7 @@ class FIFOBuffer:
         self._xs[ind] = x
         self._ys[ind] = y
 
-        for N,funcs in self.callbackd.items():
+        for N,funcs in self.callbackd.iteritems():
             if (self._ind%N)==0:
                 for func in funcs:
                     func(self)
@@ -1773,7 +1773,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     if (not cbook.is_string_like(names) and cbook.iterable(names) \
             and len(names) and cbook.is_string_like(names[0])):
         if len(names) != len(arrs):
-            raise ValueError, "number of arrays do not match number of names"
+            raise ValueError("number of arrays do not match number of names")
     else: # we have only 1 name and 1 array
         names = [names]
         arrs = [arrs]
@@ -1786,7 +1786,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
         if len(dtypes) == 1:
             dtypes = dtypes * len(arrs)
         else:
-            raise ValueError, "dtypes must be None, a single dtype or a list"
+            raise ValueError("dtypes must be None, a single dtype or a list")
 
     newdtype = np.dtype(rec.dtype.descr + zip(names, dtypes))
     newrec = np.recarray(rec.shape, dtype=newdtype)
@@ -2003,7 +2003,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
 
     if jointype != 'inner' and defaults is not None: # fill in the defaults enmasse
         newrec_fields = newrec.dtype.fields.keys()
-        for k, v in defaults.items():
+        for k, v in defaults.iteritems():
             if k in newrec_fields:
                 newrec[k] = v
 
@@ -2159,8 +2159,8 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             return ' '.join(s.split())
 
 
-        def next(self):
-            return self.fix(self.fh.next())
+        def __next__(self):
+            return self.fix(next(self.fh))
 
         def __iter__(self):
             for line in self.fh:
@@ -2245,7 +2245,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
                 break
             #print i, len(names), len(row)
             #print 'converters', zip(converters, row)
-            for j, (name, item) in enumerate(zip(names, row)):
+            for j, (name, item) in enumerate(izip(names, row)):
                 func = converterd.get(j)
                 if func is None:
                     func = converterd.get(name)
@@ -2308,7 +2308,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     if needheader:
         while 1:
             # skip past any comments and consume one line of column header
-            row = reader.next()
+            row = next(reader)
             if len(row) and row[0].startswith(comments):
                 continue
             break
@@ -2738,7 +2738,7 @@ def griddata(x,y,z,xi,yi,interp='nn'):
         xo = xi.astype(np.float)
         yo = yi.astype(np.float)
         if min(xo[1:]-xo[0:-1]) < 0 or min(yo[1:]-yo[0:-1]) < 0:
-            raise ValueError, 'output grid defined by xi,yi must be monotone increasing'
+            raise ValueError('output grid defined by xi,yi must be monotone increasing')
         # allocate array for output (buffer will be overwritten by nagridd)
         zo = np.empty((yo.shape[0],xo.shape[0]), np.float)
         _natgrid.natgridd(x,y,z,xo,yo,zo)

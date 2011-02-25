@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function
 """
  backend_cocoaagg.py
 
@@ -19,8 +19,8 @@ import os, sys
 try:
     import objc
 except:
-    print >>sys.stderr, 'The CococaAgg backend required PyObjC to be installed!'
-    print >>sys.stderr, '  (currently testing v1.3.7)'
+    print('The CococaAgg backend required PyObjC to be installed!', file=sys.stderr)
+    print('  (currently testing v1.3.7)', file=sys.stderr)
     sys.exit()
 
 from Foundation import *
@@ -171,7 +171,7 @@ class PlotView(NibClassBuilder.AutoBaseClass):
         if (type == NSLeftMouseDown):
             button = 1
         else:
-            print >>sys.stderr, 'Unknown mouse event type:', type
+            print('Unknown mouse event type:', type, file=sys.stderr)
             button = -1
         self.canvas.button_press_event(loc.x, loc.y, button)
         self.updatePlot()
@@ -187,7 +187,7 @@ class PlotView(NibClassBuilder.AutoBaseClass):
         if (type == NSLeftMouseUp):
             button = 1
         else:
-            print >>sys.stderr, 'Unknown mouse event type:', type
+            print('Unknown mouse event type:', type, file=sys.stderr)
             button = -1
         self.canvas.button_release_event(loc.x, loc.y, button)
         self.updatePlot()
@@ -205,7 +205,7 @@ class MPLBootstrap(NSObject):
     def startWithBundle_(self, bundle):
         #NSApplicationLoad()
         if not bundle.loadNibFile_externalNameTable_withZone_('Matplotlib.nib', {}, None):
-            print >>sys.stderr, 'Unable to load Matplotlib Cocoa UI!'
+            print('Unable to load Matplotlib Cocoa UI!', file=sys.stderr)
             sys.exit()
 
 class FigureManagerCocoaAgg(FigureManagerBase):
@@ -259,21 +259,21 @@ def WMEnable(name='Python'):
         return True
     bndl = NSBundle.bundleWithPath_(objc.pathForFramework('/System/Library/Frameworks/ApplicationServices.framework'))
     if bndl is None:
-        print >>sys.stderr, 'ApplicationServices missing'
+        print('ApplicationServices missing', file=sys.stderr)
         return False
     d = {}
     objc.loadBundleFunctions(bndl, d, FUNCTIONS)
     for (fn, sig) in FUNCTIONS:
         if fn not in d:
-            print >>sys.stderr, 'Missing', fn
+            print('Missing', fn, file=sys.stderr)
             return False
     err, psn = d['GetCurrentProcess']()
     if err:
-        print >>sys.stderr, 'GetCurrentProcess', (err, psn)
+        print('GetCurrentProcess', (err, psn), file=sys.stderr)
         return False
     err = d['CPSSetProcessName'](psn, name)
     if err:
-        print >>sys.stderr, 'CPSSetProcessName', (err, psn)
+        print('CPSSetProcessName', (err, psn), file=sys.stderr)
         return False
     err = d['CPSEnableForegroundOperation'](psn)
     if err:
@@ -281,7 +281,7 @@ def WMEnable(name='Python'):
         return False
     err = d['SetFrontProcess'](psn)
     if err:
-        print >>sys.stderr, 'SetFrontProcess', (err, psn)
+        print('SetFrontProcess', (err, psn), file=sys.stderr)
         return False
     return True
 

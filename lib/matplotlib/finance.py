@@ -221,7 +221,7 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
                                             adjusted=adjusted)
         if len(ret) == 0:
             return None
-    except IOError, exc:
+    except IOError as exc:
         warnings.warn('fh failure\n%s'%(exc.strerror[1]))
         return None
 

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 from numpy.testing import assert_array_equal
 
-import cStringIO
+import io
 import os
 
 @image_comparison(baseline_images=['image_interps'])
@@ -53,7 +53,7 @@ def test_image_python_io():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot([1,2,3])
-    buffer = cStringIO.StringIO()
+    buffer = io.StringIO()
     fig.savefig(buffer)
     buffer.seek(0)
     plt.imread(buffer)
@@ -79,10 +79,10 @@ def test_imsave():
     random.seed(1)
     data = random.rand(256, 128)
 
-    buff_dpi1 = cStringIO.StringIO()
+    buff_dpi1 = io.StringIO()
     plt.imsave(buff_dpi1, data, dpi=1)
 
-    buff_dpi100 = cStringIO.StringIO()
+    buff_dpi100 = io.StringIO()
     plt.imsave(buff_dpi100, data, dpi=100)
 
     buff_dpi1.seek(0)

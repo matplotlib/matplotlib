@@ -10,7 +10,7 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
         bbox_array = None
     try:
         tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode, id(bbox_array))
-    except Tk.TclError, v:
+    except Tk.TclError as v:
         try:
             try:
                 _tkagg.tkinit(tk.interpaddr(), 1)

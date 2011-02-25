@@ -971,7 +971,7 @@ class FancyArrow(Polygon):
                     coords=np.concatenate([left_half_arrow[:-1],
                                             right_half_arrow[-2::-1]])
                 else:
-                    raise ValueError, "Got unknown shape: %s" % shape
+                    raise ValueError("Got unknown shape: %s" % shape)
             cx = float(dx)/distance
             sx = float(dy)/distance
             M = np.array([[cx, sx],[-sx,cx]])
@@ -3683,7 +3683,7 @@ class FancyArrowPatch(Patch):
         dpi_cor is currently used for linewidth-related things and
         shink factor. Mutation scale is not affected by this.
         """
-        
+
         self._dpi_cor = dpi_cor
 
     def get_dpi_cor(self):
@@ -3691,10 +3691,10 @@ class FancyArrowPatch(Patch):
         dpi_cor is currently used for linewidth-related things and
         shink factor. Mutation scale is not affected by this.
         """
-        
+
         return self._dpi_cor
 
-        
+
     def set_positions(self, posA, posB):
         """ set the begin end end positions of the connecting
         path. Use current vlaue if None.
@@ -3816,7 +3816,7 @@ class FancyArrowPatch(Patch):
         """
         return the path of the arrow in the data coordinate. Use
         get_path_in_displaycoord() method to retrieve the arrow path
-        in the disaply coord.  
+        in the disaply coord.
         """
         _path, fillable = self.get_path_in_displaycoord()
 
@@ -3892,7 +3892,7 @@ class FancyArrowPatch(Patch):
 
         # FIXME : dpi_cor is for the dpi-dependecy of the
         # linewidth. There could be room for improvement.
-        # 
+        #
         #dpi_cor = renderer.points_to_pixels(1.)
         self.set_dpi_cor(renderer.points_to_pixels(1.))
         path, fillable = self.get_path_in_displaycoord()
@@ -4154,7 +4154,7 @@ class ConnectionPatch(FancyArrowPatch):
         """
 
         dpi_cor = self.get_dpi_cor()
-        
+
         x, y = self.xy1
         posA = self._get_xy(x, y, self.coords1, self.axesA)
 

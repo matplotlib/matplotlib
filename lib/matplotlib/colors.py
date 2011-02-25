@@ -307,7 +307,7 @@ class ColorConverter:
 
             self.cache[arg] = color
 
-        except (KeyError, ValueError, TypeError), exc:
+        except (KeyError, ValueError, TypeError) as exc:
             raise ValueError('to_rgb: Invalid rgb arg "%s"\n%s' % (str(arg), exc))
             # Error messages could be improved by handling TypeError
             # separately; but this should be rare and not too hard
@@ -349,7 +349,7 @@ class ColorConverter:
             if alpha is None:
                 alpha = 1.0
             return r,g,b,alpha
-        except (TypeError, ValueError), exc:
+        except (TypeError, ValueError) as exc:
             raise ValueError('to_rgba: Invalid rgba arg "%s"\n%s' % (str(arg), exc))
 
     def to_rgba_array(self, c, alpha=None):

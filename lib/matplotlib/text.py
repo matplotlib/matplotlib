@@ -1793,7 +1793,7 @@ class Annotation(Text, _AnnotationBase):
 
         self.arrow = None
 
-        if arrowprops and arrowprops.has_key("arrowstyle"):
+        if arrowprops and "arrowstyle" in arrowprops:
 
             self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
             self.arrow_patch = FancyArrowPatch((0, 0), (1,1),
@@ -1912,11 +1912,11 @@ class Annotation(Text, _AnnotationBase):
 
                 # pick the x,y corner of the text bbox closest to point
                 # annotated
-                dsu = [(abs(val-x0), val) for val in l, r, xc]
+                dsu = [(abs(val-x0), val) for val in (l, r, xc)]
                 dsu.sort()
                 _, x = dsu[0]
 
-                dsu = [(abs(val-y0), val) for val in b, t, yc]
+                dsu = [(abs(val-y0), val) for val in (b, t, yc)]
                 dsu.sort()
                 _, y = dsu[0]
 

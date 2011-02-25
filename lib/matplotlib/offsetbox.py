@@ -535,7 +535,7 @@ class TextArea(OffsetBox):
         if textprops is None:
             textprops = {}
 
-        if not textprops.has_key("va"):
+        if "va" not in textprops:
             textprops["va"]="baseline"
 
         self._text = mtext.Text(0, 0, s, **textprops)

@@ -19,7 +19,10 @@ please email mdroe@stsci.edu, but please check KNOWN ISSUES below first.
 """
 from __future__ import division
 import os, sys
-from cStringIO import StringIO
+if sys.version_info[0] >= 3:
+    from io import StringIO
+else:
+    from cStringIO import StringIO
 from math import ceil
 try:
     set
@@ -87,7 +90,7 @@ Type1 symbol name (i.e. 'phi').
     except KeyError:
         message = """'%(symbol)s' is not a valid Unicode character or
 TeX/Type1 symbol"""%locals()
-        raise ValueError, message
+        raise ValueError(message)
 
 def unichr_safe(index):
     """Return the Unicode character corresponding to the index,
@@ -2354,7 +2357,7 @@ class Parser(object):
         self._state_stack = [self.State(fonts_object, 'default', 'rm', fontsize, dpi)]
         try:
             self._expression.parseString(s)
-        except ParseException, err:
+        except ParseException as err:
             raise ValueError("\n".join([
                         "",
                         err.line,

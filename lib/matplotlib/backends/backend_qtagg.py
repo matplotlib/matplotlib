@@ -1,7 +1,7 @@
 """
 Render to qt from agg
 """
-from __future__ import division
+from __future__ import division, print_function
 
 import os, sys
 import matplotlib
@@ -20,7 +20,7 @@ def new_figure_manager( num, *args, **kwargs ):
     """
     Create a new figure manager instance
     """
-    if DEBUG: print 'backend_qtagg.new_figure_manager'
+    if DEBUG: print('backend_qtagg.new_figure_manager')
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass( *args, **kwargs )
     canvas = FigureCanvasQTAgg( thisFig )
@@ -35,7 +35,7 @@ class FigureManagerQTAgg(FigureManagerQT):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if matplotlib.rcParams['toolbar']=='classic':
-            print "Classic toolbar is not yet supported"
+            print("Classic toolbar is not yet supported")
         elif matplotlib.rcParams['toolbar']=='toolbar2':
             toolbar = NavigationToolbar2QTAgg(canvas, parent)
         else:
@@ -53,7 +53,7 @@ class FigureCanvasQTAgg( FigureCanvasAgg, FigureCanvasQT ):
    """
 
     def __init__( self, figure ):
-        if DEBUG: print 'FigureCanvasQtAgg: ', figure
+        if DEBUG: print('FigureCanvasQtAgg: ', figure)
         FigureCanvasQT.__init__( self, figure )
         FigureCanvasAgg.__init__( self, figure )
         self.drawRect = False
@@ -78,8 +78,8 @@ class FigureCanvasQTAgg( FigureCanvasAgg, FigureCanvasQT ):
         """
 
         FigureCanvasQT.paintEvent( self, e )
-        if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', self, \
-           self.get_width_height()
+        if DEBUG: print('FigureCanvasQtAgg.paintEvent: ', self, \
+           self.get_width_height())
 
         p = qt.QPainter( self )
 
@@ -132,7 +132,7 @@ class FigureCanvasQTAgg( FigureCanvasAgg, FigureCanvasQT ):
         Draw the figure when xwindows is ready for the update
         """
 
-        if DEBUG: print "FigureCanvasQtAgg.draw", self
+        if DEBUG: print("FigureCanvasQtAgg.draw", self)
         self.replot = True
         FigureCanvasAgg.draw(self)
         self.repaint(False)

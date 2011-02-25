@@ -355,7 +355,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         for fname in files:
             fontfiles[os.path.abspath(fname)] = 1
 
-    return [fname for fname in fontfiles.keys() if os.path.exists(fname)]
+    return [fname for fname in fontfiles.iterkeys() if os.path.exists(fname)]
 
 def weight_as_number(weight):
     """
@@ -370,7 +370,7 @@ def weight_as_number(weight):
     elif weight in range(100, 1000, 100):
         pass
     else:
-        raise ValueError, 'weight not a valid integer'
+        raise ValueError('weight not a valid integer')
     return weight
 
 
@@ -452,7 +452,7 @@ def ttfFontProperty(font):
     #    lighter and bolder are also allowed.
 
     weight = None
-    for w in weight_dict.keys():
+    for w in weight_dict.iterkeys():
         if sfnt4.find(w) >= 0:
             weight = w
             break
@@ -916,7 +916,7 @@ class FontProperties(object):
         support for it to be enabled.  We are merely borrowing its
         pattern syntax for use here.
         """
-        for key, val in self._parse_fontconfig_pattern(pattern).items():
+        for key, val in self._parse_fontconfig_pattern(pattern).iteritems():
             if type(val) == list:
                 getattr(self, "set_" + key)(val[0])
             else:
@@ -931,12 +931,12 @@ def ttfdict_to_fnames(d):
     flatten a ttfdict to all the filenames it contains
     """
     fnames = []
-    for named in d.values():
-        for styled in named.values():
-            for variantd in styled.values():
-                for weightd in variantd.values():
-                    for stretchd in weightd.values():
-                        for fname in stretchd.values():
+    for named in d.itervalues():
+        for styled in named.itervalues():
+            for variantd in styled.itervalues():
+                for weightd in variantd.itervalues():
+                    for stretchd in weightd.itervalues():
+                        for fname in stretchd.itervalues():
                             fnames.append(fname)
     return fnames
 

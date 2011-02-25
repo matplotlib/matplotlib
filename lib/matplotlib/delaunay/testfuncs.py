@@ -4,6 +4,8 @@ Most of these have been yoinked from ACM TOMS 792.
 http://netlib.org/toms/792
 """
 
+from __future__ import print_function
+
 import numpy as np
 from triangulate import Triangulation
 
@@ -359,7 +361,7 @@ def plotallfuncs(allfuncs=allfuncs):
     nnt = NNTester(npoints=1000)
     lpt = LinearTester(npoints=1000)
     for func in allfuncs:
-        print func.title
+        print(func.title)
         nnt.plot(func, interp=False, plotter='imshow')
         pl.savefig('%s-ref-img.png' % func.func_name)
         nnt.plot(func, interp=True, plotter='imshow')

@@ -2,7 +2,7 @@
 These are  classes to support contour plotting and
 labelling for the axes class
 """
-from __future__ import division
+from __future__ import division, print_function
 import warnings
 import matplotlib as mpl
 import numpy as np
@@ -198,10 +198,10 @@ class ContourLabeler:
         self.labelXYs = []
 
         if self.labelManual:
-            print 'Select label locations manually using first mouse button.'
-            print 'End manual selection with second mouse button.'
+            print('Select label locations manually using first mouse button.')
+            print('End manual selection with second mouse button.')
             if not inline:
-                print 'Remove last label by clicking third mouse button.'
+                print('Remove last label by clicking third mouse button.')
 
             blocking_contour_labeler = BlockingContourLabeler(self)
             blocking_contour_labeler(inline,inline_spacing)
@@ -445,11 +445,11 @@ class ContourLabeler:
                 pl, np.arange(len(pl)), xi, extrap=False )
 
             # If those indices aren't beyond contour edge, find x,y
-            if (not np.isnan(I[0])) and int(I[0])<>I[0]:
+            if (not np.isnan(I[0])) and int(I[0])!=I[0]:
                 xy1 = mlab.less_simple_linear_interpolation(
                     pl, lc, [ xi[0] ] )
 
-            if (not np.isnan(I[1])) and int(I[1])<>I[1]:
+            if (not np.isnan(I[1])) and int(I[1])!=I[1]:
                 xy2 = mlab.less_simple_linear_interpolation(
                     pl, lc, [ xi[1] ] )
 
@@ -943,7 +943,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 i0 = -1
             if self.extend in ('both', 'max'):
                 i1 += 1
-            self.cvalues = range(i0, i1)
+            self.cvalues = list(range(i0, i1))
             self.set_norm(colors.NoNorm())
         else:
             self.cvalues = self.layers
