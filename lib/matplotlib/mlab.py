@@ -143,6 +143,7 @@ care--function signatures may differ):
 
 from __future__ import division
 import csv, warnings, copy, os, operator
+from itertools import izip
 
 import numpy as np
 ma = np.ma

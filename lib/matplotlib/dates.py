@@ -110,6 +110,7 @@ Here all all the date formatters:
 from __future__ import print_function
 
 import re, time, math, datetime
+from itertools import izip
 
 import matplotlib
 import numpy as np
