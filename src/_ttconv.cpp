@@ -179,27 +179,10 @@ public:
 
     virtual void add_pair(const char* a, const char* b)
     {
-        const char *p;
-
-        /* Each glyph includes bounding box information, but xpdf and
-           ghostscript can't handle it in a Form XObject (they
-           segfault!!!), so we remove it from the stream here.  It's
-           not needed anyway, since the Form XObject includes it in
-           its BBox value. */
-        p = b;
-        for (p = b; *p != 0; ++p) {
-            if (*p == 'd') {
-                if (*(p + 1) == '1') {
-                    p += 2;
-                    break;
-                }
-            }
-        }
-
         #if PY3K
-        PyObject* value = PyBytes_FromString(p);
+        PyObject* value = PyBytes_FromString(b);
         #else
-        PyObject* value = PyString_FromString(p);
+        PyObject* value = PyString_FromString(b);
         #endif
         if (value)
         {
