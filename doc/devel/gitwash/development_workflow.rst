@@ -32,6 +32,12 @@ Making a new feature branch
    git branch my-new-feature
    git checkout my-new-feature
 
+This will create a feature branch based on ``master``.  To create a
+feature branch based on a maintenance branch, use::
+
+   git branch my-new-feature remotes/origin/v1.0.x
+   git checkout my-new-feature
+
 Generally, you will want to keep this also on your public github_ fork
 of matplotlib_.  To do this, you `git push`_ this new branch up to your github_
 repo.  Generally (if you followed the instructions in these pages, and
@@ -40,13 +46,15 @@ by default), git will have a link to your github_ repo, called
 
    git push origin my-new-feature
 
-In git >1.7 you can ensure that the link is correctly set by using the
-``--set-upstream`` option::
+You will need to use this exact command, rather than simply ``git
+push`` every time you want to push changes on your feature branch to
+your github_ repo.  However, in git >1.7 you can set up a link by
+using the ``--set-upstream`` option::
 
    git push --set-upstream origin my-new-feature
 
-From now on git_ will know that ``my-new-feature`` is related to the
-``my-new-feature`` branch in the github_ repo.
+and then next time you need to push changes to your branch a simple
+``git push`` will suffice.
 
 The editing workflow
 ====================
@@ -125,7 +133,7 @@ without interfering with the output from the comparison.  More detail?
 Note the three dots in the URL above (``master...my-new-feature``) and
 see :ref:`dot2-dot3`.
 
-Asking for your changes to be merged with the main repo
+Asking for your changes to be merged into the main repo
 =======================================================
 
 When you are ready to ask for the merge of your code:
@@ -140,10 +148,15 @@ When you are ready to ask for the merge of your code:
    recipient.  The message will go to the `matplotlib mailing list`_.  Please
    feel free to add others from the list as you like.
 
-Merging from trunk
-==================
+#. If the branch is to be merged into a maintenance branch on the main
+   repo, make sure the "base branch" indicates the maintenance branch
+   and not master.
 
-This updates your code from the upstream `matplotlib github`_  repo.
+Staying up to date with changes in the central repository
+=========================================================
+
+This updates your working copy from the upstream `matplotlib github`_
+repo.
 
 Overview
 --------
@@ -176,6 +189,14 @@ the upstream repo to a copy on your local machine::
 then merging into your current branch::
 
    git merge upstream/master
+
+.. Doesn't one then need to push this up to the private repository? I
+.. have multiple machines I use for development, and I don't want to
+.. have to do this on all of them - MGD
+
+.. Does this need to be done for each maintenance branch as well?
+.. This doesn't seem to be sufficient to pull in changes on an
+.. upstream maintenance branch. - MGD
 
 Deleting a branch on github_
 ============================
