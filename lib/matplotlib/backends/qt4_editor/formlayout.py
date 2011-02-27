@@ -37,7 +37,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 # 1.0.7: added support for "Apply" button
 # 1.0.6: code cleaning
 
-__version__ = '1.0.7'
+__version__ = '1.0.9'
 __license__ = __doc__
 
 DEBUG = False
@@ -56,9 +56,9 @@ from PyQt4.QtGui import (QWidget, QLineEdit, QComboBox, QLabel, QSpinBox, QIcon,
                          QPixmap, QTabWidget, QApplication, QStackedWidget,
                          QDateEdit, QDateTimeEdit, QFont, QFontComboBox,
                          QFontDatabase, QGridLayout)
-from PyQt4.QtCore import (Qt, SIGNAL, SLOT, QSize, QString,
+from PyQt4.QtCore import (Qt, SIGNAL, SLOT, QObject, QSize,
                           pyqtSignature, pyqtProperty)
-from datetime import date
+import datetime
 
 
 class ColorButton(QPushButton):
@@ -102,7 +102,8 @@ def text_to_qcolor(text):
     Avoid warning from Qt when an invalid QColor is instantiated
     """
     color = QColor()
-    if isinstance(text, QString):
+    if isinstance(text, QObject):
+        # actually a QString, which is not provided by the new PyQt4 API:
         text = str(text)
     if not isinstance(text, (unicode, str)):
         return color
@@ -272,24 +273,19 @@ class FormWidget(QWidget):
                 field.setCurrentIndex(selindex)
             elif isinstance(value, bool):
                 field = QCheckBox(self)
-                if value:
-                    field.setCheckState(Qt.Checked)
-                else:
-                    field.setCheckedState(Qt.Unchecked)
-                               
+                field.setCheckState(Qt.Checked if value else Qt.Unchecked)
             elif isinstance(value, float):
                 field = QLineEdit(repr(value), self)
             elif isinstance(value, int):
                 field = QSpinBox(self)
+                field.setRange(-1e9, 1e9)
                 field.setValue(value)
-                field.setMaximum(1e9)
-            elif isinstance(value, date):
-                if hasattr(value, 'hour'):
-                    field = QDateTimeEdit(self)
-                    field.setDateTime(value)
-                else:
-                    field = QDateEdit(self)
-                    field.setDate(value)
+            elif isinstance(value, datetime.datetime):
+                field = QDateTimeEdit(self)
+                field.setDateTime(value)
+            elif isinstance(value, datetime.date):
+                field = QDateEdit(self)
+                field.setDate(value)
             else:
                 field = QLineEdit(repr(value), self)
             self.formlayout.addRow(label, field)
@@ -318,11 +314,10 @@ class FormWidget(QWidget):
                 value = float(field.text())
             elif isinstance(value, int):
                 value = int(field.value())
-            elif isinstance(value, date):
-                if hasattr(value, 'hour'):
-                    value = field.dateTime().toPyDateTime()
-                else:
-                    value = field.date().toPyDate()
+            elif isinstance(value, datetime.datetime):
+                value = field.dateTime().toPyDateTime()
+            elif isinstance(value, datetime.date):
+                value = field.date().toPyDate()
             else:
                 value = eval(str(field.text()))
             valuelist.append(value)
@@ -459,7 +454,7 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
     # Create a QApplication instance if no instance currently exists
     # (e.g. if the module is used directly from the interpreter)
     if QApplication.startingUp():
-        QApplication([])
+        _app = QApplication([])
         
     dialog = FormDialog(data, title, comment, icon, parent, apply)
     if dialog.exec_():
@@ -481,7 +476,8 @@ if __name__ == "__main__":
                 ('font', ('Arial', 10, False, True)),
                 ('color', '#123409'),
                 ('bool', True),
-                ('datetime', date(2010, 10, 10)),
+                ('date', datetime.date(2010, 10, 10)),
+                ('datetime', datetime.datetime(2010, 10, 10)),
                 ]
         
     def create_datagroup_example():
