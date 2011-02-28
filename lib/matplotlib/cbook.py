@@ -40,9 +40,20 @@ try:
 except (ValueError, ImportError, AttributeError):
     preferredencoding = None
 
-def unicode_safe(s):
-    if preferredencoding is None: return unicode(s)
-    else: return unicode(s, preferredencoding)
+if sys.version_info[0] >= 3:
+    def unicode_safe(s):
+        if isinstance(s, bytes):
+            if preferredencoding is None:
+                return unicode(s)
+            else:
+                # We say "unicode" and not "str" here so it passes through
+                # 2to3 correctly.
+                return unicode(s, preferredencoding)
+        return s
+else:
+    def unicode_safe(s):
+        if preferredencoding is None: return unicode(s)
+        else: return unicode(s, preferredencoding)
 
 
 class converter:
