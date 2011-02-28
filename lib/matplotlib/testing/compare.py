@@ -5,6 +5,8 @@
 
 import matplotlib
 from matplotlib.testing.noseclasses import ImageComparisonFailure
+from matplotlib.testing import image_util
+from matplotlib import _png
 import math
 import operator
 import os
@@ -177,18 +179,6 @@ def compare_images( expected, actual, tol, in_decorator=False ):
                True. (default=False)
    '''
 
-   try:
-      from PIL import Image, ImageOps, ImageFilter
-   except ImportError as e:
-      msg = "Image Comparison requires the Python Imaging Library to " \
-            "be installed.  To run tests without using PIL, then use " \
-            "the '--without-tag=PIL' command-line option.\n"           \
-            "Importing PIL failed with the following error:\n%s" % e
-      if in_decorator:
-         raise NotImplementedError(e)
-      else:
-         return msg
-
    verify(actual)
 
    # Convert the image to png
@@ -197,17 +187,22 @@ def compare_images( expected, actual, tol, in_decorator=False ):
       actual, expected = convert(actual), convert(expected)
 
    # open the image files and remove the alpha channel (if it exists)
-   expectedImage = Image.open( expected ).convert("RGB")
-   actualImage = Image.open( actual ).convert("RGB")
+   expectedImage = _png.read_png_uint8( expected )
+   actualImage = _png.read_png_uint8( actual )
 
    # normalize the images
-   expectedImage = ImageOps.autocontrast( expectedImage, 2 )
-   actualImage = ImageOps.autocontrast( actualImage, 2 )
+   expectedImage = image_util.autocontrast( expectedImage, 2 )
+   actualImage = image_util.autocontrast( actualImage, 2 )
 
    # compare the resulting image histogram functions
-   h1 = expectedImage.histogram()
-   h2 = actualImage.histogram()
-   rms = math.sqrt( reduce(operator.add, map(lambda a,b: (a-b)**2, h1, h2)) / len(h1) )
+   rms = 0
+   for i in xrange(0, 3):
+      h1p = expectedImage[:,:,i]
+      h2p = actualImage[:,:,i]
+      h1h = np.histogram(h1p, bins=256)[0]
+      h2h = np.histogram(h2p, bins=256)[0]
+      rms += np.sum(np.power((h1h-h2h), 2))
+   rms = np.sqrt(rms / (256 * 3))
 
    diff_image = os.path.join(os.path.dirname(actual),
                              'failed-diff-'+os.path.basename(actual))
@@ -245,14 +240,25 @@ def compare_images( expected, actual, tol, in_decorator=False ):
       return msg
 
 def save_diff_image( expected, actual, output ):
-   from PIL import Image
-   expectedImage = np.array(Image.open( expected ).convert("RGB")).astype(np.float)
-   actualImage = np.array(Image.open( actual ).convert("RGB")).astype(np.float)
-   assert expectedImage.ndim==expectedImage.ndim
-   assert expectedImage.shape==expectedImage.shape
+   expectedImage = _png.read_png( expected )
+   actualImage = _png.read_png( actual )
+   assert expectedImage.ndim==actualImage.ndim
+   assert expectedImage.shape==actualImage.shape
    absDiffImage = abs(expectedImage-actualImage)
+
    # expand differences in luminance domain
-   absDiffImage *= 10
-   save_image_np = np.clip(absDiffImage,0,255).astype(np.uint8)
-   save_image = Image.fromarray(save_image_np)
-   save_image.save(output)
+   absDiffImage *= 255 * 10
+   save_image_np = np.clip(absDiffImage, 0, 255).astype(np.uint8)
+   height, width, depth = save_image_np.shape
+
+   # The PDF renderer doesn't produce an alpha channel, but the
+   # matplotlib PNG writer requires one, so expand the array
+   if depth == 3:
+      with_alpha = np.empty((height, width, 4), dtype=np.uint8)
+      with_alpha[:,:,0:3] = save_image_np
+      save_image_np = with_alpha
+
+   # Hard-code the alpha channel to fully solid
+   save_image_np[:,:,3] = 255
+
+   _png.write_png(save_image_np.tostring(), width, height, output)
