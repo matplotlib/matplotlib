@@ -149,7 +149,7 @@ libraries themselves.
     array support for python (`download
     <http://sourceforge.net/project/showfiles.php?group_id=1369&package_id=175103>`__)
 
-libpng 1.1 (or later)
+libpng 1.2 (or later)
     library for loading and saving :term:`PNG` files (`download
     <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
     zlib. If you are a windows user, you can ignore this since we

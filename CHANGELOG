@@ -1,3 +1,7 @@
+2011-02-27 Support libpng version 1.5.x; suggestion by Michael
+           Albert. Changed installation specification to a
+           minimum of libpng version 1.2.  - EF
+
 2011-02-20 clabel accepts a callable as an fmt kwarg; modified
            patch by Daniel Hyams. - EF
 
