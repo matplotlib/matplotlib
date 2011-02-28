@@ -351,10 +351,10 @@ _png_module::read_png(const Py::Tuple& args)
     png_set_sig_bytes(png_ptr, 8);
     png_read_info(png_ptr, info_ptr);
 
-    png_uint_32 width = info_ptr->width;
-    png_uint_32 height = info_ptr->height;
+    png_uint_32 width = png_get_image_width(png_ptr, info_ptr);
+    png_uint_32 height = png_get_image_height(png_ptr, info_ptr);
 
-    int bit_depth = info_ptr->bit_depth;
+    int bit_depth = png_get_bit_depth(png_ptr, info_ptr);
 
     // Unpack 1, 2, and 4-bit images
     if (bit_depth < 8)
@@ -362,7 +362,7 @@ _png_module::read_png(const Py::Tuple& args)
 
     // If sig bits are set, shift data
     png_color_8p sig_bit;
-    if ((info_ptr->color_type != PNG_COLOR_TYPE_PALETTE) &&
+    if ((png_get_color_type(png_ptr, info_ptr) != PNG_COLOR_TYPE_PALETTE) &&
         png_get_sBIT(png_ptr, info_ptr, &sig_bit))
     {
         png_set_shift(png_ptr, sig_bit);
@@ -375,13 +375,13 @@ _png_module::read_png(const Py::Tuple& args)
     }
 
     // Convert palletes to full RGB
-    if (info_ptr->color_type == PNG_COLOR_TYPE_PALETTE)
+    if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE)
     {
         png_set_palette_to_rgb(png_ptr);
     }
 
     // If there's an alpha channel convert gray to RGB
-    if (info_ptr->color_type == PNG_COLOR_TYPE_GRAY_ALPHA)
+    if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_GRAY_ALPHA)
     {
         png_set_gray_to_rgb(png_ptr);
     }
@@ -409,11 +409,11 @@ _png_module::read_png(const Py::Tuple& args)
     npy_intp dimensions[3];
     dimensions[0] = height;  //numrows
     dimensions[1] = width;   //numcols
-    if (info_ptr->color_type & PNG_COLOR_MASK_ALPHA)
+    if (png_get_color_type(png_ptr, info_ptr) & PNG_COLOR_MASK_ALPHA)
     {
         dimensions[2] = 4;     //RGBA images
     }
-    else if (info_ptr->color_type & PNG_COLOR_MASK_COLOR)
+    else if (png_get_color_type(png_ptr, info_ptr) & PNG_COLOR_MASK_COLOR)
     {
         dimensions[2] = 3;     //RGB images
     }
@@ -422,7 +422,8 @@ _png_module::read_png(const Py::Tuple& args)
         dimensions[2] = 1;     //Greyscale images
     }
     //For gray, return an x by y array, not an x by y by 1
-    int num_dims  = (info_ptr->color_type & PNG_COLOR_MASK_COLOR) ? 3 : 2;
+    int num_dims  = (png_get_color_type(png_ptr, info_ptr)
+                                & PNG_COLOR_MASK_COLOR) ? 3 : 2;
 
     double max_value = (1 << ((bit_depth < 8) ? 8 : bit_depth)) - 1;
     PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNew(
