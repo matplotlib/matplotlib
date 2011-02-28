@@ -200,8 +200,13 @@ Image::as_rgba_str(const Py::Tuple& args, const Py::Dict& kwargs)
 
     std::pair<agg::int8u*, bool> bufpair = _get_output_buffer();
 
+    #if PY3K
+    Py::Object ret =  Py::asObject(Py_BuildValue("lly#", rowsOut, colsOut,
+                                   bufpair.first, colsOut * rowsOut * 4));
+    #else
     Py::Object ret =  Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut,
                                    bufpair.first, colsOut * rowsOut * 4));
+    #endif
 
     if (bufpair.second) delete [] bufpair.first;
     return ret;

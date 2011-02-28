@@ -289,7 +289,7 @@ class RendererSVG(RendererBase):
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
             d = self._convert_path(path, transform, simplify=False)
             name = u'coll%x_%x_%s' % (self._path_collection_id, i,
-                                     md5(d).hexdigest())
+                                      md5(d.encode('ascii')).hexdigest())
             write(u'<path id="%s" d="%s"/>\n' % (name, d))
             path_codes.append(name)
         write(u'</defs>\n')
@@ -433,7 +433,7 @@ class RendererSVG(RendererBase):
             _png.write_png(buffer, cols, rows, bytesio)
             im.flipud_out()
             self._svgwriter.write(
-                base64.encodestring(bytesio.getvalue()).decode('ascii'))
+                base64.encodebytes(bytesio.getvalue()).decode('ascii'))
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])

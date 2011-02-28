@@ -67,8 +67,13 @@ static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t lengt
     PyObject* result = NULL;
     if (write_method)
     {
+        #if PY3K
+        result = PyObject_CallFunction(write_method, (char *)"y#", data,
+                                       length);
+        #else
         result = PyObject_CallFunction(write_method, (char *)"s#", data,
                                        length);
+        #endif
     }
     Py_XDECREF(write_method);
     Py_XDECREF(result);
