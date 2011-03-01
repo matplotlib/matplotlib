@@ -1111,9 +1111,7 @@ class DateConverter(units.ConversionInterface):
         'return the unit AxisInfo'
         # make sure that the axis does not start at 0
 
-        tz = None
-        if getattr(unit, "tzinfo", None):
-            tz = unit.tzinfo
+        tz = getattr(unit, "tzinfo", None)
         
         majloc = AutoDateLocator(tz=tz)
         majfmt = AutoDateFormatter(majloc, tz=tz)

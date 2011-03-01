@@ -1456,12 +1456,15 @@ class Axis(artist.Artist):
     def axis_date(self, tz=None):
         """
         Sets up x-axis ticks and labels that treat the x data as dates.
-        *tz* is the time zone to use in labeling dates.
+        *tz* is a :class:`tzinfo` instance or a timezone string. This timezone is used to create date labels.
         """
         import datetime
         # should be enough to inform the unit conversion interface
         # dates are comng in
-        if tz:
+        if tz is not None:
+            if isinstance(tz, str):
+                import pytz
+                tz = pytz.timezone(tz) #make a tzinfo instance from timezone string
             self.update_units(tz.localize(datetime.datetime(2009,1,1)))
         else:
             self.update_units(datetime.datetime(2009,1,1))

@@ -2687,7 +2687,7 @@ class Axes(martist.Artist):
     def xaxis_date(self, tz=None):
         """Sets up x-axis ticks and labels that treat the x data as dates.
 
-        *tz* is the time zone to use in labeling dates.  Defaults to rc value.
+        *tz* is a :class:`tzinfo` instance.  Defaults to rc value.
         """
         # should be enough to inform the unit conversion interface
         # dates are comng in
@@ -2696,7 +2696,7 @@ class Axes(martist.Artist):
     def yaxis_date(self, tz=None):
         """Sets up y-axis ticks and labels that treat the y data as dates.
 
-        *tz* is the time zone to use in labeling dates.  Defaults to rc value.
+        *tz* is a :class:`tzinfo` instance.  Defaults to rc value.
         """
         self.yaxis.axis_date(tz)
 
@@ -3816,7 +3816,7 @@ class Axes(martist.Artist):
           *fmt*: string
             The plot format string.
 
-          *tz*: [ None | timezone string ]
+          *tz*: [ None | timezone string | :class:`tzinfo` instance ]
             The time zone to use in labeling dates. If *None*, defaults to rc
             value.
 
