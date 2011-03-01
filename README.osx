@@ -2,12 +2,18 @@ Build mpl on OSX has proven to be a nightmare because of all the
 different types of zlib, png and freetype that may be on your system.
 The recommended and supported way to build is to use the make.osx file
 in this directory.  This script requires you to set a PREFIX
-environment variable where you want to the install to go.  It will
-fetch the dependencies from a remove server and install them into your
+environment variable where you want the install to go.  It will
+fetch the dependencies from a remote server and install them into your
 PREFIX dir, and then build mpl against them.  It should ignore any
 lib, png or freetype on your system
 
 Example usage::
 
-  PREFIX=/Users/jdhunter/dev [PYVERSION=2.6] make -f make.osx fetch deps mpl_install
+  make -f make.osx PREFIX=/Users/jdhunter/dev PYVERSION=2.6 fetch deps mpl_install
+
+Variables:
+    PREFIX (required): where to install the dependencies
+    PYVERSION (optional): which python version to use (default=python, e.g.=python2.6)
+
+The Python libraries will be installed in the relevant site-packages, instead of under PREFIX.
 
