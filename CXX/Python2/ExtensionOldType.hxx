@@ -74,6 +74,11 @@ namespace Py
             return this;
         }
 
+        Object self()
+        {
+            return asObject( this );
+        }
+
     protected:
         explicit PythonExtension()
         : PythonExtensionBase()
@@ -173,7 +178,7 @@ namespace Py
             Tuple self( 2 );
 
             self[0] = Object( this );
-            self[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ), true );
+            self[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ) );
 
             PyObject *func = PyCFunction_New( &method_def->ext_meth_def, self.ptr() );
 

@@ -74,6 +74,11 @@ namespace Py
             return this;
         }
 
+        Object self()
+        {
+            return asObject( this );
+        }
+
     protected:
         explicit PythonExtension()
         : PythonExtensionBase()

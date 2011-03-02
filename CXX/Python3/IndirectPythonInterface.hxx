@@ -78,8 +78,6 @@ PyObject * _Exc_ZeroDivisionError();
 PyObject * _Exc_WindowsError();
 #endif
 
-PyObject * _Exc_MemoryErrorInst();
-
 PyObject * _Exc_IndentationError();
 PyObject * _Exc_TabError();
 PyObject * _Exc_UnboundLocalError();
