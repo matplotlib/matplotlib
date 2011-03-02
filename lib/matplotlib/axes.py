@@ -4199,13 +4199,18 @@ class Axes(martist.Artist):
         return lags, c, a, b
 
 
-    def _get_legend_handles(self):
+    def _get_legend_handles(self, legend_handler_map=None):
         "return artists that will be used as handles for legend"
         handles_original = self.lines + self.patches + \
                            self.collections + self.containers
 
         # collections
-        legend_map_keys = mlegend.Legend._default_handler_map.keys()
+        handler_map = mlegend.Legend.get_default_handler_map()
+
+        if legend_handler_map is not None:
+            handler_map = handler_map.copy()
+            handler_map.update(legend_handler_map)
+        
         #collection_types = [cls for cls in legend_map_keys \
         #                    if issubclass(cls, mcoll.Collection)]
 
@@ -4213,17 +4218,13 @@ class Axes(martist.Artist):
         for h in handles_original:
             if h.get_label() == "_nolegend_": #.startswith('_'):
                 continue
-
-            # check subclass
-            for cls in legend_map_keys:
-                if isinstance(h, cls):
-                    handles.append(h)
-                    break
-
+            if mlegend.Legend.get_legend_handler(handler_map, h):
+                handles.append(h)
+                
         return handles
 
 
-    def get_legend_handles_labels(self):
+    def get_legend_handles_labels(self, legend_handler_map=None):
         """
         return handles and labels for legend
 
@@ -4236,9 +4237,10 @@ class Axes(martist.Artist):
 
         handles = []
         labels = []
-        for handle in self._get_legend_handles():
+        for handle in self._get_legend_handles(legend_handler_map):
             label = handle.get_label()
-            if (label is not None and label != ''):
+            #if (label is not None and label != '' and not label.startswith('_')):
+            if label and not label.startswith('_'):
                 handles.append(handle)
                 labels.append(label)
 
@@ -4385,6 +4387,9 @@ class Axes(martist.Artist):
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
         ================   ==================================================================
+
+        .. Note:: Not all kinds of artist are supported by the legend command.
+                  See LINK (FIXME) for details.
 
 
         **Example:**
