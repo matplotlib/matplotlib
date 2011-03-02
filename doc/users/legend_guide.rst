@@ -192,56 +192,6 @@ Legend of Complex Plots
 In matplotlib v1.1 (FIXME when released) and later, the legend is
 improved to support more plot commands and ease the customization.
 
-Legend Handler
---------------
-
-One of the change is that drawing of legend handles is delegated to
-legend handlers. For example, :class:`~matplotlib.lines.Line2D`
-instances are handled by
-:class:`~matplotlib.legend_handler.HandlerLine2D`.  The mapping
-between the artists and their corresponding handlers are defined in a
-the handler_map of the legend. The handler_map is a dictionary of
-key-handler pair, where key can be an artist instance or its
-class. And the handler is a Handler instance.
-
-Let's consider the following sample code, ::
-
-  legend([p_1, p_2,..., p_i, ...], ["Test 1", "Test 2", ..., "Test i",...])
-
-For each *p_i*, matplotlib 
-
-  1. check if *p_i* itself is in the handler_map
-  2. if not, iterate over type(p_i).mro() until a matching key is found in the handler_map
-
-
-For example, the default handler_map
-has following key-handler pairs (below is only a part of them).
-
-  * Line2D : legend_handler.HandlerLine2D()
-  * Patch : legend_handler.HandlerPatch()
-  * LineCollection : legend_handler.HandlerLineCollection()
-  * ...
-
-The legend command takes an optional argument of "handler_map". When
-provided, the default handler will be updated (using dict.update
-method) with the provided one. ::
-
-   p1, = plot(x, "ro", label="test1")
-   p2, = plot(y, "b+", ms=10, label="test2")
-
-   my_handler = HandlerLine2D(numpoints=1)
-
-   legend(handler_map={Line2D:my_handler})
-
-The above example will use *my_handler* for any Line2D
-instances (p1 and p2). ::
-
-   legend(handler_map={p1:HandlerLine2D(numpoints=1)})
-
-In the above example, only *p1* will be handled by *my_handler*, while
-others will be handled by default handlers.
-
-
 Artist Container
 ----------------
 
@@ -278,9 +228,61 @@ supported (hopefully the list will increase). Here is an example.
 
 .. plot:: mpl_examples/pylab_examples/legend_demo4.py
 
-The default *handler_map* has an entry for "tuple" which is mapped to
+Legend Handler
+--------------
+
+One of the change is that drawing of legend handles is delegated to
+legend handlers. For example, :class:`~matplotlib.lines.Line2D`
+instances are handled by
+:class:`~matplotlib.legend_handler.HandlerLine2D`.  The mapping
+between the artists and their corresponding handlers are defined in a
+handler_map of the legend. The handler_map is a dictionary of
+key-handler pair, where key can be an artist instance or its
+class. And the handler is a Handler instance.
+
+Let's consider the following sample code, ::
+
+  legend([p_1, p_2,..., p_i, ...], ["Test 1", "Test 2", ..., "Test i",...])
+
+For each *p_i*, matplotlib 
+
+  1. check if *p_i* itself is in the handler_map
+  2. if not, iterate over type(p_i).mro() until a matching key is found in the handler_map
+
+
+Unless specified, the defaul handler_map is used. Below is a partial
+list of key-handler pairs included in the default handler map.
+
+  * Line2D : legend_handler.HandlerLine2D()
+  * Patch : legend_handler.HandlerPatch()
+  * LineCollection : legend_handler.HandlerLineCollection()
+  * ...
+
+
+The legend command takes an optional argument of "handler_map". When
+provided, the default handler map will be updated (using dict.update
+method) with the provided one. ::
+
+   p1, = plot(x, "ro", label="test1")
+   p2, = plot(y, "b+", ms=10, label="test2")
+
+   my_handler = HandlerLine2D(numpoints=1)
+
+   legend(handler_map={Line2D:my_handler})
+
+The above example will use *my_handler* for any Line2D
+instances (p1 and p2). ::
+
+   legend(handler_map={p1:HandlerLine2D(numpoints=1)})
+
+In the above example, only *p1* will be handled by *my_handler*, while
+others will be handled by default handlers.
+
+The curent default handler_map has handlers for errobar and bar
+plots. Also, it includes an entry for ¡°tuple¡± which is mapped to
 *HandlerTuple*. It simply overplots all the handles for items in the
 given tuple. For example,
+
 
 .. plot::
     :include-source:
@@ -288,15 +290,16 @@ given tuple. For example,
     z = np.random.randn(10)
 
     p1a, = plt.plot(z, "ro", ms=10, mfc="r", mew=2, mec="r") # red filled circle
-    p1b, = plt.plot(z, "w+", ms=10, mec="w", mew=2) # white cross
+    p1b, = plt.plot(z[:5], "w+", ms=10, mec="w", mew=2) # white cross
 
-    plt.legend([(p1a, p1b)], ["Attr A+B"])
+    plt.legend([p1a, (p1a, p1b)], ["Attr A", "Attr A+B"])
+
 
 
 Implement a Custom Handler
 --------------------------
 
-Handler can any callable object with following signature. ::
+Handler can be any callable object with following signature. ::
 
     def __call__(self, legend, orig_handle,
                  fontsize,

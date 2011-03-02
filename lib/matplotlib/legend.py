@@ -1,24 +1,15 @@
 """
-Place a legend on the axes at location loc.  Labels are a
-sequence of strings and loc can be a string or an integer
-specifying the legend location
+The legend module defines the Legend class, which is responsible for
+drawing legends associated with axes and/or figures. 
 
-The location codes are
-
-  'best'         : 0, (only implemented for axis legends)
-  'upper right'  : 1,
-  'upper left'   : 2,
-  'lower left'   : 3,
-  'lower right'  : 4,
-  'right'        : 5,
-  'center left'  : 6,
-  'center right' : 7,
-  'lower center' : 8,
-  'upper center' : 9,
-  'center'       : 10,
-
-Return value is a sequence of text, line instances that make
-up the legend
+The Legend class can be considered as a container of legend handles
+and legend texts. Creation of corresponding legend handles from the
+plot elements in the axes or figures (e.g., lines, patches, etc.) are
+specified by the handler map, which defines the mapping between the
+plot elements and the legend handlers to be used (the default legend
+handlers are defined in the matplotlib.legend_handler module). Note
+that not all kinds of artist are supported by the legend yet (See LINK
+(FIXME) for details).
 """
 from __future__ import division
 import warnings
@@ -115,8 +106,6 @@ class Legend(Artist):
     loc can be a tuple of the noramilzed coordinate values with
     respect its parent.
 
-    Return value is a sequence of text, line instances that make
-    up the legend
     """
 
 
@@ -174,7 +163,7 @@ class Legend(Artist):
                  ):
         """
         - *parent* : the artist that contains the legend
-        - *handles* : a list of artists (lines, patches) to add to the legend
+        - *handles* : a list of artists (lines, patches) to be added to the legend
         - *labels* : a list of strings to label the legend
 
         Optional keyword arguments:
@@ -204,7 +193,7 @@ class Legend(Artist):
         ================   ==================================================================
 
 
-The pad and spacing parameters are measure in font-size units.  E.g.,
+The pad and spacing parameters are measured in font-size units.  E.g.,
 a fontsize of 10 points and a handlelength=5 implies a handlelength of
 50 points.  Values from rcParams will be used if None.
 
@@ -477,6 +466,9 @@ in the normalized axes coordinate.
             return renderer.points_to_pixels(self._fontsize)
 
 
+    # _default_handler_map defines the default mapping between plot
+    # elements and the legend handlers.
+
     _default_handler_map = {
         ErrorbarContainer:legend_handler.HandlerErrorbar(),
         Line2D:legend_handler.HandlerLine2D(),
@@ -488,15 +480,59 @@ in the normalized axes coordinate.
         tuple:legend_handler.HandlerTuple(),
         }
 
+    # (get|set|update)_default_handler_maps are public interfaces to
+    # modify the defalut handler map.
+
+    @classmethod
+    def get_default_handler_map(cls):
+        """
+        A class method that returns the default handler map.
+        """
+        return cls._default_handler_map
+
+    @classmethod
+    def set_default_handler_map(cls, handler_map):
+        """
+        A class method to set the default handler map.
+        """
+        cls._default_handler_map = handler_map
+
+    @classmethod
+    def update_default_handler_map(cls, handler_map):
+        """
+        A class method to update the default handler map.
+        """
+        cls._default_handler_map.update(handler_map)
+
     def get_legend_handler_map(self):
+        """
+        return the handler map.
+        """
+
+        default_handler_map = self.get_default_handler_map()
+        
         if self._handler_map:
-            hm = self._default_handler_map.copy()
+            hm = default_handler_map.copy()
             hm.update(self._handler_map)
             return hm
         else:
-            return self._default_handler_map
+            return default_handler_map
 
-    def get_legend_handler(self, legend_handler_map, orig_handle):
+    @staticmethod
+    def get_legend_handler(legend_handler_map, orig_handle):
+        """
+        return a legend handler from *legend_handler_map* that
+        corresponds to *orig_handler*.
+
+        *legend_handler_map* should be a dictionary object (that is
+        returned by the get_legend_handler_map method).
+
+        It first checks if the *orig_handle* itself is a key in the
+        *legend_hanler_map* and return the associated value.
+        Otherwised, it checks for each of the classes in its
+        method-resolution-order. If no matching key is found, it
+        returns None.
+        """
         legend_handler_keys = legend_handler_map.keys()
         if orig_handle in legend_handler_keys:
             handler = legend_handler_map[orig_handle]

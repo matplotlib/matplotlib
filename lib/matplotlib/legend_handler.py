@@ -1,3 +1,29 @@
+"""
+This module defines default legend handlers. 
+
+Legend handlers are expected to be a callable object with a following
+signature. ::
+
+    legend_handler(legend, orig_handle, fontsize, handlebox)
+
+Where *legend* is the legend itself, *orig_handle* is the original
+plot, *fontsize* is the fontsize in pixles, and *handlebox* is a
+OffsetBox instance. Within the call, you should create relevant
+artists (using relevant properties from the *legend* and/or
+*orig_handle*) and add them into the handlebox. The artists needs to
+be scaled according to the fontsize (note that the size is in pixel,
+i.e., this is dpi-scaled value).
+
+This module includes definition of several legend handler classes
+derived from the base class (HandlerBase) with a following method.
+
+    def __call__(self, legend, orig_handle,
+                 fontsize,
+                 handlebox):
+
+
+"""
+
 import numpy as np
 
 from matplotlib.lines import Line2D
@@ -10,7 +36,22 @@ def update_from_first_child(tgt, src):
     tgt.update_from(src.get_children()[0])
 
 
-class Handler(object):
+class HandlerBase(object):
+    """
+    A Base class for default legend handlers.
+
+    The derived classes are meant to override *create_artists* method, which
+    has a following signatture.::
+
+      def create_artists(self, legend, orig_handle,
+                         xdescent, ydescent, width, height, fontsize,
+                         trans):
+
+    The overriden method needs to create artists of the given
+    transform that fits in the given dimension (xdescent, ydescemt,
+    width, height) that are scaled by fontsize if necessary.
+
+    """
     def __init__(self, xpad=0., ypad=0., update_func=None):
         self._xpad, self._ypad = xpad, ypad
         self._update_prop_func = update_func
@@ -25,7 +66,7 @@ class Handler(object):
         legend_handle.update_from(orig_handle)
 
 
-    def _update(self, legend_handle, orig_handle, legend):
+    def update_prop(self, legend_handle, orig_handle, legend):
 
         self._update_prop(legend_handle, orig_handle)
 
@@ -83,9 +124,12 @@ class Handler(object):
         raise NotImplementedError('Derived must override')
 
 
-class HandlerLine2D(Handler):
+class HandlerLine2D(HandlerBase):
+    """
+    Handler for Line2D instances
+    """
     def __init__(self, marker_pad=0.3, numpoints=None, **kw):
-        Handler.__init__(self, **kw)
+        HandlerBase.__init__(self, **kw)
         self._marker_pad = marker_pad
         self._numpoints = numpoints
 
@@ -123,7 +167,7 @@ class HandlerLine2D(Handler):
         ydata = ((height-ydescent)/2.)*np.ones(xdata.shape, float)
         legline = Line2D(xdata, ydata)
 
-        self._update(legline, orig_handle, legend)
+        self.update_prop(legline, orig_handle, legend)
         #legline.update_from(orig_handle)
         #legend._set_artist_props(legline) # after update
         #legline.set_clip_box(None)
@@ -133,7 +177,7 @@ class HandlerLine2D(Handler):
 
 
         legline_marker = Line2D(xdata_marker, ydata[:len(xdata_marker)])
-        self._update(legline_marker, orig_handle, legend)
+        self.update_prop(legline_marker, orig_handle, legend)
         #legline_marker.update_from(orig_handle)
         #legend._set_artist_props(legline_marker)
         #legline_marker.set_clip_box(None)
@@ -151,9 +195,12 @@ class HandlerLine2D(Handler):
 
 
 
-class HandlerPatch(Handler):
+class HandlerPatch(HandlerBase):
+    """
+    Handler for Patches
+    """
     def __init__(self, patch_func=None, **kw):
-        Handler.__init__(self, **kw)
+        HandlerBase.__init__(self, **kw)
 
         self._patch_func = patch_func
 
@@ -169,27 +216,22 @@ class HandlerPatch(Handler):
 
         return p
 
-    # def _update(self, legend_handle, orig_handle, legend):
-
-    #     self._update_prop(legend_handle, orig_handle)
-
-    #     legend._set_artist_props(legend_handle)
-    #     legend_handle.set_clip_box(None)
-    #     legend_handle.set_clip_path(None)
-
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
 
         p = self._create_patch(legend, orig_handle,
                                xdescent, ydescent, width, height, fontsize)
 
-        self._update(p, orig_handle, legend)
+        self.update_prop(p, orig_handle, legend)
 
         return [p]
 
 
 
 class HandlerLineCollection(HandlerLine2D):
+    """
+    Handler for LineCollections
+    """
 
     def get_numpoints(self, legend):
         if self._numpoints is None:
@@ -207,19 +249,6 @@ class HandlerLineCollection(HandlerLine2D):
             legend_handle.set_dashes(dashes[1])
 
 
-    # def _update(self, legend_handle, orig_handle, legend):
-
-    #     self._update_prop(legend_handle, orig_handle)
-
-    #     legend._set_artist_props(legend_handle)
-    #     legend_handle.set_clip_box(None)
-    #     legend_handle.set_clip_path(None)
-
-    #     # legend._set_artist_props(legend_handle)
-    #     # legend_handle.set_clip_box(None)
-    #     # legend_handle.set_clip_path(None)
-
-
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):
 
@@ -228,13 +257,16 @@ class HandlerLineCollection(HandlerLine2D):
         ydata = ((height-ydescent)/2.)*np.ones(xdata.shape, float)
         legline = Line2D(xdata, ydata)
 
-        self._update(legline, orig_handle, legend)
+        self.update_prop(legline, orig_handle, legend)
 
         return [legline]
 
 
 
 class HandlerRegularPolyCollection(HandlerLine2D):
+    """
+    Handler for RegularPolyCollections.
+    """
     def __init__(self, scatteryoffsets=None, sizes=None, **kw):
         HandlerLine2D.__init__(self, **kw)
 
@@ -272,7 +304,7 @@ class HandlerRegularPolyCollection(HandlerLine2D):
 
         return sizes
 
-    def _update(self, legend_handle, orig_handle, legend):
+    def update_prop(self, legend_handle, orig_handle, legend):
 
         self._update_prop(legend_handle, orig_handle)
 
@@ -309,7 +341,7 @@ class HandlerRegularPolyCollection(HandlerLine2D):
                                    offsets=zip(xdata_marker,ydata),
                                    transOffset=trans)
 
-        self._update(p, orig_handle, legend)
+        self.update_prop(p, orig_handle, legend)
 
         p._transOffset = trans
         p.set_transform(None)
@@ -318,6 +350,9 @@ class HandlerRegularPolyCollection(HandlerLine2D):
 
 
 class HandlerCircleCollection(HandlerRegularPolyCollection):
+    """
+    Handler for CircleCollections
+    """
     def create_collection(self, orig_handle, sizes, offsets, transOffset):
         p = type(orig_handle)(sizes,
                               offsets=offsets,
@@ -327,6 +362,9 @@ class HandlerCircleCollection(HandlerRegularPolyCollection):
 
 
 class HandlerErrorbar(HandlerLine2D):
+    """
+    Handler for Errorbars
+    """
     def __init__(self, xerr_size=0.5, yerr_size=None,
                  marker_pad=0.3, numpoints=None, **kw):
 
@@ -360,11 +398,7 @@ class HandlerErrorbar(HandlerLine2D):
         ydata = ((height-ydescent)/2.)*np.ones(xdata.shape, float)
         legline = Line2D(xdata, ydata)
 
-        self._update(legline, plotlines, legend)
-        #legline.update_from(orig_handle)
-        #legend._set_artist_props(legline) # after update
-        #legline.set_clip_box(None)
-        #legline.set_clip_path(None)
+        self.update_prop(legline, plotlines, legend)
         legline.set_drawstyle('default')
         legline.set_marker('None')
 
@@ -377,11 +411,7 @@ class HandlerErrorbar(HandlerLine2D):
 
 
         legline_marker = Line2D(xdata_marker, ydata_marker)
-        self._update(legline_marker, plotlines, legend)
-        #legline_marker.update_from(orig_handle)
-        #legend._set_artist_props(legline_marker)
-        #legline_marker.set_clip_box(None)
-        #legline_marker.set_clip_path(None)
+        self.update_prop(legline_marker, plotlines, legend)
         legline_marker.set_linestyle('None')
         if legend.markerscale !=1:
             newsz = legline_marker.get_markersize()*legend.markerscale
@@ -395,14 +425,14 @@ class HandlerErrorbar(HandlerLine2D):
             verts = [ ((x-xerr_size, y), (x+xerr_size, y))
                       for x,y in zip(xdata_marker, ydata_marker)]
             coll = mcoll.LineCollection(verts)
-            self._update(coll, barlinecols[0], legend)
+            self.update_prop(coll, barlinecols[0], legend)
             handle_barlinecols.append(coll)
 
             if caplines:
                 capline_left = Line2D(xdata_marker-xerr_size, ydata_marker)
                 capline_right = Line2D(xdata_marker+xerr_size, ydata_marker)
-                self._update(capline_left, caplines[0], legend)
-                self._update(capline_right, caplines[0], legend)
+                self.update_prop(capline_left, caplines[0], legend)
+                self.update_prop(capline_right, caplines[0], legend)
                 capline_left.set_marker("|")
                 capline_right.set_marker("|")
 
@@ -413,14 +443,14 @@ class HandlerErrorbar(HandlerLine2D):
             verts = [ ((x, y-yerr_size), (x, y+yerr_size))
                       for x,y in zip(xdata_marker, ydata_marker)]
             coll = mcoll.LineCollection(verts)
-            self._update(coll, barlinecols[0], legend)
+            self.update_prop(coll, barlinecols[0], legend)
             handle_barlinecols.append(coll)
 
             if caplines:
                 capline_left = Line2D(xdata_marker, ydata_marker-yerr_size)
                 capline_right = Line2D(xdata_marker, ydata_marker+yerr_size)
-                self._update(capline_left, caplines[0], legend)
-                self._update(capline_right, caplines[0], legend)
+                self.update_prop(capline_left, caplines[0], legend)
+                self.update_prop(capline_right, caplines[0], legend)
                 capline_left.set_marker("_")
                 capline_right.set_marker("_")
 
@@ -437,9 +467,12 @@ class HandlerErrorbar(HandlerLine2D):
 
 
 
-class HandlerTuple(Handler):
+class HandlerTuple(HandlerBase):
+    """
+    Handler for Tuple
+    """
     def __init__(self, **kwargs):
-        Handler.__init__(self, **kwargs)
+        HandlerBase.__init__(self, **kwargs)
 
         #self._handle_list = handle_list
 
