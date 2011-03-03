@@ -98,9 +98,6 @@ public:
 private:
     Py::Dict __dict__;
     static char get_path__doc__[];
-
-    Py::Tuple _empty_tuple;
-    Py::Dict _empty_dict;
 };
 
 class FT2Font : public Py::PythonClass<FT2Font>
