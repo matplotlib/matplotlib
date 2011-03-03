@@ -60,8 +60,8 @@ FT2Image::FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwd
     _isDirty(true),
     _buffer(NULL),
     _width(0), _height(0),
-    _rgbCopy(NULL),
-    _rgbaCopy(NULL)
+    _rgbCopy(),
+    _rgbaCopy()
 {
     _VERBOSE("FT2Image::FT2Image");
 
@@ -71,6 +71,12 @@ FT2Image::FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwd
 
     resize(width, height);
 }
+
+FT2Image::~FT2Image() {
+    delete [] _buffer;
+    _buffer = NULL;
+}
+
 
 Py::PythonClassObject<FT2Image> FT2Image::factory(int width, int height)
 {
@@ -343,6 +349,8 @@ PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_array)
 void
 FT2Image::makeRgbCopy()
 {
+    FT2Image* rgbCopy;
+
     if (!_isDirty)
     {
         return;
@@ -351,14 +359,16 @@ FT2Image::makeRgbCopy()
     if (!_rgbCopy.ptr())
     {
         _rgbCopy = factory(_width * 3, _height);
+        rgbCopy = Py::PythonClassObject<FT2Image>(_rgbCopy).getCxxObject();
     }
     else
     {
-        _rgbCopy.getCxxObject()->resize(_width * 3, _height);
+        rgbCopy = Py::PythonClassObject<FT2Image>(_rgbCopy).getCxxObject();
+        rgbCopy->resize(_width * 3, _height);
     }
     unsigned char *src            = _buffer;
     unsigned char *src_end        = src + (_width * _height);
-    unsigned char *dst            = _rgbCopy.getCxxObject()->_buffer;
+    unsigned char *dst            = rgbCopy->_buffer;
 
     unsigned char tmp;
     while (src != src_end)
@@ -384,12 +394,14 @@ FT2Image::py_as_rgb_str(const Py::Tuple & args)
 
     makeRgbCopy();
 
-    return _rgbCopy.getCxxObject()->py_as_str(args);
+    return Py::PythonClassObject<FT2Image>(_rgbCopy).getCxxObject()->py_as_str(args);
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_rgb_str)
 
 void FT2Image::makeRgbaCopy()
 {
+    FT2Image* rgbaCopy;
+
     if (!_isDirty)
     {
         return;
@@ -398,14 +410,16 @@ void FT2Image::makeRgbaCopy()
     if (_rgbaCopy.ptr())
     {
         _rgbaCopy = factory(_width * 4, _height);
+        rgbaCopy = Py::PythonClassObject<FT2Image>(_rgbaCopy).getCxxObject();
     }
     else
     {
-        _rgbaCopy.getCxxObject()->resize(_width * 4, _height);
+        rgbaCopy = Py::PythonClassObject<FT2Image>(_rgbaCopy).getCxxObject();
+        rgbaCopy->resize(_width * 4, _height);
     }
     unsigned char *src            = _buffer;
     unsigned char *src_end        = src + (_width * _height);
-    unsigned char *dst            = _rgbaCopy.getCxxObject()->_buffer;
+    unsigned char *dst            = rgbaCopy->_buffer;
 
     while (src != src_end)
     {
@@ -430,7 +444,7 @@ FT2Image::py_as_rgba_str(const Py::Tuple & args)
 
     makeRgbaCopy();
 
-    return _rgbaCopy.getCxxObject()->py_as_str(args);
+    return Py::PythonClassObject<FT2Image>(_rgbaCopy).getCxxObject()->py_as_str(args);
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_rgba_str)
 
@@ -454,7 +468,8 @@ FT2Image::py_get_height(const Py::Tuple & args)
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_get_height)
 
-Glyph* Glyph::factory(const FT_Face& face, const FT_Glyph& glyph, size_t ind)
+Py::PythonClassObject<Glyph> Glyph::factory(
+        const FT_Face& face, const FT_Glyph& glyph, size_t ind)
 {
     Py::Callable class_type(type());
     Py::PythonClassObject<Glyph> obj = Py::PythonClassObject<Glyph>(
@@ -485,7 +500,7 @@ Glyph* Glyph::factory(const FT_Face& face, const FT_Glyph& glyph, size_t ind)
     o->setattro("bbox", abbox);
     o->setattro("path", o->get_path(face));
 
-    return o;
+    return obj;
 }
 
 Glyph::~Glyph()
@@ -769,7 +784,7 @@ Close:
 
 FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
     Py::PythonClass<FT2Font>::PythonClass(self, args, kwds),
-    image(NULL)
+    image()
 {
     args.verify_length(1);
     std::string facefile = Py::String(args[0]);
@@ -1283,8 +1298,7 @@ FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kwargs)
 
     size_t num = glyphs.size();  //the index into the glyphs list
     glyphs.push_back(thisGlyph);
-    Glyph* gm = Glyph::factory(face, thisGlyph, num);
-    return Py::asObject(gm);
+    return Glyph::factory(face, thisGlyph, num);
 }
 PYCXX_KEYWORDS_METHOD_DECL(FT2Font, load_char)
 
@@ -1334,8 +1348,7 @@ FT2Font::load_glyph(const Py::Tuple & args, const Py::Dict & kwargs)
 
     size_t num = glyphs.size();  //the index into the glyphs list
     glyphs.push_back(thisGlyph);
-    Glyph* gm = Glyph::factory(face, thisGlyph, num);
-    return Py::asObject(gm);
+    return Glyph::factory(face, thisGlyph, num);
 }
 PYCXX_KEYWORDS_METHOD_DECL(FT2Font, load_glyph)
 
@@ -1420,7 +1433,8 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
         FT_Int x = (FT_Int)(bitmap->left - (string_bbox.xMin / 64.));
         FT_Int y = (FT_Int)((string_bbox.yMax / 64.) - bitmap->top + 1);
 
-        image.getCxxObject()->draw_bitmap(&bitmap->bitmap, x, y);
+        FT2Image* image_cxx = Py::PythonClassObject<FT2Image>(image).getCxxObject();
+        image_cxx->draw_bitmap(&bitmap->bitmap, x, y);
     }
 
     return Py::Object();
@@ -1973,7 +1987,7 @@ Py::Object
 FT2Font::get_image(const Py::Tuple &args)
 {
     args.verify_length(0);
-    if (image.ptr())
+    if (!image.isNone())
     {
         return image;
     }

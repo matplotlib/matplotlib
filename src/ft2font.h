@@ -25,12 +25,8 @@ extern "C"
 class FT2Image : public Py::PythonClass<FT2Image>
 {
 public:
-    // FT2Image();
     FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds);
-    virtual ~FT2Image() {
-        delete [] _buffer;
-        _buffer = NULL;
-    }
+    virtual ~FT2Image();
     static Py::PythonClassObject<FT2Image> factory(int width, int height);
 
     static void init_type();
@@ -78,8 +74,8 @@ private:
     unsigned char *_buffer;
     unsigned long _width;
     unsigned long _height;
-    Py::PythonClassObject<FT2Image> _rgbCopy;
-    Py::PythonClassObject<FT2Image> _rgbaCopy;
+    Py::Object _rgbCopy;
+    Py::Object _rgbaCopy;
 
     void makeRgbCopy();
     void makeRgbaCopy();
@@ -93,7 +89,7 @@ public:
     Glyph(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
         Py::PythonClass<Glyph>::PythonClass(self, args, kwds) { }
     virtual ~Glyph();
-    static Glyph* factory(const FT_Face&, const FT_Glyph&, size_t);
+    static Py::PythonClassObject<Glyph> factory(const FT_Face&, const FT_Glyph&, size_t);
     int setattro(const Py::String &name, const Py::Object &value);
     Py::Object getattro(const Py::String &name);
     static void init_type(void);
@@ -138,7 +134,7 @@ public:
     Py::Object attach_file(const Py::Tuple & args);
     int setattro(const Py::String &name, const Py::Object &value);
     Py::Object getattro(const Py::String &name);
-    Py::PythonClassObject<FT2Image> image;
+    Py::Object image;
 
 private:
     Py::Dict __dict__;
