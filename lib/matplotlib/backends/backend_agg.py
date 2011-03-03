@@ -153,9 +153,6 @@ class RendererAgg(RendererBase):
         font.draw_glyphs_to_bitmap()
 
         #print x, y, int(x), int(y), s
-        print "HELLO"
-        print font.get_image().get_width()
-        print "GOODBYE"
         self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
