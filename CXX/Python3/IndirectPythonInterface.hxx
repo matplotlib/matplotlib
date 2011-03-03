@@ -109,9 +109,6 @@ bool _Instance_Check( PyObject *op );
 PyTypeObject * _Method_Type();
 bool _Method_Check( PyObject *op );
 
-PyTypeObject * _CObject_Type();
-bool _CObject_Check( PyObject *op );
-
 PyTypeObject * _Complex_Type();
 bool _Complex_Check( PyObject *op );
 

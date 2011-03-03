@@ -134,11 +134,11 @@ namespace Py
             {
                 MethodDefExt<T> *method_def = (*i).second;
 
-                static PyObject *self = PyCObject_FromVoidPtr( this, do_not_dealloc );
+                static PyObject *self = PyCapsule_New( this, NULL, NULL );
 
                 Tuple args( 2 );
                 args[0] = Object( self );
-                args[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ) );
+                args[1] = Object( PyCapsule_New( method_def, NULL, NULL ) );
 
                 PyObject *func = PyCFunction_New
                                     (
