@@ -77,7 +77,6 @@ FT2Image::~FT2Image() {
     _buffer = NULL;
 }
 
-
 Py::PythonClassObject<FT2Image> FT2Image::factory(int width, int height)
 {
     Py::Callable class_type(type());
@@ -89,16 +88,6 @@ Py::PythonClassObject<FT2Image> FT2Image::factory(int width, int height)
     Py_INCREF(o.ptr());
     return o;
 }
-
-
-// FT2Image::~FT2Image()
-// {
-//     _VERBOSE("FT2Image::~FT2Image");
-//     delete [] _buffer;
-//     _buffer = NULL;
-//     delete _rgbCopy;
-//     delete _rgbaCopy;
-// }
 
 void
 FT2Image::resize(long width, long height)
@@ -209,7 +198,7 @@ PYCXX_VARARGS_METHOD_DECL(FT2Image, py_write_bitmap)
 
 void
 FT2Image::draw_rect(unsigned long x0, unsigned long y0,
-                        unsigned long x1, unsigned long y1)
+                    unsigned long x1, unsigned long y1)
 {
     if (x0 > _width || x1 > _width ||
         y0 > _height || y1 > _height)
@@ -260,7 +249,7 @@ PYCXX_VARARGS_METHOD_DECL(FT2Image, py_draw_rect)
 
 void
 FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0,
-                               unsigned long x1, unsigned long y1)
+                           unsigned long x1, unsigned long y1)
 {
     x0 = std::min(x0, _width);
     y0 = std::min(y0, _height);
@@ -356,7 +345,7 @@ FT2Image::makeRgbCopy()
         return;
     }
 
-    if (!_rgbCopy.ptr())
+    if (_rgbCopy.isNone())
     {
         _rgbCopy = factory(_width * 3, _height);
         rgbCopy = Py::PythonClassObject<FT2Image>(_rgbCopy).getCxxObject();
@@ -407,7 +396,7 @@ void FT2Image::makeRgbaCopy()
         return;
     }
 
-    if (_rgbaCopy.ptr())
+    if (_rgbaCopy.isNone())
     {
         _rgbaCopy = factory(_width * 4, _height);
         rgbaCopy = Py::PythonClassObject<FT2Image>(_rgbaCopy).getCxxObject();
