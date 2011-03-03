@@ -27,8 +27,11 @@ class FT2Image : public Py::PythonClass<FT2Image>
 public:
     // FT2Image();
     FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds);
-    virtual ~FT2Image();
-    static FT2Image* factory(int width, int height);
+    virtual ~FT2Image() {
+        delete [] _buffer;
+        _buffer = NULL;
+    }
+    static Py::PythonClassObject<FT2Image> factory(int width, int height);
 
     static void init_type();
 
@@ -75,8 +78,8 @@ private:
     unsigned char *_buffer;
     unsigned long _width;
     unsigned long _height;
-    FT2Image* _rgbCopy;
-    FT2Image* _rgbaCopy;
+    Py::PythonClassObject<FT2Image> _rgbCopy;
+    Py::PythonClassObject<FT2Image> _rgbaCopy;
 
     void makeRgbCopy();
     void makeRgbaCopy();
@@ -135,7 +138,7 @@ public:
     Py::Object attach_file(const Py::Tuple & args);
     int setattro(const Py::String &name, const Py::Object &value);
     Py::Object getattro(const Py::String &name);
-    FT2Image* image;
+    Py::PythonClassObject<FT2Image> image;
 
 private:
     Py::Dict __dict__;

@@ -918,7 +918,7 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
     }
     else
     {
-        FT2Image *image = static_cast<FT2Image*>(image_obj.ptr());
+        FT2Image *image = dynamic_cast<FT2Image*>(Py::getPythonExtensionBase(image_obj.ptr()));
         if (!image->get_buffer())
         {
             throw Py::ValueError(

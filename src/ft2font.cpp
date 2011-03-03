@@ -72,7 +72,7 @@ FT2Image::FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwd
     resize(width, height);
 }
 
-FT2Image* FT2Image::factory(int width, int height)
+Py::PythonClassObject<FT2Image> FT2Image::factory(int width, int height)
 {
     Py::Callable class_type(type());
     Py::Tuple args(2);
@@ -81,18 +81,18 @@ FT2Image* FT2Image::factory(int width, int height)
     Py::PythonClassObject<FT2Image> o = Py::PythonClassObject<FT2Image>(
         class_type.apply(args, Py::Dict()));
     Py_INCREF(o.ptr());
-    return o.getCxxObject();
+    return o;
 }
 
 
-FT2Image::~FT2Image()
-{
-    _VERBOSE("FT2Image::~FT2Image");
-    delete [] _buffer;
-    _buffer = NULL;
-    delete _rgbCopy;
-    delete _rgbaCopy;
-}
+// FT2Image::~FT2Image()
+// {
+//     _VERBOSE("FT2Image::~FT2Image");
+//     delete [] _buffer;
+//     _buffer = NULL;
+//     delete _rgbCopy;
+//     delete _rgbaCopy;
+// }
 
 void
 FT2Image::resize(long width, long height)
@@ -348,17 +348,17 @@ FT2Image::makeRgbCopy()
         return;
     }
 
-    if (!_rgbCopy)
+    if (!_rgbCopy.ptr())
     {
         _rgbCopy = factory(_width * 3, _height);
     }
     else
     {
-        _rgbCopy->resize(_width * 3, _height);
+        _rgbCopy.getCxxObject()->resize(_width * 3, _height);
     }
     unsigned char *src            = _buffer;
     unsigned char *src_end        = src + (_width * _height);
-    unsigned char *dst            = _rgbCopy->_buffer;
+    unsigned char *dst            = _rgbCopy.getCxxObject()->_buffer;
 
     unsigned char tmp;
     while (src != src_end)
@@ -384,7 +384,7 @@ FT2Image::py_as_rgb_str(const Py::Tuple & args)
 
     makeRgbCopy();
 
-    return _rgbCopy->py_as_str(args);
+    return _rgbCopy.getCxxObject()->py_as_str(args);
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_rgb_str)
 
@@ -395,17 +395,17 @@ void FT2Image::makeRgbaCopy()
         return;
     }
 
-    if (!_rgbaCopy)
+    if (_rgbaCopy.ptr())
     {
         _rgbaCopy = factory(_width * 4, _height);
     }
     else
     {
-        _rgbaCopy->resize(_width * 4, _height);
+        _rgbaCopy.getCxxObject()->resize(_width * 4, _height);
     }
     unsigned char *src            = _buffer;
     unsigned char *src_end        = src + (_width * _height);
-    unsigned char *dst            = _rgbaCopy->_buffer;
+    unsigned char *dst            = _rgbaCopy.getCxxObject()->_buffer;
 
     while (src != src_end)
     {
@@ -430,7 +430,7 @@ FT2Image::py_as_rgba_str(const Py::Tuple & args)
 
     makeRgbaCopy();
 
-    return _rgbaCopy->py_as_str(args);
+    return _rgbaCopy.getCxxObject()->py_as_str(args);
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_rgba_str)
 
@@ -890,7 +890,6 @@ FT2Font::~FT2Font()
 {
     _VERBOSE("FT2Font::~FT2Font");
 
-    Py_XDECREF(image);
     FT_Done_Face(face);
 
     for (size_t i = 0; i < glyphs.size(); i++)
@@ -926,9 +925,6 @@ FT2Font::clear(const Py::Tuple & args)
 {
     _VERBOSE("FT2Font::clear");
     args.verify_length(0);
-
-    Py_XDECREF(image);
-    image = NULL;
 
     angle = 0.0;
 
@@ -1400,8 +1396,6 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
     size_t width = (string_bbox.xMax - string_bbox.xMin) / 64 + 2;
     size_t height = (string_bbox.yMax - string_bbox.yMin) / 64 + 2;
 
-    Py_XDECREF(image);
-    image = NULL;
     image = FT2Image::factory(width, height);
 
     for (size_t n = 0; n < glyphs.size(); n++)
@@ -1426,7 +1420,7 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
         FT_Int x = (FT_Int)(bitmap->left - (string_bbox.xMin / 64.));
         FT_Int y = (FT_Int)((string_bbox.yMax / 64.) - bitmap->top + 1);
 
-        image->draw_bitmap(&bitmap->bitmap, x, y);
+        image.getCxxObject()->draw_bitmap(&bitmap->bitmap, x, y);
     }
 
     return Py::Object();
@@ -1979,10 +1973,9 @@ Py::Object
 FT2Font::get_image(const Py::Tuple &args)
 {
     args.verify_length(0);
-    if (image)
+    if (image.ptr())
     {
-        Py_XINCREF(image);
-        return Py::asObject(image);
+        return image;
     }
     throw Py::RuntimeError("You must call .set_text() before .get_image()");
 }
