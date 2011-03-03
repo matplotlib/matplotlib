@@ -82,7 +82,7 @@ class RendererAgg(RendererBase):
 
     def draw_path_collection(self, *kl, **kw):
         return self._renderer.draw_path_collection(*kl, **kw)
-        
+
     def _update_methods(self):
         #self.draw_path = self._renderer.draw_path  # see below
         #self.draw_markers = self._renderer.draw_markers
@@ -153,7 +153,9 @@ class RendererAgg(RendererBase):
         font.draw_glyphs_to_bitmap()
 
         #print x, y, int(x), int(y), s
-
+        print "HELLO"
+        print font.get_image().get_width()
+        print "GOODBYE"
         self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
