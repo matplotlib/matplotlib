@@ -43,7 +43,7 @@ def html():
         'pyplots', figures_dest_path,
         ignore=shutil.ignore_patterns("*.pyc"))
 
-    Clean out PDF files from the _images directory
+    # Clean out PDF files from the _images directory
     for filename in glob.glob('build/html/_images/*.pdf'):
         os.remove(filename)
 
