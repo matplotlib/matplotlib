@@ -39,7 +39,13 @@ def html():
     figures_dest_path = 'build/html/pyplots'
     if os.path.exists(figures_dest_path):
         shutil.rmtree(figures_dest_path)
-    shutil.copytree('pyplots', figures_dest_path)
+    shutil.copytree(
+        'pyplots', figures_dest_path,
+        ignore=shutil.ignore_patterns("*.pyc"))
+
+    Clean out PDF files from the _images directory
+    for filename in glob.glob('build/html/_images/*.pdf'):
+        os.remove(filename)
 
 def latex():
     check_build()
