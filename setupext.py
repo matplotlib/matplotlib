@@ -788,7 +788,10 @@ def query_tcltk():
         return TCL_TK_CACHE
 
     # By this point, we already know that Tkinter imports correctly
-    import Tkinter
+    if sys.version_info[0] < 3:
+        import Tkinter
+    else:
+        import tkinter as Tkinter
     tcl_lib_dir = ''
     tk_lib_dir = ''
     # First try to open a Tk window (requires a running X server)
