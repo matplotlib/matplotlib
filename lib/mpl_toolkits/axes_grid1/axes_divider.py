@@ -15,8 +15,6 @@ import matplotlib.transforms as mtransforms
 
 from matplotlib.axes import SubplotBase
 
-import new
-
 import axes_size as Size
 
 
@@ -838,9 +836,10 @@ def locatable_axes_factory(axes_class):
 
     new_class = _locatableaxes_classes.get(axes_class)
     if new_class is None:
-        new_class = new.classobj("Locatable%s" % (axes_class.__name__),
-                                 (LocatableAxesBase, axes_class),
-                                 {'_axes_class': axes_class})
+        new_class = type("Locatable%s" % (axes_class.__name__),
+                         (LocatableAxesBase, axes_class),
+                         {'_axes_class': axes_class})
+
         _locatableaxes_classes[axes_class] = new_class
 
     return new_class

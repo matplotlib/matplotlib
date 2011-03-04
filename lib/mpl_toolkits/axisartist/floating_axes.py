@@ -518,17 +518,15 @@ class FloatingAxesBase(object):
 
 
 
-import new
-
 _floatingaxes_classes = {}
 
 def floatingaxes_class_factory(axes_class):
 
     new_class = _floatingaxes_classes.get(axes_class)
     if new_class is None:
-        new_class = new.classobj("Floating %s" % (axes_class.__name__),
-                                 (FloatingAxesBase, axes_class),
-                                 {'_axes_class_floating': axes_class})
+        new_class = type("Floating %s" % (axes_class.__name__),
+                         (FloatingAxesBase, axes_class),
+                         {'_axes_class_floating': axes_class})
         _floatingaxes_classes[axes_class] = new_class
 
     return new_class
