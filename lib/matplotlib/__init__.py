@@ -132,8 +132,14 @@ import sys, os, tempfile
 
 if sys.version_info[0] >= 3:
     def ascii(s): return bytes(s, 'ascii')
+
+    def byte2str(b): return b.decode('ascii')
+
 else:
     ascii = str
+
+    def byte2str(b): return b
+
 
 from matplotlib.rcsetup import (defaultParams,
                                 validate_backend,
@@ -266,12 +272,13 @@ class Verbose:
 verbose=Verbose()
 
 
+
 def checkdep_dvipng():
     try:
         s = subprocess.Popen(['dvipng','-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         line = s.stdout.readlines()[1]
-        v = line.split()[-1]
+        v = byte2str(line.split()[-1])
         return v
     except (IndexError, ValueError, OSError):
         return None
@@ -284,7 +291,7 @@ def checkdep_ghostscript():
             command_args = ['gs', '--version']
         s = subprocess.Popen(command_args, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        v = s.stdout.read()[:-1]
+        v = byte2str(s.stdout.read()[:-1])
         return v
     except (IndexError, ValueError, OSError):
         return None
@@ -293,7 +300,7 @@ def checkdep_tex():
     try:
         s = subprocess.Popen(['tex','-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        line = s.stdout.readlines()[0]
+        line = byte2str(s.stdout.readlines()[0])
         pattern = '3\.1\d+'
         match = re.search(pattern, line)
         v = match.group(0)
@@ -307,7 +314,7 @@ def checkdep_pdftops():
                              stderr=subprocess.PIPE)
         for line in s.stderr:
             if b'version' in line:
-                v = line.split()[-1]
+                v = byte2str(line.split()[-1])
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
@@ -318,7 +325,7 @@ def checkdep_inkscape():
                              stderr=subprocess.PIPE)
         for line in s.stdout:
             if b'Inkscape' in line:
-                v = line.split()[1]
+                v = byte2str(line.split()[1])
                 break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
@@ -330,7 +337,7 @@ def checkdep_xmllint():
                              stderr=subprocess.PIPE)
         for line in s.stderr:
             if b'version' in line:
-                v = line.split()[-1]
+                v = byte2str(line.split()[-1])
                 break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
