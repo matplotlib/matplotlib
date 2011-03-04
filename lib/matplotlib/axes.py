@@ -7571,6 +7571,10 @@ class Axes(martist.Artist):
         """
         if not self._hold: self.cla()
 
+        # xrange becomes range after 2to3
+        bin_range = range
+        range = __builtins__["range"]
+
         # NOTE: the range keyword overwrites the built-in func range !!!
         #       needs to be fixed in numpy                           !!!
 
@@ -7656,7 +7660,7 @@ class Axes(martist.Artist):
 
         # Check whether bins or range are given explicitly. In that
         # case use those values for autoscaling.
-        binsgiven = (cbook.iterable(bins) or range != None)
+        binsgiven = (cbook.iterable(bins) or bin_range != None)
 
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
@@ -7667,12 +7671,12 @@ class Axes(martist.Artist):
             for xi in x:
                 xmin = min(xmin, xi.min())
                 xmax = max(xmax, xi.max())
-            range = (xmin, xmax)
+            bin_range = (xmin, xmax)
 
         #hist_kwargs = dict(range=range, normed=bool(normed))
         # We will handle the normed kwarg within mpl until we
         # get to the point of requiring numpy >= 1.5.
-        hist_kwargs = dict(range=range)
+        hist_kwargs = dict(range=bin_range)
         if np.__version__ < "1.3": # version 1.1 and 1.2
             hist_kwargs['new'] = True
 
