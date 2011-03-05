@@ -198,11 +198,14 @@ def compare_images( expected, actual, tol, in_decorator=False ):
 
    # compare the resulting image histogram functions
    rms = 0
+   bins = np.arange(257)
    for i in xrange(0, 3):
       h1p = expectedImage[:,:,i]
       h2p = actualImage[:,:,i]
-      h1h = np.histogram(h1p, bins=256)[0]
-      h2h = np.histogram(h2p, bins=256)[0]
+
+      h1h = np.histogram(h1p, bins=bins)[0]
+      h2h = np.histogram(h2p, bins=bins)[0]
+
       rms += np.sum(np.power((h1h-h2h), 2))
    rms = np.sqrt(rms / (256 * 3))
 
