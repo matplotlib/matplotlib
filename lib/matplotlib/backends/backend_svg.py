@@ -102,7 +102,7 @@ class RendererSVG(RendererBase):
         dictkey = (gc.get_hatch(), rgbFace, gc.get_rgb())
         id = self._hatchd.get(dictkey)
         if id is None:
-            id = 'h%s' % md5(str(dictkey)).hexdigest()
+            id = 'h%s' % md5(unicode(dictkey).encode('ascii')).hexdigest()
             self._svgwriter.write(u'<defs>\n  <pattern id="%s" ' % id)
             self._svgwriter.write(u'patternUnits="userSpaceOnUse" x="0" y="0" ')
             self._svgwriter.write(u' width="%d" height="%d" >\n' % (HATCH_SIZE, HATCH_SIZE))
