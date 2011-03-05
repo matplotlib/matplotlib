@@ -17,7 +17,7 @@ def test_recarray_csv_roundtrip():
     expected['x'][0] = 1
     expected['y'][1] = 2
     expected['t'][2] = 3
-    fd = tempfile.TemporaryFile(suffix='csv')
+    fd = tempfile.TemporaryFile(suffix='csv', mode="w+")
     mlab.rec2csv(expected,fd)
     fd.seek(0)
     actual = mlab.csv2rec(fd)
