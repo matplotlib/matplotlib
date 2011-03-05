@@ -4,7 +4,8 @@
 """
 #=======================================================================
 
-from __future__ import print_function
+from __future__ import division
+
 import matplotlib
 from matplotlib.testing.noseclasses import ImageComparisonFailure
 from matplotlib.testing import image_util
