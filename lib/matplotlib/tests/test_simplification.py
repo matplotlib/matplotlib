@@ -174,7 +174,6 @@ AAj1//+nPwAA/////w=="""
 @raises(OverflowError)
 def test_throw_rendering_complexity_exceeded():
     rcParams['path.simplify'] = False
-
     xx = np.arange(200000)
     yy = np.random.rand(200000)
     yy[1000] = np.nan
@@ -183,9 +182,7 @@ def test_throw_rendering_complexity_exceeded():
     ax.plot(xx, yy)
     try:
         fig.savefig(io.StringIO())
-    except e:
-        raise e
-    else:
+    finally:
         rcParams['path.simplify'] = True
 
 @image_comparison(baseline_images=['clipper_edge'])
