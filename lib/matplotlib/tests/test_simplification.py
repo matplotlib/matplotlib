@@ -147,7 +147,7 @@ def test_fft_peaks():
 
 def test_start_with_moveto():
     # Should be entirely clipped away to a single MOVETO
-    data = """
+    data = b"""
 ZwAAAAku+v9UAQAA+Tj6/z8CAADpQ/r/KAMAANlO+v8QBAAAyVn6//UEAAC6ZPr/2gUAAKpv+v+8
 BgAAm3r6/50HAACLhfr/ewgAAHyQ+v9ZCQAAbZv6/zQKAABepvr/DgsAAE+x+v/lCwAAQLz6/7wM
 AAAxx/r/kA0AACPS+v9jDgAAFN36/zQPAAAF6Pr/AxAAAPfy+v/QEAAA6f36/5wRAADbCPv/ZhIA
@@ -169,7 +169,15 @@ PgAAh1v///c+AAB+Zv//Dz8AAHRx//8lPwAAa3z//zk/AABih///TD8AAFmS//9dPwAAUJ3//2w/
 AABHqP//ej8AAD6z//+FPwAANb7//48/AAAsyf//lz8AACPU//+ePwAAGt///6M/AAAR6v//pj8A
 AAj1//+nPwAA/////w=="""
 
-    verts = np.fromstring(data.decode('base64'), dtype='<i4')
+    import base64
+    if hasattr(base64, 'encodebytes'):
+        # Python 3 case
+        decodebytes = base64.decodebytes
+    else:
+        # Python 2 case
+        decodebytes = base64.decodestring
+
+    verts = np.fromstring(decodebytes(data), dtype='<i4')
     verts = verts.reshape((len(verts) / 2, 2))
     path = Path(verts)
     segs = path.iter_segments(transforms.IdentityTransform, clip=(0.0, 0.0, 100.0, 100.0))
