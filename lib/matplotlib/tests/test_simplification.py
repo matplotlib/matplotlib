@@ -75,8 +75,6 @@ def test_noise():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    print(len(simplified))
-
     assert len(simplified) == 3884
 
 def test_sine_plus_noise():
@@ -93,8 +91,6 @@ def test_sine_plus_noise():
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
-
-    print(len(simplified))
 
     assert len(simplified) == 876
 
@@ -140,8 +136,6 @@ def test_fft_peaks():
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
-
-    print(len(simplified))
 
     assert len(simplified) == 20
 
