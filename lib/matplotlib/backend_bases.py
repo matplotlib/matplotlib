@@ -1719,6 +1719,12 @@ class FigureCanvasBase:
     #     classes inherit from FigureCanvasBase
     #  b) so we don't import a bunch of stuff the user may never use
 
+    # TODO: these print_* throw ImportErrror when called from
+    # compare_images_decorator (decorators.py line 112)
+    # if the backend has not already been loaded earlier on.  Simple trigger:
+    # >>> import matplotlib.tests.test_spines
+    # >>> list(matplotlib.tests.test_spines.test_spines_axes_positions())[0][0]()
+
     def print_emf(self, *args, **kwargs):
         from backends.backend_emf import FigureCanvasEMF # lazy import
         emf = self.switch_backends(FigureCanvasEMF)
