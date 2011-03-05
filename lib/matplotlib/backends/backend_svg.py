@@ -9,6 +9,13 @@ try:
 except ImportError:
     from md5 import md5 #Deprecated in 2.5
 
+if hasattr(base64, 'encodebytes'):
+    # Python 3 case
+    encodebytes = base64.encodebytes
+else:
+    # Python 2 case
+    encodebytes = base64.encodestring
+
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -433,7 +440,7 @@ class RendererSVG(RendererBase):
             _png.write_png(buffer, cols, rows, bytesio)
             im.flipud_out()
             self._svgwriter.write(
-                base64.encodebytes(bytesio.getvalue()).decode('ascii'))
+                encodebytes(bytesio.getvalue()).decode('ascii'))
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
