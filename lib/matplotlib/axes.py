@@ -4192,6 +4192,9 @@ class Axes(martist.Artist):
                         if isinstance(c, mcoll.RegularPolyCollection)])
         handles.extend([c for c in self.collections
                         if isinstance(c, mcoll.CircleCollection)])
+
+        handles = [h for h in handles if h.get_label() != "_nolegend_"]
+
         return handles
 
 
