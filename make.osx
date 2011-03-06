@@ -2,15 +2,33 @@
 # build mpl into a local install dir with
 # make -f make.osx PREFIX=/Users/jdhunter/dev PYVERSION=2.6 fetch deps mpl_install
 # (see README.osx for more details)
-MPLVERSION=1.0rc1
+MPLVERSION=1.1.0
 PYVERSION=2.6
 PYTHON=python${PYVERSION}
-ZLIBVERSION=1.2.3
-PNGVERSION=1.2.39
-FREETYPEVERSION=2.3.11
 MACOSX_DEPLOYMENT_TARGET=10.6
 OSX_SDK_VER=10.6
 ARCH_FLAGS=-arch i386 -arch x86_64
+
+# Dependency versions and URLs
+#
+# Adjusting these version numbers should be enough most of the time,
+# but the download URLs are subject to change.
+
+ZLIBVERSION=1.2.5
+PNGVERSION=1.5.1
+FREETYPEVERSION=2.4.4
+
+ZLIBFILE=zlib-${ZLIBVERSION}.tar.gz
+ZLIBDIR=$(basename $(basename ${ZLIBFILE}))
+ZLIBURL=http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERSION}/${ZLIBFILE}/download
+
+PNGFILE=libpng-${PNGVERSION}.tar.gz
+PNGDIR=$(basename $(basename ${PNGFILE}))
+PNGURL=http://sourceforge.net/projects/libpng/files/libpng15/${PNGVERSION}/${PNGFILE}/download
+
+FREETYPEFILE=freetype-${FREETYPEVERSION}.tar.bz2
+FREETYPEDIR=$(basename $(basename ${FREETYPEFILE}))
+FREETYPEURL=http://download.savannah.gnu.org/releases/freetype/${FREETYPEFILE}
 
 ## You shouldn't need to configure past this point
 
@@ -27,8 +45,8 @@ check-prefix:
 	@if [ ! -d "$(PREFIX)" ]; then echo Set PREFIX to a directory - see README.osx; exit 1; fi
 
 clean:
-	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.gz \
-	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
+	rm -rf ${ZLIBFILE} ${PNGFILE} ${FREETYPEFILE} \
+	bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
 	bdist_mpkg-${BDISTMPKGVERSION} setupext.pyc \
 	lib/matplotlib/mpl-data/matplotlib.conf lib/matplotlib/mpl-data/matplotlibrc \
 	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} \
@@ -37,29 +55,29 @@ clean:
 
 
 fetch:
-	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERSION}/zlib-${ZLIBVERSION}.tar.gz/download", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
-	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://sourceforge.net/projects/libpng/files/libpng12/older-releases/${PNGVERSION}/libpng-${PNGVERSION}.tar.gz/download", "libpng-${PNGVERSION}.tar.gz")' &&\
-	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2", "freetype-${FREETYPEVERSION}.tar.bz2")'
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("${ZLIBURL}", "${ZLIBFILE}")' &&\
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("${PNGURL}", "${PNGFILE}")' &&\
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("${FREETYPEURL}", "${FREETYPEFILE}")'
 
 zlib: check-prefix
-	rm -rf zlib-${ZLIBVERSION} &&\
-	tar xvfz zlib-${ZLIBVERSION}.tar.gz &&\
-	cd zlib-${ZLIBVERSION} &&\
-	./configure --prefix=${PREFIX}&&\
+	rm -rf ${ZLIBDIR} &&\
+	tar xvfz ${ZLIBFILE} &&\
+	cd ${ZLIBDIR} &&\
+	./configure --prefix=${PREFIX} &&\
 	${MAKE} -j3 install
 
 png: check-prefix zlib
-	rm -rf libpng-${PNGVERSION} &&\
-	tar xvfz libpng-${PNGVERSION}.tar.gz && \
-	cd libpng-${PNGVERSION} &&\
+	rm -rf ${PNGDIR} &&\
+	tar xvfz ${PNGFILE} && \
+	cd ${PNGDIR} &&\
 	./configure  --disable-dependency-tracking  --prefix=${PREFIX} &&\
 	${MAKE} -j3 install&&\
-	cp .libs/libpng.a .
+	echo NOT DOING cp .libs/libpng15.a .
 
 freetype: check-prefix zlib
-	rm -rf ${FREETYPEVERSION} &&\
-	tar xvfj freetype-${FREETYPEVERSION}.tar.bz2 &&\
-	cd freetype-${FREETYPEVERSION} &&\
+	rm -rf ${FREETYPEDIR} &&\
+	tar xvfj ${FREETYPEFILE} &&\
+	cd ${FREETYPEDIR} &&\
 	./configure  --prefix=${PREFIX} &&\
 	${MAKE} -j3 install &&\
 	cp objs/.libs/libfreetype.a .
