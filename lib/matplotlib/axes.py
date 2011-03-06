@@ -7811,22 +7811,26 @@ class Axes(martist.Artist):
                 self.dataLim.intervaly = (ymin, ymax)
 
         if label is None:
-            labels = ['_nolegend_']
+            labels = [None]
         elif is_string_like(label):
             labels = [label]
         elif is_sequence_of_strings(label):
             labels = list(label)
         else:
-            raise ValueError(
-                'invalid label: must be string or sequence of strings')
+            raise ValueError('invalid label: must be string or sequence of strings')
+
         if len(labels) < nx:
-            labels += ['_nolegend_'] * (nx - len(labels))
+            labels += [None] * (nx - len(labels))
 
         for (patch, lbl) in zip(patches, labels):
-            for p in patch:
+            if patch:
+                p = patch[0]
                 p.update(kwargs)
-                p.set_label(lbl)
-                lbl = '_nolegend_'
+                if lbl is not None: p.set_label(lbl)
+
+                for p in patch[1:]:
+                    p.update(kwargs)
+                    p.set_label('_nolegend_')
 
         if binsgiven:
             if orientation == 'vertical':
