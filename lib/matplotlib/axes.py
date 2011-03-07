@@ -5791,7 +5791,7 @@ class Axes(martist.Artist):
                 collection = mcoll.AsteriskPolygonCollection(
                     numsides, rotation, scales,
                     facecolors = colors,
-                    edgecolors = edgecolors,
+                    edgecolors = 'face',
                     linewidths = linewidths,
                     offsets = zip(x,y),
                     transOffset = self.transData,
