@@ -1,27 +1,30 @@
-import pylab
+import numpy as np
+import matplotlib.pyplot as plt
 
-x = pylab.rand(10)
-y = pylab.rand(10)
 
-pylab.subplot(321)
-pylab.scatter(x,y,s=80,marker=">")
+x = np.random.rand(10)
+y = np.random.rand(10)
+z = np.sqrt(x**2 + y**2)
 
-pylab.subplot(322)
-pylab.scatter(x,y,s=80,marker=(5,0))
+plt.subplot(321)
+plt.scatter(x,y,s=80, c=z, marker=">")
+
+plt.subplot(322)
+plt.scatter(x,y,s=80, c=z, marker=(5,0))
 
 verts = zip([-1.,1.,1.,-1.],[-1.,-1.,1.,-1.])
-pylab.subplot(323)
-pylab.scatter(x,y,s=80,marker=(verts,0))
+plt.subplot(323)
+plt.scatter(x,y,s=80, c=z, marker=(verts,0))
 # equivalent:
-#pylab.scatter(x,y,s=80,marker=None, verts=verts)
+#plt.scatter(x,y,s=80, c=z, marker=None, verts=verts)
 
-pylab.subplot(324)
-pylab.scatter(x,y,s=80,marker=(5,1))
+plt.subplot(324)
+plt.scatter(x,y,s=80, c=z, marker=(5,1))
 
-pylab.subplot(325)
-pylab.scatter(x,y,s=80,marker='+')
+plt.subplot(325)
+plt.scatter(x,y,s=80, c=z, marker='+')
 
-pylab.subplot(326)
-pylab.scatter(x,y,s=80,marker=(5,2), edgecolor='g')
+plt.subplot(326)
+plt.scatter(x,y,s=80, c=z, marker=(5,2))
 
-pylab.show()
+plt.show()

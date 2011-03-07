@@ -1,3 +1,8 @@
+2011-03-06 Set edgecolor to 'face' for scatter asterisk-type
+           symbols; this fixes a bug in which these symbols were
+           not responding to the c kwarg.  The symbols have no
+           face area, so only the edgecolor is visible. - EF
+
 2011-02-27 Support libpng version 1.5.x; suggestion by Michael
            Albert. Changed installation specification to a
            minimum of libpng version 1.2.  - EF
