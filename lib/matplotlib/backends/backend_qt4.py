@@ -22,6 +22,22 @@ try:
 except ImportError:
     raise ImportError("Qt4 backend requires that PyQt4 is installed.")
 
+import sip
+
+try :
+    if sip.getapi("QString") > 1 :
+        # Use new getSaveFileNameAndFilter()
+        _getSaveFileName = lambda self, msg, start, filters, selectedFilter : \
+                            QtGui.QFileDialog.getSaveFileNameAndFilter(self,  \
+                                msg, start, filters, selectedFilter)[0]
+    else :
+        # Use old getSaveFileName()
+        _getSaveFileName = QtGui.QFileDialog.getSaveFileName
+except (AttributeError, KeyError) :
+    # call to getapi() can fail in older versions of sip
+    # Use the old getSaveFileName()
+    _getSaveFileName = QtGui.QFileDialog.getSaveFileName
+
 backend_version = "0.9.1"
 def fn_name(): return sys._getframe(1).f_code.co_name
 
@@ -524,8 +540,8 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
             filters.append(filter)
         filters = ';;'.join(filters)
 
-        fname = QtGui.QFileDialog.getSaveFileName(
-            self, "Choose a filename to save to", start, filters, selectedFilter)
+        fname = _getSaveFileName(self, "Choose a filename to save to",
+                                        start, filters, selectedFilter)
         if fname:
             try:
                 self.canvas.print_figure( unicode(fname) )
