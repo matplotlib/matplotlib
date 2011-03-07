@@ -786,9 +786,9 @@ in the normalized axes coordinate.
         'return Text instance for the legend title'
         return self._legend_title_box._text
 
-    def get_window_extent(self):
+    def get_window_extent(self, *args, **kwargs) :
         'return a extent of the the legend'
-        return self.legendPatch.get_window_extent()
+        return self.legendPatch.get_window_extent(*args, **kwargs)
 
 
     def get_frame_on(self):
