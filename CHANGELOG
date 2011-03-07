@@ -1,3 +1,8 @@
+2011-03-06 Set edgecolor to 'face' for scatter asterisk-type
+           symbols; this fixes a bug in which these symbols were
+           not responding to the c kwarg.  The symbols have no
+           face area, so only the edgecolor is visible. - EF
+
 2011-02-07 Quick workaround for dviread bug #3175113 - JKS
 
 2011-01-04 Tag 1.0.1 for release at r8896
