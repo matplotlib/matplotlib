@@ -44,7 +44,7 @@ If you are still having trouble, see :ref:`reporting-problems`.
 .. _clean-install:
 
 Cleanly rebuild and reinstall everything
-==================================================
+========================================
 
 The steps depend on your platform and installation method.
 
@@ -110,6 +110,17 @@ and build and install as usual with::
   > cd matplotlib
   > python setup.py install
 
+.. note::
+
+    If you are on debian/ubuntu, you can get all the dependencies
+    required to build matplotlib with::
+
+      sudo apt-get build_dep python-matplotlib
+
+    This does not build matplotlib, but it does get the install the
+    build dependencies, which will make building from source easier.
+
+
 If you want to be able to follow the development branch as it changes just replace
 the last step with (Make sure you have **setuptools** installed)::
 
@@ -153,13 +164,13 @@ others in web application servers to dynamically serve up graphs.
 To support all of these use cases, matplotlib can target different
 outputs, and each of these capabililities is called a backend; the
 "frontend" is the user facing code, ie the plotting code, whereas the
-"backend" does all the dirty work behind the scenes to make the
+"backend" does all the hard work behind-the-scenes to make the
 figure.  There are two types of backends: user interface backends (for
 use in pygtk, wxpython, tkinter, qt, macosx, or fltk) and hardcopy backends to
 make image files (PNG, SVG, PDF, PS).
 
 There are a two primary ways to configure your backend.  One is to set
-the ``backend`` parameter in you ``matplotlibrc`` file (see
+the ``backend`` parameter in your ``matplotlibrc`` file (see
 :ref:`customizing-matplotlib`)::
 
     backend : WXAgg   # use wxpython with antigrain (agg) rendering
@@ -172,8 +183,8 @@ The other is to use the matplotlib :func:`~matplotlib.use` directive::
 If you use the ``use`` directive, this must be done before importing
 :mod:`matplotlib.pyplot` or :mod:`matplotlib.pylab`.
 
-If you are unsure what to do, and just want to get cranking, just set
-your backend to ``TkAgg``.  This will do the right thing for 95% of the
+If you are unsure what to do, and just want to get coding, just set
+your backend to ``TkAgg``.  This will do the right thing for most
 users.  It gives you the option of running your scripts in batch or
 working interactively from the python shell, with the least amount of
 hassles, and is smart enough to do the right thing when you ask for
@@ -314,7 +325,7 @@ Installer.app, prompt you for a password if you need system wide
 installation privileges, and install to a directory like
 file:`/Library/Python/2.5/site-packages/`, again depedending on your
 python version.  This directory may not be in your python path, so you
-can test your installation with::
+should test your installation with::
 
   > python -c 'import matplotlib; print matplotlib.__version__, matplotlib.__file__'
 
@@ -335,7 +346,7 @@ See also ref:`environment-variables`.
 easy_install from egg
 ------------------------------
 
-You can also us the eggs we build for OSX (see the `installation
+You can also use the eggs we build for OSX (see the `installation
 instructions
 <http://pypi.python.org/pypi/setuptools#cygwin-mac-os-x-linux-other>`_
 for easy_install if you do not have it on your system already).  You
@@ -368,7 +379,7 @@ matplotlib download site, with ``easy_install``, getting an error::
 
 If you rename ``matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg`` to
 ``matplotlib-0.98.0-py2.5.egg``, ``easy_install`` will install it from
-the disk.  Many Mac OS X eggs with cruft at the end of the filename,
+the disk.  Many Mac OS X eggs have cruft at the end of the filename,
 which prevents their installation through easy_install.  Renaming is
 all it takes to install them; still, it's annoying.
 
