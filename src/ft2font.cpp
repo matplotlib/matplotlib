@@ -62,7 +62,6 @@ FT2Image::FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwd
 }
 
 FT2Image::~FT2Image() {
-    printf("~FT2Image");
     delete [] _buffer;
     _buffer = NULL;
 }
@@ -1905,10 +1904,6 @@ FT2Image::init_type(void)
                              FT2Image::as_array__doc__);
     PYCXX_ADD_VARARGS_METHOD(as_str, py_as_str,
                              FT2Image::as_str__doc__);
-    PYCXX_ADD_VARARGS_METHOD(as_rgb_str, py_as_rgb_str,
-                             FT2Image::as_rgb_str__doc__);
-    PYCXX_ADD_VARARGS_METHOD(as_rgba_str, py_as_rgba_str,
-                             FT2Image::as_rgba_str__doc__);
     PYCXX_ADD_VARARGS_METHOD(get_width, py_get_width,
                              "Returns the width of the image");
     PYCXX_ADD_VARARGS_METHOD(get_height, py_get_height,
