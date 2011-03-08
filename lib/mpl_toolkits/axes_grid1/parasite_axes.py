@@ -214,7 +214,8 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
         import new
         new_class = new.classobj("%sParasiteAuxTrans" % (parasite_axes_class.__name__),
                                  (ParasiteAxesAuxTransBase, parasite_axes_class),
-                                 {'_parasite_axes_class': parasite_axes_class})
+                                 {'_parasite_axes_class': parasite_axes_class,
+                                  'name': 'parasite_axes'})
         _parasite_axes_auxtrans_classes[parasite_axes_class] = new_class
 
     return new_class
