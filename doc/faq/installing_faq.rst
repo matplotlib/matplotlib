@@ -162,7 +162,7 @@ generate postscript images from some numerical simulations, and still
 others in web application servers to dynamically serve up graphs.
 
 To support all of these use cases, matplotlib can target different
-outputs, and each of these capabililities is called a backend; the
+outputs, and each of these capabilities is called a backend; the
 "frontend" is the user facing code, ie the plotting code, whereas the
 "backend" does all the hard work behind-the-scenes to make the
 figure.  There are two types of backends: user interface backends (for
@@ -209,7 +209,7 @@ For the rendering engines, one can also distinguish between `vector
 <http://en.wikipedia.org/wiki/Raster_graphics>`_ renderers.  Vector
 graphics languages issue drawing commands like "draw a line from this
 point to this point" and hence are scale free, and raster backends
-generate a pixel represenation of the line whose accuracy depends on a
+generate a pixel representation of the line whose accuracy depends on a
 DPI setting.
 
 Here is a summary of the matplotlib renderers (there is an eponymous
@@ -323,7 +323,7 @@ mpkd directory, which will have a name like
 file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5.mpkg`, it will run the
 Installer.app, prompt you for a password if you need system wide
 installation privileges, and install to a directory like
-file:`/Library/Python/2.5/site-packages/`, again depedending on your
+file:`/Library/Python/2.5/site-packages/`, again depending on your
 python version.  This directory may not be in your python path, so you
 should test your installation with::
 

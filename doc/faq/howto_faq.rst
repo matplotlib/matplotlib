@@ -151,7 +151,7 @@ where all values are in fractional (0 to 1) coordinates.  See
 Automatically make room for tick labels
 ----------------------------------------------------
 
-In most use cases, it is enough to simpy change the subplots adjust
+In most use cases, it is enough to simply change the subplots adjust
 parameters as described in :ref:`howto-subplots-adjust`.  But in some
 cases, you don't know ahead of time what your tick labels will be, or
 how large they will be (data and labels outside your control may be
@@ -232,7 +232,7 @@ When plotting time series, eg financial time series, one often wants
 to leave out days on which there is no data, eg weekends.  By passing
 in dates on the x-xaxis, you get large horizontal gaps on periods when
 there is not data. The solution is to pass in some proxy x-data, eg
-evenly sampled indicies, and then use a custom formatter to format
+evenly sampled indices, and then use a custom formatter to format
 these as dates. The example below shows how to use an 'index formatter'
 to achieve the desired plot::
 
@@ -650,7 +650,7 @@ or by saving to a file handle::
     fig.savefig(sys.stdout)
 
 Here is an example using the Python Imaging Library PIL.  First the figure
-is saved to a StringIO objectm which is then fed to PIL for further
+is saved to a StringIO object which is then fed to PIL for further
 processing::
 
     import StringIO, Image
