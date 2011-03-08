@@ -40,19 +40,19 @@ and printing the ``__file__`` attribute::
 Each user has a :file:`.matplotlib/` directory which may contain a
 :ref:`matplotlibrc <customizing-with-matplotlibrc-files>` file and various
 caches to improve matplotlib's performance. To locate your :file:`.matplotlib/`
-directory, use :func:`matplotlib.get_configdir`:
+directory, use :func:`matplotlib.get_configdir`::
 
     >>> import matplotlib as mpl
     >>> mpl.get_configdir()
     '/home/darren/.matplotlib'
 
-On unix like systems, this directory is generally located in your
+On unix-like systems, this directory is generally located in your
 :envvar:`HOME` directory.  On windows, it is in your documents and
 settings directory by default::
 
     >>> import matplotlib
     >>> mpl.get_configdir()
-        'C:\\Documents and Settings\\jdhunter\\.matplotlib'
+    'C:\\Documents and Settings\\jdhunter\\.matplotlib'
 
 If you would like to use a different configuration directory, you can
 do so by specifying the location in your :envvar:`MPLCONFIGDIR`
@@ -73,7 +73,7 @@ If not, please provide the following information in your e-mail to the
 `mailing list
 <http://lists.sourceforge.net/mailman/listinfo/matplotlib-users>`_:
 
-  * your operating system; on Linux/UNIX post the output of ``uname -a``
+  * your operating system; (Linux/UNIX users: post the output of ``uname -a``)
 
   * matplotlib version::
 
@@ -82,7 +82,7 @@ If not, please provide the following information in your e-mail to the
   * where you obtained matplotlib (e.g. your Linux distribution's
     packages or the matplotlib Sourceforge site, or the enthought
     python distribution `EPD
-    <http://www.enthought.com/products/epd.php>`_.
+    <http://www.enthought.com/products/epd.php>`_).
 
   * any customizations to your ``matplotlibrc`` file (see
     :ref:`customizing-matplotlib`).
@@ -145,7 +145,7 @@ simple test script in debug mode::
 and post :file:`build.out` and :file:`run.out` to the
 `matplotlib-devel
 <http://lists.sourceforge.net/mailman/listinfo/matplotlib-devel>`_
-mailing list (please do not post svn problems to the `users list
+mailing list (please do not post git problems to the `users list
 <http://lists.sourceforge.net/mailman/listinfo/matplotlib-users>`_).
 
 Of course, you will want to clearly describe your problem, what you
