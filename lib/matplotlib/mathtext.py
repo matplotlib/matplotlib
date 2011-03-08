@@ -30,7 +30,6 @@ except NameError:
     from sets import Set as set
 import unicodedata
 from warnings import warn
-import weakref
 
 from numpy import inf, isinf
 import numpy as np
@@ -56,8 +55,6 @@ from matplotlib.font_manager import findfont, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
         latex_to_standard, tex2uni, latex_to_cmex, stix_virtual_fonts
 from matplotlib import get_data_path, rcParams
-
-
 
 import matplotlib.colors as mcolors
 import matplotlib._png as _png
@@ -119,7 +116,9 @@ class MathtextBackend(object):
       - :meth:`get_hinting_type`
     """
     def __init__(self):
-        self.fonts_object = None
+        self.width = 0
+        self.height = 0
+        self.depth = 0
 
     def set_canvas_size(self, w, h, d):
         'Dimension the drawing canvas'
@@ -154,56 +153,7 @@ class MathtextBackend(object):
         """
         return LOAD_NO_HINTING
 
-class MathtextBackendBbox(MathtextBackend):
-    """
-    A backend whose only purpose is to get a precise bounding box.
-    Only required for the Agg backend.
-    """
-
-    def __init__(self, real_backend):
-        MathtextBackend.__init__(self)
-        self.bbox = [0, 0, 0, 0]
-        self.real_backend = real_backend
-
-    def _update_bbox(self, x1, y1, x2, y2):
-        self.bbox = [min(self.bbox[0], x1),
-                     min(self.bbox[1], y1),
-                     max(self.bbox[2], x2),
-                     max(self.bbox[3], y2)]
-
-    def render_glyph(self, ox, oy, info):
-        self._update_bbox(ox + info.metrics.xmin,
-                          oy - info.metrics.ymax,
-                          ox + info.metrics.xmax,
-                          oy - info.metrics.ymin)
-
-    def render_rect_filled(self, x1, y1, x2, y2):
-        self._update_bbox(x1, y1, x2, y2)
-
-    def get_results(self, box):
-        orig_height = box.height
-        orig_depth  = box.depth
-        ship(0, 0, box)
-        bbox = self.bbox
-        bbox = [bbox[0] - 1, bbox[1] - 1, bbox[2] + 1, bbox[3] + 1]
-        self._switch_to_real_backend()
-        self.fonts_object().set_canvas_size(
-            bbox[2] - bbox[0],
-            (bbox[3] - bbox[1]) - orig_depth,
-            (bbox[3] - bbox[1]) - orig_height)
-        ship(-bbox[0], -bbox[1], box)
-        return self.fonts_object().get_results(box)
-
-    def get_hinting_type(self):
-        return self.real_backend.get_hinting_type()
-
-    def _switch_to_real_backend(self):
-        self.fonts_object().mathtext_backend = weakref.ref(self.real_backend)
-        self.real_backend.fonts_object = self.fonts_object
-        self.real_backend.ox = self.bbox[0]
-        self.real_backend.oy = self.bbox[1]
-
-class MathtextBackendAggRender(MathtextBackend):
+class MathtextBackendAgg(MathtextBackend):
     """
     Render glyphs and rectangles to an FTImage buffer, which is later
     transferred to the Agg image by the Agg backend.
@@ -212,33 +162,63 @@ class MathtextBackendAggRender(MathtextBackend):
         self.ox = 0
         self.oy = 0
         self.image = None
+        self.mode = 'bbox'
+        self.bbox = [0, 0, 0, 0]
         MathtextBackend.__init__(self)
+
+    def _update_bbox(self, x1, y1, x2, y2):
+        self.bbox = [min(self.bbox[0], x1),
+                     min(self.bbox[1], y1),
+                     max(self.bbox[2], x2),
+                     max(self.bbox[3], y2)]
 
     def set_canvas_size(self, w, h, d):
         MathtextBackend.set_canvas_size(self, w, h, d)
-        self.image = FT2Image(ceil(w), ceil(h + d))
+        if self.mode != 'bbox':
+            self.image = FT2Image(ceil(w), ceil(h + d))
 
     def render_glyph(self, ox, oy, info):
-        info.font.draw_glyph_to_bitmap(
-            self.image, ox, oy - info.metrics.iceberg, info.glyph)
+        if self.mode == 'bbox':
+            self._update_bbox(ox + info.metrics.xmin,
+                              oy - info.metrics.ymax,
+                              ox + info.metrics.xmax,
+                              oy - info.metrics.ymin)
+        else:
+            info.font.draw_glyph_to_bitmap(
+                self.image, ox, oy - info.metrics.iceberg, info.glyph)
 
     def render_rect_filled(self, x1, y1, x2, y2):
-        height = max(int(y2 - y1) - 1, 0)
-        if height == 0:
-            center = (y2 + y1) / 2.0
-            y = int(center - (height + 1) / 2.0)
+        if self.mode == 'bbox':
+            self._update_bbox(x1, y1, x2, y2)
         else:
-            y = int(y1)
-        self.image.draw_rect_filled(int(x1), y, ceil(x2), y + height)
+            height = max(int(y2 - y1) - 1, 0)
+            if height == 0:
+                center = (y2 + y1) / 2.0
+                y = int(center - (height + 1) / 2.0)
+            else:
+                y = int(y1)
+            self.image.draw_rect_filled(int(x1), y, ceil(x2), y + height)
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
+        self.mode = 'bbox'
+        orig_height = box.height
+        orig_depth  = box.depth
+        ship(0, 0, box)
+        bbox = self.bbox
+        bbox = [bbox[0] - 1, bbox[1] - 1, bbox[2] + 1, bbox[3] + 1]
+        self.mode = 'render'
+        self.set_canvas_size(
+            bbox[2] - bbox[0],
+            (bbox[3] - bbox[1]) - orig_depth,
+            (bbox[3] - bbox[1]) - orig_height)
+        ship(-bbox[0], -bbox[1], box)
         return (self.ox,
                 self.oy,
                 self.width,
                 self.height + self.depth,
                 self.depth,
                 self.image,
-                self.fonts_object().get_used_characters())
+                used_characters)
 
     def get_hinting_type(self):
         if rcParams['text.hinting']:
@@ -246,19 +226,11 @@ class MathtextBackendAggRender(MathtextBackend):
         else:
             return LOAD_NO_HINTING
 
-def MathtextBackendAgg():
-    return MathtextBackendBbox(MathtextBackendAggRender())
-
-class MathtextBackendBitmapRender(MathtextBackendAggRender):
-    def get_results(self, box):
-        return self.image, self.depth
-
-def MathtextBackendBitmap():
-    """
-    A backend to generate standalone mathtext images.  No additional
-    matplotlib backend is required.
-    """
-    return MathtextBackendBbox(MathtextBackendBitmapRender())
+class MathtextBackendBitmap(MathtextBackendAgg):
+    def get_results(self, box, used_characters):
+        ox, oy, width, height, depth, image, characters = \
+            MathtextBackendAgg(self, box, used_characters)
+        return image, depth
 
 class MathtextBackendPs(MathtextBackend):
     """
@@ -292,14 +264,14 @@ setfont
         ps = "%f %f %f %f rectfill\n" % (x1, self.height - y2, x2 - x1, y2 - y1)
         self.pswriter.write(ps)
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
         #print self.depth
         return (self.width,
                 self.height + self.depth,
                 self.depth,
                 self.pswriter,
-                self.fonts_object().get_used_characters())
+                used_characters)
 
 class MathtextBackendPdf(MathtextBackend):
     """
@@ -320,14 +292,14 @@ class MathtextBackendPdf(MathtextBackend):
     def render_rect_filled(self, x1, y1, x2, y2):
         self.rects.append((x1, self.height - y2, x2 - x1, y2 - y1))
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
         return (self.width,
                 self.height + self.depth,
                 self.depth,
                 self.glyphs,
                 self.rects,
-                self.fonts_object().get_used_characters())
+                used_characters)
 
 class MathtextBackendSvg(MathtextBackend):
     """
@@ -348,7 +320,7 @@ class MathtextBackendSvg(MathtextBackend):
         self.svg_rects.append(
             (x1, self.height - y1 + 1, x2 - x1, y2 - y1))
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
         svg_elements = Bunch(svg_glyphs = self.svg_glyphs,
                              svg_rects = self.svg_rects)
@@ -356,7 +328,7 @@ class MathtextBackendSvg(MathtextBackend):
                 self.height + self.depth,
                 self.depth,
                 svg_elements,
-                self.fonts_object().get_used_characters())
+                used_characters)
 
 class MathtextBackendPath(MathtextBackend):
     """
@@ -378,7 +350,7 @@ class MathtextBackendPath(MathtextBackend):
         self.rects.append(
             (x1, self.height-y2 , x2 - x1, y2 - y1))
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
         return (self.width,
                 self.height + self.depth,
@@ -406,7 +378,7 @@ class MathtextBackendCairo(MathtextBackend):
         self.rects.append(
             (x1, y1 - self.height, x2 - x1, y2 - y1))
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
         return (self.width,
                 self.height + self.depth,
@@ -434,9 +406,7 @@ class Fonts(object):
         used to delegate the actual rendering.
         """
         self.default_font_prop = default_font_prop
-        self.mathtext_backend = weakref.ref(mathtext_backend)
-        # Make these classes doubly-linked
-        mathtext_backend.fonts_object = weakref.ref(self)
+        self.mathtext_backend = mathtext_backend
         self.used_characters = {}
 
     def destroy(self):
@@ -502,7 +472,7 @@ class Fonts(object):
         Only really necessary for the bitmap backends.
         """
         self.width, self.height, self.depth = ceil(w), ceil(h), ceil(d)
-        self.mathtext_backend().set_canvas_size(self.width, self.height, self.depth)
+        self.mathtext_backend.set_canvas_size(self.width, self.height, self.depth)
 
     def render_glyph(self, ox, oy, facename, font_class, sym, fontsize, dpi):
         """
@@ -525,13 +495,13 @@ class Fonts(object):
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
         used_characters[1].add(info.num)
-        self.mathtext_backend().render_glyph(ox, oy, info)
+        self.mathtext_backend.render_glyph(ox, oy, info)
 
     def render_rect_filled(self, x1, y1, x2, y2):
         """
         Draw a filled rectangle from (*x1*, *y1*) to (*x2*, *y2*).
         """
-        self.mathtext_backend().render_rect_filled(x1, y1, x2, y2)
+        self.mathtext_backend.render_rect_filled(x1, y1, x2, y2)
 
     def get_xheight(self, font, fontsize, dpi):
         """
@@ -559,7 +529,7 @@ class Fonts(object):
         Get the data needed by the backend to render the math
         expression.  The return value is backend-specific.
         """
-        return self.mathtext_backend().get_results(box)
+        return self.mathtext_backend.get_results(box, self.get_used_characters())
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         """
@@ -632,7 +602,7 @@ class TruetypeFonts(Fonts):
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
             num,
-            flags=self.mathtext_backend().get_hinting_type())
+            flags=self.mathtext_backend.get_hinting_type())
 
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         offset = self._get_offset(cached_font, glyph, fontsize, dpi)
