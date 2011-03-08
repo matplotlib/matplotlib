@@ -22,8 +22,8 @@ the axes objects are responsible for other components that handle axis
 labeling, ticks, title, and plot legends. A *figure* is the container
 for one or more axes objects.
 
-Everything in matplotlib is organized in a heirarchy. At the top
-of the heirarchy is the matplotlib state-machine environment. This
+Everything in matplotlib is organized in a hierarchy. At the top
+of the hierarchy is the matplotlib state-machine environment. This
 environment is responsible for managing the figures and axes
 that have been created and modified by you. The behavior of the matplotlib
 environment is similar to MATLAB and therefore should be most familiar to
