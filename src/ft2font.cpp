@@ -85,7 +85,6 @@ Py::PythonClassObject<FT2Image> FT2Image::factory(int width, int height)
     args[1] = Py::Int(height);
     Py::PythonClassObject<FT2Image> o = Py::PythonClassObject<FT2Image>(
         class_type.apply(args, Py::Dict()));
-    Py_INCREF(o.ptr());
     return o;
 }
 
@@ -463,9 +462,9 @@ Py::PythonClassObject<Glyph> Glyph::factory(
     Py::Callable class_type(type());
     Py::PythonClassObject<Glyph> obj = Py::PythonClassObject<Glyph>(
         class_type.apply(Py::Tuple(), Py::Dict()));
-    Py_INCREF(obj.ptr());
     Glyph* o = obj.getCxxObject();
 
+    o->glyphInd = ind;
     FT_BBox bbox;
     FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_subpixels, &bbox);
 
@@ -1399,6 +1398,7 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
     size_t height = (string_bbox.yMax - string_bbox.yMin) / 64 + 2;
 
     image = FT2Image::factory(width, height);
+    FT2Image* image_cxx = Py::PythonClassObject<FT2Image>(image).getCxxObject();
 
     for (size_t n = 0; n < glyphs.size(); n++)
     {
@@ -1422,7 +1422,6 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
         FT_Int x = (FT_Int)(bitmap->left - (string_bbox.xMin / 64.));
         FT_Int y = (FT_Int)((string_bbox.yMax / 64.) - bitmap->top + 1);
 
-        FT2Image* image_cxx = Py::PythonClassObject<FT2Image>(image).getCxxObject();
         image_cxx->draw_bitmap(&bitmap->bitmap, x, y);
     }
 
@@ -1498,11 +1497,7 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args)
     _VERBOSE("FT2Font::draw_glyph_to_bitmap");
     args.verify_length(4);
 
-    if (!FT2Image::check(args[0].ptr()))
-    {
-        throw Py::TypeError("Usage: draw_glyph_to_bitmap(bitmap, x,y,glyph)");
-    }
-    FT2Image* im = static_cast<FT2Image*>(args[0].ptr());
+    FT2Image* im = Py::PythonClassObject<FT2Image>(args[0]).getCxxObject();
 
     double xd = Py::Float(args[1]);
     double yd = Py::Float(args[2]);
@@ -1512,13 +1507,9 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args)
     sub_offset.x = 0; // int((xd - (double)x) * 64.0);
     sub_offset.y = 0; // int((yd - (double)y) * 64.0);
 
-    if (!Glyph::check(args[3].ptr()))
-    {
-        throw Py::TypeError("Usage: draw_glyph_to_bitmap(bitmap, x,y,glyph)");
-    }
-    Glyph* glyph = static_cast<Glyph*>(args[3].ptr());
+    Glyph* glyph = Py::PythonClassObject<Glyph>(args[3]).getCxxObject();
 
-    if ((size_t)glyph->glyphInd >= glyphs.size())
+    if (glyph->glyphInd >= glyphs.size())
     {
         throw Py::ValueError("glyph num is out of range");
     }

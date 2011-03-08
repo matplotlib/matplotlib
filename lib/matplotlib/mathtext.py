@@ -30,6 +30,7 @@ except NameError:
     from sets import Set as set
 import unicodedata
 from warnings import warn
+import weakref
 
 from numpy import inf, isinf
 import numpy as np
@@ -186,18 +187,18 @@ class MathtextBackendBbox(MathtextBackend):
         bbox = self.bbox
         bbox = [bbox[0] - 1, bbox[1] - 1, bbox[2] + 1, bbox[3] + 1]
         self._switch_to_real_backend()
-        self.fonts_object.set_canvas_size(
+        self.fonts_object().set_canvas_size(
             bbox[2] - bbox[0],
             (bbox[3] - bbox[1]) - orig_depth,
             (bbox[3] - bbox[1]) - orig_height)
         ship(-bbox[0], -bbox[1], box)
-        return self.fonts_object.get_results(box)
+        return self.fonts_object().get_results(box)
 
     def get_hinting_type(self):
         return self.real_backend.get_hinting_type()
 
     def _switch_to_real_backend(self):
-        self.fonts_object.mathtext_backend = self.real_backend
+        self.fonts_object().mathtext_backend = weakref.ref(self.real_backend)
         self.real_backend.fonts_object = self.fonts_object
         self.real_backend.ox = self.bbox[0]
         self.real_backend.oy = self.bbox[1]
@@ -237,7 +238,7 @@ class MathtextBackendAggRender(MathtextBackend):
                 self.height + self.depth,
                 self.depth,
                 self.image,
-                self.fonts_object.get_used_characters())
+                self.fonts_object().get_used_characters())
 
     def get_hinting_type(self):
         if rcParams['text.hinting']:
@@ -298,7 +299,7 @@ setfont
                 self.height + self.depth,
                 self.depth,
                 self.pswriter,
-                self.fonts_object.get_used_characters())
+                self.fonts_object().get_used_characters())
 
 class MathtextBackendPdf(MathtextBackend):
     """
@@ -326,7 +327,7 @@ class MathtextBackendPdf(MathtextBackend):
                 self.depth,
                 self.glyphs,
                 self.rects,
-                self.fonts_object.get_used_characters())
+                self.fonts_object().get_used_characters())
 
 class MathtextBackendSvg(MathtextBackend):
     """
@@ -355,7 +356,7 @@ class MathtextBackendSvg(MathtextBackend):
                 self.height + self.depth,
                 self.depth,
                 svg_elements,
-                self.fonts_object.get_used_characters())
+                self.fonts_object().get_used_characters())
 
 class MathtextBackendPath(MathtextBackend):
     """
@@ -433,9 +434,9 @@ class Fonts(object):
         used to delegate the actual rendering.
         """
         self.default_font_prop = default_font_prop
-        self.mathtext_backend = mathtext_backend
+        self.mathtext_backend = weakref.ref(mathtext_backend)
         # Make these classes doubly-linked
-        self.mathtext_backend.fonts_object = self
+        mathtext_backend.fonts_object = weakref.ref(self)
         self.used_characters = {}
 
     def destroy(self):
@@ -501,7 +502,7 @@ class Fonts(object):
         Only really necessary for the bitmap backends.
         """
         self.width, self.height, self.depth = ceil(w), ceil(h), ceil(d)
-        self.mathtext_backend.set_canvas_size(self.width, self.height, self.depth)
+        self.mathtext_backend().set_canvas_size(self.width, self.height, self.depth)
 
     def render_glyph(self, ox, oy, facename, font_class, sym, fontsize, dpi):
         """
@@ -524,13 +525,13 @@ class Fonts(object):
         used_characters = self.used_characters.setdefault(
             stat_key, (realpath, set()))
         used_characters[1].add(info.num)
-        self.mathtext_backend.render_glyph(ox, oy, info)
+        self.mathtext_backend().render_glyph(ox, oy, info)
 
     def render_rect_filled(self, x1, y1, x2, y2):
         """
         Draw a filled rectangle from (*x1*, *y1*) to (*x2*, *y2*).
         """
-        self.mathtext_backend.render_rect_filled(x1, y1, x2, y2)
+        self.mathtext_backend().render_rect_filled(x1, y1, x2, y2)
 
     def get_xheight(self, font, fontsize, dpi):
         """
@@ -558,7 +559,7 @@ class Fonts(object):
         Get the data needed by the backend to render the math
         expression.  The return value is backend-specific.
         """
-        return self.mathtext_backend.get_results(box)
+        return self.mathtext_backend().get_results(box)
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         """
@@ -631,7 +632,7 @@ class TruetypeFonts(Fonts):
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
             num,
-            flags=self.mathtext_backend.get_hinting_type())
+            flags=self.mathtext_backend().get_hinting_type())
 
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         offset = self._get_offset(cached_font, glyph, fontsize, dpi)
@@ -2985,8 +2986,6 @@ class MathTextParser(object):
 
         # Fix cyclical references
         font_output.destroy()
-        font_output.mathtext_backend.fonts_object = None
-        font_output.mathtext_backend = None
 
         return result
 
