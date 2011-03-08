@@ -46,22 +46,11 @@
 
 FT_Library _ft2Library;
 
-// FT2Image::FT2Image() :
-//   _isDirty(true),
-//   _buffer(NULL),
-//   _width(0), _height(0),
-//   _rgbCopy(NULL),
-//   _rgbaCopy(NULL) {
-//   _VERBOSE("FT2Image::FT2Image");
-// }
-
 FT2Image::FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
     Py::PythonClass< FT2Image >::PythonClass(self, args, kwds),
     _isDirty(true),
     _buffer(NULL),
-    _width(0), _height(0),
-    _rgbCopy(),
-    _rgbaCopy()
+    _width(0), _height(0)
 {
     _VERBOSE("FT2Image::FT2Image");
 
@@ -73,6 +62,7 @@ FT2Image::FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwd
 }
 
 FT2Image::~FT2Image() {
+    printf("~FT2Image");
     delete [] _buffer;
     _buffer = NULL;
 }
@@ -333,108 +323,6 @@ FT2Image::py_as_array(const Py::Tuple & args)
     return Py::asObject((PyObject*)A);
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_array)
-
-void
-FT2Image::makeRgbCopy()
-{
-    FT2Image* rgbCopy;
-
-    if (!_isDirty)
-    {
-        return;
-    }
-
-    if (_rgbCopy.isNone())
-    {
-        _rgbCopy = factory(_width * 3, _height);
-        rgbCopy = Py::PythonClassObject<FT2Image>(_rgbCopy).getCxxObject();
-    }
-    else
-    {
-        rgbCopy = Py::PythonClassObject<FT2Image>(_rgbCopy).getCxxObject();
-        rgbCopy->resize(_width * 3, _height);
-    }
-    unsigned char *src            = _buffer;
-    unsigned char *src_end        = src + (_width * _height);
-    unsigned char *dst            = rgbCopy->_buffer;
-
-    unsigned char tmp;
-    while (src != src_end)
-    {
-        tmp = 255 - *src++;
-        *dst++ = tmp;
-        *dst++ = tmp;
-        *dst++ = tmp;
-    }
-}
-
-char FT2Image::as_rgb_str__doc__[] =
-    "width, height, s = image_as_rgb_str()\n"
-    "\n"
-    "Return the image buffer as a 24-bit RGB string.\n"
-    "\n"
-    ;
-Py::Object
-FT2Image::py_as_rgb_str(const Py::Tuple & args)
-{
-    _VERBOSE("FT2Image::as_str_rgb");
-    args.verify_length(0);
-
-    makeRgbCopy();
-
-    return Py::PythonClassObject<FT2Image>(_rgbCopy).getCxxObject()->py_as_str(args);
-}
-PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_rgb_str)
-
-void FT2Image::makeRgbaCopy()
-{
-    FT2Image* rgbaCopy;
-
-    if (!_isDirty)
-    {
-        return;
-    }
-
-    if (_rgbaCopy.isNone())
-    {
-        _rgbaCopy = factory(_width * 4, _height);
-        rgbaCopy = Py::PythonClassObject<FT2Image>(_rgbaCopy).getCxxObject();
-    }
-    else
-    {
-        rgbaCopy = Py::PythonClassObject<FT2Image>(_rgbaCopy).getCxxObject();
-        rgbaCopy->resize(_width * 4, _height);
-    }
-    unsigned char *src            = _buffer;
-    unsigned char *src_end        = src + (_width * _height);
-    unsigned char *dst            = rgbaCopy->_buffer;
-
-    while (src != src_end)
-    {
-        // We know the array has already been zero'ed out in
-        // the resize method, so we just skip over the r, g and b.
-        dst += 3;
-        *dst++ = *src++;
-    }
-}
-
-char FT2Image::as_rgba_str__doc__[] =
-    "width, height, s = image_as_rgb_str()\n"
-    "\n"
-    "Return the image buffer as a 32-bit RGBA string.\n"
-    "\n"
-    ;
-Py::Object
-FT2Image::py_as_rgba_str(const Py::Tuple & args)
-{
-    _VERBOSE("FT2Image::as_str_rgba");
-    args.verify_length(0);
-
-    makeRgbaCopy();
-
-    return Py::PythonClassObject<FT2Image>(_rgbaCopy).getCxxObject()->py_as_str(args);
-}
-PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_rgba_str)
 
 Py::Object
 FT2Image::py_get_width(const Py::Tuple & args)
