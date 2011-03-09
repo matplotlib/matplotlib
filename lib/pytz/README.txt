@@ -7,7 +7,7 @@ Introduction
 ~~~~~~~~~~~~
 
 pytz brings the Olson tz database into Python. This library allows
-accurate and cross platform timezone calculations using Python 2.3
+accurate and cross platform timezone calculations using Python 2.4
 or higher. It also solves the issue of ambiguous times at the end
 of daylight savings, which you can read more about in the Python
 Library Reference (``datetime.tzinfo``).
@@ -72,7 +72,7 @@ This is used to localize a naive datetime (datetime with no timezone
 information):
 
 >>> loc_dt = eastern.localize(datetime(2002, 10, 27, 6, 0, 0))
->>> print loc_dt.strftime(fmt)
+>>> print(loc_dt.strftime(fmt))
 2002-10-27 06:00:00 EST-0500
 
 The second way of building a localized time is by converting an existing
@@ -209,7 +209,7 @@ datetime.timedelta(0)
 'NST'
 
 If ``is_dst`` is not specified, ambiguous timestamps will raise
-an ``AmbiguousTimeError`` exception.
+an ``pytz.exceptions.AmbiguousTimeError`` exception.
 
 >>> tz.utcoffset(normal)
 datetime.timedelta(-1, 77400)
@@ -218,18 +218,22 @@ datetime.timedelta(0, 3600)
 >>> tz.tzname(normal)
 'NDT'
 
->>> tz.utcoffset(ambiguous)
-Traceback (most recent call last):
-[...]
-AmbiguousTimeError: 2009-10-31 23:30:00
->>> tz.dst(ambiguous)
-Traceback (most recent call last):
-[...]
-AmbiguousTimeError: 2009-10-31 23:30:00
->>> tz.tzname(ambiguous)
-Traceback (most recent call last):
-[...]
-AmbiguousTimeError: 2009-10-31 23:30:00
+>>> import pytz.exceptions
+>>> try:
+...     tz.utcoffset(ambiguous)
+... except pytz.exceptions.AmbiguousTimeError:
+...     print('pytz.exceptions.AmbiguousTimeError: %s' % ambiguous)
+pytz.exceptions.AmbiguousTimeError: 2009-10-31 23:30:00
+>>> try:
+...     tz.dst(ambiguous)
+... except pytz.exceptions.AmbiguousTimeError:
+...     print('pytz.exceptions.AmbiguousTimeError: %s' % ambiguous)
+pytz.exceptions.AmbiguousTimeError: 2009-10-31 23:30:00
+>>> try:
+...     tz.tzname(ambiguous)
+... except pytz.exceptions.AmbiguousTimeError:
+...     print('pytz.exceptions.AmbiguousTimeError: %s' % ambiguous)
+pytz.exceptions.AmbiguousTimeError: 2009-10-31 23:30:00
 
 
 Problems with Localtime
@@ -261,18 +265,19 @@ in different timezones or analyze log files it is not acceptable.
 The best and simplest solution is to stick with using UTC.  The pytz
 package encourages using UTC for internal timezone representation by
 including a special UTC implementation based on the standard Python
-reference implementation in the Python documentation.  This timezone
-unpickles to be the same instance, and pickles to a relatively small
-size.  The UTC implementation can be obtained as pytz.utc, pytz.UTC,
-or pytz.timezone('UTC').
+reference implementation in the Python documentation.
+
+The UTC timezone unpickles to be the same instance, and pickles to a
+smaller size than other pytz tzinfo instances.  The UTC implementation
+can be obtained as pytz.utc, pytz.UTC, or pytz.timezone('UTC').
 
 >>> import pickle, pytz
 >>> dt = datetime(2005, 3, 1, 14, 13, 21, tzinfo=utc)
 >>> naive = dt.replace(tzinfo=None)
 >>> p = pickle.dumps(dt, 1)
 >>> naive_p = pickle.dumps(naive, 1)
->>> len(p), len(naive_p), len(p) - len(naive_p)
-(60, 43, 17)
+>>> len(p) - len(naive_p)
+17
 >>> new = pickle.loads(p)
 >>> new == dt
 True
@@ -295,7 +300,7 @@ facility for constructing them unambiguously:
 >>> loc_dt = datetime(2002, 10, 27, 1, 30, 00)
 >>> est_dt = eastern.localize(loc_dt, is_dst=True)
 >>> edt_dt = eastern.localize(loc_dt, is_dst=False)
->>> print est_dt.strftime(fmt), '/', edt_dt.strftime(fmt)
+>>> print(est_dt.strftime(fmt) + ' / ' + edt_dt.strftime(fmt))
 2002-10-27 01:30:00 EDT-0400 / 2002-10-27 01:30:00 EST-0500
 
 If you pass None as the is_dst flag to localize(), pytz will refuse to
@@ -306,19 +311,23 @@ For example, 1:30am on 27th Oct 2002 happened twice in the US/Eastern
 timezone when the clocks where put back at the end of Daylight Savings
 Time:
 
->>> eastern.localize(datetime(2002, 10, 27, 1, 30, 00), is_dst=None)
-Traceback (most recent call last):
-...
-AmbiguousTimeError: 2002-10-27 01:30:00
+>>> dt = datetime(2002, 10, 27, 1, 30, 00)
+>>> try:
+...     eastern.localize(dt, is_dst=None)
+... except pytz.exceptions.AmbiguousTimeError:
+...     print('pytz.exceptions.AmbiguousTimeError: %s' % dt)
+pytz.exceptions.AmbiguousTimeError: 2002-10-27 01:30:00
 
 Similarly, 2:30am on 7th April 2002 never happened at all in the
 US/Eastern timezone, as the clocks where put forward at 2:00am skipping
 the entire hour:
 
->>> eastern.localize(datetime(2002, 4, 7, 2, 30, 00), is_dst=None)
-Traceback (most recent call last):
-...
-NonExistentTimeError: 2002-04-07 02:30:00
+>>> dt = datetime(2002, 4, 7, 2, 30, 00)
+>>> try:
+...     eastern.localize(dt, is_dst=None)
+... except pytz.exceptions.NonExistentTimeError:
+...     print('pytz.exceptions.NonExistentTimeError: %s' % dt)
+pytz.exceptions.NonExistentTimeError: 2002-04-07 02:30:00
 
 Both of these exceptions share a common base class to make error handling
 easier:
@@ -393,14 +402,14 @@ for a particular country, looked up using the ISO 3166 country code.
 It returns a list of strings that can be used to retrieve the relevant
 tzinfo instance using ``pytz.timezone()``:
 
->>> pytz.country_timezones['nz']
-['Pacific/Auckland', 'Pacific/Chatham']
+>>> print(' '.join(pytz.country_timezones['nz']))
+Pacific/Auckland Pacific/Chatham
 
 The Olson database comes with a ISO 3166 country code to English country
 name mapping that pytz exposes as a dictionary:
 
->>> pytz.country_names['nz']
-'New Zealand'
+>>> print(pytz.country_names['nz'])
+New Zealand
 
 
 What is UTC
@@ -478,10 +487,10 @@ using the ``country_timezones()`` function. It requires an ISO-3166
 two letter country code.
 
 >>> from pytz import country_timezones
->>> country_timezones('ch')
-['Europe/Zurich']
->>> country_timezones('CH')
-['Europe/Zurich']
+>>> print(' '.join(country_timezones('ch')))
+Europe/Zurich
+>>> print(' '.join(country_timezones('CH')))
+Europe/Zurich
 
 
 License
@@ -540,4 +549,5 @@ Contact
 ~~~~~~~
 
 Stuart Bishop <stuart@stuartbishop.net>
+
 
