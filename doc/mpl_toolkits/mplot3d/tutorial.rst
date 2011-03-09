@@ -17,6 +17,15 @@ add a new axes to it of type :class:`~mpl_toolkits.mplot3d.Axes3D`::
   fig = plt.figure()
   ax = fig.add_subplot(111, projection='3d')
 
+.. versionadded:: 1.0.0
+   This approach is the preferred method of creating a 3d axes.
+
+.. note::
+   Prior to version 1.0.0, the method of creating a 3d axes was
+   different. For those using older versions of matplotlib, change
+   ``ax = fig.add_subplot(111, projection='3d')``
+   to ``ax = Axes3D(fig)``.
+
 Line plots
 ====================
 .. automethod:: Axes3D.plot
@@ -56,6 +65,7 @@ Filled contour plots
 .. automethod:: Axes3D.contourf
 
 .. plot:: mpl_examples/mplot3d/contourf3d_demo.py
+.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
 
 Polygon plots
 ====================
@@ -81,9 +91,12 @@ Text
 
 Subplotting
 ====================
-Having multiple 3D plots in a single figure is the same
-as it is for 2D plots. And you can mix 2D and 3D plots
+Having multiple 3d plots in a single figure is the same
+as it is for 2d plots. And you can mix 2d and 3d plots
 into the same figure.
+
+.. versionadded:: 1.0.0
+   This feature was added in v1.0.0.  Earlier version can not do this.
 
 .. plot:: mpl_examples/mplot3d/subplot3d_demo.py
 .. plot:: mpl_examples/mplot3d/mixed_subplots_demo.py
