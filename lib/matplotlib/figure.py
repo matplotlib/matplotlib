@@ -34,6 +34,7 @@ import matplotlib.cbook as cbook
 from matplotlib import docstring
 
 from operator import itemgetter
+import os.path
 
 docstring.interpd.update(projection_names = get_projection_names())
 
@@ -1137,7 +1138,7 @@ class Figure(Artist):
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
 
         extension = rcParams['savefig.extension']
-        if args and is_string_like(args[0]) and '.' not in args[0] and extension != 'auto':
+        if args and is_string_like(args[0]) and '.' not in os.path.splitext(args[0])[-1] and extension != 'auto':
             fname = args[0] + '.' + extension
             args = (fname,) + args[1:]
 
