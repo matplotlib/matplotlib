@@ -252,6 +252,15 @@ for mod in ext_modules:
     if options['verbose']:
         mod.extra_compile_args.append('-DVERBOSE')
 
+if sys.version_info[0] >= 3:
+    # We need to skip certain files that have already been
+    # converted to Python 3.x
+    original_build_py = build_py
+    class build_py(original_build_py):
+        def run_2to3(self, files):
+            filtered = [x for x in files if 'py3' not in x]
+            original_build_py.run_2to3(self, filtered)
+
 print_raw("pymods %s" % py_modules)
 print_raw("packages %s" % packages)
 distrib = setup(name="matplotlib",
