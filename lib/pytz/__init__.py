@@ -9,7 +9,7 @@ on how to use these modules.
 '''
 
 # The Olson database is updated several times a year.
-OLSON_VERSION = '2010o'
+OLSON_VERSION = '2011c'
 VERSION = OLSON_VERSION
 # Version format for a patch release - only one so far.
 #VERSION = OLSON_VERSION + '.2'
@@ -26,22 +26,59 @@ __all__ = [
     ]
 
 import sys, datetime, os.path, gettext
-from UserDict import DictMixin
+try:
+    from UserDict import DictMixin
+except ImportError:
+    from collections import Mapping as DictMixin
 
 try:
     from pkg_resources import resource_stream
 except ImportError:
     resource_stream = None
 
-from tzinfo import AmbiguousTimeError, InvalidTimeError, NonExistentTimeError
-from tzinfo import unpickler
-from tzfile import build_tzinfo
+from pytz.exceptions import AmbiguousTimeError
+from pytz.exceptions import InvalidTimeError
+from pytz.exceptions import NonExistentTimeError
+from pytz.exceptions import UnknownTimeZoneError
+from pytz.tzinfo import unpickler
+from pytz.tzfile import build_tzinfo, _byte_string
 
-# Use 2.3 sets module implementation if set builtin is not available
+
 try:
-    set
-except NameError:
-    from sets import Set as set
+    unicode
+
+except NameError: # Python 3.x
+
+    # Python 3.x doesn't have unicode(), making writing code
+    # for Python 2.3 and Python 3.x a pain.
+    unicode = str
+
+    def ascii(s):
+        r"""
+        >>> ascii('Hello')
+        'Hello'
+        >>> ascii('\N{TRADE MARK SIGN}') #doctest: +IGNORE_EXCEPTION_DETAIL
+        Traceback (most recent call last):
+            ...
+        UnicodeEncodeError: ...
+        """
+        s.encode('US-ASCII') # Raise an exception if not ASCII
+        return s # But return the original string - not a byte string.
+
+else: # Python 2.x
+
+    def ascii(s):
+        r"""
+        >>> ascii('Hello')
+        'Hello'
+        >>> ascii(u'Hello')
+        'Hello'
+        >>> ascii(u'\N{TRADE MARK SIGN}') #doctest: +IGNORE_EXCEPTION_DETAIL
+        Traceback (most recent call last):
+            ...
+        UnicodeEncodeError: ...
+        """
+        return s.encode('US-ASCII')
 
 
 def open_resource(name):
@@ -67,7 +104,7 @@ def open_resource(name):
 def resource_exists(name):
     """Return true if the given resource exists"""
     try:
-        open_resource(name)
+        open_resource(name).close()
         return True
     except IOError:
         return False
@@ -88,22 +125,6 @@ def resource_exists(name):
 #     return t.ugettext(timezone_name)
 
 
-class UnknownTimeZoneError(KeyError):
-    '''Exception raised when pytz is passed an unknown timezone.
-
-    >>> isinstance(UnknownTimeZoneError(), LookupError)
-    True
-
-    This class is actually a subclass of KeyError to provide backwards
-    compatibility with code relying on the undocumented behavior of earlier
-    pytz releases.
-
-    >>> isinstance(UnknownTimeZoneError(), KeyError)
-    True
-    '''
-    pass
-
-
 _tzinfo_cache = {}
 
 def timezone(zone):
@@ -114,7 +135,7 @@ def timezone(zone):
     >>> eastern = timezone('US/Eastern')
     >>> eastern.zone
     'US/Eastern'
-    >>> timezone(u'US/Eastern') is eastern
+    >>> timezone(unicode('US/Eastern')) is eastern
     True
     >>> utc_dt = datetime(2002, 10, 27, 6, 0, 0, tzinfo=utc)
     >>> loc_dt = utc_dt.astimezone(eastern)
@@ -130,21 +151,24 @@ def timezone(zone):
 
     Raises UnknownTimeZoneError if passed an unknown zone.
 
-    >>> timezone('Asia/Shangri-La')
-    Traceback (most recent call last):
-    ...
-    UnknownTimeZoneError: 'Asia/Shangri-La'
+    >>> try:
+    ...     timezone('Asia/Shangri-La')
+    ... except UnknownTimeZoneError:
+    ...     print('Unknown')
+    Unknown
 
-    >>> timezone(u'\N{TRADE MARK SIGN}')
-    Traceback (most recent call last):
-    ...
-    UnknownTimeZoneError: u'\u2122'
+    >>> try:
+    ...     timezone(unicode('\N{TRADE MARK SIGN}'))
+    ... except UnknownTimeZoneError:
+    ...     print('Unknown')
+    Unknown
+
     '''
     if zone.upper() == 'UTC':
         return utc
 
     try:
-        zone = zone.encode('US-ASCII')
+        zone = ascii(zone)
     except UnicodeEncodeError:
         # All valid timezones are ASCII
         raise UnknownTimeZoneError(zone)
@@ -152,7 +176,11 @@ def timezone(zone):
     zone = _unmunge_zone(zone)
     if zone not in _tzinfo_cache:
         if zone in all_timezones_set:
-            _tzinfo_cache[zone] = build_tzinfo(zone, open_resource(zone))
+            fp = open_resource(zone)
+            try:
+                _tzinfo_cache[zone] = build_tzinfo(zone, fp)
+            finally:
+                fp.close()
         else:
             raise UnknownTimeZoneError(zone)
 
@@ -199,13 +227,13 @@ class UTC(datetime.tzinfo):
     def localize(self, dt, is_dst=False):
         '''Convert naive time to local time'''
         if dt.tzinfo is not None:
-            raise ValueError, 'Not naive datetime (tzinfo is already set)'
+            raise ValueError('Not naive datetime (tzinfo is already set)')
         return dt.replace(tzinfo=self)
 
     def normalize(self, dt, is_dst=False):
         '''Correct the timezone information on the given datetime'''
         if dt.tzinfo is None:
-            raise ValueError, 'Naive time - no tzinfo set'
+            raise ValueError('Naive time - no tzinfo set')
         return dt.replace(tzinfo=self)
 
     def __repr__(self):
@@ -233,8 +261,8 @@ def _UTC():
     >>> naive = dt.replace(tzinfo=None)
     >>> p = pickle.dumps(dt, 1)
     >>> naive_p = pickle.dumps(naive, 1)
-    >>> len(p), len(naive_p), len(p) - len(naive_p)
-    (60, 43, 17)
+    >>> len(p) - len(naive_p)
+    17
     >>> new = pickle.loads(p)
     >>> new == dt
     True
@@ -269,6 +297,21 @@ class _LazyDict(DictMixin):
             self._fill()
         return self.data[key.upper()]
 
+    def __contains__(self, key):
+        if self.data is None:
+            self._fill()
+        return key in self.data
+
+    def __iter__(self):
+        if self.data is None:
+            self._fill()
+        return iter(self.data)
+
+    def __len__(self):
+        if self.data is None:
+            self._fill()
+        return len(self.data)
+
     def keys(self):
         if self.data is None:
             self._fill()
@@ -281,13 +324,21 @@ class _CountryTimezoneDict(_LazyDict):
 
     iso3166_code is the two letter code used to identify the country.
 
-    >>> country_timezones['ch']
-    ['Europe/Zurich']
-    >>> country_timezones['CH']
-    ['Europe/Zurich']
-    >>> country_timezones[u'ch']
-    ['Europe/Zurich']
-    >>> country_timezones['XXX']
+    >>> def print_list(list_of_strings):
+    ...     'We use a helper so doctests work under Python 2.3 -> 3.x'
+    ...     for s in list_of_strings:
+    ...         print(s)
+
+    >>> print_list(country_timezones['nz'])
+    Pacific/Auckland
+    Pacific/Chatham
+    >>> print_list(country_timezones['ch'])
+    Europe/Zurich
+    >>> print_list(country_timezones['CH'])
+    Europe/Zurich
+    >>> print_list(country_timezones[unicode('ch')])
+    Europe/Zurich
+    >>> print_list(country_timezones['XXX'])
     Traceback (most recent call last):
     ...
     KeyError: 'XXX'
@@ -295,8 +346,9 @@ class _CountryTimezoneDict(_LazyDict):
     Previously, this information was exposed as a function rather than a
     dictionary. This is still supported::
 
-    >>> country_timezones('nz')
-    ['Pacific/Auckland', 'Pacific/Chatham']
+    >>> print_list(country_timezones('nz'))
+    Pacific/Auckland
+    Pacific/Chatham
     """
     def __call__(self, iso3166_code):
         """Backwards compatibility."""
@@ -305,17 +357,21 @@ class _CountryTimezoneDict(_LazyDict):
     def _fill(self):
         data = {}
         zone_tab = open_resource('zone.tab')
-        for line in zone_tab:
-            if line.startswith('#'):
-                continue
-            code, coordinates, zone = line.split(None, 4)[:3]
-            if zone not in all_timezones_set:
-                continue
-            try:
-                data[code].append(zone)
-            except KeyError:
-                data[code] = [zone]
-        self.data = data
+        try:
+            for line in zone_tab:
+                line = line.decode('US-ASCII')
+                if line.startswith('#'):
+                    continue
+                code, coordinates, zone = line.split(None, 4)[:3]
+                if zone not in all_timezones_set:
+                    continue
+                try:
+                    data[code].append(zone)
+                except KeyError:
+                    data[code] = [zone]
+            self.data = data
+        finally:
+            zone_tab.close()
 
 country_timezones = _CountryTimezoneDict()
 
@@ -323,18 +379,22 @@ country_timezones = _CountryTimezoneDict()
 class _CountryNameDict(_LazyDict):
     '''Dictionary proving ISO3166 code -> English name.
 
-    >>> country_names['au']
-    'Australia'
+    >>> print(country_names['au'])
+    Australia
     '''
     def _fill(self):
         data = {}
         zone_tab = open_resource('iso3166.tab')
-        for line in zone_tab.readlines():
-            if line.startswith('#'):
-                continue
-            code, name = line.split(None, 1)
-            data[code] = name.strip()
-        self.data = data
+        try:
+            for line in zone_tab.readlines():
+                line = line.decode('US-ASCII')
+                if line.startswith('#'):
+                    continue
+                code, name = line.split(None, 1)
+                data[code] = name.strip()
+            self.data = data
+        finally:
+            zone_tab.close()
 
 country_names = _CountryNameDict()
 
@@ -369,13 +429,13 @@ class _FixedOffset(datetime.tzinfo):
     def localize(self, dt, is_dst=False):
         '''Convert naive time to local time'''
         if dt.tzinfo is not None:
-            raise ValueError, 'Not naive datetime (tzinfo is already set)'
+            raise ValueError('Not naive datetime (tzinfo is already set)')
         return dt.replace(tzinfo=self)
 
     def normalize(self, dt, is_dst=False):
         '''Correct the timezone information on the given datetime'''
         if dt.tzinfo is None:
-            raise ValueError, 'Naive time - no tzinfo set'
+            raise ValueError('Naive time - no tzinfo set')
         return dt.replace(tzinfo=self)
 
 
@@ -612,6 +672,7 @@ all_timezones = \
  'America/Mendoza',
  'America/Menominee',
  'America/Merida',
+ 'America/Metlakatla',
  'America/Mexico_City',
  'America/Miquelon',
  'America/Moncton',
@@ -624,6 +685,7 @@ all_timezones = \
  'America/Nipigon',
  'America/Nome',
  'America/Noronha',
+ 'America/North_Dakota/Beulah',
  'America/North_Dakota/Center',
  'America/North_Dakota/New_Salem',
  'America/Ojinaga',
@@ -650,6 +712,7 @@ all_timezones = \
  'America/Sao_Paulo',
  'America/Scoresbysund',
  'America/Shiprock',
+ 'America/Sitka',
  'America/St_Barthelemy',
  'America/St_Johns',
  'America/St_Kitts',
@@ -1169,6 +1232,7 @@ common_timezones = \
  'America/Mazatlan',
  'America/Menominee',
  'America/Merida',
+ 'America/Metlakatla',
  'America/Mexico_City',
  'America/Miquelon',
  'America/Moncton',
@@ -1181,6 +1245,7 @@ common_timezones = \
  'America/Nipigon',
  'America/Nome',
  'America/Noronha',
+ 'America/North_Dakota/Beulah',
  'America/North_Dakota/Center',
  'America/North_Dakota/New_Salem',
  'America/Ojinaga',
@@ -1205,6 +1270,7 @@ common_timezones = \
  'America/Sao_Paulo',
  'America/Scoresbysund',
  'America/Shiprock',
+ 'America/Sitka',
  'America/St_Barthelemy',
  'America/St_Johns',
  'America/St_Kitts',

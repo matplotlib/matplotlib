@@ -1,5 +1,5 @@
 # <pre>
-# @(#)zone.tab	8.38
+# @(#)zone.tab	8.41
 # This file is in the public domain, so clarified as of
 # 2009-05-17 by Arthur David Olson.
 #
@@ -211,8 +211,8 @@ HT	+1832-07220	America/Port-au-Prince
 HU	+4730+01905	Europe/Budapest
 ID	-0610+10648	Asia/Jakarta	Java & Sumatra
 ID	-0002+10920	Asia/Pontianak	west & central Borneo
-ID	-0507+11924	Asia/Makassar	east & south Borneo, Celebes, Bali, Nusa Tengarra, west Timor
-ID	-0232+14042	Asia/Jayapura	Irian Jaya & the Moluccas
+ID	-0507+11924	Asia/Makassar	east & south Borneo, Sulawesi (Celebes), Bali, Nusa Tengarra, west Timor
+ID	-0232+14042	Asia/Jayapura	west New Guinea (Irian Jaya) & Malukus (Moluccas)
 IE	+5320-00615	Europe/Dublin
 IL	+3146+03514	Asia/Jerusalem
 IM	+5409-00428	Europe/Isle_of_Man
@@ -404,6 +404,7 @@ US	+411745-0863730	America/Indiana/Knox	Central Time - Indiana - Starke County
 US	+450628-0873651	America/Menominee	Central Time - Michigan - Dickinson, Gogebic, Iron & Menominee Counties
 US	+470659-1011757	America/North_Dakota/Center	Central Time - North Dakota - Oliver County
 US	+465042-1012439	America/North_Dakota/New_Salem	Central Time - North Dakota - Morton County (except Mandan area)
+US	+471551-1014640	America/North_Dakota/Beulah	Central Time - North Dakota - Mercer County
 US	+394421-1045903	America/Denver	Mountain Time
 US	+433649-1161209	America/Boise	Mountain Time - south Idaho & east Oregon
 US	+364708-1084111	America/Shiprock	Mountain Time - Navajo
@@ -411,9 +412,11 @@ US	+332654-1120424	America/Phoenix	Mountain Standard Time - Arizona
 US	+340308-1181434	America/Los_Angeles	Pacific Time
 US	+611305-1495401	America/Anchorage	Alaska Time
 US	+581807-1342511	America/Juneau	Alaska Time - Alaska panhandle
+US	+571035-1351807	America/Sitka	Alaska Time - southeast Alaska panhandle
 US	+593249-1394338	America/Yakutat	Alaska Time - Alaska panhandle neck
 US	+643004-1652423	America/Nome	Alaska Time - west Alaska
 US	+515248-1763929	America/Adak	Aleutian Islands
+US	+550737-1313435	America/Metlakatla	Metlakatla Time - Annette Island
 US	+211825-1575130	Pacific/Honolulu	Hawaii
 UY	-3453-05611	America/Montevideo
 UZ	+3940+06648	Asia/Samarkand	west Uzbekistan
