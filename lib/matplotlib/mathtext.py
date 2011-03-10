@@ -212,13 +212,15 @@ class MathtextBackendAgg(MathtextBackend):
             (bbox[3] - bbox[1]) - orig_depth,
             (bbox[3] - bbox[1]) - orig_height)
         ship(-bbox[0], -bbox[1], box)
-        return (self.ox,
-                self.oy,
-                self.width,
-                self.height + self.depth,
-                self.depth,
-                self.image,
-                used_characters)
+        result = (self.ox,
+                  self.oy,
+                  self.width,
+                  self.height + self.depth,
+                  self.depth,
+                  self.image,
+                  used_characters)
+        self.image = None
+        return result
 
     def get_hinting_type(self):
         if rcParams['text.hinting']:
@@ -266,7 +268,6 @@ setfont
 
     def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
-        #print self.depth
         return (self.width,
                 self.height + self.depth,
                 self.depth,
@@ -529,7 +530,9 @@ class Fonts(object):
         Get the data needed by the backend to render the math
         expression.  The return value is backend-specific.
         """
-        return self.mathtext_backend.get_results(box, self.get_used_characters())
+        result = self.mathtext_backend.get_results(box, self.get_used_characters())
+        self.destroy()
+        return result
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         """
@@ -2308,16 +2311,6 @@ class Parser(object):
             )
           ) + StringEnd()
 
-        self.clear()
-
-    def clear(self):
-        """
-        Clear any state before parsing.
-        """
-        self._expr = None
-        self._state_stack = None
-        self._em_width_cache = {}
-
     def parse(self, s, fonts_object, fontsize, dpi):
         """
         Parse expression *s* using the given *fonts_object* for
@@ -2326,15 +2319,18 @@ class Parser(object):
         Returns the parse tree of :class:`Node` instances.
         """
         self._state_stack = [self.State(fonts_object, 'default', 'rm', fontsize, dpi)]
+        self._em_width_cache = {}
         try:
-            self._expression.parseString(s)
+            result = self._expression.parseString(s)
         except ParseException as err:
             raise ValueError("\n".join([
                         "",
                         err.line,
                         " " * (err.column - 1) + "^",
                         str(err)]))
-        return self._expr
+        self._state_stack = None
+        self._em_width_cache = {}
+        return result[0]
 
     # The state of the parser is maintained in a stack.  Upon
     # entering and leaving a group { } or math/non-math, the stack
@@ -2391,8 +2387,7 @@ class Parser(object):
 
     def finish(self, s, loc, toks):
         #~ print "finish", toks
-        self._expr = Hlist(toks)
-        return [self._expr]
+        return [Hlist(toks)]
 
     def math(self, s, loc, toks):
         #~ print "math", toks
@@ -2920,12 +2915,15 @@ class MathTextParser(object):
         The results are cached, so multiple calls to :meth:`parse`
         with the same expression should be fast.
         """
-        if prop is None:
-            prop = FontProperties()
-        cacheKey = (s, dpi, hash(prop))
-        result = self._cache.get(cacheKey)
-        if result is not None:
-            return result
+        # There is a bug in Python 3.x where it leaks frame references,
+        # and therefore can't handle this caching
+        if sys.version_info[0] < 3:
+            if prop is None:
+                prop = FontProperties()
+            cacheKey = (s, dpi, hash(prop))
+            result = self._cache.get(cacheKey)
+            if result is not None:
+                return result
 
         if self._output == 'ps' and rcParams['ps.useafm']:
             font_output = StandardPsFonts(prop)
@@ -2949,15 +2947,12 @@ class MathTextParser(object):
 
         box = self._parser.parse(s, font_output, fontsize, dpi)
         font_output.set_canvas_size(box.width, box.height, box.depth)
-        result = font_output.get_results(box)
-        self._cache[cacheKey] = result
-        # Free up the transient data structures
-        self._parser.clear()
-
-        # Fix cyclical references
-        font_output.destroy()
-
-        return result
+        if sys.version_info[0] >= 3:
+            return font_output.get_results(box)
+        else:
+            result = font_output.get_results(box)
+            self._cache[cacheKey] = result
+            return result
 
     def to_mask(self, texstr, dpi=120, fontsize=14):
         """
