@@ -71,8 +71,7 @@ png: check-prefix zlib
 	tar xvfz ${PNGFILE} && \
 	cd ${PNGDIR} &&\
 	./configure  --disable-dependency-tracking  --prefix=${PREFIX} &&\
-	${MAKE} -j3 install&&\
-	echo NOT DOING cp .libs/libpng15.a .
+	${MAKE} -j3 install
 
 freetype: check-prefix zlib
 	rm -rf ${FREETYPEDIR} &&\
