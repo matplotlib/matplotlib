@@ -131,6 +131,9 @@ class FontconfigPatternParser:
             raise ValueError("Could not parse font string: '%s'\n%s" % (pattern, e))
 
         self._properties = None
+
+        self._parser.resetCache()
+
         return props
 
     def _family(self, s, loc, tokens):
