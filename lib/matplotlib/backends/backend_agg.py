@@ -131,9 +131,6 @@ class RendererAgg(RendererBase):
         x = int(x) + ox
         y = int(y) - oy
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
-        # XXX: This is to work around a bug in Python 3 where it
-        # apparently leaks references to frames
-        del font_image
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         """
