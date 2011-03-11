@@ -1,9 +1,10 @@
+from __future__ import print_function
 import numpy as np
 import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
 
 datafile = cbook.get_sample_data('aapl.csv', asfileobj=False)
-print 'loading', datafile
+print('loading', datafile)
 r = mlab.csv2rec(datafile)
 r.sort()
 
@@ -44,19 +45,19 @@ stats = (
     )
 
 # you can summarize over a single variable, like years or months
-print 'summary by years'
+print('summary by years')
 ry = mlab.rec_groupby(rsum, ('years',), stats)
-print mlab. rec2txt(ry)
+print(mlab. rec2txt(ry))
 
-print 'summary by months'
+print('summary by months')
 rm = mlab.rec_groupby(rsum, ('months',), stats)
-print mlab.rec2txt(rm)
+print(mlab.rec2txt(rm))
 
 # or over multiple variables like years and months
-print 'summary by year and month'
+print('summary by year and month')
 rym = mlab.rec_groupby(rsum, ('years','months'), stats)
-print mlab.rec2txt(rym)
+print(mlab.rec2txt(rym))
 
-print 'summary by volume'
+print('summary by volume')
 rv = mlab.rec_groupby(rsum, ('volcode',), stats)
-print mlab.rec2txt(rv)
+print(mlab.rec2txt(rv))

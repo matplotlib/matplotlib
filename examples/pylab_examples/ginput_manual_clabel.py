@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- noplot -*-
+
+from __future__ import print_function
 """
 This provides examples of uses of interactive functions, such as ginput,
 waitforbuttonpress and manual clabel placement.
@@ -18,7 +20,7 @@ import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
 def tellme(s):
-    print s
+    print(s)
     plt.title(s,fontsize=16)
     plt.draw()
 

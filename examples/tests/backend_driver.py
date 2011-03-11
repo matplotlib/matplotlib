@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
 """
 This is used to drive many of the examples across the backends, for
 regression testing, and comparing backend efficiency.
@@ -285,7 +287,7 @@ def report_missing(dir, flist):
     missing = list(pyfiles-flist-exclude)
     missing.sort()
     if missing:
-        print '%s files not tested: %s'%(dir, ', '.join(missing))
+        print ('%s files not tested: %s'%(dir, ', '.join(missing)))
 
 def report_all_missing(directories):
     for f in directories:
@@ -323,7 +325,7 @@ def drive(backend, directories, python=['python'], switches = []):
     if os.path.exists(path):
         import glob
         for fname in os.listdir(path):
-            os.unlink(os.path.join(path,fname))
+            os.unlink(os.path.join(path, fname))
     else:
         os.mkdir(backend)
     failures = []
@@ -338,15 +340,15 @@ def drive(backend, directories, python=['python'], switches = []):
         fpath, fname = os.path.split(fullpath)
 
         if fname in exclude:
-            print '\tSkipping %s, known to fail on backend: %s'%backend
+            print ('\tSkipping %s, known to fail on backend: %s'%backend)
             continue
 
         basename, ext = os.path.splitext(fname)
-        outfile = os.path.join(path,basename)
+        outfile = os.path.join(path, basename)
         tmpfile_name = '_tmp_%s.py' % basename
-        tmpfile = file(tmpfile_name, 'w')
+        tmpfile = open(tmpfile_name, 'w')
 
-        for line in file(fullpath):
+        for line in open(fullpath):
             line_lstrip = line.lstrip()
             if line_lstrip.startswith("#"):
                 tmpfile.write(line)
@@ -356,14 +358,14 @@ def drive(backend, directories, python=['python'], switches = []):
         tmpfile.writelines((
             'from __future__ import division\n',
             'import sys\n',
-            'sys.path.append("%s")\n'%fpath,
+            'sys.path.append("%s")\n' % fpath.replace('\\', '\\\\'),
             'import matplotlib\n',
             'matplotlib.use("%s")\n' % backend,
             'from pylab import savefig\n',
             'import numpy\n',
             'numpy.seterr(invalid="ignore")\n',
             ))
-        for line in file(fullpath):
+        for line in open(fullpath):
             line_lstrip = line.lstrip()
             if (line_lstrip.startswith('from __future__ import division') or
                 line_lstrip.startswith('matplotlib.use') or
@@ -381,7 +383,7 @@ def drive(backend, directories, python=['python'], switches = []):
         program = [x % {'name': basename} for x in python]
         ret = run(program + [tmpfile_name] + switches)
         end_time = time.time()
-        print (end_time - start_time), ret
+        print ("%s %s" % ((end_time - start_time), ret))
         #os.system('%s %s %s' % (python, tmpfile_name, ' '.join(switches)))
         os.remove(tmpfile_name)
         if ret:
@@ -430,7 +432,7 @@ def parse_options():
     if 'pylab_examples' in result.dirs:
         result.dirs[result.dirs.index('pylab_examples')] = 'pylab'
     #print result
-    return result
+    return (result)
 
 if __name__ == '__main__':
     times = {}
@@ -443,14 +445,14 @@ if __name__ == '__main__':
         for d in localdirs:
             if d.lower() not in all_backends_set:
                 continue
-            print 'removing %s'%d
+            print ('removing %s'%d)
             for fname in glob.glob(os.path.join(d, '*')):
                 os.remove(fname)
             os.rmdir(d)
         for fname in glob.glob('_tmp*.py'):
             os.remove(fname)
 
-        print 'all clean...'
+        print ('all clean...')
         raise SystemExit
     if options.coverage:
         python = ['coverage.py', '-x']
@@ -464,7 +466,7 @@ if __name__ == '__main__':
 
     report_all_missing(options.dirs)
     for backend in options.backends:
-        print 'testing %s %s' % (backend, ' '.join(options.switches))
+        print ('testing %s %s' % (backend, ' '.join(options.switches)))
         t0 = time.time()
         failures[backend] = \
             drive(backend, options.dirs, python, options.switches)
@@ -473,10 +475,10 @@ if __name__ == '__main__':
 
     # print times
     for backend, elapsed in times.items():
-        print 'Backend %s took %1.2f minutes to complete' % (backend, elapsed)
+        print ('Backend %s took %1.2f minutes to complete' % (backend, elapsed))
         failed = failures[backend]
         if failed:
-            print '  Failures: ', failed
+            print ('  Failures: %s' % failed)
         if 'template' in times:
-            print '\ttemplate ratio %1.3f, template residual %1.3f' % (
-                elapsed/times['template'], elapsed-times['template'])
+            print ('\ttemplate ratio %1.3f, template residual %1.3f' % (
+                elapsed/times['template'], elapsed-times['template']))

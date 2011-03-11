@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- noplot -*-
+
 """
 
 This example shows how to use matplotlib to provide a data cursor.  It
@@ -9,6 +10,7 @@ requires redrawing the figure with every mouse move.
 Faster cursoring is possible using native GUI drawing, as in
 wxcursor_demo.py
 """
+from __future__ import print_function
 from pylab import *
 
 
@@ -61,7 +63,7 @@ class SnaptoCursor:
         self.ly.set_xdata(x )
 
         self.txt.set_text( 'x=%1.2f, y=%1.2f'%(x,y) )
-        print 'x=%1.2f, y=%1.2f'%(x,y)
+        print ('x=%1.2f, y=%1.2f'%(x,y))
         draw()
 
 t = arange(0.0, 1.0, 0.01)

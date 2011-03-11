@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # This file generates the matplotlib web page logo
+
+from __future__ import print_function
 from pylab import *
 import matplotlib.cbook as cbook
 
 # convert data to mV
 datafile = cbook.get_sample_data('membrane.dat', asfileobj=False)
-print 'loading', datafile
+print('loading', datafile)
 
 x = 1000*0.1*fromstring(file(datafile, 'rb').read(), float32)
 # 0.0005 is the sample interval
