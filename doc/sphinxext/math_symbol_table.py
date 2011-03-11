@@ -1,3 +1,4 @@
+from __future__ import print_function
 symbols = [
     ["Lower-case Greek",
      5,
@@ -141,7 +142,7 @@ if __name__ == "__main__":
     # Do some verification of the tables
     from matplotlib import _mathtext_data
 
-    print "SYMBOLS NOT IN STIX:"
+    print("SYMBOLS NOT IN STIX:")
     all_symbols = {}
     for category, columns, syms in symbols:
         if category == "Standard Function Names":
@@ -151,9 +152,9 @@ if __name__ == "__main__":
             if len(sym) > 1:
                 all_symbols[sym[1:]] = None
                 if sym[1:] not in _mathtext_data.tex2uni:
-                    print sym
+                    print(sym)
 
-    print "SYMBOLS NOT IN TABLE:"
+    print("SYMBOLS NOT IN TABLE:")
     for sym in _mathtext_data.tex2uni:
         if sym not in all_symbols:
-            print sym
+            print(sym)
