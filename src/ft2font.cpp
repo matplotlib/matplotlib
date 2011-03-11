@@ -46,22 +46,11 @@
 
 FT_Library _ft2Library;
 
-// FT2Image::FT2Image() :
-//   _isDirty(true),
-//   _buffer(NULL),
-//   _width(0), _height(0),
-//   _rgbCopy(NULL),
-//   _rgbaCopy(NULL) {
-//   _VERBOSE("FT2Image::FT2Image");
-// }
-
 FT2Image::FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
     Py::PythonClass< FT2Image >::PythonClass(self, args, kwds),
     _isDirty(true),
     _buffer(NULL),
-    _width(0), _height(0),
-    _rgbCopy(),
-    _rgbaCopy()
+    _width(0), _height(0)
 {
     _VERBOSE("FT2Image::FT2Image");
 
@@ -85,7 +74,6 @@ Py::PythonClassObject<FT2Image> FT2Image::factory(int width, int height)
     args[1] = Py::Int(height);
     Py::PythonClassObject<FT2Image> o = Py::PythonClassObject<FT2Image>(
         class_type.apply(args, Py::Dict()));
-    Py_INCREF(o.ptr());
     return o;
 }
 
@@ -335,108 +323,6 @@ FT2Image::py_as_array(const Py::Tuple & args)
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_array)
 
-void
-FT2Image::makeRgbCopy()
-{
-    FT2Image* rgbCopy;
-
-    if (!_isDirty)
-    {
-        return;
-    }
-
-    if (_rgbCopy.isNone())
-    {
-        _rgbCopy = factory(_width * 3, _height);
-        rgbCopy = Py::PythonClassObject<FT2Image>(_rgbCopy).getCxxObject();
-    }
-    else
-    {
-        rgbCopy = Py::PythonClassObject<FT2Image>(_rgbCopy).getCxxObject();
-        rgbCopy->resize(_width * 3, _height);
-    }
-    unsigned char *src            = _buffer;
-    unsigned char *src_end        = src + (_width * _height);
-    unsigned char *dst            = rgbCopy->_buffer;
-
-    unsigned char tmp;
-    while (src != src_end)
-    {
-        tmp = 255 - *src++;
-        *dst++ = tmp;
-        *dst++ = tmp;
-        *dst++ = tmp;
-    }
-}
-
-char FT2Image::as_rgb_str__doc__[] =
-    "width, height, s = image_as_rgb_str()\n"
-    "\n"
-    "Return the image buffer as a 24-bit RGB string.\n"
-    "\n"
-    ;
-Py::Object
-FT2Image::py_as_rgb_str(const Py::Tuple & args)
-{
-    _VERBOSE("FT2Image::as_str_rgb");
-    args.verify_length(0);
-
-    makeRgbCopy();
-
-    return Py::PythonClassObject<FT2Image>(_rgbCopy).getCxxObject()->py_as_str(args);
-}
-PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_rgb_str)
-
-void FT2Image::makeRgbaCopy()
-{
-    FT2Image* rgbaCopy;
-
-    if (!_isDirty)
-    {
-        return;
-    }
-
-    if (_rgbaCopy.isNone())
-    {
-        _rgbaCopy = factory(_width * 4, _height);
-        rgbaCopy = Py::PythonClassObject<FT2Image>(_rgbaCopy).getCxxObject();
-    }
-    else
-    {
-        rgbaCopy = Py::PythonClassObject<FT2Image>(_rgbaCopy).getCxxObject();
-        rgbaCopy->resize(_width * 4, _height);
-    }
-    unsigned char *src            = _buffer;
-    unsigned char *src_end        = src + (_width * _height);
-    unsigned char *dst            = rgbaCopy->_buffer;
-
-    while (src != src_end)
-    {
-        // We know the array has already been zero'ed out in
-        // the resize method, so we just skip over the r, g and b.
-        dst += 3;
-        *dst++ = *src++;
-    }
-}
-
-char FT2Image::as_rgba_str__doc__[] =
-    "width, height, s = image_as_rgb_str()\n"
-    "\n"
-    "Return the image buffer as a 32-bit RGBA string.\n"
-    "\n"
-    ;
-Py::Object
-FT2Image::py_as_rgba_str(const Py::Tuple & args)
-{
-    _VERBOSE("FT2Image::as_str_rgba");
-    args.verify_length(0);
-
-    makeRgbaCopy();
-
-    return Py::PythonClassObject<FT2Image>(_rgbaCopy).getCxxObject()->py_as_str(args);
-}
-PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_rgba_str)
-
 Py::Object
 FT2Image::py_get_width(const Py::Tuple & args)
 {
@@ -463,9 +349,9 @@ Py::PythonClassObject<Glyph> Glyph::factory(
     Py::Callable class_type(type());
     Py::PythonClassObject<Glyph> obj = Py::PythonClassObject<Glyph>(
         class_type.apply(Py::Tuple(), Py::Dict()));
-    Py_INCREF(obj.ptr());
     Glyph* o = obj.getCxxObject();
 
+    o->glyphInd = ind;
     FT_BBox bbox;
     FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_subpixels, &bbox);
 
@@ -1399,6 +1285,7 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
     size_t height = (string_bbox.yMax - string_bbox.yMin) / 64 + 2;
 
     image = FT2Image::factory(width, height);
+    FT2Image* image_cxx = Py::PythonClassObject<FT2Image>(image).getCxxObject();
 
     for (size_t n = 0; n < glyphs.size(); n++)
     {
@@ -1422,7 +1309,6 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
         FT_Int x = (FT_Int)(bitmap->left - (string_bbox.xMin / 64.));
         FT_Int y = (FT_Int)((string_bbox.yMax / 64.) - bitmap->top + 1);
 
-        FT2Image* image_cxx = Py::PythonClassObject<FT2Image>(image).getCxxObject();
         image_cxx->draw_bitmap(&bitmap->bitmap, x, y);
     }
 
@@ -1498,11 +1384,7 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args)
     _VERBOSE("FT2Font::draw_glyph_to_bitmap");
     args.verify_length(4);
 
-    if (!FT2Image::check(args[0].ptr()))
-    {
-        throw Py::TypeError("Usage: draw_glyph_to_bitmap(bitmap, x,y,glyph)");
-    }
-    FT2Image* im = static_cast<FT2Image*>(args[0].ptr());
+    FT2Image* im = Py::PythonClassObject<FT2Image>(args[0]).getCxxObject();
 
     double xd = Py::Float(args[1]);
     double yd = Py::Float(args[2]);
@@ -1512,13 +1394,9 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args)
     sub_offset.x = 0; // int((xd - (double)x) * 64.0);
     sub_offset.y = 0; // int((yd - (double)y) * 64.0);
 
-    if (!Glyph::check(args[3].ptr()))
-    {
-        throw Py::TypeError("Usage: draw_glyph_to_bitmap(bitmap, x,y,glyph)");
-    }
-    Glyph* glyph = static_cast<Glyph*>(args[3].ptr());
+    Glyph* glyph = Py::PythonClassObject<Glyph>(args[3]).getCxxObject();
 
-    if ((size_t)glyph->glyphInd >= glyphs.size())
+    if (glyph->glyphInd >= glyphs.size())
     {
         throw Py::ValueError("glyph num is out of range");
     }
@@ -2026,10 +1904,6 @@ FT2Image::init_type(void)
                              FT2Image::as_array__doc__);
     PYCXX_ADD_VARARGS_METHOD(as_str, py_as_str,
                              FT2Image::as_str__doc__);
-    PYCXX_ADD_VARARGS_METHOD(as_rgb_str, py_as_rgb_str,
-                             FT2Image::as_rgb_str__doc__);
-    PYCXX_ADD_VARARGS_METHOD(as_rgba_str, py_as_rgba_str,
-                             FT2Image::as_rgba_str__doc__);
     PYCXX_ADD_VARARGS_METHOD(get_width, py_get_width,
                              "Returns the width of the image");
     PYCXX_ADD_VARARGS_METHOD(get_height, py_get_height,
