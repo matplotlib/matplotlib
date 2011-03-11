@@ -61,11 +61,6 @@ public:
     Py::Object py_as_array(const Py::Tuple & args);
     static char as_str__doc__ [];
     Py::Object py_as_str(const Py::Tuple & args);
-    static char as_rgb_str__doc__ [];
-    Py::Object py_as_rgb_str(const Py::Tuple & args);
-    static char as_rgba_str__doc__ [];
-    Py::Object py_as_rgba_str(const Py::Tuple & args);
-
     Py::Object py_get_width(const Py::Tuple & args);
     Py::Object py_get_height(const Py::Tuple & args);
 
@@ -74,8 +69,6 @@ private:
     unsigned char *_buffer;
     unsigned long _width;
     unsigned long _height;
-    Py::Object _rgbCopy;
-    Py::Object _rgbaCopy;
 
     void makeRgbCopy();
     void makeRgbaCopy();
