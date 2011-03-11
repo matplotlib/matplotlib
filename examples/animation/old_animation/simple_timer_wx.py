@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 A simple example of an animated plot using a wx backend
 """
@@ -19,7 +20,7 @@ dt = 0.05
 def update_line(event):
     if update_line.i==200:
         return False
-    print 'update', update_line.i
+    print('update', update_line.i)
     line.set_ydata(np.sin(t+update_line.i/10.))
     fig.canvas.draw()                 # redraw the canvas
     update_line.i += 1

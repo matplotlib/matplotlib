@@ -1,12 +1,14 @@
 #!/usr/bin/env python
+
 """
 Show how to connect to keypress events
 """
+from __future__ import print_function
 import numpy as n
 from pylab import figure, show
 
 def press(event):
-    print 'press', event.key
+    print('press', event.key)
     if event.key=='x':
         visible = xl.get_visible()
         xl.set_visible(not visible)

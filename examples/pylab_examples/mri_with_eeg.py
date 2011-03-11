@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+
 """
 This now uses the imshow command instead of pcolor which *is much
 faster*
 """
-from __future__ import division
+from __future__ import division, print_function
 
 import numpy as np
 
@@ -15,8 +16,8 @@ import matplotlib.cbook as cbook
 if 1:   # load the data
     # data are 256x256 16 bit integers
     dfile = cbook.get_sample_data('s1045.ima', asfileobj=False)
-    print 'loading image', dfile
-    im = np.fromstring(file(dfile, 'rb').read(), np.uint16).astype(float)
+    print ('loading image %s' % dfile)
+    im = np.fromstring(open(dfile, 'rb').read(), np.uint16).astype(float)
     im.shape = 256, 256
 
 if 1: # plot the MRI in pcolor
@@ -40,8 +41,8 @@ if 1:   # plot the EEG
 
     numSamples, numRows = 800,4
     eegfile = cbook.get_sample_data('eeg.dat', asfileobj=False)
-    print 'loading eeg', eegfile
-    data = np.fromstring(file(eegfile, 'rb').read(), float)
+    print ('loading eeg %s' % eegfile)
+    data = np.fromstring(open(eegfile, 'rb').read(), float)
     data.shape = numSamples, numRows
     t = 10.0 * np.arange(numSamples, dtype=float)/numSamples
     ticklocs = []

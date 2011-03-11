@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 # For detailed comments on animation and the techniques used here, see
 # the wiki entry
 # http://www.scipy.org/wikis/topical_software/MatplotlibAnimation
@@ -30,7 +32,7 @@ canvas.draw()
 tstart = time.time()
 
 def update_line(*args):
-    print 'you are here', update_line.cnt
+    print('you are here', update_line.cnt)
     if update_line.background is None:
         update_line.background = canvas.copy_from_bbox(ax.bbox)
 
@@ -46,7 +48,7 @@ def update_line(*args):
 
     if update_line.cnt==1000:
         # print the timing info and quit
-        print 'FPS:' , 1000/(time.time()-tstart)
+        print('FPS:' , 1000/(time.time()-tstart))
         gtk.mainquit()
         raise SystemExit
 
