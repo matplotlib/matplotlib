@@ -34,7 +34,11 @@ extern "C"
 #endif
 }
 
-
+#if defined(_MSC_VER)
+#  define SIZE_T_FORMAT "%Iu"
+#else
+#  define SIZE_T_FORMAT "%zu"
+#endif
 
 typedef struct
 {
@@ -53,7 +57,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     // vars for blitting
     PyObject* bboxo;
 
-    unsigned long aggl, bboxl;
+    size_t aggl, bboxl;
     bool has_bbox;
     agg::int8u *destbuffer;
     double l, b, r, t;
@@ -83,7 +87,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
         return TCL_ERROR;
     }
     /* get array (or object that can be converted to array) pointer */
-    if (sscanf(argv[2], "%lu", &aggl) != 1)
+    if (sscanf(argv[2], SIZE_T_FORMAT, &aggl) != 1)
     {
         Tcl_AppendResult(interp, "error casting pointer", (char *) NULL);
         return TCL_ERROR;
@@ -109,7 +113,7 @@ PyAggImagePhoto(ClientData clientdata, Tcl_Interp* interp,
     }
 
     /* check for bbox/blitting */
-    if (sscanf(argv[4], "%lu", &bboxl) != 1)
+    if (sscanf(argv[4], SIZE_T_FORMAT, &bboxl) != 1)
     {
         Tcl_AppendResult(interp, "error casting pointer", (char *) NULL);
         return TCL_ERROR;
@@ -261,6 +265,7 @@ static PyMethodDef functions[] =
     {NULL, NULL} /* sentinel */
 };
 
+extern "C"
 #if PY3K
 static PyModuleDef _tkagg_module = {
     PyModuleDef_HEAD_INIT,
@@ -278,11 +283,12 @@ PyInit__tkagg(void)
 
     m = PyModule_Create(&_tkagg_module);
 
+    import_array();
+
     return m;
 }
 #else
-extern "C"
-    DL_EXPORT(void) init_tkagg(void)
+PyMODINIT_FUNC init_tkagg(void)
 {
     import_array();
 

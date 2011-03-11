@@ -1176,8 +1176,7 @@ class LocationEvent(Event):
             self._update_enter_leave()
             return
         elif (len(axes_list) > 1): # Overlap, get the highest zorder
-            axCmp = lambda _x,_y: cmp(_x.zorder, _y.zorder)
-            axes_list.sort(axCmp)
+            axes_list.sort(key=lambda x: x.zorder)
             self.inaxes = axes_list[-1] # Use the highest zorder
         else: # Just found one hit
             self.inaxes = axes_list[0]

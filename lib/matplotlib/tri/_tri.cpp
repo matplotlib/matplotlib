@@ -988,9 +988,10 @@ PyMODINIT_FUNC
 init_tri(void)
 #endif
 {
+    import_array();
+
     static TriModule* triModule = NULL;
     triModule = new TriModule();
-    import_array();
 
     #if PY_MAJOR_VERSION >= 3
     return triModule->module().ptr();

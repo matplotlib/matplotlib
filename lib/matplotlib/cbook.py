@@ -3,6 +3,7 @@ A collection of utility functions and classes.  Many (but not all)
 from the Python Cookbook -- hence the name cbook
 """
 from __future__ import print_function
+
 import re, os, errno, sys, io, traceback, locale, threading, types
 import time, datetime
 import warnings
@@ -14,14 +15,23 @@ import os.path
 import random
 import urllib2
 from functools import reduce
-if sys.version_info[0] >= 3:
-    import types
-else:
-    import new
-
-import matplotlib
 
 major, minor1, minor2, s, tmp = sys.version_info
+
+if major >= 3:
+    import types
+    import urllib.request
+    def addinfourl(data, headers, url, code=None):
+        return urllib.request.addinfourl(io.BytesIO(data),
+                                         headers, url, code)
+else:
+    import new
+    import urllib2
+    def addinfourl(data, headers, url, code=None):
+        return urllib2.addinfourl(io.StringIO(data),
+                                  headers, url, code)
+
+import matplotlib
 
 
 # On some systems, locale.getpreferredencoding returns None,
@@ -275,7 +285,7 @@ class CallbackRegistry:
         callbacks on *s* will be called with *\*args* and *\*\*kwargs*
         """
         self._check_signal(s)
-        for cid, proxy in self.callbacks[s].iteritems():
+        for cid, proxy in self.callbacks[s].items():
             # Clean out dead references
             if proxy.inst is not None and proxy.inst() is None:
                 del self.callbacks[s][cid]
@@ -571,7 +581,8 @@ class ViewVCCachedServer(urllib2.HTTPSHandler):
         if url in self.cache:
             _, etag, lastmod = self.cache[url]
             req.add_header("If-None-Match", etag)
-            req.add_header("If-Modified-Since", lastmod)
+            if lastmod:
+                req.add_header("If-Modified-Since", lastmod)
         return req
 
     def https_error_304(self, req, fp, code, msg, hdrs):
@@ -584,7 +595,7 @@ class ViewVCCachedServer(urllib2.HTTPSHandler):
             'ViewVCCachedServer: reading data file from cache file "%s"' %fn,
             'debug')
         file = open(fn, 'rb')
-        handle = urllib2.addinfourl(file, hdrs, url)
+        handle = addinfourl(file, hdrs, url)
         handle.code = 304
         return handle
 
@@ -599,9 +610,7 @@ class ViewVCCachedServer(urllib2.HTTPSHandler):
         else:
             data = response.read()
             self.cache_file(req.get_full_url(), data, response.headers)
-            result = urllib2.addinfourl(io.StringIO(data),
-                                        response.headers,
-                                        req.get_full_url())
+            result = addinfourl(data, response.headers, req.get_full_url())
             result.code = response.code
             result.msg = response.msg
             return result
@@ -620,10 +629,7 @@ class ViewVCCachedServer(urllib2.HTTPSHandler):
 
         # quote is not in python2.4, so check for it and get it from
         # urllib if it is not available
-        quote = getattr(urllib2, 'quote', None)
-        if quote is None:
-            import urllib
-            quote = urllib.quote
+        quote = urllib2.quote
 
         # retrieve the URL for the side effect of refreshing the cache
         url = self.baseurl + quote(fname)

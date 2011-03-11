@@ -727,7 +727,7 @@ static PyMethodDef delaunay_methods[] = {
 };
 
 #if PY_MAJOR_VERSION >= 3
-static PyModuleDef delaunay_module = {
+static struct PyModuleDef delaunay_module = {
     PyModuleDef_HEAD_INIT,
     "_delaunay",
     "Tools for computing the Delaunay triangulation and some operations on it.\n",
@@ -740,7 +740,7 @@ PyMODINIT_FUNC
 PyInit__delaunay(void)
 {
     PyObject* m;
-    // import_array():
+    import_array();
 
     m = PyModule_Create(&delaunay_module);
     if (m == NULL)

@@ -1,5 +1,3 @@
-/* -*- mode: c++; c-basic-offset: 4 -*- */
-
 #include "Python.h"
 #include <windows.h>
 
@@ -11,14 +9,14 @@ _GetForegroundWindow(PyObject *module, PyObject *args)
     {
         return NULL;
     }
-    return PyInt_FromLong((long) handle);
+    return PyLong_FromSize_t((size_t)handle);
 }
 
 static PyObject *
 _SetForegroundWindow(PyObject *module, PyObject *args)
 {
     HWND handle;
-    if (!PyArg_ParseTuple(args, "l:SetForegroundWindow", &handle))
+    if (!PyArg_ParseTuple(args, "n:SetForegroundWindow", &handle))
     {
         return NULL;
     }
@@ -38,7 +36,29 @@ static PyMethodDef _windowing_methods[] =
     {NULL, NULL}
 };
 
-extern "C" DL_EXPORT(void) init_windowing()
+#if PY_MAJOR_VERSION >= 3
+
+static struct PyModuleDef moduledef = {
+        PyModuleDef_HEAD_INIT,
+        "_windowing",
+        "",
+        -1,
+        _windowing_methods,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+};
+
+PyMODINIT_FUNC PyInit__windowing(void)
+{
+    PyObject *module = PyModule_Create(&moduledef);
+    return module;
+}
+
+#else
+PyMODINIT_FUNC init_windowing()
 {
     Py_InitModule("_windowing", _windowing_methods);
 }
+#endif

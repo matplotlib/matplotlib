@@ -4,13 +4,15 @@ financial data.   User contributions welcome!
 
 """
 #from __future__ import division
-import os, warnings
+import sys, os, warnings
 from urllib2 import urlopen
 
-try:
+if sys.version_info[0] < 3:
     from hashlib import md5
-except ImportError:
-    from md5 import md5 #Deprecated in 2.5
+else:
+    import hashlib
+    md5 = lambda x: hashlib.md5(x.encode())
+
 import datetime
 
 import numpy as np
@@ -177,7 +179,7 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None):
             os.mkdir(cachedir)
         urlfh = urlopen(url)
 
-        fh = open(cachename, 'w')
+        fh = open(cachename, 'wb')
         fh.write(urlfh.read())
         fh.close()
         verbose.report('Saved %s data to cache file %s'%(ticker, cachename))

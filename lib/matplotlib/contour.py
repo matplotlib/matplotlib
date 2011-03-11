@@ -12,7 +12,7 @@ import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
 import matplotlib.colors as colors
-import matplotlib.collections as collections
+import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
 import matplotlib.cbook as cbook
@@ -703,9 +703,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 ncolors -= 1
             cmap = colors.ListedColormap(self.colors, N=ncolors)
         if self.filled:
-            self.collections = cbook.silent_list('collections.PathCollection')
+            self.collections = cbook.silent_list('mcoll.PathCollection')
         else:
-            self.collections = cbook.silent_list('collections.LineCollection')
+            self.collections = cbook.silent_list('mcoll.LineCollection')
         # label lists must be initialized here
         self.labelTexts = []
         self.labelCValues = []
@@ -734,7 +734,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 paths = self._make_paths(segs, kinds)
                 # Default zorder taken from Collection
                 zorder = kwargs.get('zorder', 1)
-                col = collections.PathCollection(paths,
+                col = mcoll.PathCollection(paths,
                                      antialiaseds = (self.antialiased,),
                                      edgecolors= 'none',
                                      alpha=self.alpha,
@@ -752,7 +752,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
                 # Default zorder taken from LineCollection
                 zorder = kwargs.get('zorder', 2)
-                col = collections.LineCollection(segs,
+                col = mcoll.LineCollection(segs,
                                      antialiaseds = aa,
                                      linewidths = width,
                                      linestyle = lstyle,
