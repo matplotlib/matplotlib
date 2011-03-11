@@ -2330,6 +2330,7 @@ class Parser(object):
                         str(err)]))
         self._state_stack = None
         self._em_width_cache = {}
+        self._expression.resetCache()
         return result[0]
 
     # The state of the parser is maintained in a stack.  Upon
@@ -2920,11 +2921,10 @@ class MathTextParser(object):
         if prop is None:
             prop = FontProperties()
 
-        if sys.version_info[0] < 3:
-            cacheKey = (s, dpi, hash(prop))
-            result = self._cache.get(cacheKey)
-            if result is not None:
-                return result
+        cacheKey = (s, dpi, hash(prop))
+        result = self._cache.get(cacheKey)
+        if result is not None:
+            return result
 
         if self._output == 'ps' and rcParams['ps.useafm']:
             font_output = StandardPsFonts(prop)
@@ -2948,12 +2948,9 @@ class MathTextParser(object):
 
         box = self._parser.parse(s, font_output, fontsize, dpi)
         font_output.set_canvas_size(box.width, box.height, box.depth)
-        if sys.version_info[0] >= 3:
-            return font_output.get_results(box)
-        else:
-            result = font_output.get_results(box)
-            self._cache[cacheKey] = result
-            return result
+        result = font_output.get_results(box)
+        self._cache[cacheKey] = result
+        return result
 
     def to_mask(self, texstr, dpi=120, fontsize=14):
         """
