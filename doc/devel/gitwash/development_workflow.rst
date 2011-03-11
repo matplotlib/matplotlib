@@ -29,14 +29,14 @@ Making a new feature branch
 
 ::
 
-   git branch my-new-feature
-   git checkout my-new-feature
+   git checkout -b my-new-feature master
 
-This will create a feature branch based on ``master``.  To create a
-feature branch based on a maintenance branch, use::
+This will create and immediately check out a feature branch based on
+``master``.  To create a feature branch based on a maintenance branch,
+use::
 
-   git branch my-new-feature remotes/origin/v1.0.x
-   git checkout my-new-feature
+   git fetch origin
+   git checkout -b my-new-feature origin/v1.0.x
 
 Generally, you will want to keep this also on your public github_ fork
 of matplotlib_.  To do this, you `git push`_ this new branch up to your github_
@@ -54,7 +54,8 @@ using the ``--set-upstream`` option::
    git push --set-upstream origin my-new-feature
 
 and then next time you need to push changes to your branch a simple
-``git push`` will suffice.
+``git push`` will suffice. Note that ``git push`` pushes out all
+branches that are linked to a remote branch.
 
 The editing workflow
 ====================
@@ -168,7 +169,7 @@ Overview
    # pull changes from github
    git fetch upstream
    # merge from upstream
-   git merge upstream/master
+   git merge --ff-only upstream/master
 
 In detail
 ---------
@@ -188,15 +189,84 @@ the upstream repo to a copy on your local machine::
 
 then merging into your current branch::
 
-   git merge upstream/master
+   git merge --ff-only upstream/master
+
+The ``--ff-only`` option guarantees that if you have mistakenly
+committed code on your ``master`` branch, the merge fails at this point.
+If you were to merge ``upstream/master`` to your ``master``, you
+would start to diverge from the upstream. If this command fails, see
+the section on accidents_.
 
 .. Doesn't one then need to push this up to the private repository? I
 .. have multiple machines I use for development, and I don't want to
 .. have to do this on all of them - MGD
 
+.. Not really; does the paragraph below explain this enough? - JKS
+
+The letters 'ff' in ``--ff-only`` mean 'fast forward', which is a
+special case of merge where git can simply update your branch to point
+to the other branch and not do any actual merging of files. For
+``master`` and other integration branches this is exactly what you
+want.
+
 .. Does this need to be done for each maintenance branch as well?
 .. This doesn't seem to be sufficient to pull in changes on an
 .. upstream maintenance branch. - MGD
+
+.. Does the section below answer this? - JKS
+
+Other integration branches
+--------------------------
+
+Some people like to keep separate local branches corresponding to the
+maintenance branches on github. At the time of this writing, ``v1.0.x``
+is the active maintenance branch. If you have such a local branch,
+treat is just as ``master``: don't commit on it, and before starting
+new branches off of it, update it from upstream::
+
+   git checkout v1.0.x
+   git fetch upstream
+   git merge --ff-only upstream/v1.0.x
+
+But you don't necessarily have to have such a branch. Instead, if you
+are preparing a bugfix that applies to the maintenance branch, fetch
+from upstream and base your bugfix on the remote branch;:
+
+   git fetch upstream
+   git checkout -b my-bug-fix upstream/v1.0.x
+
+.. _accidents:
+
+Recovering from accidental commits on master
+--------------------------------------------
+
+If you have accidentally committed changes on ``master`` and
+``git merge --ff-only`` fails, don't panic! First find out how much
+you have diverged::
+
+   git diff upstream/master...master
+
+If you find that you want simply to get rid of the changes, reset
+your ``master`` branch to the upstream version::
+
+   git reset --hard upstream/master
+
+As you might surmise from the words 'reset' and 'hard', this command
+actually causes your changes to the current branch to be lost, so
+think twice.
+
+If, on the other hand, you find that you want to preserve the changes,
+create a feature branch for them::
+
+   git checkout -b my-important-changes
+
+Now ``my-important-changes`` points to the branch that has your
+changes, and you can safely reset ``master`` as above |emdash| but
+make sure to reset the correct branch::
+
+   git checkout master
+   git reset --hard upstream/master
+
 
 Deleting a branch on github_
 ============================
