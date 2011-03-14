@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from matplotlib.axes import Axes
 from matplotlib import cbook
 from matplotlib.patches import Circle
@@ -280,7 +281,7 @@ class HammerAxes(Axes):
         else:
             ew = 'W'
         # \u00b0 : degree symbol
-        return u'%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(long), ew)
+        return '%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(long), ew)
 
     class DegreeFormatter(Formatter):
         """
@@ -294,7 +295,7 @@ class HammerAxes(Axes):
             degrees = (x / np.pi) * 180.0
             degrees = round(degrees / self._round_to) * self._round_to
             # \u00b0 : degree symbol
-            return u"%d\u00b0" % degrees
+            return "%d\u00b0" % degrees
 
     def set_longitude_grid(self, degrees):
         """
