@@ -15,7 +15,7 @@ zs = [0.0, 1.0, 2.0, 3.0]
 for z in zs:
     ys = np.random.rand(len(xs))
     ys[0], ys[-1] = 0, 0
-    verts.append(zip(xs, ys))
+    verts.append(list(zip(xs, ys)))
 
 poly = PolyCollection(verts, facecolors = [cc('r'), cc('g'), cc('b'),
                                            cc('y')])
