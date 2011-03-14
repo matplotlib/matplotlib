@@ -4,7 +4,7 @@ variety of line styles, markers and colors.
 """
 
 # TODO: expose cap and join style attrs
-from __future__ import division
+from __future__ import division, print_function
 
 import numpy as np
 from numpy import ma

@@ -20,7 +20,7 @@ The location codes are
 Return value is a sequence of text, line instances that make
 up the legend
 """
-from __future__ import division
+from __future__ import division, print_function
 import warnings
 
 import numpy as np

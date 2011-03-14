@@ -29,6 +29,7 @@ The backends are not expected to handle non-affine transformations
 themselves.
 """
 
+from __future__ import print_function
 import numpy as np
 from numpy import ma
 from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,

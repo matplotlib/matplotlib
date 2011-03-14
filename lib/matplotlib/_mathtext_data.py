@@ -13,6 +13,7 @@ items.sort()
 for charcode, glyphind in items:
     print charcode, glyphind
 """
+from __future__ import print_function
 
 latex_to_bakoma = {
     r'\oint'                     : ('cmex10',  45),

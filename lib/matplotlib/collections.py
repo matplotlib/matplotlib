@@ -8,6 +8,7 @@ counterparts (e.g. you may not be able to select all line styles) but
 they are meant to be fast for common use cases (e.g. a large set of solid
 line segemnts)
 """
+from __future__ import print_function
 import warnings
 import numpy as np
 import numpy.ma as ma

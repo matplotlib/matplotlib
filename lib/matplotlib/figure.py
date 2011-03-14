@@ -11,6 +11,7 @@ contains all the plot elements.  The following classes are defined
 
 
 """
+from __future__ import print_function
 import numpy as np
 
 import artist

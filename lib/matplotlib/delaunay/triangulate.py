@@ -1,3 +1,4 @@
+from __future__ import print_function
 import warnings
 # 2.3 compatibility
 try:

@@ -48,6 +48,7 @@ are in the range [0,1].
 Finally, legal html names for colors, like 'red', 'burlywood' and
 'chartreuse' are supported.
 """
+from __future__ import print_function
 import re
 import numpy as np
 from numpy import ma

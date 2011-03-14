@@ -1,4 +1,3 @@
-
 """
 Abstract base classes define the primitives that renderers and
 graphics contexts must implement to serve as a matplotlib backend
