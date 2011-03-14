@@ -13,6 +13,7 @@ is recommended that the namespaces be kept separate, e.g.::
     plt.plot(x, y)
 
 """
+from __future__ import print_function
 
 import sys
 
@@ -1133,7 +1134,7 @@ def xscale(*args, **kwargs):
     ax = gca()
     ax.set_xscale(*args, **kwargs)
     draw_if_interactive()
-    
+
 @docstring.dedent_interpd
 def yscale(*args, **kwargs):
     """
@@ -1150,7 +1151,7 @@ def yscale(*args, **kwargs):
     ax = gca()
     ax.set_yscale(*args, **kwargs)
     draw_if_interactive()
-    
+
 def xticks(*args, **kwargs):
     """
     Set/Get the xlimits of the current ticklocs and labels::

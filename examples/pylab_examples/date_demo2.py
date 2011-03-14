@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+
 """
 Show how to make date plots in matplotlib using date tick locators and
 formatters.  See major_minor_demo1.py for more information on
 controlling major and minor ticks
 """
+from __future__ import print_function
 import datetime
 from pylab import figure, show
 from matplotlib.dates import MONDAY, SATURDAY
@@ -24,7 +26,7 @@ monthsFmt = DateFormatter("%b '%y")
 
 quotes = quotes_historical_yahoo('INTC', date1, date2)
 if len(quotes) == 0:
-    print 'Found no quotes'
+    print ('Found no quotes')
     raise SystemExit
 
 dates = [q[0] for q in quotes]

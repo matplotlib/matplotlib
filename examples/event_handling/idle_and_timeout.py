@@ -1,3 +1,4 @@
+from __future__ import print_function
 """
 Demonstrate/test the idle and timeout API
 
@@ -18,7 +19,7 @@ line2, = ax.plot(y2)
 N = 100
 def on_idle(event):
     on_idle.count +=1
-    print 'idle', on_idle.count
+    print('idle', on_idle.count)
     line1.set_ydata(np.sin(2*np.pi*t*(N-on_idle.count)/float(N)))
     event.canvas.draw()
     # test boolean return removal

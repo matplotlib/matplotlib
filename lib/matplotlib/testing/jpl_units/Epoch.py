@@ -4,11 +4,13 @@
 #
 #===========================================================================
 
+
 """Epoch module."""
 
 #===========================================================================
 # Place all imports after here.
 #
+from __future__ import print_function
 import math
 import datetime as DT
 from matplotlib.dates import date2num
@@ -40,8 +42,8 @@ class Epoch:
 
       or using a matplotlib day number
       #   Epoch( 'ET', daynum=730119.5 )
-      
-      
+
+
       = ERROR CONDITIONS
       - If the input units are not in the allowed list, an error is thrown.
 
@@ -64,7 +66,7 @@ class Epoch:
                "Sec = %s\nJD  = %s\ndnum= %s\ndt  = %s" \
                % ( str( sec ), str( jd ), str( daynum ), str( dt ) )
          raise ValueError( msg )
-      
+
       if frame not in self.allowed:
          msg = "Input frame '%s' is not one of the supported frames of %s" \
                % ( frame, str( self.allowed.keys() ) )
@@ -80,7 +82,7 @@ class Epoch:
          jd = float( daynum ) + 1721425.5
          self._jd = math.floor( jd )
          self._seconds = ( jd - self._jd ) * 86400.0
-         
+
       else:
          self._seconds = float( sec )
          self._jd = float( jd )
@@ -110,13 +112,13 @@ class Epoch:
          t = self.convert( frame )
 
       return t._jd + t._seconds / 86400.0
-   
+
    #-----------------------------------------------------------------------
    def secondsPast( self, frame, jd ):
       t = self
       if frame != self._frame:
          t = self.convert( frame )
-         
+
       delta = t._jd - jd
       return t._seconds + delta * 86400
 
@@ -138,7 +140,7 @@ class Epoch:
          return cmp( t._jd, rhs._jd )
 
       return cmp( t._seconds, rhs._seconds )
-      
+
    #-----------------------------------------------------------------------
    def __add__( self, rhs ):
       """Add a duration to an Epoch.
@@ -156,7 +158,7 @@ class Epoch:
       sec = t._seconds + rhs.seconds()
 
       return Epoch( t._frame, sec, t._jd )
-      
+
    #-----------------------------------------------------------------------
    def __sub__( self, rhs ):
       """Subtract two Epoch's or a Duration from an Epoch.
@@ -178,7 +180,7 @@ class Epoch:
       # Handle Epoch - Duration
       if isinstance( rhs, U.Duration ):
          return self + -rhs
-      
+
       t = self
       if self._frame != rhs._frame:
          t = self.convert( rhs._frame )
@@ -187,17 +189,17 @@ class Epoch:
       sec = t._seconds - rhs._seconds
 
       return U.Duration( rhs._frame, days*86400 + sec )
-      
+
    #-----------------------------------------------------------------------
    def __str__( self ):
       """Print the Epoch."""
       return "%22.15e %s" % ( self.julianDate( self._frame ), self._frame )
-      
+
    #-----------------------------------------------------------------------
    def __repr__( self ):
       """Print the Epoch."""
       return str( self )
-      
+
    #-----------------------------------------------------------------------
    def range( start, stop, step ):
       """Generate a range of Epoch objects.
@@ -205,12 +207,12 @@ class Epoch:
       Similar to the Python range() method.  Returns the range [
       start, stop ) at the requested step.  Each element will be a
       Epoch object.
-      
+
       = INPUT VARIABLES
-      - start    The starting value of the range.  
-      - stop     The stop value of the range.  
-      - step     Step to use.  
-                 
+      - start    The starting value of the range.
+      - stop     The stop value of the range.
+      - step     Step to use.
+
       = RETURN VALUE
       - Returns a list contianing the requested Epoch values.
       """

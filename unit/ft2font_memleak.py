@@ -1,6 +1,7 @@
 """
 This appears to be obsolete as of 2009/02/24; a key import fails.
 """
+from __future__ import print_function
 import sys, time, os
 from numpy.random import rand
 from matplotlib.ft2font import FT2Font
@@ -11,7 +12,7 @@ fname = '/usr/local/share/matplotlib/Vera.ttf'
 def report_memory(i):
     pid = os.getpid()
     a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
-    print i, '  ', a2[1],
+    print(i, '  ', a2[1], end='')
     return int(a2[1].split()[0])
 
 fname = '/usr/local/share/matplotlib/Vera.ttf'
@@ -32,6 +33,6 @@ for i in range(N):
     if i==1: start = val
 
 end = val
-print 'Average memory consumed per loop: %1.4f\n' % ((end-start)/float(N))
+print('Average memory consumed per loop: %1.4f\n' % ((end-start)/float(N)))
 
 # Average memory consumed per loop: 0.09

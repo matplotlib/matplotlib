@@ -1,3 +1,4 @@
+from __future__ import print_function
 from matplotlib.backends import _tkagg
 import Tkinter as Tk
 

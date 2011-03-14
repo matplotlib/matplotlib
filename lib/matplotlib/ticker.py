@@ -116,8 +116,7 @@ major an minor ticks.  See the :mod:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """
 
-
-from __future__ import division
+from __future__ import division, print_function
 import decimal
 import math
 import numpy as np

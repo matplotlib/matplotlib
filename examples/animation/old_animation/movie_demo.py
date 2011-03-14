@@ -15,6 +15,8 @@
 # the script to suit your own needs.
 #
 
+from __future__ import print_function
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt   # For plotting graphs.
@@ -28,9 +30,9 @@ import sys                        # For determining the Python version.
 # Python interpreter, and matplotlib.  The version of
 # Mencoder is printed when it is called.
 #
-print 'Executing on', os.uname()
-print 'Python version', sys.version
-print 'matplotlib version', matplotlib.__version__
+print('Executing on', os.uname())
+print('Python version', sys.version)
+print('matplotlib version', matplotlib.__version__)
 
 not_found_msg = """
 The mencoder command was not found;
@@ -42,7 +44,7 @@ legal restrictions, but it is widely available.
 try:
     subprocess.check_call(['mencoder'])
 except subprocess.CalledProcessError:
-    print "mencoder command was found"
+    print("mencoder command was found")
     pass # mencoder is found, but returns non-zero exit as expected
     # This is a quick and dirty check; it leaves some spurious output
     # for the user to puzzle over.
@@ -61,7 +63,7 @@ except OSError:
 # distributed Gaussian noise at each time step.
 #
 
-print 'Initializing data set...'   # Let the user know what's happening.
+print('Initializing data set...')   # Let the user know what's happening.
 
 # Initialize variables needed to create and store the example data set.
 numberOfTimeSteps = 100   # Number of frames we want in the movie.
@@ -78,7 +80,7 @@ for i in range(numberOfTimeSteps) :
     mean = mean + meaninc
     stddev = stddev + stddevinc
 
-print 'Done.'                       # Let the user know what's happening.
+print('Done.')                       # Let the user know what's happening.
 
 #
 # Now that we have an example data set (x,y) to work with, we can
@@ -113,7 +115,7 @@ for i in range(len(y)) :
     #
     # Let the user know what's happening.
     #
-    print 'Wrote file', filename
+    print('Wrote file', filename)
 
     #
     # Clear the figure to make way for the next image.
@@ -147,10 +149,10 @@ command = ('mencoder',
 
 #os.spawnvp(os.P_WAIT, 'mencoder', command)
 
-print "\n\nabout to execute:\n%s\n\n" % ' '.join(command)
+print("\n\nabout to execute:\n%s\n\n" % ' '.join(command))
 subprocess.check_call(command)
 
-print "\n\n The movie was written to 'output.avi'"
+print("\n\n The movie was written to 'output.avi'")
 
-print "\n\n You may want to delete *.png now.\n\n"
+print("\n\n You may want to delete *.png now.\n\n")
 

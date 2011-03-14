@@ -18,6 +18,7 @@ and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 '''
+from __future__ import print_function
 import warnings
 
 import numpy as np

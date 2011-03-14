@@ -1,8 +1,10 @@
 #=======================================================================
+
 """ A set of utilities for comparing results.
 """
 #=======================================================================
 
+from __future__ import print_function
 import matplotlib
 from matplotlib.testing.noseclasses import ImageComparisonFailure
 from matplotlib.testing import image_util

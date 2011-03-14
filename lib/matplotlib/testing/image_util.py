@@ -2,6 +2,7 @@
 # Library, that has been ported to use Numpy arrays rather than PIL
 # Image objects.
 
+
 # The Python Imaging Library is
 
 # Copyright (c) 1997-2009 by Secret Labs AB
@@ -28,6 +29,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+from __future__ import print_function
 import numpy as np
 
 # TODO: Vectorize this

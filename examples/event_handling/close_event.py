@@ -1,7 +1,8 @@
+from __future__ import print_function
 import matplotlib.pyplot as plt
 
 def handle_close(evt):
-    print 'Closed Figure!'
+    print('Closed Figure!')
 
 fig = plt.figure()
 fig.canvas.mpl_connect('close_event', handle_close)

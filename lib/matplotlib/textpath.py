@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import urllib
 from matplotlib.path import Path
 import matplotlib.font_manager as font_manager
