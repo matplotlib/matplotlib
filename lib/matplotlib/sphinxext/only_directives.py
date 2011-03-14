@@ -3,6 +3,7 @@
 # either html or latex.
 #
 
+from __future__ import print_function
 from docutils.nodes import Body, Element
 from docutils.parsers.rst import directives
 

@@ -1,3 +1,4 @@
+from __future__ import division, print_function
 import numpy as np
 import matplotlib
 import matplotlib.colors as colors
@@ -75,7 +76,7 @@ class MenuItem(artist.Artist):
             self.on_select(self)
 
     def set_extent(self, x, y, w, h):
-        print x, y, w, h
+        print(x, y, w, h)
         self.rect.set_x(x)
         self.rect.set_y(y)
         self.rect.set_width(w)
@@ -171,7 +172,7 @@ hoverprops = ItemProperties(labelcolor='white', bgcolor='blue',
 menuitems = []
 for label in ('open', 'close', 'save', 'save as', 'quit'):
     def on_select(item):
-        print 'you selected', item.labelstr
+        print('you selected %s' % item.labelstr)
     item = MenuItem(fig, label, props=props, hoverprops=hoverprops,
                     on_select=on_select)
     menuitems.append(item)

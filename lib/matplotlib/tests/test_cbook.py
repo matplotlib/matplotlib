@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import matplotlib.cbook as cbook
 from nose.tools import assert_equal

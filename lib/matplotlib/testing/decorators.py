@@ -1,3 +1,4 @@
+from __future__ import print_function
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
 import os, sys, shutil

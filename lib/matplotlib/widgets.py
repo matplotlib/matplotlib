@@ -7,6 +7,7 @@ layout -- you have to figure out how wide and tall you want your Axes
 to be to accommodate your widget.
 """
 
+from __future__ import print_function
 import numpy as np
 
 from mlab import dist

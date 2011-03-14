@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # try plotting very large numbers
 
+from __future__ import print_function
+
 from pylab import *
 x = arange(1000) + 2**32
 

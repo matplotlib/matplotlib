@@ -3,8 +3,8 @@ A collection of modules for collecting, analyzing and plotting
 financial data.   User contributions welcome!
 
 """
-#from __future__ import division
-import sys, os, warnings
+from __future__ import division, print_function
+import os, sys, warnings
 from urllib2 import urlopen
 
 if sys.version_info[0] < 3:

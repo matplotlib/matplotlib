@@ -42,6 +42,7 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
+from __future__ import print_function
 import os, sys, glob, subprocess, warnings
 try:
     set

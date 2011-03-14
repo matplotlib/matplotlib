@@ -1,4 +1,5 @@
 # -*- coding: iso-8859-1 -*-
+
 """
 A PDF matplotlib backend (not yet complete)
 Author: Jouni K Seppänen <jks@iki.fi>

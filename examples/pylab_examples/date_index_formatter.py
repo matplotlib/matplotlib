@@ -8,6 +8,7 @@ to simply use the integer index for the xdata and a custom tick
 Formatter to get the appropriate date string for a given index.
 """
 
+from __future__ import print_function
 import numpy
 from matplotlib.mlab import csv2rec
 from pylab import figure, show
@@ -15,7 +16,7 @@ import matplotlib.cbook as cbook
 from matplotlib.ticker import Formatter
 
 datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
-print 'loading', datafile
+print ('loading %s' % datafile)
 r = csv2rec(datafile)[-40:]
 
 class MyFormatter(Formatter):

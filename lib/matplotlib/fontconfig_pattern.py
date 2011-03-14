@@ -19,6 +19,7 @@ information.
 # dependency problems, or an undesired dependency on traits even
 # when the traits-based config framework is not used.
 
+from __future__ import print_function
 import re, sys
 if sys.version_info[0] >= 3:
     from matplotlib.pyparsing_py3 import Literal, ZeroOrMore, \

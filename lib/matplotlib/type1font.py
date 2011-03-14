@@ -22,6 +22,7 @@ Sources:
   v1.1, 1993. ISBN 0-201-57044-0.
 """
 
+from __future__ import print_function
 import matplotlib.cbook as cbook
 import io
 import itertools

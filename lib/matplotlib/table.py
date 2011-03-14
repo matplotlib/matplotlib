@@ -19,7 +19,7 @@ Copyright : 2004 John Gill and John Hunter
 License   : matplotlib license
 
 """
-from __future__ import division
+from __future__ import division, print_function
 import warnings
 
 import artist

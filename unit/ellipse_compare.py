@@ -1,6 +1,7 @@
 """
 Compare the ellipse generated with arcs versus a polygonal approximation
 """
+from __future__ import print_function
 import numpy as npy
 from matplotlib import patches
 from pylab import figure, show

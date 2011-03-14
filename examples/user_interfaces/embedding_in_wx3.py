@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 """
 Copyright (C) 2003-2004 Andrew Straw, Jeremy O'Donoghue and others
 
@@ -18,6 +19,7 @@ This was derived from embedding_in_wx and dynamic_image_wxagg.
 Thanks to matplotlib and wx teams for creating such great software!
 
 """
+from __future__ import print_function
 
 # Used to guarantee to use at least Wx2.8
 import wxversion
@@ -103,7 +105,7 @@ class PlotPanel(wx.Panel):
 class MyApp(wx.App):
     def OnInit(self):
         xrcfile = cbook.get_sample_data('embedding_in_wx3.xrc', asfileobj=False)
-        print 'loading', xrcfile
+        print('loading', xrcfile)
 
         self.res = xrc.XmlResource(xrcfile)
 

@@ -1,12 +1,13 @@
+from __future__ import print_function
 from matplotlib import mlab
 from pylab import figure, show
 import matplotlib.cbook as cbook
 
 datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
-print 'loading', datafile
+print('loading', datafile)
 a = mlab.csv2rec(datafile)
 a.sort()
-print a.dtype
+print(a.dtype)
 
 fig = figure()
 ax = fig.add_subplot(111)

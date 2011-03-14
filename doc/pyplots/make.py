@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
 import sys, os, glob
 import matplotlib
 import IPython.Shell
@@ -12,7 +14,7 @@ formats = [('png', 100),
            ('pdf', 72)]
 
 def figs():
-    print 'making figs'
+    print('making figs')
     import matplotlib.pyplot as plt
     for fname in glob.glob('*.py'):
         if fname.split('/')[-1] == __file__.split('/')[-1]: continue
@@ -26,9 +28,9 @@ def figs():
                 break
 
         if all_exists:
-            print '    already have %s'%fname
+            print('    already have %s'%fname)
         else:
-            print '    building %s'%fname
+            print('    building %s'%fname)
             plt.close('all')    # we need to clear between runs
             mplshell.magic_run(basename)
             for imagefile, dpi in imagefiles.iteritems():
@@ -37,7 +39,7 @@ def figs():
                 # iles preventing them from getting built successfully
                 # later
                 plt.savefig(imagefile, dpi=dpi)
-    print 'all figures made'
+    print('all figures made')
 
 
 def clean():
@@ -46,7 +48,7 @@ def clean():
     for pattern in patterns:
         for fname in glob.glob(pattern):
             os.remove(fname)
-    print 'all clean'
+    print('all clean')
 
 
 

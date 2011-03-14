@@ -1,8 +1,10 @@
 #!/usr/bin/env python
+
 """
 Another broken test...
 """
 
+from __future__ import print_function
 import os, sys, time
 import matplotlib.nxutils as nxutils
 from numpy.random import rand
@@ -10,7 +12,7 @@ from numpy.random import rand
 def report_memory(i):
     pid = os.getpid()
     a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
-    print i, '  ', a2[1],
+    print(i, '  ', a2[1], end='')
     return int(a2[1].split()[1])
 
 

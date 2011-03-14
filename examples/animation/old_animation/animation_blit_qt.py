@@ -1,6 +1,8 @@
 # For detailed comments on animation and the techniqes used here, see
 # the wiki entry http://www.scipy.org/Cookbook/Matplotlib/Animations
 
+from __future__ import print_function
+
 import os, sys
 import matplotlib
 matplotlib.use('QtAgg') # qt3 example
@@ -47,7 +49,7 @@ class BlitQT(QObject):
 
         if self.cnt==ITERS:
             # print the timing info and quit
-            print 'FPS:' , ITERS/(time.time()-self.tstart)
+            print('FPS:', ITERS/(time.time()-self.tstart))
             sys.exit()
 
         else:

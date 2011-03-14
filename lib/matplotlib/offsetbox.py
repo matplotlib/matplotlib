@@ -15,6 +15,7 @@ width and height of the its child text.
 """
 
 
+from __future__ import print_function
 import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
 import matplotlib.text as mtext

@@ -4,8 +4,10 @@
 # Licensed under the terms of the MIT License
 # see the mpl licenses directory for a copy of the license
 
+
 """Module that provides a GUI-based editor for matplotlib's figure options"""
 
+from __future__ import print_function
 import os.path as osp
 
 import matplotlib.backends.qt4_editor.formlayout as formlayout

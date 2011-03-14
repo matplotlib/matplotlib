@@ -1,4 +1,5 @@
 # -*- encoding: utf-8 -*-
+
 """
 Test the PDF backend with the option use14corefonts=True.
 
@@ -16,6 +17,7 @@ As a workaround, please reset the font cache by deleting
 use14corefonts.
 """
 
+from __future__ import print_function, unicode_literals
 from matplotlib import rcParams
 
 rcParams['backend'] = 'pdf'
@@ -26,9 +28,9 @@ rcParams['font.sans-serif'] = ['Helvetica']
 
 import pylab
 
-title = u'Test PDF backend with option use14corefonts=True'
+title = 'Test PDF backend with option use14corefonts=True'
 
-text = u'''A three-line text positioned just above a blue line
+text = '''A three-line text positioned just above a blue line
 and containing some French characters and the euro symbol:
 "Merci pépé pour les 10 €"'''
 
