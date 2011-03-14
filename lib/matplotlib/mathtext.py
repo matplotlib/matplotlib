@@ -17,7 +17,7 @@ metrics for those fonts.
 If you find TeX expressions that don't parse or render properly,
 please email mdroe@stsci.edu, but please check KNOWN ISSUES below first.
 """
-from __future__ import division
+from __future__ import division, print_function
 import os, sys
 if sys.version_info[0] >= 3:
     from io import StringIO

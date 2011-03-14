@@ -2,7 +2,7 @@
 A module providing some utility functions regarding bezier path manipulation.
 """
 
-
+from __future__ import print_function
 import numpy as np
 from math import sqrt
 

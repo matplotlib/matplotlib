@@ -1,7 +1,7 @@
 """
 Classes for including text in a figure.
 """
-from __future__ import division
+from __future__ import division, print_function
 import math
 
 import numpy as np

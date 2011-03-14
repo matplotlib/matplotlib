@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys, os, shutil, imp, warnings, cStringIO, re
 
 import IPython

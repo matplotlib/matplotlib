@@ -66,6 +66,7 @@ configuration file, use::
     import plot_directive
     warnings.simplefilter('error', plot_directive.PlotWarning)
 """
+from __future__ import print_function
 
 import sys, os, shutil, imp, warnings, cStringIO, re
 try:

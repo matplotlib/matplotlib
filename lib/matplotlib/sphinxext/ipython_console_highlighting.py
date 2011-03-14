@@ -4,6 +4,7 @@ XXX - See what improvements can be made based on the new (as of Sept 2009)
 'pycon' lexer for the python console.  At the very least it will give better
 highlighted tracebacks.
 """
+from __future__ import print_function
 
 #-----------------------------------------------------------------------------
 # Needed modules
@@ -13,7 +14,7 @@ import re
 
 # Third party
 from pygments.lexer import Lexer, do_insertions
-from pygments.lexers.agile import (PythonConsoleLexer, PythonLexer, 
+from pygments.lexers.agile import (PythonConsoleLexer, PythonLexer,
                                    PythonTracebackLexer)
 from pygments.token import Comment, Generic
 
@@ -48,7 +49,7 @@ class IPythonConsoleLexer(Lexer):
 
       - It assumes the default IPython prompts, not customized ones.
     """
-    
+
     name = 'IPython console session'
     aliases = ['ipython']
     mimetypes = ['text/x-ipython-console']

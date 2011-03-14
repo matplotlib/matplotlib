@@ -1,4 +1,3 @@
-from __future__ import division
 """
 
  backend_wxagg.py
@@ -16,6 +15,7 @@ from __future__ import division
 
 """
 
+from __future__ import division, print_function
 import matplotlib
 from matplotlib.figure import Figure
 

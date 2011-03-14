@@ -3,7 +3,7 @@ A collection of modules for collecting, analyzing and plotting
 financial data.   User contributions welcome!
 
 """
-#from __future__ import division
+from __future__ import division, print_function
 import os, warnings
 from urllib2 import urlopen
 
