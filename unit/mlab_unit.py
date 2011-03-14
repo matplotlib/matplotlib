@@ -1,3 +1,4 @@
+from __future__ import print_function
 import datetime, StringIO, unittest
 import matplotlib.mlab as mlab
 import numpy
@@ -40,9 +41,9 @@ class TestMlab(unittest.TestCase):
         mlab.rec2csv( ra, fh )
         fh.seek(0)
         if 0:
-            print 'CSV contents:','-'*40
-            print fh.read()
-            print '-'*40
+            print('CSV contents:','-'*40)
+            print(fh.read())
+            print('-'*40)
             fh.seek(0)
         ra2 = mlab.csv2rec(fh)
         fh.close()
@@ -50,9 +51,9 @@ class TestMlab(unittest.TestCase):
         #print 'ra2', ra2
         for name in ra.dtype.names:
             if 0:
-                print name, repr(ra[name]), repr(ra2[name])
+                print(name, repr(ra[name]), repr(ra2[name]))
                 dt = ra.dtype[name]
-                print 'repr(dt.type)',repr(dt.type)
+                print('repr(dt.type)',repr(dt.type))
             self.failUnless( numpy.all(ra[name] == ra2[name]) ) # should not fail with numpy 1.0.5
 
     def test_csv2rec_masks(self):

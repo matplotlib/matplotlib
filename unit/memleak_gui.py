@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 '''
 This illustrates a leak that occurs with any interactive backend.
 Run with :
@@ -13,6 +14,7 @@ estimate--for that you may need many hundreds of loops and some patience.
 You may need to edit cbook.report_memory to support your platform
 
 '''
+from __future__ import print_function
 import os, sys, time
 import gc
 from optparse import OptionParser
@@ -48,8 +50,8 @@ if options.backend:
 import pylab
 import matplotlib.cbook as cbook
 
-print '# columns are: iteration, OS memory (k), number of python objects'
-print '#'
+print('# columns are: iteration, OS memory (k), number of python objects')
+print('#')
 for i in range(indEnd+1):
 
     fig = pylab.figure()
@@ -68,40 +70,40 @@ for i in range(indEnd+1):
 gc.collect()
 end = val
 
-print '# columns above are: iteration, OS memory (k), number of python objects'
-print '#'
-print '# uncollectable list:', gc.garbage
-print '#'
+print('# columns above are: iteration, OS memory (k), number of python objects')
+print('#')
+print('# uncollectable list:', gc.garbage)
+print('#')
 
 if i > indStart:
-    print '# Backend %(backend)s, toolbar %(toolbar)s' % matplotlib.rcParams
+    print('# Backend %(backend)s, toolbar %(toolbar)s' % matplotlib.rcParams)
     backend = options.backend.lower()
     if backend.startswith("gtk"):
         import gtk
         import gobject
-        print "# pygtk version: %s, gtk version: %s, pygobject version: %s, glib version: %s" % \
-            (gtk.pygtk_version, gtk.gtk_version, 
-             gobject.pygobject_version, gobject.glib_version)
+        print("# pygtk version: %s, gtk version: %s, pygobject version: %s, glib version: %s" % \
+            (gtk.pygtk_version, gtk.gtk_version,
+             gobject.pygobject_version, gobject.glib_version))
     elif backend.startswith("qt4"):
         import PyQt4.pyqtconfig
-        print "# PyQt4 version: %s, Qt version %x" % \
+        print("# PyQt4 version: %s, Qt version %x" % \
             (PyQt4.pyqtconfig.Configuration().pyqt_version_str,
-             PyQt4.pyqtconfig.Configuration().qt_version)
+             PyQt4.pyqtconfig.Configuration().qt_version))
     elif backend.startswith("qt"):
         import pyqtconfig
-        print "# pyqt version: %s, qt version: %x" % \
+        print("# pyqt version: %s, qt version: %x" % \
             (pyqtconfig.Configuration().pyqt_version_str,
-             pyqtconfig.Configuration().qt_version)
+             pyqtconfig.Configuration().qt_version))
     elif backend.startswith("wx"):
         import wx
-        print "# wxPython version: %s" % wx.__version__
+        print("# wxPython version: %s" % wx.__version__)
     elif backend.startswith("tk"):
         import Tkinter
-        print "# Tkinter version: %s, Tk version: %s, Tcl version: %s" % (Tkinter.__version__, Tkinter.TkVersion, Tkinter.TclVersion)
+        print("# Tkinter version: %s, Tk version: %s, Tcl version: %s" % (Tkinter.__version__, Tkinter.TkVersion, Tkinter.TclVersion))
 
-    print '# Averaging over loops %d to %d' % (indStart, indEnd)
-    print '# Memory went from %dk to %dk' % (start, end)
-    print '# Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart))
+    print('# Averaging over loops %d to %d' % (indStart, indEnd))
+    print('# Memory went from %dk to %dk' % (start, end))
+    print('# Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart)))
 
 if options.cycles:
     cbook.print_cycles(gc.garbage)

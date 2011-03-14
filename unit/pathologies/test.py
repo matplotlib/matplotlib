@@ -1,3 +1,4 @@
+from __future__ import print_function
 from Numeric import *
 
 def is_string_like(obj):
@@ -7,10 +8,10 @@ def is_string_like(obj):
 
 
 y = arange(10)
-print 'test1', is_string_like(y)
+print('test1', is_string_like(y))
 
 y.shape = 10,1
-print 'test2', is_string_like(y)
+print('test2', is_string_like(y))
 
 y.shape = 1,10
-print 'test3', is_string_like(y)
+print('test3', is_string_like(y))

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import os, sys, time, gc
 import matplotlib
 matplotlib.use('PDF')
@@ -43,9 +45,9 @@ for i in range(indEnd):
 
     gc.collect()
     val = report_memory(i)
-    print i, val
+    print(i, val)
     if i==indStart: start = val # wait a few cycles for memory usage to stabilize
 
 end = val
-print 'Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart))
+print('Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart)))
 
