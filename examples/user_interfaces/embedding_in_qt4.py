@@ -9,6 +9,7 @@
 # modified with no restriction; raw copies as well as modified versions
 # may be distributed without limitation.
 
+from __future__ import unicode_literals
 import sys, os, random
 from PyQt4 import QtGui, QtCore
 
@@ -108,7 +109,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 
     def about(self):
         QtGui.QMessageBox.about(self, "About %s" % progname,
-u"""%(prog)s version %(version)s
+"""%(prog)s version %(version)s
 Copyright \N{COPYRIGHT SIGN} 2005 Florent Rougon, 2006 Darren Dale
 
 This program is a simple example of a Qt4 application embedding matplotlib

@@ -30,7 +30,7 @@ def connect_bbox(bbox1, bbox2,
 
 
 def zoom_effect01(ax1, ax2, xmin, xmax, **kwargs):
-    u"""
+    """
     ax1 : the main axes
     ax1 : the zoomed axes
     (xmin,xmax) : the limits of the colored area in both plot axes.
@@ -68,7 +68,7 @@ def zoom_effect01(ax1, ax2, xmin, xmax, **kwargs):
 
 
 def zoom_effect02(ax1, ax2, **kwargs):
-    u"""
+    """
     ax1 : the main axes
     ax1 : the zoomed axes
 
