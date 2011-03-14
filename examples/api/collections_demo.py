@@ -30,13 +30,13 @@ r = N.array(range(nverts))
 theta = N.array(range(nverts)) * (2*N.pi)/(nverts-1)
 xx = r * N.sin(theta)
 yy = r * N.cos(theta)
-spiral = zip(xx,yy)
+spiral = list(zip(xx,yy))
 
 # Make some offsets
 rs = N.random.RandomState([12345678])
 xo = rs.randn(npts)
 yo = rs.randn(npts)
-xyo = zip(xo, yo)
+xyo = list(zip(xo, yo))
 
 # Make a list of colors cycling through the rgbcmyk series.
 colors = [colorConverter.to_rgba(c) for c in ('r','g','b','c','y','m','k')]
@@ -114,7 +114,7 @@ xx = (0.2 + (ym-yy)/ym)**2 * N.cos(yy-0.4) * 0.5
 segs = []
 for i in range(ncurves):
     xxx = xx + 0.02*rs.randn(nverts)
-    curve = zip(xxx, yy*100)
+    curve = list(zip(xxx, yy*100))
     segs.append(curve)
 
 col = collections.LineCollection(segs, offsets=offs)

@@ -5,16 +5,17 @@ convert it to an array and pass the string it to PIL for
 rendering
 """
 
-from pylab import *
+import pylab
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+
 try:
     from PIL import Image
-except ImportError, exc:
+except ImportError:
     raise SystemExit("PIL must be installed to run this example")
 
-plot([1,2,3])
+pylab.plot([1,2,3])
 
-canvas = get_current_fig_manager().canvas
+canvas = pylab.get_current_fig_manager().canvas
 
 agg = canvas.switch_backends(FigureCanvasAgg)
 agg.draw()
@@ -25,9 +26,9 @@ l,b,w,h = agg.figure.bbox.bounds
 w, h = int(w), int(h)
 
 
-X = fromstring(s, uint8)
+X = pylab.fromstring(s, pylab.uint8)
 X.shape = h, w, 3
 
 im = Image.fromstring( "RGB", (w,h), s)
-# im.show()
+im.show()
 

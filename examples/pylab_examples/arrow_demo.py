@@ -199,7 +199,7 @@ def make_arrow_plot(data, size=4, display='length', shape='right', \
         elif where == 'center':
             orig_position = array([[length/2.0, 3*max_arrow_width]])
         else:
-            raise ValueError, "Got unknown position parameter %s" % where
+            raise ValueError("Got unknown position parameter %s" % where)
 
 
 
