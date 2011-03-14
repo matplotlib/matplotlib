@@ -1312,7 +1312,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     else:
         try:
             latexh.write(s)
-        except UnicodeEncodeError as err:
+        except UnicodeEncodeError:
             verbose.report("You are using unicode and latex, but have "
                            "not enabled the matplotlib 'text.latex.unicode' "
                            "rcParam.", 'helpful')
