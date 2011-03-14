@@ -356,7 +356,8 @@ def drive(backend, directories, python=['python'], switches = []):
                 break
 
         tmpfile.writelines((
-            'from __future__ import division\n',
+            'from __future__ import (',
+            '    division, print_function, unicode_literals)\n',
             'import sys\n',
             'sys.path.append("%s")\n' % fpath.replace('\\', '\\\\'),
             'import matplotlib\n',
@@ -367,7 +368,7 @@ def drive(backend, directories, python=['python'], switches = []):
             ))
         for line in open(fullpath):
             line_lstrip = line.lstrip()
-            if (line_lstrip.startswith('from __future__ import division') or
+            if (line_lstrip.startswith('from __future__ import') or
                 line_lstrip.startswith('matplotlib.use') or
                 line_lstrip.startswith('savefig') or
                 line_lstrip.startswith('show')):
