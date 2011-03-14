@@ -1,5 +1,6 @@
 """This script will install matplotlib to a virtual environment to
 faciltate testing."""
+from __future__ import print_function
 import shutil, os, sys
 from subprocess import Popen, PIPE, STDOUT
 from optparse import OptionParser

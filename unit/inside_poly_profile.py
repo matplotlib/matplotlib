@@ -2,6 +2,7 @@
 Broken.
 """
 
+from __future__ import print_function
 import os, sys, time
 
 import matplotlib.nxutils as nxutils
@@ -24,7 +25,7 @@ if 1:
         points = rand(numpoints,2)
         mask = nxutils.points_inside_poly(points, verts)
     tnew = time.time() - t0
-    print numverts, numpoints, told, tnew, told/tnew
+    print(numverts, numpoints, told, tnew, told/tnew)
 
 
 
