@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
+from __future__ import print_function, division
 """
 This is used to drive many of the examples across the backends, for
 regression testing, and comparing backend efficiency.
@@ -21,7 +21,6 @@ option parsing error with the driver script, separate them from driver
 switches with a --.
 """
 
-from __future__ import division
 import os, time, sys, glob, string
 from optparse import OptionParser
 import matplotlib.rcsetup as rcsetup
@@ -421,7 +420,7 @@ def parse_options():
     switches = [x for x in args if x.startswith('--')]
     backends = [x.lower() for x in args if not x.startswith('--')]
     if options.backends:
-        backends += map(string.lower, options.backends.split(','))
+        backends += [be.lower() for be in options.backends.split(',')]
 
     result = Bunch(
         dirs = options.dirs.split(','),
@@ -459,11 +458,11 @@ if __name__ == '__main__':
         python = ['coverage.py', '-x']
     elif options.valgrind:
         python = ['valgrind', '--tool=memcheck', '--leak-check=yes',
-                  '--log-file=%(name)s', 'python']
+                  '--log-file=%(name)s', sys.executable]
     elif sys.platform == 'win32':
         python = [sys.executable]
     else:
-        python = ['python']
+        python = [sys.executable]
 
     report_all_missing(options.dirs)
     for backend in options.backends:
