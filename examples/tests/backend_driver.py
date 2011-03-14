@@ -347,16 +347,16 @@ def drive(backend, directories, python=['python'], switches = []):
         tmpfile_name = '_tmp_%s.py' % basename
         tmpfile = open(tmpfile_name, 'w')
 
+        future_imports = 'from __future__ import division, print_function'
         for line in open(fullpath):
             line_lstrip = line.lstrip()
             if line_lstrip.startswith("#"):
                 tmpfile.write(line)
-            else:
-                break
+            elif 'unicode_literals' in line:
+                future_imports = future_imports + ', unicode_literals'
 
         tmpfile.writelines((
-            'from __future__ import (',
-            '    division, print_function, unicode_literals)\n',
+            future_imports+'\n',
             'import sys\n',
             'sys.path.append("%s")\n' % fpath.replace('\\', '\\\\'),
             'import matplotlib\n',
