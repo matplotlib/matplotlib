@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import unicode_literals
+
 import os, sys, re
 
 import gc
@@ -17,7 +19,7 @@ stests = [
 
 if sys.maxunicode > 0xffff:
     stests.append(
-        ur'Direct Unicode: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
+        r'Direct Unicode: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
     )
 
 from pylab import *

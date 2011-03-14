@@ -8,6 +8,7 @@
 # modified with no restriction; raw copies as well as modified versions
 # may be distributed without limitation.
 
+from __future__ import unicode_literals
 import sys, os, random
 from qt import *
 
@@ -118,7 +119,7 @@ class ApplicationWindow(QMainWindow):
 
     def about(self):
         QMessageBox.about(self, "About %s" % progname,
-u"""%(prog)s version %(version)s
+"""%(prog)s version %(version)s
 Copyright \N{COPYRIGHT SIGN} 2005 Florent Rougon
 
 This program is a simple example of a Qt application embedding matplotlib
