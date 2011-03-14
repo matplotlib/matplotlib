@@ -43,7 +43,6 @@ from setupext import build_agg, build_gtkagg, build_tkagg,\
      check_provide_pytz, check_provide_dateutil,\
      check_for_dvipng, check_for_ghostscript, check_for_latex, \
      check_for_pdftops, check_for_datetime, options, build_png, build_tri
-#import distutils.sysconfig
 
 # jdh
 packages = [
