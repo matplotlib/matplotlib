@@ -107,4 +107,12 @@
 #    define TEMPLATE_TYPENAME class
 #endif
 
+
+/* Need to fudge Py_hash_t types for python > 3.2 */
+
+#if PY_VERSION_HEX < 0x030200A4
+typedef long Py_hash_t;
+typedef unsigned long Py_uhash_t;
+#endif
+
 #endif //  __PyCXX_config_hh__
