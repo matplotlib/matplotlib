@@ -17,41 +17,34 @@ General Concepts
 new users. However, most of matplotlib can be understood with a fairly
 simple conceptual framework and knowledge of a few important points.
 
-All plotting is done by *axes*. In addition to the plots,
-the axes objects are responsible for other components that handle axis
-labeling, ticks, title, and plot legends. A *figure* is the container
-for one or more axes objects.
+Plotting requires action on a range of levels, from the most general
+(e.g., 'contour this 2-D array') to the most specific (e.g., 'color
+this screen pixel red'). The purpose of a plotting package is to assist
+you in visualizing your data as easily as possible, with all the necessary
+control -- that is, by using relatively high-level commands most of
+the time, and still have the ability to use the low-level commands when
+needed.
 
-Everything in matplotlib is organized in a hierarchy. At the top
-of the hierarchy is the matplotlib state-machine environment. This
-environment is responsible for managing the figures and axes
-that have been created and modified by you. The behavior of the matplotlib
-environment is similar to MATLAB and therefore should be most familiar to
-users with MATLAB experience.
+Therefore, everything in matplotlib is organized in a hierarchy. At the top
+of the hierarchy is the matplotlib "state-machine environment" which is
+provided by the :mod:`matplotlib.pyplot` module. At this level, simple
+functions are used to add plot elements (lines, images, text, etc.) to
+the current axes in the current figure.
 
-There are two interfaces to this environment: :mod:`pylab` and
-:mod:`matplotlib.pyplot`. Through one of these two interfaces, the user
-creates *figures*. These figures, in turn, create one or more *axes*.
-These axes are then used for any plotting requested by you. Depending
-on how you use matplotlib, these figures and axes can be created explicitly
-by you through the interface::
+.. note::
+   Pyplot's state-machine environment behaves similarly to MATLAB and
+   should be most familiar to users with MATLAB experience.
 
-    import matplotlib.pyplot as plt
+The next level down in the hierarchy is the first level of the object-oriented
+interface, in which pyplot is used only for a few functions such as figure
+creation, and the user explicitly creates and keeps track of the figure
+and axes objects. At this level, the user uses pyplot to create figures,
+and through those figures, one or more axes objects can be created. These
+axes objects are then used for most plotting actions.
 
-    fig = plt.figure()
-    ax = fig.gca()
-    ax.plot(range(10), range(10))
-    ax.set_title("Simple Plot")
-    plt.show()
-
-or implicitly by the state-machine environment::
-
-    import matplotlib.pyplot as plt
-
-    plt.plot(range(10), range(10))
-    plt.title("Simple Plot")
-    plt.show()
-
+For even more control -- which is essential for things like embedding
+matplotlib plots in GUI applications -- the pyplot level may be dropped
+completely, leaving a purely object-oriented approach.
 
 .. _pylab:
 
@@ -62,17 +55,23 @@ Matplotlib is the whole package; :mod:`pylab` is a module in matplotlib
 that gets installed alongside :mod:`matplotlib`; and :mod:`matplotlib.pyplot`
 is a module in matplotlib.
 
-Pyplot provides a state-machine interface to the underlying plotting
-library in matplotlib.
-For example, calling a plotting function from pyplot will
-automatically create the necessary figure and axes to achieve
-the desired plot. Setting a title through pyplot will automatically
-set the title to the current axes object.
+Pyplot provides the state-machine interface to the underlying plotting
+library in matplotlib. This means that figures and axes are implicitly
+and automatically created to achieve the desired plot. For example,
+calling ``plot`` from pyplot will automatically create the necessary
+figure and axes to achieve the desired plot. Setting a title will
+then automatically set that title to the current axes object::
+
+    import matplotlib.pyplot as plt
+
+    plt.plot(range(10), range(10))
+    plt.title("Simple Plot")
+    plt.show()
 
 Pylab combines the pyplot functionality (for plotting) with the numpy
 functionality (for mathematics and for working with arrays)
 in a single namespace, making that namespace
-(or environment) more MATLAB-like.
+(or environment) even more MATLAB-like.
 For example, one can call the `sin` and `cos` functions just like
 you could in MATLAB, as well as having all the features of pyplot.
 
@@ -117,8 +116,8 @@ plt.plot, plt.show, etc. So, a simple example in this style would be::
     plt.show()
 
 Note that this example used pyplot's state-machine to
-automatically create a figure and an axes. For full control of
-your plots and more advanced usage, use the pyplot interface
+automatically and implicitly create a figure and an axes. For full
+control of your plots and more advanced usage, use the pyplot interface
 for creating figures, and then use the object methods for the rest::
 
     import matplotlib.pyplot as plt
@@ -143,7 +142,7 @@ So, why all the extra typing as one moves away from the pure
 MATLAB-style?  For very simple things like this example, the only
 advantage is academic: the wordier styles are more explicit, more
 clear as to where things come from and what is going on.  For more
-complicated applications, this explicitness and clarity become
+complicated applications, this explicitness and clarity becomes
 increasingly valuable, and the richer and more complete object-oriented
 interface will likely make the program easier to write and maintain.
 
