@@ -266,6 +266,7 @@ static PyMethodDef functions[] =
 };
 
 extern "C"
+{
 #if PY3K
 static PyModuleDef _tkagg_module = {
     PyModuleDef_HEAD_INIT,
@@ -295,3 +296,4 @@ PyMODINIT_FUNC init_tkagg(void)
     Py_InitModule("_tkagg", functions);
 }
 #endif
+}
