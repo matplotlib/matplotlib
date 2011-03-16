@@ -1,7 +1,8 @@
 # -*- coding: ascii -*-
 
-import unittest, os, os.path, sys
 from doctest import DocTestSuite
+import unittest, os, os.path, sys
+import warnings
 
 # We test the documentation this way instead of using DocFileSuite so
 # we can run the tests under Python 2.3

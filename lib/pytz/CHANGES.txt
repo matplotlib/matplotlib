@@ -48,3 +48,7 @@
 
     - Fix test_zdump tests and bugs the fixed tests picked up, including
       the fix for Bug #427444.
+
+2011-02-08
+
+    - Python 3.1 support.

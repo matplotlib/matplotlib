@@ -83,7 +83,7 @@ namespace Py
         virtual Object rich_compare( const Object &, int );
         virtual Object repr();
         virtual Object str();
-        virtual long hash();
+        virtual Py_hash_t hash();
         virtual Object call( const Object &, const Object & );
         virtual Object iter();
         virtual PyObject *iternext();

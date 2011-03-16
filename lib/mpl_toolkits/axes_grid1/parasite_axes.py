@@ -207,12 +207,17 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
         parasite_axes_class = parasite_axes_class_factory(axes_class)
     else:
         parasite_axes_class = axes_class
-        
+
     new_class = _parasite_axes_auxtrans_classes.get(parasite_axes_class)
     if new_class is None:
         new_class = type("%sParasiteAuxTrans" % (parasite_axes_class.__name__),
                          (ParasiteAxesAuxTransBase, parasite_axes_class),
-                         {'_parasite_axes_class': parasite_axes_class})
+                         {'_parasite_axes_class': parasite_axes_class},
+                         'name': 'parasite_axes')
+        new_class = new.classobj("%sParasiteAuxTrans" % (parasite_axes_class.__name__),
+                                 (ParasiteAxesAuxTransBase, parasite_axes_class),
+                                 {'_parasite_axes_class': parasite_axes_class,
+                                  'name': 'parasite_axes'})
         _parasite_axes_auxtrans_classes[parasite_axes_class] = new_class
 
     return new_class
@@ -349,7 +354,7 @@ class HostAxesBase:
             axes_class = self._get_base_axes()
 
         parasite_axes_class = parasite_axes_class_factory(axes_class)
-            
+
         ax2 = parasite_axes_class(self, sharex=self, frameon=False)
         self.parasites.append(ax2)
 
@@ -383,7 +388,7 @@ class HostAxesBase:
             axes_class = self._get_base_axes()
 
         parasite_axes_class = parasite_axes_class_factory(axes_class)
-            
+
         ax2 = parasite_axes_class(self, sharey=self, frameon=False)
         self.parasites.append(ax2)
 
@@ -416,7 +421,7 @@ class HostAxesBase:
             axes_class = self._get_base_axes()
 
         parasite_axes_auxtrans_class = parasite_axes_auxtrans_class_factory(axes_class)
-            
+
         if aux_trans is None:
             ax2 = parasite_axes_auxtrans_class(self, mtransforms.IdentityTransform(),
                                                viewlim_mode="equal",
@@ -475,14 +480,14 @@ class HostAxesBase:
         _bbox = Bbox.union([b for b in bbs if b.width!=0 or b.height!=0])
 
         return _bbox
-    
+
 
 
 _host_axes_classes = {}
 def host_axes_class_factory(axes_class=None):
     if axes_class is None:
         axes_class = Axes
-        
+
     new_class = _host_axes_classes.get(axes_class)
     if new_class is None:
         def _get_base_axes(self):

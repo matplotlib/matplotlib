@@ -2052,7 +2052,7 @@ def recs_join(key, name, recs, jointype='outer', missing=0., postfixes=None):
 
     returns a record array with columns [rowkey, name0, name1, ... namen-1].
     or if postfixes [PF0, PF1, ..., PFN-1] are supplied,
-      [rowkey, namePF0, namePF1, ... namePFN-1].
+    [rowkey, namePF0, namePF1, ... namePFN-1].
 
     Example::
 
