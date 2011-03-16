@@ -360,6 +360,8 @@ GCAgg::_set_hatch_path(const Py::Object& gc)
     Py::Object method_obj = gc.getAttr("get_hatch_path");
     Py::Callable method(method_obj);
     hatchpath = method.apply(Py::Tuple());
+    if (hatchpath.ptr() == NULL)
+        throw Py::Exception();
 }
 
 
