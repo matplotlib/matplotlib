@@ -367,7 +367,7 @@ def ipython_directive(name, arguments, options, content, lineno,
     #print lines
     if len(lines)>2:
         if debug:
-            print '\n'.join(lines)
+            print('\n'.join(lines))
         else:
             #print 'INSERTING %d lines'%len(lines)
             state_machine.insert_input(
