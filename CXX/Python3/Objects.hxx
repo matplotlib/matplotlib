@@ -276,7 +276,7 @@ namespace Py
             return Object( PyObject_GetItem( p, *key ), true );
         }
 
-        long hashValue() const
+        Py_hash_t hashValue() const
         {
             return PyObject_Hash( p );
         }
@@ -1165,7 +1165,7 @@ namespace Py
             return the_item.getItem( key );
         }
 
-        long hashValue() const
+        Py_hash_t hashValue() const
         {
             return the_item.hashValue();
         }
@@ -2545,7 +2545,7 @@ namespace Py
             return the_item.getItem( k );
         }
 
-        long hashValue() const
+        Py_hash_t hashValue() const
         {
             return the_item.hashValue();
         }

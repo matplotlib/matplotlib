@@ -4080,7 +4080,7 @@ class Axes(martist.Artist):
 
             :meth:`~matplotlib.axes.Axes.plot` or
             :meth:`~matplotlib.axes.Axes.vlines`
-               For documentation on valid kwargs.
+            For documentation on valid kwargs.
 
         **Example:**
 
@@ -4192,6 +4192,9 @@ class Axes(martist.Artist):
                         if isinstance(c, mcoll.RegularPolyCollection)])
         handles.extend([c for c in self.collections
                         if isinstance(c, mcoll.CircleCollection)])
+
+        handles = [h for h in handles if h.get_label() != "_nolegend_"]
+
         return handles
 
 
@@ -5791,7 +5794,7 @@ class Axes(martist.Artist):
                 collection = mcoll.AsteriskPolygonCollection(
                     numsides, rotation, scales,
                     facecolors = colors,
-                    edgecolors = edgecolors,
+                    edgecolors = 'face',
                     linewidths = linewidths,
                     offsets = zip(x,y),
                     transOffset = self.transData,
@@ -5971,7 +5974,7 @@ class Axes(martist.Artist):
         :class:`~matplotlib.collections.PolyCollection` instance; use
         :meth:`~matplotlib.collection.PolyCollection.get_array` on
         this :class:`~matplotlib.collections.PolyCollection` to get
-        the counts in each hexagon..  If marginals is True, horizontal
+        the counts in each hexagon. If marginals is True, horizontal
         bar and vertical bar (both PolyCollections) will be attached
         to the return collection as attributes *hbar* and *vbar*
 
@@ -7812,22 +7815,26 @@ class Axes(martist.Artist):
                 self.dataLim.intervaly = (ymin, ymax)
 
         if label is None:
-            labels = ['_nolegend_']
+            labels = [None]
         elif is_string_like(label):
             labels = [label]
         elif is_sequence_of_strings(label):
             labels = list(label)
         else:
-            raise ValueError(
-                'invalid label: must be string or sequence of strings')
+            raise ValueError('invalid label: must be string or sequence of strings')
+
         if len(labels) < nx:
-            labels += ['_nolegend_'] * (nx - len(labels))
+            labels += [None] * (nx - len(labels))
 
         for (patch, lbl) in zip(patches, labels):
-            for p in patch:
+            if patch:
+                p = patch[0]
                 p.update(kwargs)
-                p.set_label(lbl)
-                lbl = '_nolegend_'
+                if lbl is not None: p.set_label(lbl)
+
+                for p in patch[1:]:
+                    p.update(kwargs)
+                    p.set_label('_nolegend_')
 
         if binsgiven:
             if orientation == 'vertical':

@@ -1,3 +1,16 @@
+2011-03-10 Update pytz version to 2011c, thanks to Simon Cross. - JKS
+
+2011-03-06 Add standalone tests.py test runner script. - JKS
+
+2011-03-06 Set edgecolor to 'face' for scatter asterisk-type
+           symbols; this fixes a bug in which these symbols were
+           not responding to the c kwarg.  The symbols have no
+           face area, so only the edgecolor is visible. - EF
+
+2011-02-27 Support libpng version 1.5.x; suggestion by Michael
+           Albert. Changed installation specification to a
+           minimum of libpng version 1.2.  - EF
+
 2011-02-20 clabel accepts a callable as an fmt kwarg; modified
            patch by Daniel Hyams. - EF
 

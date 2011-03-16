@@ -46,6 +46,7 @@ WIN32 - VISUAL STUDIO 7.1 (2003)
 import os
 import re
 import subprocess
+from distutils import sysconfig
 
 basedir = {
     'win32'  : ['win32_static',],
@@ -211,6 +212,20 @@ else:
     def print_line(*args, **kwargs):
         pass
     print_status = print_message = print_raw = print_line
+
+# Remove the -Wstrict-prototypesoption, is it's not valid for C++
+customize_compiler = sysconfig.customize_compiler
+def my_customize_compiler(compiler):
+    retval = customize_compiler(compiler)
+    try:
+        compiler.compiler_so.remove('-Wstrict-prototypes')
+    except (ValueError, AttributeError):
+        pass
+    return retval
+
+sysconfig.customize_compiler = my_customize_compiler
+
+
 
 def run_child_process(cmd):
     p = subprocess.Popen(cmd, shell=True,

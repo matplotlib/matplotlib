@@ -8,6 +8,7 @@ except NameError:
     from sets import Set as set
 
 import pytz
+from pytz.exceptions import AmbiguousTimeError, NonExistentTimeError
 
 __all__ = []
 
@@ -102,13 +103,13 @@ class StaticTzInfo(BaseTzInfo):
     def localize(self, dt, is_dst=False):
         '''Convert naive time to local time'''
         if dt.tzinfo is not None:
-            raise ValueError, 'Not naive datetime (tzinfo is already set)'
+            raise ValueError('Not naive datetime (tzinfo is already set)')
         return dt.replace(tzinfo=self)
 
     def normalize(self, dt, is_dst=False):
         '''Correct the timezone information on the given datetime'''
         if dt.tzinfo is None:
-            raise ValueError, 'Naive time - no tzinfo set'
+            raise ValueError('Naive time - no tzinfo set')
         return dt.replace(tzinfo=self)
 
     def __repr__(self):
@@ -147,7 +148,7 @@ class DstTzInfo(BaseTzInfo):
             self._utcoffset, self._dst, self._tzname = self._transition_info[0]
             _tzinfos[self._transition_info[0]] = self
             for inf in self._transition_info[1:]:
-                if not _tzinfos.has_key(inf):
+                if inf not in _tzinfos:
                     _tzinfos[inf] = self.__class__(inf, _tzinfos)
 
     def fromutc(self, dt):
@@ -193,7 +194,7 @@ class DstTzInfo(BaseTzInfo):
         '2002-10-27 01:50:00 EDT (-0400)'
         '''
         if dt.tzinfo is None:
-            raise ValueError, 'Naive time - no tzinfo set'
+            raise ValueError('Naive time - no tzinfo set')
 
         # Convert dt in localtime to UTC
         offset = dt.tzinfo._utcoffset
@@ -227,10 +228,11 @@ class DstTzInfo(BaseTzInfo):
         Use is_dst=None to raise an AmbiguousTimeError for ambiguous
         times at the end of daylight savings
 
-        >>> loc_dt1 = amdam.localize(dt, is_dst=None)
-        Traceback (most recent call last):
-            [...]
-        AmbiguousTimeError: 2004-10-31 02:00:00
+        >>> try:
+        ...     loc_dt1 = amdam.localize(dt, is_dst=None)
+        ... except AmbiguousTimeError:
+        ...     print('Ambiguous')
+        Ambiguous
 
         is_dst defaults to False
 
@@ -254,13 +256,14 @@ class DstTzInfo(BaseTzInfo):
         Use is_dst=None to raise a NonExistentTimeError for these skipped
         times.
 
-        >>> loc_dt1 = pacific.localize(dt, is_dst=None)
-        Traceback (most recent call last):
-            [...]
-        NonExistentTimeError: 2008-03-09 02:00:00
+        >>> try:
+        ...     loc_dt1 = pacific.localize(dt, is_dst=None)
+        ... except NonExistentTimeError:
+        ...     print('Non-existent')
+        Non-existent
         '''
         if dt.tzinfo is not None:
-            raise ValueError, 'Not naive datetime (tzinfo is already set)'
+            raise ValueError('Not naive datetime (tzinfo is already set)')
 
         # Find the two best possibilities.
         possible_loc_dt = set()
@@ -329,13 +332,12 @@ class DstTzInfo(BaseTzInfo):
         # but that is just getting silly.
         #
         # Choose the earliest (by UTC) applicable timezone.
-        def mycmp(a,b):
-            return cmp(
-                    a.replace(tzinfo=None) - a.tzinfo._utcoffset,
-                    b.replace(tzinfo=None) - b.tzinfo._utcoffset,
-                    )
-        filtered_possible_loc_dt.sort(mycmp)
-        return filtered_possible_loc_dt[0]
+        sorting_keys = {}
+        for local_dt in filtered_possible_loc_dt:
+            key = local_dt.replace(tzinfo=None) - local_dt.tzinfo._utcoffset
+            sorting_keys[key] = local_dt
+        first_key = sorted(sorting_keys)[0]
+        return sorting_keys[first_key]
 
     def utcoffset(self, dt, is_dst=None):
         '''See datetime.tzinfo.utcoffset
@@ -353,10 +355,12 @@ class DstTzInfo(BaseTzInfo):
         >>> tz.utcoffset(ambiguous, is_dst=True)
         datetime.timedelta(-1, 77400)
 
-        >>> tz.utcoffset(ambiguous)
-        Traceback (most recent call last):
-        [...]
-        AmbiguousTimeError: 2009-10-31 23:30:00
+        >>> try:
+        ...     tz.utcoffset(ambiguous)
+        ... except AmbiguousTimeError:
+        ...     print('Ambiguous')
+        Ambiguous
+
         '''
         if dt is None:
             return None
@@ -390,10 +394,12 @@ class DstTzInfo(BaseTzInfo):
         datetime.timedelta(0)
         >>> tz.dst(ambiguous, is_dst=True)
         datetime.timedelta(0, 3600)
-        >>> tz.dst(ambiguous)
-        Traceback (most recent call last):
-        [...]
-        AmbiguousTimeError: 2009-10-31 23:30:00
+        >>> try:
+        ...     tz.dst(ambiguous)
+        ... except AmbiguousTimeError:
+        ...     print('Ambiguous')
+        Ambiguous
+
         '''
         if dt is None:
             return None
@@ -427,10 +433,11 @@ class DstTzInfo(BaseTzInfo):
         'NST'
         >>> tz.tzname(ambiguous, is_dst=True)
         'NDT'
-        >>> tz.tzname(ambiguous)
-        Traceback (most recent call last):
-        [...]
-        AmbiguousTimeError: 2009-10-31 23:30:00
+        >>> try:
+        ...     tz.tzname(ambiguous)
+        ... except AmbiguousTimeError:
+        ...     print('Ambiguous')
+        Ambiguous
         '''
         if dt is None:
             return self.zone
@@ -464,29 +471,6 @@ class DstTzInfo(BaseTzInfo):
                 self._tzname
                 )
 
-
-class InvalidTimeError(Exception):
-    '''Base class for invalid time exceptions.'''
-
-
-class AmbiguousTimeError(InvalidTimeError):
-    '''Exception raised when attempting to create an ambiguous wallclock time.
-
-    At the end of a DST transition period, a particular wallclock time will
-    occur twice (once before the clocks are set back, once after). Both
-    possibilities may be correct, unless further information is supplied.
-
-    See DstTzInfo.normalize() for more info
-    '''
-
-
-class NonExistentTimeError(InvalidTimeError):
-    '''Exception raised when attempting to create a wallclock time that
-    cannot exist.
-
-    At the start of a DST transition period, the wallclock time jumps forward.
-    The instants jumped over never occur.
-    '''
 
 
 def unpickler(zone, utcoffset=None, dstoffset=None, tzname=None):

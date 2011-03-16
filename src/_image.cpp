@@ -692,7 +692,7 @@ Image::set_interpolation(const Py::Tuple& args)
 
     args.verify_length(1);
 
-    size_t method = Py::Int(args[0]);
+    size_t method = (long)Py::Int(args[0]);
     interpolation = (unsigned)method;
     return Py::Object();
 }
@@ -726,7 +726,7 @@ Image::set_aspect(const Py::Tuple& args)
     _VERBOSE("Image::set_aspect");
 
     args.verify_length(1);
-    size_t method = Py::Int(args[0]);
+    size_t method = (long)Py::Int(args[0]);
     aspect = (unsigned)method;
     return Py::Object();
 
@@ -780,8 +780,8 @@ _image_module::from_images(const Py::Tuple& args)
 
     args.verify_length(3);
 
-    size_t numrows = (size_t)Py::Int(args[0]);
-    size_t numcols = (size_t)Py::Int(args[1]);
+    size_t numrows = (long)Py::Int(args[0]);
+    size_t numcols = (long)Py::Int(args[1]);
 
     if (numrows >= 32768 || numcols >= 32768)
     {
@@ -824,8 +824,8 @@ _image_module::from_images(const Py::Tuple& args)
     {
         tup = Py::Tuple(tups[imnum]);
         Image* thisim = static_cast<Image*>(tup[0].ptr());
-        ox = Py::Int(tup[1]);
-        oy = Py::Int(tup[2]);
+        ox = (long)Py::Int(tup[1]);
+        oy = (long)Py::Int(tup[2]);
         bool isflip = (thisim->rbufOut->stride()) < 0;
         //std::cout << "from images " << isflip << "; stride=" << thisim->rbufOut->stride() << std::endl;
         size_t ind = 0;
@@ -1246,8 +1246,8 @@ _image_module::frombuffer(const Py::Tuple& args)
     args.verify_length(4);
 
     PyObject *bufin = new_reference_to(args[0]);
-    size_t x = Py::Int(args[1]);
-    size_t y = Py::Int(args[2]);
+    size_t x = (long)Py::Int(args[1]);
+    size_t y = (long)Py::Int(args[2]);
 
     if (x >= 32768 || y >= 32768)
     {

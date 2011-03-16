@@ -14,13 +14,13 @@ def Gen_RandLine(length, dims=2) :
     dims is the number of dimensions the line has.
     """
     lineData = np.empty((dims, length))
-    lineData[:, 0] = np.random.rand(1, dims)
-    for index in range(1, length) :
+    lineData[:, 0] = np.random.rand(dims)
+    for index in xrange(1, length) :
         # scaling the random numbers by 0.1 so
         # movement is small compared to position.
         # subtraction by 0.5 is to change the range to [-0.5, 0.5]
         # to allow a line to move backwards.
-        step = ((np.random.rand(1, dims) - 0.5) * 0.1)
+        step = ((np.random.rand(dims) - 0.5) * 0.1)
         lineData[:, index] = lineData[:, index-1] + step
 
     return lineData

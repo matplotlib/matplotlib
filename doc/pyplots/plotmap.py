@@ -1,6 +1,7 @@
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 import numpy as np
+
 # create figure
 fig = plt.figure(figsize=(8,8))
 # set up orthographic map projection with
