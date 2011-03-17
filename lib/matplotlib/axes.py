@@ -34,6 +34,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 
+from matplotlib.container import BarContainer, ErrorbarContainer
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -868,6 +869,7 @@ class Axes(martist.Artist):
         self._current_image = None # strictly for pyplot via _sci, _gci
         self.legend_ = None
         self.collections = []  # collection.Collection instances
+        self.containers = []  #
 
         self.grid(self._gridOn)
         props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
@@ -1493,6 +1495,21 @@ class Axes(martist.Artist):
         tab.set_clip_path(self.patch)
         tab._remove_method = lambda h: self.tables.remove(h)
         return tab
+
+    def add_container(self, container):
+        '''
+        Add a :class:`~matplotlib.container.Container` instance
+        to the axes.
+
+        Returns the collection.
+        '''
+        label = container.get_label()
+        if not label:
+            container.set_label('_container%d'%len(self.containers))
+        self.containers.append(container)
+        container.set_remove_method(lambda h: self.containers.remove(container))
+        return container
+
 
     def relim(self):
         """
@@ -4182,23 +4199,29 @@ class Axes(martist.Artist):
         return lags, c, a, b
 
 
-    def _get_legend_handles(self):
+    def _get_legend_handles(self, legend_handler_map=None):
         "return artists that will be used as handles for legend"
-        handles = self.lines[:]
-        handles.extend(self.patches)
-        handles.extend([c for c in self.collections
-                        if isinstance(c, mcoll.LineCollection)])
-        handles.extend([c for c in self.collections
-                        if isinstance(c, mcoll.RegularPolyCollection)])
-        handles.extend([c for c in self.collections
-                        if isinstance(c, mcoll.CircleCollection)])
+        handles_original = self.lines + self.patches + \
+                           self.collections + self.containers
 
-        handles = [h for h in handles if h.get_label() != "_nolegend_"]
+        # collections
+        handler_map = mlegend.Legend.get_default_handler_map()
 
+        if legend_handler_map is not None:
+            handler_map = handler_map.copy()
+            handler_map.update(legend_handler_map)
+        
+        handles = []
+        for h in handles_original:
+            if h.get_label() == "_nolegend_": #.startswith('_'):
+                continue
+            if mlegend.Legend.get_legend_handler(handler_map, h):
+                handles.append(h)
+                
         return handles
 
 
-    def get_legend_handles_labels(self):
+    def get_legend_handles_labels(self, legend_handler_map=None):
         """
         return handles and labels for legend
 
@@ -4211,10 +4234,10 @@ class Axes(martist.Artist):
 
         handles = []
         labels = []
-        for handle in self._get_legend_handles():
+        for handle in self._get_legend_handles(legend_handler_map):
             label = handle.get_label()
-            if (label is not None and
-                label != '' and not label.startswith('_')):
+            #if (label is not None and label != '' and not label.startswith('_')):
+            if label and not label.startswith('_'):
                 handles.append(handle)
                 labels.append(label)
 
@@ -4362,6 +4385,9 @@ class Axes(martist.Artist):
         columnspacing      the spacing between columns
         ================   ==================================================================
 
+        .. Note:: Not all kinds of artist are supported by the legend command.
+                  See LINK (FIXME) for details.
+
 
         **Example:**
 
@@ -4403,7 +4429,10 @@ class Axes(martist.Artist):
             raise TypeError('Invalid arguments to legend')
 
 
-        handles = cbook.flatten(handles)
+        # Why do we need to call "flatten" here? -JJL
+        # handles = cbook.flatten(handles)
+
+
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         return self.legend_
 
@@ -4664,9 +4693,8 @@ class Axes(martist.Artist):
                 facecolor=c,
                 edgecolor=e,
                 linewidth=lw,
-                label=label
+                label='_nolegend_'
                 )
-            label = '_nolegend_'
             r.update(kwargs)
             r.get_path()._interpolation_steps = 100
             #print r.get_label(), label, 'label' in kwargs
@@ -4687,10 +4715,14 @@ class Axes(martist.Artist):
                 x = [l+w for l,w in zip(left, width)]
                 y = [b+0.5*h for b,h in zip(bottom, height)]
 
-            self.errorbar(
-                x, y,
-                yerr=yerr, xerr=xerr,
-                fmt=None, **error_kw)
+            if "label" not in error_kw:
+                error_kw["label"] = '_nolegend_'
+
+            errorbar = self.errorbar(x, y,
+                                     yerr=yerr, xerr=xerr,
+                                     fmt=None, **error_kw)
+        else:
+            errorbar = None
 
         self.hold(holdstate) # restore previous hold state
 
@@ -4710,7 +4742,11 @@ class Axes(martist.Artist):
             ymin = max(ymin*0.9, 1e-100)
             self.dataLim.intervaly = (ymin, ymax)
         self.autoscale_view()
-        return patches
+
+        bar_container = BarContainer(patches, errorbar, label=label)
+        self.add_container(bar_container)
+
+        return bar_container
 
     @docstring.dedent_interpd
     def barh(self, bottom, width, height=0.8, left=None, **kwargs):
@@ -5112,6 +5148,8 @@ class Axes(martist.Artist):
         holdstate = self._hold
         self._hold = True
 
+        label = kwargs.pop("label", None)
+
         # make sure all the args are iterable; use lists not arrays to
         # preserve units
         if not iterable(x):
@@ -5131,7 +5169,7 @@ class Axes(martist.Artist):
         l0 = None
 
         if barsabove and fmt is not None:
-            l0, = self.plot(x,y,fmt,**kwargs)
+            l0, = self.plot(x,y,fmt,label="_nolegend_", **kwargs)
 
         barcols = []
         caplines = []
@@ -5284,7 +5322,14 @@ class Axes(martist.Artist):
 
         self.autoscale_view()
         self._hold = holdstate
-        return (l0, caplines, barcols)
+
+        errorbar_container = ErrorbarContainer((l0, tuple(caplines), tuple(barcols)),
+                                               has_xerr=(xerr is not None),
+                                               has_yerr=(yerr is not None),
+                                               label=label)
+        self.containers.append(errorbar_container)
+        
+        return errorbar_container # (l0, caplines, barcols)
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
