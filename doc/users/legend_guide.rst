@@ -28,39 +28,43 @@ For example, *ax.legend()* is equivalent to::
 The :meth:`~matplotlib.axes.Axes.get_legend_handles_labels` method
 returns a tuple of two lists, i.e., list of artists and list of labels
 (python string).  However, it does not return all of its child
-artists. It returns all artists in *ax.lines* and *ax.patches* and
-some artists in *ax.collection* which are instance of
-:class:`~matplotlib.collections.LineCollection` or
-:class:`~matplotlib.collections.RegularPolyCollection`.  The label
-attributes (returned by get_label() method) of collected artists are
-used as text labels. If label attribute is empty string or starts with
-"_", that artist will be ignored.
+artists. It returns artists that are currently supported by matplotlib.
 
-
- * Note that not all kind of artists are supported by the legend. The
-   following is the list of artists that are currently supported.
+For matplotlib v1.0 and before, the supported artists are as follows.
 
    * :class:`~matplotlib.lines.Line2D`
    * :class:`~matplotlib.patches.Patch`
    * :class:`~matplotlib.collections.LineCollection`
    * :class:`~matplotlib.collections.RegularPolyCollection`
 
-   Unfortunately, there is no easy workaround when you need legend for
-   an artist not in the above list (You may use one of the supported
-   artist as a proxy. See below), or customize it beyond what is
-   supported by :class:`matplotlib.legend.Legend`.
+And, :meth:`~matplotlib.axes.Axes.get_legend_handles_labels` returns
+all artists in *ax.lines*, *ax.patches* and
+artists in *ax.collection* which are instance of
+:class:`~matplotlib.collections.LineCollection` or
+:class:`~matplotlib.collections.RegularPolyCollection`.  The label
+attributes (returned by get_label() method) of collected artists are
+used as text labels. If label attribute is empty string or starts with
+"_", those artists will be ignored.
 
- * Remember that some *pyplot* commands return artist not supported by
-   legend, e.g., :func:`~matplotlib.pyplot.fill_between` returns
-   :class:`~matplotlib.collections.PolyCollection` that is not
-   supported. Or some return multiple artists. For example,
-   :func:`~matplotlib.pyplot.plot` returns list of
-   :class:`~matplotlib.lines.Line2D` instances, and
-   :func:`~matplotlib.pyplot.errorbar` returns a length 3 tuple of
-   :class:`~matplotlib.lines.Line2D` instances.
 
- * The legend does not care about the axes that given artists belongs,
-   i.e., the artists may belong to other axes or even none.
+Therefore, plots drawn by some *pyplot* commands are not supported by
+legend.  For example, :func:`~matplotlib.pyplot.fill_between` creates
+:class:`~matplotlib.collections.PolyCollection` that is not
+supported. Also support is limted for some commands that creat
+multiple artists. For example, :func:`~matplotlib.pyplot.errorbar`
+creates multiples :class:`~matplotlib.lines.Line2D` instances.
+
+Unfortunately, there is no easy workaround when you need legend for an
+artist not supported by matplotlib (You may use one of the supported
+artist as a proxy. See below)
+
+In newer version of matplotlib (v1.1 and later), the matplotlib
+internals are revised to support
+
+ * complex plots that creates multiple artists (e.g., bar, errorbar, etc)
+ * custom legend handles
+
+See below for details of new functionality.
 
 
 Adjusting the Order of Legend items
@@ -180,3 +184,132 @@ legend.
 
 .. plot:: users/plotting/examples/simple_legend02.py
    :include-source:
+
+
+Legend of Complex Plots
+=======================
+
+In matplotlib v1.1 (FIXME when released) and later, the legend is
+improved to support more plot commands and ease the customization.
+
+Artist Container
+----------------
+
+The Artist Container is simple class (derived from tuple) that
+contains multiple artists. This is introduced primarily to support
+legends for complex plot commands that create multiple artists.
+
+Axes instances now have a "containers" attribute (which is a list, and
+this is only intended to be used for generating a legend).  The items
+in this attribute are also returned by
+:meth:`~matplotlib.axes.Axes.get_legend_handles_labels`.
+
+For example, "bar" command creates a series of Rectangle
+patches. Previously, it returned a list of these patches. With the
+current change, it creates a container object of these rectangle
+patches (and these patches are added to Axes.patches attribute as
+before) and return it instead. As the container class is derived from
+a tuple, it should be backward-compatible.  Furthermore, the container
+object is added to the Axes.containers attributes so that legend
+command can properly create a legend for the bar. Thus, you may do ::
+
+    b1 = bar([0, 1, 2], [0.2, 0.3, 0.1], width=0.4,
+             label="Bar 1", align="center")
+    legend()
+
+or ::
+
+    b1 = bar([0, 1, 2], [0.2, 0.3, 0.1], width=0.4, align="center")
+    legend([b1], ["Bar 1"])
+
+
+At this time of writing, however, "bar" and "errorbar" are only
+supported (hopefully the list will increase). Here is an example.
+
+.. plot:: mpl_examples/pylab_examples/legend_demo4.py
+
+Legend Handler
+--------------
+
+One of the change is that drawing of legend handles is delegated to
+legend handlers. For example, :class:`~matplotlib.lines.Line2D`
+instances are handled by
+:class:`~matplotlib.legend_handler.HandlerLine2D`.  The mapping
+between the artists and their corresponding handlers are defined in a
+handler_map of the legend. The handler_map is a dictionary of
+key-handler pair, where key can be an artist instance or its
+class. And the handler is a Handler instance.
+
+Let's consider the following sample code, ::
+
+  legend([p_1, p_2,..., p_i, ...], ["Test 1", "Test 2", ..., "Test i",...])
+
+For each *p_i*, matplotlib 
+
+  1. check if *p_i* itself is in the handler_map
+  2. if not, iterate over type(p_i).mro() until a matching key is found in the handler_map
+
+
+Unless specified, the defaul handler_map is used. Below is a partial
+list of key-handler pairs included in the default handler map.
+
+  * Line2D : legend_handler.HandlerLine2D()
+  * Patch : legend_handler.HandlerPatch()
+  * LineCollection : legend_handler.HandlerLineCollection()
+  * ...
+
+
+The legend command takes an optional argument of "handler_map". When
+provided, the default handler map will be updated (using dict.update
+method) with the provided one. ::
+
+   p1, = plot(x, "ro", label="test1")
+   p2, = plot(y, "b+", ms=10, label="test2")
+
+   my_handler = HandlerLine2D(numpoints=1)
+
+   legend(handler_map={Line2D:my_handler})
+
+The above example will use *my_handler* for any Line2D
+instances (p1 and p2). ::
+
+   legend(handler_map={p1:HandlerLine2D(numpoints=1)})
+
+In the above example, only *p1* will be handled by *my_handler*, while
+others will be handled by default handlers.
+
+The curent default handler_map has handlers for errobar and bar
+plots. Also, it includes an entry for ¡°tuple¡± which is mapped to
+*HandlerTuple*. It simply overplots all the handles for items in the
+given tuple. For example,
+
+
+.. plot::
+    :include-source:
+
+    z = np.random.randn(10)
+
+    p1a, = plt.plot(z, "ro", ms=10, mfc="r", mew=2, mec="r") # red filled circle
+    p1b, = plt.plot(z[:5], "w+", ms=10, mec="w", mew=2) # white cross
+
+    plt.legend([p1a, (p1a, p1b)], ["Attr A", "Attr A+B"])
+
+
+
+Implement a Custom Handler
+--------------------------
+
+Handler can be any callable object with following signature. ::
+
+    def __call__(self, legend, orig_handle,
+                 fontsize,
+                 handlebox):
+
+Where *legend* is the legend itself, *orig_handle* is the original
+plot (*p_i* in the above example), *fontsize* is the fontsize in
+pixles, and *handlebox* is a OffsetBox instance. Within the call, you
+create relevant artists (using relevant properties from the *legend*
+and/or *orig_handle*) and add them into the handlebox. The artists
+needs to be scaled according to the fontsize (note that the size is in
+pixel, i.e., this is dpi-scaled value). See legend_handler.py for more
+details.

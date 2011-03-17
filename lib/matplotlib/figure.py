@@ -974,6 +974,8 @@ class Figure(Artist):
         columnspacing      the spacing between columns
         ================   ==================================================================
 
+        .. Note:: Not all kinds of artist are supported by the legend.
+                  See LINK (FIXME) for details.
 
         **Example:**
 
