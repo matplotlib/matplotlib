@@ -2056,19 +2056,10 @@ ft2font_module::~ft2font_module()
     FT_Done_FreeType(_ft2Library);
 }
 
-#if defined(_MSC_VER)
-DL_EXPORT(void)
-#elif defined(__cplusplus)
-extern "C"
-#else
-void
-#endif
-
-#if PY3K
 PyMODINIT_FUNC
+#if PY3K
 PyInit_ft2font(void)
 #else
-PyMODINIT_FUNC
 initft2font(void)
 #endif
 {
