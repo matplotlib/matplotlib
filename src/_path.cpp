@@ -1481,13 +1481,10 @@ _path_module::cleanup_path(const Py::Tuple& args)
     return result;
 }
 
-#if PY3K
-extern "C"
 PyMODINIT_FUNC
+#if PY3K
 PyInit__path(void)
 #else
-extern "C"
-PyMODINIT_FUNC
 init_path(void)
 #endif
 {

@@ -265,8 +265,6 @@ static PyMethodDef functions[] =
     {NULL, NULL} /* sentinel */
 };
 
-extern "C"
-{
 #if PY3K
 static PyModuleDef _tkagg_module = {
     PyModuleDef_HEAD_INIT,
@@ -289,11 +287,12 @@ PyInit__tkagg(void)
     return m;
 }
 #else
-PyMODINIT_FUNC init_tkagg(void)
+PyMODINIT_FUNC
+init_tkagg(void)
 {
     import_array();
 
     Py_InitModule("_tkagg", functions);
 }
 #endif
-}
+

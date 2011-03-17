@@ -2441,12 +2441,10 @@ void RendererAgg::init_type()
                        "restore_region(region, x1, y1, x2, y2, x3, y3)");
 }
 
-extern "C"
-#if PY3K
 PyMODINIT_FUNC
+#if PY3K
 PyInit__backend_agg(void)
 #else
-PyMODINIT_FUNC
 init_backend_agg(void)
 #endif
 {
