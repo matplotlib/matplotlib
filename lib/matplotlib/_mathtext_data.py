@@ -1,9 +1,10 @@
 """
 font data tables for truetype and afm computer modern fonts
 """
-
 # this dict maps symbol names to fontnames, glyphindex.  To get the
 # glyph index from the character code, you have to use get_charmap
+from __future__ import print_function
+
 """
 from matplotlib.ft2font import FT2Font
 font = FT2Font('/usr/local/share/matplotlib/cmr10.ttf')
@@ -13,7 +14,6 @@ items.sort()
 for charcode, glyphind in items:
     print charcode, glyphind
 """
-from __future__ import print_function
 
 latex_to_bakoma = {
     r'\oint'                     : ('cmex10',  45),

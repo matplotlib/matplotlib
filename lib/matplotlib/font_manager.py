@@ -19,6 +19,7 @@ the advantage that it is the standard way to look up fonts on X11
 platforms, so if a font is installed, it is much more likely to be
 found.
 """
+from __future__ import print_function
 
 """
 KNOWN ISSUES
@@ -42,7 +43,6 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-from __future__ import print_function
 import os, sys, glob, subprocess, warnings
 try:
     set
