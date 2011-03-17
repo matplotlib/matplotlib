@@ -1688,7 +1688,7 @@ class RendererPdf(RendererBase):
             chunks = []
 
             if not rcParams['pdf.use14corefonts']:
-                if fonttype == 3 and not isinstance(s, str) and len(s) != 0:
+                if fonttype == 3 and not isinstance(s, bytes) and len(s) != 0:
                     # Break the string into chunks where each chunk is either
                     # a string of chars <= 255, or a single character > 255.
                     s = unicode(s)

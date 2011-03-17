@@ -1148,7 +1148,8 @@ class BboxImage(_AxesImageBase):
 def imread(fname, format=None):
     """
     Return image file in *fname* as :class:`numpy.array`.  *fname* may
-    be a string path or a Python file-like object.
+    be a string path or a Python file-like object.  If using a file
+    object, it must be opened in binary mode.
 
     If *format* is provided, will try to read file of that type,
     otherwise the format is deduced from the filename.  If nothing can

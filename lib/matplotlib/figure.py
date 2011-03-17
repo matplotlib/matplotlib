@@ -316,7 +316,7 @@ class Figure(Artist):
         """
         allsubplots = np.alltrue([hasattr(ax, 'is_last_row') for ax in self.axes])
         if len(self.axes)==1:
-            for label in ax.get_xticklabels():
+            for label in self.axes[0].get_xticklabels():
                 label.set_ha(ha)
                 label.set_rotation(rotation)
         else:
