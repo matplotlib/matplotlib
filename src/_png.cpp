@@ -276,8 +276,7 @@ static void _read_png_data(PyObject* py_file_obj, png_bytep data, png_size_t len
         result = PyObject_CallFunction(read_method, (char *)"i", length);
     }
 #if PY3K
-    PyObject* utf8_result = PyUnicode_AsUTF8String(result);
-    if (PyBytes_AsStringAndSize(utf8_result, &buffer, &bufflen) == 0)
+    if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0)
 #else
     if (PyString_AsStringAndSize(result, &buffer, &bufflen) == 0)
 #endif

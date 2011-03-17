@@ -9,6 +9,13 @@ try:
 except ImportError:
     from md5 import md5 #Deprecated in 2.5
 
+if hasattr(base64, 'encodebytes'):
+    # Python 3 case
+    encodebytes = base64.encodebytes
+else:
+    # Python 2 case
+    encodebytes = base64.encodestring
+
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -102,7 +109,7 @@ class RendererSVG(RendererBase):
         dictkey = (gc.get_hatch(), rgbFace, gc.get_rgb())
         id = self._hatchd.get(dictkey)
         if id is None:
-            id = 'h%s' % md5(str(dictkey)).hexdigest()
+            id = 'h%s' % md5(unicode(dictkey).encode('ascii')).hexdigest()
             self._svgwriter.write(u'<defs>\n  <pattern id="%s" ' % id)
             self._svgwriter.write(u'patternUnits="userSpaceOnUse" x="0" y="0" ')
             self._svgwriter.write(u' width="%d" height="%d" >\n' % (HATCH_SIZE, HATCH_SIZE))
@@ -433,7 +440,7 @@ class RendererSVG(RendererBase):
             _png.write_png(buffer, cols, rows, bytesio)
             im.flipud_out()
             self._svgwriter.write(
-                base64.encodebytes(bytesio.getvalue()).decode('ascii'))
+                encodebytes(bytesio.getvalue()).decode('ascii'))
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
             filename = '%s.image%d.png'%(self.basename, self._imaged[self.basename])
