@@ -401,6 +401,9 @@ arguments works from within Python::
 .. _`nosetest arguments`: http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
 
 
+Running tests by any means other than `matplotlib.test()` 
+does not load the nose "knownfailureif" (Known failing tests) plugin, 
+causing known-failing tests to fail for real.
 
 Writing a simple test
 ---------------------

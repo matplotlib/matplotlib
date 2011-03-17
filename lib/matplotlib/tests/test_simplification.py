@@ -75,8 +75,6 @@ def test_noise():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    print(len(simplified))
-
     assert len(simplified) == 3884
 
 def test_sine_plus_noise():
@@ -93,8 +91,6 @@ def test_sine_plus_noise():
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
-
-    print(len(simplified))
 
     assert len(simplified) == 876
 
@@ -141,8 +137,6 @@ def test_fft_peaks():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    print(len(simplified))
-
     assert len(simplified) == 20
 
 def test_start_with_moveto():
@@ -180,7 +174,6 @@ AAj1//+nPwAA/////w=="""
 @raises(OverflowError)
 def test_throw_rendering_complexity_exceeded():
     rcParams['path.simplify'] = False
-
     xx = np.arange(200000)
     yy = np.random.rand(200000)
     yy[1000] = np.nan
@@ -189,9 +182,7 @@ def test_throw_rendering_complexity_exceeded():
     ax.plot(xx, yy)
     try:
         fig.savefig(io.StringIO())
-    except e:
-        raise e
-    else:
+    finally:
         rcParams['path.simplify'] = True
 
 @image_comparison(baseline_images=['clipper_edge'])
