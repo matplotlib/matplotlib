@@ -115,7 +115,7 @@ and build and install as usual with::
     If you are on debian/ubuntu, you can get all the dependencies
     required to build matplotlib with::
 
-      sudo apt-get build_dep python-matplotlib
+      sudo apt-get build-dep python-matplotlib
 
     This does not build matplotlib, but it does get the install the
     build dependencies, which will make building from source easier.
