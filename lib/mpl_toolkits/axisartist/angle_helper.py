@@ -5,7 +5,7 @@ import math
 
 A = np.array
 
-from grid_finder import ExtremeFinderSimple
+from mpl_toolkits.axisartist.grid_finder import ExtremeFinderSimple
 
 def select_step_degree(dv):
 
@@ -80,9 +80,6 @@ def select_step_sub(dv):
 
     # subarcsec or degree
     tmp = 10.**(int(math.log10(dv))-1.)
-    dv2 = dv/tmp
-    substep_limits_ = [1.5, 3., 7.]
-    substep_steps_  = [1. , 2., 5.]
 
     factor = 1./tmp
 
@@ -99,12 +96,10 @@ def select_step_sub(dv):
     return step, factor
 
 
-def select_step(v1, v2, nv, hour=False):
+def select_step(v1, v2, nv, hour=False, include_last=True):
 
     if v1 > v2:
         v1, v2 = v2, v1
-
-    A = np.array
 
     dv = float(v2 - v1) / nv
 
@@ -141,38 +136,45 @@ def select_step(v1, v2, nv, hour=False):
     # we need to check the range of values
     # for example, -90 to 90, 0 to 360,
 
-
     if factor == 1. and (levs[-1] >= levs[0]+cycle): # check for cycle
         nv = int(cycle / step)
-        levs = np.arange(0, nv, 1) * step
+        if include_last:
+            levs = levs[0] + np.arange(0, nv+1, 1) * step
+        else:
+            levs = levs[0] + np.arange(0, nv, 1) * step
+            
         n = len(levs)
 
     return np.array(levs), n, factor
 
 
-def select_step24(v1, v2, nv):
+def select_step24(v1, v2, nv, include_last=True):
     v1, v2 = v1/15., v2/15.
-    levs, n, factor =  select_step(v1, v2, nv, hour=True)
+    levs, n, factor =  select_step(v1, v2, nv, hour=True,
+                                   include_last=include_last)
     return levs*15., n, factor
 
-def select_step360(v1, v2, nv):
-    return select_step(v1, v2, nv, hour=False)
+def select_step360(v1, v2, nv, include_last=True):
+    return select_step(v1, v2, nv, hour=False,
+                       include_last=include_last)
 
 
 
 
 class LocatorHMS(object):
-    def __init__(self, den):
+    def __init__(self, den, include_last=True):
         self.den = den
+        self._include_last = include_last
     def __call__(self, v1, v2):
-        return select_step24(v1, v2, self.den)
+        return select_step24(v1, v2, self.den, self._include_last)
 
 
 class LocatorDMS(object):
-    def __init__(self, den):
+    def __init__(self, den, include_last=True):
         self.den = den
+        self._include_last = include_last
     def __call__(self, v1, v2):
-        return select_step360(v1, v2, self.den)
+        return select_step360(v1, v2, self.den, self._include_last)
 
 
 class FormatterHMS(object):
@@ -181,11 +183,12 @@ class FormatterHMS(object):
             return []
         #ss = [[-1, 1][v>0] for v in values]  #not py24 compliant
         values = np.asarray(values)
-        ss = np.where(values>0, 1, -1)
+        ss = np.where(values>=0, 1, -1)
         values = np.abs(values)/15.
 
         if factor == 1:
-            return ["$%d^{\mathrm{h}}$" % (int(v),) for v in values]
+            return ["$%s%d^{\mathrm{h}}$" % ({1:"",-1:"-"}[s], int(v),) \
+                    for s, v in zip(ss, values)]
         elif factor == 60:
             return ["$%d^{\mathrm{h}}\,%02d^{\mathrm{m}}$" % (s*floor(v/60.), v%60) \
                     for s, v in zip(ss, values)]
@@ -347,3 +350,6 @@ if __name__ == "__main__":
     print select_step360(20+21.2/60., 21+33.3/60., 5)
     print select_step360(20.5+21.2/3600., 20.5+33.3/3600., 5)
     print select_step360(20+21.2/60., 20+53.3/60., 5)
+
+    print select_step(-180, 180, 10, hour=False)
+    print select_step(-12, 12, 10, hour=True)
