@@ -81,7 +81,7 @@ class NBPlot(object):
 
 def main():
     pl = NBPlot()
-    for ii in xrange(10):
+    for ii in range(10):
         pl.plot()
         time.sleep(0.5)
     raw_input('press Enter...')
