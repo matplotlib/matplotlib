@@ -76,7 +76,7 @@ class MyDynamicMplCanvas(MyMplCanvas):
 
     def update_figure(self):
         # Build a list of 4 random integers between 0 and 10 (both inclusive)
-        l = [ random.randint(0, 10) for i in xrange(4) ]
+        l = [ random.randint(0, 10) for i in range(4) ]
 
         self.axes.plot([0, 1, 2, 3], l, 'r')
         self.draw()
