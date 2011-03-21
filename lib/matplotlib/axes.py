@@ -34,7 +34,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 
-from matplotlib.container import BarContainer, ErrorbarContainer
+from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -4892,22 +4892,27 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
         self.hold(True)
 
-        markerline, = self.plot(x, y, markerfmt)
+        markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
 
         if bottom is None:
             bottom = 0
 
         stemlines = []
         for thisx, thisy in zip(x, y):
-            l, = self.plot([thisx,thisx], [bottom, thisy], linefmt)
+            l, = self.plot([thisx,thisx], [bottom, thisy], linefmt,
+                           label="_nolegend_")
             stemlines.append(l)
 
         baseline, = self.plot([np.amin(x), np.amax(x)], [bottom,bottom],
-                              basefmt)
+                              basefmt, label="_nolegend_")
 
         self.hold(remember_hold)
 
-        return markerline, stemlines, baseline
+        stem_container = StemContainer((markerline, stemlines, baseline),
+                                       label=label)
+        self.add_container(stem_container)
+
+        return stem_container
 
 
     def pie(self, x, explode=None, labels=None, colors=None,
