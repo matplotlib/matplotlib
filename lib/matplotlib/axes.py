@@ -4862,7 +4862,8 @@ class Axes(martist.Artist):
 
         return col
 
-    def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
+    def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-',
+             bottom=None, label=None):
         """
         call signature::
 
@@ -4893,12 +4894,16 @@ class Axes(martist.Artist):
 
         markerline, = self.plot(x, y, markerfmt)
 
+        if bottom is None:
+            bottom = 0
+
         stemlines = []
         for thisx, thisy in zip(x, y):
-            l, = self.plot([thisx,thisx], [0, thisy], linefmt)
+            l, = self.plot([thisx,thisx], [bottom, thisy], linefmt)
             stemlines.append(l)
 
-        baseline, = self.plot([np.amin(x), np.amax(x)], [0,0], basefmt)
+        baseline, = self.plot([np.amin(x), np.amax(x)], [bottom,bottom],
+                              basefmt)
 
         self.hold(remember_hold)
 
