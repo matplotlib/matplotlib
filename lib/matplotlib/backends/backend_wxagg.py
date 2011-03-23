@@ -160,7 +160,7 @@ def _convert_agg_to_wx_bitmap(agg, bbox):
     if bbox is None:
         # agg => rgba buffer -> bitmap
         return wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
-            agg.buffer_rgba(0, 0))
+            agg.buffer_rgba())
     else:
         # agg => rgba buffer -> bitmap => clipped bitmap
         return _WX28_clipped_agg_as_bitmap(agg, bbox)
@@ -177,7 +177,7 @@ def _WX28_clipped_agg_as_bitmap(agg, bbox):
     t = b + height
 
     srcBmp = wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
-        agg.buffer_rgba(0, 0))
+        agg.buffer_rgba())
     srcDC = wx.MemoryDC()
     srcDC.SelectObject(srcBmp)
 

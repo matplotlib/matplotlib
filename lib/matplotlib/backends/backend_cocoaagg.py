@@ -144,7 +144,7 @@ class PlotView(NibClassBuilder.AutoBaseClass):
         self.image_.setSize_((w,h))
 
         brep = NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(
-            (self.canvas.buffer_rgba(0,0),'','','',''), # Image data
+            (self.canvas.buffer_rgba(),'','','',''), # Image data
             w, # width
             h, # height
             8, # bits per pixel

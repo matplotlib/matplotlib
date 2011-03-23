@@ -2191,19 +2191,13 @@ RendererAgg::buffer_rgba(const Py::Tuple& args)
 
     _VERBOSE("RendererAgg::buffer_rgba");
 
-    args.verify_length(2);
-    int startw = Py::Int(args[0]);
-    int starth = Py::Int(args[1]);
-    int row_len = width * 4;
-    int start = row_len * starth + startw * 4;
+    args.verify_length(0);
 
     #if PY3K
-    Py_buffer view;
-    PyBuffer_FillInfo(&view, NULL, (void *)((const char *)pixBuffer + start),
-                      row_len*height - start, 1, PyBUF_SIMPLE);
-    return Py::asObject(PyMemoryView_FromBuffer(&view));
+    return Py::asObject(this);
     #else
-    return Py::asObject(PyBuffer_FromMemory(pixBuffer + start, row_len*height - start));
+    int row_len = width * 4;
+    return Py::asObject(PyBuffer_FromMemory(pixBuffer, row_len*height));
     #endif
 }
 
@@ -2318,6 +2312,14 @@ RendererAgg::points_to_pixels(const Py::Object& points)
     return p * dpi / 72.0;
 }
 
+#if PY3K
+int
+RendererAgg::buffer_get( Py_buffer* buf, int flags )
+{
+    return PyBuffer_FillInfo(buf, this, pixBuffer, width * height * 4, 1,
+                             PyBUF_SIMPLE);
+}
+#endif
 
 RendererAgg::~RendererAgg()
 {
@@ -2439,6 +2441,10 @@ void RendererAgg::init_type()
                        "restore_region(region)");
     add_varargs_method("restore_region2", &RendererAgg::restore_region2,
                        "restore_region(region, x1, y1, x2, y2, x3, y3)");
+
+    #if PY3K
+    behaviors().supportBufferType();
+    #endif
 }
 
 PyMODINIT_FUNC
