@@ -237,7 +237,7 @@ namespace Py
                 T *self = static_cast<T *>( self_in_cobject );
 
                 MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>(
-                    PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ) );
+                                                PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ) );
 
                 Object result;
 
@@ -273,7 +273,7 @@ namespace Py
                 PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
                 T *self = static_cast<T *>( self_in_cobject );
                 MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>(
-                    PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ) );
+                                                PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ) );
 
                 Tuple args( _args );
 
@@ -310,7 +310,7 @@ namespace Py
                 PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
                 T *self = static_cast<T *>( self_in_cobject );
                 MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>(
-                    PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ) );
+                                                PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ) );
 
                 Tuple args( _args );
 
