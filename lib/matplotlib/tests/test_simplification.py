@@ -28,6 +28,7 @@ def test_clipping():
     ax.set_xticks([])
     ax.set_yticks([])
     fig.savefig('clipping')
+    plt.close()
 
 @image_comparison(baseline_images=['overflow'], tol=1e-2)
 def test_overflow():
@@ -42,6 +43,7 @@ def test_overflow():
     ax.set_yticks([])
 
     fig.savefig('overflow')
+    plt.close()
 
 @image_comparison(baseline_images=['clipping_diamond'])
 def test_diamond():
@@ -57,6 +59,7 @@ def test_diamond():
     ax.set_yticks([])
 
     fig.savefig('clipping_diamond')
+    plt.close()
 
 def test_noise():
     np.random.seed(0)
@@ -72,6 +75,7 @@ def test_noise():
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
+    plt.close()
 
     print len(simplified)
 
@@ -91,6 +95,7 @@ def test_sine_plus_noise():
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
+    plt.close()
 
     print len(simplified)
 
@@ -112,6 +117,7 @@ def test_simplify_curve():
     ax.set_ylim((0, 2))
 
     fig.savefig('simplify_curve')
+    plt.close()
 
 @image_comparison(baseline_images=['hatch_simplify'])
 def test_hatch():
@@ -122,6 +128,7 @@ def test_hatch():
     ax.set_ylim((0.45, 0.55))
 
     fig.savefig('hatch_simplify')
+    plt.close()
 
 @image_comparison(baseline_images=['fft_peaks'])
 def test_fft_peaks():
@@ -138,6 +145,7 @@ def test_fft_peaks():
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
+    plt.close()
 
     print len(simplified)
 
@@ -185,12 +193,13 @@ def test_throw_rendering_complexity_exceeded():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(xx, yy)
+    rcParams['path.simplify'] = True
     try:
         fig.savefig(cStringIO.StringIO())
     except e:
         raise e
-    else:
-        rcParams['path.simplify'] = True
+    finally:
+        plt.close()
 
 @image_comparison(baseline_images=['clipper_edge'])
 def test_clipper():
@@ -209,6 +218,7 @@ def test_clipper():
 
     ax.set_xlim(5, 9)
     fig.savefig('clipper_edge')
+    plt.close()
 
 @image_comparison(baseline_images=['para_equal_perp'])
 def test_para_equal_perp():
@@ -220,6 +230,7 @@ def test_para_equal_perp():
     ax.plot(x + 1, y + 1)
     ax.plot(x + 1, y + 1, 'ro')
     fig.savefig('para_equal_perp')
+    plt.close()
 
 if __name__=='__main__':
     import nose

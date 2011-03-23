@@ -41,6 +41,7 @@ def test_formatter_ticker():
     ax.set_xlabel( "x-label 005" )
     ax.autoscale_view()
     fig.savefig( 'formatter_ticker_005' )
+    plt.close()
 
 @image_comparison(baseline_images=['offset_points'])
 def test_basic_annotate():
@@ -58,6 +59,7 @@ def test_basic_annotate():
                  xytext=(3, 3), textcoords='offset points' )
 
     fig.savefig( 'offset_points' )
+    plt.close()
 
 @image_comparison(baseline_images=['polar_axes'])
 def test_polar_annotations():
@@ -92,6 +94,7 @@ def test_polar_annotations():
                 )
 
     fig.savefig( 'polar_axes' )
+    plt.close()
 
    #--------------------------------------------------------------------
 @image_comparison(baseline_images=['polar_coords'])
@@ -123,6 +126,7 @@ def test_polar_coord_annotations():
     ax.set_xlim( -20, 20 )
     ax.set_ylim( -20, 20 )
     fig.savefig( 'polar_coords' )
+    plt.close()
 
 @image_comparison(baseline_images=['fill_units'])
 def test_fill_units():
@@ -164,6 +168,7 @@ def test_fill_units():
 
     fig.autofmt_xdate()
     fig.savefig( 'fill_units' )
+    plt.close()
 
 @image_comparison(baseline_images=['single_point'])
 def test_single_point():
@@ -175,6 +180,7 @@ def test_single_point():
     plt.plot( [1], [1], 'o' )
 
     fig.savefig( 'single_point' )
+    plt.close()
 
 @image_comparison(baseline_images=['single_date'])
 def test_single_date():
@@ -189,6 +195,7 @@ def test_single_date():
     plt.plot( time1, data1, 'o', color='r' )
 
     fig.savefig( 'single_date' )
+    plt.close()
 
 @image_comparison(baseline_images=['shaped_data'])
 def test_shaped_data():
@@ -233,6 +240,7 @@ def test_shaped_data():
     plt.plot( xdata[:,1], xdata[1,:], 'o' )
 
     fig.savefig( 'shaped_data' )
+    plt.close()
 
 @image_comparison(baseline_images=['const_xy'])
 def test_const_xy():
@@ -248,6 +256,7 @@ def test_const_xy():
     plt.plot( np.ones( (10,) ), np.ones( (10,) ), 'o' )
 
     fig.savefig( 'const_xy' )
+    plt.close()
 
 @image_comparison(baseline_images=['polar_wrap_180',
                                    'polar_wrap_360',
@@ -275,6 +284,7 @@ def test_polar_wrap():
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
 
     fig.savefig( 'polar_wrap_360' )
+    plt.close()
 
 @image_comparison(baseline_images=['polar_units'])
 def test_polar_units():
@@ -305,6 +315,7 @@ def test_polar_units():
     y1 = [ y*km for y in y1 ]
     plt.polar( x2, y1, color = "blue", thetaunits="rad", runits="km" )
     assert_true( isinstance(plt.gca().get_xaxis().get_major_formatter(), units.UnitDblFormatter) )
+    plt.close()
 
 
 @image_comparison(baseline_images=['polar_rmin'])
@@ -319,6 +330,7 @@ def test_polar_rmin():
     ax.set_rmin(0.5)
 
     fig.savefig('polar_rmin')
+    plt.close()
 
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
@@ -340,6 +352,7 @@ def test_axvspan_epoch():
     ax.set_xlim( t0 - 5.0*dt, tf + 5.0*dt )
 
     fig.savefig( 'axvspan_epoch' )
+    plt.close()
 
 @image_comparison(baseline_images=['axhspan_epoch'])
 def test_axhspan_epoch():
@@ -361,6 +374,7 @@ def test_axhspan_epoch():
     ax.set_ylim( t0 - 5.0*dt, tf + 5.0*dt )
 
     fig.savefig( 'axhspan_epoch' )
+    plt.close()
 
 
 @image_comparison(baseline_images=['hexbin_extent'])
@@ -375,6 +389,7 @@ def test_hexbin_extent():
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
     fig.savefig('hexbin_extent')
+    plt.close()
 
 @image_comparison(baseline_images=['nonfinite_limits'])
 def test_nonfinite_limits():
@@ -385,6 +400,7 @@ def test_nonfinite_limits():
     ax = fig.add_subplot(111)
     ax.plot(x, y)
     fig.savefig('nonfinite_limits')
+    plt.close()
 
 @image_comparison(baseline_images=['imshow'])
 def test_imshow():
@@ -401,6 +417,7 @@ def test_imshow():
 
     ax.imshow(r)
     fig.savefig('imshow')
+    plt.close()
 
 @image_comparison(baseline_images=['imshow_clip'], tol=1e-2)
 def test_imshow_clip():
@@ -428,6 +445,7 @@ def test_imshow_clip():
     #Plot the image clipped by the contour
     ax.imshow(r, clip_path=clip_path)
     fig.savefig('imshow_clip')
+    plt.close()
 
 @image_comparison(baseline_images=['polycollection_joinstyle'])
 def test_polycollection_joinstyle():
@@ -446,6 +464,7 @@ def test_polycollection_joinstyle():
     ax.set_yticks([])
 
     fig.savefig('polycollection_joinstyle')
+    plt.close()
 
 @image_comparison(baseline_images=['fill_between_interpolate'], tol=1e-2)
 def test_fill_between_interpolate():
@@ -467,6 +486,7 @@ def test_fill_between_interpolate():
     ax1.fill_between(x, y1, y2, where=y2<=y1, facecolor='red', interpolate=True)
 
     fig.savefig('fill_between_interpolate')
+    plt.close()
 
 @image_comparison(baseline_images=['symlog'])
 def test_symlog():
@@ -481,6 +501,7 @@ def test_symlog():
     ax.set_ylim(-1,10000000)
 
     fig.savefig('symlog')
+    plt.close()
 
 @image_comparison(baseline_images=['pcolormesh'], tol=0.02)
 def test_pcolormesh():
@@ -511,6 +532,7 @@ def test_pcolormesh():
     ax.set_yticks([])
 
     fig.savefig('pcolormesh')
+    plt.close()
 
 
 @image_comparison(baseline_images=['canonical'])
