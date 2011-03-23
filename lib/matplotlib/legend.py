@@ -1,24 +1,15 @@
 """
-Place a legend on the axes at location loc.  Labels are a
-sequence of strings and loc can be a string or an integer
-specifying the legend location
+The legend module defines the Legend class, which is responsible for
+drawing legends associated with axes and/or figures. 
 
-The location codes are
-
-  'best'         : 0, (only implemented for axis legends)
-  'upper right'  : 1,
-  'upper left'   : 2,
-  'lower left'   : 3,
-  'lower right'  : 4,
-  'right'        : 5,
-  'center left'  : 6,
-  'center right' : 7,
-  'lower center' : 8,
-  'upper center' : 9,
-  'center'       : 10,
-
-Return value is a sequence of text, line instances that make
-up the legend
+The Legend class can be considered as a container of legend handles
+and legend texts. Creation of corresponding legend handles from the
+plot elements in the axes or figures (e.g., lines, patches, etc.) are
+specified by the handler map, which defines the mapping between the
+plot elements and the legend handlers to be used (the default legend
+handlers are defined in the matplotlib.legend_handler module). Note
+that not all kinds of artist are supported by the legend yet (See LINK
+(FIXME) for details).
 """
 from __future__ import division, print_function
 import warnings
@@ -36,6 +27,9 @@ from matplotlib.collections import LineCollection, RegularPolyCollection, \
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransformTo, BboxTransformFrom
 
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea, DraggableOffsetBox
+
+from matplotlib.container import ErrorbarContainer, BarContainer
+import legend_handler
 
 
 class DraggableLegend(DraggableOffsetBox):
@@ -112,8 +106,6 @@ class Legend(Artist):
     loc can be a tuple of the noramilzed coordinate values with
     respect its parent.
 
-    Return value is a sequence of text, line instances that make
-    up the legend
     """
 
 
@@ -167,10 +159,11 @@ class Legend(Artist):
                  bbox_to_anchor = None, # bbox that the legend will be anchored.
                  bbox_transform = None, # transform for the bbox
                  frameon = True, # draw frame
+                 handler_map = None,
                  ):
         """
         - *parent* : the artist that contains the legend
-        - *handles* : a list of artists (lines, patches) to add to the legend
+        - *handles* : a list of artists (lines, patches) to be added to the legend
         - *labels* : a list of strings to label the legend
 
         Optional keyword arguments:
@@ -200,7 +193,7 @@ class Legend(Artist):
         ================   ==================================================================
 
 
-The pad and spacing parameters are measure in font-size units.  E.g.,
+The pad and spacing parameters are measured in font-size units.  E.g.,
 a fontsize of 10 points and a handlelength=5 implies a handlelength of
 50 points.  Values from rcParams will be used if None.
 
@@ -235,6 +228,9 @@ in the normalized axes coordinate.
         self.texts = []
         self.legendHandles = []
         self._legend_title_box = None
+
+
+        self._handler_map = handler_map
 
         localdict = locals()
 
@@ -470,6 +466,88 @@ in the normalized axes coordinate.
             return renderer.points_to_pixels(self._fontsize)
 
 
+    # _default_handler_map defines the default mapping between plot
+    # elements and the legend handlers.
+
+    _default_handler_map = {
+        ErrorbarContainer:legend_handler.HandlerErrorbar(),
+        Line2D:legend_handler.HandlerLine2D(),
+        Patch:legend_handler.HandlerPatch(),
+        LineCollection:legend_handler.HandlerLineCollection(),
+        RegularPolyCollection:legend_handler.HandlerRegularPolyCollection(),
+        CircleCollection:legend_handler.HandlerCircleCollection(),
+        BarContainer:legend_handler.HandlerPatch(update_func=legend_handler.update_from_first_child),
+        tuple:legend_handler.HandlerTuple(),
+        }
+
+    # (get|set|update)_default_handler_maps are public interfaces to
+    # modify the defalut handler map.
+
+    @classmethod
+    def get_default_handler_map(cls):
+        """
+        A class method that returns the default handler map.
+        """
+        return cls._default_handler_map
+
+    @classmethod
+    def set_default_handler_map(cls, handler_map):
+        """
+        A class method to set the default handler map.
+        """
+        cls._default_handler_map = handler_map
+
+    @classmethod
+    def update_default_handler_map(cls, handler_map):
+        """
+        A class method to update the default handler map.
+        """
+        cls._default_handler_map.update(handler_map)
+
+    def get_legend_handler_map(self):
+        """
+        return the handler map.
+        """
+
+        default_handler_map = self.get_default_handler_map()
+        
+        if self._handler_map:
+            hm = default_handler_map.copy()
+            hm.update(self._handler_map)
+            return hm
+        else:
+            return default_handler_map
+
+    @staticmethod
+    def get_legend_handler(legend_handler_map, orig_handle):
+        """
+        return a legend handler from *legend_handler_map* that
+        corresponds to *orig_handler*.
+
+        *legend_handler_map* should be a dictionary object (that is
+        returned by the get_legend_handler_map method).
+
+        It first checks if the *orig_handle* itself is a key in the
+        *legend_hanler_map* and return the associated value.
+        Otherwised, it checks for each of the classes in its
+        method-resolution-order. If no matching key is found, it
+        returns None.
+        """
+        legend_handler_keys = legend_handler_map.keys()
+        if orig_handle in legend_handler_keys:
+            handler = legend_handler_map[orig_handle]
+        else:
+
+            for handle_type in type(orig_handle).mro():
+                if handle_type in legend_handler_map:
+                    handler = legend_handler_map[handle_type]
+                    break
+            else:
+                handler = None
+
+        return handler
+
+
     def _init_legend_box(self, handles, labels):
         """
         Initiallize the legend_box. The legend_box is an instance of
@@ -516,154 +594,37 @@ in the normalized axes coordinate.
         # manually set their transform to the self.get_transform().
 
 
-        for handle, lab in zip(handles, labels):
-            if isinstance(handle, RegularPolyCollection) or \
-                   isinstance(handle, CircleCollection):
-                npoints = self.scatterpoints
-            else:
-                npoints = self.numpoints
-            if npoints > 1:
-                # we put some pad here to compensate the size of the
-                # marker
-                xdata = np.linspace(0.3*fontsize,
-                                    (self.handlelength-0.3)*fontsize,
-                                    npoints)
-                xdata_marker = xdata
-            elif npoints == 1:
-                xdata = np.linspace(0, self.handlelength*fontsize, 2)
-                xdata_marker = [0.5*self.handlelength*fontsize]
+        legend_handler_map = self.get_legend_handler_map()
 
-            if isinstance(handle, Line2D):
-                ydata = ((height-descent)/2.)*np.ones(xdata.shape, float)
-                legline = Line2D(xdata, ydata)
+        for orig_handle, lab in zip(handles, labels):
 
-                legline.update_from(handle)
-                self._set_artist_props(legline) # after update
-                legline.set_clip_box(None)
-                legline.set_clip_path(None)
-                legline.set_drawstyle('default')
-                legline.set_marker('None')
+            handler = self.get_legend_handler(legend_handler_map, orig_handle)
 
-                handle_list.append(legline)
-
-                legline_marker = Line2D(xdata_marker, ydata[:len(xdata_marker)])
-                legline_marker.update_from(handle)
-                self._set_artist_props(legline_marker)
-                legline_marker.set_clip_box(None)
-                legline_marker.set_clip_path(None)
-                legline_marker.set_linestyle('None')
-                if self.markerscale !=1:
-                    newsz = legline_marker.get_markersize()*self.markerscale
-                    legline_marker.set_markersize(newsz)
-                # we don't want to add this to the return list because
-                # the texts and handles are assumed to be in one-to-one
-                # correpondence.
-                legline._legmarker = legline_marker
-
-            elif isinstance(handle, Patch):
-                p = Rectangle(xy=(0., 0.),
-                              width = self.handlelength*fontsize,
-                              height=(height-descent),
-                              )
-                p.update_from(handle)
-                self._set_artist_props(p)
-                p.set_clip_box(None)
-                p.set_clip_path(None)
-                handle_list.append(p)
-            elif isinstance(handle, LineCollection):
-                ydata = ((height-descent)/2.)*np.ones(xdata.shape, float)
-                legline = Line2D(xdata, ydata)
-                self._set_artist_props(legline)
-                legline.set_clip_box(None)
-                legline.set_clip_path(None)
-                lw = handle.get_linewidth()[0]
-                dashes = handle.get_dashes()[0]
-                color = handle.get_colors()[0]
-                legline.set_color(color)
-                legline.set_linewidth(lw)
-                if dashes[0] is not None: # dashed line
-                    legline.set_dashes(dashes[1])
-                handle_list.append(legline)
-
-            elif isinstance(handle, RegularPolyCollection):
-
-                #ydata = self._scatteryoffsets
-                ydata = height*self._scatteryoffsets
-
-                size_max, size_min = max(handle.get_sizes())*self.markerscale**2,\
-                                     min(handle.get_sizes())*self.markerscale**2
-                if self.scatterpoints < 4:
-                    sizes = [.5*(size_max+size_min), size_max,
-                             size_min]
-                else:
-                    sizes = (size_max-size_min)*np.linspace(0,1,self.scatterpoints)+size_min
-
-                p = type(handle)(handle.get_numsides(),
-                                 rotation=handle.get_rotation(),
-                                 sizes=sizes,
-                                 offsets=zip(xdata_marker,ydata),
-                                 transOffset=self.get_transform(),
-                                 )
-
-                p.update_from(handle)
-                p.set_figure(self.figure)
-                p.set_clip_box(None)
-                p.set_clip_path(None)
-                handle_list.append(p)
-
-            elif isinstance(handle, CircleCollection):
-
-                ydata = height*self._scatteryoffsets
-
-                size_max, size_min = max(handle.get_sizes())*self.markerscale**2,\
-                                     min(handle.get_sizes())*self.markerscale**2
-                if self.scatterpoints < 4:
-                    sizes = [.5*(size_max+size_min), size_max,
-                             size_min]
-                else:
-                    sizes = (size_max-size_min)*np.linspace(0,1,self.scatterpoints)+size_min
-
-                p = type(handle)(sizes,
-                                 offsets=zip(xdata_marker,ydata),
-                                 transOffset=self.get_transform(),
-                                 )
-
-                p.update_from(handle)
-                p.set_figure(self.figure)
-                p.set_clip_box(None)
-                p.set_clip_path(None)
-                handle_list.append(p)
-            else:
-                handle_type = type(handle)
-                warnings.warn("Legend does not support %s\nUse proxy artist instead.\n\nhttp://matplotlib.sourceforge.net/users/legend_guide.html#using-proxy-artist\n" % (str(handle_type),))
+            if handler is None:
+                warnings.warn("Legend does not support %s\nUse proxy artist instead.\n\nhttp://matplotlib.sourceforge.net/users/legend_guide.html#using-proxy-artist\n" % (str(orig_handle),))
                 handle_list.append(None)
+                continue
+
+            textbox = TextArea(lab, textprops=label_prop,
+                               multilinebaseline=True, minimumdescent=True)
+            text_list.append(textbox._text)
+
+            labelboxes.append(textbox)
+
+            handlebox = DrawingArea(width=self.handlelength*fontsize,
+                                    height=height,
+                                    xdescent=0., ydescent=descent)
+
+            handle = handler(self, orig_handle, \
+                             #xdescent, ydescent, width, height,
+                             fontsize,
+                             handlebox)
+            handle_list.append(handle)
 
 
 
-            handle = handle_list[-1]
-            if handle is not None: # handle is None is the artist is not supproted
-                textbox = TextArea(lab, textprops=label_prop,
-                                   multilinebaseline=True, minimumdescent=True)
-                text_list.append(textbox._text)
 
-                labelboxes.append(textbox)
-
-                handlebox = DrawingArea(width=self.handlelength*fontsize,
-                                        height=height,
-                                        xdescent=0., ydescent=descent)
-
-                handlebox.add_artist(handle)
-
-                # special case for collection instances
-                if isinstance(handle, RegularPolyCollection) or \
-                       isinstance(handle, CircleCollection):
-                    handle._transOffset = handlebox.get_transform()
-                    handle.set_transform(None)
-
-
-                if hasattr(handle, "_legmarker"):
-                    handlebox.add_artist(handle._legmarker)
-                handleboxes.append(handlebox)
+            handleboxes.append(handlebox)
 
 
         if len(handleboxes) > 0:

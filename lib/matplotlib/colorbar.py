@@ -235,7 +235,7 @@ class ColorbarBase(cm.ScalarMappable):
             self.locator = ticks    # Handle default in _ticker()
         if format is None:
             if isinstance(self.norm, colors.LogNorm):
-                self.formatter = ticker.LogFormatter()
+                self.formatter = ticker.LogFormatterMathtext()
             else:
                 self.formatter = ticker.ScalarFormatter()
         elif cbook.is_string_like(format):

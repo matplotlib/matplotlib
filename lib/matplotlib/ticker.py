@@ -544,7 +544,7 @@ class LogFormatter(Formatter):
         sign = np.sign(x)
         # only label the decades
         fx = math.log(abs(x))/math.log(b)
-        isDecade = is_decade(fx)
+        isDecade = is_close_to_int(fx)
         if not isDecade and self.labelOnlyBase: s = ''
         elif x>10000: s= '%1.0e'%x
         elif x<1: s =  '%1.0e'%x
