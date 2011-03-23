@@ -262,7 +262,8 @@ extern "C"
     static PyObject *number_power_handler( PyObject *, PyObject *, PyObject * );
 
     // Buffer
-    // QQQ
+    static int buffer_get_handler( PyObject *, Py_buffer *, int );
+    static void buffer_release_handler( PyObject *, Py_buffer * );
 }
 
 extern "C" void standard_dealloc( PyObject *p )
@@ -345,8 +346,8 @@ PythonType &PythonType::supportBufferType()
         buffer_table = new PyBufferProcs;
         memset( buffer_table, 0, sizeof( PyBufferProcs ) );   // ensure new fields are 0
         table->tp_as_buffer = buffer_table;
-        // QQQ bf_getbuffer
-        // QQQ bf_releasebuffer
+        buffer_table->bf_getbuffer = buffer_get_handler;
+        buffer_table->bf_releasebuffer = buffer_release_handler;
     }
     return *this;
 }
@@ -1099,6 +1100,25 @@ extern "C" PyObject *number_power_handler( PyObject *self, PyObject *x1, PyObjec
 }
 
 // Buffer
+extern "C" int buffer_get_handler( PyObject *self, Py_buffer *buf, int flags )
+{
+    try
+    {
+        PythonExtensionBase *p = getPythonExtensionBase( self );
+        return p->buffer_get( buf, flags );
+    }
+    catch( Py::Exception & )
+    {
+        return -1;    // indicate error
+    }
+}
+
+extern "C" void buffer_release_handler( PyObject *self, Py_buffer *buf )
+{
+    PythonExtensionBase *p = getPythonExtensionBase( self );
+    p->buffer_release( buf );
+    // NOTE: No way to indicate error to Python
+}
 
 //================================================================================
 //
@@ -1454,7 +1474,18 @@ Py::Object PythonExtensionBase::number_power( const Py::Object &, const Py::Obje
 
 
 // Buffer
-// QQQ
+int PythonExtensionBase::buffer_get( Py_buffer *buf, int flags )
+{
+    missing_method( buffer_get );
+    return -1;
+}
+
+int PythonExtensionBase::buffer_release( Py_buffer *buf )
+{
+    /* This method is optional and only required if the buffer's
+       memory is dynamic. */
+    return 0;
+}
 
 //--------------------------------------------------------------------------------
 //

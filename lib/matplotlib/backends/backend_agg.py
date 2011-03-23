@@ -249,10 +249,10 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
         return self._renderer.tostring_argb()
 
-    def buffer_rgba(self,x,y):
+    def buffer_rgba(self):
         if __debug__: verbose.report('RendererAgg.buffer_rgba',
                                      'debug-annoying')
-        return self._renderer.buffer_rgba(x,y)
+        return self._renderer.buffer_rgba()
 
     def clear(self):
         self._renderer.clear()
@@ -421,10 +421,10 @@ class FigureCanvasAgg(FigureCanvasBase):
                                      'debug-annoying')
         return self.renderer.tostring_argb()
 
-    def buffer_rgba(self,x,y):
+    def buffer_rgba(self):
         if __debug__: verbose.report('FigureCanvasAgg.buffer_rgba',
                                      'debug-annoying')
-        return self.renderer.buffer_rgba(x,y)
+        return self.renderer.buffer_rgba()
 
     def get_default_filetype(self):
         return 'png'
@@ -447,7 +447,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer.dpi = self.figure.dpi
         if is_string_like(filename_or_obj):
             filename_or_obj = open(filename_or_obj, 'wb')
-        _png.write_png(renderer._renderer.buffer_rgba(0, 0),
+        _png.write_png(renderer._renderer.buffer_rgba(),
                        renderer.width, renderer.height,
                        filename_or_obj, self.figure.dpi)
         renderer.dpi = original_dpi
@@ -457,7 +457,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer = self.get_renderer()
         original_dpi = renderer.dpi
         renderer.dpi = self.figure.dpi
-        result = (renderer._renderer.buffer_rgba(0, 0),
+        result = (renderer._renderer.buffer_rgba(),
                   (int(renderer.width), int(renderer.height)))
         renderer.dpi = original_dpi
         return result

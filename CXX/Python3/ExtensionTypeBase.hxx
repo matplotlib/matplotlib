@@ -121,7 +121,8 @@ namespace Py
         virtual Object number_power( const Object &, const Object & );
 
         // Buffer
-        // QQQ need to add py3 interface
+        virtual int buffer_get( Py_buffer *, int flags );
+        virtual int buffer_release( Py_buffer *buf );
 
     public:
         // helper functions to call function fn_name with 0 to 9 args

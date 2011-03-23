@@ -108,7 +108,7 @@ class FltkCanvas(Fltk.Fl_Widget):
             self._source.resize(newsize)
             self._source.draw()
         t1,t2,w,h = self._source.figure.bbox.bounds
-        Fltk.fl_draw_image(self._source.buffer_rgba(0,0),0,0,int(w),int(h),4,0)
+        Fltk.fl_draw_image(self._source.buffer_rgba(),0,0,int(w),int(h),4,0)
         self.redraw()
 
     def blit(self,bbox=None):
@@ -118,7 +118,7 @@ class FltkCanvas(Fltk.Fl_Widget):
            t1o,t2o,wo,ho = self._source.figure.bbox.bounds
            t1,t2,w,h = bbox.bounds
         x,y=int(t1),int(t2)
-        Fltk.fl_draw_image(self._source.buffer_rgba(x,y),x,y,int(w),int(h),4,int(wo)*4)
+        Fltk.fl_draw_image(self._source.buffer_rgba(),x,y,int(w),int(h),4,int(wo)*4)
         #self.redraw()
 
     def handle(self, event):

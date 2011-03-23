@@ -76,7 +76,7 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         if DEBUG: print('FigureCanvasGTKAgg.render_figure pixmap', pixmap)
         #agg_to_gtk_drawable(pixmap, self.renderer._renderer, None)
 
-        buf = self.buffer_rgba(0,0)
+        buf = self.buffer_rgba()
         ren = self.get_renderer()
         w = int(ren.width)
         h = int(ren.height)
