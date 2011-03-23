@@ -492,7 +492,8 @@ class DrawingArea(OffsetBox):
     def add_artist(self, a):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
-        a.set_transform(self.get_transform())
+        if not a.is_transform_set():
+            a.set_transform(self.get_transform())
 
 
     def draw(self, renderer):
