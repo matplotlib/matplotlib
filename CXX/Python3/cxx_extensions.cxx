@@ -1267,7 +1267,7 @@ Py::Object PythonExtensionBase::str()
     return Py::None();
 }
 
-Py_hash_t PythonExtensionBase::hash()
+long PythonExtensionBase::hash()
 {
     missing_method( hash );
     return -1; }
