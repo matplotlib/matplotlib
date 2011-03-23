@@ -2018,7 +2018,7 @@ namespace Py
         }
 
         String()
-        : SeqBase<Char>( PyUnicode_FromString( "" ), true )
+        : SeqBase<Char>( PyUnicode_FromString( "" ) )
         {
             validate();
         }
@@ -2059,19 +2059,19 @@ namespace Py
 
         */
         String( const std::string &s, const char *encoding, const char *errors=NULL )
-        : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.size(), encoding, errors ) )
+        : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.size(), encoding, errors ), true )
         {
             validate();
         }
 
         String( const char *s, const char *encoding, const char *errors=NULL )
-        : SeqBase<Char>( PyUnicode_Decode( s, strlen(s), encoding, errors ) )
+        : SeqBase<Char>( PyUnicode_Decode( s, strlen(s), encoding, errors ), true )
         {
             validate();
         }
 
         String( const char *s, Py_ssize_t size, const char *encoding, const char *errors=NULL )
-        : SeqBase<Char>( PyUnicode_Decode( s, size, encoding, errors ) )
+        : SeqBase<Char>( PyUnicode_Decode( s, size, encoding, errors ), true )
         {
             validate();
         }
@@ -2104,7 +2104,7 @@ namespace Py
         // Encode
         Bytes encode( const char *encoding, const char *error="strict" ) const
         {
-            return Bytes( PyUnicode_AsEncodedString( ptr(), encoding, error ) );
+            return Bytes( PyUnicode_AsEncodedString( ptr(), encoding, error ), true );
         }
 
         // Queries

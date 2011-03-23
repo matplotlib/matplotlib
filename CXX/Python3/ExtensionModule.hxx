@@ -82,8 +82,6 @@ namespace Py
     extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple, PyObject *_args );
     extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple, PyObject *_args, PyObject *_keywords );
 
-    extern "C" void do_not_dealloc( void * );
-
     template<TEMPLATE_TYPENAME T>
     class ExtensionModule : public ExtensionModuleBase
     {
