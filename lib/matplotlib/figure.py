@@ -196,6 +196,11 @@ class SubplotParams:
                 val = rcParams[key]
 
         setattr(self, s, val)
+    def __repr__(self):
+        tmpdict = self.__dict__.copy()
+        if 'validate' in tmpdict:
+            tmpdict.pop('validate')
+        return repr(tmpdict)
 
 class Figure(Artist):
 
@@ -769,7 +774,7 @@ class Figure(Artist):
         self.sca(a)
         return a
 
-    def clf(self, keep_observers=False):
+    def clf(self, keep_observers=False, scrub=None):
         """
         Clear the figure.
 
@@ -795,6 +800,12 @@ class Figure(Artist):
         self.legends = []
         if not keep_observers:
             self._axobservers = []
+
+        if scrub is None and rcParams['figure.scrub'] or scrub == True:
+            sp = self.subplotpars
+            sp.left = sp.right = sp.top = sp.bottom = None
+            sp.update()
+
 
     def clear(self):
         """

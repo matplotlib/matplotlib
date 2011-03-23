@@ -185,17 +185,21 @@ def test_throw_rendering_complexity_exceeded():
     fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(111)
     ax.plot(xx, yy)
+    rcParams['path.simplify'] = True
     try:
         fig.savefig(cStringIO.StringIO())
     except e:
         raise e
-    else:
-        rcParams['path.simplify'] = True
+
+    # here we close the figure so that subsequent tests create a new one using
+    # the rcParam defaults, instead of the figsize specified above
+    plt.close()
 
 @image_comparison(baseline_images=['clipper_edge'])
 def test_clipper():
     dat = (0, 1, 0, 2, 0, 3, 0, 4, 0, 5)
-    fig = plt.figure(figsize=(2, 1))
+    #plt.close()
+    fig = plt.figure(1,figsize=(2, 1)); 
     fig.subplots_adjust(left = 0, bottom = 0, wspace = 0, hspace = 0)
 
     ax = fig.add_axes((0, 0, 1.0, 1.0), ylim = (0, 5), autoscale_on = False)
@@ -209,6 +213,9 @@ def test_clipper():
 
     ax.set_xlim(5, 9)
     fig.savefig('clipper_edge')
+    # here we close the figure so that subsequent tests create a new one using
+    # the rcParam defaults, instead of the figsize specified above
+    plt.close()
 
 @image_comparison(baseline_images=['para_equal_perp'])
 def test_para_equal_perp():

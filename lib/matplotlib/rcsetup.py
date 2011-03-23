@@ -502,6 +502,7 @@ defaultParams = {
     'figure.facecolor'  : [ '0.75', validate_color], # facecolor; scalar gray
     'figure.edgecolor'  : [ 'w', validate_color],  # edgecolor; white
     'figure.autolayout' : [ False, validate_autolayout],
+    'figure.scrub'      : [ True , validate_bool], # scrub subplotparams on clf
 
     'figure.subplot.left'   : [0.125, ValidateInterval(0, 1, closedmin=True, closedmax=True)],
     'figure.subplot.right'  : [0.9, ValidateInterval(0, 1, closedmin=True, closedmax=True)],
