@@ -7,7 +7,7 @@ from pylab import *
 import numpy as np
 from matplotlib import patches, path, transforms
 
-from nose.tools import raises
+from nose.tools import raises, with_setup
 import cStringIO
 
 nan = np.nan
@@ -190,15 +190,20 @@ def test_throw_rendering_complexity_exceeded():
         fig.savefig(cStringIO.StringIO())
     except e:
         raise e
+    finally:
+        plt.close()
+        del(xx);del(yy)
+    import gc
+    gc.collect()
 
-    # here we close the figure so that subsequent tests create a new one using
-    # the rcParam defaults, instead of the figsize specified above
-    plt.close()
 
 @image_comparison(baseline_images=['clipper_edge'])
 def test_clipper():
     dat = (0, 1, 0, 2, 0, 3, 0, 4, 0, 5)
-    #plt.close()
+    # here we close the figure because the figsize parameter is ignored for
+    # figures which are already created
+    # the rcParam defaults, instead of the figsize specified above
+    plt.close()
     fig = plt.figure(1,figsize=(2, 1)); 
     fig.subplots_adjust(left = 0, bottom = 0, wspace = 0, hspace = 0)
 

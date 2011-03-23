@@ -134,7 +134,8 @@ for fonts, chars in font_test_specs:
         font_tests.append(wrapper % set)
 
 def _run_all_tests(tests):
-    fig = plt.figure(figsize=(5, len(tests) / 2.0))
+    plt.close('all')
+    fig = plt.figure(1,figsize=(5, len(tests) / 2.0))
     for i, test in enumerate(tests):
         fig.text(0, float(len(tests) - i - 1) / len(tests), test)
     return fig
@@ -143,6 +144,7 @@ def _run_all_tests(tests):
 def test_mathtext():
     fig = _run_all_tests(math_tests)
     fig.savefig('mathtext')
+    plt.close()
 
 @image_comparison(baseline_images=['mathtext_stix'])
 def test_mathtext_stix():
@@ -150,6 +152,7 @@ def test_mathtext_stix():
 
     fig = _run_all_tests(math_tests)
     fig.savefig('mathtext_stix')
+    plt.close()
 
     matplotlib.rcParams['mathtext.fontset'] = 'cm'
 
@@ -159,6 +162,7 @@ def test_mathtext_stixsans():
 
     fig = _run_all_tests(math_tests)
     fig.savefig('mathtext_stixsans')
+    plt.close()
 
     matplotlib.rcParams['mathtext.fontset'] = 'cm'
 
@@ -166,6 +170,7 @@ def test_mathtext_stixsans():
 def test_mathtext_font():
     fig = _run_all_tests(font_tests)
     fig.savefig('mathtext_font')
+    plt.close()
 
 @image_comparison(baseline_images=['mathtext_font_stix'])
 def test_mathtext_font_stix():
@@ -173,6 +178,7 @@ def test_mathtext_font_stix():
 
     fig = _run_all_tests(font_tests)
     fig.savefig('mathtext_font_stix')
+    plt.close()
 
     matplotlib.rcParams['mathtext.fontset'] = 'cm'
 
@@ -182,5 +188,6 @@ def test_mathtext_font_stixsans():
 
     fig = _run_all_tests(font_tests)
     fig.savefig('mathtext_font_stixsans')
+    plt.close()
 
     matplotlib.rcParams['mathtext.fontset'] = 'cm'

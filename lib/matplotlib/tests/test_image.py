@@ -33,9 +33,10 @@ def test_image_interps():
 @image_comparison(baseline_images=['figimage-0', 'figimage-1'], extensions=['png'], tol=1.5e-3)
 def test_figimage():
     'test the figimage method'
+    plt.close('all')
 
     for suppressComposite in False, True:
-        fig = plt.figure(figsize=(2,2), dpi=100)
+        fig = plt.figure(1,figsize=(2,2), dpi=100);fig.clf()
         fig.suppressComposite = suppressComposite
         x,y = np.ix_(np.arange(100.0)/100.0, np.arange(100.0)/100.0)
         z = np.sin(x**2 + y**2 - x*y)
@@ -48,6 +49,7 @@ def test_figimage():
         fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
 
         fig.savefig('figimage-%d' % int(suppressComposite), dpi=100)
+    plt.close()
 
 def test_image_python_io():
     fig = plt.figure(1);plt.clf()

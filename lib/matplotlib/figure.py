@@ -780,6 +780,12 @@ class Figure(Artist):
 
         Set *keep_observers* to True if, for example,
         a gui widget is tracking the axes in the figure.
+
+        Set *scrub* to True if you want the figure to reset the
+        subplotparameters to the defaults. 
+        
+        If *scrub* is None, the behavior it will be set to
+        rcParams['figure.scrub'].
         """
         self.suppressComposite = None
         self.callbacks = cbook.CallbackRegistry(('dpi_changed', ))
@@ -801,17 +807,20 @@ class Figure(Artist):
         if not keep_observers:
             self._axobservers = []
 
-        if scrub is None and rcParams['figure.scrub'] or scrub == True:
+        if scrub is None:
+            scrub = rcParams['figure.scrub']
+        if scrub == True:
             sp = self.subplotpars
-            sp.left = sp.right = sp.top = sp.bottom = None
+            sp.left = sp.right = sp.top = sp.bottom = sp.validate = None
             sp.update()
+            self._cachedRenderer = None
 
 
-    def clear(self):
+    def clear(self, keep_observers=False, scrub=None):
         """
         Clear the figure -- synonym for fig.clf
         """
-        self.clf()
+        self.clf(keep_observers,scrub)
 
     @allow_rasterization
     def draw(self, renderer):

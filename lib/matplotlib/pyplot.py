@@ -346,11 +346,9 @@ def close(*args):
         raise TypeError('close takes 0 or 1 arguments')
 
 
-def clf():
-    """
-    Clear the current figure
-    """
-    gcf().clf()
+@docstring.copy_dedent(Figure.clf)
+def clf(*args,**kwargs):
+    gcf().clf(*args,**kwargs)
     draw_if_interactive()
 
 def draw():
