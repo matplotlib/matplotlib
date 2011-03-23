@@ -2059,7 +2059,7 @@ namespace Py
 
         String decode( const char *encoding, const char *error="strict" )
         {
-            return Object( PyString_AsDecodedObject( ptr(), encoding, error ) );
+            return Object( PyString_AsDecodedObject( ptr(), encoding, error ), true );
         }
 
         // Queries
@@ -2208,17 +2208,17 @@ namespace Py
         {
             if( isUnicode() )
             {
-                return String( PyUnicode_AsEncodedString( ptr(), encoding, error ) );
+                return String( PyUnicode_AsEncodedString( ptr(), encoding, error ), true );
             }
             else
             {
-                return String( PyString_AsEncodedObject( ptr(), encoding, error ) );
+                return String( PyString_AsEncodedObject( ptr(), encoding, error ), true );
             }
         }
 
         String decode( const char *encoding, const char *error="strict" )
         {
-            return Object( PyString_AsDecodedObject( ptr(), encoding, error ) );
+            return Object( PyString_AsDecodedObject( ptr(), encoding, error ), true );
         }
 
         // Queries
