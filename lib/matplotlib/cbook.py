@@ -374,8 +374,10 @@ def unique(x):
 
 def iterable(obj):
     'return true if *obj* is iterable'
-    try: len(obj)
-    except: return False
+    try:
+        iter(obj)
+    except TypeError:
+        return False
     return True
 
 
