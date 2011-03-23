@@ -184,3 +184,11 @@ def test_mathtext_font_stixsans():
     fig.savefig('mathtext_font_stixsans')
 
     matplotlib.rcParams['mathtext.fontset'] = 'cm'
+
+def test_fontinfo():
+    import matplotlib.font_manager as font_manager
+    import matplotlib.ft2font as ft2font
+    fontpath = font_manager.findfont("Bitstream Vera Sans")
+    font = ft2font.FT2Font(fontpath)
+    table = font.get_sfnt_table("head")
+    assert table['version'] == (1, 0)
