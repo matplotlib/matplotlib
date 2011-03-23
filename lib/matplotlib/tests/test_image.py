@@ -14,7 +14,7 @@ def test_image_interps():
     X = np.arange(100)
     X = X.reshape(5, 20)
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax1 = fig.add_subplot(311)
     ax1.imshow(X, interpolation='nearest')
     ax1.set_title('three interpolations')
@@ -50,7 +50,7 @@ def test_figimage():
         fig.savefig('figimage-%d' % int(suppressComposite), dpi=100)
 
 def test_image_python_io():
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(111)
     ax.plot([1,2,3])
     buffer = cStringIO.StringIO()
@@ -59,7 +59,7 @@ def test_image_python_io():
     plt.imread(buffer)
 
 # def test_image_unicode_io():
-#     fig = plt.figure()
+#     fig = plt.figure(1);plt.clf()
 #     ax = fig.add_subplot(111)
 #     ax.plot([1,2,3])
 #     fname = u"\u0a3a\u0a3a.png"
@@ -100,7 +100,7 @@ def test_imsave():
 def test_image_clip():
     from math import pi
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(111, projection='hammer')
 
     d = [[1,2],[3,4]]
@@ -114,7 +114,7 @@ def test_imshow():
     import numpy as np
     import matplotlib.pyplot as plt
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     arr = np.arange(100).reshape((10, 10))
     ax = fig.add_subplot(111)
     ax.imshow(arr, interpolation="bilinear", extent=(1,2,1,2))

@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 def test_font_styles():
     from matplotlib.font_manager import FontProperties
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = plt.subplot( 1, 1, 1 )
 
     normalFont = FontProperties( family = "sans-serif",
@@ -66,7 +66,7 @@ def test_font_styles():
 
 @image_comparison(baseline_images=['multiline'])
 def test_multiline():
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = plt.subplot( 1, 1, 1 )
     ax.set_title("multiline\ntext alignment")
 

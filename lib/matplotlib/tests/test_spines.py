@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 @image_comparison(baseline_images=['spines_axes_positions'])
 def test_spines_axes_positions():
     # SF bug 2852168
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     x = np.linspace(0,2*np.pi,100)
     y = 2*np.sin(x)
     ax = fig.add_subplot(1,1,1)

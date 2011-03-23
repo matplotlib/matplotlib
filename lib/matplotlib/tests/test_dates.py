@@ -9,7 +9,7 @@ def test_date_empty():
     # make sure mpl does the right thing when told to plot dates even
     # if no date data has been presented, cf
     # http://sourceforge.net/tracker/?func=detail&aid=2850075&group_id=80706&atid=560720
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(1,1,1)
     ax.xaxis_date()
     fig.savefig('date_empty')
@@ -19,7 +19,7 @@ def test_date_axhspan():
     # test ax hspan with date inputs
     t0 = datetime.datetime(2009, 1, 20)
     tf = datetime.datetime(2009, 1, 21)
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(1,1,1)
     ax.axhspan( t0, tf, facecolor="blue", alpha=0.25 )
     ax.set_ylim(t0-datetime.timedelta(days=5),
@@ -32,7 +32,7 @@ def test_date_axvspan():
     # test ax hspan with date inputs
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2010, 1, 21)
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(1,1,1)
     ax.axvspan( t0, tf, facecolor="blue", alpha=0.25 )
     ax.set_xlim(t0-datetime.timedelta(days=720),
@@ -46,7 +46,7 @@ def test_date_axhline():
     # test ax hline with date inputs
     t0 = datetime.datetime(2009, 1, 20)
     tf = datetime.datetime(2009, 1, 31)
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(1,1,1)
     ax.axhline( t0, color="blue", lw=3)
     ax.set_ylim(t0-datetime.timedelta(days=5),
@@ -59,7 +59,7 @@ def test_date_axvline():
     # test ax hline with date inputs
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2000, 1, 21)
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(1,1,1)
     ax.axvline( t0, color="red", lw=3)
     ax.set_xlim(t0-datetime.timedelta(days=5),
@@ -75,7 +75,7 @@ def test_too_many_date_ticks():
     # DayLocator.  This should trigger a Locator.MAXTICKS RuntimeError
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2000, 1, 20)
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(1,1,1)
     ax.set_xlim((t0,tf), auto=True)
     ax.plot([],[])
@@ -98,7 +98,7 @@ def test_RRuleLocator():
     t0 = datetime( 1000, 1, 1 )
     tf = datetime( 6000, 1, 1 )
 
-    fig = pylab.figure()
+    fig = pylab.figure(1);plt.clf()
     ax = pylab.subplot( 111 )
     ax.set_autoscale_on( True )
     ax.plot( [t0, tf], [0.0, 1.0], marker='o' )
@@ -126,7 +126,7 @@ def test_DateFormatter():
     t0 = datetime( 2001, 1, 1, 0, 0, 0 )
     tf = datetime( 2001, 1, 1, 0, 0, 1 )
 
-    fig = pylab.figure()
+    fig = pylab.figure(1);plt.clf()
     ax = pylab.subplot( 111 )
     ax.set_autoscale_on( True )
     ax.plot( [t0, tf], [0.0, 1.0], marker='o' )
@@ -151,7 +151,7 @@ def test_empty_date_with_year_formatter():
 
     import matplotlib.dates as dates
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(111)
 
     yearFmt = dates.DateFormatter('%Y')

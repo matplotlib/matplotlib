@@ -21,7 +21,7 @@ def test_formatter_ticker():
     ydata1 = [ (1.5*y - 0.5)*units.km for y in range(10) ]
     ydata2 = [ (1.75*y - 1.0)*units.km for y in range(10) ]
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = plt.subplot( 111 )
     ax.set_xlabel( "x-label 001" )
     fig.savefig( 'formatter_ticker_001' )
@@ -50,7 +50,7 @@ def test_basic_annotate():
 
     # Offset Points
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot( 111, autoscale_on=False, xlim=(-1,5), ylim=(-3,5) )
     line, = ax.plot( t, s, lw=3, color='purple' )
 
@@ -75,7 +75,7 @@ def test_polar_annotations():
     r = np.arange(0.0, 1.0, 0.001 )
     theta = 2.0 * 2.0 * np.pi * r
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot( 111, polar=True )
     line, = ax.plot( theta, r, color='#ee8d18', lw=3 )
 
@@ -103,7 +103,7 @@ def test_polar_coord_annotations():
     from matplotlib.patches import Ellipse
     el = Ellipse((0,0), 10, 20, facecolor='r', alpha=0.5)
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot( 111, aspect='equal' )
 
     ax.add_artist( el )
@@ -135,7 +135,7 @@ def test_fill_units():
     value = 10.0 * units.deg
     day = units.Duration( "ET", 24.0 * 60.0 * 60.0 )
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
 
     # Top-Left
     ax1 = fig.add_subplot( 221 )
@@ -167,7 +167,7 @@ def test_fill_units():
 
 @image_comparison(baseline_images=['single_point'])
 def test_single_point():
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     plt.subplot( 211 )
     plt.plot( [0], [0], 'o' )
 
@@ -181,7 +181,7 @@ def test_single_date():
     time1=[ 721964.0 ]
     data1=[ -65.54 ]
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     plt.subplot( 211 )
     plt.plot_date( time1, data1, 'o', color='r' )
 
@@ -219,7 +219,7 @@ def test_shaped_data():
     y2 = np.arange( 10 )
     y2.shape = 10, 1
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     plt.subplot( 411 )
     plt.plot( y1 )
     plt.subplot( 412 )
@@ -236,7 +236,7 @@ def test_shaped_data():
 
 @image_comparison(baseline_images=['const_xy'])
 def test_const_xy():
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
 
     plt.subplot( 311 )
     plt.plot( np.arange(10), np.ones( (10,) ) )
@@ -255,7 +255,7 @@ def test_const_xy():
 def test_polar_wrap():
     D2R = np.pi / 180.0
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
 
     #NOTE: resolution=1 really should be the default
     plt.subplot( 111, polar=True, resolution=1 )
@@ -265,7 +265,7 @@ def test_polar_wrap():
 
     fig.savefig( 'polar_wrap_180' )
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
 
     #NOTE: resolution=1 really should be the default
     plt.subplot( 111, polar=True, resolution=1 )
@@ -292,7 +292,7 @@ def test_polar_units():
     y1 = [ 1.0, 2.0, 3.0, 4.0]
     y2 = [ 4.0, 3.0, 2.0, 1.0 ]
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
 
     plt.polar( x2, y1, color = "blue" )
 
@@ -312,7 +312,7 @@ def test_polar_rmin():
     r = np.arange(0, 3.0, 0.01)
     theta = 2*np.pi*r
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
     ax.plot(theta, r)
     ax.set_rmax(2.0)
@@ -332,7 +332,7 @@ def test_axvspan_epoch():
 
     dt = units.Duration( "ET", units.day.convert( "sec" ) )
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
 
     plt.axvspan( t0, tf, facecolor="blue", alpha=0.25 )
 
@@ -353,7 +353,7 @@ def test_axhspan_epoch():
 
     dt = units.Duration( "ET", units.day.convert( "sec" ) )
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
 
     plt.axhspan( t0, tf, facecolor="blue", alpha=0.25 )
 
@@ -366,7 +366,7 @@ def test_axhspan_epoch():
 @image_comparison(baseline_images=['hexbin_extent'])
 def test_hexbin_extent():
     # this test exposes sf bug 2856228
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
 
     ax = fig.add_subplot(111)
     data = np.arange(2000.)/2000.
@@ -381,7 +381,7 @@ def test_nonfinite_limits():
     x = np.arange(0., np.e, 0.01)
     y = np.log(x)
     x[len(x)/2] = np.nan
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(111)
     ax.plot(x, y)
     fig.savefig('nonfinite_limits')
@@ -396,7 +396,7 @@ def test_imshow():
     r = np.sqrt(x**2+y**2-x*y)
 
     #Create a contour plot at N/4 and extract both the clip path and transform
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(111)
 
     ax.imshow(r)
@@ -414,7 +414,7 @@ def test_imshow_clip():
     r = np.sqrt(x**2+y**2-x*y)
 
     #Create a contour plot at N/4 and extract both the clip path and transform
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(111)
 
     c = ax.contour(r,[N/4])
@@ -435,7 +435,7 @@ def test_polycollection_joinstyle():
 
     from matplotlib import collections as mcoll
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(111)
     verts = np.array([[1,1], [1,2], [2,2], [2,1]])
     c = mcoll.PolyCollection([verts], linewidths = 40)
@@ -453,7 +453,7 @@ def test_fill_between_interpolate():
     y1 = np.sin(2*np.pi*x)
     y2 = 1.2*np.sin(4*np.pi*x)
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(211)
     ax.plot(x, y1, x, y2, color='black')
     ax.fill_between(x, y1, y2, where=y2>=y1, facecolor='green', interpolate=True)
@@ -473,7 +473,7 @@ def test_symlog():
     x = np.array([0,1,2,4,6,9,12,24])
     y = np.array([1000000, 500000, 100000, 100, 5, 0, 0, 0])
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(111)
     ax.plot(x, y)
     ax.set_yscale('symlog')
@@ -497,7 +497,7 @@ def test_pcolormesh():
     # The color array can include masked values:
     Zm = ma.masked_where(np.fabs(Qz) < 0.5*np.amax(Qz), Z)
 
-    fig = plt.figure()
+    fig = plt.figure(1);plt.clf()
     ax = fig.add_subplot(121)
     ax.pcolormesh(Qx,Qz,Z,  lw=0.5, edgecolors='k')
     ax.set_title('lw=0.5')
