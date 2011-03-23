@@ -1829,7 +1829,7 @@ class FigureCanvasBase:
 
         if (format not in self.filetypes or
             not hasattr(self, method_name)):
-            formats = self.filetypes.iterkeys()
+            formats = self.filetypes.keys()
             formats.sort()
             raise ValueError(
                 'Format "%s" is not supported.\n'
