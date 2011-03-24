@@ -1802,6 +1802,9 @@ class Kern(Node):
     when its *width* denotes additional spacing in the vertical
     direction.
     """
+    height = 0
+    depth = 0
+
     def __init__(self, width):
         Node.__init__(self)
         self.width = width
