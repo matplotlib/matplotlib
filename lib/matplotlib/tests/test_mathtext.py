@@ -83,6 +83,7 @@ math_tests = [
     r'${x}_{{y}_{b}^{a}}^{{z}_{c}^{d}}$',
     r'${y}_{3}^{\prime \prime \prime }$',
     r"$\left( \xi \left( 1 - \xi \right) \right)$", # Bug 2969451
+    r"$\left(2 \, a=b\right)$" # Sage bug #8125
 ]
 
 digits = "0123456789"
