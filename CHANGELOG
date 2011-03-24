@@ -1,3 +1,10 @@
+2011-03-23 New scrub kwarg for clf, which allows for the resetting
+           of the subplot parameters of a figure, and is backed back
+           a new rcParam which can restore the old default behavior.
+           Also fixed a huge memory leak in the test suite where
+           none of the generated figures were being closed or
+           cleared. - PI
+
 2011-03-10 Update pytz version to 2011c, thanks to Simon Cross. - JKS
 
 2011-03-06 Add standalone tests.py test runner script. - JKS

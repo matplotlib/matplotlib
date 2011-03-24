@@ -7,6 +7,17 @@ This chapter is a log of changes to matplotlib that affect the
 outward-facing API.  If updating matplotlib breaks your scripts, this
 list may help describe what changes may be necessary in your code.
 
+Changes beyond 1.0.1
+====================
+
+* The :meth:`matplotlib.figure.Figure.clf` and
+  :meth:`matplotlib.pyplot.clf` methods now accept a *scrub* kwarg.
+  Passing ``scrub=True`` will reset the figure's subplot parameters,
+  ``scrub=False`` will clear the figure without touching the subplot
+  parameters(old behavior) and the default value of ``scrub=None`` will
+  set ``scrub`` to the value of ``rcParams['figure.autoscrub']``
+  (default).
+
 Changes beyond 0.99.x
 =====================
 

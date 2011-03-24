@@ -256,6 +256,7 @@ backend      : %(backend)s
 #figure.dpi       : 80      # figure dots per inch
 #figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
 #figure.edgecolor : white   # figure edgecolor
+#figure.autoscrub : True    # default figure.clf() behaviour
 
 # The figure subplot parameters.  All dimensions are fraction of the
 # figure width or height

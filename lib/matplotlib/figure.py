@@ -785,7 +785,7 @@ class Figure(Artist):
         subplotparameters to the defaults. 
         
         If *scrub* is None, the behavior it will be set to
-        rcParams['figure.scrub'].
+        rcParams['figure.autoscrub'].
         """
         self.suppressComposite = None
         self.callbacks = cbook.CallbackRegistry(('dpi_changed', ))
@@ -808,12 +808,11 @@ class Figure(Artist):
             self._axobservers = []
 
         if scrub is None:
-            scrub = rcParams['figure.scrub']
+            scrub = rcParams['figure.autoscrub']
         if scrub == True:
             sp = self.subplotpars
             sp.left = sp.right = sp.top = sp.bottom = sp.validate = None
             sp.update()
-            self._cachedRenderer = None
 
 
     def clear(self, keep_observers=False, scrub=None):
