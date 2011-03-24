@@ -7,7 +7,7 @@ from pylab import *
 import numpy as np
 from matplotlib import patches, path, transforms
 
-from nose.tools import raises, with_setup
+from nose.tools import raises
 import cStringIO
 
 nan = np.nan
