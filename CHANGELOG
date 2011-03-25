@@ -1,3 +1,5 @@
+2011-03-25 Fixed bug #3187521, crash due to unescaped fontpaths -PI
+
 2011-03-10 Update pytz version to 2011c, thanks to Simon Cross. - JKS
 
 2011-03-06 Add standalone tests.py test runner script. - JKS
