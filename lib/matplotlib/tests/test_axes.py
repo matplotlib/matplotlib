@@ -524,21 +524,27 @@ def test_scrub():
     from matplotlib import rcParams
     fig = plt.figure(1); fig.clf()
     s = fig.subplotpars
-    fig.subplots_adjust(left=.3, bottom=.1, right=.4, top=.15)
+    fig.subplots_adjust(left=.3, bottom=.1, right=.4,
+            top=.15,hspace=.9,wspace=.26)
     # with scrub=False, subplotpars should not be reset to the rcParam defaults
     fig.clf(scrub=False)
     assert s.left   == .3
     assert s.bottom == .1
     assert s.right  == .4
     assert s.top    == .15
+    assert s.hspace == .9
+    assert s.wspace == .26
 
-    fig.subplots_adjust(left=.3, bottom=.1, right=.4, top=.15)
+    fig.subplots_adjust(left=.3, bottom=.1, right=.4,
+            top=.15,hspace=.9,wspace=.26)
     # with scrub=True, subplotpars should be reset to the rcParam defaults
     fig.clf(scrub=True)
     assert s.left   == rcParams['figure.subplot.left']
     assert s.bottom == rcParams['figure.subplot.bottom']
     assert s.right  == rcParams['figure.subplot.right']
     assert s.top    == rcParams['figure.subplot.top']
+    assert s.hspace == rcParams['figure.subplot.hspace']
+    assert s.wspace == rcParams['figure.subplot.wspace']
 
 if __name__=='__main__':
     import nose

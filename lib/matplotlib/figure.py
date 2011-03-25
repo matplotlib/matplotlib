@@ -812,6 +812,7 @@ class Figure(Artist):
         if scrub == True:
             sp = self.subplotpars
             sp.left = sp.right = sp.top = sp.bottom = sp.validate = None
+            sp.wspace = sp.hspace = None
             sp.update()
 
 
