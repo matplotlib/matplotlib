@@ -5,7 +5,7 @@ Coding guide
 ************
 
 Committing changes
-------------------
+==================
 
 When committing changes to matplotlib, there are a few things to bear
 in mind.
@@ -358,7 +358,6 @@ object::
     print 'datafile', datafile
 
 
-.. _license-discussion:
 
 
 
@@ -376,17 +375,31 @@ please ignore it while we consolidate our testing to these locations.)
 Running the tests
 -----------------
 
-Running the tests is simple. Make sure you have nose installed and
-type from within Python::
+Running the tests is simple. Make sure you have nose installed and run
+the script :file:`tests.py` in the root directory of the distribution.
+The script can take any of the usual `nosetest arguments`_, such as
+
+===================  ===========
+``-v``               increase verbosity
+``-d``               detailed error messages
+``--with-coverage``  enable collecting coverage information
+===================  ===========
+
+To run a single test from the command line, you can provide a
+dot-separated path to the module followed by the function separated by
+a colon, eg.  (this is assuming the test is installed)::
+
+  python tests.py matplotlib.tests.test_simplification:test_clipping
+
+An alternative implementation that does not look at command line
+arguments works from within Python::
 
   import matplotlib
   matplotlib.test()
 
-To run a single test from the command line, you can provide
-a dot-separated path to the module and function, eg.
-(this is assuming the test is installed)::
 
-  nosetests matplotlib.tests.test_simplification:test_clipping
+.. _`nosetest arguments`: http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
+
 
 
 Writing a simple test
@@ -481,6 +494,8 @@ Let's say you've added a new module named
 ``matplotlib.tests.test_whizbang_features``.  To add this module to
 the list of default tests, append its name to ``default_test_modules``
 in :file:`lib/matplotlib/__init__.py`.
+
+.. _license-discussion:
 
 Licenses
 ========

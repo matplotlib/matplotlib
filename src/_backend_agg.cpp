@@ -110,7 +110,7 @@ Py::Object
 BufferRegion::set_x(const Py::Tuple &args)
 {
     args.verify_length(1);
-    size_t x = Py::Int(args[0]);
+    size_t x = (long) Py::Int(args[0]);
     rect.x1 = x;
     return Py::Object();
 }
@@ -120,7 +120,7 @@ Py::Object
 BufferRegion::set_y(const Py::Tuple &args)
 {
     args.verify_length(1);
-    size_t y = Py::Int(args[0]);
+    size_t y = (long)Py::Int(args[0]);
     rect.y1 = y;
     return Py::Object();
 }
@@ -360,6 +360,8 @@ GCAgg::_set_hatch_path(const Py::Object& gc)
     Py::Object method_obj = gc.getAttr("get_hatch_path");
     Py::Callable method(method_obj);
     hatchpath = method.apply(Py::Tuple());
+    if (hatchpath.ptr() == NULL)
+        throw Py::Exception();
 }
 
 
@@ -1734,16 +1736,16 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
 
     //segments, trans, clipbox, colors, linewidths, antialiaseds
     GCAgg gc(args[0], dpi);
-    agg::trans_affine       master_transform = py_to_agg_transformation_matrix(args[1].ptr());
-    size_t                  mesh_width       = Py::Int(args[2]);
-    size_t                  mesh_height      = Py::Int(args[3]);
-    Py::Object              coordinates      = args[4];
-    Py::Object              offsets_obj      = args[5];
-    agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[6].ptr());
-    Py::Object              facecolors_obj   = args[7];
-    bool                    antialiased      = (bool)Py::Int(args[8]);
-    bool                    showedges        = (bool)Py::Int(args[9]);
-    bool                    free_edgecolors  = false;
+    agg::trans_affine master_transform = py_to_agg_transformation_matrix(args[1].ptr());
+    size_t            mesh_width       = (long)Py::Int(args[2]);
+    size_t            mesh_height      = (long)Py::Int(args[3]);
+    Py::Object        coordinates      = args[4];
+    Py::Object        offsets_obj      = args[5];
+    agg::trans_affine offset_trans     = py_to_agg_transformation_matrix(args[6].ptr());
+    Py::Object        facecolors_obj   = args[7];
+    bool              antialiased      = (bool)Py::Boolean(args[8]);
+    bool              showedges        = (bool)Py::Boolean(args[9]);
+    bool              free_edgecolors  = false;
 
     QuadMeshGenerator path_generator(mesh_width, mesh_height, coordinates.ptr());
 
