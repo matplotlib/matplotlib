@@ -42,7 +42,7 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-import os, sys, glob, subprocess, warnings
+import os, sys, subprocess, warnings
 try:
     set
 except NameError:
@@ -52,6 +52,7 @@ from matplotlib import afm
 from matplotlib import ft2font
 from matplotlib import rcParams, get_configdir
 from matplotlib.cbook import is_string_like
+import matplotlib.cbook as cbook
 from matplotlib.fontconfig_pattern import \
     parse_fontconfig_pattern, generate_fontconfig_pattern
 
@@ -155,6 +156,15 @@ def get_fontext_synonyms(fontext):
             'otf': ('ttf', 'otf'),
             'afm': ('afm',)}[fontext]
 
+def list_fonts(directory, extensions):
+    """
+    Return a list of all fonts matching any of the extensions,
+    possibly upper-cased, found recursively under the directory.
+    """
+    pattern = ';'.join(['*.%s;*.%s' % (ext, ext.upper())
+                        for ext in extensions])
+    return cbook.listFiles(directory, pattern)
+
 def win32FontDirectory():
     """
     Return the user-specified font directory for Win32.  This is
@@ -204,10 +214,7 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
             continue
 
         if not local:
-            files = []
-            for ext in fontext:
-                files.extend(glob.glob(os.path.join(directory, '*.'+ext)))
-            return files
+            return list_fonts(directory, fontext)
         try:
             for j in range(_winreg.QueryInfoKey(local)[1]):
                 try:
@@ -227,63 +234,22 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
             _winreg.CloseKey(local)
     return None
 
-def OSXFontDirectory():
-    """
-    Return the system font directories for OS X.  This is done by
-    starting at the list of hardcoded paths in
-    :attr:`OSXFontDirectories` and returning all nested directories
-    within them.
-    """
-    fontpaths = []
-    def add(arg,directory,files):
-        fontpaths.append(directory)
-
-    for fontdir in OSXFontDirectories:
-        try:
-            if os.path.isdir(fontdir):
-                os.path.walk(fontdir, add, None)
-        except (IOError, OSError, TypeError, ValueError):
-            pass
-    return fontpaths
-
-def OSXInstalledFonts(directory=None, fontext='ttf'):
+def OSXInstalledFonts(directories=None, fontext='ttf'):
     """
     Get list of font files on OS X - ignores font suffix by default.
     """
-    if directory is None:
-        directory = OSXFontDirectory()
+    if directories is None:
+        directories = OSXFontDirectories
 
     fontext = get_fontext_synonyms(fontext)
 
     files = []
-    for path in directory:
+    for path in directories:
         if fontext is None:
-            files.extend(glob.glob(os.path.join(path,'*')))
+            files.extend(cbook.listFiles(path, '*'))
         else:
-            for ext in fontext:
-                files.extend(glob.glob(os.path.join(path, '*.'+ext)))
-                files.extend(glob.glob(os.path.join(path, '*.'+ext.upper())))
+            files.extend(list_fonts(path, fontext))
     return files
-
-
-def x11FontDirectory():
-    """
-    Return the system font directories for X11.  This is done by
-    starting at the list of hardcoded paths in
-    :attr:`X11FontDirectories` and returning all nested directories
-    within them.
-    """
-    fontpaths = []
-    def add(arg,directory,files):
-        fontpaths.append(directory)
-
-    for fontdir in X11FontDirectories:
-        try:
-            if os.path.isdir(fontdir):
-                os.path.walk(fontdir, add, None)
-        except (IOError, OSError, TypeError, ValueError):
-            pass
-    return fontpaths
 
 
 def get_fontconfig_fonts(fontext='ttf'):
@@ -334,7 +300,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
                 if len(ext)>1 and ext[1:].lower() in fontexts:
                     fontfiles[f] = 1
         else:
-            fontpaths = x11FontDirectory()
+            fontpaths = X11FontDirectories
             # check for OS X & load its fonts if present
             if sys.platform == 'darwin':
                 for f in OSXInstalledFonts(fontext=fontext):
@@ -347,10 +313,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         fontpaths = [fontpaths]
 
     for path in fontpaths:
-        files = []
-        for ext in fontexts:
-            files.extend(glob.glob(os.path.join(path, '*.'+ext)))
-            files.extend(glob.glob(os.path.join(path, '*.'+ext.upper())))
+        files = list_fonts(path, fontexts)
         for fname in files:
             fontfiles[os.path.abspath(fname)] = 1
 
