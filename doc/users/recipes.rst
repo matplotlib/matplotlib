@@ -99,9 +99,9 @@ objects in a numpy record array::
   In [66]: r.date
   Out[66]:
   array([2004-08-19, 2004-08-20, 2004-08-23, ..., 2008-10-10, 2008-10-13,
-	 2008-10-14], dtype=object)
+         2008-10-14], dtype=object)
 
-The dtype of the numpy record array for the field 'date' is '|O4'
+The dtype of the numpy record array for the field 'date' is '\|O4'
 which means it is a 4-byte python object pointer; in this case the
 objects are datetime.date instances, which we can see when we print
 some samples in the ipython terminal window.
