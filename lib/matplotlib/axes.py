@@ -3861,14 +3861,14 @@ class Axes(martist.Artist):
 
         .. seealso::
 
-            :mod:`~matplotlib.dates`
-                for helper functions
+           :mod:`~matplotlib.dates`
+              for helper functions
 
-            :func:`~matplotlib.dates.date2num`,
-            :func:`~matplotlib.dates.num2date` and
-            :func:`~matplotlib.dates.drange`
-                for help on creating the required floating point
-                dates.
+           :func:`~matplotlib.dates.date2num`,
+           :func:`~matplotlib.dates.num2date` and
+           :func:`~matplotlib.dates.drange`
+              for help on creating the required floating point
+              dates.
         """
 
         if not self._hold: self.cla()
@@ -4210,14 +4210,14 @@ class Axes(martist.Artist):
         if legend_handler_map is not None:
             handler_map = handler_map.copy()
             handler_map.update(legend_handler_map)
-        
+
         handles = []
         for h in handles_original:
             if h.get_label() == "_nolegend_": #.startswith('_'):
                 continue
             if mlegend.Legend.get_legend_handler(handler_map, h):
                 handles.append(h)
-                
+
         return handles
 
 
@@ -5328,7 +5328,7 @@ class Axes(martist.Artist):
                                                has_yerr=(yerr is not None),
                                                label=label)
         self.containers.append(errorbar_container)
-        
+
         return errorbar_container # (l0, caplines, barcols)
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,

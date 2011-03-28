@@ -694,13 +694,17 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
       the first column of plots will have visible set to False
 
     squeeze : bool
-
       If True, extra dimensions are squeezed out from the returned axis object:
-        - if only one subplot is constructed (nrows=ncols=1), the resulting
-        single Axis object is returned as a scalar.
-        - for Nx1 or 1xN subplots, the returned object is a 1-d numpy object
-        array of Axis objects are returned as numpy 1-d arrays.
-        - for NxM subplots with N>1 and M>1 are returned as a 2d array.
+
+        - if only one subplot is constructed (nrows=ncols=1), the
+          resulting single Axis object is returned as a scalar.
+
+        - for Nx1 or 1xN subplots, the returned object is a 1-d numpy
+          object array of Axis objects are returned as numpy 1-d
+          arrays.
+
+        - for NxM subplots with N>1 and M>1 are returned as a 2d
+          array.
 
       If False, no squeezing at all is done: the returned axis object is always
       a 2-d array contaning Axis instances, even if it ends up being 1x1.
@@ -716,10 +720,13 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     Returns:
 
     fig, ax : tuple
+
       - fig is the Matplotlib Figure object
-      - ax can be either a single axis object or an array of axis objects if
-      more than one supblot was created.  The dimensions of the resulting array
-      can be controlled with the squeeze keyword, see above.
+
+      - ax can be either a single axis object or an array of axis
+        objects if more than one supblot was created.  The dimensions
+        of the resulting array can be controlled with the squeeze
+        keyword, see above.
 
     **Examples:**
 
