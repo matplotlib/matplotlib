@@ -140,7 +140,7 @@ def _run_all_tests(tests):
         fig.text(0, float(len(tests) - i - 1) / len(tests), test)
     return fig
 
-@image_comparison(baseline_images=['mathtext'])
+@image_comparison(baseline_images=['mathtext'], tol=1e-5)
 def test_mathtext():
     fig = _run_all_tests(math_tests)
     fig.savefig('mathtext')
