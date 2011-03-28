@@ -4,6 +4,10 @@
 ****************
 mplot3d tutorial
 ****************
+.. contents::
+      :backlinks: none
+
+.. _mplot3d_getting_started:
 
 Getting started
 ===============
@@ -17,11 +21,24 @@ add a new axes to it of type :class:`~mpl_toolkits.mplot3d.Axes3D`::
   fig = plt.figure()
   ax = fig.add_subplot(111, projection='3d')
 
+.. versionadded:: 1.0.0
+   This approach is the preferred method of creating a 3d axes.
+
+.. note::
+   Prior to version 1.0.0, the method of creating a 3d axes was
+   different. For those using older versions of matplotlib, change
+   ``ax = fig.add_subplot(111, projection='3d')``
+   to ``ax = Axes3D(fig)``.
+
+.. _plot3d:
+
 Line plots
 ====================
 .. automethod:: Axes3D.plot
 
 .. plot:: mpl_examples/mplot3d/lines3d_demo.py
+
+.. _scatter3d:
 
 Scatter plots
 =============
@@ -29,11 +46,15 @@ Scatter plots
 
 .. plot:: mpl_examples/mplot3d/scatter3d_demo.py
 
+.. _wireframe:
+
 Wireframe plots
 ===============
 .. automethod:: Axes3D.plot_wireframe
 
 .. plot:: mpl_examples/mplot3d/wire3d_demo.py
+
+.. _surface:
 
 Surface plots
 =============
@@ -43,6 +64,8 @@ Surface plots
 .. plot:: mpl_examples/mplot3d/surface3d_demo2.py
 .. plot:: mpl_examples/mplot3d/surface3d_demo3.py
 
+.. _contour3d:
+
 Contour plots
 =============
 .. automethod:: Axes3D.contour
@@ -51,11 +74,20 @@ Contour plots
 .. plot:: mpl_examples/mplot3d/contour3d_demo2.py
 .. plot:: mpl_examples/mplot3d/contour3d_demo3.py
 
+.. _contourf3d:
+
 Filled contour plots
 ====================
 .. automethod:: Axes3D.contourf
 
 .. plot:: mpl_examples/mplot3d/contourf3d_demo.py
+.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
+
+.. versionadded:: 1.0.1
+   The feature demoed in the second contourf3d example was enabled as a
+   result of a bugfix for version 1.0.1.
+
+.. _polygon3d:
 
 Polygon plots
 ====================
@@ -63,15 +95,21 @@ Polygon plots
 
 .. plot:: mpl_examples/mplot3d/polys3d_demo.py
 
+.. _bar3d:
+
 Bar plots
 ====================
 .. automethod:: Axes3D.bar
 
 .. plot:: mpl_examples/mplot3d/bars3d_demo.py
 
+.. _2dcollections3d:
+
 2D plots in 3D
 ====================
 .. plot:: mpl_examples/mplot3d/2dcollections3d_demo.py
+
+.. _text3d:
 
 Text
 ====================
@@ -79,11 +117,17 @@ Text
 
 .. plot:: mpl_examples/mplot3d/text3d_demo.py
 
+.. _3dsubplots:
+
 Subplotting
 ====================
-Having multiple 3D plots in a single figure is the same
-as it is for 2D plots. And you can mix 2D and 3D plots
-into the same figure.
+Having multiple 3d plots in a single figure is the same
+as it is for 2d plots. Also, you can have both 2d and 3d plots
+in the same figure.
+
+.. versionadded:: 1.0.0
+   Subplotting 3d plots was added in v1.0.0.  Earlier version can not
+   do this.
 
 .. plot:: mpl_examples/mplot3d/subplot3d_demo.py
 .. plot:: mpl_examples/mplot3d/mixed_subplots_demo.py

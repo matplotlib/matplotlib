@@ -228,7 +228,7 @@ object:
 
 There are many other colormap schemes available.  See the `list and images of the colormaps <http://matplotlib.sourceforge.net/examples/pylab_examples/show_colormaps.html>`_.
 
-.. _`Color Bars`
+.. _`Color Bars`:
 
 Color scale reference
 ------------------------
@@ -256,7 +256,7 @@ automatically change if you change you switch to a different
 colormap - you have to re-create your plot, and add in the colorbar
 again.
 
-.. _`Data ranges`
+.. _`Data ranges`:
 
 Examining a specific data range
 ---------------------------------
