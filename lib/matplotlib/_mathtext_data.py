@@ -160,8 +160,6 @@ latex_to_bakoma = {
     r'\nwarrow'                  : ('cmsy10',  65),
     r'\swarrow'                  : ('cmsy10', 116),
     r'\propto'                   : ('cmsy10',  15),
-    r'\prime'                    : ('cmsy10',  73),
-    r"'"                         : ('cmsy10',  73),
     r'\infty'                    : ('cmsy10',  32),
     r'\in'                       : ('cmsy10',  59),
     r'\ni'                       : ('cmsy10', 122),

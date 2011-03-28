@@ -2463,6 +2463,8 @@ class Parser(object):
     def symbol(self, s, loc, toks):
         # print "symbol", toks
         c = toks[0]
+        if c == "'":
+            c = '\prime'
         try:
             char = Char(c, self.get_state())
         except ValueError:
