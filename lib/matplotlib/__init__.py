@@ -966,7 +966,8 @@ default_test_modules = [
     'matplotlib.tests.test_spines',
     'matplotlib.tests.test_image',
     'matplotlib.tests.test_simplification',
-    'matplotlib.tests.test_mathtext'
+    'matplotlib.tests.test_mathtext',
+    'matplotlib.tests.test_text'
     ]
 
 def test(verbosity=0):
