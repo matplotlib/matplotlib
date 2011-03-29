@@ -1,3 +1,8 @@
+2011-03-29 Wrapped ViewVCCachedServer definition in a factory function.
+           This class now inherits from urllib2.HTTPSHandler in order
+           to fetch data from github, but HTTPSHandler is not defined
+           if python was built without SSL support. - DSD
+
 2011-03-10 Update pytz version to 2011c, thanks to Simon Cross. - JKS
 
 2011-03-06 Add standalone tests.py test runner script. - JKS
