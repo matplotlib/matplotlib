@@ -40,7 +40,7 @@ except ImportError:
 
 from docutils.nodes import Body, Element
 from docutils.parsers.rst import directives
-from sphinx.roles import xfileref_role
+import sphinx.roles
 
 def my_import(name):
     """Module importer - taken from the python documentation.
@@ -308,8 +308,13 @@ def inheritance_diagram_directive(name, arguments, options, content, lineno,
     # references to real URLs later.  These nodes will eventually be
     # removed from the doctree after we're done with them.
     for name in graph.get_all_class_names():
-        refnodes, x = xfileref_role(
-            'class', ':class:`%s`' % name, name, 0, state)
+        try: # Sphinx >= 1.0
+            refnodes, x = sphinx.roles.XRefRole()(
+                'class', ':class:`%s`' % name, name, 0, state)
+        except AttributeError: # Sphinx < 1.0
+            refnodes, x = sphinx.roles.xfileref_role(
+                'class', ':class:`%s`' % name, name, 0, state)
+
         node.extend(refnodes)
     # Store the graph object so we can use it to generate the
     # dot file later
