@@ -447,7 +447,7 @@ def to_filehandle(fname, flag='rU', return_opened=False):
 def is_scalar_or_string(val):
     return is_string_like(val) or not iterable(val)
 
-def get_data_server(cache_dir, baseurl):
+def _get_data_server(cache_dir, baseurl):
     import urllib2
     class ViewVCCachedServer(urllib2.HTTPSHandler):
         """
@@ -683,7 +683,13 @@ def get_sample_data(fname, asfileobj=True):
         configdir = matplotlib.get_configdir()
         cachedir = os.path.join(configdir, 'sample_data')
         baseurl = 'https://github.com/matplotlib/sample_data/raw/master/'
-        myserver = get_sample_data.myserver = get_data_server(cachedir, baseurl)
+        try:
+            myserver = _get_data_server(cachedir, baseurl)
+            get_sample_data.myserver = myserver
+        except ImportError:
+            raise ImportError(
+                'Python must be built with SSL support to fetch sample data '
+                'from the matplotlib repository')
 
     return myserver.get_sample_data(fname, asfileobj=asfileobj)
 
