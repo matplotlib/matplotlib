@@ -20,7 +20,7 @@ from matplotlib.font_manager import findfont, FontProperties
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
-from matplotlib.transforms import Affine2D
+from matplotlib.transforms import Affine2D, Affine2DBase
 from matplotlib import _png
 
 from xml.sax.saxutils import escape as escape_xml_text
@@ -228,6 +228,9 @@ def generate_transform(transform_list=[]):
                 continue
             if type == 'rotate' and value == (0.0,):
                 continue
+            if type == 'matrix' and isinstance(value, Affine2DBase):
+                value = value.to_values()
+
             output.write('%s(%s)' % (type, ' '.join(str(x) for x in value)))
         return output.getvalue()
     return ''
@@ -841,13 +844,11 @@ class RendererSVG(RendererBase):
                 'opacity': str(gc.get_alpha())
                 })
 
-            if angle != 0:
-                attrib['transform'] = generate_transform([
-                    ('translate', (x, y)),
-                    ('rotate', (-angle)),
-                    ('translate', (-x, -y))])
+            attrib['transform'] = generate_transform([
+                ('translate', (x, y)),
+                ('rotate', (-angle,))])
 
-            self.writer.element('text', s, x=str(x), y=str(y), attrib=attrib)
+            self.writer.element('text', s, attrib=attrib)
         else:
             self.writer.comment(s)
 
@@ -857,63 +858,65 @@ class RendererSVG(RendererBase):
             svg_rects = svg_elements.svg_rects
 
             attrib = {}
-            attrib['style'] = generate_css({'fill': color})
-            if angle != 0:
-                attrib['transform'] = generate_transform([
-                    ('translate', (x, y)),
-                    ('rotate', (-angle)),
-                    ('translate', (-x, -y))])
+            attrib['style'] = generate_css({
+                'fill': color,
+                'stroke': 'none'})
+            attrib['transform'] = generate_transform([
+                ('translate', (x, y)),
+                ('rotate', (-angle,))])
 
-            self.writer.start(
-                'text', x=str(x), y=str(y), attrib=attrib)
+            self.writer.start('g', attrib=attrib)
 
-            # TODO: Join tspans where possible?
-            curr_x,curr_y = 0.0,0.0
-            for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
-                new_y = -new_y_mtc
-                xadvance = metrics.advance
-                dx = new_x - curr_x
-                dy = new_y - curr_y
+            self.writer.start('text')
 
-                attrib = {}
-                attrib['style'] = generate_css({
+            # Sort the characters by font, and output one tspan for
+            # each
+            spans = {}
+            for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
+                style = generate_css({
                     'font-size': str(fontsize),
                     'font-family': font.family_name})
-                attrib['textLength'] = str(xadvance)
-
-                if dx != 0.0:
-                    attrib['dx'] = str(dx)
-
-                if dy != 0.0:
-                    attrib['dy'] = str(dy)
-
                 if thetext == 32:
                     thetext = 0xa0 # non-breaking space
+                spans.setdefault(style, []).append((new_x, -new_y, thetext))
 
-                self.writer.element('tspan', unichr(thetext), attrib=attrib)
+            for style, chars in spans.items():
+                chars.sort()
 
-                curr_x = new_x + xadvance
-                curr_y = new_y
+                same_y = True
+                if len(chars) > 1:
+                    last_y = chars[0][1]
+                    for i in xrange(1, len(chars)):
+                        if chars[i][1] != last_y:
+                            same_y = False
+                            break
+                if same_y:
+                    ys = str(chars[0][1])
+                else:
+                    ys = ' '.join(str(c[1]) for c in chars)
+
+                attrib = {
+                    'style': style,
+                    'x': ' '.join(str(c[0]) for c in chars),
+                    'y': ys
+                    }
+
+                self.writer.element(
+                    'tspan',
+                    ''.join(unichr(c[2]) for c in chars),
+                    attrib=attrib)
 
             self.writer.end('text')
 
             if len(svg_rects):
-                attrib = {}
-                attrib['style'] = generate_css({
-                    'fill': color,
-                    'stroke': 'none'})
-                attrib['transform'] = generate_transform([
-                    ('translate', (x, y)),
-                    ('rotate', (-angle,))])
-
-                self.writer.start('g', attrib=attrib)
                 for x, y, width, height in svg_rects:
                     self.writer.element(
                         'rect',
                         x=str(x), y=str(-y + height),
                         width=str(width), height=str(height)
                         )
-                self.writer.end('g')
+
+            self.writer.end('g')
 
     def draw_tex(self, gc, x, y, s, prop, angle):
         self.draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
