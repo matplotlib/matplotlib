@@ -102,6 +102,10 @@ The plot directive has the following configuration options:
     plot_html_show_formats
         Whether to show links to the files in HTML.
 
+    plot_rcparams
+        A dictionary containing any non-standard rcParams that should
+        be applied before each plot.
+
 """
 
 import sys, os, glob, shutil, imp, warnings, cStringIO, re, textwrap, \
@@ -133,9 +137,7 @@ import matplotlib
 import matplotlib.cbook as cbook
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import matplotlib.image as image
 from matplotlib import _pylab_helpers
-from matplotlib.sphinxext import only_directives
 
 #------------------------------------------------------------------------------
 # Relative pathnames
@@ -279,6 +281,7 @@ def setup(app):
     app.add_config_value('plot_formats', ['png', 'hires.png', 'pdf'], True)
     app.add_config_value('plot_basedir', None, True)
     app.add_config_value('plot_html_show_formats', True, True)
+    app.add_config_value('plot_rcparams', {}, True)
 
     app.connect('doctree-read', mark_plot_labels)
 
@@ -475,9 +478,10 @@ def run_code(code, code_path, ns=None, function_name=None):
         sys.stdout = stdout
     return ns
 
-def clear_state():
+def clear_state(plot_rcparams):
     plt.close('all')
     matplotlib.rc_file_defaults()
+    matplotlib.rcParams.update(plot_rcparams)
 
 def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config):
@@ -554,7 +558,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
     for i, code_piece in enumerate(code_pieces):
         if not context:
-            clear_state()
+            clear_state(config.plot_rcparams)
         run_code(code_piece, code_path, ns, function_name)
 
         fig_managers = _pylab_helpers.Gcf.get_all_fig_managers()
