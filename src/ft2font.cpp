@@ -490,6 +490,10 @@ FT2Font::get_path()
     //get the glyph as a path, a list of (COMMAND, *args) as desribed in matplotlib.path
     // this code is from agg's decompose_ft_outline with minor modifications
 
+    if (!face->glyph) {
+        throw Py::ValueError("No glyph loaded");
+    }
+
     enum {STOP = 0,
           MOVETO = 1,
           LINETO = 2,

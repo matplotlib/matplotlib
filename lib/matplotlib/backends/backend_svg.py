@@ -1,6 +1,6 @@
 from __future__ import division
 
-import os, codecs, base64, tempfile, urllib, gzip, cStringIO
+import os, codecs, base64, tempfile, urllib, gzip, cStringIO, re, sys
 
 import numpy as np
 
@@ -9,7 +9,6 @@ try:
 except ImportError:
     from md5 import md5 #Deprecated in 2.5
 
-from matplotlib import SimpleXMLWriter
 from matplotlib import verbose, __version__, rcParams
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
@@ -28,14 +27,184 @@ from xml.sax.saxutils import escape as escape_xml_text
 
 backend_version = __version__
 
-# TODO: Put styles in a central CSS section
+# ----------------------------------------------------------------------
+# SimpleXMLWriter class
+#
+# Based on an original by Fredrick Lundh, but modified here to:
+#   1. Support modern Python idioms
+#   2. Remove encoding support (it's handled by the file writer instead)
+#   3. Support proper indentation
 
-def new_figure_manager(num, *args, **kwargs):
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    canvas  = FigureCanvasSVG(thisFig)
-    manager = FigureManagerSVG(canvas, num)
-    return manager
+# --------------------------------------------------------------------
+# The SimpleXMLWriter module is
+#
+# Copyright (c) 2001-2004 by Fredrik Lundh
+#
+# By obtaining, using, and/or copying this software and/or its
+# associated documentation, you agree that you have read, understood,
+# and will comply with the following terms and conditions:
+#
+# Permission to use, copy, modify, and distribute this software and
+# its associated documentation for any purpose and without fee is
+# hereby granted, provided that the above copyright notice appears in
+# all copies, and that both that copyright notice and this permission
+# notice appear in supporting documentation, and that the name of
+# Secret Labs AB or the author not be used in advertising or publicity
+# pertaining to distribution of the software without specific, written
+# prior permission.
+#
+# SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
+# TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANT-
+# ABILITY AND FITNESS.  IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR
+# BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+# DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+# WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+# ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+# OF THIS SOFTWARE.
+# --------------------------------------------------------------------
+
+def escape_cdata(s):
+    s = s.replace(u"&", u"&amp;")
+    s = s.replace(u"<", u"&lt;")
+    s = s.replace(u">", u"&gt;")
+    return s
+
+def escape_attrib(s):
+    s = s.replace(u"&", u"&amp;")
+    s = s.replace(u"'", u"&apos;")
+    s = s.replace(u"\"", u"&quot;")
+    s = s.replace(u"<", u"&lt;")
+    s = s.replace(u">", u"&gt;")
+    return s
+
+##
+# XML writer class.
+#
+# @param file A file or file-like object.  This object must implement
+#    a <b>write</b> method that takes an 8-bit string.
+
+class XMLWriter:
+    def __init__(self, file):
+        self.__write = file.write
+        if hasattr(file, "flush"):
+            self.flush = file.flush
+        self.__open = 0 # true if start tag is open
+        self.__tags = []
+        self.__data = []
+
+    def __flush(self, indent=True):
+        # flush internal buffers
+        if self.__open:
+            if indent:
+                self.__write(u">\n")
+            else:
+                self.__write(u">")
+            self.__open = 0
+        if self.__data:
+            data = u''.join(self.__data)
+            self.__write(escape_cdata(data))
+            self.__data = []
+
+    ## Opens a new element.  Attributes can be given as keyword
+    # arguments, or as a string/string dictionary. The method returns
+    # an opaque identifier that can be passed to the <b>close</b>
+    # method, to close all open elements up to and including this one.
+    #
+    # @param tag Element tag.
+    # @param attrib Attribute dictionary.  Alternatively, attributes
+    #    can be given as keyword arguments.
+    # @return An element identifier.
+
+    def start(self, tag, attrib={}, **extra):
+        self.__flush()
+        tag = escape_cdata(tag)
+        self.__data = []
+        self.__tags.append(tag)
+        self.__write(u" " * len(self.__tags))
+        self.__write(u"<%s" % tag)
+        if attrib or extra:
+            attrib = attrib.copy()
+            attrib.update(extra)
+            attrib = attrib.items()
+            attrib.sort()
+            for k, v in attrib:
+                k = escape_cdata(k)
+                v = escape_attrib(v)
+                self.__write(u" %s=\"%s\"" % (k, v))
+        self.__open = 1
+        return len(self.__tags)-1
+
+    ##
+    # Adds a comment to the output stream.
+    #
+    # @param comment Comment text, as a Unicode string.
+
+    def comment(self, comment):
+        self.__flush()
+        self.__write(u" " * (len(self.__tags) + 1))
+        self.__write(u"<!-- %s -->\n" % escape_cdata(comment))
+
+    ##
+    # Adds character data to the output stream.
+    #
+    # @param text Character data, as a Unicode string.
+
+    def data(self, text):
+        self.__data.append(text)
+
+    ##
+    # Closes the current element (opened by the most recent call to
+    # <b>start</b>).
+    #
+    # @param tag Element tag.  If given, the tag must match the start
+    #    tag.  If omitted, the current element is closed.
+
+    def end(self, tag=None, indent=True):
+        if tag:
+            assert self.__tags, "unbalanced end(%s)" % tag
+            assert escape_cdata(tag) == self.__tags[-1],\
+                   "expected end(%s), got %s" % (self.__tags[-1], tag)
+        else:
+            assert self.__tags, "unbalanced end()"
+        tag = self.__tags.pop()
+        if self.__data:
+            self.__flush(indent)
+        elif self.__open:
+            self.__open = 0
+            self.__write(u"/>\n")
+            return
+        if indent:
+            self.__write(u" " * (len(self.__tags) + 1))
+        self.__write(u"</%s>\n" % tag)
+
+    ##
+    # Closes open elements, up to (and including) the element identified
+    # by the given identifier.
+    #
+    # @param id Element identifier, as returned by the <b>start</b> method.
+
+    def close(self, id):
+        while len(self.__tags) > id:
+            self.end()
+
+    ##
+    # Adds an entire element.  This is the same as calling <b>start</b>,
+    # <b>data</b>, and <b>end</b> in sequence. The <b>text</b> argument
+    # can be omitted.
+
+    def element(self, tag, text=None, attrib={}, **extra):
+        apply(self.start, (tag, attrib), extra)
+        if text:
+            self.data(text)
+        self.end(indent=False)
+
+    ##
+    # Flushes the output stream.
+
+    def flush(self):
+        pass # replaced by the constructor
+
+# ----------------------------------------------------------------------
 
 def generate_css(attrib={}):
     if attrib or extra:
@@ -43,14 +212,13 @@ def generate_css(attrib={}):
         attrib = attrib.items()
         attrib.sort()
         for k, v in attrib:
-            k = SimpleXMLWriter.escape_attrib(k)
-            v = SimpleXMLWriter.escape_attrib(v)
+            k = escape_attrib(k)
+            v = escape_attrib(v)
             output.write("%s:%s;" % (k, v))
         return output.getvalue()
     return ''
 
 def generate_transform(transform_list=[]):
-    # TODO: We could compress all this down to matrices...?
     if len(transform_list):
         output = cStringIO.StringIO()
         for type, value in transform_list:
@@ -72,7 +240,7 @@ class RendererSVG(RendererBase):
     def __init__(self, width, height, svgwriter, basename=None):
         self.width = width
         self.height = height
-        self.writer = SimpleXMLWriter.XMLWriter(svgwriter, None)
+        self.writer = XMLWriter(svgwriter)
 
         self._groupd = {}
         if not rcParams['svg.image_inline']:
@@ -224,6 +392,20 @@ class RendererSVG(RendererBase):
             self.writer.end('defs')
             self._clipd[dictkey] = oid
         return oid
+
+    def open_group(self, s, gid=None):
+        """
+        Open a grouping element with label *s*. If *gid* is given, use
+        *gid* as the id of the group.
+        """
+        if gid:
+            self.writer.start('g', id=gid)
+        else:
+            self._groupd[s] = self._groupd.get(s, 0) + 1
+            self.writer.start('g', id="%s_%d" % (s, self._groupd[s]))
+
+    def close_group(self, s):
+        self.writer.end('g')
 
     def option_image_nocomposite(self):
         """
@@ -486,7 +668,7 @@ class RendererSVG(RendererBase):
             rows, cols, buffer = im.as_rgba_str()
             _png.write_png(buffer, cols, rows, stringio)
             im.flipud_out()
-            attrib['xlink:href'] = ("data:image/png;base64\n" +
+            attrib['xlink:href'] = ("data:image/png;base64,\n" +
                                     base64.encodestring(stringio.getvalue()))
         else:
             self._imaged[self.basename] = self._imaged.get(self.basename,0) + 1
@@ -500,8 +682,8 @@ class RendererSVG(RendererBase):
 
         self.writer.element(
             'image',
-            x=str(x/trans[0]), y=str((self.height-y)/trans[3]),
-            width=str(x), height=str(h),
+            x=str(x/trans[0]), y=str((self.height-y)/trans[3]-h),
+            width=str(w), height=str(h),
             attrib=attrib)
 
         if url is not None:
@@ -526,9 +708,6 @@ class RendererSVG(RendererBase):
         *ismath*
           If True, use mathtext parser. If "TeX", use *usetex* mode.
         """
-        # this method works for normal text, mathtext and usetex mode.
-        # But currently only utilized by draw_tex method.
-
         self.writer.comment(s)
 
         glyph_map=self._glyph_map
@@ -542,7 +721,8 @@ class RendererSVG(RendererBase):
             _glyphs = text2path.get_glyphs_with_font(font, s, glyph_map=glyph_map,
                                                      return_new_glyphs_only=True)
             glyph_info, glyph_map_new, rects = _glyphs
-            y -= (font.get_descent() / 64.0) / text2path.FONT_SCALE
+            y -= ((font.get_descent() / 64.0) *
+                  (prop.get_size_in_points() / text2path.FONT_SCALE))
 
             _flip = Affine2D().scale(1.0, -1.0)
 
@@ -640,7 +820,7 @@ class RendererSVG(RendererBase):
 
             self.writer.end('g')
 
-    def _draw_text_as_text(self, gc, x, y, s, prop, angle):
+    def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath):
         color = rgb2hex(gc.get_rgb())
         if not ismath:
             font = self._get_font(prop)
@@ -669,6 +849,8 @@ class RendererSVG(RendererBase):
 
             self.writer.element('text', s, x=str(x), y=str(y), attrib=attrib)
         else:
+            self.writer.comment(s)
+
             width, height, descent, svg_elements, used_characters = \
                    self.mathtext_parser.parse(s, 72, prop)
             svg_glyphs = svg_elements.svg_glyphs
@@ -685,50 +867,53 @@ class RendererSVG(RendererBase):
             self.writer.start(
                 'text', x=str(x), y=str(y), attrib=attrib)
 
+            # TODO: Join tspans where possible?
             curr_x,curr_y = 0.0,0.0
             for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
                 new_y = -new_y_mtc
                 xadvance = metrics.advance
+                dx = new_x - curr_x
+                dy = new_y - curr_y
 
                 attrib = {}
                 attrib['style'] = generate_css({
                     'font-size': str(fontsize),
                     'font-family': font.family_name})
-                attrib['textLength'] = xadvance
+                attrib['textLength'] = str(xadvance)
 
-                dx = new_x - curr_x
                 if dx != 0.0:
                     attrib['dx'] = str(dx)
 
-                dy = new_y - curr_y
                 if dy != 0.0:
                     attrib['dy'] = str(dy)
 
-                self.writer.element('tspan', thetext, attrib=attrib)
+                if thetext == 32:
+                    thetext = 0xa0 # non-breaking space
+
+                self.writer.element('tspan', unichr(thetext), attrib=attrib)
 
                 curr_x = new_x + xadvance
                 curr_y = new_y
 
             self.writer.end('text')
 
-        if len(svg_rects):
-            attrib = {}
-            attrib['style'] = generate_css({
-                'fill': color,
-                'stroke': 'none'})
-            attrib['transform'] = generate_transform([
-                ('translate', (x, y)),
-                ('rotate', (-angle,))])
+            if len(svg_rects):
+                attrib = {}
+                attrib['style'] = generate_css({
+                    'fill': color,
+                    'stroke': 'none'})
+                attrib['transform'] = generate_transform([
+                    ('translate', (x, y)),
+                    ('rotate', (-angle,))])
 
-            self.writer.start('g', attrib=attrib)
-            for x, y, width, height in svg_rects:
-                self.writer.element(
-                    'rect',
-                    x=str(x), y=str(-y + height),
-                    width=str(width), height=str(height),
-                    fill=color, stroke="none" # TODO: Is this needed?
-                    )
-            self.writer.end('g')
+                self.writer.start('g', attrib=attrib)
+                for x, y, width, height in svg_rects:
+                    self.writer.element(
+                        'rect',
+                        x=str(x), y=str(-y + height),
+                        width=str(width), height=str(height)
+                        )
+                self.writer.end('g')
 
     def draw_tex(self, gc, x, y, s, prop, angle):
         self.draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
@@ -809,8 +994,15 @@ class FigureManagerSVG(FigureManagerBase):
 
 FigureManager = FigureManagerSVG
 
-svgProlog = """\
-<?xml version="1.0" standalone="no"?>
+def new_figure_manager(num, *args, **kwargs):
+    FigureClass = kwargs.pop('FigureClass', Figure)
+    thisFig = FigureClass(*args, **kwargs)
+    canvas  = FigureCanvasSVG(thisFig)
+    manager = FigureManagerSVG(canvas, num)
+    return manager
+
+svgProlog = u"""\
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
