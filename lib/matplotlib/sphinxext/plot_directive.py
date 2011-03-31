@@ -561,6 +561,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
             clear_state(config.plot_rcparams)
         run_code(code_piece, code_path, ns, function_name)
 
+        images = []
         fig_managers = _pylab_helpers.Gcf.get_all_fig_managers()
         for j, figman in enumerate(fig_managers):
             if len(fig_managers) == 1 and len(code_pieces) == 1:
