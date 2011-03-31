@@ -493,7 +493,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
     *output_base*
     """
     # -- Parse format list
-    default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 50}
+    default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 200}
     formats = []
     for fmt in config.plot_formats:
         if isinstance(fmt, str):
