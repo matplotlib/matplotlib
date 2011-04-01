@@ -15,6 +15,9 @@ python documentation system built on top of ReST.  This directory contains
 
 * api - placeholders to automatically generate the api documentation
 
+* mpl_toolkits - documentation of individual toolkits that ship with
+  matplotlib
+
 * make.py - the build script to build the html or PDF docs
 
 * index.rst - the top level include document for matplotlib docs
