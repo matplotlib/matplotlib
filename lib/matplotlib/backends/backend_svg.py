@@ -20,6 +20,7 @@ from matplotlib.font_manager import findfont, FontProperties
 from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
+from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
 from matplotlib import _png
 
@@ -416,31 +417,8 @@ class RendererSVG(RendererBase):
         """
         return rcParams['svg.image_noscale']
 
-    _path_commands = {
-        Path.MOVETO: 'M%f %f\n',
-        Path.LINETO: 'L%f %f\n',
-        Path.CURVE3: 'Q%f %f %f %f\n',
-        Path.CURVE4: 'C%f %f %f %f %f %f\n'
-        }
-
-    def _convert_path(self, path, transform, clip=False, simplify=None):
-        path_data = cStringIO.StringIO()
-        appender = path_data.write
-        path_commands = self._path_commands
-        if clip:
-            clip = (0.0, 0.0, self.width, self.height)
-        else:
-            clip = None
-
-        for points, code in path.iter_segments(transform, clip=clip,
-                                               simplify=simplify):
-            if code == Path.CLOSEPOLY:
-                segment = 'z'
-            else:
-                segment = path_commands[code] % tuple(points)
-
-            appender(segment)
-        return path_data.getvalue()
+    def _convert_path(self, path, transform, clip=None, simplify=None):
+        return _path.convert_to_svg(path, transform, clip, simplify, 6)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         trans_and_flip = self._make_flip_transform(transform)
