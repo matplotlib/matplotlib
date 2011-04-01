@@ -8,20 +8,12 @@ Getting started
 ===============
 
 The documentation for matplotlib is generated from ReStructured Text
-using the Sphinx_ documentation generation tool. Sphinx-0.5 or later
-is required. You might still run into problems, so most developers
-work from the sphinx source repository (Mercurial based) because it
-is a rapidly evolving project::
+using the Sphinx_ documentation generation tool. Sphinx-1.0 or later
+is required.
 
-  hg clone http://bitbucket.org/birkenfeld/sphinx/
-  cd sphinx
-  python setup.py install
-
-.. _Sphinx: http://sphinx.pocoo.org/
-
-The documentation sources are found in the :file:`doc/` directory in the trunk.
-To build the users guide in html format, cd into :file:`doc/` and
-do::
+The documentation sources are found in the :file:`doc/` directory in
+the trunk.  To build the users guide in html format, cd into
+:file:`doc/` and do::
 
   python make.py html
 
@@ -406,3 +398,4 @@ Some helpful functions::
 
         Shift region to the right
 
+.. TODO: Add section about uploading docs
