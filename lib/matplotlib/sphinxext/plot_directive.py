@@ -1,9 +1,9 @@
 """
-A special directive for including a matplotlib plot in a Sphinx
-document.
+A directive for including a matplotlib plot in a Sphinx document.
 
-In HTML output, `plot` will include a .png file with a link to a
-high-res .png and .pdf.  In LaTeX output, it will include a .pdf.
+By default, in HTML output, `plot` will include a .png file with a
+link to a high-res .png and .pdf.  In LaTeX output, it will include a
+.pdf.
 
 The source code for the plot may be included in one of three ways:
 
@@ -23,35 +23,33 @@ The source code for the plot may be included in one of three ways:
 
        .. plot:: path/to/plot.py plot_function1
 
-  2. Included as inline content to the directive::
+  2. Included as **inline content** to the directive::
 
      .. plot::
-
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
         import numpy as np
         img = mpimg.imread('_static/stinkbug.png')
         imgplot = plt.imshow(img)
 
-  3. Using doctest syntax::
+  3. Using **doctest** syntax::
 
      .. plot::
-
         A plotting example:
-
         >>> import matplotlib.pyplot as plt
         >>> plt.plot([1,2,3], [4,5,6])
 
 Options
 -------
 
-The ``plot`` directive supports the options:
+The ``plot`` directive supports the following options:
 
     format : {'python', 'doctest'}
         Specify the format of the input
 
     include-source : bool
-        Whether to display the source code. Default can be changed in conf.py
+        Whether to display the source code. The default can be changed
+        using the `plot_include_source` variable in conf.py
 
     encoding : str
         If this source file is in a non-UTF8 or non-ASCII encoding,
@@ -61,7 +59,7 @@ The ``plot`` directive supports the options:
 
     context : bool
         If provided, the code will be run in the context of all
-        previous plot directives for which the context option was
+        previous plot directives for which the `:context:` option was
         specified.  This only applies to inline code plot directives,
         not those run from files.
 
