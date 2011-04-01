@@ -139,6 +139,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers
 
+__version__ = 2
+
 #------------------------------------------------------------------------------
 # Relative pathnames
 #------------------------------------------------------------------------------
