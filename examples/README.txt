@@ -21,7 +21,7 @@ directories found here:
     doc/artist_api_tut.txt in the matplotlib src directory ((PDF at
     http://matplotlib.sf.net/pycon)
 
-  * data - some data files we use in the examples
+  * axes_grid - Examples related to the AxesGrid toolkit
 
   * event_handling - how to interact with your figure, mouse presses,
     key presses, object picking, etc.  See the event handling tutorial
@@ -31,12 +31,17 @@ directories found here:
   * misc - some miscellaneous examples.  some demos for loading and
     working with record arrays
 
+  * mplot3d - 3D examples
+
   * pylab_examples - the  interface to matplotlib similar to matlab
 
   * tests - tests used by matplotlib developers to check functionality
+    (These tests are still sometimes useful, but mostly developers should
+    use the nosetests which perform automatic image comparison.)
 
   * units - working with unit data an custom types in matplotlib
 
   * user_interfaces - using matplotlib in a GUI application, eg
     TkInter, WXPython, pygtk, pyqt or FLTK widgets
 
+  * widgets - Examples using interactive widgets
