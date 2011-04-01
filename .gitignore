@@ -40,3 +40,5 @@ Thumbs.db
 ###################################
 lib/matplotlib/mpl-data/matplotlib.conf
 lib/matplotlib/mpl-data/matplotlibrc
+doc/users/installing.rst
+doc/_static/matplotlibrc
