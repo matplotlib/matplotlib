@@ -40,3 +40,9 @@ Thumbs.db
 ###################################
 lib/matplotlib/mpl-data/matplotlib.conf
 lib/matplotlib/mpl-data/matplotlibrc
+
+# Documentation generated files #
+#################################
+doc/examples
+doc/_templates/gallery.html
+doc/_static/matplotlibrc
