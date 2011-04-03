@@ -101,7 +101,7 @@ objects in a numpy record array::
   array([2004-08-19, 2004-08-20, 2004-08-23, ..., 2008-10-10, 2008-10-13,
 	 2008-10-14], dtype=object)
 
-The dtype of the numpy record array for the field 'date' is '|O4'
+The dtype of the numpy record array for the field ``date`` is ``|O4``
 which means it is a 4-byte python object pointer; in this case the
 objects are datetime.date instances, which we can see when we print
 some samples in the ipython terminal window.
@@ -130,7 +130,7 @@ the x locations are formatted the same way the tick labels are, eg
 "Dec 2004".  What we'd like is for the location in the toolbar to have
 a higher degree of precision, eg giving us the exact date out mouse is
 hovering over.  To fix the first problem, we can use
-method:`matplotlib.figure.Figure.autofmt_xdate` and to fix the second
+:func:`matplotlib.figure.Figure.autofmt_xdate` and to fix the second
 problem we can use the ``ax.fmt_xdata`` attribute which can be set to
 any function that takes a scalar and returns a string.  matplotlib has
 a number of date formatters built in, so we'll use one of those.

@@ -20,13 +20,13 @@ The source code for the plot may be included in one of two ways:
 
   2. Included as inline content to the directive::
 
-     .. plot::
+       .. plot::
 
-        import matplotlib.pyplot as plt
-        import matplotlib.image as mpimg
-        import numpy as np
-        img = mpimg.imread('_static/stinkbug.png')
-        imgplot = plt.imshow(img)
+          import matplotlib.pyplot as plt
+          import matplotlib.image as mpimg
+          import numpy as np
+          img = mpimg.imread('_static/stinkbug.png')
+          imgplot = plt.imshow(img)
 
 In HTML output, `plot` will include a .png file with a link to a high-res
 .png and .pdf.  In LaTeX output, it will include a .pdf.
