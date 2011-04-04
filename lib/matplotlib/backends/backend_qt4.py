@@ -19,9 +19,6 @@ try:
     import matplotlib.backends.qt4_editor.figureoptions as figureoptions
 except ImportError:
     figureoptions = None
-figureoptions = None
-
-print figureoptions
 
 try:
     from PyQt4 import QtCore, QtGui, Qt
