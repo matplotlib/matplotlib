@@ -519,6 +519,47 @@ def test_canonical():
     ax.plot([1,2,3])
     fig.savefig('canonical')
 
+
+@image_comparison(baseline_images=['arc_ellipse'])
+def test_arc_ellipse():
+    from matplotlib import patches
+    xcenter, ycenter = 0.38, 0.52
+    width, height = 1e-1, 3e-1
+    angle = -30
+
+    theta = np.arange(0.0, 360.0, 1.0)*np.pi/180.0
+    x = width/2. * np.cos(theta)
+    y = height/2. * np.sin(theta)
+
+    rtheta = angle*np.pi/180.
+    R = np.array([
+        [np.cos(rtheta),  -np.sin(rtheta)],
+        [np.sin(rtheta), np.cos(rtheta)],
+        ])
+
+    x, y = np.dot(R, np.array([x, y]))
+    x += xcenter
+    y += ycenter
+
+    fig = plt.figure()
+    ax = fig.add_subplot(211, aspect='auto')
+    ax.fill(x, y, alpha=0.2, facecolor='yellow', edgecolor='yellow', linewidth=1, zorder=1)
+
+    e1 = patches.Arc((xcenter, ycenter), width, height,
+                 angle=angle, linewidth=2, fill=False, zorder=2)
+
+    ax.add_patch(e1)
+
+    ax = fig.add_subplot(212, aspect='equal')
+    ax.fill(x, y, alpha=0.2, facecolor='green', edgecolor='green', zorder=1)
+    e2 = patches.Arc((xcenter, ycenter), width, height,
+                 angle=angle, linewidth=2, fill=False, zorder=2)
+
+    ax.add_patch(e2)
+
+    fig.savefig('arc_ellipse')
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
