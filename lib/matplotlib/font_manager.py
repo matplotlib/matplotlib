@@ -124,6 +124,7 @@ MSFontDirectories   = [
 X11FontDirectories  = [
     # an old standard installation point
     "/usr/X11R6/lib/X11/fonts/TTF/",
+    "/usr/X11/lib/X11/fonts",
     # here is the new standard location for fonts
     "/usr/share/fonts/",
     # documented as a good place to install new fonts
@@ -135,7 +136,10 @@ X11FontDirectories  = [
 OSXFontDirectories = [
     "/Library/Fonts/",
     "/Network/Library/Fonts/",
-    "/System/Library/Fonts/"
+    "/System/Library/Fonts/",
+    # fonts installed via MacPorts
+    "/opt/local/share/fonts"
+    ""
 ]
 
 if not USE_FONTCONFIG:
