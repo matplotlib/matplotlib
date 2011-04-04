@@ -82,12 +82,12 @@ In more detail
      #   (use "git add <file>..." to update what will be committed)
      #   (use "git checkout -- <file>..." to discard changes in working directory)
      #
-     #	modified:   README
+     #  modified:   README
      #
      # Untracked files:
      #   (use "git add <file>..." to include in what will be committed)
      #
-     #	INSTALL
+     #  INSTALL
      no changes added to commit (use "git add" and/or "git commit -a")
 
 #. Check what the actual changes are with ``git diff`` (`git diff`_).
@@ -151,7 +151,8 @@ When you are ready to ask for the merge of your code:
 
 #. If the branch is to be merged into a maintenance branch on the main
    repo, make sure the "base branch" indicates the maintenance branch
-   and not master.
+   and not master.  Github can not automatically determine the branch
+   to merge into.
 
 Staying up to date with changes in the central repository
 =========================================================
@@ -197,23 +198,11 @@ If you were to merge ``upstream/master`` to your ``master``, you
 would start to diverge from the upstream. If this command fails, see
 the section on accidents_.
 
-.. Doesn't one then need to push this up to the private repository? I
-.. have multiple machines I use for development, and I don't want to
-.. have to do this on all of them - MGD
-
-.. Not really; does the paragraph below explain this enough? - JKS
-
 The letters 'ff' in ``--ff-only`` mean 'fast forward', which is a
 special case of merge where git can simply update your branch to point
 to the other branch and not do any actual merging of files. For
 ``master`` and other integration branches this is exactly what you
 want.
-
-.. Does this need to be done for each maintenance branch as well?
-.. This doesn't seem to be sufficient to pull in changes on an
-.. upstream maintenance branch. - MGD
-
-.. Does the section below answer this? - JKS
 
 Other integration branches
 --------------------------
