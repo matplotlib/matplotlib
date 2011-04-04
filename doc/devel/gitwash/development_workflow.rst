@@ -230,7 +230,7 @@ new branches off of it, update it from upstream::
 
 But you don't necessarily have to have such a branch. Instead, if you
 are preparing a bugfix that applies to the maintenance branch, fetch
-from upstream and base your bugfix on the remote branch;:
+from upstream and base your bugfix on the remote branch::
 
    git fetch upstream
    git checkout -b my-bug-fix upstream/v1.0.x
