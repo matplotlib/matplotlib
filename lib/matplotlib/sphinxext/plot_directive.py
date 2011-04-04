@@ -25,19 +25,19 @@ The source code for the plot may be included in one of three ways:
 
   2. Included as **inline content** to the directive::
 
-       .. plot::
-          import matplotlib.pyplot as plt
-          import matplotlib.image as mpimg
-          import numpy as np
-          img = mpimg.imread('_static/stinkbug.png')
-          imgplot = plt.imshow(img)
+     .. plot::
+        import matplotlib.pyplot as plt
+        import matplotlib.image as mpimg
+        import numpy as np
+        img = mpimg.imread('_static/stinkbug.png')
+        imgplot = plt.imshow(img)
 
   3. Using **doctest** syntax::
 
-       .. plot:: foo
-          A plotting example:
-          >>> import matplotlib.pyplot as plt
-          >>> plt.plot([1,2,3], [4,5,6])
+     .. plot::
+        A plotting example:
+        >>> import matplotlib.pyplot as plt
+        >>> plt.plot([1,2,3], [4,5,6])
 
 Options
 -------
