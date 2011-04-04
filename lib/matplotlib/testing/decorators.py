@@ -88,7 +88,7 @@ def image_comparison(baseline_images=None,extensions=None,tol=1e-3):
                 orig_expected_fnames = [os.path.join(baseline_dir,fname) + '.' + extension for fname in baseline_images]
                 expected_fnames = [os.path.join(result_dir,'expected-'+fname) + '.' + extension for fname in baseline_images]
                 actual_fnames = [os.path.join(result_dir, fname) + '.' + extension for fname in baseline_images]
-                have_baseline_images = [os.path.exists(expected) for expected in expected_fnames]
+                have_baseline_images = [os.path.exists(expected) for expected in orig_expected_fnames]
                 have_baseline_image = np.all(have_baseline_images)
                 is_comparable = extension in comparable_formats()
                 if not is_comparable:
