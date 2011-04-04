@@ -15,8 +15,8 @@ Plotting: howto
 
 .. _howto-findobj:
 
-Find all objects in figure of a certain type
--------------------------------------------------------------
+Find all objects in a figure of a certain type
+----------------------------------------------
 
 Every matplotlib artist (see :ref:`artist-tutorial`) has a method
 called :meth:`~matplotlib.artist.Artist.findobj` that can be used to
@@ -27,16 +27,16 @@ following snippet finds every object in the figure which has a
 `set_color` property and makes the object blue::
 
     def myfunc(x):
-	return hasattr(x, 'set_color')
+        return hasattr(x, 'set_color')
 
     for o in fig.findobj(myfunc):
-	o.set_color('blue')
+        o.set_color('blue')
 
 You can also filter on class instances::
 
     import matplotlib.text as text
     for o in fig.findobj(text.Text):
-	o.set_fontstyle('italic')
+        o.set_fontstyle('italic')
 
 
 .. _howto-transparent:
@@ -70,7 +70,7 @@ on individual elements, eg::
 
 .. _howto-multipage:
 
-Save multiple plots in one pdf file
+Save multiple plots to one pdf file
 -----------------------------------
 
 Many image file formats can only have one image per file, but some
@@ -87,7 +87,7 @@ the format::
 
     savefig(pp, format='pdf')
 
-A simpler way is to call
+An easier way is to call
 :meth:`PdfPages.savefig <matplotlib.backends.backend_pdf.PdfPages.savefig>`::
 
     pp.savefig()
@@ -144,15 +144,14 @@ specify the location explicitly::
     ax = fig.add_axes([left, bottom, width, height])
 
 where all values are in fractional (0 to 1) coordinates.  See
-`axes_demo.py <http://matplotlib.sf.net/examples/axes_demo.py>`_ for
-an example of placing axes manually.
+:ref:`pylab_examples-axes_demo` for an example of placing axes manually.
 
 .. _howto-auto-adjust:
 
 Automatically make room for tick labels
 ----------------------------------------------------
 
-In most use cases, it is enough to simpy change the subplots adjust
+In most use cases, it is enough to simply change the subplots adjust
 parameters as described in :ref:`howto-subplots-adjust`.  But in some
 cases, you don't know ahead of time what your tick labels will be, or
 how large they will be (data and labels outside your control may be
@@ -174,8 +173,8 @@ connecting
 get the window extent there, and then do something with it, eg move
 the left of the canvas over; see :ref:`event-handling-tutorial`.
 
-Here is that gets a bounding box in relative figure coordinates (0..1)
-of each of the labels and uses it to move the left of the subplots
+Here is an example that gets a bounding box in relative figure coordinates
+(0..1) of each of the labels and uses it to move the left of the subplots
 over so that the tick labels fit in the figure
 
 .. plot:: pyplots/auto_subplots_adjust.py
@@ -233,7 +232,7 @@ When plotting time series, eg financial time series, one often wants
 to leave out days on which there is no data, eg weekends.  By passing
 in dates on the x-xaxis, you get large horizontal gaps on periods when
 there is not data. The solution is to pass in some proxy x-data, eg
-evenly sampled indicies, and then use a custom formatter to format
+evenly sampled indices, and then use a custom formatter to format
 these as dates. The example below shows how to use an 'index formatter'
 to achieve the desired plot::
 
@@ -250,8 +249,8 @@ to achieve the desired plot::
     ind = np.arange(N)  # the evenly spaced plot indices
 
     def format_date(x, pos=None):
-	thisind = np.clip(int(x+0.5), 0, N-1)
-	return r.date[thisind].strftime('%Y-%m-%d')
+        thisind = np.clip(int(x+0.5), 0, N-1)
+        return r.date[thisind].strftime('%Y-%m-%d')
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -405,15 +404,15 @@ A frequent request is to have two scales for the left and right
 y-axis, which is possible using :func:`~matplotlib.pyplot.twinx` (more
 than two scales are not currently supported, though it is on the wish
 list).  This works pretty well, though there are some quirks when you
-are trying to interactively pan and zoom, since both scales do not get
+are trying to interactively pan and zoom, because both scales do not get
 the signals.
 
-The approach :func:`~matplotlib.pyplot.twinx` (and its sister
-:func:`~matplotlib.pyplot.twiny`) uses is to use *2 different axes*,
+The approach uses :func:`~matplotlib.pyplot.twinx` (and its sister
+:func:`~matplotlib.pyplot.twiny`) to use *2 different axes*,
 turning the axes rectangular frame off on the 2nd axes to keep it from
 obscuring the first, and manually setting the tick locs and labels as
 desired.  You can use separate matplotlib.ticker formatters and
-locators as desired since the two axes are independent::
+locators as desired because the two axes are independent::
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -444,7 +443,7 @@ Generate images without having a window popup
 
 The easiest way to do this is use an image backend (see
 :ref:`what-is-a-backend`) such as Agg (for PNGs), PDF, SVG or PS.  In
-your figure generating script, just place call
+your figure generating script, just call the
 :func:`matplotlib.use` directive before importing pylab or
 pyplot::
 
@@ -465,17 +464,43 @@ pyplot::
 Use :func:`~matplotlib.pyplot.show`
 ------------------------------------------
 
-The user interface backends need to start the GUI mainloop, and this
-is what :func:`~matplotlib.pyplot.show` does.  It tells matplotlib to
-raise all of the figure windows and start the mainloop.  Because the
-mainloop is blocking, you should only call this once per script, at
-the end.  If you are using matplotlib to generate images only and do
-not want a user interface window, you do not need to call ``show``  (see
-:ref:`howto-batch` and :ref:`what-is-a-backend`).
+When you want to view your plots on your display,
+the user interface backend will need to start the GUI mainloop.
+This is what :func:`~matplotlib.pyplot.show` does.  It tells
+matplotlib to raise all of the figure windows created so far and start
+the mainloop. Because this mainloop is blocking (i.e., script execution is
+paused), you should only call this once per script, at the end.  Script
+execution is resumed after the last window is closed.  Therefore, if you are
+using matplotlib to generate only images and do not want a user interface
+window, you do not need to call ``show``  (see :ref:`howto-batch` and
+:ref:`what-is-a-backend`).
+
+.. note::
+   Because closing a figure window invokes the destruction of its plotting
+   elements, you should call :func:`~matplotlib.pyplot.savefig` *before*
+   calling ``show`` if you wish to save the figure as well as view it.
+
+.. versionadded:: v1.0.0
+   ``show`` now starts the GUI mainloop only if it isn't already running.
+   Therefore, multiple calls to ``show`` are now allowed.
+
+Having ``show`` block further execution of the script or the python
+interperator depends on whether matplotlib is set for interactive mode
+or not.  In non-interactive mode (the default setting), execution is paused
+until the last figure window is closed.  In interactive mode, the execution
+is not paused, which allows you to create additional figures (but the script
+won't finish until the last figure window is closed).
+
+.. note::
+   Support for interactive/non-interactive mode depends upon the backend.
+   Until version 1.0.0 (and subsequent fixes for 1.0.1), the behavior of
+   the interactive mode was not consistent across backends.
+   As of v1.0.1, only the macosx backend differs from other backends
+   because it does not support non-interactive mode.
 
 
-Because it is expensive to draw, matplotlib does not want to redrawing the figure
-many times in a script such as the following::
+Because it is expensive to draw, you typically will not want matplotlib
+to redraw a figure many times in a script such as the following::
 
     plot([1,2,3])            # draw here ?
     xlabel('time')           # and here ?
@@ -484,24 +509,24 @@ many times in a script such as the following::
     show()
 
 
-It is *possible* to force matplotlib to draw after every command,
-which is what you usually want when working interactively at the
+However, it is *possible* to force matplotlib to draw after every command,
+which might be what you want when working interactively at the
 python console (see :ref:`mpl-shell`), but in a script you want to
-defer all drawing until the script has executed.  This is especially
+defer all drawing until the call to ``show``.  This is especially
 important for complex figures that take some time to draw.
 :func:`~matplotlib.pyplot.show` is designed to tell matplotlib that
 you're all done issuing commands and you want to draw the figure now.
 
 .. note::
 
-    :func:`~matplotlib.pyplot.show` should be called at most once per
-    script and it should be the last line of your script.  At that
-    point, the GUI takes control of the interpreter.  If you want to
-    force a figure draw, use :func:`~matplotlib.pyplot.draw` instead.
+    :func:`~matplotlib.pyplot.show` should typically only be called
+    at most once per script and it should be the last line of your script.
+    At that point, the GUI takes control of the interpreter.  If you want
+    to force a figure draw, use :func:`~matplotlib.pyplot.draw` instead.
 
-Many users are frustrated by show because they want it to be a
-blocking call that raises the figure, pauses the script until the
-figure is closed, and then allows the script to continue running until
+Many users are frustrated by ``show`` because they want it to be a
+blocking call that raises the figure, pauses the script until they
+close the figure, and then allow the script to continue running until
 the next figure is created and the next show is made.  Something like
 this::
 
@@ -512,7 +537,13 @@ this::
 
 This is not what show does and unfortunately, because doing blocking
 calls across user interfaces can be tricky, is currently unsupported,
-though we have made some progress towards supporting blocking events.
+though we have made significant progress towards supporting blocking events.
+
+.. versionadded:: v1.0.0
+   As noted earlier, this restriction has been relaxed to allow multiple
+   calls to ``show``.  In *most* backends, you can now expect to be
+   able to create new figures and raise them in a subsequent call to
+   ``show`` after closing the figures from a previous call to ``show``.
 
 
 .. _howto-contribute:
@@ -537,7 +568,7 @@ want to receive them in a standard format.  If possible, for any
 non-trivial change, please include a complete, free-standing example
 that the developers  can run unmodified which shows the undesired
 behavior pre-patch and the desired behavior post-patch, with a clear
-verbal description of what to look for.  The original developer may
+verbal description of what to look for.  A developer may
 have written the function you are working on years ago, and may no
 longer be with the project, so it is quite possible you are the world
 expert on the code you are patching and we want to hear as much detail
@@ -560,7 +591,7 @@ Contribute to matplotlib documentation
 -----------------------------------------
 
 matplotlib is a big library, which is used in many ways, and the
-documentation we have only scratches the surface of everything it can
+documentation has only scratched the surface of everything it can
 do.  So far, the place most people have learned all these features are
 through studying the examples (:ref:`how-to-search-examples`), which is a
 recommended and great way to learn, but it would be nice to have more
@@ -569,7 +600,7 @@ corners.  This is where you come in.
 
 There is a good chance you know more about matplotlib usage in some
 areas, the stuff you do every day, than many of the core developers
-who write most of the documentation.  Just pulled your hair out
+who wrote most of the documentation.  Just pulled your hair out
 compiling matplotlib for windows?  Write a FAQ or a section for the
 :ref:`installing` page.  Are you a digital signal processing wizard?
 Write a tutorial on the signal analysis plotting functions like
@@ -582,10 +613,10 @@ for it in the :ref:`users-guide-index`.  Bundle matplotlib in a
 
 matplotlib is documented using the `sphinx
 <http://sphinx.pocoo.org/index.html>`_ extensions to restructured text
-`ReST <http://docutils.sourceforge.net/rst.html>`_.  sphinx is a
+`(ReST) <http://docutils.sourceforge.net/rst.html>`_.  sphinx is an
 extensible python framework for documentation projects which generates
 HTML and PDF, and is pretty easy to write; you can see the source for this
-document or any page on this site by clicking on *Show Source* link
+document or any page on this site by clicking on the *Show Source* link
 at the end of the page in the sidebar (or `here
 <../_sources/faq/howto_faq.txt>`_ for this document).
 
@@ -630,9 +661,9 @@ Agg is to call::
 For more on configuring your backend, see
 :ref:`what-is-a-backend`.
 
-Alternatively, you can avoid pylab/pyplot altogeher, which will give
+Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
-`agg_oo.py <http://matplotlib.sf.net/examples/api/agg_oo.py>`_ .
+:ref:`api_examples-agg_oo.py`.
 
 You can either generate hardcopy on the filesystem by calling savefig::
 
@@ -650,7 +681,9 @@ or by saving to a file handle::
     import sys
     fig.savefig(sys.stdout)
 
-Here is an example using the Python Imaging Library PIL.  First the figure is saved to a StringIO objectm which is then fed to PIL for further processing::
+Here is an example using the Python Imaging Library PIL.  First the figure
+is saved to a StringIO object which is then fed to PIL for further
+processing::
 
     import StringIO, Image
     imgdata = StringIO.StringIO()
