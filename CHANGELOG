@@ -1,3 +1,8 @@
+2011-04-01 The plot directive Sphinx extension now supports all of the
+           features in the Numpy fork of that extension.  These
+           include doctest formatting, an 'include-source' option, and
+           a number of new configuration options. - MGD
+
 2011-03-10 Update pytz version to 2011c, thanks to Simon Cross. - JKS
 
 2011-03-06 Add standalone tests.py test runner script. - JKS

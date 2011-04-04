@@ -206,19 +206,6 @@ Figures can be automatically generated from scripts and included in
 the docs.  It is not necessary to explicitly save the figure in the
 script, this will be done automatically at build time to ensure that
 the code that is included runs and produces the advertised figure.
-Several figures will be saved with the same basename as the filename
-when the documentation is generated (low and high res PNGs, a PDF).
-Matplotlib includes a Sphinx extension
-(:file:`sphinxext/plot_directive.py`) for generating the images from
-the python script and including either a png copy for html or a pdf
-for latex::
-
-   .. plot:: pyplots/pyplot_simple.py
-      :include-source:
-
-If the script produces multiple figures (through multiple calls to
-:func:`pyplot.figure`), each will be given a numbered file name and
-included.
 
 The path should be relative to the ``doc`` directory.  Any plots
 specific to the documentation should be added to the ``doc/pyplots``
@@ -231,8 +218,12 @@ directory.  e.g.::
 The ``:scale:`` directive rescales the image to some percentage of the
 original size, though we don't recommend using this in most cases
 since it is probably better to choose the correct figure size and dpi
-in mpl and let it handle the scaling. ``:include-source:`` will
-present the contents of the file, marked up as source code.
+in mpl and let it handle the scaling.
+
+Plot directive documentation
+''''''''''''''''''''''''''''
+
+.. automodule:: matplotlib.sphinxext.plot_directive
 
 Static figures
 --------------
