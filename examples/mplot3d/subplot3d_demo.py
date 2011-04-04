@@ -7,8 +7,8 @@ import numpy as np
 from matplotlib import cm
 from mpl_toolkits.mplot3d.axes3d import get_test_data
 
-
-fig = plt.figure(figsize=(9.5,5.0))
+# Twice as wide as it is tall.
+fig = plt.figure(figsize=plt.figaspect(0.5))
 
 #---- First subplot
 ax = fig.add_subplot(1, 2, 1, projection='3d')

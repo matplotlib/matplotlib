@@ -208,7 +208,7 @@ if hasdatetime: # dates require python23 datetime
 
     def add_dateutil():
         packages.append('dateutil')
-        packages.append('dateutil/zoneinfo')
+        packages.append('dateutil.zoneinfo')
         package_data['dateutil'] = ['zoneinfo/zoneinfo*.tar.*']
 
     if sys.platform=='win32':

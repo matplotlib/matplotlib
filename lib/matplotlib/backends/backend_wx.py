@@ -352,7 +352,7 @@ class RendererWx(RendererBase):
         bitmap = wx.BitmapFromBufferRGBA(cols,rows,image_array)
         gc = self.get_gc()
         gc.select()
-        gc.gfx_ctx.DrawBitmap(bitmap,int(l),int(b),int(w),int(h))
+        gc.gfx_ctx.DrawBitmap(bitmap,int(l),int(self.height-b),int(w),int(-h))
         gc.unselect()
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):

@@ -161,8 +161,6 @@ latex_to_bakoma = {
     r'\nwarrow'                  : ('cmsy10',  65),
     r'\swarrow'                  : ('cmsy10', 116),
     r'\propto'                   : ('cmsy10',  15),
-    r'\prime'                    : ('cmsy10',  73),
-    r"'"                         : ('cmsy10',  73),
     r'\infty'                    : ('cmsy10',  32),
     r'\in'                       : ('cmsy10',  59),
     r'\ni'                       : ('cmsy10', 122),
@@ -2478,7 +2476,7 @@ stix_virtual_fonts = {
         (0x0049, 0x0049, 'it', 0x2110),  # I
         (0x004a, 0x004b, 'it', 0x1d4a5), # J-K
         (0x004c, 0x004c, 'it', 0x2112),  # L
-        (0x004d, 0x003d, 'it', 0x2113),  # M
+        (0x004d, 0x003d, 'it', 0x2133),  # M
         (0x004e, 0x0051, 'it', 0x1d4a9), # N-Q
         (0x0052, 0x0052, 'it', 0x211b),  # R
         (0x0053, 0x005a, 'it', 0x1d4ae), # S-Z

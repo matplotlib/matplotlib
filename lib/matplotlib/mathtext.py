@@ -1785,6 +1785,9 @@ class Kern(Node):
     when its *width* denotes additional spacing in the vertical
     direction.
     """
+    height = 0
+    depth = 0
+
     def __init__(self, width):
         Node.__init__(self)
         self.width = width
@@ -2437,6 +2440,8 @@ class Parser(object):
     def symbol(self, s, loc, toks):
         # print "symbol", toks
         c = toks[0]
+        if c == "'":
+            c = '\prime'
         try:
             char = Char(c, self.get_state())
         except ValueError:
