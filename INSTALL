@@ -100,11 +100,11 @@ in addition to the matplotlib installer.  On some systems you will
 also need to download msvcp71.dll library, which you can download from
 http://www.dll-files.com/dllindex/dll-files.shtml?msvcp71 or other
 sites.  You will need to unzip the archive and drag the dll into
-c:\windows\system32
+:file:`c:\windows\system32`.
 
 All of the GUI backends run on windows, but TkAgg is probably the
 best for interactive use from the standard python shell or ipython.
-The windows installer (*.exe) on the download page contains all the
+The windows installer (:file:`*.exe`) on the download page contains all the
 code you need to get up and running.  However, there are many
 examples that are not included in the windows installer.  If you
 want to try the many demos that come in the matplotlib src

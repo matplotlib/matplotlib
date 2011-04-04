@@ -2040,7 +2040,7 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          grid(self, b=None, which='major', **kwargs)
+           grid(self, b=None, which='major', **kwargs)
 
         Set the axes grids on or off; *b* is a boolean.  (For MATLAB
         compatibility, *b* may also be a string, 'on' or 'off'.)
@@ -2054,11 +2054,12 @@ class Axes(martist.Artist):
 
         *kawrgs* are used to set the grid line properties, eg::
 
-          ax.grid(color='r', linestyle='-', linewidth=2)
+           ax.grid(color='r', linestyle='-', linewidth=2)
 
         Valid :class:`~matplotlib.lines.Line2D` kwargs are
 
         %(Line2D)s
+
         """
         if len(kwargs):
             b = True
