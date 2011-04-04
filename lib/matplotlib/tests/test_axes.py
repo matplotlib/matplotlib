@@ -559,6 +559,16 @@ def test_arc_ellipse():
 
     fig.savefig('arc_ellipse')
 
+@image_comparison(baseline_images=['units_strings'])
+def test_units_strings():
+    # Make sure passing in sequences of strings doesn't cause the unit
+    # conversion registry to recurse infinitely
+    Id = ['50', '100', '150', '200', '250']
+    pout = ['0', '7.4', '11.4', '14.2', '16.3']
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(Id, pout)
+    fig.savefig('units_strings')
 
 if __name__=='__main__':
     import nose
