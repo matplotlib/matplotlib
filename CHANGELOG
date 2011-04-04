@@ -1,3 +1,6 @@
+2011-04-03 Fixed broken pick interface to AsteriskCollection objects
+           used by scatter. - EF
+
 2011-03-29 Wrapped ViewVCCachedServer definition in a factory function.
            This class now inherits from urllib2.HTTPSHandler in order
            to fetch data from github, but HTTPSHandler is not defined
