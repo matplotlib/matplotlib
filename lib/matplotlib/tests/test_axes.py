@@ -570,6 +570,33 @@ def test_units_strings():
     ax.plot(Id, pout)
     fig.savefig('units_strings')
 
+@image_comparison(baseline_images=['markevery'])
+def test_markevery():
+    x, y = np.random.rand(2, 100)
+
+    # check marker only plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y, 'o', label='default')
+    ax.plot(x, y, 'd', markevery=None, label='mark all')
+    ax.plot(x, y, 's', markevery=10, label='mark every 10')
+    ax.plot(x, y, '+', markevery=(5, 20), label='mark every 5 starting at 10')
+    ax.legend()
+    fig.savefig('markevery')
+
+@image_comparison(baseline_images=['markevery_line'])
+def test_markevery_line():
+    x, y = np.random.rand(2, 100)
+    # check line/marker combos
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y, '-o', label='default')
+    ax.plot(x, y, '-d', markevery=None, label='mark all')
+    ax.plot(x, y, '-s', markevery=10, label='mark every 10')
+    ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
+    ax.legend()
+    fig.savefig('markevery_line')
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)

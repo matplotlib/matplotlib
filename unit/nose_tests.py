@@ -15,31 +15,6 @@ def test_create_subplot_object():
     fig.add_subplot(ax)
     plt.close(fig)
 
-def test_markevery():
-    x, y = np.random.rand(2, 100)
-
-    # check marker only plot
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(x, y, 'o', label='default')
-    ax.plot(x, y, 'd', markevery=None, label='mark all')
-    ax.plot(x, y, 's', markevery=10, label='mark every 10')
-    ax.plot(x, y, '+', markevery=(5, 20), label='mark every 5 starting at 10')
-    ax.legend()
-    fig.canvas.draw()
-    plt.close(fig)
-
-    # check line/marker combos
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(x, y, '-o', label='default')
-    ax.plot(x, y, '-d', markevery=None, label='mark all')
-    ax.plot(x, y, '-s', markevery=10, label='mark every 10')
-    ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
-    ax.legend()
-    fig.canvas.draw()
-    plt.close(fig)
-
 if __name__=='__main__':
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
 
