@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg width="378pt" height="54pt" viewBox="0 0 378 54"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   id="svg1">
+<filter id="colorAdd"><feComposite in="SourceGraphic" in2="BackgroundImage" operator="arithmetic" k2="1" k3="1"/></filter>
+<g id="figure1">
+<g id="patch1">
+<path style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M0.000000 54.000000L378.000000 54.000000L378.000000 0.000000
+L0.000000 0.000000z"/>
+</g>
+<g id="text1">
+<defs>
+<path id="c_e1c0d96d0e4d121ead97e26c91934df6" d="M63.500000 -0.000000l-60.406250 0.000000l28.906250 -67.406250l2.593750 0.000000zM50.906250 -7.406250l-17.609375 -42.890625l-17.593750 42.890625z"/>
+<path id="c_e568f12dcd7fef7db45be5733edd70f5" d="M35.406250 -67.906250l-2.312500 9.312500l-9.296875 0.000000l2.296875 -9.312500zM29.406250 -45.906250l-12.109375 48.500000q-2.390625 9.312500 -7.390625 14.156250q-5.000000 4.843750 -11.703125 4.843750q-5.000000 0.000000 -10.000000 -3.593750l4.296875 -6.406250l1.593750 0.000000q3.609375 2.812500 5.812500 2.812500q6.296875 0.000000 8.796875 -10.203125l12.000000 -48.109375l7.890625 -2.500000z"/>
+<path id="c_b119b3426583749b50ebb289af29a007" d="M32.500000 -67.906250l-2.296875 9.312500l-9.203125 0.000000l2.296875 -9.312500zM26.593750 -45.906250l-11.390625 45.906250l-8.296875 0.000000l10.890625 -44.000000l8.000000 -2.406250z"/>
+<path id="c_6d61cf1c82e1e3b046bf4a8a4ce74492" d="M63.593750 -22.000000l-26.093750 0.000000l0.000000 26.093750l-6.593750 0.000000l0.000000 -26.093750l-26.109375 0.000000l0.000000 -6.593750l26.109375 0.000000l0.000000 -26.109375l6.593750 0.000000l0.000000 26.109375l26.093750 0.000000z"/>
+<path id="c_60609572cbbae62115937cf2c175839d" d="M30.203125 -0.000000l-7.906250 0.000000l0.000000 -57.000000q-2.203125 1.000000 -6.546875 3.250000q-4.343750 2.250000 -4.953125 2.546875l0.000000 -7.296875l18.000000 -9.203125l1.406250 0.500000z"/>
+</defs>
+<g id="mathtext1">
+<g style="fill: #000000" transform="translate(178.000000,35.500000)">
+<use xlink:href="#c_e1c0d96d0e4d121ead97e26c91934df6" transform="translate(0.000000,-3.918750)scale(0.120000)"/>
+<use xlink:href="#c_e568f12dcd7fef7db45be5733edd70f5" transform="translate(7.991989,-11.301562)scale(0.084000)"/>
+<use xlink:href="#c_b119b3426583749b50ebb289af29a007" transform="translate(7.991989,-1.367188)scale(0.084000)"/>
+<use xlink:href="#c_6d61cf1c82e1e3b046bf4a8a4ce74492" transform="translate(11.110067,-1.367188)scale(0.084000)"/>
+<use xlink:href="#c_60609572cbbae62115937cf2c175839d" transform="translate(17.312959,-1.367188)scale(0.084000)"/>
+</g>
+</g>
+</g>
+</g>
+</svg>
