@@ -56,12 +56,17 @@ Note that we've used ``git://`` for the URL rather than ``git@``.  The
 (or deliberately) write to the upstream repo, and we are only going to
 use it to merge into our own code.
 
+Note this command needs to be run on every clone of the repository
+that you make.  It is not tracked in your personal repository on
+github_.
+
 Just for your own satisfaction, show yourself that you now have a new
 'remote', with ``git remote -v show``, giving you something like::
 
-   upstream	git://github.com/matplotlib/matplotlib.git (fetch)
-   upstream	git://github.com/matplotlib/matplotlib.git (push)
-   origin	git@github.com:your-user-name/matplotlib.git (fetch)
-   origin	git@github.com:your-user-name/matplotlib.git (push)
+   upstream     git://github.com/matplotlib/matplotlib.git (fetch)
+   upstream     git://github.com/matplotlib/matplotlib.git (push)
+   origin       git@github.com:your-user-name/matplotlib.git (fetch)
+   origin       git@github.com:your-user-name/matplotlib.git (push)
 
 .. include:: links.inc
+
