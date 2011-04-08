@@ -276,9 +276,9 @@ macosx         Cocoa rendering in OSX windows
 Compile matplotlib with PyGTK-2.4
 -------------------------------------------
 
-There is a `bug in PyGTK-2.4`_. You need to edit
-:file:`pygobject.h` to add the :c:macro:`G_BEGIN_DECLS` and :c:macro:`G_END_DECLS`
-macros, and rename :c:data:`typename` parameter to :c:data:`typename_`::
+There is a `bug in PyGTK-2.4`_. You need to edit :file:`pygobject.h`
+to add the :c:macro:`G_BEGIN_DECLS` and :c:macro:`G_END_DECLS` macros,
+and rename :c:data:`typename` parameter to :c:data:`typename_`::
 
   -                       const char *typename,
   +                       const char *typename_,

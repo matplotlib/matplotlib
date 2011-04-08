@@ -14,6 +14,9 @@ ax.plot(a.date, a.adj_close, '-')
 fig.autofmt_xdate()
 
 # if you have xlwt installed, you can output excel
-import mpl_toolkits.exceltools as exceltools
-exceltools.rec2excel(a, 'test.xls')
+try:
+    import mpl_toolkits.exceltools as exceltools
+    exceltools.rec2excel(a, 'test.xls')
+except ImportError:
+    pass
 show()
