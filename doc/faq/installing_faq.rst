@@ -196,13 +196,13 @@ understanding of what is going on, read on. To make things a little
 more customizable for graphical user interfaces, matplotlib separates
 the concept of the renderer (the thing that actually does the drawing)
 from the canvas (the place where the drawing goes).  The canonical
-renderer for user interfaces is ``Agg`` which uses the `antigrain
-<http://antigrain.html>`_ C++ library to make a raster (pixel) image
-of the figure.  All of the user interfaces can be used with agg
-rendering, eg ``WXAgg``, ``GTKAgg``, ``QTAgg``, ``TkAgg``,
-``CocoaAgg``.  In addition, some of the user interfaces support other
-rendering engines.  For example, with GTK, you can also select GDK
-rendering (backend ``GTK``) or Cairo rendering (backend ``GTKCairo``).
+renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
+Geometry`_ C++ library to make a raster (pixel) image of the figure.
+All of the user interfaces can be used with agg rendering, eg
+``WXAgg``, ``GTKAgg``, ``QTAgg``, ``TkAgg``, ``CocoaAgg``.  In
+addition, some of the user interfaces support other rendering engines.
+For example, with GTK, you can also select GDK rendering (backend
+``GTK``) or Cairo rendering (backend ``GTKCairo``).
 
 For the rendering engines, one can also distinguish between `vector
 <http://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
