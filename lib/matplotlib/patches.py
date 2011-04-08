@@ -2137,7 +2137,7 @@ class FancyBboxPatch(Patch):
         Without argument (or with *boxstyle* = None), it returns
         available box styles.
 
-        ACCEPTS: [ %(AvailableBoxstyles)s ]
+        ACCEPTS: %(AvailableBoxstyles)s
 
         """
 
@@ -3816,7 +3816,7 @@ class FancyArrowPatch(Patch):
         """
         return the path of the arrow in the data coordinate. Use
         get_path_in_displaycoord() method to retrieve the arrow path
-        in the disaply coord.  
+        in the display coord.
         """
         _path, fillable = self.get_path_in_displaycoord()
 

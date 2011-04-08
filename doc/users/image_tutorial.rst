@@ -152,7 +152,7 @@ plot from the prompt.
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
         import numpy as np
-        img = mpimg.imread('_static/stinkbug.png')
+        img = mpimg.imread('../_static/stinkbug.png')
         imgplot = plt.imshow(img)
 
 You can also plot any numpy array - just remember that the datatype
@@ -188,7 +188,7 @@ This is array slicing.  You can read more in the `Numpy tutorial <http://www.sci
     import matplotlib.pyplot as plt
     import matplotlib.image as mpimg
     import numpy as np
-    img = mpimg.imread('_static/stinkbug.png')
+    img = mpimg.imread('../_static/stinkbug.png')
     lum_img = img[:,:,0]
     plt.imshow(lum_img)
 
@@ -207,7 +207,7 @@ object:
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
         import numpy as np
-        img = mpimg.imread('_static/stinkbug.png')
+        img = mpimg.imread('../_static/stinkbug.png')
         lum_img = img[:,:,0]
         imgplot = plt.imshow(lum_img)
         imgplot.set_cmap('hot')
@@ -221,7 +221,7 @@ object:
         import matplotlib.pyplot as plt
         import matplotlib.image as mpimg
         import numpy as np
-        img = mpimg.imread('_static/stinkbug.png')
+        img = mpimg.imread('../_static/stinkbug.png')
         lum_img = img[:,:,0]
         imgplot = plt.imshow(lum_img)
         imgplot.set_cmap('spectral')
@@ -245,7 +245,7 @@ do that by adding color bars.  It's as easy as one line:
             import matplotlib.pyplot as plt
             import matplotlib.image as mpimg
             import numpy as np
-            img = mpimg.imread('_static/stinkbug.png')
+            img = mpimg.imread('../_static/stinkbug.png')
             lum_img = img[:,:,0]
             imgplot = plt.imshow(lum_img)
             imgplot.set_cmap('spectral')
@@ -276,7 +276,7 @@ image data, we use the :func:`~matplotlib.pyplot.hist` function.
     import matplotlib.pyplot as plt
     import matplotlib.image as mpimg
     import numpy as np
-    img = mpimg.imread('_static/stinkbug.png')
+    img = mpimg.imread('../_static/stinkbug.png')
     lum_img = img[:,:,0]
     plt.hist(lum_img.flatten(), 256, range=(0.0,1.0), fc='black', ec='black')
 
@@ -300,7 +300,7 @@ object.
     import numpy as np
     fig = plt.figure()
     a=fig.add_subplot(1,2,1)
-    img = mpimg.imread('_static/stinkbug.png')
+    img = mpimg.imread('../_static/stinkbug.png')
     lum_img = img[:,:,0]
     imgplot = plt.imshow(lum_img)
     a.set_title('Before')
@@ -343,7 +343,7 @@ and the computer has to draw in pixels to fill that space.
     import matplotlib.image as mpimg
     import numpy as np
     import Image
-    img = Image.open('_static/stinkbug.png')  # opens the file using PIL - it's not an array yet
+    img = Image.open('../_static/stinkbug.png')  # opens the file using PIL - it's not an array yet
     rsize = img.resize((img.size[0]/10,img.size[1]/10))  # resize the image
     rsizeArr = np.asarray(rsize)
     lum_img = rsizeArr[:,:,0]
@@ -364,7 +364,7 @@ Let's try some others:
         import matplotlib.image as mpimg
         import numpy as np
         import Image
-        img = Image.open('_static/stinkbug.png')  # opens the file using PIL - it's not an array yet
+        img = Image.open('../_static/stinkbug.png')  # opens the file using PIL - it's not an array yet
         rsize = img.resize((img.size[0]/10,img.size[1]/10))  # resize the image
         rsizeArr = np.asarray(rsize)
         lum_img = rsizeArr[:,:,0]
@@ -381,7 +381,7 @@ Let's try some others:
         import matplotlib.image as mpimg
         import numpy as np
         import Image
-        img = Image.open('_static/stinkbug.png')  # opens the file using PIL - it's not an array yet
+        img = Image.open('../_static/stinkbug.png')  # opens the file using PIL - it's not an array yet
         rsize = img.resize((img.size[0]/10,img.size[1]/10))  # resize the image
         rsizeArr = np.asarray(rsize)
         lum_img = rsizeArr[:,:,0]
