@@ -158,7 +158,7 @@ class Legend(Artist):
                  title = None, # set a title for the legend
                  bbox_to_anchor = None, # bbox that the legend will be anchored.
                  bbox_transform = None, # transform for the bbox
-                 frameon = True, # draw frame
+                 frameon = None, # draw frame
                  handler_map = None,
                  ):
         """
@@ -177,7 +177,7 @@ class Legend(Artist):
         numpoints          the number of points in the legend for line
         scatterpoints      the number of points in the legend for scatter plot
         scatteryoffsets    a list of yoffsets for scatter symbols in legend
-        frameon            if True, draw a frame (default is True)
+        frameon            if True, draw a frame around the legend
         fancybox           if True, draw a frame with a round fancybox.  If None, use rc
         shadow             if True, draw a shadow behind legend
         ncol               number of columns
@@ -355,7 +355,8 @@ in the normalized axes coordinate.
 
         self._set_artist_props(self.legendPatch)
 
-        self._drawFrame = frameon
+        if frameon is None:
+            self._drawFrame = rcParams["legend.frameon"]
 
         # init with null renderer
         self._init_legend_box(handles, labels)

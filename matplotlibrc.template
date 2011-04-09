@@ -249,6 +249,7 @@ backend      : %(backend)s
 #legend.handletextsep : 0.02   # the space between the legend line and legend text
 #legend.axespad       : 0.02   # the border between the axes and legend edge
 #legend.shadow        : False
+#legend.frameon       : True   # whether or not to draw a frame around legend
 
 ### FIGURE
 # See http://matplotlib.sourceforge.net/api/figure_api.html#matplotlib.figure.Figure
