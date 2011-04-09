@@ -462,6 +462,7 @@ defaultParams = {
     'legend.fontsize'    : ['large', validate_fontsize],
     'legend.markerscale' : [1.0, validate_float], # the relative size of legend markers vs. original
     'legend.shadow'        : [False, validate_bool],
+    'legend.frameon'     : [True, validate_bool], # whether or not to draw a frame around legend
 
 
     # the following dimensions are in fraction of the font size
