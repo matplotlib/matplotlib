@@ -91,7 +91,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             else:
                 stringBuffer = self.renderer._renderer.tostring_argb()
 
-            qImage = QtGui.QImage(stringBuffer, self.renderer.width,
+            qImage = QtGui.QImage(stringBuffer, self.renderer.width, 
                                   self.renderer.height,
                                   QtGui.QImage.Format_ARGB32)
             p = QtGui.QPainter(self)
