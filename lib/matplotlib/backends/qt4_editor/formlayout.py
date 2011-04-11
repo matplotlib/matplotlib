@@ -45,21 +45,28 @@ DEBUG = False
 import sys
 STDERR = sys.stderr
 
-try:
-    from PyQt4.QtGui import QFormLayout
-except ImportError:
-    raise ImportError, "Warning: formlayout requires PyQt4 >v4.3"
+from matplotlib.backends.qt import QtGui,QtCore
+if 'QFormLayout' not in dir(QtGui):
+    raise ImportError, "Warning: formlayout requires PyQt4 >v4.3 or PySide"
 
-from PyQt4.QtGui import (QWidget, QLineEdit, QComboBox, QLabel, QSpinBox, QIcon,
-                         QStyle, QDialogButtonBox, QHBoxLayout, QVBoxLayout,
-                         QDialog, QColor, QPushButton, QCheckBox, QColorDialog,
-                         QPixmap, QTabWidget, QApplication, QStackedWidget,
-                         QDateEdit, QDateTimeEdit, QFont, QFontComboBox,
-                         QFontDatabase, QGridLayout)
-from PyQt4.QtCore import (Qt, SIGNAL, SLOT, QObject, QSize,
-                          pyqtSignature, pyqtProperty)
+(QWidget, QLineEdit, QComboBox, QLabel, QSpinBox, QIcon,QStyle,
+ QDialogButtonBox, QHBoxLayout, QVBoxLayout, QDialog, QColor, QPushButton,
+ QCheckBox, QColorDialog, QPixmap, QTabWidget, QApplication, QStackedWidget,
+ QDateEdit, QDateTimeEdit, QFont, QFontComboBox, QFontDatabase, QGridLayout,
+ QFormLayout) =\
+ (QtGui.QWidget, QtGui.QLineEdit, QtGui.QComboBox, QtGui.QLabel,
+ QtGui.QSpinBox, QtGui.QIcon, QtGui.QStyle, QtGui.QDialogButtonBox,
+ QtGui.QHBoxLayout, QtGui.QVBoxLayout, QtGui.QDialog, QtGui.QColor,
+ QtGui.QPushButton, QtGui.QCheckBox, QtGui.QColorDialog, QtGui.QPixmap,
+ QtGui.QTabWidget, QtGui.QApplication, QtGui.QStackedWidget, QtGui.QDateEdit,
+ QtGui.QDateTimeEdit, QtGui.QFont, QtGui.QFontComboBox, QtGui.QFontDatabase,
+ QtGui.QGridLayout, QtGui.QFormLayout)
+                         
+(Qt, SIGNAL, SLOT, QObject, QSize,pyqtSignature, pyqtProperty) =\
+(QtCore.Qt, QtCore.SIGNAL, QtCore.SLOT, QtCore.QObject, QtCore.QSize, 
+ QtCore.pyqtSignature, QtCore.pyqtProperty)
+
 import datetime
-
 
 class ColorButton(QPushButton):
     """
@@ -75,10 +82,8 @@ class ColorButton(QPushButton):
         self._color = QColor()
     
     def choose_color(self):
-        rgba, valid = QColorDialog.getRgba(self._color.rgba(),
-                                           self.parentWidget())
-        if valid:
-            color = QColor.fromRgba(rgba)
+        color = QColorDialog.getColor(self._color,self.parentWidget(),'')
+        if color.isValid():
             self.set_color(color)
     
     def get_color(self):
