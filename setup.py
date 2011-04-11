@@ -254,7 +254,7 @@ for mod in ext_modules:
 if sys.version_info[0] >= 3:
     import multiprocessing
     from distutils import util
-    def parallel_refactor(x):
+    def refactor(x):
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
         class DistutilsRefactoringTool(RefactoringTool):
             def ignore(self, msg, *args, **kw):
@@ -270,8 +270,12 @@ if sys.version_info[0] >= 3:
             # We need to skip certain files that have already been
             # converted to Python 3.x
             filtered = [x for x in files if 'py3' not in x]
-            p = multiprocessing.Pool()
-            p.map(parallel_refactor, filtered)
+            if sys.platform.startswith('win'):
+                # doing this in parallel on windows may crash your computer
+                [refactor(f) for f in filtered]
+            else:
+                p = multiprocessing.Pool()
+                p.map(refactor, filtered)
 
 print_raw("pymods %s" % py_modules)
 print_raw("packages %s" % packages)
