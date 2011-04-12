@@ -14,7 +14,6 @@ import cPickle
 import os.path
 import random
 from functools import reduce
-import new
 import matplotlib
 
 major, minor1, minor2, s, tmp = sys.version_info
