@@ -230,9 +230,7 @@ class TextToPath(object):
         sizes = []
 
         currx, curry = 0, 0
-        for font, fontsize, s, ox, oy in glyphs:
-
-            ccode = ord(s)
+        for font, fontsize, ccode, ox, oy in glyphs:
             char_id = self._get_char_id(font, ccode)
             if not char_id in glyph_map:
                 font.clear()
