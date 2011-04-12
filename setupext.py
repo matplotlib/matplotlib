@@ -774,7 +774,7 @@ def check_for_tk():
 
     if gotit:
         print_status("Tkinter", "Tkinter: %s, Tk: %s, Tcl: %s" %
-                     (Tkinter.__version__.split()[-2], Tkinter.TkVersion, Tkinter.TclVersion))
+                     (Tkinter.__version__, Tkinter.TkVersion, Tkinter.TclVersion))
     else:
         print_status("Tkinter", "no")
     if explanation is not None:
