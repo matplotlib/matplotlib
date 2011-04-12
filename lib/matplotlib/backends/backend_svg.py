@@ -31,10 +31,11 @@ backend_version = __version__
 # ----------------------------------------------------------------------
 # SimpleXMLWriter class
 #
-# Based on an original by Fredrick Lundh, but modified here to:
+# Based on an original by Fredrik Lundh, but modified here to:
 #   1. Support modern Python idioms
 #   2. Remove encoding support (it's handled by the file writer instead)
 #   3. Support proper indentation
+#   4. Minify things a little bit
 
 # --------------------------------------------------------------------
 # The SimpleXMLWriter module is
