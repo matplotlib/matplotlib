@@ -233,6 +233,9 @@ def _get_handles(ax):
                     if isinstance(c, mcoll.LineCollection)])
     handles.extend([c for c in ax.collections
                     if isinstance(c, mcoll.RegularPolyCollection)])
+    handles.extend([c for c in ax.collections
+                    if isinstance(c, mcoll.CircleCollection)])
+
     return handles
 
 
