@@ -3314,7 +3314,7 @@ class ArrowStyle(_Style):
 
     class BarAB(_Bracket):
         """
-        An arrow with a bracket(])  at both ends.
+        An arrow with a bar(|) at both ends.
         """
 
         def __init__(self,
