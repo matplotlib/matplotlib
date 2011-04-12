@@ -1537,24 +1537,21 @@ _path_module::convert_to_svg(const Py::Tuple& args)
     clipped_t          clipped(nan_removed, do_clip, clip_rect);
     simplify_t         simplified(clipped, simplify, path.simplify_threshold());
 
-    size_t buffersize = path.total_vertices() * (precision + 5) * 2;
+    size_t buffersize = path.total_vertices() * (precision + 5) * 4;
     char* buffer = (char *)malloc(buffersize);
     char* p = buffer;
 
     const char codes[] = {'M', 'L', 'Q', 'C'};
-    const int waits[] = {1, 1, 2, 3};
+    const int  waits[] = {  1,   1,   2,   3};
 
     int wait = 0;
     unsigned code;
     double x = 0, y = 0;
-    while (code = simplified.vertex(&x, &y))
+    while ((code = simplified.vertex(&x, &y)) != agg::path_cmd_stop)
     {
         if (wait == 0)
         {
-            if (p != buffer)
-            {
-                *p++ = '\n';
-            }
+            *p++ = '\n';
 
             if (code == 0x4f)
             {
@@ -1575,10 +1572,8 @@ _path_module::convert_to_svg(const Py::Tuple& args)
         *p++ = ' ';
         p += snprintf(p, buffersize - (p - buffer), format, y);
 
-        wait--;
+        --wait;
     }
-
-    *p = 0;
 
     PyObject* result = PyString_FromStringAndSize(buffer, p - buffer);
     free(buffer);
