@@ -150,6 +150,7 @@ an arrow patch, according to the given ``arrowstyle``.
     ``-``        None
     ``->``       head_length=0.4,head_width=0.2
     ``-[``       widthB=1.0,lengthB=0.2,angleB=None
+    ``|-|``      widthA=1.0,widthB=1.0
     ``-|>``      head_length=0.4,head_width=0.2
     ``<-``       head_length=0.4,head_width=0.2
     ``<->``      head_length=0.4,head_width=0.2
