@@ -122,7 +122,7 @@ class XMLWriter:
         tag = escape_cdata(tag)
         self.__data = []
         self.__tags.append(tag)
-        self.__write(u" " * len(self.__tags))
+        self.__write(u" " * (len(self.__tags) - 1))
         self.__write(u"<%s" % tag)
         if attrib or extra:
             attrib = attrib.copy()
@@ -144,7 +144,7 @@ class XMLWriter:
 
     def comment(self, comment):
         self.__flush()
-        self.__write(u" " * (len(self.__tags) + 1))
+        self.__write(u" " * (len(self.__tags)))
         self.__write(u"<!-- %s -->\n" % escape_cdata(comment))
 
     ##
@@ -177,7 +177,7 @@ class XMLWriter:
             self.__write(u"/>\n")
             return
         if indent:
-            self.__write(u" " * (len(self.__tags) + 1))
+            self.__write(u" " * (len(self.__tags)))
         self.__write(u"</%s>\n" % tag)
 
     ##
