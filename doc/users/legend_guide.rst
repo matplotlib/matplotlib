@@ -244,7 +244,7 @@ Let's consider the following sample code, ::
 
   legend([p_1, p_2,..., p_i, ...], ["Test 1", "Test 2", ..., "Test i",...])
 
-For each *p_i*, matplotlib 
+For each *p_i*, matplotlib
 
   1. check if *p_i* itself is in the handler_map
   2. if not, iterate over type(p_i).mro() until a matching key is found in the handler_map
@@ -279,8 +279,8 @@ In the above example, only *p1* will be handled by *my_handler*, while
 others will be handled by default handlers.
 
 The curent default handler_map has handlers for errobar and bar
-plots. Also, it includes an entry for ¡°tuple¡± which is mapped to
-*HandlerTuple*. It simply overplots all the handles for items in the
+plots. Also, it includes an entry for `tuple` which is mapped to
+`HandlerTuple`. It simply overplots all the handles for items in the
 given tuple. For example,
 
 

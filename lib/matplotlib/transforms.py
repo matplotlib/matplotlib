@@ -1507,6 +1507,7 @@ class Affine2D(Affine2DBase):
           a c e
           b d f
           0 0 1
+
         """
         self._invalid = 0
         return self._mtx

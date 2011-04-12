@@ -17,19 +17,20 @@ When doing a release
 Testing
 =======
 
-* Make sure :file:`examples/tests/backend_driver.py` runs without errors
-  and check the output of the PNG, PDF, PS and SVG backends
+* Run all of the regression tests by running the `tests.py` script at
+  the root of the source tree.
 
 * Run :file:`unit/memleak_hawaii3.py` and make sure there are no
   memory leaks
-
-* Run :file:`unit/nose_tests.py` and make sure all the unit tests are passing
 
 * try some GUI examples, eg :file:`simple_plot.py` with GTKAgg, TkAgg, etc...
 
 * remove font cache and tex cache from :file:`.matplotlib` and test
   with and without cache on some example script
 
+* Optionally, make sure :file:`examples/tests/backend_driver.py` runs
+  without errors and check the output of the PNG, PDF, PS and SVG
+  backends
 
 .. _release-branching:
 
@@ -99,7 +100,6 @@ the release branch and merged into the trunk.
 
 Uploading
 =========
-
 
 * Post the win32 and OS-X binaries for testing and make a request on
   matplotlib-devel for testing.  Pester us if we don't respond
