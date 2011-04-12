@@ -519,6 +519,84 @@ def test_canonical():
     ax.plot([1,2,3])
     fig.savefig('canonical')
 
+
+@image_comparison(baseline_images=['arc_ellipse'])
+def test_arc_ellipse():
+    from matplotlib import patches
+    xcenter, ycenter = 0.38, 0.52
+    width, height = 1e-1, 3e-1
+    angle = -30
+
+    theta = np.arange(0.0, 360.0, 1.0)*np.pi/180.0
+    x = width/2. * np.cos(theta)
+    y = height/2. * np.sin(theta)
+
+    rtheta = angle*np.pi/180.
+    R = np.array([
+        [np.cos(rtheta),  -np.sin(rtheta)],
+        [np.sin(rtheta), np.cos(rtheta)],
+        ])
+
+    x, y = np.dot(R, np.array([x, y]))
+    x += xcenter
+    y += ycenter
+
+    fig = plt.figure()
+    ax = fig.add_subplot(211, aspect='auto')
+    ax.fill(x, y, alpha=0.2, facecolor='yellow', edgecolor='yellow', linewidth=1, zorder=1)
+
+    e1 = patches.Arc((xcenter, ycenter), width, height,
+                 angle=angle, linewidth=2, fill=False, zorder=2)
+
+    ax.add_patch(e1)
+
+    ax = fig.add_subplot(212, aspect='equal')
+    ax.fill(x, y, alpha=0.2, facecolor='green', edgecolor='green', zorder=1)
+    e2 = patches.Arc((xcenter, ycenter), width, height,
+                 angle=angle, linewidth=2, fill=False, zorder=2)
+
+    ax.add_patch(e2)
+
+    fig.savefig('arc_ellipse')
+
+@image_comparison(baseline_images=['units_strings'])
+def test_units_strings():
+    # Make sure passing in sequences of strings doesn't cause the unit
+    # conversion registry to recurse infinitely
+    Id = ['50', '100', '150', '200', '250']
+    pout = ['0', '7.4', '11.4', '14.2', '16.3']
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(Id, pout)
+    fig.savefig('units_strings')
+
+@image_comparison(baseline_images=['markevery'])
+def test_markevery():
+    x, y = np.random.rand(2, 100)
+
+    # check marker only plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y, 'o', label='default')
+    ax.plot(x, y, 'd', markevery=None, label='mark all')
+    ax.plot(x, y, 's', markevery=10, label='mark every 10')
+    ax.plot(x, y, '+', markevery=(5, 20), label='mark every 5 starting at 10')
+    ax.legend()
+    fig.savefig('markevery')
+
+@image_comparison(baseline_images=['markevery_line'])
+def test_markevery_line():
+    x, y = np.random.rand(2, 100)
+    # check line/marker combos
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y, '-o', label='default')
+    ax.plot(x, y, '-d', markevery=None, label='mark all')
+    ax.plot(x, y, '-s', markevery=10, label='mark every 10')
+    ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
+    ax.legend()
+    fig.savefig('markevery_line')
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
