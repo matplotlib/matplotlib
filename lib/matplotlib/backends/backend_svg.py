@@ -130,9 +130,10 @@ class XMLWriter:
             attrib = attrib.items()
             attrib.sort()
             for k, v in attrib:
-                k = escape_cdata(k)
-                v = escape_attrib(v)
-                self.__write(u" %s=\"%s\"" % (k, v))
+                if not v == '':
+                    k = escape_cdata(k)
+                    v = escape_attrib(v)
+                    self.__write(u" %s=\"%s\"" % (k, v))
         self.__open = 1
         return len(self.__tags)-1
 
@@ -208,18 +209,6 @@ class XMLWriter:
 
 # ----------------------------------------------------------------------
 
-def generate_css(attrib={}):
-    if attrib or extra:
-        output = cStringIO.StringIO()
-        attrib = attrib.items()
-        attrib.sort()
-        for k, v in attrib:
-            k = escape_attrib(k)
-            v = escape_attrib(v)
-            output.write("%s:%s;" % (k, v))
-        return output.getvalue()
-    return ''
-
 def generate_transform(transform_list=[]):
     if len(transform_list):
         output = cStringIO.StringIO()
@@ -234,6 +223,18 @@ def generate_transform(transform_list=[]):
                 value = value.to_values()
 
             output.write('%s(%s)' % (type, ' '.join(str(x) for x in value)))
+        return output.getvalue()
+    return ''
+
+def generate_css(attrib={}):
+    if attrib:
+        output = cStringIO.StringIO()
+        attrib = attrib.items()
+        attrib.sort()
+        for k, v in attrib:
+            k = escape_attrib(k)
+            v = escape_attrib(v)
+            output.write("%s:%s;" % (k, v))
         return output.getvalue()
     return ''
 
@@ -273,9 +274,20 @@ class RendererSVG(RendererBase):
             xmlns="http://www.w3.org/2000/svg",
             version="1.1",
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
+        self._write_default_style()
 
     def finalize(self):
         self.writer.close(self._start_id)
+
+    def _write_default_style(self):
+        default_style = generate_css({
+            'stroke-linejoin': 'round',
+            'stroke-linecap': 'square'})
+        self.writer.start('defs')
+        self.writer.start('style', type='text/css')
+        self.writer.data('*{%s}\n' % default_style)
+        self.writer.end('style')
+        self.writer.end('defs')
 
     def _make_id(self, type, content):
         return '%s%s' % (type, md5(str(content)).hexdigest()[:10])
@@ -331,9 +343,14 @@ class RendererSVG(RendererBase):
             self.writer.element(
                 'path',
                 d=path_data,
-                fill=rgb2hex(gc.get_rgb()),
-                stroke=rgb2hex(gc.get_rgb()),
-                attrib={'stroke-width': '1.0'})
+                style=generate_css({
+                    'fill': rgb2hex(gc.get_rgb()),
+                    'stroke': rgb2hex(gc.get_rgb()),
+                    'stroke-width': str(1.0),
+                    'stroke-linecap': 'butt',
+                    'stroke-linejoin': 'miter'
+                    })
+                )
             self.writer.end('pattern')
             self.writer.end('defs')
             self._hatchd[dictkey] = oid
@@ -344,17 +361,18 @@ class RendererSVG(RendererBase):
         return the style string.  style is generated from the
         GraphicsContext and rgbFace
         """
+        attrib = {}
+
         if gc.get_hatch() is not None:
-            fill = "url(#%s)" % self._get_hatch(gc, rgbFace)
+            attrib['fill'] = "url(#%s)" % self._get_hatch(gc, rgbFace)
         else:
             if rgbFace is None:
-                fill = 'none'
-            else:
-                fill = rgb2hex(rgbFace)
+                attrib['fill'] = 'none'
+            elif tuple(rgbFace[:3]) != (0, 0, 0):
+                attrib['fill'] = rgb2hex(rgbFace)
 
-        attrib = {}
-        attrib['fill'] = fill
-        attrib['opacity'] = str(gc.get_alpha())
+        if gc.get_alpha() != 1.0:
+            attrib['opacity'] = str(gc.get_alpha())
 
         offset, seq = gc.get_dashes()
         if seq is not None:
@@ -364,11 +382,14 @@ class RendererSVG(RendererBase):
         linewidth = gc.get_linewidth()
         if linewidth:
             attrib['stroke'] = rgb2hex(gc.get_rgb())
-            attrib['stroke-width'] = str(linewidth)
-            attrib['stroke-linejoin'] = gc.get_joinstyle()
-            attrib['stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
+            if linewidth != 1.0:
+                attrib['stroke-width'] = str(linewidth)
+            if gc.get_joinstyle() != 'round':
+                attrib['stroke-linejoin'] = gc.get_joinstyle()
+            if gc.get_capstyle() != 'projecting':
+                attrib['stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
 
-        return generate_css(attrib=attrib)
+        return generate_css(attrib)
 
     def _get_clip(self, gc):
         cliprect = gc.get_clip_rectangle()
@@ -419,6 +440,10 @@ class RendererSVG(RendererBase):
         return rcParams['svg.image_noscale']
 
     def _convert_path(self, path, transform, clip=None, simplify=None):
+        if clip:
+            clip = (0.0, 0.0, self.width, self.height)
+        else:
+            clip = None
         return _path.convert_to_svg(path, transform, clip, simplify, 6)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
@@ -625,7 +650,10 @@ class RendererSVG(RendererBase):
         attrib = {}
         clipid = self._get_clip(gc)
         if clipid is not None:
-            attrib['clip-path'] = 'url(#%s)' % clipid
+            # Can't apply clip-path directly to the image because the
+            # image as a transformation, which would also be applied
+            # to the clip-path
+            self.writer.start('g', attrib={'clip-path': 'url(#%s)' % clipid})
 
         trans = [1,0,0,1,0,0]
         if rcParams['svg.image_noscale']:
@@ -670,9 +698,11 @@ class RendererSVG(RendererBase):
 
         if url is not None:
             self.writer.end('a')
+        if clipid is not None:
+            self.writer.end('g')
 
     def _adjust_char_id(self, char_id):
-        return char_id.replace("%20","_")
+        return char_id.replace("%20", "_")
 
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
         """
@@ -698,10 +728,16 @@ class RendererSVG(RendererBase):
         color = rgb2hex(gc.get_rgb())
         fontsize = prop.get_size_in_points()
 
-        if ismath == False:
+        style = {}
+        if color != '#000000':
+            style['fill'] = color
+        if gc.get_alpha() != 1.0:
+            style['opacity'] = gc.get_alpha()
+
+        if not ismath:
             font = text2path._get_font(prop)
-            _glyphs = text2path.get_glyphs_with_font(font, s, glyph_map=glyph_map,
-                                                     return_new_glyphs_only=True)
+            _glyphs = text2path.get_glyphs_with_font(
+                font, s, glyph_map=glyph_map, return_new_glyphs_only=True)
             glyph_info, glyph_map_new, rects = _glyphs
             y -= ((font.get_descent() / 64.0) *
                   (prop.get_size_in_points() / text2path.FONT_SCALE))
@@ -719,12 +755,7 @@ class RendererSVG(RendererBase):
                 glyph_map.update(glyph_map_new)
 
             attrib = {}
-            clipid = self._get_clip(gc)
-            if clipid is not None:
-                attrib['clip-path'] = 'url(#%s)' % clipid
-            attrib['style'] = generate_css({
-                'fill': color,
-                'opacity': str(gc.get_alpha())})
+            attrib['style'] = generate_css(style)
             attrib['transform'] = generate_transform([
                 ('translate', (x, y)),
                 ('rotate', (-angle,)),
@@ -740,6 +771,7 @@ class RendererSVG(RendererBase):
                 self.writer.element(
                     'use',
                     attrib=attrib)
+
             self.writer.end('g')
         else:
             if ismath == "TeX":
@@ -770,13 +802,7 @@ class RendererSVG(RendererBase):
                 glyph_map.update(glyph_map_new)
 
             attrib = {}
-            clipid = self._get_clip(gc)
-            if clipid is not None:
-                attrib['clip-path'] = "url(#%s)" % clipid
-
-            attrib['style'] = generate_css({
-                'fill': color,
-                'opacity': str(gc.get_alpha())})
+            attrib['style'] = generate_css(style)
             attrib['transform'] = generate_transform([
                 ('translate', (x, y)),
                 ('rotate', (-angle,)),
@@ -804,6 +830,12 @@ class RendererSVG(RendererBase):
 
     def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath):
         color = rgb2hex(gc.get_rgb())
+        style = {}
+        if color != '#000000':
+            style['fill'] = color
+        if gc.get_alpha() != 1.0:
+            style['opacity'] = gc.get_alpha()
+
         if not ismath:
             font = self._get_font(prop)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
@@ -815,13 +847,10 @@ class RendererSVG(RendererBase):
             fontstyle = prop.get_style()
 
             attrib = {}
-            attrib['style'] = generate_css({
-                'font-size': str(fontsize),
-                'font-family': fontfamily,
-                'font-style': prop.get_style(),
-                'fill': color,
-                'opacity': str(gc.get_alpha())
-                })
+            style['font-size'] = str(fontsize)
+            style['font-family'] = str(fontfamily)
+            style['font-style'] = prop.get_style()
+            attrib['style'] = generate_css(style)
 
             attrib['transform'] = generate_transform([
                 ('translate', (x, y)),
@@ -837,13 +866,14 @@ class RendererSVG(RendererBase):
             svg_rects = svg_elements.svg_rects
 
             attrib = {}
-            attrib['style'] = generate_css({
-                'fill': color,
-                'stroke': 'none'})
+            attrib['style'] = generate_css(style)
             attrib['transform'] = generate_transform([
                 ('translate', (x, y)),
                 ('rotate', (-angle,))])
 
+            # Apply attributes to 'g', not 'text', because we likely
+            # have some rectangles as well with the same style and
+            # transformation
             self.writer.start('g', attrib=attrib)
 
             self.writer.start('text')
@@ -901,10 +931,20 @@ class RendererSVG(RendererBase):
         self.draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
+        clipid = self._get_clip(gc)
+        if clipid is not None:
+            # Cannot apply clip-path directly to the text, because
+            # is has a transformation
+            self.writer.start(
+                'g', attrib={'clip-path': 'url(#%s)' % clipid})
+
         if rcParams['svg.embed_char_paths']:
             self._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
         else:
             self._draw_text_as_text(gc, x, y, s, prop, angle, ismath)
+
+        if clipid is not None:
+            self.writer.end('g')
 
     def flipy(self):
         return True
