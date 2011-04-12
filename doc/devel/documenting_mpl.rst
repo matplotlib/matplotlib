@@ -8,20 +8,12 @@ Getting started
 ===============
 
 The documentation for matplotlib is generated from ReStructured Text
-using the Sphinx_ documentation generation tool. Sphinx-0.5 or later
-is required. You might still run into problems, so most developers
-work from the sphinx source repository (Mercurial based) because it
-is a rapidly evolving project::
+using the Sphinx_ documentation generation tool. Sphinx-1.0 or later
+is required.
 
-  hg clone http://bitbucket.org/birkenfeld/sphinx/
-  cd sphinx
-  python setup.py install
-
-.. _Sphinx: http://sphinx.pocoo.org/
-
-The documentation sources are found in the :file:`doc/` directory in the trunk.
-To build the users guide in html format, cd into :file:`doc/` and
-do::
+The documentation sources are found in the :file:`doc/` directory in
+the trunk.  To build the users guide in html format, cd into
+:file:`doc/` and do::
 
   python make.py html
 
@@ -184,6 +176,7 @@ working with Sphinx in general. Here are a few additional things to keep in mind
 * The autodoc extension will handle index entries for the API, but additional
   entries in the index_ need to be explicitly added.
 
+.. _Sphinx: http://sphinx.pocoo.org
 .. _documentation: http://sphinx.pocoo.org/contents.html
 .. _`inline markup`: http://sphinx.pocoo.org/markup/inline.html
 .. _index: http://sphinx.pocoo.org/markup/para.html#index-generating-markup
@@ -213,19 +206,6 @@ Figures can be automatically generated from scripts and included in
 the docs.  It is not necessary to explicitly save the figure in the
 script, this will be done automatically at build time to ensure that
 the code that is included runs and produces the advertised figure.
-Several figures will be saved with the same basename as the filename
-when the documentation is generated (low and high res PNGs, a PDF).
-Matplotlib includes a Sphinx extension
-(:file:`sphinxext/plot_directive.py`) for generating the images from
-the python script and including either a png copy for html or a pdf
-for latex::
-
-   .. plot:: pyplots/pyplot_simple.py
-      :include-source:
-
-If the script produces multiple figures (through multiple calls to
-:func:`pyplot.figure`), each will be given a numbered file name and
-included.
 
 The path should be relative to the ``doc`` directory.  Any plots
 specific to the documentation should be added to the ``doc/pyplots``
@@ -238,8 +218,12 @@ directory.  e.g.::
 The ``:scale:`` directive rescales the image to some percentage of the
 original size, though we don't recommend using this in most cases
 since it is probably better to choose the correct figure size and dpi
-in mpl and let it handle the scaling. ``:include-source:`` will
-present the contents of the file, marked up as source code.
+in mpl and let it handle the scaling.
+
+Plot directive documentation
+''''''''''''''''''''''''''''
+
+.. automodule:: matplotlib.sphinxext.plot_directive
 
 Static figures
 --------------
@@ -406,3 +390,4 @@ Some helpful functions::
 
         Shift region to the right
 
+.. TODO: Add section about uploading docs

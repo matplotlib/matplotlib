@@ -915,28 +915,42 @@ class TimerBase(object):
     event loops.
 
     Mandatory functions that must be implemented:
-    * _timer_start: Contains backend-specific code for starting the timer
-    * _timer_stop: Contains backend-specific code for stopping the timer
+
+        * `_timer_start`: Contains backend-specific code for starting
+          the timer
+
+        * `_timer_stop`: Contains backend-specific code for stopping
+          the timer
 
     Optional overrides:
-    * _timer_set_single_shot: Code for setting the timer to single shot
-        operating mode, if supported by the timer object. If not, the Timer
-        class itself will store the flag and the _on_timer method should
-        be overridden to support such behavior.
-    * _timer_set_interval: Code for setting the interval on the timer, if
-        there is a method for doing so on the timer object.
-    * _on_timer: This is the internal function that any timer object should
-        call, which will handle the task of running all callbacks that have
-        been set.
+
+        * `_timer_set_single_shot`: Code for setting the timer to
+          single shot operating mode, if supported by the timer
+          object. If not, the `Timer` class itself will store the flag
+          and the `_on_timer` method should be overridden to support
+          such behavior.
+
+        * `_timer_set_interval`: Code for setting the interval on the
+          timer, if there is a method for doing so on the timer
+          object.
+
+        * `_on_timer`: This is the internal function that any timer
+          object should call, which will handle the task of running
+          all callbacks that have been set.
 
     Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * single_shot: Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
+
+        * `interval`: The time between timer events in
+          milliseconds. Default is 1000 ms.
+
+        * `single_shot`: Boolean flag indicating whether this timer
+          should operate as single shot (run once and then
+          stop). Defaults to `False`.
+
+        * `callbacks`: Stores list of (func, args) tuples that will be
+          called upon timer events. This list can be manipulated
+          directly, or the functions `add_callback` and
+          `remove_callback` can be used.
     '''
     def __init__(self, interval=None, callbacks=None):
         #Initialize empty callbacks list and setup default settings if necssary

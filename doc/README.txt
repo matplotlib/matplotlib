@@ -15,6 +15,9 @@ python documentation system built on top of ReST.  This directory contains
 
 * api - placeholders to automatically generate the api documentation
 
+* mpl_toolkits - documentation of individual toolkits that ship with
+  matplotlib
+
 * make.py - the build script to build the html or PDF docs
 
 * index.rst - the top level include document for matplotlib docs
@@ -30,7 +33,7 @@ python documentation system built on top of ReST.  This directory contains
 * mpl_examples - a link to the matplotlib examples in case any
   documentation wants to literal include them
 
-To build the HTML documentation, install sphinx (0.5 or greater
+To build the HTML documentation, install sphinx (1.0 or greater
 required), then type "python make.py html" in this directory.  Wait
 for the initial run (which builds the example gallery) to be done,
 then run "python make.py html" again. The top file of the results will

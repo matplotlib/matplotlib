@@ -1,8 +1,15 @@
-.. _toolkits:
+.. _toolkits-index:
 
-*******************
+########
 Toolkits
-*******************
+########
+
+.. htmlonly::
+
+   :Release: |version|
+   :Date: |today|
+
+.. _toolkits:
 
 Toolkits are collections of application-specific functions that extend matplotlib.
 
@@ -66,5 +73,5 @@ ease displaying multiple images in matplotlib. The AxesGrid toolkit is
 distributed with matplotlib source.
 
 .. image:: ../_static/demo_axes_grid.png
- 
+
 See :ref:`toolkit_axesgrid-index` for documentations.

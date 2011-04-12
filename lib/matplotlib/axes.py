@@ -2040,7 +2040,7 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          grid(self, b=None, which='major', **kwargs)
+           grid(self, b=None, which='major', **kwargs)
 
         Set the axes grids on or off; *b* is a boolean.  (For MATLAB
         compatibility, *b* may also be a string, 'on' or 'off'.)
@@ -2054,11 +2054,12 @@ class Axes(martist.Artist):
 
         *kawrgs* are used to set the grid line properties, eg::
 
-          ax.grid(color='r', linestyle='-', linewidth=2)
+           ax.grid(color='r', linestyle='-', linewidth=2)
 
         Valid :class:`~matplotlib.lines.Line2D` kwargs are
 
         %(Line2D)s
+
         """
         if len(kwargs):
             b = True
@@ -3819,7 +3820,7 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, **kwargs)
+           plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, **kwargs)
 
         Similar to the :func:`~matplotlib.pyplot.plot` command, except
         the *x* or *y* (or both) data is considered to be dates, and the
@@ -3830,18 +3831,18 @@ class Axes(martist.Artist):
 
         Keyword arguments:
 
-          *fmt*: string
-            The plot format string.
+        *fmt*: string
+           The plot format string.
 
-          *tz*: [ None | timezone string ]
-            The time zone to use in labeling dates. If *None*, defaults to rc
-            value.
+        *tz*: [ None | timezone string ]
+           The time zone to use in labeling dates. If *None*, defaults to rc
+           value.
 
-          *xdate*: [ True | False ]
-            If *True*, the *x*-axis will be labeled with dates.
+        *xdate*: [ True | False ]
+           If *True*, the *x*-axis will be labeled with dates.
 
-          *ydate*: [ False | True ]
-            If *True*, the *y*-axis will be labeled with dates.
+        *ydate*: [ False | True ]
+           If *True*, the *y*-axis will be labeled with dates.
 
         Note if you are using custom date tickers and formatters, it
         may be necessary to set the formatters/locators after the call
@@ -3861,14 +3862,12 @@ class Axes(martist.Artist):
 
         .. seealso::
 
-            :mod:`~matplotlib.dates`
-                for helper functions
+           :mod:`~matplotlib.dates` for helper functions
 
-            :func:`~matplotlib.dates.date2num`,
-            :func:`~matplotlib.dates.num2date` and
-            :func:`~matplotlib.dates.drange`
-                for help on creating the required floating point
-                dates.
+           :func:`~matplotlib.dates.date2num`,
+           :func:`~matplotlib.dates.num2date` and
+           :func:`~matplotlib.dates.drange` for help on creating the required
+           floating point dates.
         """
 
         if not self._hold: self.cla()
@@ -4210,14 +4209,14 @@ class Axes(martist.Artist):
         if legend_handler_map is not None:
             handler_map = handler_map.copy()
             handler_map.update(legend_handler_map)
-        
+
         handles = []
         for h in handles_original:
             if h.get_label() == "_nolegend_": #.startswith('_'):
                 continue
             if mlegend.Legend.get_legend_handler(handler_map, h):
                 handles.append(h)
-                
+
         return handles
 
 
@@ -5328,7 +5327,7 @@ class Axes(martist.Artist):
                                                has_yerr=(yerr is not None),
                                                label=label)
         self.containers.append(errorbar_container)
-        
+
         return errorbar_container # (l0, caplines, barcols)
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
@@ -5907,12 +5906,12 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          hexbin(x, y, C = None, gridsize = 100, bins = None,
-                 xscale = 'linear', yscale = 'linear',
-                 cmap=None, norm=None, vmin=None, vmax=None,
-                 alpha=None, linewidths=None, edgecolors='none'
-                 reduce_C_function = np.mean, mincnt=None, marginals=True
-                 **kwargs)
+           hexbin(x, y, C = None, gridsize = 100, bins = None,
+                  xscale = 'linear', yscale = 'linear',
+                  cmap=None, norm=None, vmin=None, vmax=None,
+                  alpha=None, linewidths=None, edgecolors='none'
+                  reduce_C_function = np.mean, mincnt=None, marginals=True
+                  **kwargs)
 
         Make a hexagonal binning plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length, *N*. If *C* is None
@@ -5931,84 +5930,84 @@ class Axes(martist.Artist):
 
         Optional keyword arguments:
 
-          *gridsize*: [ 100 | integer ]
-            The number of hexagons in the *x*-direction, default is
-            100. The corresponding number of hexagons in the
-            *y*-direction is chosen such that the hexagons are
-            approximately regular. Alternatively, gridsize can be a
-            tuple with two elements specifying the number of hexagons
-            in the *x*-direction and the *y*-direction.
+        *gridsize*: [ 100 | integer ]
+           The number of hexagons in the *x*-direction, default is
+           100. The corresponding number of hexagons in the
+           *y*-direction is chosen such that the hexagons are
+           approximately regular. Alternatively, gridsize can be a
+           tuple with two elements specifying the number of hexagons
+           in the *x*-direction and the *y*-direction.
 
-          *bins*: [ None | 'log' | integer | sequence ]
-            If *None*, no binning is applied; the color of each hexagon
-            directly corresponds to its count value.
+        *bins*: [ None | 'log' | integer | sequence ]
+           If *None*, no binning is applied; the color of each hexagon
+           directly corresponds to its count value.
 
-            If 'log', use a logarithmic scale for the color
-            map. Internally, :math:`log_{10}(i+1)` is used to
-            determine the hexagon color.
+           If 'log', use a logarithmic scale for the color
+           map. Internally, :math:`log_{10}(i+1)` is used to
+           determine the hexagon color.
 
-            If an integer, divide the counts in the specified number
-            of bins, and color the hexagons accordingly.
+           If an integer, divide the counts in the specified number
+           of bins, and color the hexagons accordingly.
 
-            If a sequence of values, the values of the lower bound of
-            the bins to be used.
+           If a sequence of values, the values of the lower bound of
+           the bins to be used.
 
-          *xscale*: [ 'linear' | 'log' ]
-            Use a linear or log10 scale on the horizontal axis.
+        *xscale*: [ 'linear' | 'log' ]
+           Use a linear or log10 scale on the horizontal axis.
 
-          *scale*: [ 'linear' | 'log' ]
-            Use a linear or log10 scale on the vertical axis.
+        *scale*: [ 'linear' | 'log' ]
+           Use a linear or log10 scale on the vertical axis.
 
-          *mincnt*: None | a positive integer
-            If not None, only display cells with more than *mincnt*
-            number of points in the cell
+        *mincnt*: None | a positive integer
+           If not None, only display cells with more than *mincnt*
+           number of points in the cell
 
-          *marginals*: True|False
-            if marginals is True, plot the marginal density as
-            colormapped rectagles along the bottom of the x-axis and
-            left of the y-axis
+        *marginals*: True|False
+           if marginals is True, plot the marginal density as
+           colormapped rectagles along the bottom of the x-axis and
+           left of the y-axis
 
-          *extent*: [ None | scalars (left, right, bottom, top) ]
-            The limits of the bins. The default assigns the limits
-            based on gridsize, x, y, xscale and yscale.
+        *extent*: [ None | scalars (left, right, bottom, top) ]
+           The limits of the bins. The default assigns the limits
+           based on gridsize, x, y, xscale and yscale.
 
         Other keyword arguments controlling color mapping and normalization
         arguments:
 
-          *cmap*: [ None | Colormap ]
-            a :class:`matplotlib.cm.Colormap` instance. If *None*,
-            defaults to rc ``image.cmap``.
+        *cmap*: [ None | Colormap ]
+           a :class:`matplotlib.cm.Colormap` instance. If *None*,
+           defaults to rc ``image.cmap``.
 
-          *norm*: [ None | Normalize ]
-            :class:`matplotlib.colors.Normalize` instance is used to
-            scale luminance data to 0,1.
+        *norm*: [ None | Normalize ]
+           :class:`matplotlib.colors.Normalize` instance is used to
+           scale luminance data to 0,1.
 
-          *vmin*/*vmax*: scalar
-            *vmin* and *vmax* are used in conjunction with *norm* to normalize
-            luminance data.  If either are *None*, the min and max of the color
-            array *C* is used.  Note if you pass a norm instance, your settings
-            for *vmin* and *vmax* will be ignored.
+        *vmin*/*vmax*: scalar
+           *vmin* and *vmax* are used in conjunction with *norm* to normalize
+           luminance data.  If either are *None*, the min and max of the color
+           array *C* is used.  Note if you pass a norm instance, your settings
+           for *vmin* and *vmax* will be ignored.
 
-          *alpha*: scalar between 0 and 1, or None
-            the alpha value for the patches
+        *alpha*: scalar between 0 and 1, or None
+           the alpha value for the patches
 
-          *linewidths*: [ None | scalar ]
-            If *None*, defaults to rc lines.linewidth. Note that this
-            is a tuple, and if you set the linewidths argument you
-            must set it as a sequence of floats, as required by
-            :class:`~matplotlib.collections.RegularPolyCollection`.
+        *linewidths*: [ None | scalar ]
+           If *None*, defaults to rc lines.linewidth. Note that this
+           is a tuple, and if you set the linewidths argument you
+           must set it as a sequence of floats, as required by
+           :class:`~matplotlib.collections.RegularPolyCollection`.
 
         Other keyword arguments controlling the Collection properties:
 
-          *edgecolors*: [ None | mpl color | color sequence ]
-            If 'none', draws the edges in the same color as the fill color.
-            This is the default, as it avoids unsightly unpainted pixels
-            between the hexagons.
+        *edgecolors*: [ None | mpl color | color sequence ]
+           If 'none', draws the edges in the same color as the fill color.
+           This is the default, as it avoids unsightly unpainted pixels
+           between the hexagons.
 
-            If *None*, draws the outlines in the default color.
+           If *None*, draws the outlines in the default color.
 
-            If a matplotlib color arg or sequence of rgba tuples, draws the
-            outlines in the specified color.
+           If a matplotlib color arg or sequence of rgba tuples, draws the
+           outlines in the specified color.
 
         Here are the standard descriptions of all the
         :class:`~matplotlib.collections.Collection` kwargs:

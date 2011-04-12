@@ -28,7 +28,6 @@ User's Guide
     path_tutorial.rst
     annotations_guide.rst
     recipes.rst
-    toolkits.rst
     screenshots.rst
     whats_new.rst
     license.rst
