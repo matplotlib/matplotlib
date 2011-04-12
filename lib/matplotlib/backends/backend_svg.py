@@ -261,6 +261,7 @@ class RendererSVG(RendererBase):
         self._hatchd = {}
         self._has_gouraud = False
         self._n_gradients = 0
+        self._fonts = {}
         self.mathtext_parser = MathTextParser('SVG')
 
         RendererBase.__init__(self)
@@ -277,6 +278,7 @@ class RendererSVG(RendererBase):
         self._write_default_style()
 
     def finalize(self):
+        self._write_svgfonts()
         self.writer.close(self._start_id)
 
     def _write_default_style(self):
@@ -421,6 +423,40 @@ class RendererSVG(RendererBase):
             writer.end('defs')
             self._clipd[dictkey] = oid
         return oid
+
+    def _write_svgfonts(self):
+        if not rcParams['svg.fonttype'] == 'svgfont':
+            return
+
+        writer = self.writer
+        writer.start('defs')
+        for font_fname, chars in self._fonts.items():
+            font = FT2Font(font_fname)
+            font.set_size(72, 72)
+            sfnt = font.get_sfnt()
+            writer.start('font', id=sfnt[(1, 0, 0, 4)])
+            writer.element(
+                'font-face',
+                attrib={
+                    'font-family': font.family_name,
+                    'font-style': font.style_name,
+                    'units-per-em': '72',
+                    'bbox': ' '.join(str(x / 64.0) for x in font.bbox)})
+            for char in chars:
+                glyph = font.load_char(char, flags=LOAD_NO_HINTING)
+                verts, codes = font.get_path()
+                path = Path(verts, codes)
+                path_data = self._convert_path(path, None)
+                # name = font.get_glyph_name(char)
+                writer.element(
+                    'glyph',
+                    d=path_data,
+                    attrib={
+                        # 'glyph-name': name,
+                        'unicode': unichr(char),
+                        'horiz-adv-x': str(glyph.linearHoriAdvance / 65536.0)})
+            writer.end('font')
+        writer.end('defs')
 
     def open_group(self, s, gid=None):
         """
@@ -867,6 +903,11 @@ class RendererSVG(RendererBase):
                 ('rotate', (-angle,))])
 
             writer.element('text', s, attrib=attrib)
+
+            if rcParams['svg.fonttype'] == 'svgfont':
+                fontset = self._fonts.setdefault(font.fname, set())
+                for c in s:
+                    fontset.add(ord(c))
         else:
             writer.comment(s)
 
@@ -894,10 +935,16 @@ class RendererSVG(RendererBase):
             for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
                 style = generate_css({
                     'font-size': str(fontsize),
-                    'font-family': font.family_name})
+                    'font-family': font.family_name,
+                    'font-style': font.style_name})
                 if thetext == 32:
                     thetext = 0xa0 # non-breaking space
                 spans.setdefault(style, []).append((new_x, -new_y, thetext))
+
+            if rcParams['svg.fonttype'] == 'svgfont':
+                for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
+                    fontset = self._fonts.setdefault(font.fname, set())
+                    fontset.add(thetext)
 
             for style, chars in spans.items():
                 chars.sort()
@@ -948,7 +995,7 @@ class RendererSVG(RendererBase):
             self.writer.start(
                 'g', attrib={'clip-path': 'url(#%s)' % clipid})
 
-        if rcParams['svg.embed_char_paths']:
+        if rcParams['svg.fonttype'] == 'path':
             self._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
         else:
             self._draw_text_as_text(gc, x, y, s, prop, angle, ismath)
