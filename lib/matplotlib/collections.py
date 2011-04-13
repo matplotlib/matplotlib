@@ -90,6 +90,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_linewidth(linewidths)
         self.set_linestyle(linestyles)
         self.set_antialiased(antialiaseds)
+        self.set_pickradius(pickradius)
         self.set_urls(urls)
 
 
@@ -105,7 +106,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 self._uniform_offsets = offsets
 
-        self._pickradius = pickradius
         self.update(kwargs)
         self._paths = None
 
@@ -221,6 +221,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         gc.restore()
         renderer.close_group(self.__class__.__name__)
 
+    def set_pickradius(self, pr):
+        self._pickradius = pr
+
+    def get_pickradius(self):
+        return self._pickradius
+
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred in the collection.
@@ -228,19 +234,35 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Returns True | False, ``dict(ind=itemlist)``, where every
         item in itemlist contains the event.
         """
-        if callable(self._contains): return self._contains(self,mouseevent)
-        if not self.get_visible(): return False,{}
+        if callable(self._contains):
+            return self._contains(self,mouseevent)
+
+        if not self.get_visible():
+            return False, {}
+
+        if self._picker is True:  # the Boolean constant, not just nonzero or 1
+            pickradius = self._pickradius
+        else:
+            try:
+                pickradius = float(self._picker)
+            except TypeError:
+                # This should not happen if "contains" is called via
+                # pick, the normal route; the check is here in case
+                # it is called through some unanticipated route.
+                warnings.warn(
+                    "Collection picker %s could not be converted to float"
+                                        % self._picker)
+                pickradius = self._pickradius
 
         transform, transOffset, offsets, paths = self._prepare_points()
 
         ind = mpath.point_in_path_collection(
-            mouseevent.x, mouseevent.y, self._pickradius,
+            mouseevent.x, mouseevent.y, pickradius,
             transform.frozen(), paths, self.get_transforms(),
-            offsets, transOffset, len(self._facecolors)>0)
-        return len(ind)>0,dict(ind=ind)
+            offsets, transOffset, pickradius <= 0)
 
-    def set_pickradius(self,pickradius): self.pickradius = 5
-    def get_pickradius(self): return self.pickradius
+        return len(ind)>0, dict(ind=ind)
+
 
     def set_urls(self, urls):
         if urls is None:
