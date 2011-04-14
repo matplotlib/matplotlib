@@ -1,3 +1,6 @@
+2011-04-14 interpolation="nearest" always interpolate images. A new
+           mode "none" is introduced for no interpolation - JJL
+
 2011-04-03 Fixed broken pick interface to AsteriskCollection objects
            used by scatter. - EF
 
