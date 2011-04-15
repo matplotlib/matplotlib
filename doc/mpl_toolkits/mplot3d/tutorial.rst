@@ -81,11 +81,7 @@ Filled contour plots
 .. automethod:: Axes3D.contourf
 
 .. plot:: mpl_examples/mplot3d/contourf3d_demo.py
-.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
 
-.. versionadded:: 1.0.1
-   The feature demoed in the second contourf3d example was enabled as a
-   result of a bugfix for version 1.0.1.
 
 .. _polygon3d:
 
