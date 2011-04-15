@@ -293,3 +293,6 @@ save.__doc__ = """\
 
 # don't let numpy's datetime hide stdlib
 import datetime
+
+if sys.version_info > (2, 6, 0):
+    bytes = __builtins__['bytes']
