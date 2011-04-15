@@ -233,6 +233,9 @@ def _get_handles(ax):
                     if isinstance(c, mcoll.LineCollection)])
     handles.extend([c for c in ax.collections
                     if isinstance(c, mcoll.RegularPolyCollection)])
+    handles.extend([c for c in ax.collections
+                    if isinstance(c, mcoll.CircleCollection)])
+
     return handles
 
 
@@ -251,51 +254,15 @@ class HostAxesBase:
         self.parasites.append(ax2)
         return ax2
 
-    def legend(self, *args, **kwargs):
 
-        if len(args)==0:
-            all_handles = _get_handles(self)
-            for ax in self.parasites:
-                all_handles.extend(_get_handles(ax))
-            handles = []
-            labels = []
-            for handle in all_handles:
-                label = handle.get_label()
-                if (label is not None and
-                    label != '' and not label.startswith('_')):
-                    handles.append(handle)
-                    labels.append(label)
-            if len(handles) == 0:
-                warnings.warn("No labeled objects found. "
-                              "Use label='...' kwarg on individual plots.")
-                return None
+    def _get_legend_handles(self, legend_handler_map=None):
+        Axes_get_legend_handles = self._get_base_axes_attr("_get_legend_handles")
+        all_handles = Axes_get_legend_handles(self, legend_handler_map)
 
-        elif len(args)==1:
-            # LABELS
-            labels = args[0]
-            handles = [h for h, label in zip(all_handles, labels)]
+        for ax in self.parasites:
+            all_handles.extend(ax._get_legend_handles)
 
-        elif len(args)==2:
-            if is_string_like(args[1]) or isinstance(args[1], int):
-                # LABELS, LOC
-                labels, loc = args
-                handles = [h for h, label in zip(all_handles, labels)]
-                kwargs['loc'] = loc
-            else:
-                # LINES, LABELS
-                handles, labels = args
-
-        elif len(args)==3:
-            # LINES, LABELS, LOC
-            handles, labels, loc = args
-            kwargs['loc'] = loc
-        else:
-            raise TypeError('Invalid arguments to legend')
-
-
-        handles = cbook.flatten(handles)
-        self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
-        return self.legend_
+        return all_handles
 
 
     def draw(self, renderer):
