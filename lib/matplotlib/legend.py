@@ -177,7 +177,7 @@ class Legend(Artist):
         numpoints          the number of points in the legend for line
         scatterpoints      the number of points in the legend for scatter plot
         scatteryoffsets    a list of yoffsets for scatter symbols in legend
-        frameon            if True, draw a frame around the legend
+        frameon            if True, draw a frame around the legend. If None, use rc
         fancybox           if True, draw a frame with a round fancybox.  If None, use rc
         shadow             if True, draw a shadow behind legend
         ncol               number of columns

@@ -4344,6 +4344,7 @@ class Axes(martist.Artist):
 
           *frameon*: [ True | False ]
             if True, draw a frame around the legend.
+            The default is set by the rcParam 'legend.frameon'
 
           *fancybox*: [ None | False | True ]
             if True, draw a frame with a round fancybox.  If None, use rc
