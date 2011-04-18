@@ -3303,8 +3303,7 @@ class Axes(martist.Artist):
 
             >>> axhline(y=.5, xmin=0.25, xmax=0.75)
 
-        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-        with the exception of 'transform':
+        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
 
@@ -3314,21 +3313,21 @@ class Axes(martist.Artist):
                 for example plot and source code
         """
 
-        if "transform" in kwargs:
-            raise ValueError(
-                "'transform' is not allowed as a kwarg;"
-                + "axhline generates its own transform.")
-        ymin, ymax = self.get_ybound()
-
         # We need to strip away the units for comparison with
         # non-unitized bounds
+        ymin, ymax = self.get_ybound()
         self._process_unit_info( ydata=y, kwargs=kwargs )
         yy = self.convert_yunits( y )
         scaley = (yy<ymin) or (yy>ymax)
 
+        # the default transform
         trans = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
-        l = mlines.Line2D([xmin,xmax], [y,y], transform=trans, **kwargs)
+
+        # use kwargs `transform` if given, otherwise use the default transform
+        kwargs['transform'] = kwargs.pop('transform', trans)
+
+        l = mlines.Line2D([xmin,xmax], [y,y], **kwargs)
         l.x_isdata = False
         self.add_line(l)
         self.autoscale_view(scalex=False, scaley=scaley)
@@ -3368,8 +3367,7 @@ class Axes(martist.Artist):
 
             >>> axvline(x=.5, ymin=0.25, ymax=0.75)
 
-        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties,
-        with the exception of 'transform':
+        Valid kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
         %(Line2D)s
 
@@ -3379,21 +3377,22 @@ class Axes(martist.Artist):
                 for example plot and source code
         """
 
-        if "transform" in kwargs:
-            raise ValueError(
-                "'transform' is not allowed as a kwarg;"
-                + "axvline generates its own transform.")
-        xmin, xmax = self.get_xbound()
 
         # We need to strip away the units for comparison with
         # non-unitized bounds
+        xmin, xmax = self.get_xbound()
         self._process_unit_info( xdata=x, kwargs=kwargs )
         xx = self.convert_xunits( x )
         scalex = (xx<xmin) or (xx>xmax)
 
+        # the default transform
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
-        l = mlines.Line2D([x,x], [ymin,ymax] , transform=trans, **kwargs)
+
+        # use kwargs `transform` if given, otherwise use the default transform
+        kwargs['transform'] = kwargs.pop('transform', trans)
+
+        l = mlines.Line2D([x,x], [ymin,ymax], **kwargs)
         l.y_isdata = False
         self.add_line(l)
         self.autoscale_view(scalex=scalex, scaley=False)
@@ -3438,8 +3437,13 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/axhspan_demo.py
 
         """
+
+        # the default transform
         trans = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
+
+        # use kwargs `transform` if given, otherwise use the default transform
+        kwargs['transform'] = kwargs.pop('transform', trans)
 
         # process the unit information
         self._process_unit_info( [xmin, xmax], [ymin, ymax], kwargs=kwargs )
@@ -3450,7 +3454,6 @@ class Axes(martist.Artist):
 
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
-        p.set_transform(trans)
         p.x_isdata = False
         self.add_patch(p)
         self.autoscale_view(scalex=False)
@@ -3495,8 +3498,13 @@ class Axes(martist.Artist):
             :meth:`axhspan`
                 for example plot and source code
         """
+
+        # the default transform
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
+
+        # use kwargs `transform` if given, otherwise use the default transform
+        kwargs['transform'] = kwargs.pop('transform', trans)
 
         # process the unit information
         self._process_unit_info( [xmin, xmax], [ymin, ymax], kwargs=kwargs )
@@ -3507,7 +3515,6 @@ class Axes(martist.Artist):
 
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
-        p.set_transform(trans)
         p.y_isdata = False
         self.add_patch(p)
         self.autoscale_view(scaley=False)
