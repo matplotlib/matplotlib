@@ -178,7 +178,7 @@ namespace Py
             Tuple self( 2 );
 
             self[0] = Object( this );
-            self[1] = Object( PyCapsule_New( method_def, NULL, NULL ) );
+            self[1] = Object( PyCapsule_New( method_def, NULL, NULL ), true );
 
             PyObject *func = PyCFunction_New( &method_def->ext_meth_def, self.ptr() );
 
