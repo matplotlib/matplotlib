@@ -247,7 +247,7 @@ class Spine(mpatches.Patch):
         else:
             low,high = self._bounds
 
-        v1 = self._path.vertices[:] # copy
+        v1 = self._path.vertices.copy()
         assert v1.shape == (2,2), 'unexpected vertices shape'
         if self.spine_type in ['left','right']:
             v1[0,1] = low
