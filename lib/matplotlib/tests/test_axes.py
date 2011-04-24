@@ -572,7 +572,8 @@ def test_units_strings():
 
 @image_comparison(baseline_images=['markevery'])
 def test_markevery():
-    x, y = np.random.rand(2, 100)
+    x = np.linspace(0, 10, 100)
+    y = np.sin(x) * np.sqrt(x/10 + 0.5)
 
     # check marker only plot
     fig = plt.figure()
@@ -586,7 +587,9 @@ def test_markevery():
 
 @image_comparison(baseline_images=['markevery_line'])
 def test_markevery_line():
-    x, y = np.random.rand(2, 100)
+    x = np.linspace(0, 10, 100)
+    y = np.sin(x) * np.sqrt(x/10 + 0.5)
+
     # check line/marker combos
     fig = plt.figure()
     ax = fig.add_subplot(111)
