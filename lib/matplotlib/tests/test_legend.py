@@ -15,6 +15,7 @@ def test_legend_auto1():
     ax.plot(x, x-50, 'o', label='y=-1')
     ax.legend(loc=0)
     fig.savefig('legend_auto1')
+    plt.close()
 
 @image_comparison(baseline_images=['legend_auto2'])
 def test_legend_auto2():
@@ -26,4 +27,5 @@ def test_legend_auto2():
     b2 = ax.bar(x, x[::-1], color='g')
     ax.legend([b1[0], b2[0]], ['up', 'down'], loc=0)
     fig.savefig('legend_auto2')
+    plt.close()
 

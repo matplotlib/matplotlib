@@ -13,6 +13,7 @@ def test_date_empty():
     ax = fig.add_subplot(1,1,1)
     ax.xaxis_date()
     fig.savefig('date_empty')
+    plt.close()
 
 @image_comparison(baseline_images=['date_axhspan'])
 def test_date_axhspan():
@@ -26,6 +27,7 @@ def test_date_axhspan():
                 tf+datetime.timedelta(days=5))
     fig.subplots_adjust(left=0.25)
     fig.savefig('date_axhspan')
+    plt.close()
 
 @image_comparison(baseline_images=['date_axvspan'])
 def test_date_axvspan():
@@ -39,6 +41,7 @@ def test_date_axvspan():
                 tf+datetime.timedelta(days=720))
     fig.autofmt_xdate()
     fig.savefig('date_axvspan')
+    plt.close()
 
 
 @image_comparison(baseline_images=['date_axhline'])
@@ -53,6 +56,7 @@ def test_date_axhline():
                 tf+datetime.timedelta(days=5))
     fig.subplots_adjust(left=0.25)
     fig.savefig('date_axhline')
+    plt.close()
 
 @image_comparison(baseline_images=['date_axvline'])
 def test_date_axvline():
@@ -66,6 +70,7 @@ def test_date_axvline():
                 tf+datetime.timedelta(days=5))
     fig.autofmt_xdate()
     fig.savefig('date_axvline')
+    plt.close()
 
 def test_too_many_date_ticks():
     # Attempt to test SF 2715172, see
@@ -82,6 +87,7 @@ def test_too_many_date_ticks():
     from matplotlib.dates import DayLocator, DateFormatter, HourLocator
     ax.xaxis.set_major_locator(DayLocator())
     assert_raises(RuntimeError, fig.savefig, 'junk.png')
+    plt.close()
 
 @image_comparison(baseline_images=['RRuleLocator_bounds'])
 def test_RRuleLocator():
@@ -112,6 +118,7 @@ def test_RRuleLocator():
     fig.autofmt_xdate()
 
     fig.savefig( 'RRuleLocator_bounds' )
+    plt.close()
 
 @image_comparison(baseline_images=['DateFormatter_fractionalSeconds'])
 def test_DateFormatter():
@@ -140,6 +147,7 @@ def test_DateFormatter():
     fig.autofmt_xdate()
 
     fig.savefig( 'DateFormatter_fractionalSeconds' )
+    plt.close()
 
 #@image_comparison(baseline_images=['empty_date_bug'])
 @knownfailureif(True)
@@ -158,6 +166,7 @@ def test_empty_date_with_year_formatter():
     ax.xaxis.set_major_formatter(yearFmt)
 
     fig.savefig('empty_date_bug')
+    plt.close()
 
 if __name__=='__main__':
     import nose

@@ -29,6 +29,7 @@ def test_image_interps():
     ax3.set_ylabel('bicubic')
 
     fig.savefig('image_interps')
+    plt.close()
 
 @image_comparison(baseline_images=['figimage-0', 'figimage-1'], extensions=['png'], tol=1.5e-3)
 def test_figimage():
@@ -48,6 +49,7 @@ def test_figimage():
         fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
 
         fig.savefig('figimage-%d' % int(suppressComposite), dpi=100)
+        plt.close()
 
 def test_image_python_io():
     fig = plt.figure()
@@ -57,6 +59,7 @@ def test_image_python_io():
     fig.savefig(buffer)
     buffer.seek(0)
     plt.imread(buffer)
+    plt.close()
 
 # def test_image_unicode_io():
 #     fig = plt.figure()
@@ -108,6 +111,7 @@ def test_image_clip():
     im = ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
 
     fig.savefig('image_clip')
+    plt.close()
 
 @image_comparison(baseline_images=['imshow'])
 def test_imshow():
@@ -122,6 +126,7 @@ def test_imshow():
     ax.set_ylim(0,3)
 
     fig.savefig('imshow')
+    plt.close()
 
 if __name__=='__main__':
     import nose

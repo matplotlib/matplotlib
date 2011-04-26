@@ -20,6 +20,7 @@ def test_visibility():
 
     fd = StringIO.StringIO()
     fig.savefig(fd,format='svg')
+    plt.close()
 
     fd.seek(0)
     buf = fd.read()

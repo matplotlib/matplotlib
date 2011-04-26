@@ -27,3 +27,4 @@ def test_pngsuite():
     plt.gca().set_xlim(0, len(files))
 
     fig.savefig('pngsuite')
+    plt.close()
