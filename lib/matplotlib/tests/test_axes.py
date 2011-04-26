@@ -273,6 +273,7 @@ def test_polar_wrap():
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
 
     fig.savefig( 'polar_wrap_180' )
+    plt.close()
 
     fig = plt.figure()
 
@@ -540,6 +541,7 @@ def test_canonical():
     fig, ax = plt.subplots()
     ax.plot([1,2,3])
     fig.savefig('canonical')
+    plt.close()
 
 
 @image_comparison(baseline_images=['arc_ellipse'])
@@ -580,6 +582,7 @@ def test_arc_ellipse():
     ax.add_patch(e2)
 
     fig.savefig('arc_ellipse')
+    plt.close()
 
 @image_comparison(baseline_images=['units_strings'])
 def test_units_strings():
@@ -591,6 +594,7 @@ def test_units_strings():
     ax = fig.add_subplot(111)
     ax.plot(Id, pout)
     fig.savefig('units_strings')
+    plt.close()
 
 @image_comparison(baseline_images=['markevery'])
 def test_markevery():
@@ -606,6 +610,7 @@ def test_markevery():
     ax.plot(x, y, '+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
     fig.savefig('markevery')
+    plt.close()
 
 @image_comparison(baseline_images=['markevery_line'])
 def test_markevery_line():
@@ -621,6 +626,7 @@ def test_markevery_line():
     ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
     fig.savefig('markevery_line')
+    plt.close()
 
 if __name__=='__main__':
     import nose

@@ -143,6 +143,7 @@ def make_set(basename, fontset, tests):
             fig.text(0.5, 0.5, test, horizontalalignment='center', verticalalignment='center')
             fig.savefig(filename)
             fig.clf()
+            plt.close()
             matplotlib.rcParams['mathtext.fontset'] = 'cm'
         return single_test
 
