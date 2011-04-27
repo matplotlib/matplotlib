@@ -1,9 +1,11 @@
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
-import os, sys, shutil
+import os, sys, shutil, new
 import nose
 import matplotlib
 import matplotlib.tests
+import matplotlib.units
+from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib.testing.compare import comparable_formats, compare_images
 
@@ -46,7 +48,83 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
         return nose.tools.make_decorator(f)(failer)
     return known_fail_decorator
 
-def image_comparison(baseline_images=None,extensions=None,tol=1e-3):
+class CleanupTest:
+    @classmethod
+    def setup_class(cls):
+        cls.original_rcParams = {}
+        cls.original_rcParams.update(matplotlib.rcParams)
+
+        cls.original_units_registry = {}
+        cls.original_units_registry.update(matplotlib.units.registry)
+
+    @classmethod
+    def teardown_class(cls):
+        plt.close('all')
+
+        matplotlib.rcParams.clear()
+        matplotlib.rcParams.update(cls.original_rcParams)
+
+        matplotlib.units.registry.clear()
+        matplotlib.units.registry.update(cls.original_units_registry)
+
+    def test(self):
+        self.func()
+
+def cleanup(func):
+    new_class = new.classobj(
+        func.__name__,
+        (CleanupTest,),
+        {'func': staticmethod(func)})
+    return new_class
+
+class ImageComparisonTest(CleanupTest):
+    @classmethod
+    def setup_class(cls):
+        CleanupTest.setup_class()
+
+        cls.func()
+
+    def test(self):
+        baseline_dir, result_dir = _image_directories(self.func)
+
+        for fignum, baseline in zip(plt.get_fignums(), self.baseline_images):
+            figure = plt.figure(fignum)
+
+            for extension in self.extensions:
+                will_fail = not extension in comparable_formats()
+                if will_fail:
+                    fail_msg = 'Cannot compare %s files on this system' % extension
+                else:
+                    fail_msg = 'No failure expected'
+
+                orig_expected_fname = os.path.join(baseline_dir, baseline) + '.' + extension
+                expected_fname = os.path.join(result_dir, 'expected-' + baseline) + '.' + extension
+                actual_fname = os.path.join(result_dir, baseline) + '.' + extension
+                if os.path.exists(orig_expected_fname):
+                    shutil.copyfile(orig_expected_fname, expected_fname)
+                else:
+                    will_fail = True
+                    fail_msg = 'Do not have baseline image %s' % expected_fname
+
+                @knownfailureif(
+                    will_fail, fail_msg,
+                    known_exception_class=ImageComparisonFailure)
+                def do_test():
+                        figure.savefig(actual_fname)
+
+                        if not os.path.exists(expected_fname):
+                            raise ImageComparisonFailure(
+                                'image does not exist: %s' % expected_fname)
+
+                        err = compare_images(expected_fname, actual_fname, self.tol, in_decorator=True)
+                        if err:
+                            raise ImageComparisonFailure(
+                                'images not close: %(actual)s vs. %(expected)s '
+                                '(RMS %(rms).3f)'%err)
+
+                yield (do_test,)
+
+def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
     """
     call signature::
 
@@ -76,56 +154,22 @@ def image_comparison(baseline_images=None,extensions=None,tol=1e-3):
         # default extensions to test
         extensions = ['png', 'pdf', 'svg']
 
-    # The multiple layers of defs are required because of how
-    # parameterized decorators work, and because we want to turn the
-    # single test_foo function to a generator that generates a
-    # separate test case for each file format.
     def compare_images_decorator(func):
-        baseline_dir, result_dir = _image_directories(func)
-
-        def compare_images_generator():
-            for extension in extensions:
-                orig_expected_fnames = [os.path.join(baseline_dir,fname) + '.' + extension for fname in baseline_images]
-                expected_fnames = [os.path.join(result_dir,'expected-'+fname) + '.' + extension for fname in baseline_images]
-                actual_fnames = [os.path.join(result_dir, fname) + '.' + extension for fname in baseline_images]
-                have_baseline_images = [os.path.exists(expected) for expected in orig_expected_fnames]
-                have_baseline_image = np.all(have_baseline_images)
-                is_comparable = extension in comparable_formats()
-                if not is_comparable:
-                    fail_msg = 'Cannot compare %s files on this system' % extension
-                elif not have_baseline_image:
-                    fail_msg = 'Do not have baseline images %s' % expected_fnames
-                else:
-                    fail_msg = 'No failure expected'
-                will_fail = not (is_comparable and have_baseline_image)
-                @knownfailureif(will_fail, fail_msg,
-                                known_exception_class=ImageComparisonFailure )
-                def decorated_compare_images():
-                    # set the default format of savefig
-                    matplotlib.rc('savefig', extension=extension)
-                    # change to the result directory for the duration of the test
-                    old_dir = os.getcwd()
-                    os.chdir(result_dir)
-                    try:
-                        result = func() # actually call the test function
-                    finally:
-                        os.chdir(old_dir)
-                    for original, expected in zip(orig_expected_fnames, expected_fnames):
-                        if not os.path.exists(original):
-                            raise ImageComparisonFailure(
-                                'image does not exist: %s'%original)
-                        shutil.copyfile(original, expected)
-                    for actual,expected in zip(actual_fnames,expected_fnames):
-                        # compare the images
-                        err = compare_images( expected, actual, tol,
-                                              in_decorator=True )
-                        if err:
-                            raise ImageComparisonFailure(
-                                'images not close: %(actual)s vs. %(expected)s '
-                                '(RMS %(rms).3f)'%err)
-                    return result
-                yield (decorated_compare_images,)
-        return nose.tools.make_decorator(func)(compare_images_generator)
+        # We want to run the setup function (the actual test function
+        # that generates the figure objects) only once for each type
+        # of output file.  The only way to achieve this with nose
+        # appears to be to create a test class with "setup_class" and
+        # "teardown_class" methods.  Creating a class instance doesn't
+        # work, so we use new.classobj to actually create a class and
+        # fill it with the appropriate methods.
+        new_class = new.classobj(
+            func.__name__,
+            (ImageComparisonTest,),
+            {'func': staticmethod(func),
+             'baseline_images': baseline_images,
+             'extensions': extensions,
+             'tol': tol})
+        return new_class
     return compare_images_decorator
 
 def _image_directories(func):
@@ -134,7 +178,7 @@ def _image_directories(func):
     Create the result directory if it doesn't exist.
     """
     module_name = func.__module__
-    if module_name=='__main__':
+    if module_name == '__main__':
         # FIXME: this won't work for nested packages in matplotlib.tests
         import warnings
         warnings.warn('test module run as script. guessing baseline image locations')
@@ -143,13 +187,13 @@ def _image_directories(func):
         subdir = os.path.splitext(os.path.split(script_name)[1])[0]
     else:
         mods = module_name.split('.')
-        assert mods.pop(0)=='matplotlib'
-        assert mods.pop(0)=='tests'
+        assert mods.pop(0) == 'matplotlib'
+        assert mods.pop(0) == 'tests'
         subdir = os.path.join(*mods)
         basedir = os.path.dirname(matplotlib.tests.__file__)
 
-    baseline_dir = os.path.join(basedir,'baseline_images',subdir)
-    result_dir = os.path.abspath(os.path.join('result_images',subdir))
+    baseline_dir = os.path.join(basedir, 'baseline_images', subdir)
+    result_dir = os.path.abspath(os.path.join('result_images', subdir))
 
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)

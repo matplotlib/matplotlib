@@ -1,6 +1,6 @@
 import datetime
 import numpy as np
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 
@@ -12,7 +12,6 @@ def test_date_empty():
     fig = plt.figure()
     ax = fig.add_subplot(1,1,1)
     ax.xaxis_date()
-    fig.savefig('date_empty')
 
 @image_comparison(baseline_images=['date_axhspan'])
 def test_date_axhspan():
@@ -25,7 +24,6 @@ def test_date_axhspan():
     ax.set_ylim(t0-datetime.timedelta(days=5),
                 tf+datetime.timedelta(days=5))
     fig.subplots_adjust(left=0.25)
-    fig.savefig('date_axhspan')
 
 @image_comparison(baseline_images=['date_axvspan'])
 def test_date_axvspan():
@@ -38,8 +36,6 @@ def test_date_axvspan():
     ax.set_xlim(t0-datetime.timedelta(days=720),
                 tf+datetime.timedelta(days=720))
     fig.autofmt_xdate()
-    fig.savefig('date_axvspan')
-
 
 @image_comparison(baseline_images=['date_axhline'])
 def test_date_axhline():
@@ -52,7 +48,6 @@ def test_date_axhline():
     ax.set_ylim(t0-datetime.timedelta(days=5),
                 tf+datetime.timedelta(days=5))
     fig.subplots_adjust(left=0.25)
-    fig.savefig('date_axhline')
 
 @image_comparison(baseline_images=['date_axvline'])
 def test_date_axvline():
@@ -65,8 +60,8 @@ def test_date_axvline():
     ax.set_xlim(t0-datetime.timedelta(days=5),
                 tf+datetime.timedelta(days=5))
     fig.autofmt_xdate()
-    fig.savefig('date_axvline')
 
+@cleanup
 def test_too_many_date_ticks():
     # Attempt to test SF 2715172, see
     # https://sourceforge.net/tracker/?func=detail&aid=2715172&group_id=80706&atid=560720
@@ -111,8 +106,6 @@ def test_RRuleLocator():
     ax.autoscale_view()
     fig.autofmt_xdate()
 
-    fig.savefig( 'RRuleLocator_bounds' )
-
 @image_comparison(baseline_images=['DateFormatter_fractionalSeconds'])
 def test_DateFormatter():
     import pylab
@@ -139,9 +132,8 @@ def test_DateFormatter():
     ax.autoscale_view()
     fig.autofmt_xdate()
 
-    fig.savefig( 'DateFormatter_fractionalSeconds' )
-
 #@image_comparison(baseline_images=['empty_date_bug'])
+@cleanup
 @knownfailureif(True)
 def test_empty_date_with_year_formatter():
     # exposes sf bug 2861426: https://sourceforge.net/tracker/?func=detail&aid=2861426&group_id=80706&atid=560720

@@ -25,5 +25,3 @@ def test_pngsuite():
 
     plt.gca().get_frame().set_facecolor("#ddffff")
     plt.gca().set_xlim(0, len(files))
-
-    fig.savefig('pngsuite')
