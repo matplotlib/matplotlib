@@ -51,18 +51,13 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
 class CleanupTest:
     @classmethod
     def setup_class(cls):
-        cls.original_rcParams = {}
-        cls.original_rcParams.update(matplotlib.rcParams)
-
-        cls.original_units_registry = {}
-        cls.original_units_registry.update(matplotlib.units.registry)
+        cls.original_units_registry = matplotlib.units.registry.copy()
 
     @classmethod
     def teardown_class(cls):
         plt.close('all')
 
-        matplotlib.rcParams.clear()
-        matplotlib.rcParams.update(cls.original_rcParams)
+        matplotlib.tests.setup()
 
         matplotlib.units.registry.clear()
         matplotlib.units.registry.update(cls.original_units_registry)
