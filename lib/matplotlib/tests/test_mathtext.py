@@ -134,57 +134,33 @@ for fonts, chars in font_test_specs:
     for set in chars:
         font_tests.append(wrapper % set)
 
-def _run_all_tests(tests):
-    fig = plt.figure(figsize=(5, len(tests) / 2.0))
+def make_set(basename, fontset, tests):
+    def make_test(filename, test):
+        @image_comparison(baseline_images=[filename])
+        def single_test():
+            matplotlib.rcParams['mathtext.fontset'] = fontset
+            fig = plt.figure(figsize=(5.25, 0.75))
+            fig.text(0.5, 0.5, test, horizontalalignment='center', verticalalignment='center')
+            fig.savefig(filename)
+            fig.clf()
+            matplotlib.rcParams['mathtext.fontset'] = 'cm'
+        return single_test
+
+    # We inject test functions into the global namespace, rather than
+    # using a generator, so that individual tests can be run more
+    # easily from the commandline and so each test will have its own
+    # result.
     for i, test in enumerate(tests):
-        fig.text(0, float(len(tests) - i - 1) / len(tests), test)
-    return fig
+        filename = '%s_%s_%02d' % (basename, fontset, i)
+        globals()['test_%s' % filename] = make_test(filename, test)
 
-@image_comparison(baseline_images=['mathtext'], tol=1e-5)
-def test_mathtext():
-    fig = _run_all_tests(math_tests)
-    fig.savefig('mathtext')
+make_set('mathtext', 'cm', math_tests)
+make_set('mathtext', 'stix', math_tests)
+make_set('mathtext', 'stixsans', math_tests)
 
-@image_comparison(baseline_images=['mathtext_stix'])
-def test_mathtext_stix():
-    matplotlib.rcParams['mathtext.fontset'] = 'stix'
-
-    fig = _run_all_tests(math_tests)
-    fig.savefig('mathtext_stix')
-
-    matplotlib.rcParams['mathtext.fontset'] = 'cm'
-
-@image_comparison(baseline_images=['mathtext_stixsans'])
-def test_mathtext_stixsans():
-    matplotlib.rcParams['mathtext.fontset'] = 'stixsans'
-
-    fig = _run_all_tests(math_tests)
-    fig.savefig('mathtext_stixsans')
-
-    matplotlib.rcParams['mathtext.fontset'] = 'cm'
-
-@image_comparison(baseline_images=['mathtext_font'])
-def test_mathtext_font():
-    fig = _run_all_tests(font_tests)
-    fig.savefig('mathtext_font')
-
-@image_comparison(baseline_images=['mathtext_font_stix'])
-def test_mathtext_font_stix():
-    matplotlib.rcParams['mathtext.fontset'] = 'stix'
-
-    fig = _run_all_tests(font_tests)
-    fig.savefig('mathtext_font_stix')
-
-    matplotlib.rcParams['mathtext.fontset'] = 'cm'
-
-@image_comparison(baseline_images=['mathtext_font_stixsans'])
-def test_mathtext_font_stixsans():
-    matplotlib.rcParams['mathtext.fontset'] = 'stixsans'
-
-    fig = _run_all_tests(font_tests)
-    fig.savefig('mathtext_font_stixsans')
-
-    matplotlib.rcParams['mathtext.fontset'] = 'cm'
+make_set('mathfont', 'cm', font_tests)
+make_set('mathfont', 'stix', font_tests)
+make_set('mathfont', 'stixsans', font_tests)
 
 def test_fontinfo():
     import matplotlib.font_manager as font_manager

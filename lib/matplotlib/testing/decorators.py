@@ -87,10 +87,8 @@ def image_comparison(baseline_images=None,extensions=None,tol=1e-3):
             for extension in extensions:
                 orig_expected_fnames = [os.path.join(baseline_dir,fname) + '.' + extension for fname in baseline_images]
                 expected_fnames = [os.path.join(result_dir,'expected-'+fname) + '.' + extension for fname in baseline_images]
-                for src,dst in zip( orig_expected_fnames, expected_fnames ):
-                    shutil.copyfile(src,dst)
                 actual_fnames = [os.path.join(result_dir, fname) + '.' + extension for fname in baseline_images]
-                have_baseline_images = [os.path.exists(expected) for expected in expected_fnames]
+                have_baseline_images = [os.path.exists(expected) for expected in orig_expected_fnames]
                 have_baseline_image = np.all(have_baseline_images)
                 is_comparable = extension in comparable_formats()
                 if not is_comparable:
@@ -112,11 +110,12 @@ def image_comparison(baseline_images=None,extensions=None,tol=1e-3):
                         result = func() # actually call the test function
                     finally:
                         os.chdir(old_dir)
-                    for actual,expected in zip(actual_fnames,expected_fnames):
-                        if not os.path.exists(expected):
+                    for original, expected in zip(orig_expected_fnames, expected_fnames):
+                        if not os.path.exists(original):
                             raise ImageComparisonFailure(
-                                'image does not exist: %s'%expected)
-
+                                'image does not exist: %s'%original)
+                        shutil.copyfile(original, expected)
+                    for actual,expected in zip(actual_fnames,expected_fnames):
                         # compare the images
                         err = compare_images( expected, actual, tol,
                                               in_decorator=True )

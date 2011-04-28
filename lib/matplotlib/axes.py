@@ -2036,11 +2036,11 @@ class Axes(martist.Artist):
         self._axisbelow = b
 
     @docstring.dedent_interpd
-    def grid(self, b=None, which='major', **kwargs):
+    def grid(self, b=None, which='major', axis='both', **kwargs):
         """
         call signature::
 
-           grid(self, b=None, which='major', **kwargs)
+           grid(self, b=None, which='major', axis='both', **kwargs)
 
         Set the axes grids on or off; *b* is a boolean.  (For MATLAB
         compatibility, *b* may also be a string, 'on' or 'off'.)
@@ -2051,6 +2051,9 @@ class Axes(martist.Artist):
 
         *which* can be 'major' (default), 'minor', or 'both' to control
         whether major tick grids, minor tick grids, or both are affected.
+
+        *axis* can be 'both' (default), 'x', or 'y' to control which
+        set of gridlines are drawn.
 
         *kawrgs* are used to set the grid line properties, eg::
 
@@ -2064,8 +2067,11 @@ class Axes(martist.Artist):
         if len(kwargs):
             b = True
         b = _string_to_bool(b)
-        self.xaxis.grid(b, which=which, **kwargs)
-        self.yaxis.grid(b, which=which, **kwargs)
+
+        if axis == 'x' or  axis == 'both':
+          self.xaxis.grid(b, which=which, **kwargs)
+        if axis == 'y' or  axis == 'both':
+          self.yaxis.grid(b, which=which, **kwargs)
 
     def ticklabel_format(self, **kwargs):
         """
