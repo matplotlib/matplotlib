@@ -31,6 +31,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
     # map interpolation strings to module constants
     _interpd = {
+        'none'     : _image.NEAREST, # fall back to nearest when not supported
         'nearest'  : _image.NEAREST,
         'bilinear' : _image.BILINEAR,
         'bicubic'  : _image.BICUBIC,
@@ -446,10 +447,15 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         """
         Set the interpolation method the image uses when resizing.
 
+        if None, use a value from rc setting. If 'none', the image is
+        shown as is without interpolating. 'none' is only supported in
+        agg, ps and pdf backends and will fall back to 'nearest' mode
+        for other backends.
+
         ACCEPTS: ['nearest' | 'bilinear' | 'bicubic' | 'spline16' |
           'spline36' | 'hanning' | 'hamming' | 'hermite' | 'kaiser' |
           'quadric' | 'catrom' | 'gaussian' | 'bessel' | 'mitchell' |
-          'sinc' | 'lanczos' | ]
+          'sinc' | 'lanczos' | 'none' |]
 
         """
         if s is None: s = rcParams['image.interpolation']
@@ -610,10 +616,13 @@ class AxesImage(_AxesImageBase):
         """
         return True if the image is better to be drawn unsampled.
         """
-        if renderer.option_scale_image() and self.get_interpolation() == "nearest":
-            return True
-        else:
-            return False
+        if self.get_interpolation() == "none":
+            if renderer.option_scale_image():
+                return True
+            else:
+                warnings.warn("The backend (%s) does not support interpolation='none'. The image will be interpolated with 'nearest` mode." % renderer.__class__)
+
+        return False
 
     def set_extent(self, extent):
         """
