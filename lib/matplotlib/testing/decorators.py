@@ -108,17 +108,17 @@ class ImageComparisonTest(CleanupTest):
                     will_fail, fail_msg,
                     known_exception_class=ImageComparisonFailure)
                 def do_test():
-                        figure.savefig(actual_fname)
+                    figure.savefig(actual_fname)
 
-                        if not os.path.exists(expected_fname):
-                            raise ImageComparisonFailure(
-                                'image does not exist: %s' % expected_fname)
+                    if not os.path.exists(expected_fname):
+                        raise ImageComparisonFailure(
+                            'image does not exist: %s' % expected_fname)
 
-                        err = compare_images(expected_fname, actual_fname, self._tol, in_decorator=True)
-                        if err:
-                            raise ImageComparisonFailure(
-                                'images not close: %(actual)s vs. %(expected)s '
-                                '(RMS %(rms).3f)'%err)
+                    err = compare_images(expected_fname, actual_fname, self._tol, in_decorator=True)
+                    if err:
+                        raise ImageComparisonFailure(
+                            'images not close: %(actual)s vs. %(expected)s '
+                            '(RMS %(rms).3f)'%err)
 
                 yield (do_test,)
 
