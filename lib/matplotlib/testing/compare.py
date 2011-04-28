@@ -112,45 +112,9 @@ if matplotlib.checkdep_ghostscript() is not None:
    converter['eps'] = make_external_conversion_command(cmd)
 
 if matplotlib.checkdep_inkscape() is not None:
-   class SVGConverter:
-      def __init__(self):
-         self._count = 0
-         self._process = None
-
-      def get_process(self):
-         # Since Inkscape can leak a little memory, we run X
-         # conversions and then shut it down and start up a new
-         # Inkscape.
-         if self._count == 0:
-            if self._process is not None:
-               self._process.communicate('quit\n')
-            self._process = subprocess.Popen(['inkscape', '-z', '--shell'],
-                                             stdin=subprocess.PIPE,
-                                             stdout=subprocess.PIPE,
-                                             stderr=subprocess.STDOUT)
-            self.read_to_end(self._process.stdout)
-            self._count = 10
-         self._count -= 1
-         return self._process
-
-      def __call__(self, old, new):
-         process = self.get_process()
-         process.stdin.write('%s --export-png=%s\n' % (old, new))
-         process.stdin.flush()
-         self.read_to_end(process.stdout)
-
-      def read_to_end(self, buf):
-         ret = ''
-         lastchar = ''
-         while True:
-            char = buf.readline(1)
-            if char == '>' and lastchar == '\n':
-               break
-            ret += char
-            lastchar = char
-         return ret
-
-   converter['svg'] = SVGConverter()
+   cmd = lambda old, new: \
+             ['inkscape', '-z', old, '--export-png', new]
+   converter['svg'] = make_external_conversion_command(cmd)
 
 def comparable_formats():
    '''Returns the list of file formats that compare_images can compare
