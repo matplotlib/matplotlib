@@ -63,13 +63,16 @@ class CleanupTest:
         matplotlib.units.registry.update(cls.original_units_registry)
 
     def test(self):
-        self.func()
+        self._func()
 
 def cleanup(func):
+    name = func.__name__
+    func = staticmethod(func)
+    func.__func__.__name__ = '_private'
     new_class = new.classobj(
-        func.__name__,
+        name,
         (CleanupTest,),
-        {'func': staticmethod(func)})
+        {'_func': func})
     return new_class
 
 class ImageComparisonTest(CleanupTest):
@@ -77,15 +80,15 @@ class ImageComparisonTest(CleanupTest):
     def setup_class(cls):
         CleanupTest.setup_class()
 
-        cls.func()
+        cls._func()
 
     def test(self):
-        baseline_dir, result_dir = _image_directories(self.func)
+        baseline_dir, result_dir = _image_directories(self._func)
 
-        for fignum, baseline in zip(plt.get_fignums(), self.baseline_images):
+        for fignum, baseline in zip(plt.get_fignums(), self._baseline_images):
             figure = plt.figure(fignum)
 
-            for extension in self.extensions:
+            for extension in self._extensions:
                 will_fail = not extension in comparable_formats()
                 if will_fail:
                     fail_msg = 'Cannot compare %s files on this system' % extension
@@ -111,7 +114,7 @@ class ImageComparisonTest(CleanupTest):
                             raise ImageComparisonFailure(
                                 'image does not exist: %s' % expected_fname)
 
-                        err = compare_images(expected_fname, actual_fname, self.tol, in_decorator=True)
+                        err = compare_images(expected_fname, actual_fname, self._tol, in_decorator=True)
                         if err:
                             raise ImageComparisonFailure(
                                 'images not close: %(actual)s vs. %(expected)s '
@@ -157,13 +160,20 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
         # "teardown_class" methods.  Creating a class instance doesn't
         # work, so we use new.classobj to actually create a class and
         # fill it with the appropriate methods.
+        name = func.__name__
+        # For nose 1.0, we need to rename the test function to
+        # something without the word "test", or it will be run as
+        # well, outside of the context of our image comparison test
+        # generator.
+        func = staticmethod(func)
+        func.__func__.__name__ = '_private'
         new_class = new.classobj(
-            func.__name__,
+            name,
             (ImageComparisonTest,),
-            {'func': staticmethod(func),
-             'baseline_images': baseline_images,
-             'extensions': extensions,
-             'tol': tol})
+            {'_func': func,
+             '_baseline_images': baseline_images,
+             '_extensions': extensions,
+             '_tol': tol})
         return new_class
     return compare_images_decorator
 
