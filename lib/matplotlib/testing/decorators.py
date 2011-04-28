@@ -68,7 +68,7 @@ class CleanupTest:
 def cleanup(func):
     name = func.__name__
     func = staticmethod(func)
-    func.__func__.__name__ = '_private'
+    func.__get__(1).__name__ = '_private'
     new_class = new.classobj(
         name,
         (CleanupTest,),
@@ -166,7 +166,7 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
         # well, outside of the context of our image comparison test
         # generator.
         func = staticmethod(func)
-        func.__func__.__name__ = '_private'
+        func.__get__(1).__name__ = '_private'
         new_class = new.classobj(
             name,
             (ImageComparisonTest,),
