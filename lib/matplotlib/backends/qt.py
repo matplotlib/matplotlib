@@ -44,19 +44,12 @@ elif QT_API == QT_API_PYSIDE:
     QtCore.pyqtProperty = QtCore.Property
     QtCore.pyqtSignature = QtCore.Slot # Not a perfect match but 
                                        # works in simple cases
-    
+
     _getSaveFileName = lambda self, msg, start, filters, selectedFilter : \
                         QtGui.QFileDialog.getSaveFileName(self,  \
                         msg, start, filters, #selectedFilter
                         )[0]              #Commmented out due to PySide bug 819
-                        
-    # Fix for PySide bug 489 - Remove when fixed
-    class QImage(QtGui.QImage):
-        def __init__(self,data,width,height,format,*args,**kwargs):
-            super(QImage,self).__init__(buffer(data),width,height,
-                                        format,*args,**kwargs)
-    QtGui.QImage = QImage
-    
+
 else:
     raise RuntimeError('Invalid Qt API %r, valid values are: %r or %r' %
                        (QT_API, QT_API_PYQT, QT_API_PYSIDE))
