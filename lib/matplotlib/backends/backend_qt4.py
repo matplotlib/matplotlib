@@ -15,18 +15,24 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.figure import Figure
 from matplotlib.mathtext import MathTextParser
 from matplotlib.widgets import SubplotTool
-
 try:
     import matplotlib.backends.qt4_editor.figureoptions as figureoptions
 except ImportError:
     figureoptions = None
 
 try:
-    from qt import QtCore, QtGui, _getSaveFileName
+    from qt import QtCore, QtGui, _getSaveFileName, QT_API, QT_API_PYSIDE
 except ImportError:
     raise ImportError("Qt4 backend requires that PyQt4 or PySide is installed.")
 
-
+if QT_API == QT_API_PYSIDE:
+	class FigureCanvasBase( FigureCanvasBase, object ):
+		pass
+	class NavigationToolbar2( NavigationToolbar2, object ):
+		pass
+	class SubplotTool( SubplotTool, object ):
+		pass	
+	
 backend_version = "0.9.1"
 def fn_name(): return sys._getframe(1).f_code.co_name
 
