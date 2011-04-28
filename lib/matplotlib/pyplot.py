@@ -217,6 +217,13 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
 
       figure(1)
 
+    The same applies if *num* is a string. In this case *num* will additionally
+    be used as an explicit figure label::
+
+      figure("today")
+
+    and the window title will be set to the figure label in windowed backends.
+
     If you are creating many figures, make sure you explicitly call "close"
     on the figures you are not using, because this will enable pylab
     to properly clean up the memory.
@@ -257,7 +264,6 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     elif is_string_like(num):
         fig_label = num
         all_labels = [m.canvas.figure.get_label() for m in _pylab_helpers.Gcf.get_all_fig_managers()]
-        # print "all_labels", repr(all_labels)
         if fig_label not in all_labels:
             if len(all_labels):
                 num = max(allnums) + 1
