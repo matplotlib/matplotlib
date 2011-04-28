@@ -46,7 +46,7 @@ import sys
 STDERR = sys.stderr
 
 from matplotlib.backends.qt import QtGui,QtCore
-if 'QFormLayout' not in dir(QtGui):
+if not hasattr(QtGui,'QFormLayout'):
     raise ImportError, "Warning: formlayout requires PyQt4 >v4.3 or PySide"
 
 (QWidget, QLineEdit, QComboBox, QLabel, QSpinBox, QIcon,QStyle,
