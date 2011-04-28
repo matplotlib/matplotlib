@@ -83,22 +83,6 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
 # convert files with that extension to png format.
 converter = { }
 
-def make_external_conversion_command(cmd):
-   def convert(*args):
-      cmdline = cmd(*args)
-      oldname, newname = args
-      pipe = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-      stdout, stderr = pipe.communicate()
-      errcode = pipe.wait()
-      if not os.path.exists(newname) or errcode:
-         msg = "Conversion command failed:\n%s\n" % ' '.join(cmd)
-         if stdout:
-            msg += "Standard output:\n%s\n" % stdout
-         if stderr:
-            msg += "Standard error:\n%s\n" % stderr
-         raise IOError, msg
-   return convert
-
 if matplotlib.checkdep_ghostscript() is not None:
    # FIXME: make checkdep_ghostscript return the command
    if sys.platform == 'win32':
@@ -108,49 +92,13 @@ if matplotlib.checkdep_ghostscript() is not None:
    cmd = lambda old, new: \
        [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
         '-sOutputFile=' + new, old]
-   converter['pdf'] = make_external_conversion_command(cmd)
-   converter['eps'] = make_external_conversion_command(cmd)
+   converter['pdf'] = cmd
+   converter['eps'] = cmd
 
 if matplotlib.checkdep_inkscape() is not None:
-   class SVGConverter:
-      def __init__(self):
-         self._count = 0
-         self._process = None
-
-      def get_process(self):
-         # Since Inkscape can leak a little memory, we run X
-         # conversions and then shut it down and start up a new
-         # Inkscape.
-         if self._count == 0:
-            if self._process is not None:
-               self._process.communicate('quit\n')
-            self._process = subprocess.Popen(['inkscape', '-z', '--shell'],
-                                             stdin=subprocess.PIPE,
-                                             stdout=subprocess.PIPE,
-                                             stderr=subprocess.STDOUT)
-            self.read_to_end(self._process.stdout)
-            self._count = 10
-         self._count -= 1
-         return self._process
-
-      def __call__(self, old, new):
-         process = self.get_process()
-         process.stdin.write('%s --export-png=%s\n' % (old, new))
-         process.stdin.flush()
-         self.read_to_end(process.stdout)
-
-      def read_to_end(self, buf):
-         ret = ''
-         lastchar = ''
-         while True:
-            char = buf.readline(1)
-            if char == '>' and lastchar == '\n':
-               break
-            ret += char
-            lastchar = char
-         return ret
-
-   converter['svg'] = SVGConverter()
+   cmd = lambda old, new: \
+       ['inkscape', old, '--export-png=' + new]
+   converter['svg'] = cmd
 
 def comparable_formats():
    '''Returns the list of file formats that compare_images can compare
@@ -168,7 +116,17 @@ def convert(filename):
    newname = base + '_' + extension + '.png'
    if not os.path.exists(filename):
       raise IOError, "'%s' does not exist" % filename
-   converter[extension](filename, newname)
+   cmd = converter[extension](filename, newname)
+   pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+   stdout, stderr = pipe.communicate()
+   errcode = pipe.wait()
+   if not os.path.exists(newname) or errcode:
+      msg = "Conversion command failed:\n%s\n" % ' '.join(cmd)
+      if stdout:
+         msg += "Standard output:\n%s\n" % stdout
+      if stderr:
+         msg += "Standard error:\n%s\n" % stderr
+      raise IOError, msg
    return newname
 
 verifiers = { }
