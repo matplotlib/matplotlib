@@ -247,15 +247,26 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     if facecolor is None : facecolor = rcParams['figure.facecolor']
     if edgecolor is None : edgecolor = rcParams['figure.edgecolor']
 
+    allnums = [m.num for m in _pylab_helpers.Gcf.get_all_fig_managers()]
+    fig_label = ''
     if num is None:
-        allnums = [f.num for f in _pylab_helpers.Gcf.get_all_fig_managers()]
         if allnums:
             num = max(allnums) + 1
         else:
             num = 1
+    elif is_string_like(num):
+        fig_label = num
+        all_labels = [m.canvas.figure.get_label() for m in _pylab_helpers.Gcf.get_all_fig_managers()]
+        # print "all_labels", repr(all_labels)
+        if fig_label not in all_labels:
+            if len(all_labels):
+                num = max(allnums) + 1
+            else:
+                num = 1
+        else:
+            num = all_labels.index(fig_label) + 1 # matlab style num
     else:
         num = int(num)  # crude validation of num argument
-
 
     figManager = _pylab_helpers.Gcf.get_fig_manager(num)
     if figManager is None:
@@ -268,6 +279,9 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
                                              frameon=frameon,
                                              FigureClass=FigureClass,
                                              **kwargs)
+
+        if fig_label:
+            figManager.set_window_title(fig_label)
 
         # make this figure current on button press event
         def make_active(event):
