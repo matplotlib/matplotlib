@@ -9,7 +9,7 @@ way depends on what operating system you are using, what you already
 have installed, and how you want to use it.  To avoid wading through
 all the details (and potential complications) on this page, the
 easiest thing for you to do is use one of the pre-packaged python
-distributions that already provide matplotlib built in.  The Enthought
+distributions that already provide matplotlib built-in.  The Enthought
 Python Distribution `(EPD)
 <http://www.enthought.com/products/epd.php>`_ for Windows, OS X or
 Redhat is an excellent choice that "just works" out of the box.
@@ -17,7 +17,7 @@ Another excellent alternative for Windows users is `Python (x, y)
 <http://www.pythonxy.com/foreword.php>`_ which tends to be updated a
 bit more frequently.  Both of these packages include matplotlib and
 pylab, and *lots* of other useful tools.  matplotlib is also packaged
-for pretty much every major linux distribution, so if you are on linux
+for almost every major linux distribution. So if you are on linux,
 your package manager will probably provide matplotlib prebuilt.
 
 One single click installer and you are done.
@@ -34,7 +34,7 @@ but OS X users please read :ref:`which-python-for-osx`.
 
 Once you have python up and running, you will need to install `numpy
 <http://sourceforge.net/project/showfiles.php?group_id=1369&package_id=175103>`_.
-numpy provides high performance array data structures and mathematical
+numpy provides high-performance array data structures and mathematical
 functions, and is a requirement for matplotlib.  You can test your
 progress::
 
@@ -44,9 +44,9 @@ progress::
 matplotlib requires numpy version 1.1 or later.  Although it is not a
 requirement to use matplotlib, we strongly encourage you to install
 `ipython <http://ipython.scipy.org/dist>`_, which is an interactive
-shell for python that is matplotlib aware.
+shell for python that is matplotlib-aware.
 
-Next we need to get matplotlib installed.  We provide prebuilt
+Next, we need to get matplotlib installed.  We provide prebuilt
 binaries for OS X and Windows on the matplotlib `download
 <http://sourceforge.net/projects/matplotlib/files/>`_ page.  Click on
 the latest release of the "matplotlib" package, choose your python
@@ -55,7 +55,7 @@ should be good to go.  If you have any problems, please check the
 :ref:`installing-faq`, google around a little bit, and post a question
 the `mailing list
 <http://sourceforge.net/project/showfiles.php?group_id=80706>`_.  If
-you are on debian/unbuntu linux, it suffices to do::
+you are on debian/ubuntu linux, it suffices to do::
 
   > sudo apt-get install python-matplotlib
 
