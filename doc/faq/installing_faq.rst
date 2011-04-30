@@ -117,12 +117,12 @@ and build and install as usual with::
 
       sudo apt-get build-dep python-matplotlib
 
-    This does not build matplotlib, but it does get the install the
+    This does not build matplotlib, but it does get all of the
     build dependencies, which will make building from source easier.
 
 
 If you want to be able to follow the development branch as it changes just replace
-the last step with (Make sure you have **setuptools** installed)::
+the last step with (make sure you have **setuptools** installed)::
 
   > python setupegg.py develop
 
