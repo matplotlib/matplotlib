@@ -47,9 +47,7 @@ elif QT_API == QT_API_PYSIDE:
 
     _getSaveFileName = lambda self, msg, start, filters, selectedFilter : \
                         QtGui.QFileDialog.getSaveFileName(self,  \
-                        msg, start, filters, #selectedFilter
-                        )[0]              #Commmented out due to PySide bug 819
-
+                        msg, start, filters, selectedFilter)[0]
 else:
     raise RuntimeError('Invalid Qt API %r, valid values are: %r or %r' %
                        (QT_API, QT_API_PYQT, QT_API_PYSIDE))
