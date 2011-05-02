@@ -6,9 +6,6 @@ from matplotlib.testing.decorators import image_comparison, knownfailureif
 
 @image_comparison(baseline_images=['pdf_use14corefonts'], extensions=['pdf'])
 def test_use14corefonts():
-    original_rcParams = {}
-    original_rcParams.update(rcParams)
-
     rcParams['backend'] = 'pdf'
     rcParams['pdf.use14corefonts'] = True
     rcParams['font.family'] = 'sans-serif'
@@ -21,11 +18,7 @@ def test_use14corefonts():
     and containing some French characters and the euro symbol:
     "Merci pépé pour les 10 €"'''
 
-    try:
-        plt.figure()
-        plt.title(title)
-        plt.text(0.5, 0.5, text, horizontalalignment='center', fontsize=24)
-        plt.axhline(0.5, linewidth=0.5)
-        plt.savefig('pdf_use14corefonts.pdf')
-    finally:
-        rcParams.update(original_rcParams)
+    plt.figure()
+    plt.title(title)
+    plt.text(0.5, 0.5, text, horizontalalignment='center', fontsize=24)
+    plt.axhline(0.5, linewidth=0.5)
