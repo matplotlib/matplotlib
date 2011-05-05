@@ -238,7 +238,7 @@ def plot_directive(name, arguments, options, content, lineno,
     Handle the plot directive.
     """
     formats = setup.config.plot_formats
-    if type(formats) == str:
+    if isinstance(formats, basestring):
         formats = eval(formats)
 
     # The user may provide a filename *or* Python code content, but not both
