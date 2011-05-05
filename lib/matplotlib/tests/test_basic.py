@@ -21,12 +21,17 @@ def test_override_builtins():
         'sum'
     ])
 
+    if sys.version_info[0] >= 3:
+        builtins = sys.modules['builtins']
+    else:
+        builtins = sys.modules['__builtin__']
+
     overridden = False
     for key in globals().keys():
-        if key in dir(sys.modules["__builtin__"]):
-            if (globals()[key] != getattr(sys.modules["__builtin__"], key) and
+        if key in dir(builtins):
+            if (globals()[key] != getattr(builtins, key) and
                 key not in ok_to_override):
-                print "'%s' was overridden in globals()." % key
+                print("'%s' was overridden in globals()." % key)
                 overridden = True
 
     assert not overridden

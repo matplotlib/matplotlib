@@ -25,23 +25,32 @@ def test_formatter_ticker():
     fig = plt.figure()
     ax = plt.subplot( 111 )
     ax.set_xlabel( "x-label 001" )
-    fig.savefig( 'formatter_ticker_001' )
 
+    fig = plt.figure()
+    ax = plt.subplot( 111 )
+    ax.set_xlabel( "x-label 001" )
     ax.plot( xdata, ydata1, color='blue', xunits="sec" )
-    fig.savefig( 'formatter_ticker_002' )
 
+    fig = plt.figure()
+    ax = plt.subplot( 111 )
+    ax.set_xlabel( "x-label 001" )
+    ax.plot( xdata, ydata1, color='blue', xunits="sec" )
     ax.set_xlabel( "x-label 003" )
-    fig.savefig( 'formatter_ticker_003' )
 
+    fig = plt.figure()
+    ax = plt.subplot( 111 )
+    ax.plot( xdata, ydata1, color='blue', xunits="sec" )
     ax.plot( xdata, ydata2, color='green', xunits="hour" )
     ax.set_xlabel( "x-label 004" )
-    fig.savefig( 'formatter_ticker_004' )
 
     # See SF bug 2846058
     # https://sourceforge.net/tracker/?func=detail&aid=2846058&group_id=80706&atid=560720
+    fig = plt.figure()
+    ax = plt.subplot( 111 )
+    ax.plot( xdata, ydata1, color='blue', xunits="sec" )
+    ax.plot( xdata, ydata2, color='green', xunits="hour" )
     ax.set_xlabel( "x-label 005" )
     ax.autoscale_view()
-    fig.savefig( 'formatter_ticker_005' )
 
 @image_comparison(baseline_images=['offset_points'])
 def test_basic_annotate():
@@ -57,8 +66,6 @@ def test_basic_annotate():
 
     ax.annotate( 'local max', xy=(3, 1), xycoords='data',
                  xytext=(3, 3), textcoords='offset points' )
-
-    fig.savefig( 'offset_points' )
 
 @image_comparison(baseline_images=['polar_axes'])
 def test_polar_annotations():
@@ -92,8 +99,6 @@ def test_polar_annotations():
                 verticalalignment='baseline',
                 )
 
-    fig.savefig( 'polar_axes' )
-
    #--------------------------------------------------------------------
 @image_comparison(baseline_images=['polar_coords'])
 def test_polar_coord_annotations():
@@ -123,7 +128,6 @@ def test_polar_coord_annotations():
 
     ax.set_xlim( -20, 20 )
     ax.set_ylim( -20, 20 )
-    fig.savefig( 'polar_coords' )
 
 @image_comparison(baseline_images=['fill_units'])
 def test_fill_units():
@@ -164,7 +168,6 @@ def test_fill_units():
               facecolor="blue" )
 
     fig.autofmt_xdate()
-    fig.savefig( 'fill_units' )
 
 @image_comparison(baseline_images=['single_point'])
 def test_single_point():
@@ -174,8 +177,6 @@ def test_single_point():
 
     plt.subplot( 212 )
     plt.plot( [1], [1], 'o' )
-
-    fig.savefig( 'single_point' )
 
 @image_comparison(baseline_images=['single_date'])
 def test_single_date():
@@ -188,8 +189,6 @@ def test_single_date():
 
     plt.subplot( 212 )
     plt.plot( time1, data1, 'o', color='r' )
-
-    fig.savefig( 'single_date' )
 
 @image_comparison(baseline_images=['shaped_data'])
 def test_shaped_data():
@@ -233,8 +232,6 @@ def test_shaped_data():
     plt.subplot( 414 )
     plt.plot( xdata[:,1], xdata[1,:], 'o' )
 
-    fig.savefig( 'shaped_data' )
-
 @image_comparison(baseline_images=['const_xy'])
 def test_const_xy():
     fig = plt.figure()
@@ -247,8 +244,6 @@ def test_const_xy():
 
     plt.subplot( 313 )
     plt.plot( np.ones( (10,) ), np.ones( (10,) ), 'o' )
-
-    fig.savefig( 'const_xy' )
 
 @image_comparison(baseline_images=['polar_wrap_180',
                                    'polar_wrap_360',
@@ -264,8 +259,6 @@ def test_polar_wrap():
     plt.polar( [179*D2R,  181*D2R], [0.2, 0.1], "g.-" )
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
 
-    fig.savefig( 'polar_wrap_180' )
-
     fig = plt.figure()
 
     #NOTE: resolution=1 really should be the default
@@ -275,9 +268,7 @@ def test_polar_wrap():
     plt.polar( [358*D2R,  2*D2R], [0.2, 0.1], "r.-" )
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
 
-    fig.savefig( 'polar_wrap_360' )
-
-@image_comparison(baseline_images=['polar_units'])
+@image_comparison(baseline_images=['polar_units', 'polar_units_2'])
 def test_polar_units():
     import matplotlib.testing.jpl_units as units
     from nose.tools import assert_true
@@ -300,7 +291,7 @@ def test_polar_units():
     # polar( x2, y1, color = "red", xunits="rad" )
     # polar( x2, y2, color = "green" )
 
-    fig.savefig( 'polar_units' )
+    fig = plt.figure()
 
     # make sure runits and theta units work
     y1 = [ y*km for y in y1 ]
@@ -318,8 +309,6 @@ def test_polar_rmin():
     ax.plot(theta, r)
     ax.set_rmax(2.0)
     ax.set_rmin(0.5)
-
-    fig.savefig('polar_rmin')
 
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
@@ -340,8 +329,6 @@ def test_axvspan_epoch():
     ax = plt.gca()
     ax.set_xlim( t0 - 5.0*dt, tf + 5.0*dt )
 
-    fig.savefig( 'axvspan_epoch' )
-
 @image_comparison(baseline_images=['axhspan_epoch'])
 def test_axhspan_epoch():
     from datetime import datetime
@@ -361,8 +348,6 @@ def test_axhspan_epoch():
     ax = plt.gca()
     ax.set_ylim( t0 - 5.0*dt, tf + 5.0*dt )
 
-    fig.savefig( 'axhspan_epoch' )
-
 
 @image_comparison(baseline_images=['hexbin_extent'])
 def test_hexbin_extent():
@@ -375,7 +360,6 @@ def test_hexbin_extent():
     x, y = data
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
-    fig.savefig('hexbin_extent')
 
 @image_comparison(baseline_images=['nonfinite_limits'])
 def test_nonfinite_limits():
@@ -385,7 +369,6 @@ def test_nonfinite_limits():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(x, y)
-    fig.savefig('nonfinite_limits')
 
 @image_comparison(baseline_images=['imshow'])
 def test_imshow():
@@ -401,7 +384,6 @@ def test_imshow():
     ax = fig.add_subplot(111)
 
     ax.imshow(r)
-    fig.savefig('imshow')
 
 @image_comparison(baseline_images=['imshow_clip'], tol=1e-2)
 def test_imshow_clip():
@@ -428,7 +410,6 @@ def test_imshow_clip():
 
     #Plot the image clipped by the contour
     ax.imshow(r, clip_path=clip_path)
-    fig.savefig('imshow_clip')
 
 @image_comparison(baseline_images=['polycollection_joinstyle'])
 def test_polycollection_joinstyle():
@@ -445,8 +426,6 @@ def test_polycollection_joinstyle():
     ax.set_ybound(0, 3)
     ax.set_xticks([])
     ax.set_yticks([])
-
-    fig.savefig('polycollection_joinstyle')
 
 @image_comparison(baseline_images=['fill_between_interpolate'], tol=1e-2)
 def test_fill_between_interpolate():
@@ -467,8 +446,6 @@ def test_fill_between_interpolate():
     ax1.fill_between(x, y1, y2, where=y2>=y1, facecolor='green', interpolate=True)
     ax1.fill_between(x, y1, y2, where=y2<=y1, facecolor='red', interpolate=True)
 
-    fig.savefig('fill_between_interpolate')
-
 @image_comparison(baseline_images=['symlog'])
 def test_symlog():
     x = np.array([0,1,2,4,6,9,12,24])
@@ -480,8 +457,6 @@ def test_symlog():
     ax.set_yscale('symlog')
     ax.set_xscale=('linear')
     ax.set_ylim(-1,10000000)
-
-    fig.savefig('symlog')
 
 @image_comparison(baseline_images=['pcolormesh'], tol=0.02)
 def test_pcolormesh():
@@ -511,14 +486,11 @@ def test_pcolormesh():
     ax.set_xticks([])
     ax.set_yticks([])
 
-    fig.savefig('pcolormesh')
-
 
 @image_comparison(baseline_images=['canonical'])
 def test_canonical():
     fig, ax = plt.subplots()
     ax.plot([1,2,3])
-    fig.savefig('canonical')
 
 
 @image_comparison(baseline_images=['arc_ellipse'])
@@ -558,8 +530,6 @@ def test_arc_ellipse():
 
     ax.add_patch(e2)
 
-    fig.savefig('arc_ellipse')
-
 @image_comparison(baseline_images=['units_strings'])
 def test_units_strings():
     # Make sure passing in sequences of strings doesn't cause the unit
@@ -569,11 +539,11 @@ def test_units_strings():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(Id, pout)
-    fig.savefig('units_strings')
 
 @image_comparison(baseline_images=['markevery'])
 def test_markevery():
-    x, y = np.random.rand(2, 100)
+    x = np.linspace(0, 10, 100)
+    y = np.sin(x) * np.sqrt(x/10 + 0.5)
 
     # check marker only plot
     fig = plt.figure()
@@ -583,11 +553,12 @@ def test_markevery():
     ax.plot(x, y, 's', markevery=10, label='mark every 10')
     ax.plot(x, y, '+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
-    fig.savefig('markevery')
 
 @image_comparison(baseline_images=['markevery_line'])
 def test_markevery_line():
-    x, y = np.random.rand(2, 100)
+    x = np.linspace(0, 10, 100)
+    y = np.sin(x) * np.sqrt(x/10 + 0.5)
+
     # check line/marker combos
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -596,7 +567,6 @@ def test_markevery_line():
     ax.plot(x, y, '-s', markevery=10, label='mark every 10')
     ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
-    fig.savefig('markevery_line')
 
 if __name__=='__main__':
     import nose

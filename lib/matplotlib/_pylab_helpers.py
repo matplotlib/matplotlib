@@ -79,8 +79,12 @@ class Gcf(object):
     @staticmethod
     def destroy_all():
         for manager in Gcf.figs.values():
-            Gcf.destroy(manager.num)
+            manager.canvas.mpl_disconnect(manager._cidgcf)
+            manager.destroy()
 
+        Gcf._activeQue = []
+        Gcf.figs.clear()
+        gc.collect()
 
     @staticmethod
     def has_fignum(num):

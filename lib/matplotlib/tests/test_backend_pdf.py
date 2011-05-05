@@ -22,4 +22,3 @@ def test_use14corefonts():
     plt.title(title)
     plt.text(0.5, 0.5, text, horizontalalignment='center', fontsize=24)
     plt.axhline(0.5, linewidth=0.5)
-    plt.savefig('pdf_use14corefonts.pdf')

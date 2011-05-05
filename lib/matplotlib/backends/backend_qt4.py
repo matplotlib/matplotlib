@@ -212,11 +212,15 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 
     def keyPressEvent( self, event ):
         key = self._get_key( event )
+        if key is None:
+            return
         FigureCanvasBase.key_press_event( self, key )
         if DEBUG: print('key press', key)
 
     def keyReleaseEvent( self, event ):
         key = self._get_key(event)
+        if key is None:
+            return
         FigureCanvasBase.key_release_event( self, key )
         if DEBUG: print('key release', key)
 
@@ -241,6 +245,8 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         return QtCore.QSize( 10, 10 )
 
     def _get_key( self, event ):
+        if event.isAutoRepeat():
+            return None
         if event.key() < 256:
             key = str(event.text())
         elif event.key() in self.keyvald:

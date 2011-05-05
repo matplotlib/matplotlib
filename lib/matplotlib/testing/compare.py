@@ -89,6 +89,22 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
 # convert files with that extension to png format.
 converter = { }
 
+def make_external_conversion_command(cmd):
+   def convert(*args):
+      cmdline = cmd(*args)
+      oldname, newname = args
+      pipe = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      stdout, stderr = pipe.communicate()
+      errcode = pipe.wait()
+      if not os.path.exists(newname) or errcode:
+         msg = "Conversion command failed:\n%s\n" % ' '.join(cmd)
+         if stdout:
+            msg += "Standard output:\n%s\n" % stdout
+         if stderr:
+            msg += "Standard error:\n%s\n" % stderr
+         raise IOError, msg
+   return convert
+
 if matplotlib.checkdep_ghostscript() is not None:
    # FIXME: make checkdep_ghostscript return the command
    if sys.platform == 'win32':
@@ -98,13 +114,13 @@ if matplotlib.checkdep_ghostscript() is not None:
    cmd = lambda old, new: \
        [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
         '-sOutputFile=' + new, old]
-   converter['pdf'] = cmd
-   converter['eps'] = cmd
+   converter['pdf'] = make_external_conversion_command(cmd)
+   converter['eps'] = make_external_conversion_command(cmd)
 
 if matplotlib.checkdep_inkscape() is not None:
    cmd = lambda old, new: \
-       ['inkscape', old, '--export-png=' + new]
-   converter['svg'] = cmd
+             ['inkscape', '-z', old, '--export-png', new]
+   converter['svg'] = make_external_conversion_command(cmd)
 
 def comparable_formats():
    '''Returns the list of file formats that compare_images can compare
@@ -122,17 +138,8 @@ def convert(filename):
    newname = base + '_' + extension + '.png'
    if not os.path.exists(filename):
       raise IOError("'%s' does not exist" % filename)
-   cmd = converter[extension](filename, newname)
-   pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-   stdout, stderr = pipe.communicate()
-   errcode = pipe.wait()
-   if not os.path.exists(newname) or errcode:
-      msg = "Conversion command failed:\n%s\n" % ' '.join(cmd)
-      if stdout:
-         msg += "Standard output:\n%s\n" % stdout
-      if stderr:
-         msg += "Standard error:\n%s\n" % stderr
-      raise IOError(msg)
+      raise IOError, "'%s' does not exist" % filename
+   converter[extension](filename, newname)
    return newname
 
 verifiers = { }

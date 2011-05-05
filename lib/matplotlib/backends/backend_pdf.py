@@ -565,7 +565,7 @@ class PdfFile(object):
         self.writeObject(self.fontObject, fonts)
 
     def _write_afm_font(self, filename):
-        fh = open(filename, 'wb')
+        fh = open(filename, 'rb')
         font = AFM(fh)
         fh.close()
         fontname = font.get_fontname()

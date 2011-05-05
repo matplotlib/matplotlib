@@ -1,3 +1,7 @@
+2011-04-17 Disable keyboard auto-repeat in qt4 backend by ignoring
+           key events resulting from auto-repeat.  This makes
+           constrained zoom/pan work. - EF
+
 2011-04-14 interpolation="nearest" always interpolate images. A new
            mode "none" is introduced for no interpolation - JJL
 

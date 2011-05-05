@@ -2,7 +2,7 @@ from __future__ import print_function
 
 import numpy as np
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
 
 from pylab import *
@@ -29,7 +29,6 @@ def test_clipping():
     ax.set_ylim((-0.20, -0.28))
     ax.set_xticks([])
     ax.set_yticks([])
-    fig.savefig('clipping')
 
 @image_comparison(baseline_images=['overflow'], tol=1e-2)
 def test_overflow():
@@ -42,8 +41,6 @@ def test_overflow():
     ax.set_xlim(xmin=2,xmax=6)
     ax.set_xticks([])
     ax.set_yticks([])
-
-    fig.savefig('overflow')
 
 @image_comparison(baseline_images=['clipping_diamond'])
 def test_diamond():
@@ -58,8 +55,7 @@ def test_diamond():
     ax.set_xticks([])
     ax.set_yticks([])
 
-    fig.savefig('clipping_diamond')
-
+@cleanup
 def test_noise():
     np.random.seed(0)
     x = np.random.uniform(size=(5000,)) * 50
@@ -77,6 +73,7 @@ def test_noise():
 
     assert len(simplified) == 3884
 
+@cleanup
 def test_sine_plus_noise():
     np.random.seed(0)
     x = np.sin(np.linspace(0, np.pi * 2.0, 1000)) + np.random.uniform(size=(1000,)) * 0.01
@@ -109,8 +106,6 @@ def test_simplify_curve():
     ax.set_xlim((0, 2))
     ax.set_ylim((0, 2))
 
-    fig.savefig('simplify_curve')
-
 @image_comparison(baseline_images=['hatch_simplify'])
 def test_hatch():
     fig = plt.figure()
@@ -118,8 +113,6 @@ def test_hatch():
     ax.add_patch(Rectangle((0, 0), 1, 1, fill=False, hatch="/"))
     ax.set_xlim((0.45, 0.55))
     ax.set_ylim((0.45, 0.55))
-
-    fig.savefig('hatch_simplify')
 
 @image_comparison(baseline_images=['fft_peaks'])
 def test_fft_peaks():
@@ -130,8 +123,6 @@ def test_fft_peaks():
     ax.set_xticks([])
     ax.set_yticks([])
 
-    fig.savefig('fft_peaks')
-
     path = p1[0].get_path()
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
@@ -139,6 +130,7 @@ def test_fft_peaks():
 
     assert len(simplified) == 20
 
+@cleanup
 def test_start_with_moveto():
     # Should be entirely clipped away to a single MOVETO
     data = b"""
@@ -179,6 +171,7 @@ AAj1//+nPwAA/////w=="""
     assert len(segs) == 1
     assert segs[0][1] == Path.MOVETO
 
+@cleanup
 @raises(OverflowError)
 def test_throw_rendering_complexity_exceeded():
     rcParams['path.simplify'] = False
@@ -209,7 +202,6 @@ def test_clipper():
     ax.yaxis.set_ticks_position('left')
 
     ax.set_xlim(5, 9)
-    fig.savefig('clipper_edge')
 
 @image_comparison(baseline_images=['para_equal_perp'])
 def test_para_equal_perp():
@@ -220,7 +212,6 @@ def test_para_equal_perp():
     ax = fig.add_subplot(111)
     ax.plot(x + 1, y + 1)
     ax.plot(x + 1, y + 1, 'ro')
-    fig.savefig('para_equal_perp')
 
 if __name__=='__main__':
     import nose

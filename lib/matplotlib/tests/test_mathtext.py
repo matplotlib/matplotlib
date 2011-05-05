@@ -142,10 +142,9 @@ def make_set(basename, fontset, tests):
             matplotlib.rcParams['mathtext.fontset'] = fontset
             fig = plt.figure(figsize=(5.25, 0.75))
             fig.text(0.5, 0.5, test, horizontalalignment='center', verticalalignment='center')
-            fig.savefig(filename)
-            fig.clf()
-            matplotlib.rcParams['mathtext.fontset'] = 'cm'
-        return single_test
+        func = single_test
+        func.__name__ = filename + "_test"
+        return func
 
     # We inject test functions into the global namespace, rather than
     # using a generator, so that individual tests can be run more

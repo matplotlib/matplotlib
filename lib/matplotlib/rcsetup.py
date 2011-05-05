@@ -339,7 +339,6 @@ defaultParams = {
     'backend_fallback'  : [True, validate_bool], # agg is certainly present
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [None, validate_path_exists],   # handled by _get_data_path_cached
-    'units'             : [False, validate_bool],
     'interactive'       : [False, validate_bool],
     'timezone'          : ['UTC', str],
 

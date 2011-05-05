@@ -331,6 +331,7 @@ class AxesLocator(object):
                                          renderer)
 
 
+from matplotlib.gridspec import SubplotSpec, GridSpec
 
 class SubplotDivider(Divider):
     """
@@ -355,28 +356,48 @@ class SubplotDivider(Divider):
         self.figure = fig
 
         if len(args)==1:
-            s = str(args[0])
-            if len(s) != 3:
-                raise ValueError('Argument to subplot must be a 3 digits long')
-            rows, cols, num = map(int, s)
+            if isinstance(args[0], SubplotSpec):
+                self._subplotspec = args[0]
+            else:
+                try:
+                    s = str(int(args[0]))
+                    rows, cols, num = map(int, s)
+                except ValueError:
+                    raise ValueError(
+                         'Single argument to subplot must be a 3-digit integer')
+                self._subplotspec = GridSpec(rows, cols)[num-1]
+                # num - 1 for converting from MATLAB to python indexing
         elif len(args)==3:
             rows, cols, num = args
+            rows = int(rows)
+            cols = int(cols)
+            if isinstance(num, tuple) and len(num) == 2:
+                num = [int(n) for n in num]
+                self._subplotspec = GridSpec(rows, cols)[num[0]-1:num[1]]
+            else:
+                self._subplotspec = GridSpec(rows, cols)[int(num)-1]
+                # num - 1 for converting from MATLAB to python indexing
         else:
-            raise ValueError(  'Illegal argument to subplot')
+            raise ValueError('Illegal argument(s) to subplot: %s' % (args,))
 
 
-        total = rows*cols
-        num -= 1    # convert from matlab to python indexing
-                    # ie num in range(0,total)
-        if num >= total:
-            raise ValueError( 'Subplot number exceeds total subplots')
-        self._rows = rows
-        self._cols = cols
-        self._num = num
+        # total = rows*cols
+        # num -= 1    # convert from matlab to python indexing
+        #             # ie num in range(0,total)
+        # if num >= total:
+        #     raise ValueError( 'Subplot number exceeds total subplots')
+        # self._rows = rows
+        # self._cols = cols
+        # self._num = num
 
+        # self.update_params()
+
+
+        # sets self.fixbox
         self.update_params()
 
         pos = self.figbox.bounds
+
         horizontal = kwargs.pop("horizontal", [])
         vertical = kwargs.pop("vertical", [])
         aspect = kwargs.pop("aspect", None)
@@ -391,40 +412,67 @@ class SubplotDivider(Divider):
 
     def get_position(self):
         "return the bounds of the subplot box"
-        self.update_params()
+
+        self.update_params() # update self.figbox
         return self.figbox.bounds
 
+
+    # def update_params(self):
+    #     'update the subplot position from fig.subplotpars'
+
+    #     rows = self._rows
+    #     cols = self._cols
+    #     num = self._num
+
+    #     pars = self.figure.subplotpars
+    #     left = pars.left
+    #     right = pars.right
+    #     bottom = pars.bottom
+    #     top = pars.top
+    #     wspace = pars.wspace
+    #     hspace = pars.hspace
+    #     totWidth = right-left
+    #     totHeight = top-bottom
+
+    #     figH = totHeight/(rows + hspace*(rows-1))
+    #     sepH = hspace*figH
+
+    #     figW = totWidth/(cols + wspace*(cols-1))
+    #     sepW = wspace*figW
+
+    #     rowNum, colNum =  divmod(num, cols)
+
+    #     figBottom = top - (rowNum+1)*figH - rowNum*sepH
+    #     figLeft = left + colNum*(figW + sepW)
+
+    #     self.figbox = mtransforms.Bbox.from_bounds(figLeft, figBottom,
+    #                                                figW, figH)
 
     def update_params(self):
         'update the subplot position from fig.subplotpars'
 
-        rows = self._rows
-        cols = self._cols
-        num = self._num
+        self.figbox = self.get_subplotspec().get_position(self.figure)
 
-        pars = self.figure.subplotpars
-        left = pars.left
-        right = pars.right
-        bottom = pars.bottom
-        top = pars.top
-        wspace = pars.wspace
-        hspace = pars.hspace
-        totWidth = right-left
-        totHeight = top-bottom
+    def get_geometry(self):
+        'get the subplot geometry, eg 2,2,3'
+        rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
+        return rows, cols, num1+1 # for compatibility
 
-        figH = totHeight/(rows + hspace*(rows-1))
-        sepH = hspace*figH
+    # COVERAGE NOTE: Never used internally or from examples
+    def change_geometry(self, numrows, numcols, num):
+        'change subplot geometry, eg. from 1,1,1 to 2,2,3'
+        self._subplotspec = GridSpec(numrows, numcols)[num-1]
+        self.update_params()
+        self.set_position(self.figbox)
 
-        figW = totWidth/(cols + wspace*(cols-1))
-        sepW = wspace*figW
+    def get_subplotspec(self):
+        'get the SubplotSpec instance'
+        return self._subplotspec
 
-        rowNum, colNum =  divmod(num, cols)
+    def set_subplotspec(self, subplotspec):
+        'set the SubplotSpec instance'
+        self._subplotspec = subplotspec
 
-        figBottom = top - (rowNum+1)*figH - rowNum*sepH
-        figLeft = left + colNum*(figW + sepW)
-
-        self.figbox = mtransforms.Bbox.from_bounds(figLeft, figBottom,
-                                                   figW, figH)
 
 
 class AxesDivider(Divider):

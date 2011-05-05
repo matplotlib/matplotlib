@@ -63,8 +63,6 @@ def test_font_styles():
     ax.set_xticks([])
     ax.set_yticks([])
 
-    fig.savefig('font_styles')
-
 @image_comparison(baseline_images=['multiline'])
 def test_multiline():
     fig = plt.figure()
@@ -73,5 +71,3 @@ def test_multiline():
 
     ax.set_xticks([])
     ax.set_yticks([])
-
-    fig.savefig('multiline')
