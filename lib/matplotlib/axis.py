@@ -1462,7 +1462,7 @@ class Axis(artist.Artist):
         # should be enough to inform the unit conversion interface
         # dates are comng in
         if tz is not None:
-            if isinstance(tz, str):
+            if isinstance(tz, (str, unicode)):
                 import pytz
                 tz = pytz.timezone(tz) #make a tzinfo instance from timezone string
             self.update_units(tz.localize(datetime.datetime(2009,1,1)))
