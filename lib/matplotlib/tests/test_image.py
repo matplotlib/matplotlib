@@ -1,7 +1,7 @@
 from __future__ import print_function
 import numpy as np
 
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 from numpy.testing import assert_array_equal
@@ -29,8 +29,6 @@ def test_image_interps():
     ax3.imshow(X, interpolation='bicubic')
     ax3.set_ylabel('bicubic')
 
-    fig.savefig('image_interps')
-
 @image_comparison(baseline_images=['figimage-0', 'figimage-1'], extensions=['png'], tol=1.5e-3)
 def test_figimage():
     'test the figimage method'
@@ -48,8 +46,7 @@ def test_figimage():
         fig.figimage(img[:,::-1], xo=100, yo=0, origin='lower')
         fig.figimage(img[::-1,::-1], xo=100, yo=100, origin='lower')
 
-        fig.savefig('figimage-%d' % int(suppressComposite), dpi=100)
-
+@cleanup
 def test_image_python_io():
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -108,8 +105,6 @@ def test_image_clip():
 
     im = ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
 
-    fig.savefig('image_clip')
-
 @image_comparison(baseline_images=['imshow'])
 def test_imshow():
     import numpy as np
@@ -121,8 +116,6 @@ def test_imshow():
     ax.imshow(arr, interpolation="bilinear", extent=(1,2,1,2))
     ax.set_xlim(0,3)
     ax.set_ylim(0,3)
-
-    fig.savefig('imshow')
 
 if __name__=='__main__':
     import nose

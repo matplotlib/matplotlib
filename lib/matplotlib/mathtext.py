@@ -3063,3 +3063,45 @@ class MathTextParser(object):
         prop = FontProperties(size=fontsize)
         ftimage, depth = self.parse(texstr, dpi=dpi, prop=prop)
         return depth
+
+def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
+    """
+    Given a math expression, renders it in a closely-clipped bounding
+    box to an image file.
+
+    *s*
+       A math expression.  The math portion should be enclosed in
+       dollar signs.
+
+    *filename_or_obj*
+       A filepath or writable file-like object to write the image data
+       to.
+
+    *prop*
+       If provided, a FontProperties() object describing the size and
+       style of the text.
+
+    *dpi*
+       Override the output dpi, otherwise use the default associated
+       with the output format.
+
+    *format*
+       The output format, eg. 'svg', 'pdf', 'ps' or 'png'.  If not
+       provided, will be deduced from the filename.
+    """
+    from matplotlib import figure
+    # backend_agg supports all of the core output formats
+    from matplotlib.backends import backend_agg
+
+    if prop is None:
+        prop = FontProperties()
+
+    parser = MathTextParser('path')
+    width, height, depth, _, _ = parser.parse(s, dpi=72, prop=prop)
+
+    fig = figure.Figure(figsize=(width / 72.0, height / 72.0))
+    fig.text(0, depth/height, s, fontproperties=prop)
+    backend_agg.FigureCanvasAgg(fig)
+    fig.savefig(filename_or_obj, dpi=dpi, format=format)
+
+    return depth

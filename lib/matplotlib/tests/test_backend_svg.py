@@ -4,8 +4,9 @@ import numpy as np
 import sys
 from io import BytesIO
 import xml.parsers.expat
-from matplotlib.testing.decorators import knownfailureif
+from matplotlib.testing.decorators import knownfailureif, cleanup
 
+@cleanup
 def test_visibility():
     # This is SF 2856495. See
     # https://sourceforge.net/tracker/?func=detail&aid=2856495&group_id=80706&atid=560720

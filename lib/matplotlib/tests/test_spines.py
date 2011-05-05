@@ -19,4 +19,3 @@ def test_spines_axes_positions():
     ax.xaxis.set_ticks_position('top')
     ax.spines['left'].set_color('none')
     ax.spines['bottom'].set_color('none')
-    fig.savefig('spines_axes_positions')

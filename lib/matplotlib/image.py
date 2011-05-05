@@ -620,7 +620,7 @@ class AxesImage(_AxesImageBase):
             if renderer.option_scale_image():
                 return True
             else:
-                warnings.warn("The backend (%s) does not support interpolation='none'. The image will be interpolated with 'nearest` mode." % (str(type(renderer))))
+                warnings.warn("The backend (%s) does not support interpolation='none'. The image will be interpolated with 'nearest` mode." % renderer.__class__)
 
         return False
 

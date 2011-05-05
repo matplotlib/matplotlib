@@ -2036,11 +2036,11 @@ class Axes(martist.Artist):
         self._axisbelow = b
 
     @docstring.dedent_interpd
-    def grid(self, b=None, which='major', axis='xy', **kwargs):
+    def grid(self, b=None, which='major', axis='both', **kwargs):
         """
         call signature::
 
-           grid(self, b=None, which='major', axis='xy', **kwargs)
+           grid(self, b=None, which='major', axis='both', **kwargs)
 
         Set the axes grids on or off; *b* is a boolean.  (For MATLAB
         compatibility, *b* may also be a string, 'on' or 'off'.)
@@ -2052,7 +2052,7 @@ class Axes(martist.Artist):
         *which* can be 'major' (default), 'minor', or 'both' to control
         whether major tick grids, minor tick grids, or both are affected.
 
-        *axis* can be 'xy' (default), 'x', or 'y' to control which
+        *axis* can be 'both' (default), 'x', or 'y' to control which
         set of gridlines are drawn.
 
         *kawrgs* are used to set the grid line properties, eg::
@@ -2068,9 +2068,9 @@ class Axes(martist.Artist):
             b = True
         b = _string_to_bool(b)
 
-        if axis == 'x' or  axis == 'xy':
+        if axis == 'x' or  axis == 'both':
           self.xaxis.grid(b, which=which, **kwargs)
-        if axis == 'y' or  axis == 'xy':
+        if axis == 'y' or  axis == 'both':
           self.yaxis.grid(b, which=which, **kwargs)
 
     def ticklabel_format(self, **kwargs):
@@ -8529,15 +8529,9 @@ def subplot_class_factory(axes_class=None):
 
     new_class = _subplot_classes.get(axes_class)
     if new_class is None:
-        if sys.version_info[0] >= 3:
-            new_class = type("%sSubplot" % (axes_class.__name__),
-                             (SubplotBase, axes_class),
-                             {'_axes_class': axes_class})
-        else:
-            import new
-            new_class = new.classobj("%sSubplot" % (axes_class.__name__),
-                                     (SubplotBase, axes_class),
-                                     {'_axes_class': axes_class})
+        new_class = type("%sSubplot" % (axes_class.__name__),
+                         (SubplotBase, axes_class),
+                         {'_axes_class': axes_class})
         _subplot_classes[axes_class] = new_class
 
     return new_class

@@ -247,7 +247,7 @@ class Spine(mpatches.Patch):
         else:
             low,high = self._bounds
 
-        v1 = self._path.vertices[:] # copy
+        v1 = self._path.vertices
         assert v1.shape == (2,2), 'unexpected vertices shape'
         if self.spine_type in ['left','right']:
             v1[0,1] = low
@@ -257,7 +257,6 @@ class Spine(mpatches.Patch):
             v1[1,0] = high
         else:
             raise ValueError('unable to set bounds for spine "%s"'%spine_type)
-        self._path.vertices = v1 # replace
 
     @allow_rasterization
     def draw(self, renderer):
