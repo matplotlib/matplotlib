@@ -549,7 +549,8 @@ class FigureManagerGTK(FigureManagerBase):
         if _debug: print 'FigureManagerGTK.%s' % fn_name()
         self.vbox.destroy()
         self.window.destroy()
-        self.canvas.destroy()
+        if hasattr(self, 'canvas'):
+            self.canvas.destroy()
         if self.toolbar:
             self.toolbar.destroy()
         self.__dict__.clear()   #Is this needed? Other backends don't have it.
