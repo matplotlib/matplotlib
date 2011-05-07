@@ -908,15 +908,20 @@ def query_tcltk():
     return TCL_TK_CACHE
 
 def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
-    # This is where they live on Ubuntu Hardy (at least)
-    tcl_config = os.path.join(tcl_lib_dir, "tclConfig.sh")
-    tk_config = os.path.join(tk_lib_dir, "tkConfig.sh")
+    import Tkinter
+    tcl_poss = [tcl_lib_dir,
+                "/usr/lib/tcl"+str(Tkinter.TclVersion),
+                "/usr/lib"]
+    tk_poss = [tk_lib_dir,
+               "/usr/lib/tk"+str(Tkinter.TkVersion),
+               "/usr/lib"]
+    for ptcl, ptk in zip(tcl_poss, tk_poss):
+        tcl_config = os.path.join(ptcl, "tclConfig.sh")
+        tk_config = os.path.join(ptk, "tkConfig.sh")
+        if (os.path.exists(tcl_config) and os.path.exists(tk_config)):
+            break
     if not (os.path.exists(tcl_config) and os.path.exists(tk_config)):
-        # This is where they live on RHEL4 (at least)
-        tcl_config = "/usr/lib/tclConfig.sh"
-        tk_config = "/usr/lib/tkConfig.sh"
-        if not (os.path.exists(tcl_config) and os.path.exists(tk_config)):
-            return None
+        return None
 
     # These files are shell scripts that set a bunch of
     # environment variables.  To actually get at the
