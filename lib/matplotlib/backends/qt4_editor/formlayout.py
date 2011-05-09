@@ -45,7 +45,7 @@ DEBUG = False
 import sys
 STDERR = sys.stderr
 
-from matplotlib.backends.qt import QtGui,QtCore
+from matplotlib.backends.qt4_compat import QtGui,QtCore
 if not hasattr(QtGui,'QFormLayout'):
     raise ImportError, "Warning: formlayout requires PyQt4 >v4.3 or PySide"
 

@@ -9,7 +9,7 @@
 import os.path as osp
 
 import matplotlib.backends.qt4_editor.formlayout as formlayout
-from matplotlib.backends.qt import QtGui
+from matplotlib.backends.qt4_compat import QtGui
 
 def get_icon(name):
     import matplotlib
