@@ -76,7 +76,7 @@ class TextToPath(object):
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
-                                                               renderer=self)
+                                                               renderer=None)
             return w, h, d
 
         fontsize = prop.get_size_in_points()
@@ -130,10 +130,10 @@ class TextToPath(object):
 
         for glyph_id, xposition, yposition, scale in glyph_info:
             verts1, codes1 = glyph_map[glyph_id]
-            if verts1:
+            if len(verts1):
                 verts1 = np.array(verts1)*scale + [xposition, yposition]
-            verts.extend(verts1)
-            codes.extend(codes1)
+                verts.extend(verts1)
+                codes.extend(codes1)
 
         for verts1, codes1 in rects:
             verts.extend(verts1)
