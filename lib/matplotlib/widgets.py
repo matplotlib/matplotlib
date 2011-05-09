@@ -51,7 +51,7 @@ class LockDraw:
 
 
 
-class Widget(object):
+class Widget:
     """
     OK, I couldn't resist; abstract base class for mpl GUI neutral
     widgets
