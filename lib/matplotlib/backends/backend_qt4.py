@@ -21,19 +21,11 @@ except ImportError:
     figureoptions = None
 
 try:
-    from qt import QtCore, QtGui, _getSaveFileName, QT_API, QT_API_PYSIDE
+    from qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
 except ImportError:
     raise ImportError("Qt4 backend requires that PyQt4 or PySide is installed.")
-
-if QT_API == QT_API_PYSIDE:
-    class FigureCanvasBase( FigureCanvasBase, object ):
-        pass
-    class NavigationToolbar2( NavigationToolbar2, object ):
-        pass
-    class SubplotTool( SubplotTool, object ):
-        pass	
 	
-backend_version = "0.9.1"
+backend_version = __version__
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 DEBUG = False

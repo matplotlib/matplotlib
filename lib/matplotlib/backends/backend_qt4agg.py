@@ -11,12 +11,8 @@ from matplotlib.figure import Figure
 from backend_agg import FigureCanvasAgg
 from backend_qt4 import QtCore, QtGui, FigureManagerQT, FigureCanvasQT,\
      show, draw_if_interactive, backend_version, \
-     NavigationToolbar2QT, QT_API, QT_API_PYSIDE
+     NavigationToolbar2QT
 
-if QT_API == QT_API_PYSIDE:
-    class FigureCanvasAgg( FigureCanvasAgg, object ):
-        pass	 
-	 
 DEBUG = False
 
 
