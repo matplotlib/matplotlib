@@ -1353,7 +1353,7 @@ class KeyEvent(LocationEvent):
 
 
 
-class FigureCanvasBase(object):
+class FigureCanvasBase:
     """
     The canvas the figure renders into.
 
@@ -2306,7 +2306,7 @@ cursors = Cursors()
 
 
 
-class NavigationToolbar2(object):
+class NavigationToolbar2:
     """
     Base class for the navigation cursor, version 2
 
