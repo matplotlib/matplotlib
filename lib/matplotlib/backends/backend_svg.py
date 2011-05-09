@@ -491,7 +491,7 @@ class RendererSVG(RendererBase):
         clip = (rgbFace is None and gc.get_hatch_path() is None)
         simplify = path.should_simplify and clip
         path_data = self._convert_path(
-            path, trans_and_flip, clip=clip, simplify=False)
+            path, trans_and_flip, clip=clip, simplify=simplify)
 
         attrib = {}
         attrib['style'] = self._get_style(gc, rgbFace)
