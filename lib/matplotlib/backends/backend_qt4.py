@@ -20,11 +20,8 @@ try:
 except ImportError:
     figureoptions = None
 
-try:
-    from qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
-except ImportError:
-    raise ImportError("Qt4 backend requires that PyQt4 or PySide is installed.")
-	
+from qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
+    
 backend_version = __version__
 def fn_name(): return sys._getframe(1).f_code.co_name
 
