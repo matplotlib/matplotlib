@@ -12,8 +12,10 @@ QT_API_PYSIDE = 'pyside'
 QT_API = os.environ.get('QT_API', QT_API_PYQT)
 
 if QT_API == QT_API_PYQT:
-    from PyQt4 import QtCore, QtGui
-
+    try:
+        from PyQt4 import QtCore, QtGui
+    except ImportError:
+        raise ImportError("Qt4 backend requires that PyQt4 is installed.")
     # Alias PyQt-specific functions for PySide compatibility.
     try:
         QtCore.Slot = QtCore.pyqtSlot
@@ -39,8 +41,13 @@ if QT_API == QT_API_PYQT:
         _getSaveFileName = QtGui.QFileDialog.getSaveFileName
 
 elif QT_API == QT_API_PYSIDE:
-    from PySide import QtCore, QtGui, __version__
-    
+    try:
+        from PySide import QtCore, QtGui, __version__, __version_info__
+    except ImportError:
+        raise ImportError("Qt4 backend requires that PySide is installed.")
+    if __version_info__ < (1,0,3):
+        raise ImportError("Matplotlib backend_qt4 and backend_qt4agg require PySide >=1.0.3")
+
     # Alias PySide-specific function for PyQt compatibilty
     QtCore.pyqtProperty = QtCore.Property
     QtCore.pyqtSignature = QtCore.Slot # Not a perfect match but 
