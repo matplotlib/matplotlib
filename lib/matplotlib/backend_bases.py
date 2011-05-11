@@ -1797,6 +1797,7 @@ class FigureCanvasBase:
             from backends.backend_agg import FigureCanvasAgg # lazy import
             agg = self.switch_backends(FigureCanvasAgg)
             buf, size = agg.print_to_buffer()
+            if kwargs.pop("dryrun", False): return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             options = cbook.restrict_dict(kwargs, ['quality', 'optimize',
                                                    'progressive'])
@@ -1808,6 +1809,7 @@ class FigureCanvasBase:
             from backends.backend_agg import FigureCanvasAgg # lazy import
             agg = self.switch_backends(FigureCanvasAgg)
             buf, size = agg.print_to_buffer()
+            if kwargs.pop("dryrun", False): return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             return image.save(filename_or_obj)
         print_tiff = print_tif
