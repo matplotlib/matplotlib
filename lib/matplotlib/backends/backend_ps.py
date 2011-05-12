@@ -1563,6 +1563,8 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
             if rcParams['ps.usedistiller'] == 'xpdf':
                 # remove extraneous "end" operator:
                 line = tmph.readline()
+        elif line.startswith('%%PageBoundingBox'):
+            pass
         else:
             epsh.write(line)
         line = tmph.readline()

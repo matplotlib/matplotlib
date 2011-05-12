@@ -4,11 +4,11 @@
 AXISARTIST namespace
 ====================
 
-The AxisArtist namesapce includes a derived Axes implementation. The
+The AxisArtist namespace includes a derived Axes implementation. The
 biggest difference is that the artists responsible to draw axis line,
 ticks, ticklabel and axis labels are separated out from the mpl's Axis
 class, which are much more than artists in the original mpl. This
-change was strongly motivated to support curvlinear grid. Here are a
+change was strongly motivated to support curvilinear grid. Here are a
 few things that mpl_tootlkits.axisartist.Axes is different from original
 Axes from mpl.
 
@@ -18,7 +18,7 @@ Axes from mpl.
   have different tick location and different tick labels.
 
 * gridlines are drawn by a Gridlines instance. The change was
-  motivated that in curvelinear coordinate, a gridline may not cross
+  motivated that in curvilinear coordinate, a gridline may not cross
   axis-lines (i.e., no associated ticks). In the original Axes class,
   gridlines are tied to ticks.
 
@@ -26,7 +26,7 @@ Axes from mpl.
 
 In summary, all these changes was to support
 
-* a curvelinear grid.
+* a curvilinear grid.
 * a floating axis
 
 .. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axis.py
@@ -111,7 +111,8 @@ Similarly, to make ticklabels invisible ::
 
   ax.axis["bottom"].major_ticklabels.set_visible(False)
 
-AxisAritst provides a helper method to control the visibility of ticks, ticklabels, and label. To make ticklabel invisible, ::
+AxisAritst provides a helper method to control the visibility of ticks,
+ticklabels, and label. To make ticklabel invisible, ::
 
   ax.axis["bottom"].toggle(ticklabels=False)
 
@@ -138,7 +139,7 @@ Note that 'ax.axis["top","right"]' returns a simple proxy object that translate 
       for n in ["top","right"]:
         ax.axis[n].toggle(ticklabels=True))
 
-So, any return values in the for loop are ignored. And you shoud not
+So, any return values in the for loop are ignored. And you should not
 use it anything more than a simple method. 
 
 Like the list indexing ":" means all items, i.e., ::
@@ -184,8 +185,8 @@ HowTo
     axis.label.set_pad method.
 
 
-Rotaion and Alignment of TickLabels
-===================================
+Rotation and Alignment of TickLabels
+====================================
 
 This is also quite different from the original mpl and can be
 confusing. When you want to rotate the ticklabels, first consider
@@ -252,7 +253,7 @@ direction can be more clear with curved axis.
 
 .. plot:: mpl_toolkits/axes_grid/figures/demo_axis_direction.py
 
-The axis_drection can be adjusted in the AxisArtist level, or in the
+The axis_direction can be adjusted in the AxisArtist level, or in the
 level of its child arists, i.e., ticks, ticklabels, and axis-label. ::
 
   ax1.axis["left"].set_axis_direction("top")
@@ -264,7 +265,7 @@ axis, while ::
 
 changes the axis_direction of only the major_ticklabels.  Note that
 set_axis_direction in the AxisArtist level changes the
-ticklabel_direction and label_direction, while chainging the
+ticklabel_direction and label_direction, while changing the
 axis_direction of ticks, ticklabels, and axis-label does not affect
 them.
 
@@ -295,11 +296,11 @@ So, in summary,
     * set_ticksize : size in points
  * TickLabels' methods (major_ticklabels and minor_ticklabels)
     * set_axis_direction : "left", "right", "bottom", or "top"
-    * set_rotation : angle with respect to the renference direction
+    * set_rotation : angle with respect to the reference direction
     * set_ha and set_va : see below
  * AxisLabels' methods (label)
     * set_axis_direction : "left", "right", "bottom", or "top"
-    * set_rotation : angle with respect to the renference direction
+    * set_rotation : angle with respect to the reference direction
     * set_ha and set_va
 
 
@@ -329,13 +330,13 @@ Or ticklabels and axis-label ::
 GridHelper
 ==========
 
-To actually define a curvelinear coordinate, you have to use your own
+To actually define a curvilinear coordinate, you have to use your own
 grid helper. A generalised version of grid helper class is supplied
 and this class should suffice in most of cases. A user may provide
 two functions which defines a transformation (and its inverse pair)
-from the curved coordinate to (rectlinear) image coordinate. Note that
+from the curved coordinate to (rectilinear) image coordinate. Note that
 while ticks and grids are drawn for curved coordinate, the data
-transform of the axes itself (ax.transData) is still rectlinear
+transform of the axes itself (ax.transData) is still rectilinear
 (image) coordinate. ::
 
 
@@ -404,7 +405,7 @@ required. ::
                                         )
 
 
-Again, the *transData* of the axes is still a rectlinear coordinate
+Again, the *transData* of the axes is still a rectilinear coordinate
 (image coordinate). You may manually do conversion between two
 coordinates, or you may use Parasite Axes for convenience.::
 
@@ -447,7 +448,7 @@ Current Limitations and TODO's
 The code need more refinement. Here is a incomplete list of issues and TODO's
 
 * No easy way to support a user customized tick location (for
-  curvelinear grid). A new Locator class needs to be created.
+  curvilinear grid). A new Locator class needs to be created.
 
 * FloatingAxis may have coordinate limits, e.g., a floating axis of x
   = 0, but y only spans from 0 to 1.

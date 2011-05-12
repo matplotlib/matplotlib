@@ -38,6 +38,83 @@ import os.path
 
 docstring.interpd.update(projection_names = get_projection_names())
 
+class AxesStack(Stack):
+    """
+    Specialization of the Stack to handle all
+    tracking of Axes in a Figure.  This requires storing
+    key, (ind, axes) pairs. The key is based on the args and kwargs
+    used in generating the Axes. ind is a serial number for tracking
+    the order in which axes were added.
+    """
+    def __init__(self):
+        Stack.__init__(self)
+        self._ind = 0
+
+    def as_list(self):
+        """
+        Return a list of the Axes instances that have been added to the figure
+        """
+        ia_list = [a for k, a in self._elements]
+        ia_list.sort()
+        return [a for i, a in ia_list]
+
+    def get(self, key):
+        """
+        Return the Axes instance that was added with *key*.
+        If it is not present, return None.
+        """
+        item = dict(self._elements).get(key)
+        if item is None:
+            return None
+        return item[1]
+
+    def _entry_from_axes(self, e):
+        ind, k = dict([(a, (ind, k)) for (k, (ind, a)) in self._elements])[e]
+        return (k, (ind, e))
+
+    def remove(self, a):
+        Stack.remove(self, self._entry_from_axes(a))
+
+    def bubble(self, a):
+        return Stack.bubble(self, self._entry_from_axes(a))
+
+    def add(self, key, a):
+        """
+        Add Axes *a*, with key *key*, to the stack, and return the stack.
+
+        If *a* is already on the stack, don't add it again, but
+        return *None*.
+        """
+        # All the error checking may be unnecessary; but this method
+        # is called so seldom that the overhead is negligible.
+        if not isinstance(a, Axes):
+            raise ValueError("second argument, %s, is not an Axes" % a)
+        try:
+            hash(key)
+        except TypeError:
+            raise ValueError("first argument, %s, is not a valid key" % key)
+
+        a_existing = self.get(key)
+        if a_existing is not None:
+            Stack.remove(self, (key, a_existing))
+            warnings.Warn(
+                    "key %s already existed; Axes is being replaced" % key)
+            # I don't think the above should ever happen.
+
+        if a in self:
+            return None
+        self._ind += 1
+        return Stack.push(self, (key, (self._ind, a)))
+
+    def __call__(self):
+        if not len(self._elements):
+            return self._default
+        else:
+            return self._elements[self._pos][1][1]
+
+    def __contains__(self, a):
+        return a in self.as_list()
+
 class SubplotParams:
     """
     A class to hold the parameters for a subplot
@@ -203,10 +280,14 @@ class Figure(Artist):
 
         self.subplotpars = subplotpars
 
-        self._axstack = Stack()  # maintain the current axes
-        self.axes = []
+        self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
+
+    def _get_axes(self):
+        return self._axstack.as_list()
+
+    axes = property(fget=_get_axes, doc="Read-only: list of axes in Figure")
 
     def _get_dpi(self):
         return self._dpi
@@ -524,14 +605,8 @@ class Figure(Artist):
 
     def delaxes(self, a):
         'remove a from the figure and update the current axes'
-        self.axes.remove(a)
         self._axstack.remove(a)
-        keys = []
-        for key, thisax in self._seen.items():
-            if a==thisax: del self._seen[key]
         for func in self._axobservers: func(self)
-
-
 
     def _make_key(self, *args, **kwargs):
         'make a hashable key out of args and kwargs'
@@ -593,15 +668,14 @@ class Figure(Artist):
 
         %(Axes)s
         """
+        if not len(args): return
 
         key = self._make_key(*args, **kwargs)
-
-        if key in self._seen:
-            ax = self._seen[key]
+        ax = self._axstack.get(key)
+        if ax is not None:
             self.sca(ax)
             return ax
 
-        if not len(args): return
         if isinstance(args[0], Axes):
             a = args[0]
             assert(a.get_figure() is self)
@@ -619,10 +693,8 @@ class Figure(Artist):
 
             a = projection_factory(projection, self, rect, **kwargs)
 
-        self.axes.append(a)
-        self._axstack.push(a)
+        self._axstack.add(key, a)
         self.sca(a)
-        self._seen[key] = a
         return a
 
     @docstring.dedent_interpd
@@ -654,15 +726,17 @@ class Figure(Artist):
 
         %(Axes)s
         """
-
-        kwargs = kwargs.copy()
-
         if not len(args): return
+
+        if len(args) == 1 and isinstance(args[0], int):
+            args = tuple([int(c) for c in str(args[0])])
 
         if isinstance(args[0], SubplotBase):
             a = args[0]
             assert(a.get_figure() is self)
+            key = self._make_key(*args, **kwargs)
         else:
+            kwargs = kwargs.copy()
             ispolar = kwargs.pop('polar', False)
             projection = kwargs.pop('projection', None)
             if ispolar:
@@ -675,20 +749,23 @@ class Figure(Artist):
 
             projection_class = get_projection_class(projection)
 
+            # Remake the key without projection kwargs:
             key = self._make_key(*args, **kwargs)
-            if key in self._seen:
-                ax = self._seen[key]
+            ax = self._axstack.get(key)
+            if ax is not None:
                 if isinstance(ax, projection_class):
                     self.sca(ax)
                     return ax
                 else:
-                    self.axes.remove(ax)
                     self._axstack.remove(ax)
+                    # Undocumented convenience behavior:
+                    # subplot(111); subplot(111, projection='polar')
+                    # will replace the first with the second.
+                    # Without this, add_subplot would be simpler and
+                    # more similar to add_axes.
 
             a = subplot_class_factory(projection_class)(self, *args, **kwargs)
-            self._seen[key] = a
-        self.axes.append(a)
-        self._axstack.push(a)
+        self._axstack.add(key, a)
         self.sca(a)
         return a
 
@@ -704,13 +781,12 @@ class Figure(Artist):
 
         for ax in tuple(self.axes):  # Iterate over the copy.
             ax.cla()
-            self.delaxes(ax)         # removes ax from self.axes
+            self.delaxes(ax)         # removes ax from self._axstack
 
         toolbar = getattr(self.canvas, 'toolbar', None)
         if toolbar is not None:
             toolbar.update()
         self._axstack.clear()
-        self._seen = {}
         self.artists = []
         self.lines = []
         self.patches = []
@@ -732,7 +808,6 @@ class Figure(Artist):
         Render the figure using :class:`matplotlib.backend_bases.RendererBase` instance renderer
         """
         # draw the figure bounding box, perhaps none for white figure
-        #print 'figure draw'
         if not self.get_visible(): return
         renderer.open_group('figure')
 
@@ -899,6 +974,8 @@ class Figure(Artist):
         columnspacing      the spacing between columns
         ================   ==================================================================
 
+        .. Note:: Not all kinds of artist are supported by the legend.
+                  See LINK (FIXME) for details.
 
         **Example:**
 
@@ -976,7 +1053,7 @@ class Figure(Artist):
         helper for :func:`~matplotlib.pyplot.gci`;
         do not use elsewhere.
         """
-        for ax in reversed(self._axstack):
+        for ax in reversed(self.axes):
             im = ax._gci()
             if im is not None:
                 return im

@@ -2,8 +2,16 @@
            key events resulting from auto-repeat.  This makes
            constrained zoom/pan work. - EF
 
+2011-04-14 interpolation="nearest" always interpolate images. A new
+           mode "none" is introduced for no interpolation - JJL
+
 2011-04-03 Fixed broken pick interface to AsteriskCollection objects
            used by scatter. - EF
+
+2011-04-01 The plot directive Sphinx extension now supports all of the
+           features in the Numpy fork of that extension.  These
+           include doctest formatting, an 'include-source' option, and
+           a number of new configuration options. - MGD
 
 2011-03-29 Wrapped ViewVCCachedServer definition in a factory function.
            This class now inherits from urllib2.HTTPSHandler in order
@@ -19,9 +27,42 @@
            not responding to the c kwarg.  The symbols have no
            face area, so only the edgecolor is visible. - EF
 
+2011-02-27 Support libpng version 1.5.x; suggestion by Michael
+           Albert. Changed installation specification to a
+           minimum of libpng version 1.2.  - EF
+
+2011-02-20 clabel accepts a callable as an fmt kwarg; modified
+           patch by Daniel Hyams. - EF
+
+2011-02-18 scatter([], []) is now valid.  Also fixed issues
+           with empty collections - BVR
+
 2011-02-07 Quick workaround for dviread bug #3175113 - JKS
 
+2011-02-05 Add cbook memory monitoring for Windows, using
+           tasklist. - EF
+
+2011-02-05 Speed up Normalize and LogNorm by using in-place
+           operations and by using float32 for float32 inputs
+           and for ints of 2 bytes or shorter; based on
+           patch by Christoph Gohlke. - EF
+
+2011-02-04 Changed imshow to use rgba as uint8 from start to
+           finish, instead of going through an intermediate
+           step as double precision; thanks to Christoph Gohlke. - EF
+
+2011-01-13 Added zdir and offset arguments to contourf3d to
+           bring contourf3d in feature parity with contour3d. - BVR
+
 2011-01-04 Tag 1.0.1 for release at r8896
+
+2011-01-03 Added display of ticker offset to 3d plots. - BVR
+
+2011-01-03 Turn off tick labeling on interior subplots for
+           pyplots.subplots when sharex/sharey is True. - JDH
+
+2010-12-29 Implement axes_divider.HBox and VBox. -JJL
+
 
 2010-11-22 Fixed error with Hammer projection. - BVR
 
@@ -30,6 +71,18 @@
 2010-11-07 New rc parameters examples.download and examples.directory
            allow bypassing the download mechanism in get_sample_data.
            - JKS
+
+2010-10-04 Fix JPEG saving bug: only accept the kwargs documented
+           by PIL for JPEG files. - JKS
+
+2010-09-15 Remove unused _wxagg extension and numerix.h. - EF
+
+2010-08-25 Add new framework for doing animations with examples.- RM
+
+2010-08-21 Remove unused and inappropriate methods from Tick classes:
+           set_view_interval, get_minpos, and get_data_interval are
+           properly found in the Axis class and don't need to be
+           duplicated in XTick and YTick. - EF
 
 2010-08-21 Change Axis.set_view_interval() so that when updating an
            existing interval, it respects the orientation of that
@@ -44,6 +97,23 @@
            correctly when the line contains NaNs. - MGD
 
 2010-08-14 Fix bug in patch alpha handling, and in bar color kwarg - EF
+
+2010-08-12 Removed all traces of numerix module after 17 months of
+           deprecation warnings. - EF
+
+2010-08-05 Added keyword arguments 'thetaunits' and 'runits' for polar
+           plots.  Fixed PolarAxes so that when it set default
+           Formatters, it marked them as such.  Fixed semilogx and
+           semilogy to no longer blindly reset the ticker information
+           on the non-log axis.  Axes.arrow can now accept unitized
+           data. - JRE
+
+2010-08-03 Add support for MPLSETUPCFG variable for custom setup.cfg
+           filename.  Used by sage buildbot to build an mpl w/ no gui
+           support - JDH
+
+2010-08-01 Create directory specified by MPLCONFIGDIR if it does
+           not exist. - ADS
 
 2010-07-20 Return Qt4's default cursor when leaving the canvas - DSD
 

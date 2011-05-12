@@ -9,6 +9,8 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import matplotlib.ticker as ticker
 
+from matplotlib.gridspec import SubplotSpec, GridSpec
+
 from axes_divider import Size, SubplotDivider, LocatableAxes, Divider
 
 #import numpy as np
@@ -187,7 +189,7 @@ class Grid(object):
           Keyword           Default   Description
           ================  ========  =========================================
           direction         "row"     [ "row" | "column" ]
-          axes_pad          0.02      float| pad betweein axes given in inches
+          axes_pad          0.02      float| pad between axes given in inches
           add_all           True      [ True | False ]
           share_all         False     [ True | False ]
           share_x           True      [ True | False ]
@@ -233,6 +235,9 @@ class Grid(object):
         h = []
         v = []
         if cbook.is_string_like(rect) or cbook.is_numlike(rect):
+            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
+                                           aspect=False)
+        elif isinstance(rect, SubplotSpec):
             self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
                                            aspect=False)
         elif len(rect) == 3:
@@ -413,6 +418,27 @@ class Grid(object):
             ax = self.axes_llc
             _tick_only(ax, bottom_on=False, left_on=False)
 
+    def get_divider(self):
+        return self._divider
+        
+    def set_axes_locator(self, locator):
+        self._divider.set_locator(locator)
+
+    def get_axes_locator(self):
+        return self._divider.get_locator()
+
+    def get_vsize_hsize(self):
+
+        return self._divider.get_vsize_hsize()
+#         from axes_size import AddList
+
+#         vsize = AddList(self._divider.get_vertical())
+#         hsize = AddList(self._divider.get_horizontal())
+
+#         return vsize, hsize
+
+
+
 
 class ImageGrid(Grid):
     """
@@ -457,7 +483,7 @@ class ImageGrid(Grid):
           Keyword           Default   Description
           ================  ========  =========================================
           direction         "row"     [ "row" | "column" ]
-          axes_pad          0.02      float| pad betweein axes given in inches
+          axes_pad          0.02      float| pad between axes given in inches
           add_all           True      [ True | False ]
           share_all         False     [ True | False ]
           aspect            True      [ True | False ]
@@ -523,6 +549,9 @@ class ImageGrid(Grid):
         h = []
         v = []
         if cbook.is_string_like(rect) or cbook.is_numlike(rect):
+            self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
+                                           aspect=aspect)
+        elif isinstance(rect, SubplotSpec):
             self._divider = SubplotDivider(fig, rect, horizontal=h, vertical=v,
                                            aspect=aspect)
         elif len(rect) == 3:

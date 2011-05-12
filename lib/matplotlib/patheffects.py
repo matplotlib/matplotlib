@@ -118,7 +118,7 @@ class Stroke(_Base):
         gc0.copy_properties(gc)
 
         gc0 = self._update_gc(gc0, self._gc)
-        renderer.draw_path(gc0, tpath, affine, None)
+        renderer.draw_path(gc0, tpath, affine, rgbFace)
         gc0.restore()
 
 

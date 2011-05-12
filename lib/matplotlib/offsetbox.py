@@ -491,7 +491,8 @@ class DrawingArea(OffsetBox):
     def add_artist(self, a):
         'Add any :class:`~matplotlib.artist.Artist` to the container box'
         self._children.append(a)
-        a.set_transform(self.get_transform())
+        if not a.is_transform_set():
+            a.set_transform(self.get_transform())
 
 
     def draw(self, renderer):
@@ -1499,6 +1500,7 @@ class DraggableOffsetBox(DraggableBase):
         w, h, xd, yd = offsetbox.get_extent(renderer)
         offset = offsetbox.get_offset(w, h, xd, yd, renderer)
         self.offsetbox_x, self.offsetbox_y = offset
+        self.offsetbox.set_offset(offset)
 
     def update_offset(self, dx, dy):
         loc_in_canvas = self.offsetbox_x + dx, self.offsetbox_y + dy

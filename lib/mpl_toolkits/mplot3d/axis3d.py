@@ -73,6 +73,11 @@ class Axis(maxis.XAxis):
         self.v_interval = v_intervalx
 
         maxis.XAxis.__init__(self, axes, *args, **kwargs)
+
+        self.set_rotate_label(kwargs.get('rotate_label', None))
+
+
+    def init3d(self):
         self.line = mlines.Line2D(xdata=(0, 0), ydata=(0, 0),
                                  linewidth=0.75,
                                  color=(0, 0, 0, 1),
@@ -80,20 +85,21 @@ class Axis(maxis.XAxis):
                            )
 
         # Store dummy data in Polygon object
-        self.has_pane = True
         self.pane = mpatches.Polygon(np.array([[0,0], [0,1], [1,0], [0,0]]),
                                     alpha=0.8,
                                     facecolor=(1,1,1,0),
                                     edgecolor=(1,1,1,0))
+        self.set_pane_color(self._AXINFO[self.adir]['color'])
 
         self.axes._set_artist_props(self.line)
         self.axes._set_artist_props(self.pane)
         self.gridlines = art3d.Line3DCollection([], )
         self.axes._set_artist_props(self.gridlines)
         self.axes._set_artist_props(self.label)
+        self.axes._set_artist_props(self.offsetText)
         # Need to be able to place the label at the correct location
         self.label._transform = self.axes.transData
-        self.set_rotate_label(kwargs.get('rotate_label', None))
+        self.offsetText._transform = self.axes.transData
 
     def get_tick_positions(self):
         majorLocs = self.major.locator()
@@ -111,14 +117,16 @@ class Axis(maxis.XAxis):
             t.label2.set_transform(self.axes.transData)
         return ticks
 
-    def set_pane(self, xys, color):
-        if self.has_pane:
-            xys = np.asarray(xys)
-            xys = xys[:,:2]
-            self.pane.xy = xys
-            self.pane.set_edgecolor(color)
-            self.pane.set_facecolor(color)
-            self.pane.set_alpha(color[-1])
+    def set_pane_pos(self, xys):
+        xys = np.asarray(xys)
+        xys = xys[:,:2]
+        self.pane.xy = xys
+
+    def set_pane_color(self, color):
+        '''Set pane color to a RGBA tuple'''
+        self.pane.set_edgecolor(color)
+        self.pane.set_facecolor(color)
+        self.pane.set_alpha(color[-1])
 
     def set_rotate_label(self, val):
         '''
@@ -162,7 +170,7 @@ class Axis(maxis.XAxis):
         else:
             plane = self._PLANES[2 * index + 1]
         xys = [tc[p] for p in plane]
-        self.set_pane(xys, info['color'])
+        self.set_pane_pos(xys)
         self.pane.draw(renderer)
 
         renderer.close_group('pane3d')
@@ -199,6 +207,7 @@ class Axis(maxis.XAxis):
         edgep2 = edgep1.copy()
         edgep2[juggled[1]] = get_flip_min_max(edgep2, juggled[1], mins, maxs)
         pep = proj3d.proj_trans_points([edgep1, edgep2], renderer.M)
+        centpt = proj3d.proj_transform(centers[0], centers[1], centers[2], renderer.M)
         self.line.set_data((pep[0][0], pep[0][1]), (pep[1][0], pep[1][1]))
         self.line.draw(renderer)
 
@@ -237,25 +246,95 @@ class Axis(maxis.XAxis):
         self.label.set_ha('center')
         self.label.draw(renderer)
 
-        # Grid points at end of one plane
-        xyz1 = copy.deepcopy(xyz0)
-        newindex = (index + 1) % 3
-        newval = get_flip_min_max(xyz1[0], newindex, mins, maxs)
-        for i in range(len(majorLocs)):
-            xyz1[i][newindex] = newval
 
-        # Grid points at end of the other plane
-        xyz2 = copy.deepcopy(xyz0)
-        newindex = (index + 2) %  3
-        newval = get_flip_min_max(xyz2[0], newindex, mins, maxs)
-        for i in range(len(majorLocs)):
-            xyz2[i][newindex] = newval
+        # Draw Offset text
+        
+        # Which of the two edge points do we want to
+        # use for locating the offset text?
+        if juggled[2] == 2 :
+            outeredgep = edgep1
+            outerindex = 0
+        else :
+            outeredgep = edgep2
+            outerindex = 1
 
-        lines = zip(xyz1, xyz0, xyz2)
-        if self.axes._draw_grid:
-            self.gridlines.set_segments(lines)
-            self.gridlines.set_color([(0.9,0.9,0.9,1)] * len(lines))
-            self.gridlines.draw(renderer, project=True)
+        pos = copy.copy(outeredgep)
+        pos = move_from_center(pos, centers, labeldeltas, axmask)
+        olx, oly, olz = proj3d.proj_transform(pos[0], pos[1], pos[2], renderer.M)
+        self.offsetText.set_text( self.major.formatter.get_offset() )
+        self.offsetText.set_position( (olx, oly) )
+        angle = art3d.norm_text_angle(math.degrees(math.atan2(dy, dx)))
+        self.offsetText.set_rotation(angle)
+        # Must set rotation mode to "anchor" so that
+        # the alignment point is used as the "fulcrum" for rotation.
+        self.offsetText.set_rotation_mode('anchor')
+
+        #-----------------------------------------------------------------------
+        # Note: the following statement for determining the proper alignment of
+        #       the offset text. This was determined entirely by trial-and-error
+        #       and should not be in any way considered as "the way".  There are
+        #       still some edge cases where alignment is not quite right, but
+        #       this seems to be more of a geometry issue (in other words, I
+        #       might be using the wrong reference points).
+        #
+        #   (TT, FF, TF, FT) are the shorthand for the tuple of
+        #     (centpt[info['tickdir']] <= peparray[info['tickdir'], outerindex],
+        #      centpt[index] <= peparray[index, outerindex])
+        #
+        #   Three-letters (e.g., TFT, FTT) are short-hand for the array
+        #    of bools from the variable 'highs'.
+        # ---------------------------------------------------------------------
+        if centpt[info['tickdir']] > peparray[info['tickdir'], outerindex] :
+            # if FT and if highs has an even number of Trues
+            if (centpt[index] <= peparray[index, outerindex]
+                and ((len(highs.nonzero()[0]) % 2) == 0)) :
+                # Usually, this means align right, except for the FTT case,
+                # in which offset for axis 1 and 2 are aligned left.
+                if highs.tolist() == [False, True, True] and index in (1, 2) :
+                    align = 'left'
+                else :
+                    align = 'right'
+            else :
+                # The FF case
+                align = 'left'
+        else :
+            # if TF and if highs has an even number of Trues
+            if (centpt[index] > peparray[index, outerindex]
+                and ((len(highs.nonzero()[0]) % 2) == 0)) :
+                # Usually mean align left, except if it is axis 2
+                if index == 2 :
+                    align = 'right'
+                else :
+                    align = 'left'
+            else :
+                # The TT case
+                align = 'right'
+
+        self.offsetText.set_va('center')
+        self.offsetText.set_ha(align)
+        self.offsetText.draw(renderer)
+
+        # Draw grid lines
+        if len(xyz0) > 0:
+            # Grid points at end of one plane
+            xyz1 = copy.deepcopy(xyz0)
+            newindex = (index + 1) % 3
+            newval = get_flip_min_max(xyz1[0], newindex, mins, maxs)
+            for i in range(len(majorLocs)):
+                xyz1[i][newindex] = newval
+
+            # Grid points at end of the other plane
+            xyz2 = copy.deepcopy(xyz0)
+            newindex = (index + 2) %  3
+            newval = get_flip_min_max(xyz2[0], newindex, mins, maxs)
+            for i in range(len(majorLocs)):
+                xyz2[i][newindex] = newval
+
+            lines = zip(xyz1, xyz0, xyz2)
+            if self.axes._draw_grid:
+                self.gridlines.set_segments(lines)
+                self.gridlines.set_color([(0.9,0.9,0.9,1)] * len(lines))
+                self.gridlines.draw(renderer, project=True)
 
         # Draw ticks
         tickdir = info['tickdir']
@@ -296,18 +375,22 @@ class Axis(maxis.XAxis):
         renderer.close_group('axis3d')
 
     def get_view_interval(self):
-        """return the Interval instance for this axis view limits"""
+        """return the Interval instance for this 3d axis view limits"""
         return self.v_interval
+        
+    def set_view_interval(self, vmin, vmax, ignore=False):
+        if ignore:
+            self.v_interval = vmin, vmax
+        else:
+            Vmin, Vmax = self.get_view_interval()
+            self.v_interval = min(vmin, Vmin), max(vmax, Vmax)
 
-# Each type of axis should be looking in a different place for its
-# current data limits so we do this with classes.  I think there is
-# a lot more that I can and should move down into these classes also.
+# Use classes to look at different data limits
 
 class XAxis(Axis):
     def get_data_interval(self):
         'return the Interval instance for this axis data limits'
         return self.axes.xy_dataLim.intervalx
-
 
 class YAxis(Axis):
     def get_data_interval(self):

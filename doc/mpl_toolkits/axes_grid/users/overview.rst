@@ -17,19 +17,19 @@ mainly to ease displaying (multiple) images in matplotlib.
    0.99. Originally, the toolkit had a single namespace of 
    *axes_grid*. In more recent version (since svn r8226), the toolkit 
    has divided into two separate namespace (*axes_grid1* and *axisartist*).
-   While *axes_grid* namespace is maintained for he backward compatibility,
+   While *axes_grid* namespace is maintained for the backward compatibility,
    use of *axes_grid1* and *axisartist* is recommended.
 
 .. warning:: 
    *axes_grid* and *axisartist* (but not *axes_grid1*) uses
-   a custome Axes class (derived from the mpl's original Axes class).
-   As a sideeffect, some commands (mostly tick-related) do not work.
+   a custom Axes class (derived from the mpl's original Axes class).
+   As a side effect, some commands (mostly tick-related) do not work.
    Use *axes_grid1* to avoid this, or see how things are different in
    *axes_grid* and *axisartist* (LINK needed)
 
 
 AxesGrid toolkit has two namespaces (*axes_grid1* and *axisartist*).
-*axisartist* contains custome Axes class that is meant to support for
+*axisartist* contains custom Axes class that is meant to support for
 curvilinear grids (e.g., the world coordinate system in astronomy).
 Unlike mpl's original Axes class which uses Axes.xaxis and Axes.yaxis
 to draw ticks, ticklines and etc., Axes in axisartist uses special
@@ -46,8 +46,8 @@ Axes.xaxis and Axes.yaxis may not work. See LINK for more detail.
 (multiple) images with matplotlib.  In matplotlib, the axes location
 (and size) is specified in the normalized figure coordinates, which
 may not be ideal for displaying images that needs to have a given
-aspect ratio.  For example, it helps you to have a colobar whose
-height always matches that of the image.  `AxesGrid`_, `RGB Axes`_ and
+aspect ratio.  For example, it helps you to have a colorbar whose
+height always matches that of the image.  `ImageGrid`_, `RGB Axes`_ and
 `AxesDivider`_ are helper classes that deals with adjusting the
 location of (multiple) Axes.  They provides a framework to adjust the
 position of multiple axes at the drawing time. `ParasiteAxes`_
@@ -76,9 +76,9 @@ used in such case.
 .. plot:: mpl_toolkits/axes_grid/examples/simple_axesgrid.py
    :include-source:
 
-* The postion of each axes is determined at the drawing time (see
+* The position of each axes is determined at the drawing time (see
   `AxesDivider`_), so that the size of the entire grid fits in the
-  given rectangle (like the aspec of axes). Note that in this example,
+  given rectangle (like the aspect of axes). Note that in this example,
   the paddings between axes are fixed even if you changes the figure
   size.
 
@@ -141,7 +141,7 @@ AxesGrid takes following arguments,
   means the increasing direction of the axes number.
 
  *aspect*
-  By default (False), widths and heigths of axes in the grid are
+  By default (False), widths and heights of axes in the grid are
   scaled independently. If True, they are scaled according to their
   data limits (similar to aspect parameter in mpl).
 
@@ -165,7 +165,7 @@ AxesGrid takes following arguments,
    | grid[1] | grid[3] |
    +---------+---------+
 
-You can also create a colorbar (or colobars). You can have colorbar
+You can also create a colorbar (or colorbars). You can have colorbar
 for each axes (cbar_mode="each"), or you can have a single colorbar
 for the grid (cbar_mode="single"). The colorbar can be placed on your
 right, or top. The axes for each colorbar is stored as a *cbar_axes*
@@ -187,7 +187,7 @@ at drawing time. While a more about the AxesDivider is (will be)
 explained in (yet to be written) AxesDividerGuide, direct use of the
 AxesDivider class will not be necessary for most users.  The
 axes_divider module provides a helper function make_axes_locatable,
-which can be useful. It takes a exisitng axes instance and create a
+which can be useful. It takes a existing axes instance and create a
 divider for it. ::
 
 	ax = subplot(1,1,1)
@@ -196,7 +196,7 @@ divider for it. ::
 
 
 
-*make_axes_locatable* returns an isntance of the AxesLocator class,
+*make_axes_locatable* returns an instance of the AxesLocator class,
 derived from the Locator. It provides *append_axes* method that
 creates a new axes on the given side of ("top", "right", "bottom" and
 "left") of the original axes.
@@ -255,7 +255,7 @@ if the host change its location (e.g., images).
 In most cases, you first create a host axes, which provides a few
 method that can be used to create parasite axes. They are *twinx*,
 *twiny* (which are similar to twinx and twiny in the matplotlib) and
-*twin*. *twin* takes an arbitraty tranfromation that maps between the
+*twin*. *twin* takes an arbitrary transformation that maps between the
 data coordinates of the host axes and the parasite axes.  *draw*
 method of the parasite axes are never called. Instead, host axes
 collects artists in parasite axes and draw them as if they belong to
@@ -292,7 +292,7 @@ tick-formatter for bottom(or left)-axis. ::
 
 
 
-A more sophiscated example using twin. Note that if you change the
+A more sophisticated example using twin. Note that if you change the
 x-limit in the host axes, the x-limit of the parasite axes will change
 accordingly.
 
@@ -319,7 +319,7 @@ InsetLocator
 
 :mod:`mpl_toolkits.axes_grid.inset_locator` provides helper classes
 and functions to place your (inset) axes at the anchored position of
-the parent axes, similarly to AnchoredArtis.
+the parent axes, similarly to AnchoredArtist.
 
 Using :func:`mpl_toolkits.axes_grid.inset_locator.inset_axes`, you
 can have inset axes whose size is either fixed, or a fixed proportion
@@ -359,7 +359,7 @@ represented by the inset axes.
 RGB Axes
 ~~~~~~~~
 
-RGBAxes is a helper clase to conveniently show RGB composite
+RGBAxes is a helper class to conveniently show RGB composite
 images. Like ImageGrid, the location of axes are adjusted so that the
 area occupied by them fits in a given rectangle.  Also, the xaxis and
 yaxis of each axes are shared. ::
@@ -386,7 +386,7 @@ AxisArtist
 
 AxisArtist module provides a custom (and very experimental) Axes
 class, where each axis (left, right, top and bottom) have a separate
-artist associated which is resposible to draw axis-line, ticks,
+artist associated which is responsible to draw axis-line, ticks,
 ticklabels, label.  Also, you can create your own axis, which can pass
 through a fixed position in the axes coordinate, or a fixed position
 in the data coordinate (i.e., the axis floats around when viewlimit
@@ -407,7 +407,7 @@ To create an axes, ::
   ax = AA.Axes(fig, [0.1, 0.1, 0.8, 0.8])
   fig.add_axes(ax)
 
-or to creat a subplot ::
+or to create a subplot ::
 
   ax = AA.Subplot(fig, 111)
   fig.add_subplot(ax)
@@ -441,7 +441,7 @@ Or a fixed axis with some offset ::
 AxisArtist with ParasiteAxes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Most commands in the axes_grid toolkit1 can take a axes_class keyword
+Most commands in the axes_grid1 toolkit can take a axes_class keyword
 argument, and the commands creates an axes of the given class. For example,
 to create a host subplot with axisartist.Axes, ::
 
@@ -458,10 +458,10 @@ Here is an example that uses  parasiteAxes.
 
 
 
-Curvelinear Grid
+Curvilinear Grid
 ----------------
 
-The motivation behind the AxisArtist module is to support cuvelinear grid
+The motivation behind the AxisArtist module is to support curvilinear grid
 and ticks.
 
 .. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axis.py
@@ -472,7 +472,7 @@ See :ref:`axisartist-manual` for more details.
 Floating Axes
 -------------
 
-This also suppport a Floating Axes whose outer axis are defined as
+This also support a Floating Axes whose outer axis are defined as
 floating axis.
 
 .. plot:: mpl_toolkits/axes_grid/examples/demo_floating_axes.py

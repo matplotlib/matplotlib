@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 #include "agg_py_path_iterator.h"
 #include "agg_py_transforms.h"
 #include "path_converters.h"

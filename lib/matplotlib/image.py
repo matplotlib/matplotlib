@@ -31,6 +31,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     zorder = 0
     # map interpolation strings to module constants
     _interpd = {
+        'none'     : _image.NEAREST, # fall back to nearest when not supported
         'nearest'  : _image.NEAREST,
         'bilinear' : _image.BILINEAR,
         'bicubic'  : _image.BICUBIC,
@@ -97,7 +98,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         self._imcache = None
 
-        # this is an expetimental attribute, if True, unsampled image
+        # this is an experimental attribute, if True, unsampled image
         # will be drawn using the affine transform that are
         # appropriately skewed so that the given postition
         # corresponds to the actual position in the coordinate. -JJL
@@ -138,7 +139,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     def _get_unsampled_image(self, A, image_extents, viewlim):
         """
         convert numpy array A with given extents ([x1, x2, y1, y2] in
-        data coordinate) into the Image, given the vielim (should be a
+        data coordinate) into the Image, given the viewlim (should be a
         bbox instance).  Image will be clipped if the extents is
         significantly larger than the viewlim.
         """
@@ -193,17 +194,17 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             self._oldyslice = yslice
 
         if self._imcache is None:
-            if self._A.dtype == np.uint8 and len(self._A.shape) == 3:
+            if self._A.dtype == np.uint8 and self._A.ndim == 3:
                 im = _image.frombyte(self._A[yslice,xslice,:], 0)
                 im.is_grayscale = False
             else:
                 if self._rgbacache is None:
-                    x = self.to_rgba(self._A, self._alpha)
+                    x = self.to_rgba(self._A, self._alpha, bytes=True)
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
-                im = _image.fromarray(x[yslice,xslice], 0)
-                if len(self._A.shape) == 2:
+                im = _image.frombyte(x[yslice,xslice,:], 0)
+                if self._A.ndim == 2:
                     im.is_grayscale = self.cmap.is_gray()
                 else:
                     im.is_grayscale = False
@@ -446,10 +447,15 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         """
         Set the interpolation method the image uses when resizing.
 
+        if None, use a value from rc setting. If 'none', the image is
+        shown as is without interpolating. 'none' is only supported in
+        agg, ps and pdf backends and will fall back to 'nearest' mode
+        for other backends.
+
         ACCEPTS: ['nearest' | 'bilinear' | 'bicubic' | 'spline16' |
           'spline36' | 'hanning' | 'hamming' | 'hermite' | 'kaiser' |
           'quadric' | 'catrom' | 'gaussian' | 'bessel' | 'mitchell' |
-          'sinc' | 'lanczos' | ]
+          'sinc' | 'lanczos' | 'none' |]
 
         """
         if s is None: s = rcParams['image.interpolation']
@@ -610,10 +616,13 @@ class AxesImage(_AxesImageBase):
         """
         return True if the image is better to be drawn unsampled.
         """
-        if renderer.option_scale_image() and self.get_interpolation() == "nearest":
-            return True
-        else:
-            return False
+        if self.get_interpolation() == "none":
+            if renderer.option_scale_image():
+                return True
+            else:
+                warnings.warn("The backend (%s) does not support interpolation='none'. The image will be interpolated with 'nearest` mode." % renderer.__class__)
+
+        return False
 
     def set_extent(self, extent):
         """
@@ -654,7 +663,8 @@ class NonUniformImage(AxesImage):
     def __init__(self, ax, **kwargs):
         """
         kwargs are identical to those for AxesImage, except
-        that 'interpolation' defaults to 'nearest'
+        that 'interpolation' defaults to 'nearest', and 'bilinear'
+        is the only alternative.
         """
         interp = kwargs.pop('interpolation', 'nearest')
         AxesImage.__init__(self, ax,
@@ -712,7 +722,7 @@ class NonUniformImage(AxesImage):
             A.shape = A.shape[0:2]
         if len(A.shape) == 2:
             if A.dtype != np.uint8:
-                A = (self.cmap(self.norm(A))*255).astype(np.uint8)
+                A = self.to_rgba(A, alpha=self._alpha, bytes=True)
                 self.is_grayscale = self.cmap.is_gray()
             else:
                 A = np.repeat(A[:,:,np.newaxis], 4, 2)
@@ -796,6 +806,9 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         self.axes = ax
         self._rgbacache = None
+        # There is little point in caching the image itself because
+        # it needs to be remade if the bbox or viewlim change,
+        # so caching does help with zoom/pan/resize.
         self.update(kwargs)
         self.set_data(x, y, A)
 
@@ -810,7 +823,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         height = (round(t) + 0.5) - (round(b) - 0.5)
         width = width * magnification
         height = height * magnification
-        if self.check_update('array'):
+        if self._rgbacache is None:
             A = self.to_rgba(self._A, alpha=self._alpha, bytes=True)
             self._rgbacache = A
             if self._A.ndim == 2:
@@ -826,9 +839,14 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         im.is_grayscale = self.is_grayscale
         return im
 
+    def changed(self):
+        self._rgbacache = None
+        cm.ScalarMappable.changed(self)
+
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
         im = self.make_image(renderer.get_image_magnification())
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
@@ -870,7 +888,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         self._A = A
         self._Ax = x
         self._Ay = y
-        self.update_dict['array'] = True
+        self._rgbacache = None
 
     def set_array(self, *args):
         raise NotImplementedError('Method not supported')
@@ -956,7 +974,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
-        x = self.to_rgba(self._A, self._alpha)
+        x = self.to_rgba(self._A, self._alpha, bytes=True)
         self.magnification = magnification
         # if magnification is not one, we need to resize
         ismag = magnification!=1
@@ -965,7 +983,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
             isoutput = 0
         else:
             isoutput = 1
-        im = _image.fromarray(x, isoutput)
+        im = _image.frombyte(x, isoutput)
         fc = self.figure.get_facecolor()
         im.set_bg( *mcolors.colorConverter.to_rgba(fc, 0) )
         im.is_grayscale = (self.cmap.name == "gray" and
@@ -1078,11 +1096,11 @@ class BboxImage(_AxesImageBase):
                 im.is_grayscale = False
             else:
                 if self._rgbacache is None:
-                    x = self.to_rgba(self._A, self._alpha)
+                    x = self.to_rgba(self._A, self._alpha, bytes=True)
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
-                im = _image.fromarray(x, 0)
+                im = _image.frombyte(x, 0)
                 if len(self._A.shape) == 2:
                     im.is_grayscale = self.cmap.is_gray()
                 else:

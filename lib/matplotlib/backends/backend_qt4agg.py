@@ -110,7 +110,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             w = int(r) - int(l)
             h = int(t) - int(b)
             t = int(b) + h
-            reg = self.copy_from_bbox(bbox)
+            reg = FigureCanvasAgg.copy_from_bbox(self, bbox)
             stringBuffer = reg.to_string_argb()
             qImage = QtGui.QImage(stringBuffer, w, h, QtGui.QImage.Format_ARGB32)
             pixmap = QtGui.QPixmap.fromImage(qImage)
@@ -127,7 +127,6 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
 
         if DEBUG: print "FigureCanvasQtAgg.draw", self
         self.replot = True
-        FigureCanvasAgg.draw(self)
         self.update()
 
     def blit(self, bbox=None):
@@ -139,6 +138,16 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         l, b, w, h = bbox.bounds
         t = b + h
         self.repaint(l, self.renderer.height-t, w, h)
+
+    def copy_from_bbox(self, *args):
+        """
+        If a draw() has been called but the update() has not
+        occurred, draw into the agg canvas before copying.
+        """
+        if self.replot:
+            FigureCanvasAgg.draw(self)
+            self.replot = False
+        return FigureCanvasAgg.copy_from_bbox(self, *args)
 
     def print_figure(self, *args, **kwargs):
         FigureCanvasAgg.print_figure(self, *args, **kwargs)

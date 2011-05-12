@@ -51,7 +51,7 @@ def line2d_seg_dist(p1, p2, p0):
     p0[1] = y(s)
 
     intersection point p = p1 + u*(p2-p1)
-    and intersection point lies within segement if u is between 0 and 1
+    and intersection point lies within segment if u is between 0 and 1
     """
 
     x21 = p2[0] - p1[0]

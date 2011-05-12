@@ -1,5 +1,5 @@
 """
-An experimental support for curvelinear grid.
+An experimental support for curvilinear grid.
 """
 
 

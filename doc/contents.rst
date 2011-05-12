@@ -17,6 +17,7 @@ Overview
    users/index.rst
    faq/index.rst
    devel/index.rst
+   mpl_toolkits/index.rst
    api/index.rst
    glossary/index.rst
 

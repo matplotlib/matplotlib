@@ -17,7 +17,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
                  **kwargs):
         """
         *width*, *height*, *xdescent*, *ydescent* : the dimensions of the DrawingArea.
-        *prop* : font property. this is only used for scaling the paddings.
+        *prop* : font property. This is only used for scaling the paddings.
         """
 
         self.da = DrawingArea(width, height, xdescent, ydescent, clip=True)
@@ -69,7 +69,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
                  **kwargs):
         """
         Draw a horizontal bar with the size in data coordinate of the give axes.
-        A label will be drawn underneath (center-alinged).
+        A label will be drawn underneath (center-aligned).
 
         pad, borderpad in fraction of the legend font size (or prop)
         sep in points.
