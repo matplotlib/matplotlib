@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 /* image.h
  *
  */
@@ -76,7 +78,7 @@ public:
          };
 
     //enum { BICUBIC=0, BILINEAR, BLACKMAN100, BLACKMAN256, BLACKMAN64,
-    //	 NEAREST, SINC144, SINC256, SINC64, SPLINE16, SPLINE36};
+    //   NEAREST, SINC144, SINC256, SINC64, SPLINE16, SPLINE36};
     enum { ASPECT_PRESERVE = 0, ASPECT_FREE};
 
     agg::int8u *bufferIn;

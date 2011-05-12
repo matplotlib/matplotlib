@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
 

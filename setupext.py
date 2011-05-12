@@ -79,13 +79,21 @@ basedir = {
 }
 
 import sys, os, stat
-if sys.platform != 'win32':
-    import commands
+
 from textwrap import fill
 from distutils.core import Extension
 import glob
-import ConfigParser
-import cStringIO
+
+if sys.version_info[0] < 3:
+    import ConfigParser as configparser
+    from cStringIO import StringIO
+    if sys.platform != 'win32':
+        from commands import getstatusoutput
+else:
+    import configparser
+    from io import StringIO
+    if sys.platform != 'win32':
+        from subprocess import getstatusoutput
 
 BUILT_PNG       = False
 BUILT_AGG       = False
@@ -95,7 +103,6 @@ BUILT_GTKAGG    = False
 BUILT_IMAGE     = False
 BUILT_MACOSX    = False
 BUILT_TKAGG     = False
-BUILT_WXAGG     = False
 BUILT_WINDOWING = False
 BUILT_CONTOUR   = False
 BUILT_DELAUNAY  = False
@@ -120,7 +127,6 @@ options = {'display_status': True,
            'build_gtk': 'auto',
            'build_gtkagg': 'auto',
            'build_tkagg': 'auto',
-           'build_wxagg': 'auto',
            'build_macosx': 'auto',
            'build_image': True,
            'build_windowing': True,
@@ -131,10 +137,11 @@ defines = [
         ('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API'),
         ('PYCXX_ISO_CPP_LIB', '1')]
 
+setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 # Based on the contents of setup.cfg, determine the build options
-if os.path.exists("setup.cfg"):
-    config = ConfigParser.SafeConfigParser()
-    config.read("setup.cfg")
+if os.path.exists(setup_cfg):
+    config = configparser.SafeConfigParser()
+    config.read(setup_cfg)
 
     try: options['display_status'] = not config.getboolean("status", "suppress")
     except: pass
@@ -158,9 +165,6 @@ if os.path.exists("setup.cfg"):
     try: options['build_tkagg'] = config.getboolean("gui_support", "tkagg")
     except: options['build_tkagg'] = 'auto'
 
-    try: options['build_wxagg'] = config.getboolean("gui_support", "wxagg")
-    except: options['build_wxagg'] = 'auto'
-
     try: options['build_macosx'] = config.getboolean("gui_support", "macosx")
     except: options['build_macosx'] = 'auto'
 
@@ -175,27 +179,27 @@ if options['basedirlist']:
     basedirlist = options['basedirlist'].split()
 else:
     basedirlist = basedir[sys.platform]
-print "basedirlist is:", basedirlist
+print("basedirlist is: %s" % basedirlist)
 
 if options['display_status']:
     def print_line(char='='):
-        print char * 76
+        print(char * 76)
 
     def print_status(package, status):
         initial_indent = "%22s: " % package
         indent = ' ' * 24
-        print fill(str(status), width=76,
+        print(fill(str(status), width=76,
                    initial_indent=initial_indent,
-                   subsequent_indent=indent)
+                   subsequent_indent=indent))
 
     def print_message(message):
         indent = ' ' * 24 + "* "
-        print fill(str(message), width=76,
+        print(fill(str(message), width=76,
                    initial_indent=indent,
-                   subsequent_indent=indent)
+                   subsequent_indent=indent))
 
     def print_raw(section):
-        print section
+        print(section)
 else:
     def print_line(*args, **kwargs):
         pass
@@ -263,7 +267,7 @@ def has_pkgconfig():
         has_pkgconfig.cache = False
     else:
         #print 'environ',  os.environ['PKG_CONFIG_PATH']
-        status, output = commands.getstatusoutput("pkg-config --help")
+        status, output = getstatusoutput("pkg-config --help")
         has_pkgconfig.cache = (status == 0)
     return has_pkgconfig.cache
 has_pkgconfig.cache = None
@@ -285,7 +289,7 @@ def get_pkgconfig(module,
               '-U': 'undef_macros'}
 
     cmd = "%s %s %s" % (pkg_config_exec, flags, packages)
-    status, output = commands.getstatusoutput(cmd)
+    status, output = getstatusoutput(cmd)
     if status == 0:
         for token in output.split():
             attr = _flags.get(token[:2], None)
@@ -313,7 +317,7 @@ def get_pkgconfig_version(package):
     if not has_pkgconfig():
         return default
 
-    status, output = commands.getstatusoutput(
+    status, output = getstatusoutput(
         "pkg-config %s --modversion" % (package))
     if status == 0:
         return output
@@ -481,7 +485,7 @@ def check_provide_dateutil(hasdatetime=True):
 def check_for_dvipng():
     try:
         stdin, stdout = run_child_process('dvipng -version')
-        print_status("dvipng", stdout.readlines()[1].split()[-1])
+        print_status("dvipng", stdout.readlines()[1].decode().split()[-1])
         return True
     except (IndexError, ValueError):
         print_status("dvipng", "no")
@@ -494,7 +498,7 @@ def check_for_ghostscript():
         else:
             command = 'gs --version'
         stdin, stdout = run_child_process(command)
-        print_status("ghostscript", stdout.read()[:-1])
+        print_status("ghostscript", stdout.read().decode()[:-1])
         return True
     except (IndexError, ValueError):
         print_status("ghostscript", "no")
@@ -503,7 +507,7 @@ def check_for_ghostscript():
 def check_for_latex():
     try:
         stdin, stdout = run_child_process('latex -version')
-        line = stdout.readlines()[0]
+        line = stdout.readlines()[0].decode()
         pattern = '(3\.1\d+)|(MiKTeX \d+.\d+)'
         match = re.search(pattern, line)
         print_status("latex", match.group(0))
@@ -516,6 +520,7 @@ def check_for_pdftops():
     try:
         stdin, stdout = run_child_process('pdftops -v')
         for line in stdout.readlines():
+            line = line.decode()
             if 'version' in line:
                 print_status("pdftops", line.split()[-1])
                 return True
@@ -715,101 +720,9 @@ def add_pygtk_flags(module):
     if sys.platform == 'win32' and win32_compiler == 'msvc' and 'm' in module.libraries:
         module.libraries.remove('m')
 
-
-def check_for_wx():
-    gotit = False
-    explanation = None
-    try:
-        import wx
-    except ImportError:
-        explanation = 'wxPython not found'
-    else:
-        if getattr(wx, '__version__', '0.0')[0:3] >= '2.8':
-            print_status("wxPython", wx.__version__)
-            return True
-        elif sys.platform == 'win32' and win32_compiler == 'mingw32':
-            explanation = "The wxAgg extension can not be built using the mingw32 compiler on Windows, since the default wxPython binary is built using MS Visual Studio"
-        else:
-            wxconfig = find_wx_config()
-            if wxconfig is None:
-                explanation = """
-WXAgg's accelerator requires `wx-config'.
-
-The `wx-config\' executable could not be located in any directory of the
-PATH environment variable. If you want to build WXAgg, and wx-config is
-in some other location or has some other name, set the WX_CONFIG
-environment variable to the full path of the executable like so:
-
-export WX_CONFIG=/usr/lib/wxPython-2.6.1.0-gtk2-unicode/bin/wx-config
-"""
-            elif not check_wxpython_broken_macosx104_version(wxconfig):
-                explanation = 'WXAgg\'s accelerator not building because a broken wxPython (installed by Apple\'s Mac OS X) was found.'
-            else:
-                gotit = True
-
-    if gotit:
-        module = Extension("test", [])
-        add_wx_flags(module, wxconfig)
-        if not find_include_file(
-            module.include_dirs,
-            os.path.join("wx", "wxPython", "wxPython.h")):
-            explanation = ("Could not find wxPython headers in any of %s" %
-                               ", ".join(["'%s'" % x for x in module.include_dirs]))
-
-    if gotit:
-        print_status("wxPython", wx.__version__)
-    else:
-        print_status("wxPython", "no")
-    if explanation is not None:
-        print_message(explanation)
-    return gotit
-
-def find_wx_config():
-    """If the WX_CONFIG environment variable has been set, returns it value.
-    Otherwise, search for `wx-config' in the PATH directories and return the
-    first match found.  Failing that, return None.
-    """
-
-    wxconfig = os.getenv('WX_CONFIG')
-    if wxconfig is not None:
-        return wxconfig
-
-    path = os.getenv('PATH') or ''
-    for dir in path.split(':'):
-        wxconfig = os.path.join(dir, 'wx-config')
-        if os.path.exists(wxconfig):
-            return wxconfig
-
-    return None
-
-def check_wxpython_broken_macosx104_version(wxconfig):
-    """Determines if we're using a broken wxPython installed by Mac OS X 10.4"""
-    if sys.platform == 'darwin':
-        if wxconfig == '/usr/bin/wx-config':
-            version_full = getoutput(wxconfig + ' --version-full')
-            if version_full == '2.5.3.1':
-                return False
-    return True
-
-def add_wx_flags(module, wxconfig):
-    """
-    Add the module flags to build extensions which use wxPython.
-    """
-
-    if sys.platform == 'win32': # just added manually
-        wxlibs = ['wxexpath', 'wxjpegh', 'wxmsw26uh',
-                  'wxmsw26uh_animate', 'wxmsw26uh_gizmos', 'wxmsw26uh_gizmos_xrc',
-                  'wxmsw26uh_gl', 'wxmsw26uh_stc', 'wxpngh', 'wxregexuh', 'wxtiffh', 'wxzlibh']
-        module.libraries.extend(wxlibs)
-        module.libraries.extend(wxlibs)
-        return
-
-    get_pkgconfig(module, '', flags='--cppflags --libs', pkg_config_exec='wx-config')
-
 # Make sure you use the Tk version given by Tkinter.TkVersion
 # or else you'll build for a wrong version of the Tcl
 # interpreter (leading to nasty segfaults).
-
 def check_for_tk():
     gotit = False
     explanation = None
@@ -829,9 +742,15 @@ def check_for_tk():
         module = Extension('test', [])
         try:
             explanation = add_tk_flags(module)
-        except RuntimeError, e:
-            explanation = str(e)
+        except RuntimeError:
+            # This deals with the change in exception handling syntax in
+            # python 3. If we only need to support >= 2.6, we can just use the
+            # commented out lines below.
+            exc_type,exc,tb = sys.exc_info()
+            explanation = str(exc)
             gotit = False
+#        except RuntimeError, e:
+#            explanation = str(e)
         else:
             if not find_include_file(module.include_dirs, "tk.h"):
                 message = 'Tkinter present, but header files are not found. ' + \
@@ -908,15 +827,20 @@ def query_tcltk():
     return TCL_TK_CACHE
 
 def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
-    # This is where they live on Ubuntu Hardy (at least)
-    tcl_config = os.path.join(tcl_lib_dir, "tclConfig.sh")
-    tk_config = os.path.join(tk_lib_dir, "tkConfig.sh")
+    import Tkinter
+    tcl_poss = [tcl_lib_dir,
+                "/usr/lib/tcl"+str(Tkinter.TclVersion),
+                "/usr/lib"]
+    tk_poss = [tk_lib_dir,
+               "/usr/lib/tk"+str(Tkinter.TkVersion),
+               "/usr/lib"]
+    for ptcl, ptk in zip(tcl_poss, tk_poss):
+        tcl_config = os.path.join(ptcl, "tclConfig.sh")
+        tk_config = os.path.join(ptk, "tkConfig.sh")
+        if (os.path.exists(tcl_config) and os.path.exists(tk_config)):
+            break
     if not (os.path.exists(tcl_config) and os.path.exists(tk_config)):
-        # This is where they live on RHEL4 (at least)
-        tcl_config = "/usr/lib/tclConfig.sh"
-        tk_config = "/usr/lib/tkConfig.sh"
-        if not (os.path.exists(tcl_config) and os.path.exists(tk_config)):
-            return None
+        return None
 
     # These files are shell scripts that set a bunch of
     # environment variables.  To actually get at the
@@ -925,23 +849,21 @@ def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
     # So, we push a "[default]" section to a copy of the
     # file in a StringIO object.
     try:
-        tcl_vars_str = cStringIO.StringIO(
-            "[default]\n" + open(tcl_config, "r").read())
-        tk_vars_str = cStringIO.StringIO(
-            "[default]\n" + open(tk_config, "r").read())
+        tcl_vars_str = StringIO("[default]\n" + open(tcl_config, "r").read())
+        tk_vars_str = StringIO("[default]\n" + open(tk_config, "r").read())
     except IOError:
         # if we can't read the file, that's ok, we'll try
         # to guess instead
         return None
 
     tcl_vars_str.seek(0)
-    tcl_vars = ConfigParser.RawConfigParser()
+    tcl_vars = configparser.RawConfigParser()
     tk_vars_str.seek(0)
-    tk_vars = ConfigParser.RawConfigParser()
+    tk_vars = configparser.RawConfigParser()
     try:
         tcl_vars.readfp(tcl_vars_str)
         tk_vars.readfp(tk_vars_str)
-    except ConfigParser.ParsingError:
+    except configparser.ParsingError:
         # if we can't read the file, that's ok, we'll try
         # to guess instead
         return None
@@ -957,7 +879,7 @@ def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
         else:
             # On RHEL4
             tk_inc = tcl_inc
-    except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+    except (configparser.NoSectionError, configparser.NoOptionError):
         return None
 
     if not os.path.exists(os.path.join(tk_inc, 'tk.h')):
@@ -1058,8 +980,8 @@ def add_tk_flags(module):
             #
             tk_include_dirs = [
                 join(F, fw + '.framework', H)
-                for fw in 'Tcl', 'Tk'
-                for H in 'Headers', 'Versions/Current/PrivateHeaders'
+                for fw in ('Tcl', 'Tk')
+                for H in ('Headers', 'Versions/Current/PrivateHeaders')
             ]
 
             # For 8.4a2, the X11 headers are not included. Rather than include a
@@ -1201,25 +1123,6 @@ def build_tkagg(ext_modules, packages):
     ext_modules.append(module)
     BUILT_TKAGG = True
 
-
-def build_wxagg(ext_modules, packages):
-     global BUILT_WXAGG
-     if BUILT_WXAGG:
-         return
-
-     deps = ['src/_wxagg.cpp', 'src/mplutils.cpp']
-     deps.extend(glob.glob('CXX/*.cxx'))
-     deps.extend(glob.glob('CXX/*.c'))
-
-     module = Extension('matplotlib.backends._wxagg', deps)
-
-     add_agg_flags(module)
-     add_ft2font_flags(module)
-     wxconfig = find_wx_config()
-     add_wx_flags(module, wxconfig)
-
-     ext_modules.append(module)
-     BUILT_WXAGG = True
 
 def build_macosx(ext_modules, packages):
     global BUILT_MACOSX

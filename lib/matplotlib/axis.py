@@ -262,9 +262,6 @@ class Tick(artist.Artist):
         'return the view Interval instance for the axis this tick is ticking'
         raise NotImplementedError('Derived must override')
 
-    def set_view_interval(self, vmin, vmax, ignore=False):
-        raise NotImplementedError('Derived must override')
-
     def _apply_params(self, **kw):
         switchkw = ['gridOn', 'tick1On', 'tick2On', 'label1On', 'label2On']
         switches = [k for k in kw if k in switchkw]
@@ -445,20 +442,6 @@ class XTick(Tick):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervalx
 
-    def set_view_interval(self, vmin, vmax, ignore = False):
-        if ignore:
-            self.axes.viewLim.intervalx = vmin, vmax
-        else:
-            Vmin, Vmax = self.get_view_interval()
-            self.axes.viewLim.intervalx = min(vmin, Vmin), max(vmax, Vmax)
-
-    def get_minpos(self):
-        return self.axes.dataLim.minposx
-
-    def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
-        return self.axes.dataLim.intervalx
-
 
 class YTick(Tick):
     """
@@ -594,20 +577,6 @@ class YTick(Tick):
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervaly
-
-    def set_view_interval(self, vmin, vmax, ignore = False):
-        if ignore:
-            self.axes.viewLim.intervaly = vmin, vmax
-        else:
-            Vmin, Vmax = self.get_view_interval()
-            self.axes.viewLim.intervaly = min(vmin, Vmin), max(vmax, Vmax)
-
-    def get_minpos(self):
-        return self.axes.dataLim.minposy
-
-    def get_data_interval(self):
-        'return the Interval instance for this axis data limits'
-        return self.axes.dataLim.intervaly
 
 
 class Ticker:

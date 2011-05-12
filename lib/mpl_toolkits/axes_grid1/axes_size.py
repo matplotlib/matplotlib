@@ -1,6 +1,6 @@
 
 """
-provides a classese of simlpe units that will be used with AxesDivider
+provides a classes of simple units that will be used with AxesDivider
 class (or others) to determine the size of each axes. The unit
 classes define `get_size` method that returns a tuple of two floats,
 meaning relative and absolute sizes, respectively.
@@ -12,11 +12,43 @@ values are used.
 """
 
 import matplotlib.cbook as cbook
-
+from matplotlib.axes import Axes
 
 class _Base(object):
     "Base class"
-    pass
+
+    def __rmul__(self, other):
+        float(other) # just to check if number if given
+        return Fraction(other, self)
+
+    def __add__(self, other):
+        if isinstance(other, _Base):
+            return Add(self, other)
+        else:
+            float(other)
+            other = Fixed(other)
+            return Add(self, other)
+
+
+class Add(_Base):
+    def __init__(self, a, b):
+        self._a = a
+        self._b = b
+
+    def get_size(self, renderer):
+        a_rel_size, a_abs_size = self._a.get_size(renderer)
+        b_rel_size, b_abs_size = self._b.get_size(renderer)
+        return a_rel_size + b_rel_size, a_abs_size + b_abs_size
+
+class AddList(_Base):
+    def __init__(self, add_list):
+        self._list = add_list
+
+    def get_size(self, renderer):
+        sum_rel_size = sum([a.get_size(renderer)[0] for a in self._list])
+        sum_abs_size = sum([a.get_size(renderer)[1] for a in self._list])
+        return sum_rel_size, sum_abs_size
+
 
 class Fixed(_Base):
     "Simple fixed size  with absolute part = *fixed_size* and relative part = 0"
@@ -205,4 +237,55 @@ def from_any(size, fraction_ref=None):
 
     raise ValueError("Unknown format")
 
+
+class SizeFromFunc(_Base):
+    def __init__(self, func):
+        self._func = func
+
+    def get_size(self, renderer):
+        rel_size = 0.
+
+        bb = self._func(renderer)
+        dpi = renderer.points_to_pixels(72.)
+        abs_size = bb/dpi
+
+        return rel_size, abs_size
+
+class GetExtentHelper(object):
+    def _get_left(tight_bbox, axes_bbox):
+        return axes_bbox.xmin - tight_bbox.xmin
+
+    def _get_right(tight_bbox, axes_bbox):
+        return tight_bbox.xmax - axes_bbox.xmax
+
+    def _get_bottom(tight_bbox, axes_bbox):
+        return axes_bbox.ymin - tight_bbox.ymin
+
+    def _get_top(tight_bbox, axes_bbox):
+        return tight_bbox.ymax - axes_bbox.ymax
+
+    _get_func_map = dict(left=_get_left,
+                         right=_get_right,
+                         bottom=_get_bottom,
+                         top=_get_top)
+
+    del _get_left, _get_right, _get_bottom, _get_top
+    
+    def __init__(self, ax, direction):
+        if isinstance(ax, Axes):
+            self._ax_list = [ax]
+        else:
+            self._ax_list = ax
+            
+        try:
+            self._get_func = self._get_func_map[direction]
+        except KeyError:
+            print "direction must be one of left, right, bottom, top"
+            raise
+
+    def __call__(self, renderer):
+        vl = [self._get_func(ax.get_tightbbox(renderer),
+                             ax.bbox) for ax in self._ax_list]
+        return max(vl)
+    
 

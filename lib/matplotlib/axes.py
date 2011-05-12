@@ -34,6 +34,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 
+from matplotlib.container import BarContainer, ErrorbarContainer
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -178,7 +179,11 @@ class _process_plot_var_args:
 
         if self.axes.xaxis is not None and self.axes.yaxis is not None:
             xunits = kwargs.pop( 'xunits', self.axes.xaxis.units)
+            if self.axes.name == 'polar':
+                xunits = kwargs.pop( 'thetaunits', xunits )
             yunits = kwargs.pop( 'yunits', self.axes.yaxis.units)
+            if self.axes.name == 'polar':
+                yunits = kwargs.pop( 'runits', yunits )
             if xunits!=self.axes.xaxis.units:
                 self.axes.xaxis.set_units(xunits)
             if yunits!=self.axes.yaxis.units:
@@ -243,7 +248,7 @@ class _process_plot_var_args:
 
     def _makeline(self, x, y, kw, kwargs):
         kw = kw.copy() # Don't modify the original kw.
-        if not 'color' in kw:
+        if not 'color' in kw and not 'color' in kwargs.keys():
             kw['color'] = self.color_cycle.next()
             # (can't use setdefault because it always evaluates
             # its second argument)
@@ -864,6 +869,7 @@ class Axes(martist.Artist):
         self._current_image = None # strictly for pyplot via _sci, _gci
         self.legend_ = None
         self.collections = []  # collection.Collection instances
+        self.containers = []  #
 
         self.grid(self._gridOn)
         props = font_manager.FontProperties(size=rcParams['axes.titlesize'])
@@ -1490,6 +1496,21 @@ class Axes(martist.Artist):
         tab._remove_method = lambda h: self.tables.remove(h)
         return tab
 
+    def add_container(self, container):
+        '''
+        Add a :class:`~matplotlib.container.Container` instance
+        to the axes.
+
+        Returns the collection.
+        '''
+        label = container.get_label()
+        if not label:
+            container.set_label('_container%d'%len(self.containers))
+        self.containers.append(container)
+        container.set_remove_method(lambda h: self.containers.remove(container))
+        return container
+
+
     def relim(self):
         """
         Recompute the data limits based on current artists.
@@ -1559,6 +1580,8 @@ class Axes(martist.Artist):
         # process kwargs 2nd since these will override default units
         if kwargs is not None:
             xunits = kwargs.pop( 'xunits', self.xaxis.units)
+            if self.name == 'polar':
+                xunits = kwargs.pop( 'thetaunits', xunits )
             if xunits!=self.xaxis.units:
                 #print '\tkw setting xunits', xunits
                 self.xaxis.set_units(xunits)
@@ -1568,6 +1591,8 @@ class Axes(martist.Artist):
                     self.xaxis.update_units(xdata)
 
             yunits = kwargs.pop('yunits', self.yaxis.units)
+            if self.name == 'polar':
+                yunits = kwargs.pop( 'runits', yunits )
             if yunits!=self.yaxis.units:
                 #print '\tkw setting yunits', yunits
                 self.yaxis.set_units(yunits)
@@ -2011,11 +2036,11 @@ class Axes(martist.Artist):
         self._axisbelow = b
 
     @docstring.dedent_interpd
-    def grid(self, b=None, which='major', **kwargs):
+    def grid(self, b=None, which='major', axis='both', **kwargs):
         """
         call signature::
 
-          grid(self, b=None, which='major', **kwargs)
+           grid(self, b=None, which='major', axis='both', **kwargs)
 
         Set the axes grids on or off; *b* is a boolean.  (For MATLAB
         compatibility, *b* may also be a string, 'on' or 'off'.)
@@ -2027,19 +2052,26 @@ class Axes(martist.Artist):
         *which* can be 'major' (default), 'minor', or 'both' to control
         whether major tick grids, minor tick grids, or both are affected.
 
+        *axis* can be 'both' (default), 'x', or 'y' to control which
+        set of gridlines are drawn.
+
         *kawrgs* are used to set the grid line properties, eg::
 
-          ax.grid(color='r', linestyle='-', linewidth=2)
+           ax.grid(color='r', linestyle='-', linewidth=2)
 
         Valid :class:`~matplotlib.lines.Line2D` kwargs are
 
         %(Line2D)s
+
         """
         if len(kwargs):
             b = True
         b = _string_to_bool(b)
-        self.xaxis.grid(b, which=which, **kwargs)
-        self.yaxis.grid(b, which=which, **kwargs)
+
+        if axis == 'x' or  axis == 'both':
+          self.xaxis.grid(b, which=which, **kwargs)
+        if axis == 'y' or  axis == 'both':
+          self.yaxis.grid(b, which=which, **kwargs)
 
     def ticklabel_format(self, **kwargs):
         """
@@ -3794,7 +3826,7 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, **kwargs)
+           plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, **kwargs)
 
         Similar to the :func:`~matplotlib.pyplot.plot` command, except
         the *x* or *y* (or both) data is considered to be dates, and the
@@ -3805,18 +3837,18 @@ class Axes(martist.Artist):
 
         Keyword arguments:
 
-          *fmt*: string
-            The plot format string.
+        *fmt*: string
+           The plot format string.
 
-          *tz*: [ None | timezone string ]
-            The time zone to use in labeling dates. If *None*, defaults to rc
-            value.
+        *tz*: [ None | timezone string ]
+           The time zone to use in labeling dates. If *None*, defaults to rc
+           value.
 
-          *xdate*: [ True | False ]
-            If *True*, the *x*-axis will be labeled with dates.
+        *xdate*: [ True | False ]
+           If *True*, the *x*-axis will be labeled with dates.
 
-          *ydate*: [ False | True ]
-            If *True*, the *y*-axis will be labeled with dates.
+        *ydate*: [ False | True ]
+           If *True*, the *y*-axis will be labeled with dates.
 
         Note if you are using custom date tickers and formatters, it
         may be necessary to set the formatters/locators after the call
@@ -3836,14 +3868,12 @@ class Axes(martist.Artist):
 
         .. seealso::
 
-            :mod:`~matplotlib.dates`
-                for helper functions
+           :mod:`~matplotlib.dates` for helper functions
 
-            :func:`~matplotlib.dates.date2num`,
-            :func:`~matplotlib.dates.num2date` and
-            :func:`~matplotlib.dates.drange`
-                for help on creating the required floating point
-                dates.
+           :func:`~matplotlib.dates.date2num`,
+           :func:`~matplotlib.dates.num2date` and
+           :func:`~matplotlib.dates.drange` for help on creating the required
+           floating point dates.
         """
 
         if not self._hold: self.cla()
@@ -3965,7 +3995,6 @@ class Axes(martist.Artist):
              }
 
         self.set_xscale('log', **d)
-        self.set_yscale('linear')
         b =  self._hold
         self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
@@ -4016,7 +4045,6 @@ class Axes(martist.Artist):
              'nonposy': kwargs.pop('nonposy', 'mask'),
              }
         self.set_yscale('log', **d)
-        self.set_xscale('linear')
         b =  self._hold
         self._hold = True # we've already processed the hold
         l = self.plot(*args, **kwargs)
@@ -4176,20 +4204,29 @@ class Axes(martist.Artist):
         return lags, c, a, b
 
 
-    def _get_legend_handles(self):
+    def _get_legend_handles(self, legend_handler_map=None):
         "return artists that will be used as handles for legend"
-        handles = self.lines[:]
-        handles.extend(self.patches)
-        handles.extend([c for c in self.collections
-                        if isinstance(c, mcoll.LineCollection)])
-        handles.extend([c for c in self.collections
-                        if isinstance(c, mcoll.RegularPolyCollection)])
-        handles.extend([c for c in self.collections
-                        if isinstance(c, mcoll.CircleCollection)])
+        handles_original = self.lines + self.patches + \
+                           self.collections + self.containers
+
+        # collections
+        handler_map = mlegend.Legend.get_default_handler_map()
+
+        if legend_handler_map is not None:
+            handler_map = handler_map.copy()
+            handler_map.update(legend_handler_map)
+
+        handles = []
+        for h in handles_original:
+            if h.get_label() == "_nolegend_": #.startswith('_'):
+                continue
+            if mlegend.Legend.get_legend_handler(handler_map, h):
+                handles.append(h)
+
         return handles
 
 
-    def get_legend_handles_labels(self):
+    def get_legend_handles_labels(self, legend_handler_map=None):
         """
         return handles and labels for legend
 
@@ -4202,10 +4239,10 @@ class Axes(martist.Artist):
 
         handles = []
         labels = []
-        for handle in self._get_legend_handles():
+        for handle in self._get_legend_handles(legend_handler_map):
             label = handle.get_label()
-            if (label is not None and
-                label != '' and not label.startswith('_')):
+            #if (label is not None and label != '' and not label.startswith('_')):
+            if label and not label.startswith('_'):
                 handles.append(handle)
                 labels.append(label)
 
@@ -4353,6 +4390,9 @@ class Axes(martist.Artist):
         columnspacing      the spacing between columns
         ================   ==================================================================
 
+        .. Note:: Not all kinds of artist are supported by the legend command.
+                  See LINK (FIXME) for details.
+
 
         **Example:**
 
@@ -4394,7 +4434,10 @@ class Axes(martist.Artist):
             raise TypeError('Invalid arguments to legend')
 
 
-        handles = cbook.flatten(handles)
+        # Why do we need to call "flatten" here? -JJL
+        # handles = cbook.flatten(handles)
+
+
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         return self.legend_
 
@@ -4655,9 +4698,8 @@ class Axes(martist.Artist):
                 facecolor=c,
                 edgecolor=e,
                 linewidth=lw,
-                label=label
+                label='_nolegend_'
                 )
-            label = '_nolegend_'
             r.update(kwargs)
             r.get_path()._interpolation_steps = 100
             #print r.get_label(), label, 'label' in kwargs
@@ -4678,10 +4720,14 @@ class Axes(martist.Artist):
                 x = [l+w for l,w in zip(left, width)]
                 y = [b+0.5*h for b,h in zip(bottom, height)]
 
-            self.errorbar(
-                x, y,
-                yerr=yerr, xerr=xerr,
-                fmt=None, **error_kw)
+            if "label" not in error_kw:
+                error_kw["label"] = '_nolegend_'
+
+            errorbar = self.errorbar(x, y,
+                                     yerr=yerr, xerr=xerr,
+                                     fmt=None, **error_kw)
+        else:
+            errorbar = None
 
         self.hold(holdstate) # restore previous hold state
 
@@ -4701,7 +4747,11 @@ class Axes(martist.Artist):
             ymin = max(ymin*0.9, 1e-100)
             self.dataLim.intervaly = (ymin, ymax)
         self.autoscale_view()
-        return patches
+
+        bar_container = BarContainer(patches, errorbar, label=label)
+        self.add_container(bar_container)
+
+        return bar_container
 
     @docstring.dedent_interpd
     def barh(self, bottom, width, height=0.8, left=None, **kwargs):
@@ -5103,6 +5153,8 @@ class Axes(martist.Artist):
         holdstate = self._hold
         self._hold = True
 
+        label = kwargs.pop("label", None)
+
         # make sure all the args are iterable; use lists not arrays to
         # preserve units
         if not iterable(x):
@@ -5122,7 +5174,7 @@ class Axes(martist.Artist):
         l0 = None
 
         if barsabove and fmt is not None:
-            l0, = self.plot(x,y,fmt,**kwargs)
+            l0, = self.plot(x,y,fmt,label="_nolegend_", **kwargs)
 
         barcols = []
         caplines = []
@@ -5275,7 +5327,14 @@ class Axes(martist.Artist):
 
         self.autoscale_view()
         self._hold = holdstate
-        return (l0, caplines, barcols)
+
+        errorbar_container = ErrorbarContainer((l0, tuple(caplines), tuple(barcols)),
+                                               has_xerr=(xerr is not None),
+                                               has_yerr=(yerr is not None),
+                                               label=label)
+        self.containers.append(errorbar_container)
+
+        return errorbar_container # (l0, caplines, barcols)
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
@@ -5826,24 +5885,17 @@ class Axes(martist.Artist):
             else:
                 collection.autoscale_None()
 
-        temp_x = x
-        temp_y = y
-
-        minx = np.amin(temp_x)
-        maxx = np.amax(temp_x)
-        miny = np.amin(temp_y)
-        maxy = np.amax(temp_y)
-
-        w = maxx-minx
-        h = maxy-miny
-
         # the pad is a little hack to deal with the fact that we don't
         # want to transform all the symbols whose scales are in points
         # to data coords to get the exact bounding box for efficiency
         # reasons.  It can be done right if this is deemed important
-        padx, pady = 0.05*w, 0.05*h
-        corners = (minx-padx, miny-pady), (maxx+padx, maxy+pady)
-        self.update_datalim( corners)
+        # Also, only bother with this padding if there is anything to draw.
+        if self._xmargin < 0.05 and x.size > 0 :
+            self.set_xmargin(0.05)
+
+        if self._ymargin < 0.05 and x.size > 0 :
+            self.set_ymargin(0.05)
+
         self.autoscale_view()
 
         # add the collection last
@@ -5860,12 +5912,12 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          hexbin(x, y, C = None, gridsize = 100, bins = None,
-                 xscale = 'linear', yscale = 'linear',
-                 cmap=None, norm=None, vmin=None, vmax=None,
-                 alpha=None, linewidths=None, edgecolors='none'
-                 reduce_C_function = np.mean, mincnt=None, marginals=True
-                 **kwargs)
+           hexbin(x, y, C = None, gridsize = 100, bins = None,
+                  xscale = 'linear', yscale = 'linear',
+                  cmap=None, norm=None, vmin=None, vmax=None,
+                  alpha=None, linewidths=None, edgecolors='none'
+                  reduce_C_function = np.mean, mincnt=None, marginals=True
+                  **kwargs)
 
         Make a hexagonal binning plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length, *N*. If *C* is None
@@ -5884,84 +5936,84 @@ class Axes(martist.Artist):
 
         Optional keyword arguments:
 
-          *gridsize*: [ 100 | integer ]
-            The number of hexagons in the *x*-direction, default is
-            100. The corresponding number of hexagons in the
-            *y*-direction is chosen such that the hexagons are
-            approximately regular. Alternatively, gridsize can be a
-            tuple with two elements specifying the number of hexagons
-            in the *x*-direction and the *y*-direction.
+        *gridsize*: [ 100 | integer ]
+           The number of hexagons in the *x*-direction, default is
+           100. The corresponding number of hexagons in the
+           *y*-direction is chosen such that the hexagons are
+           approximately regular. Alternatively, gridsize can be a
+           tuple with two elements specifying the number of hexagons
+           in the *x*-direction and the *y*-direction.
 
-          *bins*: [ None | 'log' | integer | sequence ]
-            If *None*, no binning is applied; the color of each hexagon
-            directly corresponds to its count value.
+        *bins*: [ None | 'log' | integer | sequence ]
+           If *None*, no binning is applied; the color of each hexagon
+           directly corresponds to its count value.
 
-            If 'log', use a logarithmic scale for the color
-            map. Internally, :math:`log_{10}(i+1)` is used to
-            determine the hexagon color.
+           If 'log', use a logarithmic scale for the color
+           map. Internally, :math:`log_{10}(i+1)` is used to
+           determine the hexagon color.
 
-            If an integer, divide the counts in the specified number
-            of bins, and color the hexagons accordingly.
+           If an integer, divide the counts in the specified number
+           of bins, and color the hexagons accordingly.
 
-            If a sequence of values, the values of the lower bound of
-            the bins to be used.
+           If a sequence of values, the values of the lower bound of
+           the bins to be used.
 
-          *xscale*: [ 'linear' | 'log' ]
-            Use a linear or log10 scale on the horizontal axis.
+        *xscale*: [ 'linear' | 'log' ]
+           Use a linear or log10 scale on the horizontal axis.
 
-          *scale*: [ 'linear' | 'log' ]
-            Use a linear or log10 scale on the vertical axis.
+        *scale*: [ 'linear' | 'log' ]
+           Use a linear or log10 scale on the vertical axis.
 
-          *mincnt*: None | a positive integer
-            If not None, only display cells with more than *mincnt*
-            number of points in the cell
+        *mincnt*: None | a positive integer
+           If not None, only display cells with more than *mincnt*
+           number of points in the cell
 
-          *marginals*: True|False
-            if marginals is True, plot the marginal density as
-            colormapped rectagles along the bottom of the x-axis and
-            left of the y-axis
+        *marginals*: True|False
+           if marginals is True, plot the marginal density as
+           colormapped rectagles along the bottom of the x-axis and
+           left of the y-axis
 
-          *extent*: [ None | scalars (left, right, bottom, top) ]
-            The limits of the bins. The default assigns the limits
-            based on gridsize, x, y, xscale and yscale.
+        *extent*: [ None | scalars (left, right, bottom, top) ]
+           The limits of the bins. The default assigns the limits
+           based on gridsize, x, y, xscale and yscale.
 
         Other keyword arguments controlling color mapping and normalization
         arguments:
 
-          *cmap*: [ None | Colormap ]
-            a :class:`matplotlib.cm.Colormap` instance. If *None*,
-            defaults to rc ``image.cmap``.
+        *cmap*: [ None | Colormap ]
+           a :class:`matplotlib.cm.Colormap` instance. If *None*,
+           defaults to rc ``image.cmap``.
 
-          *norm*: [ None | Normalize ]
-            :class:`matplotlib.colors.Normalize` instance is used to
-            scale luminance data to 0,1.
+        *norm*: [ None | Normalize ]
+           :class:`matplotlib.colors.Normalize` instance is used to
+           scale luminance data to 0,1.
 
-          *vmin*/*vmax*: scalar
-            *vmin* and *vmax* are used in conjunction with *norm* to normalize
-            luminance data.  If either are *None*, the min and max of the color
-            array *C* is used.  Note if you pass a norm instance, your settings
-            for *vmin* and *vmax* will be ignored.
+        *vmin*/*vmax*: scalar
+           *vmin* and *vmax* are used in conjunction with *norm* to normalize
+           luminance data.  If either are *None*, the min and max of the color
+           array *C* is used.  Note if you pass a norm instance, your settings
+           for *vmin* and *vmax* will be ignored.
 
-          *alpha*: scalar between 0 and 1, or None
-            the alpha value for the patches
+        *alpha*: scalar between 0 and 1, or None
+           the alpha value for the patches
 
-          *linewidths*: [ None | scalar ]
-            If *None*, defaults to rc lines.linewidth. Note that this
-            is a tuple, and if you set the linewidths argument you
-            must set it as a sequence of floats, as required by
-            :class:`~matplotlib.collections.RegularPolyCollection`.
+        *linewidths*: [ None | scalar ]
+           If *None*, defaults to rc lines.linewidth. Note that this
+           is a tuple, and if you set the linewidths argument you
+           must set it as a sequence of floats, as required by
+           :class:`~matplotlib.collections.RegularPolyCollection`.
 
         Other keyword arguments controlling the Collection properties:
 
-          *edgecolors*: [ None | mpl color | color sequence ]
-            If 'none', draws the edges in the same color as the fill color.
-            This is the default, as it avoids unsightly unpainted pixels
-            between the hexagons.
+        *edgecolors*: [ None | mpl color | color sequence ]
+           If 'none', draws the edges in the same color as the fill color.
+           This is the default, as it avoids unsightly unpainted pixels
+           between the hexagons.
 
-            If *None*, draws the outlines in the default color.
+           If *None*, draws the outlines in the default color.
 
-            If a matplotlib color arg or sequence of rgba tuples, draws the
-            outlines in the specified color.
+           If a matplotlib color arg or sequence of rgba tuples, draws the
+           outlines in the specified color.
 
         Here are the standard descriptions of all the
         :class:`~matplotlib.collections.Collection` kwargs:
@@ -6305,6 +6357,13 @@ class Axes(martist.Artist):
 
         .. plot:: mpl_examples/pylab_examples/arrow_demo.py
         """
+        # Strip away units for the underlying patch since units
+        # do not make sense to most patch-like code
+        x = self.convert_xunits(x)
+        y = self.convert_yunits(y)
+        dx = self.convert_xunits(dx)
+        dy = self.convert_yunits(dy)
+
         a = mpatches.FancyArrow(x, y, dx, dy, **kwargs)
         self.add_artist(a)
         return a
@@ -7429,9 +7488,11 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          hist(x, bins=10, range=None, normed=False, cumulative=False,
-               bottom=None, histtype='bar', align='mid',
-               orientation='vertical', rwidth=None, log=False, **kwargs)
+          def hist(x, bins=10, range=None, normed=False, weights=None,
+                 cumulative=False, bottom=None, histtype='bar', align='mid',
+                 orientation='vertical', rwidth=None, log=False,
+                 color=None, label=None,
+                 **kwargs):
 
         Compute and draw the histogram of *x*. The return value is a
         tuple (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*,
@@ -7600,7 +7661,7 @@ class Axes(martist.Artist):
                     'this looks transposed (shape is %d x %d)' % x.shape[::-1])
         else:
             # multiple hist with data of different length
-            x = [np.array(xi) for xi in x]
+            x = [np.asarray(xi) for xi in x]
 
         nx = len(x) # number of datasets
 
@@ -7623,7 +7684,7 @@ class Axes(martist.Artist):
                 else:
                     raise ValueError("weights must be 1D or 2D")
             else:
-                w = [np.array(wi) for wi in weights]
+                w = [np.asarray(wi) for wi in weights]
 
             if len(w) != nx:
                 raise ValueError('weights should have the same shape as x')
@@ -7800,22 +7861,26 @@ class Axes(martist.Artist):
                 self.dataLim.intervaly = (ymin, ymax)
 
         if label is None:
-            labels = ['_nolegend_']
+            labels = [None]
         elif is_string_like(label):
             labels = [label]
         elif is_sequence_of_strings(label):
             labels = list(label)
         else:
-            raise ValueError(
-                'invalid label: must be string or sequence of strings')
+            raise ValueError('invalid label: must be string or sequence of strings')
+
         if len(labels) < nx:
-            labels += ['_nolegend_'] * (nx - len(labels))
+            labels += [None] * (nx - len(labels))
 
         for (patch, lbl) in zip(patches, labels):
-            for p in patch:
+            if patch:
+                p = patch[0]
                 p.update(kwargs)
-                p.set_label(lbl)
-                lbl = '_nolegend_'
+                if lbl is not None: p.set_label(lbl)
+
+                for p in patch[1:]:
+                    p.update(kwargs)
+                    p.set_label('_nolegend_')
 
         if binsgiven:
             if orientation == 'vertical':
@@ -8286,10 +8351,12 @@ class Axes(martist.Artist):
         if self.xaxis.get_visible():
             artists.append(self.xaxis.label)
             bbx1, bbx2 = self.xaxis.get_ticklabel_extents(renderer)
+            self.xaxis._update_label_position([bbx1], [bbx2])
             bb.extend([bbx1, bbx2])
         if self.yaxis.get_visible():
             artists.append(self.yaxis.label)
             bby1, bby2 = self.yaxis.get_ticklabel_extents(renderer)
+            self.yaxis._update_label_position([bby1], [bby2])
             bb.extend([bby1, bby2])
 
 

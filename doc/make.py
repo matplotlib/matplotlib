@@ -5,6 +5,11 @@ import os
 import shutil
 import sys
 
+def copy_if_out_of_date(original, derived):
+    if (not os.path.exists(derived) or
+        os.stat(derived).st_mtime < os.stat(original).st_mtime):
+        shutil.copyfile(original, derived)
+
 def check_build():
     build_dirs = ['build', 'build/doctrees', 'build/html', 'build/latex',
                   '_static', '_templates']
@@ -28,7 +33,7 @@ def figs():
 
 def html():
     check_build()
-    shutil.copy('../lib/matplotlib/mpl-data/matplotlibrc', '_static/matplotlibrc')
+    copy_if_out_of_date('../lib/matplotlib/mpl-data/matplotlibrc', '_static/matplotlibrc')
     if small_docs:
         options = "-D plot_formats=\"[('png', 80)]\""
     else:
@@ -102,6 +107,8 @@ small_docs = False
 # Change directory to the one containing this file
 current_dir = os.getcwd()
 os.chdir(os.path.dirname(os.path.join(current_dir, __file__)))
+copy_if_out_of_date('../INSTALL', 'users/installing.rst')
+
 
 if len(sys.argv)>1:
     if '--small' in sys.argv[1:]:

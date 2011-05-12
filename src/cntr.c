@@ -1,3 +1,5 @@
+/* -*- mode: c; c-basic-offset: 4 -*- */
+
 /*
   cntr.c
   General purpose contour tracer for quadrilateral meshes.
@@ -18,7 +20,7 @@
 #include "structmember.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "numerix.h"
+#include "numpy/arrayobject.h"
 
 /* Note that all arrays in these routines are Fortran-style,
    in the sense that the "i" index varies fastest; the dimensions
@@ -1804,7 +1806,7 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
                                                       PyArray_DOUBLE, 2, 2);
     if (marg)
         mpa = (PyArrayObject *) PyArray_ContiguousFromObject(marg,
-                                                      PyArray_SBYTE, 2, 2);
+                                                      PyArray_BYTE, 2, 2);
     else
         mpa = NULL;
 

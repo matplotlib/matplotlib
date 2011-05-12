@@ -603,7 +603,7 @@ class RendererSVG(RendererBase):
         if rcParams['svg.embed_char_paths']:
             new_chars = []
             for c in s:
-                path = self._add_char_def(prop, c)
+                path = self._add_char_def(prop, ord(c))
                 if path is not None:
                     new_chars.append(path)
             if len(new_chars):
@@ -628,7 +628,7 @@ class RendererSVG(RendererBase):
             lastgind = None
             currx = 0
             for c in s:
-                charnum = self._get_char_def_id(prop, c)
+                charnum = self._get_char_def_id(prop, ord(c))
                 ccode = ord(c)
                 gind = cmap.get(ccode)
                 if gind is None:
@@ -680,13 +680,13 @@ class RendererSVG(RendererBase):
             font = prop
         font.set_size(self.FONT_SCALE, 72)
         ps_name = font.get_sfnt()[(1,0,0,6)]
-        char_id = urllib.quote('%s-%d' % (ps_name, ord(char)))
+        char_id = urllib.quote('%s-%d' % (ps_name, char))
         char_num = self._char_defs.get(char_id, None)
         if char_num is not None:
             return None
 
         path_data = []
-        glyph = font.load_char(ord(char), flags=LOAD_NO_HINTING)
+        glyph = font.load_char(char, flags=LOAD_NO_HINTING)
         currx, curry = 0.0, 0.0
         for step in glyph.path:
             if step[0] == 0:   # MOVE_TO
@@ -724,7 +724,7 @@ class RendererSVG(RendererBase):
             font = prop
         font.set_size(self.FONT_SCALE, 72)
         ps_name = font.get_sfnt()[(1,0,0,6)]
-        char_id = urllib.quote('%s-%d' % (ps_name, ord(char)))
+        char_id = urllib.quote('%s-%d' % (ps_name, char))
         return self._char_defs[char_id]
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
@@ -742,8 +742,8 @@ class RendererSVG(RendererBase):
 
         if rcParams['svg.embed_char_paths']:
             new_chars = []
-            for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
-                path = self._add_char_def(font, thetext)
+            for font, fontsize, char, new_x, new_y_mtc, metrics in svg_glyphs:
+                path = self._add_char_def(font, char)
                 if path is not None:
                     new_chars.append(path)
             if len(new_chars):
@@ -760,8 +760,8 @@ class RendererSVG(RendererBase):
                 svg.append('translate(%f,%f)' % (x, y))
             svg.append('">\n')
 
-            for font, fontsize, thetext, new_x, new_y_mtc, metrics in svg_glyphs:
-                charid = self._get_char_def_id(font, thetext)
+            for font, fontsize, char, new_x, new_y_mtc, metrics in svg_glyphs:
+                charid = self._get_char_def_id(font, char)
 
                 svg.append('<use xlink:href="#%s" transform="translate(%f,%f)scale(%f)"/>\n' %
                            (charid, new_x, -new_y_mtc, fontsize / self.FONT_SCALE))

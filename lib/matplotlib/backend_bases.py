@@ -48,7 +48,11 @@ import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
 
-
+try:
+    from PIL import Image
+    _has_pil = True
+except ImportError:
+    _has_pil = False
 
 _backend_d = {}
 
@@ -912,28 +916,42 @@ class TimerBase(object):
     event loops.
 
     Mandatory functions that must be implemented:
-    * _timer_start: Contains backend-specific code for starting the timer
-    * _timer_stop: Contains backend-specific code for stopping the timer
+
+        * `_timer_start`: Contains backend-specific code for starting
+          the timer
+
+        * `_timer_stop`: Contains backend-specific code for stopping
+          the timer
 
     Optional overrides:
-    * _timer_set_single_shot: Code for setting the timer to single shot
-        operating mode, if supported by the timer object. If not, the Timer
-        class itself will store the flag and the _on_timer method should
-        be overridden to support such behavior.
-    * _timer_set_interval: Code for setting the interval on the timer, if
-        there is a method for doing so on the timer object.
-    * _on_timer: This is the internal function that any timer object should
-        call, which will handle the task of running all callbacks that have
-        been set.
+
+        * `_timer_set_single_shot`: Code for setting the timer to
+          single shot operating mode, if supported by the timer
+          object. If not, the `Timer` class itself will store the flag
+          and the `_on_timer` method should be overridden to support
+          such behavior.
+
+        * `_timer_set_interval`: Code for setting the interval on the
+          timer, if there is a method for doing so on the timer
+          object.
+
+        * `_on_timer`: This is the internal function that any timer
+          object should call, which will handle the task of running
+          all callbacks that have been set.
 
     Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * single_shot: Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
+
+        * `interval`: The time between timer events in
+          milliseconds. Default is 1000 ms.
+
+        * `single_shot`: Boolean flag indicating whether this timer
+          should operate as single shot (run once and then
+          stop). Defaults to `False`.
+
+        * `callbacks`: Stores list of (func, args) tuples that will be
+          called upon timer events. This list can be manipulated
+          directly, or the functions `add_callback` and
+          `remove_callback` can be used.
     '''
     def __init__(self, interval=None, callbacks=None):
         #Initialize empty callbacks list and setup default settings if necssary
@@ -1757,6 +1775,44 @@ class FigureCanvasBase:
         from backends.backend_svg import FigureCanvasSVG # lazy import
         svg = self.switch_backends(FigureCanvasSVG)
         return svg.print_svgz(*args, **kwargs)
+
+    if _has_pil:
+        filetypes['jpg'] = filetypes['jpeg'] = 'Joint Photographic Experts Group'
+        def print_jpg(self, filename_or_obj, *args, **kwargs):
+            """
+            Supported kwargs:
+
+            *quality*: The image quality, on a scale from 1 (worst) to
+                95 (best). The default is 75. Values above 95 should
+                be avoided; 100 completely disables the JPEG
+                quantization stage.
+
+            *optimize*: If present, indicates that the encoder should
+                make an extra pass over the image in order to select
+                optimal encoder settings.
+
+            *progressive*: If present, indicates that this image
+                should be stored as a progressive JPEG file.
+            """
+            from backends.backend_agg import FigureCanvasAgg # lazy import
+            agg = self.switch_backends(FigureCanvasAgg)
+            buf, size = agg.print_to_buffer()
+            if kwargs.pop("dryrun", False): return
+            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
+            options = cbook.restrict_dict(kwargs, ['quality', 'optimize',
+                                                   'progressive'])
+            return image.save(filename_or_obj, **options)
+        print_jpeg = print_jpg
+
+        filetypes['tif'] = filetypes['tiff'] = 'Tagged Image File Format'
+        def print_tif(self, filename_or_obj, *args, **kwargs):
+            from backends.backend_agg import FigureCanvasAgg # lazy import
+            agg = self.switch_backends(FigureCanvasAgg)
+            buf, size = agg.print_to_buffer()
+            if kwargs.pop("dryrun", False): return
+            image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
+            return image.save(filename_or_obj)
+        print_tiff = print_tif
 
     def get_supported_filetypes(self):
         return self.filetypes

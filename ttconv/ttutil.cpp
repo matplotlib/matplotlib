@@ -1,3 +1,5 @@
+/* -*- mode: c++; c-basic-offset: 4 -*- */
+
 /*
  * Modified for use within matplotlib
  * 5 July 2007

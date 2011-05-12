@@ -1,0 +1,55 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg width="378pt" height="54pt" viewBox="0 0 378 54"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.1"
+   id="svg1">
+<filter id="colorAdd"><feComposite in="SourceGraphic" in2="BackgroundImage" operator="arithmetic" k2="1" k3="1"/></filter>
+<g id="figure1">
+<g id="patch1">
+<path style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M0.000000 54.000000L378.000000 54.000000L378.000000 0.000000
+L0.000000 0.000000z"/>
+</g>
+<g id="text1">
+<defs>
+<path id="c_cc57b1f90f89880fba984bcceed5a83d" d="M111.000000 -256.500000l-54.203125 307.500000l-5.703125 0.000000l-22.500000 -126.406250q-1.187500 -6.500000 -2.687500 -9.500000q-1.500000 -3.000000 -4.406250 -3.000000q-4.593750 0.000000 -8.500000 3.312500l-1.796875 -3.406250l22.000000 -13.906250l3.890625 0.000000l19.906250 111.812500l0.406250 0.000000l46.890625 -266.406250z"/>
+<path id="c_60609572cbbae62115937cf2c175839d" d="M30.203125 -0.000000l-7.906250 0.000000l0.000000 -57.000000q-2.203125 1.000000 -6.546875 3.250000q-4.343750 2.250000 -4.953125 2.546875l0.000000 -7.296875l18.000000 -9.203125l1.406250 0.500000z"/>
+<path id="c_6d61cf1c82e1e3b046bf4a8a4ce74492" d="M63.593750 -22.000000l-26.093750 0.000000l0.000000 26.093750l-6.593750 0.000000l0.000000 -26.093750l-26.109375 0.000000l0.000000 -6.593750l26.109375 0.000000l0.000000 -26.109375l6.593750 0.000000l0.000000 26.109375l26.093750 0.000000z"/>
+<path id="c_233ec8d0426ee6a38b4eb96eeb671b17" d="M115.703125 -205.593750l-59.000000 246.000000l-5.906250 0.000000l-25.000000 -103.203125q-1.000000 -4.000000 -2.406250 -6.093750q-1.390625 -2.109375 -3.984375 -2.109375q-3.312500 0.000000 -6.906250 2.796875l-1.500000 -2.703125l18.296875 -12.687500l2.796875 0.000000l23.906250 98.890625l0.703125 0.000000l52.890625 -220.890625z"/>
+<path id="c_99ba9fa6f7a70d9a1a17b1b250f78381" d="M108.906250 -155.203125l-56.203125 184.703125l-4.203125 0.000000l-23.093750 -75.093750q-1.109375 -3.609375 -2.515625 -5.203125q-1.390625 -1.609375 -3.687500 -1.609375q-3.406250 0.000000 -6.796875 2.703125l-1.203125 -2.000000l16.390625 -12.593750l2.500000 0.000000l22.703125 73.703125l0.406250 0.000000l50.000000 -164.609375z"/>
+<path id="c_2086d901e46666ce7b1a38ec8f9bfa0e" d="M96.296875 -97.296875l-47.796875 123.203125l-3.203125 0.000000l-20.203125 -53.000000q-2.187500 -5.906250 -6.187500 -5.906250q-3.109375 0.000000 -6.500000 3.093750l-1.203125 -2.000000l15.593750 -12.390625l1.906250 0.000000l20.390625 53.593750l0.406250 0.000000l41.406250 -106.593750z"/>
+<path id="c_f05135d5b912bce163b97372f515d1c6" d="M54.406250 -45.296875l-20.000000 21.703125l10.796875 23.593750l-9.406250 0.000000l-7.890625 -17.500000l-15.500000 17.500000l-9.406250 0.000000l22.000000 -23.906250l-9.593750 -21.390625l9.390625 0.000000l6.796875 15.093750l13.406250 -15.093750z"/>
+</defs>
+<g id="mathtext1">
+<g style="fill: #000000" transform="translate(76.500000,46.500000)">
+<use xlink:href="#c_cc57b1f90f89880fba984bcceed5a83d" transform="translate(0.000000,-7.498750)scale(0.124526)"/>
+<use xlink:href="#c_60609572cbbae62115937cf2c175839d" transform="translate(14.882736,-2.186250)scale(0.120000)"/>
+<use xlink:href="#c_6d61cf1c82e1e3b046bf4a8a4ce74492" transform="translate(22.697119,-2.186250)scale(0.120000)"/>
+<use xlink:href="#c_cc57b1f90f89880fba984bcceed5a83d" transform="translate(31.558392,-7.311250)scale(0.110504)"/>
+<use xlink:href="#c_60609572cbbae62115937cf2c175839d" transform="translate(44.944836,-1.748750)scale(0.120000)"/>
+<use xlink:href="#c_6d61cf1c82e1e3b046bf4a8a4ce74492" transform="translate(52.759219,-1.748750)scale(0.120000)"/>
+<use xlink:href="#c_233ec8d0426ee6a38b4eb96eeb671b17" transform="translate(61.620493,-6.108125)scale(0.118226)"/>
+<use xlink:href="#c_60609572cbbae62115937cf2c175839d" transform="translate(76.397745,-1.905000)scale(0.120000)"/>
+<use xlink:href="#c_6d61cf1c82e1e3b046bf4a8a4ce74492" transform="translate(84.212128,-1.905000)scale(0.120000)"/>
+<use xlink:href="#c_233ec8d0426ee6a38b4eb96eeb671b17" transform="translate(93.073401,-5.467500)scale(0.100820)"/>
+<use xlink:href="#c_60609572cbbae62115937cf2c175839d" transform="translate(105.901221,-1.436250)scale(0.120000)"/>
+<use xlink:href="#c_6d61cf1c82e1e3b046bf4a8a4ce74492" transform="translate(113.715604,-1.436250)scale(0.120000)"/>
+<use xlink:href="#c_99ba9fa6f7a70d9a1a17b1b250f78381" transform="translate(122.576877,-4.201875)scale(0.114172)"/>
+<use xlink:href="#c_60609572cbbae62115937cf2c175839d" transform="translate(136.133273,-1.389375)scale(0.120000)"/>
+<use xlink:href="#c_6d61cf1c82e1e3b046bf4a8a4ce74492" transform="translate(143.947656,-1.389375)scale(0.120000)"/>
+<use xlink:href="#c_99ba9fa6f7a70d9a1a17b1b250f78381" transform="translate(152.808929,-3.561250)scale(0.090916)"/>
+<use xlink:href="#c_60609572cbbae62115937cf2c175839d" transform="translate(163.904495,-0.936250)scale(0.120000)"/>
+<use xlink:href="#c_6d61cf1c82e1e3b046bf4a8a4ce74492" transform="translate(171.718878,-0.936250)scale(0.120000)"/>
+<use xlink:href="#c_2086d901e46666ce7b1a38ec8f9bfa0e" transform="translate(180.580151,-3.045625)scale(0.100338)"/>
+<use xlink:href="#c_60609572cbbae62115937cf2c175839d" transform="translate(191.389142,-0.625000)scale(0.120000)"/>
+<use xlink:href="#c_6d61cf1c82e1e3b046bf4a8a4ce74492" transform="translate(199.203525,-0.625000)scale(0.120000)"/>
+<use xlink:href="#c_f05135d5b912bce163b97372f515d1c6" transform="translate(208.064798,-0.625000)scale(0.120000)"/>
+</g>
+<g style="fill: #000000; stroke: none" transform="translate(76.500000,46.500000)">
+<rect x="13.382736" y="-38.500000" width="210.966058" height="0.750000" fill="black" stroke="none" /><rect x="43.444836" y="-35.750000" width="179.403958" height="0.750000" fill="black" stroke="none" /><rect x="74.897745" y="-31.000000" width="146.451050" height="0.750000" fill="black" stroke="none" /><rect x="104.401221" y="-26.250000" width="115.447574" height="0.750000" fill="black" stroke="none" /><rect x="134.633273" y="-21.500000" width="83.715521" height="0.750000" fill="black" stroke="none" /><rect x="162.404495" y="-17.750000" width="54.444299" height="0.750000" fill="black" stroke="none" /><rect x="189.889142" y="-13.000000" width="25.459653" height="0.750000" fill="black" stroke="none" /></g></g>
+</g>
+</g>
+</svg>

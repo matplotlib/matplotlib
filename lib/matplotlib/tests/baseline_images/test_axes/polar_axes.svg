@@ -11,7 +11,7 @@
 <g id="figure1">
 <g id="patch1">
 <path style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M0.000000 432.000000L576.000000 432.000000L576.000000 0.000000
-L0.000000 0.000000L0.000000 432.000000"/>
+L0.000000 0.000000z"/>
 </g>
 <g id="axes1">
 <g id="patch2">
@@ -132,7 +132,7 @@ C-0.795609 -3.000000 -1.558740 -2.683901 -2.121320 -2.121320
 C-2.683901 -1.558740 -3.000000 -0.795609 -3.000000 0.000000
 C-3.000000 0.795609 -2.683901 1.558740 -2.121320 2.121320
 C-1.558740 2.683901 -0.795609 3.000000 0.000000 3.000000z"/></defs>
-<g clip-path="url(#p904278a4c1c81ab8b13ccb57b319fa38)"><use style="fill: #008000; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m87f81da4bcf58d853202912065521dc1" x="183.361491" y="297.255433"/>
+<g clip-path="url(#p904278a4c1c81ab8b13ccb57b319fa38)"><use style="fill: #0000ff; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m87f81da4bcf58d853202912065521dc1" x="183.361491" y="297.255433"/>
 </g></g>
 <g id="matplotlib.axis1">
 <g id="xtick1">
@@ -580,9 +580,9 @@ C122.400000 261.827096 140.607298 305.783402 173.011948 338.188052
 C205.416598 370.592702 249.372904 388.800000 295.200000 388.800000z"/>
 </g>
 <g id="patch4">
-<path style="fill: #000000; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M138.069192 395.268834L141.730707 396.879210L178.787389 312.623361
-L182.448904 314.233736L181.074041 302.456412L171.464360 309.402609
-L175.125875 311.012985L138.069192 395.268834"/>
+<path style="fill: #000000; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M138.747362 395.279474L142.418162 396.868569L178.892657 312.612720
+L182.563458 314.201816L181.109979 302.456412L171.551056 309.434529
+L175.221857 311.023625L138.747362 395.279474"/>
 </g>
 <g id="text14">
 <defs>

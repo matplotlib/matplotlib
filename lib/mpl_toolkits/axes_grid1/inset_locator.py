@@ -143,7 +143,7 @@ class AnchoredZoomLocator(AnchoredLocatorBase):
 class BboxPatch(Patch):
    def __init__(self, bbox, **kwargs):
         if "transform" in kwargs:
-           raise ValueError("trnasform should nt be set")
+           raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
         Patch.__init__(self, **kwargs)
@@ -225,7 +225,7 @@ class BboxConnector(Patch):
 
         """
         if "transform" in kwargs:
-           raise ValueError("trnasform should nt be set")
+           raise ValueError("transform should not be set")
 
         kwargs["transform"] = IdentityTransform()
         Patch.__init__(self, **kwargs)

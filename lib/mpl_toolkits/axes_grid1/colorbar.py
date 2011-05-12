@@ -162,7 +162,7 @@ docstring.interpd.update(colorbar_doc=colorbar_doc)
 
 class CbarAxesLocator(object):
     """
-    CbarAxesLocator is a axes_locator for colobar axes. It adjust the
+    CbarAxesLocator is a axes_locator for colorbar axes. It adjust the
     position of the axes to make a room for extended ends, i.e., the
     extended ends are located outside the axes area.
     """
@@ -194,8 +194,8 @@ class CbarAxesLocator(object):
     def get_end_vertices(self):
         """
         return a tuple of two vertices for the colorbar extended ends.
-        The first vertives is for min. end, and the second is for
-        max. end.
+        The first vertices is for the minimum end, and the second is for
+        the maximum end.
         """
         # Note that concatenating two vertices needs to make a
         # vertices for the frame.
@@ -390,7 +390,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _get_colorbar_limits(self):
         """
-        initial limits for colorbar range. The returne min, max values
+        initial limits for colorbar range. The returned min, max values
         will be used to create colorbar solid(?) and etc.
         """
         if self.boundaries is not None:
@@ -407,7 +407,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _config_axes(self):
         '''
-        Adjust the properties of the axes to be adquate for colorbar display.
+        Adjust the properties of the axes to be adequate for colorbar display.
         '''
         ax = self.ax
 
@@ -416,7 +416,7 @@ class ColorbarBase(cm.ScalarMappable):
                                        orientation=self.orientation)
         ax.set_axes_locator(axes_locator)
 
-        # overide the get_data_ratio for the aspect works.
+        # override the get_data_ratio for the aspect works.
         def _f():
             return 1.
         ax.get_data_ratio = _f
@@ -559,7 +559,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def add_lines(self, levels, colors, linewidths):
         '''
-        Draw lines on the colorbar. It deletes preexting lines.
+        Draw lines on the colorbar. It deletes preexisting lines.
         '''
         del self.lines
 
@@ -737,7 +737,7 @@ class Colorbar(ColorbarBase):
     def update_bruteforce(self, mappable):
         """
         Update the colorbar artists to reflect the change of the
-        assocaited mappable.
+        associated mappable.
         """
         self.update_artists()
 

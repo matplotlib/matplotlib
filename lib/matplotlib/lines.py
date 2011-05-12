@@ -248,6 +248,7 @@ class Line2D(Artist):
         # chance to init axes (and hence unit support)
         self.update(kwargs)
         self.pickradius = pickradius
+        self.ind_offset = 0
         if is_numlike(self._picker):
             self.pickradius = self._picker
 
@@ -283,6 +284,8 @@ class Line2D(Artist):
         if len(self._xy)==0: return False,{}
 
         # Convert points to pixels
+        if self._transformed_path is None:
+            self._transform_path()
         path, affine = self._transformed_path.get_transformed_path_and_affine()
         path = affine.transform_path(path)
         xy = path.vertices
@@ -756,44 +759,44 @@ class Line2D(Artist):
         """
         Set the line marker
 
-        ========== ==========================
-        marker     description
-        ========== ==========================
-        ``'.'``    point
-        ``','``    pixel
-        ``'o'``    circle
-        ``'v'``    triangle_down
-        ``'^'``    triangle_up
-        ``'<'``    triangle_left
-        ``'>'``    triangle_right
-        ``'1'``    tri_down
-        ``'2'``    tri_up
-        ``'3'``    tri_left
-        ``'4'``    tri_right
-        ``'s'``    square
-        ``'p'``    pentagon
-        ``'*'``    star
-        ``'h'``    hexagon1
-        ``'H'``    hexagon2
-        ``'+'``    plus
-        ``'x'``    x
-        ``'D'``    diamond
-        ``'d'``    thin_diamond
-        ``'|'``    vline
-        ``'_'``    hline
-        TICKLEFT   tickleft
-        TICKRIGHT  tickright
-        TICKUP     tickup
-        TICKDOWN   tickdown
-        CARETLEFT  caretleft
-        CARETRIGHT caretright
-        CARETUP    caretup
-        CARETDOWN  caretdown
-        ``'None'`` nothing
-        ``' '``    nothing
-        ``''``     nothing
-        '$...$'    render the string using mathtext
-        ========== ==========================
+        =========== ===================================
+        marker      description
+        =========== ===================================
+        ``'.'``     point
+        ``','``     pixel
+        ``'o'``     circle
+        ``'v'``     triangle_down
+        ``'^'``     triangle_up
+        ``'<'``     triangle_left
+        ``'>'``     triangle_right
+        ``'1'``     tri_down
+        ``'2'``     tri_up
+        ``'3'``     tri_left
+        ``'4'``     tri_right
+        ``'s'``     square
+        ``'p'``     pentagon
+        ``'*'``     star
+        ``'h'``     hexagon1
+        ``'H'``     hexagon2
+        ``'+'``     plus
+        ``'x'``     x
+        ``'D'``     diamond
+        ``'d'``     thin_diamond
+        ``'|'``     vline
+        ``'_'``     hline
+        TICKLEFT    tickleft
+        TICKRIGHT   tickright
+        TICKUP      tickup
+        TICKDOWN    tickdown
+        CARETLEFT   caretleft
+        CARETRIGHT  caretright
+        CARETUP     caretup
+        CARETDOWN   caretdown
+        ``'None'``  nothing
+        ``' '``     nothing
+        ``''``      nothing
+        ``'$...$'`` render the string using mathtext
+        =========== ===================================
 
 
 
@@ -805,7 +808,7 @@ class Line2D(Artist):
                  | ``'x'`` | ``'|'``
                  | TICKUP | TICKDOWN | TICKLEFT | TICKRIGHT
                  | CARETUP | CARETDOWN | CARETLEFT | CARETRIGHT
-                 | ``'None'`` | ``' '`` | ``''`` | '$...$']
+                 | ``'None'`` | ``' '`` | ``''`` | ``'$...$'`` ]
 
         """
         if marker in self._markers:

@@ -291,8 +291,17 @@ class Patch3DCollection(PatchCollection):
         PatchCollection.__init__(self, *args, **kwargs)
         self._old_draw = lambda x: PatchCollection.draw(self, x)
 
+    def set_sort_zpos(self,val):
+        '''Set the position to use for z-sorting.'''
+        self._sort_zpos = val
+
     def set_3d_properties(self, zs, zdir):
-        xs, ys = zip(*self.get_offsets())
+        offsets = self.get_offsets()
+        if len(offsets) > 0:
+            xs, ys = zip(*self.get_offsets())
+        else:
+            xs = [0] * len(zs)
+            ys = [0] * len(zs)
         self._offsets3d = juggle_axes(xs, ys, zs, zdir)
         self._facecolor3d = self.get_facecolor()
         self._edgecolor3d = self.get_edgecolor()

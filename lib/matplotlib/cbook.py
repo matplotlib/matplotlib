@@ -373,8 +373,10 @@ def unique(x):
 
 def iterable(obj):
     'return true if *obj* is iterable'
-    try: len(obj)
-    except: return False
+    try:
+        iter(obj)
+    except TypeError:
+        return False
     return True
 
 
@@ -1243,6 +1245,12 @@ def reverse_dict(d):
     'reverse the dictionary -- may lose data if values are not unique!'
     return dict([(v,k) for k,v in d.items()])
 
+def restrict_dict(d, keys):
+    """
+    Return a dictionary that contains those keys that appear in both
+    d and keys, with values from d.
+    """
+    return dict([(k,v) for (k,v) in d.iteritems() if k in keys])
 
 def report_memory(i=0):  # argument may go away
     'return the memory consumed by process'
@@ -1260,7 +1268,18 @@ def report_memory(i=0):  # argument may go away
         a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
             stdout=PIPE).stdout.readlines()
         mem = int(a2[1].split()[0])
-
+    elif sys.platform.startswith('win'):
+        try:
+            a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
+                stdout=PIPE).stdout.read()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Windows only if "
+                "the 'tasklist' program is found")
+        mem = int(a2.strip().split()[-2].replace(',',''))
+    else:
+        raise NotImplementedError(
+                "We don't have a memory monitor for %s" % sys.platform)
     return mem
 
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'

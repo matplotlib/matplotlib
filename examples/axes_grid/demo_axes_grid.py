@@ -12,7 +12,7 @@ def get_demo_image():
 def demo_simple_grid(fig):
     """
     A grid of 2x2 images with 0.05 inch pad between images and only
-    the lower-left axes is labeld.
+    the lower-left axes is labeled.
     """
     grid = AxesGrid(fig, 131, # similar to subplot(131)
                     nrows_ncols = (2, 2),
@@ -31,7 +31,7 @@ def demo_simple_grid(fig):
 
 def demo_grid_with_single_cbar(fig):
     """
-    A grid of 2x2 images with a single colobar
+    A grid of 2x2 images with a single colorbar
     """
     grid = AxesGrid(fig, 132, # similar to subplot(132)
                     nrows_ncols = (2, 2),
@@ -58,7 +58,7 @@ def demo_grid_with_single_cbar(fig):
 
 def demo_grid_with_each_cbar(fig):
     """
-    A grid of 2x2 images. Each image has its own colobar.
+    A grid of 2x2 images. Each image has its own colorbar.
     """
 
     grid = AxesGrid(F, 133, # similar to subplot(122)

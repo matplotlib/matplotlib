@@ -95,7 +95,9 @@ class ContourLabeler:
             a format string for the label. Default is '%1.3f'
             Alternatively, this can be a dictionary matching contour
             levels with arbitrary strings to use for each contour level
-            (i.e., fmt[level]=string)
+            (i.e., fmt[level]=string), or it can be any callable, such
+            as a :class:`~matplotlib.ticker.Formatter` instance, that
+            returns a string when called with a numeric contour level.
 
           *manual*:
             if *True*, contour labels will be placed manually using
@@ -326,6 +328,8 @@ class ContourLabeler:
         else:
             if isinstance(fmt,dict):
                 return fmt[lev]
+            elif callable(fmt):
+                return fmt(lev)
             else:
                 return fmt%lev
 

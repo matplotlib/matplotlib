@@ -509,20 +509,22 @@ class Colormap:
             xa = np.array([X])
         else:
             vtype = 'array'
-            # force a copy here -- the ma.array and filled functions
-            # do force a cop of the data by default - JDH
-            xma = ma.array(X, copy=True)
-            xa = xma.filled(0)
-            mask_bad = ma.getmask(xma)
+            xma = ma.array(X, copy=False)
+            mask_bad = xma.mask
+            xa = xma.data.copy()   # Copy here to avoid side effects.
+            del xma
+            # masked values are substituted below; no need to fill them here
+
         if xa.dtype.char in np.typecodes['Float']:
             np.putmask(xa, xa==1.0, 0.9999999) #Treat 1.0 as slightly less than 1.
             # The following clip is fast, and prevents possible
             # conversion of large positive values to negative integers.
 
+            xa *= self.N
             if NP_CLIP_OUT:
-                np.clip(xa * self.N, -1, self.N, out=xa)
+                np.clip(xa, -1, self.N, out=xa)
             else:
-                xa = np.clip(xa * self.N, -1, self.N)
+                xa = np.clip(xa, -1, self.N)
 
             # ensure that all 'under' values will still have negative
             # value after casting to int
@@ -532,8 +534,11 @@ class Colormap:
         # otherwise the under-range values get converted to over-range.
         np.putmask(xa, xa>self.N-1, self._i_over)
         np.putmask(xa, xa<0, self._i_under)
-        if mask_bad is not None and mask_bad.shape == xa.shape:
-            np.putmask(xa, mask_bad, self._i_bad)
+        if mask_bad is not None:
+            if mask_bad.shape == xa.shape:
+                np.putmask(xa, mask_bad, self._i_bad)
+            elif mask_bad:
+                xa.fill(self._i_bad)
         if bytes:
             lut = (self._lut * 255).astype(np.uint8)
         else:
@@ -542,6 +547,8 @@ class Colormap:
         if alpha is not None:
             alpha = min(alpha, 1.0) # alpha must be between 0 and 1
             alpha = max(alpha, 0.0)
+            if bytes:
+                alpha = int(alpha * 255)
             if (lut[-1] == 0).all():
                 lut[:-1, -1] = alpha
                 # All zeros is taken as a flag for the default bad
@@ -797,32 +804,63 @@ class Normalize:
         self.vmax = vmax
         self.clip = clip
 
+    @staticmethod
+    def process_value(value):
+        """
+        Homogenize the input *value* for easy and efficient normalization.
+
+        *value* can be a scalar or sequence.
+
+        Returns *result*, *is_scalar*, where *result* is a
+        masked array matching *value*.  Float dtypes are preserved;
+        integer types with two bytes or smaller are converted to
+        np.float32, and larger types are converted to np.float.
+        Preserving float32 when possible, and using in-place operations,
+        can greatly improve speed for large arrays.
+
+        Experimental; we may want to add an option to force the
+        use of float32.
+        """
+        if cbook.iterable(value):
+            is_scalar = False
+            result = ma.asarray(value)
+            if result.dtype.kind == 'f':
+                if isinstance(value, np.ndarray):
+                    result = result.copy()
+            elif result.dtype.itemsize > 2:
+                result = result.astype(np.float)
+            else:
+                result = result.astype(np.float32)
+        else:
+            is_scalar = True
+            result = ma.array([value]).astype(np.float)
+        return result, is_scalar
+
     def __call__(self, value, clip=None):
         if clip is None:
             clip = self.clip
 
-        if cbook.iterable(value):
-            vtype = 'array'
-            val = ma.asarray(value).astype(np.float)
-        else:
-            vtype = 'scalar'
-            val = ma.array([value]).astype(np.float)
+        result, is_scalar = self.process_value(value)
 
-        self.autoscale_None(val)
+        self.autoscale_None(result)
         vmin, vmax = self.vmin, self.vmax
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif vmin==vmax:
-            result = 0.0 * val
+        elif vmin == vmax:
+            result.fill(0)   # Or should it be all masked?  Or 0.5?
         else:
             vmin = float(vmin)
             vmax = float(vmax)
             if clip:
-                mask = ma.getmask(val)
-                val = ma.array(np.clip(val.filled(vmax), vmin, vmax),
-                                mask=mask)
-            result = (val-vmin) / (vmax-vmin)
-        if vtype == 'scalar':
+                mask = ma.getmask(result)
+                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                                  mask=mask)
+            # ma division is very slow; we can take a shortcut
+            resdat = result.data
+            resdat -= vmin
+            resdat /= (vmax - vmin)
+            result = np.ma.array(resdat, mask=result.mask, copy=False)
+        if is_scalar:
             result = result[0]
         return result
 
@@ -847,8 +885,10 @@ class Normalize:
 
     def autoscale_None(self, A):
         ' autoscale only None-valued vmin or vmax'
-        if self.vmin is None: self.vmin = ma.min(A)
-        if self.vmax is None: self.vmax = ma.max(A)
+        if self.vmin is None:
+            self.vmin = ma.min(A)
+        if self.vmax is None:
+            self.vmax = ma.max(A)
 
     def scaled(self):
         'return true if vmin and vmax set'
@@ -862,30 +902,37 @@ class LogNorm(Normalize):
         if clip is None:
             clip = self.clip
 
-        if cbook.iterable(value):
-            vtype = 'array'
-            val = ma.asarray(value).astype(np.float)
-        else:
-            vtype = 'scalar'
-            val = ma.array([value]).astype(np.float)
+        result, is_scalar = self.process_value(value)
 
-        val = ma.masked_less_equal(val, 0, copy=False)
+        result = ma.masked_less_equal(result, 0, copy=False)
 
-        self.autoscale_None(val)
+        self.autoscale_None(result)
         vmin, vmax = self.vmin, self.vmax
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         elif vmin<=0:
             raise ValueError("values must all be positive")
         elif vmin==vmax:
-            result = 0.0 * val
+            result.fill(0)
         else:
             if clip:
-                mask = ma.getmask(val)
-                val = ma.array(np.clip(val.filled(vmax), vmin, vmax),
+                mask = ma.getmask(result)
+                val = ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                 mask=mask)
-            result = (ma.log(val)-np.log(vmin))/(np.log(vmax)-np.log(vmin))
-        if vtype == 'scalar':
+            #result = (ma.log(result)-np.log(vmin))/(np.log(vmax)-np.log(vmin))
+            # in-place equivalent of above can be much faster
+            resdat = result.data
+            mask = result.mask
+            if mask is np.ma.nomask:
+                mask = (resdat <= 0)
+            else:
+                mask |= resdat <= 0
+            np.putmask(resdat, mask, 1)
+            np.log(resdat, resdat)
+            resdat -= np.log(vmin)
+            resdat /= (np.log(vmax) - np.log(vmin))
+            result = np.ma.array(resdat, mask=mask, copy=False)
+        if is_scalar:
             result = result[0]
         return result
 

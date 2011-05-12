@@ -146,7 +146,7 @@ if 1:
 
     ax3, aux_ax3 = setup_axes3(fig, 133)
 
-    theta = (8 + np.random.rand(10)*(14-8))*15. # indegree
+    theta = (8 + np.random.rand(10)*(14-8))*15. # in degrees
     radius = np.random.rand(10)*14000.
     aux_ax3.scatter(theta, radius)
 

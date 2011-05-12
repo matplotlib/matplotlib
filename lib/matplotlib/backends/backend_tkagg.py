@@ -101,8 +101,10 @@ class TimerTk(TimerBase):
     def __init__(self, parent, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
         self.parent = parent
+        self._timer = None
 
     def _timer_start(self):
+        self._timer_stop()
         self._timer = self.parent.after(self._interval, self._on_timer)
 
     def _timer_stop(self):
@@ -212,18 +214,6 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         self._master = master
         self._tkcanvas.focus_set()
-
-        # a dict from func-> cbook.Scheduler threads
-        self.sourced = dict()
-
-        # call the idle handler
-        def on_idle(*ignore):
-            self.idle_event()
-            return True
-
-        # disable until you figure out how to handle threads and interrupts
-        #t = cbook.Idle(on_idle)
-        #self._tkcanvas.after_idle(lambda *ignore: t.start())
 
     def resize(self, event):
         width, height = event.width, event.height

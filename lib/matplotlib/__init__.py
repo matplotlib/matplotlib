@@ -99,7 +99,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import generators
 
-__version__  = '1.0.1'
+__version__  = '1.1.0'
 
 import os, re, shutil, subprocess, sys, warnings
 import distutils.sysconfig
@@ -454,6 +454,8 @@ def _get_configdir():
 
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
+        if not os.path.exists(configdir):
+            os.makedirs(configdir)
         if not _is_writable_dir(configdir):
             raise RuntimeError('Could not write to MPLCONFIGDIR="%s"'%configdir)
         return configdir
@@ -996,6 +998,5 @@ test.__test__ = False # nose: this function is not a test
 verbose.report('matplotlib version %s'%__version__)
 verbose.report('verbose.level %s'%verbose.level)
 verbose.report('interactive is %s'%rcParams['interactive'])
-verbose.report('units is %s'%rcParams['units'])
 verbose.report('platform is %s'%sys.platform)
 verbose.report('loaded modules: %s'%sys.modules.keys(), 'debug')

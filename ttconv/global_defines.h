@@ -1,3 +1,5 @@
+/* -*- mode: c; c-basic-offset: 4 -*- */
+
 /*
  * Modified for use within matplotlib
  * 5 July 2007
@@ -18,8 +20,8 @@
 **
 ** The PPR project was begun 28 December 1992.
 **
-** There are many things in this file you may want to change.  This file 
-** should be the first include file.  It is the header file for the whole 
+** There are many things in this file you may want to change.  This file
+** should be the first include file.  It is the header file for the whole
 ** project.
 **
 ** This file was last modified 22 December 1995.
