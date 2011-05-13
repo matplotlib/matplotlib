@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 from numpy.testing import assert_array_equal
 
-@image_comparison(baseline_images=['legend_auto1'])
+@image_comparison(baseline_images=['legend_auto1'], tol=1.5e-3)
 def test_legend_auto1():
     'Test automatic legend placement'
     fig = plt.figure()
