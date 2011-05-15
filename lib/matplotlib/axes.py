@@ -8343,24 +8343,19 @@ class Axes(martist.Artist):
         artists = []
         bb = []
 
-        artists.append(self)
+        if not self.get_visible():
+            return None
+
+        bb.append(self.get_window_extent(renderer))
 
         if self.title.get_visible():
-            artists.append(self.title)
+            bb.append(self.title.get_window_extent(renderer))
 
-        if self.xaxis.get_visible():
-            artists.append(self.xaxis.label)
-            bbx1, bbx2 = self.xaxis.get_ticklabel_extents(renderer)
-            self.xaxis._update_label_position([bbx1], [bbx2])
-            bb.extend([bbx1, bbx2])
-        if self.yaxis.get_visible():
-            artists.append(self.yaxis.label)
-            bby1, bby2 = self.yaxis.get_ticklabel_extents(renderer)
-            self.yaxis._update_label_position([bby1], [bby2])
-            bb.extend([bby1, bby2])
+        bb_xaxis = self.xaxis.get_tightbbox(renderer)
+        if bb_xaxis: bb.append(bb_xaxis)
 
-
-        bb.extend([c.get_window_extent(renderer) for c in artists if c.get_visible()])
+        bb_yaxis = self.yaxis.get_tightbbox(renderer)
+        if bb_yaxis: bb.append(bb_yaxis)
 
         _bbox = mtransforms.Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
 
