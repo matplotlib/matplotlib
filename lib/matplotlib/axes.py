@@ -1233,11 +1233,17 @@ class Axes(martist.Artist):
     def axis(self, *v, **kwargs):
         '''
         Convenience method for manipulating the x and y view limits
-        and the aspect ratio of the plot.
+        and the aspect ratio of the plot. For details, see
+        :func:`~matplotlib.pyplot.axis`.
 
         *kwargs* are passed on to :meth:`set_xlim` and
         :meth:`set_ylim`
         '''
+        if len(v) == 0 and len(kwargs) == 0:
+            xmin, xmax = self.get_xlim()
+            ymin, ymax = self.get_ylim()
+            return xmin, xmax, ymin, ymax
+
         if len(v)==1 and is_string_like(v[0]):
             s = v[0].lower()
             if s=='on': self.set_axis_on()
@@ -1282,7 +1288,6 @@ class Axes(martist.Artist):
         v = v[0]
         if len(v) != 4:
             raise ValueError('v must contain [xmin xmax ymin ymax]')
-
 
         self.set_xlim([v[0], v[1]])
         self.set_ylim([v[2], v[3]])
