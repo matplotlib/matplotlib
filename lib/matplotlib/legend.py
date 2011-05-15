@@ -355,6 +355,7 @@ in the normalized axes coordinate.
 
         self._set_artist_props(self.legendPatch)
 
+        self._drawFrame = frameon
         if frameon is None:
             self._drawFrame = rcParams["legend.frameon"]
 
