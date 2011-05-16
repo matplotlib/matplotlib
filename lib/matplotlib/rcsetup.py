@@ -305,6 +305,11 @@ validate_legend_loc = ValidateInStrings('legend_loc',[
   'center',
 ], ignorecase=True)
 
+def deprecate_svg_embed_char_paths(value):
+    warnings.warn("svg.embed_char_paths is deprecated.  Use svg.fonttype instead.")
+
+validate_svg_fonttype = ValidateInStrings('fonttype', ['none', 'path', 'svgfont'])
+
 class ValidateInterval:
     """
     Value must be in interval
@@ -530,7 +535,8 @@ defaultParams = {
     'pdf.fonttype'      : [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
     'svg.image_inline'  : [True, validate_bool],    # write raster image data directly into the svg file
     'svg.image_noscale' : [False, validate_bool],  # suppress scaling of raster data embedded in SVG
-    'svg.embed_char_paths' : [True, validate_bool],  # True to save all characters as paths in the SVG
+    'svg.embed_char_paths' : [True, deprecate_svg_embed_char_paths],  # True to save all characters as paths in the SVG
+    'svg.fonttype' : ['path', validate_svg_fonttype],
 
     'docstring.hardcopy' : [False, validate_bool],  # set this when you want to generate hardcopy docstring
     'plugins.directory' : ['.matplotlib_plugins', str], # where plugin directory is locate
