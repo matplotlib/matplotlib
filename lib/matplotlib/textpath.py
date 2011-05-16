@@ -17,7 +17,7 @@ class TextToPath(object):
     A class that convert a given text to a path using ttf fonts.
     """
 
-    FONT_SCALE = 50.
+    FONT_SCALE = 100.
     DPI = 72
 
     def __init__(self):
@@ -50,7 +50,7 @@ class TextToPath(object):
         Return a unique id for the given font and character-code set.
         """
         ps_name = font.get_sfnt()[(1,0,0,6)]
-        char_id = urllib.quote('%s-%d' % (ps_name, ccode))
+        char_id = urllib.quote('%s-%x' % (ps_name, ccode))
         return char_id
 
     def _get_char_id_ps(self, font, ccode):
@@ -62,36 +62,42 @@ class TextToPath(object):
         return char_id
 
 
-    def glyph_to_path(self, glyph, currx=0.):
+    def glyph_to_path(self, font, currx=0.):
         """
         convert the ft2font glyph to vertices and codes.
         """
-        #Mostly copied from backend_svg.py.
-
-        verts, codes = [], []
-        for step in glyph.path:
-            if step[0] == 0:   # MOVE_TO
-                verts.append((step[1], step[2]))
-                codes.append(Path.MOVETO)
-            elif step[0] == 1: # LINE_TO
-                verts.append((step[1], step[2]))
-                codes.append(Path.LINETO)
-            elif step[0] == 2: # CURVE3
-                verts.extend([(step[1], step[2]),
-                               (step[3], step[4])])
-                codes.extend([Path.CURVE3, Path.CURVE3])
-            elif step[0] == 3: # CURVE4
-                verts.extend([(step[1], step[2]),
-                              (step[3], step[4]),
-                              (step[5], step[6])])
-                codes.extend([Path.CURVE4, Path.CURVE4, Path.CURVE4])
-            elif step[0] == 4: # ENDPOLY
-                verts.append((0, 0,))
-                codes.append(Path.CLOSEPOLY)
-
-        verts = [(x+currx, y) for (x,y) in verts]
+        verts, codes = font.get_path()
+        if currx != 0.0:
+            verts[:,0] += currx
         return verts, codes
 
+    def get_text_width_height_descent(self, s, prop, ismath):
+        if rcParams['text.usetex']:
+            texmanager = self.get_texmanager()
+            fontsize = prop.get_size_in_points()
+            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
+                                                               renderer=None)
+            return w, h, d
+
+        fontsize = prop.get_size_in_points()
+        scale = float(fontsize) / self.FONT_SCALE
+
+        if ismath:
+            prop = prop.copy()
+            prop.set_size(self.FONT_SCALE)
+
+            width, height, descent, trash, used_characters = \
+                self.mathtext_parser.parse(s, 72, prop)
+            return width * scale, height * scale, descent * scale
+
+        font = self._get_font(prop)
+        font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
+        w, h = font.get_width_height()
+        w /= 64.0  # convert from subpixels
+        h /= 64.0
+        d = font.get_descent()
+        d /= 64.0
+        return w * scale, h * scale, d * scale
 
     def get_text_path(self, prop, s, ismath=False, usetex=False):
         """
@@ -124,10 +130,10 @@ class TextToPath(object):
 
         for glyph_id, xposition, yposition, scale in glyph_info:
             verts1, codes1 = glyph_map[glyph_id]
-            if verts1:
+            if len(verts1):
                 verts1 = np.array(verts1)*scale + [xposition, yposition]
-            verts.extend(verts1)
-            codes.extend(codes1)
+                verts.extend(verts1)
+                codes.extend(codes1)
 
         for verts1, codes1 in rects:
             verts.extend(verts1)
@@ -163,8 +169,6 @@ class TextToPath(object):
         # I'm not sure if I get kernings right. Needs to be verified. -JJL
 
         for c in s:
-
-
             ccode = ord(c)
             gind = cmap.get(ccode)
             if gind is None:
@@ -176,13 +180,12 @@ class TextToPath(object):
             else:
                 kern = 0
 
-
             glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
             horiz_advance = (glyph.linearHoriAdvance / 65536.0)
 
             char_id = self._get_char_id(font, ccode)
             if not char_id in glyph_map:
-                glyph_map_new[char_id] = self.glyph_to_path(glyph)
+                glyph_map_new[char_id] = self.glyph_to_path(font)
 
             currx += (kern / 64.0)
 
@@ -199,9 +202,6 @@ class TextToPath(object):
         rects = []
 
         return zip(glyph_ids, xpositions, ypositions, sizes), glyph_map_new, rects
-
-
-
 
     def get_glyphs_mathtext(self, prop, s, glyph_map=None,
                             return_new_glyphs_only=False):
@@ -230,15 +230,13 @@ class TextToPath(object):
         sizes = []
 
         currx, curry = 0, 0
-        for font, fontsize, s, ox, oy in glyphs:
-
-            ccode = ord(s)
+        for font, fontsize, ccode, ox, oy in glyphs:
             char_id = self._get_char_id(font, ccode)
             if not char_id in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
                 glyph = font.load_char(ccode, flags=LOAD_NO_HINTING)
-                glyph_map_new[char_id] = self.glyph_to_path(glyph)
+                glyph_map_new[char_id] = self.glyph_to_path(font)
 
             xpositions.append(ox)
             ypositions.append(oy)
@@ -255,8 +253,7 @@ class TextToPath(object):
             myrects.append((vert1, code1))
 
 
-        return zip(glyph_ids, xpositions, ypositions, sizes), glyph_map, myrects
-
+        return zip(glyph_ids, xpositions, ypositions, sizes), glyph_map_new, myrects
 
     def get_texmanager(self):
         """
@@ -266,7 +263,6 @@ class TextToPath(object):
             from matplotlib.texmanager import TexManager
             self._texmanager = TexManager()
         return self._texmanager
-
 
     def get_glyphs_tex(self, prop, s, glyph_map=None,
                        return_new_glyphs_only=False):
@@ -335,7 +331,7 @@ class TextToPath(object):
 
                 glyph0 = font.load_char(glyph, flags=ft2font_flag)
 
-                glyph_map_new[char_id] = self.glyph_to_path(glyph0)
+                glyph_map_new[char_id] = self.glyph_to_path(font)
 
             glyph_ids.append(char_id)
             xpositions.append(x1)

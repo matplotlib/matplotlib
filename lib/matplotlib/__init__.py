@@ -610,6 +610,7 @@ _deprecated_map = {
     'text.fontweight':  'font.weight',
     'text.fontsize':    'font.size',
     'tick.size' :       'tick.major.size',
+    'svg.embed_char_paths' : 'svg.fonttype'
     }
 
 _deprecated_ignore_map = {
