@@ -1249,20 +1249,20 @@ class Axis(artist.Artist):
     def update_units(self, data):
         """
         introspect *data* for units converter and update the
-        axis.converter instance if necessary. Return *True* is *data* is
-        registered for unit conversion
+        axis.converter instance if necessary. Return *True*
+        if *data* is registered for unit conversion.
         """
 
         converter = munits.registry.get_converter(data)
-        if converter is None: return False
+        if converter is None:
+            return False
 
         neednew = self.converter!=converter
         self.converter = converter
         default = self.converter.default_units(data, self)
-        #print 'update units: default="%s", units=%s"'%(default, self.units)
+        #print 'update units: default=%s, units=%s'%(default, self.units)
         if default is not None and self.units is None:
             self.set_units(default)
-
 
         if neednew:
             self._update_axisinfo()
@@ -1484,14 +1484,21 @@ class Axis(artist.Artist):
         self.major.locator.zoom(direction)
 
 
-    def axis_date(self):
+    def axis_date(self, tz=None):
         """
         Sets up x-axis ticks and labels that treat the x data as dates.
+        *tz* is a :class:`tzinfo` instance or a timezone string.
+        This timezone is used to create date labels.
         """
+        # By providing a sample datetime instance with the desired
+        # timezone, the registered converter can be selected,
+        # and the "units" attribute, which is the timezone, can
+        # be set.
         import datetime
-        # should be enough to inform the unit conversion interface
-        # dates are comng in
-        self.update_units(datetime.date(2009,1,1))
+        if isinstance(tz, (str, unicode)):
+            import pytz
+            tz = pytz.timezone(tz)
+        self.update_units(datetime.datetime(2009,1,1,0,0,0,0,tz))
 
 
 class XAxis(Axis):
