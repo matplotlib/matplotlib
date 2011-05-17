@@ -149,7 +149,7 @@ class Figure(Artist):
                  dpi       = None,  # defaults to rc figure.dpi
                  facecolor = None,  # defaults to rc figure.facecolor
                  edgecolor = None,  # defaults to rc figure.edgecolor
-                 linewidth = 1.0,   # the default linewidth of the frame
+                 linewidth = 0.0,   # the default linewidth of the frame
                  frameon = True,    # whether or not to draw the figure frame
                  subplotpars = None, # default to rc
                  ):
@@ -194,6 +194,7 @@ class Figure(Artist):
             linewidth=linewidth,
             )
         self._set_artist_props(self.patch)
+        self.patch.set_aa(False)
 
         self._hold = rcParams['axes.hold']
         self.canvas = None
