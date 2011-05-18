@@ -263,6 +263,73 @@ class GridSpec(GridSpecBase):
 
         return subplotpars
 
+    def locally_modified_subplot_params(self):
+        return [k for k in self._AllowedKeys if getattr(self, k)]
+
+
+    def tight_layout(self, fig, renderer=None, pad=1.2, h_pad=None, w_pad=None, rect=None):
+        """Adjust subplot parameters to give specified padding.
+
+        Parameters
+        ----------
+        pad : float
+            padding between the figure edge and the edges of subplots, as a fraction of the font-size.
+        h_pad, w_pad : float
+            padding (height/width) between edges of adjacent subplots.
+            Defaults to `pad_inches`.
+        """
+
+        from tight_layout import auto_adjust_subplotpars, get_renderer
+
+        if renderer is None:
+            renderer = get_renderer(fig)
+
+        subplot_list = []
+        num1num2_list = []
+
+        for ax in fig.axes:
+            if hasattr(ax, "get_subplotspec"):
+                subplotspec = ax.get_subplotspec()
+                if subplotspec.get_gridspec() == self:
+                    subplot_list.append(ax)
+                    _, _, num1, num2 = subplotspec.get_geometry()
+                    num1num2_list.append((num1, num2))
+
+
+        kwargs = auto_adjust_subplotpars(fig, renderer,
+                                          nrows_ncols=self.get_geometry(),
+                                          num1num2_list=num1num2_list,
+                                          subplot_list=subplot_list,
+                                          pad=pad, h_pad=h_pad, w_pad=w_pad)
+
+        if rect is not None:
+            # if rect is given, the whole subplots area (including
+            # labels) will fit into the rect instead of the
+            # figure. Note that the rect argument of
+            # *auto_adjust_subplotpars* specify the area that will be
+            # covered by the total area of axes.bbox. Thus we call
+            # auto_adjust_subplotpars twice, where the second run
+            # with adjusted rect parameters.
+
+            left, bottom, right, top = rect
+            if left is not None: left += kwargs["left"]
+            if bottom is not None: bottom += kwargs["bottom"]
+            if right is not None: right -= (1 - kwargs["right"])
+            if top is not None: top -= (1 - kwargs["top"])
+
+            #if h_pad is None: h_pad = pad
+            #if w_pad is None: w_pad = pad
+
+            kwargs = auto_adjust_subplotpars(fig, renderer,
+                                             nrows_ncols=self.get_geometry(),
+                                             num1num2_list=num1num2_list,
+                                             subplot_list=subplot_list,
+                                             pad=pad, h_pad=h_pad, w_pad=w_pad,
+                                             rect=(left, bottom, right, top))
+
+            
+        self.update(**kwargs)
+
 
 class GridSpecFromSubplotSpec(GridSpecBase):
     """

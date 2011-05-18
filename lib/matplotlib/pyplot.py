@@ -923,6 +923,25 @@ def subplot_tool(targetfig=None):
     return ret
 
 
+
+def tight_layout(pad=1.2, h_pad=None, w_pad=None):
+    """Adjust subplot parameters to give specified padding.
+    
+    Parameters
+    ----------
+    pad : float
+        padding between the figure edge and the edges of subplots, as a fraction of the font-size.
+    h_pad, w_pad : float
+        padding (height/width) between edges of adjacent subplots.
+        Defaults to `pad_inches`.
+    """
+
+    fig = gcf()
+    fig.tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad)
+    draw_if_interactive()
+
+
+
 def box(on=None):
     """
     Turn the axes box on or off according to *on*.

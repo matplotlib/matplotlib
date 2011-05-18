@@ -1295,6 +1295,65 @@ class Figure(Artist):
         return bbox_inches
 
 
+    def tight_layout(self, renderer=None, pad=1.2, h_pad=None, w_pad=None):
+        """Adjust subplot parameters to give specified padding.
+
+        Parameters
+        ----------
+        pad : float
+            padding between the figure edge and the edges of subplots, as a fraction of the font-size.
+        h_pad, w_pad : float
+            padding (height/width) between edges of adjacent subplots.
+            Defaults to `pad_inches`.
+        """
+
+        from tight_layout import auto_adjust_subplotpars, get_renderer
+
+        if renderer is None:
+            renderer = get_renderer(self)
+
+        subplot_list = []
+        nrows_list = []
+        ncols_list = []
+
+        for ax in self.axes:
+            if not isinstance(ax, SubplotBase): continue
+            subplot_list.append(ax)
+
+            myrows, mycols, _, _ = ax.get_subplotspec().get_geometry()
+            nrows_list.append(myrows)
+            ncols_list.append(mycols)
+
+        max_nrows = max(nrows_list)
+        max_ncols = max(ncols_list)
+
+        num1num2_list = []
+        for ax in subplot_list:
+            rows, cols, num1, num2 = ax.get_subplotspec().get_geometry()
+            div_row, mod_row = divmod(max_nrows, rows)
+            div_col, mod_col = divmod(max_ncols, cols)
+            if (mod_row != 0) or (mod_col != 0):
+                raise RuntimeError("")
+
+            rowNum1, colNum1 =  divmod(num1, cols)
+            if num2 is None:
+                rowNum2, colNum2 =  rowNum1, colNum1
+            else:
+                rowNum2, colNum2 =  divmod(num2, cols)
+
+            num1num2_list.append((rowNum1*div_row*max_ncols + colNum1*div_col,
+                                  ((rowNum2+1)*div_row-1)*max_ncols + (colNum2+1)*div_col-1))
+
+
+        kwargs = auto_adjust_subplotpars(self, renderer,
+                                         nrows_ncols=(max_nrows, max_ncols),
+                                         num1num2_list=num1num2_list,
+                                         subplot_list=subplot_list,
+                                         pad=pad, h_pad=h_pad, w_pad=w_pad)
+
+        self.subplots_adjust(**kwargs)
+
+
 
 def figaspect(arg):
     """
