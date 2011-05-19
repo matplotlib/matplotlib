@@ -7,7 +7,7 @@ objects, eg a list of datetime objects, as well as for objects that
 are unit aware.  We don't assume any particular units implementation,
 rather a units implementation must provide a ConversionInterface, and
 the register with the Registry converter dictionary.  For example,
-here is a complete implementation which support plotting with native
+here is a complete implementation which supports plotting with native
 datetime objects::
 
 
@@ -48,7 +48,7 @@ from matplotlib.cbook import iterable, is_numlike, is_string_like
 class AxisInfo:
     'information to support default axis labeling and tick labeling, and default limits'
     def __init__(self, majloc=None, minloc=None,
-                 majfmt=None, minfmt=None, label=None, 
+                 majfmt=None, minfmt=None, label=None,
                  default_limits=None):
         """
         majloc and minloc: TickLocators for the major and minor ticks
