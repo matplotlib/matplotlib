@@ -1,6 +1,6 @@
-*****************
-matplotlib units
-*****************
+*****
+units
+*****
 
 
 :mod:`matplotlib.units`

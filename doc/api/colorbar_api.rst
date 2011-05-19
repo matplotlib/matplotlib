@@ -1,6 +1,6 @@
-*******************
-matplotlib colorbar
-*******************
+********
+colorbar
+********
 
 
 :mod:`matplotlib.colorbar`

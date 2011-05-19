@@ -1,6 +1,6 @@
-*****************
-matplotlib spine
-*****************
+*****
+spine
+*****
 
 
 :mod:`matplotlib.spine`
