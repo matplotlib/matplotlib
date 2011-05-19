@@ -1,6 +1,6 @@
-****************
-matplotlib mlab
-****************
+****
+mlab
+****
 
 
 :mod:`matplotlib.mlab`

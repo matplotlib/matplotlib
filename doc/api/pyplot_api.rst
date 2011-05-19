@@ -1,6 +1,6 @@
-*****************
-matplotlib pyplot
-*****************
+******
+pyplot
+******
  
 
 :mod:`matplotlib.pyplot`
