@@ -10,6 +10,7 @@
    :Date: |today|
 
 .. toctree::
+   :maxdepth: 1
 
    api_changes.rst
    matplotlib_configuration_api.rst
@@ -35,3 +36,4 @@
    ticker_api.rst
    units_api.rst
    index_backend_api.rst
+   widgets_api.rst
