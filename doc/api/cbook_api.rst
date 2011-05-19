@@ -1,6 +1,6 @@
-****************
-matplotlib cbook
-****************
+*****
+cbook
+*****
 
 
 :mod:`matplotlib.cbook`

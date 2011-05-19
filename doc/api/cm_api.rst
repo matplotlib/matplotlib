@@ -1,5 +1,5 @@
 *************
-matplotlib cm
+cm (colormap)
 *************
 
 
