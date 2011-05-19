@@ -440,7 +440,7 @@ class RendererSVG(RendererBase):
                 'font-face',
                 attrib={
                     'font-family': font.family_name,
-                    'font-style': font.style_name,
+                    'font-style': font.style_name.lower(),
                     'units-per-em': '72',
                     'bbox': ' '.join(str(x / 64.0) for x in font.bbox)})
             for char in chars:
@@ -896,7 +896,7 @@ class RendererSVG(RendererBase):
             attrib = {}
             style['font-size'] = str(fontsize)
             style['font-family'] = str(fontfamily)
-            style['font-style'] = prop.get_style()
+            style['font-style'] = prop.get_style().lower()
             attrib['style'] = generate_css(style)
 
             attrib['transform'] = generate_transform([
@@ -937,7 +937,7 @@ class RendererSVG(RendererBase):
                 style = generate_css({
                     'font-size': str(fontsize),
                     'font-family': font.family_name,
-                    'font-style': font.style_name})
+                    'font-style': font.style_name.lower()})
                 if thetext == 32:
                     thetext = 0xa0 # non-breaking space
                 spans.setdefault(style, []).append((new_x, -new_y, thetext))
