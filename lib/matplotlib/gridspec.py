@@ -286,14 +286,27 @@ class GridSpec(GridSpecBase):
 
         subplot_list = []
         num1num2_list = []
-
+        subplot_dict = {}
+        
         for ax in fig.axes:
-            if hasattr(ax, "get_subplotspec"):
+            locator = ax.get_axes_locator()
+            if hasattr(locator, "get_subplotspec"):
+                subplotspec = locator.get_subplotspec()
+            elif hasattr(ax, "get_subplotspec"):
                 subplotspec = ax.get_subplotspec()
-                if subplotspec.get_gridspec() == self:
-                    subplot_list.append(ax)
-                    _, _, num1, num2 = subplotspec.get_geometry()
-                    num1num2_list.append((num1, num2))
+            else:
+                continue
+
+            if subplotspec.get_gridspec() != self: continue
+
+            subplots = subplot_dict.get(subplotspec, [])
+
+            if not subplots:
+                _, _, num1, num2 = subplotspec.get_geometry()
+                num1num2_list.append((num1, num2))
+                subplot_list.append(subplots)
+
+            subplots.append(ax)
 
 
         kwargs = auto_adjust_subplotpars(fig, renderer,

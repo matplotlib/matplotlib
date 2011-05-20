@@ -1312,24 +1312,47 @@ class Figure(Artist):
         if renderer is None:
             renderer = get_renderer(self)
 
+        subplotspec_list = []
         subplot_list = []
         nrows_list = []
         ncols_list = []
+        ax_bbox_list = []
+        
+        subplot_dict = {} # for axes_grid1, multiple axes can share
+                          # same subplot_interface. Thus we need to
+                          # join them together.
 
         for ax in self.axes:
-            if not isinstance(ax, SubplotBase): continue
-            subplot_list.append(ax)
+            locator = ax.get_axes_locator()
+            if hasattr(locator, "get_subplotspec"):
+                subplotspec = locator.get_subplotspec()
+            elif hasattr(ax, "get_subplotspec"):
+                subplotspec = ax.get_subplotspec()
+            else:
+                continue
 
-            myrows, mycols, _, _ = ax.get_subplotspec().get_geometry()
-            nrows_list.append(myrows)
-            ncols_list.append(mycols)
+            if (subplotspec is None) or \
+                   subplotspec.get_gridspec().locally_modified_subplot_params():
+                continue
+
+            subplots = subplot_dict.setdefault(subplotspec, [])
+
+            if not subplots:
+                myrows, mycols, _, _ = subplotspec.get_geometry()
+                nrows_list.append(myrows)
+                ncols_list.append(mycols)
+                subplotspec_list.append(subplotspec)
+                subplot_list.append(subplots)
+                ax_bbox_list.append(subplotspec.get_position(self))
+                
+            subplots.append(ax)
 
         max_nrows = max(nrows_list)
         max_ncols = max(ncols_list)
 
         num1num2_list = []
-        for ax in subplot_list:
-            rows, cols, num1, num2 = ax.get_subplotspec().get_geometry()
+        for subplotspec in subplotspec_list:
+            rows, cols, num1, num2 = subplotspec.get_geometry()
             div_row, mod_row = divmod(max_nrows, rows)
             div_col, mod_col = divmod(max_ncols, cols)
             if (mod_row != 0) or (mod_col != 0):
@@ -1349,6 +1372,7 @@ class Figure(Artist):
                                          nrows_ncols=(max_nrows, max_ncols),
                                          num1num2_list=num1num2_list,
                                          subplot_list=subplot_list,
+                                         ax_bbox_list=ax_bbox_list,
                                          pad=pad, h_pad=h_pad, w_pad=w_pad)
 
         self.subplots_adjust(**kwargs)
