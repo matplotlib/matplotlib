@@ -8346,6 +8346,13 @@ class Axes(martist.Artist):
         if not self.get_visible():
             return None
 
+        locator = self.get_axes_locator()
+        if locator:
+            pos = locator(self, renderer)
+            self.apply_aspect(pos)
+        else:
+            self.apply_aspect()
+
         bb.append(self.get_window_extent(renderer))
 
         if self.title.get_visible():
