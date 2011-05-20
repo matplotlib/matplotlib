@@ -11,7 +11,7 @@ will fail for some cases (for example, left or right margin is affected by xlabe
 """
 
 import matplotlib
-from matplotlib.transforms import TransformedBbox
+from matplotlib.transforms import TransformedBbox, Bbox
 
 from matplotlib.font_manager import FontProperties
 rcParams = matplotlib.rcParams
@@ -35,6 +35,7 @@ def auto_adjust_subplotpars(fig, renderer,
                             nrows_ncols,
                             num1num2_list,
                             subplot_list,
+                            ax_bbox_list=None,
                             pad=1.2, h_pad=None, w_pad=None,
                             rect=None):
     """
@@ -91,11 +92,21 @@ def auto_adjust_subplotpars(fig, renderer,
     vspaces = [[] for i in range((rows+1)*cols)]
     hspaces = [[] for i in range(rows*(cols+1))]
     
-    for ax, (num1, num2) in zip(subplot_list, num1num2_list):
+    union = Bbox.union
 
-        ax_bbox = ax.get_position(original=True)
+    if ax_bbox_list is None:
+        ax_bbox_list = []
+        for subplots in subplot_list:
+            ax_bbox = union([ax.get_position(original=True) for ax in subplots])
+            ax_bbox_list.append(ax_bbox)
+        
+    for subplots, ax_bbox, (num1, num2) in zip(subplot_list,
+                                               ax_bbox_list,
+                                               num1num2_list):
 
-        tight_bbox_raw = ax.get_tightbbox(renderer)
+        #ax_bbox = union([ax.get_position(original=True) for ax in subplots])
+
+        tight_bbox_raw = union([ax.get_tightbbox(renderer) for ax in subplots])
         tight_bbox = TransformedBbox(tight_bbox_raw, fig.transFigure.inverted())
 
         row1, col1 = divmod(num1, cols)
