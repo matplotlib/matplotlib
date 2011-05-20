@@ -750,7 +750,7 @@ class Cursor:
     def __init__(self, ax, useblit=False, **lineprops):
         """
         Add a cursor to *ax*.  If ``useblit=True``, use the backend-
-        dependent blitting features for faster updates (:term:`GTKAgg`
+        dependent blitting features for faster updates (GTKAgg
         only for now).  *lineprops* is a dictionary of line properties.
 
         .. plot :: mpl_examples/widgets/cursor.py
