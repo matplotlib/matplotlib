@@ -32,7 +32,7 @@
    path_api.rst
    pyplot_api.rst
    nxutils_api.rst
-   spine_api.rst
+   spines_api.rst
    ticker_api.rst
    units_api.rst
    index_backend_api.rst
