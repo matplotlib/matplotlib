@@ -117,6 +117,12 @@ and build and install as usual with::
 
       sudo apt-get build-dep python-matplotlib
 
+    If you are on Fedora/RedHat, you can get all the dependencies
+    required to build matplotlib by first installing ``yum-builddep``
+    and then running::
+
+       su -c "yum-builddep python-matplotlib"
+
     This does not build matplotlib, but it does get all of the
     build dependencies, which will make building from source easier.
 
