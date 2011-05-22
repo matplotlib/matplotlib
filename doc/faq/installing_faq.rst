@@ -144,11 +144,6 @@ setupegg.py develop` command again to compile them.
 There is more information on :ref:`using git <using-git>` in
 the developer docs.
 
-Install from git
-================
-
-See :ref:`using-git`.
-
 Backends
 ========
 
