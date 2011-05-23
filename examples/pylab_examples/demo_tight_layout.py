@@ -88,8 +88,8 @@ if 1:
     ax4 = fig.add_subplot(gs2[0])
     ax5 = fig.add_subplot(gs2[1])
 
-    example_plot(ax4)
-    example_plot(ax5)
+    #example_plot(ax4)
+    #example_plot(ax5)
 
     gs2.tight_layout(fig, rect=[0.45, None, None, None])
 
