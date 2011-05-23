@@ -138,27 +138,31 @@ def auto_adjust_subplotpars(fig, renderer,
 
 
     fig_width_inch, fig_height_inch = fig.get_size_inches()
+
+    # margins can be negative for axes with aspect applied. And we
+    # append + [0] to make minimum margins 0
+
     if not margin_left:
-        margin_left = max([sum(s) for s in hspaces[::cols+1]])
+        margin_left = max([sum(s) for s in hspaces[::cols+1]] + [0])
         margin_left += pad_inches / fig_width_inch
     
     if not margin_right:
-        margin_right =  max([sum(s) for s in hspaces[cols::cols+1]])
+        margin_right =  max([sum(s) for s in hspaces[cols::cols+1]] + [0])
         margin_right += pad_inches / fig_width_inch
 
     if not margin_top:
-        margin_top =  max([sum(s) for s in vspaces[:cols]])
+        margin_top =  max([sum(s) for s in vspaces[:cols]] + [0])
         margin_top += pad_inches / fig_height_inch
 
     if not margin_bottom:
-        margin_bottom =  max([sum(s) for s in vspaces[-cols:]])
+        margin_bottom =  max([sum(s) for s in vspaces[-cols:]] + [0])
         margin_bottom += pad_inches / fig_height_inch
     
 
-    kwargs = dict(left = margin_left,
-                  right = 1.-margin_right,
-                  top=1.-margin_top,
-                  bottom=margin_bottom)
+    kwargs = dict(left=margin_left,
+                  right=1-margin_right,
+                  bottom=margin_bottom,
+                  top=1-margin_top)
 
     if cols > 1:
         hspace = max([sum(s) for i in range(rows) for s in hspaces[i*(cols+1)+1:(i+1)*(cols+1)-1]])
