@@ -70,8 +70,8 @@ the overlaps.
 
    plt.tight_layout()
 
-:func:`~matplotlib.pyplot.tight_layout` can take kwyword arguments of
-*pad*, *w_pad* and *height*. These controls the extra pad around the
+:func:`~matplotlib.pyplot.tight_layout` can take keyword arguments of
+*pad*, *w_pad* and *h_pad*. These controls the extra pad around the
 figure border and between subplots. The pads are specified in fraction
 of fontsize.
 
@@ -129,8 +129,8 @@ from the gridspec (:ref:`gridspec-guide`) will work.
     plt.tight_layout()
 
 
-Although not thoroughly tested, it seems to work for subplot with aspect
-is not "auto" (e.g., axes with images).
+Although not thoroughly tested, it seems to work for subplots with
+aspect != "auto" (e.g., axes with images).
 
 
 .. plot::
