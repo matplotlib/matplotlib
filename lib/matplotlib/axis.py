@@ -888,39 +888,6 @@ class Axis(artist.Artist):
             for tick in zip(*group):
                 yield tick
 
-    def get_ticklabel_extents_old(self, renderer):
-        """
-        Get the extents of the tick labels on either side
-        of the axes.
-        """
-        ticklabelBoxes = []
-        ticklabelBoxes2 = []
-
-        interval = self.get_view_interval()
-        for tick, loc, label in self.iter_ticks():
-            if tick is None: continue
-            if not mtransforms.interval_contains(interval, loc): continue
-            tick.update_position(loc)
-            tick.set_label1(label)
-            tick.set_label2(label)
-            if tick.label1On and tick.label1.get_visible():
-                extent = tick.label1.get_window_extent(renderer)
-                ticklabelBoxes.append(extent)
-            if tick.label2On and tick.label2.get_visible():
-                extent = tick.label2.get_window_extent(renderer)
-                ticklabelBoxes2.append(extent)
-
-        if len(ticklabelBoxes):
-            bbox = mtransforms.Bbox.union(ticklabelBoxes)
-        else:
-            bbox = mtransforms.Bbox.from_extents(0, 0, 0, 0)
-        if len(ticklabelBoxes2):
-            bbox2 = mtransforms.Bbox.union(ticklabelBoxes2)
-        else:
-            bbox2 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
-        return bbox, bbox2
-
-
     def get_ticklabel_extents(self, renderer):
         """
         Get the extents of the tick labels on either side
