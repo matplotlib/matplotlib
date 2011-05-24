@@ -31,6 +31,7 @@ clipped.
 	ax.set_ylabel('y-label', fontsize=fontsize)
 	ax.set_title('Title', fontsize=fontsize)
 
+   plt.close('all')
    fig, ax = plt.subplots()
    example_plot(ax, fontsize=24)
 
