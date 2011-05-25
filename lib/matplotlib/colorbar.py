@@ -33,6 +33,9 @@ import matplotlib.collections as collections
 import matplotlib.contour as contour
 import matplotlib.artist as martist
 
+import matplotlib.gridspec as gridspec
+
+
 make_axes_kw_doc = '''
 
     ============= ====================================================
@@ -843,5 +846,69 @@ def make_axes(parent, **kw):
     parent.set_anchor(panchor)
     fig = parent.get_figure()
     cax = fig.add_axes(pbcb)
+    cax.set_aspect(aspect, anchor=anchor, adjustable='box')
+    return cax, kw
+
+
+def make_axes_gridspec(parent, **kw):
+
+    print "gridspec"
+    orientation = kw.setdefault('orientation', 'vertical')
+    fraction = kw.pop('fraction', 0.15)
+    shrink = kw.pop('shrink', 1.0)
+    aspect = kw.pop('aspect', 20)
+
+    x1 = 1.0-fraction
+
+    # for shrinking
+    pad_s = (1.-shrink)*0.5
+    wh_ratios = [pad_s, shrink, pad_s]
+
+    gs_from_subplotspec = gridspec.GridSpecFromSubplotSpec
+    if orientation == 'vertical':
+        pad = kw.pop('pad', 0.05)
+        wh_space = 2*pad/(1-pad)
+
+        gs = gs_from_subplotspec(1, 2,
+                                 subplot_spec=parent.get_subplotspec(),
+                                 wspace=wh_space,
+                                 width_ratios=[x1-pad, fraction]
+                                 )
+
+        gs2 = gs_from_subplotspec(3, 1,
+                                  subplot_spec=gs[1],
+                                  hspace=0.,
+                                  height_ratios=wh_ratios,
+                                  )
+
+        anchor = (0.0, 0.5)
+        panchor = (1.0, 0.5)
+    else:
+        pad = kw.pop('pad', 0.15)
+        wh_space = 2*pad/(1-pad)
+
+        gs = gs_from_subplotspec(2, 1,
+                                 subplot_spec=parent.get_subplotspec(),
+                                 hspace=wh_space,
+                                 height_ratios=[x1-pad, fraction]
+                                 )
+
+        gs2 = gs_from_subplotspec(1, 3,
+                                  subplot_spec=gs[1],
+                                  wspace=0.,
+                                  width_ratios=wh_ratios,
+                                  )
+
+        aspect = 1.0/aspect
+        anchor = (0.5, 1.0)
+        panchor = (0.5, 0.0)
+
+    parent.set_subplotspec(gs[0])
+    parent.update_params()
+    parent.set_position(parent.figbox)
+    parent.set_anchor(panchor)
+
+    fig = parent.get_figure()
+    cax = fig.add_subplot(gs2[1])
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
