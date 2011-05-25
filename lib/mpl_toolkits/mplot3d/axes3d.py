@@ -561,7 +561,7 @@ class Axes3D(Axes):
 
         x, y = event.xdata, event.ydata
         # In case the mouse is out of bounds.
-        if x == None:
+        if x is None:
             return
 
         dx, dy = x - self.sx, y - self.sy
