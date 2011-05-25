@@ -403,6 +403,9 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         return sp
 
 
+    def get_topmost_subplotspec(self):
+        'get the topmost SubplotSpec instance associated with the subplot'
+        return self._subplot_spec.get_topmost_subplotspec()
 
 
 class SubplotSpec(object):
@@ -480,3 +483,10 @@ class SubplotSpec(object):
             return figbox
 
 
+    def get_topmost_subplotspec(self):
+        'get the topmost SubplotSpec instance associated with the subplot'
+        gridspec = self.get_gridspec()
+        if hasattr(gridspec, "get_topmost_subplotspec"):
+            return gridspec.get_topmost_subplotspec()
+        else:
+            return self
