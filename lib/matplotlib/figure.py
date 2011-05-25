@@ -1325,9 +1325,9 @@ class Figure(Artist):
         for ax in self.axes:
             locator = ax.get_axes_locator()
             if hasattr(locator, "get_subplotspec"):
-                subplotspec = locator.get_subplotspec()
+                subplotspec = locator.get_subplotspec().get_topmost_subplotspec()
             elif hasattr(ax, "get_subplotspec"):
-                subplotspec = ax.get_subplotspec()
+                subplotspec = ax.get_subplotspec().get_topmost_subplotspec()
             else:
                 continue
 
