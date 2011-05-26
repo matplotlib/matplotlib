@@ -125,6 +125,11 @@ keyword arguments:
   *ax*
     None | parent axes object from which space for a new
     colorbar axes will be stolen
+  *use_gridspec*
+    False | If *cax* is None, a new *cax* is created as an instance of
+    Axes. If *ax* is an instance of Subplot and *use_gridspec* is True,
+    *cax* is created as an instance of Subplot using the
+    grid_spec module. 
 
 
 Additional keyword arguments are of two kinds:
@@ -850,9 +855,39 @@ def make_axes(parent, **kw):
     return cax, kw
 
 
+@docstring.Substitution(make_axes_kw_doc)
 def make_axes_gridspec(parent, **kw):
+    '''
+    Resize and reposition a parent axes, and return a child axes
+    suitable for a colorbar. This function is similar to
+    make_axes. Prmary differences are
 
-    print "gridspec"
+     * *make_axes_gridspec* should only be used with a subplot parent.
+
+     * *make_axes* creates an instance of Axes. *make_axes_gridspec*
+        creates an instance of Subplot.
+       
+     * *make_axes* updates the position of the
+        parent. *make_axes_gridspec* replaces the grid_spec attribute
+        of the parent with a new one.
+
+    While this function is meant to be compatible with *make_axes*,
+    there could be some minor differences.::
+
+        cax, kw = make_axes_gridspec(parent, **kw)
+
+    Keyword arguments may include the following (with defaults):
+
+        *orientation*
+            'vertical'  or 'horizontal'
+
+    %s
+
+    All but the first of these are stripped from the input kw set.
+
+    Returns (cax, kw), the child axes and the reduced kw dictionary.
+    '''
+
     orientation = kw.setdefault('orientation', 'vertical')
     fraction = kw.pop('fraction', 0.15)
     shrink = kw.pop('shrink', 1.0)
