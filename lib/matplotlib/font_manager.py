@@ -232,7 +232,8 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
                     continue
                 except WindowsError:
                     continue
-
+                except MemoryError:
+                    continue
             return items.keys()
         finally:
             _winreg.CloseKey(local)
