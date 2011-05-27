@@ -4,7 +4,7 @@ import matplotlib.cm as cm
 import glob
 import os
 
-@image_comparison(baseline_images=['pngsuite'])
+@image_comparison(baseline_images=['pngsuite'], extensions=['png'])
 def test_pngsuite():
     dirname = os.path.join(
         os.path.dirname(__file__),

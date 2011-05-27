@@ -132,7 +132,11 @@ def convert(filename):
    newname = base + '_' + extension + '.png'
    if not os.path.exists(filename):
       raise IOError, "'%s' does not exist" % filename
-   converter[extension](filename, newname)
+   # Only convert the file if the destination doesn't already exist or
+   # is out of date.
+   if (not os.path.exists(newname) or
+       os.stat(newname).st_mtime < os.stat(filename).st_mtime):
+      converter[extension](filename, newname)
    return newname
 
 verifiers = { }
@@ -162,6 +166,15 @@ def verify(filename):
 if matplotlib.checkdep_xmllint() and False:
    verifiers['svg'] = lambda filename: [
       'xmllint', '--valid', '--nowarning', '--noout', filename]
+
+def crop_to_same(actual_path, actual_image, expected_path, expected_image):
+   # clip the images to the same size -- this is useful only when
+   # comparing eps to pdf
+   if actual_path[-7:-4] == 'eps' and expected_path[-7:-4] == 'pdf':
+      aw, ah = actual_image.size
+      ew, eh = expected_image.size
+      actual_image = actual_image.crop((aw/2-ew/2, ah/2-eh/2, aw/2+ew/2, ah/2+eh/2))
+   return actual_image, expected_image
 
 def compare_images( expected, actual, tol, in_decorator=False ):
    '''Compare two image files - not the greatest, but fast and good enough.
@@ -199,11 +212,14 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    # Convert the image to png
    extension = expected.split('.')[-1]
    if extension != 'png':
-      actual, expected = convert(actual), convert(expected)
+      actual = convert(actual)
+      expected = convert(expected)
 
    # open the image files and remove the alpha channel (if it exists)
    expectedImage = Image.open( expected ).convert("RGB")
    actualImage = Image.open( actual ).convert("RGB")
+
+   actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
 
    # normalize the images
    expectedImage = ImageOps.autocontrast( expectedImage, 2 )
@@ -251,10 +267,13 @@ def compare_images( expected, actual, tol, in_decorator=False ):
 
 def save_diff_image( expected, actual, output ):
    from PIL import Image
-   expectedImage = np.array(Image.open( expected ).convert("RGB")).astype(np.float)
-   actualImage = np.array(Image.open( actual ).convert("RGB")).astype(np.float)
-   assert expectedImage.ndim==expectedImage.ndim
-   assert expectedImage.shape==expectedImage.shape
+   expectedImage = Image.open( expected ).convert("RGB")
+   actualImage = Image.open( actual ).convert("RGB")
+   actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
+   expectedImage = np.array(expectedImage).astype(np.float)
+   actualImage = np.array(actualImage).astype(np.float)
+   assert expectedImage.ndim==actualImage.ndim
+   assert expectedImage.shape==actualImage.shape
    absDiffImage = abs(expectedImage-actualImage)
    # expand differences in luminance domain
    absDiffImage *= 10

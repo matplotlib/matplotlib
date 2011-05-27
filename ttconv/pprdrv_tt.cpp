@@ -437,7 +437,7 @@ void ttfont_header(TTStreamWriter& stream, struct TTFONT *font)
         stream.putline("/FontMatrix[.001 0 0 .001 0 0]def");
     }
 
-    stream.printf("/FontBBox[%d %d %d %d]def\n",font->llx,font->lly,font->urx,font->ury);
+    stream.printf("/FontBBox[%d %d %d %d]def\n",font->llx-1,font->lly-1,font->urx,font->ury);
     if (font->target_type == PS_TYPE_42 || font->target_type == PS_TYPE_42_3_HYBRID)
     {
         stream.printf("/FontType 42 def\n", font->target_type );
