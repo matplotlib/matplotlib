@@ -96,7 +96,9 @@ class ImageComparisonTest(CleanupTest):
                     fail_msg = 'No failure expected'
 
                 orig_expected_fname = os.path.join(baseline_dir, baseline) + '.' + extension
-                expected_fname = os.path.join(result_dir, 'expected-' + baseline) + '.' + extension
+                if extension == 'eps' and not os.path.exists(orig_expected_fname):
+                    orig_expected_fname = os.path.join(baseline_dir, baseline) + '.pdf'
+                expected_fname = os.path.join(result_dir, 'expected-' + os.path.basename(orig_expected_fname))
                 actual_fname = os.path.join(result_dir, baseline) + '.' + extension
                 if os.path.exists(orig_expected_fname):
                     shutil.copyfile(orig_expected_fname, expected_fname)
@@ -110,11 +112,12 @@ class ImageComparisonTest(CleanupTest):
                 def do_test():
                     figure.savefig(actual_fname)
 
+                    err = compare_images(expected_fname, actual_fname, self._tol, in_decorator=True)
+
                     if not os.path.exists(expected_fname):
                         raise ImageComparisonFailure(
                             'image does not exist: %s' % expected_fname)
 
-                    err = compare_images(expected_fname, actual_fname, self._tol, in_decorator=True)
                     if err:
                         raise ImageComparisonFailure(
                             'images not close: %(actual)s vs. %(expected)s '
@@ -150,7 +153,7 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
 
     if extensions is None:
         # default extensions to test
-        extensions = ['png', 'pdf', 'svg']
+        extensions = ['png', 'pdf', 'svg', 'eps']
 
     def compare_images_decorator(func):
         # We want to run the setup function (the actual test function
