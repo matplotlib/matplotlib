@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:square;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="
+M0 54
+L378 54
+L378 0
+L0 0
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- $\frac{X}{\frac{X}{Y}}$ -->
+   <defs>
+    <path d="
+M80.5938 66.2031
+L48.9062 34.9062
+L66.9062 0
+L56.4062 0
+L41.9062 28.2969
+L13.5938 0
+L3.09375 0
+L38.2969 34.9062
+L22.0938 66.2031
+L32.7031 66.2031
+L45.2031 41.4062
+L69.9062 66.2031
+z
+" id="STIXGeneral-Italic-1d61f"/>
+    <path d="
+M77.4062 66.2031
+L43 28.7969
+L35.7969 0
+L27.0938 0
+L34.2031 28.7969
+L18.5938 66.2031
+L28.0938 66.2031
+L40.5 36.2031
+L67.9062 66.2031
+z
+" id="STIXGeneral-Italic-1d620"/>
+   </defs>
+   <g transform="translate(185.28 36.96)scale(0.12 -0.12)">
+    <use transform="translate(0.0 119.6578125)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d61f"/>
+    <use transform="translate(3.0 55.96828125)scale(0.49)" xlink:href="#STIXGeneral-Italic-1d61f"/>
+    <use transform="translate(5.0 1.65375)scale(0.49)" xlink:href="#STIXGeneral-Italic-1d620"/>
+    <path d="
+M0 94.6578
+L0 100.908
+L49 100.908
+L49 94.6578
+L0 94.6578
+z
+"/>
+    <path d="
+M3 38.4683
+L3 42.8433
+L37.3 42.8433
+L37.3 38.4683
+L3 38.4683
+z
+"/>
+   </g>
+  </g>
+ </g>
+</svg>
