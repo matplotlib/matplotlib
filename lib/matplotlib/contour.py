@@ -1292,7 +1292,7 @@ class QuadContourSet(ContourSet):
         Use keyword args to control colors, linewidth, origin, cmap ... see
         below for more details.
 
-        *X*, *Y*, and *Z* must be arrays with the same dimensions.
+        *X*, *Y*, and *Z* must be arrays broadcastable to the same dimensions.
 
         *Z* may be a masked array, but filled contouring may not
         handle internal masked regions correctly.
