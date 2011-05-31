@@ -153,7 +153,7 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
 
     if extensions is None:
         # default extensions to test
-        extensions = ['png', 'pdf', 'svg', 'eps']
+        extensions = ['png', 'pdf', 'svg']
 
     def compare_images_decorator(func):
         # We want to run the setup function (the actual test function

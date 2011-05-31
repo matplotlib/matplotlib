@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:square;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="
+M0 54
+L378 54
+L378 0
+L0 0
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- $\Delta_i^j$ -->
+   <defs>
+    <path d="
+M32.5 67.9062
+L30.2031 58.5938
+L21 58.5938
+L23.2969 67.9062
+z
+
+M26.5938 45.9062
+L15.2031 0
+L6.90625 0
+L17.7969 44
+L25.7969 46.4062
+z
+" id="STIXGeneral-Italic-1d62a"/>
+    <path d="
+M63.5 0
+L3.09375 0
+L32 67.4062
+L34.5938 67.4062
+z
+
+M50.9062 7.40625
+L33.2969 50.2969
+L15.7031 7.40625
+z
+" id="STIXNonUnicode-Regular-e180"/>
+    <path d="
+M35.4062 67.9062
+L33.0938 58.5938
+L23.7969 58.5938
+L26.0938 67.9062
+z
+
+M29.4062 45.9062
+L17.2969 -2.59375
+Q14.9062 -11.9062 9.90625 -16.75
+Q4.90625 -21.5938 -1.79688 -21.5938
+Q-6.79688 -21.5938 -11.7969 -18
+L-7.5 -11.5938
+L-5.90625 -11.5938
+Q-2.29688 -14.4062 -0.09375 -14.4062
+Q6.20312 -14.4062 8.70312 -4.20312
+L20.7031 43.9062
+L28.5938 46.4062
+z
+" id="STIXGeneral-Italic-1d62b"/>
+   </defs>
+   <g transform="translate(182.88 34.92)scale(0.12 -0.12)">
+    <use transform="translate(0.0 22.9046875)" xlink:href="#STIXNonUnicode-Regular-e180"/>
+    <use transform="translate(66.5999908447 84.465625)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d62b"/>
+    <use transform="translate(66.5999908447 1.571875)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d62a"/>
+   </g>
+  </g>
+ </g>
+</svg>
