@@ -657,14 +657,22 @@ def run(arguments, content, options, state_machine, state, lineno):
     build_dir = os.path.join(os.path.dirname(setup.app.doctreedir),
                              'plot_directive',
                              source_rel_dir)
+    # get rid of .. in paths, also changes pathsep
+    # see note in Python docs for warning about symbolic links on Windows.
+    # need this if you use cbook.mkdirs
+    # also need it to compare source and dest paths at end
+    build_dir = os.path.normpath(build_dir)
+
     if not os.path.exists(build_dir):
-        cbook.mkdirs(build_dir)
+        #        cbook.mkdirs(build_dir)
+        os.makedirs(build_dir)
 
     # output_dir: final location in the builder's directory
     dest_dir = os.path.abspath(os.path.join(setup.app.builder.outdir,
                                             source_rel_dir))
     if not os.path.exists(dest_dir):
-        cbook.mkdirs(dest_dir)
+        #        cbook.mkdirs(dest_dir)
+        os.makedirs(dest_dir) # no problem here for me, but just use built-ins
 
     # how to link to files from the RST file
     dest_dir_link = os.path.join(relpath(setup.confdir, rst_dir),
@@ -738,15 +746,16 @@ def run(arguments, content, options, state_machine, state, lineno):
     if total_lines:
         state_machine.insert_input(total_lines, source=source_file_name)
 
-    # copy image files to builder's output directory
+    # copy image files to builder's output directory, if necessary
     if not os.path.exists(dest_dir):
         cbook.mkdirs(dest_dir)
-
+    
     for code_piece, images in results:
         for img in images:
             for fn in img.filenames():
-                shutil.copyfile(fn, os.path.join(dest_dir,
-                                                 os.path.basename(fn)))
+                destimg = os.path.join(dest_dir, os.path.basename(fn))
+                if fn != destimg:
+                    shutil.copyfile(fn, destimg)
 
     # copy script (if necessary)
     if source_file_name == rst_file:
