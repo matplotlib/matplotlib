@@ -1,6 +1,6 @@
-************************
-matplotlib configuration
-************************
+*************
+configuration
+*************
 
 
 :mod:`matplotlib`

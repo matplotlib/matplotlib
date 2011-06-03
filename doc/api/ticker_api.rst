@@ -1,6 +1,6 @@
-*******************
-matplotlib ticker
-*******************
+******
+ticker
+******
 
 
 :mod:`matplotlib.ticker`

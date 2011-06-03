@@ -1,9 +1,9 @@
-*****************
-matplotlib spine
-*****************
+******
+spines
+******
 
 
-:mod:`matplotlib.spine`
+:mod:`matplotlib.spines`
 ========================
 
 .. automodule:: matplotlib.spines

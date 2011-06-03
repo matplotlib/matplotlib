@@ -1,6 +1,6 @@
-*****************
-matplotlib figure
-*****************
+******
+figure
+******
 
 
 :mod:`matplotlib.figure`

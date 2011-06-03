@@ -1,6 +1,6 @@
-***************
-matplotlib axes
-***************
+****
+axes
+****
 
 
 :mod:`matplotlib.axes`

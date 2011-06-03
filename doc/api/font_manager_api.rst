@@ -1,6 +1,6 @@
-***********************
-matplotlib font_manager
-***********************
+************
+font_manager
+************
 
 :mod:`matplotlib.font_manager`
 ==============================
