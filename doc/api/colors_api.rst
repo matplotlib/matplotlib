@@ -1,6 +1,6 @@
-*****************
-matplotlib colors
-*****************
+******
+colors
+******
 
 
 :mod:`matplotlib.colors`
