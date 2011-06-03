@@ -1292,10 +1292,9 @@ class QuadContourSet(ContourSet):
         Use keyword args to control colors, linewidth, origin, cmap ... see
         below for more details.
 
-        *X*, *Y*, and *Z* must be arrays with the same dimensions.
-
-        *Z* may be a masked array, but filled contouring may not
-        handle internal masked regions correctly.
+        *X* and *Y* must both be 2-D with the same shape as *Z*, or they
+        must both be 1-D such that ``len(X)`` is the number of columns in
+        *Z* and ``len(Y)`` is the number of rows in *Z*.
 
         ``C = contour(...)`` returns a
         :class:`~matplotlib.contour.QuadContourSet` object.
