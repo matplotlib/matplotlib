@@ -167,8 +167,10 @@ outputs, and each of these capabilities is called a backend; the
 "frontend" is the user facing code, ie the plotting code, whereas the
 "backend" does all the hard work behind-the-scenes to make the
 figure.  There are two types of backends: user interface backends (for
-use in pygtk, wxpython, tkinter, qt, macosx, or fltk) and hardcopy backends to
-make image files (PNG, SVG, PDF, PS).
+use in pygtk, wxpython, tkinter, qt, macosx, or fltk; also
+referred to as "interactive backends") and hardcopy backends to
+make image files (PNG, SVG, PDF, PS; also referred to as "non-interactive
+backends").
 
 There are a two primary ways to configure your backend.  One is to set
 the ``backend`` parameter in your ``matplotlibrc`` file (see
@@ -184,14 +186,18 @@ The other is to use the matplotlib :func:`~matplotlib.use` directive::
 If you use the ``use`` directive, this must be done before importing
 :mod:`matplotlib.pyplot` or :mod:`matplotlib.pylab`.
 
-If you are unsure what to do, and just want to get coding, just set
-your backend to ``TkAgg``.  This will do the right thing for most
-users.  It gives you the option of running your scripts in batch or
-working interactively from the python shell, with the least amount of
-hassles, and is smart enough to do the right thing when you ask for
-postscript, or pdf, or other image formats.
+.. note::
+   Backend name specifications are not case-sensitive; e.g., 'GTKAgg'
+   and 'gtkagg' are equivalent.
 
-If however, you want to write graphical user interfaces, or a web
+With a typical installation of matplotlib, such as from a
+binary installer or a linux distribution package, a good default
+backend will already be set, allowing both interactive work and
+plotting from scripts, with output to the screen and/or to
+a file, so at least initially you will not need to use either of the
+two methods given above.
+
+If, however, you want to write graphical user interfaces, or a web
 application server (:ref:`howto-webapp`), or need a better
 understanding of what is going on, read on. To make things a little
 more customizable for graphical user interfaces, matplotlib separates
@@ -199,8 +205,9 @@ the concept of the renderer (the thing that actually does the drawing)
 from the canvas (the place where the drawing goes).  The canonical
 renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
 Geometry`_ C++ library to make a raster (pixel) image of the figure.
-All of the user interfaces can be used with agg rendering, eg
-``WXAgg``, ``GTKAgg``, ``QTAgg``, ``TkAgg``, ``CocoaAgg``.  In
+All of the user interfaces except ``macosx`` can be used with
+agg rendering, eg
+``WXAgg``, ``GTKAgg``, ``QT4Agg``, ``TkAgg``.  In
 addition, some of the user interfaces support other rendering engines.
 For example, with GTK, you can also select GDK rendering (backend
 ``GTK``) or Cairo rendering (backend ``GTKCairo``).
@@ -214,7 +221,8 @@ generate a pixel representation of the line whose accuracy depends on a
 DPI setting.
 
 Here is a summary of the matplotlib renderers (there is an eponymous
-backed for each):
+backed for each; these are *non-interactive backends*, capable of
+writing to a file):
 
 =============   ============   ================================================
 Renderer        Filetypes      Description
@@ -238,7 +246,10 @@ SVG             :term:`svg`    :term:`vector graphics` --
                 ...
 =============   ============   ================================================
 
-And here are the user interfaces and renderer combinations supported:
+And here are the user interfaces and renderer combinations supported;
+these are *interactive backends*, capable of displaying to the screen
+and of using appropriate renderers from the table above to write to
+a file:
 
 ============   ================================================================
 Backend        Description
@@ -253,9 +264,14 @@ WX             Native :term:`wxWidgets` drawing to a :term:`wxWidgets` Canvas
                (not recommended) (requires wxPython_)
 TkAgg          Agg rendering to a :term:`Tk` canvas (requires TkInter_)
 QtAgg          Agg rendering to a :term:`Qt` canvas (requires PyQt_)
+               (not recommended; use Qt4Agg)
 Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_)
 FLTKAgg        Agg rendering to a :term:`FLTK` canvas (requires pyFLTK_)
+               (not widely used; consider TKAgg, GTKAgg, WXAgg, or
+               QT4Agg instead)
 macosx         Cocoa rendering in OSX windows
+               (presently lacks blocking show() behavior when matplotlib
+               is in non-interactive mode)
 ============   ================================================================
 
 .. _`Anti-Grain Geometry`: http://www.antigrain.com/
@@ -270,21 +286,6 @@ macosx         Cocoa rendering in OSX windows
 .. _PyQt: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 .. _PyQt4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 .. _pyFLTK: http://pyfltk.sourceforge.net
-
-
-.. _pygtk-2.4:
-
-Compile matplotlib with PyGTK-2.4
--------------------------------------------
-
-There is a `bug in PyGTK-2.4`_. You need to edit
-:file:`pygobject.h` to add the :c:macro:`G_BEGIN_DECLS` and :c:macro:`G_END_DECLS`
-macros, and rename :c:data:`typename` parameter to :c:data:`typename_`::
-
-  -                       const char *typename,
-  +                       const char *typename_,
-
-.. _`bug in PyGTK-2.4`: http://bugzilla.gnome.org/show_bug.cgi?id=155304
 
 
 OS-X questions
