@@ -1,10 +1,12 @@
 """
 GUI Neutral widgets
+===================
 
-All of these widgets require you to predefine an Axes instance and
-pass that as the first arg.  matplotlib doesn't try to be too smart in
-layout -- you have to figure out how wide and tall you want your Axes
-to be to accommodate your widget.
+Widgets that are designed to work for any of the GUI backends.
+All of these widgets require you to predefine an :class:`matplotlib.axes.Axes`
+instance and pass that as the first arg.  matplotlib doesn't try to
+be too smart with respect to layout -- you will have to figure out how
+wide and tall you want your Axes to be to accommodate your widget.
 """
 
 import numpy as np
@@ -16,17 +18,19 @@ from transforms import blended_transform_factory
 
 class LockDraw:
     """
-    some widgets, like the cursor, draw onto the canvas, and this is not
+    Some widgets, like the cursor, draw onto the canvas, and this is not
     desirable under all circumstaces, like when the toolbar is in
     zoom-to-rect mode and drawing a rectangle.  The module level "lock"
     allows someone to grab the lock and prevent other widgets from
-    drawing.  Use matplotlib.widgets.lock(someobj) to pr
+    drawing.  Use ``matplotlib.widgets.lock(someobj)`` to pr
     """
+    # FIXME: This docstring ends abruptly without...
+
     def __init__(self):
         self._owner = None
 
     def __call__(self, o):
-        'reserve the lock for o'
+        'reserve the lock for *o*'
         if not self.available(o):
             raise ValueError('already locked')
         self._owner = o
@@ -38,23 +42,22 @@ class LockDraw:
         self._owner = None
 
     def available(self, o):
-        'drawing is available to o'
+        'drawing is available to *o*'
         return not self.locked() or self.isowner(o)
 
     def isowner(self, o):
-        'o owns the lock'
+        'Return True if *o* owns this lock'
         return self._owner is o
 
     def locked(self):
-        'the lock is held'
+        'Return True if the lock is currently held by an owner'
         return self._owner is not None
 
 
 
 class Widget:
     """
-    OK, I couldn't resist; abstract base class for mpl GUI neutral
-    widgets
+    Abstract base class for GUI neutral widgets
     """
     drawon = True
     eventson = True
@@ -68,30 +71,41 @@ class Button(Widget):
 
     The following attributes are accesible
 
-      ax    - the Axes the button renders into
-      label - a text.Text instance
-      color - the color of the button when not hovering
-      hovercolor - the color of the button when hovering
+      *ax*
+        The :class:`matplotlib.axes.Axes` the button renders into.
 
-    Call "on_clicked" to connect to the button
+      *label*
+        A :class:`matplotlib.text.Text` instance.
+
+      *color*
+        The color of the button when not hovering.
+
+      *hovercolor*
+        The color of the button when hovering.
+
+    Call :meth:`on_clicked` to connect to the button
     """
 
     def __init__(self, ax, label, image=None,
                  color='0.85', hovercolor='0.95'):
         """
-        ax is the Axes instance the button will be placed into
+        *ax*
+            The :class:`matplotlib.axes.Axes` instance the button
+            will be placed into.
 
-        label is a string which is the button text
+        *label*
+            The button text. Accepts string.
 
-        image if not None, is an image to place in the button -- can
-          be any legal arg to imshow (numpy array, matplotlib Image
-          instance, or PIL image)
+        *image*
+            The image to place in the button, if not ``None``.
+            Can be any legal arg to imshow (numpy array,
+            matplotlib Image instance, or PIL image).
 
-        color is the color of the button when not activated
+        *color*
+            The color of the button when not activated
 
-        hovercolor is the color of the button when the mouse is over
-          it
-
+        *hovercolor*
+            The color of the button when the mouse is over it
         """
         if image is not None:
             ax.imshow(image)
@@ -148,7 +162,7 @@ class Button(Widget):
 
     def on_clicked(self, func):
         """
-        When the button is clicked, call this func with event
+        When the button is clicked, call this *func* with event
 
         A connection id is returned which can be used to disconnect
         """
@@ -158,7 +172,7 @@ class Button(Widget):
         return cid
 
     def disconnect(self, cid):
-        'remove the observer with connection id cid'
+        'remove the observer with connection id *cid*'
         try: del self.observers[cid]
         except KeyError: pass
 
@@ -169,42 +183,62 @@ class Slider(Widget):
     A slider representing a floating point range
 
     The following attributes are defined
-      ax     : the slider axes.Axes instance
-      val    : the current slider value
-      vline  : a Line2D instance representing the initial value
-      poly   : A patch.Polygon instance which is the slider
-      valfmt : the format string for formatting the slider text
-      label  : a text.Text instance, the slider label
-      closedmin : whether the slider is closed on the minimum
-      closedmax : whether the slider is closed on the maximum
-      slidermin : another slider - if not None, this slider must be > slidermin
-      slidermax : another slider - if not None, this slider must be < slidermax
-      dragging : allow for mouse dragging on slider
+      *ax*        : the slider :class:`matplotlib.axes.Axes` instance
 
-    Call on_changed to connect to the slider event
+      *val*       : the current slider value
+
+      *vline*     : a :class:`matplotlib.lines.Line2D` instance
+                     representing the initial value of the slider
+
+      *poly*      : A :class:`matplotlib.patches.Polygon` instance
+                     which is the slider knob
+
+      *valfmt*    : the format string for formatting the slider text
+
+      *label*     : a :class:`matplotlib.text.Text` instance
+                     for the slider label
+
+      *closedmin* : whether the slider is closed on the minimum
+
+      *closedmax* : whether the slider is closed on the maximum
+
+      *slidermin* : another slider - if not ``None``, this slider must be
+                     greater than *slidermin*
+
+      *slidermax* : another slider - if not ``None``, this slider must be
+                     less than *slidermax*
+
+      *dragging*  : allow for mouse dragging on slider
+
+    Call :meth:`on_changed` to connect to the slider event
     """
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt='%1.2f',
                  closedmin=True, closedmax=True, slidermin=None, slidermax=None,
                  dragging=True, **kwargs):
         """
-        Create a slider from valmin to valmax in axes ax;
+        Create a slider from *valmin* to *valmax* in axes *ax*
 
-        valinit -  the slider initial position
+        *valinit*
+            The slider initial position
 
-        label - the slider label
+        *label*
+            The slider label
 
-        valfmt - used to format the slider value
+        *valfmt*
+            Used to format the slider value
 
-        closedmin and closedmax - indicate whether the slider interval is closed
+        *closedmin* and *closedmax*
+            Indicate whether the slider interval is closed
 
-        slidermin and slidermax - be used to contrain the value of
-          this slider to the values of other sliders.
+        *slidermin* and *slidermax*
+            Used to contrain the value of this slider to the values
+            of other sliders.
 
-        additional kwargs are passed on to self.poly which is the
-        matplotlib.patches.Rectangle which draws the slider.  See the
-        matplotlib.patches.Rectangle documentation for legal property
-        names (eg facecolor, edgecolor, alpha, ...)
-          """
+        additional kwargs are passed on to ``self.poly`` which is the
+        :class:`matplotlib.patches.Rectangle` which draws the slider
+        knob.  See the :class:`matplotlib.patches.Rectangle` documentation
+        valid property names (e.g., *facecolor*, *edgecolor*, *alpha*, ...)
+        """
         self.ax = ax
 
         self.valmin = valmin
@@ -294,7 +328,7 @@ class Slider(Widget):
 
     def on_changed(self, func):
         """
-        When the slider valud is changed, call this func with the new
+        When the slider value is changed, call *func* with the new
         slider position
 
         A connection id is returned which can be used to disconnect
@@ -305,7 +339,7 @@ class Slider(Widget):
         return cid
 
     def disconnect(self, cid):
-        'remove the observer with connection id cid'
+        'remove the observer with connection id *cid*'
         try: del self.observers[cid]
         except KeyError: pass
 
@@ -322,24 +356,33 @@ class CheckButtons(Widget):
 
     The following attributes are exposed
 
-     ax - the Axes instance the buttons are in
-     labels - a list of text.Text instances
-     lines - a list of (line1, line2) tuples for the x's in the check boxes.
-             These lines exist for each box, but have set_visible(False) when
-             box is not checked
-     rectangles - a list of patch.Rectangle instances
+     *ax*
+        The :class:`matplotlib.axes.Axes` instance the buttons are
+        located in
 
-    Connect to the CheckButtons with the on_clicked method
+     *labels*
+        List of :class:`matplotlib.text.Text` instances
+
+     *lines*
+        List of (line1, line2) tuples for the x's in the check boxes.
+        These lines exist for each box, but have ``set_visible(False)``
+        when its box is not checked.
+
+     *rectangles*
+        List of :class:`matplotlib.patches.Rectangle` instances
+
+    Connect to the CheckButtons with the :meth:`on_clicked` method
     """
     def __init__(self, ax, labels, actives):
         """
-        Add check buttons to axes.Axes instance ax
+        Add check buttons to :class:`matplotlib.axes.Axes` instance *ax*
 
-        labels is a len(buttons) list of labels as strings
+        *labels*
+            A len(buttons) list of labels as strings
 
-        actives is a len(buttons) list of booleans indicating whether
-         the button is active
-
+        *actives*
+            A len(buttons) list of booleans indicating whether
+             the button is active
         """
 
         ax.set_xticks([])
@@ -420,7 +463,7 @@ class CheckButtons(Widget):
 
     def on_clicked(self, func):
         """
-        When the button is clicked, call this func with button label
+        When the button is clicked, call *func* with button label
 
         A connection id is returned which can be used to disconnect
         """
@@ -430,7 +473,7 @@ class CheckButtons(Widget):
         return cid
 
     def disconnect(self, cid):
-        'remove the observer with connection id cid'
+        'remove the observer with connection id *cid*'
         try: del self.observers[cid]
         except KeyError: pass
 
@@ -441,22 +484,32 @@ class RadioButtons(Widget):
 
     The following attributes are exposed
 
-     ax - the Axes instance the buttons are in
-     activecolor - the color of the button when clicked
-     labels - a list of text.Text instances
-     circles - a list of patch.Circle instances
+     *ax*
+        The :class:`matplotlib.axes.Axes` instance the buttons are in
 
-    Connect to the RadioButtons with the on_clicked method
+     *activecolor*
+        The color of the button when clicked
+
+     *labels*
+        A list of :class:`matplotlib.text.Text` instances
+
+     *circles*
+        A list of :class:`matplotlib.patches.Circle` instances
+
+    Connect to the RadioButtons with the :meth:`on_clicked` method
     """
     def __init__(self, ax, labels, active=0, activecolor='blue'):
         """
-        Add radio buttons to axes.Axes instance ax
+        Add radio buttons to :class:`matplotlib.axes.Axes` instance *ax*
 
-        labels is a len(buttons) list of labels as strings
+        *labels*
+            A len(buttons) list of labels as strings
 
-        active is the index into labels for the button that is active
+        *active*
+            The index into labels for the button that is active
 
-        activecolor is the color of the button when clicked
+        *activecolor*
+            The color of the button when clicked
         """
         self.activecolor = activecolor
 
@@ -529,7 +582,7 @@ class RadioButtons(Widget):
 
     def on_clicked(self, func):
         """
-        When the button is clicked, call this func with button label
+        When the button is clicked, call *func* with button label
 
         A connection id is returned which can be used to disconnect
         """
@@ -539,7 +592,7 @@ class RadioButtons(Widget):
         return cid
 
     def disconnect(self, cid):
-        'remove the observer with connection id cid'
+        'remove the observer with connection id *cid*'
         try: del self.observers[cid]
         except KeyError: pass
 
@@ -547,16 +600,20 @@ class RadioButtons(Widget):
 
 class SubplotTool(Widget):
     """
-    A tool to adjust to subplot params of fig
+    A tool to adjust to subplot params of a :class:`matplotlib.figure.Figure`
     """
     def __init__(self, targetfig, toolfig):
         """
-        targetfig is the figure to adjust
+        *targetfig*
+            The figure instance to adjust
 
-        toolfig is the figure to embed the the subplot tool into.  If
-        None, a default pylab figure will be created.  If you are
-        using this from the GUI
+        *toolfig*
+            The figure instance to embed the subplot tool into. If
+            None, a default figure will be created. If you are using
+            this from the GUI
         """
+        # FIXME: The docstring seems to just abruptly end without...
+
         self.targetfig = targetfig
         toolfig.subplots_adjust(left=0.2, right=0.9)
 
@@ -682,18 +739,24 @@ class Cursor:
     the pointer.  You can turn off the hline or vline spectively with
     the attributes
 
-      horizOn =True|False: controls visibility of the horizontal line
-      vertOn =True|False: controls visibility of the horizontal line
+      *horizOn*
+        Controls the visibility of the horizontal line
 
-    And the visibility of the cursor itself with visible attribute
+      *vertOn*
+        Controls the visibility of the horizontal line
+
+    and the visibility of the cursor itself with the *visible* attribute
     """
     def __init__(self, ax, useblit=False, **lineprops):
         """
-        Add a cursor to ax.  If useblit=True, use the backend
-        dependent blitting features for faster updates (GTKAgg only
-        now).  lineprops is a dictionary of line properties.  See
-        examples/widgets/cursor.py.
+        Add a cursor to *ax*.  If ``useblit=True``, use the backend-
+        dependent blitting features for faster updates (GTKAgg
+        only for now).  *lineprops* is a dictionary of line properties.
+
+        .. plot :: mpl_examples/widgets/cursor.py
         """
+        # TODO: Is the GTKAgg limitation still true?
+
         self.ax = ax
         self.canvas = ax.figure.canvas
 
@@ -760,22 +823,24 @@ class MultiCursor:
     """
     Provide a vertical line cursor shared between multiple axes
 
-    from matplotlib.widgets import MultiCursor
-    from pylab import figure, show, nx
+    Example usage::
 
-    t = nx.arange(0.0, 2.0, 0.01)
-    s1 = nx.sin(2*nx.pi*t)
-    s2 = nx.sin(4*nx.pi*t)
-    fig = figure()
-    ax1 = fig.add_subplot(211)
-    ax1.plot(t, s1)
+        from matplotlib.widgets import MultiCursor
+        from pylab import figure, show, nx
+
+        t = nx.arange(0.0, 2.0, 0.01)
+        s1 = nx.sin(2*nx.pi*t)
+        s2 = nx.sin(4*nx.pi*t)
+        fig = figure()
+        ax1 = fig.add_subplot(211)
+        ax1.plot(t, s1)
 
 
-    ax2 = fig.add_subplot(212, sharex=ax1)
-    ax2.plot(t, s2)
+        ax2 = fig.add_subplot(212, sharex=ax1)
+        ax2.plot(t, s2)
 
-    multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1)
-    show()
+        multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1)
+        show()
 
     """
     def __init__(self, canvas, axes, useblit=True, **lineprops):
@@ -833,40 +898,39 @@ class SpanSelector:
     """
     Select a min/max range of the x or y axes for a matplotlib Axes
 
-    Example usage:
+    Example usage::
 
-      ax = subplot(111)
-      ax.plot(x,y)
+        ax = subplot(111)
+        ax.plot(x,y)
 
-      def onselect(vmin, vmax):
-          print vmin, vmax
-      span = SpanSelector(ax, onselect, 'horizontal')
+        def onselect(vmin, vmax):
+            print vmin, vmax
+        span = SpanSelector(ax, onselect, 'horizontal')
 
-      onmove_callback is an optional callback that will be called on mouse move
-      with the span range
+    *onmove_callback* is an optional callback that is called on mouse
+      move within the span range
 
     """
 
-    def __init__(self, ax, onselect, direction, minspan=None, useblit=False, rectprops=None, onmove_callback=None):
+    def __init__(self, ax, onselect, direction, minspan=None, useblit=False,
+                 rectprops=None, onmove_callback=None):
         """
-        Create a span selector in ax.  When a selection is made, clear
-        the span and call onselect with
+        Create a span selector in *ax*.  When a selection is made, clear
+        the span and call *onselect* with::
 
-          onselect(vmin, vmax)
+            onselect(vmin, vmax)
 
         and clear the span.
 
-        direction must be 'horizontal' or 'vertical'
+        *direction* must be 'horizontal' or 'vertical'
 
-        If minspan is not None, ignore events smaller than minspan
+        If *minspan* is not ``None``, ignore events smaller than *minspan*
 
-        The span rect is drawn with rectprops; default
+        The span rectangle is drawn with *rectprops*; default::
           rectprops = dict(facecolor='red', alpha=0.5)
 
-        set the visible attribute to False if you want to turn off
+        Set the visible attribute to ``False`` if you want to turn off
         the functionality of the span selector
-
-
         """
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
@@ -929,7 +993,7 @@ class SpanSelector:
 
 
     def ignore(self, event):
-        'return True if event should be ignored'
+        'return ``True`` if *event* should be ignored'
         return  event.inaxes!=self.ax or not self.visible or event.button !=1
 
     def press(self, event):
@@ -966,7 +1030,10 @@ class SpanSelector:
         return False
 
     def update(self):
-        'draw using newfangled blit or oldfangled draw depending on useblit'
+        """
+        Draw using newfangled blit or oldfangled draw depending
+        on *useblit*
+        """
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
@@ -1057,38 +1124,41 @@ class RectangleSelector:
                  button=None):
 
         """
-        Create a selector in ax.  When a selection is made, clear
-        the span and call onselect with
+        Create a selector in *ax*.  When a selection is made, clear
+        the span and call onselect with::
 
           onselect(pos_1, pos_2)
 
-        and clear the drawn box/line. There pos_i are arrays of length 2
-        containing the x- and y-coordinate.
+        and clear the drawn box/line. The ``pos_1`` and ``pos_2`` are
+        arrays of length 2 containing the x- and y-coordinate.
 
-        If minspanx is not None then events smaller than minspanx
-        in x direction are ignored(it's the same for y).
+        If *minspanx* is not ``None`` then events smaller than *minspanx*
+        in x direction are ignored (it's the same for y).
 
-        The rect is drawn with rectprops; default
+        The rectangle is drawn with *rectprops*; default::
+
           rectprops = dict(facecolor='red', edgecolor = 'black',
                            alpha=0.5, fill=False)
 
-        The line is drawn with lineprops; default
+        The line is drawn with *lineprops*; default::
+
           lineprops = dict(color='black', linestyle='-',
                            linewidth = 2, alpha=0.5)
 
-        Use type if you want the mouse to draw a line, a box or nothing
-        between click and actual position ny setting
+        Use *drawtype* if you want the mouse to draw a line,
+        a box or nothing between click and actual position by setting
 
-        drawtype = 'line', drawtype='box' or drawtype = 'none'.
+        ``drawtype = 'line'``, ``drawtype='box'`` or ``drawtype = 'none'``.
 
-        spancoords is one of 'data' or 'pixels'.  If 'data', minspanx
-        and minspanx will be interpreted in the same coordinates as
-        the x and ya axis, if 'pixels', they are in pixels
+        *spancoords* is one of 'data' or 'pixels'.  If 'data', *minspanx*
+        and *minspanx* will be interpreted in the same coordinates as
+        the x and y axis. If 'pixels', they are in pixels.
 
-        button is a list of integers indicating which mouse buttons should
+        *button* is a list of integers indicating which mouse buttons should
         be used for rectangle selection.  You can also specify a single
-        integer if only a single button is desired.  Default is None, which
-        does not limit which button can be used.
+        integer if only a single button is desired.  Default is ``None``,
+        which does not limit which button can be used.
+
         Note, typically:
          1 = left mouse button
          2 = center mouse button (scroll wheel)
@@ -1151,7 +1221,7 @@ class RectangleSelector:
 
 
     def ignore(self, event):
-        'return True if event should be ignored'
+        'return ``True`` if *event* should be ignored'
         # If RectangleSelector is not active :
         if not self.active:
             return True
@@ -1217,12 +1287,14 @@ class RectangleSelector:
         spany = ymax - ymin
         xproblems = self.minspanx is not None and spanx<self.minspanx
         yproblems = self.minspany is not None and spany<self.minspany
+
+        # TODO: Why is there triple-quoted items, and two separate checks.
         if (self.drawtype=='box')  and (xproblems or  yproblems):
-            """Box to small"""     # check if drawed distance (if it exists) is
-            return                 # not to small in neither x nor y-direction
+            """Box to small"""     # check if drawn distance (if it exists) is
+            return                 # not too small in neither x nor y-direction
         if (self.drawtype=='line') and (xproblems and yproblems):
-            """Line to small"""    # check if drawed distance (if it exists) is
-            return                 # not to small in neither x nor y-direction
+            """Line to small"""    # check if drawn distance (if it exists) is
+            return                 # not too small in neither x nor y-direction
         self.onselect(self.eventpress, self.eventrelease)
                                               # call desired function
         self.eventpress = None                # reset the variables to their
@@ -1264,14 +1336,14 @@ class RectangleSelector:
             return False
 
     def set_active(self, active):
-        """ Use this to activate / deactivate the RectangleSelector
-
-            from your program with an boolean variable 'active'.
+        """
+        Use this to activate / deactivate the RectangleSelector
+        from your program with an boolean parameter *active*.
         """
         self.active = active
 
     def get_active(self):
-        """ to get status of active mode (boolean variable)"""
+        """ Get status of active mode (boolean variable)"""
         return self.active
 
 class Lasso(Widget):

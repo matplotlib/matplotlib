@@ -1,6 +1,6 @@
-**************
-matplotlib afm
-**************
+**********************************
+afm (Adobe Font Metrics interface)
+**********************************
 
 
 :mod:`matplotlib.afm`
