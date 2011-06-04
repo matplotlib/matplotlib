@@ -1,8 +1,8 @@
 .. _artist-api:
 
-*******************
-matplotlib artists
-*******************
+*******
+artists
+*******
 
 .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
    :parts: 2

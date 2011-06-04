@@ -117,12 +117,18 @@ and build and install as usual with::
 
       sudo apt-get build-dep python-matplotlib
 
-    This does not build matplotlib, but it does get the install the
+    If you are on Fedora/RedHat, you can get all the dependencies
+    required to build matplotlib by first installing ``yum-builddep``
+    and then running::
+
+       su -c "yum-builddep python-matplotlib"
+
+    This does not build matplotlib, but it does get all of the
     build dependencies, which will make building from source easier.
 
 
 If you want to be able to follow the development branch as it changes just replace
-the last step with (Make sure you have **setuptools** installed)::
+the last step with (make sure you have **setuptools** installed)::
 
   > python setupegg.py develop
 
@@ -137,11 +143,6 @@ setupegg.py develop` command again to compile them.
 
 There is more information on :ref:`using git <using-git>` in
 the developer docs.
-
-Install from git
-================
-
-See :ref:`using-git`.
 
 Backends
 ========

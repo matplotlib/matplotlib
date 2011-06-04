@@ -1,6 +1,6 @@
-*******************
-matplotlib mathtext
-*******************
+********
+mathtext
+********
 
 .. inheritance-diagram:: matplotlib.mathtext
    :parts: 1

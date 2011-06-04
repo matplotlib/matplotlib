@@ -372,6 +372,22 @@ please ignore it while we consolidate our testing to these locations.)
 
 .. _nose: http://somethingaboutorange.com/mrl/projects/nose/
 
+Requirements
+------------
+
+The following software is required to run the tests:
+
+  - nose_, version 0.11.1 or later
+
+  - `Python Imaging Library
+    <http://www.pythonware.com/products/pil/>`_ (to compare image
+    results)
+
+  - `Ghostscript <http://pages.cs.wisc.edu/~ghost/>`_ (to render PDF
+    files)
+
+  - `Inkscape <http://inkscape.org>`_ (to render SVG files)
+
 Running the tests
 -----------------
 

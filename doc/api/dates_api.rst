@@ -1,6 +1,6 @@
-****************
-matplotlib dates
-****************
+*****
+dates
+*****
 
 .. inheritance-diagram:: matplotlib.dates
    :parts: 1

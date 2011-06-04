@@ -206,13 +206,12 @@ class Figure(Artist):
     the callback will be called with ``func(fig)`` where fig is the
     :class:`Figure` instance.
 
-    The figure patch is drawn by a the attribute
-
     *patch*
-       a :class:`matplotlib.patches.Rectangle` instance
+       The figure patch is drawn by a
+       :class:`matplotlib.patches.Rectangle` instance
 
     *suppressComposite*
-       for multiple figure images, the figure will make composite
+       For multiple figure images, the figure will make composite
        images depending on the renderer option_image_nocomposite
        function.  If suppressComposite is True|False, this will
        override the renderer
@@ -242,7 +241,7 @@ class Figure(Artist):
         *linewidth*
             the figure patch edge linewidth; the default linewidth of the frame
         *frameon*
-            if False, suppress drawing the figure frame
+            if ``False``, suppress drawing the figure frame
         *subplotpars*
             a :class:`SubplotParams` instance, defaults to rc
         """
