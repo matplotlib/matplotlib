@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:square;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="
+M0 54
+L378 54
+L378 0
+L0 0
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- ${y}_{3}^{\prime \prime \prime }$ -->
+   <defs>
+    <path d="
+M7.5 41.0938
+L14.2031 63.2031
+Q14.5938 64.7031 15 65.5469
+Q15.4062 66.4062 16.2969 67.0938
+Q17.2031 67.7969 18.5938 67.7969
+Q19.9062 67.7969 20.6562 66.8438
+Q21.4062 65.9062 21.4062 64.5
+Q21.4062 63.4062 20 60.5938
+L9.40625 40.2031
+z
+" id="STIXGeneral-Regular-2032"/>
+    <path d="
+M56.5 45.2969
+L26.4062 -4.40625
+Q21 -13.2969 16.1406 -17.4375
+Q11.2969 -21.5938 4.90625 -21.5938
+Q0.09375 -21.5938 -1.90625 -19.2031
+L-0.09375 -12
+L1.5 -12
+Q4.09375 -14.4062 6.90625 -14.4062
+Q10.0938 -14.4062 13.7969 -10.5469
+Q17.5 -6.70312 20.9062 -0.59375
+Q21.0938 -0.203125 21.7969 0.9375
+Q22.5 2.09375 22.7969 2.70312
+Q21.4062 10.7969 18.2969 26.3906
+Q15.2031 42 14.5938 45.2969
+L23.2031 45.2969
+L29.0938 13
+L48 45.2969
+z
+" id="STIXGeneral-Italic-1d63a"/>
+    <path d="
+M11.2969 49.2031
+L4.20312 50.9062
+Q6.40625 58.7031 11.5 63.1406
+Q16.5938 67.5938 24.2969 67.5938
+Q31.4062 67.5938 36.2031 63.0938
+Q41 58.5938 41 51.9062
+Q41 43 32.4062 37
+Q38 35 41.0469 30.3438
+Q44.0938 25.7031 44.0938 21
+Q44.0938 11.2969 37.7969 5
+Q31.4062 -1.40625 20.5 -1.40625
+Q9.5 -1.40625 3.09375 5.59375
+L7.79688 11.2031
+Q12.9062 5.70312 20 5.70312
+Q27.4062 5.70312 31.5938 9.29688
+Q36.2031 13.2031 36.2031 19.0938
+Q36.2031 24.2969 32.4531 27.7969
+Q28.7031 31.2969 22.2031 32.2031
+L15.7969 32.2031
+L15.7969 34.2969
+L20.5938 39.4062
+Q25.0938 39.4062 29.0938 42.8438
+Q33.0938 46.2969 33.0938 51.2031
+Q33.0938 55.4062 30.4375 57.9531
+Q27.7969 60.5 24 60.5
+Q20 60.5 16.5469 57.6406
+Q13.0938 54.7969 11.2969 49.2031" id="STIXGeneral-Regular-1d7e5"/>
+   </defs>
+   <g transform="translate(181.86 34.44)scale(0.12 -0.12)">
+    <use transform="translate(0.0 30.315625)" xlink:href="#STIXGeneral-Italic-1d63a"/>
+    <use transform="translate(48.3999938965 76.5421875)scale(0.7)" xlink:href="#STIXGeneral-Regular-2032"/>
+    <use transform="translate(68.629989624 76.5421875)scale(0.7)" xlink:href="#STIXGeneral-Regular-2032"/>
+    <use transform="translate(88.8599853516 76.5421875)scale(0.7)" xlink:href="#STIXGeneral-Regular-2032"/>
+    <use transform="translate(48.3999938965 2.2078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e5"/>
+   </g>
+  </g>
+ </g>
+</svg>
