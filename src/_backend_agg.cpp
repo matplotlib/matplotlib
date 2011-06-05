@@ -1318,7 +1318,7 @@ RendererAgg::draw_path(const Py::Tuple& args)
     bool clip = !face.first && gc.hatchpath.isNone() && !path.has_curves();
     bool simplify = path.should_simplify() && clip;
     double snapping_linewidth = gc.linewidth;
-    if (gc.color.a == 1.0) {
+    if (gc.color.a == 0.0) {
         snapping_linewidth = 0.0;
     }
 
