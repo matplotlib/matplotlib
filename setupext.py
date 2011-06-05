@@ -843,8 +843,12 @@ def check_for_tk():
                 gotit = False
 
     if gotit:
+        try:
+            tk_v = Tkinter.__version__.split()[-2]
+        except IndexError:
+            tk_v = 'version not identified'
         print_status("Tkinter", "Tkinter: %s, Tk: %s, Tcl: %s" %
-                     (Tkinter.__version__.split()[-2], Tkinter.TkVersion, Tkinter.TclVersion))
+                     (tk_v, Tkinter.TkVersion, Tkinter.TclVersion))
     else:
         print_status("Tkinter", "no")
     if explanation is not None:
