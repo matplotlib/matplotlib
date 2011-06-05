@@ -146,13 +146,10 @@ complicated applications, this explicitness and clarity becomes
 increasingly valuable, and the richer and more complete object-oriented
 interface will likely make the program easier to write and maintain.
 
-Backends
-========
-
 .. _what-is-a-backend:
 
 What is a backend?
-------------------
+==================
 
 A lot of documentation on the website and in the mailing lists refers
 to the "backend" and many new users are confused by this term.
@@ -288,5 +285,141 @@ macosx         Cocoa rendering in OSX windows
 .. _PyQt: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 .. _PyQt4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 .. _pyFLTK: http://pyfltk.sourceforge.net
+
+
+
+.. _interactive-mode:
+
+What is interactive mode?
+===================================
+
+Use of an interactive backend (see :ref:`what-is-a-backend`)
+permits--but does not by itself require or ensure--plotting
+to the screen.  Whether and when plotting to the screen occurs,
+and whether a script or shell session continues after a plot
+is drawn on the screen, depends on the functions and methods
+that are called, and on a state variable that determines whether
+matplotlib is in "interactive mode".  The default Boolean value is set
+by the :file:`matplotlibrc` file, and may be customized like any other
+configuration parameter (see :ref:`customizing-matplotlib`).  It
+may also be set via :func:`matplotlib.interactive`, and its
+value may be queried via :func:`matplotlib.is_interactive`.  Turning
+interactive mode on and off in the middle of a stream of plotting
+commands, whether in a script or in a shell, is rarely needed
+and potentially confusing, so in the following we will assume all
+plotting is done with interactive mode either on or off.
+
+.. note::
+   Major changes related to interactivity, and in particular the
+   role and behavior of :func:`~matplotlib.pyplot.show`, were made in the
+   transition to matplotlib version 1.0, and bugs were fixed in
+   1.0.1.  Here we describe the version 1.0.1 behavior for the
+   primary interactive backends, with the partial exception of
+   *macosx*.
+
+Interactive mode may also be turned on via :func:`matplotlib.pyplot.ion`,
+and turned off via :func:`matplotlib.pyplot.ioff`.
+
+Interactive example
+--------------------
+
+From an ordinary python prompt, or after invoking ipython with no options,
+try this::
+
+    import matplotlib.pyplot as plt
+    plt.ion()
+    plt.plot([1.6, 2.7])
+
+Assuming you are running version 1.0.1 or higher, and you have
+an interactive backend installed and selected by default, you should
+see a plot, and your terminal prompt should also be active; you
+can type additional commands such as::
+
+    plt.title("interactive test")
+    plt.xlabel("index")
+
+and you will see the plot being updated after each line.  This is
+because you are in interactive mode *and* you are using pyplot
+functions.  Now try an alternative method of modifying the
+plot.  Get a
+reference to the :class:`~matplotlib.axes.Axes` instance, and
+call a method of that instance::
+
+    ax = plt.gca()
+    ax.plot([3.1, 2.2])
+
+Nothing changed, because the Axes methods do not include an
+automatic call to :func:`~matplotlib.pyplot.draw_if_interactive`;
+that call is added by the pyplot functions.  If you are using
+methods, then when you want to update the plot on the screen,
+you need to call :func:`~matplotlib.pyplot.draw`::
+
+    plt.draw()
+
+Now you should see the new line added to the plot.
+
+Non-interactive example
+-----------------------
+
+Start a fresh session as in the previous example, but now
+turn interactive mode off::
+
+    import matplotlib.pyplot as plt
+    plt.ioff()
+    plt.plot([1.6, 2.7])
+
+Nothing happened--or at least nothing has shown up on the
+screen (unless you are using *macosx* backend, which is
+anomalous).  To make the plot appear, you need to do this::
+
+    plt.show()
+
+Now you see the plot, but your terminal command line is
+unresponsive; the :func:`show()` command *blocks* the input
+of additional commands until you manually kill the plot
+window.
+
+What good is this--being forced to use a blocking function?
+Suppose you need a script that plots the contents of a file
+to the screen.  You want to look at that plot, and then end
+the script.  Without some blocking command such as show(), the
+script would flash up the plot and then end immediately,
+leaving nothing on the screen.
+
+In addition, non-interactive mode delays all drawing until
+show() is called; this is more efficient than redrawing
+the plot each time a line in the script adds a new feature.
+
+Prior to version 1.0, show() generally could not be called
+more than once in a single script (although sometimes one
+could get away with it); for version 1.0.1 and above, this
+restriction is lifted, so one can write a script like this::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+    plt.ioff()
+    for i in range(3):
+        plt.plot(np.random.rand(10))
+        plt.show()
+
+which makes three plots, one at a time.
+
+Summary
+-------
+
+In interactive mode, pyplot functions automatically draw
+to the screen.
+
+When plotting interactively, if using
+object method calls in addition to pyplot functions, then
+call :func:`~matplotlib.pyplot.draw` whenever you want to
+refresh the plot.
+
+Use non-interactive mode in scripts in which you want to
+generate one or more figures and display them before ending
+or generating a new set of figures.  In that case, use
+:func:`~matplotlib.pyplot.show` to display the figure(s) and
+to block execution until you have manually destroyed them.
+
 
 
