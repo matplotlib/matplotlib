@@ -5892,10 +5892,10 @@ class Axes(martist.Artist):
             else:
                 collection.autoscale_None()
 
-        # the pad is a little hack to deal with the fact that we don't
+        # The margin adjustment is a hack to deal with the fact that we don't
         # want to transform all the symbols whose scales are in points
         # to data coords to get the exact bounding box for efficiency
-        # reasons.  It can be done right if this is deemed important
+        # reasons.  It can be done right if this is deemed important.
         # Also, only bother with this padding if there is anything to draw.
         if self._xmargin < 0.05 and x.size > 0 :
             self.set_xmargin(0.05)
@@ -5903,10 +5903,9 @@ class Axes(martist.Artist):
         if self._ymargin < 0.05 and x.size > 0 :
             self.set_ymargin(0.05)
 
+        self.add_collection(collection)
         self.autoscale_view()
 
-        # add the collection last
-        self.add_collection(collection)
         return collection
 
     @docstring.dedent_interpd
