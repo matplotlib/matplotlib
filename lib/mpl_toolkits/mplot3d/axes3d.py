@@ -366,7 +366,7 @@ class Axes3D(Axes):
         """
         self.button_pressed = None
         canv = self.figure.canvas
-        if canv != None:
+        if canv is not None:
             c1 = canv.mpl_connect('motion_notify_event', self._on_move)
             c2 = canv.mpl_connect('button_press_event', self._button_press)
             c3 = canv.mpl_connect('button_release_event', self._button_release)
@@ -492,7 +492,7 @@ class Axes3D(Axes):
 
         x, y = event.xdata, event.ydata
         # In case the mouse is out of bounds.
-        if x == None:
+        if x is None:
             return
 
         dx, dy = x - self.sx, y - self.sy
