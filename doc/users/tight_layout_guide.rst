@@ -284,7 +284,8 @@ Colorbar
 
 If you create colorbar with :func:`~matplotlib.pyplot.colorbar`
 command, the created colorbar is an instance of Axes not Subplot, thus
-tight_layout does not work. One option is to use AxesGrid1 toolkit to explicitly create an axes for colorbar.
+tight_layout does not work. With Matplotlib v1.1, you may create a
+colobar as a subplot using the gridspec.
 
 .. plot::
    :include-source:
@@ -292,12 +293,25 @@ tight_layout does not work. One option is to use AxesGrid1 toolkit to explicitly
 
    plt.close('all')
    fig = plt.figure(figsize=(4, 4))
+   im = plt.imshow(arr, interpolation="none")
 
-   ax = plt.subplot(111)   
+   plt.colorbar(im, use_gridspec=True)
+
+   plt.tight_layout()
+
+Another option is to use AxesGrid1 toolkit to
+explicitly create an axes for colorbar.
+
+.. plot::
+   :include-source:
+   :context:
+
+   plt.close('all')
+   fig = plt.figure(figsize=(4, 4))
    im = plt.imshow(arr, interpolation="none")
 
    from mpl_toolkits.axes_grid1 import make_axes_locatable
-   divider = make_axes_locatable(ax)
+   divider = make_axes_locatable(plt.gca())
    cax = divider.append_axes("right", "5%", pad="3%")
    plt.colorbar(im, cax=cax)
 
