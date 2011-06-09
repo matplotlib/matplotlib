@@ -66,7 +66,7 @@ class EMFPen:
         self.emf=emf
         self.gc=gc
 
-        r,g,b=gc.get_rgb()
+        r,g,b=gc.get_rgb()[:3]
         self.r=int(r*255)
         self.g=int(g*255)
         self.b=int(b*255)
@@ -102,7 +102,7 @@ class EMFPen:
 class EMFBrush:
     def __init__(self,emf,rgb):
         self.emf=emf
-        r,g,b=rgb
+        r,g,b=rgb[:3]
         self.r=int(r*255)
         self.g=int(g*255)
         self.b=int(b*255)
