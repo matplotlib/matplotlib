@@ -1176,8 +1176,12 @@ class Figure(Artist):
         """
         if ax is None:
             ax = self.gca()
+        use_gridspec = kw.pop("use_gridspec", False)
         if cax is None:
-            cax, kw = cbar.make_axes(ax, **kw)
+            if use_gridspec and isinstance(ax, SubplotBase):
+                cax, kw = cbar.make_axes_gridspec(ax, **kw)
+            else:
+                cax, kw = cbar.make_axes(ax, **kw)
         cax.hold(True)
         cb = cbar.Colorbar(cax, mappable, **kw)
 
