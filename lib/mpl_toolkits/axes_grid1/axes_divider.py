@@ -332,7 +332,14 @@ class AxesLocator(object):
                                          axes,
                                          renderer)
 
+    def get_subplotspec(self):
+        if hasattr(self._axes_divider, "get_subplotspec"):
+            return self._axes_divider.get_subplotspec()
+        else:
+            return None
 
+
+            
 from matplotlib.gridspec import SubplotSpec, GridSpec
 
 class SubplotDivider(Divider):
@@ -661,7 +668,11 @@ class AxesDivider(Divider):
             return self._anchor
 
 
-
+    def get_subplotspec(self):
+        if hasattr(self._axes, "get_subplotspec"):
+            return self._axes.get_subplotspec()
+        else:
+            return None
 
 
 

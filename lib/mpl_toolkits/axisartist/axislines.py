@@ -746,22 +746,23 @@ class Axes(maxes.Axes):
             if not axisline.get_visible():
                 continue
 
-            if axisline.label.get_visible():
-                bb.append(axisline.label.get_window_extent(renderer))
+            bb.append(axisline.get_tightbbox(renderer))
+            # if axisline.label.get_visible():
+            #     bb.append(axisline.label.get_window_extent(renderer))
 
 
-            if axisline.major_ticklabels.get_visible():
-                bb.extend(axisline.major_ticklabels.get_window_extents(renderer))
-            if axisline.minor_ticklabels.get_visible():
-                bb.extend(axisline.minor_ticklabels.get_window_extents(renderer))
-            if axisline.major_ticklabels.get_visible() or \
-               axisline.minor_ticklabels.get_visible():
-                bb.append(axisline.offsetText.get_window_extent(renderer))
+            # if axisline.major_ticklabels.get_visible():
+            #     bb.extend(axisline.major_ticklabels.get_window_extents(renderer))
+            # if axisline.minor_ticklabels.get_visible():
+            #     bb.extend(axisline.minor_ticklabels.get_window_extents(renderer))
+            # if axisline.major_ticklabels.get_visible() or \
+            #    axisline.minor_ticklabels.get_visible():
+            #     bb.append(axisline.offsetText.get_window_extent(renderer))
 
         #bb.extend([c.get_window_extent(renderer) for c in artists \
         #           if c.get_visible()])
 
-        _bbox = Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
+        _bbox = Bbox.union([b for b in bb if b and (b.width!=0 or b.height!=0)])
 
         return _bbox
 

@@ -971,6 +971,7 @@ default_test_modules = [
     'matplotlib.tests.test_simplification',
     'matplotlib.tests.test_mathtext',
     'matplotlib.tests.test_text'
+    'matplotlib.tests.test_tightlayout'
     ]
 
 def test(verbosity=0):

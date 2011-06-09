@@ -22,6 +22,7 @@ User's Guide
     image_tutorial.rst
     artists.rst
     gridspec.rst
+    tight_layout_guide.rst
     legend_guide.rst
     event_handling.rst
     transforms_tutorial.rst
