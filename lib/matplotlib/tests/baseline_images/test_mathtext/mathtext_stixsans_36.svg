@@ -1,31 +1,75 @@
-<?xml version="1.0" standalone="no"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
-<svg width="378pt" height="54pt" viewBox="0 0 378 54"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   version="1.1"
-   id="svg1">
-<filter id="colorAdd"><feComposite in="SourceGraphic" in2="BackgroundImage" operator="arithmetic" k2="1" k3="1"/></filter>
-<g id="figure1">
-<g id="patch1">
-<path style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M0.000000 54.000000L378.000000 54.000000L378.000000 0.000000
-L0.000000 0.000000z"/>
-</g>
-<g id="text1">
-<defs>
-<path id="c_477623e653e127ea7e86b7e0d4893d18" d="M80.593750 -66.203125l-31.687500 31.296875l18.000000 34.906250l-10.500000 0.000000l-14.500000 -28.296875l-28.312500 28.296875l-10.500000 0.000000l35.203125 -34.906250l-16.203125 -31.296875l10.609375 0.000000l12.500000 24.796875l24.703125 -24.796875z"/>
-<path id="c_3a72d7aac118784687de4a06d83d1364" d="M77.406250 -66.203125l-34.406250 37.406250l-7.203125 28.796875l-8.703125 0.000000l7.109375 -28.796875l-15.609375 -37.406250l9.500000 0.000000l12.406250 30.000000l27.406250 -30.000000z"/>
-</defs>
-<g id="mathtext1">
-<g style="fill: #000000" transform="translate(185.000000,37.500000)">
-<use xlink:href="#c_477623e653e127ea7e86b7e0d4893d18" transform="translate(0.000000,-15.443750)scale(0.084000)"/>
-<use xlink:href="#c_477623e653e127ea7e86b7e0d4893d18" transform="translate(0.000000,-7.804375)scale(0.058800)"/>
-<use xlink:href="#c_3a72d7aac118784687de4a06d83d1364" transform="translate(0.000000,-1.290000)scale(0.058800)"/>
-</g>
-<g style="fill: #000000; stroke: none" transform="translate(185.000000,37.500000)">
-<rect x="0.000000" y="-13.443750" width="5.879996" height="0.750000" fill="black" stroke="none" /><rect x="0.000000" y="-6.704375" width="4.115997" height="0.525000" fill="black" stroke="none" /></g></g>
-</g>
-</g>
+<svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:square;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="
+M0 54
+L378 54
+L378 0
+L0 0
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="text_1">
+   <!-- $\frac{X}{\frac{X}{Y}}$ -->
+   <defs>
+    <path d="
+M80.5938 66.2031
+L48.9062 34.9062
+L66.9062 0
+L56.4062 0
+L41.9062 28.2969
+L13.5938 0
+L3.09375 0
+L38.2969 34.9062
+L22.0938 66.2031
+L32.7031 66.2031
+L45.2031 41.4062
+L69.9062 66.2031
+z
+" id="STIXGeneral-Italic-1d61f"/>
+    <path d="
+M77.4062 66.2031
+L43 28.7969
+L35.7969 0
+L27.0938 0
+L34.2031 28.7969
+L18.5938 66.2031
+L28.0938 66.2031
+L40.5 36.2031
+L67.9062 66.2031
+z
+" id="STIXGeneral-Italic-1d620"/>
+   </defs>
+   <g transform="translate(185.28 36.96)scale(0.12 -0.12)">
+    <use transform="translate(0.0 119.6578125)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d61f"/>
+    <use transform="translate(3.0 55.96828125)scale(0.49)" xlink:href="#STIXGeneral-Italic-1d61f"/>
+    <use transform="translate(5.0 1.65375)scale(0.49)" xlink:href="#STIXGeneral-Italic-1d620"/>
+    <path d="
+M0 94.6578
+L0 100.908
+L49 100.908
+L49 94.6578
+L0 94.6578
+z
+"/>
+    <path d="
+M3 38.4683
+L3 42.8433
+L37.3 42.8433
+L37.3 38.4683
+L3 38.4683
+z
+"/>
+   </g>
+  </g>
+ </g>
 </svg>

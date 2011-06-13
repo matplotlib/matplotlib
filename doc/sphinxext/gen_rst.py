@@ -112,7 +112,7 @@ Matplotlib Examples
             rstfile = '%s.rst'%basename
             outrstfile = os.path.join(rstdir, rstfile)
 
-            fhsubdirIndex.write('    %s\n'%rstfile)
+            fhsubdirIndex.write('    %s <%s>\n'%(os.path.basename(basename),rstfile))
 
             if not out_of_date(fullpath, outrstfile):
                 continue

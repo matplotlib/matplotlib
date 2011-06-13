@@ -197,7 +197,7 @@ class _process_plot_var_args:
         for key, val in kwargs.items():
             funcName = "set_%s"%key
             if not hasattr(line,funcName):
-                raise TypeError, 'There is no line property "%s"'%key
+                raise TypeError('There is no line property "%s"'%key)
             func = getattr(line,funcName)
             func(val)
 
@@ -206,7 +206,7 @@ class _process_plot_var_args:
         for key, val in kwargs.items():
             funcName = "set_%s"%key
             if not hasattr(fill_poly,funcName):
-                raise TypeError, 'There is no patch property "%s"'%key
+                raise TypeError('There is no patch property "%s"'%key)
             func = getattr(fill_poly,funcName)
             func(val)
 
@@ -1239,11 +1239,17 @@ class Axes(martist.Artist):
     def axis(self, *v, **kwargs):
         '''
         Convenience method for manipulating the x and y view limits
-        and the aspect ratio of the plot.
+        and the aspect ratio of the plot. For details, see
+        :func:`~matplotlib.pyplot.axis`.
 
         *kwargs* are passed on to :meth:`set_xlim` and
         :meth:`set_ylim`
         '''
+        if len(v) == 0 and len(kwargs) == 0:
+            xmin, xmax = self.get_xlim()
+            ymin, ymax = self.get_ylim()
+            return xmin, xmax, ymin, ymax
+
         if len(v)==1 and is_string_like(v[0]):
             s = v[0].lower()
             if s=='on': self.set_axis_on()
@@ -1288,7 +1294,6 @@ class Axes(martist.Artist):
         v = v[0]
         if len(v) != 4:
             raise ValueError('v must contain [xmin xmax ymin ymax]')
-
 
         self.set_xlim([v[0], v[1]])
         self.set_ylim([v[2], v[3]])
@@ -2711,18 +2716,20 @@ class Axes(martist.Artist):
     def xaxis_date(self, tz=None):
         """Sets up x-axis ticks and labels that treat the x data as dates.
 
-        *tz* is the time zone to use in labeling dates.  Defaults to rc value.
+        *tz* is a timezone string or :class:`tzinfo` instance.
+        Defaults to rc value.
         """
         # should be enough to inform the unit conversion interface
-        # dates are comng in
-        self.xaxis.axis_date()
+        # dates are coming in
+        self.xaxis.axis_date(tz)
 
     def yaxis_date(self, tz=None):
         """Sets up y-axis ticks and labels that treat the y data as dates.
 
-        *tz* is the time zone to use in labeling dates.  Defaults to rc value.
+        *tz* is a timezone string or :class:`tzinfo` instance.
+        Defaults to rc value.
         """
-        self.yaxis.axis_date()
+        self.yaxis.axis_date(tz)
 
     def format_xdata(self, x):
         """
@@ -3840,7 +3847,7 @@ class Axes(martist.Artist):
         *fmt*: string
            The plot format string.
 
-        *tz*: [ None | timezone string ]
+        *tz*: [ None | timezone string | :class:`tzinfo` instance]
            The time zone to use in labeling dates. If *None*, defaults to rc
            value.
 
@@ -5885,10 +5892,10 @@ class Axes(martist.Artist):
             else:
                 collection.autoscale_None()
 
-        # the pad is a little hack to deal with the fact that we don't
+        # The margin adjustment is a hack to deal with the fact that we don't
         # want to transform all the symbols whose scales are in points
         # to data coords to get the exact bounding box for efficiency
-        # reasons.  It can be done right if this is deemed important
+        # reasons.  It can be done right if this is deemed important.
         # Also, only bother with this padding if there is anything to draw.
         if self._xmargin < 0.05 and x.size > 0 :
             self.set_xmargin(0.05)
@@ -5896,10 +5903,9 @@ class Axes(martist.Artist):
         if self._ymargin < 0.05 and x.size > 0 :
             self.set_ymargin(0.05)
 
+        self.add_collection(collection)
         self.autoscale_view()
 
-        # add the collection last
-        self.add_collection(collection)
         return collection
 
     @docstring.dedent_interpd
@@ -8347,24 +8353,26 @@ class Axes(martist.Artist):
         artists = []
         bb = []
 
-        artists.append(self)
+        if not self.get_visible():
+            return None
+
+        locator = self.get_axes_locator()
+        if locator:
+            pos = locator(self, renderer)
+            self.apply_aspect(pos)
+        else:
+            self.apply_aspect()
+
+        bb.append(self.get_window_extent(renderer))
 
         if self.title.get_visible():
-            artists.append(self.title)
+            bb.append(self.title.get_window_extent(renderer))
 
-        if self.xaxis.get_visible():
-            artists.append(self.xaxis.label)
-            bbx1, bbx2 = self.xaxis.get_ticklabel_extents(renderer)
-            self.xaxis._update_label_position([bbx1], [bbx2])
-            bb.extend([bbx1, bbx2])
-        if self.yaxis.get_visible():
-            artists.append(self.yaxis.label)
-            bby1, bby2 = self.yaxis.get_ticklabel_extents(renderer)
-            self.yaxis._update_label_position([bby1], [bby2])
-            bb.extend([bby1, bby2])
+        bb_xaxis = self.xaxis.get_tightbbox(renderer)
+        if bb_xaxis: bb.append(bb_xaxis)
 
-
-        bb.extend([c.get_window_extent(renderer) for c in artists if c.get_visible()])
+        bb_yaxis = self.yaxis.get_tightbbox(renderer)
+        if bb_yaxis: bb.append(bb_yaxis)
 
         _bbox = mtransforms.Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
 

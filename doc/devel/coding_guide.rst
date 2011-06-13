@@ -372,6 +372,18 @@ please ignore it while we consolidate our testing to these locations.)
 
 .. _nose: http://somethingaboutorange.com/mrl/projects/nose/
 
+Requirements
+------------
+
+The following software is required to run the tests:
+
+  - nose_, version 1.0 or later
+
+  - `Ghostscript <http://pages.cs.wisc.edu/~ghost/>`_ (to render PDF
+    files)
+
+  - `Inkscape <http://inkscape.org>`_ (to render SVG files)
+
 Running the tests
 -----------------
 
@@ -401,8 +413,8 @@ arguments works from within Python::
 .. _`nosetest arguments`: http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
 
 
-Running tests by any means other than `matplotlib.test()` 
-does not load the nose "knownfailureif" (Known failing tests) plugin, 
+Running tests by any means other than `matplotlib.test()`
+does not load the nose "knownfailureif" (Known failing tests) plugin,
 causing known-failing tests to fail for real.
 
 Writing a simple test

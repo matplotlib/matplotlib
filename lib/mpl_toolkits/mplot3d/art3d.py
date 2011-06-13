@@ -162,6 +162,10 @@ class Line3DCollection(LineCollection):
         '''
         LineCollection.__init__(self, segments, *args, **kwargs)
 
+    def set_sort_zpos(self,val):
+        '''Set the position to use for z-sorting.'''
+        self._sort_zpos = val
+
     def set_segments(self, segments):
         '''
         Set 3D segments

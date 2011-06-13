@@ -426,7 +426,7 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         noverlap=128, pad_to=None, sides='default', scale_by_freq=None):
     """
     Compute a spectrogram of data in *x*.  Data are split into *NFFT*
-    length segements and the PSD of each section is computed.  The
+    length segments and the PSD of each section is computed.  The
     windowing function *window* is applied to each segment, and the
     amount of overlap of each segment is specified with *noverlap*.
 

@@ -1,6 +1,6 @@
-**********************
-matplotlib collections
-**********************
+***********
+collections
+***********
 
 .. inheritance-diagram:: matplotlib.collections
    :parts: 2

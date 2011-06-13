@@ -7,7 +7,7 @@ objects, eg a list of datetime objects, as well as for objects that
 are unit aware.  We don't assume any particular units implementation,
 rather a units implementation must provide a ConversionInterface, and
 the register with the Registry converter dictionary.  For example,
-here is a complete implementation which support plotting with native
+here is a complete implementation which supports plotting with native
 datetime objects::
 
 

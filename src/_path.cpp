@@ -56,6 +56,8 @@ public:
                            "convert_path_to_polygons(path, trans, width, height)");
         add_varargs_method("cleanup_path", &_path_module::cleanup_path,
                            "cleanup_path(path, trans, remove_nans, clip, snap, simplify, curves)");
+        add_varargs_method("convert_to_svg", &_path_module::convert_to_svg,
+                           "convert_to_svg(path, trans, clip, simplify, precision)");
         initialize("Helper functions for paths");
     }
 
@@ -75,6 +77,7 @@ private:
     Py::Object path_intersects_path(const Py::Tuple& args);
     Py::Object convert_path_to_polygons(const Py::Tuple& args);
     Py::Object cleanup_path(const Py::Tuple& args);
+    Py::Object convert_to_svg(const Py::Tuple& args);
 };
 
 //
@@ -1479,6 +1482,107 @@ _path_module::cleanup_path(const Py::Tuple& args)
     }
 
     return result;
+}
+
+Py::Object
+_path_module::convert_to_svg(const Py::Tuple& args)
+{
+    args.verify_length(5);
+
+    PathIterator path(args[0]);
+    agg::trans_affine trans = py_to_agg_transformation_matrix(args[1].ptr(), false);
+
+    Py::Object clip_obj = args[2];
+    bool do_clip;
+    agg::rect_base<double> clip_rect(0, 0, 0, 0);
+    if (clip_obj.isNone() || !clip_obj.isTrue())
+    {
+        do_clip = false;
+    }
+    else
+    {
+        double x1, y1, x2, y2;
+        Py::Tuple clip_tuple(clip_obj);
+        x1 = Py::Float(clip_tuple[0]);
+        y1 = Py::Float(clip_tuple[1]);
+        x2 = Py::Float(clip_tuple[2]);
+        y2 = Py::Float(clip_tuple[3]);
+        clip_rect.init(x1, y1, x2, y2);
+        do_clip = true;
+    }
+
+    bool simplify;
+    Py::Object simplify_obj = args[3];
+    if (simplify_obj.isNone())
+    {
+        simplify = path.should_simplify();
+    }
+    else
+    {
+        simplify = simplify_obj.isTrue();
+    }
+
+    int precision = Py::Int(args[4]);
+
+    char format[64];
+    snprintf(format, 64, "%s.%dg", "%", precision);
+
+    typedef agg::conv_transform<PathIterator>  transformed_path_t;
+    typedef PathNanRemover<transformed_path_t> nan_removal_t;
+    typedef PathClipper<nan_removal_t>         clipped_t;
+    typedef PathSimplifier<clipped_t>          simplify_t;
+
+    transformed_path_t tpath(path, trans);
+    nan_removal_t      nan_removed(tpath, true, path.has_curves());
+    clipped_t          clipped(nan_removed, do_clip, clip_rect);
+    simplify_t         simplified(clipped, simplify, path.simplify_threshold());
+
+    size_t buffersize = path.total_vertices() * (precision + 5) * 4;
+    char* buffer = (char *)malloc(buffersize);
+    char* p = buffer;
+
+    const char codes[] = {'M', 'L', 'Q', 'C'};
+    const int  waits[] = {  1,   1,   2,   3};
+
+    int wait = 0;
+    unsigned code;
+    double x = 0, y = 0;
+    while ((code = simplified.vertex(&x, &y)) != agg::path_cmd_stop)
+    {
+        if (wait == 0)
+        {
+            *p++ = '\n';
+
+            if (code == 0x4f)
+            {
+                *p++ = 'z';
+                *p++ = '\n';
+                continue;
+            }
+
+            *p++ = codes[code-1];
+            wait = waits[code-1];
+        }
+        else
+        {
+            *p++ = ' ';
+        }
+
+        p += snprintf(p, buffersize - (p - buffer), format, x);
+        *p++ = ' ';
+        p += snprintf(p, buffersize - (p - buffer), format, y);
+
+        --wait;
+    }
+
+    #if PY3K
+    PyObject* result = PyUnicode_FromStringAndSize(buffer, p - buffer);
+    #else
+    PyObject* result = PyString_FromStringAndSize(buffer, p - buffer);
+    #endif
+    free(buffer);
+
+    return Py::Object(result, true);
 }
 
 PyMODINIT_FUNC

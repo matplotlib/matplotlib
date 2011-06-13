@@ -1,6 +1,6 @@
-***************
-matplotlib path
-***************
+****
+path
+****
 
 
 :mod:`matplotlib.path`

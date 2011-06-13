@@ -333,8 +333,8 @@ class MathtextBackendSvg(MathtextBackend):
 
 class MathtextBackendPath(MathtextBackend):
     """
-    Store information to write a mathtext rendering to the Cairo
-    backend.
+    Store information to write a mathtext rendering to the text path
+    machinery.
     """
 
     def __init__(self):
@@ -343,7 +343,7 @@ class MathtextBackendPath(MathtextBackend):
 
     def render_glyph(self, ox, oy, info):
         oy = self.height - oy + info.offset
-        thetext = unichr_safe(info.num)
+        thetext = info.num
         self.glyphs.append(
             (info.font, info.fontsize, thetext, ox, oy))
 
@@ -589,7 +589,7 @@ class TruetypeFonts(Fonts):
 
     def _get_offset(self, cached_font, glyph, fontsize, dpi):
         if cached_font.font.postscript_name == 'Cmex10':
-            return glyph.height/64.0/2.0 + 256.0/64.0 * dpi/72.0
+            return ((glyph.height/64.0/2.0) + (fontsize/3.0 * dpi/72.0))
         return 0.
 
     def _get_info(self, fontname, font_class, sym, fontsize, dpi):
@@ -2891,7 +2891,7 @@ class MathTextParser(object):
         'ps'    : MathtextBackendPs,
         'pdf'   : MathtextBackendPdf,
         'svg'   : MathtextBackendSvg,
-        'path'   : MathtextBackendPath,
+        'path'  : MathtextBackendPath,
         'cairo' : MathtextBackendCairo,
         'macosx': MathtextBackendAgg,
         }
