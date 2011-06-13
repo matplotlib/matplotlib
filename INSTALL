@@ -7,7 +7,7 @@ way depends on what operating system you are using, what you already
 have installed, and how you want to use it.  To avoid wading through
 all the details (and potential complications) on this page, the
 easiest thing for you to do is use one of the pre-packaged python
-distributions that already provide matplotlib built in.  The Enthought
+distributions that already provide matplotlib built-in.  The Enthought
 Python Distribution `(EPD)
 <http://www.enthought.com/products/epd.php>`_ for Windows, OS X or
 Redhat is an excellent choice that "just works" out of the box.
@@ -15,7 +15,7 @@ Another excellent alternative for Windows users is `Python (x, y)
 <http://www.pythonxy.com/foreword.php>`_ which tends to be updated a
 bit more frequently.  Both of these packages include matplotlib and
 pylab, and *lots* of other useful tools.  matplotlib is also packaged
-for pretty much every major linux distribution, so if you are on linux
+for almost every major linux distribution. So if you are on linux,
 your package manager will probably provide matplotlib prebuilt.
 
 One single click installer and you are done.
@@ -32,7 +32,7 @@ but OS X users please read :ref:`which-python-for-osx`.
 
 Once you have python up and running, you will need to install `numpy
 <http://sourceforge.net/project/showfiles.php?group_id=1369&package_id=175103>`_.
-numpy provides high performance array data structures and mathematical
+numpy provides high-performance array data structures and mathematical
 functions, and is a requirement for matplotlib.  You can test your
 progress::
 
@@ -42,18 +42,18 @@ progress::
 matplotlib requires numpy version 1.1 or later.  Although it is not a
 requirement to use matplotlib, we strongly encourage you to install
 `ipython <http://ipython.scipy.org/dist>`_, which is an interactive
-shell for python that is matplotlib aware.
+shell for python that is matplotlib-aware.
 
-Next we need to get matplotlib installed.  We provide prebuilt
+Next, we need to get matplotlib installed.  We provide prebuilt
 binaries for OS X and Windows on the matplotlib `download
 <http://sourceforge.net/projects/matplotlib/files/>`_ page.  Click on
 the latest release of the "matplotlib" package, choose your python
-version (2.5 or 2.6) and your platform (macosx or win32) and you
+version (2.6, 2.7 or 3.2) and your platform (macosx or win32) and you
 should be good to go.  If you have any problems, please check the
 :ref:`installing-faq`, google around a little bit, and post a question
 the `mailing list
 <http://sourceforge.net/project/showfiles.php?group_id=80706>`_.  If
-you are on debian/unbuntu linux, it suffices to do::
+you are on debian/ubuntu linux, it suffices to do::
 
   > sudo apt-get install python-matplotlib
 
@@ -76,9 +76,6 @@ and running quickly::
     In [1]: x = randn(10000)
 
     In [2]: hist(x, 100)
-
-Instructions for installing our OSX binaries are found in the FAQ
-ref:`install_osx_binaries`.
 
 Note that when testing matplotlib installations from the interactive
 python console, there are some issues relating to user interface
@@ -115,8 +112,8 @@ distribution, download the zip file and look in the examples subdir.
 Installing from source
 ======================
 
-If you are interested perhaps in contributing to matplotlib
-development, running the latest greatest code, or just like to
+If you are interested in contributing to matplotlib
+development, running the latest source code, or just like to
 build everything yourself, it is not difficult to build matplotlib
 from source.  Grab the latest *tar.gz* release file from `sourceforge
 <http://sourceforge.net/project/showfiles.php?group_id=80706>`_, or if
@@ -140,7 +137,7 @@ installed, and so on.  This file will be particularly useful to those
 packaging matplotlib.
 
 If you have installed prerequisites to nonstandard places and need to
-inform matplotlib where they are, edit ``setupext.py`` an add the base
+inform matplotlib where they are, edit ``setupext.py`` and add the base
 dirs to the ``basedir`` dictionary entry for your ``sys.platform``.
 e.g., if the header to some required library is in
 ``/some/path/include/someheader.h``, put ``/some/path`` in the
@@ -165,16 +162,16 @@ libraries themselves.
     If you are on debian/ubuntu, you can get all the dependencies
     required to build matplotlib with::
 
-      sudo apt-get build_dep python-matplotlib
-
-    This does not build matplotlib, but it does get the install the
-    build dependencies, which will make building from svn easy.
+      sudo apt-get build-dep python-matplotlib
 
     If you are on Fedora/RedHat, you can get all the dependencies
     required to build matplotlib by first installing ``yum-builddep``
     and then running::
 
        su -c "yum-builddep python-matplotlib"
+
+    This does not build matplotlib, but it does get the install the
+    build dependencies, which will make building from source easier.
 
 :term:`python` 2.4 (or later but not python3)
     matplotlib requires python 2.4 or later (`download <http://www.python.org/download/>`__)
@@ -216,7 +213,7 @@ backends and the capabilities they provide
 
 :term:`wxpython` 2.8 or later
     The python wrappers for the wx widgets library for use with the
-    WX backend
+    WX or WXAgg backend
 
 :term:`pyfltk` 1.0 or later
     The python wrappers of the FLTK widgets library for use with FLTKAgg

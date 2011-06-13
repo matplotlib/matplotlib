@@ -126,7 +126,7 @@ def process_figure_for_rasterizing(figure,
 
 
 _adjust_bbox_handler_d = {}
-for format in ["png", "raw", "rgba"]:
+for format in ["png", "raw", "rgba", "jpg", "jpeg", "tiff"]:
     _adjust_bbox_handler_d[format] = adjust_bbox_png
 for format in ["pdf", "eps", "svg", "svgz"]:
     _adjust_bbox_handler_d[format] = adjust_bbox_pdf

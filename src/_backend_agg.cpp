@@ -445,8 +445,10 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R& rasterizer)
     double l, b, r, t;
     if (py_convert_bbox(cliprect.ptr(), l, b, r, t))
     {
-        rasterizer.clip_box(int(mpl_round(l)), height - int(mpl_round(b)),
-                            int(mpl_round(r)), height - int(mpl_round(t)));
+        rasterizer.clip_box(std::max(int(mpl_round(l)), 0),
+                            std::max(int(height) - int(mpl_round(b)), 0),
+                            std::min(int(mpl_round(r)), int(width)),
+                            std::min(int(height) - int(mpl_round(t)), int(height)));
     }
     else
     {
@@ -1328,11 +1330,15 @@ RendererAgg::draw_path(const Py::Tuple& args)
     trans *= agg::trans_affine_translation(0.0, (double)height);
     bool clip = !face.first && gc.hatchpath.isNone() && !path.has_curves();
     bool simplify = path.should_simplify() && clip;
+    double snapping_linewidth = gc.linewidth;
+    if (gc.color.a == 0.0) {
+        snapping_linewidth = 0.0;
+    }
 
     transformed_path_t tpath(path, trans);
     nan_removed_t      nan_removed(tpath, true, path.has_curves());
     clipped_t          clipped(nan_removed, clip, width, height);
-    snapped_t          snapped(clipped, gc.snap_mode, path.total_vertices(), gc.linewidth);
+    snapped_t          snapped(clipped, gc.snap_mode, path.total_vertices(), snapping_linewidth);
     simplify_t         simplified(snapped, simplify, path.simplify_threshold());
     curve_t            curve(simplified);
 

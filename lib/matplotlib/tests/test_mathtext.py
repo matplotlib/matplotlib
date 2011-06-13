@@ -135,9 +135,9 @@ for fonts, chars in font_test_specs:
     for set in chars:
         font_tests.append(wrapper % set)
 
-def make_set(basename, fontset, tests):
+def make_set(basename, fontset, tests, extensions=None):
     def make_test(filename, test):
-        @image_comparison(baseline_images=[filename])
+        @image_comparison(baseline_images=[filename], extensions=extensions)
         def single_test():
             matplotlib.rcParams['mathtext.fontset'] = fontset
             fig = plt.figure(figsize=(5.25, 0.75))
@@ -158,9 +158,9 @@ make_set('mathtext', 'cm', math_tests)
 make_set('mathtext', 'stix', math_tests)
 make_set('mathtext', 'stixsans', math_tests)
 
-make_set('mathfont', 'cm', font_tests)
-make_set('mathfont', 'stix', font_tests)
-make_set('mathfont', 'stixsans', font_tests)
+make_set('mathfont', 'cm', font_tests, ['png'])
+make_set('mathfont', 'stix', font_tests, ['png'])
+make_set('mathfont', 'stixsans', font_tests, ['png'])
 
 def test_fontinfo():
     import matplotlib.font_manager as font_manager

@@ -893,22 +893,9 @@ class Axis(artist.Artist):
         Get the extents of the tick labels on either side
         of the axes.
         """
-        ticklabelBoxes = []
-        ticklabelBoxes2 = []
 
-        interval = self.get_view_interval()
-        for tick, loc, label in self.iter_ticks():
-            if tick is None: continue
-            if not mtransforms.interval_contains(interval, loc): continue
-            tick.update_position(loc)
-            tick.set_label1(label)
-            tick.set_label2(label)
-            if tick.label1On and tick.label1.get_visible():
-                extent = tick.label1.get_window_extent(renderer)
-                ticklabelBoxes.append(extent)
-            if tick.label2On and tick.label2.get_visible():
-                extent = tick.label2.get_window_extent(renderer)
-                ticklabelBoxes2.append(extent)
+        ticks_to_draw = self._update_ticks(renderer)
+        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw, renderer)
 
         if len(ticklabelBoxes):
             bbox = mtransforms.Bbox.union(ticklabelBoxes)
@@ -928,14 +915,13 @@ class Axis(artist.Artist):
         """get whether the axis has smart bounds"""
         return self._smart_bounds
 
-    @allow_rasterization
-    def draw(self, renderer, *args, **kwargs):
-        'Draw the axis lines, grid lines, tick lines and labels'
-        ticklabelBoxes = []
-        ticklabelBoxes2 = []
+    def _update_ticks(self, renderer):
+        """
+        Update ticks (position and labels) using the current data
+        interval of the axes. Returns a list of ticks that will be
+        drawn.
+        """
 
-        if not self.get_visible(): return
-        renderer.open_group(__name__)
         interval = self.get_view_interval()
         tick_tups = [ t for t in self.iter_ticks()]
         if self._smart_bounds:
@@ -977,19 +963,81 @@ class Axis(artist.Artist):
                 tick_tups = [ ti for ti in tick_tups
                               if (ti[1] >= ilow) and (ti[1] <= ihigh)]
 
+        ticks_to_draw = []
         for tick, loc, label in tick_tups:
             if tick is None: continue
             if not mtransforms.interval_contains(interval, loc): continue
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
-            tick.draw(renderer)
+            ticks_to_draw.append(tick)
+
+        return ticks_to_draw
+
+    def _get_tick_bboxes(self, ticks, renderer):
+        """
+        Given the list of ticks, return two lists of bboxes. One for
+        tick lable1's and another for tick label2's.
+        """
+
+        ticklabelBoxes = []
+        ticklabelBoxes2 = []
+
+        for tick in ticks:
             if tick.label1On and tick.label1.get_visible():
                 extent = tick.label1.get_window_extent(renderer)
                 ticklabelBoxes.append(extent)
             if tick.label2On and tick.label2.get_visible():
                 extent = tick.label2.get_window_extent(renderer)
                 ticklabelBoxes2.append(extent)
+        return ticklabelBoxes, ticklabelBoxes2
+
+    def get_tightbbox(self, renderer):
+        """
+        Return a bounding box that encloses the axis. It only accounts
+        tick labels, axis label, and offsetText.
+        """
+        if not self.get_visible(): return
+
+        ticks_to_draw = self._update_ticks(renderer)
+        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw, renderer)
+
+        self._update_label_position(ticklabelBoxes, ticklabelBoxes2)
+
+        self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
+        self.offsetText.set_text( self.major.formatter.get_offset() )
+
+
+        bb = []
+
+        for a in [self.label, self.offsetText]:
+            if a.get_visible():
+                bb.append(a.get_window_extent(renderer))
+
+        bb.extend(ticklabelBoxes)
+        bb.extend(ticklabelBoxes2)
+
+        #self.offsetText
+        bb = [b for b in bb if b.width!=0 or b.height!=0]
+        if bb:
+            _bbox = mtransforms.Bbox.union(bb)
+            return _bbox
+        else:
+            return None
+
+
+    @allow_rasterization
+    def draw(self, renderer, *args, **kwargs):
+        'Draw the axis lines, grid lines, tick lines and labels'
+
+        if not self.get_visible(): return
+        renderer.open_group(__name__)
+
+        ticks_to_draw = self._update_ticks(renderer)
+        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw, renderer)
+
+        for tick in ticks_to_draw:
+            tick.draw(renderer)
 
         # scale up the axis label box to also find the neighbors, not
         # just the tick labels that actually overlap note we need a
@@ -1218,20 +1266,20 @@ class Axis(artist.Artist):
     def update_units(self, data):
         """
         introspect *data* for units converter and update the
-        axis.converter instance if necessary. Return *True* is *data* is
-        registered for unit conversion
+        axis.converter instance if necessary. Return *True*
+        if *data* is registered for unit conversion.
         """
 
         converter = munits.registry.get_converter(data)
-        if converter is None: return False
+        if converter is None:
+            return False
 
         neednew = self.converter!=converter
         self.converter = converter
         default = self.converter.default_units(data, self)
-        #print 'update units: default="%s", units=%s"'%(default, self.units)
+        #print 'update units: default=%s, units=%s'%(default, self.units)
         if default is not None and self.units is None:
             self.set_units(default)
-
 
         if neednew:
             self._update_axisinfo()
@@ -1453,14 +1501,21 @@ class Axis(artist.Artist):
         self.major.locator.zoom(direction)
 
 
-    def axis_date(self):
+    def axis_date(self, tz=None):
         """
         Sets up x-axis ticks and labels that treat the x data as dates.
+        *tz* is a :class:`tzinfo` instance or a timezone string.
+        This timezone is used to create date labels.
         """
+        # By providing a sample datetime instance with the desired
+        # timezone, the registered converter can be selected,
+        # and the "units" attribute, which is the timezone, can
+        # be set.
         import datetime
-        # should be enough to inform the unit conversion interface
-        # dates are comng in
-        self.update_units(datetime.date(2009,1,1))
+        if isinstance(tz, (str, unicode)):
+            import pytz
+            tz = pytz.timezone(tz)
+        self.update_units(datetime.datetime(2009,1,1,0,0,0,0,tz))
 
 
 class XAxis(Axis):

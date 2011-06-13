@@ -773,8 +773,12 @@ def check_for_tk():
                 gotit = False
 
     if gotit:
+        try:
+            tk_v = Tkinter.__version__.split()[-2]
+        except IndexError:
+            tk_v = 'version not identified'
         print_status("Tkinter", "Tkinter: %s, Tk: %s, Tcl: %s" %
-                     (Tkinter.__version__, Tkinter.TkVersion, Tkinter.TclVersion))
+                     (tk_v, Tkinter.TkVersion, Tkinter.TclVersion))
     else:
         print_status("Tkinter", "no")
     if explanation is not None:
@@ -841,15 +845,24 @@ def query_tcltk():
     return TCL_TK_CACHE
 
 def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
-    # This is where they live on Ubuntu Hardy (at least)
-    tcl_config = os.path.join(tcl_lib_dir, "tclConfig.sh")
-    tk_config = os.path.join(tk_lib_dir, "tkConfig.sh")
+    try:
+        import Tkinter
+    except ImportError:
+        return None
+
+    tcl_poss = [tcl_lib_dir,
+                "/usr/lib/tcl"+str(Tkinter.TclVersion),
+                "/usr/lib"]
+    tk_poss = [tk_lib_dir,
+               "/usr/lib/tk"+str(Tkinter.TkVersion),
+               "/usr/lib"]
+    for ptcl, ptk in zip(tcl_poss, tk_poss):
+        tcl_config = os.path.join(ptcl, "tclConfig.sh")
+        tk_config = os.path.join(ptk, "tkConfig.sh")
+        if (os.path.exists(tcl_config) and os.path.exists(tk_config)):
+            break
     if not (os.path.exists(tcl_config) and os.path.exists(tk_config)):
-        # This is where they live on RHEL4 (at least)
-        tcl_config = "/usr/lib/tclConfig.sh"
-        tk_config = "/usr/lib/tkConfig.sh"
-        if not (os.path.exists(tcl_config) and os.path.exists(tk_config)):
-            return None
+        return None
 
     # These files are shell scripts that set a bunch of
     # environment variables.  To actually get at the

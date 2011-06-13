@@ -105,7 +105,7 @@ def test_image_clip():
 
     im = ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
 
-@image_comparison(baseline_images=['imshow'])
+@image_comparison(baseline_images=['imshow'], tol=1.5e-3)
 def test_imshow():
     import numpy as np
     import matplotlib.pyplot as plt

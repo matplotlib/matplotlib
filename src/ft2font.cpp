@@ -377,7 +377,6 @@ Py::PythonClassObject<Glyph> Glyph::factory(
     abbox[2] = Py::Int(bbox.xMax);
     abbox[3] = Py::Int(bbox.yMax);
     o->setattro("bbox", abbox);
-    o->setattro("path", o->get_path(face));
 
     return obj;
 }
@@ -409,18 +408,29 @@ inline double conv(int v)
 }
 
 
-//see http://freetype.sourceforge.net/freetype2/docs/glyphs/glyphs-6.html
+char FT2Font::get_path__doc__[] =
+    "get_path()\n"
+    "\n"
+    "Get the path data from the currently loaded glyph as a tuple of vertices, codes.\n"
+    ;
 Py::Object
-Glyph::get_path(const FT_Face& face)
+FT2Font::get_path()
 {
     //get the glyph as a path, a list of (COMMAND, *args) as desribed in matplotlib.path
     // this code is from agg's decompose_ft_outline with minor modifications
 
-    enum {MOVETO, LINETO, CURVE3, CURVE4, ENDPOLY};
-    FT_Outline& outline = face->glyph->outline;
-    Py::List path;
-    bool flip_y = false; //todo, pass me as kwarg
+    if (!face->glyph) {
+        throw Py::ValueError("No glyph loaded");
+    }
 
+    enum {STOP = 0,
+          MOVETO = 1,
+          LINETO = 2,
+          CURVE3 = 3,
+          CURVE4 = 4,
+          ENDPOLY = 0x4f};
+    FT_Outline& outline = face->glyph->outline;
+    bool flip_y = false; //todo, pass me as kwarg
 
     FT_Vector   v_last;
     FT_Vector   v_control;
@@ -433,9 +443,10 @@ Glyph::get_path(const FT_Face& face)
     int   n;         // index of contour in outline
     int   first;     // index of first point in contour
     char  tag;       // current point's state
+    int   count;
 
+    count = 0;
     first = 0;
-
     for (n = 0; n < outline.n_contours; n++)
     {
         int  last;  // index of last point in contour
@@ -455,44 +466,129 @@ Glyph::get_path(const FT_Face& face)
         // A contour cannot start with a cubic control point!
         if (tag == FT_CURVE_TAG_CUBIC)
         {
-            return Py::Object();
+            throw Py::RuntimeError("A contour cannot start with a cubic control point");
         }
 
-        // check first point to determine origin
-        if (tag == FT_CURVE_TAG_CONIC)
+        count++;
+
+        while (point < limit)
         {
-            // first point is conic control.  Yes, this happens.
-            if (FT_CURVE_TAG(outline.tags[last]) == FT_CURVE_TAG_ON)
-            {
-                // start at last point if it is on the curve
-                v_start = v_last;
-                limit--;
-            }
-            else
-            {
-                // if both first and last points are conic,
-                // start at their middle and record its position
-                // for closure
-                v_start.x = (v_start.x + v_last.x) / 2;
-                v_start.y = (v_start.y + v_last.y) / 2;
+            point++;
+            tags++;
 
-                v_last = v_start;
+            tag = FT_CURVE_TAG(tags[0]);
+            switch (tag)
+            {
+            case FT_CURVE_TAG_ON:  // emit a single line_to
+            {
+                count++;
+                continue;
             }
-            point--;
-            tags--;
+
+            case FT_CURVE_TAG_CONIC:  // consume conic arcs
+            {
+            Count_Do_Conic:
+                if (point < limit)
+                {
+                    point++;
+                    tags++;
+                    tag = FT_CURVE_TAG(tags[0]);
+
+                    if (tag == FT_CURVE_TAG_ON)
+                    {
+                        count += 2;
+                        continue;
+                    }
+
+                    if (tag != FT_CURVE_TAG_CONIC)
+                    {
+                        throw Py::RuntimeError("Invalid font");
+                    }
+
+                    count += 2;
+
+                    goto Count_Do_Conic;
+                }
+
+                count += 2;
+
+                goto Count_Close;
+            }
+
+            default:  // FT_CURVE_TAG_CUBIC
+            {
+                if (point + 1 > limit || FT_CURVE_TAG(tags[1]) != FT_CURVE_TAG_CUBIC)
+                {
+                    throw Py::RuntimeError("Invalid font");
+                }
+
+                point += 2;
+                tags  += 2;
+
+                if (point <= limit)
+                {
+                    count += 3;
+                    continue;
+                }
+
+                count += 3;
+
+                goto Count_Close;
+            }
+            }
         }
+
+        count++;
+
+    Count_Close:
+        first = last + 1;
+    }
+
+    PyArrayObject* vertices = NULL;
+    PyArrayObject* codes = NULL;
+    Py::Tuple result(2);
+
+    npy_intp vertices_dims[2] = {count, 2};
+    vertices = (PyArrayObject*)PyArray_SimpleNew(
+        2, vertices_dims, PyArray_DOUBLE);
+    if (vertices == NULL) {
+        throw;
+    }
+    npy_intp codes_dims[1] = {count};
+    codes = (PyArrayObject*)PyArray_SimpleNew(
+        1, codes_dims, PyArray_UINT8);
+    if (codes == NULL) {
+        throw;
+    }
+
+    result[0] = Py::Object((PyObject*)vertices, true);
+    result[1] = Py::Object((PyObject*)codes, true);
+
+    double* outpoints = (double *)PyArray_DATA(vertices);
+    unsigned char* outcodes = (unsigned char *)PyArray_DATA(codes);
+
+    first = 0;
+    for (n = 0; n < outline.n_contours; n++)
+    {
+        int  last;  // index of last point in contour
+
+        last  = outline.contours[n];
+        limit = outline.points + last;
+
+        v_start = outline.points[first];
+        v_last  = outline.points[last];
+
+        v_control = v_start;
+
+        point = outline.points + first;
+        tags  = outline.tags  + first;
+        tag   = FT_CURVE_TAG(tags[0]);
 
         double x = conv(v_start.x);
         double y = flip_y ? -conv(v_start.y) : conv(v_start.y);
-        Py::Tuple tup(3);
-        tup[0] = Py::Int(MOVETO);
-        tup[1] = Py::Float(x);
-        tup[2] = Py::Float(y);
-        path.append(tup);
-
-        Py::Tuple closepoly(2);
-        closepoly[0] = Py::Int(ENDPOLY);
-        closepoly[1] = Py::Int(0);
+        *(outpoints++) = x;
+        *(outpoints++) = y;
+        *(outcodes++) = MOVETO;
 
         while (point < limit)
         {
@@ -506,12 +602,9 @@ Glyph::get_path(const FT_Face& face)
             {
                 double x = conv(point->x);
                 double y = flip_y ? -conv(point->y) : conv(point->y);
-                Py::Tuple tup(3);
-                tup[0] = Py::Int(LINETO);
-                tup[1] = Py::Float(x);
-                tup[2] = Py::Float(y);
-                path.append(tup);
-
+                *(outpoints++) = x;
+                *(outpoints++) = y;
+                *(outcodes++) = LINETO;
                 continue;
             }
 
@@ -520,7 +613,7 @@ Glyph::get_path(const FT_Face& face)
                 v_control.x = point->x;
                 v_control.y = point->y;
 
-Do_Conic:
+            Do_Conic:
                 if (point < limit)
                 {
                     FT_Vector vec;
@@ -539,19 +632,13 @@ Do_Conic:
                         double yctl = flip_y ? -conv(v_control.y) : conv(v_control.y);
                         double xto = conv(vec.x);
                         double yto = flip_y ? -conv(vec.y) : conv(vec.y);
-                        Py::Tuple tup(5);
-                        tup[0] = Py::Int(CURVE3);
-                        tup[1] = Py::Float(xctl);
-                        tup[2] = Py::Float(yctl);
-                        tup[3] = Py::Float(xto);
-                        tup[4] = Py::Float(yto);
-                        path.append(tup);
+                        *(outpoints++) = xctl;
+                        *(outpoints++) = yctl;
+                        *(outpoints++) = xto;
+                        *(outpoints++) = yto;
+                        *(outcodes++) = CURVE3;
+                        *(outcodes++) = CURVE3;
                         continue;
-                    }
-
-                    if (tag != FT_CURVE_TAG_CONIC)
-                    {
-                        return Py::Object();
                     }
 
                     v_middle.x = (v_control.x + vec.x) / 2;
@@ -561,13 +648,12 @@ Do_Conic:
                     double yctl = flip_y ? -conv(v_control.y) : conv(v_control.y);
                     double xto = conv(v_middle.x);
                     double yto = flip_y ? -conv(v_middle.y) : conv(v_middle.y);
-                    Py::Tuple tup(5);
-                    tup[0] = Py::Int(CURVE3);
-                    tup[1] = Py::Float(xctl);
-                    tup[2] = Py::Float(yctl);
-                    tup[3] = Py::Float(xto);
-                    tup[4] = Py::Float(yto);
-                    path.append(tup);
+                    *(outpoints++) = xctl;
+                    *(outpoints++) = yctl;
+                    *(outpoints++) = xto;
+                    *(outpoints++) = yto;
+                    *(outcodes++) = CURVE3;
+                    *(outcodes++) = CURVE3;
 
                     v_control = vec;
                     goto Do_Conic;
@@ -576,24 +662,20 @@ Do_Conic:
                 double yctl = flip_y ? -conv(v_control.y) : conv(v_control.y);
                 double xto = conv(v_start.x);
                 double yto = flip_y ? -conv(v_start.y) : conv(v_start.y);
-                Py::Tuple tup(5);
-                tup[0] = Py::Int(CURVE3);
-                tup[1] = Py::Float(xctl);
-                tup[2] = Py::Float(yctl);
-                tup[3] = Py::Float(xto);
-                tup[4] = Py::Float(yto);
-                path.append(tup);
+
+                *(outpoints++) = xctl;
+                *(outpoints++) = yctl;
+                *(outpoints++) = xto;
+                *(outpoints++) = yto;
+                *(outcodes++) = CURVE3;
+                *(outcodes++) = CURVE3;
+
                 goto Close;
             }
 
             default:  // FT_CURVE_TAG_CUBIC
             {
                 FT_Vector vec1, vec2;
-
-                if (point + 1 > limit || FT_CURVE_TAG(tags[1]) != FT_CURVE_TAG_CUBIC)
-                {
-                    return Py::Object();
-                }
 
                 vec1.x = point[0].x;
                 vec1.y = point[0].y;
@@ -616,16 +698,16 @@ Do_Conic:
                     double yctl2 = flip_y ? -conv(vec2.y) : conv(vec2.y);
                     double xto = conv(vec.x);
                     double yto = flip_y ? -conv(vec.y) : conv(vec.y);
-                    Py::Tuple tup(7);
-                    tup[0] = Py::Int(CURVE4);
-                    tup[1] = Py::Float(xctl1);
-                    tup[2] = Py::Float(yctl1);
-                    tup[3] = Py::Float(xctl2);
-                    tup[4] = Py::Float(yctl2);
-                    tup[5] = Py::Float(xto);
-                    tup[6] = Py::Float(yto);
-                    path.append(tup);
 
+                    (*outpoints++) = xctl1;
+                    (*outpoints++) = yctl1;
+                    (*outpoints++) = xctl2;
+                    (*outpoints++) = yctl2;
+                    (*outpoints++) = xto;
+                    (*outpoints++) = yto;
+                    (*outcodes++) = CURVE4;
+                    (*outcodes++) = CURVE4;
+                    (*outcodes++) = CURVE4;
                     continue;
                 }
 
@@ -635,31 +717,36 @@ Do_Conic:
                 double yctl2 = flip_y ? -conv(vec2.y) : conv(vec2.y);
                 double xto = conv(v_start.x);
                 double yto = flip_y ? -conv(v_start.y) : conv(v_start.y);
-                Py::Tuple tup(7);
-                tup[0] = Py::Int(CURVE4);
-                tup[1] = Py::Float(xctl1);
-                tup[2] = Py::Float(yctl1);
-                tup[3] = Py::Float(xctl2);
-                tup[4] = Py::Float(yctl2);
-                tup[5] = Py::Float(xto);
-                tup[6] = Py::Float(yto);
-                path.append(tup);
+                (*outpoints++) = xctl1;
+                (*outpoints++) = yctl1;
+                (*outpoints++) = xctl2;
+                (*outpoints++) = yctl2;
+                (*outpoints++) = xto;
+                (*outpoints++) = yto;
+                (*outcodes++) = CURVE4;
+                (*outcodes++) = CURVE4;
+                (*outcodes++) = CURVE4;
 
                 goto Close;
             }
             }
         }
 
-        path.append(closepoly);
+        (*outpoints++) = 0.0;
+        (*outpoints++) = 0.0;
+        (*outcodes++) = ENDPOLY;
 
-
-Close:
+    Close:
         first = last + 1;
     }
 
-    return path;
-}
+    if (outcodes - (unsigned char *)PyArray_DATA(codes) != count) {
+        throw Py::RuntimeError("Font path size doesn't match");
+    }
 
+    return result;
+}
+PYCXX_NOARGS_METHOD_DECL(FT2Font, get_path)
 
 FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
     Py::PythonClass<FT2Font>::PythonClass(self, args, kwds),
@@ -1977,6 +2064,8 @@ FT2Font::init_type()
                              FT2Font::get_image__doc__);
     PYCXX_ADD_VARARGS_METHOD(attach_file, attach_file,
                              FT2Font::attach_file__doc__);
+    PYCXX_ADD_NOARGS_METHOD(get_path, get_path,
+                            FT2Font::get_path__doc__);
 
     behaviors().readyType();
 }

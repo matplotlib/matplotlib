@@ -622,6 +622,7 @@ _deprecated_map = {
     'text.fontweight':  'font.weight',
     'text.fontsize':    'font.size',
     'tick.size' :       'tick.major.size',
+    'svg.embed_char_paths' : 'svg.fonttype'
     }
 
 _deprecated_ignore_map = {
@@ -982,6 +983,7 @@ default_test_modules = [
     'matplotlib.tests.test_simplification',
     'matplotlib.tests.test_mathtext',
     'matplotlib.tests.test_text'
+    'matplotlib.tests.test_tightlayout'
     ]
 
 def test(verbosity=0):

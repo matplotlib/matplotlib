@@ -274,7 +274,7 @@ class Divider(object):
             raise ValueError("the position must be one of left, right, bottom, or top")
 
 
-    def add_auto_adjustable_area(self, 
+    def add_auto_adjustable_area(self,
                                  use_axes, pad=0.1,
                                  adjust_dirs=["left", "right", "bottom", "top"],
                                  ):
@@ -329,6 +329,12 @@ class AxesLocator(object):
                                          self._ny1 + _yrefindex,
                                          axes,
                                          renderer)
+
+    def get_subplotspec(self):
+        if hasattr(self._axes_divider, "get_subplotspec"):
+            return self._axes_divider.get_subplotspec()
+        else:
+            return None
 
 
 from matplotlib.gridspec import SubplotSpec, GridSpec
@@ -659,7 +665,11 @@ class AxesDivider(Divider):
             return self._anchor
 
 
-
+    def get_subplotspec(self):
+        if hasattr(self._axes, "get_subplotspec"):
+            return self._axes.get_subplotspec()
+        else:
+            return None
 
 
 
@@ -907,10 +917,10 @@ def make_axes_locatable(axes):
 
     return divider
 
-def make_axes_area_auto_adjustable(ax, 
+def make_axes_area_auto_adjustable(ax,
                                    use_axes=None, pad=0.1,
                                    adjust_dirs=["left", "right", "bottom", "top"]):
-    
+
     divider = make_axes_locatable(ax)
 
     if use_axes is None:
