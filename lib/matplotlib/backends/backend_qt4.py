@@ -422,16 +422,16 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
     def _init_toolbar(self):
         self.basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
 
-        a = self.addAction(self._icon('home.svg'), 'Home', self.home)
+        a = self.addAction(self._icon('home.png'), 'Home', self.home)
         a.setToolTip('Reset original view')
-        a = self.addAction(self._icon('back.svg'), 'Back', self.back)
+        a = self.addAction(self._icon('back.png'), 'Back', self.back)
         a.setToolTip('Back to previous view')
-        a = self.addAction(self._icon('forward.svg'), 'Forward', self.forward)
+        a = self.addAction(self._icon('forward.png'), 'Forward', self.forward)
         a.setToolTip('Forward to next view')
         self.addSeparator()
-        a = self.addAction(self._icon('move.svg'), 'Pan', self.pan)
+        a = self.addAction(self._icon('move.png'), 'Pan', self.pan)
         a.setToolTip('Pan axes with left mouse, zoom with right')
-        a = self.addAction(self._icon('zoom_to_rect.svg'), 'Zoom', self.zoom)
+        a = self.addAction(self._icon('zoom_to_rect.png'), 'Zoom', self.zoom)
         a.setToolTip('Zoom to rectangle')
         self.addSeparator()
         a = self.addAction(self._icon('subplots.png'), 'Subplots',
@@ -439,11 +439,11 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         a.setToolTip('Configure subplots')
 
         if figureoptions is not None:
-            a = self.addAction(self._icon("qt4_editor_options.svg"),
+            a = self.addAction(self._icon("qt4_editor_options.png"),
                                'Customize', self.edit_parameters)
             a.setToolTip('Edit curves line and axes parameters')
 
-        a = self.addAction(self._icon('filesave.svg'), 'Save',
+        a = self.addAction(self._icon('filesave.png'), 'Save',
                 self.save_figure)
         a.setToolTip('Save the figure')
 
