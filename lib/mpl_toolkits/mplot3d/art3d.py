@@ -42,7 +42,7 @@ def get_dir_vector(zdir):
         return np.array((0, 1, 0))
     elif zdir == 'z':
         return np.array((0, 0, 1))
-    elif zdir == None:
+    elif zdir is None:
         return np.array((0, 0, 0))
     elif iterable(zdir) and len(zdir) == 3:
         return zdir

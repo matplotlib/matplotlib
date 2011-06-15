@@ -92,7 +92,7 @@ _backend_selection()
 ## Global ##
 
 from matplotlib.backends import pylab_setup
-new_figure_manager, draw_if_interactive, show = pylab_setup()
+new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 @docstring.copy_dedent(Artist.findobj)
 def findobj(o=None, match=None):
@@ -113,16 +113,28 @@ def switch_backend(newbackend):
     Calling this command will close all open windows.
     """
     close('all')
-    global new_figure_manager, draw_if_interactive, show
+    global new_figure_manager, draw_if_interactive, _show
     matplotlib.use(newbackend, warn=False)
     reload(matplotlib.backends)
     from matplotlib.backends import pylab_setup
-    new_figure_manager, draw_if_interactive, show = pylab_setup()
+    new_figure_manager, draw_if_interactive, _show = pylab_setup()
+
+
+def show():
+    """
+    In non-interactive mode, display all figures and block until
+    the figures have been closed; in interactive mode it has no
+    effect unless figures were created prior to a change from
+    non-interactive to interactive mode (not recommended).  In
+    that case it displays the figures but does not block.
+    """
+    global _show
+    _show()
 
 
 def isinteractive():
     """
-    Return the interactive status
+    Return *True* if matplotlib is in interactive mode, *False* otherwise.
     """
     return matplotlib.is_interactive()
 
@@ -354,7 +366,25 @@ def clf():
     draw_if_interactive()
 
 def draw():
-    'redraw the current figure'
+    """
+    Redraw the current figure.
+
+    This is used in interactive mode to update a figure that
+    has been altered using one or more plot object method calls;
+    it is not needed if figure modification is done entirely
+    with pyplot functions, if a sequence of modifications ends
+    with a pyplot function, or if matplotlib is in non-interactive
+    mode and the sequence of modifications ends with :func:`show` or
+    :func:`savefig`.
+
+    A more object-oriented alternative, given any
+    :class:`~matplotlib.figure.Figure` instance, :attr:`fig`, that
+    was created using a :module:`~matplotlib.pyplot` function, is::
+
+        fig.canvas.draw()
+
+
+    """
     get_current_fig_manager().canvas.draw()
 
 @docstring.copy_dedent(Figure.savefig)
@@ -1434,7 +1464,9 @@ def plotting():
     setp            set a graphics property
     semilogx        log x axis
     semilogy        log y axis
-    show            show the figures
+    show            in non-interactive mode, display all figures and block
+                    until they have been closed; in interactive mode,
+                    show generally has no effect.
     specgram        a spectrogram plot
     stem            make a stem plot
     subplot         make a subplot (numrows, numcols, axesnum)
