@@ -801,8 +801,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             ret = fig, axarr.squeeze()
     else:
         # returned axis array will be always 2-d, even if nrows=ncols=1
-        return fig, axarr.reshape(nrows, ncols)
-
+        ret = fig, axarr.reshape(nrows, ncols)
 
     return ret
 
