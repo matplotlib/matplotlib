@@ -659,19 +659,16 @@ def run(arguments, content, options, state_machine, state, lineno):
                              source_rel_dir)
     # get rid of .. in paths, also changes pathsep
     # see note in Python docs for warning about symbolic links on Windows.
-    # need this if you use cbook.mkdirs
-    # also need it to compare source and dest paths at end
+    # need to compare source and dest paths at end
     build_dir = os.path.normpath(build_dir)
 
     if not os.path.exists(build_dir):
-        #        cbook.mkdirs(build_dir)
         os.makedirs(build_dir)
 
     # output_dir: final location in the builder's directory
     dest_dir = os.path.abspath(os.path.join(setup.app.builder.outdir,
                                             source_rel_dir))
     if not os.path.exists(dest_dir):
-        #        cbook.mkdirs(dest_dir)
         os.makedirs(dest_dir) # no problem here for me, but just use built-ins
 
     # how to link to files from the RST file
