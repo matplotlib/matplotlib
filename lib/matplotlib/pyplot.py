@@ -365,6 +365,11 @@ def close(*args):
             _pylab_helpers.Gcf.destroy_all()
         elif isinstance(arg, int):
             _pylab_helpers.Gcf.destroy(arg)
+        elif is_string_like(arg):
+            allLabels = get_figlabels()
+            if arg in allLabels:
+                num = get_fignums()[allLabels.index(arg)]
+                _pylab_helpers.Gcf.destroy(num)
         elif isinstance(arg, Figure):
             _pylab_helpers.Gcf.destroy_fig(arg)
         else:

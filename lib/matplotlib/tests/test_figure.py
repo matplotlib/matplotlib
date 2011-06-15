@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 def test_figure_label():
-    # pyplot figure creation and selection with figure label and number
+    # pyplot figure creation, selection and closing with figure label and number
     plt.close('all')
     plt.figure('today')
     plt.figure(3)
@@ -13,8 +13,16 @@ def test_figure_label():
     plt.figure()
     plt.figure(0)
     plt.figure(1)
+    plt.figure(3)
     assert_equal(plt.get_fignums(), [0, 1, 3, 4, 5])
     assert_equal(plt.get_figlabels(), ['', 'today', '', 'tomorow', ''])
+    plt.close(10)
+    plt.close()
+    plt.close(5)
+    plt.close('tomorow')
+    assert_equal(plt.get_fignums(), [0, 1])
+    assert_equal(plt.get_figlabels(), ['', 'today'])
+
 
 @image_comparison(baseline_images=['figure_today'])
 def test_figure():
