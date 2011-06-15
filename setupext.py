@@ -764,7 +764,8 @@ def check_for_tk():
     if gotit:
         try:
             tk_v = Tkinter.__version__.split()[-2]
-        except IndexError:
+        except (AttributeError, IndexError):
+            # Tkinter.__version__ has been removed in python 3
             tk_v = 'version not identified'
         print_status("Tkinter", "Tkinter: %s, Tk: %s, Tcl: %s" %
                      (tk_v, Tkinter.TkVersion, Tkinter.TclVersion))
