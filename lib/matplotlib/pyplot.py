@@ -217,12 +217,13 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
 
       figure(1)
 
-    The same applies if *num* is a string. In this case *num* will additionally
-    be used as an explicit figure label::
+    The same applies if *num* is a string. In this case *num* will be used
+    as an explicit figure label::
 
       figure("today")
 
-    and the window title will be set to the figure label in windowed backends.
+    and in windowed backends, the window title will be set to this figure
+    label.
 
     If you are creating many figures, make sure you explicitly call "close"
     on the figures you are not using, because this will enable pylab
@@ -254,23 +255,23 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     if facecolor is None : facecolor = rcParams['figure.facecolor']
     if edgecolor is None : edgecolor = rcParams['figure.edgecolor']
 
-    allnums = [m.num for m in _pylab_helpers.Gcf.get_all_fig_managers()]
-    fig_label = ''
+    allnums = get_fignums()
+    figLabel = ''
     if num is None:
         if allnums:
             num = max(allnums) + 1
         else:
             num = 1
     elif is_string_like(num):
-        fig_label = num
-        all_labels = [m.canvas.figure.get_label() for m in _pylab_helpers.Gcf.get_all_fig_managers()]
-        if fig_label not in all_labels:
-            if len(all_labels):
+        figLabel = num
+        allLabels = get_figlabels()
+        if figLabel not in allLabels:
+            if len(allLabels):
                 num = max(allnums) + 1
             else:
                 num = 1
         else:
-            num = all_labels.index(fig_label) + 1 # matlab style num
+            num = allLabels.index(figLabel) + 1 # matlab style num
     else:
         num = int(num)  # crude validation of num argument
 
@@ -286,8 +287,9 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
                                              FigureClass=FigureClass,
                                              **kwargs)
 
-        if fig_label:
-            figManager.set_window_title(fig_label)
+        if figLabel:
+            figManager.set_window_title(figLabel)
+            figManager.canvas.figure.set_label(figLabel)
 
         # make this figure current on button press event
         def make_active(event):
@@ -318,6 +320,11 @@ def get_fignums():
     fignums = _pylab_helpers.Gcf.figs.keys()
     fignums.sort()
     return fignums
+
+def get_figlabels():
+    "Return a list of existing figure labels."
+    figManagers = _pylab_helpers.Gcf.get_all_fig_managers()
+    return [m.canvas.figure.get_label() for m in figManagers]
 
 def get_current_fig_manager():
     figManager = _pylab_helpers.Gcf.get_active()
