@@ -20,28 +20,9 @@ try:
 except ImportError:
     figureoptions = None
 
-try:
-    from PyQt4 import QtCore, QtGui
-except ImportError:
-    raise ImportError("Qt4 backend requires that PyQt4 is installed.")
-
-import sip
-
-try :
-    if sip.getapi("QString") > 1 :
-        # Use new getSaveFileNameAndFilter()
-        _getSaveFileName = lambda self, msg, start, filters, selectedFilter : \
-                            QtGui.QFileDialog.getSaveFileNameAndFilter(self,  \
-                                msg, start, filters, selectedFilter)[0]
-    else :
-        # Use old getSaveFileName()
-        _getSaveFileName = QtGui.QFileDialog.getSaveFileName
-except (AttributeError, KeyError) :
-    # call to getapi() can fail in older versions of sip
-    # Use the old getSaveFileName()
-    _getSaveFileName = QtGui.QFileDialog.getSaveFileName
-
-backend_version = "0.9.1"
+from qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
+    
+backend_version = __version__
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 DEBUG = False
@@ -292,22 +273,6 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             self._idle = True
         if d: QtCore.QTimer.singleShot(0, idle_draw)
 
-
-# XXX Hackish fix: There's a bug in PyQt.  See this thread for details:
-# http://old.nabble.com/Qt4-backend:-critical-bug-with-PyQt4-v4.6%2B-td26205716.html
-# Once a release of Qt/PyQt is available without the bug, the version check
-# below can be tightened further to only be applied in the necessary versions.
-if QtCore.PYQT_VERSION_STR.startswith('4.6'):
-    class FigureWindow(QtGui.QMainWindow):
-       def __init__(self):
-           super(FigureWindow, self).__init__()
-       def closeEvent(self, event):
-           super(FigureWindow, self).closeEvent(event)
-           self.emit(QtCore.SIGNAL('destroyed()'))
-else:
-    FigureWindow = QtGui.QMainWindow
-# /end pyqt hackish bugfix
-
 class FigureManagerQT( FigureManagerBase ):
     """
     Public attributes
@@ -322,7 +287,7 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print 'FigureManagerQT.%s' % fn_name()
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
-        self.window = FigureWindow()
+        self.window = QtGui.QMainWindow() 
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.window.setWindowTitle("Figure %d" % num)
@@ -341,7 +306,7 @@ class FigureManagerQT( FigureManagerBase ):
         if self.toolbar is not None:
             self.window.addToolBar(self.toolbar)
             QtCore.QObject.connect(self.toolbar, QtCore.SIGNAL("message"),
-                                   self.window.statusBar().showMessage)
+                                   self._show_message)
             tbs_height = self.toolbar.sizeHint().height()
         else:
             tbs_height = 0
@@ -366,6 +331,11 @@ class FigureManagerQT( FigureManagerBase ):
                self.toolbar.update()
         self.canvas.figure.add_axobserver( notify_axes_change )
 
+    @QtCore.Slot()
+    def _show_message(self,s):
+        # Fixes a PySide segfault.
+        self.window.statusBar().showMessage(s)
+        
     def _widgetclosed( self ):
         if self.window._destroying: return
         self.window._destroying = True
