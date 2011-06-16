@@ -895,9 +895,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 except:
                     raise TypeError(
                         "Last %s arg must give levels; see help(%s)" % (fn,fn))
-            if self.filled and len(lev) < 2:
-                raise ValueError("Filled contours require at least 2 levels.")
             self.levels = lev
+        if self.filled and len(self.levels) < 2:
+            raise ValueError("Filled contours require at least 2 levels.")
 
     def _process_levels(self):
         self._levels = list(self.levels)
