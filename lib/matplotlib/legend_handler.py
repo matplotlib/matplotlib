@@ -1,5 +1,5 @@
 """
-This module defines default legend handlers. 
+This module defines default legend handlers.
 
 Legend handlers are expected to be a callable object with a following
 signature. ::
@@ -124,14 +124,12 @@ class HandlerBase(object):
         raise NotImplementedError('Derived must override')
 
 
-class HandlerLine2D(HandlerBase):
-    """
-    Handler for Line2D instances
-    """
+class HandlerNpoints(HandlerBase):
     def __init__(self, marker_pad=0.3, numpoints=None, **kw):
         HandlerBase.__init__(self, **kw)
-        self._marker_pad = marker_pad
+
         self._numpoints = numpoints
+        self._marker_pad = marker_pad
 
     def get_numpoints(self, legend):
         if self._numpoints is None:
@@ -155,6 +153,31 @@ class HandlerLine2D(HandlerBase):
 
         return xdata, xdata_marker
 
+
+
+class HandlerNpointsYoffsets(HandlerNpoints):
+    def __init__(self, numpoints=None, yoffsets=None, **kw):
+        HandlerNpoints.__init__(self,numpoints=numpoints, **kw)
+        self._yoffsets = yoffsets
+
+    def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
+        if self._yoffsets is None:
+            ydata = height*legend._scatteryoffsets
+        else:
+            ydata = height*np.asarray(self._yoffsets)
+
+        return ydata
+
+
+
+
+
+class HandlerLine2D(HandlerNpoints):
+    """
+    Handler for Line2D instances
+    """
+    def __init__(self, marker_pad=0.3, numpoints=None, **kw):
+        HandlerNpoints.__init__(self, marker_pad=marker_pad, numpoints=numpoints, **kw)
 
 
     def create_artists(self, legend, orig_handle,
@@ -263,14 +286,13 @@ class HandlerLineCollection(HandlerLine2D):
 
 
 
-class HandlerRegularPolyCollection(HandlerLine2D):
+class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     """
     Handler for RegularPolyCollections.
     """
-    def __init__(self, scatteryoffsets=None, sizes=None, **kw):
-        HandlerLine2D.__init__(self, **kw)
+    def __init__(self, yoffsets=None, sizes=None, **kw):
+        HandlerNpointsYoffsets.__init__(self, yoffsets=yoffsets, **kw)
 
-        self._scatteryoffsets = scatteryoffsets
         self._sizes = sizes
 
     def get_numpoints(self, legend):
@@ -278,14 +300,6 @@ class HandlerRegularPolyCollection(HandlerLine2D):
             return legend.scatterpoints
         else:
             return self._numpoints
-
-    def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
-        if self._scatteryoffsets is None:
-            ydata = height*legend._scatteryoffsets
-        else:
-            ydata = height*np.asarray(self._scatteryoffsets)
-
-        return ydata
 
     def get_sizes(self, legend, orig_handle,
                  xdescent, ydescent, width, height, fontsize):
@@ -465,6 +479,73 @@ class HandlerErrorbar(HandlerLine2D):
 
         return artists
 
+
+
+class HandlerStem(HandlerNpointsYoffsets):
+    """
+    Handler for Errorbars
+    """
+    def __init__(self, marker_pad=0.3, numpoints=None,
+                 bottom=None, yoffsets=None, **kw):
+
+        HandlerNpointsYoffsets.__init__(self, marker_pad=marker_pad,
+                                        numpoints=numpoints,
+                                        yoffsets=yoffsets,
+                                        **kw)
+
+        self._bottom = bottom
+
+
+    def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
+        if self._yoffsets is None:
+            ydata = height*(0.5*legend._scatteryoffsets + 0.5)
+        else:
+            ydata = height*np.asarray(self._yoffsets)
+
+        return ydata
+
+
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize,
+                       trans):
+
+        markerline, stemlines, baseline = orig_handle
+
+        xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
+                                             width, height, fontsize)
+
+        ydata = self.get_ydata(legend, xdescent, ydescent,
+                               width, height, fontsize)
+
+        if self._bottom is None:
+            bottom = 0.
+        else:
+            bottom = self._bottom
+
+        ax = markerline.axes
+        #saved_dict = self.pre_plot_commands(ax)
+
+        leg_markerline = Line2D(xdata_marker, ydata[:len(xdata_marker)])
+        self.update_prop(leg_markerline, markerline, legend)
+
+        leg_stemlines = []
+        for thisx, thisy in zip(xdata_marker, ydata):
+            l = Line2D([thisx,thisx], [bottom, thisy])
+            leg_stemlines.append(l)
+
+        for lm, m in zip(leg_stemlines, stemlines):
+            self.update_prop(lm, m, legend)
+
+        leg_baseline = Line2D([np.amin(xdata), np.amax(xdata)],
+                              [bottom, bottom])
+
+        self.update_prop(leg_baseline, baseline, legend)
+
+        artists = [leg_markerline]
+        artists.extend(leg_stemlines)
+        artists.append(leg_baseline)
+
+        return artists
 
 
 class HandlerTuple(HandlerBase):
