@@ -9,12 +9,12 @@
 import os.path as osp
 
 import matplotlib.backends.qt4_editor.formlayout as formlayout
-from PyQt4.QtGui import QIcon
+from matplotlib.backends.qt4_compat import QtGui
 
 def get_icon(name):
     import matplotlib
     basedir = osp.join(matplotlib.rcParams['datapath'], 'images')
-    return QIcon(osp.join(basedir, name))
+    return QtGui.QIcon(osp.join(basedir, name))
 
 LINESTYLES = {
               '-': 'Solid',
