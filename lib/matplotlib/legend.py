@@ -1,6 +1,6 @@
 """
 The legend module defines the Legend class, which is responsible for
-drawing legends associated with axes and/or figures. 
+drawing legends associated with axes and/or figures.
 
 The Legend class can be considered as a container of legend handles
 and legend texts. Creation of corresponding legend handles from the
@@ -28,7 +28,7 @@ from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransform
 
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea, DraggableOffsetBox
 
-from matplotlib.container import ErrorbarContainer, BarContainer
+from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
 import legend_handler
 
 
@@ -472,6 +472,7 @@ in the normalized axes coordinate.
     # elements and the legend handlers.
 
     _default_handler_map = {
+        StemContainer:legend_handler.HandlerStem(),
         ErrorbarContainer:legend_handler.HandlerErrorbar(),
         Line2D:legend_handler.HandlerLine2D(),
         Patch:legend_handler.HandlerPatch(),
@@ -512,7 +513,7 @@ in the normalized axes coordinate.
         """
 
         default_handler_map = self.get_default_handler_map()
-        
+
         if self._handler_map:
             hm = default_handler_map.copy()
             hm.update(self._handler_map)
