@@ -964,6 +964,7 @@ default_test_modules = [
     'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_axes',
+    'matplotlib.tests.test_figure',
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_spines',
     'matplotlib.tests.test_image',
