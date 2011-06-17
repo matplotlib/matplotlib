@@ -1273,24 +1273,31 @@ class Axes(martist.Artist):
             ymin, ymax = self.get_ylim()
             return xmin, xmax, ymin, ymax
 
-        try: v[0]
+        emit = kwargs.get('emit', True)
+        try:
+            v[0]
         except IndexError:
-            emit = kwargs.get('emit', True)
             xmin = kwargs.get('xmin', None)
             xmax = kwargs.get('xmax', None)
+            auto = False # turn off autoscaling, unless...
+            if xmin is None and xmax is None:
+                auto = None # leave autoscaling state alone
+            xmin, xmax = self.set_xlim(xmin, xmax, emit=emit, auto=auto)
 
-            xmin, xmax = self.set_xlim(xmin, xmax, emit)
             ymin = kwargs.get('ymin', None)
             ymax = kwargs.get('ymax', None)
-            ymin, ymax = self.set_ylim(ymin, ymax, emit)
+            auto = False # turn off autoscaling, unless...
+            if ymin is None and ymax is None:
+                auto = None # leave autoscaling state alone
+            ymin, ymax = self.set_ylim(ymin, ymax, emit=emit, auto=auto)
             return xmin, xmax, ymin, ymax
 
         v = v[0]
         if len(v) != 4:
             raise ValueError('v must contain [xmin xmax ymin ymax]')
 
-        self.set_xlim([v[0], v[1]])
-        self.set_ylim([v[2], v[3]])
+        self.set_xlim([v[0], v[1]], emit=emit, auto=False)
+        self.set_ylim([v[2], v[3]], emit=emit, auto=False)
 
         return v
 
