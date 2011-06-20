@@ -271,7 +271,8 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
             else:
                 num = 1
         else:
-            num = allLabels.index(figLabel) + 1 # matlab style num
+            inum = allLabels.index(figLabel)
+            num = allnums[inum]
     else:
         num = int(num)  # crude validation of num argument
 
@@ -324,6 +325,7 @@ def get_fignums():
 def get_figlabels():
     "Return a list of existing figure labels."
     figManagers = _pylab_helpers.Gcf.get_all_fig_managers()
+    figManagers.sort(key=lambda m: m.num)
     return [m.canvas.figure.get_label() for m in figManagers]
 
 def get_current_fig_manager():
@@ -347,9 +349,11 @@ def close(*args):
 
     ``close()`` by itself closes the current figure
 
+    ``close(h)`` where *h* is a :class:`Figure` instance, closes that figure
+
     ``close(num)`` closes figure number *num*
 
-    ``close(h)`` where *h* is a :class:`Figure` instance, closes that figure
+    ``close(name)`` where *name* is a string, closes figure with that label
 
     ``close('all')`` closes all the figure windows
     """
