@@ -146,6 +146,41 @@ def ion():
     'Turn interactive mode on.'
     matplotlib.interactive(True)
 
+def pause(interval):
+    """
+    Pause for *interval* seconds.
+
+    If there is an active figure it will be updated and displayed,
+    and the gui event loop will run during the pause.
+
+    If there is no active figure, or if a non-interactive backend
+    is in use, this executes time.sleep(interval).
+
+    This can be used for crude animation. For more complex
+    animation, see :mod:`matplotlib.animation`.
+
+    """
+    backend = rcParams['backend']
+    if backend in _interactive_bk:
+        figManager = _pylab_helpers.Gcf.get_active()
+        if figManager is not None:
+            canvas = figManager.canvas
+            canvas.draw()
+            was_interactive = isinteractive()
+            if not was_interactive:
+                ion()
+                show()
+            canvas.start_event_loop(interval)
+            if not was_interactive:
+                ioff()
+            return
+
+    # No on-screen figure is active, so sleep() is all we need.
+    import time
+    time.sleep(interval)
+
+
+
 @docstring.copy_dedent(matplotlib.rc)
 def rc(*args, **kwargs):
     matplotlib.rc(*args, **kwargs)
@@ -958,7 +993,7 @@ def subplot_tool(targetfig=None):
 
 def tight_layout(pad=1.2, h_pad=None, w_pad=None):
     """Adjust subplot parameters to give specified padding.
-    
+
     Parameters
     ----------
     pad : float
