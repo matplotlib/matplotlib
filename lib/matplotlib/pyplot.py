@@ -14,7 +14,7 @@ is recommended that the namespaces be kept separate, e.g.::
 
 """
 
-import sys
+import sys, warnings
 
 import matplotlib
 from matplotlib import _pylab_helpers, interactive
@@ -266,6 +266,8 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
         figLabel = num
         allLabels = get_figlabels()
         if figLabel not in allLabels:
+            if figLabel == 'all':
+                warnings.warn("close('all') closes all existing figures")
             if len(allLabels):
                 num = max(allnums) + 1
             else:
