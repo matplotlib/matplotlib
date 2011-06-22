@@ -252,8 +252,8 @@ class Axes3D(Axes):
         if xmax is None and cbook.iterable(xmin):
             xmin, xmax = xmin
         if xmin == xmax:
-            xmin -= 0.5
-            xmax += 0.5
+            xmin -= 0.05
+            xmax += 0.05
         return (xmin, xmax)
 
     def set_xlim3d(self, *args, **kwargs):
@@ -337,11 +337,11 @@ class Axes3D(Axes):
     def clabel(self, *args, **kwargs):
         return None
 
-    def pany(self, numsteps):
-        print 'numsteps', numsteps
+    #def pany(self, numsteps):
+    #    print 'numsteps', numsteps
 
-    def panpy(self, numsteps):
-        print 'numsteps', numsteps
+    #def panpy(self, numsteps):
+    #    print 'numsteps', numsteps
 
     def view_init(self, elev=None, azim=None):
         """
@@ -446,6 +446,9 @@ class Axes3D(Axes):
         self._rotate_btn = np.atleast_1d(rotate_btn)
         self._zoom_btn = np.atleast_1d(zoom_btn)
 
+    def can_zoom(self) :
+        return False
+
     def cla(self):
         """Clear axes and disable mouse button callbacks.
         """
@@ -470,6 +473,7 @@ class Axes3D(Axes):
     def _button_release(self, event):
         self.button_pressed = None
 
+    '''
     def format_xdata(self, x):
         """
         Return x string formatted.  This function will use the attribute
@@ -493,18 +497,19 @@ class Axes3D(Axes):
         except TypeError:
             fmt = self.w_yaxis.get_major_formatter()
             return sensible_format_data(fmt, y)
+    '''
 
     def format_zdata(self, z):
         """
-        Return z string formatted.  This function will use the attribute
-        self.fmt_zdata if it is callable, else will fall back on the yaxis
-        major formatter
+        Return *z* string formatted.  This function will use the
+        :attr:`fmt_zdata` attribute if it is callable, else will fall
+        back on the zaxis major formatter
         """
-        try:
-            return self.fmt_zdata(z)
+        try: return self.fmt_zdata(z)
         except (AttributeError, TypeError):
-            fmt = self.w_zaxis.get_major_formatter()
-            return sensible_format_data(fmt, z)
+            func = self.zaxis.get_major_formatter().format_data_short
+            val = func(z)
+            return val
 
     def format_coord(self, xd, yd):
         """
@@ -543,7 +548,7 @@ class Axes3D(Axes):
 
         xs = self.format_xdata(x)
         ys = self.format_ydata(y)
-        zs = self.format_ydata(z)
+        zs = self.format_zdata(z)
         return 'x=%s, y=%s, z=%s' % (xs, ys, zs)
 
     def _on_move(self, event):
@@ -603,6 +608,7 @@ class Axes3D(Axes):
             self.get_proj()
             self.figure.canvas.draw()
 
+    """
     def set_xlabel(self, xlabel, fontdict=None, **kwargs):
         '''Set xlabel.'''
 
@@ -622,16 +628,18 @@ class Axes3D(Axes):
             label.update(fontdict)
         label.update(kwargs)
         return label
+    """
+    def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
+        '''Set zlabel.  See doc for :meth:`set_xlabel` for description.'''
+        if labelpad is not None : self.zaxis.labelpad = labelpad
+        return self.zaxis.set_label_text(zlabel, fontdict, **kwargs)
 
-    def set_zlabel(self, zlabel, fontdict=None, **kwargs):
-        '''Set zlabel.'''
-
-        label = self.w_zaxis.get_label()
-        label.set_text(zlabel)
-        if fontdict is not None:
-            label.update(fontdict)
-        label.update(kwargs)
-        return label
+    def get_zlabel(self) :
+        """
+        Get the z-label text string.
+        """
+        label = self.zaxis.get_label()
+        return label.get_text()
 
     def grid(self, on=True, **kwargs):
         '''
