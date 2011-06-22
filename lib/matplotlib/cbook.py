@@ -8,7 +8,7 @@ import time, datetime
 import warnings
 import numpy as np
 import numpy.ma as ma
-from weakref import ref
+from weakref import ref, WeakKeyDictionary
 import cPickle
 import os.path
 import random
@@ -213,6 +213,7 @@ class CallbackRegistry:
         self.signals = set(signals)
         self.callbacks = dict([(s, dict()) for s in signals])
         self._cid = 0
+        self._func_cid_map = WeakKeyDictionary()
 
     def _check_signal(self, s):
         'make sure *s* is a valid signal or raise a ValueError'
@@ -227,15 +228,12 @@ class CallbackRegistry:
         func will be called
         """
         self._check_signal(s)
+        if func in self._func_cid_map:
+            return self._func_cid_map[func]
         proxy = self.BoundMethodProxy(func)
-        for cid, callback in self.callbacks[s].items():
-            # Clean out dead references
-            if callback.inst is not None and callback.inst() is None:
-                del self.callbacks[s][cid]
-            elif callback == proxy:
-                return cid
         self._cid += 1
         self.callbacks[s][self._cid] = proxy
+        self._func_cid_map[func] = self._cid
         return self._cid
 
     def disconnect(self, cid):
