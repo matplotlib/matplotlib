@@ -441,6 +441,7 @@ defaultParams = {
     'axes.titlesize'        : ['large', validate_fontsize], # fontsize of the axes title
     'axes.grid'             : [False, validate_bool],   # display grid or not
     'axes.labelsize'        : ['medium', validate_fontsize], # fontsize of the x any y labels
+    'axes.labelweight'      : ['normal', str], # fontsize of the x any y labels
     'axes.labelcolor'       : ['k', validate_color],    # color of axis label
     'axes.formatter.limits' : [[-7, 7], validate_nseq_int(2)],
                                # use scientific notation if log10
