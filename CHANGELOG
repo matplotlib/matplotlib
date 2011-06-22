@@ -1,3 +1,7 @@
+2011-06-22 Add set_theta_offset, set_theta_direction and
+           set_theta_zero_location to polar axes to control the
+           location of 0 and directionality of theta. - MGD
+
 2011-06-16 Added *bottom* keyword parameter for the stem command. 
            Also, implemented a legend handler for the stem plot. 
            - JJL
