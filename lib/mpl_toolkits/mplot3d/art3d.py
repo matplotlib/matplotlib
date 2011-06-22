@@ -319,7 +319,10 @@ class Patch3DCollection(PatchCollection):
         self.set_edgecolors(zalpha(self._edgecolor3d, vzs))
         PatchCollection.set_offsets(self, zip(vxs, vys))
 
-        return min(vzs)
+        if vzs.size > 0 :
+            return min(vzs)
+        else :
+            return np.nan
 
     def draw(self, renderer):
         self._old_draw(renderer)
@@ -461,8 +464,10 @@ class Poly3DCollection(PolyCollection):
            zvec = np.array([[0], [0], [self._sort_zpos], [1]])
            ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
            return ztrans[2][0]
-        else:
-            return np.min(tzs)
+        elif tzs.size > 0 :
+            return self._zsortfunc(tzs)
+        else :
+            return np.nan
 
     def set_facecolor(self, colors):
         PolyCollection.set_facecolor(self, colors)
@@ -559,8 +564,9 @@ def get_colors(c, num):
 def zalpha(colors, zs):
     """Modify the alphas of the color list according to depth"""
     colors = get_colors(colors, len(zs))
-    norm = Normalize(min(zs), max(zs))
-    sats = 1 - norm(zs) * 0.7
-    colors = [(c[0], c[1], c[2], c[3] * s) for c, s in zip(colors, sats)]
+    if zs.size > 0 :
+        norm = Normalize(min(zs), max(zs))
+        sats = 1 - norm(zs) * 0.7
+        colors = [(c[0], c[1], c[2], c[3] * s) for c, s in zip(colors, sats)]
     return colors
 

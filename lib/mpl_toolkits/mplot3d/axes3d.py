@@ -670,7 +670,14 @@ class Axes3D(Axes):
         Other arguments are passed on to
         :func:`~matplotlib.axes.Axes.plot`
         '''
-
+        # FIXME: This argument parsing might be better handled
+        #        when we set later versions of python for
+        #        minimum requirements.  Currently at 2.4.
+        #        Note that some of the reason for the current difficulty
+        #        is caused by the fact that we want to insert a new
+        #        (semi-optional) positional argument 'Z' right before
+        #        many other traditional positional arguments occur
+        #        such as the color, linestyle and/or marker.
         had_data = self.has_data()
         zs = kwargs.pop('zs', 0)
         zdir = kwargs.pop('zdir', 'z')
@@ -678,9 +685,14 @@ class Axes3D(Axes):
         argsi = 0
         # First argument is array of zs
         if len(args) > 0 and cbook.iterable(args[0]) and \
-                len(xs) == len(args[0]) and cbook.is_scalar(args[0][0]):
-            zs = args[argsi]
-            argsi += 1
+                len(xs) == len(args[0]) :
+            # So, we know that it is an array with
+            # first dimension the same as xs.
+            # Next, check to see if the data contained
+            # therein (if any) is scalar (and not another array).
+            if len(args[0]) == 0 or cbook.is_scalar(args[0][0]) :
+                zs = args[argsi]
+                argsi += 1
 
         # First argument is z value
         elif len(args) > 0 and cbook.is_scalar(args[0]):
