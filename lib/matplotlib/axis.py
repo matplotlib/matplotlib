@@ -1552,7 +1552,8 @@ class XAxis(Axis):
         # time by _update_label_positions)
         label = mtext.Text(x=0.5, y=0,
             fontproperties = font_manager.FontProperties(
-                                          size=rcParams['axes.labelsize']),
+                               size=rcParams['axes.labelsize'],
+                               weight=rcParams['axes.labelweight']),
             color = rcParams['axes.labelcolor'],
             verticalalignment='top',
             horizontalalignment='center',
@@ -1809,7 +1810,8 @@ class YAxis(Axis):
         label = mtext.Text(x=0, y=0.5,
             # todo: get the label position
             fontproperties=font_manager.FontProperties(
-                                        size=rcParams['axes.labelsize']),
+                               size=rcParams['axes.labelsize'],
+                               weight=rcParams['axes.labelweight']),
             color    = rcParams['axes.labelcolor'],
             verticalalignment='center',
             horizontalalignment='right',
