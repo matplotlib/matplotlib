@@ -91,6 +91,8 @@ class Axes3D(Axes):
         if self.zaxis is not None :
             self._zcid = self.zaxis.callbacks.connect('units finalize',
                                                       self.relim)
+        else :
+            self._zcid = None
 
         self._ready = 1
         self.mouse_init()
@@ -195,7 +197,7 @@ class Axes3D(Axes):
             patch.zorder = i
 
         if self._axis3don:
-            axes = (self.w_xaxis, self.w_yaxis, self.w_zaxis)
+            axes = (self.xaxis, self.yaxis, self.zaxis)
             # Draw panes first
             for ax in axes:
                 ax.draw_pane(renderer)
@@ -377,6 +379,12 @@ class Axes3D(Axes):
         Note that this function applies to the 3d axes, and as such
         adds the *scalez* to the function arguments.
         """
+
+        self.set_top_view()
+        if not self._ready:
+            return
+
+        """
         # This method looks at the rectangular volume (see above)
         # of data and decides how to scale the view portal to fit it.
 
@@ -387,10 +395,6 @@ class Axes3D(Axes):
                                      len(self.patches)==0)
         else:
             _tight = self._tight = bool(tight)
-
-        self.set_top_view()
-        if not self._ready:
-            return
 
         Axes.autoscale_view(self, tight=_tight, scalex=scalex, scaley=scaley)
 
@@ -413,16 +417,16 @@ class Axes3D(Axes):
             if not _tight:
                 z0, z1 = zlocator.view_limits(z0, z1)
             self.set_zbound(z0, z1)
-
+        """
         # Previous version's code
-        #if not self.get_autoscale_on():
-        #    return
-        #if scalex:
-        #    self.set_xlim3d(self.xy_dataLim.intervalx)
-        #if scaley:
-        #    self.set_ylim3d(self.xy_dataLim.intervaly)
-        #if scalez:
-        #    self.set_zlim3d(self.zz_dataLim.intervalx)
+        if not self.get_autoscale_on():
+            return
+        if scalex:
+            self.set_xlim3d(self.xy_dataLim.intervalx)
+        if scaley:
+            self.set_ylim3d(self.xy_dataLim.intervaly)
+        if scalez:
+            self.set_zlim3d(self.zz_dataLim.intervalx)
 
     def get_w_lims(self):
         '''Get 3d world limits.'''
