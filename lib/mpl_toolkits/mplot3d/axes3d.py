@@ -99,6 +99,10 @@ class Axes3D(Axes):
         self.set_top_view()
 
         self.axesPatch.set_linewidth(0)
+        # Calculate the pseudo-data width and height
+        pseudo_bbox = self.transLimits.inverted().transform([(0, 0), (1, 1)])
+        self._pseudo_w, self._pseudo_h = pseudo_bbox[1] - pseudo_bbox[0]
+
         self.figure.add_axes(self)
 
     def set_axis_off(self):
@@ -844,10 +848,8 @@ class Axes3D(Axes):
             return
 
         dx, dy = x - self.sx, y - self.sy
-        x0, x1 = self.get_xlim()
-        y0, y1 = self.get_ylim()
-        w = (x1-x0)
-        h = (y1-y0)
+        w = self._pseudo_w
+        h = self._pseudo_h
         self.sx, self.sy = x, y
 
         # Rotation
