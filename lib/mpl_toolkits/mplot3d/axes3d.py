@@ -904,12 +904,37 @@ class Axes3D(Axes):
         cstride = kwargs.pop("cstride", 1)
 
         had_data = self.has_data()
+        Z = np.atleast_2d(Z)
+        # FIXME: Support masked arrays
+        X = np.asarray(X)
+        Y = np.asarray(Y)
         rows, cols = Z.shape
+        # Force X and Y to take the same shape.
+        # If they can not be fitted to that shape,
+        # then an exception is automatically thrown.
+        X.shape = (rows, cols)
+        Y.shape = (rows, cols)
 
+        # We want two sets of lines, one running along the "rows" of
+        # Z and another set of lines running along the "columns" of Z.
+        # This transpose will make it easy to obtain the columns.
         tX, tY, tZ = np.transpose(X), np.transpose(Y), np.transpose(Z)
 
-        rii = [i for i in range(0, rows, rstride)]+[rows-1]
-        cii = [i for i in range(0, cols, cstride)]+[cols-1]
+        rii = range(0, rows, rstride)
+        cii = range(0, cols, cstride)
+
+        # Add the last index only if needed
+        if rows > 0 and rii[-1] != (rows - 1) :
+            rii += [rows-1]
+        if cols > 0 and cii[-1] != (cols - 1) :
+            cii += [cols-1]
+
+        # If the inputs were empty, then just
+        # reset everything.
+        if Z.size == 0 :
+            rii = []
+            cii = []
+
         xlines = [X[i] for i in rii]
         ylines = [Y[i] for i in rii]
         zlines = [Z[i] for i in rii]
@@ -1145,16 +1170,21 @@ class Axes3D(Axes):
             - LineColleciton
             - PatchCollection
         '''
+        zvals = np.atleast_1d(zs)
+        if len(zvals) > 0 :
+            zsortval = min(zvals)
+        else :
+            zsortval = 0   # FIXME: Fairly arbitrary. Is there a better value?
 
         if type(col) is collections.PolyCollection:
             art3d.poly_collection_2d_to_3d(col, zs=zs, zdir=zdir)
-            col.set_sort_zpos(min(zs))
+            col.set_sort_zpos(zsortval)
         elif type(col) is collections.LineCollection:
             art3d.line_collection_2d_to_3d(col, zs=zs, zdir=zdir)
-            col.set_sort_zpos(min(zs))
+            col.set_sort_zpos(zsortval)
         elif type(col) is collections.PatchCollection:
             art3d.patch_collection_2d_to_3d(col, zs=zs, zdir=zdir)
-            col.set_sort_zpos(min(zs))
+            col.set_sort_zpos(zsortval)
 
         Axes.add_collection(self, col)
 
@@ -1263,7 +1293,14 @@ class Axes3D(Axes):
             if 'alpha' in kwargs:
                 p.set_alpha(kwargs['alpha'])
 
-        xs, ys = zip(*verts)
+        if len(verts) > 0 :
+            # the following has to be skipped if verts is empty
+            # NOTE: Bugs could still occur if len(verts) > 0,
+            #       but the "2nd dimension" is empty.
+            xs, ys = zip(*verts)
+        else :
+            xs, ys = [], []
+
         xs, ys, verts_zs = art3d.juggle_axes(xs, ys, verts_zs, zdir)
         self.auto_scale_xyz(xs, ys, verts_zs, had_data)
 

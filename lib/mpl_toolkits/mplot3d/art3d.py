@@ -398,7 +398,13 @@ class Poly3DCollection(PolyCollection):
             ei = si+len(p)
             segis.append((si, ei))
             si = ei
-        xs, ys, zs = zip(*points)
+
+        if len(segments3d) > 0 :
+            xs, ys, zs = zip(*points)
+        else :
+            # We need this so that we can skip the bad unpacking from zip()
+            xs, ys, zs = [], [], []
+
         ones = np.ones(len(xs))
         self._vec = np.array([xs, ys, zs, ones])
         self._segis = segis
