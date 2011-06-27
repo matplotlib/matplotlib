@@ -467,11 +467,14 @@ class Poly3DCollection(PolyCollection):
 
         # Return zorder value
         if self._sort_zpos is not None:
-           zvec = np.array([[0], [0], [self._sort_zpos], [1]])
-           ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
-           return ztrans[2][0]
+            zvec = np.array([[0], [0], [self._sort_zpos], [1]])
+            ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
+            return ztrans[2][0]
         elif tzs.size > 0 :
-            return self._zsortfunc(tzs)
+            # FIXME: Some results still don't look quite right.
+            #        In particular, examine contourf3d_demo2.py
+            #        with az = -54 and elev = -45.
+            return np.min(tzs)
         else :
             return np.nan
 
