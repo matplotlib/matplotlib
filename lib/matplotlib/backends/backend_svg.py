@@ -281,6 +281,7 @@ class RendererSVG(RendererBase):
     def finalize(self):
         self._write_svgfonts()
         self.writer.close(self._start_id)
+        self.writer.flush()
 
     def _write_default_style(self):
         writer = self.writer
