@@ -48,6 +48,10 @@ make_axes_kw_doc = '''
                   of original axes between colorbar and new image axes
     *shrink*      1.0; fraction by which to shrink the colorbar
     *aspect*      20; ratio of long to short dimensions
+    *anchor*      (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal;
+                  the anchor point of the colorbar axes
+    *panchor*     (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal;
+                  the anchor point of the colorbar parent axes
     ============= ====================================================
 
 '''
@@ -839,15 +843,15 @@ def make_axes(parent, **kw):
         x1 = 1.0-fraction
         pb1, pbx, pbcb = pb.splitx(x1-pad, x1)
         pbcb = pbcb.shrunk(1.0, shrink).anchored('C', pbcb)
-        anchor = (0.0, 0.5)
-        panchor = (1.0, 0.5)
+        anchor = kw.pop('anchor', (0.0, 0.5))
+        panchor = kw.pop('panchor', (1.0, 0.5))
     else:
         pad = kw.pop('pad', 0.15)
         pbcb, pbx, pb1 = pb.splity(fraction, fraction+pad)
         pbcb = pbcb.shrunk(shrink, 1.0).anchored('C', pbcb)
         aspect = 1.0/aspect
-        anchor = (0.5, 1.0)
-        panchor = (0.5, 0.0)
+        anchor = kw.pop('anchor', (0.5, 1.0))
+        panchor = kw.pop('panchor', (0.5, 0.0))
     parent.set_position(pb1)
     parent.set_anchor(panchor)
     fig = parent.get_figure()

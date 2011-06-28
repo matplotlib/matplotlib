@@ -56,7 +56,7 @@ class LockDraw:
 
 
 
-class Widget:
+class Widget(object):
     """
     Abstract base class for GUI neutral widgets
     """

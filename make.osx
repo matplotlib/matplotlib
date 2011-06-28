@@ -1,109 +1,116 @@
+# -*- makefile -*-
 # build mpl into a local install dir with
-# PREFIX=/Users/jdhunter/dev make -f make.osx fetch deps mpl_install
-MPLVERSION=1.0rc1
+# make -f make.osx PREFIX=/Users/jdhunter/dev PYVERSION=2.6 fetch deps mpl_install
+# (see README.osx for more details)
+
+MPLVERSION=1.1.0
 PYVERSION=2.6
 PYTHON=python${PYVERSION}
-ZLIBVERSION=1.2.3
-PNGVERSION=1.2.39
-FREETYPEVERSION=2.3.11
 MACOSX_DEPLOYMENT_TARGET=10.6
 OSX_SDK_VER=10.6
-ARCH_FLAGS="-arch i386-arch x86_64"
+ARCH_FLAGS=-arch i386 -arch x86_64
+
+# Dependency versions and URLs
+#
+# Adjusting these version numbers should be enough most of the time,
+# but the download URLs are subject to change.
+
+ZLIBVERSION=1.2.5
+PNGVERSION=1.5.1
+FREETYPEVERSION=2.4.4
+
+ZLIBFILE=zlib-${ZLIBVERSION}.tar.gz
+ZLIBDIR=$(basename $(basename ${ZLIBFILE}))
+ZLIBURL=http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERSION}/${ZLIBFILE}/download
+
+PNGFILE=libpng-${PNGVERSION}.tar.gz
+PNGDIR=$(basename $(basename ${PNGFILE}))
+PNGURL=http://sourceforge.net/projects/libpng/files/libpng15/${PNGVERSION}/${PNGFILE}/download
+
+FREETYPEFILE=freetype-${FREETYPEVERSION}.tar.bz2
+FREETYPEDIR=$(basename $(basename ${FREETYPEFILE}))
+FREETYPEURL=http://download.savannah.gnu.org/releases/freetype/${FREETYPEFILE}
 
 ## You shouldn't need to configure past this point
 
-#PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig"
-#CFLAGS="${ARCH_FLAGS} -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
-#LDFLAGS="${ARCH_FLAGS} -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
+export PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig
+export CFLAGS=${ARCH_FLAGS} -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk
+export LDFLAGS=${ARCH_FLAGS} -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk
+export MACOSX_DEPLOYMENT_TARGET
 
-PKG_CONFIG_PATH="${PREFIX}/lib/pkgconfig"
-CFLAGS="-arch i386 -arch x86_64 -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
-LDFLAGS="-arch i386 -arch x86_64 -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk"
-FFLAGS="-arch i386 -arch x86_64"
+help:
+	@echo "Interesting targets: clean, fetch, deps, mpl_build, mpl_install_std"
+	@echo "See README.osx for details"
 
 check-prefix:
 	@if [ ! -d "$(PREFIX)" ]; then echo Set PREFIX to a directory - see README.osx; exit 1; fi
 
 clean:
-	rm -rf zlib-${ZLIBVERSION}.tar.gz libpng-${PNGVERSION}.tar.bz2 \
-	freetype-${FREETYPEVERSION}.tar.bz2 bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
-	bdist_mpkg-${BDISTMPKGVERSION} \
+	rm -rf ${ZLIBFILE} ${PNGFILE} ${FREETYPEFILE} \
+	bdist_mpkg-${BDISTMPKGVERSION}.tar.gz \
+	bdist_mpkg-${BDISTMPKGVERSION} setupext.pyc \
+	lib/matplotlib/mpl-data/matplotlib.conf lib/matplotlib/mpl-data/matplotlibrc \
 	zlib-${ZLIBVERSION} libpng-${PNGVERSION} freetype-${FREETYPEVERSION} \
 	build
 
 
 
 fetch:
-	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://superb-sea2.dl.sourceforge.net/project/libpng/zlib/${ZLIBVERSION}/zlib-${ZLIBVERSION}.tar.gz", "zlib-${ZLIBVERSION}.tar.gz")'  &&\
-	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://sourceforge.net/projects/libpng/files/libpng-stable/${PNGVERSION}/libpng-${PNGVERSION}.tar.gz/download", "libpng-${PNGVERSION}.tar.gz")' &&\
-	${PYTHON} -c 'import urllib; urllib.urlretrieve("http://download.savannah.gnu.org/releases/freetype/freetype-${FREETYPEVERSION}.tar.bz2", "freetype-${FREETYPEVERSION}.tar.bz2")'
-
-
-
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("${ZLIBURL}", "${ZLIBFILE}")' &&\
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("${PNGURL}", "${PNGFILE}")' &&\
+	${PYTHON} -c 'import urllib; urllib.urlretrieve("${FREETYPEURL}", "${FREETYPEFILE}")'
 
 zlib: check-prefix
-	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
-	rm -rf zlib-${ZLIBVERSION} &&\
-	tar xvfz zlib-${ZLIBVERSION}.tar.gz &&\
-	cd zlib-${ZLIBVERSION} &&\
-	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS} &&\
-	export LDFLAGS=${LDFLAGS} &&\
-	./configure --prefix=${PREFIX}&&\
-	MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} CFLAGS=${CFLAGS} LDFLAGS=${LDFLAGS} make -j3 install&& \
-	unset MACOSX_DEPLOYMENT_TARGET
+	rm -rf ${ZLIBDIR} &&\
+	tar xvfz ${ZLIBFILE} &&\
+	cd ${ZLIBDIR} &&\
+	./configure --prefix=${PREFIX} &&\
+	${MAKE} -j3 install
 
-png: zlib check-prefix
-	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
-	rm -rf libpng-${PNGVERSION} &&\
-	tar xvfz libpng-${PNGVERSION}.tar.gz && \
-	cd libpng-${PNGVERSION} &&\
-	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS} &&\
-	export LDFLAGS=${LDFLAGS} &&\
+png: check-prefix zlib
+	rm -rf ${PNGDIR} &&\
+	tar xvfz ${PNGFILE} && \
+	cd ${PNGDIR} &&\
 	./configure  --disable-dependency-tracking  --prefix=${PREFIX} &&\
-	make -j3 install&&\
-	cp .libs/libpng.a . &&\
-	unset MACOSX_DEPLOYMENT_TARGET
+	${MAKE} -j3 install
 
-
-freetype: zlib check-prefix
-	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
-	rm -rf ${FREETYPEVERSION} &&\
-	tar xvfj freetype-${FREETYPEVERSION}.tar.bz2 &&\
-	cd freetype-${FREETYPEVERSION} &&\
-	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS} &&\
-	export LDFLAGS=${LDFLAGS} &&\
+freetype: check-prefix zlib
+	rm -rf ${FREETYPEDIR} &&\
+	tar xvfj ${FREETYPEFILE} &&\
+	cd ${FREETYPEDIR} &&\
 	./configure  --prefix=${PREFIX} &&\
-	make -j3 install &&\
-	cp objs/.libs/libfreetype.a .  &&\
-	unset MACOSX_DEPLOYMENT_TARGET
-
+	${MAKE} -j3 install &&\
+	cp objs/.libs/libfreetype.a .
 
 deps: zlib png freetype
 	echo 'all done'
 
-mpl_build:
-	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
-	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS} &&\
-	export LDFLAGS=${LDFLAGS} &&\
+# Various build and install targets
+#
+# The values of PKG_CONFIG_PATH, MACOSX_DEPLOYMENT_TARGET, CFLAGS,
+# LDFLAGS affect the compilation; note that variables are
+# automatically put into the environment by make.
+
+mpl_build: check-prefix
 	${PYTHON} setup.py build
 
 mpl_install: check-prefix
-	export PKG_CONFIG_PATH=${PKG_CONFIG_PATH} &&\
-	export MACOSX_DEPLOYMENT_TARGET=${MACOSX_DEPLOYMENT_TARGET} &&\
-	export CFLAGS=${CFLAGS} &&\
-	export LDFLAGS=${LDFLAGS} &&\
 	${PYTHON} setup.py install --prefix=${PREFIX}
+
+mpl_install_std: check-prefix
+	${PYTHON} setup.py install
+
+mpl_install_egg: check-prefix
+	${PYTHON} setupegg.py install
+
+mpl_install_develop: check-prefix
+	${PYTHON} setupegg.py develop
 
 
 binaries: check-prefix
+	@if [ -z "$(PYVERSION)" ]; then echo Must set PYVERSION; exit 1; fi
 	unset PKG_CONFIG_PATH &&\
 	cp release/osx/data/setup.cfg release/osx/data/ReadMe.txt . &&\
-	export CFLAGS=${CFLAGS} &&\
-	export LDFLAGS=${LDFLAGS} &&\
 	rm -f ${PREFIX}/lib/*.dylib &&\
 	VERSIONER_PYTHON_PREFER_32_BIT=yes bdist_mpkg --readme=ReadMe.txt &&\
 	hdiutil create -srcdir dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx${OSX_SDK_VER}.mpkg  dist/matplotlib-${MPLVERSION}-py${PYVERSION}-macosx${OSX_SDK_VER}.dmg &&\

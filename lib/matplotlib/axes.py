@@ -34,7 +34,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 
-from matplotlib.container import BarContainer, ErrorbarContainer
+from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -1279,24 +1279,31 @@ class Axes(martist.Artist):
             ymin, ymax = self.get_ylim()
             return xmin, xmax, ymin, ymax
 
-        try: v[0]
+        emit = kwargs.get('emit', True)
+        try:
+            v[0]
         except IndexError:
-            emit = kwargs.get('emit', True)
             xmin = kwargs.get('xmin', None)
             xmax = kwargs.get('xmax', None)
+            auto = False # turn off autoscaling, unless...
+            if xmin is None and xmax is None:
+                auto = None # leave autoscaling state alone
+            xmin, xmax = self.set_xlim(xmin, xmax, emit=emit, auto=auto)
 
-            xmin, xmax = self.set_xlim(xmin, xmax, emit)
             ymin = kwargs.get('ymin', None)
             ymax = kwargs.get('ymax', None)
-            ymin, ymax = self.set_ylim(ymin, ymax, emit)
+            auto = False # turn off autoscaling, unless...
+            if ymin is None and ymax is None:
+                auto = None # leave autoscaling state alone
+            ymin, ymax = self.set_ylim(ymin, ymax, emit=emit, auto=auto)
             return xmin, xmax, ymin, ymax
 
         v = v[0]
         if len(v) != 4:
             raise ValueError('v must contain [xmin xmax ymin ymax]')
 
-        self.set_xlim([v[0], v[1]])
-        self.set_ylim([v[2], v[3]])
+        self.set_xlim([v[0], v[1]], emit=emit, auto=False)
+        self.set_ylim([v[2], v[3]], emit=emit, auto=False)
 
         return v
 
@@ -4356,7 +4363,8 @@ class Axes(martist.Artist):
             settings.
 
           *frameon*: [ True | False ]
-            if True, draw a frame.  Default is True
+            if True, draw a frame around the legend.
+            The default is set by the rcParam 'legend.frameon'
 
           *fancybox*: [ None | False | True ]
             if True, draw a frame with a round fancybox.  If None, use rc
@@ -4874,7 +4882,8 @@ class Axes(martist.Artist):
 
         return col
 
-    def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-'):
+    def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-',
+             bottom=None, label=None):
         """
         call signature::
 
@@ -4903,18 +4912,27 @@ class Axes(martist.Artist):
         if not self._hold: self.cla()
         self.hold(True)
 
-        markerline, = self.plot(x, y, markerfmt)
+        markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
+
+        if bottom is None:
+            bottom = 0
 
         stemlines = []
         for thisx, thisy in zip(x, y):
-            l, = self.plot([thisx,thisx], [0, thisy], linefmt)
+            l, = self.plot([thisx,thisx], [bottom, thisy], linefmt,
+                           label="_nolegend_")
             stemlines.append(l)
 
-        baseline, = self.plot([np.amin(x), np.amax(x)], [0,0], basefmt)
+        baseline, = self.plot([np.amin(x), np.amax(x)], [bottom,bottom],
+                              basefmt, label="_nolegend_")
 
         self.hold(remember_hold)
 
-        return markerline, stemlines, baseline
+        stem_container = StemContainer((markerline, stemlines, baseline),
+                                       label=label)
+        self.add_container(stem_container)
+
+        return stem_container
 
 
     def pie(self, x, explode=None, labels=None, colors=None,

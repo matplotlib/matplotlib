@@ -693,7 +693,10 @@ class RendererSVG(RendererBase):
 
         self.writer.end(u'g')
 
-    def draw_image(self, gc, x, y, im):
+    def option_scale_image(self):
+        return True
+
+    def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
         attrib = {}
         clipid = self._get_clip(gc)
         if clipid is not None:
@@ -706,10 +709,10 @@ class RendererSVG(RendererBase):
         if rcParams['svg.image_noscale']:
             trans = list(im.get_matrix())
             trans[5] = -trans[5]
-            attrib[u'transform'] = generate_transform(u'matrix', tuple(trans))
+            attrib[u'transform'] = generate_transform([(u'matrix', tuple(trans))])
             assert trans[1] == 0
             assert trans[2] == 0
-            numrows,numcols = im.get_size()
+            numrows, numcols = im.get_size()
             im.reset_matrix()
             im.set_interpolation(0)
             im.resize(numcols, numrows)
@@ -738,11 +741,19 @@ class RendererSVG(RendererBase):
             im.flipud_out()
             attrib[u'xlink:href'] = filename
 
-        self.writer.element(
-            u'image',
-            x=unicode(x/trans[0]), y=unicode((self.height-y)/trans[3]-h),
-            width=unicode(w), height=unicode(h),
-            attrib=attrib)
+        if transform is None:
+            self.writer.element(
+                u'image',
+                x=unicode(x/trans[0]), y=unicode((self.height-y)/trans[3]-h),
+                width=unicode(w), height=unicode(h),
+                attrib=attrib)
+        else:
+            attrib[u'transform'] = generate_transform(
+                [(u'matrix', transform.to_values())])
+            self.writer.element(
+                u'image',
+                x=unicode(x), y=unicode(y), width=unicode(dx), height=unicode(dy),
+                attrib=attrib)
 
         if url is not None:
             self.writer.end(u'a')

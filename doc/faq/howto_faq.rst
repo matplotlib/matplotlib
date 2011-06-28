@@ -441,9 +441,9 @@ locators as desired because the two axes are independent::
 Generate images without having a window popup
 --------------------------------------------------
 
-The easiest way to do this is use an image backend (see
+The easiest way to do this is use a non-interactive backend (see
 :ref:`what-is-a-backend`) such as Agg (for PNGs), PDF, SVG or PS.  In
-your figure generating script, just call the
+your figure-generating script, just call the
 :func:`matplotlib.use` directive before importing pylab or
 pyplot::
 

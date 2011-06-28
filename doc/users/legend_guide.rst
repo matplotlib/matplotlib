@@ -36,6 +36,7 @@ For matplotlib v1.0 and before, the supported artists are as follows.
    * :class:`~matplotlib.patches.Patch`
    * :class:`~matplotlib.collections.LineCollection`
    * :class:`~matplotlib.collections.RegularPolyCollection`
+   * :class:`~matplotlib.collections.CircleCollection`
 
 And, :meth:`~matplotlib.axes.Axes.get_legend_handles_labels` returns
 all artists in *ax.lines*, *ax.patches* and
