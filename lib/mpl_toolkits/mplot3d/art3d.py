@@ -319,7 +319,10 @@ class Patch3DCollection(PatchCollection):
         self.set_edgecolors(zalpha(self._edgecolor3d, vzs))
         PatchCollection.set_offsets(self, zip(vxs, vys))
 
-        return min(vzs)
+        if vzs.size > 0 :
+            return min(vzs)
+        else :
+            return np.nan
 
     def draw(self, renderer):
         self._old_draw(renderer)
@@ -395,7 +398,13 @@ class Poly3DCollection(PolyCollection):
             ei = si+len(p)
             segis.append((si, ei))
             si = ei
-        xs, ys, zs = zip(*points)
+
+        if len(segments3d) > 0 :
+            xs, ys, zs = zip(*points)
+        else :
+            # We need this so that we can skip the bad unpacking from zip()
+            xs, ys, zs = [], [], []
+
         ones = np.ones(len(xs))
         self._vec = np.array([xs, ys, zs, ones])
         self._segis = segis
@@ -458,11 +467,16 @@ class Poly3DCollection(PolyCollection):
 
         # Return zorder value
         if self._sort_zpos is not None:
-           zvec = np.array([[0], [0], [self._sort_zpos], [1]])
-           ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
-           return ztrans[2][0]
-        else:
+            zvec = np.array([[0], [0], [self._sort_zpos], [1]])
+            ztrans = proj3d.proj_transform_vec(zvec, renderer.M)
+            return ztrans[2][0]
+        elif tzs.size > 0 :
+            # FIXME: Some results still don't look quite right.
+            #        In particular, examine contourf3d_demo2.py
+            #        with az = -54 and elev = -45.
             return np.min(tzs)
+        else :
+            return np.nan
 
     def set_facecolor(self, colors):
         PolyCollection.set_facecolor(self, colors)
@@ -559,8 +573,9 @@ def get_colors(c, num):
 def zalpha(colors, zs):
     """Modify the alphas of the color list according to depth"""
     colors = get_colors(colors, len(zs))
-    norm = Normalize(min(zs), max(zs))
-    sats = 1 - norm(zs) * 0.7
-    colors = [(c[0], c[1], c[2], c[3] * s) for c, s in zip(colors, sats)]
+    if zs.size > 0 :
+        norm = Normalize(min(zs), max(zs))
+        sats = 1 - norm(zs) * 0.7
+        colors = [(c[0], c[1], c[2], c[3] * s) for c, s in zip(colors, sats)]
     return colors
 
