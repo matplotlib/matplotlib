@@ -1,3 +1,6 @@
+2011-06-28 3D versions of scatter, plot, plot_wireframe, plot_surface,
+           bar3d, and some other functions now support empty inputs. - BVR
+
 2011-06-16 Added *bottom* keyword parameter for the stem command. 
            Also, implemented a legend handler for the stem plot. 
            - JJL
