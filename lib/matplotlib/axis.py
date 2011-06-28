@@ -167,7 +167,7 @@ class Tick(artist.Artist):
     set_clip_path.__doc__ = artist.Artist.set_clip_path.__doc__
 
     def get_pad_pixels(self):
-        return self.figure.dpi * self._pad / 72.0
+        return self.figure.dpi * self._base_pad / 72.0
 
     def contains(self, mouseevent):
         """
@@ -185,11 +185,11 @@ class Tick(artist.Artist):
 
         ACCEPTS: float
         """
-        self._pad = val
+        self._apply_params(pad=val)
 
     def get_pad(self):
         'Get the value of the tick label pad in points'
-        return self._pad
+        return self._base_pad
 
     def _get_text1(self):
         'Get the default Text 1 instance'

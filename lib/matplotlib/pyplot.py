@@ -93,7 +93,7 @@ _backend_selection()
 ## Global ##
 
 from matplotlib.backends import pylab_setup
-new_figure_manager, draw_if_interactive, show = pylab_setup()
+new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 @docstring.copy_dedent(Artist.findobj)
 def findobj(o=None, match=None):
@@ -114,16 +114,28 @@ def switch_backend(newbackend):
     Calling this command will close all open windows.
     """
     close('all')
-    global new_figure_manager, draw_if_interactive, show
+    global new_figure_manager, draw_if_interactive, _show
     matplotlib.use(newbackend, warn=False)
     reload(matplotlib.backends)
     from matplotlib.backends import pylab_setup
-    new_figure_manager, draw_if_interactive, show = pylab_setup()
+    new_figure_manager, draw_if_interactive, _show = pylab_setup()
+
+
+def show():
+    """
+    In non-interactive mode, display all figures and block until
+    the figures have been closed; in interactive mode it has no
+    effect unless figures were created prior to a change from
+    non-interactive to interactive mode (not recommended).  In
+    that case it displays the figures but does not block.
+    """
+    global _show
+    _show()
 
 
 def isinteractive():
     """
-    Return the interactive status
+    Return *True* if matplotlib is in interactive mode, *False* otherwise.
     """
     return matplotlib.is_interactive()
 
@@ -134,6 +146,41 @@ def ioff():
 def ion():
     'Turn interactive mode on.'
     matplotlib.interactive(True)
+
+def pause(interval):
+    """
+    Pause for *interval* seconds.
+
+    If there is an active figure it will be updated and displayed,
+    and the gui event loop will run during the pause.
+
+    If there is no active figure, or if a non-interactive backend
+    is in use, this executes time.sleep(interval).
+
+    This can be used for crude animation. For more complex
+    animation, see :mod:`matplotlib.animation`.
+
+    """
+    backend = rcParams['backend']
+    if backend in _interactive_bk:
+        figManager = _pylab_helpers.Gcf.get_active()
+        if figManager is not None:
+            canvas = figManager.canvas
+            canvas.draw()
+            was_interactive = isinteractive()
+            if not was_interactive:
+                ion()
+                show()
+            canvas.start_event_loop(interval)
+            if not was_interactive:
+                ioff()
+            return
+
+    # No on-screen figure is active, so sleep() is all we need.
+    import time
+    time.sleep(interval)
+
+
 
 @docstring.copy_dedent(matplotlib.rc)
 def rc(*args, **kwargs):
@@ -355,7 +402,25 @@ def clf():
     draw_if_interactive()
 
 def draw():
-    'redraw the current figure'
+    """
+    Redraw the current figure.
+
+    This is used in interactive mode to update a figure that
+    has been altered using one or more plot object method calls;
+    it is not needed if figure modification is done entirely
+    with pyplot functions, if a sequence of modifications ends
+    with a pyplot function, or if matplotlib is in non-interactive
+    mode and the sequence of modifications ends with :func:`show` or
+    :func:`savefig`.
+
+    A more object-oriented alternative, given any
+    :class:`~matplotlib.figure.Figure` instance, :attr:`fig`, that
+    was created using a :module:`~matplotlib.pyplot` function, is::
+
+        fig.canvas.draw()
+
+
+    """
     get_current_fig_manager().canvas.draw()
 
 @docstring.copy_dedent(Figure.savefig)
@@ -800,7 +865,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             ret = fig, axarr[0,0]
         else:
             ret = fig, axarr.squeeze()
-
+    else:
+        # returned axis array will be always 2-d, even if nrows=ncols=1
+        ret = fig, axarr.reshape(nrows, ncols)
 
     return ret
 
@@ -927,7 +994,7 @@ def subplot_tool(targetfig=None):
 
 def tight_layout(pad=1.2, h_pad=None, w_pad=None):
     """Adjust subplot parameters to give specified padding.
-    
+
     Parameters
     ----------
     pad : float
@@ -1435,7 +1502,9 @@ def plotting():
     setp            set a graphics property
     semilogx        log x axis
     semilogy        log y axis
-    show            show the figures
+    show            in non-interactive mode, display all figures and block
+                    until they have been closed; in interactive mode,
+                    show generally has no effect.
     specgram        a spectrogram plot
     stem            make a stem plot
     subplot         make a subplot (numrows, numcols, axesnum)
