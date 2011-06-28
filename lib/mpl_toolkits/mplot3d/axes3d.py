@@ -872,7 +872,7 @@ class Axes3D(Axes):
             colors = (0.5 + norm(shade)[:, np.newaxis] * 0.5) * color
             colors[:, 3] = alpha
         else:
-            colors = color.copy()
+            colors = np.asanyarray(color).copy()
 
         return colors
 
@@ -1366,6 +1366,7 @@ class Axes3D(Axes):
         if len(x) != len(y) or len(x) != len(z):
             warnings.warn('x, y, and z must be the same length.')
 
+        # FIXME: This is archaic and could be done much better.
         minx, miny, minz = 1e20, 1e20, 1e20
         maxx, maxy, maxz = -1e20, -1e20, -1e20
 
