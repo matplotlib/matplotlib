@@ -1,3 +1,5 @@
+2011-06-24 Added 'add_signal' to the CallbackRegistry. - BVR
+
 2011-06-16 Added *bottom* keyword parameter for the stem command. 
            Also, implemented a legend handler for the stem plot. 
            - JJL

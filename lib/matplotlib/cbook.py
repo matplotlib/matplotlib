@@ -222,6 +222,16 @@ class CallbackRegistry:
             signals.sort()
             raise ValueError('Unknown signal "%s"; valid signals are %s'%(s, signals))
 
+    def add_signal(self, s) :
+        """
+        Add another valid signal *s* to the registry.
+        If the signal already exists, no change is made.
+        """
+        if s not in self.signals :
+            self.signals.add(s)
+            self.callbacks[s] = dict()
+        
+
     def connect(self, s, func):
         """
         register *func* to be called when a signal *s* is generated
