@@ -932,8 +932,10 @@ def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
 
     def get_var(file, varname):
         p = subprocess.Popen(
-            'source %s ; eval echo ${%s}' % (file, varname),
-            shell=True, stdout=subprocess.PIPE)
+            '. %s ; eval echo ${%s}' % (file, varname),
+            shell=True,
+            executable="/bin/sh",
+            stdout=subprocess.PIPE)
         result = p.communicate()[0]
         return result
 
