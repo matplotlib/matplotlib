@@ -206,7 +206,11 @@ class CallbackRegistry:
             '''
             return not self.__eq__(other)
 
-    def __init__(self):
+    def __init__(self, *args):
+        if len(args):
+            warnings.warn(
+                'CallbackRegistry no longer requires a list of callback types.  Ignoring arguments',
+                DeprecationWarning)
         self.callbacks = dict()
         self._cid = 0
         self._func_cid_map = WeakKeyDictionary()
