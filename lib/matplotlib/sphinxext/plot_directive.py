@@ -88,7 +88,7 @@ The plot directive has the following configuration options:
     plot_basedir
         Base directory, to which ``plot::`` file names are relative
         to.  (If None or empty, file names are relative to the
-        directoly where the file containing the directive is.)
+        directory where the file containing the directive is.)
 
     plot_formats
         File formats to generate. List of tuples or strings::
@@ -601,7 +601,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     if len(arguments):
         if not config.plot_basedir:
-            source_file_name = os.path.join(setup.app.builder.srcdir,
+            source_file_name = os.path.join(rst_dir,
                                             directives.uri(arguments[0]))
         else:
             source_file_name = os.path.join(setup.confdir, config.plot_basedir,
