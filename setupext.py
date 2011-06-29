@@ -55,6 +55,7 @@ basedir = {
     'linux2-mips' : ['/usr/local', '/usr'],
     'linux2-sparc' : ['/usr/local', '/usr'],
     'linux2' : ['/usr/local', '/usr'],
+    'linux3' : ['/usr/local', '/usr'],
     'linux'  : ['/usr/local', '/usr',],
     'cygwin' : ['/usr/local', '/usr',],
     '_darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
