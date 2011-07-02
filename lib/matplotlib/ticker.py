@@ -50,6 +50,13 @@ The Locator subclasses defined here are
     :class:`MaxNLocator` with simple defaults. This is the default
     tick locator for most plotting.
 
+:class:`AutoMinorLocator`
+    Dynamically find minor tick positions based on the positions of
+    major ticks. 
+
+:class:`LinearMinorLocator`
+    Set a fixed number of minor ticks between each major tick.
+
 There are a number of locators specialized for date locations - see
 the dates module
 
@@ -1432,6 +1439,40 @@ class AutoMinorLocator(Locator):
 
         return self.raise_if_exceeds(np.array(locs))
 
+class LinearMinorLocator(Locator):
+    """
+    Set fixed number of minor ticks between each major tick.
+    Assumes the scale is linear and major ticks are evenly spaced.
+    """
+    def __init__(self, numticks):
+        "'numticks' is the number of minor ticks between each major tick."
+        self.numticks = numticks
+
+    def __call__(self):
+        'Return the locations of the ticks'
+        majorlocs = self.axis.get_majorticklocs()
+        try:
+            majorstep = majorlocs[1] - majorlocs[0]
+        except IndexError:
+            raise ValueError('Need at least two major ticks to find minor '
+                             'tick locations')
+
+        # divide the major step into numticks+1 intervals
+        minorstep = majorstep / (self.numticks + 1)
+
+        tmin = majorlocs[0] - majorstep
+        tmax = majorlocs[-1] + majorstep
+        locs = np.arange(tmin, tmax, minorstep)
+        vmin, vmax = self.axis.get_view_interval()
+        if vmin > vmax:
+            vmin,vmax = vmax,vmin
+        locs = locs[(vmin < locs) & (locs < vmax)]
+
+        # don't create minor ticks on top of existing major ticks
+        diff = 0.5 * abs(locs[1] - locs[0])
+        locs = [l for l in locs if (np.abs(l - majorlocs) > diff).all()]
+
+        return self.raise_if_exceeds(np.array(locs))
 
 class OldAutoLocator(Locator):
     """
@@ -1495,4 +1536,4 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'LogFormatterMathtext', 'Locator', 'IndexLocator',
            'FixedLocator', 'NullLocator', 'LinearLocator',
            'LogLocator', 'AutoLocator', 'MultipleLocator',
-           'MaxNLocator', )
+           'MaxNLocator', 'AutoMinorLocator', 'LinearMinorLocator', )

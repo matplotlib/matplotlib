@@ -51,6 +51,23 @@ def test_formatter_ticker():
     ax.set_xlabel( "x-label 005" )
     ax.autoscale_view()
 
+@image_comparison(baseline_images=['locator_linear_minor'])
+def test_locator_ticker():
+  from matplotlib.ticker import LinearMinorLocator
+
+  xdata = np.arange(10)
+  ydata = np.sin(xdata/10.)
+
+  xlocator = LinearMinorLocator(4)
+  ylocator = LinearMinorLocator(2)
+
+  fig = plt.figure()
+  ax = plt.subplot(111)
+  ax.plot(xdata,ydata)
+  ax.xaxis.set_minor_locator(xlocator)
+  ax.yaxis.set_minor_locator(ylocator)
+  ax.grid(which='minor', linestyle='-')
+
 @image_comparison(baseline_images=['offset_points'])
 def test_basic_annotate():
     # Setup some data
