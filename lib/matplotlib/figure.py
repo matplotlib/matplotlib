@@ -247,7 +247,7 @@ class Figure(Artist):
         """
         Artist.__init__(self)
 
-        self.callbacks = cbook.CallbackRegistry(('dpi_changed', ))
+        self.callbacks = cbook.CallbackRegistry()
 
         if figsize is None  : figsize   = rcParams['figure.figsize']
         if dpi is None      : dpi       = rcParams['figure.dpi']
@@ -777,7 +777,7 @@ class Figure(Artist):
         a gui widget is tracking the axes in the figure.
         """
         self.suppressComposite = None
-        self.callbacks = cbook.CallbackRegistry(('dpi_changed', ))
+        self.callbacks = cbook.CallbackRegistry()
 
         for ax in tuple(self.axes):  # Iterate over the copy.
             ax.cla()

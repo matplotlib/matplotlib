@@ -619,7 +619,7 @@ class Axis(artist.Artist):
         self.axes = axes
         self.major = Ticker()
         self.minor = Ticker()
-        self.callbacks = cbook.CallbackRegistry(('units', 'units finalize'))
+        self.callbacks = cbook.CallbackRegistry()
 
         #class dummy:
         #    locator = None
@@ -714,7 +714,7 @@ class Axis(artist.Artist):
         self.isDefault_label = True
 
         # Clear the callback registry for this axis, or it may "leak"
-        self.callbacks = cbook.CallbackRegistry(('units', 'units finalize'))
+        self.callbacks = cbook.CallbackRegistry()
 
         # whether the grids are on
         self._gridOnMajor = rcParams['axes.grid']
