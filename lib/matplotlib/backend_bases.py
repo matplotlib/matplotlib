@@ -1386,7 +1386,7 @@ class FigureCanvasBase(object):
         figure.set_canvas(self)
         self.figure = figure
         # a dictionary from event name to a dictionary that maps cid->func
-        self.callbacks = cbook.CallbackRegistry(self.events)
+        self.callbacks = cbook.CallbackRegistry()
         self.widgetlock = widgets.LockDraw()
         self._button     = None  # the button pressed
         self._key        = None  # the key pressed
