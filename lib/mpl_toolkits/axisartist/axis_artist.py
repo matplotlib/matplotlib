@@ -1381,7 +1381,9 @@ class AxisArtist(martist.Artist):
                            rcParams['axes.labelsize'])
         #labelcolor = kw.get("labelcolor",
         #                    rcParams['axes.labelcolor'])
-        fontprops = font_manager.FontProperties(size=labelsize)
+        fontprops = font_manager.FontProperties(
+            size=labelsize,
+            weight=rcParams['axes.labelweight'])
         textprops = dict(fontproperties = fontprops)
                          #color = labelcolor)
 
@@ -1407,7 +1409,9 @@ class AxisArtist(martist.Artist):
         if not self.label.get_visible():
             return
 
-        fontprops = font_manager.FontProperties(size=rcParams['axes.labelsize'])
+        fontprops = font_manager.FontProperties(
+            size=rcParams['axes.labelsize'],
+            weight=rcParams['axes.labelweight'])
 
         #pad_points = self.major_tick_pad
 
@@ -1450,7 +1454,9 @@ class AxisArtist(martist.Artist):
         if not self.label.get_visible():
             return
 
-        fontprops = font_manager.FontProperties(size=rcParams['axes.labelsize'])
+        fontprops = font_manager.FontProperties(
+            size=rcParams['axes.labelsize'],
+            weight=rcParams['axes.labelweight'])
 
         #pad_points = self.major_tick_pad
 
