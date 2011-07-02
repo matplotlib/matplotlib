@@ -5,6 +5,9 @@
            set_theta_zero_location to polar axes to control the
            location of 0 and directionality of theta. - MGD
 
+2011-06-22 Add axes.labelweight parameter to set font weight to axis
+           labels - MGD.
+
 2011-06-16 Added *bottom* keyword parameter for the stem command.
            Also, implemented a legend handler for the stem plot.
            - JJL
