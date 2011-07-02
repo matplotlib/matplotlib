@@ -17,7 +17,7 @@ ax.plot([1,2,3])
 
 if sys.platform == 'win32':
     fpath = 'C:\\Windows\\Fonts\\Tahoma.ttf'
-elif sys.platform == 'linux2':
+elif sys.platform.startswith('linux'):
     fonts = ['/usr/share/fonts/truetype/freefont/FreeSansBoldOblique.ttf',
       '/usr/share/fonts/truetype/ttf-liberation/LiberationSans-BoldItalic.ttf',
       '/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS.ttf',

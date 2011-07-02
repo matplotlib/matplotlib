@@ -859,11 +859,11 @@ def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
         result = p.communicate()[0]
         return result
 
-    tcl_lib_dir = get_var(tcl_config, 'TCL_LIB_SPEC').split()[0][2:]
-    tcl_inc_dir = get_var(tcl_config, 'TCL_INCLUDE_SPEC')[2:]
+    tcl_lib_dir = get_var(tcl_config, 'TCL_LIB_SPEC').split()[0][2:].strip()
+    tcl_inc_dir = get_var(tcl_config, 'TCL_INCLUDE_SPEC')[2:].strip()
     tcl_lib = get_var(tcl_config, 'TCL_LIB_FLAG')[2:].strip()
 
-    tk_lib_dir = get_var(tk_config, 'TK_LIB_SPEC').split()[0][2:]
+    tk_lib_dir = get_var(tk_config, 'TK_LIB_SPEC').split()[0][2:].strip()
     tk_inc_dir = get_var(tk_config, 'TK_INCLUDE_SPEC').strip()
     if tk_inc_dir == '':
         tk_inc_dir = tcl_inc_dir
