@@ -826,8 +826,7 @@ class Axes(martist.Artist):
             spine.cla()
 
         self.ignore_existing_data_limits = True
-        self.callbacks = cbook.CallbackRegistry(('xlim_changed',
-                                                 'ylim_changed'))
+        self.callbacks = cbook.CallbackRegistry()
 
         if self._sharex is not None:
             # major and minor are class instances with
