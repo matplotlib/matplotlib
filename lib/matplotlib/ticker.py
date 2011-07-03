@@ -50,6 +50,13 @@ The Locator subclasses defined here are
     :class:`MaxNLocator` with simple defaults. This is the default
     tick locator for most plotting.
 
+:class:`AutoMinorLocator`
+    locator for minor ticks when the axis is linear and the
+    major ticks are uniformly spaced.  It subdivides the major
+    tick interval into a specified number of minor intervals,
+    defaulting to 4 or 5 depending on the major interval.
+
+
 There are a number of locators specialized for date locations - see
 the dates module
 
@@ -1402,6 +1409,16 @@ class AutoMinorLocator(Locator):
     major ticks. Assumes the scale is linear and major ticks are
     evenly spaced.
     """
+    def __init__(self, n=None):
+        """
+        *n* is the number of subdivisions of the interval between
+        major ticks; e.g., n=2 will place a single minor tick midway
+        between major ticks.
+
+        If *n* is omitted or None, it will be set to 5 or 4.
+        """
+        self.ndivs = n
+
     def __call__(self):
         'Return the locations of the ticks'
         majorlocs = self.axis.get_majorticklocs()
@@ -1410,25 +1427,28 @@ class AutoMinorLocator(Locator):
         except IndexError:
             raise ValueError('Need at least two major ticks to find minor '
                              'tick locations')
-        # see whether major step should be divided by 5, 4. This
-        # should cover most cases.
-        temp = float(('%e' % majorstep).split('e')[0])
-        if temp % 5 < 1e-10:
-            minorstep = majorstep / 5.
-        else:
-            minorstep = majorstep / 4.
 
-        tmin = majorlocs[0] - majorstep
-        tmax = majorlocs[-1] + majorstep
-        locs = np.arange(tmin, tmax, minorstep)
+        if self.ndivs is None:
+            x = int(round(10 ** (np.log10(majorstep) % 1)))
+            if x in [1, 5, 10]:
+                ndivs = 5
+            else:
+                ndivs = 4
+        else:
+            ndivs = self.ndivs
+
+        minorstep = majorstep / ndivs
+
         vmin, vmax = self.axis.get_view_interval()
         if vmin > vmax:
             vmin,vmax = vmax,vmin
-        locs = locs[(vmin < locs) & (locs < vmax)]
 
-        # don't create minor ticks on top of existing major ticks
-        diff = 0.5 * abs(locs[1] - locs[0])
-        locs = [l for l in locs if (np.abs(l - majorlocs) > diff).all()]
+        t0 = majorlocs[0]
+        tmin = np.ceil((vmin - t0) / minorstep) * minorstep
+        tmax = np.floor((vmax - t0) / minorstep) * minorstep
+        locs = np.arange(tmin, tmax, minorstep) + t0
+        cond = np.abs((locs - t0) % majorstep) > minorstep/10.0
+        locs = locs.compress(cond)
 
         return self.raise_if_exceeds(np.array(locs))
 
@@ -1495,4 +1515,4 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'LogFormatterMathtext', 'Locator', 'IndexLocator',
            'FixedLocator', 'NullLocator', 'LinearLocator',
            'LogLocator', 'AutoLocator', 'MultipleLocator',
-           'MaxNLocator', )
+           'MaxNLocator', 'AutoMinorLocator',)
