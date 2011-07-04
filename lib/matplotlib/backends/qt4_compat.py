@@ -52,12 +52,7 @@ if QT_API == QT_API_PYQT:
     __version__ = QtCore.PYQT_VERSION_STR
 
     # Use new getSaveFileNameAndFilter()
-    _getSaveFileName = lambda self, msg, start, filters, \
-                              selectedFilter : \
-                        QtGui.QFileDialog.getSaveFileNameAndFilter( \
-                        self, msg, start, filters, selectedFilter)[0]
-
-
+    _get_save = QtGui.QFileDialog.getSaveFileNameAndFilter
 
 elif QT_API == QT_API_PYSIDE:
     from PySide import QtCore, QtGui, __version__, __version_info__
@@ -65,6 +60,12 @@ elif QT_API == QT_API_PYSIDE:
         raise ImportError(
             "Matplotlib backend_qt4 and backend_qt4agg require PySide >=1.0.3")
 
+    _get_save = QtGui.QFileDialog.getSaveFileName
+
 else:
     raise RuntimeError('Invalid Qt API %r, valid values are: %r or %r' %
                        (QT_API, QT_API_PYQT, QT_API_PYSIDE))
+
+def _getSaveFileName(self, msg, start, filters, selectedFilter):
+    return _get_save(self, msg, start, filters, selectedFilter)[0]
+
