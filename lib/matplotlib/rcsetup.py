@@ -106,6 +106,7 @@ def validate_backend(s):
     if s.startswith('module://'): return s
     else: return _validate_standard_backends(s)
 
+validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
 
 validate_toolbar = ValidateInStrings('toolbar',[
     'None','classic','toolbar2',
@@ -341,6 +342,7 @@ class ValidateInterval:
 defaultParams = {
     'backend'           : ['Agg', validate_backend], # agg is certainly present
     'backend_fallback'  : [True, validate_bool], # agg is certainly present
+    'backend.qt4'       : ['PyQt4', validate_qt4],
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [None, validate_path_exists],   # handled by _get_data_path_cached
     'interactive'       : [False, validate_bool],
