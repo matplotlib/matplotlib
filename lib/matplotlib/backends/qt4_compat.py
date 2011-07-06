@@ -6,19 +6,40 @@ import warnings
 from matplotlib import rcParams
 
 # Available APIs.
-QT_API_PYQT = 'PyQt4'
-QT_API_PYSIDE = 'PySide'
+QT_API_PYQT = 'PyQt4'       # API is not set here; Python 2.x default is V 1
+QT_API_PYQTv2 = 'PyQt4v2'   # forced to Version 2 API
+QT_API_PYSIDE = 'PySide'    # only supports Version 2 API
 
-# Select Qt binding, using the rcParams variable if available.
-QT_API = rcParams.setdefault('backend.qt4', QT_API_PYQT)
+ETS = dict(pyqt=QT_API_PYQTv2, pyside=QT_API_PYSIDE)
+
+# If the ETS QT_API environment variable is set, use it.  Note that
+# ETS requires the version 2 of PyQt4, which is not the platform
+# default for Python 2.x.
+
+QT_API_ENV = os.environ.get('QT_API')
+if QT_API_ENV is not None:
+    try:
+        QT_API = ETS[QT_API_ENV]
+    except KeyError:
+        raise RuntimeError(
+          'Unrecognized environment variable %r, valid values are: %r or %r' %
+                           (QT_API_ENV, 'pyqt', 'pyside'))
+else:
+    # No ETS environment, so use rcParams.
+    QT_API = rcParams['backend.qt4']
 
 # We will define an appropriate wrapper for the differing versions
 # of file dialog.
 _getSaveFileName = None
 
 # Now perform the imports.
-if QT_API == QT_API_PYQT:
-    from PyQt4 import QtCore, QtGui, QtSvg
+if QT_API in (QT_API_PYQT, QT_API_PYQTv2):
+    import sip
+    if QT_API == QT_API_PYQTv2:
+        sip.setapi('QString', 2)
+        sip.setapi('QVariant', 2)
+
+    from PyQt4 import QtCore, QtGui
 
     # Alias PyQt-specific functions for PySide compatibility.
     QtCore.Signal = QtCore.pyqtSignal
@@ -30,7 +51,6 @@ if QT_API == QT_API_PYQT:
     QtCore.Property = QtCore.pyqtProperty
     __version__ = QtCore.PYQT_VERSION_STR
 
-    import sip
     try :
         if sip.getapi("QString") > 1 :
             # Use new getSaveFileNameAndFilter()
@@ -42,7 +62,7 @@ if QT_API == QT_API_PYQT:
         # call to getapi() can fail in older versions of sip
         _getSaveFileName = QtGui.QFileDialog.getSaveFileName
 
-elif QT_API == QT_API_PYSIDE:
+else: # can only be pyside
     from PySide import QtCore, QtGui, __version__, __version_info__
     if __version_info__ < (1,0,3):
         raise ImportError(
@@ -50,9 +70,6 @@ elif QT_API == QT_API_PYSIDE:
 
     _get_save = QtGui.QFileDialog.getSaveFileName
 
-else:
-    raise RuntimeError('Invalid Qt API %r, valid values are: %r or %r' %
-                       (QT_API, QT_API_PYQT, QT_API_PYSIDE))
 
 if _getSaveFileName is None:
 
