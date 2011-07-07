@@ -2,60 +2,77 @@
 """
 
 import os
+import warnings
+from matplotlib import rcParams
 
 # Available APIs.
-QT_API_PYQT = 'pyqt'
-QT_API_PYSIDE = 'pyside'
+QT_API_PYQT = 'PyQt4'       # API is not set here; Python 2.x default is V 1
+QT_API_PYQTv2 = 'PyQt4v2'   # forced to Version 2 API
+QT_API_PYSIDE = 'PySide'    # only supports Version 2 API
 
-# Select PyQt4 or PySide using an environment variable, in the same way IPython does.
-# IPython is using PyQt as default (for now) so we will too.
-QT_API = os.environ.get('QT_API', QT_API_PYQT)
+ETS = dict(pyqt=QT_API_PYQTv2, pyside=QT_API_PYSIDE)
 
-if QT_API == QT_API_PYQT:
+# If the ETS QT_API environment variable is set, use it.  Note that
+# ETS requires the version 2 of PyQt4, which is not the platform
+# default for Python 2.x.
+
+QT_API_ENV = os.environ.get('QT_API')
+if QT_API_ENV is not None:
     try:
-        from PyQt4 import QtCore, QtGui
-    except ImportError:
-        raise ImportError("Qt4 backend requires that PyQt4 is installed.")
+        QT_API = ETS[QT_API_ENV]
+    except KeyError:
+        raise RuntimeError(
+          'Unrecognized environment variable %r, valid values are: %r or %r' %
+                           (QT_API_ENV, 'pyqt', 'pyside'))
+else:
+    # No ETS environment, so use rcParams.
+    QT_API = rcParams['backend.qt4']
+
+# We will define an appropriate wrapper for the differing versions
+# of file dialog.
+_getSaveFileName = None
+
+# Now perform the imports.
+if QT_API in (QT_API_PYQT, QT_API_PYQTv2):
+    import sip
+    if QT_API == QT_API_PYQTv2:
+        sip.setapi('QString', 2)
+        sip.setapi('QVariant', 2)
+
+    from PyQt4 import QtCore, QtGui
+
     # Alias PyQt-specific functions for PySide compatibility.
+    QtCore.Signal = QtCore.pyqtSignal
     try:
         QtCore.Slot = QtCore.pyqtSlot
     except AttributeError:
-        QtCore.Slot = pyqtSignature # Not a perfect match but 
+        QtCore.Slot = pyqtSignature # Not a perfect match but
                                     # works in simple cases
     QtCore.Property = QtCore.pyqtProperty
     __version__ = QtCore.PYQT_VERSION_STR
-    import sip
+
     try :
         if sip.getapi("QString") > 1 :
             # Use new getSaveFileNameAndFilter()
-            _getSaveFileName = lambda self, msg, start, filters, \
-                                      selectedFilter : \
-                                QtGui.QFileDialog.getSaveFileNameAndFilter( \
-                                self, msg, start, filters, selectedFilter)[0]
+            _get_save = QtGui.QFileDialog.getSaveFileNameAndFilter
         else :
             # Use old getSaveFileName()
             _getSaveFileName = QtGui.QFileDialog.getSaveFileName
     except (AttributeError, KeyError) :
         # call to getapi() can fail in older versions of sip
-        # Use the old getSaveFileName()
         _getSaveFileName = QtGui.QFileDialog.getSaveFileName
 
-elif QT_API == QT_API_PYSIDE:
-    try:
-        from PySide import QtCore, QtGui, __version__, __version_info__
-    except ImportError:
-        raise ImportError("Qt4 backend requires that PySide is installed.")
+else: # can only be pyside
+    from PySide import QtCore, QtGui, __version__, __version_info__
     if __version_info__ < (1,0,3):
-        raise ImportError("Matplotlib backend_qt4 and backend_qt4agg require PySide >=1.0.3")
+        raise ImportError(
+            "Matplotlib backend_qt4 and backend_qt4agg require PySide >=1.0.3")
 
-    # Alias PySide-specific function for PyQt compatibilty
-    QtCore.pyqtProperty = QtCore.Property
-    QtCore.pyqtSignature = QtCore.Slot # Not a perfect match but 
-                                       # works in simple cases
+    _get_save = QtGui.QFileDialog.getSaveFileName
 
-    _getSaveFileName = lambda self, msg, start, filters, selectedFilter : \
-                        QtGui.QFileDialog.getSaveFileName(self,  \
-                        msg, start, filters, selectedFilter)[0]
-else:
-    raise RuntimeError('Invalid Qt API %r, valid values are: %r or %r' %
-                       (QT_API, QT_API_PYQT, QT_API_PYSIDE))
+
+if _getSaveFileName is None:
+
+    def _getSaveFileName(self, msg, start, filters, selectedFilter):
+        return _get_save(self, msg, start, filters, selectedFilter)[0]
+
