@@ -30,10 +30,21 @@
 # 'module://my_backend'
 backend      : %(backend)s
 
+# If you are using the Qt4Agg backend, you can choose here
+# to use the PyQt4 bindings or the newer PySide bindings to
+# the underlying Qt4 toolkit.
+#backend.qt4 : PyQt4        # PyQt4 | PySide
+
+# Note that this can be overridden by the environment variable
+# QT_API used by Enthought Tool Suite (ETS); valid values are
+# "pyqt" and "pyside".  The "pyqt" setting has the side effect of
+# forcing the use of Version 2 API for QString and QVariant.
+
 # if you are runing pyplot inside a GUI and your backend choice
-# conflicts, we will automatically try and find a compatible one for
+# conflicts, we will automatically try to find a compatible one for
 # you if backend_fallback is True
 #backend_fallback: True
+
 #interactive  : False
 #toolbar      : toolbar2   # None | classic | toolbar2
 #timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris
