@@ -1,26 +1,34 @@
 #!/usr/bin/env python
 """
-Set the major ticks on the ints and minor ticks on multiples of 0.2
+Automatic tick selection for major and minor ticks.
+
+Use interactive pan and zoom to see how the tick intervals
+change. There will be either 4 or 5 minor tick intervals
+per major interval, depending on the major interval.
 """
 
-from pylab import *
-from matplotlib.ticker import MultipleLocator, FormatStrFormatter
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
 
-majorLocator   = MultipleLocator(1)
-majorFormatter = FormatStrFormatter('%d')
-minorLocator   = MultipleLocator(.2)
+# One can supply an argument to AutoMinorLocator to
+# specify a fixed number of minor intervals per major interval, e.g.:
+# minorLocator = AutoMinorLocator(2)
+# would lead to a single minor tick between major ticks.
+
+minorLocator   = AutoMinorLocator()
 
 
-t = arange(0.0, 10.0, 0.01)
-s = sin(2*pi*t)*exp(-t*0.01)
+t = np.arange(0.0, 100.0, 0.01)
+s = np.sin(2*np.pi*t)*np.exp(-t*0.01)
 
-ax = subplot(111)
-plot(t,s)
+ax = plt.subplot(111)
+plt.plot(t,s)
 
-ax.xaxis.set_major_locator(majorLocator)
-ax.xaxis.set_major_formatter(majorFormatter)
-
-#for the minor ticks, use no labels; default NullFormatter
 ax.xaxis.set_minor_locator(minorLocator)
 
-show()
+plt.tick_params(which='both', width=2)
+plt.tick_params(which='major', length=7)
+plt.tick_params(which='minor', length=4, color='r')
+
+plt.show()
