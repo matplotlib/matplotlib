@@ -12,6 +12,8 @@ import matplotlib.dviread as dviread
 
 import numpy as np
 
+import warnings
+
 class TextToPath(object):
     """
     A class that convert a given text to a path using ttf fonts.
@@ -31,6 +33,14 @@ class TextToPath(object):
         self._ps_fontd = maxdict(50)
 
         self._texmanager = None
+
+        self._adobe_standard_encoding = self._get_adobe_standard_encoding()
+
+
+    def _get_adobe_standard_encoding(self):
+        enc_name = dviread.find_tex_file('8a.enc')
+        enc = dviread.Encoding(enc_name)
+        return dict([(c, i) for i, c in enumerate(enc.encoding)])
 
     def _get_font(self, prop):
         """
@@ -308,14 +318,25 @@ class TextToPath(object):
             if font_and_encoding is None:
                 font_bunch =  self.tex_font_map[dvifont.texname]
                 font = FT2Font(str(font_bunch.filename))
-                try:
-                    font.select_charmap(1094992451) # select ADOBE_CUSTOM
-                except ValueError:
-                    font.set_charmap(0)
-                if font_bunch.encoding:
-                    enc = dviread.Encoding(font_bunch.encoding)
+
+                for charmap_name, charmap_code in [("ADOBE_CUSTOM", 1094992451),
+                                                   ("ADOBE_STANDARD", 1094995778)]:
+                    try:
+                        font.select_charmap(charmap_code)
+                    except ValueError:
+                        pass
+                    else:
+                        break
                 else:
-                    enc = None
+                    charmap_name = ""
+                    warnings.warn("No supported encoding in font (%s)." % font_bunch.filename)
+
+                if charmap_name == "ADOBE_STANDARD" and font_bunch.encoding:
+                    enc0 = dviread.Encoding(font_bunch.encoding)
+                    enc = dict([(i, self._adobe_standard_encoding.get(c, None)) \
+                           for i, c in enumerate(enc0.encoding)])
+                else:
+                    enc = dict()
                 self._ps_fontd[dvifont.texname] = font, enc
 
             else:
@@ -328,10 +349,18 @@ class TextToPath(object):
             if not char_id in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
+                if enc: charcode = enc.get(glyph, None)
+                else: charcode = glyph
 
-                glyph0 = font.load_char(glyph, flags=ft2font_flag)
+                if charcode:
+                    glyph0 = font.load_char(charcode, flags=ft2font_flag)
+                else:
+                    warnings.warn("The glyph (%d) of font (%s) cannot be converted with the encoding. Glyph may be wrong" % (glyph, font_bunch.filename))
+
+                    glyph0 = font.load_char(glyph, flags=ft2font_flag)
 
                 glyph_map_new[char_id] = self.glyph_to_path(font)
+
 
             glyph_ids.append(char_id)
             xpositions.append(x1)
