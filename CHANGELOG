@@ -1,3 +1,8 @@
+2011-07-08 Many functions added to mplot3d.axes3d to bring Axes3D
+           objects more feature-parity with regular Axes objects.
+           Significant revisions to the documentation as well.
+           - BVR
+
 2011-06-16 Added *bottom* keyword parameter for the stem command. 
            Also, implemented a legend handler for the stem plot. 
            - JJL
