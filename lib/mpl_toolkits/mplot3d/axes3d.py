@@ -226,12 +226,18 @@ class Axes3D(Axes):
     def get_autoscale_on(self) :
         """
         Get whether autoscaling is applied for all axes on plot commands
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         return Axes.get_autoscale_on(self) and self.get_autoscalez_on()
 
     def get_autoscalez_on(self) :
         """
         Get whether autoscaling for the z-axis is applied on plot commands
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         return self._autoscaleZon
 
@@ -240,6 +246,9 @@ class Axes3D(Axes):
         Set whether autoscaling is applied on plot commands
 
         accepts: [ *True* | *False* ]
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         Axes.set_autoscale_on(self, b)
         self.set_autoscalez_on(self, b)
@@ -249,6 +258,9 @@ class Axes3D(Axes):
         Set whether autoscaling for the z-axis is applied on plot commands
 
         accepts: [ *True* | *False* ]
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         self._autoscalez_on = b
 
@@ -260,6 +272,9 @@ class Axes3D(Axes):
         end of that interval before it is used in autoscaling.
 
         accepts: float in range 0 to 1
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         if m < 0 or m > 1 :
             raise ValueError("margin must be in range 0 to 1")
@@ -284,7 +299,7 @@ class Axes3D(Axes):
 
             margins(..., tight=False)
 
-        All three forms above set the xmargin, ymargin and zmargin
+        All forms above set the xmargin, ymargin and zmargin
         parameters. All keyword parameters are optional.  A single argument
         specifies xmargin, ymargin and zmargin.  The *tight* parameter
         is passed to :meth:`autoscale_view`, which is executed after
@@ -297,6 +312,9 @@ class Axes3D(Axes):
         if *xmargin* is not None, then *xmargin* times the X data
         interval will be added to each end of that interval before
         it is used in autoscaling.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         if not args and not kw:
             return self._xmargin, self._ymargin, self._zmargin
@@ -335,6 +353,9 @@ class Axes3D(Axes):
         Note that this function behaves the same, but for all
         three axes.  Therfore, 'z' can be passed for *axis*,
         and 'both' applies to all three axes.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         if enable is None:
             scalex = True
@@ -382,12 +403,21 @@ class Axes3D(Axes):
         See :meth:`matplotlib.axes.Axes.autoscale_view` for documentation.
         Note that this function applies to the 3d axes, and as such
         adds the *scalez* to the function arguments.
+
+        .. versionchanged :: 1.1.0
+            Function signature was changed to better match the 2D version.
+            *tight* is now explicitly a kwarg and placed first. However,
+            it currently does not do anything.
         """
 
         self.set_top_view()
         if not self._ready:
             return
 
+        # TODO: This is nearly the equivalent code from the 2D
+        #       version, but it doesn't seem to work correctly.
+        #       Therefore, we are currently staying with the
+        #       same old behavior.
         """
         # This method looks at the rectangular volume (see above)
         # of data and decides how to scale the view portal to fit it.
@@ -460,6 +490,7 @@ class Axes3D(Axes):
         return lims
     set_xlim = set_xlim3d
 
+
     def set_ylim3d(self, *args, **kwargs):
         '''
         Set 3D y limits.
@@ -490,11 +521,19 @@ class Axes3D(Axes):
         return self.xy_viewLim.intervalx
     get_xlim3d.__doc__ = maxes.Axes.get_xlim.__doc__
     get_xlim = get_xlim3d
+    get_xlim.__doc__ += """
+        .. versionchanged :: 1.1.0
+            This function now correctly refers to the 3D x-limits
+        """
 
     def get_ylim3d(self):
         return self.xy_viewLim.intervaly
     get_ylim3d.__doc__ = maxes.Axes.get_ylim.__doc__
     get_ylim = get_ylim3d
+    get_ylim.__doc__ += """
+        .. versionchanged :: 1.1.0
+            This function now correctly refers to the 3D y-limits.
+        """
 
     def get_zlim3d(self):
         '''Get 3D z limits.'''
@@ -504,6 +543,9 @@ class Axes3D(Axes):
     def get_zscale(self) :
         """
         Return the zaxis scale string %s
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """ % (", ".join(mscale.get_scale_names()))
         return self.zaxis.get_scale()
 
@@ -513,13 +555,21 @@ class Axes3D(Axes):
         self.xaxis.set_scale(value, **kwargs)
         self.autoscale_view(scaley=False, scalez=False)
         self._update_transScale()
-    set_xscale.__doc__ = maxes.Axes.set_xscale.__doc__
+    set_xscale.__doc__ = maxes.Axes.set_xscale.__doc__ + """
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
+        """
 
     def set_yscale(self, value, **kwargs) :
         self.yaxis.set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scalez=False)
         self._update_transScale()
-    set_yscale.__doc__ = maxes.Axes.set_yscale.__doc__
+    set_yscale.__doc__ = maxes.Axes.set_yscale.__doc__ + """
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
+        """
 
     @docstring.dedent_interpd
     def set_zscale(self, value, **kwargs) :
@@ -539,6 +589,9 @@ class Axes3D(Axes):
             Currently, Axes3D objects only supports linear scales.
             Other scales may or may not work, and support for these
             is improving with each release.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         self.zaxis.set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scaley=False)
@@ -549,7 +602,10 @@ class Axes3D(Axes):
         Set z-axis tick locations.
         See :meth:`matplotlib.axes.Axes.set_yticks` for more details.
 
-        Note that minor ticks are not supported at this time.
+        .. note::
+            Minor ticks are not supported.
+
+        .. versionadded:: 1.1.0
         """
         return self.zaxis.set_ticks(*args, **kwargs)
         
@@ -558,13 +614,18 @@ class Axes3D(Axes):
         Get the z-axis tick objects.
         See :meth:`matplotlib.axes.Axes.get_yticks` for more details.
 
-        Note that minor ticks are not supported at this time.
+        .. note::
+            Minor ticks are not supported.
+
+        .. versionadded:: 1.1.0
         """
         return self.zaxis.get_ticks(*args, **kwargs)
 
     def get_zmajorticklabels(self) :
         """
         Get the ztick labels as a list of Text instances
+
+        .. versionadded :: 1.1.0
         """
         return cbook.silent_list('Text zticklabel',
                                  self.zaxis.get_majorticklabels())
@@ -574,7 +635,10 @@ class Axes3D(Axes):
         Get the ztick labels as a list of Text instances
         
         .. note::
-            Currently, Axes3D objects do not support minor ticks
+            Minor ticks are not supported. This function was added
+            only for completeness.
+
+        .. versionadded :: 1.1.0
         """
         return cbook.silent_list('Text zticklabel',
                                  self.zaxis.get_minorticklabels())
@@ -585,7 +649,9 @@ class Axes3D(Axes):
         See :meth:`matplotlib.axes.Axes.set_yticklabels` for more details.
 
         .. note::
-            Currently, minor ticks are not supported by Axes3D objects.
+            Minor ticks are not supported by Axes3D objects.
+
+        .. versionadded:: 1.1.0
         """
         return self.zaxis.set_ticklabels(*args, **kwargs)
 
@@ -595,7 +661,9 @@ class Axes3D(Axes):
         See :meth:`matplotlib.axes.Axes.get_yticklabels` for more details.
 
         .. note::
-            Minor ticks are not supported at this time in Axes3D objects.
+            Minor ticks are not supported.
+
+        .. versionadded:: 1.1.0
         """
         return cbook.silent_list('Text zticklabel',
                                  self.zaxis.get_ticklabels(minor=minor))
@@ -611,6 +679,9 @@ class Axes3D(Axes):
             This function is merely provided for completeness.
             Axes3D objects do not officially support dates for ticks,
             and so this may or may not work as expected.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         self.zaxis.axis_date(tz)
 
@@ -619,6 +690,8 @@ class Axes3D(Axes):
         Get ztick lines as a list of Line2D instances.
         Note that this function is provided merely for completeness.
         These lines are re-calculated as the display changes.
+
+        .. versionadded:: 1.1.0
         """
         return self.zaxis.get_ticklines()
 
@@ -885,13 +958,23 @@ class Axes3D(Axes):
             self.figure.canvas.draw()
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
-        '''Set zlabel.  See doc for :meth:`set_xlabel` for description.'''
+        '''
+        Set zlabel.  See doc for :meth:`set_ylabel` for description.
+
+        .. note::
+            Currently, *labelpad* does not have an effect on the labels.
+        '''
+        # FIXME: With a rework of axis3d.py, the labelpad should work again
+        #        At that point, remove the above message in the docs.
         if labelpad is not None : self.zaxis.labelpad = labelpad
         return self.zaxis.set_label_text(zlabel, fontdict, **kwargs)
 
     def get_zlabel(self) :
         """
         Get the z-label text string.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         label = self.zaxis.get_label()
         return label.get_text()
@@ -901,6 +984,8 @@ class Axes3D(Axes):
     def get_frame_on(self):
         """
         Get whether the 3d axes panels are drawn
+
+        .. versionadded :: 1.1.0
         """
         return self._frameon
 
@@ -909,14 +994,19 @@ class Axes3D(Axes):
         Set whether the 3d axes panels are drawn
 
         ACCEPTS: [ *True* | *False* ]
+
+        .. versionadded :: 1.1.0
         """
-        self._frameon = b
+        self._frameon = bool(b)
 
     def get_axisbelow(self):
         """
         Get whether axis below is true or not.
 
         For axes3d objects, this will always be *True*
+
+        .. versionadded :: 1.1.0
+            This function was added for completeness.
         """
         return True
 
@@ -928,6 +1018,9 @@ class Axes3D(Axes):
         For axes3d objects, this will ignore any settings and just use *True*
 
         ACCEPTS: [ *True* | *False* ]
+
+        .. versionadded :: 1.1.0
+            This function was added for completeness.
         """
         self._axisbelow = True
 
@@ -935,9 +1028,13 @@ class Axes3D(Axes):
         '''
         Set / unset 3D grid.
 
-        Currently, this function does not behave the same as
-        :meth:`matplotlib.axes.Axes.grid`, but it is intended to
-        eventually support that behavior.
+        .. note::
+            Currently, this function does not behave the same as
+            :meth:`matplotlib.axes.Axes.grid`, but it is intended to
+            eventually support that behavior.
+
+        .. versionchanged :: 1.1.0
+            This function was changed, but not tested. Please report any bugs.
         '''
         # TODO: Operate on each axes separately
         if len(kwargs) :
@@ -954,6 +1051,9 @@ class Axes3D(Axes):
         axes of the Axes3D object.  Therefore, the *axis* argument
         will also accept a value of 'z' and the value of 'both' will
         apply to all three axes.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         style = kwargs.pop('style', '').lower()
         scilimits = kwargs.pop('scilimits', None)
@@ -1014,6 +1114,9 @@ class Axes3D(Axes):
         parameters being set for all three axes.  Also, *axis*
         can also take a value of 'z' to apply parameters to the
         z axis.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         _x = axis in ['x', 'both']
         _y = axis in ['y', 'both']
@@ -1047,7 +1150,11 @@ class Axes3D(Axes):
         .. note::
             While this function is currently implemented, the core part
             of the Axes3D object may ignore some of these settings.
-            Future releases will fix this.
+            Future releases will fix this. Priority will be given to
+            those who file bugs.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         Axes.tick_params(self, axis, **kwargs)
         if axis in ['z', 'both'] :
@@ -1061,12 +1168,22 @@ class Axes3D(Axes):
     ### data limits, ticks, tick labels, and formatting
 
     def invert_zaxis(self):
-        "Invert the z-axis."
+        """
+        Invert the z-axis.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
+        """
         bottom, top = self.get_zlim()
         self.set_zlim(top, bottom)
 
     def zaxis_inverted(self):
-        'Returns True if the z-axis is inverted.'
+        '''
+        Returns True if the z-axis is inverted.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
+        '''
         bottom, top = self.get_zlim()
         return top < bottom
 
@@ -1076,6 +1193,8 @@ class Axes3D(Axes):
 
           lowerBound < upperBound
 
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         bottom, top = self.get_zlim()
         if bottom < top:
@@ -1088,6 +1207,9 @@ class Axes3D(Axes):
         Set the lower and upper numerical bounds of the z-axis.
         This method will honor axes inversion regardless of parameter order.
         It will not change the :attr:`_autoscaleZon` attribute.
+
+        .. versionadded :: 1.1.0
+            This function was added, but not tested. Please report any bugs.
         """
         if upper is None and iterable(lower):
             lower,upper = lower
@@ -1195,7 +1317,7 @@ class Axes3D(Axes):
         ============= ================================================
 
         Other arguments are passed on to
-        :func:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection.__init__`
+        :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
         '''
 
         had_data = self.has_data()
@@ -1354,7 +1476,7 @@ class Axes3D(Axes):
         ==========  ================================================
 
         Keyword arguments are passed on to
-        :func:`matplotlib.collections.LineCollection.__init__`.
+        :class:`~matplotlib.collections.LineCollection`.
 
         Returns a :class:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
         '''
@@ -1512,6 +1634,8 @@ class Axes3D(Axes):
         :func:`~matplotlib.axes.Axes.tricontour`
 
         Returns a :class:`~matplotlib.axes.Axes.contour`
+
+        .. versionadded:: 1.1.0
         '''
 
         extend3d = kwargs.pop('extend3d', False)
@@ -1546,6 +1670,9 @@ class Axes3D(Axes):
         :func:`~matplotlib.axes.Axes.contourf`
 
         Returns a :class:`~matplotlib.axes.Axes.contourf`
+
+        .. versionchanged :: 1.1.0
+            The *zdir* and *offset* kwargs were added.
         '''
 
         zdir = kwargs.pop('zdir', 'z')
@@ -1582,6 +1709,8 @@ class Axes3D(Axes):
         :func:`~matplotlib.axes.Axes.tricontour`
 
         Returns a :class:`~matplotlib.axes.Axes.contour`
+
+        .. versionadded :: 1.1.0
         '''
 
         had_data = self.has_data()
