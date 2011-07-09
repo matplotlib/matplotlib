@@ -123,7 +123,7 @@ class Axes3D(Axes):
         Axes.set_ylim(self, -ydwl, ydw, auto=None)
 
     def _init_axis(self):
-        '''Init 3d axes; overrides creation of regular X/Y axes'''
+        '''Init 3D axes; overrides creation of regular X/Y axes'''
         self.w_xaxis = axis3d.XAxis('x', self.xy_viewLim.intervalx,
                             self.xy_dataLim.intervalx, self)
         self.xaxis = self.w_xaxis
@@ -401,7 +401,7 @@ class Axes3D(Axes):
         """
         Autoscale the view limits using the data limits.
         See :meth:`matplotlib.axes.Axes.autoscale_view` for documentation.
-        Note that this function applies to the 3d axes, and as such
+        Note that this function applies to the 3D axes, and as such
         adds the *scalez* to the function arguments.
 
         .. versionchanged :: 1.1.0
@@ -463,7 +463,7 @@ class Axes3D(Axes):
             self.set_zlim3d(self.zz_dataLim.intervalx)
 
     def get_w_lims(self):
-        '''Get 3d world limits.'''
+        '''Get 3D world limits.'''
         minx, maxx = self.get_xlim3d()
         miny, maxy = self.get_ylim3d()
         minz, maxz = self.get_zlim3d()
@@ -697,7 +697,7 @@ class Axes3D(Axes):
 
     def clabel(self, *args, **kwargs):
         """
-        This function is currently not implemented for 3d axes.
+        This function is currently not implemented for 3D axes.
         Returns *None*.
         """
         return None
@@ -983,7 +983,7 @@ class Axes3D(Axes):
 
     def get_frame_on(self):
         """
-        Get whether the 3d axes panels are drawn
+        Get whether the 3D axes panels are drawn
 
         .. versionadded :: 1.1.0
         """
@@ -991,7 +991,7 @@ class Axes3D(Axes):
 
     def set_frame_on(self, b):
         """
-        Set whether the 3d axes panels are drawn
+        Set whether the 3D axes panels are drawn
 
         ACCEPTS: [ *True* | *False* ]
 
@@ -1257,7 +1257,7 @@ class Axes3D(Axes):
         *zs*        z value(s), either one for all points or one for
                     each point.
         *zdir*      Which direction to use as z ('x', 'y' or 'z')
-                    when plotting a 2d set.
+                    when plotting a 2D set.
         ==========  ================================================
 
         Other arguments are passed on to
@@ -1723,7 +1723,7 @@ class Axes3D(Axes):
 
     def add_collection3d(self, col, zs=0, zdir='z'):
         '''
-        Add a 3d collection object to the plot.
+        Add a 3D collection object to the plot.
 
         2D collection types are converted to a 3D version by
         modifying the object and adding z coordinate information.
@@ -1760,7 +1760,7 @@ class Axes3D(Axes):
                     *ys* or a single value to place all points in
                     the same plane. Default is 0.
         *zdir*      Which direction to use as z ('x', 'y' or 'z')
-                    when plotting a 2d set.
+                    when plotting a 2D set.
         *s*         size in points^2.  It is a scalar or an array of the same
                     length as *x* and *y*.
 
@@ -1828,7 +1828,7 @@ class Axes3D(Axes):
         *zs*        Z coordinate of bars, if one value is specified
                     they will all be placed at the same z.
         *zdir*      Which direction to use as z ('x', 'y' or 'z')
-                    when plotting a 2d set.
+                    when plotting a 2D set.
         ==========  ================================================
 
         Keyword arguments are passed onto :func:`~matplotlib.axes.Axes.bar`.
