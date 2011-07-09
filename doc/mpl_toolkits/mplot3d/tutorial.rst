@@ -22,10 +22,10 @@ add a new axes to it of type :class:`~mpl_toolkits.mplot3d.Axes3D`::
   ax = fig.add_subplot(111, projection='3d')
 
 .. versionadded:: 1.0.0
-   This approach is the preferred method of creating a 3d axes.
+   This approach is the preferred method of creating a 3D axes.
 
 .. note::
-   Prior to version 1.0.0, the method of creating a 3d axes was
+   Prior to version 1.0.0, the method of creating a 3D axes was
    different. For those using older versions of matplotlib, change
    ``ax = fig.add_subplot(111, projection='3d')``
    to ``ax = Axes3D(fig)``.
@@ -121,12 +121,12 @@ Text
 
 Subplotting
 ====================
-Having multiple 3d plots in a single figure is the same
-as it is for 2d plots. Also, you can have both 2d and 3d plots
+Having multiple 3D plots in a single figure is the same
+as it is for 2D plots. Also, you can have both 2D and 3D plots
 in the same figure.
 
 .. versionadded:: 1.0.0
-   Subplotting 3d plots was added in v1.0.0.  Earlier version can not
+   Subplotting 3D plots was added in v1.0.0.  Earlier version can not
    do this.
 
 .. plot:: mpl_examples/mplot3d/subplot3d_demo.py

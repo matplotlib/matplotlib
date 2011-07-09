@@ -6,7 +6,8 @@ mplot3d FAQ
 
 How is mplot3d different from MayaVi?
 =====================================
-`MayaVi2 <http://code.enthought.com/projects/mayavi/documentation.php>`_ is a very powerful and featureful 3D graphing library. For advanced
+`MayaVi2 <http://code.enthought.com/projects/mayavi/documentation.php>`_
+is a very powerful and featureful 3D graphing library. For advanced
 3D scenes and excellent rendering capabilities, it is highly recomended to
 use MayaVi2.
 
@@ -19,7 +20,7 @@ plots.
 My 3D plot doesn't look right at certain viewing angles
 =======================================================
 This is probably the most commonly reported issue with mplot3d. The problem
-is that -- from some viewing angles -- some 3D objects would appear in front
+is that -- from some viewing angles -- a 3D object would appear in front
 of another object, even though it is physically behind it. This can result in
 plots that do not look "physically correct."
 
@@ -28,7 +29,7 @@ artifact, it is currently an intractable problem, and can not be fully solved
 until matplotlib supports 3D graphics rendering at its core.
 
 The problem occurs due to the reduction of 3D data down to 2D + z-order
-scalar. A single value represents the 3rd dimention for all parts of 3D
+scalar. A single value represents the 3rd dimension for all parts of 3D
 objects in a collection. Therefore, when the bounding boxes of two collections
 intersect, it becomes possible for this artifact to occur. Furthermore, the
 intersection of two 3D objects (such as polygons or patches) can not be
