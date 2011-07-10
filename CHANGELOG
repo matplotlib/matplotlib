@@ -1,3 +1,6 @@
+2011-07-10 Fixed argument handling error in tripcolor/triplot/tricontour,
+           issue #203. - IMT
+
 2011-06-28 3D versions of scatter, plot, plot_wireframe, plot_surface,
            bar3d, and some other functions now support empty inputs. - BVR
 
