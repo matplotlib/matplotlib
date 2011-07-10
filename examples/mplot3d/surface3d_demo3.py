@@ -1,6 +1,6 @@
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
-from matplotlib.ticker import LinearLocator, FixedLocator, FormatStrFormatter
+from matplotlib.ticker import LinearLocator
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -25,7 +25,6 @@ surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, facecolors=colors,
 
 ax.set_zlim3d(-1, 1)
 ax.w_zaxis.set_major_locator(LinearLocator(6))
-ax.w_zaxis.set_major_formatter(FormatStrFormatter('%.03f'))
 
 plt.show()
 
