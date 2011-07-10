@@ -1316,7 +1316,7 @@ class Axes3D(Axes):
         ============= ================================================
         Argument      Description
         ============= ================================================
-        *X*, *Y*, *Z* Data values as numpy.arrays
+        *X*, *Y*, *Z* Data values as 2D arrays
         *rstride*     Array row stride (step size)
         *cstride*     Array column stride (step size)
         *color*       Color of the surface patches
@@ -1334,7 +1334,17 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
+        Z = np.atleast_2d(Z)
         rows, cols = Z.shape
+        # TODO: Support masked arrays
+        X = np.asarray(X)
+        Y = np.asarray(Y)
+        # Force X and Y to take the same shape.
+        # If they can not be fitted to that shape,
+        # then an exception is automatically thrown.
+        X.shape = (rows, cols)
+        Y.shape = (rows, cols)
+        
         rstride = kwargs.pop('rstride', 10)
         cstride = kwargs.pop('cstride', 10)
 
@@ -1481,7 +1491,7 @@ class Axes3D(Axes):
         ==========  ================================================
         Argument    Description
         ==========  ================================================
-        *X*, *Y*,   Data values as numpy.arrays
+        *X*, *Y*,   Data values as 2D arrays
         *Z*
         *rstride*   Array row stride (step size)
         *cstride*   Array column stride (step size)
@@ -1735,8 +1745,6 @@ class Axes3D(Axes):
         ==========  ================================================
         *X*, *Y*,   Data values as numpy.arrays
         *Z*
-        *extend3d*  Whether to extend contour in 3D (default: False)
-        *stride*    Stride (step size) for extending contour
         *zdir*      The direction to use: x, y or z (default)
         *offset*    If specified plot a projection of the contour
                     lines on this position in plane normal to zdir
@@ -1749,9 +1757,12 @@ class Axes3D(Axes):
 
         .. versionadded :: 1.1.0
         '''
+        zdir = kwargs.pop('zdir', 'z')
+        offset = kwargs.pop('offset', None)
 
         had_data = self.has_data()
 
+        jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         cset = Axes.tricontourf(self, X, Y, Z, *args, **kwargs)
         self.add_contourf_set(cset, zdir, offset)
 
