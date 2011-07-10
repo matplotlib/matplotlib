@@ -46,6 +46,7 @@ I don't like how the 3D plot is laid out, how do I change that?
 Historically, mplot3d has suffered from a hard-coding of parameters used
 to control visuals such as label spacing, tick length, and grid line width.
 Work is being done to eliminate this issue. For matplotlib v1.1.0, there is
-a semi-official manner to modify these parameters. See the note for axis3d
-in :doc:`_toolkit_mplot3d-api` for more information.
+a semi-official manner to modify these parameters. See the note in the
+:ref:`toolkit_mplot3d-axisapi` section of the mplot3d API documentation for
+more information.
 

@@ -3,9 +3,13 @@
 ***********
 mplot3d API
 ***********
+.. contents::
+      :backlinks: none
 
-:mod:`mpl_toolkits.mplot3d.axes3d`
-==================================
+.. _toolkit_mplot3d-axesapi:
+
+:mod:`~mpl_toolkits.mplot3d.axes3d`
+===================================
 
 .. note::
    Significant effort went into bringing axes3d to feature-parity with
@@ -17,8 +21,11 @@ mplot3d API
     :members:
     :show-inheritance:
 
-:mod:`mpl_toolkits.mplot3d.axis3d`
-==================================
+
+.. _toolkit_mplot3d-axisapi:
+
+:mod:`~mpl_toolkits.mplot3d.axis3d`
+===================================
 
 .. note::
    Historically, axis3d has suffered from having hard-coded constants
@@ -33,16 +40,21 @@ mplot3d API
     :members:
     :show-inheritance:
 
-:mod:`mpl_toolkits.mplot3d.art3d`
-=================================
+.. _toolkit_mplot3d-artapi:
+
+:mod:`~mpl_toolkits.mplot3d.art3d`
+==================================
 
 .. automodule:: mpl_toolkits.mplot3d.art3d
     :members:
     :show-inheritance:
 
-:mod:`mpl_toolkits.mplot3d.proj3d`
-==================================
+.. _toolkit_mplot3d-projapi:
+
+:mod:`~mpl_toolkits.mplot3d.proj3d`
+===================================
 
 .. automodule:: mpl_toolkits.mplot3d.proj3d
     :members:
     :show-inheritance:
+

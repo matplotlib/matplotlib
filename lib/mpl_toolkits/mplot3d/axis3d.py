@@ -75,12 +75,12 @@ class Axis(maxis.XAxis):
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
         self._axinfo = self._AXINFO[adir].copy()
-        self._axinfo.update({'label' : {'space_factor': 1.3,
+        self._axinfo.update({'label' : {'space_factor': 1.6,
                                         'va': 'center',
                                         'ha': 'center'},
                              'tick' : {'inward_factor': 0.2,
                                        'outward_factor': 0.1},
-                             'ticklabel': {'space_factor': 0.6},
+                             'ticklabel': {'space_factor': 0.7},
                              'axisline': {'linewidth': 0.75,
                                           'color': (0, 0, 0, 1)},
                              'grid' : {'color': (0.9, 0.9, 0.9, 1),
