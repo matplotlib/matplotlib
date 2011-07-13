@@ -8,6 +8,9 @@
               diamond".  "D" can be used for a "diamond".
 
            -MGD
+2011-07-13 Fix numerical problems in symlog scale, particularly when
+           linthresh <= 1.0.  Symlog plots may look different if one
+           was depending on the old broken behavior - MGD
 
 2011-07-10 Fixed argument handling error in tripcolor/triplot/tricontour,
            issue #203. - IMT
