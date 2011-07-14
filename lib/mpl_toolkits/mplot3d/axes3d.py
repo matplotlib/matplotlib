@@ -808,6 +808,9 @@ class Axes3D(Axes):
     def can_zoom(self) :
         return False
 
+    def can_pan(self) :
+        return False
+
     def cla(self):
         """Clear axes and disable mouse button callbacks.
         """

@@ -576,6 +576,12 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         """
         return False
 
+    def can_pan(self) :
+        """
+        Return True if this axes support the pan action
+        """
+        return True
+
     def start_pan(self, x, y, button):
         angle = self._r_label1_position.to_values()[4] / 180.0 * np.pi
         mode = ''

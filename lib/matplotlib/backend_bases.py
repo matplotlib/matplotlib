@@ -2512,7 +2512,8 @@ class NavigationToolbar2(object):
 
         self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if x is not None and y is not None and a.in_axes(event) and a.get_navigate():
+            if x is not None and y is not None and a.in_axes(event) \
+                    and a.get_navigate() and a.can_pan() :
                 a.start_pan(x, y, event.button)
                 self._xypress.append((a, i))
                 self.canvas.mpl_disconnect(self._idDrag)
