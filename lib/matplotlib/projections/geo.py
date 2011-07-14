@@ -222,6 +222,12 @@ class GeoAxes(Axes):
         """
         return False
 
+    def can_pan(self) :
+        """
+        Return True if this axes support the pan action
+        """
+        return False
+
     def start_pan(self, x, y, button):
         pass
 

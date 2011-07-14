@@ -2781,6 +2781,12 @@ class Axes(martist.Artist):
         """
         return True
 
+    def can_pan(self) :
+        """
+        Return *True* if this axes support the pan action
+        """
+        return True
+
     def get_navigate(self):
         """
         Get whether the axes responds to navigation commands
