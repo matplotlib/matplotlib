@@ -178,7 +178,7 @@ that define the shape.
 
     def _set_custom_marker(self, path):
         verts = path.vertices
-        rescale = max(np.max(np.abs(verts[:,0])), np.max(np.abs(verts[:,1]))))
+        rescale = max(np.max(np.abs(verts[:,0])), np.max(np.abs(verts[:,1])))
         self._transform = Affine2D().scale(1.0 / rescale)
         self._path = path
     
@@ -518,13 +518,13 @@ that define the shape.
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 1.0
         self._filled = False
-        self._path = _line_marker_path
+        self._path = self._line_marker_path
 
     def _set_hline(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(90)
         self._snap_threshold = 1.0
         self._filled = False
-        self._path = _line_marker_path
+        self._path = self._line_marker_path
 
     _tickhoriz_path = Path([[0.0, 0.0], [1.0, 0.0]])
     def _set_tickleft(self):
