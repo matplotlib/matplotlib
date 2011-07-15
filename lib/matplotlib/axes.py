@@ -5652,33 +5652,7 @@ class Axes(martist.Artist):
           *marker*:
             can be one of:
 
-            # TODO: Use documentation in MarkerStyle
-            
-            The marker can also be a tuple (*numsides*, *style*,
-            *angle*), which will create a custom, regular symbol.
-
-              *numsides*:
-                the number of sides
-
-              *style*:
-                the style of the regular symbol:
-
-                =====   =============================================
-                Value   Description
-                =====   =============================================
-                0       a regular polygon
-                1       a star-like symbol
-                2       an asterisk
-                3       a circle (*numsides* and *angle* is ignored)
-                =====   =============================================
-
-              *angle*:
-                the angle of rotation of the symbol
-
-            Finally, *marker* can be (*verts*, 0): *verts* is a
-            sequence of (*x*, *y*) vertices for a custom scatter
-            symbol.  Alternatively, use the kwarg combination
-            *marker* = *None*, *verts* = *verts*.
+            %(MarkerTable)s
 
         Any or all of *x*, *y*, *s*, and *c* may be masked arrays, in
         which case all masks will be combined and only unmasked points

@@ -736,19 +736,20 @@ class Line2D(Artist):
             linestyle = 'None'
         self._linestyle = linestyle
 
+    @docstring.dedent_interpd
     def set_marker(self, marker):
         """
         Set the line marker
 
-        %s
+        %(MarkerTable)s
 
-        %s
-        """ % (MarkerStyle.style_table, MarkerStyle.accepts)
+        %(MarkerAccepts)s
+        """
         try:
             self._marker.set_marker(marker)
         except ValueError as e:
             verbose.report(str(e))
-
+        
     def set_markeredgecolor(self, ec):
         """
         Set the marker edge color

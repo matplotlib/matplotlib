@@ -4,9 +4,12 @@ marker functionality of `~matplotlib.axes.Axes.plot` and
 `~matplotlib.axes.Axes.scatter`.
 """
 
+import textwrap
+
 import numpy as np
 
 from cbook import is_math_text, is_string_like, is_numlike, iterable
+import docstring
 from matplotlib import rcParams
 from path import Path
 from transforms import IdentityTransform, Affine2D
@@ -17,20 +20,43 @@ from transforms import IdentityTransform, Affine2D
 
 class MarkerStyle:
     style_table = """
-======================== =====================================================
-marker                   description
-======================== =====================================================
+============================== ===============================================
+marker                         description
+============================== ===============================================
 %s
-``'$...$'``              render the string using mathtext
-(numsides, style, angle) see below
-verts                    where verts is a list of (x, y) pairs in range (0, 1)
-======================== =====================================================
+``'$...$'``                    render the string using mathtext
+*verts*                        a list of (x, y) pairs in range (0, 1)
+(*numsides*, *style*, *angle*) see below
+============================== ===============================================
 
-TODO: Describe tuple form
+The marker can also be a tuple (*numsides*, *style*, *angle*), which
+will create a custom, regular symbol.
+
+    *numsides*:
+      the number of sides
+
+    *style*:
+      the style of the regular symbol:
+
+      =====   =============================================
+      Value   Description
+      =====   =============================================
+      0       a regular polygon
+      1       a star-like symbol
+      2       an asterisk
+      3       a circle (*numsides* and *angle* is ignored)
+      =====   =============================================
+
+    *angle*:
+      the angle of rotation of the symbol
+
+For backward compatibility, the form (*verts*, 0) is also accepted,
+but it is equivalent to just *verts* for giving a raw set of vertices
+that define the shape.
 """ 
     
     # TODO: Automatically generate this
-    accepts = """ACCEPTS: [ %s | ``'$...$'`` | tuple ]"""
+    accepts = """ACCEPTS: [ %s | ``'$...$'`` | *tuple* | *Nx2 array* ]"""
     
     markers =  {
         '.'        : 'point',
@@ -603,11 +629,14 @@ TODO: Describe tuple form
         self._path = self._x_path
 
 _styles = [(repr(x), y) for x, y in MarkerStyle.markers.items()]
-_styles.sort()
+_styles.sort(lambda x, y: cmp(x[1], y[1]))
 MarkerStyle.style_table = (
     MarkerStyle.style_table %
-    '\n'.join(['``%7s`` %33s' % (x, y) for (x, y) in _styles]))
+    '\n'.join(['%-30s %-33s' % ('``%s``' % x, y) for (x, y) in _styles]))
 
-MarkerStyle.accepts = (
+MarkerStyle.accepts = textwrap.fill(
     MarkerStyle.accepts %
     ' | '.join(['``%s``' % x for (x, y) in _styles]))
+
+docstring.interpd.update(MarkerTable=MarkerStyle.style_table)
+docstring.interpd.update(MarkerAccepts=MarkerStyle.accepts)
