@@ -5,7 +5,7 @@
            scatter:
 
               "d" used to mean "diamond", it now means "narrow
-              diamond", now "D" can be used for a "diamond".
+              diamond".  "D" can be used for a "diamond".
 
 2011-07-10 Fixed argument handling error in tripcolor/triplot/tricontour,
            issue #203. - IMT
