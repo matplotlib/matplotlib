@@ -6,15 +6,14 @@ marker functionality of `~matplotlib.axes.Axes.plot` and
 
 import numpy as np
 
-from cbook import is_math_text
+from cbook import is_math_text, is_string_like, is_numlike, iterable
+from matplotlib import rcParams
 from path import Path
 from transforms import IdentityTransform, Affine2D
 
 # special-purpose marker identifiers:
 (TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
  CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
-
-# TODO: Cache the marker path within the object
 
 class MarkerStyle:
     style_table = """
@@ -23,9 +22,11 @@ marker                   description
 ======================== =====================================================
 %s
 ``'$...$'``              render the string using mathtext
-(numsides, style, angle) where style is 1: star, 2: asterisk, 3: circle
-(verts, 0)               where verts is a list of (x, y) pairs in range (0, 1)
+(numsides, style, angle) see below
+verts                    where verts is a list of (x, y) pairs in range (0, 1)
 ======================== =====================================================
+
+TODO: Describe tuple form
 """ 
     
     # TODO: Automatically generate this
@@ -43,6 +44,7 @@ marker                   description
         '2'        : 'tri_up',
         '3'        : 'tri_left',
         '4'        : 'tri_right',
+        '8'        : 'octagon',
         's'        : 'square',
         'p'        : 'pentagon',
         '*'        : 'star',
@@ -67,9 +69,11 @@ marker                   description
         ''         : 'nothing'
     }
 
-    filled_markers = ('o', '^', 'v', '<', '>',
-                      's', 'd', 'D', 'h', 'H', 'p', '*')
-
+    # Just used for informational purposes.  is_filled()
+    # is calculated in the _set_* functions.
+    filled_markers = (
+        'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd')
+        
     fillstyles = ('full', 'left' , 'right' , 'bottom' , 'top')
 
     # TODO: Is this ever used as a non-constant?
@@ -81,17 +85,20 @@ marker                   description
         self.set_fillstyle(fillstyle)
 
     def _recache(self):
-        (self._path, self._transform,
-         self._alt_path, self._alt_transform,
-         self._snap_threshold) = self._marker_function()
+        self._path = Path(np.empty((0,2)))
+        self._transform = IdentityTransform()
+        self._alt_path = None
+        self._alt_transform = None
+        self._snap_threshold = None
+        self._filled = True
+        self._marker_function()
         
     def __nonzero__(self):
         return len(self._path.vertices)
         
     def is_filled(self):
-        return (self._marker in self.filled_markers
-                or is_math_text(self._marker))
-
+        return self._filled
+    
     def get_fillstyle(self):
         return self._fillstyle
 
@@ -105,16 +112,24 @@ marker                   description
         return self._marker
 
     def set_marker(self, marker):
-        if marker in self.markers:
-            self._marker = marker
+        if (iterable(marker) and len(marker) in (2, 3) and
+            marker[1] in (0, 1, 2, 3)):
+            self._marker_function = self._set_tuple_marker
+        elif marker in self.markers:
             self._marker_function = getattr(
-                self, '_get_' + self.markers[marker])
-        elif is_math_text(marker):
-            self._marker = marker
-            self._marker_function = self._get_mathtext_path
+                self, '_set_' + self.markers[marker])
+        elif is_string_like(marker) and is_math_text(marker):
+            self._marker_function = self._set_mathtext_path
+        elif isinstance(marker, Path):
+            self._marker_function = self._set_path_marker
         else:
-            raise ValueError('Unrecognized marker style %s' % marker)
+            try:
+                path = Path(marker)
+                self._marker_function = self._set_vertices
+            except:
+                raise ValueError('Unrecognized marker style %s' % marker)
 
+        self._marker = marker
         self._recache()
 
     def get_path(self):
@@ -132,10 +147,47 @@ marker                   description
     def get_snap_threshold(self):
         return self._snap_threshold
         
-    def _get_nothing(self):
-        return Path(np.empty((0,2))), IdentityTransform(), None, None, False
+    def _set_nothing(self):
+        self._filled = False
+
+    def _set_custom_marker(self, path):
+        verts = path.vertices
+        rescale = np.sqrt(max(np.max(verts[:,0]**2),
+                              np.max(verts[:,1]**2)))
+        self._transform = Affine2D().scale(1.0 / rescale)
+        self._path = path
+    
+    def _set_path_marker(self):
+        self._set_custom_marker(self._marker)
         
-    def _get_mathtext_path(self):
+    def _set_vertices(self):
+        path = Path(verts)
+        self._set_custom_marker(path)
+        
+    def _set_tuple_marker(self):
+        marker = self._marker
+        if is_numlike(marker[0]):
+            if len(marker) == 2:
+                numsides, rotation = marker[0], 0.0
+            elif len(marker) == 3:
+                numsides, rotation = marker[0], marker[2]
+            symstyle = marker[1]
+            if symstyle == 0:
+                self._path = Path.unit_regular_polygon(numsides)
+            elif symstyle == 1:
+                self._path = Path.unit_regular_star(numsides)
+            elif symstyle == 2:
+                self._path = Path.unit_regular_asterisk(numsides)
+                self._filled = False
+            elif symstyle == 3:
+                self._path = Path.unit_circle()
+            self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
+        else:
+            verts = np.asarray(marker[0])
+            path = Path(verts)
+            self._set_custom_marker(path)
+            
+    def _set_mathtext_path(self):
         """
         Draws mathtext markers '$...$' using TextPath object.
 
@@ -143,7 +195,8 @@ marker                   description
         """
         from matplotlib.patches import PathPatch
         from matplotlib.text import TextPath
-
+        from matplotlib.font_manager import FontProperties
+        
         # again, the properties could be initialised just once outside
         # this function
         # Font size is irrelevant here, it will be rescaled based on
@@ -152,24 +205,25 @@ marker                   description
         text = TextPath(xy=(0,0), s=self.get_marker(), fontproperties=props,
                         usetex=rcParams['text.usetex'])
         if len(text.vertices) == 0:
-            return text, IdentityTransform(), False
+            return
         
         xmin, ymin = text.vertices.min(axis=0)
         xmax, ymax = text.vertices.max(axis=0)
         width = xmax - xmin
         height = ymax - ymin
         max_dim = max(width, height)
-        path_trans = Affine2D() \
+        self._transform = Affine2D() \
             .translate(-xmin + 0.5 * -width, -ymin + 0.5 * -height) \
             .scale(1.0 / max_dim)
+        self._path = text
+        self._snap = False
 
-        return text, path_trans, None, None, False
-
-    def _get_circle(self, reduction = 1.0):
-        transform = Affine2D().scale(0.5 * reduction)
+    def _set_circle(self, reduction = 1.0):
+        self._transform = Affine2D().scale(0.5 * reduction)
+        self._snap_threshold = 3.0
         fs = self.get_fillstyle()
         if fs=='full':
-            return Path.unit_circle(), transform, None, None, 3.0
+            self._path = Path.unit_circle()
         else:
             # build a right-half circle
             if fs=='bottom': rotate = 270.
@@ -177,16 +231,17 @@ marker                   description
             elif fs=='left': rotate = 180.
             else: rotate = 0.
 
-            half = Path.unit_circle_righthalf()
-            transform = transform.rotate_deg(rotate)
-            alt_transform = transform.rotate_deg(180.)
-            return half, transform, half, alt_transform, 3.0
+            self._path = self._alt_path = Path.unit_circle_righthalf()
+            self._transform.rotate_deg(rotate)
+            self._alt_transform = self._transform.frozen().rotate_deg(180.)
 
-    def _get_pixel(self):
-        return Path.unit_rectangle(), Affine2D().translate(-0.5, 0.5), None, None, False
-
-    def _get_point(self):
-        return self._get_circle(reduction = self._point_size_reduction)
+    def _set_pixel(self):
+        self._path = Path.unit_rectangle()
+        self._transform = Affine2D().translate(-0.5, 0.5)
+        self._snap_threshold = False
+        
+    def _set_point(self):
+        self._set_circle(reduction = self._point_size_reduction)
 
     _triangle_path = Path(
         [[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [0.0, 1.0]],
@@ -204,59 +259,52 @@ marker                   description
     _triangle_path_r = Path(
         [[0.0, 1.0], [0.0, -1.0], [1.0, -1.0], [0.0, 1.0]],
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
-    def _get_triangle(self, rot, skip):
-        direction_map = {
-            'up': (0.0, 0),
-            'down': (180.0, 2),
-            'left': (90.0, 3),
-            'right': (270.0, 1)
-            }
-        rot, skip = direction_map[direction]
-        transform = Affine2D().scale(0.5, 0.5).rotate_deg(rot)
+    def _set_triangle(self, rot, skip):
+        self._transform = Affine2D().scale(0.5, 0.5).rotate_deg(rot)
+        self._snap_threshold = 5.0
         fs = self.get_fillstyle()
 
         if fs=='full':
-            return self._triangle_path, transform, None, None, 5.0
+            self._path = self._triangle_path
         else:
-            rgbFace_alt = self._get_rgb_face(alt=True)
-
             mpaths = [self._triangle_path_u,
                       self._triangle_path_l,
                       self._triangle_path_d,
                       self._triangle_path_r]
             
             if fs=='top':
-                mpath     = mpaths[(0+skip) % 4]
-                mpath_alt = mpaths[(2+skip) % 4]
+                self._path = mpaths[(0+skip) % 4]
+                self._alt_path = mpaths[(2+skip) % 4]
             elif fs=='bottom':
-                mpath     = mpaths[(2+skip) % 4]
-                mpath_alt = mpaths[(0+skip) % 4]
+                self._path = mpaths[(2+skip) % 4]
+                self._alt_path = mpaths[(0+skip) % 4]
             elif fs=='left':
-                mpath     = mpaths[(1+skip) % 4]
-                mpath_alt = mpaths[(3+skip) % 4]
+                self._path = mpaths[(1+skip) % 4]
+                self._alt_path = mpaths[(3+skip) % 4]
             else:
-                mpath     = mpaths[(3+skip) % 4]
-                mpath_alt = mpaths[(1+skip) % 4]
+                self._path = mpaths[(3+skip) % 4]
+                self._alt_path = mpaths[(1+skip) % 4]
 
-            return mpath, transform, mpath_alt, transform, 5.0
+            self._alt_transform = self._transform
 
-    def _get_triangle_up(self):
-        self._get_triangle(0.0, 0)
+    def _set_triangle_up(self):
+        return self._set_triangle(0.0, 0)
 
-    def _get_triangle_down(self):
-        self._get_triangle(180.0, 2)
+    def _set_triangle_down(self):
+        return self._set_triangle(180.0, 2)
 
-    def _get_triangle_left(self):
-        self._get_triangle(90.0, 3)
+    def _set_triangle_left(self):
+        return self._set_triangle(90.0, 3)
 
-    def _get_triangle_right(self):
-        self._get_triangle(270.0, 1)
+    def _set_triangle_right(self):
+        return self._set_triangle(270.0, 1)
 
-    def _get_square(self):
-        transform = Affine2D().translate(-0.5, -0.5)
+    def _set_square(self):
+        self._transform = Affine2D().translate(-0.5, -0.5)
+        self._snap_threshold = 2.0
         fs = self.get_fillstyle()
         if fs=='full':
-            return Path.unit_rectangle(), transform, None, None, 2.0
+            self._path = Path.unit_rectangle()
         else:
             # build a bottom filled square out of two rectangles, one
             # filled.  Use the rotation to support left, right, bottom
@@ -266,42 +314,42 @@ marker                   description
             elif fs=='left': rotate = 270.
             else: rotate = 90.
 
-            bottom = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 0.5], [0.0, 0.5], [0.0, 0.0]])
-            top = Path([[0.0, 0.5], [1.0, 0.5], [1.0, 1.0], [0.0, 1.0], [0.0, 0.5]])
-            transform = transform.rotate_deg(rotate)
-            return bottom, transform, top, transform, 2.0
+            self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 0.5], [0.0, 0.5], [0.0, 0.0]])
+            self._alt_path = Path([[0.0, 0.5], [1.0, 0.5], [1.0, 1.0], [0.0, 1.0], [0.0, 0.5]])
+            self._transform.rotate_deg(rotate)
+            self._alt_transform = self._transform
 
-    def _get_diamond(self):
-        transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
+    def _set_diamond(self):
+        self._transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
+        self._snap_threshold = 5.0
         fs = self.get_fillstyle()
         if fs=='full':
-            return Path.unit_rectangle(), transform, None, None, 5.0
+            self._path = Path.unit_rectangle()
         else:
-            right = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]])
-            left = Path([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [0.0, 0.0]])
+            self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]])
+            self._alt_path = Path([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [0.0, 0.0]])
 
             if fs=='bottom': rotate = 270.
             elif fs=='top': rotate = 90.
             elif fs=='left': rotate = 180.
             else: rotate = 0.
 
-            transform = transform.rotate_deg(rotate)
+            self._transform.rotate_deg(rotate)
+            self._alt_transform = self._transform
+            
+    def _set_thin_diamond(self):
+        self._set_diamond()
+        self._transform.scale(0.6, 1.0)
 
-            return right, transform, left, transform, 5.0
-
-    def _get_thin_diamond(self):
-        right, transform, left, _, snap = self._get_diamond()
-        transform = transform.scale(0.6, 1.0)
-        return right, transform, left, transform, 3.0
-
-    def _get_pentagon(self):
-        transform = Affine2D().scale(0.5)
+    def _set_pentagon(self):
+        self._transform = Affine2D().scale(0.5)
+        self._snap_threshold = 5.0
+        
         polypath = Path.unit_regular_polygon(5)
-
         fs = self.get_fillstyle()
 
         if fs == 'full':
-            return polypath, tranform, None, None, 5.0
+            self._path = polypath
         else:
             verts = polypath.vertices
 
@@ -319,17 +367,19 @@ marker                   description
                 mpath, mpath_alt = left, right
             else:
                 mpath, mpath_alt = right, left
+            self._path = mpath
+            self._alt_path = mpath_alt
+            self._alt_transform = self._transform
 
-            return mpath, transform, mpath_alt, transform, 5.0
+    def _set_star(self):
+        self._transform = Affine2D().scale(0.5)
+        self._snap_threshold = 5.0
 
-    def _get_star(self):
-        transform = Affine2D().scale(0.5)
         fs = self.get_fillstyle()
-
         polypath = Path.unit_regular_star(5, innerCircle=0.381966)
 
         if fs == 'full':
-            return polypath, transform, None, None, 5.0
+            self._path = polypath
         else:
             verts = polypath.vertices
 
@@ -346,17 +396,19 @@ marker                   description
                 mpath, mpath_alt = left, right
             else:
                 mpath, mpath_alt = right, left
+            self._path = mpath
+            self._alt_path = mpath_alt
+            self._alt_transform = self._transform
 
-            return mpath, transform, mpath_alt, transform, 5.0
-
-    def _get_hexagon1(self):
-        transform = Affine2D().scale(0.5)
+    def _set_hexagon1(self):
+        self._transform = Affine2D().scale(0.5)
+        self._snap_threshold = 5.0
+        
         fs = self.get_fillstyle()
-
         polypath = Path.unit_regular_polygon(6)
 
         if fs == 'full':
-            return polypath, transform, None, None, 5.0
+            self._path = polypath
         else:
             verts = polypath.vertices
 
@@ -376,16 +428,19 @@ marker                   description
             else:
                 mpath, mpath_alt = right, left
 
-            return mpath, transform, mpath_alt, transform, 5.0
+            self._path = mpath
+            self._alt_path = mpath_alt
+            self._alt_transform = self._transform
 
-    def _get_hexagon2(self):
-        transform = Affine2D().scale(0.5).rotate_deg(30)
+    def _set_hexagon2(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(30)
+        self._snap_threshold = 5.0
+        
         fs = self.get_fillstyle()
-
         polypath = Path.unit_regular_polygon(6)
 
         if fs == 'full':
-            return polypath, transform, None, None, 5.0
+            self._path = polypath
         else:
             verts = polypath.vertices
 
@@ -405,42 +460,71 @@ marker                   description
             else:
                 mpath, mpath_alt = right, left
 
-            return mpath, transform, mpath_alt, transform, 5.0
+            self._path = mpath
+            self._alt_path = mpath_alt
+            self._alt_transform = self._transform
 
+    def _set_octagon(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(22.5)
+        self._snap_threshold = 5.0
+        
+        fs = self.get_fillstyle()
+        polypath = Path.unit_regular_polygon(8)
+
+        if fs == 'full':
+            self._path = polypath
+        else:
+            # TODO: Implement partially-filled octagons
+            self._path = polypath
+            
     _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]])
-    def _get_vline(self):
-        transform = Affine2D().scale(0.5)
-        return self._line_marker_path, transform, None, None, 1.0
+    def _set_vline(self):
+        self._transform = Affine2D().scale(0.5)
+        self._snap_threshold = 1.0
+        self._filled = False
+        self._path = _line_marker_path
 
-    def _get_hline(self):
-        transform = Affine2D().scale(0.5).rotate_deg(90)
-        return self._line_marker_path, transform, None, None, 1.0
+    def _set_hline(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(90)
+        self._snap_threshold = 1.0
+        self._filled = False
+        self._path = _line_marker_path
 
     _tickhoriz_path = Path([[0.0, 0.0], [1.0, 0.0]])
-    def _get_tickleft(self):
-        transform = Affine2D().scale(-1.0, 1.0)
-        return self._tickhoriz_path, transform, None, None, 1.0
+    def _set_tickleft(self):
+        self._transform = Affine2D().scale(-1.0, 1.0)
+        self._snap_threshold = 1.0
+        self._filled = False
+        self._path = self._tickhoriz_path
 
-    def _get_tickright(self):
-        transform = Affine2D().scale(1.0, 1.0)
-        return self._tickhoriz_path, transform, None, None, 1.0
+    def _set_tickright(self):
+        self._transform = Affine2D().scale(1.0, 1.0)
+        self._snap_threshold = 1.0
+        self._filled = False
+        self._path = self._tickhoriz_path
         
     _tickvert_path = Path([[-0.0, 0.0], [-0.0, 1.0]])
-    def _get_tickup(self):
-        transform = Affine2D().scale(1.0, 1.0)
-        return self._tickvert_path, transform, None, None, 1.0
+    def _set_tickup(self):
+        self._transform = Affine2D().scale(1.0, 1.0)
+        self._snap_threshold = 1.0
+        self._filled = False
+        self._path = self._tickvert_path
         
-    def _get_tickdown(self):
-        transform = Affine2D().scale(1.0, -1.0)
-        return self._tickvert_path, transform, None, None, 1.0
+    def _set_tickdown(self):
+        self._transform = Affine2D().scale(1.0, -1.0)
+        self._snap_threshold = 1.0
+        self._filled = False
+        self._path = self._tickvert_path
 
     _plus_path = Path([[-1.0, 0.0], [1.0, 0.0],
                        [0.0, -1.0], [0.0, 1.0]],
                       [Path.MOVETO, Path.LINETO,
                        Path.MOVETO, Path.LINETO])
-    def _get_plus(self):
-        transform = Affine2D().scale(0.5)
-        return self._plus_path, transform, None, None, 1.0
+    def _set_plus(self):
+        self._transform = Affine2D().scale(0.5)
+        self._snap_threshold = 1.0
+        self._filled = False
+        self._path = self._plus_path
 
     _tri_path = Path([[0.0, 0.0], [0.0, -1.0],
                       [0.0, 0.0], [0.8, 0.5],
@@ -448,45 +532,64 @@ marker                   description
                      [Path.MOVETO, Path.LINETO,
                       Path.MOVETO, Path.LINETO,
                       Path.MOVETO, Path.LINETO])
-    def _draw_tri_down(self):
-        transform = Affine2D().scale(0.5)
-        return self._tri_path, transform, None, None, 5.0
+    def _set_tri_down(self):
+        self._transform = Affine2D().scale(0.5)
+        self._snap_threshold = 5.0
+        self._filled = False
+        self._path = self._tri_path
 
-    def _draw_tri_up(self, renderer, gc, path, path_trans):
-        transform = Affine2D().scale(0.5).rotate_deg(90)
-        return self._tri_path, transform, None, None, 5.0
+    def _set_tri_up(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(90)
+        self._snap_threshold = 5.0
+        self._filled = False
+        self._path = self._tri_path
 
-    def _draw_tri_left(self, renderer, gc, path, path_trans):
-        transform = Affine2D().scale(0.5).rotate_deg(270)
-        return self._tri_path, transform, None, None, 5.0
+    def _set_tri_left(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(270)
+        self._snap_threshold = 5.0
+        self._filled = False
+        self._path = self._tri_path
 
-    def _draw_tri_right(self, renderer, gc, path, path_trans):
-        transform = Affine2D().scale(0.5).rotate_deg(180)
+    def _set_tri_right(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(180)
+        self._snap_threshold = 5.0
+        self._filled = False
+        self._path = self._tri_path
 
     _caret_path = Path([[-1.0, 1.5], [0.0, 0.0], [1.0, 1.5]])
-    def _draw_caretdown(self, renderer, gc, path, path_trans):
-        transform = Affine2D().scale(0.5)
-        return self._caret_path, transform, None, None, 3.0
+    def _set_caretdown(self):
+        self._transform = Affine2D().scale(0.5)
+        self._snap_threshold = 3.0
+        self._filled = False
+        self._path = self._caret_path
 
-    def _draw_caretup(self, renderer, gc, path, path_trans):
-        transform = Affine2D().scale(0.5).rotate_deg(180)
-        return self._caret_path, transform, None, None, 3.0
+    def _set_caretup(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(180)
+        self._snap_threshold = 3.0
+        self._filled = False
+        self._path = self._caret_path
 
-    def _draw_caretleft(self, renderer, gc, path, path_trans):
-        transform = Affine2D().scale(0.5).rotate_deg(270)
-        return self._caret_path, transform, None, None, 3.0
+    def _set_caretleft(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(270)
+        self._snap_threshold = 3.0
+        self._filled = False
+        self._path = self._caret_path
 
-    def _draw_caretright(self, renderer, gc, path, path_trans):
-        transform = Affine2D().scale(0.5).rotate_deg(90)
-        return self._caret_path, transform, None, None, 3.0
+    def _set_caretright(self):
+        self._transform = Affine2D().scale(0.5).rotate_deg(90)
+        self._snap_threshold = 3.0
+        self._filled = False
+        self._path = self._caret_path
 
     _x_path = Path([[-1.0, -1.0], [1.0, 1.0],
                     [-1.0, 1.0], [1.0, -1.0]],
                    [Path.MOVETO, Path.LINETO,
                     Path.MOVETO, Path.LINETO])
-    def _draw_x(self, renderer, gc, path, path_trans):
-        transform = Affine2D().scale(0.5)
-        return self._x_path, transform, None, None, 3.0
+    def _set_x(self):
+        self._transform = Affine2D().scale(0.5)
+        self._snap_threshold = 3.0
+        self._filled = False
+        self._path = self._x_path
 
 _styles = [(repr(x), y) for x, y in MarkerStyle.markers.items()]
 _styles.sort()

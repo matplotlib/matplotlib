@@ -103,6 +103,12 @@ class Line2D(Artist):
     # Need a list ordered with long names first:
     drawStyleKeys = _drawStyles_l.keys() + _drawStyles_s.keys()
 
+    # Referenced here to maintain API.  These are defined in
+    # MarkerStyle
+    markers = MarkerStyle.markers
+    filled_markers = MarkerStyle.filled_markers
+    fillStyles = MarkerStyle.fillstyles
+    
     zorder = 2
     validCap = ('butt', 'round', 'projecting')
     validJoin =   ('miter', 'round', 'bevel')

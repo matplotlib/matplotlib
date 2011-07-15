@@ -362,7 +362,19 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
         return [p]
 
+class HandlerPathCollection(HandlerRegularPolyCollection):
+    """
+    Handler for PathCollections, which are used by scatter
+    """
+    def create_collection(self, orig_handle, sizes, offsets, transOffset):
+        p = type(orig_handle)([orig_handle.get_paths()[0]],
+                              sizes=sizes,
+                              offsets=offsets,
+                              transOffset=transOffset,
+                              )
+        return p
 
+    
 class HandlerCircleCollection(HandlerRegularPolyCollection):
     """
     Handler for CircleCollections
