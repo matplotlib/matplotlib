@@ -23,7 +23,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
 from matplotlib.collections import LineCollection, RegularPolyCollection, \
-     CircleCollection
+     CircleCollection, PathCollection
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransformTo, BboxTransformFrom
 
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea, DraggableOffsetBox
@@ -481,6 +481,7 @@ in the normalized axes coordinate.
         CircleCollection:legend_handler.HandlerCircleCollection(),
         BarContainer:legend_handler.HandlerPatch(update_func=legend_handler.update_from_first_child),
         tuple:legend_handler.HandlerTuple(),
+        PathCollection:legend_handler.HandlerPathCollection()
         }
 
     # (get|set|update)_default_handler_maps are public interfaces to
