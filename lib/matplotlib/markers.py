@@ -178,8 +178,7 @@ that define the shape.
 
     def _set_custom_marker(self, path):
         verts = path.vertices
-        rescale = np.sqrt(max(np.max(verts[:,0]**2),
-                              np.max(verts[:,1]**2)))
+        rescale = max(np.max(np.abs(verts[:,0])), np.max(np.abs(verts[:,1]))))
         self._transform = Affine2D().scale(1.0 / rescale)
         self._path = path
     
