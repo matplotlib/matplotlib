@@ -3001,7 +3001,7 @@ class Axes(martist.Artist):
         required.
 
         """
-        return self.patch.contains_point(point)
+        return self.patch.contains_point(point, radius=1.0)
 
     def pick(self, *args):
         """
