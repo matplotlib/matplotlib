@@ -2,8 +2,7 @@
 """
 
 import os
-import warnings
-from matplotlib import rcParams
+from matplotlib import rcParams, verbose
 
 # Available APIs.
 QT_API_PYQT = 'PyQt4'       # API is not set here; Python 2.x default is V 1
@@ -36,8 +35,23 @@ _getSaveFileName = None
 if QT_API in (QT_API_PYQT, QT_API_PYQTv2):
     import sip
     if QT_API == QT_API_PYQTv2:
-        sip.setapi('QString', 2)
-        sip.setapi('QVariant', 2)
+        if QT_API_ENV == 'pyqt':
+            cond = ("Found 'QT_API=pyqt' environment variable. "
+                    "Setting PyQt4 API accordingly.\n")
+        else:
+            cond = "PyQt API v2 specified."
+        try:
+            sip.setapi('QString', 2)
+        except:
+            res = 'QString API v2 specification failed. Defaulting to v1.'
+            verbose.report(cond+res, 'helpful')
+            # condition has now been reported, no need to repeat it:
+            cond = ""
+        try:
+            sip.setapi('QVariant', 2)
+        except:
+            res = 'QVariant API v2 specification failed. Defaulting to v1.'
+            verbose.report(cond+res, 'helpful')
 
     from PyQt4 import QtCore, QtGui
 
