@@ -405,6 +405,13 @@ class Axis(maxis.XAxis):
             Vmin, Vmax = self.get_view_interval()
             self.v_interval = min(vmin, Vmin), max(vmax, Vmax)
 
+    # TODO: Get this to work properly when mplot3d supports
+    #       the transforms framework.
+    def get_tightbbox(self, renderer) :
+        # Currently returns None so that Axis.get_tightbbox
+        # doesn't return junk info.
+        return None
+
 # Use classes to look at different data limits
 
 class XAxis(Axis):
