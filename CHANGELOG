@@ -1,4 +1,4 @@
-2001-07-15 The set of markers available in the plot() and scatter()
+2011-07-15 The set of markers available in the plot() and scatter()
            commands has been unified.  In general, this gives more
            options to both than were previously available, however,
            there is one backward-incompatible change to the markers in
@@ -6,6 +6,8 @@
 
               "d" used to mean "diamond", it now means "narrow
               diamond".  "D" can be used for a "diamond".
+
+           -MGD
 
 2011-07-10 Fixed argument handling error in tripcolor/triplot/tricontour,
            issue #203. - IMT
