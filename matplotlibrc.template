@@ -256,10 +256,16 @@ backend      : %(backend)s
 #legend.borderpad     : 0.5    # border whitspace in fontsize units
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
-#legend.labelsep      : 0.010  # the vertical space between the legend entries
-#legend.handlelen     : 0.05   # the length of the legend lines
-#legend.handletextsep : 0.02   # the space between the legend line and legend text
-#legend.axespad       : 0.02   # the border between the axes and legend edge
+#legend.labelsep      : 0.010  # deprecated; the vertical space between the legend entries
+#legend.labelspacing  : 0.5    # the vertical space between the legend entries in fraction of fontsize
+#legend.handlelen     : 0.05   # deprecated; the length of the legend lines
+#legend.handlelength  : 2.     # the length of the legend lines in fraction of fontsize
+#legend.handleheight  : 0.7     # the height of the legend handle in fraction of fontsize
+#legend.handletextsep : 0.02   # deprecated; the space between the legend line and legend text
+#legend.handletextpad : 0.8    # the space between the legend line and legend text in fraction of fontsize
+#legend.axespad       : 0.02   # deprecated; the border between the axes and legend edge
+#legend.borderaxespad : 0.5   # the border between the axes and legend edge in fraction of fontsize
+#legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
 #legend.shadow        : False
 #legend.frameon       : True   # whether or not to draw a frame around legend
 
