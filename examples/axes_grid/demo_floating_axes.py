@@ -19,10 +19,12 @@ def setup_axes1(fig, rect):
     ax1 = floating_axes.FloatingSubplot(fig, rect, grid_helper=grid_helper)
     fig.add_subplot(ax1)
 
+    aux_ax = ax1.get_aux_axes(tr)
+
     grid_helper.grid_finder.grid_locator1._nbins = 4
     grid_helper.grid_finder.grid_locator2._nbins = 4
 
-    return ax1
+    return ax1, aux_ax
 
 
 def setup_axes2(fig, rect):
@@ -130,8 +132,9 @@ if 1:
     fig = plt.figure(1, figsize=(8, 4))
     fig.subplots_adjust(wspace=0.3, left=0.05, right=0.95)
 
-    ax1 = setup_axes1(fig, 131)
-
+    ax1, aux_ax2 = setup_axes1(fig, 131)
+    aux_ax2.bar([0, 1, 2, 3], [3, 2, 1, 3])
+    
     #theta = np.random.rand(10) #*.5*np.pi
     #radius = np.random.rand(10) #+1.
     #aux_ax1.scatter(theta, radius)
