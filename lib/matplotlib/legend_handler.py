@@ -231,7 +231,7 @@ class HandlerPatch(HandlerBase):
                       xdescent, ydescent, width, height, fontsize):
         if self._patch_func is None:
             p = Rectangle(xy=(-xdescent, -ydescent),
-                          width = width+xdescent, height=(height+ydescent))
+                          width = width, height=height)
         else:
             p = self._patch_func(legend=legend, orig_handle=orig_handle,
                                  xdescent=xdescent, ydescent=ydescent,
