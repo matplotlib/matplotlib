@@ -278,7 +278,7 @@ in the normalized axes coordinate.
         self._ncol = ncol
 
         if self.numpoints <= 0:
-            raise ValueError("numpoints must be >= 0; it was %d"% numpoints)
+            raise ValueError("numpoints must be > 0; it was %d"% numpoints)
 
         # introduce y-offset for handles of the scatter plot
         if scatteryoffsets is None:
