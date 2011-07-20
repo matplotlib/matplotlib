@@ -472,6 +472,7 @@ defaultParams = {
     'legend.borderpad'   : [0.4, validate_float], # units are fontsize
     'legend.labelspacing'      : [0.5, validate_float], # the vertical space between the legend entries
     'legend.handlelength'     : [2., validate_float], # the length of the legend lines
+    'legend.handleheight'     : [0.7, validate_float], # the length of the legend lines
     'legend.handletextpad' : [.8, validate_float], # the space between the legend line and legend text
     'legend.borderaxespad'       : [0.5, validate_float], # the border between the axes and legend edge
     'legend.columnspacing'       : [2., validate_float], # the border between the axes and legend edge
