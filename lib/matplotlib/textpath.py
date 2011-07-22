@@ -34,7 +34,7 @@ class TextToPath(object):
 
         self._texmanager = None
 
-        self._adobe_standard_encoding = self._get_adobe_standard_encoding()
+        self._adobe_standard_encoding = None
 
 
     def _get_adobe_standard_encoding(self):
@@ -286,6 +286,9 @@ class TextToPath(object):
 
         if self.tex_font_map is None:
             self.tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+
+        if self._adobe_standard_encoding is None:
+            self._adobe_standard_encoding = self._get_adobe_standard_encoding()
 
         fontsize = prop.get_size_in_points()
         if hasattr(texmanager, "get_dvi"): #
