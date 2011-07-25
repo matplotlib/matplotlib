@@ -22,6 +22,7 @@ import matplotlib.font_manager as font_manager
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
+import matplotlib.markers as mmarkers
 import matplotlib.mlab as mlab
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
@@ -5651,48 +5652,7 @@ class Axes(martist.Artist):
           *marker*:
             can be one of:
 
-            =======   ==============
-            Value     Description
-            =======   ==============
-            ``'s'``   square
-            ``'o'``   circle
-            ``'^'``   triangle up
-            ``'>'``   triangle right
-            ``'v'``   triangle down
-            ``'<'``   triangle left
-            ``'d'``   diamond
-            ``'p'``   pentagon
-            ``'h'``   hexagon
-            ``'8'``   octagon
-            ``'+'``   plus
-            ``'x'``   cross
-            =======   ==============
-
-            The marker can also be a tuple (*numsides*, *style*,
-            *angle*), which will create a custom, regular symbol.
-
-              *numsides*:
-                the number of sides
-
-              *style*:
-                the style of the regular symbol:
-
-                =====   =============================================
-                Value   Description
-                =====   =============================================
-                0       a regular polygon
-                1       a star-like symbol
-                2       an asterisk
-                3       a circle (*numsides* and *angle* is ignored)
-                =====   =============================================
-
-              *angle*:
-                the angle of rotation of the symbol
-
-            Finally, *marker* can be (*verts*, 0): *verts* is a
-            sequence of (*x*, *y*) vertices for a custom scatter
-            symbol.  Alternatively, use the kwarg combination
-            *marker* = *None*, *verts* = *verts*.
+            %(MarkerTable)s
 
         Any or all of *x*, *y*, *s*, and *c* may be masked arrays, in
         which case all masks will be combined and only unmasked points
@@ -5749,21 +5709,6 @@ class Axes(martist.Artist):
 
         if not self._hold: self.cla()
 
-        syms =  { # a dict from symbol to (numsides, angle)
-            's' : (4,math.pi/4.0,0),   # square
-            'o' : (0,0,3),            # circle
-            '^' : (3,0,0),             # triangle up
-            '>' : (3,math.pi/2.0,0),   # triangle right
-            'v' : (3,math.pi,0),       # triangle down
-            '<' : (3,3*math.pi/2.0,0), # triangle left
-            'd' : (4,0,0),             # diamond
-            'p' : (5,0,0),             # pentagon
-            'h' : (6,0,0),             # hexagon
-            '8' : (8,0,0),             # octagon
-            '+' : (4,0,2),             # plus
-            'x' : (4,math.pi/4.0,2)    # cross
-            }
-
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.convert_xunits(x)
         y = self.convert_yunits(y)
@@ -5814,87 +5759,21 @@ class Axes(martist.Artist):
             marker = (verts, 0)
             verts = None
 
-        if is_string_like(marker):
-            # the standard way to define symbols using a string character
-            sym = syms.get(marker)
-            if sym is None and verts is None:
-                raise ValueError('Unknown marker symbol to scatter')
-            numsides, rotation, symstyle = syms[marker]
-
-        elif iterable(marker):
-            # accept marker to be:
-            #    (numsides, style, [angle])
-            # or
-            #    (verts[], style, [angle])
-
-            if len(marker)<2 or len(marker)>3:
-                raise ValueError('Cannot create markersymbol from marker')
-
-            if cbook.is_numlike(marker[0]):
-                # (numsides, style, [angle])
-
-                if len(marker)==2:
-                    numsides, rotation = marker[0], 0.
-                elif len(marker)==3:
-                    numsides, rotation = marker[0], marker[2]
-                sym = True
-
-                if marker[1] in (1,2,3):
-                    symstyle = marker[1]
-
-            else:
-                verts = np.asarray(marker[0])
-
-        if sym is not None:
-            if symstyle==0:
-                collection = mcoll.RegularPolyCollection(
-                    numsides, rotation, scales,
-                    facecolors = colors,
-                    edgecolors = edgecolors,
-                    linewidths = linewidths,
-                    offsets = zip(x,y),
-                    transOffset = self.transData,
-                    )
-            elif symstyle==1:
-                collection = mcoll.StarPolygonCollection(
-                    numsides, rotation, scales,
-                    facecolors = colors,
-                    edgecolors = edgecolors,
-                    linewidths = linewidths,
-                    offsets = zip(x,y),
-                    transOffset = self.transData,
-                    )
-            elif symstyle==2:
-                collection = mcoll.AsteriskPolygonCollection(
-                    numsides, rotation, scales,
-                    facecolors = colors,
-                    edgecolors = 'face',
-                    linewidths = linewidths,
-                    offsets = zip(x,y),
-                    transOffset = self.transData,
-                    )
-            elif symstyle==3:
-                collection = mcoll.CircleCollection(
-                    scales,
-                    facecolors = colors,
-                    edgecolors = edgecolors,
-                    linewidths = linewidths,
-                    offsets = zip(x,y),
-                    transOffset = self.transData,
-                    )
-        else:
-            rescale = np.sqrt(max(verts[:,0]**2+verts[:,1]**2))
-            verts /= rescale
-
-            collection = mcoll.PolyCollection(
-                (verts,), scales,
+        marker_obj = mmarkers.MarkerStyle(marker)
+        path = marker_obj.get_path().transformed(
+            marker_obj.get_transform())
+        if not marker_obj.is_filled():
+            edgecolors = 'face'
+        
+        collection = mcoll.PathCollection(
+                (path,), scales,
                 facecolors = colors,
                 edgecolors = edgecolors,
                 linewidths = linewidths,
                 offsets = zip(x,y),
                 transOffset = self.transData,
                 )
-            collection.set_transform(mtransforms.IdentityTransform())
+        collection.set_transform(mtransforms.IdentityTransform())
         collection.set_alpha(alpha)
         collection.update(kwargs)
 
