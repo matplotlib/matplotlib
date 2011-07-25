@@ -1344,32 +1344,49 @@ class SymmetricalLogLocator(Locator):
     def __call__(self):
         'Return the locations of the ticks'
         b = self._transform.base
+        t = self._transform.linthresh
 
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = self._transform.transform((vmin, vmax))
 
         if vmax<vmin:
             vmin, vmax = vmax, vmin
-        numdec = math.floor(vmax)-math.ceil(vmin)
 
-        if self._subs is None:
-            if numdec>10: subs = np.array([1.0])
-            elif numdec>6: subs = np.arange(2.0, b, 2.0)
-            else: subs = np.arange(2.0, b)
+        lt = np.log(t) / np.log(b)
+
+        if vmin < 0:
+            if vmax < 0:
+                numdec = vmax - vmin + 1
+            else:
+                numdec = (-vmin - lt + 1) + 1 + (vmax - lt + 1)
         else:
-            subs = np.asarray(self._subs)
+            numdec = vmax - vmin + 1
 
         stride = 1
         while numdec/stride+1 > self.numticks:
             stride += 1
 
-        decades = np.arange(math.floor(vmin), math.ceil(vmax)+stride, stride)
+        if self._subs is None:
+            subs = np.arange(2.0, b)
+        else:
+            subs = np.asarray(self._subs)
+
+        if vmin < 0:
+            if vmax < 0:
+                decades = -(b ** np.arange(vmin, vmax + 1, stride))
+            else:
+                decades = np.asarray(list(-(b ** np.arange(np.floor(lt), np.ceil(-vmin) + stride, stride))[::-1]) +
+                                     [0] +
+                                     list(b ** np.arange(np.floor(lt), np.ceil(vmax) + stride, stride)))
+        else:
+            decades = b ** np.arange(vmin, vmax + 1, stride)
+
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
             for decade in decades:
-                ticklocs.extend(subs * (np.sign(decade) * b ** np.abs(decade)))
+                ticklocs.extend(subs * decade)
         else:
-            ticklocs = np.sign(decades) * b ** np.abs(decades)
+            ticklocs = decades
         return self.raise_if_exceeds(np.array(ticklocs))
 
     def view_limits(self, vmin, vmax):
