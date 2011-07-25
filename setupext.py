@@ -1192,6 +1192,7 @@ def build_path(ext_modules, packages):
     if BUILT_PATH: return # only build it if you you haven't already
 
     agg = (
+           'agg_vcgen_contour.cpp',
            'agg_curves.cpp',
            'agg_bezier_arc.cpp',
            'agg_trans_affine.cpp',
