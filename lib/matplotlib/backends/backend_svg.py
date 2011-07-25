@@ -857,12 +857,12 @@ class RendererSVG(RendererBase):
                 glyph_map.update(glyph_map_new)
 
             attrib = {}
+            font_scale = fontsize / text2path.FONT_SCALE
             attrib['style'] = generate_css(style)
             attrib['transform'] = generate_transform([
                 ('translate', (x, y)),
                 ('rotate', (-angle,)),
-                ('scale', (fontsize / text2path.FONT_SCALE,
-                           -fontsize / text2path.FONT_SCALE))])
+                ('scale', (font_scale, - font_scale))])
 
             writer.start('g', attrib=attrib)
             for char_id, xposition, yposition, scale in glyph_info:
