@@ -574,7 +574,7 @@ class PathCollection(Collection):
     This is the most basic :class:`Collection` subclass.
     """
     @docstring.dedent_interpd
-    def __init__(self, paths, **kwargs):
+    def __init__(self, paths, sizes=None, **kwargs):
         """
         *paths* is a sequence of :class:`matplotlib.path.Path`
         instances.
@@ -584,11 +584,25 @@ class PathCollection(Collection):
 
         Collection.__init__(self, **kwargs)
         self.set_paths(paths)
-
+        self._sizes = sizes
 
     def set_paths(self, paths):
         self._paths = paths
-
+        
+    def get_paths(self):
+        return self._paths
+        
+    def get_sizes(self):
+        return self._sizes
+        
+    @allow_rasterization
+    def draw(self, renderer):
+        if self._sizes is not None:
+            self._transforms = [
+                transforms.Affine2D().scale(
+                    (np.sqrt(x) * self.figure.dpi / 72.0))
+                for x in self._sizes]
+        return Collection.draw(self, renderer)
 
 class PolyCollection(Collection):
     @docstring.dedent_interpd

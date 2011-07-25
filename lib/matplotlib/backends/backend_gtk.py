@@ -32,6 +32,7 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
 from matplotlib import lines
+from matplotlib import markers
 from matplotlib import cbook
 from matplotlib import verbose
 
@@ -1076,7 +1077,7 @@ class DialogLineprops:
     linestyled = dict([ (s,i) for i,s in enumerate(linestyles)])
 
 
-    markers =  [m for m in lines.Line2D.markers if cbook.is_string_like(m)]
+    markers =  [m for m in markers.MarkerStyle.markers if cbook.is_string_like(m)]
 
     markerd = dict([(s,i) for i,s in enumerate(markers)])
 
