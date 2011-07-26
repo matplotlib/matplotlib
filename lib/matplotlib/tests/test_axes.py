@@ -374,7 +374,11 @@ def test_hexbin_extent():
 @image_comparison(baseline_images=['nonfinite_limits'])
 def test_nonfinite_limits():
     x = np.arange(0., np.e, 0.01)
-    y = np.log(x)
+    olderr = np.seterr(divide='ignore') #silence divide by zero warning from log(0)
+    try:
+        y = np.log(x)
+    finally:
+        np.seterr(**olderr)
     x[len(x)/2] = np.nan
     fig = plt.figure()
     ax = fig.add_subplot(111)
