@@ -6253,6 +6253,7 @@ class Axes(martist.Artist):
         *y* + *dy*).
 
         Optional kwargs control the arrow properties:
+
         %(FancyArrow)s
 
         **Example:**
