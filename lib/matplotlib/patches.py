@@ -981,6 +981,8 @@ class FancyArrow(Polygon):
 
         Polygon.__init__(self, map(tuple, verts), **kwargs)
 
+docstring.interpd.update({"FancyArrow":FancyArrow.__init__.__doc__})
+
 class YAArrow(Patch):
     """
     Yet another arrow class.
