@@ -8,6 +8,7 @@ import matplotlib.units
 from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib.testing.compare import comparable_formats, compare_images
+import warnings
 
 def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
     """
@@ -61,7 +62,8 @@ class CleanupTest:
 
         matplotlib.units.registry.clear()
         matplotlib.units.registry.update(cls.original_units_registry)
-
+        warnings.resetwarnings() #reset any warning filters set in tests
+        
     def test(self):
         self._func()
 
