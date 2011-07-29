@@ -126,6 +126,7 @@ more information and examples of using date locators and formatters.
 
 from __future__ import division
 import decimal
+import locale
 import math
 import numpy as np
 from matplotlib import rcParams
@@ -330,7 +331,7 @@ class ScalarFormatter(Formatter):
 
     """
 
-    def __init__(self, useOffset=True, useMathText=False):
+    def __init__(self, useOffset=True, useMathText=False, useLocale=None):
         # useOffset allows plotting small data ranges with large offsets:
         # for example: [1+1e-9,1+2e-9,1+3e-9]
         # useMathText will render the offset and scientific notation in mathtext
@@ -341,6 +342,10 @@ class ScalarFormatter(Formatter):
         self.format = ''
         self._scientific = True
         self._powerlimits = rcParams['axes.formatter.limits']
+        if useLocale is None:
+            self._useLocale = rcParams['axes.formatter.use_locale']
+        else:
+            self._useLocale = useLocale
 
     def get_useOffset(self):
         return self._useOffset
@@ -355,6 +360,17 @@ class ScalarFormatter(Formatter):
 
     useOffset = property(fget=get_useOffset, fset=set_useOffset)
 
+    def get_useLocale(self):
+        return self._useLocale
+
+    def set_useLocale(self, val):
+        if val is None:
+            self._useLocale = rcParams['axes.formatter.use_locale']
+        else:
+            self._useLocale = val
+
+    useLocale = property(fget=get_useLocale, fset=set_useLocale)
+    
     def fix_minus(self, s):
         'use a unicode minus rather than hyphen'
         if rcParams['text.usetex'] or not rcParams['axes.unicode_minus']: return s
@@ -388,11 +404,18 @@ class ScalarFormatter(Formatter):
 
     def format_data_short(self,value):
         'return a short formatted string representation of a number'
-        return '%-12g'%value
+        if self._useLocale:
+            return locale.format_string('%-12g', (value,))
+        else:
+            return '%-12g'%value
 
     def format_data(self,value):
         'return a formatted string representation of a number'
-        s =  self._formatSciNotation('%1.10e'% value)
+        if self._useLocale:
+            s = locale.format_string('%1.10e', (value,))
+        else:
+            s = '%1.10e' % value
+        s = self._formatSciNotation(s)
         return self.fix_minus(s)
 
 
@@ -491,14 +514,23 @@ class ScalarFormatter(Formatter):
     def pprint_val(self, x):
         xp = (x-self.offset)/10**self.orderOfMagnitude
         if np.absolute(xp) < 1e-8: xp = 0
-        return self.format % xp
+        if self._useLocale:
+            return locale.format_string(self.format, (xp,))
+        else:
+            return self.format % xp
 
     def _formatSciNotation(self, s):
         # transform 1e+004 into 1e4, for example
+        if self._useLocale:
+            decimal_point = locale.localeconv()['decimal_point']
+            positive = locale.localeconv()['positive_sign']
+        else:
+            decimal_point = '.'
+            positive_sign = '+'
         tup = s.split('e')
         try:
-            significand = tup[0].rstrip('0').rstrip('.')
-            sign = tup[1][0].replace('+', '')
+            significand = tup[0].rstrip('0').rstrip(decimal_point)
+            sign = tup[1][0].replace(positive_sign, '')
             exponent = tup[1][1:].lstrip('0')
             if self._useMathText or self._usetex:
                 if significand == '1':
