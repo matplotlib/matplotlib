@@ -2108,6 +2108,13 @@ class Axes(martist.Artist):
                          numeric offset is specified, it will be
                          used.
           *axis*         [ 'x' | 'y' | 'both' ]
+          *useLocale*    If True, format the number according to
+                         the current locale.  The affects things
+                         such as the character used for the
+                         decimal separator.  If False, use
+                         C-style (English) formatting.  The
+                         default setting is controlled by the
+                         axes.formatter.use_locale rcparam.
           ============   =========================================
 
         Only the major ticks are affected.
@@ -2120,6 +2127,7 @@ class Axes(martist.Artist):
         style = kwargs.pop('style', '').lower()
         scilimits = kwargs.pop('scilimits', None)
         useOffset = kwargs.pop('useOffset', None)
+        use_locale = kwargs.pop('useLocale', None)
         axis = kwargs.pop('axis', 'both').lower()
         if scilimits is not None:
             try:
@@ -2156,6 +2164,11 @@ class Axes(martist.Artist):
                     self.xaxis.major.formatter.set_useOffset(useOffset)
                 if axis == 'both' or axis == 'y':
                     self.yaxis.major.formatter.set_useOffset(useOffset)
+            if useLocale is not None:
+                if axis == 'both' or axis == 'x':
+                    self.xaxis.major.formatter.set_useLocale(useLocale)
+                if axis == 'both' or axis == 'y':
+                    self.yaxis.major.formatter.set_useLocale(useLocale)
         except AttributeError:
             raise AttributeError(
                 "This method only works with the ScalarFormatter.")

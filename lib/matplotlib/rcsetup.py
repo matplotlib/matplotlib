@@ -449,6 +449,7 @@ defaultParams = {
                                # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second
+    'axes.formatter.use_locale' : [False, validate_bool], # Use the current locale to format ticks
     'axes.unicode_minus'        : [True, validate_bool],
     'axes.color_cycle'      : [['b','g','r','c','m','y','k'],
                                     validate_colorlist], # cycle of plot
