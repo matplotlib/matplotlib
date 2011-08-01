@@ -37,7 +37,6 @@ except (ValueError, ImportError, AttributeError):
     preferredencoding = None
 
 def unicode_safe(s):
-    print preferredencoding, type(s)
     if preferredencoding is None: return unicode(s)
     else: return unicode(s, preferredencoding)
 
