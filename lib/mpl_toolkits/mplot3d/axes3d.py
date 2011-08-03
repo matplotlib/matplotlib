@@ -806,9 +806,19 @@ class Axes3D(Axes):
         self._zoom_btn = np.atleast_1d(zoom_btn)
 
     def can_zoom(self) :
+        """
+        Return *True* if this axes supports the zoom box button functionality.
+
+        3D axes objects do not use the zoom box button.
+        """
         return False
 
     def can_pan(self) :
+        """
+        Return *True* if this axes supports the pan/zoom button functionality.
+
+        3D axes objects do not use the pan/zoom button.
+        """
         return False
 
     def cla(self):
