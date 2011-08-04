@@ -2512,12 +2512,13 @@ class NavigationToolbar2(object):
 
         self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if x is not None and y is not None and a.in_axes(event) \
-                    and a.get_navigate() and a.can_pan() :
+            if (x is not None and y is not None and a.in_axes(event) and
+                a.get_navigate() and a.can_pan()) :
                 a.start_pan(x, y, event.button)
                 self._xypress.append((a, i))
                 self.canvas.mpl_disconnect(self._idDrag)
-                self._idDrag=self.canvas.mpl_connect('motion_notify_event', self.drag_pan)
+                self._idDrag=self.canvas.mpl_connect('motion_notify_event',
+                                                     self.drag_pan)
 
         self.press(event)
 
@@ -2538,9 +2539,10 @@ class NavigationToolbar2(object):
 
         self._xypress=[]
         for i, a in enumerate(self.canvas.figure.get_axes()):
-            if x is not None and y is not None and a.in_axes(event) \
-                    and a.get_navigate() and a.can_zoom():
-                self._xypress.append(( x, y, a, i, a.viewLim.frozen(), a.transData.frozen()))
+            if (x is not None and y is not None and a.in_axes(event) and
+                a.get_navigate() and a.can_zoom()) :
+                self._xypress.append(( x, y, a, i, a.viewLim.frozen(),
+                                       a.transData.frozen() ))
 
         id1 = self.canvas.mpl_connect('motion_notify_event', self.drag_zoom)
 
