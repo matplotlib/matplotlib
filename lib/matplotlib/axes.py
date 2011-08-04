@@ -2777,7 +2777,7 @@ class Axes(martist.Artist):
 
     def can_zoom(self):
         """
-        Return *True* if this axes support the zoom box button functionality.
+        Return *True* if this axes supports the zoom box button functionality.
         """
         return True
 
