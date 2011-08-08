@@ -196,7 +196,7 @@ class HandlerLine2D(HandlerNpoints):
         #legline.set_clip_box(None)
         #legline.set_clip_path(None)
         legline.set_drawstyle('default')
-        legline.set_marker('None')
+        legline.set_marker("")
 
 
         legline_marker = Line2D(xdata_marker, ydata[:len(xdata_marker)])
