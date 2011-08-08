@@ -90,6 +90,7 @@ that define the shape.
         CARETRIGHT : 'caretright',
         CARETUP    : 'caretup',
         CARETDOWN  : 'caretdown',
+        "None"       : 'nothing',
         None       : 'nothing',
         ' '        : 'nothing',
         ''         : 'nothing'
