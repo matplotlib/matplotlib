@@ -260,7 +260,7 @@ class HostAxesBase:
         all_handles = Axes_get_legend_handles(self, legend_handler_map)
 
         for ax in self.parasites:
-            all_handles.extend(ax._get_legend_handles)
+            all_handles.extend(ax._get_legend_handles(legend_handler_map))
 
         return all_handles
 
