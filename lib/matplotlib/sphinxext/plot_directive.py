@@ -467,6 +467,8 @@ def run_code(code, code_path, ns=None, function_name=None):
                     exec "import numpy as np\nfrom matplotlib import pyplot as plt\n" in ns
                 else:
                     exec setup.config.plot_pre_code in ns
+            if "__main__" in code:
+                exec "__name__ = '__main__'" in ns
             exec code in ns
             if function_name is not None:
                 exec function_name + "()" in ns
@@ -746,7 +748,7 @@ def run(arguments, content, options, state_machine, state, lineno):
     # copy image files to builder's output directory, if necessary
     if not os.path.exists(dest_dir):
         cbook.mkdirs(dest_dir)
-    
+
     for code_piece, images in results:
         for img in images:
             for fn in img.filenames():
