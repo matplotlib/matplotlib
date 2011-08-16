@@ -1710,8 +1710,10 @@ def matshow(A, fignum=None, **kw):
 
     Tick labels for the xaxis are placed on top.
 
-    With the exception of fignum, keyword arguments are passed to
-    :func:`~matplotlib.pyplot.imshow`.
+    With the exception of *fignum*, keyword arguments are passed to
+    :func:`~matplotlib.pyplot.imshow`.  You may set the *origin*
+    kwarg to "lower" if you want the first row in the array to be
+    at the bottom instead of the top.
 
 
     *fignum*: [ None | integer | False ]
@@ -1724,6 +1726,7 @@ def matshow(A, fignum=None, **kw):
 
       If *fignum* is *False* or 0, a new figure window will **NOT** be created.
     """
+    A = np.asanyarray(A)
     if fignum is False or fignum is 0:
         ax = gca()
     else:
