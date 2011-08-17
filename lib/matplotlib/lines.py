@@ -745,11 +745,8 @@ class Line2D(Artist):
 
         %(MarkerAccepts)s
         """
-        try:
-            self._marker.set_marker(marker)
-        except ValueError,e:
-            verbose.report(str(e))
-
+        self._marker.set_marker(marker)
+        
     def set_markeredgecolor(self, ec):
         """
         Set the marker edge color
