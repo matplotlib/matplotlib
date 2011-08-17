@@ -7,6 +7,130 @@ What's new in matplotlib
 This page just covers the highlights -- for the full story, see the
 `CHANGELOG <http://matplotlib.sourceforge.net/_static/CHANGELOG>`_
 
+
+.. _whats-new-1-1:
+
+new in matplotlib-1.1
+=====================
+
+Animation
+---------
+
+Ryan May invested significant effort to create a backend-independent
+framework for creating animated figures. The :mod:`~matplotlib.animation`
+module is intended to replace the difficult-to-understand,
+backend-specific examples that has existed in the examples listing.
+
+This framework should be considered a beta feature for matplotlib, but
+we highly encourage users to try it out and provide feedback.
+
+Tight Layout
+------------
+
+A frequent issue raised by users of matplotlib is the lack of a layout
+engine to nicely space out elements of the plots. While we still adhere
+to the philosphy of giving users complete control over the placement of
+plot elements, a :mod:`~matplotlib.tight_layout` module was created to
+address the most common layout issues.
+
+:mod:`~matplotlib.tight_layout` will adjust the spacing between subplots
+so that the axis labels do not overlap with neighboring subplots.
+
+Need to acknowledge author
+
+Full IPython 0.11 compatibility
+-------------------------------
+
+The `IPython <http://ipython.org>`_ team has recently released v0.11 of
+their interactive python shell. The matplotlib and IPython teams worked
+to ensure that our packages work well together. This release of matplotlib
+is fully compatible with ipython.
+
+Legend
+------
+
+Jae-Joon Lee has been working on revamping how plot legends are handled
+in matplotlib. This has resulted in some immediate enhancements. First,
+legends for :func:`~matplotlib.pyplot.stem` plots will now display
+correctly. Second, the 'best' placement of a legend has been improved
+in the presence of NaNs. 
+
+mplot3d
+-------
+
+In continuing the efforts to make 3D plotting in matplotlib just as easy
+as 2D plotting, Ben Root has made several improvements to the
+:mod:`~mpl_toolkits.mplot3d` module.
+
+* :class:`~mpl_toolkits.mplot3d.axes3d.Axes3D` has been
+  improved to bring the class towards feature-parity with regular
+  Axes objects
+
+* Documentation for the mplot3d module was significantly expanded.
+
+* Axis labels and orientation improved
+
+* Ticker offset display added
+
+* :func:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
+  gains *zdir* and *offset* kwargs.
+
+* Most 3D plotting functions now support empty inputs
+
+Numerix support removed
+-----------------------
+
+After more than two years of deprecation warnings, Numerix support has
+now been completely removed from matplotlib.
+
+Markers
+-------
+
+The list of available markers for :func:`~matplotlib.pyplot.plot` and
+:func:`~matplotlib.pyplot.scatter` has now been merged. While they
+were mostly similar, some markers existed for one function, but not
+the other. This merge did result in a conflict for the 'd' diamond
+marker. Now, 'd' will be interpreated to always mean "thin" diamond
+while 'D' will mean "regular" diamond.
+
+Thanks to Michael Droettboom for this effort.
+
+Other improvements
+------------------
+
+* Unit support for polar axes and :func:`~matplotlib.axes.Axes.arrow`
+
+* :class:`~matplotlib.projections.polar.PolarAxes` gains
+  'set_theta_direction', 'set_theta_zero_direction' and
+  'set_theta_offset' functions.
+
+* Fixed error in argument handling for tri-functions such as
+  :func:`~matplotlib.pyplot.tripcolor`
+
+* 'axes.labelweight' parameter added to rcParams.
+
+* For :func:`~matplotlib.pyplot.imshow`, *interpolation='nearest'* will
+  now always perform an interpolation. A 'none' option has been added to
+  indicate no interpolation at all.
+
+* An error in the Hammer projection has been fixed.
+
+* *clabel* for :func:`~matplotlib.pyplot.contour` now accepts a callable.
+  Thanks to Daniel Hyams for the original patch!
+
+* Jae-Joon Lee added the :class:`~mpl_toolkits.axes_grid1.axes_divider.HBox`
+  and :class:`~mpl_toolkits.axes_grid1.axes_divider.VBox` classes.
+
+* Christoph Gohike improved memory usage in :func:`~matplotlib.pyplot.imshow`.
+
+* :func:`~matplotlib.pyplot.scatter` now accepts empty inputs.
+
+* The behavior for 'symlog' scale has been fixed, but this may result
+  in some minor changes to existing plots.
+
+
+.. _whats-new-1-0:
+
 new in matplotlib-1.0
 ======================
 
@@ -53,7 +177,7 @@ talented developers for years.  :func:`~matplotlib.pyplot.contourf`
 now handles interior masked regions, and the boundaries of line and
 filled contours coincide.
 
-Additionally, he has contributed a new module `matplotlib.tri` and
+Additionally, he has contributed a new module :mod:`~matplotlib.tri` and
 helper function :func:`~matplotlib.pyplot.triplot` for creating and
 plotting unstructured triangular grids.
 
@@ -138,6 +262,8 @@ Eric Firing went on a bug fixing and closing marathon, closing over
 help from Jae-Joon Lee, Michael Droettboom, Christoph Gohlke and
 Michiel de Hoon.
 
+
+.. _whats-new-0-99:
 
 new in matplotlib-0.99
 ======================
