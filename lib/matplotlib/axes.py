@@ -4904,15 +4904,13 @@ class Axes(martist.Artist):
         *baseline*).
 
         .. seealso::
+            This `document <http://www.mathworks.com/access/helpdesk/help/techdoc/ref/stem.html>`_
+            for details.
 
-            `this document`__
-               for details
 
-            :file:`examples/pylab_examples/stem_plot.py`
-               for a demo
+        **Example:**
 
-        __ http://www.mathworks.com/access/helpdesk/help/techdoc/ref/stem.html
-
+        .. plot:: mpl_examples/pylab_examples/stem_plot.py
         """
         remember_hold=self._hold
         if not self._hold: self.cla()
