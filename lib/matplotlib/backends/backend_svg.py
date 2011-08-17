@@ -641,12 +641,12 @@ class RendererSVG(RendererBase):
                 x1=str(x1), y1=str(y1), x2=str(xb), y2=str(yb))
             writer.element(
                 'stop',
-                offset=0,
+                offset='0',
                 style=generate_css({'stop-color': rgb2hex(c),
                                     'stop-opacity': str(c[-1])}))
             writer.element(
                 'stop',
-                offset=1,
+                offset='1',
                 style=generate_css({'stop-color': rgb2hex(c),
                                     'stop-opacity': "0"}))
             writer.end('linearGradient')
@@ -788,7 +788,7 @@ class RendererSVG(RendererBase):
         if color != '#000000':
             style['fill'] = color
         if gc.get_alpha() != 1.0:
-            style['opacity'] = gc.get_alpha()
+            style['opacity'] = str(gc.get_alpha())
 
         if not ismath:
             font = text2path._get_font(prop)
@@ -891,7 +891,7 @@ class RendererSVG(RendererBase):
         if color != '#000000':
             style['fill'] = color
         if gc.get_alpha() != 1.0:
-            style['opacity'] = gc.get_alpha()
+            style['opacity'] = str(gc.get_alpha())
 
         if not ismath:
             font = self._get_font(prop)
