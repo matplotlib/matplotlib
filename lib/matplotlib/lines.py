@@ -108,7 +108,7 @@ class Line2D(Artist):
     markers = MarkerStyle.markers
     filled_markers = MarkerStyle.filled_markers
     fillStyles = MarkerStyle.fillstyles
-    
+
     zorder = 2
     validCap = ('butt', 'round', 'projecting')
     validJoin =   ('miter', 'round', 'bevel')
@@ -551,7 +551,7 @@ class Line2D(Artist):
                     renderer.draw_markers(
                         gc, alt_marker_path, alt_marker_trans, subsampled,
                         affine.frozen(), rgbFace)
-                    
+
             gc.restore()
 
         gc.restore()
@@ -747,9 +747,9 @@ class Line2D(Artist):
         """
         try:
             self._marker.set_marker(marker)
-        except ValueError as e:
+        except ValueError,e:
             verbose.report(str(e))
-        
+
     def set_markeredgecolor(self, ec):
         """
         Set the marker edge color
