@@ -5770,7 +5770,7 @@ class Axes(martist.Artist):
             marker_obj.get_transform())
         if not marker_obj.is_filled():
             edgecolors = 'face'
-        
+
         collection = mcoll.PathCollection(
                 (path,), scales,
                 facecolors = colors,
@@ -8242,11 +8242,16 @@ class Axes(martist.Artist):
                                                  integer=True))
         return im
 
-
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer, call_axes_locator=True):
         """
         return the tight bounding box of the axes.
         The dimension of the Bbox in canvas coordinate.
+
+        If call_axes_locator is False, it does not call the
+        _axes_locator attribute, which is necessary to get the correct
+        bounding box. call_axes_locator==False can be used if the
+        caller is only intereted in the relative size of the tightbbox
+        compared to the axes bbox.
         """
 
         artists = []
@@ -8256,7 +8261,7 @@ class Axes(martist.Artist):
             return None
 
         locator = self.get_axes_locator()
-        if locator:
+        if locator and call_axes_locator:
             pos = locator(self, renderer)
             self.apply_aspect(pos)
         else:

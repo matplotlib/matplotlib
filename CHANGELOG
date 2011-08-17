@@ -1,3 +1,6 @@
+2011-08-18 Change api of Axes.get_tightbbox and add an optional
+           keyword parameter *call_axes_locator*. - JJL
+
 2011-07-15 The set of markers available in the plot() and scatter()
            commands has been unified.  In general, this gives more
            options to both than were previously available, however,
