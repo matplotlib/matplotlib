@@ -230,8 +230,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         self._tkcanvas.delete(self._tkphoto)
         self._tkphoto = Tk.PhotoImage(
-            master=self._tkcanvas, width=width, height=height)
-        self._tkcanvas.create_image(width/2,height/2,image=self._tkphoto)
+            master=self._tkcanvas, width=int(width), height=int(height))
+        self._tkcanvas.create_image(int(width/2),int(height/2),image=self._tkphoto)
         self.resize_event()
         self.show()
 
@@ -545,7 +545,7 @@ class NavigationToolbar(Tk.Frame):
         xmin, xmax = canvas.figure.bbox.intervalx
         height, width = 50, xmax-xmin
         Tk.Frame.__init__(self, master=self.window,
-                          width=width, height=height,
+                          width=int(width), height=int(height),
                           borderwidth=2)
 
         self.update()  # Make axes menu
@@ -701,7 +701,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         xmin, xmax = self.canvas.figure.bbox.intervalx
         height, width = 50, xmax-xmin
         Tk.Frame.__init__(self, master=self.window,
-                          width=width, height=height,
+                          width=int(width), height=int(height),
                           borderwidth=2)
 
         self.update()  # Make axes menu
