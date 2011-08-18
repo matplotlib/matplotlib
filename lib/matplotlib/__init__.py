@@ -786,7 +786,9 @@ rcParamsDefault = RcParams([ (key, default) for key, (default, converter) in \
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(rcParams['ps.usedistiller'])
 rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
 
-
+if rcParams['axes.formatter.use_locale']:
+    import locale
+    locale.setlocale(locale.LC_ALL, '')
 
 def rc(group, **kwargs):
     """

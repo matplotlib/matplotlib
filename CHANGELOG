@@ -1,3 +1,8 @@
+2011-07-29 A new rcParam "axes.formatter.use_locale" was added, that,
+           when True, will use the current locale to formatter tick
+           labels.  This means that, for example, in the fr_FR locale,
+           ',' will be used as a decimal separator.  - MGD
+
 2011-07-15 The set of markers available in the plot() and scatter()
            commands has been unified.  In general, this gives more
            options to both than were previously available, however,
