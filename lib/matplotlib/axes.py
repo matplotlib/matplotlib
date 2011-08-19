@@ -8214,19 +8214,16 @@ class Axes(martist.Artist):
             *Z*   anything that can be interpreted as a 2-D array
 
         kwargs all are passed to :meth:`~matplotlib.axes.Axes.imshow`.
-        :meth:`matshow` sets defaults for *extent*, *origin*,
-        *interpolation*, and *aspect*; use care in overriding the
-        *extent* and *origin* kwargs, because they interact.  (Also,
-        if you want to change them, you probably should be using
-        imshow directly in your own version of matshow.)
+        :meth:`matshow` sets defaults for *origin*,
+        *interpolation*, and *aspect*; if you want row zero to
+        be at the bottom instead of the top, you can set the *origin*
+        kwarg to "lower".
 
         Returns: an :class:`matplotlib.image.AxesImage` instance.
         '''
-        Z = np.asarray(Z)
+        Z = np.asanyarray(Z)
         nr, nc = Z.shape
-        extent = [-0.5, nc-0.5, nr-0.5, -0.5]
-        kw = {'extent': extent,
-              'origin': 'upper',
+        kw = {'origin': 'upper',
               'interpolation': 'nearest',
               'aspect': 'equal'}          # (already the imshow default)
         kw.update(kwargs)
