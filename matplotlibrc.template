@@ -212,6 +212,8 @@ backend      : %(backend)s
 #axes.formatter.limits : -7, 7 # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second
+#axes.formatter.use_locale : False # When True, format tick labels according to the user's locale.
+                                   # For example, use ',' as a decimal separator in the fr_FR locale.
 #axes.unicode_minus  : True    # use unicode for the minus symbol
                                # rather than hypen.  See http://en.wikipedia.org/wiki/Plus_sign#Plus_sign
 #axes.color_cycle    : b, g, r, c, m, y, k  # color cycle for plot lines

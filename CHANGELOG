@@ -1,6 +1,11 @@
 2011-08-18 Change api of Axes.get_tightbbox and add an optional
            keyword parameter *call_axes_locator*. - JJL
 
+2011-07-29 A new rcParam "axes.formatter.use_locale" was added, that,
+           when True, will use the current locale to format tick
+           labels.  This means that, for example, in the fr_FR locale,
+           ',' will be used as a decimal separator.  - MGD
+
 2011-07-15 The set of markers available in the plot() and scatter()
            commands has been unified.  In general, this gives more
            options to both than were previously available, however,
@@ -11,6 +16,7 @@
               diamond".  "D" can be used for a "diamond".
 
            -MGD
+
 2011-07-13 Fix numerical problems in symlog scale, particularly when
            linthresh <= 1.0.  Symlog plots may look different if one
            was depending on the old broken behavior - MGD

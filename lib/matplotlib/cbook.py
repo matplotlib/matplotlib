@@ -29,7 +29,8 @@ major, minor1, minor2, s, tmp = sys.version_info
 # side effects.  Passing False eliminates those side effects.
 
 try:
-    preferredencoding = locale.getpreferredencoding(False).strip()
+    preferredencoding = locale.getpreferredencoding(
+        matplotlib.rcParams['axes.formatter.use_locale']).strip()
     if not preferredencoding:
         preferredencoding = None
 except (ValueError, ImportError, AttributeError):
