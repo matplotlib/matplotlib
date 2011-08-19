@@ -525,18 +525,24 @@ def test_pcolormesh():
     Zm = ma.masked_where(np.fabs(Qz) < 0.5*np.amax(Qz), Z)
 
     fig = plt.figure()
-    ax = fig.add_subplot(121)
-    ax.pcolormesh(Qx,Qz,Z,  lw=0.5, edgecolors='k')
+    ax = fig.add_subplot(131)
+    ax.pcolormesh(Qx,Qz,Z, lw=0.5, edgecolors='k')
     ax.set_title('lw=0.5')
     ax.set_xticks([])
     ax.set_yticks([])
 
-    ax = fig.add_subplot(122)
+    ax = fig.add_subplot(132)
     ax.pcolormesh(Qx,Qz,Z, lw=3, edgecolors='k')
     ax.set_title('lw=3')
     ax.set_xticks([])
     ax.set_yticks([])
 
+    ax = fig.add_subplot(133)
+    ax.pcolormesh(Qx,Qz,Z, shading="gouraud")
+    ax.set_title('gouraud')
+    ax.set_xticks([])
+    ax.set_yticks([])
+    
 
 @image_comparison(baseline_images=['canonical'])
 def test_canonical():
@@ -619,6 +625,7 @@ def test_markevery_line():
     ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
 
+    
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
