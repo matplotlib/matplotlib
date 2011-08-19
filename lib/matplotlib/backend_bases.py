@@ -637,6 +637,7 @@ class GraphicsContextBase:
 
     def __init__(self):
         self._alpha = 1.0
+        self._forced_alpha = False # if True, _alpha overrides A from RGBA
         self._antialiased = 1  # use 0,1 not True, False for extension code
         self._capstyle = 'butt'
         self._cliprect = None
@@ -772,6 +773,7 @@ class GraphicsContextBase:
         """
         if alpha is not None:
             self._alpha = alpha
+            self._forced_alpha = True
 
     def set_antialiased(self, b):
         """
@@ -824,15 +826,14 @@ class GraphicsContextBase:
         html hex color string, an rgb or rgba unit tuple, or a float between 0
         and 1.  In the latter case, grayscale is used.
 
-        The :class:`GraphicsContextBase` converts colors to rgb
-        internally.  If you know the color is rgb or rgba already, you can set
-        ``isRGB=True`` to avoid the performace hit of the conversion
+        If you know fg is rgb or rgba, set ``isRGB=True`` for
+        efficiency.
         """
         if isRGB:
             self._rgb = fg
         else:
             self._rgb = colors.colorConverter.to_rgba(fg)
-        if len(self._rgb) == 4:
+        if len(self._rgb) == 4 and not self._forced_alpha:
             self._alpha = self._rgb[3]
 
     def set_graylevel(self, frac):
