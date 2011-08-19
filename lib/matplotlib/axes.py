@@ -2109,7 +2109,7 @@ class Axes(martist.Artist):
                          used.
           *axis*         [ 'x' | 'y' | 'both' ]
           *useLocale*    If True, format the number according to
-                         the current locale.  The affects things
+                         the current locale.  This affects things
                          such as the character used for the
                          decimal separator.  If False, use
                          C-style (English) formatting.  The
