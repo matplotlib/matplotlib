@@ -14,7 +14,7 @@ is recommended that the namespaces be kept separate, e.g.::
 
 """
 
-import sys
+import sys, warnings
 
 import matplotlib
 from matplotlib import _pylab_helpers, interactive
@@ -264,6 +264,14 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
 
       figure(1)
 
+    The same applies if *num* is a string. In this case *num* will be used
+    as an explicit figure label::
+
+      figure("today")
+
+    and in windowed backends, the window title will be set to this figure
+    label.
+
     If you are creating many figures, make sure you explicitly call "close"
     on the figures you are not using, because this will enable pylab
     to properly clean up the memory.
@@ -294,15 +302,28 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     if facecolor is None : facecolor = rcParams['figure.facecolor']
     if edgecolor is None : edgecolor = rcParams['figure.edgecolor']
 
+    allnums = get_fignums()
+    figLabel = ''
     if num is None:
-        allnums = [f.num for f in _pylab_helpers.Gcf.get_all_fig_managers()]
         if allnums:
             num = max(allnums) + 1
         else:
             num = 1
+    elif is_string_like(num):
+        figLabel = num
+        allLabels = get_figlabels()
+        if figLabel not in allLabels:
+            if figLabel == 'all':
+                warnings.warn("close('all') closes all existing figures")
+            if len(allLabels):
+                num = max(allnums) + 1
+            else:
+                num = 1
+        else:
+            inum = allLabels.index(figLabel)
+            num = allnums[inum]
     else:
         num = int(num)  # crude validation of num argument
-
 
     figManager = _pylab_helpers.Gcf.get_fig_manager(num)
     if figManager is None:
@@ -315,6 +336,10 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
                                              frameon=frameon,
                                              FigureClass=FigureClass,
                                              **kwargs)
+
+        if figLabel:
+            figManager.set_window_title(figLabel)
+            figManager.canvas.figure.set_label(figLabel)
 
         # make this figure current on button press event
         def make_active(event):
@@ -346,6 +371,12 @@ def get_fignums():
     fignums.sort()
     return fignums
 
+def get_figlabels():
+    "Return a list of existing figure labels."
+    figManagers = _pylab_helpers.Gcf.get_all_fig_managers()
+    figManagers.sort(key=lambda m: m.num)
+    return [m.canvas.figure.get_label() for m in figManagers]
+
 def get_current_fig_manager():
     figManager = _pylab_helpers.Gcf.get_active()
     if figManager is None:
@@ -367,9 +398,11 @@ def close(*args):
 
     ``close()`` by itself closes the current figure
 
+    ``close(h)`` where *h* is a :class:`Figure` instance, closes that figure
+
     ``close(num)`` closes figure number *num*
 
-    ``close(h)`` where *h* is a :class:`Figure` instance, closes that figure
+    ``close(name)`` where *name* is a string, closes figure with that label
 
     ``close('all')`` closes all the figure windows
     """
@@ -385,6 +418,11 @@ def close(*args):
             _pylab_helpers.Gcf.destroy_all()
         elif isinstance(arg, int):
             _pylab_helpers.Gcf.destroy(arg)
+        elif is_string_like(arg):
+            allLabels = get_figlabels()
+            if arg in allLabels:
+                num = get_fignums()[allLabels.index(arg)]
+                _pylab_helpers.Gcf.destroy(num)
         elif isinstance(arg, Figure):
             _pylab_helpers.Gcf.destroy_fig(arg)
         else:
