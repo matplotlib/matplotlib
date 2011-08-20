@@ -637,6 +637,7 @@ class GraphicsContextBase:
 
     def __init__(self):
         self._alpha = 1.0
+        self._forced_alpha = False # if True, _alpha overrides A from RGBA
         self._antialiased = 1  # use 0,1 not True, False for extension code
         self._capstyle = 'butt'
         self._cliprect = None
@@ -742,8 +743,7 @@ class GraphicsContextBase:
 
     def get_rgb(self):
         """
-        returns a tuple of three floats from 0-1.  color can be a
-        MATLAB format string, a html hex color string, or a rgb tuple
+        returns a tuple of three or four floats from 0-1.
         """
         return self._rgb
 
@@ -771,9 +771,9 @@ class GraphicsContextBase:
         Set the alpha value used for blending - not supported on
         all backends
         """
-        if alpha is None:
-            alpha = 1.0
-        self._alpha = alpha
+        if alpha is not None:
+            self._alpha = alpha
+            self._forced_alpha = True
 
     def set_antialiased(self, b):
         """
@@ -823,17 +823,18 @@ class GraphicsContextBase:
     def set_foreground(self, fg, isRGB=False):
         """
         Set the foreground color.  fg can be a MATLAB format string, a
-        html hex color string, an rgb unit tuple, or a float between 0
+        html hex color string, an rgb or rgba unit tuple, or a float between 0
         and 1.  In the latter case, grayscale is used.
 
-        The :class:`GraphicsContextBase` converts colors to rgb
-        internally.  If you know the color is rgb already, you can set
-        ``isRGB=True`` to avoid the performace hit of the conversion
+        If you know fg is rgb or rgba, set ``isRGB=True`` for
+        efficiency.
         """
         if isRGB:
             self._rgb = fg
         else:
             self._rgb = colors.colorConverter.to_rgba(fg)
+        if len(self._rgb) == 4 and not self._forced_alpha:
+            self._alpha = self._rgb[3]
 
     def set_graylevel(self, frac):
         """
