@@ -299,9 +299,15 @@ def drange(dstart, dend, delta):
             delta.microseconds/MUSECONDS_PER_DAY)
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
-    return np.arange(f1, f2, step)
-
-
+    
+    num = int(np.ceil((f2-f1)/step))        #calculate the difference between dend and dstart in times of delta
+    dinterval_end = dstart + num*delta      #calculate end of the interval which will be generated
+    if dinterval_end >= dend:               #ensure, that an half open interval will be generated [dstart, dend)
+        dinterval_end -= delta              #if the endpoint is greated than dend, just subtract one delta
+        num -= 1
+        
+    f2 = _to_ordinalf(dinterval_end) #new float-endpoint
+    return np.linspace(f1, f2, num+1)
 
 ### date tickers and formatters ###
 
