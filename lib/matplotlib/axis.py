@@ -1724,7 +1724,11 @@ class XAxis(Axis):
         """
         If *ignore* is *False*, the order of vmin, vmax
         does not matter; the original axis orientation will
-        be preserved.
+        be preserved. In addition, the view limits can be
+        expanded, but will not be reduced.  This method is
+        for mpl internal use; for normal use, see
+        :meth:`~matplotlib.axes.Axes.set_xlim`.
+
         """
         if ignore:
             self.axes.viewLim.intervalx = vmin, vmax
@@ -1986,7 +1990,11 @@ class YAxis(Axis):
         """
         If *ignore* is *False*, the order of vmin, vmax
         does not matter; the original axis orientation will
-        be preserved.
+        be preserved. In addition, the view limits can be
+        expanded, but will not be reduced.  This method is
+        for mpl internal use; for normal use, see
+        :meth:`~matplotlib.axes.Axes.set_ylim`.
+
         """
         if ignore:
             self.axes.viewLim.intervaly = vmin, vmax
