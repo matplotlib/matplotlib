@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import matplotlib
 matplotlib.use('TkAgg')
 
@@ -9,11 +10,8 @@ from matplotlib.figure import Figure
 import Tkinter as Tk
 import sys
 
-def destroy(e): sys.exit()
-
 root = Tk.Tk()
 root.wm_title("Embedding in TK")
-#root.bind("<Destroy>", destroy)
 
 
 f = Figure(figsize=(5,4), dpi=100)
@@ -33,7 +31,16 @@ toolbar = NavigationToolbar2TkAgg( canvas, root )
 toolbar.update()
 canvas._tkcanvas.pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
 
-#button = Tk.Button(master=root, text='Quit', command=sys.exit)
-#button.pack(side=Tk.BOTTOM)
+def _quit():
+    root.quit()     # stops mainloop
+    root.destroy()  # this is necessary on Windows to prevent
+                    # Fatal Python Error: PyEval_RestoreThread: NULL tstate
+
+button = Tk.Button(master=root, text='Quit', command=_quit)
+button.pack(side=Tk.BOTTOM)
 
 Tk.mainloop()
+# If you put root.destroy() here, it will cause an error if
+# the window is closed with the window manager.
+
+
