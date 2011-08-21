@@ -6645,7 +6645,7 @@ class Axes(martist.Artist):
 
           *interpolation*:
 
-            Acceptable values are *None*, 'nearest', 'bilinear',
+            Acceptable values are *None*, 'none', 'nearest', 'bilinear',
             'bicubic', 'spline16', 'spline36', 'hanning', 'hamming',
             'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
             'bessel', 'mitchell', 'sinc', 'lanczos'
@@ -6653,6 +6653,10 @@ class Axes(martist.Artist):
             If *interpolation* is *None*, default to rc
             ``image.interpolation``. See also the *filternorm* and
             *filterrad* parameters
+
+            If *interpolation* is 'none', then no interpolation is performed
+            on the Agg, ps and pdf backends. Other backends will fall back to
+            'nearest'.
 
           *norm*: [ None | Normalize ]
             An :class:`matplotlib.colors.Normalize` instance; if
