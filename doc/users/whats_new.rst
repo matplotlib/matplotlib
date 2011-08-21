@@ -19,24 +19,28 @@ Animation
 Ryan May invested significant effort to create a backend-independent
 framework for creating animated figures. The :mod:`~matplotlib.animation`
 module is intended to replace the difficult-to-understand,
-backend-specific examples that has existed in the examples listing.
+backend-specific examples that used to exist in the :ref:`examples-index`
+listings.
 
 This framework should be considered a beta feature for matplotlib, but
 we highly encourage users to try it out and provide feedback.
+
+Check out the :ref:`animation-examples-index` and try them out!
+
 
 Tight Layout
 ------------
 
 A frequent issue raised by users of matplotlib is the lack of a layout
-engine to nicely space out elements of the plots. While we still adhere
-to the philosphy of giving users complete control over the placement of
-plot elements, a :mod:`~matplotlib.tight_layout` module was created to
-address the most common layout issues.
+engine to nicely space out elements of the plots. While matplotlib still
+adheres to the philosphy of giving users complete control over the placement
+of plot elements, Jae-Joon Lee created the :mod:`~matplotlib.tight_layout`
+module to address the most common layout issues.
 
 :mod:`~matplotlib.tight_layout` will adjust the spacing between subplots
-so that the axis labels do not overlap with neighboring subplots.
-
-Need to acknowledge author
+so that the axis labels do not overlap with neighboring subplots. A
+:ref:`plotting-guide-tight-layout` has been created to show how to use
+this new tool.
 
 Full IPython 0.11 compatibility
 -------------------------------
@@ -49,11 +53,16 @@ is fully compatible with ipython.
 Legend
 ------
 
-Jae-Joon Lee has been working on revamping how plot legends are handled
+Jae-Joon Lee has also been working on revamping how plot legends are handled
 in matplotlib. This has resulted in some immediate enhancements. First,
-legends for :func:`~matplotlib.pyplot.stem` plots will now display
-correctly. Second, the 'best' placement of a legend has been improved
-in the presence of NaNs. 
+legends for complex plots such as :func:`~matplotlib.pyplot.stem` plots
+will now display correctly. Second, the 'best' placement of a legend has
+been improved in the presence of NANs.
+
+See :ref:`legend-complex-plots` for more detailed explanation and
+examples.
+
+.. plot:: mpl_examples/pylab_examples/legend_demo4.py
 
 mplot3d
 -------
@@ -66,14 +75,15 @@ as 2D plotting, Ben Root has made several improvements to the
   improved to bring the class towards feature-parity with regular
   Axes objects
 
-* Documentation for the mplot3d module was significantly expanded.
+* Documentation for :ref:`toolkit_mplot3d-index` was significantly expanded
 
 * Axis labels and orientation improved
 
 * Ticker offset display added
 
 * :func:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
-  gains *zdir* and *offset* kwargs.
+  gains *zdir* and *offset* kwargs
+.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
 
 * Most 3D plotting functions now support empty inputs
 
