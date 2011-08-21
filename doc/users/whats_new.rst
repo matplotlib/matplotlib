@@ -79,13 +79,14 @@ as 2D plotting, Ben Root has made several improvements to the
 
 * Axis labels and orientation improved
 
-* Ticker offset display added
+* Most 3D plotting functions now support empty inputs
+
+* Ticker offset display added:
+.. plot:: mpl_examples/mplot3d/offset_demo.py
 
 * :func:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
-  gains *zdir* and *offset* kwargs
+  gains *zdir* and *offset* kwargs. You can now do this:
 .. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
-
-* Most 3D plotting functions now support empty inputs
 
 Numerix support removed
 -----------------------
