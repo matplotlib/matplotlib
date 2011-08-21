@@ -55,7 +55,7 @@ Legend
 
 Jae-Joon Lee has also been working on revamping how plot legends are handled
 in matplotlib. This has resulted in some immediate enhancements. First,
-legends for complex plots such as :func:`~matplotlib.pyplot.stem` plots
+legends for complex plots such as :meth:`~matplotlib.pyplot.stem` plots
 will now display correctly. Second, the 'best' placement of a legend has
 been improved in the presence of NANs.
 
@@ -84,7 +84,7 @@ as 2D plotting, Ben Root has made several improvements to the
 * Ticker offset display added:
 .. plot:: mpl_examples/mplot3d/offset_demo.py
 
-* :func:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
+* :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
   gains *zdir* and *offset* kwargs. You can now do this:
 .. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
 
@@ -97,8 +97,8 @@ now been completely removed from matplotlib.
 Markers
 -------
 
-The list of available markers for :func:`~matplotlib.pyplot.plot` and
-:func:`~matplotlib.pyplot.scatter` has now been merged. While they
+The list of available markers for :meth:`~matplotlib.pyplot.plot` and
+:meth:`~matplotlib.pyplot.scatter` has now been merged. While they
 were mostly similar, some markers existed for one function, but not
 the other. This merge did result in a conflict for the 'd' diamond
 marker. Now, 'd' will be interpreated to always mean "thin" diamond
@@ -111,30 +111,33 @@ Other improvements
 
 * Unit support for polar axes and :func:`~matplotlib.axes.Axes.arrow`
 
-* :class:`~matplotlib.projections.polar.PolarAxes` gains
-  'set_theta_direction', 'set_theta_zero_direction' and
-  'set_theta_offset' functions.
+* :class:`~matplotlib.projections.polar.PolarAxes` gains getters and setters for
+  "theta_direction", and "theta_offset" to allow for theta to go in
+  either the clock-wise or counter-clockwise direction and to specify where zero
+  degrees should be placed.
+  :meth:`~matplotlib.projections.polar.PolarAxes.set_theta_zero_location` is an
+  added convenience function.
 
 * Fixed error in argument handling for tri-functions such as
-  :func:`~matplotlib.pyplot.tripcolor`
+  :meth:`~matplotlib.pyplot.tripcolor`
 
-* 'axes.labelweight' parameter added to rcParams.
+* ``axes.labelweight`` parameter added to rcParams.
 
-* For :func:`~matplotlib.pyplot.imshow`, *interpolation='nearest'* will
-  now always perform an interpolation. A 'none' option has been added to
+* For :meth:`~matplotlib.pyplot.imshow`, *interpolation='nearest'* will
+  now always perform an interpolation. A "none" option has been added to
   indicate no interpolation at all.
 
 * An error in the Hammer projection has been fixed.
 
-* *clabel* for :func:`~matplotlib.pyplot.contour` now accepts a callable.
+* *clabel* for :meth:`~matplotlib.pyplot.contour` now accepts a callable.
   Thanks to Daniel Hyams for the original patch!
 
 * Jae-Joon Lee added the :class:`~mpl_toolkits.axes_grid1.axes_divider.HBox`
   and :class:`~mpl_toolkits.axes_grid1.axes_divider.VBox` classes.
 
-* Christoph Gohike improved memory usage in :func:`~matplotlib.pyplot.imshow`.
+* Christoph Gohike improved memory usage in :meth:`~matplotlib.pyplot.imshow`.
 
-* :func:`~matplotlib.pyplot.scatter` now accepts empty inputs.
+* :meth:`~matplotlib.pyplot.scatter` now accepts empty inputs.
 
 * The behavior for 'symlog' scale has been fixed, but this may result
   in some minor changes to existing plots.
