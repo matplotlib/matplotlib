@@ -4,8 +4,8 @@
 Legend guide
 ************
 
-Do not proceed unless you already have read :func:`~matplotlib.pyplot.legend` and
-:class:`matplotlib.legend.Legend`!
+Do not proceed unless you already have read :func:`~matplotlib.pyplot.legend`
+and :class:`matplotlib.legend.Legend`!
 
 
 What to be displayed
@@ -30,7 +30,7 @@ returns a tuple of two lists, i.e., list of artists and list of labels
 (python string).  However, it does not return all of its child
 artists. It returns artists that are currently supported by matplotlib.
 
-For matplotlib v1.0 and before, the supported artists are as follows.
+For matplotlib v1.0 and earlier, the supported artists are as follows.
 
    * :class:`~matplotlib.lines.Line2D`
    * :class:`~matplotlib.patches.Patch`
@@ -186,11 +186,12 @@ legend.
 .. plot:: users/plotting/examples/simple_legend02.py
    :include-source:
 
+.. _legend-complex-plots:
 
 Legend of Complex Plots
 =======================
 
-In matplotlib v1.1 (FIXME when released) and later, the legend is
+In matplotlib v1.1 and later, the legend is
 improved to support more plot commands and ease the customization.
 
 Artist Container
@@ -224,7 +225,7 @@ or ::
     legend([b1], ["Bar 1"])
 
 
-At this time of writing, however, "bar" and "errorbar" are only
+At this time of writing, however, only "bar", "errorbar", and "stem" are
 supported (hopefully the list will increase). Here is an example.
 
 .. plot:: mpl_examples/pylab_examples/legend_demo4.py
@@ -232,7 +233,7 @@ supported (hopefully the list will increase). Here is an example.
 Legend Handler
 --------------
 
-One of the change is that drawing of legend handles is delegated to
+One of the changes is that drawing of legend handles has been delegated to
 legend handlers. For example, :class:`~matplotlib.lines.Line2D`
 instances are handled by
 :class:`~matplotlib.legend_handler.HandlerLine2D`.  The mapping
@@ -247,8 +248,9 @@ Let's consider the following sample code, ::
 
 For each *p_i*, matplotlib
 
-  1. check if *p_i* itself is in the handler_map
-  2. if not, iterate over type(p_i).mro() until a matching key is found in the handler_map
+  1. check if *p_i* is in the handler_map
+  2. if not, iterate over type(p_i).mro() until a matching key is found
+     in the handler_map
 
 
 Unless specified, the defaul handler_map is used. Below is a partial
@@ -260,7 +262,7 @@ list of key-handler pairs included in the default handler map.
   * ...
 
 
-The legend command takes an optional argument of "handler_map". When
+The legend() command takes an optional argument of "handler_map". When
 provided, the default handler map will be updated (using dict.update
 method) with the provided one. ::
 
@@ -279,9 +281,9 @@ instances (p1 and p2). ::
 In the above example, only *p1* will be handled by *my_handler*, while
 others will be handled by default handlers.
 
-The curent default handler_map has handlers for errobar and bar
+The curent default handler_map has handlers for errorbar and bar
 plots. Also, it includes an entry for `tuple` which is mapped to
-`HandlerTuple`. It simply overplots all the handles for items in the
+`HandlerTuple`. It simply plots over all the handles for items in the
 given tuple. For example,
 
 
@@ -312,5 +314,5 @@ pixles, and *handlebox* is a OffsetBox instance. Within the call, you
 create relevant artists (using relevant properties from the *legend*
 and/or *orig_handle*) and add them into the handlebox. The artists
 needs to be scaled according to the fontsize (note that the size is in
-pixel, i.e., this is dpi-scaled value). See legend_handler.py for more
-details.
+pixel, i.e., this is dpi-scaled value). See :mod:`~matplotlib.legend_handler`
+for more details.
