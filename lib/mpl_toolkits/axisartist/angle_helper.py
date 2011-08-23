@@ -142,7 +142,7 @@ def select_step(v1, v2, nv, hour=False, include_last=True):
             levs = levs[0] + np.arange(0, nv+1, 1) * step
         else:
             levs = levs[0] + np.arange(0, nv, 1) * step
-            
+
         n = len(levs)
 
     return np.array(levs), n, factor
@@ -229,25 +229,31 @@ class FormatterDMS(object):
         #ss = [[-1, 1][v>0] for v in values] #not py24 compliant
         values = np.asarray(values)
         ss = np.where(values>0, 1, -1)
+
+        sign_map = {(-1, True):"-"}
+        signs = [sign_map.get((s, v!=0), "") for s, v in zip(ss, values)]
+
         values = np.abs(values)
+
         if factor == 1:
             return ["$%d^{\circ}$" % (s*int(v),) for (s, v) in zip(ss, values)]
         elif factor == 60:
-            return ["$%d^{\circ}\,%02d^{\prime}$" % (s*floor(v/60.), v%60) \
-                    for s, v in zip(ss, values)]
+            return ["$%s%d^{\circ}\,%02d^{\prime}$" % (s,floor(v/60.), v%60) \
+                    for s, v in zip(signs, values)]
         elif factor == 3600:
             if ss[-1] == -1:
                 inverse_order = True
                 values = values[::-1]
+                sings = signs[::-1]
             else:
                 inverse_order = False
             degree = floor(values[0]/3600.)
-            hm_fmt = "$%d^{\circ}\,%02d^{\prime}\,"
+            hm_fmt = "$%s%d^{\circ}\,%02d^{\prime}\,"
             s_fmt = "%02d^{\prime\prime}$"
             l_hm_old = ""
             r = []
-            for v in values-3600*degree:
-                l_hm = hm_fmt % (ss[0]*degree, floor(v/60.))
+            for v, s in zip(values-3600*degree, signs):
+                l_hm = hm_fmt % (s, degree, floor(v/60.))
                 l_s = s_fmt % (v%60,)
                 if l_hm != l_hm_old:
                     l_hm_old = l_hm
@@ -353,3 +359,7 @@ if __name__ == "__main__":
 
     print select_step(-180, 180, 10, hour=False)
     print select_step(-12, 12, 10, hour=True)
+
+    fmt = FormatterDMS()
+    #print fmt("left", 60, [0, -30, -60])
+    print fmt("left", 3600, [0, -30, -60])
