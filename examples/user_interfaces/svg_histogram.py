@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*-encoding:utf8-*-
+#-*- encoding:utf-8 -*-
 
 """
 Demonstrate how to create an interactive histogram, in which bars
