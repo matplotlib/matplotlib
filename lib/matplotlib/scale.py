@@ -355,10 +355,9 @@ class SymmetricalLogScale(ScaleBase):
         def transform(self, a):
             a = np.asarray(a)
             sign = np.sign(a)
-            masked = ma.masked_inside(a, -1.0, 1.0, copy=False)
             result = np.where((a >= -1.0) & (a <= 1.0),
                               a * self.linthresh,
-                              sign * np.power(self.base, np.abs(a - sign * self._linadjust)))
+                              sign * np.power(self.base, np.abs(a) - self._linadjust))
             return result
 
         def inverted(self):
