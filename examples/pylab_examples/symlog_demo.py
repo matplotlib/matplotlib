@@ -7,7 +7,7 @@ y = arange(0, 100.0, dt)
 
 subplot(311)
 plot(x, y)
-xscale('symlog')
+xscale('symlog', linthreshx=0.1)
 ylabel('symlogx')
 grid(True)
 gca().xaxis.grid(True, which='minor')  # minor grid on too
