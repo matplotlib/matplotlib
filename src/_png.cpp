@@ -262,7 +262,11 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
         fclose(fp);
     }
 
-    return Py::Object();
+    if (PyErr_Occurred()) {
+        throw Py::Exception();
+    } else {
+        return Py::Object();
+    }
 }
 
 static void _read_png_data(PyObject* py_file_obj, png_bytep data, png_size_t length)
@@ -551,7 +555,12 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
     }
     delete [] row_pointers;
 
-    return (PyObject*)A;
+    if (PyErr_Occurred()) {
+        Py_DECREF((PyObject *)A);
+        return NULL;
+    } else {
+        return (PyObject *)A;
+    }
 }
 
 Py::Object
