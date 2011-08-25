@@ -354,7 +354,7 @@ class Line2D(Artist):
         bbox.update_from_data_xy(self.get_transform().transform(self.get_xydata()),
                                  ignore=True)
         # correct for marker size, if any
-        if self._marker:
+        if self._marker is not None:
             ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
             bbox = bbox.padded(ms)
         return bbox
@@ -506,7 +506,7 @@ class Line2D(Artist):
                 drawFunc = getattr(self, funcname)
                 drawFunc(renderer, gc, tpath, affine.frozen())
 
-        if self._marker:
+        if self._marker is not None:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
             gc.set_foreground(self.get_markeredgecolor())
