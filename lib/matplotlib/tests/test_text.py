@@ -3,12 +3,12 @@ import numpy as np
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
-
+import warnings
 
 @image_comparison(baseline_images=['font_styles'])
 def test_font_styles():
     from matplotlib.font_manager import FontProperties
-
+    warnings.filterwarnings('ignore','findfont: Font family \[\'Foo\'\] not found. Falling back to .',UserWarning,module='matplotlib.font_manager')
     fig = plt.figure()
     ax = plt.subplot( 1, 1, 1 )
 

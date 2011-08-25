@@ -50,6 +50,13 @@ The Locator subclasses defined here are
     :class:`MaxNLocator` with simple defaults. This is the default
     tick locator for most plotting.
 
+:class:`AutoMinorLocator`
+    locator for minor ticks when the axis is linear and the
+    major ticks are uniformly spaced.  It subdivides the major
+    tick interval into a specified number of minor intervals,
+    defaulting to 4 or 5 depending on the major interval.
+
+
 There are a number of locators specialized for date locations - see
 the dates module
 
@@ -118,6 +125,7 @@ more information and examples of using date locators and formatters.
 
 from __future__ import division, print_function
 import decimal
+import locale
 import math
 import numpy as np
 from matplotlib import rcParams
@@ -322,7 +330,7 @@ class ScalarFormatter(Formatter):
 
     """
 
-    def __init__(self, useOffset=True, useMathText=False):
+    def __init__(self, useOffset=True, useMathText=False, useLocale=None):
         # useOffset allows plotting small data ranges with large offsets:
         # for example: [1+1e-9,1+2e-9,1+3e-9]
         # useMathText will render the offset and scientific notation in mathtext
@@ -333,6 +341,10 @@ class ScalarFormatter(Formatter):
         self.format = ''
         self._scientific = True
         self._powerlimits = rcParams['axes.formatter.limits']
+        if useLocale is None:
+            self._useLocale = rcParams['axes.formatter.use_locale']
+        else:
+            self._useLocale = useLocale
 
     def get_useOffset(self):
         return self._useOffset
@@ -347,6 +359,17 @@ class ScalarFormatter(Formatter):
 
     useOffset = property(fget=get_useOffset, fset=set_useOffset)
 
+    def get_useLocale(self):
+        return self._useLocale
+
+    def set_useLocale(self, val):
+        if val is None:
+            self._useLocale = rcParams['axes.formatter.use_locale']
+        else:
+            self._useLocale = val
+
+    useLocale = property(fget=get_useLocale, fset=set_useLocale)
+    
     def fix_minus(self, s):
         'use a unicode minus rather than hyphen'
         if rcParams['text.usetex'] or not rcParams['axes.unicode_minus']: return s
@@ -380,11 +403,18 @@ class ScalarFormatter(Formatter):
 
     def format_data_short(self,value):
         'return a short formatted string representation of a number'
-        return '%-12g'%value
+        if self._useLocale:
+            return locale.format_string('%-12g', (value,))
+        else:
+            return '%-12g'%value
 
     def format_data(self,value):
         'return a formatted string representation of a number'
-        s =  self._formatSciNotation('%1.10e'% value)
+        if self._useLocale:
+            s = locale.format_string('%1.10e', (value,))
+        else:
+            s = '%1.10e' % value
+        s = self._formatSciNotation(s)
         return self.fix_minus(s)
 
 
@@ -483,14 +513,23 @@ class ScalarFormatter(Formatter):
     def pprint_val(self, x):
         xp = (x-self.offset)/10**self.orderOfMagnitude
         if np.absolute(xp) < 1e-8: xp = 0
-        return self.format % xp
+        if self._useLocale:
+            return locale.format_string(self.format, (xp,))
+        else:
+            return self.format % xp
 
     def _formatSciNotation(self, s):
         # transform 1e+004 into 1e4, for example
+        if self._useLocale:
+            decimal_point = locale.localeconv()['decimal_point']
+            positive = locale.localeconv()['positive_sign']
+        else:
+            decimal_point = '.'
+            positive_sign = '+'
         tup = s.split('e')
         try:
-            significand = tup[0].rstrip('0').rstrip('.')
-            sign = tup[1][0].replace('+', '')
+            significand = tup[0].rstrip('0').rstrip(decimal_point)
+            sign = tup[1][0].replace(positive_sign, '')
             exponent = tup[1][1:].lstrip('0')
             if self._useMathText or self._usetex:
                 if significand == '1':
@@ -1336,32 +1375,49 @@ class SymmetricalLogLocator(Locator):
     def __call__(self):
         'Return the locations of the ticks'
         b = self._transform.base
+        t = self._transform.linthresh
 
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = self._transform.transform((vmin, vmax))
 
         if vmax<vmin:
             vmin, vmax = vmax, vmin
-        numdec = math.floor(vmax)-math.ceil(vmin)
 
-        if self._subs is None:
-            if numdec>10: subs = np.array([1.0])
-            elif numdec>6: subs = np.arange(2.0, b, 2.0)
-            else: subs = np.arange(2.0, b)
+        lt = np.log(t) / np.log(b)
+
+        if vmin < 0:
+            if vmax < 0:
+                numdec = vmax - vmin + 1
+            else:
+                numdec = (-vmin - lt + 1) + 1 + (vmax - lt + 1)
         else:
-            subs = np.asarray(self._subs)
+            numdec = vmax - vmin + 1
 
         stride = 1
         while numdec/stride+1 > self.numticks:
             stride += 1
 
-        decades = np.arange(math.floor(vmin), math.ceil(vmax)+stride, stride)
+        if self._subs is None:
+            subs = np.arange(2.0, b)
+        else:
+            subs = np.asarray(self._subs)
+
+        if vmin < 0:
+            if vmax < 0:
+                decades = -(b ** np.arange(vmin, vmax + 1, stride))
+            else:
+                decades = np.asarray(list(-(b ** np.arange(np.floor(lt), np.ceil(-vmin) + stride, stride))[::-1]) +
+                                     [0] +
+                                     list(b ** np.arange(np.floor(lt), np.ceil(vmax) + stride, stride)))
+        else:
+            decades = b ** np.arange(vmin, vmax + 1, stride)
+
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
             for decade in decades:
-                ticklocs.extend(subs * (np.sign(decade) * b ** np.abs(decade)))
+                ticklocs.extend(subs * decade)
         else:
-            ticklocs = np.sign(decades) * b ** np.abs(decades)
+            ticklocs = decades
         return self.raise_if_exceeds(np.array(ticklocs))
 
     def view_limits(self, vmin, vmax):
@@ -1401,6 +1457,16 @@ class AutoMinorLocator(Locator):
     major ticks. Assumes the scale is linear and major ticks are
     evenly spaced.
     """
+    def __init__(self, n=None):
+        """
+        *n* is the number of subdivisions of the interval between
+        major ticks; e.g., n=2 will place a single minor tick midway
+        between major ticks.
+
+        If *n* is omitted or None, it will be set to 5 or 4.
+        """
+        self.ndivs = n
+
     def __call__(self):
         'Return the locations of the ticks'
         majorlocs = self.axis.get_majorticklocs()
@@ -1409,25 +1475,28 @@ class AutoMinorLocator(Locator):
         except IndexError:
             raise ValueError('Need at least two major ticks to find minor '
                              'tick locations')
-        # see whether major step should be divided by 5, 4. This
-        # should cover most cases.
-        temp = float(('%e' % majorstep).split('e')[0])
-        if temp % 5 < 1e-10:
-            minorstep = majorstep / 5.
-        else:
-            minorstep = majorstep / 4.
 
-        tmin = majorlocs[0] - majorstep
-        tmax = majorlocs[-1] + majorstep
-        locs = np.arange(tmin, tmax, minorstep)
+        if self.ndivs is None:
+            x = int(round(10 ** (np.log10(majorstep) % 1)))
+            if x in [1, 5, 10]:
+                ndivs = 5
+            else:
+                ndivs = 4
+        else:
+            ndivs = self.ndivs
+
+        minorstep = majorstep / ndivs
+
         vmin, vmax = self.axis.get_view_interval()
         if vmin > vmax:
             vmin,vmax = vmax,vmin
-        locs = locs[(vmin < locs) & (locs < vmax)]
 
-        # don't create minor ticks on top of existing major ticks
-        diff = 0.5 * abs(locs[1] - locs[0])
-        locs = [l for l in locs if (np.abs(l - majorlocs) > diff).all()]
+        t0 = majorlocs[0]
+        tmin = np.ceil((vmin - t0) / minorstep) * minorstep
+        tmax = np.floor((vmax - t0) / minorstep) * minorstep
+        locs = np.arange(tmin, tmax, minorstep) + t0
+        cond = np.abs((locs - t0) % majorstep) > minorstep/10.0
+        locs = locs.compress(cond)
 
         return self.raise_if_exceeds(np.array(locs))
 
@@ -1494,4 +1563,4 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'LogFormatterMathtext', 'Locator', 'IndexLocator',
            'FixedLocator', 'NullLocator', 'LinearLocator',
            'LogLocator', 'AutoLocator', 'MultipleLocator',
-           'MaxNLocator', )
+           'MaxNLocator', 'AutoMinorLocator',)

@@ -21,9 +21,7 @@ def tripcolor(ax, *args, **kwargs):
       tripcolor(x, y, ...)
       tripcolor(x, y, triangles, ...)
       tripcolor(x, y, triangles=triangles, ...)
-      tripcolor(x, y, mask, ...)
       tripcolor(x, y, mask=mask, ...)
-      tripcolor(x, y, triangles, mask, ...)
       tripcolor(x, y, triangles, mask=mask, ...)
 
     in which case a Triangulation object will be created.  See

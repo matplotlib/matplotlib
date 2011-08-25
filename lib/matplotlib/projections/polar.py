@@ -37,22 +37,33 @@ class PolarAxes(Axes):
         output_dims = 2
         is_separable = False
 
-        def __init__(self, axis=None):
+        def __init__(self, axis=None, use_rmin=True):
             Transform.__init__(self)
             self._axis = axis
+            self._use_rmin = use_rmin
 
         def transform(self, tr):
             xy = np.empty(tr.shape, np.float_)
             if self._axis is not None:
-                rmin = self._axis.viewLim.ymin
+                if self._use_rmin:
+                    rmin = self._axis.viewLim.ymin
+                else:
+                    rmin = 0
+                theta_offset = self._axis.get_theta_offset()
+                theta_direction = self._axis.get_theta_direction()
             else:
                 rmin = 0
+                theta_offset = 0
+                theta_direction = 1
 
             t = tr[:, 0:1]
             r = tr[:, 1:2]
             x = xy[:, 0:1]
             y = xy[:, 1:2]
 
+            t *= theta_direction
+            t += theta_offset
+            
             if rmin != 0:
                 r = r - rmin
                 mask = r < 0
@@ -80,7 +91,7 @@ class PolarAxes(Axes):
         transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
 
         def inverted(self):
-            return PolarAxes.InvertedPolarTransform(self._axis)
+            return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin)
         inverted.__doc__ = Transform.inverted.__doc__
 
     class PolarAffine(Affine2DBase):
@@ -122,23 +133,40 @@ class PolarAxes(Axes):
         output_dims = 2
         is_separable = False
 
-        def __init__(self, axis=None):
+        def __init__(self, axis=None, use_rmin=True):
             Transform.__init__(self)
             self._axis = axis
+            self._use_rmin = use_rmin
 
         def transform(self, xy):
+            if self._axis is not None:
+                if self._use_rmin:
+                    rmin = self._axis.viewLim.ymin
+                else:
+                    rmin = 0
+                theta_offset = self._axis.get_theta_offset()
+                theta_direction = self._axis.get_theta_direction()
+            else:
+                rmin = 0
+                theta_offset = 0
+                theta_direction = 1
+            
             x = xy[:, 0:1]
             y = xy[:, 1:]
             r = np.sqrt(x*x + y*y)
-            if self._axis is not None:
-                r += self._axis.viewLim.ymin
             theta = np.arccos(x / r)
             theta = np.where(y < 0, 2 * np.pi - theta, theta)
+
+            theta -= theta_offset
+            theta *= theta_direction
+
+            r += rmin
+            
             return np.concatenate((theta, r), 1)
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
-            return PolarAxes.PolarTransform()
+            return PolarAxes.PolarTransform(self._axis, self._use_rmin)
         inverted.__doc__ = Transform.inverted.__doc__
 
     class ThetaFormatter(Formatter):
@@ -232,6 +260,9 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         # Why do we need to turn on yaxis tick labels, but
         # xaxis tick labels are already on?
 
+        self.set_theta_offset(0)
+        self.set_theta_direction(1)
+        
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = maxis.XAxis(self)
@@ -254,7 +285,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         self.transProjection = self.PolarTransform(self)
 
         # This one is not aware of rmin
-        self.transPureProjection = self.PolarTransform()
+        self.transPureProjection = self.PolarTransform(self, use_rmin=False)
 
         # An affine transformation on the data, generally to limit the
         # range of the axes
@@ -347,6 +378,67 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
     def get_rmin(self):
         return self.viewLim.ymin
 
+    def set_theta_offset(self, offset):
+        """
+        Set the offset for the location of 0 in radians.
+        """
+        self._theta_offset = offset
+
+    def get_theta_offset(self):
+        """
+        Get the offset for the location of 0 in radians.
+        """
+        return self._theta_offset
+
+    def set_theta_zero_location(self, loc):
+        """
+        Sets the location of theta's zero.  (Calls set_theta_offset
+        with the correct value in radians under the hood.)
+
+        May be one of "N", "NW", "W", "SW", "S", "SE", "E", or "NE".
+        """
+        mapping = {
+            'N': np.pi * 0.5,
+            'NW': np.pi * 0.75,
+            'W': np.pi,
+            'SW': np.pi * 1.25,
+            'S': np.pi * 1.5,
+            'SE': np.pi * 1.75,
+            'E': 0,
+            'NE': np.pi * 0.25 }
+        return self.set_theta_offset(mapping[loc])
+    
+    def set_theta_direction(self, direction):
+        """
+        Set the direction in which theta increases.
+
+        clockwise, -1:
+           Theta increases in the clockwise direction
+
+        counterclockwise, anticlockwise, 1:
+           Theta increases in the counterclockwise direction
+        """
+        if direction in ('clockwise',):
+            self._direction = -1
+        elif direction in ('counterclockwise', 'anticlockwise'):
+            self._direction = 1
+        elif direction in (1, -1):
+            self._direction = direction
+        else:
+            raise ValueError("direction must be 1, -1, clockwise or counterclockwise")
+
+    def get_theta_direction(self):
+        """
+        Get the direction in which theta increases.
+
+        -1:
+           Theta increases in the clockwise direction
+
+        1:
+           Theta increases in the counterclockwise direction
+        """
+        return self._direction
+        
     def set_rlim(self, *args, **kwargs):
         if 'rmin' in kwargs:
             kwargs['ymin'] = kwargs.pop('rmin')
@@ -481,9 +573,21 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
     def can_zoom(self):
         """
-        Return True if this axes support the zoom box
+        Return *True* if this axes supports the zoom box button functionality.
+
+        Polar axes do not support zoom boxes.
         """
         return False
+
+    def can_pan(self) :
+        """
+        Return *True* if this axes supports the pan/zoom button functionality.
+
+        For polar axes, this is slightly misleading. Both panning and
+        zooming are performed by the same button. Panning is performed
+        in azimuth while zooming is done along the radial.
+        """
+        return True
 
     def start_pan(self, x, y, button):
         angle = self._r_label1_position.to_values()[4] / 180.0 * np.pi

@@ -23,9 +23,7 @@ def triplot(ax, *args, **kwargs):
       triplot(x, y, ...)
       triplot(x, y, triangles, ...)
       triplot(x, y, triangles=triangles, ...)
-      triplot(x, y, mask, ...)
       triplot(x, y, mask=mask, ...)
-      triplot(x, y, triangles, mask, ...)
       triplot(x, y, triangles, mask=mask, ...)
 
     in which case a Triangulation object will be created.  See

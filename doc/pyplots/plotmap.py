@@ -1,8 +1,14 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
 try:
     from mpl_toolkits.basemap import Basemap
-    import matplotlib.pyplot as plt
-    import numpy as np
+    have_basemap = True
+except ImportError:
+    have_basemap = False
 
+
+def plotmap():
     # create figure
     fig = plt.figure(figsize=(8,8))
     # set up orthographic map projection with
@@ -40,6 +46,16 @@ try:
     # draw blue marble image in background.
     # (downsample the image by 50% for speed)
     map.bluemarble(scale=0.5)
-    plt.show()
-except ImportError:
-    pass
+
+def plotempty():
+    # create figure
+    fig = plt.figure(figsize=(8,8))
+    fig.text(0.5, 0.5, "Sorry, could not import Basemap",
+                                horizontalalignment='center')
+
+if have_basemap:
+    plotmap()
+else:
+    plotempty()
+plt.show()
+

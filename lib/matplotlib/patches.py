@@ -112,7 +112,7 @@ class Patch(artist.Artist):
             return polygons[0]
         return []
 
-    def contains(self, mouseevent):
+    def contains(self, mouseevent, radius=None):
         """Test whether the mouse event occurred in the patch.
 
         Returns T/F, {}
@@ -122,18 +122,20 @@ class Patch(artist.Artist):
         # algebraic solution to hit-testing should override this
         # method.
         if callable(self._contains): return self._contains(self,mouseevent)
-
+        if radius is None:
+            radius = self.get_linewidth()
         inside = self.get_path().contains_point(
-            (mouseevent.x, mouseevent.y), self.get_transform())
+            (mouseevent.x, mouseevent.y), self.get_transform(), radius)
         return inside, {}
 
-    def contains_point(self, point):
+    def contains_point(self, point, radius=None):
         """
         Returns *True* if the given point is inside the path
         (transformed with its transform attribute).
         """
-        return self.get_path().contains_point(point,
-                                              self.get_transform())
+        if radius is None:
+            radius = self.get_linewidth()
+        return self.get_path().contains_point(point, self.get_transform(), radius)
 
     def update_from(self, other):
         """
@@ -978,6 +980,8 @@ class FancyArrow(Polygon):
             verts = np.dot(coords, M) + (x+dx, y+dy)
 
         Polygon.__init__(self, map(tuple, verts), **kwargs)
+
+docstring.interpd.update({"FancyArrow":FancyArrow.__init__.__doc__})
 
 class YAArrow(Patch):
     """

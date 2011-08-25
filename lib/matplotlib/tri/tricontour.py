@@ -110,9 +110,7 @@ class TriContourSet(ContourSet):
           tricontour(x, y, ...)
           tricontour(x, y, triangles, ...)
           tricontour(x, y, triangles=triangles, ...)
-          tricontour(x, y, mask, ...)
           tricontour(x, y, mask=mask, ...)
-          tricontour(x, y, triangles, mask, ...)
           tricontour(x, y, triangles, mask=mask, ...)
 
         in which case a Triangulation object will be created.  See

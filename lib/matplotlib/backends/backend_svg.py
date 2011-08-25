@@ -452,7 +452,7 @@ class RendererSVG(RendererBase):
                 glyph = font.load_char(char, flags=LOAD_NO_HINTING)
                 verts, codes = font.get_path()
                 path = Path(verts, codes)
-                path_data = self._convert_path(path, None)
+                path_data = self._convert_path(path)
                 # name = font.get_glyph_name(char)
                 writer.element(
                     u'glyph',
@@ -484,7 +484,7 @@ class RendererSVG(RendererBase):
         """
         return rcParams['svg.image_noscale']
 
-    def _convert_path(self, path, transform, clip=None, simplify=None):
+    def _convert_path(self, path, transform=None, clip=None, simplify=None):
         if clip:
             clip = (0.0, 0.0, self.width, self.height)
         else:
@@ -646,12 +646,12 @@ class RendererSVG(RendererBase):
                 x1=unicode(x1), y1=unicode(y1), x2=unicode(xb), y2=unicode(yb))
             writer.element(
                 u'stop',
-                offset=0,
-                style=generate_css({u'stop-color': rgb2hex(c),
-                                    u'stop-opacity': unicode(c[-1])}))
+                offset=u'0',
+                style=generate_css({'stop-color': rgb2hex(c),
+                                    'stop-opacity': unicode(c[-1])}))
             writer.element(
                 u'stop',
-                offset=1,
+                offset=u'1',
                 style=generate_css({u'stop-color': rgb2hex(c),
                                     u'stop-opacity': u"0"}))
             writer.end(u'linearGradient')
@@ -794,7 +794,7 @@ class RendererSVG(RendererBase):
         if color != '#000000':
             style['fill'] = color
         if gc.get_alpha() != 1.0:
-            style[u'opacity'] = gc.get_alpha()
+            style[u'opacity'] = unicode(gc.get_alpha())
 
         if not ismath:
             font = text2path._get_font(prop)
@@ -804,13 +804,11 @@ class RendererSVG(RendererBase):
             y -= ((font.get_descent() / 64.0) *
                   (prop.get_size_in_points() / text2path.FONT_SCALE))
 
-            _flip = Affine2D().scale(1.0, -1.0)
-
             if glyph_map_new:
                 writer.start(u'defs')
                 for char_id, glyph_path in glyph_map_new.iteritems():
                     path = Path(*glyph_path)
-                    path_data = self._convert_path(path, _flip, simplify=False)
+                    path_data = self._convert_path(path, simplify=False)
                     writer.element(u'path', id=char_id, d=path_data)
                 writer.end(u'defs')
 
@@ -818,10 +816,11 @@ class RendererSVG(RendererBase):
 
             attrib = {}
             attrib[u'style'] = generate_css(style)
+            font_scale = fontsize / text2path.FONT_SCALE
             attrib[u'transform'] = generate_transform([
                 (u'translate', (x, y)),
                 (u'rotate', (-angle,)),
-                (u'scale', (fontsize / text2path.FONT_SCALE,))])
+                (u'scale', (font_scale, -font_scale))])
 
             writer.start(u'g', attrib=attrib)
             for glyph_id, xposition, yposition, scale in glyph_info:
@@ -857,19 +856,19 @@ class RendererSVG(RendererBase):
                         path_data = u""
                     else:
                         path = Path(*glyph_path)
-                        path_data = self._convert_path(path, None, simplify=False)
+                        path_data = self._convert_path(path, simplify=False)
                     writer.element(u'path', id=char_id, d=path_data)
                 writer.end(u'defs')
 
                 glyph_map.update(glyph_map_new)
 
             attrib = {}
+            font_scale = fontsize / text2path.FONT_SCALE
             attrib[u'style'] = generate_css(style)
             attrib[u'transform'] = generate_transform([
                 (u'translate', (x, y)),
                 (u'rotate', (-angle,)),
-                (u'scale', (fontsize / text2path.FONT_SCALE,
-                           -fontsize / text2path.FONT_SCALE))])
+                (u'scale', (font_scale, -font_scale))])
 
             writer.start(u'g', attrib=attrib)
             for char_id, xposition, yposition, scale in glyph_info:
@@ -885,7 +884,7 @@ class RendererSVG(RendererBase):
 
             for verts, codes in rects:
                 path = Path(verts, codes)
-                path_data = self._convert_path(path, None, simplify=False)
+                path_data = self._convert_path(path, simplify=False)
                 writer.element(u'path', d=path_data)
 
             writer.end('g')
@@ -898,7 +897,7 @@ class RendererSVG(RendererBase):
         if color != '#000000':
             style[u'fill'] = color
         if gc.get_alpha() != 1.0:
-            style[u'opacity'] = gc.get_alpha()
+            style[u'opacity'] = unicode(gc.get_alpha())
 
         if not ismath:
             font = self._get_font(prop)

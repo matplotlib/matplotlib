@@ -798,7 +798,9 @@ rcParamsDefault = RcParams([ (key, default) for key, (default, converter) in \
 rcParams['ps.usedistiller'] = checkdep_ps_distiller(rcParams['ps.usedistiller'])
 rcParams['text.usetex'] = checkdep_usetex(rcParams['text.usetex'])
 
-
+if rcParams['axes.formatter.use_locale']:
+    import locale
+    locale.setlocale(locale.LC_ALL, '')
 
 def rc(group, **kwargs):
     """
@@ -977,6 +979,7 @@ default_test_modules = [
     'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_axes',
+    'matplotlib.tests.test_figure',
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_spines',
     'matplotlib.tests.test_image',

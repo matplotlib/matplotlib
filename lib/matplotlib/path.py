@@ -266,7 +266,7 @@ class Path(object):
         return Path(transform.transform(self.vertices), self.codes,
                     self._interpolation_steps)
 
-    def contains_point(self, point, transform=None):
+    def contains_point(self, point, transform=None, radius=0.0):
         """
         Returns *True* if the path contains the given point.
 
@@ -275,7 +275,8 @@ class Path(object):
         """
         if transform is not None:
             transform = transform.frozen()
-        return point_in_path(point[0], point[1], self, transform)
+        result = point_in_path(point[0], point[1], radius, self, transform)
+        return result
 
     def contains_path(self, path, transform=None):
         """

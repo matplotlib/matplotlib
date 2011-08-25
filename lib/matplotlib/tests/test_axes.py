@@ -310,6 +310,17 @@ def test_polar_rmin():
     ax.set_rmax(2.0)
     ax.set_rmin(0.5)
 
+@image_comparison(baseline_images=['polar_theta_position'])
+def test_polar_theta_position():
+    r = np.arange(0, 3.0, 0.01)
+    theta = 2*np.pi*r
+
+    fig = plt.figure()
+    ax = fig.add_axes([0.1, 0.1, 0.8, 0.8], polar=True)
+    ax.plot(theta, r)
+    ax.set_theta_zero_location("NW")
+    ax.set_theta_direction('clockwise')
+    
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
     from datetime import datetime
@@ -364,7 +375,11 @@ def test_hexbin_extent():
 @image_comparison(baseline_images=['nonfinite_limits'])
 def test_nonfinite_limits():
     x = np.arange(0., np.e, 0.01)
-    y = np.log(x)
+    olderr = np.seterr(divide='ignore') #silence divide by zero warning from log(0)
+    try:
+        y = np.log(x)
+    finally:
+        np.seterr(**olderr)
     x[len(x)/2] = np.nan
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -458,6 +473,43 @@ def test_symlog():
     ax.set_xscale=('linear')
     ax.set_ylim(-1,10000000)
 
+@image_comparison(baseline_images=['symlog2'])
+def test_symlog2():
+    # Numbers from -50 to 50, with 0.1 as step
+    x = np.arange(-50,50, 0.001)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(511)
+    # Plots a simple linear function 'f(x) = x'
+    ax.plot(x, x)
+    ax.set_xscale('symlog', linthreshx=20.0)
+    ax.grid(True)
+
+    ax = fig.add_subplot(512)
+    # Plots a simple linear function 'f(x) = x'
+    ax.plot(x, x)
+    ax.set_xscale('symlog', linthreshx=2.0)
+    ax.grid(True)
+
+    ax = fig.add_subplot(513)
+    # Plots a simple linear function 'f(x) = x'
+    ax.plot(x, x)
+    ax.set_xscale('symlog', linthreshx=1.0)
+    ax.grid(True)
+
+    ax = fig.add_subplot(514)
+    # Plots a simple linear function 'f(x) = x'
+    ax.plot(x, x)
+    ax.set_xscale('symlog', linthreshx=0.1)
+    ax.grid(True)
+
+    ax = fig.add_subplot(515)
+    # Plots a simple linear function 'f(x) = x'
+    ax.plot(x, x)
+    ax.set_xscale('symlog', linthreshx=0.01)
+    ax.grid(True)
+    ax.set_ylim(-0.1, 0.1)
+    
 @image_comparison(baseline_images=['pcolormesh'], tol=0.02)
 def test_pcolormesh():
     n = 12
@@ -474,18 +526,24 @@ def test_pcolormesh():
     Zm = ma.masked_where(np.fabs(Qz) < 0.5*np.amax(Qz), Z)
 
     fig = plt.figure()
-    ax = fig.add_subplot(121)
-    ax.pcolormesh(Qx,Qz,Z,  lw=0.5, edgecolors='k')
+    ax = fig.add_subplot(131)
+    ax.pcolormesh(Qx,Qz,Z, lw=0.5, edgecolors='k')
     ax.set_title('lw=0.5')
     ax.set_xticks([])
     ax.set_yticks([])
 
-    ax = fig.add_subplot(122)
+    ax = fig.add_subplot(132)
     ax.pcolormesh(Qx,Qz,Z, lw=3, edgecolors='k')
     ax.set_title('lw=3')
     ax.set_xticks([])
     ax.set_yticks([])
 
+    ax = fig.add_subplot(133)
+    ax.pcolormesh(Qx,Qz,Z, shading="gouraud")
+    ax.set_title('gouraud')
+    ax.set_xticks([])
+    ax.set_yticks([])
+    
 
 @image_comparison(baseline_images=['canonical'])
 def test_canonical():
@@ -568,6 +626,7 @@ def test_markevery_line():
     ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
 
+    
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)

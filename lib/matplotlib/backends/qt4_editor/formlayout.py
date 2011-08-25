@@ -64,10 +64,10 @@ if not hasattr(QtGui,'QFormLayout'):
  QtGui.QTabWidget, QtGui.QApplication, QtGui.QStackedWidget, QtGui.QDateEdit,
  QtGui.QDateTimeEdit, QtGui.QFont, QtGui.QFontComboBox, QtGui.QFontDatabase,
  QtGui.QGridLayout, QtGui.QFormLayout, QtGui.QDoubleValidator)
-                         
+
 (Qt, SIGNAL, SLOT, QObject, QSize,pyqtSignature, pyqtProperty) =\
-(QtCore.Qt, QtCore.SIGNAL, QtCore.SLOT, QtCore.QObject, QtCore.QSize, 
- QtCore.pyqtSignature, QtCore.pyqtProperty)
+(QtCore.Qt, QtCore.SIGNAL, QtCore.SLOT, QtCore.QObject, QtCore.QSize,
+ QtCore.Slot, QtCore.Property)
 
 import datetime
 
@@ -225,7 +225,7 @@ class FontLayout(QGridLayout):
 def is_edit_valid(edit):
     text = edit.text()
     state = edit.validator().validate(text, 0)[0]
-	
+
     return state == QDoubleValidator.Acceptable
 
 class FormWidget(QWidget):
@@ -370,7 +370,7 @@ class FormComboWidget(QWidget):
             widget = FormWidget(data, comment=comment, parent=self)
             self.stackwidget.addWidget(widget)
             self.widgetlist.append(widget)
-            
+
     def setup(self):
         for widget in self.widgetlist:
             widget.setup()
@@ -395,11 +395,11 @@ class FormTabWidget(QWidget):
             index = self.tabwidget.addTab(widget, title)
             self.tabwidget.setTabToolTip(index, comment)
             self.widgetlist.append(widget)
-            
+
     def setup(self):
         for widget in self.widgetlist:
             widget.setup()
-            
+
     def get(self):
         return [ widget.get() for widget in self.widgetlist]
 
@@ -424,7 +424,7 @@ class FormDialog(QDialog):
                                          parent=self)
         layout = QVBoxLayout()
         layout.addWidget(self.formwidget)
-        
+
         self.float_fields = []
         self.formwidget.setup()
 
@@ -446,10 +446,10 @@ class FormDialog(QDialog):
         if not isinstance(icon, QIcon):
             icon = QWidget().style().standardIcon(QStyle.SP_MessageBoxQuestion)
         self.setWindowIcon(icon)
-        
+
     def register_float_field(self, field):
         self.float_fields.append(field)
-        
+
     def update_buttons(self):
         valid = True
         for field in self.float_fields:
@@ -459,7 +459,7 @@ class FormDialog(QDialog):
             btn = self.bbox.button(btn_type)
             if btn is not None:
                 btn.setEnabled(valid)
-        
+
     def accept(self):
         self.data = self.formwidget.get()
         QDialog.accept(self)

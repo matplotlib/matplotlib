@@ -6,7 +6,6 @@ entirely agnostic to what kind of units client packages use
 """
 
 import matplotlib
-matplotlib.rcParams['units'] = True
 
 from matplotlib.cbook import iterable
 import matplotlib.units as units
@@ -29,7 +28,7 @@ class FooConverter:
         'return the Foo AxisInfo'
         if unit==1.0 or unit==2.0:
             return units.AxisInfo(
-                majloc = ticker.IndexLocator( 4, 0 ),
+                majloc = ticker.IndexLocator( 8, 0 ),
                 majfmt = ticker.FormatStrFormatter("VAL: %s"),
                 label='foo',
                 )
@@ -73,23 +72,22 @@ y = [i for i in range( len(x) ) ]
 
 # plot specifying units
 fig = figure()
+fig.suptitle("Custom units")
 fig.subplots_adjust(bottom=0.2)
-ax = fig.add_subplot(111)
+ax = fig.add_subplot(1,2,2)
 ax.plot( x, y, 'o', xunits=2.0 )
 for label in ax.get_xticklabels():
     label.set_rotation(30)
     label.set_ha('right')
+ax.set_title("xunits = 2.0")
 
-#fig.savefig('plot1.png')
 
 # plot without specifying units; will use the None branch for axisinfo
-fig2 = figure()
-ax = fig2.add_subplot(111)
+ax = fig.add_subplot(1,2,1)
 ax.plot( x, y ) # uses default units
-#p.savefig('plot2.png')
-
-fig3 = figure()
-ax = fig3.add_subplot(111)
-ax.plot( x, y, xunits=0.5)
+ax.set_title('default units')
+for label in ax.get_xticklabels():
+    label.set_rotation(30)
+    label.set_ha('right')
 
 show()

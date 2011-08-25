@@ -142,7 +142,6 @@ class Triangulation(object):
             x = args[0]
             y = args[1]
             args = args[2:]  # Consumed first two args.
-            ignore_remaining_args = True
 
             # Check triangles in kwargs then args.
             triangles = kwargs.pop('triangles', None)
@@ -162,31 +161,10 @@ class Triangulation(object):
                 triangles = None
 
             if triangles is not None and from_args:
-                    args = args[1:]  # Consumed first item in args.
-                    ignore_remaining_args = False
-
-            # Check for mask in kwargs then args.
-            mask = kwargs.pop('mask', None)
-            from_args = False
-            if mask is None and not ignore_remaining_args and len(args) > 0:
-                mask = args[0]
-                from_args = True
-
-            if mask is not None:
-                try:
-                    mask = np.asarray(mask, dtype=np.bool)
-                except ValueError:
-                    mask = None
-
-            if mask is not None and mask.ndim != 1:
-                mask = None
-
-            if mask is not None and triangles is not None and \
-                    len(mask) != triangles.shape[0]:
-                mask = None
-
-            if mask is not None and from_args:
                 args = args[1:]  # Consumed first item in args.
+
+            # Check for mask in kwargs.
+            mask = kwargs.pop('mask', None)
 
             triangulation = Triangulation(x, y, triangles, mask)
         return triangulation, args, kwargs

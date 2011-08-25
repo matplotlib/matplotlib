@@ -166,8 +166,7 @@ class ScalarMappable:
         :mod:`cm` colormap instance, for example :data:`cm.jet`
         """
 
-        self.callbacksSM = cbook.CallbackRegistry((
-                'changed',))
+        self.callbacksSM = cbook.CallbackRegistry()
 
         if cmap is None: cmap = get_cmap()
         if norm is None: norm = colors.Normalize()

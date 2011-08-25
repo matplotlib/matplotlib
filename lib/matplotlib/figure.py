@@ -248,7 +248,7 @@ class Figure(Artist):
         """
         Artist.__init__(self)
 
-        self.callbacks = cbook.CallbackRegistry(('dpi_changed', ))
+        self.callbacks = cbook.CallbackRegistry()
 
         if figsize is None  : figsize   = rcParams['figure.figsize']
         if dpi is None      : dpi       = rcParams['figure.dpi']
@@ -634,27 +634,28 @@ class Figure(Artist):
     @docstring.dedent_interpd
     def add_axes(self, *args, **kwargs):
         """
-        Add an a axes with axes rect [*left*, *bottom*, *width*,
+        Add an axes at position *rect* [*left*, *bottom*, *width*,
         *height*] where all quantities are in fractions of figure
         width and height.  kwargs are legal
         :class:`~matplotlib.axes.Axes` kwargs plus *projection* which
         sets the projection type of the axes.  (For backward
         compatibility, ``polar=True`` may also be provided, which is
         equivalent to ``projection='polar'``).  Valid values for
-        *projection* are: %(projection_names)s.  Some of these projections support
-        additional kwargs, which may be provided to :meth:`add_axes`::
+        *projection* are: %(projection_names)s.  Some of these
+        projections support  additional kwargs, which may be provided
+        to :meth:`add_axes`. Typical usage::
 
             rect = l,b,w,h
             fig.add_axes(rect)
             fig.add_axes(rect, frameon=False, axisbg='g')
             fig.add_axes(rect, polar=True)
             fig.add_axes(rect, projection='polar')
-            fig.add_axes(ax)   # add an Axes instance
+            fig.add_axes(ax)
 
         If the figure already has an axes with the same parameters,
         then it will simply make that axes current and return it.  If
-        you do not want this behavior, eg. you want to force the
-        creation of a new axes, you must use a unique set of args and
+        you do not want this behavior, e.g. you want to force the
+        creation of a new Axes, you must use a unique set of args and
         kwargs.  The axes :attr:`~matplotlib.axes.Axes.label`
         attribute has been exposed for this purpose.  Eg., if you want
         two axes that are otherwise identical to be added to the
@@ -663,9 +664,18 @@ class Figure(Artist):
             fig.add_axes(rect, label='axes1')
             fig.add_axes(rect, label='axes2')
 
-        The :class:`~matplotlib.axes.Axes` instance will be returned.
+        In rare circumstances, add_axes may be called with a single
+        argument, an Axes instance already created in the present
+        figure but not in the figure's list of axes.  For example,
+        if an axes has been removed with :meth:`delaxes`, it can
+        be restored with::
 
-        The following kwargs are supported:
+            fig.add_axes(ax)
+
+        In all cases, the :class:`~matplotlib.axes.Axes` instance
+        will be returned.
+
+        In addition to *projection*, the following kwargs are supported:
 
         %(Axes)s
         """
@@ -778,7 +788,7 @@ class Figure(Artist):
         a gui widget is tracking the axes in the figure.
         """
         self.suppressComposite = None
-        self.callbacks = cbook.CallbackRegistry(('dpi_changed', ))
+        self.callbacks = cbook.CallbackRegistry()
 
         for ax in tuple(self.axes):  # Iterate over the copy.
             ax.cla()
@@ -1322,7 +1332,7 @@ class Figure(Artist):
         nrows_list = []
         ncols_list = []
         ax_bbox_list = []
-        
+
         subplot_dict = {} # for axes_grid1, multiple axes can share
                           # same subplot_interface. Thus we need to
                           # join them together.
@@ -1349,7 +1359,7 @@ class Figure(Artist):
                 subplotspec_list.append(subplotspec)
                 subplot_list.append(subplots)
                 ax_bbox_list.append(subplotspec.get_position(self))
-                
+
             subplots.append(ax)
 
         max_nrows = max(nrows_list)

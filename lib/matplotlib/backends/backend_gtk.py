@@ -32,6 +32,7 @@ from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
 from matplotlib import lines
+from matplotlib import markers
 from matplotlib import cbook
 from matplotlib import verbose
 
@@ -547,14 +548,14 @@ class FigureManagerGTK(FigureManagerBase):
 
     def destroy(self, *args):
         if _debug: print('FigureManagerGTK.%s' % fn_name())
+        if hasattr(self, 'toolbar') and self.toolbar is not None:
+            self.toolbar.destroy()
         if hasattr(self, 'vbox'):
             self.vbox.destroy()
         if hasattr(self, 'window'):
             self.window.destroy()
         if hasattr(self, 'canvas'):
             self.canvas.destroy()
-        if hasattr(self, 'toolbar'):
-            self.toolbar.destroy()
         self.__dict__.clear()   #Is this needed? Other backends don't have it.
 
         if Gcf.get_num_fig_managers()==0 and \
@@ -1076,7 +1077,7 @@ class DialogLineprops:
     linestyled = dict([ (s,i) for i,s in enumerate(linestyles)])
 
 
-    markers =  [m for m in lines.Line2D.markers if cbook.is_string_like(m)]
+    markers =  [m for m in markers.MarkerStyle.markers if cbook.is_string_like(m)]
 
     markerd = dict([(s,i) for i,s in enumerate(markers)])
 

@@ -9,6 +9,7 @@
 
 #include "CXX/Extensions.hxx"
 
+#include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_stroke.h"
 #include "agg_conv_transform.h"
@@ -225,12 +226,13 @@ point_in_path_impl(const double tx, const double ty, T& path)
 }
 
 inline bool
-point_in_path(double x, double y, PathIterator& path,
+point_in_path(double x, double y, double r, PathIterator& path,
               const agg::trans_affine& trans)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> no_nans_t;
     typedef agg::conv_curve<no_nans_t> curve_t;
+    typedef agg::conv_contour<curve_t> contour_t;
 
     if (path.total_vertices() < 3)
     {
@@ -240,7 +242,9 @@ point_in_path(double x, double y, PathIterator& path,
     transformed_path_t trans_path(path, trans);
     no_nans_t no_nans_path(trans_path, true, path.has_curves());
     curve_t curved_path(no_nans_path);
-    return point_in_path_impl(x, y, curved_path);
+    contour_t contoured_path(curved_path);
+    contoured_path.width(fabs(r));
+    return point_in_path_impl(x, y, contoured_path);
 }
 
 inline bool
@@ -263,14 +267,15 @@ point_on_path(double x, double y, double r, PathIterator& path,
 Py::Object
 _path_module::point_in_path(const Py::Tuple& args)
 {
-    args.verify_length(4);
+    args.verify_length(5);
 
     double x = Py::Float(args[0]);
     double y = Py::Float(args[1]);
-    PathIterator path(args[2]);
-    agg::trans_affine trans = py_to_agg_transformation_matrix(args[3].ptr(), false);
+    double r = Py::Float(args[2]);
+    PathIterator path(args[3]);
+    agg::trans_affine trans = py_to_agg_transformation_matrix(args[4].ptr(), false);
 
-    if (::point_in_path(x, y, path, trans))
+    if (::point_in_path(x, y, r, path, trans))
     {
         return Py::Int(1);
     }
@@ -664,7 +669,7 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
 
         if (filled)
         {
-            if (::point_in_path(x, y, path, trans))
+            if (::point_in_path(x, y, radius, path, trans))
                 result.append(Py::Int((int)i));
         }
         else
@@ -696,7 +701,7 @@ path_in_path(PathIterator& a, const agg::trans_affine& atrans,
     b_curved.rewind(0);
     while (b_curved.vertex(&x, &y) != agg::path_cmd_stop)
     {
-        if (!::point_in_path(x, y, a, atrans))
+        if (!::point_in_path(x, y, 0.0, a, atrans))
             return false;
     }
 
