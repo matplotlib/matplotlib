@@ -234,7 +234,11 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
         fclose(fp);
     }
 
-    return Py::Object();
+    if (PyErr_Occurred()) {
+        throw Py::Exception();
+    } else {
+        return Py::Object();
+    }
 }
 
 static void _read_png_data(PyObject* py_file_obj, png_bytep data, png_size_t length)
@@ -475,7 +479,13 @@ _png_module::read_png(const Py::Tuple& args)
         delete [] row_pointers[row];
     }
     delete [] row_pointers;
-    return Py::asObject((PyObject*)A);
+
+    if (PyErr_Occurred()) {
+        Py_DECREF((PyObject *)A);
+        throw Py::Exception();
+    } else {
+        return Py::asObject((PyObject*)A);
+    }
 }
 
 extern "C"
