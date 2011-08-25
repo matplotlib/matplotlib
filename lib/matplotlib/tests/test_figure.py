@@ -24,7 +24,6 @@ def test_figure_label():
     assert_equal(plt.get_figlabels(), ['', 'today'])
 
 
-@image_comparison(baseline_images=['figure_today'])
 def test_figure():
     # named figure support
     fig = plt.figure('today')
