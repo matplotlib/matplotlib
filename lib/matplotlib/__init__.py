@@ -179,8 +179,10 @@ def _is_writable_dir(p):
     except TypeError: return False
     try:
         t = tempfile.TemporaryFile(dir=p)
-        t.write('1')
-        t.close()
+        try:
+            t.write('1')
+        finally:
+            t.close()
     except OSError: return False
     else: return True
 
@@ -698,21 +700,25 @@ def rc_params(fail_on_error=False):
 
     cnt = 0
     rc_temp = {}
-    for line in file(fname):
-        cnt += 1
-        strippedline = line.split('#',1)[0].strip()
-        if not strippedline: continue
-        tup = strippedline.split(':',1)
-        if len(tup) !=2:
-            warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"'%\
-                          (cnt, line, fname))
-            continue
-        key, val = tup
-        key = key.strip()
-        val = val.strip()
-        if key in rc_temp:
-            warnings.warn('Duplicate key in file "%s", line #%d'%(fname,cnt))
-        rc_temp[key] = (val, line, cnt)
+    fd = open(fname)
+    try:
+        for line in fd:
+            cnt += 1
+            strippedline = line.split('#',1)[0].strip()
+            if not strippedline: continue
+            tup = strippedline.split(':',1)
+            if len(tup) !=2:
+                warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"'%\
+                              (cnt, line, fname))
+                continue
+            key, val = tup
+            key = key.strip()
+            val = val.strip()
+            if key in rc_temp:
+                warnings.warn('Duplicate key in file "%s", line #%d'%(fname,cnt))
+            rc_temp[key] = (val, line, cnt)
+    finally:
+        fd.close()
 
     ret = RcParams([ (key, default) for key, (default, converter) in \
                     defaultParams.iteritems() ])

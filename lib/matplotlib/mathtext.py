@@ -1051,7 +1051,11 @@ class StandardPsFonts(Fonts):
         if filename is None:
             filename = findfont('Helvetica', fontext='afm',
                                 directory=self.basepath)
-        default_font = AFM(file(filename, 'r'))
+        fd = file(filename, 'r')
+        try:
+            default_font = AFM(fd)
+        finally:
+            fd.close()
         default_font.fname = filename
 
         self.fonts['default'] = default_font
@@ -1067,7 +1071,11 @@ class StandardPsFonts(Fonts):
         cached_font = self.fonts.get(basename)
         if cached_font is None:
             fname = os.path.join(self.basepath, basename + ".afm")
-            cached_font = AFM(file(fname, 'r'))
+            fd = file(fname, 'r')
+            try:
+                cached_font = AFM(fd)
+            finally:
+                fd.close()
             cached_font.fname = fname
             self.fonts[basename] = cached_font
             self.fonts[cached_font.get_fontname()] = cached_font

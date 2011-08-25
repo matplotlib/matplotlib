@@ -1087,31 +1087,33 @@ class FigureCanvasSVG(FigureCanvasBase):
         return self._print_svg(filename, svgwriter, fh_to_close)
 
     def _print_svg(self, filename, svgwriter, fh_to_close=None, **kwargs):
-        self.figure.set_dpi(72.0)
-        width, height = self.figure.get_size_inches()
-        w, h = width*72, height*72
+        try:
+            self.figure.set_dpi(72.0)
+            width, height = self.figure.get_size_inches()
+            w, h = width*72, height*72
 
-        if rcParams['svg.image_noscale']:
-            renderer = RendererSVG(w, h, svgwriter, filename)
-        else:
-            # setting mixed renderer dpi other than 72 results in
-            # incorrect size of the rasterized image. It seems that the
-            # svg internally uses fixed dpi of 72 and seems to cause
-            # the problem. I hope someone who knows the svg backends
-            # take a look at this problem. Meanwhile, the dpi
-            # parameter is ignored and image_dpi is fixed at 72. - JJL
+            if rcParams['svg.image_noscale']:
+                renderer = RendererSVG(w, h, svgwriter, filename)
+            else:
+                # setting mixed renderer dpi other than 72 results in
+                # incorrect size of the rasterized image. It seems that the
+                # svg internally uses fixed dpi of 72 and seems to cause
+                # the problem. I hope someone who knows the svg backends
+                # take a look at this problem. Meanwhile, the dpi
+                # parameter is ignored and image_dpi is fixed at 72. - JJL
 
-            #image_dpi = kwargs.pop("dpi", 72)
-            image_dpi = 72
-            _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
-            renderer = MixedModeRenderer(self.figure,
-                width, height, image_dpi, RendererSVG(w, h, svgwriter, filename),
-                bbox_inches_restore=_bbox_inches_restore)
+                #image_dpi = kwargs.pop("dpi", 72)
+                image_dpi = 72
+                _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+                renderer = MixedModeRenderer(self.figure,
+                    width, height, image_dpi, RendererSVG(w, h, svgwriter, filename),
+                    bbox_inches_restore=_bbox_inches_restore)
 
-        self.figure.draw(renderer)
-        renderer.finalize()
-        if fh_to_close is not None:
-            svgwriter.close()
+            self.figure.draw(renderer)
+            renderer.finalize()
+        finally:
+            if fh_to_close is not None:
+                svgwriter.close()
 
     def get_default_filetype(self):
         return 'svg'

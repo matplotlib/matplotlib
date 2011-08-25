@@ -1187,9 +1187,14 @@ def imread(fname, format=None):
     # reader extension, since Python handles them quite well, but it's
     # tricky in C.
     if cbook.is_string_like(fname):
-        fname = open(fname, 'rb')
-
-    return handler(fname)
+        fd = open(fname, 'rb')
+        try:
+            result = handler(fd)
+        finally:
+            fd.close()
+        return result
+    else:
+        return handler(fname)
 
 
 def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
