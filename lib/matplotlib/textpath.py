@@ -299,8 +299,10 @@ class TextToPath(object):
         else:
             dvifile = texmanager.make_dvi(s, self.FONT_SCALE)
             dvi = dviread.Dvi(dvifile, self.DPI)
-        page = next(iter(dvi))
-        dvi.close()
+        try:
+            page = next(iter(dvi))
+        finally:
+            dvi.close()
 
 
         if glyph_map is None:

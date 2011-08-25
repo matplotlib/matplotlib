@@ -565,9 +565,8 @@ class PdfFile(object):
         self.writeObject(self.fontObject, fonts)
 
     def _write_afm_font(self, filename):
-        fh = open(filename, 'rb')
-        font = AFM(fh)
-        fh.close()
+        with open(filename, 'rb') as fh:
+            font = AFM(fh)
         fontname = font.get_fontname()
         fontdict = { 'Type': Name('Font'),
                      'Subtype': Name('Type1'),
@@ -877,14 +876,13 @@ end"""
                 fontfileObject.id,
                 self.reserveObject('length of font stream'),
                 {'Length1': length1Object})
-            fontfile = open(filename, 'rb')
-            length1 = 0
-            while True:
-                data = fontfile.read(4096)
-                if not data: break
-                length1 += len(data)
-                self.currentstream.write(data)
-            fontfile.close()
+            with open(filename, 'rb') as fontfile:
+                length1 = 0
+                while True:
+                    data = fontfile.read(4096)
+                    if not data: break
+                    length1 += len(data)
+                    self.currentstream.write(data)
             self.endStream()
             self.writeObject(length1Object, length1)
 
@@ -1827,10 +1825,9 @@ class RendererPdf(RendererBase):
                     directory=self.file._core14fontdir)
             font = self.afm_font_cache.get(filename)
             if font is None:
-                fh = open(filename, 'rb')
-                font = AFM(fh)
-                self.afm_font_cache[filename] = font
-                fh.close()
+                with open(filename, 'rb') as fh:
+                    font = AFM(fh)
+                    self.afm_font_cache[filename] = font
             self.afm_font_cache[key] = font
         return font
 
@@ -2175,17 +2172,19 @@ class FigureCanvasPdf(FigureCanvasBase):
             file = filename._file
         else:
             file = PdfFile(filename)
-        file.newPage(width, height)
-        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
-        renderer = MixedModeRenderer(self.figure,
-            width, height, image_dpi, RendererPdf(file, image_dpi),
-            bbox_inches_restore=_bbox_inches_restore)
-        self.figure.draw(renderer)
-        renderer.finalize()
-        if isinstance(filename, PdfPages): # finish off this page
-            file.endStream()
-        else:            # we opened the file above; now finish it off
-            file.close()
+        try:
+            file.newPage(width, height)
+            _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+            renderer = MixedModeRenderer(self.figure,
+                                         width, height, image_dpi, RendererPdf(file, image_dpi),
+                                         bbox_inches_restore=_bbox_inches_restore)
+            self.figure.draw(renderer)
+            renderer.finalize()
+        finally:
+            if isinstance(filename, PdfPages): # finish off this page
+                file.endStream()
+            else:            # we opened the file above; now finish it off
+                file.close()
 
 class FigureManagerPdf(FigureManagerBase):
     pass

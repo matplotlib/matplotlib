@@ -913,22 +913,16 @@ def pickle_dump(data, filename):
     Equivalent to pickle.dump(data, open(filename, 'w'))
     but closes the file to prevent filehandle leakage.
     """
-    fh = open(filename, 'wb')
-    try:
+    with open(filename, 'wb') as fh:
         pickle.dump(data, fh)
-    finally:
-        fh.close()
 
 def pickle_load(filename):
     """
     Equivalent to pickle.load(open(filename, 'r'))
     but closes the file to prevent filehandle leakage.
     """
-    fh = open(filename, 'rb')
-    try:
+    with open(filename, 'rb') as fh:
         data = pickle.load(fh)
-    finally:
-        fh.close()
     return data
 
 class FontManager:
@@ -1250,9 +1244,8 @@ def is_opentype_cff_font(filename):
     if os.path.splitext(filename)[1].lower() == '.otf':
         result = _is_opentype_cff_font_cache.get(filename)
         if result is None:
-            fd = open(filename, 'rb')
-            tag = fd.read(4)
-            fd.close()
+            with open(filename, 'rb') as fd:
+                tag = fd.read(4)
             result = (tag == 'OTTO')
             _is_opentype_cff_font_cache[filename] = result
         return result
