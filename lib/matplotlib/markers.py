@@ -113,7 +113,7 @@ that define the shape.
 
     def _recache(self):
         self._path = Path(np.empty((0,2)))
-        self._transform = IdentityTransform()
+        self._transform = Affine2D()
         self._alt_path = None
         self._alt_transform = None
         self._snap_threshold = None
@@ -629,7 +629,7 @@ that define the shape.
         self._path = self._x_path
 
 _styles = [(repr(x), y) for x, y in MarkerStyle.markers.items()]
-_styles.sort(lambda x, y: cmp(x[1], y[1]))
+_styles.sort(key = lambda x: x[1])
 MarkerStyle.style_table = (
     MarkerStyle.style_table %
     '\n'.join(['%-30s %-33s' % ('``%s``' % x, y) for (x, y) in _styles]))
