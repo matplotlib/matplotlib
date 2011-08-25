@@ -178,6 +178,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     def __init__(self, figure, master=None, resize_callback=None):
         FigureCanvasAgg.__init__(self, figure)
         self._idle = True
+        self._idle_callback = None
         t1,t2,w,h = self.figure.bbox.bounds
         w, h = int(w), int(h)
         self._tkcanvas = Tk.Canvas(
@@ -229,8 +230,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         self._tkcanvas.delete(self._tkphoto)
         self._tkphoto = Tk.PhotoImage(
-            master=self._tkcanvas, width=width, height=height)
-        self._tkcanvas.create_image(width/2,height/2,image=self._tkphoto)
+            master=self._tkcanvas, width=int(width), height=int(height))
+        self._tkcanvas.create_image(int(width/2),int(height/2),image=self._tkphoto)
         self.resize_event()
         self.show()
 
@@ -253,7 +254,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             self.draw()
             self._idle = True
 
-        if d: self._tkcanvas.after_idle(idle_draw)
+        if d:
+            self._idle_callback = self._tkcanvas.after_idle(idle_draw)
 
     def get_tk_widget(self):
         """returns the Tk widget used to implement FigureCanvasTkAgg.
@@ -444,13 +446,15 @@ class FigureManagerTkAgg(FigureManagerBase):
 
 
     def destroy(self, *args):
-        if Gcf.get_num_fig_managers()==0 and not matplotlib.is_interactive():
-            if self.window is not None:
-                self.window.quit()
         if self.window is not None:
             #self.toolbar.destroy()
+            if self.canvas._idle_callback:
+                self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
             self.window.destroy()
-            self.window = None
+        if Gcf.get_num_fig_managers()==0:
+            if self.window is not None:
+                self.window.quit()
+        self.window = None
 
     def set_window_title(self, title):
         self.window.wm_title(title)
@@ -541,7 +545,7 @@ class NavigationToolbar(Tk.Frame):
         xmin, xmax = canvas.figure.bbox.intervalx
         height, width = 50, xmax-xmin
         Tk.Frame.__init__(self, master=self.window,
-                          width=width, height=height,
+                          width=int(width), height=int(height),
                           borderwidth=2)
 
         self.update()  # Make axes menu
@@ -697,7 +701,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         xmin, xmax = self.canvas.figure.bbox.intervalx
         height, width = 50, xmax-xmin
         Tk.Frame.__init__(self, master=self.window,
-                          width=width, height=height,
+                          width=int(width), height=int(height),
                           borderwidth=2)
 
         self.update()  # Make axes menu

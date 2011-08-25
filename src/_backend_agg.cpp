@@ -675,9 +675,9 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     PathIterator path(path_obj);
     transformed_path_t path_transformed(path, trans);
     snap_t             path_snapped(path_transformed,
-                                    gc.snap_mode,
+                                    SNAP_TRUE,
                                     path.total_vertices(),
-                                    1.0);
+                                    0.0);
     curve_t            path_curve(path_snapped);
     path_curve.rewind(0);
 

@@ -1,8 +1,46 @@
+2011-08-18 Change api of Axes.get_tightbbox and add an optional
+           keyword parameter *call_axes_locator*. - JJL
+
+2011-07-29 A new rcParam "axes.formatter.use_locale" was added, that,
+           when True, will use the current locale to format tick
+           labels.  This means that, for example, in the fr_FR locale,
+           ',' will be used as a decimal separator.  - MGD
+
+2011-07-15 The set of markers available in the plot() and scatter()
+           commands has been unified.  In general, this gives more
+           options to both than were previously available, however,
+           there is one backward-incompatible change to the markers in
+           scatter:
+
+              "d" used to mean "diamond", it now means "narrow
+              diamond".  "D" can be used for a "diamond".
+
+           -MGD
+
+2011-07-13 Fix numerical problems in symlog scale, particularly when
+           linthresh <= 1.0.  Symlog plots may look different if one
+           was depending on the old broken behavior - MGD
+
+2011-07-10 Fixed argument handling error in tripcolor/triplot/tricontour,
+           issue #203. - IMT
+
+2011-07-08 Many functions added to mplot3d.axes3d to bring Axes3D
+           objects more feature-parity with regular Axes objects.
+           Significant revisions to the documentation as well.
+           - BVR
+
 2011-06-28 3D versions of scatter, plot, plot_wireframe, plot_surface,
            bar3d, and some other functions now support empty inputs. - BVR
 
-2011-06-16 Added *bottom* keyword parameter for the stem command. 
-           Also, implemented a legend handler for the stem plot. 
+2011-06-22 Add set_theta_offset, set_theta_direction and
+           set_theta_zero_location to polar axes to control the
+           location of 0 and directionality of theta. - MGD
+
+2011-06-22 Add axes.labelweight parameter to set font weight to axis
+           labels - MGD.
+
+2011-06-16 Added *bottom* keyword parameter for the stem command.
+           Also, implemented a legend handler for the stem plot.
            - JJL
 
 2011-04-17 Disable keyboard auto-repeat in qt4 backend by ignoring

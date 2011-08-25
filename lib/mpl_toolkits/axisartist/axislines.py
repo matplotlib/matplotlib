@@ -378,7 +378,7 @@ class AxisArtistHelperRectlinear:
                 angle_normal, angle_tangent = 90, 0
             else:
                 angle_normal, angle_tangent = 0, 90
-                
+
             #angle = 90 - 90 * self.nth_coord
 
             major = self.axis.major
@@ -459,7 +459,7 @@ class GridHelperRectlinear(GridHelperBase):
                        offset=None,
                        axes=None,
                        ):
- 
+
         if axes is None:
             warnings.warn("'new_fixed_axis' explicitly requires the axes keyword.")
             axes = self.axes
@@ -733,9 +733,9 @@ class Axes(maxes.Axes):
         self.artists = orig_artists
 
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer, call_axes_locator=True):
 
-        bb0 = super(Axes, self).get_tightbbox(renderer)
+        bb0 = super(Axes, self).get_tightbbox(renderer, call_axes_locator)
 
         if not self._axisline_on:
             return bb0
@@ -765,6 +765,39 @@ class Axes(maxes.Axes):
         _bbox = Bbox.union([b for b in bb if b and (b.width!=0 or b.height!=0)])
 
         return _bbox
+
+
+    def set_xlim(self, left=None, right=None, emit=True, auto=False,
+                 swap_axis=True, **kw):
+
+        x1o, x2o = self.get_xlim()
+
+        maxes.Axes.set_xlim(self, left, right, emit, auto, **kw)
+        x1, x2 = self.get_xlim()
+
+        if not swap_axis:
+            return
+
+        if (x1o > x2o and x1 < x2) or (x1o < x2o and x1 > x2):
+            self.axis["right"], self.axis["left"] = self.axis["left"], self.axis["right"]
+
+            self.axis["left"].set_axis_direction("left")
+            self.axis["right"].set_axis_direction("right")
+
+
+    def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
+                 swap_axis=True, **kw):
+
+        y1o, y2o = self.get_ylim()
+
+        maxes.Axes.set_ylim(self, bottom, top, emit, auto, **kw)
+        y1, y2 = self.get_ylim()
+
+        if y1o > y2o and y1 < y2 or (y1o < y2o and y1 > y2):
+            self.axis["top"], self.axis["bottom"] = self.axis["bottom"], self.axis["top"]
+
+            self.axis["top"].set_axis_direction("top")
+            self.axis["bottom"].set_axis_direction("bottom")
 
 
 

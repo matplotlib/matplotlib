@@ -102,7 +102,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # Force _offsets to be Nx2
         self._offsets.shape = (0, 2)
         if offsets is not None:
-            offsets = np.asarray(offsets)
+            offsets = np.asanyarray(offsets)
             offsets.shape = (-1, 2)             # Make it Nx2
             if transOffset is not None:
                 self._offsets = offsets
@@ -161,7 +161,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = transOffset.transform_non_affine(offsets)
             transOffset = transOffset.get_affine()
 
-        offsets = np.asarray(offsets, np.float_)
+        offsets = np.asanyarray(offsets, np.float_)
+        if np.ma.isMaskedArray(offsets):
+            offsets = offsets.filled(np.nan)
+            # get_path_collection_extents handles nan but not masked arrays
         offsets.shape = (-1, 2)                     # Make it Nx2
 
         result = mpath.get_path_collection_extents(
@@ -199,7 +202,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 ys = self.convert_yunits(offsets[:,1])
                 offsets = zip(xs, ys)
 
-        offsets = np.asarray(offsets, np.float_)
+        offsets = np.asanyarray(offsets, np.float_)
         offsets.shape = (-1, 2)             # Make it Nx2
 
         if not transform.is_affine:
@@ -207,7 +210,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
             transform = transform.get_affine()
         if not transOffset.is_affine :
             offsets = transOffset.transform_non_affine(offsets)
+            # This might have changed an ndarray into a masked array.
             transOffset = transOffset.get_affine()
+
+        if np.ma.isMaskedArray(offsets):
+            offsets = offsets.filled(np.nan)
+            # Changing from a masked array to nan-filled ndarray
+            # is probably most efficient at this point.
 
         return transform, transOffset, offsets, paths
 
@@ -290,7 +299,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         ACCEPTS: float or sequence of floats
         """
-        offsets = np.asarray(offsets, np.float_)
+        offsets = np.asanyarray(offsets, np.float_)
         offsets.shape = (-1, 2)             # Make it Nx2
         #This decision is based on how they are initialized above
         if self._uniform_offsets is None:
@@ -575,7 +584,7 @@ class PathCollection(Collection):
     This is the most basic :class:`Collection` subclass.
     """
     @docstring.dedent_interpd
-    def __init__(self, paths, **kwargs):
+    def __init__(self, paths, sizes=None, **kwargs):
         """
         *paths* is a sequence of :class:`matplotlib.path.Path`
         instances.
@@ -585,11 +594,25 @@ class PathCollection(Collection):
 
         Collection.__init__(self, **kwargs)
         self.set_paths(paths)
-
+        self._sizes = sizes
 
     def set_paths(self, paths):
         self._paths = paths
 
+    def get_paths(self):
+        return self._paths
+
+    def get_sizes(self):
+        return self._sizes
+
+    @allow_rasterization
+    def draw(self, renderer):
+        if self._sizes is not None:
+            self._transforms = [
+                transforms.Affine2D().scale(
+                    (np.sqrt(x) * self.figure.dpi / 72.0))
+                for x in self._sizes]
+        return Collection.draw(self, renderer)
 
 class PolyCollection(Collection):
     @docstring.dedent_interpd

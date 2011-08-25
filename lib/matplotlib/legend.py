@@ -23,7 +23,7 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
 from matplotlib.collections import LineCollection, RegularPolyCollection, \
-     CircleCollection
+     CircleCollection, PathCollection
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransformTo, BboxTransformFrom
 
 from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea, DraggableOffsetBox
@@ -146,6 +146,7 @@ class Legend(Artist):
                  borderpad = None,     # the whitespace inside the legend border
                  labelspacing=None, #the vertical space between the legend entries
                  handlelength=None, # the length of the legend handles
+                 handleheight=None, # the height of the legend handles
                  handletextpad=None, # the pad between the legend handle and text
                  borderaxespad=None, # the pad between the axes and legend border
                  columnspacing=None, # spacing between columns
@@ -184,6 +185,7 @@ class Legend(Artist):
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
         handlelength       the length of the legend handles
+        handleheight       the length of the legend handles
         handletextpad      the pad between the legend handle and text
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
@@ -223,7 +225,7 @@ in the normalized axes coordinate.
         self._fontsize = self.prop.get_size_in_points()
 
         propnames=['numpoints', 'markerscale', 'shadow', "columnspacing",
-                   "scatterpoints"]
+                   "scatterpoints", "handleheight"]
 
         self.texts = []
         self.legendHandles = []
@@ -278,7 +280,7 @@ in the normalized axes coordinate.
         self._ncol = ncol
 
         if self.numpoints <= 0:
-            raise ValueError("numpoints must be >= 0; it was %d"% numpoints)
+            raise ValueError("numpoints must be > 0; it was %d"% numpoints)
 
         # introduce y-offset for handles of the scatter plot
         if scatteryoffsets is None:
@@ -481,6 +483,7 @@ in the normalized axes coordinate.
         CircleCollection:legend_handler.HandlerCircleCollection(),
         BarContainer:legend_handler.HandlerPatch(update_func=legend_handler.update_from_first_child),
         tuple:legend_handler.HandlerTuple(),
+        PathCollection:legend_handler.HandlerPathCollection()
         }
 
     # (get|set|update)_default_handler_maps are public interfaces to
@@ -584,9 +587,9 @@ in the normalized axes coordinate.
 
         # The approximate height and descent of text. These values are
         # only used for plotting the legend handle.
-        height = self._approx_text_height() * 0.7
-        descent = 0.
-
+        descent = 0.35*self._approx_text_height()*(self.handleheight - 0.7)
+        # 0.35 and 0.7 are just heuristic numbers. this may need to be improbed
+        height = self._approx_text_height() * self.handleheight - descent
         # each handle needs to be drawn inside a box of (x, y, w, h) =
         # (0, -descent, width, height).  And their corrdinates should
         # be given in the display coordinates.

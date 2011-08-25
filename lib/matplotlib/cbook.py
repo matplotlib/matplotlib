@@ -44,7 +44,8 @@ import matplotlib
 # side effects.  Passing False eliminates those side effects.
 
 try:
-    preferredencoding = locale.getpreferredencoding(False).strip()
+    preferredencoding = locale.getpreferredencoding(
+        matplotlib.rcParams['axes.formatter.use_locale']).strip()
     if not preferredencoding:
         preferredencoding = None
 except (ValueError, ImportError, AttributeError):
@@ -135,15 +136,13 @@ class CallbackRegistry:
     Handle registering and disconnecting for a set of signals and
     callbacks::
 
-       signals = 'eat', 'drink', 'be merry'
-
        def oneat(x):
            print 'eat', x
 
        def ondrink(x):
            print 'drink', x
 
-       callbacks = CallbackRegistry(signals)
+       callbacks = CallbackRegistry()
 
        ideat = callbacks.connect('eat', oneat)
        iddrink = callbacks.connect('drink', ondrink)
@@ -237,30 +236,25 @@ class CallbackRegistry:
             '''
             return not self.__eq__(other)
 
-    def __init__(self, signals):
-        '*signals* is a sequence of valid signals'
-        self.signals = set(signals)
-        self.callbacks = dict([(s, dict()) for s in signals])
+    def __init__(self, *args):
+        if len(args):
+            warnings.warn(
+                'CallbackRegistry no longer requires a list of callback types.  Ignoring arguments',
+                DeprecationWarning)
+        self.callbacks = dict()
         self._cid = 0
         self._func_cid_map = WeakKeyDictionary()
-
-    def _check_signal(self, s):
-        'make sure *s* is a valid signal or raise a ValueError'
-        if s not in self.signals:
-            signals = list(self.signals)
-            signals.sort()
-            raise ValueError('Unknown signal "%s"; valid signals are %s'%(s, signals))
 
     def connect(self, s, func):
         """
         register *func* to be called when a signal *s* is generated
         func will be called
         """
-        self._check_signal(s)
         if func in self._func_cid_map:
             return self._func_cid_map[func]
         proxy = self.BoundMethodProxy(func)
         self._cid += 1
+        self.callbacks.setdefault(s, dict())
         self.callbacks[s][self._cid] = proxy
         self._func_cid_map[func] = self._cid
         return self._cid
@@ -282,13 +276,13 @@ class CallbackRegistry:
         process signal *s*.  All of the functions registered to receive
         callbacks on *s* will be called with *\*args* and *\*\*kwargs*
         """
-        self._check_signal(s)
-        for cid, proxy in self.callbacks[s].items():
-            # Clean out dead references
-            if proxy.inst is not None and proxy.inst() is None:
-                del self.callbacks[s][cid]
-            else:
-                proxy(*args, **kwargs)
+        if s in self.callbacks:
+            for cid, proxy in self.callbacks[s].items():
+                # Clean out dead references
+                if proxy.inst is not None and proxy.inst() is None:
+                    del self.callbacks[s][cid]
+                else:
+                    proxy(*args, **kwargs)
 
 
 class Scheduler(threading.Thread):

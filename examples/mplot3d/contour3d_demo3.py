@@ -10,11 +10,11 @@ cset = ax.contour(X, Y, Z, zdir='x', offset=-40)
 cset = ax.contour(X, Y, Z, zdir='y', offset=40)
 
 ax.set_xlabel('X')
-ax.set_xlim3d(-40, 40)
+ax.set_xlim(-40, 40)
 ax.set_ylabel('Y')
-ax.set_ylim3d(-40, 40)
+ax.set_ylim(-40, 40)
 ax.set_zlabel('Z')
-ax.set_zlim3d(-100, 100)
+ax.set_zlim(-100, 100)
 
 plt.show()
 

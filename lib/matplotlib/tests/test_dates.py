@@ -3,7 +3,8 @@ import datetime
 import numpy as np
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
-from nose.tools import assert_raises
+from nose.tools import assert_raises, assert_equal
+import warnings
 
 @image_comparison(baseline_images=['date_empty'])
 def test_date_empty():
@@ -69,6 +70,9 @@ def test_too_many_date_ticks():
     # setting equal datetimes triggers and expander call in
     # transforms.nonsingular which results in too many ticks in the
     # DayLocator.  This should trigger a Locator.MAXTICKS RuntimeError
+    warnings.filterwarnings('ignore',
+        'Attempting to set identical left==right results\\nin singular transformations; automatically expanding.\\nleft=\d*\.\d*, right=\d*\.\d*',
+        UserWarning, module='matplotlib.axes')
     t0 = datetime.datetime(2000, 1, 20)
     tf = datetime.datetime(2000, 1, 20)
     fig = plt.figure()
@@ -132,6 +136,31 @@ def test_DateFormatter():
 
     ax.autoscale_view()
     fig.autofmt_xdate()
+
+def test_drange():
+    '''This test should check if drange works as expected, and if all the rounding errors
+    are fixed'''
+    from matplotlib import dates
+    start = datetime.datetime(2011, 1,1, tzinfo=dates.UTC)
+    end = datetime.datetime(2011, 1, 2, tzinfo=dates.UTC)
+    delta = datetime.timedelta(hours=1)
+    #We expect 24 values in drange(start, end, delta), because drange returns dates from
+    #an half open interval [start, end)
+    assert_equal(24, len(dates.drange(start, end, delta)))
+
+    #if end is a little bit later, we expect the range to contain one element more
+    end = end +datetime.timedelta(microseconds=1)
+    assert_equal(25, len(dates.drange(start, end, delta)))
+
+    #reset end
+    end = datetime.datetime(2011, 1, 2, tzinfo=dates.UTC)
+
+    #and tst drange with "complicated" floats:
+    # 4 hours = 1/6 day, this is an "dangerous" float
+    delta = datetime.timedelta(hours=4)
+    daterange = dates.drange(start, end, delta)
+    assert_equal(6, len(daterange))
+    assert_equal(dates.num2date(daterange[-1]), end-delta)
 
 #@image_comparison(baseline_images=['empty_date_bug'])
 @cleanup

@@ -12,6 +12,7 @@ import os.path as osp
 
 import matplotlib.backends.qt4_editor.formlayout as formlayout
 from matplotlib.backends.qt4_compat import QtGui
+from matplotlib import markers
 
 def get_icon(name):
     import matplotlib
@@ -27,30 +28,7 @@ LINESTYLES = {
               'none': 'None',
               }
 
-MARKERS = {
-           'none': 'None',
-           'o': 'circles',
-           '^': 'triangle_up',
-           'v': 'triangle_down',
-           '<': 'triangle_left',
-           '>': 'triangle_right',
-           's': 'square',
-           '+': 'plus',
-           'x': 'cross',
-           '*': 'star',
-           'D': 'diamond',
-           'd': 'thin_diamond',
-           '1': 'tripod_down',
-           '2': 'tripod_up',
-           '3': 'tripod_left',
-           '4': 'tripod_right',
-           'h': 'hexagon',
-           'H': 'rotated_hexagon',
-           'p': 'pentagon',
-           '|': 'vertical_line',
-           '_': 'horizontal_line',
-           '.': 'dots',
-           }
+MARKERS = markers.MarkerStyle.markers
 
 COLORS = {'b': '#0000ff', 'g': '#00ff00', 'r': '#ff0000', 'c': '#ff00ff',
           'm': '#ff00ff', 'y': '#ffff00', 'k': '#000000', 'w': '#ffffff'}

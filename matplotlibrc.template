@@ -30,10 +30,21 @@
 # 'module://my_backend'
 backend      : %(backend)s
 
+# If you are using the Qt4Agg backend, you can choose here
+# to use the PyQt4 bindings or the newer PySide bindings to
+# the underlying Qt4 toolkit.
+#backend.qt4 : PyQt4        # PyQt4 | PySide
+
+# Note that this can be overridden by the environment variable
+# QT_API used by Enthought Tool Suite (ETS); valid values are
+# "pyqt" and "pyside".  The "pyqt" setting has the side effect of
+# forcing the use of Version 2 API for QString and QVariant.
+
 # if you are runing pyplot inside a GUI and your backend choice
-# conflicts, we will automatically try and find a compatible one for
+# conflicts, we will automatically try to find a compatible one for
 # you if backend_fallback is True
 #backend_fallback: True
+
 #interactive  : False
 #toolbar      : toolbar2   # None | classic | toolbar2
 #timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris
@@ -194,14 +205,20 @@ backend      : %(backend)s
 #axes.grid           : False   # display grid or not
 #axes.titlesize      : large   # fontsize of the axes title
 #axes.labelsize      : medium  # fontsize of the x any y labels
+#axes.labelweight    : normal  # weight of the x and y labels
 #axes.labelcolor     : black
 #axes.axisbelow      : False   # whether axis gridlines and ticks are below
                               # the axes elements (lines, text, etc)
 #axes.formatter.limits : -7, 7 # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second
+#axes.formatter.use_locale : False # When True, format tick labels
+                                   # according to the user's locale.
+                                   # For example, use ',' as a decimal
+                                   # separator in the fr_FR locale.
 #axes.unicode_minus  : True    # use unicode for the minus symbol
-                               # rather than hypen.  See http://en.wikipedia.org/wiki/Plus_sign#Plus_sign
+                               # rather than hypen.  See
+                               # http://en.wikipedia.org/wiki/Plus_sign
 #axes.color_cycle    : b, g, r, c, m, y, k  # color cycle for plot lines
                                             # as list of string colorspecs:
                                             # single letter, long name, or
@@ -244,10 +261,16 @@ backend      : %(backend)s
 #legend.borderpad     : 0.5    # border whitspace in fontsize units
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
-#legend.labelsep      : 0.010  # the vertical space between the legend entries
-#legend.handlelen     : 0.05   # the length of the legend lines
-#legend.handletextsep : 0.02   # the space between the legend line and legend text
-#legend.axespad       : 0.02   # the border between the axes and legend edge
+#legend.labelsep      : 0.010  # deprecated; the vertical space between the legend entries
+#legend.labelspacing  : 0.5    # the vertical space between the legend entries in fraction of fontsize
+#legend.handlelen     : 0.05   # deprecated; the length of the legend lines
+#legend.handlelength  : 2.     # the length of the legend lines in fraction of fontsize
+#legend.handleheight  : 0.7     # the height of the legend handle in fraction of fontsize
+#legend.handletextsep : 0.02   # deprecated; the space between the legend line and legend text
+#legend.handletextpad : 0.8    # the space between the legend line and legend text in fraction of fontsize
+#legend.axespad       : 0.02   # deprecated; the border between the axes and legend edge
+#legend.borderaxespad : 0.5   # the border between the axes and legend edge in fraction of fontsize
+#legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
 #legend.shadow        : False
 #legend.frameon       : True   # whether or not to draw a frame around legend
 

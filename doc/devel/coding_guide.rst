@@ -23,7 +23,7 @@ in mind.
 * Can you pass :file:`examples/tests/backend_driver.py`?  This is our
   poor man's unit test.
 
-* Can you add a test to :file:`unit/nose_tests.py` to test your changes?
+* Can you add a test to :file:`lib/matplotlib/tests` to test your changes?
 
 * If you have altered extension code, do you pass
   :file:`unit/memleak_hawaii3.py`?
@@ -33,7 +33,7 @@ in mind.
   :file:`MANIFEST.in`.  This file determines what goes into the source
   distribution of the mpl build.
 
-* Keep the maintenance branches and trunk in sync where it makes sense.
+* Keep the maintenance branches and master in sync where it makes sense.
 
 Style guide
 ===========
@@ -101,8 +101,8 @@ To detect and fix these and other whitespace errors (see below),
 use `reindent.py
 <http://svn.python.org/projects/doctools/trunk/utils/reindent.py>`_ as
 a command-line script.  Unless you are sure your editor always
-does the right thing, please use reindent.py before checking changes into
-svn.
+does the right thing, please use reindent.py before committing your
+changes in git.
 
 Keep docstrings_ uniformly indented as in the example below, with
 nothing to the left of the triple quotes.  The
@@ -116,7 +116,7 @@ It may be preferable to use a temporary variable to replace a single
 long line with two shorter and more readable lines.
 
 Please do not commit lines with trailing white space, as it causes
-noise in svn diffs.  Tell your editor to strip whitespace from line
+noise in git diffs.  Tell your editor to strip whitespace from line
 ends when saving a file.  If you are an emacs user, the following in
 your ``.emacs`` will cause emacs to strip trailing white space upon
 saving for python, C and C++:
@@ -324,41 +324,30 @@ Writing examples
 ================
 
 We have hundreds of examples in subdirectories of
-file:`matplotlib/examples` in the trunk, and these are automatically
-generated when the website it built to show up both in the `examples
+file:`matplotlib/examples`, and these are automatically
+generated when the website is built to show up both in the `examples
 <http://matplotlib.sourceforge.net/examples/index.html>`_ and `gallery
 <http://matplotlib.sourceforge.net/gallery.html>`_ sections of the
 website.  Many people find these examples from the website, and do not
 have ready access to the file:`examples` directory in which they
 reside.  Thus any example data that is required for the example should
-be provided through the sample_data svn directory, which can then be
-accessed using :func:`matplotlib.cbook.get_sample_data`.  First get a
-copy of the repository and svn add your data::
-
-    svn co https://matplotlib.svn.sourceforge.net/svnroot/matplotlib/trunk/sample_data
-    cp ~/path/to/mydata.dat sample_data/
-    cd sample_data
-    svn add mydata.dat
-    svn commit -m 'added my data'
-
-and then in your example code you can load it into a file handle with::
+be added to the `sample_data
+<https://github.com/matplotlib/sample_data>`_ git repository.
+Then in your example code you can load it into a file handle with::
 
     import matplotlib.cbook as cbook
     fh = cbook.get_sample_data('mydata.dat')
 
-The file will be fetched from the svn repo using urllib and updated
+The file will be fetched from the git repo using urllib and updated
 when the revision number changes.
 
 
-If you prefer just to get the full path to the file instead of an file
+If you prefer just to get the full path to the file instead of a file
 object::
 
     import matplotlib.cbook as cbook
     datafile = cbook.get_sample_data('mydata.dat', asfileobj=False)
     print 'datafile', datafile
-
-
-
 
 
 Testing

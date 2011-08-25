@@ -619,7 +619,7 @@ class Axis(artist.Artist):
         self.axes = axes
         self.major = Ticker()
         self.minor = Ticker()
-        self.callbacks = cbook.CallbackRegistry(('units', 'units finalize'))
+        self.callbacks = cbook.CallbackRegistry()
 
         #class dummy:
         #    locator = None
@@ -714,7 +714,7 @@ class Axis(artist.Artist):
         self.isDefault_label = True
 
         # Clear the callback registry for this axis, or it may "leak"
-        self.callbacks = cbook.CallbackRegistry(('units', 'units finalize'))
+        self.callbacks = cbook.CallbackRegistry()
 
         # whether the grids are on
         self._gridOnMajor = rcParams['axes.grid']
@@ -1552,7 +1552,8 @@ class XAxis(Axis):
         # time by _update_label_positions)
         label = mtext.Text(x=0.5, y=0,
             fontproperties = font_manager.FontProperties(
-                                          size=rcParams['axes.labelsize']),
+                               size=rcParams['axes.labelsize'],
+                               weight=rcParams['axes.labelweight']),
             color = rcParams['axes.labelcolor'],
             verticalalignment='top',
             horizontalalignment='center',
@@ -1723,7 +1724,11 @@ class XAxis(Axis):
         """
         If *ignore* is *False*, the order of vmin, vmax
         does not matter; the original axis orientation will
-        be preserved.
+        be preserved. In addition, the view limits can be
+        expanded, but will not be reduced.  This method is
+        for mpl internal use; for normal use, see
+        :meth:`~matplotlib.axes.Axes.set_xlim`.
+
         """
         if ignore:
             self.axes.viewLim.intervalx = vmin, vmax
@@ -1809,7 +1814,8 @@ class YAxis(Axis):
         label = mtext.Text(x=0, y=0.5,
             # todo: get the label position
             fontproperties=font_manager.FontProperties(
-                                        size=rcParams['axes.labelsize']),
+                               size=rcParams['axes.labelsize'],
+                               weight=rcParams['axes.labelweight']),
             color    = rcParams['axes.labelcolor'],
             verticalalignment='center',
             horizontalalignment='right',
@@ -1984,7 +1990,11 @@ class YAxis(Axis):
         """
         If *ignore* is *False*, the order of vmin, vmax
         does not matter; the original axis orientation will
-        be preserved.
+        be preserved. In addition, the view limits can be
+        expanded, but will not be reduced.  This method is
+        for mpl internal use; for normal use, see
+        :meth:`~matplotlib.axes.Axes.set_ylim`.
+
         """
         if ignore:
             self.axes.viewLim.intervaly = vmin, vmax

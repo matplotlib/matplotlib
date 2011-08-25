@@ -196,7 +196,7 @@ class HandlerLine2D(HandlerNpoints):
         #legline.set_clip_box(None)
         #legline.set_clip_path(None)
         legline.set_drawstyle('default')
-        legline.set_marker('None')
+        legline.set_marker("")
 
 
         legline_marker = Line2D(xdata_marker, ydata[:len(xdata_marker)])
@@ -231,7 +231,7 @@ class HandlerPatch(HandlerBase):
                       xdescent, ydescent, width, height, fontsize):
         if self._patch_func is None:
             p = Rectangle(xy=(-xdescent, -ydescent),
-                          width = width+xdescent, height=(height+ydescent))
+                          width = width, height=height)
         else:
             p = self._patch_func(legend=legend, orig_handle=orig_handle,
                                  xdescent=xdescent, ydescent=ydescent,
@@ -362,7 +362,19 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
 
         return [p]
 
+class HandlerPathCollection(HandlerRegularPolyCollection):
+    """
+    Handler for PathCollections, which are used by scatter
+    """
+    def create_collection(self, orig_handle, sizes, offsets, transOffset):
+        p = type(orig_handle)([orig_handle.get_paths()[0]],
+                              sizes=sizes,
+                              offsets=offsets,
+                              transOffset=transOffset,
+                              )
+        return p
 
+    
 class HandlerCircleCollection(HandlerRegularPolyCollection):
     """
     Handler for CircleCollections
