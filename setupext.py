@@ -848,7 +848,10 @@ def query_tcltk():
 
 def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
     try:
-        import Tkinter
+        if sys.version_info[0] < 3:
+            import Tkinter
+        else:
+            import tkinter as Tkinter
     except ImportError:
         return None
 
@@ -875,7 +878,7 @@ def parse_tcl_config(tcl_lib_dir, tk_lib_dir):
             executable="/bin/sh",
             stdout=subprocess.PIPE)
         result = p.communicate()[0]
-        return result
+        return result.decode('ascii')
 
     tcl_lib_dir = get_var(tcl_config, 'TCL_LIB_SPEC').split()[0][2:].strip()
     tcl_inc_dir = get_var(tcl_config, 'TCL_INCLUDE_SPEC')[2:].strip()
