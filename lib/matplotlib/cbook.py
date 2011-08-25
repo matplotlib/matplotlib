@@ -503,9 +503,8 @@ def _get_data_server(cache_dir, baseurl):
                 self.cache = {}
                 return
 
-            f = open(fn, 'rb')
-            cache = cPickle.load(f)
-            f.close()
+            with open(fn, 'rb') as f:
+                cache = cPickle.load(f)
 
             # Earlier versions did not have the full paths in cache.pck
             for url, (fn, x, y) in cache.items():
@@ -548,9 +547,8 @@ def _get_data_server(cache_dir, baseurl):
             Write the cache data structure into the cache directory.
             """
             fn = self.in_cache_dir('cache.pck')
-            f = open(fn, 'wb')
-            cPickle.dump(self.cache, f, -1)
-            f.close()
+            with open(fn, 'wb') as f:
+                cPickle.dump(self.cache, f, -1)
 
         def cache_file(self, url, data, headers):
             """
@@ -560,9 +558,8 @@ def _get_data_server(cache_dir, baseurl):
             fn = url[len(self.baseurl):]
             fullpath = self.in_cache_dir(fn)
 
-            f = open(fullpath, 'wb')
-            f.write(data)
-            f.close()
+            with open(fullpath, 'wb') as f:
+                f.write(data)
 
             # Update the cache
             self.cache[url] = (fullpath, headers.get('ETag'),
@@ -594,8 +591,8 @@ def _get_data_server(cache_dir, baseurl):
             matplotlib.verbose.report(
                 'ViewVCCachedServer: reading data file from cache file "%s"'
                 %fn, 'debug')
-            file = open(fn, 'rb')
-            handle = urllib2.addinfourl(file, hdrs, url)
+            with open(fn, 'rb') as file:
+                handle = urllib2.addinfourl(file, hdrs, url)
             handle.code = 304
             return handle
 

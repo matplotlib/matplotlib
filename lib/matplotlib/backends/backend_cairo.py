@@ -459,7 +459,14 @@ class FigureCanvasCairo (FigureCanvasBase):
                 filename = fo
                 if is_string_like(fo):
                     fo = open(fo, 'wb')
-                fo = gzip.GzipFile(None, 'wb', fileobj=fo)
+                    close = True
+                else:
+                    close = False
+                try:
+                    fo = gzip.GzipFile(None, 'wb', fileobj=fo)
+                finally:
+                    if close:
+                        fo.close()
             surface = cairo.SVGSurface (fo, width_in_points, height_in_points)
         else:
            warnings.warn ("unknown format: %s" % format)

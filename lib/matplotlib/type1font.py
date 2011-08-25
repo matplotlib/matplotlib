@@ -53,11 +53,8 @@ class Type1Font(object):
         if isinstance(input, tuple) and len(input) == 3:
             self.parts = input
         else:
-            file = open(input, 'rb')
-            try:
+            with open(input, 'rb') as file:
                 data = self._read(file)
-            finally:
-                file.close()
             self.parts = self._split(data)
 
         self._parse()
@@ -296,13 +293,15 @@ class Type1Font(object):
         """
 
         buffer = io.StringIO()
-        tokenizer = self._tokens(self.parts[0])
-        for value in self._transformer(tokenizer,
-                                       slant=effects.get('slant', 0.0),
-                                       extend=effects.get('extend', 1.0)):
-            buffer.write(value)
-        result = buffer.getvalue()
-        buffer.close()
+        try:
+            tokenizer = self._tokens(self.parts[0])
+            for value in self._transformer(tokenizer,
+                                           slant=effects.get('slant', 0.0),
+                                           extend=effects.get('extend', 1.0)):
+                buffer.write(value)
+            result = buffer.getvalue()
+        finally:
+            buffer.close()
 
         return Type1Font((result, self.parts[1], self.parts[2]))
 

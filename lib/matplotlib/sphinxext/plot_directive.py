@@ -619,9 +619,8 @@ def run(arguments, content, options, state_machine, state, lineno):
         else:
             function_name = None
 
-        fd = open(source_file_name, 'r')
-        code = fd.read()
-        fd.close()
+        with open(source_file_name, 'r') as fd:
+            code = fd.read()
         output_base = os.path.basename(source_file_name)
     else:
         source_file_name = rst_file
@@ -761,8 +760,7 @@ def run(arguments, content, options, state_machine, state, lineno):
     # copy script (if necessary)
     if source_file_name == rst_file:
         target_name = os.path.join(dest_dir, output_base + source_ext)
-        f = open(target_name, 'w')
-        f.write(unescape_doctest(code))
-        f.close()
+        with open(target_name, 'w') as f:
+            f.write(unescape_doctest(code))
 
     return errors

@@ -486,11 +486,13 @@ class Vf(Dvi):
 
     def __init__(self, filename):
         Dvi.__init__(self, filename, 0)
-        self._first_font = None
-        self._chars = {}
-        self._packet_ends = None
-        self._read()
-        self.close()
+        try:
+            self._first_font = None
+            self._chars = {}
+            self._packet_ends = None
+            self._read()
+        finally:
+            self.close()
 
     def __getitem__(self, code):
         return self._chars[code]
@@ -608,9 +610,7 @@ class Tfm(object):
 
     def __init__(self, filename):
         matplotlib.verbose.report('opening tfm file ' + filename, 'debug')
-        file = open(filename, 'rb')
-
-        try:
+        with open(filename, 'rb') as file:
             header1 = file.read(24)
             lh, bc, ec, nw, nh, nd = \
                 struct.unpack('!6H', header1[2:14])
@@ -625,8 +625,6 @@ class Tfm(object):
             widths = file.read(4*nw)
             heights = file.read(4*nh)
             depths = file.read(4*nd)
-        finally:
-            file.close()
 
         self.width, self.height, self.depth = {}, {}, {}
         widths, heights, depths = \
@@ -676,11 +674,8 @@ class PsfontsMap(object):
 
     def __init__(self, filename):
         self._font = {}
-        file = open(filename, 'rt')
-        try:
+        with open(filename, 'rt') as file:
             self._parse(file)
-        finally:
-            file.close()
 
     def __getitem__(self, texname):
         result = self._font[texname]
@@ -780,13 +775,10 @@ class Encoding(object):
     __slots__ = ('encoding',)
 
     def __init__(self, filename):
-        file = open(filename, 'rt')
-        try:
+        with open(filename, 'rt') as file:
             matplotlib.verbose.report('Parsing TeX encoding ' + filename, 'debug-annoying')
             self.encoding = self._parse(file)
             matplotlib.verbose.report('Result: ' + repr(self.encoding), 'debug-annoying')
-        finally:
-            file.close()
 
     def __iter__(self):
         for name in self.encoding:
