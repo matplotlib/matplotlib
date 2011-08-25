@@ -28,7 +28,7 @@ graphics contexts must implement to serve as a matplotlib backend
 """
 
 from __future__ import division, print_function
-import os, warnings, time
+import os, warnings, time, io
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -1939,9 +1939,9 @@ class FigureCanvasBase(object):
                 # the backend to support file-like object, i'm going
                 # to leave it as it is. However, a better solution
                 # than stringIO seems to be needed. -JJL
-                #result = getattr(self, method_name)(
+                #result = getattr(self, method_name)
                 result = print_method(
-                    cStringIO.StringIO(),
+                    io.BytesIO(),
                     dpi=dpi,
                     facecolor=facecolor,
                     edgecolor=edgecolor,
