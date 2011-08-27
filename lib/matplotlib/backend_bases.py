@@ -774,6 +774,8 @@ class GraphicsContextBase:
         if alpha is not None:
             self._alpha = alpha
             self._forced_alpha = True
+        else:
+            self._forced_alpha = False
 
     def set_antialiased(self, b):
         """
@@ -834,7 +836,10 @@ class GraphicsContextBase:
         else:
             self._rgb = colors.colorConverter.to_rgba(fg)
         if len(self._rgb) == 4 and not self._forced_alpha:
-            self._alpha = self._rgb[3]
+            self.set_alpha(self._rgb[3])
+            # Use set_alpha method here so that subclasses will
+            # be calling their own version, which may set their
+            # own attributes.
 
     def set_graylevel(self, frac):
         """
