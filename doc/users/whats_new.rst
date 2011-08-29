@@ -7,6 +7,10 @@ What's new in matplotlib
 This page just covers the highlights -- for the full story, see the
 `CHANGELOG <http://matplotlib.sourceforge.net/_static/CHANGELOG>`_
 
+.. note::
+   Matplotlib version 1.1 is the last major release compatible with Python
+   versions 2.4 to 2.7.  The next major release will support
+   versions 2.6, 2.7, and 3.1 and higher.
 
 .. _whats-new-1-1:
 
@@ -16,16 +20,15 @@ new in matplotlib-1.1
 Animation
 ---------
 
-Ryan May invested significant effort to create a backend-independent
+Ryan May has written a backend-independent
 framework for creating animated figures. The :mod:`~matplotlib.animation`
-module is intended to replace the difficult-to-understand,
-backend-specific examples that used to exist in the :ref:`examples-index`
-listings.
+module is intended to replace the
+backend-specific examples formerly in the :ref:`examples-index`
+listings.  Examples using the new framework are in
+:ref:`animation-examples-index`.
 
-This framework should be considered a beta feature for matplotlib, but
-we highly encourage users to try it out and provide feedback.
-
-Check out the :ref:`animation-examples-index` and try them out!
+This should be considered as a beta release of the framework;
+please try it and provide feedback.
 
 
 Tight Layout
@@ -42,19 +45,28 @@ so that the axis labels do not overlap with neighboring subplots. A
 :ref:`plotting-guide-tight-layout` has been created to show how to use
 this new tool.
 
-Full IPython 0.11 compatibility
--------------------------------
+PyQT4, PySide, and IPython
+--------------------------
 
-The `IPython <http://ipython.org>`_ team has recently released v0.11 of
-their interactive python shell. The matplotlib and IPython teams worked
-to ensure that our packages work well together. This release of matplotlib
-is fully compatible with ipython.
+Gerald Storer made the Qt4 backend compatible with PySide as
+well as PyQT4.  At present, however, PySide does not support
+the PyOS_InputHook mechanism for handling gui events while
+waiting for text input, so it cannot be used with the new
+version 0.11 of `IPython <http://ipython.org>`_. Until this
+feature appears in PySide, IPython users should use
+the PyQT4 wrapper for QT4, which remains the matplotlib default.
+
+An rcParam entry, "backend.qt4", has been added to allow users
+to select PyQt4, PyQt4v2, or PySide.  The latter two use the
+Version 2 Qt API.  In most cases, users can ignore this rcParam
+variable; it is available to aid in testing, and to provide control
+for users who are embedding matplotlib in a PyQt4 or PySide app.
+
 
 Legend
 ------
 
-Jae-Joon Lee has also been working on revamping how plot legends are handled
-in matplotlib. This has resulted in some immediate enhancements. First,
+Jae-Joon Lee has improved plot legends. First,
 legends for complex plots such as :meth:`~matplotlib.pyplot.stem` plots
 will now display correctly. Second, the 'best' placement of a legend has
 been improved in the presence of NANs.
@@ -130,18 +142,25 @@ Other improvements
 * An error in the Hammer projection has been fixed.
 
 * *clabel* for :meth:`~matplotlib.pyplot.contour` now accepts a callable.
-  Thanks to Daniel Hyams for the original patch!
+  Thanks to Daniel Hyams for the original patch.
 
 * Jae-Joon Lee added the :class:`~mpl_toolkits.axes_grid1.axes_divider.HBox`
   and :class:`~mpl_toolkits.axes_grid1.axes_divider.VBox` classes.
 
-* Christoph Gohike improved memory usage in :meth:`~matplotlib.pyplot.imshow`.
+* Christoph Gohlke reduced memory usage in :meth:`~matplotlib.pyplot.imshow`.
 
 * :meth:`~matplotlib.pyplot.scatter` now accepts empty inputs.
 
 * The behavior for 'symlog' scale has been fixed, but this may result
   in some minor changes to existing plots.
 
+* Peter Butterworth added named figure support to
+  :func:`~matplotlib.pyplot.figure`.
+
+* Michiel de Hoon has modified the MacOSX backend to make
+  its interactive behavior consistent with the other backends.
+
+* Many bug fixes and documentation improvements.
 
 .. _whats-new-1-0:
 
