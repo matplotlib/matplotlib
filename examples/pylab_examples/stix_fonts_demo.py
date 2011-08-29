@@ -16,8 +16,9 @@ stests = [
     r'$\mathscr{Script}$']
 
 if sys.maxunicode > 0xffff:
+    s = r'Direct Unicode: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
     stests.append(
-        ur'Direct Unicode: $\u23ce \mathrm{\ue0f2 \U0001D538}$'
+        unicode(s, encoding="unicode_escape")
     )
 
 from pylab import *
