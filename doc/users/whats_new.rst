@@ -35,9 +35,38 @@ A frequent issue raised by users of matplotlib is the lack of a layout
 engine to nicely space out elements of the plots. While matplotlib still
 adheres to the philosphy of giving users complete control over the placement
 of plot elements, Jae-Joon Lee created the :mod:`~matplotlib.tight_layout`
-module to address the most common layout issues.
+module and introduced a new
+command :func:`~matplotlib.pyplot.tight_layout`
+to address the most common layout issues.
 
-:mod:`~matplotlib.tight_layout` will adjust the spacing between subplots
+.. plot::
+
+    plt.rcParams['savefig.facecolor'] = "0.8"
+    plt.rcParams['figure.figsize'] = 4, 3
+
+    fig, axes_list = plt.subplots(2, 1)
+    for ax in axes_list.flat:
+        ax.set(xlabel="x-label", ylabel="y-label", title="before tight_layout")
+	ax.locator_params(nbins=3)
+
+    plt.show()
+
+    plt.rcParams['savefig.facecolor'] = "0.8"
+    plt.rcParams['figure.figsize'] = 4, 3
+
+    fig, axes_list = plt.subplots(2, 1)
+    for ax in axes_list.flat:
+        ax.set(xlabel="x-label", ylabel="y-label", title="after tight_layout")
+	ax.locator_params(nbins=3)
+
+    plt.tight_layout()
+    plt.show()
+
+The usage of this functionality can be as simple as ::
+
+    plt.tight_layout()
+
+and it will adjust the spacing between subplots
 so that the axis labels do not overlap with neighboring subplots. A
 :ref:`plotting-guide-tight-layout` has been created to show how to use
 this new tool.
