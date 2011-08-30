@@ -142,7 +142,7 @@ The list of available markers for :meth:`~matplotlib.pyplot.plot` and
 :meth:`~matplotlib.pyplot.scatter` has now been merged. While they
 were mostly similar, some markers existed for one function, but not
 the other. This merge did result in a conflict for the 'd' diamond
-marker. Now, 'd' will be interpreated to always mean "thin" diamond
+marker. Now, 'd' will be interpreted to always mean "thin" diamond
 while 'D' will mean "regular" diamond.
 
 Thanks to Michael Droettboom for this effort.
