@@ -566,17 +566,15 @@ class Line2D(Artist):
     def get_marker(self): return self._marker
 
     def get_markeredgecolor(self):
-        if (is_string_like(self._markeredgecolor) and
-            self._markeredgecolor == 'auto'):
-            if self._marker.is_filled():
+        mec = self._markeredgecolor
+        if (is_string_like(mec) and mec == 'auto'):
+            if self._marker.is_filled() and self.get_fillstyle() != 'none':
                 return 'k'
             else:
                 return self._color
         else:
-            return self._markeredgecolor
+            return mec
 
-
-        return self._markeredgecolor
     def get_markeredgewidth(self): return self._markeredgewidth
 
     def _get_markerfacecolor(self, alt=False):
