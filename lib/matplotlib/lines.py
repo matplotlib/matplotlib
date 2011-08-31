@@ -305,9 +305,9 @@ class Line2D(Artist):
     def set_fillstyle(self, fs):
         """
         Set the marker fill style; 'full' means fill the whole marker.
-        The other options are for half filled markers
+        'none' means no filling; other options are for half-filled markers.
 
-        ACCEPTS: ['full' | 'left' | 'right' | 'bottom' | 'top']
+        ACCEPTS: ['full' | 'left' | 'right' | 'bottom' | 'top' | 'none']
         """
         self._marker.set_fillstyle(fs)
 
@@ -585,10 +585,11 @@ class Line2D(Artist):
         else:
             fc = self._markerfacecolor
 
-        if (fc is None or (is_string_like(fc) and fc.lower()=='none') ):
-            return fc
-        elif (is_string_like(fc) and fc.lower() == 'auto'):
-            return self._color
+        if (is_string_like(fc) and fc.lower() == 'auto'):
+            if self.get_fillstyle() == 'none':
+                return 'none'
+            else:
+                return self._color
         else:
             return fc
 

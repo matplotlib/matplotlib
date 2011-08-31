@@ -101,13 +101,12 @@ that define the shape.
     filled_markers = (
         'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd')
         
-    fillstyles = ('full', 'left' , 'right' , 'bottom' , 'top')
+    fillstyles = ('full', 'left' , 'right' , 'bottom' , 'top', 'none')
 
     # TODO: Is this ever used as a non-constant?
     _point_size_reduction = 0.5
     
     def __init__(self, marker=None, fillstyle='full'):
-        self._fillstyle = fillstyle
         self.set_marker(marker)
         self.set_fillstyle(fillstyle)
 
@@ -329,7 +328,7 @@ that define the shape.
         self._transform = Affine2D().translate(-0.5, -0.5)
         self._snap_threshold = 2.0
         fs = self.get_fillstyle()
-        if fs=='full':
+        if fs == 'full' or fs == 'none':
             self._path = Path.unit_rectangle()
         else:
             # build a bottom filled square out of two rectangles, one
@@ -349,7 +348,7 @@ that define the shape.
         self._transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
         self._snap_threshold = 5.0
         fs = self.get_fillstyle()
-        if fs=='full':
+        if fs == 'full' or fs == 'none':
             self._path = Path.unit_rectangle()
         else:
             self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]])
@@ -374,7 +373,7 @@ that define the shape.
         polypath = Path.unit_regular_polygon(5)
         fs = self.get_fillstyle()
 
-        if fs == 'full':
+        if fs == 'full' or fs == 'none':
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -404,7 +403,7 @@ that define the shape.
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_star(5, innerCircle=0.381966)
 
-        if fs == 'full':
+        if fs == 'full' or fs == 'none':
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -433,7 +432,7 @@ that define the shape.
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
 
-        if fs == 'full':
+        if fs == 'full' or fs == 'none':
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -465,7 +464,7 @@ that define the shape.
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
 
-        if fs == 'full':
+        if fs == 'full' or fs == 'none':
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -497,7 +496,7 @@ that define the shape.
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(8)
 
-        if fs == 'full':
+        if fs == 'full' or fs == 'none':
             self._transform.rotate_deg(22.5)
             self._path = polypath
         else:
