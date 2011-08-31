@@ -803,6 +803,7 @@ GraphicsContext_set_foreground(GraphicsContext* self, PyObject* args)
     self->color[0] = r;
     self->color[1] = g;
     self->color[2] = b;
+    self->color[3] = 1.0;
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -2279,7 +2280,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
         {"Arial", 14},
         {"Helvetica", 15},
         {"Avant Garde", 16},
-        {"sans-serif", 10},
+        {"sans-serif", 15},
         {"Apple Chancery", 17},
         {"Textile", 18},
         {"Zapf Chancery", 19},
@@ -2364,8 +2365,8 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
        "Arial-BoldItalicMT"},
       {"Helvetica",                          /* 15 */
        "Helvetica-Bold",
-       "",
-       ""},
+       "Arial-ItalicMT",
+       "Arial-BoldItalicMT"},
       {"AvantGardeITC-Book",                 /* 16 */
        "AvantGardeITC-Demi",
        "AvantGardeITC-BookOblique",
@@ -2681,7 +2682,6 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
         PyErr_SetString(PyExc_RuntimeError, "CGContextRef is NULL");
         return NULL;
     }
-
     if(!PyArg_ParseTuple(args, "ffu#Ofssf",
                                 &x,
                                 &y,
@@ -3755,7 +3755,6 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [window setDelegate: view];
     [window makeFirstResponder: view];
     [[window contentView] addSubview: view];
-    [window makeKeyAndOrderFront: nil];
 
     nwin++;
 
@@ -3789,6 +3788,20 @@ FigureManager_dealloc(FigureManager* self)
 }
 
 static PyObject*
+FigureManager_show(FigureManager* self)
+{
+    Window* window = self->window;
+    if(window)
+    {
+        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+        [window makeKeyAndOrderFront: nil];
+        [pool release];
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject*
 FigureManager_destroy(FigureManager* self)
 {
     Window* window = self->window;
@@ -3804,6 +3817,11 @@ FigureManager_destroy(FigureManager* self)
 }
 
 static PyMethodDef FigureManager_methods[] = {
+    {"show",
+     (PyCFunction)FigureManager_show,
+     METH_NOARGS,
+     "Shows the window associated with the figure manager."
+    },
     {"destroy",
      (PyCFunction)FigureManager_destroy,
      METH_NOARGS,
@@ -4662,7 +4680,9 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     NSText* messagebox = [[NSText alloc] initWithFrame: rect];
     [messagebox setFont: font];
     [messagebox setDrawsBackground: NO];
-    [messagebox setEditable: NO];
+    [messagebox setSelectable: NO];
+    /* if selectable, the messagebox can become first responder,
+     * which is not supposed to happen */
     rect = [messagebox frame];
     rect.origin.y = 0.5 * (height - rect.size.height);
     [messagebox setFrameOrigin: rect.origin];
