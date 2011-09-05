@@ -660,7 +660,7 @@ class Axes(maxes.Axes):
         return self._grid_helper
 
 
-    def grid(self, b=None, which='major', **kwargs):
+    def grid(self, b=None, which='major', axis="both", **kwargs):
         """
         Toggle the gridlines, and optionally set the properties of the lines.
         """
