@@ -544,13 +544,23 @@ class ContourLabeler:
         else:
             add_label = self.add_label
 
+
+        # labeler does not seem to correctly account the dpi setting;
+        # fontsize are measured in points not in pixels. This is a
+        # workaround for that. I believe this will work for agg based
+        # backedn, but may not work for other backends. -JJL
+        try:
+            dpi_cor = self.ax.figure.get_dpi()/72.
+        except AttributeError:
+            dpi_cor = 1
+
         for icon, lev, fsize, cvalue in zip(
             self.labelIndiceList, self.labelLevelList, self.labelFontSizeList,
             self.labelCValueList ):
 
             con = self.collections[icon]
             trans = con.get_transform()
-            lw = self.get_label_width(lev, self.labelFmt, fsize)
+            lw = self.get_label_width(lev, self.labelFmt, fsize*dpi_cor)
             additions = []
             paths = con.get_paths()
             for segNum, linepath in enumerate(paths):
