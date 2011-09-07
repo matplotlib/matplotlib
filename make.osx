@@ -25,7 +25,7 @@ ZLIBURL=http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERSION}/${ZLIBF
 
 PNGFILE=libpng-${PNGVERSION}.tar.gz
 PNGDIR=$(basename $(basename ${PNGFILE}))
-PNGURL=http://sourceforge.net/projects/libpng/files/libpng15/${PNGVERSION}/${PNGFILE}/download
+PNGURL=http://sourceforge.net/projects/libpng/files/libpng15/older-releases/${PNGVERSION}/${PNGFILE}/download
 
 FREETYPEFILE=freetype-${FREETYPEVERSION}.tar.bz2
 FREETYPEDIR=$(basename $(basename ${FREETYPEFILE}))
