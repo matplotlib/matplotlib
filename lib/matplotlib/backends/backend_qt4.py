@@ -21,7 +21,7 @@ except ImportError:
     figureoptions = None
 
 from qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
-    
+
 backend_version = __version__
 def fn_name(): return sys._getframe(1).f_code.co_name
 
@@ -55,18 +55,12 @@ def _create_qApp():
             qApp = QtGui.QApplication( [" "] )
             QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
                                 qApp, QtCore.SLOT( "quit()" ) )
-            #remember that matplotlib created the qApp - will be used by show()
-            _create_qApp.qAppCreatedHere = True
         else:
             qApp = app
-            _create_qApp.qAppCreatedHere = False
-
-_create_qApp.qAppCreatedHere = False
 
 class Show(ShowBase):
     def mainloop(self):
-        if _create_qApp.qAppCreatedHere:
-            QtGui.qApp.exec_()
+        QtGui.qApp.exec_()
 
 show = Show()
 
@@ -287,7 +281,7 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print 'FigureManagerQT.%s' % fn_name()
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
-        self.window = QtGui.QMainWindow() 
+        self.window = QtGui.QMainWindow()
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.window.setWindowTitle("Figure %d" % num)
@@ -335,7 +329,7 @@ class FigureManagerQT( FigureManagerBase ):
     def _show_message(self,s):
         # Fixes a PySide segfault.
         self.window.statusBar().showMessage(s)
-        
+
     def _widgetclosed( self ):
         if self.window._destroying: return
         self.window._destroying = True

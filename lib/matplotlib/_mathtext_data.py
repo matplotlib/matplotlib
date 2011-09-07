@@ -2319,7 +2319,21 @@ tex2uni = {
     'biguplus'                 : 10756,
     'epsilon'                  : 949,
     'vartheta'                 : 977,
-    'bigotimes'                : 10754
+    'bigotimes'                : 10754,
+    'guillemotleft'            : 171,
+    'ring'                     : 730,
+    'Thorn'                    : 222,
+    'guilsinglright'           : 8250,
+    'perthousand'              : 8240,
+    'macron'                   : 175,
+    'cent'                     : 162,
+    'guillemotright'           : 187,
+    'equal'                    : 61,
+    'asterisk'                 : 42,
+    'guilsinglleft'            : 8249,
+    'plus'                     : 43,
+    'thorn'                    : 254,
+    'dagger'                   : 8224
 }
 
 # Each element is a 4-tuple of the form:
