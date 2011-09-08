@@ -107,6 +107,7 @@ that define the shape.
     _point_size_reduction = 0.5
     
     def __init__(self, marker=None, fillstyle='full'):
+        self._fillstyle = fillstyle
         self.set_marker(marker)
         self.set_fillstyle(fillstyle)
 
