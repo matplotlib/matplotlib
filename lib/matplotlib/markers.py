@@ -247,7 +247,7 @@ that define the shape.
         self._transform = Affine2D().scale(0.5 * reduction)
         self._snap_threshold = 3.0
         fs = self.get_fillstyle()
-        if fs=='full':
+        if fs == 'full' or fs == 'none':
             self._path = Path.unit_circle()
         else:
             # build a right-half circle
@@ -289,7 +289,7 @@ that define the shape.
         self._snap_threshold = 5.0
         fs = self.get_fillstyle()
 
-        if fs=='full':
+        if fs == 'full' or fs == 'none':
             self._path = self._triangle_path
         else:
             mpaths = [self._triangle_path_u,
