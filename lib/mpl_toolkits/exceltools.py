@@ -1,6 +1,6 @@
 """
 Some io tools for excel -- requires xlwt
-l
+
 Example usage:
 
     import matplotlib.mlab as mlab
