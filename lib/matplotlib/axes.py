@@ -2127,7 +2127,7 @@ class Axes(martist.Artist):
         style = kwargs.pop('style', '').lower()
         scilimits = kwargs.pop('scilimits', None)
         useOffset = kwargs.pop('useOffset', None)
-        use_locale = kwargs.pop('useLocale', None)
+        useLocale = kwargs.pop('useLocale', None)
         axis = kwargs.pop('axis', 'both').lower()
         if scilimits is not None:
             try:
