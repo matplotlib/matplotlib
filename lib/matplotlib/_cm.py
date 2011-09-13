@@ -46,6 +46,57 @@ _prism_data = {
         'blue': lambda x: -1.1 * np.sin((x * 20.9) * np.pi),
 }
 
+def cubehelix(gamma = 1.0, s = 0.5, r = -1.5, h = 1.0):
+    """Return dictionary of (r,g,b) conversion functions for the cubehelix
+    color scheme.
+
+    Unlike most other color schemes cubehelix was designed by D.A. Green to
+    be monotonically increasing in terms of perceived brightness.
+    Also, when printed on a black and white postscript printer, the scheme
+    results in a greyscale with monotonically increasing brightness.
+
+    Optional keyword arguments:
+
+      =========   =======================================================
+      Keyword     Description
+      =========   =======================================================
+      gamma       gamma factor to emphasise either low intensity values
+                  (gamma < 1), or high intensity values (gamma > 1);
+                  defaults to 1.0.
+      s           the start color; defaults to 0.5.
+      r           the number of r,g,b rotations in color that are made
+                  from the start to the end of the color scheme; defaults
+                  to -1.5.
+      h           the hue parameter which controls how saturated the
+                  colors are. If this parameter is zero then the color
+                  scheme is purely a greyscale.
+      =========   =======================================================
+
+    """
+
+    def get_color_function(p0, p1):
+        def color(x):
+            # Apply gamma factor to emphasise low or high intensity values
+            xg = x**gamma
+
+            # Calculate amplitude and angle of deviation from the black
+            # to white diagonal in the plane of constant
+            # perceived intensity.
+            a = h * xg * (1 - xg) / 2
+
+            phi = 2 * np.pi * (s / 3 + r * x)
+
+            return xg + a * (p0 * np.cos(phi) + p1 * np.sin(phi))
+        return color
+
+    return {
+            'red': get_color_function(-0.14861, 1.78277),
+            'green': get_color_function(-0.29227, -0.90649),
+            'blue': get_color_function(1.97294, 0.0),
+    }
+
+_cubehelix_data = cubehelix()
+
 _bwr_data = ((0.0, 0.0, 1.0), (1.0, 1.0, 1.0), (1.0, 0.0, 0.0))
 _brg_data = ((0.0, 0.0, 1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
 
@@ -1575,6 +1626,7 @@ datad = {
     'brg':    _brg_data,
     'cool':   _cool_data,
     'copper': _copper_data,
+    'cubehelix': _cubehelix_data,
     'flag':   _flag_data,
     'gnuplot': _gnuplot_data,
     'gnuplot2': _gnuplot2_data,
