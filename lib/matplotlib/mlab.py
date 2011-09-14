@@ -2350,6 +2350,13 @@ class FormatObj:
     def fromstr(self, s):
         return s
 
+
+    def __hash__(self):
+        """
+        override the hash function of any of the formatters, so that we don't create duplicate excel format styles
+        """
+        return hash(self.__class__)
+
 class FormatString(FormatObj):
     def tostr(self, x):
         val = repr(x)
@@ -2377,6 +2384,9 @@ class FormatFloat(FormatFormatStr):
         FormatFormatStr.__init__(self, '%%1.%df'%precision)
         self.precision = precision
         self.scale = scale
+
+    def __hash__(self):
+        return hash((self.__class__, self.precision, self.scale))
 
     def toval(self, x):
         if x is not None:
@@ -2424,6 +2434,10 @@ class FormatMillions(FormatFloat):
 class FormatDate(FormatObj):
     def __init__(self, fmt):
         self.fmt = fmt
+
+    def __hash__(self):
+        return hash((self.__class__, self.fmt))
+
 
     def toval(self, x):
         if x is None: return 'None'
