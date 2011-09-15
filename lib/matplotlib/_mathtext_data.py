@@ -108,7 +108,7 @@ latex_to_bakoma = {
     r'7'                         : ('cmr10',  127),
     r'8'                         : ('cmr10',   77),
     r'9'                         : ('cmr10',   22),
-    r'                           :'                    : ('cmr10',   85),
+    r':'                         : ('cmr10',   85),
     r';'                         : ('cmr10',   31),
     r'='                         : ('cmr10',   41),
     r'\leftbracket'              : ('cmr10',   62),
@@ -243,6 +243,9 @@ latex_to_bakoma = {
     r'\rightarrow'               : ('cmsy10',  12),
     r'\to'                       : ('cmsy10',  12),
     r'\spadesuit'                : ('cmsy10',   7),
+    r'?'                         : ('cmr10',   50),
+    r'!'                         : ('cmr10',   29),
+    r'&'                         : ('cmr10',  109) 
 }
 
 latex_to_cmex = {
