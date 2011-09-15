@@ -1,9 +1,10 @@
 import matplotlib
 from nose.tools import assert_equal
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
 
 
+@cleanup
 def test_figure_label():
     # pyplot figure creation, selection and closing with figure label and number
     plt.close('all')
