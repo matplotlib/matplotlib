@@ -132,7 +132,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
     return d.view(np.recarray)  # Close enough to former Bunch return
 
 
-def fetch_historical_yahoo(ticker, date1, date2, cachename=None,g='d'):
+def fetch_historical_yahoo(ticker, date1, date2, cachename=None,dividends=False):
     """
     Fetch historical data for ticker between date1 and date2.  date1 and
     date2 are date or datetime instances, or (year, month, day) sequences.
@@ -143,6 +143,9 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,g='d'):
     cachename is the name of the local file cache.  If None, will
     default to the md5 hash or the url (which incorporates the ticker
     and date range)
+    
+    set dividends=True to return dividends instead of price data.  With
+    this option set, parse functions will not work
 
     a file handle is returned
     """
@@ -159,6 +162,12 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,g='d'):
     else:
         d2 = (date2.month-1, date2.day, date2.year)
 
+
+    if dividends:
+        g='v'
+        verbose.report('Retrieving dividends instead of prices')
+    else:
+        g='d'
 
     urlFmt = 'http://table.finance.yahoo.com/table.csv?a=%d&b=%d&c=%d&d=%d&e=%d&f=%d&s=%s&y=0&g=%s&ignore=.csv'
 
