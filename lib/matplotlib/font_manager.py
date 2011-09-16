@@ -685,8 +685,14 @@ class FontProperties(object):
         return parse_fontconfig_pattern(pattern)
 
     def __hash__(self):
-        l = [(k, getattr(self, "get" + k)()) for k in sorted(self.__dict__)]
-        return hash(repr(l))
+        l = (tuple(self.get_family()),
+             self.get_slant(),
+             self.get_variant(),
+             self.get_weight(),
+             self.get_stretch(),
+             self.get_size_in_points(),
+             self.get_file())
+        return hash(l)
 
     def __str__(self):
         return self.get_fontconfig_pattern()
