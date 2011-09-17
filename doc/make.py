@@ -5,8 +5,18 @@ import os
 import shutil
 import sys
 
+### Begin compatibility block for pre-v2.6: ###
+#
 # ignore_patterns and copytree funtions are copies of what is included
 # in shutil.copytree of python v2.6 and later.
+#
+### When compatibility is no-longer needed, this block
+### can be replaced with:
+###
+###     from shutil import ignore_patterns, copytree
+###
+### or the "shutil." qualifier can be prepended to the function
+### names where they are used.
 
 try:
     WindowsError
@@ -91,6 +101,8 @@ def copytree(src, dst, symlinks=False, ignore=None):
             errors.extend((src, dst, str(why)))
     if errors:
         raise Error, errors
+
+### End compatibility block for pre-v2.6 ###
 
 
 def copy_if_out_of_date(original, derived):
