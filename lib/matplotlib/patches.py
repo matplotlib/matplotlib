@@ -3296,7 +3296,7 @@ class ArrowStyle(_Style):
               angle between the bracket and the line
             """
 
-            super(ArrowStyle.BracketA, self).__init__(None, True,
+            super(ArrowStyle.BracketA, self).__init__(True, None,
                      widthA=widthA, lengthA=lengthA, angleA=angleA )
 
     _style_list["]-"] = BracketA
