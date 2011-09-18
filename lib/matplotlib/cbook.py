@@ -1827,6 +1827,23 @@ def is_math_text(s):
 
     return even_dollars
 
+# Numpy > 1.6.x deprecates putmask in favor of the new copyto.
+# So long as we support versions 1.6.x and less, we need the
+# following local version of putmask.  We choose to make a
+# local version of putmask rather than of copyto because the
+# latter includes more functionality than the former. Therefore
+# it is easy to make a local version that gives full putmask
+# behavior, but duplicating the full copyto behavior would be
+# more difficult.
+
+try:
+    np.copyto
+except AttributeError:
+    _putmask = np.putmask
+else:
+    def _putmask(a, mask, values):
+        return np.copyto(a, values, where=mask)
+
 
 if __name__=='__main__':
     assert( allequal([1,1,1]) )

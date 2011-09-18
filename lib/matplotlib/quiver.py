@@ -24,6 +24,7 @@ import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
+import matplotlib.cbook as cbook
 from matplotlib.cbook import delete_masked_points
 from matplotlib.patches import CirclePolygon
 import math
@@ -624,8 +625,8 @@ class Quiver(collections.PolyCollection):
         Y0 = shrink * Y0[np.newaxis,:]
         short = np.repeat(length < minsh, 8, axis=1)
         # Now select X0, Y0 if short, otherwise X, Y
-        np.putmask(X, short, X0)
-        np.putmask(Y, short, Y0)
+        cbook._putmask(X, short, X0)
+        cbook._putmask(Y, short, Y0)
         if self.pivot[:3] == 'mid':
             X -= 0.5 * X[:,3, np.newaxis]
         elif self.pivot[:3] == 'tip':
@@ -641,8 +642,8 @@ class Quiver(collections.PolyCollection):
             X1 = np.repeat(x1[np.newaxis, :], N, axis=0)
             Y1 = np.repeat(y1[np.newaxis, :], N, axis=0)
             tooshort = np.repeat(tooshort, 8, 1)
-            np.putmask(X, tooshort, X1)
-            np.putmask(Y, tooshort, Y1)
+            cbook._putmask(X, tooshort, X1)
+            cbook._putmask(Y, tooshort, Y1)
         # Mask handling is deferred to the caller, _make_verts.
         return X, Y
 
