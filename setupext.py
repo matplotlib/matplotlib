@@ -138,6 +138,21 @@ defines = [
         ('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API'),
         ('PYCXX_ISO_CPP_LIB', '1')]
 
+# list of search paths for the CXX headers and sources
+# first folder where the files are found sets
+# pycxx_inc_path, pycxx_sources and pycxx_headers
+_pycxx_src_paths = ["external/"]
+_pycxx_h_paths = ["external/"]
+for s, h in zip(_pycxx_src_paths, _pycxx_h_paths):
+  if os.path.isdir(h) and os.path.isdir(s):
+    pycxx_sources = glob.glob(os.path.join(s, "CXX", "*.c"))
+    pycxx_sources.extend(glob.glob(os.path.join(s, "CXX", "*.cxx")))
+    pycxx_headers = glob.glob(os.path.join(h, "CXX", "*.h"))
+    pycxx_headers.extend(glob.glob(os.path.join(h, "CXX", "*.hxx")))
+    if len(pycxx_sources) > 0 and len(pycxx_headers) > 0:
+      pycxx_inc_path = h
+      break
+
 setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
 # Based on the contents of setup.cfg, determine the build options
 if os.path.exists(setup_cfg):
@@ -1047,11 +1062,10 @@ def build_ft2font(ext_modules, packages):
     global BUILT_FT2FONT
     if BUILT_FT2FONT: return # only build it if you you haven't already
     deps = ['src/ft2font.cpp', 'src/mplutils.cpp']
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
+    deps.extend(pycxx_sources)
 
     module = Extension('matplotlib.ft2font', deps,
-                       define_macros=defines)
+                       define_macros=defines, include_dirs=[pycxx_inc_path])
     add_ft2font_flags(module)
     ext_modules.append(module)
     BUILT_FT2FONT = True
@@ -1074,12 +1088,12 @@ def build_gtkagg(ext_modules, packages):
     global BUILT_GTKAGG
     if BUILT_GTKAGG: return # only build it if you you haven't already
     deps = ['src/agg_py_transforms.cpp', 'src/_gtkagg.cpp', 'src/mplutils.cpp']
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
+    deps.extend(pycxx_sources)
 
     module = Extension('matplotlib.backends._gtkagg',
                        deps,
-                       define_macros=defines
+                       define_macros=defines,
+                       include_dirs=[pycxx_inc_path]
                        )
 
     # add agg flags before pygtk because agg only supports freetype1
@@ -1097,12 +1111,12 @@ def build_tkagg(ext_modules, packages):
     global BUILT_TKAGG
     if BUILT_TKAGG: return # only build it if you you haven't already
     deps = ['src/agg_py_transforms.cpp', 'src/_tkagg.cpp']
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
+    deps.extend(pycxx_sources)
 
     module = Extension('matplotlib.backends._tkagg',
                        deps,
-                       define_macros=defines
+                       define_macros=defines,
+                       include_dirs=[pycxx_inc_path]
                        )
 
     add_tk_flags(module) # do this first
@@ -1117,16 +1131,14 @@ def build_macosx(ext_modules, packages):
     global BUILT_MACOSX
     if BUILT_MACOSX: return # only build it if you you haven't already
     deps = ['src/_macosx.m',
-            'CXX/cxx_extensions.cxx',
-            'CXX/cxxextensions.c',
-            'CXX/cxxsupport.cxx',
-            'CXX/IndirectPythonInterface.cxx',
             'src/agg_py_transforms.cpp',
             'src/path_cleanup.cpp']
+    deps.extend(pycxx_sources)
     module = Extension('matplotlib.backends._macosx',
                        deps,
                        extra_link_args = ['-framework','Cocoa'],
-                       define_macros=defines
+                       define_macros=defines,
+                       include_dirs=[pycxx_inc_path]
                       )
     add_numpy_flags(module)
     add_agg_flags(module)
@@ -1138,13 +1150,12 @@ def build_png(ext_modules, packages):
     if BUILT_PNG: return # only build it if you you haven't already
 
     deps = ['src/_png.cpp', 'src/mplutils.cpp']
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
+    deps.extend(pycxx_sources)
 
     module = Extension(
         'matplotlib._png',
         deps,
-        include_dirs=numpy_inc_dirs,
+        include_dirs=numpy_inc_dirs + [pycxx_inc_path],
         define_macros=defines
         )
 
@@ -1169,14 +1180,13 @@ def build_agg(ext_modules, packages):
 
     deps = ['%s/src/%s'%(AGG_VERSION, name) for name in agg]
     deps.extend(['src/mplutils.cpp', 'src/agg_py_transforms.cpp'])
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
+    deps.extend(pycxx_sources)
     temp_copy('src/_backend_agg.cpp', 'src/backend_agg.cpp')
     deps.append('src/backend_agg.cpp')
     module = Extension(
         'matplotlib.backends._backend_agg',
         deps,
-        include_dirs=numpy_inc_dirs,
+        include_dirs=numpy_inc_dirs + [pycxx_inc_path],
         define_macros=defines
         )
 
@@ -1200,8 +1210,7 @@ def build_path(ext_modules, packages):
            )
 
     deps = ['%s/src/%s'%(AGG_VERSION, name) for name in agg]
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
+    deps.extend(pycxx_sources)
 
     temp_copy('src/_path.cpp', 'src/path.cpp')
     deps.extend(['src/agg_py_transforms.cpp',
@@ -1210,7 +1219,7 @@ def build_path(ext_modules, packages):
     module = Extension(
         'matplotlib._path',
         deps,
-        include_dirs=numpy_inc_dirs,
+        include_dirs=numpy_inc_dirs + [pycxx_inc_path],
         define_macros=defines
         )
 
@@ -1233,13 +1242,12 @@ def build_image(ext_modules, packages):
     temp_copy('src/_image.cpp', 'src/image.cpp')
     deps = ['src/image.cpp', 'src/mplutils.cpp']
     deps.extend(['%s/src/%s'%(AGG_VERSION,name) for name in agg])
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
+    deps.extend(pycxx_sources)
 
     module = Extension(
         'matplotlib._image',
         deps,
-        include_dirs=numpy_inc_dirs,
+        include_dirs=numpy_inc_dirs + [pycxx_inc_path],
         define_macros=defines
         )
 
@@ -1329,11 +1337,10 @@ def build_tri(ext_modules, packages):
     if BUILT_TRI: return # only build it if you you haven't already
 
     deps = ['lib/matplotlib/tri/_tri.cpp', 'src/mplutils.cpp']
-    deps.extend(glob.glob('CXX/*.cxx'))
-    deps.extend(glob.glob('CXX/*.c'))
+    deps.extend(pycxx_sources)
 
     module = Extension('matplotlib._tri', deps,
-                       define_macros=defines)
+                       define_macros=defines, include_dirs=[pycxx_inc_path])
     add_numpy_flags(module)
     add_base_flags(module)
     ext_modules.append(module)
