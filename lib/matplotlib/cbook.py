@@ -645,7 +645,7 @@ def get_sample_data(fname, asfileobj=True):
     Check the cachedirectory ~/.matplotlib/sample_data for a sample_data
     file.  If it does not exist, fetch it with urllib from the mpl git repo
 
-      https://github.com/matplotlib/sample_data/raw/master
+      https://raw.github.com/matplotlib/sample_data/master
 
     and store it in the cachedir.
 
@@ -676,7 +676,7 @@ def get_sample_data(fname, asfileobj=True):
     if myserver is None:
         configdir = matplotlib.get_configdir()
         cachedir = os.path.join(configdir, 'sample_data')
-        baseurl = 'https://github.com/matplotlib/sample_data/raw/master/'
+        baseurl = 'https://raw.github.com/matplotlib/sample_data/master/'
         try:
             myserver = _get_data_server(cachedir, baseurl)
             get_sample_data.myserver = myserver
