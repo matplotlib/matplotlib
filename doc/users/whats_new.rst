@@ -181,7 +181,8 @@ Other improvements
 * :meth:`~matplotlib.pyplot.scatter` now accepts empty inputs.
 
 * The behavior for 'symlog' scale has been fixed, but this may result
-  in some minor changes to existing plots.
+  in some minor changes to existing plots.  This work was refined by
+  ssyr.
 
 * Peter Butterworth added named figure support to
   :func:`~matplotlib.pyplot.figure`.
