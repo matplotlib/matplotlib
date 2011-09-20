@@ -2,10 +2,8 @@
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
 
 from matplotlib.sankey import Sankey
-from itertools import cycle
 
 fig = plt.figure(figsize=(8, 12))
 ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[],

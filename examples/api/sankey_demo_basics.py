@@ -2,10 +2,8 @@
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
 
 from matplotlib.sankey import Sankey
-from itertools import cycle
 
 
 # Example 1 -- Mostly defaults
