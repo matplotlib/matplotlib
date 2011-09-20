@@ -324,7 +324,6 @@ class SymmetricalLogScale(ScaleBase):
                 self._linadjust = (np.log(linthresh) / self._log_base) / linthresh
 
             def transform(self, a):
-                a = np.asarray(a)
                 sign = np.sign(a)
                 masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
                 log = sign * self.linthresh * (1 + ma.log(np.abs(masked) / self.linthresh))
@@ -352,7 +351,6 @@ class SymmetricalLogScale(ScaleBase):
             self._linadjust = linthresh / (np.log(linthresh) / self._log_base)
 
         def transform(self, a):
-            a = np.asarray(a)
             sign = np.sign(a)
             masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
             exp = sign * self.linthresh * ma.exp(sign * masked / self.linthresh - 1)
@@ -393,7 +391,7 @@ class SymmetricalLogScale(ScaleBase):
 
         assert base > 0.0
         assert linthresh > 0.0
-        
+
         self.base = base
         self.linthresh = linthresh
         self.subs = subs
