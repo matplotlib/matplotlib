@@ -1552,9 +1552,9 @@ class AxisArtist(martist.Artist):
         self.dpi_transform.clear().scale(dpi_cor, dpi_cor)
 
 
-        self._draw_line(renderer)
-
         self._draw_ticks(renderer)
+
+        self._draw_line(renderer)
 
         #self._draw_offsetText(renderer)
         self._draw_label(renderer)
