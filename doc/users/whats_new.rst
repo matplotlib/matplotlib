@@ -18,12 +18,14 @@ new in matplotlib-1.1
 =====================
 
 Sankey Diagrams
----------
+---------------
 
 Kevin Davies has extended Yannick Copin's original Sankey example into a module
-(:mod:`~matplotlib.sankey`) and provided new examples (:ref:`api-sankey_demo`).
+(:mod:`~matplotlib.sankey`) and provided new examples
+(:ref:`api-sankey_demo_basics`, :ref:`api-sankey_demo_links`,
+:ref:`api-sankey_demo_rankine`).
 
-.. plot:: mpl_examples/api/sankey_demo.py 5 # Run the 5th example.
+.. plot:: mpl_examples/api/sankey_demo_rankine.py
 
 Animation
 ---------
