@@ -764,11 +764,12 @@ class RendererSVG(RendererBase):
                 width=str(w), height=str(h),
                 attrib=attrib)
         else:
+            flipped = self._make_flip_transform(transform)
             attrib['transform'] = generate_transform(
-                [('matrix', transform.to_values())])
+                [('matrix', flipped.to_values())])
             self.writer.element(
                 'image',
-                x=str(x), y=str(y), width=str(dx), height=str(dy),
+                x=str(x), y=str(y+dy), width=str(dx), height=str(-dy),
                 attrib=attrib)
 
         if url is not None:
