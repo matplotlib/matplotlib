@@ -189,6 +189,9 @@ Other improvements
 * Michiel de Hoon has modified the MacOSX backend to make
   its interactive behavior consistent with the other backends.
 
+* Pim Schellart added a new colormap called "cubehelix". See it and all
+  other colormaps :ref:`here <pylab_examples-show_colormaps>`.
+
 * Many bug fixes and documentation improvements.
 
 .. _whats-new-1-0:
