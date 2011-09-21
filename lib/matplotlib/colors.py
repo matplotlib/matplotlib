@@ -516,7 +516,9 @@ class Colormap:
             # masked values are substituted below; no need to fill them here
 
         if xa.dtype.char in np.typecodes['Float']:
-            cbook._putmask(xa, xa==1.0, 0.9999999) #Treat 1.0 as slightly less than 1.
+            # Treat 1.0 as slightly less than 1.
+            cbook._putmask(xa, xa==1.0, np.nextafter(xa.dtype.type(1),
+                                                     xa.dtype.type(0)))
             # The following clip is fast, and prevents possible
             # conversion of large positive values to negative integers.
 
