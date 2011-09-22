@@ -424,10 +424,6 @@ class HandlerErrorbar(HandlerLine2D):
         ydata = ((height-ydescent)/2.)*np.ones(xdata.shape, float)
         legline = Line2D(xdata, ydata)
 
-        self.update_prop(legline, plotlines, legend)
-        legline.set_drawstyle('default')
-        legline.set_marker('None')
-
 
         xdata_marker = np.asarray(xdata_marker)
         ydata_marker = np.asarray(ydata[:len(xdata_marker)])
@@ -437,11 +433,24 @@ class HandlerErrorbar(HandlerLine2D):
 
 
         legline_marker = Line2D(xdata_marker, ydata_marker)
-        self.update_prop(legline_marker, plotlines, legend)
-        legline_marker.set_linestyle('None')
-        if legend.markerscale !=1:
-            newsz = legline_marker.get_markersize()*legend.markerscale
-            legline_marker.set_markersize(newsz)
+
+        # when plotlines are None (only errorbars are drawn), we just
+        # make legline invisible.
+        if plotlines is None:
+            legline.set_visible(False)
+            legline_marker.set_visible(False)
+        else:
+            self.update_prop(legline, plotlines, legend)
+
+            legline.set_drawstyle('default')
+            legline.set_marker('None')
+
+            self.update_prop(legline_marker, plotlines, legend)
+            legline_marker.set_linestyle('None')
+
+            if legend.markerscale !=1:
+                newsz = legline_marker.get_markersize()*legend.markerscale
+                legline_marker.set_markersize(newsz)
 
 
         handle_barlinecols = []
