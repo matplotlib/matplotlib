@@ -328,11 +328,9 @@ class SymmetricalLogScale(ScaleBase):
                 masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
                 log = sign * self.linthresh * (1 + ma.log(np.abs(masked) / self.linthresh))
                 if masked.mask.any():
-                    return np.asarray(ma.where(masked.mask,
-                                                a,
-                                                log))
+                    return ma.where(masked.mask, a, log)
                 else:
-                    return np.asarray(log)
+                    return log
 
             def inverted(self):
                 return SymmetricalLogScale.InvertedSymmetricalLogTransform(self.base, self.linthresh)
@@ -355,11 +353,9 @@ class SymmetricalLogScale(ScaleBase):
             masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
             exp = sign * self.linthresh * ma.exp(sign * masked / self.linthresh - 1)
             if masked.mask.any():
-                return np.asarray(ma.where(masked.mask,
-                                            a,
-                                            exp))
+                return ma.where(masked.mask, a, exp)
             else:
-                return np.asarray(exp)
+                return exp
 
     def __init__(self, axis, **kwargs):
         """
