@@ -135,13 +135,19 @@ and build and install as usual with::
     build dependencies, which will make building from source easier.
 
 
-If you want to be able to follow the development branch as it changes just replace
-the last step with (make sure you have **setuptools** installed)::
+If you want to be able to follow the development branch as it changes
+just replace the last step with (make sure you have **setuptools**
+installed)::
 
   > python setupegg.py develop
 
-This creates links in the right places and installs the command line script to the appropriate places.
-Then, if you want to update your **matplotlib** at any time, just do::
+This creates links in the right places and installs the command
+line script to the appropriate places.
+
+.. note::
+   Mac OSX users please see the :ref:`build_osx` guide.
+
+Then, if you want to update your matplotlib at any time, just do::
 
   > git pull
 
