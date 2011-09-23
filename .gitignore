@@ -45,5 +45,4 @@ lib/matplotlib/mpl-data/matplotlibrc
 #################################
 doc/examples
 doc/_templates/gallery.html
-doc/users/installing.rst
 doc/_static/matplotlibrc
