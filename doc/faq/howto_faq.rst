@@ -425,6 +425,7 @@ desired.  You can use separate matplotlib.ticker formatters and
 locators as desired because the two axes are independent.
 
 .. plot::
+
     import numpy as np
     import matplotlib.pyplot as plt
 
@@ -611,7 +612,7 @@ There is a good chance you know more about matplotlib usage in some
 areas, the stuff you do every day, than many of the core developers
 who wrote most of the documentation.  Just pulled your hair out
 compiling matplotlib for windows?  Write a FAQ or a section for the
-:ref:`installing` page.  Are you a digital signal processing wizard?
+:ref:`installing-faq` page.  Are you a digital signal processing wizard?
 Write a tutorial on the signal analysis plotting functions like
 :func:`~matplotlib.pyplot.xcorr`, :func:`~matplotlib.pyplot.psd` and
 :func:`~matplotlib.pyplot.specgram`.  Do you use matplotlib with
@@ -672,7 +673,7 @@ For more on configuring your backend, see
 
 Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
-:ref:`api_examples-agg_oo.py`.
+:ref:`api-agg_oo`.
 
 You can either generate hardcopy on the filesystem by calling savefig::
 
