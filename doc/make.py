@@ -180,7 +180,8 @@ def clean():
                     'mpl_examples/units/*.png',
                     'pyplots/tex_demo.png',
                     '_static/matplotlibrc',
-                    '_templates/gallery.html']:
+                    '_templates/gallery.html',
+                    'users/installing.rst']:
         for filename in glob.glob(pattern):
             if os.path.exists(filename):
                 os.remove(filename)
