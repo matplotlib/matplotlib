@@ -10,7 +10,7 @@ Troubleshooting
 .. _matplotlib-version:
 
 Obtaining matplotlib version
-==============================
+============================
 
 To find out your matplotlib version number, import it and print the
 ``__version__`` attribute::
@@ -23,7 +23,7 @@ To find out your matplotlib version number, import it and print the
 .. _locating-matplotlib-install:
 
 :file:`matplotlib` install location
-====================================
+===================================
 
 You can find what directory matplotlib is installed in by importing it
 and printing the ``__file__`` attribute::
@@ -35,7 +35,7 @@ and printing the ``__file__`` attribute::
 .. _locating-matplotlib-config-dir:
 
 :file:`.matplotlib` directory location
-========================================
+======================================
 
 Each user has a :file:`.matplotlib/` directory which may contain a
 :ref:`matplotlibrc <customizing-with-matplotlibrc-files>` file and various
@@ -63,7 +63,7 @@ environment variable -- see
 .. _reporting-problems:
 
 Report a problem
-==========================
+================
 
 If you are having a problem with matplotlib, search the mailing
 lists first: there's a good chance someone else has already run into

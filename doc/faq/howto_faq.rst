@@ -1,8 +1,8 @@
 .. _howto-faq:
 
-*****
-Howto
-*****
+******
+How-To
+******
 
 .. contents::
    :backlinks: none
@@ -45,12 +45,14 @@ Save transparent figures
 ----------------------------------
 
 The :meth:`~matplotlib.pyplot.savefig` command has a keyword argument
-*transparent* which, if True, will make the figure and axes
+*transparent* which, if 'True', will make the figure and axes
 backgrounds transparent when saving, but will not affect the displayed
-image on the screen.  If you need finer grained control, eg you do not
-want full transparency or you to affect the screen displayed version
-as well, you can set the alpha properties directly.  The figure has a
-:class:`matplotlib.patches.Rectangle` instance called *patch*
+image on the screen.
+
+If you need finer grained control, eg you do not want full transparency
+or you want to affect the screen displayed version as well, you can set
+the alpha properties directly.  The figure has a
+:class:`~matplotlib.patches.Rectangle` instance called *patch*
 and the axes has a Rectangle instance called *patch*.  You can set
 any property on them directly (*facecolor*, *edgecolor*, *linewidth*,
 *linestyle*, *alpha*).  Eg::
@@ -85,7 +87,7 @@ You can give the :class:`~matplotlib.backends.backend_pdf.PdfPages`
 object to :func:`~matplotlib.pyplot.savefig`, but you have to specify
 the format::
 
-    savefig(pp, format='pdf')
+    plt.savefig(pp, format='pdf')
 
 An easier way is to call
 :meth:`PdfPages.savefig <matplotlib.backends.backend_pdf.PdfPages.savefig>`::
@@ -138,7 +140,7 @@ The other parameters you can configure are, with their defaults
 If you want additional control, you can create an
 :class:`~matplotlib.axes.Axes` using the
 :func:`~matplotlib.pyplot.axes` command (or equivalently the figure
-:meth:`matplotlib.figure.Figure.add_axes` method), which allows you to
+:meth:`~matplotlib.figure.Figure.add_axes` method), which allows you to
 specify the location explicitly::
 
     ax = fig.add_axes([left, bottom, width, height])
@@ -149,7 +151,15 @@ where all values are in fractional (0 to 1) coordinates.  See
 .. _howto-auto-adjust:
 
 Automatically make room for tick labels
-----------------------------------------------------
+---------------------------------------
+
+.. note::
+   This is now easier to handle than ever before.
+   Calling :func:`~matplotlib.pyplot.tight_layout` can fix many common
+   layout issues. See the :ref:`plotting-guide-tight-layout`.
+
+   The information below is kept here in case it is useful for other
+   purposes.
 
 In most use cases, it is enough to simply change the subplots adjust
 parameters as described in :ref:`howto-subplots-adjust`.  But in some
@@ -157,18 +167,18 @@ cases, you don't know ahead of time what your tick labels will be, or
 how large they will be (data and labels outside your control may be
 being fed into your graphing application), and you may need to
 automatically adjust your subplot parameters based on the size of the
-tick labels.  Any :class:`matplotlib.text.Text` instance can report
+tick labels.  Any :class:`~matplotlib.text.Text` instance can report
 its extent in window coordinates (a negative x coordinate is outside
 the window), but there is a rub.
 
-The :class:`matplotlib.backend_bases.RendererBase` instance, which is
+The :class:`~matplotlib.backend_bases.RendererBase` instance, which is
 used to calculate the text size, is not known until the figure is
-drawn (:meth:`matplotlib.figure.Figure.draw`).  After the window is
+drawn (:meth:`~matplotlib.figure.Figure.draw`).  After the window is
 drawn and the text instance knows its renderer, you can call
-:meth:`matplotlib.text.Text.get_window_extent`.  One way to solve
+:meth:`~matplotlib.text.Text.get_window_extent`.  One way to solve
 this chicken and egg problem is to wait until the figure is draw by
 connecting
-(:meth:`matplotlib.backend_bases.FigureCanvasBase.mpl_connect`) to the
+(:meth:`~matplotlib.backend_bases.FigureCanvasBase.mpl_connect`) to the
 "on_draw" signal (:class:`~matplotlib.backend_bases.DrawEvent`) and
 get the window extent there, and then do something with it, eg move
 the left of the canvas over; see :ref:`event-handling-tutorial`.
@@ -183,7 +193,7 @@ over so that the tick labels fit in the figure
 .. _howto-ticks:
 
 Configure the tick linewidths
----------------------------------------
+-----------------------------
 
 In matplotlib, the ticks are *markers*.  All
 :class:`~matplotlib.lines.Line2D` objects support a line (solid,
@@ -209,7 +219,7 @@ are ``markerfacecolor``, ``markeredgecolor``, ``markeredgewidth``,
 .. _howto-align-label:
 
 Align my ylabels across multiple subplots
----------------------------------------------------
+-----------------------------------------
 
 If you have multiple subplots over one another, and the y data have
 different scales, you can often get ylabels that do not align
@@ -226,7 +236,7 @@ setting in the right subplots.
 .. _date-index-plots:
 
 Skip dates where there is no data
--------------------------------------
+---------------------------------
 
 When plotting time series, eg financial time series, one often wants
 to leave out days on which there is no data, eg weekends.  By passing
@@ -263,9 +273,9 @@ to achieve the desired plot::
 .. _point-in-poly:
 
 Test whether a point is inside a polygon
--------------------------------------------
+----------------------------------------
 
-The :mod:`matplotlib.nxutils` provides two high performance methods:
+The :mod:`~matplotlib.nxutils` provides two high-performance methods:
 for a single point use :func:`~matplotlib.nxutils.pnpoly` and for an
 array of points use :func:`~matplotlib.nxutils.points_inside_poly`.
 For a discussion of the implementation see `pnpoly
@@ -310,12 +320,12 @@ For a discussion of the implementation see `pnpoly
 .. _howto-set-zorder:
 
 Control the depth of plot elements
----------------------------------------
+----------------------------------
 
 
 Within an axes, the order that the various lines, markers, text,
 collections, etc appear is determined by the
-:meth:`matplotlib.artist.Artist.set_zorder` property.  The default
+:meth:`~matplotlib.artist.Artist.set_zorder` property.  The default
 order is patches, lines, text, with collections of lines and
 collections of patches appearing at the same level as regular lines
 and patches, respectively::
@@ -327,15 +337,15 @@ and patches, respectively::
     See :ref:`pylab_examples-zorder_demo` for a complete example.
 
 You can also use the Axes property
-:meth:`matplotlib.axes.Axes.set_axisbelow` to control whether the grid
+:meth:`~matplotlib.axes.Axes.set_axisbelow` to control whether the grid
 lines are placed above or below your other plot elements.
 
 .. _howto-axis-equal:
 
 Make the aspect ratio for plots equal
--------------------------------------------
+-------------------------------------
 
-The Axes property :meth:`matplotlib.axes.Axes.set_aspect` controls the
+The Axes property :meth:`~matplotlib.axes.Axes.set_aspect` controls the
 aspect ratio of the axes.  You can set it to be 'auto', 'equal', or
 some ratio which controls the ratio::
 
@@ -351,8 +361,7 @@ some ratio which controls the ratio::
 .. _howto-movie:
 
 Make a movie
------------------------------------------------
-
+------------
 
 If you want to take an animated plot and turn it into a movie, the
 best approach is to save a series of image files (eg PNG) and use an
@@ -392,13 +401,14 @@ a movie, and then cleans up::
 
 .. htmlonly::
 
-    Josh Lifton provided this example :ref:`animation-movie_demo`, which is possibly dated since it was written in 2004.
+    Josh Lifton provided this example :ref:`old_animation-movie_demo`, which
+    is possibly dated since it was written in 2004.
 
 
 .. _howto-twoscale:
 
 Multiple y-axis scales
--------------------------------
+----------------------
 
 A frequent request is to have two scales for the left and right
 y-axis, which is possible using :func:`~matplotlib.pyplot.twinx` (more
@@ -412,7 +422,9 @@ The approach uses :func:`~matplotlib.pyplot.twinx` (and its sister
 turning the axes rectangular frame off on the 2nd axes to keep it from
 obscuring the first, and manually setting the tick locs and labels as
 desired.  You can use separate matplotlib.ticker formatters and
-locators as desired because the two axes are independent::
+locators as desired because the two axes are independent.
+
+.. plot::
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -438,8 +450,8 @@ locators as desired because the two axes are independent::
 
 .. _howto-batch:
 
-Generate images without having a window popup
---------------------------------------------------
+Generate images without having a window appear
+----------------------------------------------
 
 The easiest way to do this is use a non-interactive backend (see
 :ref:`what-is-a-backend`) such as Agg (for PNGs), PDF, SVG or PS.  In
@@ -455,9 +467,8 @@ pyplot::
 
 
 .. seealso::
-    :ref:`howto-webapp`
-       For information about running matplotlib inside of a web
-       application.
+    :ref:`howto-webapp` for information about running matplotlib inside
+    of a web application.
 
 .. _howto-show:
 
@@ -468,12 +479,12 @@ When you want to view your plots on your display,
 the user interface backend will need to start the GUI mainloop.
 This is what :func:`~matplotlib.pyplot.show` does.  It tells
 matplotlib to raise all of the figure windows created so far and start
-the mainloop. Because this mainloop is blocking (i.e., script execution is
-paused), you should only call this once per script, at the end.  Script
-execution is resumed after the last window is closed.  Therefore, if you are
-using matplotlib to generate only images and do not want a user interface
-window, you do not need to call ``show``  (see :ref:`howto-batch` and
-:ref:`what-is-a-backend`).
+the mainloop. Because this mainloop is blocking by default (i.e., script
+execution is paused), you should only call this once per script, at the end.
+Script execution is resumed after the last window is closed. Therefore, if
+you are using matplotlib to generate only images and do not want a user
+interface window, you do not need to call ``show``  (see :ref:`howto-batch`
+and :ref:`what-is-a-backend`).
 
 .. note::
    Because closing a figure window invokes the destruction of its plotting
@@ -518,7 +529,6 @@ important for complex figures that take some time to draw.
 you're all done issuing commands and you want to draw the figure now.
 
 .. note::
-
     :func:`~matplotlib.pyplot.show` should typically only be called
     at most once per script and it should be the last line of your script.
     At that point, the GUI takes control of the interpreter.  If you want
@@ -549,12 +559,12 @@ though we have made significant progress towards supporting blocking events.
 .. _howto-contribute:
 
 Contributing: howto
-=====================
+===================
 
 .. _how-to-submit-patch:
 
 Submit a patch
------------------
+--------------
 
 See :ref:`making-patches` for information on how to make a patch with git.
 
@@ -563,10 +573,10 @@ patch in words -- what was broken before and how you fixed it.  Also,
 even if your patch is particularly simple, just a few lines or a
 single function replacement, we encourage people to submit git diffs
 against HEAD of the branch they are patching.  It just makes life
-simpler for us, since we (fortunately) get a lot of contributions, and
+easier for us, since we (fortunately) get a lot of contributions, and
 want to receive them in a standard format.  If possible, for any
 non-trivial change, please include a complete, free-standing example
-that the developers  can run unmodified which shows the undesired
+that the developers can run unmodified which shows the undesired
 behavior pre-patch and the desired behavior post-patch, with a clear
 verbal description of what to look for.  A developer may
 have written the function you are working on years ago, and may no
@@ -588,7 +598,7 @@ your patch abides by our coding conventions
 .. _how-to-contribute-docs:
 
 Contribute to matplotlib documentation
------------------------------------------
+--------------------------------------
 
 matplotlib is a big library, which is used in many ways, and the
 documentation has only scratched the surface of everything it can
@@ -602,7 +612,7 @@ There is a good chance you know more about matplotlib usage in some
 areas, the stuff you do every day, than many of the core developers
 who wrote most of the documentation.  Just pulled your hair out
 compiling matplotlib for windows?  Write a FAQ or a section for the
-:ref:`installing` page.  Are you a digital signal processing wizard?
+:ref:`installing-faq` page.  Are you a digital signal processing wizard?
 Write a tutorial on the signal analysis plotting functions like
 :func:`~matplotlib.pyplot.xcorr`, :func:`~matplotlib.pyplot.psd` and
 :func:`~matplotlib.pyplot.specgram`.  Do you use matplotlib with
@@ -637,7 +647,7 @@ Looking for something to do?  Search for `TODO <../search.html?q=todo>`_.
 .. _howto-webapp:
 
 Matplotlib in a web application server
-====================================================
+======================================
 
 Many users report initial problems trying to use maptlotlib in web
 application servers, because by default matplotlib ships configured to
@@ -663,7 +673,7 @@ For more on configuring your backend, see
 
 Alternatively, you can avoid pylab/pyplot altogether, which will give
 you a little more control, by calling the API directly as shown in
-:ref:`api_examples-agg_oo.py`.
+:ref:`api-agg_oo`.
 
 You can either generate hardcopy on the filesystem by calling savefig::
 
@@ -681,7 +691,7 @@ or by saving to a file handle::
     import sys
     fig.savefig(sys.stdout)
 
-Here is an example using the Python Imaging Library PIL.  First the figure
+Here is an example using the Python Imaging Library (PIL).  First, the figure
 is saved to a StringIO object which is then fed to PIL for further
 processing::
 
@@ -693,17 +703,17 @@ processing::
 
 
 matplotlib with apache
-------------------------------------
+----------------------
 
 TODO; see :ref:`how-to-contribute-docs`.
 
 matplotlib with django
-------------------------------------
+----------------------
 
 TODO; see :ref:`how-to-contribute-docs`.
 
 matplotlib with zope
-----------------------------------
+--------------------
 
 TODO; see :ref:`how-to-contribute-docs`.
 
@@ -724,7 +734,7 @@ to these efforts that would be great.
 .. _how-to-search-examples:
 
 Search examples
-=========================================
+===============
 
 The nearly 300 code :ref:`examples-index` included with the matplotlib
 source distribution are full-text searchable from the :ref:`search`
@@ -733,19 +743,15 @@ page, but sometimes when you search, you get a lot of results from the
 in if you just want to find a complete, free-standing, working piece
 of example code.  To facilitate example searches, we have tagged every
 code example page with the keyword ``codex`` for *code example* which
-shouldn't appear anywhere else on this site except in the FAQ and in
-every example.  So if you want to search for an example that uses an
+shouldn't appear anywhere else on this site except in the FAQ.
+So if you want to search for an example that uses an
 ellipse, :ref:`search` for ``codex ellipse``.
-
-
-
-
 
 
 .. _how-to-cite-mpl:
 
 Cite Matplotlib
-=================
+===============
 
 If you want to refer to matplotlib in a publication, you can use
 "Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing in Science &
