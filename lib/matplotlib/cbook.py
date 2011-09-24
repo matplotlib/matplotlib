@@ -1820,7 +1820,7 @@ def align_iterators(func, *iterables):
 def is_math_text(s):
     # Did we find an even number of non-escaped dollar signs?
     # If so, treat is as math text.
-    s = unicode(s)
+    s = unicode(s, 'windows-1252')
 
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
