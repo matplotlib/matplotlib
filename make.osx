@@ -8,7 +8,7 @@ PYVERSION=2.6
 PYTHON=python${PYVERSION}
 MACOSX_DEPLOYMENT_TARGET=10.6
 OSX_SDK_VER=10.6
-ARCH_FLAGS=-arch i386 -arch x86_64
+ARCH_FLAGS?=-arch i386 -arch x86_64
 
 # Dependency versions and URLs
 #
