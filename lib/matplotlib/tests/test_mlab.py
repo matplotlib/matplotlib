@@ -13,9 +13,9 @@ def test_colinear_pca():
 def test_recarray_csv_roundtrip():
     expected = np.recarray((99,),
                           [('x',np.float),('y',np.float),('t',np.float)])
-    expected['x'][0] = 1
-    expected['y'][1] = 2
-    expected['t'][2] = 3
+    expected['x'][:] = np.linspace(-1e9, -1, 99)
+    expected['y'][:] = np.linspace(1, 1e9, 99)
+    expected['t'][:] = np.linspace(0, 0.01, 99)
     fd = tempfile.TemporaryFile(suffix='csv')
     mlab.rec2csv(expected,fd)
     fd.seek(0)
