@@ -10,7 +10,7 @@ the `PSF <http://www.python.org/psf/license>`_ license.  See the Open
 Source Initiative `licenses page
 <http://www.opensource.org/licenses>`_ for details on individual
 licenses. Non-BSD compatible licenses (eg LGPL) are acceptable in
-matplotlib :ref:`toolkits`.  For a discussion of the motivations
+matplotlib :ref:`toolkits-index`.  For a discussion of the motivations
 behind the licencing choice, see :ref:`license-discussion`.
 
 
