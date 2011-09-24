@@ -16,8 +16,8 @@ ARCH_FLAGS?=-arch i386 -arch x86_64
 # but the download URLs are subject to change.
 
 ZLIBVERSION=1.2.5
-PNGVERSION=1.5.1
-FREETYPEVERSION=2.4.4
+PNGVERSION=1.5.4
+FREETYPEVERSION=2.4.6
 
 ZLIBFILE=zlib-${ZLIBVERSION}.tar.gz
 ZLIBDIR=$(basename $(basename ${ZLIBFILE}))
