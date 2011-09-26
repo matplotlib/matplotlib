@@ -1320,6 +1320,84 @@ PythonExtensionBase::~PythonExtensionBase()
     assert( ob_refcnt == 0 );
 }
 
+Py::Object PythonExtensionBase::callOnSelf( const std::string &fn_name )
+{
+    Py::TupleN args;
+    return  self().callMemberFunction( fn_name, args );
+}
+
+Py::Object PythonExtensionBase::callOnSelf( const std::string &fn_name,
+                                            const Py::Object &arg1 )
+{
+    Py::TupleN args( arg1 );
+    return  self().callMemberFunction( fn_name, args );
+}
+
+Py::Object PythonExtensionBase::callOnSelf( const std::string &fn_name,
+                                            const Py::Object &arg1, const Py::Object &arg2 )
+{
+    Py::TupleN args( arg1, arg2 );
+    return self().callMemberFunction( fn_name, args );
+}
+
+Py::Object PythonExtensionBase::callOnSelf( const std::string &fn_name,
+                                            const Py::Object &arg1, const Py::Object &arg2, const Py::Object &arg3 )
+{
+    Py::TupleN args( arg1, arg2, arg3 );
+    return self().callMemberFunction( fn_name, args );
+}
+
+Py::Object PythonExtensionBase::callOnSelf( const std::string &fn_name,
+                                            const Py::Object &arg1, const Py::Object &arg2, const Py::Object &arg3,
+                                            const Py::Object &arg4 )
+{
+    Py::TupleN args( arg1, arg2, arg3, arg4 );
+    return self().callMemberFunction( fn_name, args );
+}
+
+Py::Object PythonExtensionBase::callOnSelf( const std::string &fn_name,
+                                            const Py::Object &arg1, const Py::Object &arg2, const Py::Object &arg3,
+                                            const Py::Object &arg4, const Py::Object &arg5 )
+{
+    Py::TupleN args( arg1, arg2, arg3, arg4, arg5 );
+    return self().callMemberFunction( fn_name, args );
+}
+
+Py::Object PythonExtensionBase::callOnSelf( const std::string &fn_name,
+                                            const Py::Object &arg1, const Py::Object &arg2, const Py::Object &arg3,
+                                            const Py::Object &arg4, const Py::Object &arg5, const Py::Object &arg6 )
+{
+    Py::TupleN args( arg1, arg2, arg3, arg4, arg5, arg6 );
+    return self().callMemberFunction( fn_name, args );
+}
+
+Py::Object PythonExtensionBase::callOnSelf( const std::string &fn_name,
+                                            const Py::Object &arg1, const Py::Object &arg2, const Py::Object &arg3,
+                                            const Py::Object &arg4, const Py::Object &arg5, const Py::Object &arg6,
+                                            const Py::Object &arg7 )
+{
+    Py::TupleN args( arg1, arg2, arg3, arg4, arg5, arg6, arg7 );
+    return self().callMemberFunction( fn_name, args );
+}
+
+Py::Object PythonExtensionBase::callOnSelf( const std::string &fn_name,
+                                            const Py::Object &arg1, const Py::Object &arg2, const Py::Object &arg3,
+                                            const Py::Object &arg4, const Py::Object &arg5, const Py::Object &arg6,
+                                            const Py::Object &arg7, const Py::Object &arg8 )
+{
+    Py::TupleN args( arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 );
+    return self().callMemberFunction( fn_name, args );
+}
+
+Py::Object PythonExtensionBase::callOnSelf( const std::string &fn_name,
+                                            const Py::Object &arg1, const Py::Object &arg2, const Py::Object &arg3,
+                                            const Py::Object &arg4, const Py::Object &arg5, const Py::Object &arg6,
+                                            const Py::Object &arg7, const Py::Object &arg8, const Py::Object &arg9 )
+{
+    Py::TupleN args( arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 );
+    return self().callMemberFunction( fn_name, args );
+}
+
 void PythonExtensionBase::reinit( Tuple &args, Dict &kwds )
 {
     throw RuntimeError( "Must not call __init__ twice on this class" );
@@ -1353,16 +1431,14 @@ int PythonExtensionBase::setattr( const char *, const Py::Object &)
     return -1;
 }
 
-Py::Object PythonExtensionBase::getattro( const Py::String &)
+Py::Object PythonExtensionBase::getattro( const Py::String &name )
 {
-    missing_method( getattro );
-    return Py::None();
+    return genericGetAttro( name );
 }
 
-int PythonExtensionBase::setattro( const Py::String &, const Py::Object &)
+int PythonExtensionBase::setattro( const Py::String &name, const Py::Object &value )
 {
-    missing_method( setattro );
-    return -1;
+    return genericSetAttro( name, value );
 }
 
 int PythonExtensionBase::compare( const Py::Object &)
