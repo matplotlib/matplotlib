@@ -1820,7 +1820,11 @@ def align_iterators(func, *iterables):
 def is_math_text(s):
     # Did we find an even number of non-escaped dollar signs?
     # If so, treat is as math text.
-    s = unicode(s)
+    try:
+        s = unicode(s)
+    except UnicodeDecodeError:
+        raise ValueError(
+            "matplotlib display text must have all code points < 128 or use Unicode strings")
 
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
