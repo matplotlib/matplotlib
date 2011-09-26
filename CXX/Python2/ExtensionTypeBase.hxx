@@ -132,7 +132,39 @@ namespace Py
         virtual Py_ssize_t buffer_getsegcount( Py_ssize_t* );
 
     public:
+        // helper functions to call function fn_name with 0 to 9 args
+        Object callOnSelf( const std::string &fn_name );
+        Object callOnSelf( const std::string &fn_name,
+                                const Object &arg1 );
+        Object callOnSelf( const std::string &fn_name,
+                                const Object &arg1, const Object &arg2 );
+        Object callOnSelf( const std::string &fn_name,
+                                const Object &arg1, const Object &arg2, const Object &arg3 );
+        Object callOnSelf( const std::string &fn_name,
+                                const Object &arg1, const Object &arg2, const Object &arg3,
+                                const Object &arg4 );
+        Object callOnSelf( const std::string &fn_name,
+                                const Object &arg1, const Object &arg2, const Object &arg3,
+                                const Object &arg4, const Object &arg5 );
+        Object callOnSelf( const std::string &fn_name,
+                                const Object &arg1, const Object &arg2, const Object &arg3,
+                                const Object &arg4, const Object &arg5, const Object &arg6 );
+        Object callOnSelf( const std::string &fn_name,
+                                const Object &arg1, const Object &arg2, const Object &arg3,
+                                const Object &arg4, const Object &arg5, const Object &arg6,
+                                const Object &arg7 );
+        Object callOnSelf( const std::string &fn_name,
+                                const Object &arg1, const Object &arg2, const Object &arg3,
+                                const Object &arg4, const Object &arg5, const Object &arg6,
+                                const Object &arg7, const Object &arg8 );
+        Object callOnSelf( const std::string &fn_name,
+                                const Object &arg1, const Object &arg2, const Object &arg3,
+                                const Object &arg4, const Object &arg5, const Object &arg6,
+                                const Object &arg7, const Object &arg8, const Object &arg9 );
+
+    public:
         virtual PyObject *selfPtr() = 0;
+        virtual Object self() = 0;
 
     private:
         void missing_method( void );
