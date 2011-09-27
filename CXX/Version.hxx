@@ -39,8 +39,8 @@
 #define __PyCXX_version_hxx__
 
 #define PYCXX_VERSION_MAJOR 6
-#define PYCXX_VERSION_MINOR 1
-#define PYCXX_VERSION_PATCH 1
+#define PYCXX_VERSION_MINOR 2
+#define PYCXX_VERSION_PATCH 4
 #define PYCXX_MAKEVERSION( major, minor, patch ) ((major<<16)|(minor<<8)|(patch))
 #define PYCXX_VERSION PYCXX_MAKEVERSION( PYCXX_VERSION_MAJOR, PYCXX_VERSION_MINOR, PYCXX_VERSION_PATCH )
 #endif
