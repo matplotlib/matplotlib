@@ -136,11 +136,19 @@ namespace Py
             {
                 MethodDefExt<T> *method_def = (*i).second;
 
-                static PyObject *self = PyCObject_FromVoidPtr( this, do_not_dealloc );
+                #if PY_VERSION_HEX < 0x02070000
+                    static PyObject *self = PyCObject_FromVoidPtr( this, do_not_dealloc );
+                #else
+                    static PyObject *self = PyCapsule_New( this, NULL, NULL );
+                #endif
 
                 Tuple args( 2 );
                 args[0] = Object( self );
-                args[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ) );
+                #if PY_VERSION_HEX < 0x02070000
+                    args[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ) );
+                #else
+                    args[1] = Object( PyCapsule_New( method_def, NULL, NULL ) );
+                #endif
 
                 PyObject *func = PyCFunction_New
                                     (
