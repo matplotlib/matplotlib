@@ -18,3 +18,5 @@ The Matplotlib FAQ
    usage_faq.rst
    howto_faq.rst
    troubleshooting_faq.rst
+   environment_variables_faq.rst
+
