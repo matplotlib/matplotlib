@@ -457,7 +457,7 @@ def draw():
 
     A more object-oriented alternative, given any
     :class:`~matplotlib.figure.Figure` instance, :attr:`fig`, that
-    was created using a :module:`~matplotlib.pyplot` function, is::
+    was created using a :mod:`~matplotlib.pyplot` function, is::
 
         fig.canvas.draw()
 
@@ -1035,10 +1035,11 @@ def subplot_tool(targetfig=None):
 
 
 def tight_layout(pad=1.2, h_pad=None, w_pad=None):
-    """Adjust subplot parameters to give specified padding.
+    """
+    Adjust subplot parameters to give specified padding.
 
-    Parameters
-    ----------
+    Parameters:
+
     pad : float
         padding between the figure edge and the edges of subplots, as a fraction of the font-size.
     h_pad, w_pad : float

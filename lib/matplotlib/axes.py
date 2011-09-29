@@ -2067,7 +2067,7 @@ class Axes(martist.Artist):
         *axis* can be 'both' (default), 'x', or 'y' to control which
         set of gridlines are drawn.
 
-        *kawrgs* are used to set the grid line properties, eg::
+        *kwargs* are used to set the grid line properties, eg::
 
            ax.grid(color='r', linestyle='-', linewidth=2)
 
@@ -7662,16 +7662,6 @@ class Axes(martist.Artist):
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
             n.append(m)
-        if normed and db.std() > 0.01 * db.mean():
-            warnings.warn("""
-            This release fixes a normalization bug in the NumPy histogram
-            function prior to version 1.5, occuring with non-uniform
-            bin widths. The returned and plotted value is now a density:
-                n / (N * bin width),
-            where n is the bin count and N the total number of points.
-            """)
-
-
 
         if cumulative:
             slc = slice(None)
