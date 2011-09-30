@@ -30,12 +30,12 @@ Kevin Davies has extended Yannick Copin's original Sankey example into a module
 Animation
 ---------
 
-Ryan May has written a backend-independent
-framework for creating animated figures. The :mod:`~matplotlib.animation`
-module is intended to replace the
-backend-specific examples formerly in the :ref:`examples-index`
-listings.  Examples using the new framework are in
-:ref:`animation-examples-index`.
+Ryan May has written a backend-independent framework for creating
+animated figures. The :mod:`~matplotlib.animation` module is intended
+to replace the backend-specific examples formerly in the
+:ref:`examples-index` listings.  Examples using the new framework are
+in :ref:`animation-examples-index`; see the entrancing :ref:`double
+pendulum <animation-double_pendulum_animated>` in action.
 
 This should be considered as a beta release of the framework;
 please try it and provide feedback.
