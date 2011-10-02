@@ -325,9 +325,9 @@ class FormatterDMS(object):
             return [r"$%s^{\circ}$" % (str(v),) for v in ss*values]
 
 class FormatterHMS(FormatterDMS):
-    deg_mark = "^{\mathrm h}"
-    min_mark = "^{\mathrm m}"
-    sec_mark = "^{\mathrm s}"
+    deg_mark = "^\mathrm{h}"
+    min_mark = "^\mathrm{m}"
+    sec_mark = "^\mathrm{s}"
 
     fmt_d = "$%d"+deg_mark+"$"
     fmt_ds = r"$%d.\!\!"+deg_mark+"%s$"
