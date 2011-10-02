@@ -552,8 +552,13 @@ def _get_data_server(cache_dir, baseurl):
             url = req.get_full_url()
             if url in self.cache:
                 _, etag, lastmod = self.cache[url]
-                req.add_header("If-None-Match", etag)
-                req.add_header("If-Modified-Since", lastmod)
+                if etag is not None:
+                    req.add_header("If-None-Match", etag)
+                if lastmod is not None:
+                    req.add_header("If-Modified-Since", lastmod)
+            matplotlib.verbose.report(
+                "ViewVCCachedServer: request headers %s" % req.header_items(),
+                "debug")
             return req
 
         def https_error_304(self, req, fp, code, msg, hdrs):
