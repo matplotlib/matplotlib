@@ -35,7 +35,12 @@ animated figures. The :mod:`~matplotlib.animation` module is intended
 to replace the backend-specific examples formerly in the
 :ref:`examples-index` listings.  Examples using the new framework are
 in :ref:`animation-examples-index`; see the entrancing :ref:`double
-pendulum <animation-double_pendulum_animated>` in action.
+pendulum <animation-double_pendulum_animated>` which uses
+:meth:`matplotlib.animation.Animation.save` to create the movie below.
+
+.. raw:: html
+
+    <iframe width="420" height="315" src="http://www.youtube.com/embed/32cjc6V0OZY" frameborder="0" allowfullscreen></iframe>
 
 This should be considered as a beta release of the framework;
 please try it and provide feedback.

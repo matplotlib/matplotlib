@@ -87,6 +87,8 @@ class Animation(object):
         '''
         Saves a movie file by drawing every frame.
 
+        *filename* is the output filename, eg :file:`mymovie.mp4`
+
         *fps* is the frames per second in the movie
 
         *codec* is the codec to be used,if it is supported by the output method.
@@ -430,7 +432,7 @@ class FuncAnimation(TimedAnimation):
         self._init_func = init_func
 
         # Needs to be initialized so the draw functions work without checking
-        self._save_seq = [] 
+        self._save_seq = []
 
         TimedAnimation.__init__(self, fig, **kwargs)
 
