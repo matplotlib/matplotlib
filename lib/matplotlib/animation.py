@@ -21,6 +21,7 @@
 # * Need to consider event sources to allow clicking through multiple figures
 import itertools
 from matplotlib.cbook import iterable
+from matplotlib import verbose
 
 class Animation(object):
     '''
@@ -120,6 +121,7 @@ class Animation(object):
             self._draw_next_frame(data, blit=False)
             fname = '%s%04d.png' % (frame_prefix, idx)
             fnames.append(fname)
+            verbose.report('Animation.save: saved frame %d to fname=%s'%(idx, fname), level='debug')
             self._fig.savefig(fname)
 
         self._make_movie(filename, fps, codec, frame_prefix)
@@ -127,6 +129,7 @@ class Animation(object):
         #Delete temporary files
         if clear_temp:
             import os
+            verbose.report('Animation.save: clearing temporary fnames=%s'%str(fnames), level='debug')
             for fname in fnames:
                 os.remove(fname)
 
@@ -155,7 +158,9 @@ class Animation(object):
         from subprocess import Popen, PIPE
         if cmd_gen is None:
             cmd_gen = self.ffmpeg_cmd
-        proc = Popen(cmd_gen(fname, fps, codec, frame_prefix), shell=False,
+        command = cmd_gen(fname, fps, codec, frame_prefix)
+        verbose.report('Animation._make_movie running command: %s'%' '.join(command))
+        proc = Popen(command, shell=False,
             stdout=PIPE, stderr=PIPE)
         proc.wait()
 
