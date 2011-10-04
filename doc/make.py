@@ -138,7 +138,7 @@ def html():
         options = "-D plot_formats=\"[('png', 80)]\""
     else:
         options = ''
-    if os.system('sphinx-build %s -P -b html -d build/doctrees . build/html' % options):
+    if os.system('sphinx-build %s -b html -d build/doctrees . build/html' % options):
         raise SystemExit("Building HTML failed.")
 
     figures_dest_path = 'build/html/pyplots'
