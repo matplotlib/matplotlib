@@ -446,7 +446,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
                             fmt += ": %(ylabel)s"
                         fmt += " (%(axes_repr)s)"
                     elif ylabel:
-                        fmt = "%(axes_repr)s (%(ylabel)s)" % ylabel
+                        fmt = "%(axes_repr)s (%(ylabel)s)"
                     else:
                         fmt = "%(axes_repr)s"
                     titles.append(fmt % dict(title = title,

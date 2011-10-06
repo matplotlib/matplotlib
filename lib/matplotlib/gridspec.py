@@ -271,10 +271,11 @@ class GridSpec(GridSpecBase):
 
 
     def tight_layout(self, fig, renderer=None, pad=1.2, h_pad=None, w_pad=None, rect=None):
-        """Adjust subplot parameters to give specified padding.
+        """
+        Adjust subplot parameters to give specified padding.
 
-        Parameters
-        ----------
+        Parameters:
+        
         pad : float
             padding between the figure edge and the edges of subplots, as a fraction of the font-size.
         h_pad, w_pad : float

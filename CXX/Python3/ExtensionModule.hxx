@@ -82,8 +82,6 @@ namespace Py
     extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple, PyObject *_args );
     extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple, PyObject *_args, PyObject *_keywords );
 
-    extern "C" void do_not_dealloc( void * );
-
     template<TEMPLATE_TYPENAME T>
     class ExtensionModule : public ExtensionModuleBase
     {
@@ -134,11 +132,11 @@ namespace Py
             {
                 MethodDefExt<T> *method_def = (*i).second;
 
-                static PyObject *self = PyCObject_FromVoidPtr( this, do_not_dealloc );
+                static PyObject *self = PyCapsule_New( this, NULL, NULL );
 
                 Tuple args( 2 );
                 args[0] = Object( self );
-                args[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ) );
+                args[1] = Object( PyCapsule_New( method_def, NULL, NULL ) );
 
                 PyObject *func = PyCFunction_New
                                     (
