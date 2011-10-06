@@ -58,6 +58,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         FigureCanvasAgg.__init__( self, figure )
         self.drawRect = False
         self.rect = []
+        self.blitbox = None
         self.replot = True
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
 
@@ -77,11 +78,11 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', self, \
            self.get_width_height()
 
-        # only replot data when needed
-        if type(self.replot) is bool: # might be a bbox for blitting
-            if self.replot:
-                FigureCanvasAgg.draw(self)
+        if self.replot:
+            FigureCanvasAgg.draw(self)
+            self.replot = False
 
+        if self.blitbox is None:
             # matplotlib is in rgba byte order.  QImage wants to put the bytes
             # into argb format and is in a 4 byte unsigned int.  Little endian
             # system is LSB first and expects the bytes in reverse order
@@ -91,7 +92,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             else:
                 stringBuffer = self.renderer._renderer.tostring_argb()
 
-            qImage = QtGui.QImage(stringBuffer, self.renderer.width, 
+            qImage = QtGui.QImage(stringBuffer, self.renderer.width,
                                   self.renderer.height,
                                   QtGui.QImage.Format_ARGB32)
             p = QtGui.QPainter(self)
@@ -101,23 +102,21 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             if self.drawRect:
                 p.setPen( QtGui.QPen( QtCore.Qt.black, 1, QtCore.Qt.DotLine ) )
                 p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
-
             p.end()
-        # we are blitting here
         else:
-            bbox = self.replot
+            bbox = self.blitbox
             l, b, r, t = bbox.extents
             w = int(r) - int(l)
             h = int(t) - int(b)
             t = int(b) + h
-            reg = FigureCanvasAgg.copy_from_bbox(self, bbox)
+            reg = self.copy_from_bbox(bbox)
             stringBuffer = reg.to_string_argb()
             qImage = QtGui.QImage(stringBuffer, w, h, QtGui.QImage.Format_ARGB32)
             pixmap = QtGui.QPixmap.fromImage(qImage)
             p = QtGui.QPainter( self )
             p.drawPixmap(QtCore.QPoint(l, self.renderer.height-t), pixmap)
             p.end()
-        self.replot = False
+            self.blitbox = None
         self.drawRect = False
 
     def draw( self ):
@@ -133,21 +132,10 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         """
         Blit the region in bbox
         """
-
-        self.replot = bbox
+        self.blitbox = bbox
         l, b, w, h = bbox.bounds
         t = b + h
         self.repaint(l, self.renderer.height-t, w, h)
-
-    def copy_from_bbox(self, *args):
-        """
-        If a draw() has been called but the update() has not
-        occurred, draw into the agg canvas before copying.
-        """
-        if self.replot:
-            FigureCanvasAgg.draw(self)
-            self.replot = False
-        return FigureCanvasAgg.copy_from_bbox(self, *args)
 
     def print_figure(self, *args, **kwargs):
         FigureCanvasAgg.print_figure(self, *args, **kwargs)
