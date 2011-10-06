@@ -310,9 +310,11 @@ class TernaryAxes(Axes):
         is_separable = False
 
         def transform(self, bl):
+
             b = bl[:, 0:1]
-            y  = bl[:, 1:2]
-            x = b + y / 2.0
+            l  = bl[:, 1:2]
+            x = b + l / 2.0
+            y = SQRT3*l
             return np.concatenate((x, y), 1)
 
         def inverted(self):
