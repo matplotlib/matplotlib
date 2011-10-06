@@ -387,26 +387,26 @@ class Line2D(Artist):
         if always or self._invalidx:
             xconv = self.convert_xunits(self._xorig)
             if ma.isMaskedArray(self._xorig):
-                x = ma.asarray(xconv, float)
+                x = ma.asarray(xconv, np.float_)
             else:
-                x = np.asarray(xconv, float)
+                x = np.asarray(xconv, np.float_)
             x = x.ravel()
         else:
             x = self._x
         if always or self._invalidy:
             yconv = self.convert_yunits(self._yorig)
             if ma.isMaskedArray(self._yorig):
-                y = ma.asarray(yconv, float)
+                y = ma.asarray(yconv, np.float_)
             else:
-                y = np.asarray(yconv, float)
+                y = np.asarray(yconv, np.float_)
             y = y.ravel()
         else:
             y = self._y
 
         if len(x)==1 and len(y)>1:
-            x = x * np.ones(y.shape, float)
+            x = x * np.ones(y.shape, np.float_)
         if len(y)==1 and len(x)>1:
-            y = y * np.ones(x.shape, float)
+            y = y * np.ones(x.shape, np.float_)
 
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
@@ -746,7 +746,7 @@ class Line2D(Artist):
         %(MarkerAccepts)s
         """
         self._marker.set_marker(marker)
-        
+
     def set_markeredgecolor(self, ec):
         """
         Set the marker edge color
