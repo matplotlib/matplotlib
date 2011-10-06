@@ -12,6 +12,8 @@ __license__ = "BSD"
 #     http://matplotlib.sourceforge.net/examples/api/custom_projection_example.html
 
 # **Todo:
+    # ** add tip labels; label components at the tips rather than the sides.
+    # ** use clockwise-increasing labeling
 #   1. Clean up the placement of the right axis label and ticklabels.  It may be
 #      best to add the right axis as a special implementation of the y axis
 #      rather than manually placing the gridlines, etc. as currently done.
@@ -85,7 +87,8 @@ from matplotlib.cbook import iterable
 from matplotlib.transforms import Affine2D, BboxTransformTo, Transform, \
                                   IdentityTransform, Bbox
 
-SQRT3 = np.sqrt(3.0)
+SQRT2 = np.sqrt(2.0)
+HALFSQRT3 = np.sqrt(3.0)/2.0
 
 
 class XTick(maxis.XTick):
@@ -138,10 +141,10 @@ class XAxis(maxis.XAxis):
 
     The x-axis is used for the bottom-axis (b-axis).
     """
-    def set_label_position(self, position):
-        raise NotImplementedError("Labels must remain on all three sides of "
-                                  "the ternary plot.")
-        return
+    #def set_label_position(self, position):
+    #    raise NotImplementedError("Labels must remain on all three sides of "
+    #                              "the ternary plot.")
+    #    return
 
     def _update_label_position(self, bboxes, bboxes2):
         """Determine the label's position from the bounding boxes of the
@@ -216,7 +219,7 @@ class YAxis(maxis.YAxis):
                 for bbox in bboxes:
                     max_width = max(max_width, bbox.width)
             self.label.set_rotation(60)
-            self.label.set_position((x - max_width +
+            self.label.set_position((x + max_width + 100 +
                                      self.labelpad*self.figure.dpi/72.0, y))
         else:
             if not len(bboxes2):
@@ -226,8 +229,8 @@ class YAxis(maxis.YAxis):
                 for bbox in bboxes2:
                     max_width = max(max_width, bbox.width)
             self.label.set_rotation(300)
-            self.label.set_position((x + max_width +
-                                     self.labelpad*self.figure.dpi/72.0, y))
+            self.label.set_position((x - max_width +
+                                     0*self.labelpad*self.figure.dpi/72.0, y))
 
     def set_label_position(self, position):
         """Set the label position (left or right)
@@ -262,10 +265,11 @@ class TernaryAxes(Axes):
     """A matplotlib projection for ternary axes
 
     Ternary plots are useful for plotting sets of three variables that each sum
-    to the same value.  The variables are named b, l, and r (base, left, and
-    right).
+    to the same value.  For an introduction, see
+    http://en.wikipedia.org/wiki/Ternary_plot for an introduction.
 
-    See http://en.wikipedia.org/wiki/Ternary_plot.
+    Ternary plots may be rendered with clockwise- or counterclockwise-increasing
+    axes.  This projection uses the counterclockwise convention.
     """
     name = 'ternary'
 
@@ -281,8 +285,8 @@ class TernaryAxes(Axes):
         def transform(self, br):
             b = br[:, 0:1] # 0:1 rather than 1 in order to keep the data as a column
             r  = br[:, 1:2]
-            #l = np.tile(self.total, r.shape) - b - r
-            l = np.ones(r.shape) - b - r
+            l = np.tile(self.total, r.shape) - b - r
+            #l = np.ones(r.shape) - b - r
             return np.concatenate((b, l), 1)
 
         def inverted(self):
@@ -302,20 +306,22 @@ class TernaryAxes(Axes):
 
 
     class TernaryTransform(Transform):
-        """This is the ternary transform; it maps *b* (base) and *l* (left) into
-        Cartesian coordinate space *x* and *y*.
+        """This is the core of the ternary transform; it performs the
+        non-separable part of mapping *a* (lower left component) and *b* (upper
+        center component) into Cartesian coordinate space *x* and *y*.
         """
         input_dims = 2
         output_dims = 2
         is_separable = False
 
-        def transform(self, bl):
-
-            b = bl[:, 0:1]
-            l  = bl[:, 1:2]
-            x = b + l / 2.0
-            y = SQRT3*l
+        def transform(self, ab):
+            a = ab[:, 0:1]
+            b  = ab[:, 1:2]
+            x = 1 - a - b
+            y = b
+            #y = b
             return np.concatenate((x, y), 1)
+        transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
             return TernaryAxes.InvertedTernaryTransform()
@@ -323,8 +329,9 @@ class TernaryAxes(Axes):
 
 
     class InvertedTernaryTransform(Transform):
-        """This is the inverse of the ternary transform; it maps *x* and *y* in
-        Cartesian coordinate space back to *b* (base) and *l* (left).
+        """This is the inverse of the non-separable part of the ternary
+        transform (mapping *x* and *y* in Cartesian coordinate space back to *a*
+        and *b*).
         """
         input_dims = 2
         output_dims = 2
@@ -332,151 +339,20 @@ class TernaryAxes(Axes):
 
         def transform(self, xy):
             x = xy[:, 0:1]
-            l = xy[:, 1:2]
-            b = x - l / 2.0
-            return np.concatenate((b, l), 1)
+            y = xy[:, 1:2]
+            a = 1 - y - x
+            b = y
+            #b = y
+            return np.concatenate((a, b), 1)
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
             return TernaryAxes.TernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
-
-    def resolve(self, b, l, r=None):
-        """Resolve the over-specified system that arises when three variables
-        and their sum is known.
-
-        Return the first two variables (b and l) as singletons or numpy arrays
-        as appropriate according to the inputs.
-
-        If all three variables (b, l, and r) are available (i.e., are not None),
-        then they are linearly scaled so that their sum is self.total.  If the
-        relative error (i.e., the magnitude of the scaling factor minus one) is
-        greater than self.tolerance, then the call fails an assertion.
-
-        If b or l is None, the value of r and total is used to determine it.
-
-        If two of the arguments (b, l, r) are None, then the call fails an
-        assertion.  The arguments which are not None must have the same length,
-        or the call fails another assertion.
-        """
-        def check(first, second):
-            """Check if two variables are iterable, have the same length/shape,
-            and are not None.
-
-            If they are iterable, cast them as numpy array.  Return the
-            variables and True if they are iterable (False if not).
-            """
-            assert first != None and second != None, \
-                   "At least two of the values must be specified."
-            if iterable(first) or iterable(r):
-                first = np.array(first)
-                second = np.array(second)
-                assert first.shape == second.shape, \
-                       ("Each of b, l, and r must have the same number of "
-                        "elements if they are not None.")
-                return first, second, True
-            return first, second, False
-
-        if b is None:
-            l, r, is_iterable = check(l, r)
-            if is_iterable:
-                b = np.tile(self.total, l.shape) - l - r
-            else:
-                b = self.total - l - r
-        elif l is None:
-            b, r, is_iterable = check(b, r)
-            if is_iterable:
-                l = np.tile(self.total, b.shape) - b - r
-            else:
-                l = self.total - b - r
-        elif r is None:
-            b, l, is_iterable = check(b, l)
-        else:
-            if iterable(b) or iterable(l) or iterable(l):
-                # At least one of b, l, and r is a list, tuple, array, or similar.
-                b = np.array(b)
-                l = np.array(l)
-                r = np.array(r)
-                assert b.shape == l.shape == b.shape, \
-                       ("b, l, and r must have the same number of elements if "
-                        "they are not None.")
-                total = b + l + r
-                factor = np.tile(self.total, b.shape) / total
-                for i, relative_error in enumerate(np.absolute(1 - factor)):
-                    # **Use verbose.
-                    assert relative_error <= self.tolerance, \
-                           ("The sum of entries with index %i is %f, but it "
-                            "must be %f (within a relative tolerance of %f)."
-                           ) %i%total[i] %self.total %self.tolerance
-            else:
-                total = b + l + r
-                factor =self.total / total
-                # **Use verbose.
-                assert abs(1 - factor) <= self.tolerance, \
-                       ("The sum of b, l, and r is %f, but it must be %f "
-                        "(within a relative tolerance of %f).") %total \
-                        %self.total %self.tolerance
-            b *= factor
-            l *= factor
-        return b, l
-
-    def plot(self, b=None, l=None, r=None, fmt=None, *args, **kwargs):
-        """Plot lines and/or markers.
-        """
-        if type(r) is str:
-            # Provide support for the third argument as a format string since
-            # that is the way Axes.plot() works.
-            return Axes.plot(self, b, l, r, *args, **kwargs)
-        else:
-            b, l = self.resolve(b, l, r)
-            if fmt is None:
-                return Axes.plot(self, b, l, *args, **kwargs)
-            else:
-                return Axes.plot(self, b, l, fmt, *args, **kwargs)
-
-    def scatter(self, b=None, l=None, r=None, *args, **kwargs):
-        """Scatter plot
-        """
-        b, l = self.resolve(b, l, r)
-        return Axes.scatter(self, b, l, *args, **kwargs)
-
-    def annotate(self, s, blr, blrtext=None, *args, **kwargs):
-        """Add an annotation at location blr = (b, l, r) in data coordinates.
-        """
-        b, l = self.resolve(*blr)
-        if blrtext is None:
-            return Axes.annotate(self, s, (b, l), *args, **kwargs)
-        else:
-            btext, ltext = self.resolve(*blrtext)
-            return Axes.annotate(self, s, (b, l), xytext=(btext, ltext), *args,
-                                 **kwargs)
-
-    def arrow(self, b=None, l=None, r=None, db=None, dl=None, dr=None,
-              **kwargs):
-        """Add an arrow to ternary axes from location b, l, r to (b + db,
-        l + dl, r + dr) in data coordinates.
-        """
-        b2 = None if b is None or db is None else b + db
-        l2 = None if l is None or dl is None else l + dl
-        r2 = None if r is None or dr is None else r + dr
-        b, l = self.resolve(b, l, r)
-        b2, l2 = self.resolve(b2, l2, r2)
-        return Axes.arrow(self, b, l, b2-b, l2-l, **kwargs)
-
-    def text(self, b=None, l=None, r=None, *args, **kwargs):
-        """Add text at location b, l, r in data coordinates.
-        """
-        if type(r) is str:
-            # Provide support for the third argument as the text string since
-            # that is the way Axes.text() works.
-            return Axes.text(self, b, l, r, *args, **kwargs)
-        else:
-            b, l = self.resolve(b, l, r)
-            return Axes.text(self, b, l, *args, **kwargs)
-
     # Prevent the user from applying nonlinear scales to either of the axes
-    # since that would be confusing to the viewer.
+    # since that would be confusing to the viewer (the axes should have the same
+    # scales, yet all three cannot be nonlinear at once).
     def set_xscale(self, *args, **kwargs):
         if args[0] != 'linear':
             raise NotImplementedError
@@ -771,6 +647,7 @@ class TernaryAxes(Axes):
         """
         return 1.0 # **Change this to self.total?
 
+        #return 1/SQRT3
     def cla(self):
         """Override to set provide reasonable defaults.
         """
@@ -779,27 +656,28 @@ class TernaryAxes(Axes):
         Axes.cla(self)
 
         # Create the right axis (procedure modified from maplotlib.axes.twinx).
-        if self._sharex is None:
+        #if self._sharex is None:
+        if True:
             # Do this only once, or else there will be recursion.
-            print self.get_position(True)
-            ax2 = self.figure.add_axes(self.get_position(True), sharex=self,
-                                       frameon=False, projection='ternary')
-            ax2.xaxis.set_visible(False)
+            #ax2 = self.figure.add_axes(self.get_position(True), sharex=self,
+            #                           frameon=False, projection='ternary')
+            #ax2.xaxis.set_visible(False)
+            self.xaxis.set_label_position('top')
             self.yaxis.set_label_position('left')
-            self.yaxis.set_offset_position('left')
-            self.raxis = ax2.yaxis
-            self.raxis.set_label_position('right')
-            self.raxis.set_offset_position('right')
+            self.yaxis.set_offset_position('right')
+            #self.raxis = ax2.yaxis
+            #self.raxis.set_label_position('left')
+            #self.raxis.set_offset_position('left')
 
             # Do not display ticks (only gridlines, tick labels, and axis labels).
             self.xaxis.set_ticks_position('none')
             self.yaxis.set_ticks_position('none')
-            self.raxis.set_ticks_position('none')
+            #self.raxis.set_ticks_position('none')
 
             # Turn off minor ticking altogether.
             self.xaxis.set_minor_locator(NullLocator())
             self.yaxis.set_minor_locator(NullLocator())
-            self.raxis.set_minor_locator(NullLocator())
+            #self.raxis.set_minor_locator(NullLocator())
 
             # Vertical position of the title
             self.title.set_y(1.02)
@@ -833,13 +711,13 @@ class TernaryAxes(Axes):
 
         # 2) The above has an output range that is not in the unit rectangle, so
         # scale and translate it.
-        self.transAffine = Affine2D().scale(-1.8 / (SQRT3 * self.total),
-                                            0.9 / self.total) \
-                           + Affine2D().translate(0.5 + 0.9 / SQRT3, 0.05)
+        self.transAffine = (Affine2D().rotate_deg(45)
+                           + Affine2D().scale(HALFSQRT3/SQRT2, -1.0)
+                           + Affine2D().translate(0.5, 0.8))
         # 3) This is the transformation from axes space to display space.
         self.transAxes = BboxTransformTo(self.bbox)
 
-        # Put these 3 transforms together---from data all the way to display
+        # Put these 3 transforms together -- from data all the way to display
         # coordinates.  Using the '+' operator, these transforms are applied
         # "in order".  The transforms are automatically simplified, if possible,
         # by the underlying transformation framework.
@@ -853,8 +731,8 @@ class TernaryAxes(Axes):
         # values will be in range (0, 0), (self.total, 1).  The goal of these
         # transforms is to go from that space to display space.  The tick labels
         # are offset 4 pixels.
-        self._xaxis_transform = self.transData # Transform the axis itself.
-        self._xaxis_text1_transform =  self.transData + Affine2D().translate(0, -4)
+        self._xaxis_transform = self.transData + Affine2D().rotate_deg(60)# Transform the axis itself.
+        self._xaxis_text1_transform =   self.transData + Affine2D().translate(0, -4)
         self._xaxis_text2_transform = IdentityTransform() # For secondary x axes
                                                           # (required but not used)
 
@@ -862,14 +740,12 @@ class TernaryAxes(Axes):
         # are in axis coordinates in x and data coordinates in y. Therefore, the
         # input values will be in range (0, 0), (1, self.total).  These tick
         # labels are also offset 4 pixels.
-        self._yaxis_transform = self.transData # Transform the y-axis itself.
-        self._raxis_transform = self.PreTernaryTransformBR() + self._yaxis_transform
-        self._yaxis_text1_transform = (Affine2D().scale(1, np.sqrt(2))
-                                       + Affine2D().rotate_deg(45)
-                                       + Affine2D().translate(1, 0)
-                                       + self.transData
-                                       + Affine2D().translate(-4, 0))
-        self._yaxis_text2_transform = self.PreTernaryTransformBR() + self._yaxis_text1_transform
+        self._yaxis_transform = Affine2D().scale(1,1) + Affine2D().translate(0,0)+self.transData # Transform the y-axis itself.
+        #self._raxis_transform = self._yaxis_transform +  Affine2D().translate(1,0)
+        self._yaxis_text1_transform = (Affine2D().scale(1,-1) + Affine2D().translate(0,1)   +       self.transData +
+                                        Affine2D().translate(4, 0))
+        self._yaxis_text2_transform = (self.transData
+                                       + Affine2D().translate(4, 0))
 
     def get_xaxis_transform(self, which='grid'):
         """Return the transformations for the x-axis grid and ticks.
@@ -894,39 +770,32 @@ class TernaryAxes(Axes):
         """Return the transformations for the y-axis grid and ticks.
         """
         assert which in ['tick1', 'tick2', 'grid']
-        if which == 'tick1' or (which == 'grid' and self._sharex is None):#self.xaxis.get_label_position == 'left'):
-            return self._yaxis_transform
-        else:
-            return self._raxis_transform
+        #if which == 'tick1' or (which == 'grid' and self._sharex is None):#self.xaxis.get_label_position == 'left'):
+        return self._yaxis_transform
+        #else:
+        #    return self._raxis_transform
 
     def get_yaxis_text1_transform(self, pixelPad):
         """Return a tuple of the form (transform, valign, halign) for the y-axis
         tick labels (the left-axis).
         """
-        return self._yaxis_text1_transform, 'center', 'right'
+        return self._yaxis_text1_transform, 'center', 'left'
 
     def get_yaxis_text2_transform(self, pixelPad):
         """Return a tuple of the form (transform, valign, halign) for the
         secondary y-axis tick labels (the right-axis).
         """
-        return self._yaxis_text2_transform, 'center', 'center'
+        return self._yaxis_text2_transform, 'center', 'left'
 
     def _gen_axes_patch(self):
         """Return a patch for the background of the plot.
 
         The data and gridlines will be clipped to this shape.
         """
-        vertices = np.array([[0.5 + 0.90 / SQRT3, 0.05],
-                             [0.5, 0.95],
-                             [0.5 - 0.90 / SQRT3, 0.05],
-                             [0.5 + 0.90 / SQRT3, 0.05]])
-#        vertices = np.array([[1, 0],
-#                             [1, 1],
-#                             [0, 1],
-#                             [0, 0],
-#                             [1, 0]])
-        # The plot area must be shorter than 1.0 in order to leave room for the
-        # title.
+        vertices = np.array([[0.5 - HALFSQRT3/2.0,  0.8 - SQRT2/2.0], # point a=1 (lower left)
+                             [0.5 + HALFSQRT3/2.0, 0.8 - SQRT2/2.0], # point b=1 (lower right)
+                             [0.5, 0.8], # point c=1 (upper center)
+                             [0.5 - HALFSQRT3/2.0, 0.8 - SQRT2/2.0]])
         codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
         return PathPatch(Path(vertices, codes))
 
@@ -941,8 +810,8 @@ class TernaryAxes(Axes):
     def _init_axis(self):
         self.xaxis = XAxis(self)
         self.yaxis = YAxis(self)
-        # Don't register xaxis or yaxis with spines---as done in
-        # Axes._init_axis()---until xaxis.cla() works.
+        # Don't register xaxis or yaxis with spines -- as done in
+        # Axes._init_axis() -- until xaxis.cla() works.
         #self.spines['ternary'].register_axis(self.xaxis)
         #self.spines['ternary'].register_axis(self.yaxis)
 
