@@ -105,20 +105,10 @@ def gen_gallery(app, doctree):
         fh.write(content)
         fh.close()
 
-    try:
-        import multiprocessing
-        app.builder.info("generating thumbnails... ", nonl=True)
-        pool = multiprocessing.Pool()
-        pool.map(make_thumbnail, thumbnails.iteritems())
-        pool.close()
-        pool.join()
-        app.builder.info("done")
-
-    except ImportError:
-        for key in app.builder.status_iterator(
-            thumbnails.iterkeys(), "generating thumbnails... ",
-            length=len(thumbnails)):
-            image.thumbnail(key, thumbnails[key], 0.3)
+    for key in app.builder.status_iterator(
+        thumbnails.iterkeys(), "generating thumbnails... ",
+        length=len(thumbnails)):
+        image.thumbnail(key, thumbnails[key], 0.3)
 
 def setup(app):
     app.connect('env-updated', gen_gallery)

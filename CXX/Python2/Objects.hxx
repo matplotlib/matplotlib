@@ -61,6 +61,8 @@ namespace Py
     class String;
     class List;
     template<TEMPLATE_TYPENAME T> class MapBase;
+    class Tuple;
+    class Dict;
 
     // new_reference_to also overloaded below on Object
     inline PyObject* new_reference_to(PyObject* p)
@@ -267,6 +269,10 @@ namespace Py
         {
             return Object (PyObject_GetAttrString (p, const_cast<char*>(s.c_str())), true);
         }
+
+        Object callMemberFunction( const std::string &function_name ) const;
+        Object callMemberFunction( const std::string &function_name, const Tuple &args ) const;
+        Object callMemberFunction( const std::string &function_name, const Tuple &args, const Dict &kw ) const;
 
         Object getItem (const Object& key) const
         {
@@ -1718,7 +1724,6 @@ namespace Py
     template <TEMPLATE_TYPENAME T> bool operator<=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
     template <TEMPLATE_TYPENAME T> bool operator>=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right); 
 
-
     extern bool operator==(const Sequence::iterator& left, const Sequence::iterator& right);
     extern bool operator!=(const Sequence::iterator& left, const Sequence::iterator& right);
     extern bool operator< (const Sequence::iterator& left, const Sequence::iterator& right);
@@ -1848,62 +1853,61 @@ namespace Py
         }
 
         String()
-            : SeqBase<Char>( PyString_FromStringAndSize( "", 0 ), true )
+        : SeqBase<Char>( PyString_FromStringAndSize( "", 0 ), true )
         {
             validate();
         }
 
         String( const std::string& v )
-            : SeqBase<Char>( PyString_FromStringAndSize( const_cast<char*>(v.data()),
+        : SeqBase<Char>( PyString_FromStringAndSize( const_cast<char*>(v.data()),
                 static_cast<int>( v.length() ) ), true )
         {
             validate();
         }
 
+        String( const Py_UNICODE *s, int length )
+        : SeqBase<Char>( PyUnicode_FromUnicode( s, length ), true )
+        {
+            validate();
+        }
+
         String( const char *s, const char *encoding, const char *error="strict" )
-            : SeqBase<Char>( PyUnicode_Decode( s, strlen( s ), encoding, error ), true )
+        : SeqBase<Char>( PyUnicode_Decode( s, strlen( s ), encoding, error ), true )
         {
             validate();
         }
 
         String( const char *s, int len, const char *encoding, const char *error="strict" )
-            : SeqBase<Char>( PyUnicode_Decode( s, len, encoding, error ), true )
+        : SeqBase<Char>( PyUnicode_Decode( s, len, encoding, error ), true )
         {
             validate();
         }
 
         String( const std::string &s, const char *encoding, const char *error="strict" )
-            : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.length(), encoding, error ), true )
-        {
-            validate();
-        }
-
-        String( const std::string& v, std::string::size_type vsize )
-            : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()),
-                    static_cast<int>( vsize ) ), true)
+        : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.length(), encoding, error ), true )
         {
             validate();
         }
 
         String( const char *v, int vsize )
-            : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v), vsize ), true )
+        : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v), vsize ), true )
         {
             validate();
         }
 
-        String( const char* v )
-            : SeqBase<Char>( PyString_FromString( v ), true )
+        String( const char *v )
+        : SeqBase<Char>( PyString_FromString( v ), true )
         {
             validate();
         }
 
         // Assignment acquires new ownership of pointer
-        String& operator= ( const Object& rhs )
+        String &operator=( const Object &rhs )
         {
             return *this = *rhs;
         }
 
-        String& operator= (PyObject* rhsp)
+        String& operator= (PyObject *rhsp)
         {
             if( ptr() == rhsp )
                 return *this;
@@ -1917,25 +1921,24 @@ namespace Py
         }
 
         // Assignment from C string
-        String& operator= (const std::string& v)
+        String& operator=( const std::string &v )
         {
             set( PyString_FromStringAndSize( const_cast<char*>( v.data() ),
                     static_cast<int>( v.length() ) ), true );
             return *this;
         }
-        String& operator= (const unicodestring& v)
+        String& operator=( const unicodestring &v )
         {
             set( PyUnicode_FromUnicode( const_cast<Py_UNICODE*>( v.data() ),
                     static_cast<int>( v.length() ) ), true );
             return *this;
         }
 
-
         // Encode
         Bytes encode( const char *encoding, const char *error="strict" ) const;
 
         // Queries
-        virtual size_type size () const
+        virtual size_type size() const
         {
             if( isUnicode() )
             {
@@ -1947,7 +1950,7 @@ namespace Py
             }
         }
 
-        operator std::string () const
+        operator std::string() const
         {
             return as_std_string( "utf-8" );
         }
@@ -1964,6 +1967,18 @@ namespace Py
             else
             {
                 throw TypeError("can only return unicodestring from Unicode object");
+            }
+        }
+
+        const Py_UNICODE *unicode_data() const
+        {
+            if( isUnicode() )
+            {
+                return PyUnicode_AS_UNICODE( ptr() );
+            }
+            else
+            {
+                throw TypeError("can only return unicode_data from Unicode object");
             }
         }
     };
@@ -1993,12 +2008,6 @@ namespace Py
 
         Bytes( const std::string& v )
         : SeqBase<Char>( PyString_FromStringAndSize( const_cast<char*>(v.data()), static_cast<int>( v.length() ) ), true )
-        {
-            validate();
-        }
-
-        Bytes( const std::string& v, std::string::size_type vsize )
-        : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()), static_cast<int>( vsize ) ), true)
         {
             validate();
         }
@@ -2050,7 +2059,7 @@ namespace Py
 
         String decode( const char *encoding, const char *error="strict" )
         {
-            return Object( PyString_AsDecodedObject( ptr(), encoding, error ) );
+            return Object( PyString_AsDecodedObject( ptr(), encoding, error ), true );
         }
 
         // Queries
@@ -2148,13 +2157,6 @@ namespace Py
             validate();
         }
 
-        String( const std::string& v, std::string::size_type vsize )
-            : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()),
-                    static_cast<int>( vsize ) ), true)
-        {
-            validate();
-        }
-
         String( const char *v, int vsize )
             : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v), vsize ), true )
         {
@@ -2206,17 +2208,17 @@ namespace Py
         {
             if( isUnicode() )
             {
-                return String( PyUnicode_AsEncodedString( ptr(), encoding, error ) );
+                return String( PyUnicode_AsEncodedString( ptr(), encoding, error ), true );
             }
             else
             {
-                return String( PyString_AsEncodedObject( ptr(), encoding, error ) );
+                return String( PyString_AsEncodedObject( ptr(), encoding, error ), true );
             }
         }
 
         String decode( const char *encoding, const char *error="strict" )
         {
-            return Object( PyString_AsDecodedObject( ptr(), encoding, error ) );
+            return Object( PyString_AsDecodedObject( ptr(), encoding, error ), true );
         }
 
         // Queries
@@ -2345,6 +2347,118 @@ namespace Py
         }
 
     };
+
+    class TupleN: public Tuple
+    {
+    public:
+        TupleN()
+        : Tuple( 0 )
+        {
+        }
+
+        TupleN( const Object &obj1 )
+        : Tuple( 1 )
+        {
+            setItem( 0, obj1 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2 )
+        : Tuple( 2 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3 )
+        : Tuple( 3 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4 )
+        : Tuple( 4 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5 )
+        : Tuple( 5 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6 )
+        : Tuple( 6 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6,
+                const Object &obj7 )
+        : Tuple( 7 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+            setItem( 6, obj7 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6,
+                const Object &obj7, const Object &obj8 )
+        : Tuple( 8 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+            setItem( 6, obj7 );
+            setItem( 7, obj8 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6,
+                const Object &obj7, const Object &obj8, const Object &obj9 )
+        : Tuple( 9 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+            setItem( 6, obj7 );
+            setItem( 7, obj8 );
+            setItem( 8, obj9 );
+        }
+
+        virtual ~TupleN()
+        { }
+    };
+
 
     // ==================================================
     // class List
@@ -3153,6 +3267,26 @@ namespace Py
             // Caution -- PyModule_GetDict returns borrowed reference!
         }
     };
+
+    // Call function helper
+    inline Object Object::callMemberFunction( const std::string &function_name ) const
+    {
+        Callable target( getAttr( function_name ) );
+        Tuple args( 0 );
+        return target.apply( args );
+    }
+
+    inline Object Object::callMemberFunction( const std::string &function_name, const Tuple &args ) const
+    {
+        Callable target( getAttr( function_name ) );
+        return target.apply( args );
+    }
+
+    inline Object Object::callMemberFunction( const std::string &function_name, const Tuple &args, const Dict &kw ) const
+    {
+        Callable target( getAttr( function_name ) );
+        return target.apply( args, kw );
+    }
 
     // Numeric interface
     inline Object operator+ (const Object& a)

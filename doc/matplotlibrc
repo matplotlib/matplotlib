@@ -13,3 +13,4 @@ docstring.hardcopy : True  # set this when you want to generate hardcopy docstri
 
 #examples.download : False  # False to bypass downloading mechanism
 #examples.directory : /your/path/to/sample_data/   # directory to look in if download is false
+

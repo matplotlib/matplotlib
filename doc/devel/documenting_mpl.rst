@@ -251,6 +251,37 @@ insert the following special comment anywhere in the script::
 
   # -*- noplot -*-
 
+Animations
+----------
+
+We have a matplotlib google/gmail account with username ``mplgithub``
+which we used to setup the github account but can be used for other
+purposes, like hosting google docs or youtube videos.  You can embed a
+matplotlib animation in the docs by first saving the animation as a
+movie using :meth:`matplotlib.animation.Animation.save`, and then
+uploading to `matplotlib's youtube
+channel <http://www.youtube.com/user/matplotlib>`_ and inserting the
+embedding string youtube provides like::
+
+  .. raw:: html
+
+     <iframe width="420" height="315"
+       src="http://www.youtube.com/embed/32cjc6V0OZY"
+       frameborder="0" allowfullscreen>
+     </iframe>
+
+An example save command to generate a movie looks like this
+
+.. sourcecode:: python
+
+    ani = animation.FuncAnimation(fig, animate, np.arange(1, len(y)),
+        interval=25, blit=True, init_func=init)
+
+    ani.save('double_pendulum.mp4', fps=15)
+
+Contact John Hunter for the login password to upload youtube videos of
+google docs to the mplgithub account.
+
 .. _referring-to-mpl-docs:
 
 Referring to mpl documents
