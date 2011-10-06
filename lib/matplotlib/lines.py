@@ -563,7 +563,7 @@ class Line2D(Artist):
     def get_linestyle(self): return self._linestyle
 
     def get_linewidth(self): return self._linewidth
-    def get_marker(self): return self._marker
+    def get_marker(self): return self._marker.get_marker()
 
     def get_markeredgecolor(self):
         if (is_string_like(self._markeredgecolor) and
@@ -746,7 +746,7 @@ class Line2D(Artist):
         %(MarkerAccepts)s
         """
         self._marker.set_marker(marker)
-        
+
     def set_markeredgecolor(self, ec):
         """
         Set the marker edge color
