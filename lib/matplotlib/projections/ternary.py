@@ -88,7 +88,7 @@ from matplotlib.transforms import Affine2D, BboxTransformTo, Transform, \
                                   IdentityTransform, Bbox
 
 SQRT2 = np.sqrt(2.0)
-HALFSQRT3 = np.sqrt(3.0)/2.0
+SQRT3 = np.sqrt(3.0)
 
 
 class XTick(maxis.XTick):
@@ -107,8 +107,8 @@ class XTick(maxis.XTick):
                 color=self._labelcolor,
                 verticalalignment=vert,
                 horizontalalignment=horiz,
-                rotation=-60, # New
-                rotation_mode='anchor', # New
+                #rotation=-60, # New
+                #rotation_mode='anchor', # New
                 )
             t.set_transform(trans)
             self._set_artist_props(t)
@@ -118,6 +118,25 @@ class XTick(maxis.XTick):
 class YTick(maxis.YTick):
     """Overwritten Y tick methods
     """
+    def _get_text1(self):
+            'Get the default Text instance'
+            # the y loc is 3 points below the min of y axis
+            # get the affine as an a,b,c,d,tx,ty list
+            # x in data coords, y in axes coords
+            #t =  mtext.Text(
+            trans, vert, horiz = self._get_text1_transform()
+            t = mtext.Text(
+                x=0, y=0,
+                fontproperties=font_manager.FontProperties(size=self._labelsize),
+                color=self._labelcolor,
+                verticalalignment=vert,
+                horizontalalignment=horiz,
+                rotation=120, # New
+                rotation_mode='anchor', # New
+                )
+            t.set_transform(trans)
+            self._set_artist_props(t)
+            return t
 #    def _get_gridline(self):
 #        'Get the default line2D instance'
 #        # x in axes coords, y in data coords
@@ -146,31 +165,43 @@ class XAxis(maxis.XAxis):
     #                              "the ternary plot.")
     #    return
 
+    def _get_label(self):
+        # x in axes coords, y in display coords (to be updated at draw
+        # time by _update_label_positions)
+        label = mtext.Text(x=0.5, y=0,
+            fontproperties = font_manager.FontProperties(
+                               size=rcParams['axes.labelsize'],
+                               weight=rcParams['axes.labelweight']),
+            color = rcParams['axes.labelcolor'],
+            verticalalignment='bottom',
+            horizontalalignment='center',
+            rotation=-60,
+            rotation_mode='anchor') # New
+
+        #label.set_transform( mtransforms.blended_transform_factory(
+        #    self.axes.transAxes, mtransforms.IdentityTransform() ))
+
+        self._set_artist_props(label)
+        self.label_position='bottom'
+        return label
+
     def _update_label_position(self, bboxes, bboxes2):
         """Determine the label's position from the bounding boxes of the
         ticklabels.
         """
         if not self._autolabelpos: return
-        x, y = self.label.get_position()
-        if self.label_position == 'bottom':
-            if not len(bboxes):
-                bottom = self.axes.bbox.ymin
-                self.label.set_position((x, bottom -
-                                        self.labelpad*self.figure.dpi / 72.0))
-            else:
-                bbox = mtransforms.Bbox.union(bboxes)
-                bottom = bbox.y0
-                # The label should also be shifted right by half the amount that
-                # it is shifted downwards, so that it follows the imaginary,
-                # extended gridlines at -60 deg.  However, since the y position
-                # is in display coordinates and the x position is in data
-                # coordinates, it is difficult to determine the proper shift.
-                # The x shift of 0.06 (from a starting position of 0.5) seems
-                # good by inspection.  **Replace this hack.
-                self.label.set_position((0.56, bottom -
-                                        self.labelpad*self.figure.dpi / 72.0))
+        #x, y = self.label.get_position()
+        max_width = 0
+        if not len(bboxes):
+            x = self.axes.bbox.xmin
+            y = (self.axes.bbox.ymax + self.axes.bbox.ymin)/2.0
         else:
-            pass # The top label position is not used.
+            x = bboxes[-1].x0 + (bboxes[0].x0 - bboxes[-1].x0)/2.0
+            y = (bboxes[0].y0 + bboxes[-1].y1)/2.0
+            for bbox in bboxes:
+                max_width = max(max_width, bbox.width)
+        self.label.set_position((x + 0*max_width +
+                                 0*self.labelpad*self.figure.dpi/72.0, y))
 
     def _get_tick(self, major):
         """Overwritten to use the XTick class from this file.
@@ -198,6 +229,7 @@ class YAxis(maxis.YAxis):
             color=rcParams['axes.labelcolor'],
             verticalalignment='center',
             horizontalalignment='center',
+            #rotation=-60,
             rotation_mode='anchor') # New
         label.set_transform(mtransforms.blended_transform_factory(
             mtransforms.IdentityTransform(), self.axes.transAxes) )
@@ -219,7 +251,7 @@ class YAxis(maxis.YAxis):
                 for bbox in bboxes:
                     max_width = max(max_width, bbox.width)
             self.label.set_rotation(60)
-            self.label.set_position((x + max_width + 100 +
+            self.label.set_position((x + max_width +
                                      self.labelpad*self.figure.dpi/72.0, y))
         else:
             if not len(bboxes2):
@@ -231,6 +263,15 @@ class YAxis(maxis.YAxis):
             self.label.set_rotation(300)
             self.label.set_position((x - max_width +
                                      0*self.labelpad*self.figure.dpi/72.0, y))
+
+    def _get_tick(self, major):
+        """Overwritten to use the XTick class from this file.
+        """
+        if major:
+            tick_kw = self._major_tick_kw
+        else:
+            tick_kw = self._minor_tick_kw
+        return YTick(self.axes, 0, '', major=major, **tick_kw)
 
     def set_label_position(self, position):
         """Set the label position (left or right)
@@ -317,9 +358,8 @@ class TernaryAxes(Axes):
         def transform(self, ab):
             a = ab[:, 0:1]
             b  = ab[:, 1:2]
-            x = 1 - a - b
+            x = a #+ b/2.0
             y = b
-            #y = b
             return np.concatenate((x, y), 1)
         transform.__doc__ = Transform.transform.__doc__
 
@@ -340,9 +380,8 @@ class TernaryAxes(Axes):
         def transform(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
-            a = 1 - y - x
+            a = x #- y/2.0#1 - x - y
             b = y
-            #b = y
             return np.concatenate((a, b), 1)
         transform.__doc__ = Transform.transform.__doc__
 
@@ -628,7 +667,7 @@ class TernaryAxes(Axes):
     def colorbar(self, *args, **kwargs):
         """Produce a colorbar with appropriate defaults for ternary plots.
         """
-        shrink = kwargs.pop('shrink', 0.9)
+        shrink = kwargs.pop('shrink', self.height)
         pad = kwargs.pop('pad', 0.1)
         return self.figure.colorbar(shrink=shrink, pad=pad, *args, **kwargs)
 
@@ -662,7 +701,7 @@ class TernaryAxes(Axes):
             #ax2 = self.figure.add_axes(self.get_position(True), sharex=self,
             #                           frameon=False, projection='ternary')
             #ax2.xaxis.set_visible(False)
-            self.xaxis.set_label_position('top')
+            #self.xaxis.set_label_position('bottom')
             self.yaxis.set_label_position('left')
             self.yaxis.set_offset_position('right')
             #self.raxis = ax2.yaxis
@@ -712,8 +751,9 @@ class TernaryAxes(Axes):
         # 2) The above has an output range that is not in the unit rectangle, so
         # scale and translate it.
         self.transAffine = (Affine2D().rotate_deg(45)
-                           + Affine2D().scale(HALFSQRT3/SQRT2, -1.0)
-                           + Affine2D().translate(0.5, 0.8))
+                           + Affine2D().scale(SQRT2/SQRT3, -SQRT2)
+                           + Affine2D().scale(self.height)
+                           + Affine2D().translate(0.5, self.height + self.elevation))
         # 3) This is the transformation from axes space to display space.
         self.transAxes = BboxTransformTo(self.bbox)
 
@@ -729,10 +769,10 @@ class TernaryAxes(Axes):
         # X-axis gridlines and ticklabels.  The input to these transforms are in
         # data coordinates in x and axis coordinates in y.  Therefore, the input
         # values will be in range (0, 0), (self.total, 1).  The goal of these
-        # transforms is to go from that space to display space.  The tick labels
-        # are offset 4 pixels.
-        self._xaxis_transform = self.transData + Affine2D().rotate_deg(60)# Transform the axis itself.
-        self._xaxis_text1_transform =   self.transData + Affine2D().translate(0, -4)
+        # transforms is to go from that space to display space.
+        self._xaxis_transform = self.transData
+        self._xaxis_text1_transform = (Affine2D().scale(-1, 1) + Affine2D().translate(1, 0)+self.transData
+                                       + Affine2D().translate(4, 0)) # 4-pixel offset
         self._xaxis_text2_transform = IdentityTransform() # For secondary x axes
                                                           # (required but not used)
 
@@ -740,10 +780,12 @@ class TernaryAxes(Axes):
         # are in axis coordinates in x and data coordinates in y. Therefore, the
         # input values will be in range (0, 0), (1, self.total).  These tick
         # labels are also offset 4 pixels.
-        self._yaxis_transform = Affine2D().scale(1,1) + Affine2D().translate(0,0)+self.transData # Transform the y-axis itself.
-        #self._raxis_transform = self._yaxis_transform +  Affine2D().translate(1,0)
-        self._yaxis_text1_transform = (Affine2D().scale(1,-1) + Affine2D().translate(0,1)   +       self.transData +
-                                        Affine2D().translate(4, 0))
+        self._yaxis_transform = self.transData
+        self._yaxis_text1_transform = (#Affine2D().rotate_deg(45)
+                                       #+ Affine2D().scale(SQRT2)
+                                       #+ Affine2D().translate(1, 0)
+                                       self.transData
+                                       + Affine2D().translate(-2, 2*SQRT3)) # 4-pixel offset
         self._yaxis_text2_transform = (self.transData
                                        + Affine2D().translate(4, 0))
 
@@ -792,11 +834,17 @@ class TernaryAxes(Axes):
 
         The data and gridlines will be clipped to this shape.
         """
-        vertices = np.array([[0.5 - HALFSQRT3/2.0,  0.8 - SQRT2/2.0], # point a=1 (lower left)
-                             [0.5 + HALFSQRT3/2.0, 0.8 - SQRT2/2.0], # point b=1 (lower right)
+        vertices = np.array([[0.5 - SQRT3/4.0,  0.8 - SQRT2/2.0], # point a=1 (lower left)
+                             [0.5 + SQRT3/4.0, 0.8 - SQRT2/2.0], # point b=1 (lower right)
                              [0.5, 0.8], # point c=1 (upper center)
-                             [0.5 - HALFSQRT3/2.0, 0.8 - SQRT2/2.0]])
-        codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+                             [0.5 - SQRT3/4.0, 0.8 - SQRT2/2.0]])
+        vertices = np.array([[-5,-5],
+                             [-5,5],
+                             [5,5],
+                             [5,-5],
+                             [-5,5]])
+        codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
+#        codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
         return PathPatch(Path(vertices, codes))
 
     def _gen_axes_spines(self):
@@ -819,6 +867,14 @@ class TernaryAxes(Axes):
 
     def __init__(self, *args, **kwargs):
         self.total = 1.0
+
+        # Height of the ternary outline (in axis units)
+        self.height = 0.8
+
+        # Vertical distance between the y axis and the base of the ternary plot
+        # (in axis units)
+        self.elevation = 0.05
+
         self.tolerance = 1e-12 # Relative error allow between the specified
                                # total and the sum of b, l, and r
                                # todo: Provide a way to change this.
