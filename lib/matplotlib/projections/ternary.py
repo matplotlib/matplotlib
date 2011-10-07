@@ -358,7 +358,7 @@ class TernaryAxes(Axes):
         def transform(self, ab):
             a = ab[:, 0:1]
             b  = ab[:, 1:2]
-            x = a #+ b/2.0
+            x = a + b - 1#+ b/2.0
             y = b
             return np.concatenate((x, y), 1)
         transform.__doc__ = Transform.transform.__doc__
@@ -750,7 +750,7 @@ class TernaryAxes(Axes):
 
         # 2) The above has an output range that is not in the unit rectangle, so
         # scale and translate it.
-        self.transAffine = (Affine2D().rotate_deg(45)
+        self.transAffine = (Affine2D().scale(-1, 1)+Affine2D().rotate_deg(45)
                            + Affine2D().scale(SQRT2/SQRT3, -SQRT2)
                            + Affine2D().scale(self.height)
                            + Affine2D().translate(0.5, self.height + self.elevation))
@@ -771,7 +771,7 @@ class TernaryAxes(Axes):
         # values will be in range (0, 0), (self.total, 1).  The goal of these
         # transforms is to go from that space to display space.
         self._xaxis_transform = self.transData
-        self._xaxis_text1_transform = (Affine2D().scale(-1, 1) + Affine2D().translate(1, 0)+self.transData
+        self._xaxis_text1_transform = (self.transData#(Affine2D().scale(-1, 1) + Affine2D().translate(1, 0)+self.transData
                                        + Affine2D().translate(4, 0)) # 4-pixel offset
         self._xaxis_text2_transform = IdentityTransform() # For secondary x axes
                                                           # (required but not used)
@@ -781,10 +781,12 @@ class TernaryAxes(Axes):
         # input values will be in range (0, 0), (1, self.total).  These tick
         # labels are also offset 4 pixels.
         self._yaxis_transform = self.transData
-        self._yaxis_text1_transform = (#Affine2D().rotate_deg(45)
-                                       #+ Affine2D().scale(SQRT2)
-                                       #+ Affine2D().translate(1, 0)
-                                       self.transData
+#        self._yaxis_text1_transform = (Affine2D().scale(-1,1) + Affine2D().translate(1, 0)+self.transData
+#                                       + Affine2D().translate(-2, 2*SQRT3)) # 4-pixel offset
+        self._yaxis_text1_transform = (Affine2D().scale(-1,1) + Affine2D().translate(1, 0)+self.transProjection + (Affine2D().scale(-1, 1)+Affine2D().rotate_deg(45)
+                           + Affine2D().scale(SQRT2/SQRT3, -SQRT2)
+                           + Affine2D().scale(self.height)+Affine2D().rotate_deg(60)
+                           + Affine2D().translate(0.5, self.height + self.elevation)) + self.transAxes
                                        + Affine2D().translate(-2, 2*SQRT3)) # 4-pixel offset
         self._yaxis_text2_transform = (self.transData
                                        + Affine2D().translate(4, 0))
