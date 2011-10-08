@@ -270,8 +270,9 @@ class TernaryABAxes(Axes):
         def transform(self, ab):
             a = ab[:, 0:1]
             b  = ab[:, 1:2]
-            x = a + b - 1
-            y = b
+            x = b
+            y = a + b - 1
+
             return np.concatenate((x, y), 1)
         transform.__doc__ = Transform.transform.__doc__
 
@@ -291,14 +292,29 @@ class TernaryABAxes(Axes):
         def transform(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
-            a = 1 + x - y
-            b = y
+            a = x
+            b = y + 1 - a
             return np.concatenate((a, b), 1)
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
             return TernaryABAxes.TernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
+
+    def _gen_transProjection(self):
+        """Return the projection transformation.
+
+        This is a method so that it can return an affine transformation (the
+        identity transformation for the *a*, *b* axes) or a non-affine
+        transformation (for the other two axes).
+        """
+        return self.TernaryTransform()
+
+    def _gen_transAffinePart1(self):
+        """This is the part of the affine transformation that is unique to the
+        *a*, *b* ternary axes.
+        """
+        return Affine2D().rotate_deg(135) + Affine2D().scale(1/SQRT3, -1)
 
     # Prevent the user from applying nonlinear scales to either of the axes
     # since that would be confusing to the viewer (the axes should have the same
@@ -716,14 +732,14 @@ class TernaryABAxes(Axes):
 
         # 1) The core transformation from data space (a and b coordinates) into
         # Cartesian space defined in the TernaryTransform class.
-        self.transProjection = self.TernaryTransform()
+        self.transProjection = self._gen_transProjection() #self.TernaryTransform()
 
         # 2) The above has an output range that is not in the unit rectangle, so
         # scale and translate it.
-        self.transAffine = (Affine2D().scale(-1, 1) + Affine2D().rotate_deg(45)
-                           + Affine2D().scale(SQRT2/SQRT3, -SQRT2)
-                           + Affine2D().scale(self.height)
-                           + Affine2D().translate(0.5, self.height + self.elevation))
+        self.transAffine = (self._gen_transAffinePart1()
+                            + Affine2D().scale(self.height*SQRT2)
+                            + Affine2D().translate(0.5, self.height + self.elevation))
+
         # 3) This is the transformation from axes space to display space.
         self.transAxes = BboxTransformTo(self.bbox)
 
@@ -860,12 +876,11 @@ class TernaryBCAxes(TernaryABAxes):
         output_dims = 2
         is_separable = False
 
-        # **This could be factored into transAffine for efficiency.
         def transform(self, bc):
             b = bc[:, 0:1]
             c  = bc[:, 1:2]
-            x = -c
-            y = b
+            x = b
+            y = c
             return np.concatenate((x, y), 1)
         transform.__doc__ = Transform.transform.__doc__
 
@@ -885,8 +900,8 @@ class TernaryBCAxes(TernaryABAxes):
         def transform(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
-            b = y
-            c = -x
+            b = x
+            c = y
             return np.concatenate((b, c), 1)
         transform.__doc__ = Transform.transform.__doc__
 
@@ -894,6 +909,20 @@ class TernaryBCAxes(TernaryABAxes):
             return TernaryBCAxes.TernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
+    def _gen_transProjection(self):
+        """Return the projection transformation.
+
+        This is a method so that it can return an affine transformation (the
+        identity transformation for the *a*, *b* axes) or a non-affine
+        transformation (for the other two axes).
+        """
+        return IdentityTransform()
+
+    def _gen_transAffinePart1(self):
+        """This is the part of the affine transformation that is unique to the
+        *b*, *c* ternary axes.
+        """
+        return Affine2D().rotate_deg(225) + Affine2D().scale(1/SQRT3, 1)
 
 class TernaryCAAxes(TernaryABAxes):
     name = 'ternaryca'
@@ -907,12 +936,11 @@ class TernaryCAAxes(TernaryABAxes):
         output_dims = 2
         is_separable = False
 
-        # **Part of this could be factored into transAffine for efficiency.
         def transform(self, ca):
             c = ca[:, 0:1]
             a  = ca[:, 1:2]
-            x = -c
-            y = 1 - c - a
+            x = c
+            y = a + c - 1
             return np.concatenate((x, y), 1)
         transform.__doc__ = Transform.transform.__doc__
 
@@ -932,11 +960,26 @@ class TernaryCAAxes(TernaryABAxes):
         def transform(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
-            c = -x
-            a = 1 - c - y
+            c = x
+            a = y + c - 1
             return np.concatenate((c, a), 1)
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
             return TernaryCAAxes.TernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
+
+    def _gen_transProjection(self):
+        """Return the projection transformation.
+
+        This is a method so that it can return an affine transformation (the
+        identity transformation for the *a*, *b* axes) or a non-affine
+        transformation (for the other two axes).
+        """
+        return self.TernaryTransform()
+
+    def _gen_transAffinePart1(self):
+        """This is the part of the affine transformation that is unique to the
+        *c*, *a* ternary axes.
+        """
+        return Affine2D().rotate_deg(-45) + Affine2D().scale(1/SQRT3, 1)
