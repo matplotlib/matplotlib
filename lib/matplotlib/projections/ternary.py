@@ -260,30 +260,29 @@ class TernaryABAxes(Axes):
 
     class TernaryTransform(Transform):
         """This is the core of the ternary transform; it performs the
-        non-separable part of mapping *a* (upper center component) and *b*
-        (lower left component) into Cartesian coordinate space *x* and *y*.
+        non-separable part of mapping *b* (lower left component) and *c* (lower
+        right component) into Cartesian coordinate space *x* and *y*.
         """
         input_dims = 2
         output_dims = 2
         is_separable = False
 
-        def transform(self, ab):
-            a = ab[:, 0:1]
-            b  = ab[:, 1:2]
+        def transform(self, bc):
+            b = bc[:, 0:1]
+            c  = bc[:, 1:2]
             x = b
-            y = a + b - 1
-
+            y = c
             return np.concatenate((x, y), 1)
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
-            return TernaryABAxes.InvertedTernaryTransform()
+            return TernaryBCAxes.InvertedTernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
     class InvertedTernaryTransform(Transform):
         """This is the inverse of the non-separable part of the ternary
-        transform (mapping *x* and *y* in Cartesian coordinate space back to *a*
-        and *b*).
+        transform (mapping *x* and *y* in Cartesian coordinate space back to *b*
+        and *c*).
         """
         input_dims = 2
         output_dims = 2
@@ -292,13 +291,13 @@ class TernaryABAxes(Axes):
         def transform(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
-            a = x
-            b = y + 1 - a
-            return np.concatenate((a, b), 1)
+            b = x
+            c = y
+            return np.concatenate((b, c), 1)
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
-            return TernaryABAxes.TernaryTransform()
+            return TernaryBCAxes.TernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
     def _gen_transProjection(self):
@@ -308,13 +307,14 @@ class TernaryABAxes(Axes):
         identity transformation for the *a*, *b* axes) or a non-affine
         transformation (for the other two axes).
         """
-        return self.TernaryTransform()
+        return IdentityTransform()
 
     def _gen_transAffinePart1(self):
         """This is the part of the affine transformation that is unique to the
-        *a*, *b* ternary axes.
+        *b*, *c* ternary axes.
         """
-        return Affine2D().rotate_deg(135) + Affine2D().scale(1/SQRT3, -1)
+        return Affine2D().rotate_deg(225) + Affine2D().scale(1/SQRT3, 1)
+
 
     # Prevent the user from applying nonlinear scales to either of the axes
     # since that would be confusing to the viewer (the axes should have the same
@@ -867,65 +867,6 @@ class TernaryABAxes(Axes):
 class TernaryBCAxes(TernaryABAxes):
     name = 'ternarybc'
 
-    class TernaryTransform(Transform):
-        """This is the core of the ternary transform; it performs the
-        non-separable part of mapping *b* (lower left component) and *c* (lower
-        right component) into Cartesian coordinate space *x* and *y*.
-        """
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
-
-        def transform(self, bc):
-            b = bc[:, 0:1]
-            c  = bc[:, 1:2]
-            x = b
-            y = c
-            return np.concatenate((x, y), 1)
-        transform.__doc__ = Transform.transform.__doc__
-
-        def inverted(self):
-            return TernaryBCAxes.InvertedTernaryTransform()
-        inverted.__doc__ = Transform.inverted.__doc__
-
-    class InvertedTernaryTransform(Transform):
-        """This is the inverse of the non-separable part of the ternary
-        transform (mapping *x* and *y* in Cartesian coordinate space back to *b*
-        and *c*).
-        """
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
-
-        def transform(self, xy):
-            x = xy[:, 0:1]
-            y = xy[:, 1:2]
-            b = x
-            c = y
-            return np.concatenate((b, c), 1)
-        transform.__doc__ = Transform.transform.__doc__
-
-        def inverted(self):
-            return TernaryBCAxes.TernaryTransform()
-        inverted.__doc__ = Transform.inverted.__doc__
-
-    def _gen_transProjection(self):
-        """Return the projection transformation.
-
-        This is a method so that it can return an affine transformation (the
-        identity transformation for the *a*, *b* axes) or a non-affine
-        transformation (for the other two axes).
-        """
-        return IdentityTransform()
-
-    def _gen_transAffinePart1(self):
-        """This is the part of the affine transformation that is unique to the
-        *b*, *c* ternary axes.
-        """
-        return Affine2D().rotate_deg(225) + Affine2D().scale(1/SQRT3, 1)
-
-class TernaryCAAxes(TernaryABAxes):
-    name = 'ternaryca'
 
     class TernaryTransform(Transform):
         """This is the core of the ternary transform; it performs the
@@ -983,3 +924,64 @@ class TernaryCAAxes(TernaryABAxes):
         *c*, *a* ternary axes.
         """
         return Affine2D().rotate_deg(-45) + Affine2D().scale(1/SQRT3, 1)
+
+class TernaryCAAxes(TernaryABAxes):
+    name = 'ternaryca'
+
+    class TernaryTransform(Transform):
+        """This is the core of the ternary transform; it performs the
+        non-separable part of mapping *a* (upper center component) and *b*
+        (lower left component) into Cartesian coordinate space *x* and *y*.
+        """
+        input_dims = 2
+        output_dims = 2
+        is_separable = False
+
+        def transform(self, ab):
+            a = ab[:, 0:1]
+            b  = ab[:, 1:2]
+            x = b
+            y = a + b - 1
+
+            return np.concatenate((x, y), 1)
+        transform.__doc__ = Transform.transform.__doc__
+
+        def inverted(self):
+            return TernaryABAxes.InvertedTernaryTransform()
+        inverted.__doc__ = Transform.inverted.__doc__
+
+    class InvertedTernaryTransform(Transform):
+        """This is the inverse of the non-separable part of the ternary
+        transform (mapping *x* and *y* in Cartesian coordinate space back to *a*
+        and *b*).
+        """
+        input_dims = 2
+        output_dims = 2
+        is_separable = False
+
+        def transform(self, xy):
+            x = xy[:, 0:1]
+            y = xy[:, 1:2]
+            a = x
+            b = y + 1 - a
+            return np.concatenate((a, b), 1)
+        transform.__doc__ = Transform.transform.__doc__
+
+        def inverted(self):
+            return TernaryABAxes.TernaryTransform()
+        inverted.__doc__ = Transform.inverted.__doc__
+
+    def _gen_transProjection(self):
+        """Return the projection transformation.
+
+        This is a method so that it can return an affine transformation (the
+        identity transformation for the *a*, *b* axes) or a non-affine
+        transformation (for the other two axes).
+        """
+        return self.TernaryTransform()
+
+    def _gen_transAffinePart1(self):
+        """This is the part of the affine transformation that is unique to the
+        *a*, *b* ternary axes.
+        """
+        return Affine2D().rotate_deg(135) + Affine2D().scale(1/SQRT3, -1)
