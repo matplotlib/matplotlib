@@ -86,6 +86,28 @@ SQRT2 = np.sqrt(2.0)
 SQRT3 = np.sqrt(3.0)
 GRIDLINE_INTERPOLATION_STEPS = 2
 
+class XTick(maxis.XTick):
+    """Customizations to the x-tick methods for ternary axes
+    """
+    def _get_text1(self):
+        'Get the default Text instance'
+        # the y loc is 3 points below the min of y axis
+        # get the affine as an a,b,c,d,tx,ty list
+        # x in data coords, y in axes coords
+        trans, vert, horiz = self._get_text1_transform()
+        t = mtext.Text(
+            x=0, y=0,
+            fontproperties=font_manager.FontProperties(size=self._labelsize),
+            color=self._labelcolor,
+            verticalalignment=vert,
+            horizontalalignment=horiz,
+            rotation=120, # New
+            rotation_mode='anchor', # New
+            )
+        t.set_transform(trans)
+        self._set_artist_props(t)
+        return t
+
 class YTick(maxis.YTick):
     """Customizations to the y-tick methods for ternary axes
     """
@@ -128,7 +150,7 @@ class XAxis(maxis.XAxis):
             color = rcParams['axes.labelcolor'],
             verticalalignment='bottom',
             horizontalalignment='center',
-            rotation=-60, # Modified
+            rotation=60, # Modified
             rotation_mode='anchor') # New
 
         self._set_artist_props(label)
@@ -140,16 +162,31 @@ class XAxis(maxis.XAxis):
         """
         if not self._autolabelpos: return
         max_width = 0
+        max_height = 0
         if not len(bboxes):
             x = self.axes.bbox.xmin
             y = (self.axes.bbox.ymax + self.axes.bbox.ymin)/2.0
         else:
+            # This shifts the label away from the center of the axis at
+            # approximately 120 deg.
+            y = (bboxes[0].y1 + bboxes[-1].y1)/2.0
             x = (bboxes[0].x0 + bboxes[-1].x0)/2.0
-            y = (bboxes[0].y0 + bboxes[-1].y1)/2.0
             for bbox in bboxes:
                 max_width = max(max_width, bbox.width)
-        self.label.set_position((x + max_width +
-                                 self.labelpad*self.figure.dpi/72.0, y))
+                max_height = max(max_height, bbox.height)
+            space = np.sqrt(max_width**2 + max_height**2) # Length of tick labels
+            space += self.labelpad*self.figure.dpi/72.0
+        self.label.set_position((x - space/2.0,
+                                 y + space*SQRT3/2.0))
+
+    def _get_tick(self, major):
+        """Overwritten to use the XTick class from this file.
+        """
+        if major:
+            tick_kw = self._major_tick_kw
+        else:
+            tick_kw = self._minor_tick_kw
+        return XTick(self.axes, 0, '', major=major, **tick_kw)
 
 
 class YAxis(maxis.YAxis):
@@ -172,7 +209,7 @@ class YAxis(maxis.YAxis):
             color=rcParams['axes.labelcolor'],
             verticalalignment='center',
             horizontalalignment='center',
-            rotation=60,
+            rotation=-60,
             rotation_mode='anchor') # New
         self._set_artist_props(label)
         return label
@@ -184,23 +221,19 @@ class YAxis(maxis.YAxis):
         if not self._autolabelpos: return
 
         # Y-axis labels
+        if not self._autolabelpos: return
         max_width = 0
-        max_height = 0
         if not len(bboxes):
             x = self.axes.bbox.xmin
             y = (self.axes.bbox.ymax + self.axes.bbox.ymin)/2.0
         else:
-            # This shifts the label away from the center of the axis at
-            # approximately 120 deg.
-            y = (bboxes[0].y1 + bboxes[-1].y1)/2.0
             x = (bboxes[0].x0 + bboxes[-1].x0)/2.0
+            y = (bboxes[0].y0 + bboxes[-1].y1)/2.0
             for bbox in bboxes:
                 max_width = max(max_width, bbox.width)
-                max_height = max(max_height, bbox.height)
-            space = np.sqrt(max_width**2 + max_height**2) # Length of tick labels
-            space += self.labelpad*self.figure.dpi/72.0
-        self.label.set_position((x - space/2.0,
-                                 y + space*SQRT3/2.0))
+        self.label.set_position((x + max_width +
+                                 self.labelpad*self.figure.dpi/72.0, y))
+
 
         # Z-axis labels
         max_height = 0
@@ -258,48 +291,6 @@ class TernaryABAxes(Axes):
     """
     name = 'ternaryab'
 
-    class TernaryTransform(Transform):
-        """This is the core of the ternary transform; it performs the
-        non-separable part of mapping *b* (lower left component) and *c* (lower
-        right component) into Cartesian coordinate space *x* and *y*.
-        """
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
-
-        def transform(self, bc):
-            b = bc[:, 0:1]
-            c  = bc[:, 1:2]
-            x = b
-            y = c
-            return np.concatenate((x, y), 1)
-        transform.__doc__ = Transform.transform.__doc__
-
-        def inverted(self):
-            return TernaryBCAxes.InvertedTernaryTransform()
-        inverted.__doc__ = Transform.inverted.__doc__
-
-    class InvertedTernaryTransform(Transform):
-        """This is the inverse of the non-separable part of the ternary
-        transform (mapping *x* and *y* in Cartesian coordinate space back to *b*
-        and *c*).
-        """
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
-
-        def transform(self, xy):
-            x = xy[:, 0:1]
-            y = xy[:, 1:2]
-            b = x
-            c = y
-            return np.concatenate((b, c), 1)
-        transform.__doc__ = Transform.transform.__doc__
-
-        def inverted(self):
-            return TernaryBCAxes.TernaryTransform()
-        inverted.__doc__ = Transform.inverted.__doc__
-
     def _gen_transProjection(self):
         """Return the projection transformation.
 
@@ -311,10 +302,9 @@ class TernaryABAxes(Axes):
 
     def _gen_transAffinePart1(self):
         """This is the part of the affine transformation that is unique to the
-        *b*, *c* ternary axes.
+        *a*, *b* ternary axes.
         """
         return Affine2D().rotate_deg(225) + Affine2D().scale(1/SQRT3, 1)
-
 
     # Prevent the user from applying nonlinear scales to either of the axes
     # since that would be confusing to the viewer (the axes should have the same
@@ -438,9 +428,9 @@ class TernaryABAxes(Axes):
         """
         axbc = self.figure.add_axes(self.get_position(True), sharex=self,
                                    projection='ternarybc', frameon=False)
-        axbc.xaxis.set_visible(False)
+        #axbc.xaxis.set_visible(False)
         axbc.yaxis.set_visible(False)
-        axbc.grid(False)
+        axbc.grid(True)
         return axbc
 
     def twiny(self):
@@ -455,9 +445,9 @@ class TernaryABAxes(Axes):
         """
         axca = self.figure.add_axes(self.get_position(True), sharey=self,
                                    projection='ternaryca', frameon=False)
-        axca.xaxis.set_visible(False)
+        #axca.xaxis.set_visible(False)
         axca.yaxis.set_visible(False)
-        axca.grid(False)
+        axca.grid(True)
         return axca
 
     def set_xticks(self, *args, **kwargs):
@@ -534,7 +524,7 @@ class TernaryABAxes(Axes):
                 #    l.set_alpha(1)
                 #    l.set_lw(0)
                 #    self._set_artist_props(l)
-        else:
+        elif False:
             for x in self.get_xticks():
                 l = mlines.Line2D(xdata=(0, 1-x), ydata=(1-x, 0),
                        color=rcParams['grid.color'],
@@ -669,7 +659,7 @@ class TernaryABAxes(Axes):
         # Modify the padding between the tick labels and the axis labels.
         # This value is from inpection, but it does seem to scale properly when
         # the figure is resized.
-        self.xaxis.labelpad = 10 # In display units
+        self.xaxis.labelpad = -15 # In display units
         self.yaxis.labelpad = -15 # In display units
         self.zlabelpad = 0.1 # In data units
 
@@ -680,7 +670,7 @@ class TernaryABAxes(Axes):
         # Spacing from the vertices (tips) to the tip labels (in data coords)
         self.tipoffset = 0.12
 
-    def set_alabel(self, alabel, ha='center', va='center', rotation=0,
+    def set_alabel(self, alabel, ha='center', va='center', rotation=120,
                    rotation_mode='anchor', **kwargs):
         """Add a tip label for component A.
         """
@@ -693,7 +683,7 @@ class TernaryABAxes(Axes):
                                    transform=transform, **kwargs)
         return self.atiplabel
 
-    def set_blabel(self, blabel, ha='center', va='center', rotation=120,
+    def set_blabel(self, blabel, ha='center', va='center', rotation=240,
                    rotation_mode='anchor', **kwargs):
         """Add a tip label for component B.
         """
@@ -706,7 +696,7 @@ class TernaryABAxes(Axes):
                                    transform=transform, **kwargs)
         return self.btiplabel
 
-    def set_clabel(self, clabel, ha='center', va='center', rotation=240,
+    def set_clabel(self, clabel, ha='center', va='center', rotation=0,
                    rotation_mode='anchor', **kwargs):
         """Add a tip label for component C.
         """
@@ -758,7 +748,7 @@ class TernaryABAxes(Axes):
         # transforms is to go from that space to display space.
         self._xaxis_transform = self.transData
         self._xaxis_text1_transform = (self.transData
-                                       + Affine2D().translate(4, 0)) # 4-pixel offset
+                                       + Affine2D().translate(-2, 2*SQRT3)) # 4-pixel offset
         self._xaxis_text2_transform = IdentityTransform() # For secondary x axes
                                                           # (required but not used)
 
@@ -768,16 +758,7 @@ class TernaryABAxes(Axes):
         # labels are also offset 4 pixels.
         self._yaxis_transform = self.transData
         # **Can this be simplified?
-        self._yaxis_text1_transform = (Affine2D().scale(-1, 1)
-                                       + Affine2D().translate(1, 0)
-                                       + self.transProjection
-                                       + Affine2D().scale(-1, 1)
-                                       + Affine2D().rotate_deg(45)
-                                       + Affine2D().scale(SQRT2/SQRT3, -SQRT2)
-                                       + Affine2D().scale(self.height)
-                                       + Affine2D().rotate_deg(60)
-                                       + Affine2D().translate(0.5, self.height + self.elevation)
-                                       + self.transAxes
+        self._yaxis_text1_transform = (self.transData
                                        + Affine2D().translate(-2, 2*SQRT3)) # 4-pixel offset
         self._yaxis_text2_transform = (self.transData
                                        + Affine2D().translate(-2, -2*SQRT3)) # 4-pixel offset
@@ -867,32 +848,31 @@ class TernaryABAxes(Axes):
 class TernaryBCAxes(TernaryABAxes):
     name = 'ternarybc'
 
-
     class TernaryTransform(Transform):
         """This is the core of the ternary transform; it performs the
-        non-separable part of mapping *c* (lower right component) and *a* (upper
+        non-separable part of mapping *b* (lower right component) and *c* (upper
         center component) into Cartesian coordinate space *x* and *y*.
         """
         input_dims = 2
         output_dims = 2
         is_separable = False
 
-        def transform(self, ca):
-            c = ca[:, 0:1]
-            a  = ca[:, 1:2]
-            x = c
-            y = a + c - 1
+        def transform(self, bc):
+            b = bc[:, 0:1]
+            c  = bc[:, 1:2]
+            x = b
+            y = c + b - 1
             return np.concatenate((x, y), 1)
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
-            return TernaryCAAxes.InvertedTernaryTransform()
+            return TernaryBCAxes.InvertedTernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
     class InvertedTernaryTransform(Transform):
         """This is the inverse of the non-separable part of the ternary
-        transform (mapping *x* and *y* in Cartesian coordinate space back to *c*
-        and *a*).
+        transform (mapping *x* and *y* in Cartesian coordinate space back to *b*
+        and *c*).
         """
         input_dims = 2
         output_dims = 2
@@ -901,13 +881,13 @@ class TernaryBCAxes(TernaryABAxes):
         def transform(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
-            c = x
-            a = y + c - 1
-            return np.concatenate((c, a), 1)
+            b = x
+            c = y + b - 1
+            return np.concatenate((b, c), 1)
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
-            return TernaryCAAxes.TernaryTransform()
+            return TernaryBCAxes.TernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
     def _gen_transProjection(self):
@@ -921,7 +901,7 @@ class TernaryBCAxes(TernaryABAxes):
 
     def _gen_transAffinePart1(self):
         """This is the part of the affine transformation that is unique to the
-        *c*, *a* ternary axes.
+        *b*, *c* ternary axes.
         """
         return Affine2D().rotate_deg(-45) + Affine2D().scale(1/SQRT3, 1)
 
@@ -930,18 +910,18 @@ class TernaryCAAxes(TernaryABAxes):
 
     class TernaryTransform(Transform):
         """This is the core of the ternary transform; it performs the
-        non-separable part of mapping *a* (upper center component) and *b*
+        non-separable part of mapping *c* (upper center component) and *a*
         (lower left component) into Cartesian coordinate space *x* and *y*.
         """
         input_dims = 2
         output_dims = 2
         is_separable = False
 
-        def transform(self, ab):
-            a = ab[:, 0:1]
-            b  = ab[:, 1:2]
-            x = b
-            y = a + b - 1
+        def transform(self, ca):
+            c = ca[:, 0:1]
+            a  = ca[:, 1:2]
+            x = a
+            y = c + a - 1
 
             return np.concatenate((x, y), 1)
         transform.__doc__ = Transform.transform.__doc__
@@ -952,8 +932,8 @@ class TernaryCAAxes(TernaryABAxes):
 
     class InvertedTernaryTransform(Transform):
         """This is the inverse of the non-separable part of the ternary
-        transform (mapping *x* and *y* in Cartesian coordinate space back to *a*
-        and *b*).
+        transform (mapping *x* and *y* in Cartesian coordinate space back to *c*
+        and *a*).
         """
         input_dims = 2
         output_dims = 2
@@ -982,6 +962,6 @@ class TernaryCAAxes(TernaryABAxes):
 
     def _gen_transAffinePart1(self):
         """This is the part of the affine transformation that is unique to the
-        *a*, *b* ternary axes.
+        *c*, *a* ternary axes.
         """
         return Affine2D().rotate_deg(135) + Affine2D().scale(1/SQRT3, -1)
