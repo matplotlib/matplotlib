@@ -9,6 +9,7 @@ from matplotlib import rcParams
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 
+from matplotlib.ternary import Ternary
 
 # Test with the default rcParams.
 rcParams['figure.subplot.left'] = 0.125 # the left side of the subplots of the figure
@@ -18,55 +19,63 @@ rcParams['figure.subplot.top'] = 0.9 # the top of the subplots of the figure
 
 
 # Example 1 -- Basic points and lines
-fig = plt.figure()
-axab = fig.add_subplot(111, projection='ternaryab')
-axab.set_title("Points and Lines on a Ternary Plot")
-#axab.grid(False) # Turn the grid off. (It's on by default.)
-#axab.grid() # Toggle the grid back on.
-axab.plot(1/3.0, 1/3.0, 'ko', label="Equal parts")
-axab.plot([0.0, 1.0], [0.5, 0.0], 'r:', label="Equal B & C")
-axab.plot([0.0, 0.5], [1.0, 0.0], 'g:', label="Equal A & C")
-axab.plot([0.0, 0.5], [0.0, 0.5], 'b:', label="Equal A & B")
-axab.plot([0.0, 0.0], [0.0, 1.0], 'r--', label="No A", lw=3.0)
-axab.plot([0.0, 1.0], [0.0, 0.0], 'g--', label="No B", lw=3.0)
-axab.plot([0.0, 1.0], [1.0, 0.0], 'b--', label="No C", lw=3.0)
-axab.annotate("All\nA", (1, 0), ha='center', va='center', xytext=(0.9,0.05),
-            textcoords='data', arrowprops=dict(width=0.2, headwidth=8.0,
-            shrink=0.05))
-axab.annotate("All\nB", (0, 1), ha='center', va='center', xytext=(0.1,0.8),
-            textcoords='data', arrowprops=dict(width=0.2, headwidth=8.0,
-            shrink=0.05))
-axab.annotate("All\nC", (0, 0), ha='center', va='center', xytext=(0.1,0.1),
-            textcoords='data', arrowprops=dict(width=0.2, headwidth=8.0,
-            shrink=0.05))
-axab.set_xlabel("Fraction of A")
-axab.set_ylabel("Fraction of B")
-axab.set_zlabel("Fraction of C")
-axab.legend()
-axab.set_alabel("Component A")
-axab.set_blabel("Component B")
-axab.set_clabel("Component C")
+ter = Ternary()
+ter.set_title("Points and Lines on a Ternary Plot")
+ter.ab.plot(1/3.0, 1/3.0, 'ko', label="Equal parts")
+ter.ab.plot([0.0, 1.0], [0.5, 0.0], 'r:', label="Equal B & C")
+ter.ab.plot([0.0, 0.5], [1.0, 0.0], 'g:', label="Equal A & C")
+ter.ab.plot([0.0, 0.5], [0.0, 0.5], 'b:', label="Equal A & B")
+ter.ab.plot([0.0, 0.0], [0.0, 1.0], 'r--', label="No A", lw=3.0)
+ter.bc.plot([0.0, 0.0], [0.0, 1.0], 'g--', label="No B", lw=3.0)
+ter.ca.plot([0.0, 0.0], [0.0, 1.0], 'b--', label="No C", lw=3.0)
+ter.ab.annotate("All\nA", (1, 0), ha='center', va='center', xytext=(0.8,0.1),
+                 textcoords='data', arrowprops=dict(facecolor='k', width=0.2,
+                 headwidth=8.0, shrink=0.05))
+ter.bc.annotate("All\nB", (1, 0), ha='center', va='center', xytext=(0.8,0.1),
+                 textcoords='data', arrowprops=dict(facecolor='k', width=0.2,
+                 headwidth=8.0, shrink=0.05))
+ter.ca.annotate("All\nC", (1, 0), ha='center', va='center', xytext=(0.8,0.1),
+                 textcoords='data', arrowprops=dict(facecolor='k', width=0.2,
+                 headwidth=8.0, shrink=0.05))
+ter.ab.set_xlabel("Relative Part of A")
+ter.bc.set_xlabel("Relative Part of B")
+ter.ca.set_xlabel("Relative Part of C")
+ter.ab.set_tiplabel("Comp. A")
+ter.bc.set_tiplabel("Comp. B")
+ter.ca.set_tiplabel("Comp. C")
+ter.legend()
 
-# Example 3 -- Alternative indexing
-fig = plt.figure()
-axab = fig.add_subplot(111, projection='ternaryab')
-axab.plot(0.9, 0.05, 'ro', label="Mostly A (via AB)")
-axab.plot(0.05, 0.9, 'go', label="Mostly B (via AB)")
-axab.plot(0.05, 0.05, 'bo', label="Mostly C (via AB)")
 
-axbc = axab.twinx()
-axbc.plot(0.1, 0.1, 'ro', label="Mostly A (via BC)")
-axbc.plot(0.8, 0.1, 'go', label="Mostly B (via BC)")
-axbc.plot(0.1, 0.8, 'bo', label="Mostly C (via BC)")
+# Example 2 -- Alternative indexing
+ter = Ternary()
+ter.set_title("Alternative Indexing\n"
+              "(like-colored points should radiate from the center)")
+ter.ab.plot(0.9, 0.05, 'ro', label="Mostly A (via a, b)")
+ter.ab.plot(0.05, 0.9, 'go', label="Mostly B (via a, b)")
+ter.ab.plot(0.05, 0.05, 'bo', label="Mostly C (via a, b)")
+ter.ab.set_xlabel("x-label of axes ab")
+#ter.ab.set_ylabel("y-label of axes ab")
+ter.ab.set_tiplabel("Comp. A", tipoffset=0.18)
 
-axca = axab.twiny()
-axca.plot(0.15, 0.7, 'ro', label="Mostly A (via CA)")
-axca.plot(0.15, 0.15, 'go', label="Mostly B (via CA)")
-axca.plot(0.7, 0.15, 'bo', label="Mostly C (via CA)")
-axca.set_title("Test of Indexing")
-axca.set_ylabel("ca's y")
+ter.bc.plot(0.1, 0.1, 'r^', label="Mostly A (via b, c)")
+ter.bc.plot(0.8, 0.1, 'g^', label="Mostly B (via b, c)")
+ter.bc.plot(0.1, 0.8, 'b^', label="Mostly C (via b, c)")
+ter.bc.set_xlabel("x-label of axes bc")
+#ter.bc.set_ylabel("y-label of axes bc")
+ter.bc.set_tiplabel("Comp. B", tipoffset=0.18)
 
-# Example 4 -- Patches, fills, and outlines
+ter.ca.plot(0.15, 0.7, 'rs', label="Mostly A (via c, a)")
+ter.ca.plot(0.15, 0.15, 'gs', label="Mostly B (via c, a)")
+ter.ca.plot(0.7, 0.15, 'bs', label="Mostly C (via c, a)")
+ter.ca.set_xlabel("x-label of axes ca")
+#ter.ca.set_ylabel("y-label of axes ca")
+ter.ca.set_tiplabel("Comp. C", tipoffset=0.18)
+
+ter.legend()
+
+
+# Example 3 -- Manual vs. automatic setup
+
 # Define the path for the patch.
 vertices = [
     (0.1, 0.1),
@@ -87,17 +96,42 @@ t = np.pi*np.array(range(n_cycles*100))/50.0
 a = 1.0/3.0 + np.exp(-t/10.0)*np.sin(t)/6.0
 b = 1.0/3.0 + np.exp(-t/10.0)*np.cos(t)/6.0
 
-# Create the plot.
+# Set up the figure.
 fig = plt.figure()
-axab = fig.add_subplot(111, projection='ternaryab')
-axab.add_patch(PathPatch(path, facecolor='r', alpha=0.5))
-axab.plot([0.8, 0.6, 0.6, 0.8], [0.1, 0.3, 0.1, 0.1], 'k')
+fig.subplots_adjust(wspace=0.45)
+fig.suptitle("Manual vs. Automatic Setup\n(should give the same results)", y=0.92)
+
+# Example 3a -- Manual approach
+axab = fig.add_subplot(121, projection='ternaryab')
+axbc = axab.twinx(projection='ternarybc')
+axca = axab.twinx(projection='ternaryca')
+axab.set_title('Manual', y=1.05)
+
+axab.add_patch(PathPatch(path, facecolor='g', alpha=0.5))
 axab.fill_between(a, b, y2=0.33, color='b')
 axab.plot(a, b, 'w')
-axab.set_title('Patches, Fills, and Outlines')
+axab.set_tiplabel("Comp. 1", tipoffset=0.18)
+axbc.set_tiplabel("Comp. 2", tipoffset=0.18)
+axca.set_tiplabel("Comp. 3", tipoffset=0.18)
+axab.grid(False) # Turn the grid off. (It's on by default.)
+axbc.grid(False)
+axca.grid(False)
+
+# Example 3b -- Automatic approach
+ter = Ternary(fig.add_subplot(122, projection='ternaryab'))
+ter.set_title("Automatic", y=1.05)
+ter.grid(False) # Turn the grid off. (It's on by default.)
+
+ter.ab.add_patch(PathPatch(path, facecolor='g', alpha=0.5))
+ter.ab.fill_between(a, b, y2=0.33, color='b')
+ter.ab.plot(a, b, 'w')
+ter.ab.set_tiplabel("Comp. 1", tipoffset=0.18)
+ter.bc.set_tiplabel("Comp. 2", tipoffset=0.18)
+ter.ca.set_tiplabel("Comp. 3", tipoffset=0.18)
 
 
-# Example 2 -- Scatter plot of soil data
+import matplotlib.colorbar as mcolor
+# Example 4 -- Scatter plot of soil data
 # Define the data (based on that by C. P. H. Lewis as triangleplot_demo.csv,
 # http://www.mail-archive.com/matplotlib-users@lists.sourceforge.net/msg10051.html).
 soil = {'sand': np.array([0.82, 0.17, 0.8 , 0.63, 0.5 , 0.0 , 0.3 , 0.3 , 0.73,
@@ -114,17 +148,21 @@ soil = {'sand': np.array([0.82, 0.17, 0.8 , 0.63, 0.5 , 0.0 , 0.3 , 0.3 , 0.73,
                   'Rob', 'Aqw')}
 
 # Create the plot.
-fig = plt.figure()
-axab = fig.add_subplot(111, projection='ternaryab')
-s = axab.scatter(x=soil['sand'], y=soil['silt'], c=soil['organic matter'],
+ter = Ternary()
+s = ter.ab.scatter(x=soil['sand'], y=soil['silt'], c=soil['organic matter'],
                  s=100.0*soil['porosity'], marker='o')
-axab.set_title("Soil Plot\n(The sizes of markers indicate porosity.)")
-#axab.set_xticks([0.0, 0.25, 0.5, 0.75, 1.0]) # **Why won't this work?
-axab.set_xlabel("Sand / 1")
-axab.set_ylabel("Silt / 1")
-#axab.set_rlabel("Clay / 1")
-cax = axab.colorbar(mappable=s)
+ter.set_xticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
+ter.set_title("Soil Plot\n(The sizes of markers indicate porosity.)")
+ter.ab.set_tiplabel("Sand", tipoffset=0.12)
+ter.bc.set_tiplabel("Silt", tipoffset=0.12)
+ter.ca.set_tiplabel("Clay", tipoffset=0.12)
+#cax = ter.ab.colorbar(mappable=s)
+#cax = ter.ab.figure.add_axes([0.1,0.1,0.8,.8])
+cax = ter.ab.colorbar(mappable=s)
+#cax = cax.colorbar(mappable=s)
+#mcolor.ColorbarBase(cax, mappable=s)
 cax.set_label("Organic Matter / 1")
+# **Why is the 3rd axes messed up?
 
 
 # Finish.

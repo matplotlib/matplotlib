@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-"""Classes to create a ternary plot using matplotlib projections
+"""matplotlib projections for ternary axes
 """
 __author__ = "Kevin L. Davies"
-__version__ = "2011/10/7"
+__version__ = "2011/10/8"
 __license__ = "BSD"
 # The features and concepts were based on triangleplot.py by C. P. H. Lewis,
 # 2008-2009, available at:
@@ -12,13 +12,15 @@ __license__ = "BSD"
 #     http://matplotlib.sourceforge.net/examples/api/custom_projection_example.html
 
 # **Todo:
-#   1. Fix set_xticks and set_yticks.
-#   2. Use the rcparams for z axis label and tick font size.
-#   3. Allow a, b, c sums other than 1.0 through data scaling (use self.total,
-#      set_data_ratio, or set_xlim and set_ylim).
-#   4. Clean up the code and document it.
-#   5. Email C. P. H. Lewis, post it to github for review, modify, and submit a
-#      pull request.
+#   1. Fix the position and angles of xlabel, xticks, xticklabels.
+#   2. Clean up the code and document it (in ReST format; give a summary of
+#      features/changes relative to previous work).
+#   3. Post it to github for review, modify, and submit a pull request.
+
+# **Nice to have:
+#   1. Allow a, b, c sums other than 1.0 through data scaling (using self.total,
+#      set_data_ratio, or set_xlim?).
+#   2. Add automatic offsetting/padding of tiplabels.
 
 # Types of plots:
 #     Supported:
@@ -33,11 +35,11 @@ __license__ = "BSD"
 
 # Related methods:
 #     Supported:
-#         annotate, arrow, colorbar, grid, legend, text, title, xlabel, ylabel
+#         annotate, arrow, colorbar, grid, legend, text, title, xlabel
 #     New/unique:
-#         set_zlabel, set_alabel, set_blabel, set_clabel
+#         set_tiplabel
 #     Functionality changed:
-#         twinx, twiny
+#         twinx
 #     Should be unaffected (and thus compatible):
 #         axes, axis, cla, clf, close, clabel, clim, delaxes, draw, figlegend,
 #         figimage, figtext, figure, findobj, gca, gcf, gci, getp, hold, ioff,
@@ -47,23 +49,14 @@ __license__ = "BSD"
 #         axhline, axhspan, axvline, axvspan, box, locator_params, margins,
 #         plotfile, table, tick_params, ticklabel_format, xlim, xticks, ylim,
 #         yticks
+#     Not applicable:
+#         ylabel
 #     Not applicable and thus disabled:
 #         zgrids, thetagrids
 
 # Colormap methods (should be also be compatible, but **should be tested):
 #     autumn, bone, cool, copper, flag, gray, hot, hsv, jet, pink, prism,
 #     spring, summer, winter, and spectral.
-
-# Note: The existing methods for xlabel, xticks, etc. are mapped to the right
-# axis, and those for ylabel, yticks, etc. are mapped to the left axis. An
-# additional method (set_zlabel) has been added for the bottom axis (labeled
-# "z" for consistency.
-
-# Known issues: The axes probably do not identify mouse events correctly.
-# The offset_text_positions are probably not correct.  The tick angles and
-# positions are not correct, but by default, ticks are not shown.  The zticks
-# do not properly mirror the other ticks when updates are made.  The zgrid
-# cannot be turned off (all grids are turned on by default).
 
 import numpy as np
 import matplotlib.spines as mspines
@@ -84,7 +77,7 @@ from matplotlib.transforms import Affine2D, BboxTransformTo, Transform, \
 
 SQRT2 = np.sqrt(2.0)
 SQRT3 = np.sqrt(3.0)
-GRIDLINE_INTERPOLATION_STEPS = 2
+
 
 class XTick(maxis.XTick):
     """Customizations to the x-tick methods for ternary axes
@@ -101,35 +94,13 @@ class XTick(maxis.XTick):
             color=self._labelcolor,
             verticalalignment=vert,
             horizontalalignment=horiz,
-            rotation=120, # New
+            rotation=self.axes.angle, # New
             rotation_mode='anchor', # New
             )
         t.set_transform(trans)
         self._set_artist_props(t)
         return t
 
-class YTick(maxis.YTick):
-    """Customizations to the y-tick methods for ternary axes
-    """
-    def _get_text1(self):
-            'Get the default Text instance'
-            # the y loc is 3 points below the min of y axis
-            # get the affine as an a,b,c,d,tx,ty list
-            # x in data coords, y in axes coords
-            #t =  mtext.Text(
-            trans, vert, horiz = self._get_text1_transform()
-            t = mtext.Text(
-                x=0, y=0,
-                fontproperties=font_manager.FontProperties(size=self._labelsize),
-                color=self._labelcolor,
-                verticalalignment=vert,
-                horizontalalignment=horiz,
-                rotation=120, # New
-                rotation_mode='anchor', # New
-                )
-            t.set_transform(trans)
-            self._set_artist_props(t)
-            return t
 
 class XAxis(maxis.XAxis):
     """Custom x-axis methods for ternary axes
@@ -150,7 +121,7 @@ class XAxis(maxis.XAxis):
             color = rcParams['axes.labelcolor'],
             verticalalignment='bottom',
             horizontalalignment='center',
-            rotation=60, # Modified
+            rotation=self.axes.angle - 60, # Modified
             rotation_mode='anchor') # New
 
         self._set_artist_props(label)
@@ -160,24 +131,32 @@ class XAxis(maxis.XAxis):
         """Determine the label's position from the bounding boxes of the
         ticklabels.
         """
-        if not self._autolabelpos: return
-        max_width = 0
-        max_height = 0
-        if not len(bboxes):
-            x = self.axes.bbox.xmin
-            y = (self.axes.bbox.ymax + self.axes.bbox.ymin)/2.0
-        else:
-            # This shifts the label away from the center of the axis at
-            # approximately 120 deg.
-            y = (bboxes[0].y1 + bboxes[-1].y1)/2.0
-            x = (bboxes[0].x0 + bboxes[-1].x0)/2.0
+        #x,y = self.label.get_position()
+        #x = (self.axes.bbox.xmin + self.axes.bbox.xmax)/2.0
+        #y = (self.axes.bbox.ymin + self.axes.bbox.ymax)/2.0
+        # **Fix this:
+
+        if len(bboxes) and self._autolabelpos:
+            # This is a hack to find the center of the x axis.  **Clean it up.
+            if self.axes.angle == 0: # Axes c, a (label on right)
+                x = (bboxes[0].x0 + bboxes[-1].x0)/2.0
+                y = (bboxes[0].y1 + bboxes[-1].y0)/2.0
+            elif self.axes.angle == 120: # Axes a, b (label on left)
+                x = (bboxes[0].x1 + bboxes[-1].x1)/2.0
+                y = (bboxes[0].y0 + bboxes[-1].y0)/2.0
+            else: # Axes b, c (label on bottom)
+                x = (bboxes[0].x1 + bboxes[-1].x1)/2.0
+                y = (bboxes[0].y1 + bboxes[-1].y1)/2.0
+            max_width = 0
+            max_height = 0
             for bbox in bboxes:
                 max_width = max(max_width, bbox.width)
                 max_height = max(max_height, bbox.height)
-            space = np.sqrt(max_width**2 + max_height**2) # Length of tick labels
+            space = np.sqrt(max_width**2 + max_height**2) # Maximum possible length of tick labels
             space += self.labelpad*self.figure.dpi/72.0
-        self.label.set_position((x - space/2.0,
-                                 y + space*SQRT3/2.0))
+            angle = np.radians(self.axes.angle) # Offset angle in radians
+            self.label.set_position((x + np.cos(angle)*space,
+                                     y + np.sin(angle)*space))
 
     def _get_tick(self, major):
         """Overwritten to use the XTick class from this file.
@@ -187,76 +166,6 @@ class XAxis(maxis.XAxis):
         else:
             tick_kw = self._minor_tick_kw
         return XTick(self.axes, 0, '', major=major, **tick_kw)
-
-
-class YAxis(maxis.YAxis):
-    """Custom y-axis methods for ternary axes
-
-    The y-axis is used for component B and is on the left side.
-    """
-    def set_label_position(self, position):
-        raise NotImplementedError("Label positions are fixed in the ternary "
-                                  "axes.")
-        return
-
-    def _get_label(self):
-        # x and y are in display coordinates. **This is non-conventional.
-        label = mtext.Text(x=0, y=0.5,
-            # todo: Get the label position.
-            fontproperties=font_manager.FontProperties(
-                               size=rcParams['axes.labelsize'],
-                               weight=rcParams['axes.labelweight']),
-            color=rcParams['axes.labelcolor'],
-            verticalalignment='center',
-            horizontalalignment='center',
-            rotation=-60,
-            rotation_mode='anchor') # New
-        self._set_artist_props(label)
-        return label
-
-    def _update_label_position(self, bboxes, bboxes2):
-        """Determine the label's position from the bounding boxes of the
-        ticklabels.
-        """
-        if not self._autolabelpos: return
-
-        # Y-axis labels
-        if not self._autolabelpos: return
-        max_width = 0
-        if not len(bboxes):
-            x = self.axes.bbox.xmin
-            y = (self.axes.bbox.ymax + self.axes.bbox.ymin)/2.0
-        else:
-            x = (bboxes[0].x0 + bboxes[-1].x0)/2.0
-            y = (bboxes[0].y0 + bboxes[-1].y1)/2.0
-            for bbox in bboxes:
-                max_width = max(max_width, bbox.width)
-        self.label.set_position((x + max_width +
-                                 self.labelpad*self.figure.dpi/72.0, y))
-
-
-        # Z-axis labels
-        max_height = 0
-        if not len(bboxes2):
-            x = self.axes.bbox.xmin
-            y = (self.axes.bbox.ymax + self.axes.bbox.ymin)/2.0
-        else:
-            # This shifts the label to its right somewhat, which is good,
-            # although its center isn't exactly positioned from the center of
-            # the axis at -60 deg as it should be.
-            x = bboxes2[0].x1 + (bboxes2[-1].x0 - bboxes2[-1].x1)/2.0
-            y = (bboxes2[0].y1 + bboxes2[-1].y1)/2.0
-            for bbox in bboxes2:
-                max_height = max(max_height, bbox.height)
-
-    def _get_tick(self, major):
-        """Overwritten to use the YTick class from this file.
-        """
-        if major:
-            tick_kw = self._major_tick_kw
-        else:
-            tick_kw = self._minor_tick_kw
-        return YTick(self.axes, 0, '', major=major, **tick_kw)
 
 
 class Spine(mspines.Spine):
@@ -305,6 +214,11 @@ class TernaryABAxes(Axes):
         *a*, *b* ternary axes.
         """
         return Affine2D().rotate_deg(225) + Affine2D().scale(1/SQRT3, 1)
+
+    def get_angle(self):
+        """Return the offset angle [deg] of these axes relative to the a, b axes.
+        """
+        return 120
 
     # Prevent the user from applying nonlinear scales to either of the axes
     # since that would be confusing to the viewer (the axes should have the same
@@ -416,182 +330,17 @@ class TernaryABAxes(Axes):
                                   "ternary xes.")
         return
 
-    def twinx(self):
+    def twinx(self, projection):
         """call signature::
 
           ax = twinx()
 
-        Create a twin of TernaryAxesAB that uses (*b*, *c*) indexing rather than
-        (*a*, *b*).  This is an "overloaded" version of the twiny() as defined
-        by Axes.  There, twiny() creates an axes that shares the same y axis as
-        the current axes.
+        Create a twin of the current ternary axes with a different projection,
+        so that all of the indexing schemes can be used -- (*b*, *c*),
+        (*a*, *b*), and (*c*, *a*).
         """
-        axbc = self.figure.add_axes(self.get_position(True), sharex=self,
-                                   projection='ternarybc', frameon=False)
-        #axbc.xaxis.set_visible(False)
-        axbc.yaxis.set_visible(False)
-        axbc.grid(True)
-        return axbc
-
-    def twiny(self):
-        """call signature::
-
-          ax = twiny()
-
-        Create a twin of TernaryAxesAB that uses (*c*, *a*) indexing rather than
-        (*a*, *b*).  This is an "overloaded" version of the twiny() as defined
-        by Axes.  There, twiny() creates an axes that shares the same y axis as
-        the current axes.
-        """
-        axca = self.figure.add_axes(self.get_position(True), sharey=self,
-                                   projection='ternaryca', frameon=False)
-        #axca.xaxis.set_visible(False)
-        axca.yaxis.set_visible(False)
-        axca.grid(True)
-        return axca
-
-    def set_xticks(self, *args, **kwargs):
-        """Update the xticks, keeping the other ticks the same.
-        """
-        self.xaxis.set_ticks(self, *args, **kwargs)
-        self.yaxis.set_ticks(self, *args, **kwargs)
-        self.zaxis._redraw_zticks(self, *args, **kwargs)
-
-    def set_yticks(self, *args, **kwargs):
-        """Update the yticks, keeping the other ticks the same.
-        """
-        self.xaxis.set_ticks(self, *args, **kwargs)
-        self.yaxis.set_ticks(self, *args, **kwargs)
-        self.zaxis._redraw_zticks(self, *args, **kwargs)
-
-    def set_zticks(self, *args, **kwargs):
-        """Update the zticks, keeping the other ticks the same.
-        """
-        self.xaxis.set_ticks(self, *args, **kwargs)
-        self.yaxis.set_ticks(self, *args, **kwargs)
-        self.zaxis._redraw_zticks(self, *args, **kwargs)
-
-    # Modified from matplotlib.axes.Axes
-    def grid(self, b=None, which='major', axis='both', **kwargs):
-        """call signature::
-
-           grid(self, b=None, which='major', axis='both', **kwargs)
-
-        Set the axes grids on or off; *b* is a boolean.  (For MATLAB
-        compatibility, *b* may also be a string, 'on' or 'off'.)
-
-        If *b* is *None* and ``len(kwargs)==0``, toggle the grid state.  If
-        *kwargs* are supplied, it is assumed that you want a grid and *b*
-        is thus set to *True*.
-
-        *which* can be 'major' (default), 'minor', or 'both' to control
-        whether major tick grids, minor tick grids, or both are affected.
-
-        *axis* can be 'both' (default), 'x', or 'y' to control which
-        set of gridlines are drawn.
-
-        *kawrgs* are used to set the grid line properties, eg::
-
-           ax.grid(color='r', linestyle='-', linewidth=2)
-
-        Valid :class:`~matplotlib.lines.Line2D` kwargs are
-
-        %(Line2D)s
-        """
-        # For now, the right axis' visibility simply follows the y-axis.
-        if len(kwargs):
-            b = True
-        b = _string_to_bool(b)
-
-        if axis == 'x' or  axis == 'both':
-            self.xaxis.grid(b, which=which, **kwargs)
-        if axis == 'y' or  axis == 'both':
-            self.yaxis.grid(b, which=which, **kwargs)
-            self._draw_zgrid(b)
-
-    def _draw_zgrid(self, b, *args, **kwargs):
-        """Draw the z grid (matching the x grid).
-        """
-        if self.zgridlines <> []:
-            if b is None:
-                b = self.yaxis.GridOn
-            for l in self.zgridlines:
-                l.set_visible(b) # **Why won't this turn the grid off?
-                #if b:
-                #    l.set_color(rcParams['grid.color'])
-                #else:
-                #    l.set_color('w')
-                #    l.set_alpha(1)
-                #    l.set_lw(0)
-                #    self._set_artist_props(l)
-        elif False:
-            for x in self.get_xticks():
-                l = mlines.Line2D(xdata=(0, 1-x), ydata=(1-x, 0),
-                       color=rcParams['grid.color'],
-                       linestyle=rcParams['grid.linestyle'],
-                       linewidth=rcParams['grid.linewidth'],
-                       )
-                l.set_transform(self.axes.get_yaxis_transform(which='grid'))
-                l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
-                self._set_artist_props(l)
-                self.zgridlines.append(l)
-            self.figure.lines.extend(self.zgridlines)
-
-    def _redraw_zgrid(self, *args, **kwargs):
-        """Redraw the z grid (matching the x grid labels).
-        """
-        # This is a hack.  **Integrate it better.
-        for gridline in self.zgridlines:
-            gridline.remove()
-        self._draw_ztick_labels(True, *args, **kwargs)
-
-    def _draw_ztick_labels(self, *args, **kwargs):
-        """Draw the z axis tick labels (matching the x tick labels).
-        """
-        # This is a hack.  **Integrate it better.
-        self.zticklabels=[]
-        trans, vert, horiz = self.get_yaxis_text2_transform(None)
-        for label, tick in zip(self.get_xticklabels(), self.get_xticks()):
-            txt = self.text(0, 1.0 - tick, str(tick),
-                            rotation=240,
-                            rotation_mode='anchor',
-                            verticalalignment=vert,
-                            horizontalalignment=horiz,
-                            transform=trans)
-            self.zticklabels.append(txt)
-
-    def set_zlabel(self, zlabel, *args, **kwargs):
-        """Set the z label, determining its position from the bounding boxes of
-        the ticklabels.
-        """
-        # This is a hack.  **Clean it up.
-        # bboxes = [zticklabel.clip_box for zticklabel in self.zticklabels]
-        if self.zlabel is None:
-        #    y = (-self.ticklabel_width
-        #         - self.zlabelpad/2.0
-        #         - 2*SQRT3)  # 2*SQRT3 is the y-projection of the 4-pixel offset.
-        #    x = 0.5 - self.labelskew - self.zlabelpad*SQRT3/2.0
-        #    self.zlabel = self.text(x, y, zticklabel,
-        #                            verticalalignment='bottom',
-        #                            horizontalalignment='center',
-        #                            rotation=180, rotation_mode='anchor',
-        #                            transform=self.zticklabels.get_transform())
-            self.zlabel = self.text(0-self.zlabelpad, 0.5+self.zlabelpad,
-                                    zlabel,
-                                    verticalalignment='bottom',
-                                    horizontalalignment='center',
-                                    rotation=180, rotation_mode='anchor',
-                                    transform=self.transData)
-        else:
-            self.zlabel.set_text(zlabel)
-
-    def _remove_ztick_labels(self, *args, **kwargs):
-        """Redraw the z axis tick labels (matching the x tick labels).
-        """
-        # This is a hack.  **Integrate it better.
-        for ticklabel in self.zticklabels:
-            ticklabel.remove()
-        self._draw_ztick_labels(*args, **kwargs)
+        return self.figure.add_axes(self.get_position(True), sharex=self,
+                                    projection=projection, frameon=False)
 
     def legend(self, *args, **kwargs):
         """Override the default legend location.
@@ -599,22 +348,31 @@ class TernaryABAxes(Axes):
         # The legend needs to be positioned outside the bounding box of the plot
         # area.  The normal specifications (e.g., legend(loc='upper right')) do
         # not do this.
-        Axes.legend(self, bbox_to_anchor=kwargs.pop('bbox_to_anchor',
-                                                    (1.05, 0.97)),
-                    loc=kwargs.pop('loc', 'upper left'), *args, **kwargs)
+        loc=kwargs.pop('loc', 'upper left')
+        borderaxespad=kwargs.pop('borderaxespad', 0)
+        bbox_to_anchor=kwargs.pop('bbox_to_anchor', (0.5 + self.height/SQRT3, self.elevation + self.height))
+        Axes.legend(self, loc=loc, borderaxespad=borderaxespad,
+                    bbox_to_anchor=bbox_to_anchor, *args, **kwargs)
         # This anchor position is by inspection.  It seems to give a good
         # horizontal position with default figure size and keeps the legend from
         # overlapped with the plot as the size of the figure is reduced.  The
         # top of the legend is vertically aligned with the top vertex of the
-        # plot.
+        # plot.  **Update the position.
 
     def colorbar(self, *args, **kwargs):
         """Produce a colorbar with appropriate defaults for ternary plots.
         """
-        shrink = kwargs.pop('shrink', self.height)
         pad = kwargs.pop('pad', 0.1)
-        # **Need to shift the colorbar upwards according to self.elevation
-        return self.figure.colorbar(shrink=shrink, pad=pad, *args, **kwargs)
+        shrink = kwargs.pop('shrink', 1.0)
+        fraction = kwargs.pop('fraction', 0.04)
+        # This is a hack and the alignment isnt uite right. **Clean it up.
+        scaley = rcParams['figure.subplot.top'] - rcParams['figure.subplot.bottom']
+        cax = self.figure.add_axes([0.74 + pad,
+                                    rcParams['figure.subplot.bottom'] + self.elevation,
+                                    fraction,
+                                    self.height*scaley*shrink - 0.005])
+        return self.figure.colorbar(cax=cax, *args, **kwargs)
+#        return self.figure.colorbar(shrink=shrink, pad=pad, *args, **kwargs)
 
     #def set_total(self, total):
     #    """Set the total of b, l, and r.
@@ -634,80 +392,45 @@ class TernaryABAxes(Axes):
     def cla(self):
         """Override to set provide reasonable defaults.
         """
-        self.zgridlines = []
-        self.zlabel = None
-
         # Call the base class.
         Axes.cla(self)
+        self.grid(True)
 
-        # Create the right axis (procedure modified from maplotlib.axes.twinx).
-        if self._sharex is None and self._sharey is None:
-            self._draw_ztick_labels()
-            self.grid(True)
+        # Only the x-axis is shown, but there are 3 of them once all of
+        # projections are included.
+        self.yaxis.set_visible(False)
+
+        # Adjust the number of ticks shown.
+        self.set_xticks(np.linspace(0, 1, 5))
 
         # Do not display ticks (only gridlines, tick labels, and axis labels).
         self.xaxis.set_ticks_position('none')
-        self.yaxis.set_ticks_position('none')
 
         # Turn off minor ticking altogether.
         self.xaxis.set_minor_locator(NullLocator())
-        self.yaxis.set_minor_locator(NullLocator())
 
         # Vertical position of the title
         self.title.set_y(1.02)
 
         # Modify the padding between the tick labels and the axis labels.
-        # This value is from inpection, but it does seem to scale properly when
-        # the figure is resized.
-        self.xaxis.labelpad = -15 # In display units
-        self.yaxis.labelpad = -15 # In display units
-        self.zlabelpad = 0.1 # In data units
+        self.xaxis.labelpad = 10 # In display units
 
         # Axes limits and scaling
         #self.set_xlim(0.0, self.total)
-        #self.set_ylim(0.0, self.total)
 
         # Spacing from the vertices (tips) to the tip labels (in data coords)
-        self.tipoffset = 0.12
+        self.tipoffset = 0.14
 
-    def set_alabel(self, alabel, ha='center', va='center', rotation=120,
+    def set_tiplabel(self, tiplabel, ha='center', va='center',
                    rotation_mode='anchor', **kwargs):
-        """Add a tip label for component A.
+        """Add a tip label for the first component.
         """
-        # **This probably isn't very robust and should be improved.
         tipoffset = kwargs.pop('tipoffset', self.tipoffset)
-        transform = kwargs.pop('transform', self.transData)
-        self.atiplabel = self.text(1 + tipoffset, -tipoffset/2.0, alabel,
+        rotation = kwargs.pop('rotation', self.angle)
+        self.tiplabel = self.text(1 + tipoffset, -tipoffset/2.0, tiplabel,
                                    ha=ha, va=va, rotation=rotation,
-                                   rotation_mode=rotation_mode,
-                                   transform=transform, **kwargs)
-        return self.atiplabel
-
-    def set_blabel(self, blabel, ha='center', va='center', rotation=240,
-                   rotation_mode='anchor', **kwargs):
-        """Add a tip label for component B.
-        """
-        # **This probably isn't very robust and should be improved.
-        tipoffset = kwargs.pop('tipoffset', self.tipoffset)
-        transform = kwargs.pop('transform', self.transData)
-        self.btiplabel = self.text(-tipoffset/2.0, 1 + tipoffset, blabel,
-                                   ha=ha, va=va, rotation=rotation,
-                                   rotation_mode=rotation_mode,
-                                   transform=transform, **kwargs)
-        return self.btiplabel
-
-    def set_clabel(self, clabel, ha='center', va='center', rotation=0,
-                   rotation_mode='anchor', **kwargs):
-        """Add a tip label for component C.
-        """
-        # **This probably isn't very robust and should be improved.
-        tipoffset = kwargs.pop('tipoffset', self.tipoffset)
-        transform = kwargs.pop('transform', self.transData)
-        self.ctiplabel = self.text(-tipoffset/2.0, -tipoffset/2.0, clabel,
-                                   ha=ha, va=va, rotation=rotation,
-                                   rotation_mode=rotation_mode,
-                                   transform=transform, **kwargs)
-        return self.ctiplabel
+                                   rotation_mode=rotation_mode, **kwargs)
+        return self.tiplabel
 
     def _set_lim_and_transforms(self):
         """Set up all the transforms for the data, text, and grids when the plot
@@ -722,7 +445,7 @@ class TernaryABAxes(Axes):
 
         # 1) The core transformation from data space (a and b coordinates) into
         # Cartesian space defined in the TernaryTransform class.
-        self.transProjection = self._gen_transProjection() #self.TernaryTransform()
+        self.transProjection = self._gen_transProjection()
 
         # 2) The above has an output range that is not in the unit rectangle, so
         # scale and translate it.
@@ -739,29 +462,19 @@ class TernaryABAxes(Axes):
         # by the underlying transformation framework.
         self.transData = self.transProjection + self.transAffine + self.transAxes
 
-        # The main data transformation is set up.  Now deal with gridlines and
-        # tick labels.
-
-        # X-axis gridlines and ticklabels.  The input to these transforms are in
-        # data coordinates in x and axis coordinates in y.  Therefore, the input
-        # values are in range (0, 0), (self.total, 1).  The goal of these
-        # transforms is to go from that space to display space.
+        # X-axis gridlines and ticklabels.
         self._xaxis_transform = self.transData
+        angle = np.radians(self.angle)
         self._xaxis_text1_transform = (self.transData
-                                       + Affine2D().translate(-2, 2*SQRT3)) # 4-pixel offset
-        self._xaxis_text2_transform = IdentityTransform() # For secondary x axes
-                                                          # (required but not used)
+                                       + Affine2D().translate(4*np.cos(angle), # 4-pixel offset
+                                                              4*np.sin(angle)))
 
-        # Y- and Z-axis gridlines and ticklabels.  The input to these transforms
-        # are in axis coordinates in x and data coordinates in y.  Therefore,
-        # the input values are in range (0, 0), (1, self.total).  These tick
-        # labels are also offset 4 pixels.
+        self._xaxis_text2_transform = IdentityTransform() # Required but not used
+
+        # Y-axis gridlines and ticklabels.
         self._yaxis_transform = self.transData
-        # **Can this be simplified?
-        self._yaxis_text1_transform = (self.transData
-                                       + Affine2D().translate(-2, 2*SQRT3)) # 4-pixel offset
-        self._yaxis_text2_transform = (self.transData
-                                       + Affine2D().translate(-2, -2*SQRT3)) # 4-pixel offset
+        self._yaxis_text1_transform = IdentityTransform() # Required but not used
+        self._yaxis_text2_transform = IdentityTransform() # Required but not used
 
     def get_xaxis_transform(self, which='grid'):
         """Return the transformations for the x-axis grid and ticks.
@@ -779,7 +492,6 @@ class TernaryABAxes(Axes):
         """Return a tuple of the form (transform, valign, halign) for the x-axis
         tick labels.
         """
-        # This is not used, but is provided for consistency.
         return self._xaxis_text2_transform, 'center', 'left'
 
     def get_yaxis_transform(self, which='grid'):
@@ -805,9 +517,9 @@ class TernaryABAxes(Axes):
 
         The data and gridlines will be clipped to this shape.
         """
-        vertices = np.array([[0.5, self.elevation + self.height], # Point a=1 (upper center)
-                             [0.5 - self.height/SQRT3,  self.elevation], # Point b=1 (lower left)
-                             [0.5 + self.height/SQRT3, self.elevation], # Point c=1 (lower right)
+        vertices = np.array([[0.5, self.elevation + self.height], # Point c=1 (upper center)
+                             [0.5 - self.height/SQRT3,  self.elevation], # Point a=1 (lower left)
+                             [0.5 + self.height/SQRT3, self.elevation], # Point b=1 (lower right)
                              [0.5, self.elevation]])
         codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
         return PathPatch(Path(vertices, codes))
@@ -822,7 +534,7 @@ class TernaryABAxes(Axes):
 
     def _init_axis(self):
         self.xaxis = XAxis(self)
-        self.yaxis = YAxis(self)
+        self.yaxis = maxis.YAxis(self)
         # Don't register xaxis or yaxis with spines -- as done in
         # Axes._init_axis() -- until xaxis.cla() works.
         #self.spines['ternary'].register_axis(self.xaxis)
@@ -830,6 +542,8 @@ class TernaryABAxes(Axes):
         self._update_transScale()
 
     def __init__(self, *args, **kwargs):
+        self.angle = self.get_angle()
+
         # Sum of a, b, and c for this plot.
         #self.total = 1.0
 
@@ -905,6 +619,11 @@ class TernaryBCAxes(TernaryABAxes):
         """
         return Affine2D().rotate_deg(-45) + Affine2D().scale(1/SQRT3, 1)
 
+    def get_angle(self):
+        """Return the offset angle [deg] of these axes relative to the a, b axes.
+        """
+        return 240
+
 class TernaryCAAxes(TernaryABAxes):
     name = 'ternaryca'
 
@@ -927,7 +646,7 @@ class TernaryCAAxes(TernaryABAxes):
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
-            return TernaryABAxes.InvertedTernaryTransform()
+            return TernaryCAAxes.InvertedTernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
     class InvertedTernaryTransform(Transform):
@@ -948,7 +667,7 @@ class TernaryCAAxes(TernaryABAxes):
         transform.__doc__ = Transform.transform.__doc__
 
         def inverted(self):
-            return TernaryABAxes.TernaryTransform()
+            return TernaryCAAxes.TernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
     def _gen_transProjection(self):
@@ -965,3 +684,8 @@ class TernaryCAAxes(TernaryABAxes):
         *c*, *a* ternary axes.
         """
         return Affine2D().rotate_deg(135) + Affine2D().scale(1/SQRT3, -1)
+
+    def get_angle(self):
+        """Return the offset angle [deg] of these axes relative to the c, a axes.
+        """
+        return 0
