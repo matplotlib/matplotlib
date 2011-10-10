@@ -181,6 +181,53 @@ class Path(object):
 
         return cls(vertices, codes)
 
+    @classmethod
+    def connect_with_lines(cls, paths, close=False):
+        """
+        (class method) Make a compound path from Path objects that
+        connects the end of each object to the beginning of the next one.
+        If *close* is true, connect also the last object to the
+        first one.
+        """
+        MOVETO, LINETO, CLOSEPOLY, STOP = \
+            cls.MOVETO, cls.LINETO, cls.CLOSEPOLY, cls.STOP
+        vertices, codes = [], []
+        first_path = True
+        for path in paths:
+            vs, cs = cleanup_path(path,
+                                  None,  # transform
+                                  False, # remove_nans
+                                  None,  # clip
+                                  False, # snap
+                                  1.0,   # stroke_width
+                                  False, # simplify
+                                  True)  # curves
+            first_vertex = True
+            for vert, code in zip(vs, cs):
+                if first_path:
+                    assert first_vertex
+                    assert code == MOVETO
+                    vertices.append(vert)
+                    codes.append(MOVETO)
+                    first_path = False
+                    first_vertex = False
+                elif first_vertex:
+                    assert code == MOVETO
+                    vertices.append(vert)
+                    codes.append(LINETO)
+                    first_vertex = False
+                elif code == STOP:
+                    break       # move to next path
+                else:
+                    vertices.append(vert)
+                    codes.append(code)
+        if close:
+            # the exact vertex to append doesn't matter for CLOSEPOLY,
+            # but we can give it the right coordinates just as well
+            vertices.append(vertices[0])
+            codes.append(CLOSEPOLY)
+        return cls(vertices, codes)
+
     def __repr__(self):
         return "Path(%s, %s)" % (self.vertices, self.codes)
 
