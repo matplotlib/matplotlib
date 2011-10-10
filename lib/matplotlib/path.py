@@ -228,6 +228,55 @@ class Path(object):
             codes.append(CLOSEPOLY)
         return cls(vertices, codes)
 
+    def reverse_path(self):
+        """
+        Return a :class:`Path` object that is this one backwards.
+        Does not handle ``CLOSEPOLY``. The intended use is for attaching
+        :meth:`arc` paths to lines at the correct ends, since arcs always
+        go counterclockwise.
+        """
+        cls = self.__class__
+        MOVETO, LINETO, STOP, CLOSEPOLY = \
+            cls.MOVETO, cls.LINETO, cls.STOP, cls.CLOSEPOLY
+        vertices, codes = cleanup_path(self, None, False, None, False,
+                                       1.0, False, True)
+        if CLOSEPOLY in codes:
+            raise ValueError, "reverse_path does not currently handle CLOSEPOLY"
+        # The contract of CLOSEPOLY is not entirely clear to me:
+        # it's fine if you have MOVETO followed by various LINETO etc
+        # followed by CLOSEPOLY, but can you continue drawing after that?
+        # If not, it would be straightforward to handle.
+        if codes[0] != MOVETO:
+            raise ValueError, "reverse_path requires initial MOVETO"
+        if STOP in codes:
+            stop_at = np.flatnonzero(codes == STOP)[0]
+            vertices = vertices[:stop_at]
+            codes = codes[:stop_at]
+
+        # In the absence of CLOSEPOLY and STOP, the vertices and codes might be
+        # something like this:
+        # vertices = [      A,      B,      C,      D,      E,      F,      G ]
+        # codes =    [ MOVETO, LINETO, LINETO, CURVE3, CURVE3, MOVETO, LINETO ]
+        # The same path in reverse is:
+        # vertices = [      G,      F,      E,      D,      C,      B,      A ]
+        # codes =    [ MOVETO, LINETO, MOVETO, CURVE3, CURVE3, LINETO, LINETO ]
+        # Each [MOVETO A, draw B, draw C, ..., draw M, draw N] segment becomes
+        # [MOVETO N, draw M, ..., draw C, draw B, draw A] so the vertices array
+        # is simply reversed, and in the codes array each segment consisting
+        # of MOVETO and non-MOVETO commands is reversed separately with the
+        # MOVETO jumping to front.
+
+        moves = [i for i in range(len(codes)) if codes[i] == MOVETO]
+        vout = list(reversed(vertices))
+        cout = [ ]
+        next = len(codes)
+        for idx in reversed(moves):
+            cout.append(MOVETO)
+            cout.extend(reversed(codes[idx+1:next]))
+            next = idx
+        assert len(cout) == len(vout) == len(codes)
+        return cls(vout, cout)
+
     def __repr__(self):
         return "Path(%s, %s)" % (self.vertices, self.codes)
 
