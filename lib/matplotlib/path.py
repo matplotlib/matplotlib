@@ -617,22 +617,25 @@ class Path(object):
         return cls._unit_circle_righthalf
 
     @classmethod
-    def arc(cls, theta1, theta2, n=None, is_wedge=False):
+    def arc(cls, theta1, theta2, n=None, is_wedge=False, degrees=True):
         """
         (staticmethod) Returns an arc on the unit circle from angle
-        *theta1* to angle *theta2* (in degrees).
+        *theta1* to angle *theta2* (in degrees if *degrees* is true,
+        otherwise in radians).
 
         If *n* is provided, it is the number of spline segments to make.
         If *n* is not provided, the number of spline segments is
         determined based on the delta between *theta1* and *theta2*.
+        The arc is the part of the circle that is counterclockwise from
+        *theta1* and clockwise from *theta2*.
 
            Masionobe, L.  2003.  `Drawing an elliptical arc using
            polylines, quadratic or cubic Bezier curves
            <http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
-        # degrees to radians
-        theta1 *= np.pi / 180.0
-        theta2 *= np.pi / 180.0
+        if degrees:
+            theta1 *= np.pi / 180.0
+            theta2 *= np.pi / 180.0
 
         twopi  = np.pi * 2.0
         halfpi = np.pi * 0.5
