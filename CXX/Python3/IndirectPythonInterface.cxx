@@ -40,7 +40,6 @@
 namespace Py
 {
 bool _CFunction_Check( PyObject *op )   { return op->ob_type == _CFunction_Type(); }
-bool _CObject_Check( PyObject *op )     { return op->ob_type == _CObject_Type(); }
 bool _Complex_Check( PyObject *op )     { return op->ob_type == _Complex_Type(); }
 bool _Dict_Check( PyObject *op )        { return op->ob_type == _Dict_Type(); }
 bool _Float_Check( PyObject *op )       { return op->ob_type == _Float_Type(); }
@@ -80,7 +79,6 @@ static PyObject *ptr__Exc_KeyboardInterrupt = NULL;
 static PyObject *ptr__Exc_KeyError = NULL;
 static PyObject *ptr__Exc_LookupError = NULL;
 static PyObject *ptr__Exc_MemoryError = NULL;
-static PyObject *ptr__Exc_MemoryErrorInst = NULL;
 static PyObject *ptr__Exc_NameError = NULL;
 static PyObject *ptr__Exc_NotImplementedError = NULL;
 static PyObject *ptr__Exc_OSError = NULL;
@@ -106,7 +104,6 @@ static PyObject *ptr__PyNone = NULL;
 static PyObject *ptr__PyFalse = NULL;
 static PyObject *ptr__PyTrue = NULL;
 static PyTypeObject *ptr__CFunction_Type = NULL;
-static PyTypeObject *ptr__CObject_Type = NULL;
 static PyTypeObject *ptr__Complex_Type = NULL;
 static PyTypeObject *ptr__Dict_Type = NULL;
 static PyTypeObject *ptr__Float_Type = NULL;
@@ -245,7 +242,6 @@ bool InitialisePythonIndirectInterface()
     ptr__Exc_KeyError           = GetPyObjectPointer_As_PyObjectPointer( "PyExc_KeyError" );
     ptr__Exc_LookupError        = GetPyObjectPointer_As_PyObjectPointer( "PyExc_LookupError" );
     ptr__Exc_MemoryError        = GetPyObjectPointer_As_PyObjectPointer( "PyExc_MemoryError" );
-    ptr__Exc_MemoryErrorInst    = GetPyObjectPointer_As_PyObjectPointer( "PyExc_MemoryErrorInst" );
     ptr__Exc_NameError          = GetPyObjectPointer_As_PyObjectPointer( "PyExc_NameError" );
     ptr__Exc_NotImplementedError= GetPyObjectPointer_As_PyObjectPointer( "PyExc_NotImplementedError" );
     ptr__Exc_OSError            = GetPyObjectPointer_As_PyObjectPointer( "PyExc_OSError" );
@@ -271,7 +267,6 @@ bool InitialisePythonIndirectInterface()
     ptr__PyTrue                 = GetPyObject_As_PyObjectPointer( "_Py_TrueStruct" );
 
     ptr__CFunction_Type         = GetPyTypeObject_As_PyTypeObjectPointer( "PyCFunction_Type" );
-    ptr__CObject_Type           = GetPyTypeObject_As_PyTypeObjectPointer( "PyCObject_Type" );
     ptr__Complex_Type           = GetPyTypeObject_As_PyTypeObjectPointer( "PyComplex_Type" );
     ptr__Dict_Type              = GetPyTypeObject_As_PyTypeObjectPointer( "PyDict_Type" );
     ptr__Float_Type             = GetPyTypeObject_As_PyTypeObjectPointer( "PyFloat_Type" );
@@ -318,7 +313,6 @@ PyObject *_Exc_KeyboardInterrupt()      { return ptr__Exc_KeyboardInterrupt; }
 PyObject *_Exc_KeyError()               { return ptr__Exc_KeyError; }
 PyObject *_Exc_LookupError()            { return ptr__Exc_LookupError; }
 PyObject *_Exc_MemoryError()            { return ptr__Exc_MemoryError; }
-PyObject *_Exc_MemoryErrorInst()        { return ptr__Exc_MemoryErrorInst; }
 PyObject *_Exc_NameError()              { return ptr__Exc_NameError; }
 PyObject *_Exc_NotImplementedError()    { return ptr__Exc_NotImplementedError; }
 PyObject *_Exc_OSError()                { return ptr__Exc_OSError; }
@@ -348,7 +342,6 @@ PyObject *_False()                      { return ptr__PyFalse; }
 PyObject *_True()                       { return ptr__PyTrue; }
 
 PyTypeObject *_CFunction_Type()         { return ptr__CFunction_Type; }
-PyTypeObject *_CObject_Type()           { return ptr__CObject_Type; }
 PyTypeObject *_Complex_Type()           { return ptr__Complex_Type; }
 PyTypeObject *_Dict_Type()              { return ptr__Dict_Type; }
 PyTypeObject *_Float_Type()             { return ptr__Float_Type; }
@@ -449,7 +442,6 @@ PyObject *_Exc_KeyboardInterrupt()      { return ::PyExc_KeyboardInterrupt; }
 PyObject *_Exc_KeyError()               { return ::PyExc_KeyError; }
 PyObject *_Exc_LookupError()            { return ::PyExc_LookupError; }
 PyObject *_Exc_MemoryError()            { return ::PyExc_MemoryError; }
-PyObject *_Exc_MemoryErrorInst()        { return ::PyExc_MemoryErrorInst; }
 PyObject *_Exc_NameError()              { return ::PyExc_NameError; }
 PyObject *_Exc_NotImplementedError()    { return ::PyExc_NotImplementedError; }
 PyObject *_Exc_OSError()                { return ::PyExc_OSError; }
@@ -482,7 +474,6 @@ PyObject *_False()                      { return Py_False; }
 PyObject *_True()                       { return Py_True; }
 
 PyTypeObject *_CFunction_Type()         { return &PyCFunction_Type; }
-PyTypeObject *_CObject_Type()           { return &PyCObject_Type; }
 PyTypeObject *_Complex_Type()           { return &PyComplex_Type; }
 PyTypeObject *_Dict_Type()              { return &PyDict_Type; }
 PyTypeObject *_Float_Type()             { return &PyFloat_Type; }
