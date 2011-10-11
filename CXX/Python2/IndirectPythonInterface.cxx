@@ -42,7 +42,9 @@ namespace Py
 bool _Buffer_Check( PyObject *op ) { return (op)->ob_type == _Buffer_Type(); }
 bool _CFunction_Check( PyObject *op ) { return (op)->ob_type == _CFunction_Type(); }
 bool _Class_Check( PyObject *op ) { return (op)->ob_type == _Class_Type(); }
+#if PY_VERSION_HEX < 0x02070000
 bool _CObject_Check( PyObject *op ) { return (op)->ob_type == _CObject_Type(); }
+#endif
 bool _Complex_Check( PyObject *op ) { return (op)->ob_type == _Complex_Type(); }
 bool _Dict_Check( PyObject *op ) { return (op)->ob_type == _Dict_Type(); }
 bool _File_Check( PyObject *op ) { return (op)->ob_type == _File_Type(); }
@@ -123,7 +125,9 @@ static PyObject *ptr__PyTrue = NULL;
 static PyTypeObject *ptr__Buffer_Type = NULL;
 static PyTypeObject *ptr__CFunction_Type = NULL;
 static PyTypeObject *ptr__Class_Type = NULL;
+#if PY_VERSION_HEX < 0x02070000
 static PyTypeObject *ptr__CObject_Type = NULL;
+#endif
 static PyTypeObject *ptr__Complex_Type = NULL;
 static PyTypeObject *ptr__Dict_Type = NULL;
 static PyTypeObject *ptr__File_Type = NULL;
@@ -310,7 +314,9 @@ bool InitialisePythonIndirectInterface()
     ptr__Buffer_Type        = GetPyTypeObject_As_PyTypeObjectPointer( "PyBuffer_Type" );
     ptr__CFunction_Type        = GetPyTypeObject_As_PyTypeObjectPointer( "PyCFunction_Type" );
     ptr__Class_Type            = GetPyTypeObject_As_PyTypeObjectPointer( "PyClass_Type" );
+#if PY_VERSION_HEX < 0x02070000
     ptr__CObject_Type        = GetPyTypeObject_As_PyTypeObjectPointer( "PyCObject_Type" );
+#endif
     ptr__Complex_Type        = GetPyTypeObject_As_PyTypeObjectPointer( "PyComplex_Type" );
     ptr__Dict_Type            = GetPyTypeObject_As_PyTypeObjectPointer( "PyDict_Type" );
     ptr__File_Type            = GetPyTypeObject_As_PyTypeObjectPointer( "PyFile_Type" );
@@ -398,7 +404,9 @@ PyObject * _True() { return ptr__PyTrue; }
 PyTypeObject * _Buffer_Type()    { return ptr__Buffer_Type; }
 PyTypeObject * _CFunction_Type(){ return ptr__CFunction_Type; }
 PyTypeObject * _Class_Type()    { return ptr__Class_Type; }
+#if PY_VERSION_HEX < 0x02070000
 PyTypeObject * _CObject_Type()    { return ptr__CObject_Type; }
+#endif
 PyTypeObject * _Complex_Type()    { return ptr__Complex_Type; }
 PyTypeObject * _Dict_Type()    { return ptr__Dict_Type; }
 PyTypeObject * _File_Type()    { return ptr__File_Type; }
@@ -542,7 +550,9 @@ PyObject * _True() { return Py_True; }
 PyTypeObject * _Buffer_Type() { return &PyBuffer_Type; }
 PyTypeObject * _CFunction_Type() { return &PyCFunction_Type; }
 PyTypeObject * _Class_Type() { return &PyClass_Type; }
+#if PY_VERSION_HEX < 0x02070000
 PyTypeObject * _CObject_Type() { return &PyCObject_Type; }
+#endif
 PyTypeObject * _Complex_Type() { return &PyComplex_Type; }
 PyTypeObject * _Dict_Type() { return &PyDict_Type; }
 PyTypeObject * _File_Type() { return &PyFile_Type; }

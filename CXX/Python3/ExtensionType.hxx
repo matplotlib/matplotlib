@@ -45,44 +45,66 @@
 #define PYCXX_NOARGS_METHOD_DECL( CLS, NAME ) \
     static PyObject *PYCXX_NOARGS_METHOD_NAME( NAME )( PyObject *_self, PyObject *, PyObject * ) \
     { \
-        Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
-        CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
-        Py::Object r( (self->NAME)() ); \
-        return Py::new_reference_to( r.ptr() ); \
+        try \
+        { \
+            Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
+            CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
+            Py::Object r( (self->NAME)() ); \
+            return Py::new_reference_to( r.ptr() ); \
+        } \
+        catch( Py::Exception & ) \
+        { \
+            return 0; \
+        } \
     }
 #define PYCXX_VARARGS_METHOD_DECL( CLS, NAME ) \
     static PyObject *PYCXX_VARARGS_METHOD_NAME( NAME )( PyObject *_self, PyObject *_a, PyObject * ) \
     { \
-        Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
-        CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
-        Py::Tuple a( _a ); \
-        Py::Object r( (self->NAME)( a ) ); \
-        return Py::new_reference_to( r.ptr() ); \
+        try \
+        { \
+            Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
+            CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
+            Py::Tuple a( _a ); \
+            Py::Object r( (self->NAME)( a ) ); \
+            return Py::new_reference_to( r.ptr() ); \
+        } \
+        catch( Py::Exception & ) \
+        { \
+            return 0; \
+        } \
     }
 #define PYCXX_KEYWORDS_METHOD_DECL( CLS, NAME ) \
     static PyObject *PYCXX_KEYWORDS_METHOD_NAME( NAME )( PyObject *_self, PyObject *_a, PyObject *_k ) \
     { \
-        Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
-        CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
-        Py::Tuple a( _a ); \
-        Py::Dict k; \
-        if( _k != NULL ) \
-            k = _k; \
-        Py::Object r( (self->NAME)( a, k ) ); \
-        return Py::new_reference_to( r.ptr() ); \
+        try \
+        { \
+            Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
+            CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
+            Py::Tuple a( _a ); \
+            Py::Dict k; \
+            if( _k != NULL ) \
+                k = _k; \
+            Py::Object r( (self->NAME)( a, k ) ); \
+            return Py::new_reference_to( r.ptr() ); \
+        } \
+        catch( Py::Exception & ) \
+        { \
+            return 0; \
+        } \
     }
 
 // need to support METH_STATIC and METH_CLASS
 
-#define PYCXX_ADD_NOARGS_METHOD( NAME, docs ) \
-    add_method( #NAME, (PyCFunction)PYCXX_NOARGS_METHOD_NAME( NAME ), METH_NOARGS, docs )
-#define PYCXX_ADD_VARARGS_METHOD( NAME, docs ) \
-    add_method( #NAME, (PyCFunction)PYCXX_VARARGS_METHOD_NAME( NAME ), METH_VARARGS, docs )
-#define PYCXX_ADD_KEYWORDS_METHOD( NAME, docs ) \
-    add_method( #NAME, (PyCFunction)PYCXX_KEYWORDS_METHOD_NAME( NAME ), METH_VARARGS | METH_KEYWORDS, docs )
+#define PYCXX_ADD_NOARGS_METHOD( PYNAME, NAME, docs ) \
+    add_method( #PYNAME, (PyCFunction)PYCXX_NOARGS_METHOD_NAME( NAME ), METH_NOARGS, docs )
+#define PYCXX_ADD_VARARGS_METHOD( PYNAME, NAME, docs ) \
+    add_method( #PYNAME, (PyCFunction)PYCXX_VARARGS_METHOD_NAME( NAME ), METH_VARARGS, docs )
+#define PYCXX_ADD_KEYWORDS_METHOD( PYNAME, NAME, docs ) \
+    add_method( #PYNAME, (PyCFunction)PYCXX_KEYWORDS_METHOD_NAME( NAME ), METH_VARARGS | METH_KEYWORDS, docs )
 
 namespace Py
 {
+    extern PythonExtensionBase *getPythonExtensionBase( PyObject *self );
     struct PythonClassInstance
     {
         PyObject_HEAD
@@ -131,7 +153,7 @@ namespace Py
                 {
                     new_mt[ i ] = old_mt[ i ];
                 }
-                delete old_mt;
+                delete[] old_mt;
                 m_methods_table = new_mt;
             }
 
@@ -167,10 +189,8 @@ namespace Py
     protected:
         explicit PythonClass( PythonClassInstance *self, Tuple &args, Dict &kwds )
         : PythonExtensionBase()
-        , m_self( self )
+        , m_class_instance( self )
         {
-            // we are a class
-            behaviors().supportClass();
         }
 
         virtual ~PythonClass()
@@ -203,6 +223,13 @@ namespace Py
                 p->set_tp_new( extension_object_new );
                 p->set_tp_init( extension_object_init );
                 p->set_tp_dealloc( extension_object_deallocator );
+
+                // we are a class
+                p->supportClass();
+
+                // always support get and set attr
+                p->supportGetattro();
+                p->supportSetattro();
             }
 
             return *p;
@@ -238,7 +265,7 @@ namespace Py
                 PythonClassInstance *self = reinterpret_cast<PythonClassInstance *>( _self );
 #ifdef PYCXX_DEBUG
                 std::cout << "extension_object_init( self=0x" << std::hex << reinterpret_cast< unsigned int >( self ) << std::dec << " )" << std::endl;
-                std::cout << "    self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->cxx_object ) << std::dec << std::endl;
+                std::cout << "    self->m_pycxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->m_pycxx_object ) << std::dec << std::endl;
 #endif
 
                 if( self->m_pycxx_object == NULL )
@@ -268,9 +295,10 @@ namespace Py
             PythonClassInstance *self = reinterpret_cast< PythonClassInstance * >( _self );
 #ifdef PYCXX_DEBUG
             std::cout << "extension_object_deallocator( self=0x" << std::hex << reinterpret_cast< unsigned int >( self ) << std::dec << " )" << std::endl;
-            std::cout << "    self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->cxx_object ) << std::dec << std::endl;
+            std::cout << "    self->m_pycxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->m_pycxx_object ) << std::dec << std::endl;
 #endif
             delete self->m_pycxx_object;
+            _self->ob_type->tp_free( _self );
         }
 
     public:
@@ -295,14 +323,19 @@ namespace Py
             return check( ob.ptr() );
         }
 
-        PyObject *selfPtr()
+        virtual PyObject *selfPtr()
         {
-            return reinterpret_cast<PyObject *>( m_self );
+            return reinterpret_cast<PyObject *>( m_class_instance );
+        }
+
+        virtual Object self()
+        {
+            return Object( reinterpret_cast<PyObject *>( m_class_instance ) );
         }
 
     protected:
     private:
-        PythonClassInstance *m_self;
+        PythonClassInstance *m_class_instance;
 
     private:
         //
@@ -361,7 +394,7 @@ namespace Py
         //
         T *getCxxObject( void )
         {
-            return static_cast<T *>( ptr() );
+            return dynamic_cast< T * >( getPythonExtensionBase( ptr() ) );
         }
     };
 } // Namespace Py

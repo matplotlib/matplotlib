@@ -32,7 +32,7 @@ figure(figsize=(8,4),dpi=120)
 for ccode, glyphind in codes:
     if ccode>=256: continue
     r,c = divmod(ccode,16)
-    s = chr(ccode)
+    s = unichr(ccode)
     chars[r][c] = s
 
 
