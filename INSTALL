@@ -47,7 +47,7 @@ progress::
 
 matplotlib requires numpy version 1.1 or later.  Although it is not a
 requirement to use matplotlib, we strongly encourage you to install
-`ipython <http://ipython.scipy.org/dist>`_, which is an interactive
+`ipython <http://ipython.org>`_, which is an interactive
 shell for python that is matplotlib-aware.
 
 Next, we need to get matplotlib installed.  We provide prebuilt

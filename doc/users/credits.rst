@@ -94,7 +94,7 @@ Fernando Perez
   has provided numerous bug reports and patches for cleaning up
   backend imports and expanding pylab functionality, and provided
   matplotlib support in the pylab mode for `ipython
-  <http://ipython.scipy.org>`_.  He also provided the
+  <http://ipython.org>`_.  He also provided the
   :func:`~matplotlib.pyplot.matshow` command, and wrote TConfig, which
   is the basis for the experimental traited mpl configuration.
 
@@ -149,7 +149,7 @@ Nicolas Young
   sampled images.
 
 The `brainvisa <http://brainvisa.info>`_ Orsay team and Fernando Perez
-  added Qt support to `ipython <http://ipython.scipy.org>`_ in pylab mode.
+  added Qt support to `ipython <http://ipython.org>`_ in pylab mode.
 
 
 Charlie Moad
