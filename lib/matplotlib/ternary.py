@@ -2,15 +2,17 @@
 """Class to create a ternary plot using matplotlib projections
 """
 __author__ = "Kevin L. Davies"
-__version__ = "2011/10/8"
+__version__ = "2011/10/12"
 __license__ = "BSD"
 
 import matplotlib.pyplot as plt # **Is this acceptable?
 
 from matplotlib import rcParams
 
-# **Support all of the applicable axes methods
-# (http://matplotlib.sourceforge.net/api/axes_api.html).
+# **To do:
+#   1. Clean up the procedure for setting the colorbar's location.
+#   2. Support all of the applicable axes methods
+#      (http://matplotlib.sourceforge.net/api/axes_api.html).
 
 class Ternary():
     """Create and manage a set of ternary axes.

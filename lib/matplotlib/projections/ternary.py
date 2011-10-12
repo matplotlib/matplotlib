@@ -2,7 +2,7 @@
 """matplotlib projections for ternary axes
 """
 __author__ = "Kevin L. Davies"
-__version__ = "2011/10/8"
+__version__ = "2011/10/12"
 __license__ = "BSD"
 # The features and concepts were based on triangleplot.py by C. P. H. Lewis,
 # 2008-2009, available at:
@@ -11,19 +11,18 @@ __license__ = "BSD"
 # custom_projection_example.py, available at:
 #     http://matplotlib.sourceforge.net/examples/api/custom_projection_example.html
 
-# **Todo:
-#   1. Clean up the code and document it (in ReST format; give a summary of
+# **To do:
+#   1. Clean up the procedure for setting the sum of a, b, and c (the total
+#      should be automatically the same for all 3 axes).
+#   2. Clean up the code and document it (in ReST format; give a summary of
 #      features/changes relative to previous work).
-#   2. Post it to github for review, modify, and submit a pull request.
+#   3. Post it to github for review, modify, and submit a pull request.
 
 # **Nice to have:
-#   1. Allow a, b, c sums other than 1.0 through data scaling (using self.total,
-#      set_data_ratio, or set_xlim?).
-#   2. Add automatic offsetting/padding of tiplabels.
+#   1. Add automatic offsetting/padding of tiplabels.
+#   2. Allow zooming/setting of axes limits (upon updating one axis, apply the
+#      same delta to other axes, but retain the other axes' minimum values).
 #   3. Add the option for clockwise-increasing axes (through invert_xaxis?)
-#   4. Allow zooming/setting of axes limits (set total independently of the
-#      limits; upon updating one axis, apply the same delta for other axes, but
-#      retain the other axes' minimum values).
 
 # Types of plots:
 #     Supported:
@@ -69,8 +68,8 @@ import matplotlib.transforms as mtransforms
 import matplotlib.lines as mlines
 import matplotlib.cbook as cbook
 import matplotlib.markers as mmarkers
+import matplotlib.ticker as mticker
 
-import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib.axes import _string_to_bool
 from matplotlib.path import Path
@@ -164,7 +163,7 @@ class XAxis(maxis.XAxis):
         if len(bboxes) and self._autolabelpos:
             # Find the center of the x axis.
             x0, y0 = self.axes.transData.transform_point((0, 0))
-            x1, y1 = self.axes.transData.transform_point((1, 0))
+            x1, y1 = self.axes.transData.transform_point((self.axes.total, 0))
             x = (x0 + x1)/2.0
             y = (y0 + y1)/2.0
 
@@ -192,6 +191,26 @@ class XAxis(maxis.XAxis):
             tick_kw = self._minor_tick_kw
         return XTick(self.axes, 0, '', major=major, **tick_kw)
 
+    def set_ticks(self, ticks, minor=False):
+        """
+        Set the locations of the tick marks from sequence ticks
+
+        ACCEPTS: sequence of floats
+        """
+        ### XXX if the user changes units, the information will be lost here
+        ticks = self.convert_units(ticks)
+        if len(ticks) > 1:
+            xleft, xright = self.get_view_interval()
+            #if xright > xleft:
+            #    self.set_view_interval(min(ticks), max(ticks))
+            #else:
+            #    self.set_view_interval(max(ticks), min(ticks))
+        if minor:
+            self.set_minor_locator(mticker.FixedLocator(ticks))
+            return self.get_minor_ticks(len(ticks))
+        else:
+            self.set_major_locator( mticker.FixedLocator(ticks) )
+            return self.get_major_ticks(len(ticks))
 
 class Spine(mspines.Spine):
     """Customizations to matplotlib.spines.Spine"
@@ -202,12 +221,14 @@ class Spine(mspines.Spine):
 
         Based on linear_spine()
         """
-        if spine_type == 'left':
-            path = Path([(1.0, 0.0), (0.0, 1.0)]) # Actually the bottom axis.
-        elif spine_type == 'bottom':
+        # The 'bottom' and 'left' are swapped here so that they appear
+        # correctly.  The 'bottom' spine is associated with the x-axis, which is
+        # on the left in the ternary plot.  The 'left' spine is associated with
+        # the y-axis, which is the bottom axis in the ternary plot.
+        if spine_type == 'bottom':
             path = Path([(0.0, 0.0), (1.0, 0.0)]) # Actually the left axis.
-            # **Why is it necessary to swap the left and bottom axes in order to
-            # make the axes appear correctly?
+        elif spine_type == 'left':
+            path = Path([(1.0, 0.0), (0.0, 1.0)]) # Actually the bottom axis.
         elif spine_type == 'right':
             path = Path([(0.0, 1.0), (0.0, 0.0)])
         else:
@@ -546,19 +567,15 @@ class TernaryABAxes(Axes):
         Axes.legend(self, loc=loc, borderaxespad=borderaxespad,
                     bbox_to_anchor=bbox_to_anchor, *args, **kwargs)
 
-    #def set_total(self, total):
-    #    """Set the total of a, b, and c.
-    #    """
-    #    # This is a hack.  **Clean it up.
-    #    self.total = total
-    #    self._set_lim_and_transforms()
-    #    self.set_xlim(0.0, self.total)
-    #    self._update_transScale()
-
-    #def get_data_ratio(self):
-    #    """Return the aspect ratio of the data itself.
-    #    """
-    #    return 1.0 # **Change this to self.total?
+    def _set_total(self, total):
+        """Set the total of a, b, and c.
+        """
+        self.total = total
+        self._set_lim_and_transforms()
+        # This is a hack.  **Clean it up.
+        self.xaxis.set_ticklabels(['%g'%val for val in np.linspace(0, self.total, 5)])
+        #self.set_xticks(np.linspace(0, self.total, 5))
+        #self.set_xlim(0.0, self.total)
 
     def cla(self):
         """Provide reasonable defaults for the axes.
@@ -572,11 +589,8 @@ class TernaryABAxes(Axes):
         self.yaxis.set_visible(False)
 
         # Adjust the number of ticks shown.
-        self.set_xticks(np.linspace(0, self.viewLim.x1, 5))
-        #self.set_xticks(np.linspace(0, 1, 5))
-
-        # Do not display ticks (only gridlines, tick labels, and axis labels).
-        #self.xaxis.set_ticks_position('none')
+        #self.set_xticks(np.linspace(0, self.viewLim.x1, 5))
+        self.set_xticks(np.linspace(0, self.total, 5))
 
         # Turn off minor ticking altogether.
         self.xaxis.set_minor_locator(NullLocator())
@@ -587,11 +601,9 @@ class TernaryABAxes(Axes):
         # Modify the padding between the tick labels and the axis labels.
         self.xaxis.labelpad = 10 # In display units
 
-        # Spacing from the vertices (tips) to the tip labels (in data coords)
+        # Spacing from the vertices (tips) to the tip labels (in data coords, as
+        # a fraction of self.total)
         self.tipoffset = 0.14
-
-        # Axes limits and scaling
-        #self.set_xlim(0.0, self.total)
 
     def set_tiplabel(self, tiplabel, ha='center', va='center',
                    rotation_mode='anchor', **kwargs):
@@ -599,9 +611,10 @@ class TernaryABAxes(Axes):
         """
         tipoffset = kwargs.pop('tipoffset', self.tipoffset)
         rotation = kwargs.pop('rotation', self.angle)
-        self.tiplabel = self.text(1 + tipoffset, -tipoffset/2.0, tiplabel,
-                                   ha=ha, va=va, rotation=rotation,
-                                   rotation_mode=rotation_mode, **kwargs)
+        self.tiplabel = self.text((1 + tipoffset)*self.total,
+                                  -tipoffset*self.total/2.0, tiplabel,
+                                  ha=ha, va=va, rotation=rotation,
+                                  rotation_mode=rotation_mode, **kwargs)
         return self.tiplabel
 
     def _set_lim_and_transforms(self):
@@ -617,8 +630,10 @@ class TernaryABAxes(Axes):
 
         # 1) The core transformation from data space (a and b coordinates) into
         # Cartesian space defined in the TernaryTransform class.
-        self.transProjection = (Affine2D().translate(-self.viewLim.x0, -self.viewLim.y0) + Affine2D().scale(1.0/(self.viewLim.x1 - self.viewLim.x0))
-                               + self._gen_transTernary())
+        #print self.xaxis.view_interval
+        self.transProjection = (Affine2D().translate(-self.viewLim.x0, -self.viewLim.y0)
+                                + Affine2D().scale(1.0/self.total)
+                                + self._gen_transTernary())
 
         # 2) The above has an output range that is not in the unit rectangle, so
         # scale and translate it.
@@ -721,11 +736,14 @@ class TernaryABAxes(Axes):
 
         # Don't register xaxis or yaxis with spines -- as done in
         # Axes._init_axis() -- until xaxis.cla() works.
-        #self.spines['ternary'].register_axis(self.xaxis)
-        #self.spines['ternary'].register_axis(self.yaxis)
+        #self.spines['ternaryab'].register_axis(self.xaxis)
+        #self.spines['ternaryab'].register_axis(self.yaxis)
         self._update_transScale()
 
     def __init__(self, *args, **kwargs):
+        # Sum of a, b, and c
+        self.total = 1.0
+
         # Offset angle [deg] of these axes relative to the c, a axes.
         self.angle = self.get_angle()
 
@@ -735,9 +753,6 @@ class TernaryABAxes(Axes):
         # Vertical distance between the y axis and the base of the ternary plot
         # (in axis units)
         self.elevation = 0.05
-
-        # Sum of a, b, and c for this plot.
-        #self.total = 1.0
 
         Axes.__init__(self, *args, **kwargs)
         self.cla()

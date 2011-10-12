@@ -3,25 +3,20 @@
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
 import matplotlib.cm as cm
 
-from matplotlib import rcParams
+from matplotlib.ternary import Ternary
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
-
-from matplotlib.ternary import Ternary
-
-# Test with the default rcParams.
-rcParams['figure.subplot.left'] = 0.125 # the left side of the subplots of the figure
-rcParams['figure.subplot.right'] = 0.9 # the right side of the subplots of the figure
-rcParams['figure.subplot.bottom'] = 0.1 # the bottom of the subplots of the figure
-rcParams['figure.subplot.top'] = 0.9 # the top of the subplots of the figure
 
 
 # Example 1 -- Basic points and lines
 ter = Ternary()
+#ter.ab.set_xlim(0, 10)
+#ter.ab.invert_xaxis() **Can this be used to change from ccw-increasing axes to
+# cw-increasing axes?
 ter.set_title("Points and Lines on a Ternary Plot")
+#ter.set_axis_bgcolor('b')
 ter.ab.plot(1/3.0, 1/3.0, 'ko', label="Equal parts")
 ter.ab.plot([0.0, 1.0], [0.5, 0.0], 'r:', label="Equal B & C")
 ter.ab.plot([0.0, 0.5], [1.0, 0.0], 'g:', label="Equal A & C")
@@ -38,38 +33,42 @@ ter.bc.annotate("All\nB", (1, 0), ha='center', va='center', xytext=(0.8,0.1),
 ter.ca.annotate("All\nC", (1, 0), ha='center', va='center', xytext=(0.8,0.1),
                  textcoords='data', arrowprops=dict(facecolor='k', width=0.2,
                  headwidth=8.0, shrink=0.05))
-ter.ab.set_xlabel("Relative Part of A")
-ter.bc.set_xlabel("Relative Part of B")
-ter.ca.set_xlabel("Relative Part of C")
+ter.ab.set_xlabel("Relative part of A")
+ter.bc.set_xlabel("Relative part of B")
+ter.ca.set_xlabel("Relative part of C")
 ter.ab.set_tiplabel("Comp. A")
 ter.bc.set_tiplabel("Comp. B")
 ter.ca.set_tiplabel("Comp. C")
 ter.legend()
+#print ter.ab.viewLim.x0
+#print ter.ab.viewLim.intervalx
+#print ter.ab.viewLim.intervaly
+#print ter.ab.get_xlim()
+#print ter.ab.get_autoscale_on()
+#print ter.ab.get_autoscalex_on()
 
 
 # Example 2 -- Alternative indexing
 ter = Ternary()
 ter.set_title("Alternative Indexing\n"
-              "(like-colored points should radiate from the center)")
+              "(Like-colored points should radiate from the center.)")
+ter.set_xticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
 ter.ab.plot(0.9, 0.05, 'ro', label="Mostly A (via a, b)")
 ter.ab.plot(0.05, 0.9, 'go', label="Mostly B (via a, b)")
 ter.ab.plot(0.05, 0.05, 'bo', label="Mostly C (via a, b)")
 ter.ab.set_xlabel("x-label of axes ab")
-#ter.ab.set_ylabel("y-label of axes ab")
 ter.ab.set_tiplabel("Comp. A", tipoffset=0.18)
 
 ter.bc.plot(0.1, 0.1, 'r^', label="Mostly A (via b, c)")
 ter.bc.plot(0.8, 0.1, 'g^', label="Mostly B (via b, c)")
 ter.bc.plot(0.1, 0.8, 'b^', label="Mostly C (via b, c)")
 ter.bc.set_xlabel("x-label of axes bc")
-#ter.bc.set_ylabel("y-label of axes bc")
 ter.bc.set_tiplabel("Comp. B", tipoffset=0.18)
 
 ter.ca.plot(0.15, 0.7, 'rs', label="Mostly A (via c, a)")
 ter.ca.plot(0.15, 0.15, 'gs', label="Mostly B (via c, a)")
 ter.ca.plot(0.7, 0.15, 'bs', label="Mostly C (via c, a)")
 ter.ca.set_xlabel("x-label of axes ca")
-#ter.ca.set_ylabel("y-label of axes ca")
 ter.ca.set_tiplabel("Comp. C", tipoffset=0.18)
 
 ter.legend()
@@ -144,21 +143,26 @@ soil = {'sand': np.array([0.82, 0.17, 0.8 , 0.63, 0.5 , 0.0 , 0.3 , 0.3 , 0.73,
         'organic matter': np.array([0.45, 0.59, 0.35, 0.41, 0.07, 0.22, 0.31,
                                     0.21, 0.4 , 0.27, 0.2 ]),
         'porosity': np.array([0.48, 0.32, 0.23, 0.22, 0.62, 0.35, 0.43, 0.27,
-                               0.44, 0.23, 0.53]),
+                              0.44, 0.23, 0.53]),
         'site': ('Ger', 'Ma', 'Ss', 'Ss2', 'Din', 'Pro', 'Esn', 'Tra', 'Ffg',
                   'Rob', 'Aqw')}
 
 # Create the plot.
 ter = Ternary()
-s = ter.ab.scatter(x=soil['sand'], y=soil['silt'], c=soil['organic matter'],
+ter.ab._set_total(100)
+ter.bc._set_total(100)
+ter.ca._set_total(100)
+s = ter.ab.scatter(x=100*soil['sand'], y=100*soil['silt'], c=100*soil['organic matter'],
                    cmap=cm.BuGn, s=100.0*soil['porosity'], marker='o')
-ter.set_xticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
-ter.set_title("Soil Plot\n(The sizes of markers indicate porosity.)")
+ter.set_title("Soil Plot\n(The sizes of the markers indicate porosity.)")
 ter.ab.set_tiplabel("Sand", tipoffset=0.12)
 ter.bc.set_tiplabel("Silt", tipoffset=0.12)
 ter.ca.set_tiplabel("Clay", tipoffset=0.12)
+ter.ab.set_xlabel("Relative part / %")
+ter.bc.set_xlabel("Relative part / %")
+ter.ca.set_xlabel("Relative part / %")
 cax = ter.colorbar(mappable=s)
-cax.set_label("Organic Matter / 1")
+cax.set_label("Organic Matter / %")
 
 # Finish.
 plt.show()
