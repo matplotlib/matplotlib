@@ -12,15 +12,18 @@ __license__ = "BSD"
 #     http://matplotlib.sourceforge.net/examples/api/custom_projection_example.html
 
 # **Todo:
-#   1. Fix the position and angles of xlabel, xticks, xticklabels.
-#   2. Clean up the code and document it (in ReST format; give a summary of
+#   1. Clean up the code and document it (in ReST format; give a summary of
 #      features/changes relative to previous work).
-#   3. Post it to github for review, modify, and submit a pull request.
+#   2. Post it to github for review, modify, and submit a pull request.
 
 # **Nice to have:
 #   1. Allow a, b, c sums other than 1.0 through data scaling (using self.total,
 #      set_data_ratio, or set_xlim?).
 #   2. Add automatic offsetting/padding of tiplabels.
+#   3. Add the option for clockwise-increasing axes (through invert_xaxis?)
+#   4. Allow zooming/setting of axes limits (set total independently of the
+#      limits; upon updating one axis, apply the same delta for other axes, but
+#      retain the other axes' minimum values).
 
 # Types of plots:
 #     Supported:
@@ -64,7 +67,10 @@ import matplotlib.text as mtext
 import matplotlib.font_manager as font_manager
 import matplotlib.transforms as mtransforms
 import matplotlib.lines as mlines
+import matplotlib.cbook as cbook
+import matplotlib.markers as mmarkers
 
+import matplotlib.pyplot as plt
 from matplotlib import rcParams
 from matplotlib.axes import _string_to_bool
 from matplotlib.path import Path
@@ -73,9 +79,20 @@ from matplotlib.axes import Axes
 from matplotlib.ticker import NullLocator
 from matplotlib.transforms import Affine2D, BboxTransformTo, Transform, \
                                   IdentityTransform, Bbox
+from matplotlib.markers import MarkerStyle
 
 SQRT2 = np.sqrt(2.0)
 SQRT3 = np.sqrt(3.0)
+
+
+class Line2D(mlines.Line2D):
+    """Customizations to the Line2D class
+    """
+    def update_from(self, other):
+        """Copy the marker properties too.
+        """
+        mlines.Line2D.update_from(self, other)
+        self._marker = other._marker
 
 
 class XTick(maxis.XTick):
@@ -98,36 +115,22 @@ class XTick(maxis.XTick):
         self._set_artist_props(t)
         return t
 
-    def _get_tick2line(self):
+    def _get_tick1line(self):
         'Get the default line2D instance'
         # x in data coords, y in axes coords
-        l = mlines.Line2D( xdata=(0,), ydata=(1,),
-                       color=self._color,
-                       linestyle = 'None',
-                       marker = self._tickmarkers[1],
-                       markersize=self._size,
-                       markeredgewidth=self._width,
-                       zorder=self._zorder,
-                       )
-
-        l.set_transform(self.axes.get_xaxis_transform(which='tick2'))
+        l = Line2D(xdata=(0,), ydata=(0,),
+                   color=self._color,
+                   linestyle = 'None',
+                   marker = self._tickmarkers[0],
+                   markersize=self._size,
+                   markeredgewidth=self._width,
+                   zorder=self._zorder,
+                   )
+        l._marker._transform += Affine2D().rotate_deg(self.axes.angle + 90)
+        l.set_transform(self.axes.get_xaxis_transform(which='tick1'))
         self._set_artist_props(l)
         return l
-        #return None
 
-    def apply_tickdir(self, tickdir):
-        if tickdir is None:
-            tickdir = rcParams['%s.direction' % self._name]
-        self._tickdir = tickdir
-
-        if self._tickdir == 'in':
-            self._tickmarkers = (mlines.TICKUP, mlines.TICKDOWN)
-#            self._tickmarkers = (mlines.TICKDOWN)
-            self._pad = self._base_pad
-        else:
-            self._tickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
-#            self._tickmarkers = (mlines.TICKUP)
-            self._pad = self._base_pad + self._size
 
 class XAxis(maxis.XAxis):
     """Customizations to the x-axis methods for ternary axes
@@ -139,20 +142,9 @@ class XAxis(maxis.XAxis):
                                   "axes.")
         return
 
-    def _get_tick(self, major): # This doesn't seem to be called.
-        if major:
-            tick_kw = self._major_tick_kw
-        else:
-            tick_kw = self._minor_tick_kw
-        tick_kw.pop('tick2On')
-        #tick_kw.pop('top')
-        tick_kw.pop('right')
-        xtick= XTick(self.axes, 0, '', major=major, tick2On=False, **tick_kw) # **Why won't this turn off the secondary ticks?
-        #print xtick.tick2On
-        return xtick
-
     def _get_label(self):
-        # x and y are in display coordinates.  This is non-conventional.  **Is this ok?
+        # x and y are both in display coordinates.  This is non-conventional.
+        # **Is this ok?
         label = mtext.Text(x=0.5, y=0,
             fontproperties = font_manager.FontProperties(
                                size=rcParams['axes.labelsize'],
@@ -177,7 +169,6 @@ class XAxis(maxis.XAxis):
             y = (y0 + y1)/2.0
 
             # Account for the the maximum possible length of tick labels.
-            y = (bboxes[0].y1 + bboxes[-1].y1)/2.0
             max_width = 0
             max_height = 0
             for bbox in bboxes:
@@ -215,8 +206,8 @@ class Spine(mspines.Spine):
             path = Path([(1.0, 0.0), (0.0, 1.0)]) # Actually the bottom axis.
         elif spine_type == 'bottom':
             path = Path([(0.0, 0.0), (1.0, 0.0)]) # Actually the left axis.
-            # **Why don't the axes appear correctly when left and bottom axes
-            # are returned as they should be?
+            # **Why is it necessary to swap the left and bottom axes in order to
+            # make the axes appear correctly?
         elif spine_type == 'right':
             path = Path([(0.0, 1.0), (0.0, 0.0)])
         else:
@@ -238,8 +229,8 @@ class TernaryABAxes(Axes):
     """
     name = 'ternaryab'
 
-    def _gen_transProjection(self):
-        """Return the projection transformation.
+    def _gen_transTernary(self):
+        """Return the ternary transformation.
 
         This is implemented as a method so that it can return an affine
         transformation (the identity transformation for the *a*, *b* axes) or a
@@ -273,8 +264,17 @@ class TernaryABAxes(Axes):
 
     # Disable changes to the data limits.  **Can this be supported?
     def set_xlim(self, *args, **kwargs):
+    # ** work in progress...
+        #Axes.set_xlim(self, *args, **kwargs)
+        #Axes.set_ylim(self, *args, **kwargs)
+        #self._set_lim_and_transforms()
+        #self.total = self.viewLim.intervalx[1]
         pass
     def set_ylim(self, *args, **kwargs):
+    # ** work in progress...
+        #Axes.set_xlim(self, *args, **kwargs)
+        #Axes.set_ylim(self, *args, **kwargs)
+        #self._set_lim_and_transforms()
         pass
 
     # Disable interactive panning and zooming.  **Can this be supported?
@@ -572,9 +572,8 @@ class TernaryABAxes(Axes):
         self.yaxis.set_visible(False)
 
         # Adjust the number of ticks shown.
-        self.set_xticks(np.linspace(0, 1, 5))
-        # **Turn off the top x-ticks.
-        # **Rotate the bottom x-ticks 210 deg.
+        self.set_xticks(np.linspace(0, self.viewLim.x1, 5))
+        #self.set_xticks(np.linspace(0, 1, 5))
 
         # Do not display ticks (only gridlines, tick labels, and axis labels).
         #self.xaxis.set_ticks_position('none')
@@ -618,7 +617,8 @@ class TernaryABAxes(Axes):
 
         # 1) The core transformation from data space (a and b coordinates) into
         # Cartesian space defined in the TernaryTransform class.
-        self.transProjection = self._gen_transProjection()
+        self.transProjection = (Affine2D().translate(-self.viewLim.x0, -self.viewLim.y0) + Affine2D().scale(1.0/(self.viewLim.x1 - self.viewLim.x0))
+                               + self._gen_transTernary())
 
         # 2) The above has an output range that is not in the unit rectangle, so
         # scale and translate it.
@@ -630,11 +630,15 @@ class TernaryABAxes(Axes):
         self.transAxes = BboxTransformTo(self.bbox)
 
         # Put these 3 transforms together -- from data all the way to display
-        # coordinates.
-        self.transData = self.transProjection + self.transAffine + self.transAxes
+        # coordinates.  The parentheses are important for efficiency -- they
+        # group the last two (which are usually affines) separately from the
+        # first (which can be non-affine).
+        self.transData = self.transProjection + (self.transAffine
+                                                 + self.transAxes)
 
         # X-axis gridlines and ticklabels.
         self._xaxis_transform = self.transData
+
  #       self._xaxis_transform = Affine2D().rotate_deg(90) + self.transData
         #self._xaxis_transform = IdentityTransform()
         angle = np.radians(self.angle)
@@ -711,6 +715,10 @@ class TernaryABAxes(Axes):
     def _init_axis(self):
         self.xaxis = XAxis(self)
         self.yaxis = maxis.YAxis(self)
+
+        # Don't draw ticks on the secondary x axis.
+        self.xaxis._major_tick_kw['tick2On'] = False
+
         # Don't register xaxis or yaxis with spines -- as done in
         # Axes._init_axis() -- until xaxis.cla() works.
         #self.spines['ternary'].register_axis(self.xaxis)
@@ -792,8 +800,8 @@ class TernaryBCAxes(TernaryABAxes):
             return TernaryBCAxes.TernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
-    def _gen_transProjection(self):
-        """Return the projection transformation.
+    def _gen_transTernary(self):
+        """Return the ternary transformation.
 
         This is implemented as a method so that it can return an affine
         transformation (the identity transformation for the *a*, *b* axes) or a
@@ -869,8 +877,8 @@ class TernaryCAAxes(TernaryABAxes):
             return TernaryCAAxes.TernaryTransform()
         inverted.__doc__ = Transform.inverted.__doc__
 
-    def _gen_transProjection(self):
-        """Return the projection transformation.
+    def _gen_transTernary(self):
+        """Return the ternary transformation.
 
         This is implemented as a method so that it can return an affine
         transformation (the identity transformation for the *a*, *b* axes) or a

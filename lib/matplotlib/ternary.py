@@ -9,8 +9,14 @@ import matplotlib.pyplot as plt # **Is this acceptable?
 
 from matplotlib import rcParams
 
+# **Support all of the applicable axes methods
+# (http://matplotlib.sourceforge.net/api/axes_api.html).
+
 class Ternary():
     """Create and manage a set of ternary axes.
+
+    This class is provided for convenience.  It creates all three axes at once
+    and allows applicable axes methods to be called from the group.
     """
     def set_title(self, label, fontdict=None, **kwargs):
         """call signature::
@@ -70,6 +76,15 @@ class Ternary():
         self.ab.grid(b=b, which=which, axis=axis, **kwargs)
         self.bc.grid(b=b, which=which, axis=axis, **kwargs)
         self.ca.grid(b=b, which=which, axis=axis, **kwargs)
+
+    def set_axis_bgcolor(self, color):
+        """
+        set the axes background color
+
+        ACCEPTS: any matplotlib color - see
+        :func:`~matplotlib.pyplot.colors`
+        """
+        self.ab.set_axis_bgcolor(self, color)
 
     def legend(self, *args, **kwargs):
         """call signature::
