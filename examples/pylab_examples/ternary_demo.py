@@ -4,6 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+import matplotlib.cm as cm
 
 from matplotlib import rcParams
 from matplotlib.path import Path
@@ -150,20 +151,14 @@ soil = {'sand': np.array([0.82, 0.17, 0.8 , 0.63, 0.5 , 0.0 , 0.3 , 0.3 , 0.73,
 # Create the plot.
 ter = Ternary()
 s = ter.ab.scatter(x=soil['sand'], y=soil['silt'], c=soil['organic matter'],
-                 s=100.0*soil['porosity'], marker='o')
+                   cmap=cm.BuGn, s=100.0*soil['porosity'], marker='o')
 ter.set_xticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
 ter.set_title("Soil Plot\n(The sizes of markers indicate porosity.)")
 ter.ab.set_tiplabel("Sand", tipoffset=0.12)
 ter.bc.set_tiplabel("Silt", tipoffset=0.12)
 ter.ca.set_tiplabel("Clay", tipoffset=0.12)
-#cax = ter.ab.colorbar(mappable=s)
-#cax = ter.ab.figure.add_axes([0.1,0.1,0.8,.8])
-cax = ter.ab.colorbar(mappable=s)
-#cax = cax.colorbar(mappable=s)
-#mcolor.ColorbarBase(cax, mappable=s)
+cax = ter.colorbar(mappable=s)
 cax.set_label("Organic Matter / 1")
-# **Why is the 3rd axes messed up?
-
 
 # Finish.
 plt.show()

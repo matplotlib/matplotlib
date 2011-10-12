@@ -47,11 +47,10 @@ __license__ = "BSD"
 #         subplot, subplots_adjust, subplot_tool, setp, show, suptitle
 #     *May* work as is, but **should be tested:
 #         axhline, axhspan, axvline, axvspan, box, locator_params, margins,
-#         plotfile, table, tick_params, ticklabel_format, xlim, xticks, ylim,
-#         yticks
-#     Not applicable:
-#         ylabel
-#     Not applicable and thus disabled:
+#         plotfile, table, tick_params, ticklabel_format, xlim, xticks
+#     Not applicable (y-axis isn't shown):
+#         ylabel, ylim, yticks
+#     Not applicable and disabled:
 #         zgrids, thetagrids
 
 # Colormap methods (should be also be compatible, but **should be tested):
@@ -66,10 +65,10 @@ import matplotlib.font_manager as font_manager
 import matplotlib.transforms as mtransforms
 import matplotlib.lines as mlines
 
+from matplotlib import rcParams
 from matplotlib.axes import _string_to_bool
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
-from matplotlib import rcParams
 from matplotlib.axes import Axes
 from matplotlib.ticker import NullLocator
 from matplotlib.transforms import Affine2D, BboxTransformTo, Transform, \
@@ -83,10 +82,8 @@ class XTick(maxis.XTick):
     """Customizations to the x-tick methods for ternary axes
     """
     def _get_text1(self):
-        'Get the default Text instance'
-        # the y loc is 3 points below the min of y axis
-        # get the affine as an a,b,c,d,tx,ty list
-        # x in data coords, y in axes coords
+        """Get the default Text instance.
+        """
         trans, vert, horiz = self._get_text1_transform()
         t = mtext.Text(
             x=0, y=0,
@@ -101,9 +98,39 @@ class XTick(maxis.XTick):
         self._set_artist_props(t)
         return t
 
+    def _get_tick2line(self):
+        'Get the default line2D instance'
+        # x in data coords, y in axes coords
+        l = mlines.Line2D( xdata=(0,), ydata=(1,),
+                       color=self._color,
+                       linestyle = 'None',
+                       marker = self._tickmarkers[1],
+                       markersize=self._size,
+                       markeredgewidth=self._width,
+                       zorder=self._zorder,
+                       )
+
+        l.set_transform(self.axes.get_xaxis_transform(which='tick2'))
+        self._set_artist_props(l)
+        return l
+        #return None
+
+    def apply_tickdir(self, tickdir):
+        if tickdir is None:
+            tickdir = rcParams['%s.direction' % self._name]
+        self._tickdir = tickdir
+
+        if self._tickdir == 'in':
+            self._tickmarkers = (mlines.TICKUP, mlines.TICKDOWN)
+#            self._tickmarkers = (mlines.TICKDOWN)
+            self._pad = self._base_pad
+        else:
+            self._tickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
+#            self._tickmarkers = (mlines.TICKUP)
+            self._pad = self._base_pad + self._size
 
 class XAxis(maxis.XAxis):
-    """Custom x-axis methods for ternary axes
+    """Customizations to the x-axis methods for ternary axes
 
     The x-axis is used for component A and is on the right side.
     """
@@ -112,8 +139,20 @@ class XAxis(maxis.XAxis):
                                   "axes.")
         return
 
+    def _get_tick(self, major): # This doesn't seem to be called.
+        if major:
+            tick_kw = self._major_tick_kw
+        else:
+            tick_kw = self._minor_tick_kw
+        tick_kw.pop('tick2On')
+        #tick_kw.pop('top')
+        tick_kw.pop('right')
+        xtick= XTick(self.axes, 0, '', major=major, tick2On=False, **tick_kw) # **Why won't this turn off the secondary ticks?
+        #print xtick.tick2On
+        return xtick
+
     def _get_label(self):
-        # x and y are in display coordinates. **This is non-conventional.
+        # x and y are in display coordinates.  This is non-conventional.  **Is this ok?
         label = mtext.Text(x=0.5, y=0,
             fontproperties = font_manager.FontProperties(
                                size=rcParams['axes.labelsize'],
@@ -123,7 +162,6 @@ class XAxis(maxis.XAxis):
             horizontalalignment='center',
             rotation=self.axes.angle - 60, # Modified
             rotation_mode='anchor') # New
-
         self._set_artist_props(label)
         return label
 
@@ -131,35 +169,31 @@ class XAxis(maxis.XAxis):
         """Determine the label's position from the bounding boxes of the
         ticklabels.
         """
-        #x,y = self.label.get_position()
-        #x = (self.axes.bbox.xmin + self.axes.bbox.xmax)/2.0
-        #y = (self.axes.bbox.ymin + self.axes.bbox.ymax)/2.0
-        # **Fix this:
-
         if len(bboxes) and self._autolabelpos:
-            # This is a hack to find the center of the x axis.  **Clean it up.
-            if self.axes.angle == 0: # Axes c, a (label on right)
-                x = (bboxes[0].x0 + bboxes[-1].x0)/2.0
-                y = (bboxes[0].y1 + bboxes[-1].y0)/2.0
-            elif self.axes.angle == 120: # Axes a, b (label on left)
-                x = (bboxes[0].x1 + bboxes[-1].x1)/2.0
-                y = (bboxes[0].y0 + bboxes[-1].y0)/2.0
-            else: # Axes b, c (label on bottom)
-                x = (bboxes[0].x1 + bboxes[-1].x1)/2.0
-                y = (bboxes[0].y1 + bboxes[-1].y1)/2.0
+            # Find the center of the x axis.
+            x0, y0 = self.axes.transData.transform_point((0, 0))
+            x1, y1 = self.axes.transData.transform_point((1, 0))
+            x = (x0 + x1)/2.0
+            y = (y0 + y1)/2.0
+
+            # Account for the the maximum possible length of tick labels.
+            y = (bboxes[0].y1 + bboxes[-1].y1)/2.0
             max_width = 0
             max_height = 0
             for bbox in bboxes:
                 max_width = max(max_width, bbox.width)
                 max_height = max(max_height, bbox.height)
-            space = np.sqrt(max_width**2 + max_height**2) # Maximum possible length of tick labels
+            space = np.sqrt(max_width**2 + max_height**2)
             space += self.labelpad*self.figure.dpi/72.0
+
+            # Apply the new position.
             angle = np.radians(self.axes.angle) # Offset angle in radians
             self.label.set_position((x + np.cos(angle)*space,
                                      y + np.sin(angle)*space))
 
     def _get_tick(self, major):
-        """Overwritten to use the XTick class from this file.
+        """Return the default tick instance (copied here to use the XTick class
+        from this file).
         """
         if major:
             tick_kw = self._major_tick_kw
@@ -177,12 +211,14 @@ class Spine(mspines.Spine):
 
         Based on linear_spine()
         """
-        if spine_type == 'bottom':
-            path = Path([(0.0, 0.0), (1.0, 0.0)])
-        elif spine_type == 'left':
-            path = Path([(1.0, 0.0), (0.0, 1.0)])
+        if spine_type == 'left':
+            path = Path([(1.0, 0.0), (0.0, 1.0)]) # Actually the bottom axis.
+        elif spine_type == 'bottom':
+            path = Path([(0.0, 0.0), (1.0, 0.0)]) # Actually the left axis.
+            # **Why don't the axes appear correctly when left and bottom axes
+            # are returned as they should be?
         elif spine_type == 'right':
-            path = Path([(0.0, 0.0), (0.0, 1.0)])
+            path = Path([(0.0, 1.0), (0.0, 0.0)])
         else:
             raise ValueError("Unable to make path for spine " + spine_type)
         return cls(axes, spine_type, path, **kwargs)
@@ -193,19 +229,21 @@ class TernaryABAxes(Axes):
 
     Ternary plots are useful for plotting sets of three variables that each sum
     to the same value.  For an introduction, see
-    http://en.wikipedia.org/wiki/Ternary_plot for an introduction.
+    http://en.wikipedia.org/wiki/Ternary_plot.
 
-    Ternary plots may be rendered with clockwise- or counterclockwise-increasing
-    axes.  This projection uses the counterclockwise convention.
+    In general, ternary plots may be rendered with clockwise- or
+    counterclockwise-increasing axes.  Here, the ternary projections use the
+    counterclockwise convention.  Specifically, the ternaryab projection maps
+    *a* and *b* in ternary space to *x* and *y* in Cartesian space.
     """
     name = 'ternaryab'
 
     def _gen_transProjection(self):
         """Return the projection transformation.
 
-        This is a method so that it can return an affine transformation (the
-        identity transformation for the *a*, *b* axes) or a non-affine
-        transformation (for the other two axes).
+        This is implemented as a method so that it can return an affine
+        transformation (the identity transformation for the *a*, *b* axes) or a
+        non-affine transformation (for the other two axes).
         """
         return IdentityTransform()
 
@@ -216,13 +254,13 @@ class TernaryABAxes(Axes):
         return Affine2D().rotate_deg(225) + Affine2D().scale(1/SQRT3, 1)
 
     def get_angle(self):
-        """Return the offset angle [deg] of these axes relative to the a, b axes.
+        """Return the angle [deg] of these axes relative to the *c*, *a* axes.
         """
         return 120
 
     # Prevent the user from applying nonlinear scales to either of the axes
-    # since that would be confusing to the viewer (the axes should have the same
-    # scales, yet all three cannot be nonlinear at once).
+    # since that would be confusing to the viewer. (The axes should have the
+    # same scales, yet all three cannot be nonlinear at once.)
     def set_xscale(self, *args, **kwargs):
         if args[0] != 'linear':
             raise NotImplementedError
@@ -233,13 +271,13 @@ class TernaryABAxes(Axes):
             raise NotImplementedError
         Axes.set_yscale(self, *args, **kwargs)
 
-    # Disable changes to the data limits for now, but **support it later.
+    # Disable changes to the data limits.  **Can this be supported?
     def set_xlim(self, *args, **kwargs):
         pass
     def set_ylim(self, *args, **kwargs):
         pass
 
-    # Disable interactive panning and zooming for now, but **support it later.
+    # Disable interactive panning and zooming.  **Can this be supported?
     def can_zoom(self):
         return False
     def start_pan(self, x, y, button):
@@ -330,58 +368,191 @@ class TernaryABAxes(Axes):
                                   "ternary xes.")
         return
 
+    # Customized methods for the ternary axes
     def twinx(self, projection):
         """call signature::
 
           ax = twinx()
 
         Create a twin of the current ternary axes with a different projection,
-        so that all of the indexing schemes can be used -- (*b*, *c*),
-        (*a*, *b*), and (*c*, *a*).
+        so that all of the indexing schemes can be used -- (*a*, *b*),
+        (*b*, *c*), and (*c*, *a*).
         """
         return self.figure.add_axes(self.get_position(True), sharex=self,
                                     projection=projection, frameon=False)
 
     def legend(self, *args, **kwargs):
-        """Override the default legend location.
+        """call signature::
+
+          legend(*args, **kwargs)
+
+        Place a legend on the current axes at location *loc*.  Labels are a
+        sequence of strings and *loc* can be a string or an integer specifying
+        the legend location.
+
+        To make a legend with existing lines::
+
+          legend()
+
+        :meth:`legend` by itself will try and build a legend using the label
+        property of the lines/patches/collections.  You can set the label of
+        a line by doing::
+
+          plot(x, y, label='my data')
+
+        or::
+
+          line.set_label('my data').
+
+        If label is set to '_nolegend_', the item will not be shown in
+        legend.
+
+        To automatically generate the legend from labels::
+
+          legend( ('label1', 'label2', 'label3') )
+
+        To make a legend for a list of lines and labels::
+
+          legend( (line1, line2, line3), ('label1', 'label2', 'label3') )
+
+        To make a legend at a given location, using a location argument::
+
+          legend( ('label1', 'label2', 'label3'), loc='upper left')
+
+        or::
+
+          legend( (line1, line2, line3),  ('label1', 'label2', 'label3'), loc=2)
+
+        The location codes are
+
+          ===============   =============
+          Location String   Location Code
+          ===============   =============
+          'best'            0
+          'upper right'     1
+          'upper left'      2
+          'lower left'      3
+          'lower right'     4
+          'right'           5
+          'center left'     6
+          'center right'    7
+          'lower center'    8
+          'upper center'    9
+          'center'          10
+          ===============   =============
+
+
+        Users can specify any arbitrary location for the legend using the
+        *bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
+        of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
+        For example,
+
+          loc = 'upper right', bbox_to_anchor = (0.5, 0.5)
+
+        will place the legend so that the upper right corner of the legend at
+        the center of the axes.
+
+        The legend location can be specified in other coordinate, by using the
+        *bbox_transform* keyword.
+
+        The loc itslef can be a 2-tuple giving x,y of the lower-left corner of
+        the legend in axes coords (*bbox_to_anchor* is ignored).
+
+
+        Keyword arguments:
+
+          *prop*: [ None | FontProperties | dict ]
+            A :class:`matplotlib.font_manager.FontProperties`
+            instance. If *prop* is a dictionary, a new instance will be
+            created with *prop*. If *None*, use rc settings.
+
+          *numpoints*: integer
+            The number of points in the legend for line
+
+          *scatterpoints*: integer
+            The number of points in the legend for scatter plot
+
+          *scatteroffsets*: list of floats
+            a list of yoffsets for scatter symbols in legend
+
+          *markerscale*: [ None | scalar ]
+            The relative size of legend markers vs. original. If *None*, use rc
+            settings.
+
+          *frameon*: [ True | False ]
+            if True, draw a frame around the legend.
+            The default is set by the rcParam 'legend.frameon'
+
+          *fancybox*: [ None | False | True ]
+            if True, draw a frame with a round fancybox.  If None, use rc
+
+          *shadow*: [ None | False | True ]
+            If *True*, draw a shadow behind legend. If *None*, use rc settings.
+
+          *ncol* : integer
+            number of columns. default is 1
+
+          *mode* : [ "expand" | None ]
+            if mode is "expand", the legend will be horizontally expanded
+            to fill the axes area (or *bbox_to_anchor*)
+
+          *bbox_to_anchor* : an instance of BboxBase or a tuple of 2 or 4 floats
+            the bbox that the legend will be anchored.
+
+          *bbox_transform* : [ an instance of Transform | None ]
+            the transform for the bbox. transAxes if None.
+
+          *title* : string
+            the legend title
+
+        Padding and spacing between various elements use following
+        keywords parameters. These values are measure in font-size
+        units. E.g., a fontsize of 10 points and a handlelength=5
+        implies a handlelength of 50 points.  Values from rcParams
+        will be used if None.
+
+        ================   ==================================================================
+        Keyword            Description
+        ================   ==================================================================
+        borderpad          the fractional whitespace inside the legend border
+        labelspacing       the vertical space between the legend entries
+        handlelength       the length of the legend handles
+        handletextpad      the pad between the legend handle and text
+        borderaxespad      the pad between the axes and legend border
+        columnspacing      the spacing between columns
+        ================   ==================================================================
+
+        .. Note:: Not all kinds of artist are supported by the legend command.
+                  See LINK (FIXME) for details.
+
+
+        **Example:**
+
+        .. plot:: mpl_examples/api/legend_demo.py
+
+        Also see :ref:`plotting-guide-legend`.
+
         """
         # The legend needs to be positioned outside the bounding box of the plot
         # area.  The normal specifications (e.g., legend(loc='upper right')) do
         # not do this.
         loc=kwargs.pop('loc', 'upper left')
         borderaxespad=kwargs.pop('borderaxespad', 0)
-        bbox_to_anchor=kwargs.pop('bbox_to_anchor', (0.5 + self.height/SQRT3, self.elevation + self.height))
+        # The left edge of the legend is horizontally aligned with the right
+        # vertex of the plot.  The top edge of the legend is vertically aligned
+        # with the top vertex of the plot.
+        bbox_to_anchor=kwargs.pop('bbox_to_anchor', (0.5 + self.height/SQRT3,
+                                                     self.elevation + self.height))
         Axes.legend(self, loc=loc, borderaxespad=borderaxespad,
                     bbox_to_anchor=bbox_to_anchor, *args, **kwargs)
-        # This anchor position is by inspection.  It seems to give a good
-        # horizontal position with default figure size and keeps the legend from
-        # overlapped with the plot as the size of the figure is reduced.  The
-        # top of the legend is vertically aligned with the top vertex of the
-        # plot.  **Update the position.
-
-    def colorbar(self, *args, **kwargs):
-        """Produce a colorbar with appropriate defaults for ternary plots.
-        """
-        pad = kwargs.pop('pad', 0.1)
-        shrink = kwargs.pop('shrink', 1.0)
-        fraction = kwargs.pop('fraction', 0.04)
-        # This is a hack and the alignment isnt uite right. **Clean it up.
-        scaley = rcParams['figure.subplot.top'] - rcParams['figure.subplot.bottom']
-        cax = self.figure.add_axes([0.74 + pad,
-                                    rcParams['figure.subplot.bottom'] + self.elevation,
-                                    fraction,
-                                    self.height*scaley*shrink - 0.005])
-        return self.figure.colorbar(cax=cax, *args, **kwargs)
-#        return self.figure.colorbar(shrink=shrink, pad=pad, *args, **kwargs)
 
     #def set_total(self, total):
-    #    """Set the total of b, l, and r.
+    #    """Set the total of a, b, and c.
     #    """
     #    # This is a hack.  **Clean it up.
     #    self.total = total
     #    self._set_lim_and_transforms()
     #    self.set_xlim(0.0, self.total)
-    #    self.set_ylim(0.0, self.total)
     #    self._update_transScale()
 
     #def get_data_ratio(self):
@@ -390,36 +561,38 @@ class TernaryABAxes(Axes):
     #    return 1.0 # **Change this to self.total?
 
     def cla(self):
-        """Override to set provide reasonable defaults.
+        """Provide reasonable defaults for the axes.
         """
         # Call the base class.
         Axes.cla(self)
         self.grid(True)
 
-        # Only the x-axis is shown, but there are 3 of them once all of
+        # Only the x-axis is shown, but there are 3 axes once all of the
         # projections are included.
         self.yaxis.set_visible(False)
 
         # Adjust the number of ticks shown.
         self.set_xticks(np.linspace(0, 1, 5))
+        # **Turn off the top x-ticks.
+        # **Rotate the bottom x-ticks 210 deg.
 
         # Do not display ticks (only gridlines, tick labels, and axis labels).
-        self.xaxis.set_ticks_position('none')
+        #self.xaxis.set_ticks_position('none')
 
         # Turn off minor ticking altogether.
         self.xaxis.set_minor_locator(NullLocator())
 
-        # Vertical position of the title
+        # Place the title a little higher than normal.
         self.title.set_y(1.02)
 
         # Modify the padding between the tick labels and the axis labels.
         self.xaxis.labelpad = 10 # In display units
 
-        # Axes limits and scaling
-        #self.set_xlim(0.0, self.total)
-
         # Spacing from the vertices (tips) to the tip labels (in data coords)
         self.tipoffset = 0.14
+
+        # Axes limits and scaling
+        #self.set_xlim(0.0, self.total)
 
     def set_tiplabel(self, tiplabel, ha='center', va='center',
                    rotation_mode='anchor', **kwargs):
@@ -457,22 +630,22 @@ class TernaryABAxes(Axes):
         self.transAxes = BboxTransformTo(self.bbox)
 
         # Put these 3 transforms together -- from data all the way to display
-        # coordinates.  Using the '+' operator, these transforms are applied
-        # "in order".  The transforms are automatically simplified, if possible,
-        # by the underlying transformation framework.
+        # coordinates.
         self.transData = self.transProjection + self.transAffine + self.transAxes
 
         # X-axis gridlines and ticklabels.
         self._xaxis_transform = self.transData
+ #       self._xaxis_transform = Affine2D().rotate_deg(90) + self.transData
+        #self._xaxis_transform = IdentityTransform()
         angle = np.radians(self.angle)
         self._xaxis_text1_transform = (self.transData
                                        + Affine2D().translate(4*np.cos(angle), # 4-pixel offset
                                                               4*np.sin(angle)))
-
         self._xaxis_text2_transform = IdentityTransform() # Required but not used
 
         # Y-axis gridlines and ticklabels.
-        self._yaxis_transform = self.transData
+#        self._yaxis_transform = Affine2D().rotate_deg(-180) + self.transData
+        self._yaxis_transform = IdentityTransform() # Required but not used
         self._yaxis_text1_transform = IdentityTransform() # Required but not used
         self._yaxis_text2_transform = IdentityTransform() # Required but not used
 
@@ -528,8 +701,11 @@ class TernaryABAxes(Axes):
         """Return a dict-set_ whose keys are spine names and values are Line2D
         or Patch instances.  Each element is used to draw a spine of the axes.
         """
-        return {'ternary1':Spine.triangular_spine(self, 'bottom'),
-                'ternary2':Spine.triangular_spine(self, 'left'),
+#        return {'ternary1':Spine.triangular_spine(self, 'bottom'),
+#                'ternary2':Spine.triangular_spine(self, 'left'),
+#                'ternary3':Spine.triangular_spine(self, 'right')}
+        return {'ternary1':Spine.triangular_spine(self, 'left'),
+                'ternary2':Spine.triangular_spine(self, 'bottom'),
                 'ternary3':Spine.triangular_spine(self, 'right')}
 
     def _init_axis(self):
@@ -542,10 +718,8 @@ class TernaryABAxes(Axes):
         self._update_transScale()
 
     def __init__(self, *args, **kwargs):
+        # Offset angle [deg] of these axes relative to the c, a axes.
         self.angle = self.get_angle()
-
-        # Sum of a, b, and c for this plot.
-        #self.total = 1.0
 
         # Height of the ternary outline (in axis units)
         self.height = 0.8
@@ -554,12 +728,26 @@ class TernaryABAxes(Axes):
         # (in axis units)
         self.elevation = 0.05
 
+        # Sum of a, b, and c for this plot.
+        #self.total = 1.0
+
         Axes.__init__(self, *args, **kwargs)
         self.cla()
         self.set_aspect(aspect='equal', adjustable='box-forced', anchor='C') # C is for center.
 
 
 class TernaryBCAxes(TernaryABAxes):
+    """A matplotlib projection for ternary axes
+
+    Ternary plots are useful for plotting sets of three variables that each sum
+    to the same value.  For an introduction, see
+    http://en.wikipedia.org/wiki/Ternary_plot.
+
+    In general, ternary plots may be rendered with clockwise- or
+    counterclockwise-increasing axes.  Here, the ternary projections use the
+    counterclockwise convention.  Specifically, the ternarybc projection maps
+    *b* and *c* in ternary space to *x* and *y* in Cartesian space.
+    """
     name = 'ternarybc'
 
     class TernaryTransform(Transform):
@@ -607,24 +795,35 @@ class TernaryBCAxes(TernaryABAxes):
     def _gen_transProjection(self):
         """Return the projection transformation.
 
-        This is a method so that it can return an affine transformation (the
-        identity transformation for the *a*, *b* axes) or a non-affine
-        transformation (for the other two axes).
+        This is implemented as a method so that it can return an affine
+        transformation (the identity transformation for the *a*, *b* axes) or a
+        non-affine transformation (for the other two axes).
         """
         return self.TernaryTransform()
 
     def _gen_transAffinePart1(self):
-        """This is the part of the affine transformation that is unique to the
-        *b*, *c* ternary axes.
+        """Return the offset angle [deg] of these axes relative to the *c*, *a*
+        axes.
         """
         return Affine2D().rotate_deg(-45) + Affine2D().scale(1/SQRT3, 1)
 
     def get_angle(self):
-        """Return the offset angle [deg] of these axes relative to the a, b axes.
+        """Return the angle [deg] of these axes relative to the  *c*, *a* axes.
         """
         return 240
 
 class TernaryCAAxes(TernaryABAxes):
+    """A matplotlib projection for ternary axes
+
+    Ternary plots are useful for plotting sets of three variables that each sum
+    to the same value.  For an introduction, see
+    http://en.wikipedia.org/wiki/Ternary_plot.
+
+    In general, ternary plots may be rendered with clockwise- or
+    counterclockwise-increasing axes.  Here, the ternary projections use the
+    counterclockwise convention.  Specifically, the ternaryca projection maps
+    *c* and *a* in ternary space to *x* and *y* in Cartesian space.
+    """
     name = 'ternaryca'
 
     class TernaryTransform(Transform):
@@ -673,9 +872,9 @@ class TernaryCAAxes(TernaryABAxes):
     def _gen_transProjection(self):
         """Return the projection transformation.
 
-        This is a method so that it can return an affine transformation (the
-        identity transformation for the *a*, *b* axes) or a non-affine
-        transformation (for the other two axes).
+        This is implemented as a method so that it can return an affine
+        transformation (the identity transformation for the *a*, *b* axes) or a
+        non-affine transformation (for the other two axes).
         """
         return self.TernaryTransform()
 
@@ -686,6 +885,6 @@ class TernaryCAAxes(TernaryABAxes):
         return Affine2D().rotate_deg(135) + Affine2D().scale(1/SQRT3, -1)
 
     def get_angle(self):
-        """Return the offset angle [deg] of these axes relative to the c, a axes.
+        """Return the angle [deg] of these axes relative to the *c*, *a* axes.
         """
         return 0

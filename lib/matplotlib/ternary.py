@@ -5,8 +5,9 @@ __author__ = "Kevin L. Davies"
 __version__ = "2011/10/8"
 __license__ = "BSD"
 
-import matplotlib.pyplot as plt # **Acceptable?
+import matplotlib.pyplot as plt # **Is this acceptable?
 
+from matplotlib import rcParams
 
 class Ternary():
     """Create and manage a set of ternary axes.
@@ -232,6 +233,25 @@ class Ternary():
                   + bc_legend_handles_labels[1]
                   + ca_legend_handles_labels[1])
         self.ab.legend(lines, labels)
+
+    def colorbar(self, mappable, cax=None, ax=None, **kwargs):
+        """Create a colorbar for a ScalarMappable instance.
+
+        Documentation for the pylab thin wrapper:
+        %(colorbar_doc)s
+        """
+        pad = kwargs.pop('pad', 0.1)
+        shrink = kwargs.pop('shrink', 1.0)
+        fraction = kwargs.pop('fraction', 0.04)
+        # This is a hack and the alignment isnt quite right. **Clean it up.
+        scaley = rcParams['figure.subplot.top'] - rcParams['figure.subplot.bottom']
+        if cax is None:
+            cax = self.ab.figure.add_axes([0.74 + pad,
+                                          rcParams['figure.subplot.bottom'] + self.ab.elevation,
+                                          fraction,
+                                          self.ab.height*scaley*shrink - 0.005])
+        return self.ab.figure.colorbar(mappable, cax=cax, ax=ax, **kwargs)
+#        return self.figure.colorbar(shrink=shrink, pad=pad, *args, **kwargs)
 
     def __init__(self, ax=None):
         if  ax is None:
