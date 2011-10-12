@@ -335,6 +335,7 @@ class XTick(Tick):
         # the y loc is 3 points below the min of y axis
         # get the affine as an a,b,c,d,tx,ty list
         # x in data coords, y in axes coords
+        #t =  mtext.Text(
         trans, vert, horiz = self._get_text1_transform()
         t = mtext.Text(
             x=0, y=0,
@@ -352,6 +353,7 @@ class XTick(Tick):
 
         'Get the default Text 2 instance'
         # x in data coords, y in axes coords
+        #t =  mtext.Text(
         trans, vert, horiz = self._get_text2_transform()
         t = mtext.Text(
             x=0, y=1,
