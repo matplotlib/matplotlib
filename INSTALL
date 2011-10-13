@@ -54,7 +54,7 @@ Next, we need to get matplotlib installed.  We provide prebuilt
 binaries for OS X and Windows on the matplotlib `download
 <http://sourceforge.net/projects/matplotlib/files/>`_ page.  Click on
 the latest release of the "matplotlib" package, choose your python
-version (e.g., 2.5, 2.6 or 2.7) and your platform (macosx or win32).
+version (e.g., 2.6 or 2.7) and your platform (macosx or win32).
 If you have any problems, please check the :ref:`installing-faq`,
 search using Google, and/or post a question to the `mailing list
 <http://sourceforge.net/project/showfiles.php?group_id=80706>`_.
@@ -179,8 +179,8 @@ libraries themselves.
     This does not build matplotlib, but it does get the install the
     build dependencies, which will make building from source easier.
 
-:term:`python` 2.4 (or later but not python3)
-    matplotlib requires python 2.4 or later (`download <http://www.python.org/download/>`__)
+:term:`python` 2.6 (or later but not python3)
+    matplotlib requires python 2.6 or later (`download <http://www.python.org/download/>`__)
 
 :term:`numpy` 1.1 (or later)
     array support for python (`download
