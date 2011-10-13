@@ -99,7 +99,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import generators
 
-__version__  = '1.1.x'
+__version__  = '1.2.x'
 
 import os, re, shutil, subprocess, sys, warnings
 import distutils.sysconfig

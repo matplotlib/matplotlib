@@ -107,10 +107,33 @@ class StaticTzInfo(BaseTzInfo):
         return dt.replace(tzinfo=self)
 
     def normalize(self, dt, is_dst=False):
-        '''Correct the timezone information on the given datetime'''
+        '''Correct the timezone information on the given datetime.
+
+        This is normally a no-op, as StaticTzInfo timezones never have
+        ambiguous cases to correct:
+
+        >>> from pytz import timezone
+        >>> gmt = timezone('GMT')
+        >>> isinstance(gmt, StaticTzInfo)
+        True
+        >>> dt = datetime(2011, 5, 8, 1, 2, 3, tzinfo=gmt)
+        >>> gmt.normalize(dt) is dt
+        True
+
+        The supported method of converting between timezones is to use
+        datetime.astimezone(). Currently normalize() also works:
+
+        >>> la = timezone('America/Los_Angeles')
+        >>> dt = la.localize(datetime(2011, 5, 7, 1, 2, 3))
+        >>> fmt = '%Y-%m-%d %H:%M:%S %Z (%z)'
+        >>> gmt.normalize(dt).strftime(fmt)
+        '2011-05-07 08:02:03 GMT (+0000)'
+        '''
+        if dt.tzinfo is self:
+            return dt
         if dt.tzinfo is None:
             raise ValueError('Naive time - no tzinfo set')
-        return dt.replace(tzinfo=self)
+        return dt.astimezone(self)
 
     def __repr__(self):
         return '<StaticTzInfo %r>' % (self.zone,)
@@ -192,6 +215,16 @@ class DstTzInfo(BaseTzInfo):
         >>> before = eastern.normalize(before)
         >>> before.strftime(fmt)
         '2002-10-27 01:50:00 EDT (-0400)'
+
+        The supported method of converting between timezones is to use
+        datetime.astimezone(). Currently, normalize() also works:
+
+        >>> th = timezone('Asia/Bangkok')
+        >>> am = timezone('Europe/Amsterdam')
+        >>> dt = th.localize(datetime(2011, 5, 7, 1, 2, 3))
+        >>> fmt = '%Y-%m-%d %H:%M:%S %Z (%z)'
+        >>> am.normalize(dt).strftime(fmt)
+        '2011-05-06 20:02:03 CEST (+0200)'
         '''
         if dt.tzinfo is None:
             raise ValueError('Naive time - no tzinfo set')
