@@ -28,6 +28,7 @@
    dates_api.rst
    figure_api.rst
    font_manager_api.rst
+   geometry_api.rst
    gridspec_api.rst
    legend_api.rst
    mathtext_api.rst

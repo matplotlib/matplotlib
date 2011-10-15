@@ -181,6 +181,102 @@ class Path(object):
 
         return cls(vertices, codes)
 
+    @classmethod
+    def connect_with_lines(cls, paths, close=False):
+        """
+        (class method) Make a compound path from Path objects that
+        connects the end of each object to the beginning of the next one.
+        If *close* is true, connect also the last object to the
+        first one.
+        """
+        MOVETO, LINETO, CLOSEPOLY, STOP = \
+            cls.MOVETO, cls.LINETO, cls.CLOSEPOLY, cls.STOP
+        vertices, codes = [], []
+        first_path = True
+        for path in paths:
+            vs, cs = cleanup_path(path,
+                                  None,  # transform
+                                  False, # remove_nans
+                                  None,  # clip
+                                  False, # snap
+                                  1.0,   # stroke_width
+                                  False, # simplify
+                                  True)  # curves
+            first_vertex = True
+            for vert, code in zip(vs, cs):
+                if first_path:
+                    assert first_vertex
+                    assert code == MOVETO
+                    vertices.append(vert)
+                    codes.append(MOVETO)
+                    first_path = False
+                    first_vertex = False
+                elif first_vertex:
+                    assert code == MOVETO
+                    vertices.append(vert)
+                    codes.append(LINETO)
+                    first_vertex = False
+                elif code == STOP:
+                    break       # move to next path
+                else:
+                    vertices.append(vert)
+                    codes.append(code)
+        if close:
+            # the exact vertex to append doesn't matter for CLOSEPOLY,
+            # but we can give it the right coordinates just as well
+            vertices.append(vertices[0])
+            codes.append(CLOSEPOLY)
+        return cls(vertices, codes)
+
+    def reverse_path(self):
+        """
+        Return a :class:`Path` object that is this one backwards.
+        Does not handle ``CLOSEPOLY``. The intended use is for attaching
+        :meth:`arc` paths to lines at the correct ends, since arcs always
+        go counterclockwise.
+        """
+        cls = self.__class__
+        MOVETO, LINETO, STOP, CLOSEPOLY = \
+            cls.MOVETO, cls.LINETO, cls.STOP, cls.CLOSEPOLY
+        vertices, codes = cleanup_path(self, None, False, None, False,
+                                       1.0, False, True)
+        if CLOSEPOLY in codes:
+            raise ValueError, "reverse_path does not currently handle CLOSEPOLY"
+        # The contract of CLOSEPOLY is not entirely clear to me:
+        # it's fine if you have MOVETO followed by various LINETO etc
+        # followed by CLOSEPOLY, but can you continue drawing after that?
+        # If not, it would be straightforward to handle.
+        if codes[0] != MOVETO:
+            raise ValueError, "reverse_path requires initial MOVETO"
+        if STOP in codes:
+            stop_at = np.flatnonzero(codes == STOP)[0]
+            vertices = vertices[:stop_at]
+            codes = codes[:stop_at]
+
+        # In the absence of CLOSEPOLY and STOP, the vertices and codes might be
+        # something like this:
+        # vertices = [      A,      B,      C,      D,      E,      F,      G ]
+        # codes =    [ MOVETO, LINETO, LINETO, CURVE3, CURVE3, MOVETO, LINETO ]
+        # The same path in reverse is:
+        # vertices = [      G,      F,      E,      D,      C,      B,      A ]
+        # codes =    [ MOVETO, LINETO, MOVETO, CURVE3, CURVE3, LINETO, LINETO ]
+        # Each [MOVETO A, draw B, draw C, ..., draw M, draw N] segment becomes
+        # [MOVETO N, draw M, ..., draw C, draw B, draw A] so the vertices array
+        # is simply reversed, and in the codes array each segment consisting
+        # of MOVETO and non-MOVETO commands is reversed separately with the
+        # MOVETO jumping to front.
+
+        moves = [i for i in range(len(codes)) if codes[i] == MOVETO]
+        vout = list(reversed(vertices))
+        cout = [ ]
+        next = len(codes)
+        for idx in reversed(moves):
+            cout.append(MOVETO)
+            cout.extend(reversed(codes[idx+1:next]))
+            next = idx
+        assert len(cout) == len(vout) == len(codes)
+        return cls(vout, cout)
+
     def __repr__(self):
         return "Path(%s, %s)" % (self.vertices, self.codes)
 
@@ -570,22 +666,25 @@ class Path(object):
         return cls._unit_circle_righthalf
 
     @classmethod
-    def arc(cls, theta1, theta2, n=None, is_wedge=False):
+    def arc(cls, theta1, theta2, n=None, is_wedge=False, degrees=True):
         """
         (staticmethod) Returns an arc on the unit circle from angle
-        *theta1* to angle *theta2* (in degrees).
+        *theta1* to angle *theta2* (in degrees if *degrees* is true,
+        otherwise in radians).
 
         If *n* is provided, it is the number of spline segments to make.
         If *n* is not provided, the number of spline segments is
         determined based on the delta between *theta1* and *theta2*.
+        The arc is the part of the circle that is counterclockwise from
+        *theta1* and clockwise from *theta2*.
 
            Masionobe, L.  2003.  `Drawing an elliptical arc using
            polylines, quadratic or cubic Bezier curves
            <http://www.spaceroots.org/documents/ellipse/index.html>`_.
         """
-        # degrees to radians
-        theta1 *= np.pi / 180.0
-        theta2 *= np.pi / 180.0
+        if degrees:
+            theta1 *= np.pi / 180.0
+            theta2 *= np.pi / 180.0
 
         twopi  = np.pi * 2.0
         halfpi = np.pi * 0.5

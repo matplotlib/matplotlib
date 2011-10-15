@@ -1,3 +1,9 @@
+2011-10-15 Add RoundedPolygon patch. The implementation includes some
+           parts possibly useful elsewhere: Path methods
+           connect_with_lines and reverse_path for easier path
+           composition; Path.arc now optionally accepts radians;
+           some geometry utilities in matplotlib.geometry. - JKS
+
 2011-08-18 Change api of Axes.get_tightbbox and add an optional
            keyword parameter *call_axes_locator*. - JJL
 
