@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<svg height="432pt" version="1.1" viewBox="0 0 576 432" width="576pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:square;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="
+M0 432
+L576 432
+L576 0
+L0 0
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="
+M72 388.8
+L518.4 388.8
+L518.4 43.2
+L72 43.2
+z
+" style="fill:#ffffff;"/>
+   </g>
+   <g id="patch_3">
+    <path clip-path="url(#p7ff5b81e1d)" d="
+M109.2 327.6
+L258 327.6
+L258 178.8
+L109.2 178.8
+L109.2 327.6" style="fill:none;opacity:0.5;stroke:#ff0000;stroke-width:2;"/>
+   </g>
+   <g id="patch_4">
+    <path clip-path="url(#p7ff5b81e1d)" d="
+M109.2 327.6
+C109.2 327.6 109.2 327.6 109.2 327.6
+L239.4 327.6
+C244.331 327.6 249.065 325.639 252.552 322.152
+C256.039 318.665 258 313.931 258 309
+L258 216
+C258 206.138 254.078 196.669 247.104 189.696
+C240.131 182.722 230.662 178.8 220.8 178.8
+L165 178.8
+C150.207 178.8 136.004 184.683 125.543 195.143
+C115.083 205.604 109.2 219.807 109.2 234.6
+z
+" style="fill:none;opacity:0.5;stroke:#0000ff;stroke-width:2;"/>
+   </g>
+   <g id="patch_5">
+    <path clip-path="url(#p7ff5b81e1d)" d="
+M258 364.8
+L481.2 364.8
+L369.6 67.2
+L258 364.8" style="fill:none;opacity:0.5;stroke:#ff0000;stroke-width:2;"/>
+   </g>
+   <g id="patch_6">
+    <path clip-path="url(#p7ff5b81e1d)" d="
+M276.848 314.538
+C274.738 320.166 274.022 326.222 274.764 332.187
+C275.505 338.152 277.68 343.849 281.104 348.789
+C284.528 353.729 289.098 357.767 294.423 360.555
+C299.747 363.343 305.669 364.8 311.68 364.8
+L427.52 364.8
+C433.531 364.8 439.453 363.343 444.777 360.555
+C450.102 357.767 454.672 353.729 458.096 348.789
+C461.52 343.849 463.695 338.152 464.436 332.187
+C465.178 326.222 464.462 320.166 462.352 314.538
+L404.431 160.084
+C401.773 152.994 397.012 146.883 390.789 142.57
+C384.566 138.257 377.172 135.946 369.6 135.946
+C362.028 135.946 354.634 138.257 348.411 142.57
+C342.188 146.883 337.427 152.994 334.769 160.084
+z
+" style="fill:none;opacity:0.5;stroke:#0000ff;stroke-width:2;"/>
+   </g>
+   <g id="matplotlib.axis_1"/>
+   <g id="matplotlib.axis_2"/>
+   <g id="patch_7">
+    <path d="
+M72 43.2
+L518.4 43.2" style="fill:none;stroke:#000000;"/>
+   </g>
+   <g id="patch_8">
+    <path d="
+M518.4 388.8
+L518.4 43.2" style="fill:none;stroke:#000000;"/>
+   </g>
+   <g id="patch_9">
+    <path d="
+M72 388.8
+L518.4 388.8" style="fill:none;stroke:#000000;"/>
+   </g>
+   <g id="patch_10">
+    <path d="
+M72 388.8
+L72 43.2" style="fill:none;stroke:#000000;"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p7ff5b81e1d">
+   <rect height="345.6" width="446.4" x="72.0" y="43.2"/>
+  </clipPath>
+ </defs>
+</svg>

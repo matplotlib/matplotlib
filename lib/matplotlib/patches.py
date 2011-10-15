@@ -12,6 +12,7 @@ import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
+import matplotlib.geometry as geometry
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
@@ -800,6 +801,110 @@ class Polygon(Patch):
            only.  New code should use
            :meth:`~matplotlib.patches.Polygon.get_xy` and
            :meth:`~matplotlib.patches.Polygon.set_xy` instead.""")
+
+class RoundedPolygon(Patch):
+    """
+    Polygon patch with rounded corners.
+    """
+    __slots__ = ('_xy', '_radii', '_path')
+
+    def __str__(self):
+        return "RoundedPolygon(xy=%s, radii=%s)" % (self._xy, self._radii)
+
+    @docstring.dedent_interpd
+    def __init__(self, xy, radii, **kwargs):
+        """
+        Constructor arguments:
+
+        *xy*
+          Vertex coordinates: something castable to a
+          numpy array of shape (N, 2). The rounded polygon
+          will approximate a polygon with these vertices.
+
+        *radii*
+          For each vertex, the radius of a circular arc that
+          replaces the polygon corner at that vertex.
+          A scalar, or something castable to a numpy array
+          of shape (N,).
+
+        Valid kwargs are:
+        %(Patch)s
+        """
+        Patch.__init__(self, **kwargs)
+        xy = np.asarray(xy, np.float_)
+        self._radii = radii
+        self._xy = xy
+        self._recompute()
+
+    def get_path(self):
+        return self._path
+
+    def _recompute(self):
+        len_xy = len(self._xy)
+        if np.isscalar(self._radii):
+            radii = np.repeat(self._radii, len_xy)
+        else:
+            radii = self._radii
+        xy = np.asarray(self._xy)
+        paths = [ None for _ in range(len_xy) ]
+
+        for i in range(len_xy):
+            if i == 0:
+                corner = (xy[-1], xy[0], xy[1])
+            elif i == len_xy - 1:
+                corner = (xy[-2], xy[-1], xy[0])
+            else:
+                corner = xy[i-1:i+2]
+            r = radii[i]
+            arc_center = self._arc_center(corner, r)
+            proj = geometry.project_point_on_line_through
+            try:
+                arc_ends = (proj(arc_center, corner[0], corner[1], True),
+                            proj(arc_center, corner[1], corner[2], True))
+            except ValueError:
+                raise ValueError, "radius %f too large at vertex #%d=%g" \
+                    % (r, i, corner[1])
+            paths[i] = self._arc_path(arc_ends, arc_center, r)
+
+        self._path = Path.connect_with_lines(paths, close=True)
+
+    @staticmethod
+    def _arc_center((a, b, c), r):
+        if r == 0:
+            return b
+        a0, a1 = a
+        b0, b1 = b
+        c0, c1 = c
+        da = r * np.hypot(b1 - a1, b0 - a0)
+        dc = r * np.hypot(b1 - c1, b0 - c0)
+        base_a = a1 * b0 - a0 * b1
+        base_c = c1 * b0 - c0 * b1
+        candidates = \
+            np.linalg.solve([[a1 - b1, b0 - a0],
+                             [c1 - b1, b0 - c0]],
+                            [[base_a - da, base_a - da, base_a + da, base_a + da],
+                             [base_c - dc, base_c + dc, base_c - dc, base_c + dc]])
+        orient_a = geometry.orientation(a, b, c)
+        orient_c = geometry.orientation(c, b, a)
+        for cand in candidates.T:
+            if (geometry.orientation(a, b, cand),
+                geometry.orientation(c, b, cand)) == (orient_a, orient_c):
+                return cand
+        raise ValueError, "Cannot find solution"
+
+    @staticmethod
+    def _arc_path((a, b), center, radius):
+        a0, a1 = a - center
+        b0, b1 = b - center
+        angle_a = np.arctan2(a1, a0)
+        angle_b = np.arctan2(b1, b0)
+        if geometry.orientation(center, a, b) > 0:
+            p = Path.arc(angle_a, angle_b, degrees=False)
+        else:
+            p = Path.arc(angle_b, angle_a, degrees=False).reverse_path()
+        bb = transforms.Bbox([center, center + (radius, radius)])
+        trans = transforms.BboxTransformTo(bb)
+        return trans.transform_path(p)
 
 class Wedge(Patch):
     """
