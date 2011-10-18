@@ -991,7 +991,6 @@ class Figure(Artist):
 
         .. plot:: mpl_examples/pylab_examples/figlegend_demo.py
         """
-        handles = flatten(handles)
         l = Legend(self, handles, labels, *args, **kwargs)
         self.legends.append(l)
         return l
