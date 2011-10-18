@@ -59,7 +59,6 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         self.drawRect = False
         self.rect = []
         self.blitbox = None
-        self.replot = True
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
 
     def drawRectangle( self, rect ):
@@ -69,7 +68,7 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
 
     def paintEvent( self, e ):
         """
-        Draw to the Agg backend and then copy the image to the qt.drawable.
+        Copy the image from the Agg canvas to the qt.drawable.
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
@@ -77,10 +76,6 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
         #FigureCanvasQT.paintEvent( self, e )
         if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', self, \
            self.get_width_height()
-
-        if self.replot:
-            FigureCanvasAgg.draw(self)
-            self.replot = False
 
         if self.blitbox is None:
             # matplotlib is in rgba byte order.  QImage wants to put the bytes
@@ -121,11 +116,13 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
 
     def draw( self ):
         """
-        Draw the figure when xwindows is ready for the update
+        Draw the figure with Agg, and queue a request
+        for a Qt draw.
         """
-
-        if DEBUG: print "FigureCanvasQtAgg.draw", self
-        self.replot = True
+        # The Agg draw is done here; delaying it until the paintEvent
+        # causes problems with code that uses the result of the
+        # draw() to update plot elements.
+        FigureCanvasAgg.draw(self)
         self.update()
 
     def blit(self, bbox=None):
