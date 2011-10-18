@@ -23,7 +23,7 @@ python shell.
 Ipython to the rescue
 =====================
 
-Fortunately, `ipython <http://ipython.scipy.org/dist>`_, an enhanced
+Fortunately, `ipython <http://ipython.org/>`_, an enhanced
 interactive python shell, has figured out all of these tricks, and is
 matplotlib aware, so when you start ipython in the *pylab* mode.
 
