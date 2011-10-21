@@ -7792,6 +7792,8 @@ class Axes(martist.Artist):
                 p.update(kwargs)
                 if lbl is not None: p.set_label(lbl)
 
+                p.set_snap(False)
+
                 for p in patch[1:]:
                     p.update(kwargs)
                     p.set_label('_nolegend_')
