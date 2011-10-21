@@ -102,9 +102,11 @@ class Tick(artist.Artist):
                 size = rcParams['%s.minor.size'%name]
         self._size = size
 
-        if width is None: # We want the tick markers to follow the
-                          # gridline width, not markeredgewidth
-            width = rcParams['grid.linewidth']
+        if width is None:
+            if major:
+                width = rcParams['%s.major.width'%name]
+            else:
+                width = rcParams['%s.minor.width'%name]
         self._width = width
 
         if color is None:

@@ -231,6 +231,8 @@ backend      : %(backend)s
 # see http://matplotlib.sourceforge.net/api/axis_api.html#matplotlib.axis.Tick
 #xtick.major.size     : 4      # major tick size in points
 #xtick.minor.size     : 2      # minor tick size in points
+#xtick.major.width    : 0.5    # major tick width in points
+#xtick.minor.width    : 0.5    # minor tick width in points
 #xtick.major.pad      : 4      # distance to major tick label in points
 #xtick.minor.pad      : 4      # distance to the minor tick label in points
 #xtick.color          : k      # color of the tick labels
@@ -239,6 +241,8 @@ backend      : %(backend)s
 
 #ytick.major.size     : 4      # major tick size in points
 #ytick.minor.size     : 2      # minor tick size in points
+#ytick.major.width    : 0.5    # major tick width in points
+#ytick.minor.width    : 0.5    # minor tick width in points
 #ytick.major.pad      : 4      # distance to major tick label in points
 #ytick.minor.pad      : 4      # distance to the minor tick label in points
 #ytick.color          : k      # color of the tick labels
