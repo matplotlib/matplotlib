@@ -764,10 +764,13 @@ def run(arguments, content, options, state_machine, state, lineno):
                     shutil.copyfile(fn, destimg)
 
     # copy script (if necessary)
+    target_name = os.path.join(dest_dir, output_base + source_ext)
+    f = open(target_name, 'w')
     if source_file_name == rst_file:
-        target_name = os.path.join(dest_dir, output_base + source_ext)
-        f = open(target_name, 'w')
-        f.write(unescape_doctest(code))
-        f.close()
+        code_escaped = unescape_doctest(code)
+    else:
+        code_escaped = code
+    f.write(code_escaped)
+    f.close()
 
     return errors

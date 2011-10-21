@@ -641,6 +641,8 @@ class Axis(artist.Artist):
         self._major_tick_kw = dict()
         self._minor_tick_kw = dict()
 
+        self._reset_tick_cache()
+
         self.cla()
         self.set_scale('linear')
 
@@ -741,6 +743,12 @@ class Axis(artist.Artist):
         self._lastNumMajorTicks = 1
         self._lastNumMinorTicks = 1
 
+        self._reset_tick_cache()
+
+    def _reset_tick_cache(self):
+        self._last_interval = None
+        self._last_ticks_to_draw = None
+
     def set_tick_params(self, which='major', reset=False, **kw):
         """
         Set appearance parameters for ticks and ticklabels.
@@ -767,6 +775,7 @@ class Axis(artist.Artist):
             if which == 'minor' or which == 'both':
                  for tick in self.minorTicks:
                     tick._apply_params(**self._minor_tick_kw)
+        self._reset_tick_cache()
 
     @staticmethod
     def _translate_tick_kw(kw, to_init_kw=True):
@@ -910,6 +919,7 @@ class Axis(artist.Artist):
     def set_smart_bounds(self,value):
         """set the axis to have smart bounds"""
         self._smart_bounds = value
+        self._reset_tick_cache()
 
     def get_smart_bounds(self):
         """get whether the axis has smart bounds"""
@@ -921,12 +931,18 @@ class Axis(artist.Artist):
         interval of the axes. Returns a list of ticks that will be
         drawn.
         """
+        view_interval = self.get_view_interval()
+        axis_interval = self.get_axis_interval()
+        if (self._last_interval is not None and
+            np.all(self._last_interval[0] == view_interval) and
+            np.all(self._last_interval[1] == axis_interval)):
+            return self._last_ticks_to_draw
+        self._last_interval = (view_interval.copy(), axis_interval.copy())
 
-        interval = self.get_view_interval()
-        tick_tups = [ t for t in self.iter_ticks()]
+        tick_tups = list(self.iter_ticks())
         if self._smart_bounds:
             # handle inverted limits
-            view_low, view_high = min(*interval), max(*interval)
+            view_low, view_high = min(*view_interval), max(*view_interval)
             data_low, data_high = self.get_data_interval()
             if data_low > data_high:
                 data_low, data_high = data_high, data_low
@@ -966,11 +982,13 @@ class Axis(artist.Artist):
         ticks_to_draw = []
         for tick, loc, label in tick_tups:
             if tick is None: continue
-            if not mtransforms.interval_contains(interval, loc): continue
+            if not mtransforms.interval_contains(view_interval, loc): continue
             tick.update_position(loc)
             tick.set_label1(label)
             tick.set_label2(label)
             ticks_to_draw.append(tick)
+
+        self._last_ticks_to_draw = ticks_to_draw
 
         return ticks_to_draw
 
@@ -1434,6 +1452,8 @@ class Axis(artist.Artist):
 
         ACCEPTS: sequence of strings
         """
+        self._reset_tick_cache()
+
         #ticklabels = [str(l) for l in ticklabels]
         minor = kwargs.pop('minor', False)
         if minor:
@@ -1463,6 +1483,8 @@ class Axis(artist.Artist):
 
         ACCEPTS: sequence of floats
         """
+        self._reset_tick_cache()
+
         ### XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
         if len(ticks) > 1:
@@ -1730,6 +1752,8 @@ class XAxis(Axis):
         :meth:`~matplotlib.axes.Axes.set_xlim`.
 
         """
+        self._reset_tick_cache()
+
         if ignore:
             self.axes.viewLim.intervalx = vmin, vmax
         else:
@@ -1774,7 +1798,8 @@ class XAxis(Axis):
             if not viewMutated:
                 self.axes.viewLim.intervalx = xmin, xmax
 
-
+    def get_axis_interval(self):
+        return self.axes.bbox.intervalx
 
 class YAxis(Axis):
     __name__ = 'yaxis'
@@ -1996,6 +2021,8 @@ class YAxis(Axis):
         :meth:`~matplotlib.axes.Axes.set_ylim`.
 
         """
+        self._reset_tick_cache()
+
         if ignore:
             self.axes.viewLim.intervaly = vmin, vmax
         else:
@@ -2038,3 +2065,6 @@ class YAxis(Axis):
                 self.axes.dataLim.intervaly = ymin, ymax
             if not viewMutated:
                 self.axes.viewLim.intervaly = ymin, ymax
+
+    def get_axis_interval(self):
+        return self.axes.bbox.intervaly
