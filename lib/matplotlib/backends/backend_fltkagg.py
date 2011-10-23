@@ -155,8 +155,8 @@ class FltkCanvas(Fltk.Fl_Widget):
             if self._draw_overlay:
                 self._oldx=x
                 self._oldy=y
-            if Fltk.Fl.event_clicks():
-                FigureCanvasBase.button_press_event(self._source, x, yf, self._button)
+            if Fltk.Fl.event_clicks():  # according to docs, event_clicks() returns nonzero if this is a double click.
+                FigureCanvasBase.button_press_event(self._source, x, yf, self._button, dblclick=True)
                 return 1
             else:
                 FigureCanvasBase.button_press_event(self._source, x, yf, self._button)
