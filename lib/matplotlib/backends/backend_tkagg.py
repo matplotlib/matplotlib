@@ -193,6 +193,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._tkcanvas.bind("<KeyRelease>", self.key_release)
         for name in "<Button-1>", "<Button-2>", "<Button-3>":
             self._tkcanvas.bind(name, self.button_press_event)
+        for name in "<Double-Button-1>", "<Double-Button-2>", "<Double-Button-3>":
+            self._tkcanvas.bind(name, self.button_dblclick_event)
         for name in "<ButtonRelease-1>", "<ButtonRelease-2>", "<ButtonRelease-3>":
             self._tkcanvas.bind(name, self.button_release_event)
 
@@ -271,7 +273,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
 
 
-    def button_press_event(self, event):
+    def button_press_event(self, event, dblclick=False):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y
@@ -283,7 +285,10 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             if   num==2: num=3
             elif num==3: num=2
 
-        FigureCanvasBase.button_press_event(self, x, y, num, guiEvent=event)
+        FigureCanvasBase.button_press_event(self, x, y, num, dblclick=dblclick, guiEvent=event)
+
+    def button_dblclick_event(self,event):
+        self.button_press_event(event,dblclick=True)
 
     def button_release_event(self, event):
         x = event.x
