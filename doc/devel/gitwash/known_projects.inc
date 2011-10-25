@@ -21,7 +21,7 @@
 .. _`nipy mailing list`: http://mail.scipy.org/mailman/listinfo/nipy-devel
 
 .. ipython
-.. _ipython: http://ipython.scipy.org
+.. _ipython: http://ipython.org
 .. _`ipython github`: http://github.com/ipython/ipython
 .. _`ipython mailing list`: http://mail.scipy.org/mailman/listinfo/IPython-dev
 
