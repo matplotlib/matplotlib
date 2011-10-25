@@ -15,10 +15,10 @@ def OnClick(event):
    if event.dblclick:
       print "DBLCLICK",event
    else:
-      print "DOWN",event
+      print "DOWN    ",event
 
 def OnRelease(event):
-    print "UP",event
+    print   "UP      ",event
 
 
 fig = plt.gcf()
