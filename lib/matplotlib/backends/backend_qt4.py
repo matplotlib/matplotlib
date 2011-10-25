@@ -361,6 +361,8 @@ class FigureManagerQT( FigureManagerBase ):
         self.window.show()
 
     def destroy( self, *args ):
+        # check for qApp first, as PySide deletes it in its atexit handler
+        if QtGui.QApplication.instance() is None: return
         if self.window._destroying: return
         self.window._destroying = True
         QtCore.QObject.disconnect( self.window, QtCore.SIGNAL( 'destroyed()' ),
