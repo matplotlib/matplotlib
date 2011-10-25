@@ -166,7 +166,7 @@ class PlotView(NibClassBuilder.AutoBaseClass):
         self.updatePlot()
 
     def mouseDown_(self, event):
-        dblclick = True if event.clickCount() == 2 else False 
+        dblclick = (event.clickCount() == 2)
         loc = self.convertPoint_fromView_(event.locationInWindow(), None)
         type = event.type()
         if (type == NSLeftMouseDown):

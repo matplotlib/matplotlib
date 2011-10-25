@@ -248,8 +248,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
-        if (event.type == gdk._2BUTTON_PRESS): dblclick=True
-        else: dblclick=False
+        dblclick = (event.type == gdk._2BUTTON_PRESS)
         FigureCanvasBase.button_press_event(self, x, y, event.button, dblclick=dblclick, guiEvent=event)
         return False  # finish event propagation?
 
