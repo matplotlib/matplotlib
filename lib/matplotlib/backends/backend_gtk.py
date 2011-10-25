@@ -1,7 +1,6 @@
 from __future__ import division
 
 import os, sys
-import time
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 try:
@@ -259,10 +258,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             # eat the extra DOWN event in the case that we detect it is part of a double
             # click.
             # first, get the double click time in milliseconds.
-            current_time  = time.time()
-            last_time     = self.last_downclick.get(event.button,0.0)
+            current_time  = event.get_time()
+            last_time     = self.last_downclick.get(event.button,0)
             dblclick_time = gtk.settings_get_for_screen(gdk.screen_get_default()).get_property('gtk-double-click-time')
-            delta_time    = int((current_time-last_time)*1000.0)
+            delta_time    = current_time-last_time
             if delta_time < dblclick_time:
                 del self.last_downclick[event.button] # we do not want to eat more than one event.
                 return False                          # eat.
