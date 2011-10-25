@@ -2269,6 +2269,12 @@ class Parser(object):
                     + (group | Error("Expected \overline{value}"))
                     ).setParseAction(self.overline).setName("overline")
 
+        operatorname = Group(
+                        Suppress(Literal(r"\operatorname"))
+                     + ((start_group + ZeroOrMore(simple)  + end_group)
+                        | Error("Expected \operatorname{value}"))
+                     ).setParseAction(self.operatorname).setName("operatorname")
+
         placeable   <<(function
                      ^ (c_over_c | symbol)
                      ^ accent
@@ -2279,6 +2285,7 @@ class Parser(object):
                      ^ genfrac
                      ^ sqrt
                      ^ overline
+                     ^ operatorname
                      )
 
         simple      <<(space
@@ -2577,6 +2584,18 @@ class Parser(object):
         self.pop_state()
         hlist.function_name = toks[0]
         return hlist
+
+    def operatorname(self, s, loc, toks):
+        self.push_state()
+        state = self.get_state()
+        state.font = 'rm'
+        # Change the font of Chars, but leave Kerns alone
+        for c in toks[0]:
+            if isinstance(c,Char):
+                c.font = 'rm'
+                c._update_metrics()
+        self.pop_state()
+        return Hlist(toks[0])
 
     def start_group(self, s, loc, toks):
         self.push_state()
