@@ -171,7 +171,7 @@ class Triangulation(object):
     @property
     def neighbors(self):
         if self._neighbors is None:
-            self._neighbors = self._get_cpp_triangulation().get_neighbors()
+            self._neighbors = self.get_cpp_triangulation().get_neighbors()
         return self._neighbors
 
     def set_mask(self, mask):

@@ -64,7 +64,7 @@ In this example, ``ax`` is the ``Axes`` instance created by the
 subclass of ``Axes``) and when you call ``ax.plot``, it creates a
 ``Line2D`` instance and adds it to the :attr:`Axes.lines
 <matplotlib.axes.Axes.lines>` list.  In the interactive `ipython
-<http://ipython.scipy.org/>`_ session below, you can see that the
+<http://ipython.org/>`_ session below, you can see that the
 ``Axes.lines`` list is length one and contains the same line that was
 returned by the ``line, = ax.plot...`` call:
 
