@@ -1323,8 +1323,8 @@ class MouseEvent(LocationEvent):
         self.dblclick = dblclick
 
     def __str__(self):
-        return "MPL MouseEvent: xy=(%d,%d) xydata=(%lf,%lf) button=%d dblclick=%s inaxes=%s"%\
-             (self.x,self.y,self.xdata,self.ydata,self.button,self.dblclick,self.inaxes)
+        return "MPL MouseEvent: xy=(%d,%d) xydata=(%s,%s) button=%d dblclick=%s inaxes=%s"%\
+             (self.x,self.y,str(self.xdata),str(self.ydata),self.button,self.dblclick,self.inaxes)
 
 class PickEvent(Event):
     """
