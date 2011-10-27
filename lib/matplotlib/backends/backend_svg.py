@@ -757,6 +757,10 @@ class RendererSVG(RendererBase):
             im.flipud_out()
             attrib['xlink:href'] = filename
 
+        alpha = gc.get_alpha()
+        if alpha != 1.0:
+            attrib['opacity'] = str(alpha)
+
         if transform is None:
             self.writer.element(
                 'image',
