@@ -80,7 +80,7 @@ class Path(object):
 
     code_type = np.uint8
 
-    def __init__(self, vertices, codes=None, _interpolation_steps=1):
+    def __init__(self, vertices, codes=None, _interpolation_steps=1, closed=False):
         """
         Create a new path with the given vertices and codes.
 
@@ -117,6 +117,11 @@ class Path(object):
             assert len(codes) == len(vertices)
             if len(codes):
                 assert codes[0] == self.MOVETO
+        elif closed:
+            codes = np.empty(len(vertices)) * 2
+            codes[0] = self.MOVETO
+            codes[1:-1] = self.LINETO
+            codes[-1] = self.CLOSEPOLY
 
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
