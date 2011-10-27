@@ -790,7 +790,7 @@ class Polygon(Patch):
     def get_xy(self):
         return self._path.vertices
     def set_xy(self, vertices):
-        self._path = Path(vertices)
+        self._path = Path(vertices, closed=self._closed)
     _get_xy = get_xy
     _set_xy = set_xy
     xy = property(
@@ -871,7 +871,8 @@ class Arrow(Patch):
             [ 0.0,  0.1 ], [ 0.0, -0.1],
             [ 0.8, -0.1 ], [ 0.8, -0.3],
             [ 1.0,  0.0 ], [ 0.8,  0.3],
-            [ 0.8,  0.1 ], [ 0.0,  0.1] ] )
+            [ 0.8,  0.1 ], [ 0.0,  0.1] ],
+                  closed=True)
 
     @docstring.dedent_interpd
     def __init__( self, x, y, dx, dy, width=1.0, **kwargs ):
@@ -979,7 +980,7 @@ class FancyArrow(Polygon):
             M = np.array([[cx, sx],[-sx,cx]])
             verts = np.dot(coords, M) + (x+dx, y+dy)
 
-        Polygon.__init__(self, map(tuple, verts), **kwargs)
+        Polygon.__init__(self, map(tuple, verts), closed=True, **kwargs)
 
 docstring.interpd.update({"FancyArrow":FancyArrow.__init__.__doc__})
 
@@ -1051,7 +1052,7 @@ class YAArrow(Patch):
         xs = self.convert_xunits([xb1, xb2, xc2, xd2, x1, xd1, xc1, xb1])
         ys = self.convert_yunits([yb1, yb2, yc2, yd2, y1, yd1, yc1, yb1])
 
-        return Path(zip(xs, ys))
+        return Path(zip(xs, ys), closed=True)
 
     def get_patch_transform(self):
         return transforms.IdentityTransform()
@@ -3696,7 +3697,7 @@ class FancyArrowPatch(Patch):
         dpi_cor is currently used for linewidth-related things and
         shink factor. Mutation scale is not affected by this.
         """
-        
+
         self._dpi_cor = dpi_cor
 
     def get_dpi_cor(self):
@@ -3704,10 +3705,10 @@ class FancyArrowPatch(Patch):
         dpi_cor is currently used for linewidth-related things and
         shink factor. Mutation scale is not affected by this.
         """
-        
+
         return self._dpi_cor
 
-        
+
     def set_positions(self, posA, posB):
         """ set the begin end end positions of the connecting
         path. Use current vlaue if None.
@@ -3905,7 +3906,7 @@ class FancyArrowPatch(Patch):
 
         # FIXME : dpi_cor is for the dpi-dependecy of the
         # linewidth. There could be room for improvement.
-        # 
+        #
         #dpi_cor = renderer.points_to_pixels(1.)
         self.set_dpi_cor(renderer.points_to_pixels(1.))
         path, fillable = self.get_path_in_displaycoord()
@@ -4167,7 +4168,7 @@ class ConnectionPatch(FancyArrowPatch):
         """
 
         dpi_cor = self.get_dpi_cor()
-        
+
         x, y = self.xy1
         posA = self._get_xy(x, y, self.coords1, self.axesA)
 
