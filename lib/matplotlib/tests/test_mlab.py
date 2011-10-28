@@ -16,9 +16,9 @@ def test_recarray_csv_roundtrip():
                           [('x',np.float),('y',np.float),('t',np.float)])
     # initialising all values: uninitialised memory sometimes produces floats
     # that do not round-trip to string and back.
-    expected['x'] = np.linspace(0,1e-200,99)
-    expected['y'] = np.linspace(0,1,99)
-    expected['t'] = np.linspace(0,1e300,99)
+    expected['x'][:] = np.linspace(-1e9, -1, 99)
+    expected['y'][:] = np.linspace(1, 1e9, 99)
+    expected['t'][:] = np.linspace(0, 0.01, 99)
     fd = tempfile.TemporaryFile(suffix='csv', mode="w+")
     mlab.rec2csv(expected,fd)
     fd.seek(0)

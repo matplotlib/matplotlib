@@ -321,9 +321,9 @@ class TextToPath(object):
         #oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:
             font_and_encoding = self._ps_fontd.get(dvifont.texname)
+            font_bunch =  self.tex_font_map[dvifont.texname]
 
             if font_and_encoding is None:
-                font_bunch =  self.tex_font_map[dvifont.texname]
                 font = FT2Font(str(font_bunch.filename))
 
                 for charmap_name, charmap_code in [("ADOBE_CUSTOM", 1094992451),

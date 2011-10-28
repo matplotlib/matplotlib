@@ -354,7 +354,7 @@ class Line2D(Artist):
         bbox.update_from_data_xy(self.get_transform().transform(self.get_xydata()),
                                  ignore=True)
         # correct for marker size, if any
-        if self._marker is not None:
+        if self._marker:
             ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
             bbox = bbox.padded(ms)
         return bbox
@@ -388,26 +388,26 @@ class Line2D(Artist):
         if always or self._invalidx:
             xconv = self.convert_xunits(self._xorig)
             if ma.isMaskedArray(self._xorig):
-                x = ma.asarray(xconv, float)
+                x = ma.asarray(xconv, np.float_)
             else:
-                x = np.asarray(xconv, float)
+                x = np.asarray(xconv, np.float_)
             x = x.ravel()
         else:
             x = self._x
         if always or self._invalidy:
             yconv = self.convert_yunits(self._yorig)
             if ma.isMaskedArray(self._yorig):
-                y = ma.asarray(yconv, float)
+                y = ma.asarray(yconv, np.float_)
             else:
-                y = np.asarray(yconv, float)
+                y = np.asarray(yconv, np.float_)
             y = y.ravel()
         else:
             y = self._y
 
         if len(x)==1 and len(y)>1:
-            x = x * np.ones(y.shape, float)
+            x = x * np.ones(y.shape, np.float_)
         if len(y)==1 and len(x)>1:
-            y = y * np.ones(x.shape, float)
+            y = y * np.ones(x.shape, np.float_)
 
         if len(x) != len(y):
             raise RuntimeError('xdata and ydata must be the same length')
@@ -506,7 +506,7 @@ class Line2D(Artist):
                 drawFunc = getattr(self, funcname)
                 drawFunc(renderer, gc, tpath, affine.frozen())
 
-        if self._marker is not None:
+        if self._marker:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
             gc.set_foreground(self.get_markeredgecolor())
@@ -564,7 +564,7 @@ class Line2D(Artist):
     def get_linestyle(self): return self._linestyle
 
     def get_linewidth(self): return self._linewidth
-    def get_marker(self): return self._marker
+    def get_marker(self): return self._marker.get_marker()
 
     def get_markeredgecolor(self):
         if (is_string_like(self._markeredgecolor) and
@@ -747,7 +747,7 @@ class Line2D(Artist):
         %(MarkerAccepts)s
         """
         self._marker.set_marker(marker)
-        
+
     def set_markeredgecolor(self, ec):
         """
         Set the marker edge color

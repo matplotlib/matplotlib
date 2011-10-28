@@ -19,6 +19,7 @@ mplot3d API
 
 .. automodule:: mpl_toolkits.mplot3d.axes3d
     :members:
+    :undoc-members:
     :show-inheritance:
 
 
@@ -38,6 +39,7 @@ mplot3d API
 
 .. automodule:: mpl_toolkits.mplot3d.axis3d
     :members:
+    :undoc-members:
     :show-inheritance:
 
 .. _toolkit_mplot3d-artapi:
@@ -47,6 +49,7 @@ mplot3d API
 
 .. automodule:: mpl_toolkits.mplot3d.art3d
     :members:
+    :undoc-members:
     :show-inheritance:
 
 .. _toolkit_mplot3d-projapi:
@@ -56,5 +59,6 @@ mplot3d API
 
 .. automodule:: mpl_toolkits.mplot3d.proj3d
     :members:
+    :undoc-members:
     :show-inheritance:
 

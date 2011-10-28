@@ -1,8 +1,8 @@
 .. _installing-faq:
 
-*****************
- Installation FAQ
-*****************
+*************
+ Installation
+*************
 
 
 .. contents::
@@ -10,12 +10,12 @@
 
 
 Report a compilation problem
-======================================
+============================
 
 See :ref:`reporting-problems`.
 
-matplotlib compiled fine, but nothing shows up with plot
-==========================================================
+matplotlib compiled fine, but nothing shows up when I use it
+============================================================
 
 The first thing to try is a :ref:`clean install <clean-install>` and see if
 that helps.  If not, the best way to test your install is by running a script,
@@ -23,7 +23,7 @@ rather than working interactively from a python shell or an integrated
 development environment such as :program:`IDLE` which add additional
 complexities. Open up a UNIX shell or a DOS command prompt and cd into a
 directory containing a minimal example in a file. Something like
-:file:`simple_plot.py`, or for example::
+:file:`simple_plot.py` for example::
 
   from pylab import *
   plot([1,2,3])
@@ -43,10 +43,16 @@ If you are still having trouble, see :ref:`reporting-problems`.
 
 .. _clean-install:
 
-Cleanly rebuild and reinstall everything
-========================================
+How to completely remove matplotlib
+===================================
 
-The steps depend on your platform and installation method.
+Occasionally, problems with matplotlib can be solved with a clean
+installation of the package.
+
+The process for removing an installation of matplotlib depends on how
+matplotlib was originally installed on your system. Follow the steps
+below that goes with your original installation method to cleanly
+remove matplotlib from your system.
 
 Easy Install
 ------------
@@ -56,7 +62,7 @@ Easy Install
 
 2. Run::
 
-     easy_install -m PackageName
+     easy_install -m matplotlib
 
 
 3. Delete any .egg files or directories from your :ref:`installation
@@ -86,16 +92,18 @@ install directory.  To cleanly rebuild:
 1. Delete the caches from your :ref:`.matplotlib configuration directory
    <locating-matplotlib-config-dir>`.
 
-2. Delete the ``build`` directory in the source tree
+2. Delete the ``build`` directory in the source tree.
 
-3. Delete any matplotlib directories or eggs from your `installation directory
-   <locating-matplotlib-install>`
+3. Delete any matplotlib directories or eggs from your :ref:`installation
+   directory <locating-matplotlib-install>`.
 
+How to Install
+==============
 
 .. _install-from-git:
 
-Install from git
-================
+Source install from git
+-----------------------
 
 Clone the main source using one of::
 
@@ -127,13 +135,19 @@ and build and install as usual with::
     build dependencies, which will make building from source easier.
 
 
-If you want to be able to follow the development branch as it changes just replace
-the last step with (make sure you have **setuptools** installed)::
+If you want to be able to follow the development branch as it changes
+just replace the last step with (make sure you have **setuptools**
+installed)::
 
   > python setupegg.py develop
 
-This creates links in the right places and installs the command line script to the appropriate places.
-Then, if you want to update your **matplotlib** at any time, just do::
+This creates links in the right places and installs the command
+line script to the appropriate places.
+
+.. note::
+   Mac OSX users please see the :ref:`build_osx` guide.
+
+Then, if you want to update your matplotlib at any time, just do::
 
   > git pull
 
@@ -145,22 +159,43 @@ There is more information on :ref:`using git <using-git>` in
 the developer docs.
 
 
-OS-X questions
-==============
+Linux Notes
+===========
+
+Because most Linux distributions use some sort of package manager,
+we do not provide a pre-built binary for the Linux platform.
+Instead, we recommend that you use the "Add Software" method for
+your system to install matplotlib. This will guarantee that everything
+that is needed for matplotlib will be installed as well.
+
+If, for some reason, you can not use the package manager, Linux usually
+comes with at least a basic build system. Follow the :ref:`instructions
+<install-from-git>` found above for how to build and install matplotlib.
+
+
+OS-X Notes
+==========
 
 .. _which-python-for-osx:
 
 Which python for OS X?
 ----------------------
 
-Apple ships with its own python, many users have had trouble
-with it so there are alternatives.  If it is feasible for you, we
-recommend the enthought python distribution `EPD
-<http://www.enthought.com/products/epd.php>`_ for OS X (which comes
-with matplotlib and much more) or the
+Apple ships with its own python, and many users have had trouble
+with it. There are several alternative versions of python that
+can be used. If it is feasible, we recommend that you use the enthought
+python distribution `EPD <http://www.enthought.com/products/epd.php>`_
+for OS X (which comes with matplotlib and much more). Also available is
 `MacPython <http://wiki.python.org/moin/MacPython/Leopard>`_ or the
-official OS X version from `python.org
-<http://www.python.org/download/>`_.
+official OS X version from `python.org <http://www.python.org/download/>`_.
+
+.. note::
+   Before installing any of the binary packages, be sure that all of the
+   packages were compiled for the same version of python.
+   Often, the download site for NumPy and matplotlib will display a
+   supposed 'current' version of the package, but you may need to choose
+   a different package from the full list that was built for your
+   combination of python and OSX.
 
 
 .. _install_osx_binaries:
@@ -170,21 +205,21 @@ Installing OSX binaries
 
 If you want to install matplotlib from one of the binary installers we
 build, you have two choices: a mpkg installer, which is a typical
-Installer.app, or an binary OSX egg, which you can install via
-setuptools easy_install.
+Installer.app, or a binary OSX egg, which you can install via
+setuptools' easy_install.
 
 The mkpg installer will have a "zip" extension, and will have a name
-like file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5_mpkg.zip` depending on
-the python, matplotlib, and OSX versions.  You need to unzip this file
-using either the "unzip" command on OSX, or simply double clicking on
-it to run StuffIt Expander.  When you double click on the resultant
-mpkd directory, which will have a name like
-file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5.mpkg`, it will run the
-Installer.app, prompt you for a password if you need system wide
+like :file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5_mpkg.zip`.
+The name of the installer depends on which versions of python, matplotlib,
+and OSX it was built for.  You need to unzip this file using either the
+"unzip" command, or simply double clicking on the it. Then when you
+double-click on the resulting mpkd, which will have a name like
+:file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5.mpkg`, it will run the
+Installer.app, prompt you for a password if you need system-wide
 installation privileges, and install to a directory like
-file:`/Library/Python/2.5/site-packages/`, again depending on your
-python version.  This directory may not be in your python path, so you
-should test your installation with::
+:file:`/Library/Python/2.5/site-packages/` (exact path depends on your
+python version).  This directory may not be in your python 'path' variable,
+so you should test your installation with::
 
   > python -c 'import matplotlib; print matplotlib.__version__, matplotlib.__file__'
 
@@ -203,7 +238,7 @@ See also ref:`environment-variables`.
 .. _easy-install-osx-egg:
 
 easy_install from egg
-------------------------------
+---------------------
 
 You can also use the eggs we build for OSX (see the `installation
 instructions
@@ -213,15 +248,20 @@ can try::
 
     > easy_install matplotlib
 
-which should grab the latest egg from the sourceforge site, but the
-naming conventions for OSX eggs appear to be broken (see below) so
-there is no guarantee the right egg will be found.  We recommend you
-download the latest egg from our `download site
+which should grab the latest egg from the sourceforge site, but sometimes
+the naming conventions for OSX eggs can be broken (see below).
+Therefore, there is no guarantee the right egg will be found. We recommend
+you download the latest egg from our `download site
 <http://sourceforge.net/projects/matplotlib/files/>`_ directly to your
-harddrive, and manually install it with
+harddrive, and manually install it, eg::
 
     > easy_install --install-dir=~/dev/lib/python2.5/site-packages/  matplotlib-0.99.0.rc1-py2.5-macosx-10.5-i386.egg
 
+Naming convention issues
+^^^^^^^^^^^^^^^^^^^^^^^^
+.. note::
+   This should no longer be an issue. If it is, please
+   report it to the mailing list.
 
 Some users have reported problems with the egg for 0.98 from the
 matplotlib download site, with ``easy_install``, getting an error::
@@ -267,14 +307,14 @@ Comment out the line containing the name of the directory in which the
 previous version of MPL was installed (Looks something like
 ``./matplotlib-0.98.5.2n2-py2.5-macosx-10.3-fat.egg``).
 
-3. Save the following as a shell script , for example
+3. Save the following as a shell script, for example
 ``./install-matplotlib-epd-osx.sh``::
 
    NAME=matplotlib
-   VERSION=v1.0.x
+   VERSION=v1.1.x
    PREFIX=$HOME
    #branch="release"
-   branch="trunk"
+   branch="master"
    git clone git://github.com/matplotlib/matplotlib.git
    cd matplotlib
    if [ $branch = "release" ]
@@ -295,17 +335,17 @@ Run this script (for example ``sh ./install-matplotlib-epd-osx.sh``) in the
 directory in which you want the source code to be placed, or simply type the
 commands in the terminal command line. This script sets some local variable
 (CFLAGS, LDFLAGS, PKG_CONFIG_PATH, ARCHFLAGS), removes previous installations,
-checks out the source from github, builds and installs it. The backend seems
+checks out the source from github, builds and installs it. The backend should
 to be set to MacOSX.
 
 
-Windows questions
-=================
+Windows Notes
+=============
 
 .. _windows-installers:
 
-Binary installers for windows
-----------------------------------------------
+Binary installers for Windows
+-----------------------------
 
 If you have already installed python, you can use one of the
 matplotlib binary installers for windows -- you can get these from the
@@ -315,13 +355,15 @@ site.  Choose the files that match your version of python (eg
 ``py2.5`` if you installed Python 2.5) which have the ``exe``
 extension.  If you haven't already installed python, you can get the
 official version from the `python web site
-<http://python.org/download/>`_.  There are also two packaged
-distributions of python that come preloaded with matplotlib and many
-other tools like ipython, numpy, scipy, vtk and user interface
-toolkits.  These packages are quite large because they come with so
-much, but you get everything with a single click installer.
+<http://python.org/download/>`_.
 
-* the enthought python distribution `EPD
+There are also two packaged distributions of python that come
+preloaded with matplotlib and many other tools like ipython, numpy,
+scipy, vtk and user interface toolkits.  These packages are quite
+large because they come with so much, but you get everything with
+a single click installer.
+
+* The Enthought Python Distribution `EPD
   <http://www.enthought.com/products/epd.php>`_
 
 * `python (x, y) <http://www.pythonxy.com/foreword.php>`_

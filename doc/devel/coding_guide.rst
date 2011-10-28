@@ -17,8 +17,7 @@ in mind.
   and consider posting to `matplotlib-devel
   <http://lists.sourceforge.net/mailman/listinfo/matplotlib-devel>`_
 
-* Are your changes python2.4 compatible?  We still support 2.4, so
-  avoid features new to 2.5
+* Are your changes python2.6 compatible?  We support python2.6 and later
 
 * Can you pass :file:`examples/tests/backend_driver.py`?  This is our
   poor man's unit test.

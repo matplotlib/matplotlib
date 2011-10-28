@@ -97,7 +97,7 @@ def make_external_conversion_command(cmd):
       stdout, stderr = pipe.communicate()
       errcode = pipe.wait()
       if not os.path.exists(newname) or errcode:
-         msg = "Conversion command failed:\n%s\n" % ' '.join(cmd)
+         msg = "Conversion command failed:\n%s\n" % ' '.join(cmdline)
          if stdout:
             msg += "Standard output:\n%s\n" % stdout
          if stderr:

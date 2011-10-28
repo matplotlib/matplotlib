@@ -8,7 +8,7 @@ PYVERSION=2.6
 PYTHON=python${PYVERSION}
 MACOSX_DEPLOYMENT_TARGET=10.6
 OSX_SDK_VER=10.6
-ARCH_FLAGS=-arch i386 -arch x86_64
+ARCH_FLAGS?=-arch i386 -arch x86_64
 
 # Dependency versions and URLs
 #
@@ -16,8 +16,8 @@ ARCH_FLAGS=-arch i386 -arch x86_64
 # but the download URLs are subject to change.
 
 ZLIBVERSION=1.2.5
-PNGVERSION=1.5.1
-FREETYPEVERSION=2.4.4
+PNGVERSION=1.5.4
+FREETYPEVERSION=2.4.6
 
 ZLIBFILE=zlib-${ZLIBVERSION}.tar.gz
 ZLIBDIR=$(basename $(basename ${ZLIBFILE}))
@@ -25,7 +25,7 @@ ZLIBURL=http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERSION}/${ZLIBF
 
 PNGFILE=libpng-${PNGVERSION}.tar.gz
 PNGDIR=$(basename $(basename ${PNGFILE}))
-PNGURL=http://sourceforge.net/projects/libpng/files/libpng15/${PNGVERSION}/${PNGFILE}/download
+PNGURL=http://sourceforge.net/projects/libpng/files/libpng15/older-releases/${PNGVERSION}/${PNGFILE}/download
 
 FREETYPEFILE=freetype-${FREETYPEVERSION}.tar.bz2
 FREETYPEDIR=$(basename $(basename ${FREETYPEFILE}))

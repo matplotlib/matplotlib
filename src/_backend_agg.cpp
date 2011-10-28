@@ -1001,6 +1001,7 @@ RendererAgg::draw_image(const Py::Tuple& args)
     agg::trans_affine affine_trans;
     bool has_affine = false;
     double x, y, w, h;
+    double alpha;
 
     if (args.size() == 7)
     {
@@ -1018,6 +1019,8 @@ RendererAgg::draw_image(const Py::Tuple& args)
         w = h = 0; /* w and h not used in this case, but assign to prevent
                   warnings from the compiler */
     }
+
+    alpha = gc.alpha;
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
@@ -1110,7 +1113,8 @@ RendererAgg::draw_image(const Py::Tuple& args)
     else
     {
         set_clipbox(gc.cliprect, rendererBase);
-        rendererBase.blend_from(pixf, 0, (int)x, (int)(height - (y + image->rowsOut)));
+        rendererBase.blend_from(
+            pixf, 0, (int)x, (int)(height - (y + image->rowsOut)), alpha * 255);
     }
 
     rendererBase.reset_clipping(true);

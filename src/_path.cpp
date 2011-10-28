@@ -1578,19 +1578,19 @@ _path_module::convert_to_svg(const Py::Tuple& args)
         #if PY_VERSION_HEX >= 0x02070000
         char* str;
         str = PyOS_double_to_string(x, 'g', precision, 0, NULL);
-        p += snprintf(p, buffersize - (p - buffer), str);
+        p += snprintf(p, buffersize - (p - buffer), "%s", str);
         PyMem_Free(str);
         *p++ = ' ';
         str = PyOS_double_to_string(y, 'g', precision, 0, NULL);
-        p += snprintf(p, buffersize - (p - buffer), str);
+        p += snprintf(p, buffersize - (p - buffer), "%s", str);
         PyMem_Free(str);
         #else
         char str[64];
         PyOS_ascii_formatd(str, 64, format, x);
-        p += snprintf(p, buffersize - (p - buffer), str);
+        p += snprintf(p, buffersize - (p - buffer), "%s", str);
         *p++ = ' ';
         PyOS_ascii_formatd(str, 64, format, y);
-        p += snprintf(p, buffersize - (p - buffer), str);
+        p += snprintf(p, buffersize - (p - buffer), "%s", str);
         #endif
 
         --wait;

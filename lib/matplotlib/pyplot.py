@@ -121,16 +121,23 @@ def switch_backend(newbackend):
     new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 
-def show():
+def show(*args, **kw):
     """
+    When running in ipython with its pylab mode, display all
+    figures and return to the ipython prompt.
+
     In non-interactive mode, display all figures and block until
     the figures have been closed; in interactive mode it has no
     effect unless figures were created prior to a change from
     non-interactive to interactive mode (not recommended).  In
     that case it displays the figures but does not block.
+
+    A single experimental keyword argument, *block*, may be
+    set to True or False to override the blocking behavior
+    described above.
     """
     global _show
-    _show()
+    _show(*args, **kw)
 
 
 def isinteractive():
@@ -160,6 +167,9 @@ def pause(interval):
     This can be used for crude animation. For more complex
     animation, see :mod:`matplotlib.animation`.
 
+    This function is experimental; its behavior may be changed
+    or extended in a future release.
+
     """
     backend = rcParams['backend']
     if backend in _interactive_bk:
@@ -167,13 +177,8 @@ def pause(interval):
         if figManager is not None:
             canvas = figManager.canvas
             canvas.draw()
-            was_interactive = isinteractive()
-            if not was_interactive:
-                ion()
-                show()
+            show(block=False)
             canvas.start_event_loop(interval)
-            if not was_interactive:
-                ioff()
             return
 
     # No on-screen figure is active, so sleep() is all we need.
@@ -453,7 +458,7 @@ def draw():
 
     A more object-oriented alternative, given any
     :class:`~matplotlib.figure.Figure` instance, :attr:`fig`, that
-    was created using a :module:`~matplotlib.pyplot` function, is::
+    was created using a :mod:`~matplotlib.pyplot` function, is::
 
         fig.canvas.draw()
 
@@ -1031,10 +1036,11 @@ def subplot_tool(targetfig=None):
 
 
 def tight_layout(pad=1.2, h_pad=None, w_pad=None):
-    """Adjust subplot parameters to give specified padding.
+    """
+    Adjust subplot parameters to give specified padding.
 
-    Parameters
-    ----------
+    Parameters:
+
     pad : float
         padding between the figure edge and the edges of subplots, as a fraction of the font-size.
     h_pad, w_pad : float

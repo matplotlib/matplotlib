@@ -9,7 +9,7 @@ on how to use these modules.
 '''
 
 # The Olson database is updated several times a year.
-OLSON_VERSION = '2011c'
+OLSON_VERSION = '2011k'
 VERSION = OLSON_VERSION
 # Version format for a patch release - only one so far.
 #VERSION = OLSON_VERSION + '.2'
@@ -544,6 +544,7 @@ all_timezones = \
  'Africa/Gaborone',
  'Africa/Harare',
  'Africa/Johannesburg',
+ 'Africa/Juba',
  'Africa/Kampala',
  'Africa/Khartoum',
  'Africa/Kigali',
@@ -658,10 +659,12 @@ all_timezones = \
  'America/Kentucky/Louisville',
  'America/Kentucky/Monticello',
  'America/Knox_IN',
+ 'America/Kralendijk',
  'America/La_Paz',
  'America/Lima',
  'America/Los_Angeles',
  'America/Louisville',
+ 'America/Lower_Princes',
  'America/Maceio',
  'America/Managua',
  'America/Manaus',
@@ -772,6 +775,7 @@ all_timezones = \
  'Asia/Dushanbe',
  'Asia/Gaza',
  'Asia/Harbin',
+ 'Asia/Hebron',
  'Asia/Ho_Chi_Minh',
  'Asia/Hong_Kong',
  'Asia/Hovd',
@@ -1118,6 +1122,7 @@ common_timezones = \
  'Africa/Gaborone',
  'Africa/Harare',
  'Africa/Johannesburg',
+ 'Africa/Juba',
  'Africa/Kampala',
  'Africa/Khartoum',
  'Africa/Kigali',
@@ -1220,9 +1225,11 @@ common_timezones = \
  'America/Juneau',
  'America/Kentucky/Louisville',
  'America/Kentucky/Monticello',
+ 'America/Kralendijk',
  'America/La_Paz',
  'America/Lima',
  'America/Los_Angeles',
+ 'America/Lower_Princes',
  'America/Maceio',
  'America/Managua',
  'America/Manaus',
@@ -1325,6 +1332,7 @@ common_timezones = \
  'Asia/Dushanbe',
  'Asia/Gaza',
  'Asia/Harbin',
+ 'Asia/Hebron',
  'Asia/Ho_Chi_Minh',
  'Asia/Hong_Kong',
  'Asia/Hovd',

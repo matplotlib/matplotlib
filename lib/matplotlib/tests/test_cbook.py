@@ -34,7 +34,7 @@ def test_restrict_dict():
 
 from matplotlib.cbook import delete_masked_points as dmp
 
-class Test_delete_masked_points():
+class Test_delete_masked_points:
     def setUp(self):
         self.mask1 = [False, False, True, True, False, False]
         self.arr0 = np.arange(1.0,7.0)

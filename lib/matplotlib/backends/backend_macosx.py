@@ -101,6 +101,8 @@ class RendererMac(RendererBase):
     def new_gc(self):
         self.gc.save()
         self.gc.set_hatch(None)
+        self.gc._alpha = 1.0
+        self.gc._forced_alpha = False # if True, _alpha overrides A from RGBA
         return self.gc
 
     def draw_gouraud_triangle(self, gc, points, colors, transform):
@@ -222,10 +224,12 @@ def draw_if_interactive():
     it will be redrawn as soon as the event loop resumes via PyOS_InputHook.
     This function should be called after each draw event, even if
     matplotlib is not running interactively.
-    """
-    figManager =  Gcf.get_active()
-    if figManager is not None:
-        figManager.canvas.invalidate()
+	"""
+    if matplotlib.is_interactive():
+        figManager =  Gcf.get_active()
+        if figManager is not None:
+            figManager.canvas.invalidate()
+
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -369,9 +373,8 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         # This is ugly, but this is what tkagg and gtk are doing.
         # It is needed to get ginput() working.
         self.canvas.figure.show = lambda *args: self.show()
-
-    def show(self):
-        self.canvas.draw()
+        if matplotlib.is_interactive():
+            self.show()
 
     def close(self):
         Gcf.destroy(self.num)

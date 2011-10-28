@@ -1,8 +1,12 @@
+.. The source of this document is INSTALL. During the doc build process,
+.. this file is copied over to doc/users/installing.rst.
+.. Therefore, you must edit INSTALL, *not* doc/users/installing.rst!
+
 **********
 Installing
 **********
 
-There are lots of different ways to install matplotlib, and the best
+There are many different ways to install matplotlib, and the best
 way depends on what operating system you are using, what you already
 have installed, and how you want to use it.  To avoid wading through
 all the details (and potential complications) on this page, the
@@ -15,13 +19,15 @@ Another excellent alternative for Windows users is `Python (x, y)
 <http://www.pythonxy.com/foreword.php>`_ which tends to be updated a
 bit more frequently.  Both of these packages include matplotlib and
 pylab, and *lots* of other useful tools.  matplotlib is also packaged
-for almost every major linux distribution. So if you are on linux,
+for almost every major Linux distribution. So if you are on Linux,
 your package manager will probably provide matplotlib prebuilt.
 
-One single click installer and you are done.
 
 Manually installing pre-built packages
 ======================================
+
+General instructions
+--------------------
 
 For some people, the prepackaged pythons discussed above are not an
 option.  That's OK, it's usually pretty easy to get a custom install
@@ -41,19 +47,19 @@ progress::
 
 matplotlib requires numpy version 1.1 or later.  Although it is not a
 requirement to use matplotlib, we strongly encourage you to install
-`ipython <http://ipython.scipy.org/dist>`_, which is an interactive
+`ipython <http://ipython.org>`_, which is an interactive
 shell for python that is matplotlib-aware.
 
 Next, we need to get matplotlib installed.  We provide prebuilt
 binaries for OS X and Windows on the matplotlib `download
 <http://sourceforge.net/projects/matplotlib/files/>`_ page.  Click on
 the latest release of the "matplotlib" package, choose your python
-version (2.6, 2.7 or 3.2) and your platform (macosx or win32) and you
-should be good to go.  If you have any problems, please check the
-:ref:`installing-faq`, google around a little bit, and post a question
-the `mailing list
-<http://sourceforge.net/project/showfiles.php?group_id=80706>`_.  If
-you are on debian/ubuntu linux, it suffices to do::
+version (2.6, 2.7 or 3.2) and your platform (macosx or win32).  If you
+have any problems, please check the :ref:`installing-faq`, search
+using Google, and/or post a question the `mailing list
+<http://sourceforge.net/project/showfiles.php?group_id=80706>`_.
+
+If you are on Debian/Ubuntu linux, it suffices to do::
 
   > sudo apt-get install python-matplotlib
 
@@ -61,8 +67,8 @@ Instructions for installing our OSX binaries are found in the FAQ
 :ref:`install_osx_binaries`.
 
 
-Once you have ipython, numpy and matplotlib installed, in ipython's
-"pylab" mode you have a MATLAB-like environment that automatically
+Once you have ipython, numpy and matplotlib installed, you can use
+ipython's "pylab" mode to have a MATLAB-like environment that automatically
 handles most of the configuration details for you, so you can get up
 and running quickly::
 
@@ -86,9 +92,9 @@ Installing on Windows
 ---------------------
 
 If you don't already have python installed, you may want to consider
-using the enthought edition of python, which has scipy, numpy, and
-wxpython, plus a lot of other goodies, preinstalled - `Enthought
-Python <http://www.enthought.com/python>`_.  With the enthought
+using the Enthought edition of python, which has scipy, numpy, and
+wxpython, plus many other useful packages, preinstalled - `Enthought
+Python <http://www.enthought.com/python>`_.  With the Enthought
 edition of python + matplotlib installer, the following backends
 should work out of the box: agg, wx, wxagg, tkagg, ps, pdf and svg.
 
@@ -99,13 +105,14 @@ http://www.dll-files.com/dllindex/dll-files.shtml?msvcp71 or other
 sites.  You will need to unzip the archive and drag the dll into
 :file:`c:\windows\system32`.
 
-All of the GUI backends run on windows, but TkAgg is probably the
+All of the GUI backends run on Windows, but TkAgg is probably the
 best for interactive use from the standard python shell or ipython.
-The windows installer (:file:`*.exe`) on the download page contains all the
+The Windows installer (:file:`*.exe`) on the download page contains all the
 code you need to get up and running.  However, there are many
-examples that are not included in the windows installer.  If you
-want to try the many demos that come in the matplotlib src
-distribution, download the zip file and look in the examples subdir.
+examples that are not included in the Windows installer.  If you
+want to try the many demos that come in the matplotlib source
+distribution, download the zip file and look in the :file:`examples`
+subdirectory.
 
 .. _install_from_source:
 
@@ -121,8 +128,7 @@ you want to develop matplotlib or just need the latest bugfixed
 version, grab the latest git version :ref:`install-from-git`.
 
 Once you have satisfied the requirements detailed below (mainly
-python, numpy, libpng and freetype), you build matplotlib in the usual
-way::
+python, numpy, libpng and freetype), you can build matplotlib::
 
   cd matplotlib
   python setup.py build
@@ -130,8 +136,8 @@ way::
 
 We provide a `setup.cfg
 <https://github.com/matplotlib/matplotlib/raw/master/setup.cfg.template>`_
-file that lives along :file:`setup.py` which you can use to customize
-the build process, for example, which default backend to use, whether
+file that goes with :file:`setup.py` which you can use to customize
+the build process. For example, which default backend to use, whether
 some of the optional libraries that matplotlib ships with are
 installed, and so on.  This file will be particularly useful to those
 packaging matplotlib.
@@ -150,10 +156,10 @@ Build requirements
 
 These are external packages which you will need to install before
 installing matplotlib. Windows users only need the first two (python
-and numpy) since the others are built into the matplotlib windows
+and numpy) since the others are built into the matplotlib Windows
 installers available for download at the sourceforge site.  If you are
 building on OSX, see :ref:`build_osx`. If you are installing
-dependencies with a package manager, you may need to install the
+dependencies with a package manager on Linux, you may need to install the
 development packages (look for a "-dev" postfix) in addition to the
 libraries themselves.
 
@@ -173,8 +179,8 @@ libraries themselves.
     This does not build matplotlib, but it does get the install the
     build dependencies, which will make building from source easier.
 
-:term:`python` 2.4 (or later but not python3)
-    matplotlib requires python 2.4 or later (`download <http://www.python.org/download/>`__)
+:term:`python` 2.6 (or later but not python3)
+    matplotlib requires python 2.6 or later (`download <http://www.python.org/download/>`__)
 
 :term:`numpy` 1.1 (or later)
     array support for python (`download
@@ -183,8 +189,8 @@ libraries themselves.
 libpng 1.2 (or later)
     library for loading and saving :term:`PNG` files (`download
     <http://www.libpng.org/pub/png/libpng.html>`__). libpng requires
-    zlib. If you are a windows user, you can ignore this since we
-    build support into the matplotlib single click installer
+    zlib. If you are a Windows user, you can ignore this because we
+    build support into the matplotlib single-click installer
 
 :term:`freetype` 1.4 (or later)
     library for reading true type font files. If you are a windows
@@ -196,7 +202,7 @@ libpng 1.2 (or later)
 These are optional packages which you may want to install to use
 matplotlib with a user interface toolkit. See
 :ref:`what-is-a-backend` for more details on the optional matplotlib
-backends and the capabilities they provide
+backends and the capabilities they provide.
 
 :term:`tk` 8.3 or later
     The TCL/Tk widgets library used by the TkAgg backend
@@ -243,13 +249,9 @@ Building on OSX
 ===============
 
 The build situation on OSX is complicated by the various places one
-can get the png and freetype requirements from (darwinports, fink,
-/usr/X11R6) and the different architectures (x86, ppc, universal) and
-the different OSX version (10.4 and 10.5). We recommend that you build
-the way we do for the OSX release: by grabbing the tarbar or git
-repository, cd-ing into the release/osx dir, and following the
-instruction in the README.  This directory has a Makefile which will
-automatically grab the zlib, png and freetype dependencies from the
-web, build them with the right flags to make universal libraries, and
-then build the matplotlib source and binary installers.
+can get the libpng and freetype requirements (darwinports, fink,
+/usr/X11R6) and the different architectures (e.g., x86, ppc, universal) and
+the different OSX version (e.g., 10.4 and 10.5). We recommend that you build
+the way we do for the OSX release: get the source from the tarball or the
+git repository and follow the instruction in :file:`README.osx`.
 

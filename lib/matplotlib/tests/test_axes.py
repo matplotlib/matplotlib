@@ -472,42 +472,42 @@ def test_symlog():
     ax.set_xscale=('linear')
     ax.set_ylim(-1,10000000)
 
-# @image_comparison(baseline_images=['symlog2'])
-# def test_symlog2():
-#     # Numbers from -50 to 50, with 0.1 as step
-#     x = np.arange(-50,50, 0.001)
+@image_comparison(baseline_images=['symlog2'])
+def test_symlog2():
+    # Numbers from -50 to 50, with 0.1 as step
+    x = np.arange(-50,50, 0.001)
 
-#     fig = plt.figure()
-#     ax = fig.add_subplot(511)
-#     # Plots a simple linear function 'f(x) = x'
-#     ax.plot(x, x)
-#     ax.set_xscale('symlog', linthreshx=20.0)
-#     ax.grid(True)
+    fig = plt.figure()
+    ax = fig.add_subplot(511)
+    # Plots a simple linear function 'f(x) = x'
+    ax.plot(x, x)
+    ax.set_xscale('symlog', linthreshx=20.0)
+    ax.grid(True)
 
-#     ax = fig.add_subplot(512)
-#     # Plots a simple linear function 'f(x) = x'
-#     ax.plot(x, x)
-#     ax.set_xscale('symlog', linthreshx=2.0)
-#     ax.grid(True)
+    ax = fig.add_subplot(512)
+    # Plots a simple linear function 'f(x) = x'
+    ax.plot(x, x)
+    ax.set_xscale('symlog', linthreshx=2.0)
+    ax.grid(True)
 
-#     ax = fig.add_subplot(513)
-#     # Plots a simple linear function 'f(x) = x'
-#     ax.plot(x, x)
-#     ax.set_xscale('symlog', linthreshx=1.0)
-#     ax.grid(True)
+    ax = fig.add_subplot(513)
+    # Plots a simple linear function 'f(x) = x'
+    ax.plot(x, x)
+    ax.set_xscale('symlog', linthreshx=1.0)
+    ax.grid(True)
 
-#     ax = fig.add_subplot(514)
-#     # Plots a simple linear function 'f(x) = x'
-#     ax.plot(x, x)
-#     ax.set_xscale('symlog', linthreshx=0.1)
-#     ax.grid(True)
+    ax = fig.add_subplot(514)
+    # Plots a simple linear function 'f(x) = x'
+    ax.plot(x, x)
+    ax.set_xscale('symlog', linthreshx=0.1)
+    ax.grid(True)
 
-#     ax = fig.add_subplot(515)
-#     # Plots a simple linear function 'f(x) = x'
-#     ax.plot(x, x)
-#     ax.set_xscale('symlog', linthreshx=0.01)
-#     ax.grid(True)
-#     ax.set_ylim(-0.1, 0.1)
+    ax = fig.add_subplot(515)
+    # Plots a simple linear function 'f(x) = x'
+    ax.plot(x, x)
+    ax.set_xscale('symlog', linthreshx=0.01)
+    ax.grid(True)
+    ax.set_ylim(-0.1, 0.1)
 
 @image_comparison(baseline_images=['pcolormesh'], tol=0.02)
 def test_pcolormesh():
