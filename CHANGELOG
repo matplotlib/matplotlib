@@ -1,3 +1,7 @@
+2011-10-25 added support for \operatorname to mathtext,
+           including the ability to insert spaces, such as
+           $\operatorname{arg\,max}$ - PI
+
 2011-08-18 Change api of Axes.get_tightbbox and add an optional
            keyword parameter *call_axes_locator*. - JJL
 

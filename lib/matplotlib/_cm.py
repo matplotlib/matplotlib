@@ -1736,6 +1736,36 @@ _coolwarm_data = {
         (1.0, 0.150232812, 0.150232812)]
     }
 
+# Implementation of Carey Rappaport's CMRmap.
+# See `A Color Map for Effective Black-and-White Rendering of Color-Scale Images' by Carey Rappaport
+# http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m
+_CMRmap_data = {'red'   : ( (0.000, 0.00, 0.00),
+                            (0.125, 0.15, 0.15),
+                            (0.250, 0.30, 0.30),
+                            (0.375, 0.60, 0.60),
+                            (0.500, 1.00, 1.00),
+                            (0.625, 0.90, 0.90),
+                            (0.750, 0.90, 0.90),
+                            (0.875, 0.90, 0.90),
+                            (1.000, 1.00, 1.00) ),
+                'green' : ( (0.000, 0.00, 0.00),
+                            (0.125, 0.15, 0.15),
+                            (0.250, 0.15, 0.15),
+                            (0.375, 0.20, 0.20),
+                            (0.500, 0.25, 0.25),
+                            (0.625, 0.50, 0.50),
+                            (0.750, 0.75, 0.75),
+                            (0.875, 0.90, 0.90),
+                            (1.000, 1.00, 1.00) ),
+                'blue':   ( (0.000, 0.00, 0.00),
+                            (0.125, 0.50, 0.50),
+                            (0.250, 0.75, 0.75),
+                            (0.375, 0.50, 0.50),
+                            (0.500, 0.15, 0.15),
+                            (0.625, 0.00, 0.00),
+                            (0.750, 0.10, 0.10),
+                            (0.875, 0.50, 0.50),
+                            (1.000, 1.00, 1.00) )}
 
 datad = {
     'afmhot': _afmhot_data,
@@ -1744,6 +1774,7 @@ datad = {
     'binary': _binary_data,
     'bwr':    _bwr_data,
     'brg':    _brg_data,
+    'CMRmap': _CMRmap_data,
     'cool':   _cool_data,
     'copper': _copper_data,
     'cubehelix': _cubehelix_data,
