@@ -13,7 +13,6 @@ if sys.version_info[0] < 3:
 else:
     import tkinter as Tk
 
-
 root = Tk.Tk()
 root.wm_title("Embedding in TK")
 

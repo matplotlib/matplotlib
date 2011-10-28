@@ -7,9 +7,9 @@ and legend texts. Creation of corresponding legend handles from the
 plot elements in the axes or figures (e.g., lines, patches, etc.) are
 specified by the handler map, which defines the mapping between the
 plot elements and the legend handlers to be used (the default legend
-handlers are defined in the matplotlib.legend_handler module). Note
-that not all kinds of artist are supported by the legend yet (See LINK
-(FIXME) for details).
+handlers are defined in the :mod:`~matplotlib.legend_handler` module). Note
+that not all kinds of artist are supported by the legend yet (See
+:ref:`plotting-guide-legend` for more information).
 """
 from __future__ import division, print_function
 import warnings

@@ -1372,8 +1372,8 @@ int reorder(double *xpp, double *ypp, short *kpp,
     int maxnsegs = npts/2 + 1;
 
     /* allocate maximum possible size--gross overkill */
-    i0 = malloc(maxnsegs * sizeof(int));
-    i1 = malloc(maxnsegs * sizeof(int));
+    i0 = (int *)malloc(maxnsegs * sizeof(int));
+    i1 = (int *)malloc(maxnsegs * sizeof(int));
 
     /* Find the segments. */
     iseg = 0;
@@ -1406,7 +1406,7 @@ int reorder(double *xpp, double *ypp, short *kpp,
 
     /* Find the subpaths as sets of connected segments. */
 
-    subp = malloc(nsegs * sizeof(int));
+    subp = (int *)malloc(nsegs * sizeof(int));
     for (i=0; i<nsegs; i++) subp[i] = -1;
 
     nsp = 0;
@@ -1786,7 +1786,7 @@ Cntr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
 {
-    static char *kwlist[] = {"x", "y", "z", "mask", NULL};
+    static const char *kwlist[] = {"x", "y", "z", "mask", NULL};
     PyObject *xarg, *yarg, *zarg, *marg;
     PyArrayObject *xpa, *ypa, *zpa, *mpa;
     long iMax, jMax;
@@ -1794,7 +1794,7 @@ Cntr_init(Cntr *self, PyObject *args, PyObject *kwds)
 
     marg = NULL;
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|O", kwlist,
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|O", (char **)kwlist,
                                       &xarg, &yarg, &zarg, &marg))
         return -1;
     if (marg == Py_None)
@@ -1868,9 +1868,9 @@ Cntr_trace(Cntr *self, PyObject *args, PyObject *kwds)
     double levels[2] = {0.0, -1e100};
     int nlevels = 2;
     long nchunk = 0L;
-    static char *kwlist[] = {"level0", "level1",  "nchunk", NULL};
+    static const char *kwlist[] = {"level0", "level1",  "nchunk", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|dl", kwlist,
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|dl", (char **)kwlist,
                                       levels, levels+1, &nchunk))
     {
         return NULL;

@@ -1,0 +1,10 @@
+% used by test_dviread.py
+TeXfont1 PSfont1 <font1.pfb <font1.enc
+TeXfont2 PSfont2 <font2.enc <font2.pfa
+TeXfont3 PSfont3 "1.23 UnknownEffect" <[enc3.foo <font3.pfa
+TeXfont4 PSfont4 "-0.1 SlantFont 2.2 ExtendFont" <font4.enc <font4.pfa
+TeXfont5 PSfont5 <encoding1.enc <encoding2.enc <font5.pfb
+TeXfont6 PSfont6
+TeXfont7 PSfont7 <font7.enc
+TeXfont8 PSfont8 <font8.pfb
+TeXfont9 PSfont9 </absolute/font9.pfb

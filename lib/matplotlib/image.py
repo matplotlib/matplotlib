@@ -199,7 +199,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
                 im.is_grayscale = False
             else:
                 if self._rgbacache is None:
-                    x = self.to_rgba(self._A, self._alpha, bytes=True)
+                    x = self.to_rgba(self._A, bytes=True)
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
@@ -345,6 +345,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
         gc.set_clip_path(self.get_clip_path())
+        gc.set_alpha(self.get_alpha())
 
         if self._check_unsampled_image(renderer):
             self._draw_unsampled_image(renderer, gc)
@@ -439,7 +440,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         One of 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning',
         'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
-        'bessel', 'mitchell', 'sinc', 'lanczos',
+        'bessel', 'mitchell', 'sinc', 'lanczos', or 'none'.
         """
         return self._interpolation
 
@@ -722,7 +723,7 @@ class NonUniformImage(AxesImage):
             A.shape = A.shape[0:2]
         if len(A.shape) == 2:
             if A.dtype != np.uint8:
-                A = self.to_rgba(A, alpha=self._alpha, bytes=True)
+                A = self.to_rgba(A, bytes=True)
                 self.is_grayscale = self.cmap.is_gray()
             else:
                 A = np.repeat(A[:,:,np.newaxis], 4, 2)
@@ -824,7 +825,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         width = width * magnification
         height = height * magnification
         if self._rgbacache is None:
-            A = self.to_rgba(self._A, alpha=self._alpha, bytes=True)
+            A = self.to_rgba(self._A, bytes=True)
             self._rgbacache = A
             if self._A.ndim == 2:
                 self.is_grayscale = self.cmap.is_gray()
@@ -851,6 +852,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.axes.bbox.frozen())
         gc.set_clip_path(self.get_clip_path())
+        gc.set_alpha(self.get_alpha())
         renderer.draw_image(gc,
                             round(self.axes.bbox.xmin),
                             round(self.axes.bbox.ymin),
@@ -974,7 +976,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
-        x = self.to_rgba(self._A, self._alpha, bytes=True)
+        x = self.to_rgba(self._A, bytes=True)
         self.magnification = magnification
         # if magnification is not one, we need to resize
         ismag = magnification!=1
@@ -1008,6 +1010,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         gc.set_clip_rectangle(self.figure.bbox)
         gc.set_clip_path(self.get_clip_path())
+        gc.set_alpha(self.get_alpha())
         renderer.draw_image(gc, round(self.ox), round(self.oy), im)
         gc.restore()
 
@@ -1096,7 +1099,7 @@ class BboxImage(_AxesImageBase):
                 im.is_grayscale = False
             else:
                 if self._rgbacache is None:
-                    x = self.to_rgba(self._A, self._alpha, bytes=True)
+                    x = self.to_rgba(self._A, bytes=True)
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
@@ -1148,6 +1151,7 @@ class BboxImage(_AxesImageBase):
         l, b, r, t = self.get_window_extent(renderer).extents
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
+        gc.set_alpha(self.get_alpha())
         #gc.set_clip_path(self.get_clip_path())
         renderer.draw_image(gc, round(l), round(b), im)
         gc.restore()

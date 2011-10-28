@@ -5,7 +5,36 @@ API Changes
 
 This chapter is a log of changes to matplotlib that affect the
 outward-facing API.  If updating matplotlib breaks your scripts, this
-list may help describe what changes may be necessary in your code.
+list may help describe what changes may be necessary in your code or
+help figure out possible sources of the changes you are experiencing.
+
+For new features that were added to matplotlib, please see
+:ref:`whats-new`.
+
+Changes in 1.1.x
+================
+
+* Added new :class:`matplotlib.sankey.Sankey` for generating Sankey diagrams.
+
+* In :meth:`~matplotlib.pyplot.imshow`, setting *interpolation* to 'nearest'
+  will now always mean that the nearest-neighbor interpolation is performed.
+  If you want the no-op interpolation to be performed, choose 'none'.
+
+* There were errors in how the tri-functions were handling input parameters
+  that had to be fixed. If your tri-plots are not working correctly anymore,
+  or you were working around apparent mistakes, please see issue #203 in the
+  github tracker. When in doubt, use kwargs.
+
+* The 'symlog' scale had some bad behavior in previous versions. This has now
+  been fixed and users should now be able to use it without frustrations.
+  The fixes did result in some minor changes in appearance for some users who
+  may have been depending on the bad behavior.
+
+* There is now a common set of markers for all plotting functions. Previously,
+  some markers existed only for :meth:`~matplotlib.pyplot.scatter` or just for
+  :meth:`~matplotlib.pyplot.plot`. This is now no longer the case. This merge
+  did result in a conflict. The string 'd' now means "thin diamond" while
+  'D' will mean "regular diamond".
 
 Changes beyond 0.99.x
 =====================
@@ -50,7 +79,7 @@ Changes beyond 0.99.x
 * The :meth:`matplotlib.axes.Axes.hist` *color* kwarg now accepts
   a sequence of color specs to match a sequence of datasets.
 
-* The :class:'~matplotlib.collections.EllipseCollection' has been
+* The :class:`~matplotlib.collections.EllipseCollection` has been
   changed in two ways:
 
   + There is a new *units* option, 'xy', that scales the ellipse with

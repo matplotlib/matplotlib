@@ -1,3 +1,7 @@
+2011-10-25 added support for \operatorname to mathtext,
+           including the ability to insert spaces, such as
+           $\operatorname{arg\,max}$ - PI
+
 2011-08-18 Change api of Axes.get_tightbbox and add an optional
            keyword parameter *call_axes_locator*. - JJL
 
@@ -29,6 +33,14 @@
            Significant revisions to the documentation as well.
            - BVR
 
+2011-07-07 Added compatibility with IPython strategy for picking
+           a version of Qt4 support, and an rcParam for making
+           the choice explicitly: backend.qt4. - EF
+
+2011-07-07 Modified AutoMinorLocator to improve automatic choice of
+           the number of minor intervals per major interval, and
+           to allow one to specify this number via a kwarg. - EF
+
 2011-06-28 3D versions of scatter, plot, plot_wireframe, plot_surface,
            bar3d, and some other functions now support empty inputs. - BVR
 
@@ -39,9 +51,15 @@
 2011-06-22 Add axes.labelweight parameter to set font weight to axis
            labels - MGD.
 
+2011-06-20 Add pause function to pyplot. - EF
+
 2011-06-16 Added *bottom* keyword parameter for the stem command.
            Also, implemented a legend handler for the stem plot.
            - JJL
+
+2011-06-16 Added legend.frameon rcParams. - Mike Kaufman
+
+2011-05-31 Made backend_qt4 compatible with PySide . - Gerald Storer
 
 2011-04-17 Disable keyboard auto-repeat in qt4 backend by ignoring
            key events resulting from auto-repeat.  This makes

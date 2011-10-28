@@ -1719,7 +1719,11 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
         Tuple self_and_name_tuple( _self_and_name_tuple );
 
         PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
-        void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
+        #if PY_VERSION_HEX < 0x02070000
+            void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
+        #else
+            void *self_as_void = PyCapsule_GetPointer( self_in_cobject, NULL );
+        #endif
         if( self_as_void == NULL )
             return NULL;
 
@@ -1735,7 +1739,11 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
                     (
                     self->invoke_method_keyword
                         (
-                        PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                        #if PY_VERSION_HEX < 0x02070000
+                            PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                        #else
+                            PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ),
+                        #endif
                         args,
                         keywords
                         )
@@ -1751,7 +1759,11 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
                     (
                     self->invoke_method_keyword
                         (
-                        PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                        #if PY_VERSION_HEX < 0x02070000
+                            PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                        #else
+                            PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ),
+                        #endif
                         args,
                         keywords
                         )
@@ -1773,7 +1785,11 @@ extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple
         Tuple self_and_name_tuple( _self_and_name_tuple );
 
         PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
-        void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
+        #if PY_VERSION_HEX < 0x02070000
+            void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
+        #else
+            void *self_as_void = PyCapsule_GetPointer( self_in_cobject, NULL );
+        #endif
         if( self_as_void == NULL )
             return NULL;
 
@@ -1784,7 +1800,11 @@ extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple
                 (
                 self->invoke_method_varargs
                     (
-                    PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                    #if PY_VERSION_HEX < 0x02070000
+                        PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                    #else
+                        PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ),
+                    #endif
                     args
                     )
                 );

@@ -33,9 +33,16 @@ def xlformat_factory(format):
     copy the format, perform any overrides, and attach an xlstyle instance
     copied format is returned
     """
+
+    #if we have created an excel format already using this format,
+    #don't recreate it; mlab.FormatObj override has to make objs with
+    #the same props hash to the same value
+    key = hash(format)
+    fmt_ = xlformat_factory.created_formats.get(key)
+    if fmt_ is not None:
+        return fmt_
+
     format = copy.deepcopy(format)
-
-
 
     xlstyle = excel.XFStyle()
     if isinstance(format, mlab.FormatPercent):
@@ -55,7 +62,11 @@ def xlformat_factory(format):
 
     format.xlstyle = xlstyle
 
+    xlformat_factory.created_formats[ key ] = format
+
     return format
+
+xlformat_factory.created_formats = {}
 
 def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN', infstr='Inf'):
     """

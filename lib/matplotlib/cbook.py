@@ -578,8 +578,13 @@ def _get_data_server(cache_dir, baseurl):
             url = req.get_full_url()
             if url in self.cache:
                 _, etag, lastmod = self.cache[url]
-                req.add_header("If-None-Match", etag)
-                req.add_header("If-Modified-Since", lastmod)
+                if etag is not None:
+                    req.add_header("If-None-Match", etag)
+                if lastmod is not None:
+                    req.add_header("If-Modified-Since", lastmod)
+            matplotlib.verbose.report(
+                "ViewVCCachedServer: request headers %s" % req.header_items(),
+                "debug")
             return req
 
         def https_error_304(self, req, fp, code, msg, hdrs):
@@ -671,7 +676,7 @@ def get_sample_data(fname, asfileobj=True):
     Check the cachedirectory ~/.matplotlib/sample_data for a sample_data
     file.  If it does not exist, fetch it with urllib from the mpl git repo
 
-      https://github.com/matplotlib/sample_data/raw/master
+      https://raw.github.com/matplotlib/sample_data/master
 
     and store it in the cachedir.
 
@@ -702,7 +707,7 @@ def get_sample_data(fname, asfileobj=True):
     if myserver is None:
         configdir = matplotlib.get_configdir()
         cachedir = os.path.join(configdir, 'sample_data')
-        baseurl = 'https://github.com/matplotlib/sample_data/raw/master/'
+        baseurl = 'https://raw.github.com/matplotlib/sample_data/master/'
         try:
             myserver = _get_data_server(cachedir, baseurl)
             get_sample_data.myserver = myserver
@@ -1841,12 +1846,33 @@ def align_iterators(func, *iterables):
 def is_math_text(s):
     # Did we find an even number of non-escaped dollar signs?
     # If so, treat is as math text.
-    s = unicode(s)
+    try:
+        s = unicode(s)
+    except UnicodeDecodeError:
+        raise ValueError(
+            "matplotlib display text must have all code points < 128 or use Unicode strings")
 
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
 
     return even_dollars
+
+# Numpy > 1.6.x deprecates putmask in favor of the new copyto.
+# So long as we support versions 1.6.x and less, we need the
+# following local version of putmask.  We choose to make a
+# local version of putmask rather than of copyto because the
+# latter includes more functionality than the former. Therefore
+# it is easy to make a local version that gives full putmask
+# behavior, but duplicating the full copyto behavior would be
+# more difficult.
+
+try:
+    np.copyto
+except AttributeError:
+    _putmask = np.putmask
+else:
+    def _putmask(a, mask, values):
+        return np.copyto(a, values, where=mask)
 
 
 if __name__=='__main__':

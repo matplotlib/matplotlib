@@ -231,7 +231,7 @@ static PyMethodDef module_methods[] = {
         "Return a boolean ndarray, True for points inside the polygon.\n\n"
         "*xypoints*\n    a sequence of N x,y pairs.\n"
         "*xyverts*\n    sequence of x,y vertices of the polygon.\n"
-        "*mask*    an ndarray of length N.\n\n"
+        "*mask*\n   an ndarray of length N.\n\n"
         "A point on the boundary may be treated as inside or outside.\n"
         "See `pnpoly <http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html>`_\n"},
   {NULL}  /* Sentinel */

@@ -320,21 +320,18 @@ class SymmetricalLogScale(ScaleBase):
         def __init__(self, base, linthresh):
             Transform.__init__(self)
             self.base = base
-            self.linthresh = abs(linthresh)
+            self.linthresh = linthresh
             self._log_base = np.log(base)
-            logb_linthresh = np.log(linthresh) / self._log_base
-            self._linadjust = 1.0 - logb_linthresh
-            self._linscale = 1.0 / linthresh
+            self._linadjust = (np.log(linthresh) / self._log_base) / linthresh
 
         def transform(self, a):
-            a = np.asarray(a)
             sign = np.sign(a)
             masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
+            log = sign * self.linthresh * (1 + ma.log(np.abs(masked) / self.linthresh))
             if masked.mask.any():
-                log = sign * (ma.log(np.abs(masked)) / self._log_base + self._linadjust)
-                return np.asarray(ma.where(masked.mask, a * self._linscale, log))
+                return ma.where(masked.mask, a, log)
             else:
-                return sign * (np.log(np.abs(a)) / self._log_base + self._linadjust)
+                return log
 
         def inverted(self):
             return SymmetricalLogScale.InvertedSymmetricalLogTransform(
@@ -354,13 +351,13 @@ class SymmetricalLogScale(ScaleBase):
             self._linadjust = 1.0 - logb_linthresh
 
         def transform(self, a):
-            a = np.asarray(a)
             sign = np.sign(a)
-            masked = ma.masked_inside(a, -1.0, 1.0, copy=False)
-            result = np.where((a >= -1.0) & (a <= 1.0),
-                              a * self.linthresh,
-                              sign * np.power(self.base, np.abs(a - sign * self._linadjust)))
-            return result
+            masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
+            exp = sign * self.linthresh * ma.exp(sign * masked / self.linthresh - 1)
+            if masked.mask.any():
+                return ma.where(masked.mask, a, exp)
+            else:
+                return exp
 
         def inverted(self):
             return SymmetricalLogScale.SymmetricalLogTransform(
@@ -396,7 +393,6 @@ class SymmetricalLogScale(ScaleBase):
 
         assert base > 0.0
         assert linthresh > 0.0
-        
         self.base = base
         self.linthresh = linthresh
         self.subs = subs

@@ -279,6 +279,8 @@ class RendererSVG(RendererBase):
         self._write_default_style()
 
     def finalize(self):
+        self._write_clips()
+        self._write_hatches()
         self._write_svgfonts()
         self.writer.close(self._start_id)
         self.writer.flush()
@@ -325,26 +327,35 @@ class RendererSVG(RendererBase):
         """
         Create a new hatch pattern
         """
-        writer = self.writer
-        HATCH_SIZE = 72
         dictkey = (gc.get_hatch(), rgbFace, gc.get_rgb())
         oid = self._hatchd.get(dictkey)
         if oid is None:
             oid = self._make_id(u'h', dictkey)
-            writer.start('defs')
+            self._hatchd[dictkey] = ((gc.get_hatch_path(), rgbFace, gc.get_rgb()), oid)
+        else:
+            _, oid = oid
+        return oid
+
+    def _write_hatches(self):
+        if not len(self._hatchd):
+            return
+        HATCH_SIZE = 72
+        writer = self.writer
+        writer.start('defs')
+        for ((path, face, stroke), oid) in self._hatchd.values():
             writer.start(
                 u'pattern',
                 id=oid,
                 patternUnits=u"userSpaceOnUse",
                 x=u"0", y=u"0", width=unicode(HATCH_SIZE), height=unicode(HATCH_SIZE))
             path_data = self._convert_path(
-                gc.get_hatch_path(),
+                path,
                 Affine2D().scale(HATCH_SIZE).scale(1.0, -1.0).translate(0, HATCH_SIZE),
                 simplify=False)
-            if rgbFace is None:
+            if face is None:
                 fill = u'none'
             else:
-                fill = rgb2hex(rgbFace)
+                fill = rgb2hex(face)
             writer.element(
                 u'rect',
                 x=u"0", y=u"0", width=unicode(HATCH_SIZE+1), height=unicode(HATCH_SIZE+1),
@@ -353,17 +364,15 @@ class RendererSVG(RendererBase):
                 u'path',
                 d=path_data,
                 style=generate_css({
-                    u'fill': rgb2hex(gc.get_rgb()),
-                    u'stroke': rgb2hex(gc.get_rgb()),
+                    u'fill': rgb2hex(stroke),
+                    u'stroke': rgb2hex(stroke),
                     u'stroke-width': u'1.0',
                     u'stroke-linecap': u'butt',
                     u'stroke-linejoin': u'miter'
                     })
                 )
             writer.end(u'pattern')
-            writer.end(u'defs')
-            self._hatchd[dictkey] = oid
-        return oid
+        writer.end(u'defs')
 
     def _get_style(self, gc, rgbFace):
         """
@@ -413,22 +422,33 @@ class RendererSVG(RendererBase):
         else:
             return None
 
-        oid = self._clipd.get(dictkey)
-        if oid is None:
-            writer = self.writer
+        clip = self._clipd.get(dictkey)
+        if clip is None:
             oid = self._make_id(u'p', dictkey)
-            writer.start(u'defs')
-            writer.start(u'clipPath', id=oid)
             if clippath is not None:
+                self._clipd[dictkey] = ((clippath, clippath_trans), oid)
+            else:
+                self._clipd[dictkey] = (dictkey, oid)
+        else:
+            clip, oid = clip
+        return oid
+
+    def _write_clips(self):
+        if not len(self._clipd):
+            return
+        writer = self.writer
+        writer.start('defs')
+        for clip, oid in self._clipd.values():
+            writer.start('clipPath', id=oid)
+            if len(clip) == 2:
+                clippath, clippath_trans = clip
                 path_data = self._convert_path(clippath, clippath_trans, simplify=False)
                 writer.element(u'path', d=path_data)
             else:
-                writer.element(
-                    u'rect', x=unicode(x), y=unicode(y), width=unicode(w), height=unicode(h))
+                x, y, w, h = clip
+                writer.element(u'rect', x=unicode(x), y=unicode(y), width=unicode(w), height=unicode(h))
             writer.end(u'clipPath')
-            writer.end(u'defs')
-            self._clipd[dictkey] = oid
-        return oid
+        writer.end(u'defs')
 
     def _write_svgfonts(self):
         if not rcParams['svg.fonttype'] == 'svgfont':
@@ -742,6 +762,10 @@ class RendererSVG(RendererBase):
             im.flipud_out()
             attrib[u'xlink:href'] = filename
 
+        alpha = gc.get_alpha()
+        if alpha != 1.0:
+            attrib['opacity'] = str(alpha)
+
         if transform is None:
             self.writer.element(
                 u'image',
@@ -749,11 +773,12 @@ class RendererSVG(RendererBase):
                 width=unicode(w), height=unicode(h),
                 attrib=attrib)
         else:
+            flipped = self._make_flip_transform(transform)
             attrib[u'transform'] = generate_transform(
                 [(u'matrix', transform.to_values())])
             self.writer.element(
                 u'image',
-                x=unicode(x), y=unicode(y), width=unicode(dx), height=unicode(dy),
+                x=unicode(x), y=unicode(y+dy), width=unicode(dx), height=unicode(-dy),
                 attrib=attrib)
 
         if url is not None:
@@ -910,7 +935,8 @@ class RendererSVG(RendererBase):
             fontstyle = prop.get_style()
 
             attrib = {}
-            style[u'font-size'] = str(fontsize)
+            # Must add "px" to workaround a Firefox bug
+            style[u'font-size'] = str(fontsize) + 'px'
             style[u'font-family'] = str(fontfamily)
             style[u'font-style'] = prop.get_style().lower()
             attrib[u'style'] = generate_css(style)
@@ -951,7 +977,7 @@ class RendererSVG(RendererBase):
             spans = {}
             for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
                 style = generate_css({
-                    u'font-size': unicode(fontsize),
+                    u'font-size': unicode(fontsize) + 'px',
                     u'font-family': font.family_name,
                     u'font-style': font.style_name.lower()})
                 if thetext == 32:

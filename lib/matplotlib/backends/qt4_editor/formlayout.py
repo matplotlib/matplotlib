@@ -244,7 +244,7 @@ class FormWidget(QWidget):
             print("*"*80)
             print("COMMENT:", comment)
             print("*"*80)
-            
+
     def get_dialog(self):
         """Return FormDialog instance"""
         dialog = self.parent()

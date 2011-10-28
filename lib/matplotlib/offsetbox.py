@@ -1619,6 +1619,7 @@ class DraggableAnnotation(DraggableBase):
 
         self.ox, self.oy = ox0, oy0
         self.annotation.textcoords = "figure pixels"
+        self.update_offset(0, 0)
 
     def update_offset(self, dx, dy):
         ann = self.annotation
