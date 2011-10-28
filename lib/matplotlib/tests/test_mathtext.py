@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
+from matplotlib import mathtext
 
 math_tests = [
     r'$a+b+\dots+\dot{s}+\ldots$',
@@ -46,7 +47,6 @@ math_tests = [
     r'$\widehat{abc}\widetilde{def}$',
     r'$\Gamma \Delta \Theta \Lambda \Xi \Pi \Sigma \Upsilon \Phi \Psi \Omega$',
     r'$\alpha \beta \gamma \delta \epsilon \zeta \eta \theta \iota \lambda \mu \nu \xi \pi \kappa \rho \sigma \tau \upsilon \phi \chi \psi$',
-    # r'$\operatorname{cos} x$',
 
     # The examples prefixed by 'mmltt' are from the MathML torture test here:
         # http://www.mozilla.org/projects/mathml/demo/texvsmml.xhtml
@@ -59,7 +59,6 @@ math_tests = [
     r'${a}_{0}+\frac{1}{{a}_{1}+\frac{1}{{a}_{2}+\frac{1}{{a}_{3}+\frac{1}{{a}_{4}}}}}$',
     r'$\binom{n}{k/2}$',
     r'$\binom{p}{2}{x}^{2}{y}^{p-2}-\frac{1}{1-x}\frac{1}{1-{x}^{2}}$',
-    # 'mmltt10'    : r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$',
     r'${x}^{2y}$',
     r'$\sum _{i=1}^{p}\sum _{j=1}^{q}\sum _{k=1}^{r}{a}_{ij}{b}_{jk}{c}_{ki}$',
     r'$\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+x}}}}}}}$',
@@ -85,6 +84,8 @@ math_tests = [
     r"$\left( \xi \left( 1 - \xi \right) \right)$", # Bug 2969451
     r"$\left(2 \, a=b\right)$", # Sage bug #8125
     r"$? ! &$", # github issue #466
+    r'$\operatorname{cos} x$', # github issue #553
+    r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}P\left(i,j\right)$'
 ]
 
 digits = "0123456789"
@@ -169,3 +170,37 @@ def test_fontinfo():
     font = ft2font.FT2Font(fontpath)
     table = font.get_sfnt_table("head")
     assert table['version'] == (1, 0)
+
+def test_mathtext_exceptions():
+    errors = [
+        (r'$\hspace{}$', r'Expected \hspace{n}'),
+        (r'$\hspace{foo}$', r'Expected \hspace{n}'),
+        (r'$\frac$', r'Expected \frac{num}{den}'),
+        (r'$\frac{}{}$', r'Expected \frac{num}{den}'),
+        (r'$\stackrel$', r'Expected \stackrel{num}{den}'),
+        (r'$\stackrel{}{}$', r'Expected \stackrel{num}{den}'),
+        (r'$\binom$', r'Expected \binom{num}{den}'),
+        (r'$\binom{}{}$', r'Expected \binom{num}{den}'),
+        (r'$\genfrac$', r'Expected \genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}'),
+        (r'$\genfrac{}{}{}{}{}{}$', r'Expected \genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}'),
+        (r'$\sqrt$', r'Expected \sqrt{value}'),
+        (r'$\sqrt f$', r'Expected \sqrt{value}'),
+        (r'$\overline$', r'Expected \overline{value}'),
+        (r'$\overline{}$', r'Expected \overline{value}'),
+        (r'$\leftF$', r'Expected a delimiter'),
+        (r'$\rightF$', r'Unknown symbol: \rightF'),
+        (r'$\left(\right$', r'Expected a delimiter'),
+        (r'$\left($', r'Expected "\right"')
+        ]
+
+    parser = mathtext.MathTextParser('agg')
+
+    for math, msg in errors:
+        try:
+            parser.parse(math)
+        except ValueError as e:
+            exc = str(e).split('\n')
+            print e
+            assert exc[3].startswith(msg)
+        else:
+            assert False, "Expected '%s', but didn't get it" % msg

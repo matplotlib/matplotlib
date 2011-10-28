@@ -1,5 +1,5 @@
 # <pre>
-# @(#)iso3166.tab	8.6
+# @(#)iso3166.tab	8.11
 # This file is in the public domain, so clarified as of
 # 2009-05-17 by Arthur David Olson.
 # ISO 3166 alpha-2 country codes
@@ -21,6 +21,9 @@
 #
 # Lines beginning with `#' are comments.
 #
+# From Arthur David Olson (2011-08-17):
+# Resynchronized today with the ISO 3166 site (adding SS for South Sudan).
+#
 #country-
 #code	country name
 AD	Andorra
@@ -30,7 +33,6 @@ AG	Antigua & Barbuda
 AI	Anguilla
 AL	Albania
 AM	Armenia
-AN	Netherlands Antilles
 AO	Angola
 AQ	Antarctica
 AR	Argentina
@@ -53,6 +55,7 @@ BL	St Barthelemy
 BM	Bermuda
 BN	Brunei
 BO	Bolivia
+BQ	Bonaire Sint Eustatius & Saba
 BR	Brazil
 BS	Bahamas
 BT	Bhutan
@@ -75,6 +78,7 @@ CO	Colombia
 CR	Costa Rica
 CU	Cuba
 CV	Cape Verde
+CW	Curacao
 CX	Christmas Island
 CY	Cyprus
 CZ	Czech Republic
@@ -229,8 +233,10 @@ SM	San Marino
 SN	Senegal
 SO	Somalia
 SR	Suriname
+SS	South Sudan
 ST	Sao Tome & Principe
 SV	El Salvador
+SX	Sint Maarten
 SY	Syria
 SZ	Swaziland
 TC	Turks & Caicos Is

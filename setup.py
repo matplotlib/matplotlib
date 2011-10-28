@@ -28,8 +28,8 @@ if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 import sys
 major, minor1, minor2, s, tmp = sys.version_info
 
-if major==2 and minor1<4 or major<2:
-    raise SystemExit("""matplotlib requires Python 2.4 or later.""")
+if major==2 and minor1<6 or major<2:
+    raise SystemExit("""matplotlib requires Python 2.6 or later.""")
 
 import glob
 from distutils.core import setup
