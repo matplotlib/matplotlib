@@ -118,7 +118,7 @@ class Path(object):
             if len(codes):
                 assert codes[0] == self.MOVETO
         elif closed:
-            codes = np.empty(len(vertices)) * 2
+            codes = np.empty(len(vertices), dtype=self.code_type)
             codes[0] = self.MOVETO
             codes[1:-1] = self.LINETO
             codes[-1] = self.CLOSEPOLY
