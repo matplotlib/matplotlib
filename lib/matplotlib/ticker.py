@@ -1460,7 +1460,7 @@ class SymmetricalLogLocator(Locator):
         if self._subs is None:
             subs = np.arange(2.0, b)
         else:
-            numdec = vmax - vmin + 1
+            subs = np.asarray(self._subs)
 
         if len(subs) > 1 or subs[0] != 1.0:
             ticklocs = []
