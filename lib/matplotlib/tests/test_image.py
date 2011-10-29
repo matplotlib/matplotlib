@@ -1,6 +1,7 @@
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+from matplotlib import rcParams
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 from numpy.testing import assert_array_equal
@@ -27,6 +28,25 @@ def test_image_interps():
     ax3 = fig.add_subplot(313)
     ax3.imshow(X, interpolation='bicubic')
     ax3.set_ylabel('bicubic')
+
+@image_comparison(baseline_images=['interp_nearest_vs_none'], extensions=['pdf', 'svg'])
+def test_interp_nearest_vs_none():
+    'Test the effect of "nearest" and "none" interpolation'
+    # Setting dpi to something really small makes the difference very
+    # visible. This works fine with pdf, since the dpi setting doesn't
+    # affect anything but images, but the agg output becomes unusably
+    # small.
+    rcParams['savefig.dpi'] = 3
+    X = np.array([[[218, 165, 32], [122, 103, 238]],
+                  [[127, 255, 0], [255, 99, 71]]], dtype=np.uint8)
+    fig = plt.figure()
+    ax1 = fig.add_subplot(121)
+    ax1.imshow(X, interpolation='none')
+    ax1.set_title('interpolation none')
+    ax2 = fig.add_subplot(122)
+    ax2.imshow(X, interpolation='nearest')
+    ax2.set_title('interpolation nearest')
+
 
 @image_comparison(baseline_images=['figimage-0', 'figimage-1'], extensions=['png'], tol=1.5e-3)
 def test_figimage():

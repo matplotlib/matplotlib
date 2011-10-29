@@ -21,7 +21,7 @@ except ImportError:
     figureoptions = None
 
 from qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
-    
+
 backend_version = __version__
 def fn_name(): return sys._getframe(1).f_code.co_name
 
@@ -55,18 +55,12 @@ def _create_qApp():
             qApp = QtGui.QApplication( [" "] )
             QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
                                 qApp, QtCore.SLOT( "quit()" ) )
-            #remember that matplotlib created the qApp - will be used by show()
-            _create_qApp.qAppCreatedHere = True
         else:
             qApp = app
-            _create_qApp.qAppCreatedHere = False
-
-_create_qApp.qAppCreatedHere = False
 
 class Show(ShowBase):
     def mainloop(self):
-        if _create_qApp.qAppCreatedHere:
-            QtGui.qApp.exec_()
+        QtGui.qApp.exec_()
 
 show = Show()
 
@@ -126,7 +120,28 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     keyvald = { QtCore.Qt.Key_Control : 'control',
                 QtCore.Qt.Key_Shift : 'shift',
                 QtCore.Qt.Key_Alt : 'alt',
-                QtCore.Qt.Key_Return : 'enter'
+                QtCore.Qt.Key_Return : 'enter',
+                QtCore.Qt.Key_Left : 'left',
+                QtCore.Qt.Key_Up : 'up',
+                QtCore.Qt.Key_Right : 'right',
+                QtCore.Qt.Key_Down : 'down',
+                QtCore.Qt.Key_Escape : 'escape',
+                QtCore.Qt.Key_F1 : 'f1',
+                QtCore.Qt.Key_F2 : 'f2',
+                QtCore.Qt.Key_F3 : 'f3',
+                QtCore.Qt.Key_F4 : 'f4',
+                QtCore.Qt.Key_F5 : 'f5',
+                QtCore.Qt.Key_F6 : 'f6',
+                QtCore.Qt.Key_F7 : 'f7',
+                QtCore.Qt.Key_F8 : 'f8',
+                QtCore.Qt.Key_F9 : 'f9',
+                QtCore.Qt.Key_F10 : 'f10',
+                QtCore.Qt.Key_F11 : 'f11',
+                QtCore.Qt.Key_F12 : 'f12',
+                QtCore.Qt.Key_Home : 'home',
+                QtCore.Qt.Key_End : 'end',
+                QtCore.Qt.Key_PageUp : 'pageup',
+                QtCore.Qt.Key_PageDown : 'pagedown',
                }
     # left 1, middle 2, right 3
     buttond = {1:1, 2:3, 4:2}
@@ -287,7 +302,7 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print 'FigureManagerQT.%s' % fn_name()
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
-        self.window = QtGui.QMainWindow() 
+        self.window = QtGui.QMainWindow()
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.window.setWindowTitle("Figure %d" % num)
@@ -335,7 +350,7 @@ class FigureManagerQT( FigureManagerBase ):
     def _show_message(self,s):
         # Fixes a PySide segfault.
         self.window.statusBar().showMessage(s)
-        
+
     def _widgetclosed( self ):
         if self.window._destroying: return
         self.window._destroying = True
@@ -367,6 +382,8 @@ class FigureManagerQT( FigureManagerBase ):
         self.window.show()
 
     def destroy( self, *args ):
+        # check for qApp first, as PySide deletes it in its atexit handler
+        if QtGui.QApplication.instance() is None: return
         if self.window._destroying: return
         self.window._destroying = True
         QtCore.QObject.disconnect( self.window, QtCore.SIGNAL( 'destroyed()' ),
@@ -452,7 +469,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
                             fmt += ": %(ylabel)s"
                         fmt += " (%(axes_repr)s)"
                     elif ylabel:
-                        fmt = "%(axes_repr)s (%(ylabel)s)" % ylabel
+                        fmt = "%(axes_repr)s (%(ylabel)s)"
                     else:
                         fmt = "%(axes_repr)s"
                     titles.append(fmt % dict(title = title,

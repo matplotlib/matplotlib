@@ -108,7 +108,7 @@ latex_to_bakoma = {
     r'7'                         : ('cmr10',  127),
     r'8'                         : ('cmr10',   77),
     r'9'                         : ('cmr10',   22),
-    r'                           :'                    : ('cmr10',   85),
+    r':'                         : ('cmr10',   85),
     r';'                         : ('cmr10',   31),
     r'='                         : ('cmr10',   41),
     r'\leftbracket'              : ('cmr10',   62),
@@ -243,6 +243,9 @@ latex_to_bakoma = {
     r'\rightarrow'               : ('cmsy10',  12),
     r'\to'                       : ('cmsy10',  12),
     r'\spadesuit'                : ('cmsy10',   7),
+    r'?'                         : ('cmr10',   50),
+    r'!'                         : ('cmr10',   29),
+    r'&'                         : ('cmr10',  109) 
 }
 
 latex_to_cmex = {
@@ -2319,7 +2322,21 @@ tex2uni = {
     'biguplus'                 : 10756,
     'epsilon'                  : 949,
     'vartheta'                 : 977,
-    'bigotimes'                : 10754
+    'bigotimes'                : 10754,
+    'guillemotleft'            : 171,
+    'ring'                     : 730,
+    'Thorn'                    : 222,
+    'guilsinglright'           : 8250,
+    'perthousand'              : 8240,
+    'macron'                   : 175,
+    'cent'                     : 162,
+    'guillemotright'           : 187,
+    'equal'                    : 61,
+    'asterisk'                 : 42,
+    'guilsinglleft'            : 8249,
+    'plus'                     : 43,
+    'thorn'                    : 254,
+    'dagger'                   : 8224
 }
 
 # Each element is a 4-tuple of the form:

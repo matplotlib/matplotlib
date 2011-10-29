@@ -46,6 +46,68 @@ _prism_data = {
         'blue': lambda x: -1.1 * np.sin((x * 20.9) * np.pi),
 }
 
+def cubehelix(gamma=1.0, s=0.5, r=-1.5, h=1.0):
+    """Return custom data dictionary of (r,g,b) conversion functions, which
+    can be used with :func:`register_cmap`, for the cubehelix color scheme.
+
+    Unlike most other color schemes cubehelix was designed by D.A. Green to
+    be monotonically increasing in terms of perceived brightness.
+    Also, when printed on a black and white postscript printer, the scheme
+    results in a greyscale with monotonically increasing brightness.
+    This color scheme is named cubehelix because the r,g,b values produced
+    can be visualised as a squashed helix around the diagonal in the
+    r,g,b color cube.
+
+    For a unit color cube (i.e. 3-D coordinates for r,g,b each in the
+    range 0 to 1) the color scheme starts at (r,g,b) = (0,0,0), i.e. black,
+    and finishes at (r,g,b) = (1,1,1), i.e. white. For some fraction *x*,
+    between 0 and 1, the color is the corresponding grey value at that
+    fraction along the black to white diagonal (x,x,x) plus a color
+    element. This color element is calculated in a plane of constant
+    perceived intensity and controlled by the following parameters.
+
+    Optional keyword arguments:
+
+      =========   =======================================================
+      Keyword     Description
+      =========   =======================================================
+      gamma       gamma factor to emphasise either low intensity values
+                  (gamma < 1), or high intensity values (gamma > 1);
+                  defaults to 1.0.
+      s           the start color; defaults to 0.5 (i.e. purple).
+      r           the number of r,g,b rotations in color that are made
+                  from the start to the end of the color scheme; defaults
+                  to -1.5 (i.e. -> B -> G -> R -> B).
+      h           the hue parameter which controls how saturated the
+                  colors are. If this parameter is zero then the color
+                  scheme is purely a greyscale; defaults to 1.0.
+      =========   =======================================================
+
+    """
+
+    def get_color_function(p0, p1):
+        def color(x):
+            # Apply gamma factor to emphasise low or high intensity values
+            xg = x**gamma
+
+            # Calculate amplitude and angle of deviation from the black
+            # to white diagonal in the plane of constant
+            # perceived intensity.
+            a = h * xg * (1 - xg) / 2
+
+            phi = 2 * np.pi * (s / 3 + r * x)
+
+            return xg + a * (p0 * np.cos(phi) + p1 * np.sin(phi))
+        return color
+
+    return {
+            'red': get_color_function(-0.14861, 1.78277),
+            'green': get_color_function(-0.29227, -0.90649),
+            'blue': get_color_function(1.97294, 0.0),
+    }
+
+_cubehelix_data = cubehelix()
+
 _bwr_data = ((0.0, 0.0, 1.0), (1.0, 1.0, 1.0), (1.0, 0.0, 0.0))
 _brg_data = ((0.0, 0.0, 1.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0))
 
@@ -1566,6 +1628,145 @@ _gist_yarg_data = {
         'blue': lambda x: 1 - x,
 }
 
+# This bipolar color map was generated from CoolWarmFloat33.csv of
+# "Diverging Color Maps for Scientific Visualization" by Kenneth Moreland. 
+# <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>
+_coolwarm_data = {
+    'red': [
+        (0.0, 0.2298057, 0.2298057),
+        (0.03125, 0.26623388, 0.26623388),
+        (0.0625, 0.30386891, 0.30386891),
+        (0.09375, 0.342804478, 0.342804478),
+        (0.125, 0.38301334, 0.38301334),
+        (0.15625, 0.424369608, 0.424369608),
+        (0.1875, 0.46666708, 0.46666708),
+        (0.21875, 0.509635204, 0.509635204),
+        (0.25, 0.552953156, 0.552953156),
+        (0.28125, 0.596262162, 0.596262162),
+        (0.3125, 0.639176211, 0.639176211),
+        (0.34375, 0.681291281, 0.681291281),
+        (0.375, 0.722193294, 0.722193294),
+        (0.40625, 0.761464949, 0.761464949),
+        (0.4375, 0.798691636, 0.798691636),
+        (0.46875, 0.833466556, 0.833466556),
+        (0.5, 0.865395197, 0.865395197),
+        (0.53125, 0.897787179, 0.897787179),
+        (0.5625, 0.924127593, 0.924127593),
+        (0.59375, 0.944468518, 0.944468518),
+        (0.625, 0.958852946, 0.958852946),
+        (0.65625, 0.96732803, 0.96732803),
+        (0.6875, 0.969954137, 0.969954137),
+        (0.71875, 0.966811177, 0.966811177),
+        (0.75, 0.958003065, 0.958003065),
+        (0.78125, 0.943660866, 0.943660866),
+        (0.8125, 0.923944917, 0.923944917),
+        (0.84375, 0.89904617, 0.89904617),
+        (0.875, 0.869186849, 0.869186849),
+        (0.90625, 0.834620542, 0.834620542),
+        (0.9375, 0.795631745, 0.795631745),
+        (0.96875, 0.752534934, 0.752534934),
+        (1.0, 0.705673158, 0.705673158)],
+    'green': [
+        (0.0, 0.298717966, 0.298717966),
+        (0.03125, 0.353094838, 0.353094838),
+        (0.0625, 0.406535296, 0.406535296),
+        (0.09375, 0.458757618, 0.458757618),
+        (0.125, 0.50941904, 0.50941904),
+        (0.15625, 0.558148092, 0.558148092),
+        (0.1875, 0.604562568, 0.604562568),
+        (0.21875, 0.648280772, 0.648280772),
+        (0.25, 0.688929332, 0.688929332),
+        (0.28125, 0.726149107, 0.726149107),
+        (0.3125, 0.759599947, 0.759599947),
+        (0.34375, 0.788964712, 0.788964712),
+        (0.375, 0.813952739, 0.813952739),
+        (0.40625, 0.834302879, 0.834302879),
+        (0.4375, 0.849786142, 0.849786142),
+        (0.46875, 0.860207984, 0.860207984),
+        (0.5, 0.86541021, 0.86541021),
+        (0.53125, 0.848937047, 0.848937047),
+        (0.5625, 0.827384882, 0.827384882),
+        (0.59375, 0.800927443, 0.800927443),
+        (0.625, 0.769767752, 0.769767752),
+        (0.65625, 0.734132809, 0.734132809),
+        (0.6875, 0.694266682, 0.694266682),
+        (0.71875, 0.650421156, 0.650421156),
+        (0.75, 0.602842431, 0.602842431),
+        (0.78125, 0.551750968, 0.551750968),
+        (0.8125, 0.49730856, 0.49730856),
+        (0.84375, 0.439559467, 0.439559467),
+        (0.875, 0.378313092, 0.378313092),
+        (0.90625, 0.312874446, 0.312874446),
+        (0.9375, 0.24128379, 0.24128379),
+        (0.96875, 0.157246067, 0.157246067),
+        (1.0, 0.01555616, 0.01555616)],
+    'blue': [
+        (0.0, 0.753683153, 0.753683153),
+        (0.03125, 0.801466763, 0.801466763),
+        (0.0625, 0.84495867, 0.84495867),
+        (0.09375, 0.883725899, 0.883725899),
+        (0.125, 0.917387822, 0.917387822),
+        (0.15625, 0.945619588, 0.945619588),
+        (0.1875, 0.968154911, 0.968154911),
+        (0.21875, 0.98478814, 0.98478814),
+        (0.25, 0.995375608, 0.995375608),
+        (0.28125, 0.999836203, 0.999836203),
+        (0.3125, 0.998151185, 0.998151185),
+        (0.34375, 0.990363227, 0.990363227),
+        (0.375, 0.976574709, 0.976574709),
+        (0.40625, 0.956945269, 0.956945269),
+        (0.4375, 0.931688648, 0.931688648),
+        (0.46875, 0.901068838, 0.901068838),
+        (0.5, 0.865395561, 0.865395561),
+        (0.53125, 0.820880546, 0.820880546),
+        (0.5625, 0.774508472, 0.774508472),
+        (0.59375, 0.726736146, 0.726736146),
+        (0.625, 0.678007945, 0.678007945),
+        (0.65625, 0.628751763, 0.628751763),
+        (0.6875, 0.579375448, 0.579375448),
+        (0.71875, 0.530263762, 0.530263762),
+        (0.75, 0.481775914, 0.481775914),
+        (0.78125, 0.434243684, 0.434243684),
+        (0.8125, 0.387970225, 0.387970225),
+        (0.84375, 0.343229596, 0.343229596),
+        (0.875, 0.300267182, 0.300267182),
+        (0.90625, 0.259301199, 0.259301199),
+        (0.9375, 0.220525627, 0.220525627),
+        (0.96875, 0.184115123, 0.184115123),
+        (1.0, 0.150232812, 0.150232812)]
+    }
+
+# Implementation of Carey Rappaport's CMRmap.
+# See `A Color Map for Effective Black-and-White Rendering of Color-Scale Images' by Carey Rappaport
+# http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m
+_CMRmap_data = {'red'   : ( (0.000, 0.00, 0.00),
+                            (0.125, 0.15, 0.15),
+                            (0.250, 0.30, 0.30),
+                            (0.375, 0.60, 0.60),
+                            (0.500, 1.00, 1.00),
+                            (0.625, 0.90, 0.90),
+                            (0.750, 0.90, 0.90),
+                            (0.875, 0.90, 0.90),
+                            (1.000, 1.00, 1.00) ),
+                'green' : ( (0.000, 0.00, 0.00),
+                            (0.125, 0.15, 0.15),
+                            (0.250, 0.15, 0.15),
+                            (0.375, 0.20, 0.20),
+                            (0.500, 0.25, 0.25),
+                            (0.625, 0.50, 0.50),
+                            (0.750, 0.75, 0.75),
+                            (0.875, 0.90, 0.90),
+                            (1.000, 1.00, 1.00) ),
+                'blue':   ( (0.000, 0.00, 0.00),
+                            (0.125, 0.50, 0.50),
+                            (0.250, 0.75, 0.75),
+                            (0.375, 0.50, 0.50),
+                            (0.500, 0.15, 0.15),
+                            (0.625, 0.00, 0.00),
+                            (0.750, 0.10, 0.10),
+                            (0.875, 0.50, 0.50),
+                            (1.000, 1.00, 1.00) )}
+
 datad = {
     'afmhot': _afmhot_data,
     'autumn': _autumn_data,
@@ -1573,8 +1774,10 @@ datad = {
     'binary': _binary_data,
     'bwr':    _bwr_data,
     'brg':    _brg_data,
+    'CMRmap': _CMRmap_data,
     'cool':   _cool_data,
     'copper': _copper_data,
+    'cubehelix': _cubehelix_data,
     'flag':   _flag_data,
     'gnuplot': _gnuplot_data,
     'gnuplot2': _gnuplot2_data,
@@ -1637,4 +1840,4 @@ datad['gist_ncar']=_gist_ncar_data
 datad['gist_rainbow']=_gist_rainbow_data
 datad['gist_stern']=_gist_stern_data
 datad['gist_yarg']=_gist_yarg_data
-
+datad['coolwarm']=_coolwarm_data

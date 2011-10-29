@@ -233,14 +233,17 @@ class GridSpec(GridSpecBase):
                 if not isinstance(ax, SubplotBase):
                     # Check if sharing a subplots axis
                     if ax._sharex is not None and isinstance(ax._sharex, SubplotBase):
-                        ax._sharex.update_params()
-                        ax.set_position(ax._sharex.figbox)
+                        if ax._sharex.get_subplotspec().get_gridspec() == self:
+                            ax._sharex.update_params()
+                            ax.set_position(ax._sharex.figbox)
                     elif ax._sharey is not None and isinstance(ax._sharey,SubplotBase):
-                        ax._sharey.update_params()
-                        ax.set_position(ax._sharey.figbox)
+                        if ax._sharey.get_subplotspec().get_gridspec() == self:
+                            ax._sharey.update_params()
+                            ax.set_position(ax._sharey.figbox)
                 else:
-                    ax.update_params()
-                    ax.set_position(ax.figbox)
+                    if ax.get_subplotspec().get_gridspec() == self:
+                        ax.update_params()
+                        ax.set_position(ax.figbox)
 
 
 
@@ -268,10 +271,11 @@ class GridSpec(GridSpecBase):
 
 
     def tight_layout(self, fig, renderer=None, pad=1.2, h_pad=None, w_pad=None, rect=None):
-        """Adjust subplot parameters to give specified padding.
+        """
+        Adjust subplot parameters to give specified padding.
 
-        Parameters
-        ----------
+        Parameters:
+        
         pad : float
             padding between the figure edge and the edges of subplots, as a fraction of the font-size.
         h_pad, w_pad : float
@@ -287,7 +291,7 @@ class GridSpec(GridSpecBase):
         subplot_list = []
         num1num2_list = []
         subplot_dict = {}
-        
+
         for ax in fig.axes:
             locator = ax.get_axes_locator()
             if hasattr(locator, "get_subplotspec"):
@@ -340,7 +344,7 @@ class GridSpec(GridSpecBase):
                                              pad=pad, h_pad=h_pad, w_pad=w_pad,
                                              rect=(left, bottom, right, top))
 
-            
+
         self.update(**kwargs)
 
 

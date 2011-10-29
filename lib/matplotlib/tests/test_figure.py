@@ -1,9 +1,10 @@
 import matplotlib
 from nose.tools import assert_equal
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
 
 
+@cleanup
 def test_figure_label():
     # pyplot figure creation, selection and closing with figure label and number
     plt.close('all')
@@ -31,7 +32,8 @@ def test_figure():
     ax = fig.add_subplot(111)
     ax.set_title(fig.get_label())
     ax.plot(range(5))
-    fig = plt.figure('tomorow')
-    plt.plot([0], 'or')
-    fig = plt.figure('today')
-    fig.savefig('figure_today')
+    # plot red line in a different figure.
+    plt.figure('tomorow')
+    plt.plot([0, 1], [1,0], 'r')
+    # Return to the original; make sure the red line is not there.
+    plt.figure('today')

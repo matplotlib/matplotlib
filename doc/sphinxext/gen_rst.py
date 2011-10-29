@@ -113,6 +113,18 @@ Matplotlib Examples
 
             fhsubdirIndex.write('    %s <%s>\n'%(os.path.basename(basename),rstfile))
 
+            do_plot = (subdir in ('api',
+                                  'pylab_examples',
+                                  'units',
+                                  'mplot3d',
+                                  'axes_grid',
+                                  ) and
+                       not noplot_regex.search(contents))
+            if not do_plot:
+                fhstatic = file(outputfile, 'w')
+                fhstatic.write(contents)
+                fhstatic.close()
+
             if not out_of_date(fullpath, outrstfile):
                 continue
 
@@ -121,25 +133,13 @@ Matplotlib Examples
             title = '%s example code: %s'%(subdir, fname)
             #title = '<img src=%s> %s example code: %s'%(thumbfile, subdir, fname)
 
-
             fh.write(title + '\n')
             fh.write('='*len(title) + '\n\n')
-
-            do_plot = (subdir in ('api',
-                                  'pylab_examples',
-                                  'units',
-                                  'mplot3d',
-                                  'axes_grid',
-                                  ) and
-                       not noplot_regex.search(contents))
 
             if do_plot:
                 fh.write("\n\n.. plot:: %s\n\n::\n\n" % fullpath)
             else:
                 fh.write("[`source code <%s>`_]\n\n::\n\n" % fname)
-                fhstatic = file(outputfile, 'w')
-                fhstatic.write(contents)
-                fhstatic.close()
 
             # indent the contents
             contents = '\n'.join(['    %s'%row.rstrip() for row in contents.split('\n')])

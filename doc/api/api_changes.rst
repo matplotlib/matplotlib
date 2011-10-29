@@ -14,6 +14,8 @@ For new features that were added to matplotlib, please see
 Changes in 1.1.x
 ================
 
+* Added new :class:`matplotlib.sankey.Sankey` for generating Sankey diagrams.
+
 * In :meth:`~matplotlib.pyplot.imshow`, setting *interpolation* to 'nearest'
   will now always mean that the nearest-neighbor interpolation is performed.
   If you want the no-op interpolation to be performed, choose 'none'.

@@ -13,6 +13,7 @@ import matplotlib as mpl
 import matplotlib.colors as colors
 import matplotlib.cbook as cbook
 from matplotlib._cm import datad
+from matplotlib._cm import cubehelix
 
 cmap_d = dict()
 

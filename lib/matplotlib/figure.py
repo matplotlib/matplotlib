@@ -827,13 +827,13 @@ class Figure(Artist):
         dsu = []
 
         for a in self.patches:
-            dsu.append( (a.get_zorder(), a.draw, [renderer]))
+            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
 
         for a in self.lines:
-            dsu.append( (a.get_zorder(), a.draw, [renderer]))
+            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
 
         for a in self.artists:
-            dsu.append( (a.get_zorder(), a.draw, [renderer]))
+            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
 
         # override the renderer default if self.suppressComposite
         # is not None
@@ -844,7 +844,7 @@ class Figure(Artist):
         if len(self.images)<=1 or not_composite or \
                 not allequal([im.origin for im in self.images]):
             for a in self.images:
-                dsu.append( (a.get_zorder(), a.draw, [renderer]))
+                dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
         else:
             # make a composite image blending alpha
             # list of (_image.Image, ox, oy)
@@ -866,21 +866,22 @@ class Figure(Artist):
                 renderer.draw_image(gc, l, b, im)
                 gc.restore()
 
-            dsu.append((self.images[0].get_zorder(), draw_composite, []))
+            dsu.append((self.images[0].get_zorder(), self.images[0], draw_composite, []))
 
         # render the axes
         for a in self.axes:
-            dsu.append( (a.get_zorder(), a.draw, [renderer]))
+            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
 
         # render the figure text
         for a in self.texts:
-            dsu.append( (a.get_zorder(), a.draw, [renderer]))
+            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
 
         for a in self.legends:
-            dsu.append( (a.get_zorder(), a.draw, [renderer]))
+            dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
 
+        dsu = [row for row in dsu if not row[1].get_animated()]
         dsu.sort(key=itemgetter(0))
-        for zorder, func, args in dsu:
+        for zorder, a, func, args in dsu:
             func(*args)
 
         renderer.close_group('figure')
@@ -1310,10 +1311,11 @@ class Figure(Artist):
 
 
     def tight_layout(self, renderer=None, pad=1.2, h_pad=None, w_pad=None):
-        """Adjust subplot parameters to give specified padding.
+        """
+        Adjust subplot parameters to give specified padding.
 
-        Parameters
-        ----------
+        Parameters:
+
         pad : float
             padding between the figure edge and the edges of subplots, as a fraction of the font-size.
         h_pad, w_pad : float
