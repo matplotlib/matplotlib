@@ -9,7 +9,7 @@ This page just covers the highlights -- for the full story, see the
 
 .. note::
    Matplotlib version 1.1 is the last major release compatible with Python
-   versions 2.4 to 2.7.  The next major release will support
+   versions 2.4 to 2.7.  matplotlib 1.2 and later require
    versions 2.6, 2.7, and 3.1 and higher.
 
 .. _whats-new-1-1:
@@ -17,15 +17,30 @@ This page just covers the highlights -- for the full story, see the
 new in matplotlib-1.1
 =====================
 
+Sankey Diagrams
+---------------
+
+Kevin Davies has extended Yannick Copin's original Sankey example into a module
+(:mod:`~matplotlib.sankey`) and provided new examples
+(:ref:`api-sankey_demo_basics`, :ref:`api-sankey_demo_links`,
+:ref:`api-sankey_demo_rankine`).
+
+.. plot:: mpl_examples/api/sankey_demo_rankine.py
+
 Animation
 ---------
 
-Ryan May has written a backend-independent
-framework for creating animated figures. The :mod:`~matplotlib.animation`
-module is intended to replace the
-backend-specific examples formerly in the :ref:`examples-index`
-listings.  Examples using the new framework are in
-:ref:`animation-examples-index`.
+Ryan May has written a backend-independent framework for creating
+animated figures. The :mod:`~matplotlib.animation` module is intended
+to replace the backend-specific examples formerly in the
+:ref:`examples-index` listings.  Examples using the new framework are
+in :ref:`animation-examples-index`; see the entrancing :ref:`double
+pendulum <animation-double_pendulum_animated>` which uses
+:meth:`matplotlib.animation.Animation.save` to create the movie below.
+
+.. raw:: html
+
+    <iframe width="420" height="315" src="http://www.youtube.com/embed/32cjc6V0OZY" frameborder="0" allowfullscreen></iframe>
 
 This should be considered as a beta release of the framework;
 please try it and provide feedback.
@@ -123,10 +138,12 @@ as 2D plotting, Ben Root has made several improvements to the
 * Most 3D plotting functions now support empty inputs
 
 * Ticker offset display added:
+
 .. plot:: mpl_examples/mplot3d/offset_demo.py
 
 * :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
   gains *zdir* and *offset* kwargs. You can now do this:
+
 .. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
 
 Numerix support removed
@@ -181,13 +198,18 @@ Other improvements
 * :meth:`~matplotlib.pyplot.scatter` now accepts empty inputs.
 
 * The behavior for 'symlog' scale has been fixed, but this may result
-  in some minor changes to existing plots.
+  in some minor changes to existing plots.  This work was refined by
+  ssyr.
 
 * Peter Butterworth added named figure support to
   :func:`~matplotlib.pyplot.figure`.
 
 * Michiel de Hoon has modified the MacOSX backend to make
   its interactive behavior consistent with the other backends.
+
+* Pim Schellart added a new colormap called "cubehelix".
+  Sameer Grover also added a colormap called "coolwarm". See it and all
+  other colormaps :ref:`here <pylab_examples-show_colormaps>`.
 
 * Many bug fixes and documentation improvements.
 

@@ -713,30 +713,32 @@ class PsfontsMap(object):
         There is some difference between <foo.pfb and <<bar.pfb in
         subsetting, but I have no example of << in my TeX installation.
         """
+
+        # If the map file specifies multiple encodings for a font, we
+        # follow pdfTeX in choosing the last one specified. Such
+        # entries are probably mistakes but they have occurred.
+        # http://tex.stackexchange.com/questions/10826/
+        # http://article.gmane.org/gmane.comp.tex.pdftex/4914
+
         texname, psname = words[:2]
-        effects, encodings, filename = '', [], None
+        effects, encoding, filename = '', None, None
         for word in words[2:]:
             if not word.startswith('<'):
                 effects = word
             else:
                 word = word.lstrip('<')
-                if word.startswith('['):
-                    encodings.append(word[1:])
-                elif word.endswith('.enc'):
-                    encodings.append(word)
+                if word.startswith('[') or word.endswith('.enc'):
+                    if encoding is not None:
+                        matplotlib.verbose.report(
+                            'Multiple encodings for %s = %s'
+                            % (texname, psname), 'debug')
+                    if word.startswith('['):
+                        encoding = word[1:]
+                    else:
+                        encoding = word
                 else:
                     assert filename is None
                     filename = word
-
-        if len(encodings) > 1:
-            # TODO this is a stopgap workaround, need to handle this correctly
-            matplotlib.verbose.report('Multiple encodings for %s = %s, skipping'
-                                      % (texname, psname), 'debug')
-            return
-        elif len(encodings) == 1:
-            encoding, = encodings
-        else:
-            encoding = None
 
         eff = effects.split()
         effects = {}

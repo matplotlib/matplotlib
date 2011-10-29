@@ -498,7 +498,10 @@ def render_figures(code, code_path, output_dir, output_base, context,
     # -- Parse format list
     default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 200}
     formats = []
-    for fmt in config.plot_formats:
+    plot_formats = config.plot_formats
+    if isinstance(plot_formats, (str, unicode)):
+        plot_formats = eval(plot_formats)
+    for fmt in plot_formats:
         if isinstance(fmt, str):
             formats.append((fmt, default_dpi.get(fmt, 80)))
         elif type(fmt) in (tuple, list) and len(fmt)==2:
@@ -583,6 +586,9 @@ def render_figures(code, code_path, output_dir, output_base, context,
                 img.formats.append(format)
 
         results.append((code_piece, images))
+
+    if not context:
+        clear_state(config.plot_rcparams)
 
     return results
 
@@ -758,10 +764,13 @@ def run(arguments, content, options, state_machine, state, lineno):
                     shutil.copyfile(fn, destimg)
 
     # copy script (if necessary)
+    target_name = os.path.join(dest_dir, output_base + source_ext)
+    f = open(target_name, 'w')
     if source_file_name == rst_file:
-        target_name = os.path.join(dest_dir, output_base + source_ext)
-        f = open(target_name, 'w')
-        f.write(unescape_doctest(code))
-        f.close()
+        code_escaped = unescape_doctest(code)
+    else:
+        code_escaped = code
+    f.write(code_escaped)
+    f.close()
 
     return errors

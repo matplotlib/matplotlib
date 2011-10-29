@@ -66,9 +66,14 @@ class ShowBase(object):
 
     Subclass must override mainloop() method.
     """
-    def __call__(self):
+    def __call__(self, block=None):
         """
-        Show all figures.
+        Show all figures.  If *block* is not None, then
+        it is a boolean that overrides all other factors
+        determining whether show blocks by calling mainloop().
+        The other factors are:
+        it does not block if run inside "ipython --pylab";
+        it does not block in interactive mode.
         """
         managers = Gcf.get_all_fig_managers()
         if not managers:
@@ -77,11 +82,28 @@ class ShowBase(object):
         for manager in managers:
             manager.show()
 
-        try:
-            if not self._needmain:  # ipython flag
+        if block is not None:
+            if block:
+                self.mainloop()
                 return
+            else:
+                return
+
+        # Hack: determine at runtime whether we are
+        # inside ipython in pylab mode.
+        from matplotlib import pyplot
+        try:
+            ipython_pylab = not pyplot.show._needmain
+            # IPython versions >= 0.10 tack the _needmain
+            # attribute onto pyplot.show, and always set
+            # it to False, when in --pylab mode.
         except AttributeError:
-            pass
+            ipython_pylab = False
+
+        # Leave the following as a separate step in case we
+        # want to control this behavior with an rcParam.
+        if ipython_pylab:
+            return
 
         if not is_interactive():
             self.mainloop()
@@ -865,12 +887,22 @@ class GraphicsContextBase:
     def set_linestyle(self, style):
         """
         Set the linestyle to be one of ('solid', 'dashed', 'dashdot',
-        'dotted').
+        'dotted'). One may specify customized dash styles by providing
+        a tuple of (offset, dash pairs). For example, the predefiend
+        linestyles have following values.:
+
+         'dashed'  : (0, (6.0, 6.0)),
+         'dashdot' : (0, (3.0, 5.0, 1.0, 5.0)),
+         'dotted'  : (0, (1.0, 3.0)),
         """
-        try:
+
+        if style in self.dashd.keys():
             offset, dashes = self.dashd[style]
-        except:
-            raise ValueError('Unrecognized linestyle: %s' % style)
+        elif isinstance(style, tuple):
+            offset, dashes = style
+        else:
+            raise ValueError('Unrecognized linestyle: %s' % str(style))
+
         self._linestyle = style
         self.set_dashes(offset, dashes)
 

@@ -331,7 +331,7 @@ class RendererSVG(RendererBase):
         else:
             _, oid = oid
         return oid
-        
+
     def _write_hatches(self):
         if not len(self._hatchd):
             return
@@ -445,7 +445,7 @@ class RendererSVG(RendererBase):
                 writer.element('rect', x=str(x), y=str(y), width=str(w), height=str(h))
             writer.end('clipPath')
         writer.end('defs')
-    
+
     def _write_svgfonts(self):
         if not rcParams['svg.fonttype'] == 'svgfont':
             return
@@ -757,6 +757,10 @@ class RendererSVG(RendererBase):
             im.flipud_out()
             attrib['xlink:href'] = filename
 
+        alpha = gc.get_alpha()
+        if alpha != 1.0:
+            attrib['opacity'] = str(alpha)
+
         if transform is None:
             self.writer.element(
                 'image',
@@ -764,11 +768,12 @@ class RendererSVG(RendererBase):
                 width=str(w), height=str(h),
                 attrib=attrib)
         else:
+            flipped = self._make_flip_transform(transform)
             attrib['transform'] = generate_transform(
-                [('matrix', transform.to_values())])
+                [('matrix', flipped.to_values())])
             self.writer.element(
                 'image',
-                x=str(x), y=str(y), width=str(dx), height=str(dy),
+                x=str(x), y=str(y+dy), width=str(dx), height=str(-dy),
                 attrib=attrib)
 
         if url is not None:
@@ -925,7 +930,8 @@ class RendererSVG(RendererBase):
             fontstyle = prop.get_style()
 
             attrib = {}
-            style['font-size'] = str(fontsize)
+            # Must add "px" to workaround a Firefox bug
+            style['font-size'] = str(fontsize) + 'px'
             style['font-family'] = str(fontfamily)
             style['font-style'] = prop.get_style().lower()
             attrib['style'] = generate_css(style)
@@ -966,7 +972,8 @@ class RendererSVG(RendererBase):
             spans = {}
             for font, fontsize, thetext, new_x, new_y, metrics in svg_glyphs:
                 style = generate_css({
-                    'font-size': str(fontsize),
+                    # Must add "px" to work around a Firefox bug
+                    'font-size': str(fontsize) + 'px',
                     'font-family': font.family_name,
                     'font-style': font.style_name.lower()})
                 if thetext == 32:

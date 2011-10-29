@@ -63,6 +63,8 @@ namespace Py
     class String;
     class List;
     template<TEMPLATE_TYPENAME T> class MapBase;
+    class Tuple;
+    class Dict;
 
     //===========================================================================//
     // class Object
@@ -264,6 +266,10 @@ namespace Py
         {
             return Object( PyObject_GetAttrString( p, const_cast<char*>( s.c_str() ) ), true );
         }
+
+        Object callMemberFunction( const std::string &function_name ) const;
+        Object callMemberFunction( const std::string &function_name, const Tuple &args ) const;
+        Object callMemberFunction( const std::string &function_name, const Tuple &args, const Dict &kw ) const;
 
         Object getItem( const Object &key ) const
         {
@@ -2012,7 +2018,7 @@ namespace Py
         }
 
         String()
-        : SeqBase<Char>( PyUnicode_FromString( "" ), true )
+        : SeqBase<Char>( PyUnicode_FromString( "" ) )
         {
             validate();
         }
@@ -2053,19 +2059,25 @@ namespace Py
 
         */
         String( const std::string &s, const char *encoding, const char *errors=NULL )
-        : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.size(), encoding, errors ) )
+        : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.size(), encoding, errors ), true )
         {
             validate();
         }
 
         String( const char *s, const char *encoding, const char *errors=NULL )
-        : SeqBase<Char>( PyUnicode_Decode( s, strlen(s), encoding, errors ) )
+        : SeqBase<Char>( PyUnicode_Decode( s, strlen(s), encoding, errors ), true )
         {
             validate();
         }
 
         String( const char *s, Py_ssize_t size, const char *encoding, const char *errors=NULL )
-        : SeqBase<Char>( PyUnicode_Decode( s, size, encoding, errors ) )
+        : SeqBase<Char>( PyUnicode_Decode( s, size, encoding, errors ), true )
+        {
+            validate();
+        }
+
+        String( const Py_UNICODE *s, int length )
+        : SeqBase<Char>( PyUnicode_FromUnicode( s, length ), true )
         {
             validate();
         }
@@ -2092,7 +2104,7 @@ namespace Py
         // Encode
         Bytes encode( const char *encoding, const char *error="strict" ) const
         {
-            return Bytes( PyUnicode_AsEncodedString( ptr(), encoding, error ) );
+            return Bytes( PyUnicode_AsEncodedString( ptr(), encoding, error ), true );
         }
 
         // Queries
@@ -2116,6 +2128,11 @@ namespace Py
         {
             Bytes b( encode( encoding, error ) );
             return b.as_std_string();
+        }
+
+        const Py_UNICODE *unicode_data() const
+        {
+            return PyUnicode_AS_UNICODE( ptr() );
         }
     };
 
@@ -2199,6 +2216,117 @@ namespace Py
             return Tuple( PySequence_GetSlice( ptr(), i, j ), true );
         }
 
+    };
+
+    class TupleN: public Tuple
+    {
+    public:
+        TupleN()
+        : Tuple( 0 )
+        {
+        }
+
+        TupleN( const Object &obj1 )
+        : Tuple( 1 )
+        {
+            setItem( 0, obj1 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2 )
+        : Tuple( 2 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3 )
+        : Tuple( 3 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4 )
+        : Tuple( 4 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5 )
+        : Tuple( 5 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6 )
+        : Tuple( 6 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6,
+                const Object &obj7 )
+        : Tuple( 7 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+            setItem( 6, obj7 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6,
+                const Object &obj7, const Object &obj8 )
+        : Tuple( 8 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+            setItem( 6, obj7 );
+            setItem( 7, obj8 );
+        }
+
+        TupleN( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6,
+                const Object &obj7, const Object &obj8, const Object &obj9 )
+        : Tuple( 9 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+            setItem( 6, obj7 );
+            setItem( 7, obj8 );
+            setItem( 8, obj9 );
+        }
+
+        virtual ~TupleN()
+        { }
     };
 
     // ==================================================
@@ -3066,6 +3194,26 @@ namespace Py
             // Caution -- PyModule_GetDict returns borrowed reference!
         }
     };
+
+    // Call function helper
+    inline Object Object::callMemberFunction( const std::string &function_name ) const
+    {
+        Callable target( getAttr( function_name ) );
+        Tuple args( 0 );
+        return target.apply( args );
+    }
+
+    inline Object Object::callMemberFunction( const std::string &function_name, const Tuple &args ) const
+    {
+        Callable target( getAttr( function_name ) );
+        return target.apply( args );
+    }
+
+    inline Object Object::callMemberFunction( const std::string &function_name, const Tuple &args, const Dict &kw ) const
+    {
+        Callable target( getAttr( function_name ) );
+        return target.apply( args, kw );
+    }
 
     // Numeric interface
     inline Object operator+( const Object &a )

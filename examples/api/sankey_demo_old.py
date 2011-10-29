@@ -11,45 +11,45 @@ def sankey(ax,
            dx=40, dy=10, outangle=45, w=3, inangle=30, offset=2, **kwargs):
     """Draw a Sankey diagram.
 
-    outputs: array of outputs, should sum up to 100%
-    outlabels: output labels (same length as outputs),
-               or None (use default labels) or '' (no labels)
-    inputs and inlabels: similar for inputs
-    dx: horizontal elongation
-    dy: vertical elongation
-    outangle: output arrow angle [deg]
-    w: output arrow shoulder
-    inangle: input dip angle
-    offset: text offset
-    **kwargs: propagated to Patch (e.g. fill=False)
+outputs: array of outputs, should sum up to 100%
+outlabels: output labels (same length as outputs),
+or None (use default labels) or '' (no labels)
+inputs and inlabels: similar for inputs
+dx: horizontal elongation
+dy: vertical elongation
+outangle: output arrow angle [deg]
+w: output arrow shoulder
+inangle: input dip angle
+offset: text offset
+**kwargs: propagated to Patch (e.g. fill=False)
 
-    Return (patch,[intexts,outtexts])."""
+Return (patch,[intexts,outtexts])."""
 
     import matplotlib.patches as mpatches
     from matplotlib.path import Path
 
     outs = N.absolute(outputs)
     outsigns = N.sign(outputs)
-    outsigns[-1] = 0                       # Last output
+    outsigns[-1] = 0 # Last output
 
     ins = N.absolute(inputs)
     insigns = N.sign(inputs)
-    insigns[0] = 0                         # First input
+    insigns[0] = 0 # First input
 
     assert sum(outs)==100, "Outputs don't sum up to 100%"
     assert sum(ins)==100, "Inputs don't sum up to 100%"
 
     def add_output(path, loss, sign=1):
         h = (loss/2+w)*N.tan(outangle/180.*N.pi) # Arrow tip height
-        move,(x,y) = path[-1]           # Use last point as reference
-        if sign==0:                     # Final loss (horizontal)
+        move,(x,y) = path[-1] # Use last point as reference
+        if sign==0: # Final loss (horizontal)
             path.extend([(Path.LINETO,[x+dx,y]),
                          (Path.LINETO,[x+dx,y+w]),
                          (Path.LINETO,[x+dx+h,y-loss/2]), # Tip
                          (Path.LINETO,[x+dx,y-loss-w]),
                          (Path.LINETO,[x+dx,y-loss])])
             outtips.append((sign,path[-3][1]))
-        else:                           # Intermediate loss (vertical)
+        else: # Intermediate loss (vertical)
             path.extend([(Path.CURVE4,[x+dx/2,y]),
                          (Path.CURVE4,[x+dx,y]),
                          (Path.CURVE4,[x+dx,y+sign*dy]),
@@ -63,14 +63,14 @@ def sankey(ax,
 
     def add_input(path, gain, sign=1):
         h = (gain/2)*N.tan(inangle/180.*N.pi) # Dip depth
-        move,(x,y) = path[-1]           # Use last point as reference
-        if sign==0:                     # First gain (horizontal)
+        move,(x,y) = path[-1] # Use last point as reference
+        if sign==0: # First gain (horizontal)
             path.extend([(Path.LINETO,[x-dx,y]),
                          (Path.LINETO,[x-dx+h,y+gain/2]), # Dip
                          (Path.LINETO,[x-dx,y+gain])])
-            xd,yd = path[-2][1]         # Dip position
+            xd,yd = path[-2][1] # Dip position
             indips.append((sign,[xd-h,yd]))
-        else:                           # Intermediate gain (vertical)
+        else: # Intermediate gain (vertical)
             path.extend([(Path.CURVE4,[x-dx/2,y]),
                          (Path.CURVE4,[x-dx,y]),
                          (Path.CURVE4,[x-dx,y+sign*dy]),
@@ -78,24 +78,24 @@ def sankey(ax,
                          (Path.LINETO,[x-dx-gain,y+sign*dy]),
                          (Path.CURVE3,[x-dx-gain,y-sign*gain]),
                          (Path.CURVE3,[x-dx/2-gain,y-sign*gain])])
-            xd,yd = path[-4][1]         # Dip position
+            xd,yd = path[-4][1] # Dip position
             indips.append((sign,[xd,yd+sign*h]))
 
-    outtips = []                        # Output arrow tip dir. and positions
-    urpath = [(Path.MOVETO,[0,100])]    # 1st point of upper right path
-    lrpath = [(Path.LINETO,[0,0])]      # 1st point of lower right path
+    outtips = [] # Output arrow tip dir. and positions
+    urpath = [(Path.MOVETO,[0,100])] # 1st point of upper right path
+    lrpath = [(Path.LINETO,[0,0])] # 1st point of lower right path
     for loss,sign in zip(outs,outsigns):
         add_output(sign>=0 and urpath or lrpath, loss, sign=sign)
 
-    indips = []                         # Input arrow tip dir. and positions
-    llpath = [(Path.LINETO,[0,0])]      # 1st point of lower left path
-    ulpath = [(Path.MOVETO,[0,100])]    # 1st point of upper left path
+    indips = [] # Input arrow tip dir. and positions
+    llpath = [(Path.LINETO,[0,0])] # 1st point of lower left path
+    ulpath = [(Path.MOVETO,[0,100])] # 1st point of upper left path
     for gain,sign in zip(ins,insigns)[::-1]:
         add_input(sign<=0 and llpath or ulpath, gain, sign=sign)
 
     def revert(path):
         """A path is not just revertable by path[::-1] because of Bezier
-        curves."""
+curves."""
         rpath = []
         nextmove = Path.LINETO
         for move,pos in path[::-1]:
@@ -105,7 +105,7 @@ def sankey(ax,
 
     # Concatenate subpathes in correct order
     path = urpath + revert(lrpath) + llpath + revert(ulpath)
-    
+
     codes,verts = zip(*path)
     verts = N.array(verts)
 
@@ -114,7 +114,7 @@ def sankey(ax,
     patch = mpatches.PathPatch(path, **kwargs)
     ax.add_patch(patch)
 
-    if False:                           # DEBUG
+    if False: # DEBUG
         print "urpath", urpath
         print "lrpath", revert(lrpath)
         print "llpath", llpath
@@ -127,9 +127,9 @@ def sankey(ax,
 
     def set_labels(labels,values):
         """Set or check labels according to values."""
-        if labels=='':                   # No labels
+        if labels=='': # No labels
             return labels
-        elif labels is None:             # Default labels
+        elif labels is None: # Default labels
             return [ '%2d%%' % val for val in values ]
         else:
             assert len(labels)==len(values)
@@ -140,7 +140,7 @@ def sankey(ax,
         texts = []
         lbls = output and labels or labels[::-1]
         for i,label in enumerate(lbls):
-            s,(x,y) = positions[i]      # Label direction and position
+            s,(x,y) = positions[i] # Label direction and position
             if s==0:
                 t = ax.text(x+offset,y,label,
                             ha=output and 'left' or 'right', va='center')
@@ -186,3 +186,4 @@ if __name__=='__main__':
     outtexts[-1].set_fontweight('bold')
 
     P.show()
+

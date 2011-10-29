@@ -208,7 +208,7 @@ class ContourLabeler:
         else:
             self.labels(inline,inline_spacing)
 
-        # Hold on to some old attribute names.  These are depricated and will
+        # Hold on to some old attribute names.  These are deprecated and will
         # be removed in the near future (sometime after 2008-08-01), but keeping
         # for now for backwards compatibility
         self.cl = self.labelTexts
@@ -219,11 +219,11 @@ class ContourLabeler:
         return self.labelTextsList
 
 
-    def print_label(self, linecontour,labelwidth):
-        "if contours are too short, don't plot a label"
+    def print_label(self, linecontour, labelwidth):
+        "Return False if contours are too short for a label."
         lcsize = len(linecontour)
         if lcsize > 10 * labelwidth:
-            return 1
+            return True
 
         xmax = np.amax(linecontour[:,0])
         xmin = np.amin(linecontour[:,0])
@@ -232,30 +232,29 @@ class ContourLabeler:
 
         lw = labelwidth
         if (xmax - xmin) > 1.2* lw or (ymax - ymin) > 1.2 * lw:
-            return 1
+            return True
         else:
-            return 0
+            return False
 
-    def too_close(self, x,y, lw):
-        "if there's a label already nearby, find a better place"
-        if self.labelXYs != []:
-            dist = [np.sqrt((x-loc[0]) ** 2 + (y-loc[1]) ** 2)
-                    for loc in self.labelXYs]
-            for d in dist:
-                if d < 1.2*lw:
-                    return 1
-                else: return 0
-        else: return 0
+    def too_close(self, x, y, lw):
+        "Return True if a label is already near this location."
+        for loc in self.labelXYs:
+            d = np.sqrt((x-loc[0]) ** 2 + (y-loc[1]) ** 2)
+            if d < 1.2*lw:
+                return True
+        return False
 
     def get_label_coords(self, distances, XX, YY, ysize, lw):
-        """ labels are ploted at a location with the smallest
-        dispersion of the contour from a straight line
-        unless there's another label nearby, in which case
-        the second best place on the contour is picked up
-        if there's no good place a label isplotted at the
-        beginning of the contour
         """
+        Return x, y, and the index of a label location.
 
+        Labels are plotted at a location with the smallest
+        deviation of the contour from a straight line
+        unless there is another label nearby, in which case
+        the next best place on the contour is picked up.
+        If all such candidates are rejected, the beginning
+        of the contour is chosen.
+        """
         hysize = int(ysize/2)
         adist = np.argsort(distances)
 
@@ -263,15 +262,16 @@ class ContourLabeler:
             x, y = XX[ind][hysize], YY[ind][hysize]
             if self.too_close(x,y, lw):
                 continue
-            else:
-                return x,y, ind
+            return x,y, ind
 
         ind = adist[0]
         x, y = XX[ind][hysize], YY[ind][hysize]
         return x,y, ind
 
     def get_label_width(self, lev, fmt, fsize):
-        "get the width of the label in points"
+        """
+        Return the width of the label in points.
+        """
         if not cbook.is_string_like(lev):
             lev = self.get_text(lev, fmt)
 
@@ -286,7 +286,7 @@ class ContourLabeler:
             img, _ = self._mathtext_parser.parse(lev, dpi=72, prop=self.labelFontProps)
             lw = img.get_width() # at dpi=72, the units are PostScript points
         else:
-            lw = (len(lev)) * fsize
+            lw = (len(lev)) * fsize * 0.6 # width is much less than "font size"
 
         return lw
 
@@ -295,6 +295,8 @@ class ContourLabeler:
         This computes actual onscreen label width.
         This uses some black magic to determine onscreen extent of non-drawn
         label.  This magic may not be very robust.
+
+        This method is not being used, and may be modified or removed.
         """
         # Find middle of axes
         xx = np.mean( np.asarray(self.ax.axis()).reshape(2,2), axis=1 )
@@ -334,9 +336,9 @@ class ContourLabeler:
                 return fmt%lev
 
     def locate_label(self, linecontour, labelwidth):
-        """find a good place to plot a label (relatively flat
-        part of the contour) and the angle of rotation for the
-        text object
+        """
+        Find a good place to plot a label (relatively flat
+        part of the contour).
         """
 
         nsize= len(linecontour)
@@ -470,10 +472,10 @@ class ContourLabeler:
 
             # The current implementation removes contours completely
             # covered by labels.  Uncomment line below to keep
-            # original contour if this is the preferred behavoir.
+            # original contour if this is the preferred behavior.
             #if not len(nlc): nlc = [ lc ]
 
-        return (rotation,nlc)
+        return rotation, nlc
 
     def _get_label_text(self,x,y,rotation):
         dx,dy = self.ax.transData.inverted().transform_point((x,y))
@@ -551,6 +553,7 @@ class ContourLabeler:
             con = self.collections[icon]
             trans = con.get_transform()
             lw = self.get_label_width(lev, self.labelFmt, fsize)
+            lw *= self.ax.figure.dpi/72.0  # scale to screen coordinates
             additions = []
             paths = con.get_paths()
             for segNum, linepath in enumerate(paths):
