@@ -1304,13 +1304,14 @@ class MouseEvent(LocationEvent):
     x      = None       # x position - pixels from left of canvas
     y      = None       # y position - pixels from right of canvas
     button = None       # button pressed None, 1, 2, 3
+    dblclick = None     # whether or not the event is the result of a double click
     inaxes = None       # the Axes instance if mouse us over axes
     xdata  = None       # x coord of mouse in data coords
     ydata  = None       # y coord of mouse in data coords
     step   = None       # scroll steps for scroll events
 
     def __init__(self, name, canvas, x, y, button=None, key=None,
-                 step=0, guiEvent=None):
+                 step=0, dblclick=False, guiEvent=None):
         """
         x, y in figure coords, 0,0 = bottom, left
         button pressed None, 1, 2, 3, 'up', 'down'
@@ -1319,6 +1320,11 @@ class MouseEvent(LocationEvent):
         self.button = button
         self.key = key
         self.step = step
+        self.dblclick = dblclick
+
+    def __str__(self):
+        return "MPL MouseEvent: xy=(%d,%d) xydata=(%s,%s) button=%d dblclick=%s inaxes=%s"%\
+             (self.x,self.y,str(self.xdata),str(self.ydata),self.button,self.dblclick,self.inaxes)
 
 class PickEvent(Event):
     """
@@ -1616,7 +1622,7 @@ class FigureCanvasBase(object):
         self.callbacks.process(s, mouseevent)
 
 
-    def button_press_event(self, x, y, button, guiEvent=None):
+    def button_press_event(self, x, y, button, dblclick=False, guiEvent=None):
         """
         Backend derived classes should call this function on any mouse
         button press.  x,y are the canvas coords: 0,0 is lower, left.
@@ -1628,7 +1634,7 @@ class FigureCanvasBase(object):
         """
         self._button = button
         s = 'button_press_event'
-        mouseevent = MouseEvent(s, self, x, y, button, self._key, guiEvent=guiEvent)
+        mouseevent = MouseEvent(s, self, x, y, button, self._key, dblclick=dblclick, guiEvent=guiEvent)
         self.callbacks.process(s, mouseevent)
 
     def button_release_event(self, x, y, button, guiEvent=None):
