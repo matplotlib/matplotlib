@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function
 import re, warnings
 import matplotlib
 import matplotlib.cbook as cbook
@@ -205,7 +205,7 @@ class Artist(object):
         Fire an event when property changed, calling all of the
         registered callbacks.
         """
-        for oid, func in self._propobservers.items():
+        for oid, func in self._propobservers.iteritems():
             func(self)
 
     def is_transform_set(self):
@@ -247,7 +247,7 @@ class Artist(object):
         except:
             import traceback
             traceback.print_exc()
-            print "while checking",self.__class__
+            print("while checking",self.__class__)
 
 
         for a in self.get_children():
@@ -485,7 +485,7 @@ class Artist(object):
         :class:`~matplotlib.transforms.Transform`) |
         :class:`~matplotlib.patches.Patch` | None ]
         """
-        from patches import Patch, Rectangle
+        from matplotlib.patches import Patch, Rectangle
 
         success = False
         if transform is None:
@@ -512,7 +512,7 @@ class Artist(object):
             success = True
 
         if not success:
-            print type(path), type(transform)
+            print(type(path), type(transform))
             raise TypeError("Invalid arguments to set_clip_path")
 
         self.pchanged()
@@ -653,7 +653,7 @@ class Artist(object):
         store = self.eventson
         self.eventson = False
         changed = False
-        for k,v in props.items():
+        for k,v in props.iteritems():
             func = getattr(self, 'set_'+k, None)
             if func is None or not callable(func):
                 raise AttributeError('Unknown property %s'%k)
@@ -721,7 +721,7 @@ class Artist(object):
         A tkstyle set command, pass *kwargs* to set properties
         """
         ret = []
-        for k,v in kwargs.items():
+        for k,v in kwargs.iteritems():
             k = k.lower()
             funcName = "set_%s"%k
             func = getattr(self,funcName)
@@ -903,7 +903,7 @@ class ArtistInspector:
         """
 
         if s in self.aliasd:
-            return s + ''.join([' or %s' % x for x in self.aliasd[s].keys()])
+            return s + ''.join([' or %s' % x for x in self.aliasd[s].iterkeys()])
         else:
             return s
 
@@ -919,7 +919,7 @@ class ArtistInspector:
         """
 
         if s in self.aliasd:
-            aliases = ''.join([' or %s' % x for x in self.aliasd[s].keys()])
+            aliases = ''.join([' or %s' % x for x in self.aliasd[s].iterkeys()])
         else:
             aliases = ''
         return ':meth:`%s <%s>`%s' % (s, target, aliases)
@@ -1124,7 +1124,7 @@ def getp(obj, property=None):
     if property is None:
         insp = ArtistInspector(obj)
         ret = insp.pprint_getters()
-        print '\n'.join(ret)
+        print('\n'.join(ret))
         return
 
     func = getattr(obj, 'get_' + property)
@@ -1179,11 +1179,11 @@ def setp(obj, *args, **kwargs):
     insp = ArtistInspector(obj)
 
     if len(kwargs)==0 and len(args)==0:
-        print '\n'.join(insp.pprint_setters())
+        print('\n'.join(insp.pprint_setters()))
         return
 
     if len(kwargs)==0 and len(args)==1:
-        print insp.pprint_setters(prop=args[0])
+        print(insp.pprint_setters(prop=args[0]))
         return
 
     if not cbook.iterable(obj):
@@ -1198,7 +1198,7 @@ def setp(obj, *args, **kwargs):
     funcvals = []
     for i in range(0, len(args)-1, 2):
         funcvals.append((args[i], args[i+1]))
-    funcvals.extend(kwargs.items())
+    funcvals.extend(kwargs.iteritems())
 
     ret = []
     for o in objs:

@@ -33,9 +33,13 @@ if major==2 and minor1<6 or major<2:
 
 import glob
 from distutils.core import setup
+try:
+    from distutils.command.build_py import build_py_2to3 as build_py
+except ImportError:
+    from distutils.command.build_py import build_py
 from setupext import build_agg, build_gtkagg, build_tkagg,\
      build_macosx, build_ft2font, build_image, build_windowing, build_path, \
-     build_contour, build_delaunay, build_nxutils, build_gdk, \
+     build_contour, build_delaunay, build_gdk, \
      build_ttconv, print_line, print_status, print_message, \
      print_raw, check_for_freetype, check_for_libpng, check_for_gtk, \
      check_for_tk, check_for_macosx, check_for_numpy, \
@@ -123,7 +127,6 @@ build_ft2font(ext_modules, packages)
 build_ttconv(ext_modules, packages)
 build_contour(ext_modules, packages)
 build_delaunay(ext_modules, packages)
-build_nxutils(ext_modules, packages)
 build_path(ext_modules, packages)
 build_tri(ext_modules, packages)
 
@@ -249,6 +252,32 @@ for mod in ext_modules:
     if options['verbose']:
         mod.extra_compile_args.append('-DVERBOSE')
 
+if sys.version_info[0] >= 3:
+    import multiprocessing
+    from distutils import util
+    def refactor(x):
+        from lib2to3.refactor import RefactoringTool, get_fixers_from_package
+        class DistutilsRefactoringTool(RefactoringTool):
+            def ignore(self, msg, *args, **kw):
+                pass
+            log_error = log_message = log_debug = ignore
+        fixer_names = get_fixers_from_package('lib2to3.fixes')
+        r = DistutilsRefactoringTool(fixer_names, options=None)
+        r.refactor([x], write=True)
+
+    original_build_py = build_py
+    class build_py(original_build_py):
+        def run_2to3(self, files):
+            # We need to skip certain files that have already been
+            # converted to Python 3.x
+            filtered = [x for x in files if 'py3' not in x]
+            if sys.platform.startswith('win'):
+                # doing this in parallel on windows may crash your computer
+                [refactor(f) for f in filtered]
+            else:
+                p = multiprocessing.Pool()
+                p.map(refactor, filtered)
+
 print_raw("pymods %s" % py_modules)
 print_raw("packages %s" % packages)
 distrib = setup(name="matplotlib",
@@ -270,5 +299,6 @@ distrib = setup(name="matplotlib",
       ext_modules = ext_modules,
       package_dir = {'': 'lib'},
       package_data = package_data,
+      cmdclass = {'build_py': build_py},
       **additional_params
       )

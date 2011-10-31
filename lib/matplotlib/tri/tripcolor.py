@@ -1,3 +1,4 @@
+from __future__ import print_function
 from matplotlib.collections import PolyCollection
 from matplotlib.colors import Normalize
 from matplotlib.tri.triangulation import Triangulation

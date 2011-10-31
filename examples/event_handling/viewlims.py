@@ -30,7 +30,7 @@ class MandlebrotDisplay(object):
         threshold_time = np.zeros((self.height, self.width))
         z = np.zeros(threshold_time.shape, dtype=np.complex)
         mask = np.ones(threshold_time.shape, dtype=np.bool)
-        for i in xrange(self.niter):
+        for i in range(self.niter):
             z[mask] = z[mask]**self.power + c[mask]
             mask = (np.abs(z) < self.radius)
             threshold_time += mask

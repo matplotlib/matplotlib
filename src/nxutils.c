@@ -238,7 +238,7 @@ static PyMethodDef module_methods[] = {
 };
 
 PyMODINIT_FUNC
-     initnxutils(void)
+initnxutils(void)
 {
   PyObject* m;
 

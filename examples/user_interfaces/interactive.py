@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 """Multithreaded interactive interpreter with GTK and Matplotlib support.
 
 WARNING:
@@ -20,6 +21,8 @@ McErlean and John Finlay.
 Matplotlib support taken from interactive.py in the matplotlib distribution.
 
 Also borrows liberally from code.py in the Python standard library."""
+
+from __future__ import print_function
 
 __author__ = "Fernando Perez <Fernando.Perez@colorado.edu>"
 
@@ -123,11 +126,11 @@ class MTConsole(code.InteractiveConsole):
 
         self.ready.acquire()
         if self._kill:
-            print 'Closing threads...',
+            print('Closing threads...')
             sys.stdout.flush()
             for tokill in self.on_kill:
                 tokill()
-            print 'Done.'
+            print('Done.')
 
         if self.code_to_run is not None:
             self.ready.notify()
@@ -215,19 +218,19 @@ class MatplotLibInterpreter(GTKInterpreter):
             try:
                 inFile = file(fname, 'r')
             except IOError:
-                print '*** ERROR *** Could not read file <%s>' % fname
+                print('*** ERROR *** Could not read file <%s>' % fname)
             else:
-                print '*** Executing file <%s>:' % fname
+                print('*** Executing file <%s>:' % fname)
                 for line in inFile:
                     if line.lstrip().find('show()')==0: continue
-                    print '>>', line,
+                    print('>>', line)
                     push(line)
                 inFile.close()
             matplotlib.interactive(1)   # turn on interaction
 
 if __name__ == '__main__':
-    print "This demo is not presently functional, so running"
-    print "it as a script has been disabled."
+    print("This demo is not presently functional, so running")
+    print("it as a script has been disabled.")
     sys.exit()
     # Quick sys.argv hack to extract the option and leave filenames in sys.argv.
     # For real option handling, use optparse or getopt.

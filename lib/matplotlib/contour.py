@@ -2,7 +2,7 @@
 These are  classes to support contour plotting and
 labelling for the axes class
 """
-from __future__ import division
+from __future__ import division, print_function
 import warnings
 import matplotlib as mpl
 import numpy as np
@@ -12,7 +12,7 @@ import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
 import matplotlib.colors as colors
-import matplotlib.collections as collections
+import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
 import matplotlib.cbook as cbook
@@ -198,10 +198,10 @@ class ContourLabeler:
         self.labelXYs = []
 
         if self.labelManual:
-            print 'Select label locations manually using first mouse button.'
-            print 'End manual selection with second mouse button.'
+            print('Select label locations manually using first mouse button.')
+            print('End manual selection with second mouse button.')
             if not inline:
-                print 'Remove last label by clicking third mouse button.'
+                print('Remove last label by clicking third mouse button.')
 
             blocking_contour_labeler = BlockingContourLabeler(self)
             blocking_contour_labeler(inline,inline_spacing)
@@ -447,11 +447,11 @@ class ContourLabeler:
                 pl, np.arange(len(pl)), xi, extrap=False )
 
             # If those indices aren't beyond contour edge, find x,y
-            if (not np.isnan(I[0])) and int(I[0])<>I[0]:
+            if (not np.isnan(I[0])) and int(I[0])!=I[0]:
                 xy1 = mlab.less_simple_linear_interpolation(
                     pl, lc, [ xi[0] ] )
 
-            if (not np.isnan(I[1])) and int(I[1])<>I[1]:
+            if (not np.isnan(I[1])) and int(I[1])!=I[1]:
                 xy2 = mlab.less_simple_linear_interpolation(
                     pl, lc, [ xi[1] ] )
 
@@ -706,9 +706,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 ncolors -= 1
             cmap = colors.ListedColormap(self.colors, N=ncolors)
         if self.filled:
-            self.collections = cbook.silent_list('collections.PathCollection')
+            self.collections = cbook.silent_list('mcoll.PathCollection')
         else:
-            self.collections = cbook.silent_list('collections.LineCollection')
+            self.collections = cbook.silent_list('mcoll.LineCollection')
         # label lists must be initialized here
         self.labelTexts = []
         self.labelCValues = []
@@ -737,7 +737,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 paths = self._make_paths(segs, kinds)
                 # Default zorder taken from Collection
                 zorder = kwargs.get('zorder', 1)
-                col = collections.PathCollection(paths,
+                col = mcoll.PathCollection(paths,
                                      antialiaseds = (self.antialiased,),
                                      edgecolors= 'none',
                                      alpha=self.alpha,
@@ -755,7 +755,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
                 # Default zorder taken from LineCollection
                 zorder = kwargs.get('zorder', 2)
-                col = collections.LineCollection(segs,
+                col = mcoll.LineCollection(segs,
                                      antialiaseds = aa,
                                      linewidths = width,
                                      linestyle = lstyle,
@@ -946,7 +946,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 i0 = -1
             if self.extend in ('both', 'max'):
                 i1 += 1
-            self.cvalues = range(i0, i1)
+            self.cvalues = list(range(i0, i1))
             self.set_norm(colors.NoNorm())
         else:
             self.cvalues = self.layers

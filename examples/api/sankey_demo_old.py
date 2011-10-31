@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 __author__ = "Yannick Copin <ycopin@ipnl.in2p3.fr>"
 __version__ = "Time-stamp: <10/02/2010 16:49 ycopin@lyopc548.in2p3.fr>"
 
@@ -115,10 +117,10 @@ curves."""
     ax.add_patch(patch)
 
     if False: # DEBUG
-        print "urpath", urpath
-        print "lrpath", revert(lrpath)
-        print "llpath", llpath
-        print "ulpath", revert(ulpath)
+        print("urpath", urpath)
+        print("lrpath", revert(lrpath))
+        print("llpath", llpath)
+        print("ulpath", revert(ulpath))
 
         xs,ys = zip(*verts)
         ax.plot(xs,ys,'go-')

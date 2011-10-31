@@ -107,7 +107,10 @@ Here all all the date formatters:
     * :class:`IndexDateFormatter`: date plots with implicit *x*
       indexing.
 """
+from __future__ import print_function
+
 import re, time, math, datetime
+from itertools import izip
 
 import matplotlib
 import numpy as np
@@ -730,7 +733,7 @@ class AutoDateLocator(DateLocator):
                 # Assume we were given an integer. Use this as the maximum
                 # number of ticks for every frequency and create a
                 # dictionary for this
-                self.maxticks = dict(zip(self._freqs,
+                self.maxticks = dict(izip(self._freqs,
                     [maxticks]*len(self._freqs)))
         self.interval_multiples = interval_multiples
         self.intervald = {
@@ -790,7 +793,7 @@ class AutoDateLocator(DateLocator):
         # an interval from an list specific to that frequency that gives no
         # more than maxticks tick positions. Also, set up some ranges
         # (bymonth, etc.) as appropriate to be passed to rrulewrapper.
-        for i, (freq, num) in enumerate(zip(self._freqs, nums)):
+        for i, (freq, num) in enumerate(izip(self._freqs, nums)):
             # If this particular frequency doesn't give enough ticks, continue
             if num < self.minticks:
                 # Since we're not using this particular frequency, set
@@ -1215,4 +1218,4 @@ if __name__=='__main__':
 
     #for t in  ticks: print formatter(t)
 
-    for t in dates: print formatter(t)
+    for t in dates: print(formatter(t))

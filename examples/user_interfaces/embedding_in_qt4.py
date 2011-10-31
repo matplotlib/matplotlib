@@ -9,6 +9,7 @@
 # modified with no restriction; raw copies as well as modified versions
 # may be distributed without limitation.
 
+from __future__ import unicode_literals
 import sys, os, random
 from PyQt4 import QtGui, QtCore
 
@@ -64,7 +65,7 @@ class MyDynamicMplCanvas(MyMplCanvas):
 
     def update_figure(self):
         # Build a list of 4 random integers between 0 and 10 (both inclusive)
-        l = [ random.randint(0, 10) for i in xrange(4) ]
+        l = [ random.randint(0, 10) for i in range(4) ]
 
         self.axes.plot([0, 1, 2, 3], l, 'r')
         self.draw()
@@ -107,16 +108,16 @@ class ApplicationWindow(QtGui.QMainWindow):
         self.fileQuit()
 
     def about(self):
-        QtGui.QMessageBox.about(self, "About %s" % progname,
-u"""%(prog)s version %(version)s
-Copyright \N{COPYRIGHT SIGN} 2005 Florent Rougon, 2006 Darren Dale
+        QtGui.QMessageBox.about(self, "About",
+"""embedding_in_qt4.py example
+Copyright 2005 Florent Rougon, 2006 Darren Dale
 
 This program is a simple example of a Qt4 application embedding matplotlib
 canvases.
 
 It may be used and modified with no restriction; raw copies as well as
 modified versions may be distributed without limitation."""
-% {"prog": progname, "version": progversion})
+)
 
 
 qApp = QtGui.QApplication(sys.argv)

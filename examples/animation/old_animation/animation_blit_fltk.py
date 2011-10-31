@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import fltk
 import matplotlib
@@ -37,7 +38,7 @@ class animator:
         self.cnt+=1
         if self.cnt==1000:
             # print the timing info and quit
-            print 'FPS:' , 1000/(time.time()-self.tstart)
+            print('FPS:' , 1000/(time.time()-self.tstart))
             sys.exit()
         return True
 
