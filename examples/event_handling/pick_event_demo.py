@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 """
 
 You can enable picking by setting the"picker" property of an artist
@@ -63,6 +64,7 @@ specified epsilon tolerance)
 The examples below illustrate each of these methods.
 """
 
+from __future__ import print_function
 from matplotlib.pyplot import figure, show
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle
@@ -92,13 +94,13 @@ if 1: # simple picking, lines, rectangles and text
             xdata = thisline.get_xdata()
             ydata = thisline.get_ydata()
             ind = event.ind
-            print 'onpick1 line:', zip(npy.take(xdata, ind), npy.take(ydata, ind))
+            print('onpick1 line:', zip(npy.take(xdata, ind), npy.take(ydata, ind)))
         elif isinstance(event.artist, Rectangle):
             patch = event.artist
-            print 'onpick1 patch:', patch.get_path()
+            print('onpick1 patch:', patch.get_path())
         elif isinstance(event.artist, Text):
             text = event.artist
-            print 'onpick1 text:', text.get_text()
+            print('onpick1 text:', text.get_text())
 
 
 
@@ -136,7 +138,7 @@ if 1: # picking with a custom hit test function
             return False, dict()
 
     def onpick2(event):
-        print 'onpick2 line:', event.pickx, event.picky
+        print('onpick2 line:', event.pickx, event.picky)
 
     fig = figure()
     ax1 = fig.add_subplot(111)
@@ -150,7 +152,7 @@ if 1: # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
     x, y, c, s = rand(4, 100)
     def onpick3(event):
         ind = event.ind
-        print 'onpick3 scatter:', ind, npy.take(x, ind), npy.take(y, ind)
+        print('onpick3 scatter:', ind, npy.take(x, ind), npy.take(y, ind))
 
     fig = figure()
     ax1 = fig.add_subplot(111)
@@ -172,7 +174,7 @@ if 1: # picking images (matplotlib.image.AxesImage)
         if isinstance(artist, AxesImage):
             im = artist
             A = im.get_array()
-            print 'onpick4 image', A.shape
+            print('onpick4 image', A.shape)
 
     fig.canvas.mpl_connect('pick_event', onpick4)
 

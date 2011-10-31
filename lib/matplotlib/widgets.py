@@ -9,6 +9,7 @@ be too smart with respect to layout -- you will have to figure out how
 wide and tall you want your Axes to be to accommodate your widget.
 """
 
+from __future__ import print_function
 import numpy as np
 
 from mlab import dist
@@ -147,7 +148,7 @@ class Button(Widget):
             return
         if event.inaxes != self.ax:
             return
-        for cid, func in self.observers.items():
+        for cid, func in self.observers.iteritems():
             func(event)
 
     def _motion(self, event):
@@ -323,7 +324,7 @@ class Slider(Widget):
         if self.drawon: self.ax.figure.canvas.draw()
         self.val = val
         if not self.eventson: return
-        for cid, func in self.observers.items():
+        for cid, func in self.observers.iteritems():
             func(val)
 
     def on_changed(self, func):
@@ -457,7 +458,7 @@ class CheckButtons(Widget):
         if self.drawon: self.ax.figure.canvas.draw()
 
         if not self.eventson: return
-        for cid, func in self.observers.items():
+        for cid, func in self.observers.iteritems():
             func(thist.get_text())
 
 
@@ -576,7 +577,7 @@ class RadioButtons(Widget):
         if self.drawon: self.ax.figure.canvas.draw()
 
         if not self.eventson: return
-        for cid, func in self.observers.items():
+        for cid, func in self.observers.iteritems():
             func(thist.get_text())
 
 

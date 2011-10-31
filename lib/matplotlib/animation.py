@@ -19,6 +19,8 @@
 #   * RC parameter for config?
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
+from __future__ import print_function
+
 import itertools
 from matplotlib.cbook import iterable
 from matplotlib import verbose
@@ -173,7 +175,7 @@ class Animation(object):
         # call _step, until the frame sequence reaches the end of iteration,
         # at which point False will be returned.
         try:
-            framedata = self.frame_seq.next()
+            framedata = next(self.frame_seq)
             self._draw_next_frame(framedata, self._blit)
             return True
         except StopIteration:
@@ -464,7 +466,7 @@ class FuncAnimation(TimedAnimation):
         # For blitting, the init_func should return a sequence of modified
         # artists.
         if self._init_func is None:
-            self._draw_frame(self.new_frame_seq().next())
+            self._draw_frame(next(self.new_frame_seq()))
         else:
             self._drawn_artists = self._init_func()
 

@@ -2,8 +2,9 @@
 A collection of utility functions and classes.  Many (but not all)
 from the Python Cookbook -- hence the name cbook
 """
-from __future__ import generators
-import re, os, errno, sys, StringIO, traceback, locale, threading, types
+from __future__ import print_function
+
+import re, os, errno, sys, io, traceback, locale, threading, types
 import time, datetime
 import warnings
 import numpy as np
@@ -12,11 +13,25 @@ from weakref import ref, WeakKeyDictionary
 import cPickle
 import os.path
 import random
-import new
-
+from functools import reduce
 import matplotlib
 
 major, minor1, minor2, s, tmp = sys.version_info
+
+if major >= 3:
+    import types
+    import urllib.request
+    def addinfourl(data, headers, url, code=None):
+        return urllib.request.addinfourl(io.BytesIO(data),
+                                         headers, url, code)
+else:
+    import new
+    import urllib2
+    def addinfourl(data, headers, url, code=None):
+        return urllib2.addinfourl(io.StringIO(data),
+                                  headers, url, code)
+
+import matplotlib
 
 
 # On some systems, locale.getpreferredencoding returns None,
@@ -36,9 +51,20 @@ try:
 except (ValueError, ImportError, AttributeError):
     preferredencoding = None
 
-def unicode_safe(s):
-    if preferredencoding is None: return unicode(s)
-    else: return unicode(s, preferredencoding)
+if sys.version_info[0] >= 3:
+    def unicode_safe(s):
+        if isinstance(s, bytes):
+            if preferredencoding is None:
+                return unicode(s)
+            else:
+                # We say "unicode" and not "str" here so it passes through
+                # 2to3 correctly.
+                return unicode(s, preferredencoding)
+        return s
+else:
+    def unicode_safe(s):
+        if preferredencoding is None: return unicode(s)
+        else: return unicode(s, preferredencoding)
 
 
 class converter:
@@ -181,7 +207,10 @@ class CallbackRegistry:
                 raise ReferenceError
             elif self.inst is not None:
                 # build a new instance method with a strong reference to the instance
-                mtd = new.instancemethod(self.func, self.inst(), self.klass)
+                if sys.version_info[0] >= 3:
+                    mtd = types.MethodType(self.func, self.inst())
+                else:
+                    mtd = new.instancemethod(self.func, self.inst(), self.klass)
             else:
                 # not a bound method, just return the func
                 mtd = self.func
@@ -356,7 +385,7 @@ class Bunch:
 
 
     def __repr__(self):
-        keys = self.__dict__.keys()
+        keys = self.__dict__.iterkeys()
         return 'Bunch(%s)'%', '.join(['%s=%s'%(k,self.__dict__[k]) for k in keys])
 
 def unique(x):
@@ -427,7 +456,7 @@ def to_filehandle(fname, flag='rU', return_opened=False):
             import bz2
             fh = bz2.BZ2File(fname, flag)
         else:
-            fh = file(fname, flag)
+            fh = open(fname, flag)
         opened = True
     elif hasattr(fname, 'seek'):
         fh = fname
@@ -474,9 +503,8 @@ def _get_data_server(cache_dir, baseurl):
                 self.cache = {}
                 return
 
-            f = open(fn, 'rb')
-            cache = cPickle.load(f)
-            f.close()
+            with open(fn, 'rb') as f:
+                cache = cPickle.load(f)
 
             # Earlier versions did not have the full paths in cache.pck
             for url, (fn, x, y) in cache.items():
@@ -519,9 +547,8 @@ def _get_data_server(cache_dir, baseurl):
             Write the cache data structure into the cache directory.
             """
             fn = self.in_cache_dir('cache.pck')
-            f = open(fn, 'wb')
-            cPickle.dump(self.cache, f, -1)
-            f.close()
+            with open(fn, 'wb') as f:
+                cPickle.dump(self.cache, f, -1)
 
         def cache_file(self, url, data, headers):
             """
@@ -531,9 +558,8 @@ def _get_data_server(cache_dir, baseurl):
             fn = url[len(self.baseurl):]
             fullpath = self.in_cache_dir(fn)
 
-            f = open(fullpath, 'wb')
-            f.write(data)
-            f.close()
+            with open(fullpath, 'wb') as f:
+                f.write(data)
 
             # Update the cache
             self.cache[url] = (fullpath, headers.get('ETag'),
@@ -570,8 +596,8 @@ def _get_data_server(cache_dir, baseurl):
             matplotlib.verbose.report(
                 'ViewVCCachedServer: reading data file from cache file "%s"'
                 %fn, 'debug')
-            file = open(fn, 'rb')
-            handle = urllib2.addinfourl(file, hdrs, url)
+            with open(fn, 'rb') as file:
+                handle = urllib2.addinfourl(file, hdrs, url)
             handle.code = 304
             return handle
 
@@ -789,7 +815,7 @@ class Xlator(dict):
 
     def _make_regex(self):
         """ Build re object based on the keys of the current dictionary """
-        return re.compile("|".join(map(re.escape, self.keys())))
+        return re.compile("|".join(map(re.escape, self.iterkeys())))
 
     def __call__(self, match):
         """ Handler invoked for each regex *match* """
@@ -845,7 +871,7 @@ class Null:
 
 
 
-def mkdirs(newdir, mode=0777):
+def mkdirs(newdir, mode=0o777):
     """
     make directory *newdir* recursively, and set *mode*.  Equivalent to ::
 
@@ -860,7 +886,7 @@ def mkdirs(newdir, mode=0777):
                 if not os.path.exists(thispart):
                     os.makedirs(thispart, mode)
 
-    except OSError, err:
+    except OSError as err:
         # Reraise the error unless it's about an already existing directory
         if err.errno != errno.EEXIST or not os.path.isdir(newdir):
             raise
@@ -934,7 +960,7 @@ def get_split_ind(seq, N):
 
     sLen = 0
     # todo: use Alex's xrange pattern from the cbook for efficiency
-    for (word, ind) in zip(seq, range(len(seq))):
+    for (word, ind) in zip(seq, xrange(len(seq))):
         sLen += len(word) + 1  # +1 to account for the len(' ')
         if sLen>=N: return ind
     return len(seq)
@@ -1015,27 +1041,22 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
     import os.path, fnmatch
     # Expand patterns from semicolon-separated string to list
     pattern_list = patterns.split(';')
-    # Collect input and output arguments into one bunch
-    class Bunch:
-        def __init__(self, **kwds): self.__dict__.update(kwds)
-    arg = Bunch(recurse=recurse, pattern_list=pattern_list,
-        return_folders=return_folders, results=[])
+    results = []
 
-    def visit(arg, dirname, files):
-        # Append to arg.results all relevant files (and perhaps folders)
+    for dirname, dirs, files in os.walk(root):
+        # Append to results all relevant files (and perhaps folders)
         for name in files:
             fullname = os.path.normpath(os.path.join(dirname, name))
-            if arg.return_folders or os.path.isfile(fullname):
-                for pattern in arg.pattern_list:
+            if return_folders or os.path.isfile(fullname):
+                for pattern in pattern_list:
                     if fnmatch.fnmatch(name, pattern):
-                        arg.results.append(fullname)
+                        results.append(fullname)
                         break
         # Block recursion if recursion was disallowed
-        if not arg.recurse: files[:]=[]
+        if not recurse:
+            break
 
-    os.path.walk(root, visit, arg)
-
-    return arg.results
+    return results
 
 def get_recursive_filelist(args):
     """
@@ -1067,8 +1088,8 @@ def pieces(seq, num=2):
 
 def exception_to_str(s = None):
 
-    sh = StringIO.StringIO()
-    if s is not None: print >>sh, s
+    sh = io.StringIO()
+    if s is not None: print(s, file=sh)
     traceback.print_exc(file=sh)
     return sh.getvalue()
 
@@ -1240,7 +1261,7 @@ def finddir(o, match, case=False):
 
 def reverse_dict(d):
     'reverse the dictionary -- may lose data if values are not unique!'
-    return dict([(v,k) for k,v in d.items()])
+    return dict([(v,k) for k,v in d.iteritems()])
 
 def restrict_dict(d, keys):
     """
@@ -1330,18 +1351,18 @@ class MemoryMonitor:
         dn = int(n/segments)
         ii = range(0, n, dn)
         ii[-1] = n-1
-        print
-        print 'memory report: i, mem, dmem, dmem/nloops'
-        print 0, self._mem[0]
+        print()
+        print('memory report: i, mem, dmem, dmem/nloops')
+        print(0, self._mem[0])
         for i in range(1, len(ii)):
             di = ii[i] - ii[i-1]
             if di == 0:
                 continue
             dm = self._mem[ii[i]] - self._mem[ii[i-1]]
-            print '%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
-                                            dm, dm / float(di))
+            print('%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
+                                            dm, dm / float(di)))
         if self._overflow:
-            print "Warning: array size was too small for the number of calls."
+            print("Warning: array size was too small for the number of calls.")
 
     def xy(self, i0=0, isub=1):
         x = np.arange(i0, self._n, isub)
@@ -1380,7 +1401,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
             outstream.write("   %s -- " % str(type(step)))
             if isinstance(step, dict):
-                for key, val in step.items():
+                for key, val in step.iteritems():
                     if val is next:
                         outstream.write("[%s]" % repr(key))
                         break
@@ -1470,7 +1491,7 @@ class Grouper(object):
         Clean dead weak references from the dictionary
         """
         mapping = self._mapping
-        for key, val in mapping.items():
+        for key, val in mapping.iteritems():
             if key() is None:
                 del mapping[key]
                 val.remove(key)
@@ -1797,7 +1818,7 @@ def align_iterators(func, *iterables):
 
         def iternext(self):
             try:
-                self.value = self.it.next()
+                self.value = next(self.it)
                 self.key = func(self.value)
             except StopIteration:
                 self.value = self.key = None
@@ -1808,14 +1829,14 @@ def align_iterators(func, *iterables):
                 retval = self.value
                 self.iternext()
             elif self.key and key > self.key:
-                raise ValueError, "Iterator has been left behind"
+                raise ValueError("Iterator has been left behind")
             return retval
 
     # This can be made more efficient by not computing the minimum key for each iteration
     iters = [myiter(it) for it in iterables]
     minvals = minkey = True
     while 1:
-        minvals = (filter(None, [it.key for it in iters]))
+        minvals = ([_f for _f in [it.key for it in iters] if _f])
         if minvals:
             minkey = min(minvals)
             yield (minkey, [it(minkey) for it in iters])

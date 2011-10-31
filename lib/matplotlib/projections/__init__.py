@@ -1,3 +1,4 @@
+from __future__ import print_function
 from geo import AitoffAxes, HammerAxes, LambertAxes, MollweideAxes
 from polar import PolarAxes
 from matplotlib import axes

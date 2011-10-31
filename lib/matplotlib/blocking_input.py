@@ -17,6 +17,7 @@ This provides several classes used for blocking interaction with figure windows:
     Note: Subclass of BlockingMouseInput.  Used by clabel
 """
 
+from __future__ import print_function
 from matplotlib import path, verbose
 from matplotlib.cbook import is_sequence_of_strings
 import matplotlib.lines as mlines

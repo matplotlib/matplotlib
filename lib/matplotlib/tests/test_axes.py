@@ -319,7 +319,7 @@ def test_polar_theta_position():
     ax.plot(theta, r)
     ax.set_theta_zero_location("NW")
     ax.set_theta_direction('clockwise')
-    
+
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
     from datetime import datetime
@@ -389,8 +389,8 @@ def test_imshow():
     #Create a NxN image
     N=100
     (x,y) = np.indices((N,N))
-    x -= N/2
-    y -= N/2
+    x -= N//2
+    y -= N//2
     r = np.sqrt(x**2+y**2-x*y)
 
     #Create a contour plot at N/4 and extract both the clip path and transform
@@ -406,8 +406,8 @@ def test_imshow_clip():
     #Create a NxN image
     N=100
     (x,y) = np.indices((N,N))
-    x -= N/2
-    y -= N/2
+    x -= N//2
+    y -= N//2
     r = np.sqrt(x**2+y**2-x*y)
 
     #Create a contour plot at N/4 and extract both the clip path and transform
@@ -508,7 +508,7 @@ def test_symlog2():
     ax.set_xscale('symlog', linthreshx=0.01)
     ax.grid(True)
     ax.set_ylim(-0.1, 0.1)
-    
+
 @image_comparison(baseline_images=['pcolormesh'], tol=0.02)
 def test_pcolormesh():
     n = 12
@@ -542,7 +542,7 @@ def test_pcolormesh():
     ax.set_title('gouraud')
     ax.set_xticks([])
     ax.set_yticks([])
-    
+
 
 @image_comparison(baseline_images=['canonical'])
 def test_canonical():
@@ -625,7 +625,7 @@ def test_markevery_line():
     ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
 
-    
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)

@@ -29,9 +29,11 @@ The backends are not expected to handle non-affine transformations
 themselves.
 """
 
+from __future__ import print_function
 import numpy as np
 from numpy import ma
-from matplotlib._path import affine_transform
+from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
+    update_path_extents)
 from numpy.linalg import inv
 
 from weakref import WeakKeyDictionary
@@ -43,7 +45,6 @@ except NameError:
 
 import cbook
 from path import Path
-from _path import count_bboxes_overlapping_bbox, update_path_extents
 
 DEBUG = False
 if DEBUG:
@@ -121,7 +122,7 @@ class TransformNode(object):
             # Stop at subtrees that have already been invalidated
             if root._invalid != value or root.pass_through:
                 root._invalid = self.INVALID
-                stack.extend(root._parents.keys())
+                stack.extend(root._parents.iterkeys())
 
     def set_children(self, *children):
         """
@@ -177,7 +178,7 @@ class TransformNode(object):
                     props['style'] = 'bold'
                 props['shape'] = 'box'
                 props['label'] = '"%s"' % label
-                props = ' '.join(['%s=%s' % (key, val) for key, val in props.items()])
+                props = ' '.join(['%s=%s' % (key, val) for key, val in props.iteritems()])
 
                 fobj.write('%s [%s];\n' %
                            (hash(root), props))
@@ -185,7 +186,7 @@ class TransformNode(object):
                 if hasattr(root, '_children'):
                     for child in root._children:
                         name = '?'
-                        for key, val in root.__dict__.items():
+                        for key, val in root.__dict__.iteritems():
                             if val is child:
                                 name = key
                                 break
@@ -1191,7 +1192,7 @@ class Transform(TransformNode):
         close to *pts*, to find the angle in the transformed system.
         """
         # Must be 2D
-        if self.input_dims <> 2 or self.output_dims <> 2:
+        if self.input_dims != 2 or self.output_dims != 2:
             raise NotImplementedError('Only defined in 2D')
 
         # pts must be array with 2 columns for x,y
@@ -2330,4 +2331,3 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     elif not units == 'inches':
         raise ValueError('units must be dots, points, or inches')
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)
-
