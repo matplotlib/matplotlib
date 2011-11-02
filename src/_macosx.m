@@ -5100,6 +5100,7 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     int x, y;
     int num;
+    int dblclick = 0;
     PyObject* result;
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
@@ -5127,8 +5128,11 @@ set_cursor(PyObject* unused, PyObject* args)
          case NSRightMouseDown: num = 3; break;
          default: return; /* Unknown mouse event */
     }
+    if ([event clickCount] == 2) {
+      dblclick = 1;
+    } 
     gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "button_press_event", "iii", x, y, num);
+    result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
     if(result)
         Py_DECREF(result);
     else
@@ -5205,6 +5209,7 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     int x, y;
     int num = 3;
+    int dblclick = 0;
     PyObject* result;
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
@@ -5212,7 +5217,10 @@ set_cursor(PyObject* unused, PyObject* args)
     x = location.x;
     y = location.y;
     gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "button_press_event", "iii", x, y, num);
+    if ([event clickCount] == 2) {
+      dblclick = 1;
+    } 
+    result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
     if(result)
         Py_DECREF(result);
     else
@@ -5262,6 +5270,7 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     int x, y;
     int num = 2;
+    int dblclick = 0;
     PyObject* result;
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
@@ -5269,7 +5278,10 @@ set_cursor(PyObject* unused, PyObject* args)
     x = location.x;
     y = location.y;
     gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "button_press_event", "iii", x, y, num);
+    if ([event clickCount] == 2) {
+      dblclick = 1;
+    } 
+    result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
     if(result)
         Py_DECREF(result);
     else
