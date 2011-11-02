@@ -739,11 +739,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_KEY_DOWN, self._onKeyDown)
         bind(self, wx.EVT_KEY_UP, self._onKeyUp)
         bind(self, wx.EVT_RIGHT_DOWN, self._onRightButtonDown)
-        bind(self, wx.EVT_RIGHT_DCLICK, self._onRightButtonDown)
+        bind(self, wx.EVT_RIGHT_DCLICK, self._onRightButtonDClick)
         bind(self, wx.EVT_RIGHT_UP, self._onRightButtonUp)
         bind(self, wx.EVT_MOUSEWHEEL, self._onMouseWheel)
         bind(self, wx.EVT_LEFT_DOWN, self._onLeftButtonDown)
-        bind(self, wx.EVT_LEFT_DCLICK, self._onLeftButtonDown)
+        bind(self, wx.EVT_LEFT_DCLICK, self._onLeftButtonDClick)
         bind(self, wx.EVT_LEFT_UP, self._onLeftButtonUp)
         bind(self, wx.EVT_MOTION, self._onMotion)
         bind(self, wx.EVT_LEAVE_WINDOW, self._onLeave)
@@ -751,7 +751,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_IDLE, self._onIdle)
         #Add middle button events
         bind(self, wx.EVT_MIDDLE_DOWN, self._onMiddleButtonDown)
-        bind(self, wx.EVT_MIDDLE_DCLICK, self._onMiddleButtonDown)
+        bind(self, wx.EVT_MIDDLE_DCLICK, self._onMiddleButtonDClick)
         bind(self, wx.EVT_MIDDLE_UP, self._onMiddleButtonUp)
 
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -1271,6 +1271,13 @@ The current aspect ratio will be kept."""
         self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 3, guiEvent=evt)
 
+    def _onRightButtonDClick(self, evt):
+        """Start measuring on an axis."""
+        x = evt.GetX()
+        y = self.figure.bbox.height - evt.GetY()
+        evt.Skip()
+        self.CaptureMouse()
+        FigureCanvasBase.button_press_event(self, x, y, 3, dblclick=True,guiEvent=evt)
 
     def _onRightButtonUp(self, evt):
         """End measuring on an axis."""
@@ -1287,6 +1294,14 @@ The current aspect ratio will be kept."""
         evt.Skip()
         self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 1, guiEvent=evt)
+
+    def _onLeftButtonDClick(self, evt):
+        """Start measuring on an axis."""
+        x = evt.GetX()
+        y = self.figure.bbox.height - evt.GetY()
+        evt.Skip()
+        self.CaptureMouse()
+        FigureCanvasBase.button_press_event(self, x, y, 1, dblclick=True, guiEvent=evt)
 
     def _onLeftButtonUp(self, evt):
         """End measuring on an axis."""
@@ -1305,6 +1320,14 @@ The current aspect ratio will be kept."""
         evt.Skip()
         self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 2, guiEvent=evt)
+
+    def _onMiddleButtonDClick(self, evt):
+        """Start measuring on an axis."""
+        x = evt.GetX()
+        y = self.figure.bbox.height - evt.GetY()
+        evt.Skip()
+        self.CaptureMouse()
+        FigureCanvasBase.button_press_event(self, x, y, 2, dblclick=True, guiEvent=evt)
 
     def _onMiddleButtonUp(self, evt):
         """End measuring on an axis."""
