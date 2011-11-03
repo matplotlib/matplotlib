@@ -121,7 +121,7 @@ that define the shape.
         self._marker_function()
 
     def __nonzero__(self):
-        return len(self._path.vertices)
+        return bool(len(self._path.vertices))
 
     def is_filled(self):
         return self._filled
