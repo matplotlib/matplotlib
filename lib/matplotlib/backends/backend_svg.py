@@ -775,7 +775,7 @@ class RendererSVG(RendererBase):
         else:
             flipped = self._make_flip_transform(transform)
             attrib[u'transform'] = generate_transform(
-                [(u'matrix', transform.to_values())])
+                [(u'matrix', flipped.to_values())])
             self.writer.element(
                 u'image',
                 x=unicode(x), y=unicode(y+dy), width=unicode(dx), height=unicode(-dy),
