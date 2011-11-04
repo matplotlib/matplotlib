@@ -136,6 +136,8 @@ def test_imshow():
     ax.imshow(arr, interpolation="bilinear", extent=(1,2,1,2))
     ax.set_xlim(0,3)
     ax.set_ylim(0,3)
+    ax.set_xticks([])
+    ax.set_yticks([])
 
 if __name__=='__main__':
     import nose
