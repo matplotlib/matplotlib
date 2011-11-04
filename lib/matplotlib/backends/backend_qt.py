@@ -114,7 +114,7 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         y = self.figure.bbox.height - event.pos().y()
         button = self.buttond[event.button()]
         FigureCanvasBase.button_press_event( self, x, y, button, dblclick=True )
-        if DEBUG: print 'button doubleclicked:', event.button()
+        if DEBUG: print('button doubleclicked:', event.button())
 
     def mouseMoveEvent( self, event ):
         x = event.x()
