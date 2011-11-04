@@ -1,7 +1,12 @@
 from __future__ import division, print_function
 
-import os, sys
+import os, sys, warnings
 def fn_name(): return sys._getframe(1).f_code.co_name
+
+if sys.version_info[0] >= 3:
+    warnings.warn(
+        "The gtk* backends have not been tested with Python 3.x",
+        ImportWarning)
 
 try:
     import gobject

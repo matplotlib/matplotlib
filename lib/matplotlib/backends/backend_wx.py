@@ -36,6 +36,11 @@ if _DEBUG < 5:
     import traceback, pdb
 _DEBUG_lvls = {1 : 'Low ', 2 : 'Med ', 3 : 'High', 4 : 'Error' }
 
+if sys.version_info[0] >= 3:
+    warnings.warn(
+        "The wx and wxagg backends have not been tested with Python 3.x",
+        ImportWarning)
+
 missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8"
 
 if not hasattr(sys, 'frozen'): # i.e., not py2exe
