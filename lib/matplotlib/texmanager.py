@@ -259,7 +259,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                 fh.write(s.encode('utf8'))
             else:
                 try:
-                    fh.write(s)
+                    fh.write(s.encode('ascii'))
                 except UnicodeEncodeError as err:
                     mpl.verbose.report("You are using unicode and latex, but have "
                                 "not enabled the matplotlib 'text.latex.unicode' "
@@ -322,7 +322,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                 fh.write(s.encode('utf8'))
             else:
                 try:
-                    fh.write(s)
+                    fh.write(s.encode('ascii'))
                 except UnicodeEncodeError as err:
                     mpl.verbose.report("You are using unicode and latex, but have "
                                 "not enabled the matplotlib 'text.latex.unicode' "
