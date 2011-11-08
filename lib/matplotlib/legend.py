@@ -50,7 +50,7 @@ class DraggableLegend(DraggableOffsetBox):
                                     use_blit=use_blit)
 
     def artist_picker(self, legend, evt):
-        return self.legend.legendPatch.contains(evt)
+        return self.legend.contains(evt)
 
     def finalize_offset(self):
         loc_in_canvas = self.get_loc_in_canvas()
@@ -924,6 +924,8 @@ in the normalized axes coordinate.
 
         return ox, oy
 
+    def contains(self, event):
+        return self.legendPatch.contains(event)
 
     def draggable(self, state=None, use_blit=False, update="loc"):
         """
