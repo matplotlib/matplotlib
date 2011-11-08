@@ -1473,6 +1473,8 @@ class FigureFrameWx(wx.Frame):
         self.SetSizer(self.sizer)
         self.Fit()
 
+        self.canvas.SetMinSize((2, 2))
+
         self.figmgr = FigureManagerWx(self.canvas, num, self)
 
         bind(self, wx.EVT_CLOSE, self._onClose)
