@@ -2321,6 +2321,8 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     for i, row in enumerate(reader):
         if not len(row): continue
         if row[0].startswith(comments): continue
+        # Ensure that the row returned always has the same nr of elements
+        row.extend([''] * (len(converters) - len(row)))
         rows.append([func(name, val) for func, name, val in zip(converters, names, row)])
         rowmasks.append([ismissing(name, val) for name, val in zip(names, row)])
     fh.close()

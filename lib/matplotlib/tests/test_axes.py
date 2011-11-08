@@ -15,6 +15,9 @@ def test_formatter_ticker():
     import matplotlib.testing.jpl_units as units
     units.register()
 
+    # This should affect the tick size.  (Tests issue #543)
+    matplotlib.rcParams['lines.markeredgewidth'] = 30
+
     # This essentially test to see if user specified labels get overwritten
     # by the auto labeler functionality of the axes.
     xdata = [ x*units.sec for x in range(10) ]
@@ -319,7 +322,7 @@ def test_polar_theta_position():
     ax.plot(theta, r)
     ax.set_theta_zero_location("NW")
     ax.set_theta_direction('clockwise')
-    
+
 @image_comparison(baseline_images=['axvspan_epoch'])
 def test_axvspan_epoch():
     from datetime import datetime
@@ -508,7 +511,7 @@ def test_symlog2():
     ax.set_xscale('symlog', linthreshx=0.01)
     ax.grid(True)
     ax.set_ylim(-0.1, 0.1)
-    
+
 @image_comparison(baseline_images=['pcolormesh'], tol=0.02)
 def test_pcolormesh():
     n = 12
@@ -542,7 +545,7 @@ def test_pcolormesh():
     ax.set_title('gouraud')
     ax.set_xticks([])
     ax.set_yticks([])
-    
+
 
 @image_comparison(baseline_images=['canonical'])
 def test_canonical():
@@ -625,7 +628,7 @@ def test_markevery_line():
     ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
 
-    
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
