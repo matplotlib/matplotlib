@@ -102,7 +102,12 @@ class Tick(artist.Artist):
                 size = rcParams['%s.minor.size'%name]
         self._size = size
 
-        self._width = width # can be None for marker default
+        if width is None:
+            if major:
+                width = rcParams['%s.major.width'%name]
+            else:
+                width = rcParams['%s.minor.width'%name]
+        self._width = width
 
         if color is None:
             color = rcParams['%s.color' % name]
