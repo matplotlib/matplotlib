@@ -104,12 +104,14 @@ class Sankey:
             # Negate x.
             if cw:
                 # Swap x and y.
-                vertices = np.column_stack((-ARC_VERTICES[:,1], ARC_VERTICES[:,0]))
+                vertices = np.column_stack((-ARC_VERTICES[:,1],
+                                             ARC_VERTICES[:,0]))
             else:
-                vertices = np.column_stack((-ARC_VERTICES[:,0], ARC_VERTICES[:,1]))
+                vertices = np.column_stack((-ARC_VERTICES[:,0],
+                                             ARC_VERTICES[:,1]))
         if quadrant > 1: radius = -radius # Rotate 180 deg.
-        return zip(ARC_CODES,
-                   radius*vertices + np.tile(center, (ARC_VERTICES.shape[0], 1)))
+        return zip(ARC_CODES, radius*vertices +
+                              np.tile(center, (ARC_VERTICES.shape[0], 1)))
 
     def _add_input(self, path, angle, flow, length):
         """Add an input to a path and return its tip and label locations.
@@ -196,9 +198,11 @@ class Sankey:
                 else:
                     path.append((Path.LINETO, [x, y]))
                 path.extend([(Path.LINETO, [x, y + sign * length]),
-                             (Path.LINETO, [x - self.shoulder, y + sign * length]),
+                             (Path.LINETO, [x - self.shoulder,
+                                            y + sign * length]),
                              (Path.LINETO, tip),
-                             (Path.LINETO, [x + self.shoulder - flow, y + sign * length]),
+                             (Path.LINETO, [x + self.shoulder - flow,
+                                            y + sign * length]),
                              (Path.LINETO, [x - flow, y + sign * length])])
                 path.extend(self._arc(quadrant=quadrant,
                                       cw=angle==DOWN,
@@ -317,13 +321,13 @@ class Sankey:
         if rotation == None:
             rotation = 0
         else:
-            rotation /= 90.0 # In the code below, angles are expressed in deg/90.
+            rotation /= 90.0 # In the code below, angles are expressed in deg/90
         assert len(orientations) == n, ("orientations and flows must have the "
                                         "same length.\norientations has length "
                                         "%d, but flows has length %d."
                                         % len(orientations), n)
         if getattr(labels, '__iter__', False):
-        # iterable() isn't used because it would give True if labels is a string.
+        # iterable() isn't used because it would give True if labels is a string
             assert len(labels) == n, ("If labels is a list, then labels and "
                                       "flows must have the same length.\n"
                                       "labels has length %d, but flows has "
@@ -422,7 +426,8 @@ class Sankey:
             lllength = pathlengths
             d = dict(RIGHT=pathlengths)
             pathlengths = [d.get(angle, 0) for angle in angles]
-            # Determine the lengths of the top-side arrows from the middle outwards.
+            # Determine the lengths of the top-side arrows
+            # from the middle outwards.
             for i, (angle, is_input, flow) \
                 in enumerate(zip(angles, are_inputs, scaled_flows)):
                 if angle == DOWN and is_input:
@@ -431,7 +436,8 @@ class Sankey:
                 elif angle == UP and not is_input:
                     pathlengths[i] = urlength
                     urlength -= flow # Flow is negative for outputs.
-            # Determine the lengths of the bottom-side arrows from the middle outwards.
+            # Determine the lengths of the bottom-side arrows
+            # from the middle outwards.
             for i, (angle, is_input, flow) \
                 in enumerate(zip(angles, are_inputs, scaled_flows)[::-1]):
                 if angle == UP and is_input:
@@ -440,7 +446,8 @@ class Sankey:
                 elif angle == DOWN and not is_input:
                     pathlengths[n-i-1] = lrlength
                     lrlength -= flow
-            # Determine the lengths of the left-side arrows from the bottom upwards.
+            # Determine the lengths of the left-side arrows
+            # from the bottom upwards.
             has_left_input = False
             for i, (angle, is_input, spec) \
                 in enumerate(zip(angles, are_inputs, zip(scaled_flows,
@@ -451,7 +458,8 @@ class Sankey:
                             pathlengths[n-i-1] = 0
                         else:
                             has_left_input = True
-            # Determine the lengths of the right-side arrows from the top downwards.
+            # Determine the lengths of the right-side arrows
+            # from the top downwards.
             has_right_output = False
             for i, (angle, is_input, spec) \
                 in enumerate(zip(angles, are_inputs, zip(scaled_flows,
@@ -499,40 +507,57 @@ class Sankey:
         label_locations = np.zeros((n,2))
         # Add the top-side inputs and outputs from the middle outwards.
         for i, (angle, is_input, spec) \
-            in enumerate(zip(angles, are_inputs, zip(scaled_flows, pathlengths))):
+            in enumerate(zip(angles, are_inputs, 
+                             zip(scaled_flows, pathlengths))):
             if angle == DOWN and is_input:
-                tips[i,:], label_locations[i,:] = self._add_input(ulpath, angle, *spec)
+                tips[i,:], label_locations[i,:] = self._add_input(ulpath, angle,
+                                                                  *spec)
             elif angle == UP and not is_input:
-                tips[i,:], label_locations[i,:] = self._add_output(urpath, angle, *spec)
+                tips[i,:], label_locations[i,:] = self._add_output(urpath,
+                                                                   angle, *spec)
         # Add the bottom-side inputs and outputs from the middle outwards.
         for i, (angle, is_input, spec) \
-            in enumerate(zip(angles, are_inputs, zip(scaled_flows, pathlengths))[::-1]):
+            in enumerate(zip(angles, are_inputs,
+                             zip(scaled_flows, pathlengths))[::-1]):
             if angle == UP and is_input:
-                tips[n-i-1,:], label_locations[n-i-1,:] = self._add_input(llpath, angle, *spec)
+                (tips[n-i-1,:],
+                 label_locations[n-i-1,:]) = self._add_input(llpath, angle,
+                                                             *spec)
             elif angle == DOWN and not is_input:
-                tips[n-i-1,:], label_locations[n-i-1,:] = self._add_output(lrpath, angle, *spec)
+                (tips[n-i-1,:],
+                 label_locations[n-i-1,:]) = self._add_output(lrpath, angle,
+                                                              *spec)
         # Add the left-side inputs from the bottom upwards.
         has_left_input = False
         for i, (angle, is_input, spec) \
-            in enumerate(zip(angles, are_inputs, zip(scaled_flows, pathlengths))[::-1]):
+            in enumerate(zip(angles, are_inputs,
+                             zip(scaled_flows, pathlengths))[::-1]):
             if angle == RIGHT and is_input:
                 if not has_left_input:
-                    # Make sure the lower path extends at least as far as the upper one.
+                    # Make sure the lower path extends
+                    # at least as far as the upper one.
                     if llpath[-1][1][0] > ulpath[-1][1][0]:
-                        llpath.append((Path.LINETO, [ulpath[-1][1][0], llpath[-1][1][1]]))
+                        llpath.append((Path.LINETO, [ulpath[-1][1][0],
+                                                     llpath[-1][1][1]]))
                     has_left_input = True
-                tips[n-i-1,:], label_locations[n-i-1,:] = self._add_input(llpath, angle, *spec)
+                (tips[n-i-1,:],
+                 label_locations[n-i-1,:]) = self._add_input(llpath, angle,
+                                                             *spec)
         # Add the right-side outputs from the top downwards.
         has_right_output = False
         for i, (angle, is_input, spec) \
-            in enumerate(zip(angles, are_inputs, zip(scaled_flows, pathlengths))):
+            in enumerate(zip(angles, are_inputs,
+                             zip(scaled_flows, pathlengths))):
             if angle == RIGHT and not is_input:
                 if not has_right_output:
-                    # Make sure the upper path extends at least as far as the lower one.
+                    # Make sure the upper path extends
+                    # at least as far as the lower one.
                     if urpath[-1][1][0] < lrpath[-1][1][0]:
-                        urpath.append((Path.LINETO, [lrpath[-1][1][0], urpath[-1][1][1]]))
+                        urpath.append((Path.LINETO, [lrpath[-1][1][0],
+                                                     urpath[-1][1][1]]))
                     has_right_output = True
-                tips[i,:], label_locations[i,:] = self._add_output(urpath, angle, *spec)
+                (tips[i,:],
+                 label_locations[i,:]) = self._add_output(urpath, angle, *spec)
         # Trim any hanging vertices.
         if not has_left_input:
             ulpath.pop()
@@ -542,8 +567,8 @@ class Sankey:
             urpath.pop()
 
         # Concatenate the subpaths in the correct order (clockwise from top).
-        path = (urpath + self._revert(lrpath) + llpath + self._revert(ulpath)
-               + [(Path.CLOSEPOLY, urpath[0][1])])
+        path = (urpath + self._revert(lrpath) + llpath + self._revert(ulpath) +
+                [(Path.CLOSEPOLY, urpath[0][1])])
 
         # Create a patch with the Sankey outline.
         codes, vertices = zip(*path)
@@ -561,7 +586,8 @@ class Sankey:
                 vertices = rotate(vertices)
             text = self.ax.text(0, 0, s=patchlabel, ha='center', va='center')
         else:
-            rotation = self.diagrams[prior].angles[connect[0]]  - angles[connect[1]]
+            rotation = (self.diagrams[prior].angles[connect[0]] -
+                        angles[connect[1]])
             angles = [_get_angle(angle, rotation) for angle in angles]
             rotate = Affine2D().rotate_deg(rotation*90).transform_point
             tips = rotate(tips)
@@ -580,8 +606,8 @@ class Sankey:
             xs, ys = zip(*vertices)
             self.ax.plot(xs, ys, 'go-')
         patch = PathPatch(Path(vertices, codes),
-                          fc=kwargs.pop('fc', kwargs.pop('facecolor', # Custom defaults
-                                        '#bfd1d4')),
+                          fc=kwargs.pop('fc', kwargs.pop('facecolor',
+                                        '#bfd1d4')), # Custom defaults
                           lw=kwargs.pop('lw', kwargs.pop('linewidth',
                                         '0.5')),
                           **kwargs)
@@ -592,7 +618,7 @@ class Sankey:
             if labels[i] is None or angle is None:
                 labels[i] = ''
             elif self.unit is not None:
-                quantity = self.format%abs(number) + self.unit
+                quantity = self.format % abs(number) + self.unit
                 if labels[i] != '':
                     labels[i] += "\n"
                 labels[i] += quantity
@@ -608,10 +634,14 @@ class Sankey:
         # user wants to provide labels later.
 
         # Expand the size of the diagram if necessary.
-        self.extent = (min(np.min(vertices[:,0]), np.min(label_locations[:,0]), self.extent[0]),
-                       max(np.max(vertices[:,0]), np.max(label_locations[:,0]), self.extent[1]),
-                       min(np.min(vertices[:,1]), np.min(label_locations[:,1]), self.extent[2]),
-                       max(np.max(vertices[:,1]), np.max(label_locations[:,1]), self.extent[3]))
+        self.extent = (min(np.min(vertices[:,0]), np.min(label_locations[:,0]),
+                           self.extent[0]),
+                       max(np.max(vertices[:,0]), np.max(label_locations[:,0]),
+                           self.extent[1]),
+                       min(np.min(vertices[:,1]), np.min(label_locations[:,1]),
+                           self.extent[2]),
+                       max(np.max(vertices[:,1]), np.max(label_locations[:,1]),
+                           self.extent[3]))
         # Include both vertices _and_ label locations in the extents; there are
         # where either could determine the margins (e.g., arrow shoulders).
 
@@ -750,7 +780,7 @@ class Sankey:
 
         **Examples:**
 
-            .. plot:: mpl_examples/api/sankey_demo.py
+            .. plot:: mpl_examples/api/sankey_demo_basics.py
         """
         # Check the arguments.
         assert gap >= 0, ("The gap is negative.\nThis isn't allowed because it "
