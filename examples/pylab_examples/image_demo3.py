@@ -2,7 +2,7 @@
 from pylab import *
 try:
     from PIL import Image
-except ImportError, exc:
+except ImportError:
     raise SystemExit("PIL must be installed to run this example")
 
 import matplotlib.cbook as cbook

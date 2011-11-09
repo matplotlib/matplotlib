@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """
 This example utlizes restore_region with optional bbox and xy
 arguments.  The plot is continuously shifted to the left. Instead of
@@ -137,7 +139,7 @@ class UpdateLine(object):
         dt = (time.time()-tstart)
         if dt>15:
             # print the timing info and quit
-            print 'FPS:' , self.cnt/dt
+            print('FPS:' , self.cnt/dt)
             gtk.main_quit()
             raise SystemExit
 

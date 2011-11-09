@@ -1,6 +1,7 @@
 """
 A simple example of an animated plot using a wx backend
 """
+from __future__ import print_function
 import time
 import numpy as np
 import matplotlib
@@ -18,7 +19,7 @@ dt = 0.05
 def update_line(idleevent):
     if update_line.i==200:
         return False
-    print 'animate', update_line.i
+    print('animate', update_line.i)
     line.set_ydata(np.sin(t+update_line.i/10.))
     fig.canvas.draw_idle()                 # redraw the canvas
     update_line.i += 1

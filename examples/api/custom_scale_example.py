@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 from matplotlib import scale as mscale
 from matplotlib import transforms as mtransforms
 
@@ -67,7 +68,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         class DegreeFormatter(Formatter):
             def __call__(self, x, pos=None):
                 # \u00b0 : degree symbol
-                return u"%d\u00b0" % ((x / np.pi) * 180.0)
+                return "%d\u00b0" % ((x / np.pi) * 180.0)
 
         deg2rad = np.pi / 180.0
         axis.set_major_locator(FixedLocator(

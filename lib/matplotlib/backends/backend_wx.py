@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function
 """
 
  backend_wx.py
@@ -36,6 +36,11 @@ if _DEBUG < 5:
     import traceback, pdb
 _DEBUG_lvls = {1 : 'Low ', 2 : 'Med ', 3 : 'High', 4 : 'Error' }
 
+if sys.version_info[0] >= 3:
+    warnings.warn(
+        "The wx and wxagg backends have not been tested with Python 3.x",
+        ImportWarning)
+
 missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8"
 
 if not hasattr(sys, 'frozen'): # i.e., not py2exe
@@ -69,7 +74,7 @@ except ImportError:
 # there really *is* a problem with the version.
 major, minor = [int(n) for n in backend_version.split('.')[:2]]
 if major < 2 or (major < 3 and minor < 8):
-    print " wxPython version %s was imported." % backend_version
+    print(" wxPython version %s was imported." % backend_version)
     raise ImportError(missingwx)
 
 
@@ -83,12 +88,12 @@ def DEBUG_MSG(string, lvl=3, o=None):
         # one below does.  I think WX is redefining stderr, damned
         # beast
         #print >>sys.stderr, "%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls)
-        print "%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls)
+        print("%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls))
 
 def debug_on_error(type, value, tb):
     """Code due to Thomas Heller - published in Python Cookbook (O'Reilley)"""
     traceback.print_exc(type, value, tb)
-    print
+    print()
     pdb.pm()  # jdh uncomment
 
 class fake_stderr:
@@ -96,7 +101,7 @@ class fake_stderr:
     is probably no console. This redirects stderr to the console, since we know
     that there is one!"""
     def write(self, msg):
-        print "Stderr: %s\n\r" % msg
+        print("Stderr: %s\n\r" % msg)
 
 #if _DEBUG < 5:
 #    sys.excepthook = debug_on_error
@@ -918,7 +923,7 @@ The current aspect ratio will be kept."""
         po2  = PrintoutWx(self, width=self.printer_width,
                           margin=self.printer_margin)
         self.preview = wx.PrintPreview(po1,po2,self.printerData)
-        if not self.preview.Ok():  print "error with preview"
+        if not self.preview.Ok():  print("error with preview")
 
         self.preview.SetZoom(50)
         frameInst= self
@@ -1872,7 +1877,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             try:
                 self.canvas.print_figure(
                     os.path.join(dirname, filename), format=format)
-            except Exception, e:
+            except Exception as e:
                 error_msg_wx(str(e))
 
     def set_cursor(self, cursor):

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif
@@ -200,7 +201,7 @@ def test_mathtext_exceptions():
             parser.parse(math)
         except ValueError as e:
             exc = str(e).split('\n')
-            print e
+            print(e)
             assert exc[3].startswith(msg)
         else:
             assert False, "Expected '%s', but didn't get it" % msg

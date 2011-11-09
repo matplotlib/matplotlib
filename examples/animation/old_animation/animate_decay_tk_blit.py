@@ -1,3 +1,4 @@
+from __future__ import print_function
 import time, sys
 import numpy as np
 import matplotlib.pyplot as plt
@@ -44,7 +45,7 @@ def run(*args):
 
         if run.cnt==1000:
             # print the timing info and quit
-            print 'FPS:' , 1000/(time.time()-tstart)
+            print('FPS:' , 1000/(time.time()-tstart))
             sys.exit()
 
         run.cnt += 1

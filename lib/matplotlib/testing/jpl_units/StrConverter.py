@@ -4,11 +4,13 @@
 #
 #===========================================================================
 
+
 """StrConverter module containing class StrConverter."""
 
 #===========================================================================
 # Place all imports after here.
 #
+from __future__ import print_function
 import matplotlib.units as units
 from matplotlib.cbook import iterable
 
@@ -81,7 +83,7 @@ class StrConverter( units.ConversionInterface ):
       labels = [ l.get_text() for l in labels if l.get_text() ]
 
       if ( not labels ):
-         ticks = [] 
+         ticks = []
          labels = []
 
 

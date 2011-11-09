@@ -1,5 +1,5 @@
-from __future__ import division, generators
-import math, sys, warnings, datetime, new
+from __future__ import division, print_function
+import math, sys, warnings, datetime
 from operator import itemgetter
 import itertools
 
@@ -198,7 +198,7 @@ class _process_plot_var_args:
         for key, val in kwargs.items():
             funcName = "set_%s"%key
             if not hasattr(line,funcName):
-                raise TypeError, 'There is no line property "%s"'%key
+                raise TypeError('There is no line property "%s"'%key)
             func = getattr(line,funcName)
             func(val)
 
@@ -207,7 +207,7 @@ class _process_plot_var_args:
         for key, val in kwargs.items():
             funcName = "set_%s"%key
             if not hasattr(fill_poly,funcName):
-                raise TypeError, 'There is no patch property "%s"'%key
+                raise TypeError('There is no patch property "%s"'%key)
             func = getattr(fill_poly,funcName)
             func(val)
 
@@ -7548,6 +7548,10 @@ class Axes(martist.Artist):
         """
         if not self._hold: self.cla()
 
+        # xrange becomes range after 2to3
+        bin_range = range
+        range = __builtins__["range"]
+
         # NOTE: the range keyword overwrites the built-in func range !!!
         #       needs to be fixed in numpy                           !!!
 
@@ -7633,7 +7637,7 @@ class Axes(martist.Artist):
 
         # Check whether bins or range are given explicitly. In that
         # case use those values for autoscaling.
-        binsgiven = (cbook.iterable(bins) or range != None)
+        binsgiven = (cbook.iterable(bins) or bin_range != None)
 
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
@@ -7644,12 +7648,12 @@ class Axes(martist.Artist):
             for xi in x:
                 xmin = min(xmin, xi.min())
                 xmax = max(xmax, xi.max())
-            range = (xmin, xmax)
+            bin_range = (xmin, xmax)
 
         #hist_kwargs = dict(range=range, normed=bool(normed))
         # We will handle the normed kwarg within mpl until we
         # get to the point of requiring numpy >= 1.5.
-        hist_kwargs = dict(range=range)
+        hist_kwargs = dict(range=bin_range)
         if np.__version__ < "1.3": # version 1.1 and 1.2
             hist_kwargs['new'] = True
 
@@ -8445,9 +8449,9 @@ def subplot_class_factory(axes_class=None):
 
     new_class = _subplot_classes.get(axes_class)
     if new_class is None:
-        new_class = new.classobj("%sSubplot" % (axes_class.__name__),
-                                 (SubplotBase, axes_class),
-                                 {'_axes_class': axes_class})
+        new_class = type("%sSubplot" % (axes_class.__name__),
+                         (SubplotBase, axes_class),
+                         {'_axes_class': axes_class})
         _subplot_classes[axes_class] = new_class
 
     return new_class

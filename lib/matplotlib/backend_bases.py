@@ -1,4 +1,3 @@
-
 """
 Abstract base classes define the primitives that renderers and
 graphics contexts must implement to serve as a matplotlib backend
@@ -28,8 +27,8 @@ graphics contexts must implement to serve as a matplotlib backend
 
 """
 
-from __future__ import division
-import os, warnings, time
+from __future__ import division, print_function
+import os, warnings, time, io
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -1228,8 +1227,7 @@ class LocationEvent(Event):
             self._update_enter_leave()
             return
         elif (len(axes_list) > 1): # Overlap, get the highest zorder
-            axCmp = lambda _x,_y: cmp(_x.zorder, _y.zorder)
-            axes_list.sort(axCmp)
+            axes_list.sort(key=lambda x: x.zorder)
             self.inaxes = axes_list[-1] # Use the highest zorder
         else: # Just found one hit
             self.inaxes = axes_list[0]
@@ -1469,7 +1467,7 @@ class FigureCanvasBase(object):
         # Try deleting that artist, or its parent if you
         # can't delete the artist
         while h:
-            print "Removing",h
+            print("Removing",h)
             if h.remove():
                 self.draw_idle()
                 break
@@ -1779,6 +1777,12 @@ class FigureCanvasBase(object):
     #     classes inherit from FigureCanvasBase
     #  b) so we don't import a bunch of stuff the user may never use
 
+    # TODO: these print_* throw ImportErrror when called from
+    # compare_images_decorator (decorators.py line 112)
+    # if the backend has not already been loaded earlier on.  Simple trigger:
+    # >>> import matplotlib.tests.test_spines
+    # >>> list(matplotlib.tests.test_spines.test_spines_axes_positions())[0][0]()
+
     def print_emf(self, *args, **kwargs):
         from backends.backend_emf import FigureCanvasEMF # lazy import
         emf = self.switch_backends(FigureCanvasEMF)
@@ -1863,7 +1867,7 @@ class FigureCanvasBase(object):
 
     def get_supported_filetypes_grouped(self):
         groupings = {}
-        for ext, name in self.filetypes.items():
+        for ext, name in self.filetypes.iteritems():
             groupings.setdefault(name, []).append(ext)
             groupings[name].sort()
         return groupings
@@ -1978,9 +1982,9 @@ class FigureCanvasBase(object):
                 # the backend to support file-like object, i'm going
                 # to leave it as it is. However, a better solution
                 # than stringIO seems to be needed. -JJL
-                #result = getattr(self, method_name)(
+                #result = getattr(self, method_name)
                 result = print_method(
-                    cStringIO.StringIO(),
+                    io.BytesIO(),
                     dpi=dpi,
                     facecolor=facecolor,
                     edgecolor=edgecolor,
