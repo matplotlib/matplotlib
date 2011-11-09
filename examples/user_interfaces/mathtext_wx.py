@@ -5,7 +5,7 @@ controls on wxPython.
 
 import matplotlib
 matplotlib.use("WxAgg")
-from numpy import arange, sin, pi, cos, log
+from numpy import arange, sin, pi, cos, log, zeros
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
@@ -22,9 +22,10 @@ from matplotlib.mathtext import MathTextParser
 mathtext_parser = MathTextParser("Bitmap")
 def mathtext_to_wxbitmap(s):
     ftimage, depth = mathtext_parser.parse(s, 150)
-    return wx.BitmapFromBufferRGBA(
-        ftimage.get_width(), ftimage.get_height(),
-        ftimage.as_rgba_str())
+    rgba = zeros((ftimage.get_height(), ftimage.get_width(), 4), dtype='uint8')
+    rgba[...,3] = ftimage.as_array()
+    return wx.BitmapFromBufferRGBA(ftimage.get_width(), ftimage.get_height(),
+                                   rgba)
 ############################################################
 
 functions = [
