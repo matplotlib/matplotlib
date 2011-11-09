@@ -4,6 +4,8 @@ Most of these have been yoinked from ACM TOMS 792.
 http://netlib.org/toms/792
 """
 
+from __future__ import print_function
+
 import numpy as np
 from triangulate import Triangulation
 
@@ -359,7 +361,7 @@ def plotallfuncs(allfuncs=allfuncs):
     nnt = NNTester(npoints=1000)
     lpt = LinearTester(npoints=1000)
     for func in allfuncs:
-        print func.title
+        print(func.title)
         nnt.plot(func, interp=False, plotter='imshow')
         pl.savefig('%s-ref-img.png' % func.func_name)
         nnt.plot(func, interp=True, plotter='imshow')
@@ -437,7 +439,7 @@ def quality(func, mesh, interpolator='nn', n=33):
 
 
     r2 = 1.0 - SSE/SSM
-    print func.func_name, r2, SSE, SSM, numgood
+    print(func.func_name, r2, SSE, SSM, numgood)
     return r2
 
 def allquality(interpolator='nn', allfuncs=allfuncs, data=data, n=33):

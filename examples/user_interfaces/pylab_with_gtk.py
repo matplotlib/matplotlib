@@ -2,6 +2,7 @@
 An example of how to use pylab to manage your figure windows, but
 modify the GUI by accessing the underlying gtk widgets
 """
+from __future__ import print_function
 import matplotlib
 matplotlib.use('GTKAgg')
 from pylab import get_current_fig_manager, subplot, plot, legend, connect, show
@@ -23,7 +24,7 @@ button = gtk.Button('Click me')
 button.show()
 
 def clicked(button):
-    print 'hi mom'
+    print('hi mom')
 button.connect('clicked', clicked)
 
 toolitem = gtk.ToolItem()

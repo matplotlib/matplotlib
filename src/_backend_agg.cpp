@@ -102,7 +102,11 @@ Py::Object
 BufferRegion::to_string(const Py::Tuple &args)
 {
     // owned=true to prevent memory leak
+    #if PY3K
+    return Py::Bytes(PyBytes_FromStringAndSize((const char*)data, height*stride), true);
+    #else
     return Py::String(PyString_FromStringAndSize((const char*)data, height*stride), true);
+    #endif
 }
 
 
@@ -152,12 +156,20 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
     unsigned char tmp;
     size_t i, j;
 
-    PyObject* str = PyString_FromStringAndSize(
-                        (const char*)data, height * stride);
+    #if PY3K
+    PyObject* str = PyBytes_FromStringAndSize((const char*)data, height * stride);
+    if (PyBytes_AsStringAndSize(str, (char**)&begin, &length))
+    {
+        throw Py::TypeError("Could not create memory for blit");
+    }
+    #else
+    PyObject* str = PyString_FromStringAndSize((const char*)data, height * stride);
     if (PyString_AsStringAndSize(str, (char**)&begin, &length))
     {
         throw Py::TypeError("Could not create memory for blit");
     }
+    #endif
+
 
     pix = begin;
     end = begin + (height * stride);
@@ -200,7 +212,7 @@ void
 GCAgg::_set_antialiased(const Py::Object& gc)
 {
     _VERBOSE("GCAgg::antialiased");
-    isaa = Py::Int(gc.getAttr("_antialiased"));
+    isaa = Py::Boolean(gc.getAttr("_antialiased"));
 }
 
 
@@ -910,7 +922,8 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
     }
     else
     {
-        FT2Image *image = static_cast<FT2Image*>(image_obj.ptr());
+        FT2Image* image = static_cast<FT2Image *>(
+            Py::getPythonExtensionBase(image_obj.ptr()));
         if (!image->get_buffer())
         {
             throw Py::ValueError(
@@ -1521,7 +1534,7 @@ RendererAgg::_draw_path_collection_generic
 
         if (check_snap)
         {
-            gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
+            gc.isaa = Py::Boolean(antialiaseds[i % Naa]);
 
             transformed_path_t tpath(path, trans);
             nan_removed_t      nan_removed(tpath, true, has_curves);
@@ -1540,7 +1553,7 @@ RendererAgg::_draw_path_collection_generic
         }
         else
         {
-            gc.isaa = bool(Py::Int(antialiaseds[i % Naa]));
+            gc.isaa = Py::Boolean(antialiaseds[i % Naa]);
 
             transformed_path_t tpath(path, trans);
             nan_removed_t      nan_removed(tpath, true, has_curves);
@@ -1993,6 +2006,12 @@ RendererAgg::write_rgba(const Py::Tuple& args)
     FILE *fp = NULL;
     bool close_file = false;
     Py::Object py_fileobj = Py::Object(args[0]);
+
+    #if PY3K
+    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
+    PyErr_Clear();
+    #endif
+
     if (py_fileobj.isString())
     {
         std::string fileName = Py::String(py_fileobj);
@@ -2008,6 +2027,15 @@ RendererAgg::write_rgba(const Py::Tuple& args)
         }
         close_file = true;
     }
+    #if PY3K
+    else if (fd != -1)
+    {
+        if (write(fd, pixBuffer, NUMBYTES) != (ssize_t)NUMBYTES)
+        {
+            throw Py::RuntimeError("Error writing to file");
+        }
+    }
+    #else
     else if (PyFile_CheckExact(py_fileobj.ptr()))
     {
         fp = PyFile_AsFile(py_fileobj.ptr());
@@ -2016,6 +2044,7 @@ RendererAgg::write_rgba(const Py::Tuple& args)
             throw Py::RuntimeError("Error writing to file");
         }
     }
+    #endif
     else
     {
         PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(),
@@ -2071,7 +2100,11 @@ RendererAgg::tostring_rgb(const Py::Tuple& args)
     }
 
     //todo: how to do this with native CXX
+    #if PY3K
+    PyObject* o = Py_BuildValue("y#", buf_tmp, row_len * height);
+    #else
     PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * height);
+    #endif
 
     delete [] buf_tmp;
     return Py::asObject(o);
@@ -2107,7 +2140,12 @@ RendererAgg::tostring_argb(const Py::Tuple& args)
     }
 
     //todo: how to do this with native CXX
+
+    #if PY3K
+    PyObject* o = Py_BuildValue("y#", buf_tmp, row_len * height);
+    #else
     PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * height);
+    #endif
     delete [] buf_tmp;
     return Py::asObject(o);
 }
@@ -2146,9 +2184,11 @@ RendererAgg::tostring_bgra(const Py::Tuple& args)
     }
 
     //todo: how to do this with native CXX
-    PyObject* o = Py_BuildValue("s#",
-                                buf_tmp,
-                                row_len * height);
+    #if PY3K
+    PyObject* o = Py_BuildValue("y#", buf_tmp, row_len * height);
+    #else
+    PyObject* o = Py_BuildValue("s#", buf_tmp, row_len * height);
+    #endif
     delete [] buf_tmp;
     return Py::asObject(o);
 }
@@ -2161,12 +2201,14 @@ RendererAgg::buffer_rgba(const Py::Tuple& args)
 
     _VERBOSE("RendererAgg::buffer_rgba");
 
-    args.verify_length(2);
-    int startw = Py::Int(args[0]);
-    int starth = Py::Int(args[1]);
+    args.verify_length(0);
+
+    #if PY3K
+    return Py::asObject(PyMemoryView_FromObject(this));
+    #else
     int row_len = width * 4;
-    int start = row_len * starth + startw * 4;
-    return Py::asObject(PyBuffer_FromMemory(pixBuffer + start, row_len*height - start));
+    return Py::asObject(PyBuffer_FromMemory(pixBuffer, row_len*height));
+    #endif
 }
 
 
@@ -2280,6 +2322,14 @@ RendererAgg::points_to_pixels(const Py::Object& points)
     return p * dpi / 72.0;
 }
 
+#if PY3K
+int
+RendererAgg::buffer_get( Py_buffer* buf, int flags )
+{
+    return PyBuffer_FillInfo(buf, this, pixBuffer, width * height * 4, 1,
+                             PyBUF_SIMPLE);
+}
+#endif
 
 RendererAgg::~RendererAgg()
 {
@@ -2310,8 +2360,8 @@ Py::Object _backend_agg_module::new_renderer(const Py::Tuple &args,
         debug = 0;
     }
 
-    unsigned int width = (unsigned int)Py::Int(args[0]);
-    unsigned int height = (unsigned int)Py::Int(args[1]);
+    unsigned int width = (int)Py::Int(args[0]);
+    unsigned int height = (int)Py::Int(args[1]);
     double dpi = Py::Float(args[2]);
 
     if (width > 1 << 15 || height > 1 << 15)
@@ -2401,11 +2451,18 @@ void RendererAgg::init_type()
                        "restore_region(region)");
     add_varargs_method("restore_region2", &RendererAgg::restore_region2,
                        "restore_region(region, x1, y1, x2, y2, x3, y3)");
+
+    #if PY3K
+    behaviors().supportBufferType();
+    #endif
 }
 
-extern "C"
-    DL_EXPORT(void)
-    init_backend_agg(void)
+PyMODINIT_FUNC
+#if PY3K
+PyInit__backend_agg(void)
+#else
+init_backend_agg(void)
+#endif
 {
     //static _backend_agg_module* _backend_agg = new _backend_agg_module;
 
@@ -2415,4 +2472,8 @@ extern "C"
 
     static _backend_agg_module* _backend_agg = NULL;
     _backend_agg = new _backend_agg_module;
+
+    #if PY3K
+    return _backend_agg->module().ptr();
+    #endif
 }

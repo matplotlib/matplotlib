@@ -6,6 +6,7 @@ effectively disabled.
 
 It uses a tiny C++ extension module to access MS Win functions.
 """
+from __future__ import print_function
 from matplotlib import rcParams
 
 try:

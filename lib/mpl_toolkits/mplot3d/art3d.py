@@ -452,7 +452,7 @@ class Poly3DCollection(PolyCollection):
         if self._zsort:
             z_segments_2d = [(self._zsortfunc(zs), zip(xs, ys), fc, ec) for
                     (xs, ys, zs), fc, ec in zip(xyzlist, cface, cedge)]
-            z_segments_2d.sort(cmp=lambda x, y: cmp(y[0], x[0]))
+            z_segments_2d.sort(key=lambda x: x[0], reverse=True)
         else:
             raise ValueError, "whoops"
 

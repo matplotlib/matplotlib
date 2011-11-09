@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import numpy as np
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
@@ -8,7 +10,7 @@ import numpy as np
 from matplotlib import patches, path, transforms
 
 from nose.tools import raises
-import cStringIO
+import io
 
 nan = np.nan
 Path = path.Path
@@ -69,8 +71,6 @@ def test_noise():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    print len(simplified)
-
     assert len(simplified) == 3884
 
 @cleanup
@@ -88,8 +88,6 @@ def test_sine_plus_noise():
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
-
-    print len(simplified)
 
     assert len(simplified) == 876
 
@@ -130,14 +128,12 @@ def test_fft_peaks():
     path = transform.transform_path(path)
     simplified = list(path.iter_segments(simplify=(800, 600)))
 
-    print len(simplified)
-
     assert len(simplified) == 20
 
 @cleanup
 def test_start_with_moveto():
     # Should be entirely clipped away to a single MOVETO
-    data = """
+    data = b"""
 ZwAAAAku+v9UAQAA+Tj6/z8CAADpQ/r/KAMAANlO+v8QBAAAyVn6//UEAAC6ZPr/2gUAAKpv+v+8
 BgAAm3r6/50HAACLhfr/ewgAAHyQ+v9ZCQAAbZv6/zQKAABepvr/DgsAAE+x+v/lCwAAQLz6/7wM
 AAAxx/r/kA0AACPS+v9jDgAAFN36/zQPAAAF6Pr/AxAAAPfy+v/QEAAA6f36/5wRAADbCPv/ZhIA
@@ -159,7 +155,15 @@ PgAAh1v///c+AAB+Zv//Dz8AAHRx//8lPwAAa3z//zk/AABih///TD8AAFmS//9dPwAAUJ3//2w/
 AABHqP//ej8AAD6z//+FPwAANb7//48/AAAsyf//lz8AACPU//+ePwAAGt///6M/AAAR6v//pj8A
 AAj1//+nPwAA/////w=="""
 
-    verts = np.fromstring(data.decode('base64'), dtype='<i4')
+    import base64
+    if hasattr(base64, 'encodebytes'):
+        # Python 3 case
+        decodebytes = base64.decodebytes
+    else:
+        # Python 2 case
+        decodebytes = base64.decodestring
+
+    verts = np.fromstring(decodebytes(data), dtype='<i4')
     verts = verts.reshape((len(verts) / 2, 2))
     path = Path(verts)
     segs = path.iter_segments(transforms.IdentityTransform, clip=(0.0, 0.0, 100.0, 100.0))
@@ -171,7 +175,6 @@ AAj1//+nPwAA/////w=="""
 @raises(OverflowError)
 def test_throw_rendering_complexity_exceeded():
     rcParams['path.simplify'] = False
-
     xx = np.arange(200000)
     yy = np.random.rand(200000)
     yy[1000] = np.nan
@@ -179,10 +182,8 @@ def test_throw_rendering_complexity_exceeded():
     ax = fig.add_subplot(111)
     ax.plot(xx, yy)
     try:
-        fig.savefig(cStringIO.StringIO())
-    except e:
-        raise e
-    else:
+        fig.savefig(io.StringIO())
+    finally:
         rcParams['path.simplify'] = True
 
 @image_comparison(baseline_images=['clipper_edge'])

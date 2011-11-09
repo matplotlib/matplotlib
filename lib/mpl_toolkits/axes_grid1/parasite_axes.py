@@ -56,13 +56,12 @@ def parasite_axes_class_factory(axes_class=None):
 
     new_class = _parasite_axes_classes.get(axes_class)
     if new_class is None:
-        import new
         def _get_base_axes_attr(self, attrname):
             return getattr(axes_class, attrname)
 
-        new_class = new.classobj("%sParasite" % (axes_class.__name__),
-                                 (ParasiteAxesBase, axes_class),
-                                 {'_get_base_axes_attr': _get_base_axes_attr})
+        new_class = type("%sParasite" % (axes_class.__name__),
+                         (ParasiteAxesBase, axes_class),
+                         {'_get_base_axes_attr': _get_base_axes_attr})
         _parasite_axes_classes[axes_class] = new_class
 
     return new_class
@@ -211,11 +210,10 @@ def parasite_axes_auxtrans_class_factory(axes_class=None):
 
     new_class = _parasite_axes_auxtrans_classes.get(parasite_axes_class)
     if new_class is None:
-        import new
-        new_class = new.classobj("%sParasiteAuxTrans" % (parasite_axes_class.__name__),
-                                 (ParasiteAxesAuxTransBase, parasite_axes_class),
-                                 {'_parasite_axes_class': parasite_axes_class,
-                                  'name': 'parasite_axes'})
+        new_class = type("%sParasiteAuxTrans" % (parasite_axes_class.__name__),
+                         (ParasiteAxesAuxTransBase, parasite_axes_class),
+                         {'_parasite_axes_class': parasite_axes_class,
+                         'name': 'parasite_axes'})
         _parasite_axes_auxtrans_classes[parasite_axes_class] = new_class
 
     return new_class
@@ -456,18 +454,16 @@ def host_axes_class_factory(axes_class=None):
 
     new_class = _host_axes_classes.get(axes_class)
     if new_class is None:
-        import new
-
         def _get_base_axes(self):
             return axes_class
 
         def _get_base_axes_attr(self, attrname):
             return getattr(axes_class, attrname)
 
-        new_class = new.classobj("%sHostAxes" % (axes_class.__name__),
-                                 (HostAxesBase, axes_class),
-                                 {'_get_base_axes_attr': _get_base_axes_attr,
-                                  '_get_base_axes': _get_base_axes})
+        new_class = type("%sHostAxes" % (axes_class.__name__),
+                         (HostAxesBase, axes_class),
+                         {'_get_base_axes_attr': _get_base_axes_attr,
+                          '_get_base_axes': _get_base_axes})
 
         _host_axes_classes[axes_class] = new_class
 

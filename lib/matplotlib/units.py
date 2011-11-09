@@ -42,6 +42,7 @@ datetime objects::
     units.registry[datetime.date] = DateConverter()
 
 """
+from __future__ import print_function
 import numpy as np
 from matplotlib.cbook import iterable, is_numlike, is_string_like
 

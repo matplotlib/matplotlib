@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
 import matplotlib
 matplotlib.use('GTK')
 
@@ -64,15 +66,15 @@ class WidgetsWrapper:
         self.canvas.grab_focus()
 
         def keypress(widget, event):
-            print 'key press'
+            print('key press')
         def buttonpress(widget, event):
-            print 'button press'
+            print('button press')
 
         self.canvas.connect('key_press_event', keypress)
         self.canvas.connect('button_press_event', buttonpress)
 
         def onselect(xmin, xmax):
-            print xmin, xmax
+            print(xmin, xmax)
 
         span = SpanSelector(self.axis, onselect, 'horizontal', useblit=False,
                             rectprops=dict(alpha=0.5, facecolor='red') )

@@ -3,6 +3,7 @@ generate an editable gtk treeview widget for record arrays with custom
 formatting of the cells and show how to limit string entries to a list
 of strings
 """
+from __future__ import print_function
 import gtk
 import numpy as np
 import matplotlib.mlab as mlab
@@ -28,7 +29,7 @@ liststore = gtktools.RecListStore(r, formatd=formatd, stringd=stringd)
 treeview = gtktools.RecTreeView(liststore, constant=constant)
 
 def mycallback(liststore, rownum, colname, oldval, newval):
-    print 'verify: old=%s, new=%s, rec=%s'%(oldval, newval, liststore.r[rownum][colname])
+    print('verify: old=%s, new=%s, rec=%s'%(oldval, newval, liststore.r[rownum][colname]))
 
 liststore.callbacks.connect('cell_changed', mycallback)
 

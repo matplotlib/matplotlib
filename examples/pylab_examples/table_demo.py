@@ -71,7 +71,7 @@ ind = arange(len(colLabels)) + 0.3  # the x locations for the groups
 cellText = []
 width = 0.4     # the width of the bars
 yoff = array([0.0] * len(colLabels)) # the bottom values for stacked bar chart
-for row in xrange(rows):
+for row in range(rows):
     bar(ind, data[row], width, bottom=yoff, color=colours[row])
     yoff = yoff + data[row]
     cellText.append(['%1.1f' % (x/1000.0) for x in yoff])
