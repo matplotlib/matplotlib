@@ -20,13 +20,17 @@ major, minor1, minor2, s, tmp = sys.version_info
 
 if major >= 3:
     import types
-    import urllib.request
+    import urllib.request, urllib.error, urllib.parse
+    def urllib_quote():
+        return urllib.parse.quote
     def addinfourl(data, headers, url, code=None):
         return urllib.request.addinfourl(io.BytesIO(data),
                                          headers, url, code)
 else:
     import new
     import urllib2
+    def urllib_quote():
+        return urllib2.quote
     def addinfourl(data, headers, url, code=None):
         return urllib2.addinfourl(io.StringIO(data),
                                   headers, url, code)
@@ -471,7 +475,6 @@ def is_scalar_or_string(val):
     return is_string_like(val) or not iterable(val)
 
 def _get_data_server(cache_dir, baseurl):
-    import urllib2
     class ViewVCCachedServer(urllib2.HTTPSHandler):
         """
         Urllib2 handler that takes care of caching files.
@@ -597,7 +600,7 @@ def _get_data_server(cache_dir, baseurl):
                 'ViewVCCachedServer: reading data file from cache file "%s"'
                 %fn, 'debug')
             with open(fn, 'rb') as file:
-                handle = urllib2.addinfourl(file, hdrs, url)
+                handle = addinfourl(file, hdrs, url)
             handle.code = 304
             return handle
 
@@ -613,9 +616,9 @@ def _get_data_server(cache_dir, baseurl):
             else:
                 data = response.read()
                 self.cache_file(req.get_full_url(), data, response.headers)
-                result = urllib2.addinfourl(StringIO.StringIO(data),
-                                            response.headers,
-                                            req.get_full_url())
+                result = addinfourl(StringIO.StringIO(data),
+                                    response.headers,
+                                    req.get_full_url())
                 result.code = response.code
                 result.msg = response.msg
                 return result
@@ -632,12 +635,7 @@ def _get_data_server(cache_dir, baseurl):
             # TODO: time out if the connection takes forever
             # (may not be possible with urllib2 only - spawn a helper process?)
 
-            # quote is not in python2.4, so check for it and get it from
-            # urllib if it is not available
-            quote = getattr(urllib2, 'quote', None)
-            if quote is None:
-                import urllib
-                quote = urllib.quote
+            quote = urllib_quote()
 
             # retrieve the URL for the side effect of refreshing the cache
             url = self.baseurl + quote(fname)
