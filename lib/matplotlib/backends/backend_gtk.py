@@ -1,7 +1,12 @@
-from __future__ import division
+from __future__ import division, print_function
 
-import os, sys
+import os, sys, warnings
 def fn_name(): return sys._getframe(1).f_code.co_name
+
+if sys.version_info[0] >= 3:
+    warnings.warn(
+        "The gtk* backends have not been tested with Python 3.x",
+        ImportWarning)
 
 try:
     import gobject
@@ -195,7 +200,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                   gdk.POINTER_MOTION_HINT_MASK)
 
     def __init__(self, figure):
-        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         FigureCanvasBase.__init__(self, figure)
         gtk.DrawingArea.__init__(self)
 
@@ -234,7 +239,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             gobject.source_remove(self._idle_draw_id)
 
     def scroll_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
@@ -246,7 +251,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
@@ -270,7 +275,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.allocation.height - event.y
@@ -278,21 +283,21 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print "hit", key
+        if _debug: print("hit", key)
         FigureCanvasBase.key_press_event(self, key, guiEvent=event)
         return False  # finish event propagation?
 
     def key_release_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         key = self._get_key(event)
-        if _debug: print "release", key
+        if _debug: print("release", key)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
         return False  # finish event propagation?
 
     def motion_notify_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         if event.is_hint:
             x, y, state = event.window.get_pointer()
         else:
@@ -323,7 +328,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
 
     def configure_event(self, widget, event):
-        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK.%s' % fn_name())
         if widget.window is None:
             return
         w, h = event.width, event.height
@@ -374,7 +379,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         Make sure _._pixmap is at least width, height,
         create new pixmap if necessary
         """
-        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK.%s' % fn_name())
 
         create_pixmap = False
         if width > self._pixmap_width:
@@ -404,7 +409,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def expose_event(self, widget, event):
         """Expose_event for all GTK backends. Should not be overridden.
         """
-        if _debug: print 'FigureCanvasGTK.%s' % fn_name()
+        if _debug: print('FigureCanvasGTK.%s' % fn_name())
 
         if GTK_WIDGET_DRAWABLE(self):
             if self._need_redraw:
@@ -450,7 +455,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         if is_string_like(filename):
             try:
                 pixbuf.save(filename, format)
-            except gobject.GError, exc:
+            except gobject.GError as exc:
                 error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
         elif is_writable_file_like(filename):
             if hasattr(pixbuf, 'save_to_callback'):
@@ -458,7 +463,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                     data.write(buf)
                 try:
                     pixbuf.save_to_callback(save_callback, format, user_data=filename)
-                except gobject.GError, exc:
+                except gobject.GError as exc:
                     error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
             else:
                 raise ValueError("Saving to a Python file-like object is only supported by PyGTK >= 2.8")
@@ -510,7 +515,7 @@ class FigureManagerGTK(FigureManagerBase):
     window      : The gtk.Window   (gtk only)
     """
     def __init__(self, canvas, num):
-        if _debug: print 'FigureManagerGTK.%s' % fn_name()
+        if _debug: print('FigureManagerGTK.%s' % fn_name())
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = gtk.Window()
@@ -565,7 +570,7 @@ class FigureManagerGTK(FigureManagerBase):
         self.canvas.grab_focus()
 
     def destroy(self, *args):
-        if _debug: print 'FigureManagerGTK.%s' % fn_name()
+        if _debug: print('FigureManagerGTK.%s' % fn_name())
         if hasattr(self, 'toolbar') and self.toolbar is not None:
             self.toolbar.destroy()
         if hasattr(self, 'vbox'):
@@ -664,7 +669,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         w = abs(x1 - x0)
         h = abs(y1 - y0)
 
-        rect = [int(val)for val in min(x0,x1), min(y0, y1), w, h]
+        rect = [int(val)for val in (min(x0,x1), min(y0, y1), w, h)]
         try:
             lastrect, pixmapBack = self._pixmapBack
         except AttributeError:
@@ -734,7 +739,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         if fname:
             try:
                 self.canvas.print_figure(fname, format=format)
-            except Exception, e:
+            except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 
     def configure_subplots(self, button):
@@ -997,7 +1002,7 @@ class NavigationToolbar(gtk.Toolbar):
         if fname:
             try:
                 self.canvas.print_figure(fname, format=format)
-            except Exception, e:
+            except Exception as e:
                 error_msg_gtk(str(e), parent=self)
 
 
@@ -1182,12 +1187,12 @@ class DialogLineprops:
 
         button = self.wtree.get_widget('colorbutton_linestyle')
         color = button.get_color()
-        r, g, b = [val/65535. for val in color.red, color.green, color.blue]
+        r, g, b = [val/65535. for val in (color.red, color.green, color.blue)]
         line.set_color((r,g,b))
 
         button = self.wtree.get_widget('colorbutton_markerface')
         color = button.get_color()
-        r, g, b = [val/65535. for val in color.red, color.green, color.blue]
+        r, g, b = [val/65535. for val in (color.red, color.green, color.blue)]
         line.set_markerfacecolor((r,g,b))
 
         line.figure.canvas.draw()
@@ -1209,12 +1214,12 @@ class DialogLineprops:
         self.cbox_markers.set_active(self.markerd[marker])
 
         r,g,b = colorConverter.to_rgb(line.get_color())
-        color = gtk.gdk.Color(*[int(val*65535) for val in r,g,b])
+        color = gtk.gdk.Color(*[int(val*65535) for val in (r,g,b)])
         button = self.wtree.get_widget('colorbutton_linestyle')
         button.set_color(color)
 
         r,g,b = colorConverter.to_rgb(line.get_markerfacecolor())
-        color = gtk.gdk.Color(*[int(val*65535) for val in r,g,b])
+        color = gtk.gdk.Color(*[int(val*65535) for val in (r,g,b)])
         button = self.wtree.get_widget('colorbutton_markerface')
         button.set_color(color)
         self._updateson = True

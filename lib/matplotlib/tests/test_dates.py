@@ -1,3 +1,4 @@
+from __future__ import print_function
 import datetime
 import numpy as np
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup

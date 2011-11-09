@@ -1,7 +1,7 @@
 """
 Classes for including text in a figure.
 """
-from __future__ import division
+from __future__ import division, print_function
 import math
 
 import numpy as np
@@ -21,8 +21,6 @@ from matplotlib.transforms import Affine2D, Bbox, Transform ,\
 from matplotlib.lines import Line2D
 
 from matplotlib.artist import allow_rasterization
-
-import matplotlib.nxutils as nxutils
 
 from matplotlib.path import Path
 import matplotlib.font_manager as font_manager
@@ -212,11 +210,8 @@ class Text(Artist):
 
         r = l+w
         t = b+h
-        xyverts = (l,b), (l, t), (r, t), (r, b)
         x, y = mouseevent.x, mouseevent.y
-        inside = nxutils.pnpoly(x, y, xyverts)
-
-        return inside,{}
+        return x >= l and x <= r and y >= t and y <= b
 
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x, y in display coords'
@@ -1007,7 +1002,7 @@ class Text(Artist):
         self.set_fontproperties(fp)
 
 docstring.interpd.update(Text = artist.kwdoc(Text))
-docstring.dedent_interpd(Text.__init__.im_func)
+docstring.dedent_interpd(Text.__init__)
 
 
 class TextWithDash(Text):
@@ -1798,7 +1793,7 @@ class Annotation(Text, _AnnotationBase):
 
         self.arrow = None
 
-        if arrowprops and arrowprops.has_key("arrowstyle"):
+        if arrowprops and "arrowstyle" in arrowprops:
 
             self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
             self.arrow_patch = FancyArrowPatch((0, 0), (1,1),
@@ -1917,11 +1912,11 @@ class Annotation(Text, _AnnotationBase):
 
                 # pick the x,y corner of the text bbox closest to point
                 # annotated
-                dsu = [(abs(val-x0), val) for val in l, r, xc]
+                dsu = [(abs(val-x0), val) for val in (l, r, xc)]
                 dsu.sort()
                 _, x = dsu[0]
 
-                dsu = [(abs(val-y0), val) for val in b, t, yc]
+                dsu = [(abs(val-y0), val) for val in (b, t, yc)]
                 dsu.sort()
                 _, y = dsu[0]
 

@@ -4,6 +4,7 @@
 # bound ellipses, it demonstrates how significant this error
 # is to our plots.
 
+from __future__ import print_function
 import math
 from pylab import *
 from matplotlib.patches import Ellipse, Arc

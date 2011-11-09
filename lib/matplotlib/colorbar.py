@@ -18,6 +18,7 @@ and :class:`Colorbar`; the :func:`~matplotlib.pyplot.colorbar` function
 is a thin wrapper over :meth:`~matplotlib.figure.Figure.colorbar`.
 
 '''
+from __future__ import print_function
 import warnings
 
 import numpy as np
@@ -443,7 +444,7 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         N = len(levels)
         dummy, y = self._locate(levels)
-        if len(y) <> N:
+        if len(y) != N:
             raise ValueError("levels are outside colorbar range")
         x = np.array([0.0, 1.0])
         X, Y = np.meshgrid(x,y)

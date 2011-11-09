@@ -17,7 +17,7 @@ plot(x, y, linewidth=1)
 # make the shaded region
 ix = arange(a, b, 0.01)
 iy = func(ix)
-verts = [(a,0)] + zip(ix,iy) + [(b,0)]
+verts = [(a,0)] + list(zip(ix,iy)) + [(b,0)]
 poly = Polygon(verts, facecolor='0.8', edgecolor='k')
 ax.add_patch(poly)
 

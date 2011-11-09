@@ -17,9 +17,12 @@ metrics for those fonts.
 If you find TeX expressions that don't parse or render properly,
 please email mdroe@stsci.edu, but please check KNOWN ISSUES below first.
 """
-from __future__ import division
-import os
-from cStringIO import StringIO
+from __future__ import division, print_function
+import os, sys
+if sys.version_info[0] >= 3:
+    from io import StringIO
+else:
+    from cStringIO import StringIO
 from math import ceil
 try:
     set
@@ -30,10 +33,18 @@ from warnings import warn
 
 from numpy import inf, isinf
 import numpy as np
-from matplotlib.pyparsing import Combine, Group, Optional, Forward, \
-    Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
-    ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
-    FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
+
+if sys.version_info[0] >= 3:
+    from matplotlib.pyparsing_py3 import Combine, Group, Optional, Forward, \
+         Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
+         ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
+         FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
+else:
+    from matplotlib.pyparsing_py2 import Combine, Group, Optional, Forward, \
+         Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
+         ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
+         FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
+
 # Enable packrat parsing
 ParserElement.enablePackrat()
 
@@ -45,8 +56,6 @@ from matplotlib.font_manager import findfont, FontProperties
 from matplotlib._mathtext_data import latex_to_bakoma, \
         latex_to_standard, tex2uni, latex_to_cmex, stix_virtual_fonts
 from matplotlib import get_data_path, rcParams
-
-
 
 import matplotlib.colors as mcolors
 import matplotlib._png as _png
@@ -80,7 +89,7 @@ Type1 symbol name (i.e. 'phi').
     except KeyError:
         message = """'%(symbol)s' is not a valid Unicode character or
 TeX/Type1 symbol"""%locals()
-        raise ValueError, message
+        raise ValueError(message)
 
 def unichr_safe(index):
     """Return the Unicode character corresponding to the index,
@@ -108,7 +117,9 @@ class MathtextBackend(object):
       - :meth:`get_hinting_type`
     """
     def __init__(self):
-        self.fonts_object = None
+        self.width = 0
+        self.height = 0
+        self.depth = 0
 
     def set_canvas_size(self, w, h, d):
         'Dimension the drawing canvas'
@@ -143,56 +154,7 @@ class MathtextBackend(object):
         """
         return LOAD_NO_HINTING
 
-class MathtextBackendBbox(MathtextBackend):
-    """
-    A backend whose only purpose is to get a precise bounding box.
-    Only required for the Agg backend.
-    """
-
-    def __init__(self, real_backend):
-        MathtextBackend.__init__(self)
-        self.bbox = [0, 0, 0, 0]
-        self.real_backend = real_backend
-
-    def _update_bbox(self, x1, y1, x2, y2):
-        self.bbox = [min(self.bbox[0], x1),
-                     min(self.bbox[1], y1),
-                     max(self.bbox[2], x2),
-                     max(self.bbox[3], y2)]
-
-    def render_glyph(self, ox, oy, info):
-        self._update_bbox(ox + info.metrics.xmin,
-                          oy - info.metrics.ymax,
-                          ox + info.metrics.xmax,
-                          oy - info.metrics.ymin)
-
-    def render_rect_filled(self, x1, y1, x2, y2):
-        self._update_bbox(x1, y1, x2, y2)
-
-    def get_results(self, box):
-        orig_height = box.height
-        orig_depth  = box.depth
-        ship(0, 0, box)
-        bbox = self.bbox
-        bbox = [bbox[0] - 1, bbox[1] - 1, bbox[2] + 1, bbox[3] + 1]
-        self._switch_to_real_backend()
-        self.fonts_object.set_canvas_size(
-            bbox[2] - bbox[0],
-            (bbox[3] - bbox[1]) - orig_depth,
-            (bbox[3] - bbox[1]) - orig_height)
-        ship(-bbox[0], -bbox[1], box)
-        return self.fonts_object.get_results(box)
-
-    def get_hinting_type(self):
-        return self.real_backend.get_hinting_type()
-
-    def _switch_to_real_backend(self):
-        self.fonts_object.mathtext_backend = self.real_backend
-        self.real_backend.fonts_object = self.fonts_object
-        self.real_backend.ox = self.bbox[0]
-        self.real_backend.oy = self.bbox[1]
-
-class MathtextBackendAggRender(MathtextBackend):
+class MathtextBackendAgg(MathtextBackend):
     """
     Render glyphs and rectangles to an FTImage buffer, which is later
     transferred to the Agg image by the Agg backend.
@@ -201,33 +163,65 @@ class MathtextBackendAggRender(MathtextBackend):
         self.ox = 0
         self.oy = 0
         self.image = None
+        self.mode = 'bbox'
+        self.bbox = [0, 0, 0, 0]
         MathtextBackend.__init__(self)
+
+    def _update_bbox(self, x1, y1, x2, y2):
+        self.bbox = [min(self.bbox[0], x1),
+                     min(self.bbox[1], y1),
+                     max(self.bbox[2], x2),
+                     max(self.bbox[3], y2)]
 
     def set_canvas_size(self, w, h, d):
         MathtextBackend.set_canvas_size(self, w, h, d)
-        self.image = FT2Image(ceil(w), ceil(h + d))
+        if self.mode != 'bbox':
+            self.image = FT2Image(ceil(w), ceil(h + d))
 
     def render_glyph(self, ox, oy, info):
-        info.font.draw_glyph_to_bitmap(
-            self.image, ox, oy - info.metrics.iceberg, info.glyph)
+        if self.mode == 'bbox':
+            self._update_bbox(ox + info.metrics.xmin,
+                              oy - info.metrics.ymax,
+                              ox + info.metrics.xmax,
+                              oy - info.metrics.ymin)
+        else:
+            info.font.draw_glyph_to_bitmap(
+                self.image, ox, oy - info.metrics.iceberg, info.glyph)
 
     def render_rect_filled(self, x1, y1, x2, y2):
-        height = max(int(y2 - y1) - 1, 0)
-        if height == 0:
-            center = (y2 + y1) / 2.0
-            y = int(center - (height + 1) / 2.0)
+        if self.mode == 'bbox':
+            self._update_bbox(x1, y1, x2, y2)
         else:
-            y = int(y1)
-        self.image.draw_rect_filled(int(x1), y, ceil(x2), y + height)
+            height = max(int(y2 - y1) - 1, 0)
+            if height == 0:
+                center = (y2 + y1) / 2.0
+                y = int(center - (height + 1) / 2.0)
+            else:
+                y = int(y1)
+            self.image.draw_rect_filled(int(x1), y, ceil(x2), y + height)
 
-    def get_results(self, box):
-        return (self.ox,
-                self.oy,
-                self.width,
-                self.height + self.depth,
-                self.depth,
-                self.image,
-                self.fonts_object.get_used_characters())
+    def get_results(self, box, used_characters):
+        self.mode = 'bbox'
+        orig_height = box.height
+        orig_depth  = box.depth
+        ship(0, 0, box)
+        bbox = self.bbox
+        bbox = [bbox[0] - 1, bbox[1] - 1, bbox[2] + 1, bbox[3] + 1]
+        self.mode = 'render'
+        self.set_canvas_size(
+            bbox[2] - bbox[0],
+            (bbox[3] - bbox[1]) - orig_depth,
+            (bbox[3] - bbox[1]) - orig_height)
+        ship(-bbox[0], -bbox[1], box)
+        result = (self.ox,
+                  self.oy,
+                  self.width,
+                  self.height + self.depth,
+                  self.depth,
+                  self.image,
+                  used_characters)
+        self.image = None
+        return result
 
     def get_hinting_type(self):
         if rcParams['text.hinting']:
@@ -235,19 +229,11 @@ class MathtextBackendAggRender(MathtextBackend):
         else:
             return LOAD_NO_HINTING
 
-def MathtextBackendAgg():
-    return MathtextBackendBbox(MathtextBackendAggRender())
-
-class MathtextBackendBitmapRender(MathtextBackendAggRender):
-    def get_results(self, box):
-        return self.image, self.depth
-
-def MathtextBackendBitmap():
-    """
-    A backend to generate standalone mathtext images.  No additional
-    matplotlib backend is required.
-    """
-    return MathtextBackendBbox(MathtextBackendBitmapRender())
+class MathtextBackendBitmap(MathtextBackendAgg):
+    def get_results(self, box, used_characters):
+        ox, oy, width, height, depth, image, characters = \
+            MathtextBackendAgg.get_results(self, box, used_characters)
+        return image, depth
 
 class MathtextBackendPs(MathtextBackend):
     """
@@ -281,14 +267,13 @@ setfont
         ps = "%f %f %f %f rectfill\n" % (x1, self.height - y2, x2 - x1, y2 - y1)
         self.pswriter.write(ps)
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
-        #print self.depth
         return (self.width,
                 self.height + self.depth,
                 self.depth,
                 self.pswriter,
-                self.fonts_object.get_used_characters())
+                used_characters)
 
 class MathtextBackendPdf(MathtextBackend):
     """
@@ -309,14 +294,14 @@ class MathtextBackendPdf(MathtextBackend):
     def render_rect_filled(self, x1, y1, x2, y2):
         self.rects.append((x1, self.height - y2, x2 - x1, y2 - y1))
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
         return (self.width,
                 self.height + self.depth,
                 self.depth,
                 self.glyphs,
                 self.rects,
-                self.fonts_object.get_used_characters())
+                used_characters)
 
 class MathtextBackendSvg(MathtextBackend):
     """
@@ -337,7 +322,7 @@ class MathtextBackendSvg(MathtextBackend):
         self.svg_rects.append(
             (x1, self.height - y1 + 1, x2 - x1, y2 - y1))
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
         svg_elements = Bunch(svg_glyphs = self.svg_glyphs,
                              svg_rects = self.svg_rects)
@@ -345,7 +330,7 @@ class MathtextBackendSvg(MathtextBackend):
                 self.height + self.depth,
                 self.depth,
                 svg_elements,
-                self.fonts_object.get_used_characters())
+                used_characters)
 
 class MathtextBackendPath(MathtextBackend):
     """
@@ -367,7 +352,7 @@ class MathtextBackendPath(MathtextBackend):
         self.rects.append(
             (x1, self.height-y2 , x2 - x1, y2 - y1))
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
         return (self.width,
                 self.height + self.depth,
@@ -395,7 +380,7 @@ class MathtextBackendCairo(MathtextBackend):
         self.rects.append(
             (x1, y1 - self.height, x2 - x1, y2 - y1))
 
-    def get_results(self, box):
+    def get_results(self, box, used_characters):
         ship(0, -self.depth, box)
         return (self.width,
                 self.height + self.depth,
@@ -424,8 +409,6 @@ class Fonts(object):
         """
         self.default_font_prop = default_font_prop
         self.mathtext_backend = mathtext_backend
-        # Make these classes doubly-linked
-        self.mathtext_backend.fonts_object = self
         self.used_characters = {}
 
     def destroy(self):
@@ -548,7 +531,9 @@ class Fonts(object):
         Get the data needed by the backend to render the math
         expression.  The return value is backend-specific.
         """
-        return self.mathtext_backend.get_results(box)
+        result = self.mathtext_backend.get_results(box, self.get_used_characters())
+        self.destroy()
+        return result
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         """
@@ -1050,7 +1035,8 @@ class StandardPsFonts(Fonts):
         if filename is None:
             filename = findfont('Helvetica', fontext='afm',
                                 directory=self.basepath)
-        default_font = AFM(file(filename, 'r'))
+        with open(filename, 'r') as fd:
+            default_font = AFM(fd)
         default_font.fname = filename
 
         self.fonts['default'] = default_font
@@ -1066,7 +1052,8 @@ class StandardPsFonts(Fonts):
         cached_font = self.fonts.get(basename)
         if cached_font is None:
             fname = os.path.join(self.basepath, basename + ".afm")
-            cached_font = AFM(file(fname, 'r'))
+            with open(fname, 'r') as fd:
+                cached_font = AFM(fd)
             cached_font.fname = fname
             self.fonts[basename] = cached_font
             self.fonts[cached_font.get_fontname()] = cached_font
@@ -2327,16 +2314,6 @@ class Parser(object):
         self._expression = main
         self._math_expression = math
 
-        self.clear()
-
-    def clear(self):
-        """
-        Clear any state before parsing.
-        """
-        self._expr = None
-        self._state_stack = None
-        self._em_width_cache = {}
-
     def parse(self, s, fonts_object, fontsize, dpi):
         """
         Parse expression *s* using the given *fonts_object* for
@@ -2345,15 +2322,19 @@ class Parser(object):
         Returns the parse tree of :class:`Node` instances.
         """
         self._state_stack = [self.State(fonts_object, 'default', 'rm', fontsize, dpi)]
+        self._em_width_cache = {}
         try:
-            self._expression.parseString(s)
-        except ParseBaseException, err:
+            result = self._expression.parseString(s)
+        except ParseBaseException as err:
             raise ValueError("\n".join([
                         "",
                         err.line,
                         " " * (err.column - 1) + "^",
                         str(err)]))
-        return self._expr
+        self._state_stack = None
+        self._em_width_cache = {}
+        self._expression.resetCache()
+        return result[0]
 
     # The state of the parser is maintained in a stack.  Upon
     # entering and leaving a group { } or math/non-math, the stack
@@ -2410,8 +2391,7 @@ class Parser(object):
 
     def main(self, s, loc, toks):
         #~ print "finish", toks
-        self._expr = Hlist(toks)
-        return [self._expr]
+        return [Hlist(toks)]
 
     def math_string(self, s, loc, toks):
         # print "math_string", toks[0][1:-1]
@@ -2852,7 +2832,7 @@ class Parser(object):
                            padded_body])
         # Stretch the glue between the hrule and the body
         rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
-                        depth, 'exactly')
+                        'exactly', depth)
 
         # Add the root and shift it upward so it is above the tick.
         # The value of 0.6 is a hard-coded hack ;)
@@ -2893,7 +2873,7 @@ class Parser(object):
 
         # Stretch the glue between the hrule and the body
         rightside.vpack(height + (state.fontsize * state.dpi) / (100.0 * 12.0),
-                        depth, 'exactly')
+                        'exactly', depth)
 
         hlist = Hlist([rightside])
         return [hlist]
@@ -2966,8 +2946,11 @@ class MathTextParser(object):
         The results are cached, so multiple calls to :meth:`parse`
         with the same expression should be fast.
         """
+        # There is a bug in Python 3.x where it leaks frame references,
+        # and therefore can't handle this caching
         if prop is None:
             prop = FontProperties()
+
         cacheKey = (s, dpi, hash(prop))
         result = self._cache.get(cacheKey)
         if result is not None:
@@ -2997,14 +2980,6 @@ class MathTextParser(object):
         font_output.set_canvas_size(box.width, box.height, box.depth)
         result = font_output.get_results(box)
         self._cache[cacheKey] = result
-        # Free up the transient data structures
-        self._parser.clear()
-
-        # Fix cyclical references
-        font_output.destroy()
-        font_output.mathtext_backend.fonts_object = None
-        font_output.mathtext_backend = None
-
         return result
 
     def to_mask(self, texstr, dpi=120, fontsize=14):

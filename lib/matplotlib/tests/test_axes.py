@@ -392,8 +392,8 @@ def test_imshow():
     #Create a NxN image
     N=100
     (x,y) = np.indices((N,N))
-    x -= N/2
-    y -= N/2
+    x -= N//2
+    y -= N//2
     r = np.sqrt(x**2+y**2-x*y)
 
     #Create a contour plot at N/4 and extract both the clip path and transform
@@ -409,8 +409,8 @@ def test_imshow_clip():
     #Create a NxN image
     N=100
     (x,y) = np.indices((N,N))
-    x -= N/2
-    y -= N/2
+    x -= N//2
+    y -= N//2
     r = np.sqrt(x**2+y**2-x*y)
 
     #Create a contour plot at N/4 and extract both the clip path and transform

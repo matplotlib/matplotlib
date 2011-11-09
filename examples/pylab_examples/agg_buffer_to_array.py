@@ -1,5 +1,4 @@
 import matplotlib
-matplotlib.use('Agg')
 from pylab import figure, show
 import numpy as np
 
@@ -11,9 +10,9 @@ ax.set_title('a simple figure')
 fig.canvas.draw()
 
 # grab rhe pixel buffer and dumpy it into a numpy array
-buf = fig.canvas.buffer_rgba(0,0)
+buf = fig.canvas.buffer_rgba()
 l, b, w, h = fig.bbox.bounds
-X = np.fromstring(buf, np.uint8)
+X = np.frombuffer(buf, np.uint8)
 X.shape = h,w,4
 
 # now display the array X as an Axes in a new figure

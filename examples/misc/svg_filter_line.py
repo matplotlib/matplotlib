@@ -2,9 +2,10 @@
 Demonstrate SVG filtering effects which might be used with mpl.
 
 Note that the filtering effects are only effective if your svg rederer
-support it. 
+support it.
 """
 
+from __future__ import print_function
 import matplotlib
 
 matplotlib.use("Svg")
@@ -68,7 +69,7 @@ filter_def = """
 """
 
 
-# read in the saved svg 
+# read in the saved svg
 tree, xmlid = ET.XMLID(f.getvalue())
 
 # insert the filter definition in the svg dom tree.
@@ -81,5 +82,5 @@ for l in [l1, l2]:
     shadow.set("filter",'url(#dropshadow)')
 
 fn = "svg_filter_line.svg"
-print "Saving '%s'" % fn
+print("Saving '%s'" % fn)
 ET.ElementTree(tree).write(fn)

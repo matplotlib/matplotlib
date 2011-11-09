@@ -3,7 +3,7 @@ Enhanced Metafile backend.  See http://pyemf.sourceforge.net for the EMF
 driver library.
 """
 
-from __future__ import division
+from __future__ import division, print_function
 
 try:
     import pyemf
@@ -74,7 +74,7 @@ class EMFPen:
 
         self.style=0
         self.set_linestyle()
-        if debugHandle: print "EMFPen: style=%d width=%d rgb=(%d,%d,%d)" % (self.style,self.width,self.r,self.g,self.b)
+        if debugHandle: print("EMFPen: style=%d width=%d rgb=(%d,%d,%d)" % (self.style,self.width,self.r,self.g,self.b))
 
     def __hash__(self):
         return hash((self.style,self.width,self.r,self.g,self.b))
@@ -88,7 +88,7 @@ class EMFPen:
                     'dashdot':pyemf.PS_DASHDOT, 'dotted':pyemf.PS_DOT}
             #style=styles.get(self.gc.get_linestyle('solid'))
             style=self.gc.get_linestyle('solid')
-            if debugHandle: print "EMFPen: style=%s" % style
+            if debugHandle: print("EMFPen: style=%s" % style)
             if style in styles:
                 self.style=styles[style]
             else:
@@ -106,7 +106,7 @@ class EMFBrush:
         self.r=int(r*255)
         self.g=int(g*255)
         self.b=int(b*255)
-        if debugHandle: print "EMFBrush: rgb=(%d,%d,%d)" % (self.r,self.g,self.b)
+        if debugHandle: print("EMFBrush: rgb=(%d,%d,%d)" % (self.r,self.g,self.b))
 
     def __hash__(self):
         return hash((self.r,self.g,self.b))
@@ -172,7 +172,7 @@ class RendererEMF(RendererBase):
 
         self._lastClipRect = None
 
-        if debugPrint: print "RendererEMF: (%f,%f) %s dpi=%f" % (self.width,self.height,outfile,dpi)
+        if debugPrint: print("RendererEMF: (%f,%f) %s dpi=%f" % (self.width,self.height,outfile,dpi))
 
 
 
@@ -188,7 +188,7 @@ class RendererEMF(RendererBase):
 
         If the color rgbFace is not None, fill the arc with it.
         """
-        if debugPrint: print "draw_arc: (%f,%f) angles=(%f,%f) w,h=(%f,%f)" % (x,y,angle1,angle2,width,height)
+        if debugPrint: print("draw_arc: (%f,%f) angles=(%f,%f) w,h=(%f,%f)" % (x,y,angle1,angle2,width,height))
         pen=self.select_pen(gcEdge)
         brush=self.select_brush(rgbFace)
 
@@ -286,19 +286,19 @@ class RendererEMF(RendererBase):
         """
         Draw a single line from x1,y1 to x2,y2
         """
-        if debugPrint: print "draw_line: (%f,%f) - (%f,%f)" % (x1,y1,x2,y2)
+        if debugPrint: print("draw_line: (%f,%f) - (%f,%f)" % (x1,y1,x2,y2))
 
         if self.select_pen(gc):
             self.emf.Polyline([(long(x1),long(self.height-y1)),(long(x2),long(self.height-y2))])
         else:
-            if debugPrint: print "draw_line: optimizing away (%f,%f) - (%f,%f)" % (x1,y1,x2,y2)
+            if debugPrint: print("draw_line: optimizing away (%f,%f) - (%f,%f)" % (x1,y1,x2,y2))
 
     def draw_lines(self, gc, x, y):
         """
         x and y are equal length arrays, draw lines connecting each
         point in x, y
         """
-        if debugPrint: print "draw_lines: %d points" % len(str(x))
+        if debugPrint: print("draw_lines: %d points" % len(str(x)))
 
         # optimize away anything that won't actually be drawn.  Edge
         # style must not be PS_NULL for it to appear on screen.
@@ -311,7 +311,7 @@ class RendererEMF(RendererBase):
         Draw a single point at x,y
         Where 'point' is a device-unit point (or pixel), not a matplotlib point
         """
-        if debugPrint: print "draw_point: (%f,%f)" % (x,y)
+        if debugPrint: print("draw_point: (%f,%f)" % (x,y))
 
         # don't cache this pen
         pen=EMFPen(self.emf,gc)
@@ -326,7 +326,7 @@ class RendererEMF(RendererBase):
 
         If the color rgbFace is not None, fill the polygon with it
         """
-        if debugPrint: print "draw_polygon: %d points" % len(points)
+        if debugPrint: print("draw_polygon: %d points" % len(points))
 
         # optimize away anything that won't actually draw.  Either a
         # face color or edge style must be defined
@@ -337,7 +337,7 @@ class RendererEMF(RendererBase):
             self.emf.Polygon(points)
         else:
             points = [(long(x), long(self.height-y)) for x,y in points]
-            if debugPrint: print "draw_polygon: optimizing away polygon: %d points = %s" % (len(points),str(points))
+            if debugPrint: print("draw_polygon: optimizing away polygon: %d points = %s" % (len(points),str(points)))
 
     def draw_rectangle(self, gcEdge, rgbFace, x, y, width, height):
         """
@@ -346,7 +346,7 @@ class RendererEMF(RendererBase):
 
         If rgbFace is not None, fill the rectangle with it.
         """
-        if debugPrint: print "draw_rectangle: (%f,%f) w=%f,h=%f" % (x,y,width,height)
+        if debugPrint: print("draw_rectangle: (%f,%f) w=%f,h=%f" % (x,y,width,height))
 
         # optimize away anything that won't actually draw.  Either a
         # face color or edge style must be defined
@@ -355,7 +355,7 @@ class RendererEMF(RendererBase):
         if pen or brush:
             self.emf.Rectangle(int(x),int(self.height-y),int(x)+int(width),int(self.height-y)-int(height))
         else:
-            if debugPrint: print "draw_rectangle: optimizing away (%f,%f) w=%f,h=%f" % (x,y,width,height)
+            if debugPrint: print("draw_rectangle: optimizing away (%f,%f) w=%f,h=%f" % (x,y,width,height))
 
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
@@ -391,8 +391,8 @@ class RendererEMF(RendererBase):
         """
         Draw a text string verbatim; no conversion is done.
         """
-        if debugText: print "draw_plain_text: (%f,%f) %d degrees: '%s'" % (x,y,angle,s)
-        if debugText: print " properties:\n"+str(prop)
+        if debugText: print("draw_plain_text: (%f,%f) %d degrees: '%s'" % (x,y,angle,s))
+        if debugText: print(" properties:\n"+str(prop))
         self.select_font(prop,angle)
 
         # haxor follows!  The subtleties of text placement in EMF
@@ -412,13 +412,13 @@ class RendererEMF(RendererBase):
         pyemf doesn't have any raster functionality yet, the
         texmanager.get_rgba won't help.
         """
-        if debugText: print "draw_math_text: (%f,%f) %d degrees: '%s'" % (x,y,angle,s)
+        if debugText: print("draw_math_text: (%f,%f) %d degrees: '%s'" % (x,y,angle,s))
 
         s = s[1:-1]  # strip the $ from front and back
         match=re.match("10\^\{(.+)\}",s)
         if match:
             exp=match.group(1)
-            if debugText: print " exponent=%s" % exp
+            if debugText: print(" exponent=%s" % exp)
             font = self._get_font_ttf(prop)
             font.set_text("10", 0.0)
             w, h = font.get_width_height()
@@ -438,12 +438,12 @@ class RendererEMF(RendererBase):
         with FontPropertry prop, ripped right out of backend_ps.  This
         method must be kept in sync with draw_math_text.
         """
-        if debugText: print "get_math_text_width_height:"
+        if debugText: print("get_math_text_width_height:")
         s = s[1:-1]  # strip the $ from front and back
         match=re.match("10\^\{(.+)\}",s)
         if match:
             exp=match.group(1)
-            if debugText: print " exponent=%s" % exp
+            if debugText: print(" exponent=%s" % exp)
             font = self._get_font_ttf(prop)
             font.set_text("10", 0.0)
             w1, h1 = font.get_width_height()
@@ -458,7 +458,7 @@ class RendererEMF(RendererBase):
             w /= 64.0  # convert from subpixels
             h /= 64.0
             w+=self.points_to_pixels(self.hackPointsForMathExponent)
-            if debugText: print " math string=%s w,h=(%f,%f)" % (s, w, h)
+            if debugText: print(" math string=%s w,h=(%f,%f)" % (s, w, h))
         else:
             w,h=self.get_text_width_height(s,prop,False)
         return w, h
@@ -524,9 +524,9 @@ class RendererEMF(RendererBase):
                           pyemf.ANSI_CHARSET, pyemf.OUT_DEFAULT_PRECIS,
                           pyemf.CLIP_DEFAULT_PRECIS, pyemf.DEFAULT_QUALITY,
                           pyemf.DEFAULT_PITCH | pyemf.FF_DONTCARE, face);
-            if debugHandle: print "get_font_handle: creating handle=%d for face=%s size=%d" % (handle,face,size)
+            if debugHandle: print("get_font_handle: creating handle=%d for face=%s size=%d" % (handle,face,size))
             self._fontHandle[key]=handle
-        if debugHandle: print " found font handle %d for face=%s size=%d" % (handle,face,size)
+        if debugHandle: print(" found font handle %d for face=%s size=%d" % (handle,face,size))
         self.set_handle("font",handle)
         return handle
 
@@ -548,7 +548,7 @@ class RendererEMF(RendererBase):
         if handle is None:
             handle=pen.get_handle()
             self._fontHandle[key]=handle
-        if debugHandle: print " found pen handle %d" % handle
+        if debugHandle: print(" found pen handle %d" % handle)
         self.set_handle("pen",handle)
         if pen.style != pyemf.PS_NULL:
             return pen
@@ -568,7 +568,7 @@ class RendererEMF(RendererBase):
             if handle is None:
                 handle=brush.get_handle()
                 self._fontHandle[key]=handle
-            if debugHandle: print " found brush handle %d" % handle
+            if debugHandle: print(" found brush handle %d" % handle)
             self.set_handle("brush",handle)
             return brush
         else:
@@ -584,7 +584,7 @@ class RendererEMF(RendererBase):
         font = _fontd.get(key)
         if font is None:
             fname = findfont(prop)
-            if debugText: print "_get_font_ttf: name=%s" % fname
+            if debugText: print("_get_font_ttf: name=%s" % fname)
             font = FT2Font(str(fname))
             _fontd[key] = font
         font.clear()
@@ -599,9 +599,9 @@ class RendererEMF(RendererBase):
         get the width and height in display coords of the string s
         with FontPropertry prop, ripped right out of backend_ps
         """
-        if debugText: print "get_text_width_height: ismath=%s properties: %s" % (str(ismath),str(prop))
+        if debugText: print("get_text_width_height: ismath=%s properties: %s" % (str(ismath),str(prop)))
         if ismath:
-            if debugText: print " MATH TEXT! = %s" % str(ismath)
+            if debugText: print(" MATH TEXT! = %s" % str(ismath))
             w,h = self.get_math_text_width_height(s, prop)
             return w,h
 
@@ -610,7 +610,7 @@ class RendererEMF(RendererBase):
         w, h = font.get_width_height()
         w /= 64.0  # convert from subpixels
         h /= 64.0
-        if debugText: print " text string=%s w,h=(%f,%f)" % (s, w, h)
+        if debugText: print(" text string=%s w,h=(%f,%f)" % (s, w, h))
         return w, h
 
 

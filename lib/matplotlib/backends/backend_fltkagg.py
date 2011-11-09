@@ -8,7 +8,7 @@ This code is released under the matplotlib license
 
 """
 
-from __future__ import division
+from __future__ import division, print_function
 
 import os, sys, math
 
@@ -108,7 +108,7 @@ class FltkCanvas(Fltk.Fl_Widget):
             self._source.resize(newsize)
             self._source.draw()
         t1,t2,w,h = self._source.figure.bbox.bounds
-        Fltk.fl_draw_image(self._source.buffer_rgba(0,0),0,0,int(w),int(h),4,0)
+        Fltk.fl_draw_image(self._source.buffer_rgba(),0,0,int(w),int(h),4,0)
         self.redraw()
 
     def blit(self,bbox=None):
@@ -118,7 +118,7 @@ class FltkCanvas(Fltk.Fl_Widget):
            t1o,t2o,wo,ho = self._source.figure.bbox.bounds
            t1,t2,w,h = bbox.bounds
         x,y=int(t1),int(t2)
-        Fltk.fl_draw_image(self._source.buffer_rgba(x,y),x,y,int(w),int(h),4,int(wo)*4)
+        Fltk.fl_draw_image(self._source.buffer_rgba(),x,y,int(w),int(h),4,int(wo)*4)
         #self.redraw()
 
     def handle(self, event):
@@ -502,7 +502,7 @@ def save_figure(ptr,base):
 
     try:
         base.canvas.print_figure(fname, format=format)
-    except IOError, msg:
+    except IOError as msg:
         err = '\n'.join(map(str, msg))
         msg = 'Failed to save %s: Error msg was\n\n%s' % (
             fname, err)

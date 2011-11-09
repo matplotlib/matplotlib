@@ -21,7 +21,7 @@ ax.set_ylim((amin(amin(ys)),amax(amax(ys))))
 #          where onoffseq is an even length tuple of on and off ink in points.
 #          If linestyle is omitted, 'solid' is used
 # See matplotlib.collections.LineCollection for more information
-line_segments = LineCollection([zip(x,y) for y in ys], # Make a sequence of x,y pairs
+line_segments = LineCollection([list(zip(x,y)) for y in ys], # Make a sequence of x,y pairs
                                 linewidths    = (0.5,1,1.5,2),
                                 linestyles = 'solid')
 line_segments.set_array(x)

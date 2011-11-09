@@ -4,6 +4,7 @@ Defines classes for path effects. The path effects are supported in
 matplotlib.text.Text.
 """
 
+from __future__ import print_function
 from matplotlib.backend_bases import RendererBase
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 import matplotlib.transforms as transforms
