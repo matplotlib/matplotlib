@@ -8,8 +8,33 @@ from __future__ import division, print_function
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
-if sys.version_info[0] < 3:
-    import cStringIO
+is_python3 = sys.version_info[0] >= 3
+
+if is_python3:
+    from cStringIO import StringIO
+else:
+    from io import StringIO
+
+
+if is_python3:
+    def io_w_open(fd):
+        raw_fh = io.open(fd, "wb")
+        fh = io.TextIOWrapper(raw_fh, encoding="ascii")
+
+        return fh
+
+else:
+    def io_w_open(fd):
+        fh = io.open(fd, "wb")
+        return fh
+
+        return fh
+
+if is_python3:
+     from io import FileIO as BUILTIN_FILE_TYPE
+else:
+     BUILTIN_FILE_TYPE = file
+
 
 try:
     from hashlib import md5
@@ -1049,10 +1074,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            if sys.version_info[0] >= 3:
-                self._pswriter = io.StringIO()
-            else:
-                self._pswriter = cStringIO.StringIO()
+            self._pswriter = StringIO()
 
 
         # mixed mode rendering
@@ -1072,11 +1094,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_edgecolor(origedgecolor)
 
         fd, tmpfile = mkstemp()
-        with io.open(fd, 'wb') as raw_fh:
-            if sys.version_info[0] >= 3:
-                fh = io.TextIOWrapper(raw_fh, encoding="ascii")
-            else:
-                fh = raw_fh
+        with io_w_open(fd) as fh:
 
             # write the PostScript headers
             if isEPSF: print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
@@ -1219,7 +1237,8 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
         fd, tmpfile = mkstemp()
-        with io.fdopen(fd, 'w', encoding='ascii') as fh:
+        with io_w_open(fd) as fh:
+
             # write the Encapsulated PostScript headers
             print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
@@ -1298,7 +1317,7 @@ class FigureCanvasPS(FigureCanvasBase):
             else: gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
 
-        if  isinstance(outfile, file):
+        if  isinstance(outfile, BUILTIN_FILE_TYPE):
             with open(tmpfile, 'rb') as fh:
                 outfile.write(fh.read())
         else:
@@ -1355,7 +1374,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
       paperWidth, paperHeight,
       '\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
 
-    with io.open(latexfile, 'w', encoding='ascii') as latexh:
+    with io_w_open(latexfile) as latexh:
         if rcParams['text.latex.unicode']:
             latexh.write(s.encode('utf8'))
         else:
@@ -1597,8 +1616,8 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
         bbox_info, rotate = None, None
 
     epsfile = tmpfile + '.eps'
-    with io.open(epsfile, 'w', encoding='ascii') as epsh:
-        with io.open(tmpfile, 'r', encoding='ascii') as tmph:
+    with io_w_open(epsfile) as epsh:
+        with io.open(tmpfile, 'r') as tmph:
             line = tmph.readline()
             # Modify the header:
             while line:
