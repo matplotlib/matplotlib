@@ -296,11 +296,7 @@ FT2Image::py_as_str(const Py::Tuple & args)
     args.verify_length(0);
 
     return Py::asObject
-#if PY3K
       (PyBytes_FromStringAndSize((const char *)_buffer, _width*_height));
-#else
-      (PyString_FromStringAndSize((const char *)_buffer, _width*_height));
-#endif
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_str)
 
