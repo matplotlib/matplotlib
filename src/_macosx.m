@@ -2955,19 +2955,15 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
     CGDataProviderRef provider;
     double rect[4] = {0.0, 0.0, self->size.width, self->size.height};
 
-#if PY3K
     if (!PyBytes_Check(image))
     {
-        PyErr_SetString(PyExc_RuntimeError, "image is not a byte array");
-        return NULL;
-    }
+#if PY3K
+        PyErr_SetString(PyExc_RuntimeError, "image is not a bytes object");
 #else
-    if (!PyString_Check(image))
-    {
-        PyErr_SetString(PyExc_RuntimeError, "image is not a string");
+        PyErr_SetString(PyExc_RuntimeError, "image is not a str object");
+#endif
         return NULL;
     }
-#endif
 
     const size_t bytesPerComponent = 1;
     const size_t bitsPerComponent = 8 * bytesPerComponent;
@@ -5096,7 +5092,7 @@ set_cursor(PyObject* unused, PyObject* args)
     }
     if ([event clickCount] == 2) {
       dblclick = 1;
-    } 
+    }
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
     if(result)
@@ -5185,7 +5181,7 @@ set_cursor(PyObject* unused, PyObject* args)
     gstate = PyGILState_Ensure();
     if ([event clickCount] == 2) {
       dblclick = 1;
-    } 
+    }
     result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
     if(result)
         Py_DECREF(result);
@@ -5246,7 +5242,7 @@ set_cursor(PyObject* unused, PyObject* args)
     gstate = PyGILState_Ensure();
     if ([event clickCount] == 2) {
       dblclick = 1;
-    } 
+    }
     result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
     if(result)
         Py_DECREF(result);

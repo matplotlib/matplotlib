@@ -179,11 +179,7 @@ public:
 
     virtual void add_pair(const char* a, const char* b)
     {
-        #if PY3K
         PyObject* value = PyBytes_FromString(b);
-        #else
-        PyObject* value = PyString_FromString(b);
-        #endif
         if (value)
         {
             if (PyDict_SetItemString(_dict, a, value))
