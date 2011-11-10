@@ -3488,7 +3488,7 @@ class Axes(martist.Artist):
         ymin, ymax = self.convert_yunits( [ymin, ymax] )
 
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
-        p = mpatches.Polygon(verts, **kwargs)
+        p = mpatches.Polygon(verts, closed=True, **kwargs)
         p.set_transform(trans)
         p.x_isdata = False
         self.add_patch(p)
@@ -3545,7 +3545,7 @@ class Axes(martist.Artist):
         ymin, ymax = self.convert_yunits( [ymin, ymax] )
 
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
-        p = mpatches.Polygon(verts, **kwargs)
+        p = mpatches.Polygon(verts, closed=True, **kwargs)
         p.set_transform(trans)
         p.y_isdata = False
         self.add_patch(p)

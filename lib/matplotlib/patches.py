@@ -781,11 +781,12 @@ class Polygon(Patch):
         xy = self._get_xy()
         if closed:
             if len(xy) and (xy[0] != xy[-1]).any():
-                xy = np.concatenate([xy, [xy[0]]])
+                new_xy = np.concatenate([xy, [xy[0]]])
         else:
             if len(xy)>2 and (xy[0]==xy[-1]).all():
-                xy = xy[0:-1]
-        self._set_xy(xy)
+                new_xy = xy[0:-1]
+        if new_xy != xy:
+            self._set_xy(new_xy)
 
     def get_xy(self):
         return self._path.vertices
