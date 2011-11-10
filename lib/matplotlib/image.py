@@ -1120,8 +1120,8 @@ class BboxImage(_AxesImageBase):
         im.set_resample(self._resample)
 
         l, b, r, t = self.get_window_extent(renderer).extents #bbox.extents
-        widthDisplay = (round(r) + 0.5) - (round(l) - 0.5)
-        heightDisplay = (round(t) + 0.5) - (round(b) - 0.5)
+        widthDisplay = round(r) - round(l)
+        heightDisplay = round(t) - round(b)
         widthDisplay *= magnification
         heightDisplay *= magnification
 
