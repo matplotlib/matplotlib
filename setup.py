@@ -276,7 +276,10 @@ if sys.version_info[0] >= 3:
                 [refactor(f) for f in filtered]
             else:
                 p = multiprocessing.Pool()
-                p.map(refactor, filtered)
+                for i, x in enumerate(p.imap_unordered(refactor, filtered)):
+                    print("Running 2to3... %.02f%%" %
+                          (float(i) / len(filtered) * 100.0), end='\r')
+            print()
 
 print_raw("pymods %s" % py_modules)
 print_raw("packages %s" % packages)
