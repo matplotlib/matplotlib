@@ -780,6 +780,8 @@ class Polygon(Patch):
         return self._closed
 
     def set_closed(self, closed):
+        if self._closed == bool(closed):
+            return
         self._closed = closed
         xy = self._get_xy()
         if closed:
