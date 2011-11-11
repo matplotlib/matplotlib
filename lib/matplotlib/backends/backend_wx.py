@@ -772,10 +772,13 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         "copy bitmap of canvas to system clipboard"
         bmp_obj = wx.BitmapDataObject()
         bmp_obj.SetBitmap(self.bitmap)
-        wx.TheClipboard.Open()
-        wx.TheClipboard.SetData(bmp_obj)
-        wx.TheClipboard.Close()
-        wx.TheClipboard.Flush()
+        
+        if not wx.TheClipboard.IsOpened(): 
+           open_success = wx.TheClipboard.Open()
+           if open_success:
+              wx.TheClipboard.SetData(bmp_obj)
+              wx.TheClipboard.Close()
+              wx.TheClipboard.Flush()
 
     def Printer_Init(self):
         """
