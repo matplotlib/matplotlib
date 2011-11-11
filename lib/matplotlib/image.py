@@ -1137,7 +1137,6 @@ class BboxImage(_AxesImageBase):
         numrows, numcols = self._A.shape[:2]
 
         if not self.interp_at_native and widthDisplay==numcols and heightDisplay==numrows:
-           print "setting interpolation to zero"
            im.set_interpolation(0)
 
         # resize viewport to display
