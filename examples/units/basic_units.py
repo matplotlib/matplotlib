@@ -158,12 +158,10 @@ class TaggedValue (object):
             def __init__(self, iter, unit):
                 self.iter = iter
                 self.unit = unit
-            def next(self):
-                value = self.iter.next()
-                return TaggedValue(value, self.unit)
             def __next__(self):
                 value = next(self.iter)
                 return TaggedValue(value, self.unit)
+            next = __next__  # for Python 2
         return IteratorProxy(iter(self.value), self.unit)
 
     def get_compressed_copy(self, mask):
