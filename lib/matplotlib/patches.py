@@ -778,14 +778,14 @@ class Polygon(Patch):
 
     def set_closed(self, closed):
         self._closed = closed
-        xy = self._get_xy()
+        new_xy = xy = self._get_xy()
         if closed:
             if len(xy) and (xy[0] != xy[-1]).any():
                 new_xy = np.concatenate([xy, [xy[0]]])
         else:
             if len(xy)>2 and (xy[0]==xy[-1]).all():
                 new_xy = xy[0:-1]
-        if new_xy != xy:
+        if new_xy is not xy:
             self._set_xy(new_xy)
 
     def get_xy(self):
