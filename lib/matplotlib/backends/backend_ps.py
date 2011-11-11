@@ -11,10 +11,9 @@ import io
 is_python3 = sys.version_info[0] >= 3
 
 if is_python3:
-    from cStringIO import StringIO
-else:
     from io import StringIO
-
+else:
+    from cStringIO import StringIO
 
 if is_python3:
     def io_w_open(fd):
@@ -22,12 +21,9 @@ if is_python3:
         fh = io.TextIOWrapper(raw_fh, encoding="ascii")
 
         return fh
-
 else:
     def io_w_open(fd):
         fh = io.open(fd, "wb")
-        return fh
-
         return fh
 
 if is_python3:
