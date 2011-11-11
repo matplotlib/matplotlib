@@ -19,11 +19,12 @@ if is_python3:
     def io_w_open(fd):
         raw_fh = io.open(fd, "wb")
         fh = io.TextIOWrapper(raw_fh, encoding="ascii")
-
+        fh.raw_fh=raw_fh
         return fh
 else:
     def io_w_open(fd):
         fh = io.open(fd, "wb")
+        fh.raw_fh=fh
         return fh
 
 if is_python3:
@@ -1140,7 +1141,8 @@ class FigureCanvasPS(FigureCanvasBase):
                             raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
                         else:
                             fh.flush()
-                            convert_ttf_to_ps(font_filename, raw_fh, fonttype, glyph_ids)
+                            convert_ttf_to_ps(font_filename,
+                                              fh.raw_fh, fonttype, glyph_ids)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 
