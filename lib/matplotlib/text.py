@@ -211,7 +211,8 @@ class Text(Artist):
         r = l+w
         t = b+h
         x, y = mouseevent.x, mouseevent.y
-        return x >= l and x <= r and y >= t and y <= b
+        inside = (x >= l and x <= r and y >= t and y <= b)
+        return inside, {}
 
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x, y in display coords'
