@@ -279,11 +279,7 @@ static void _read_png_data(PyObject* py_file_obj, png_bytep data, png_size_t len
     {
         result = PyObject_CallFunction(read_method, (char *)"i", length);
     }
-#if PY3K
     if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0)
-#else
-    if (PyString_AsStringAndSize(result, &buffer, &bufflen) == 0)
-#endif
     {
         if (bufflen == (Py_ssize_t)length)
         {

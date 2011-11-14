@@ -103,10 +103,11 @@ BufferRegion::to_string(const Py::Tuple &args)
 {
     // owned=true to prevent memory leak
     #if PY3K
-    return Py::Bytes(PyBytes_FromStringAndSize((const char*)data, height*stride), true);
+    return Py::Bytes
     #else
-    return Py::String(PyString_FromStringAndSize((const char*)data, height*stride), true);
+    return Py::String
     #endif
+        (PyBytes_FromStringAndSize((const char*)data, height*stride), true);
 }
 
 
@@ -156,20 +157,11 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
     unsigned char tmp;
     size_t i, j;
 
-    #if PY3K
     PyObject* str = PyBytes_FromStringAndSize((const char*)data, height * stride);
     if (PyBytes_AsStringAndSize(str, (char**)&begin, &length))
     {
         throw Py::TypeError("Could not create memory for blit");
     }
-    #else
-    PyObject* str = PyString_FromStringAndSize((const char*)data, height * stride);
-    if (PyString_AsStringAndSize(str, (char**)&begin, &length))
-    {
-        throw Py::TypeError("Could not create memory for blit");
-    }
-    #endif
-
 
     pix = begin;
     end = begin + (height * stride);
