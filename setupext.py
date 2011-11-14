@@ -546,13 +546,13 @@ def check_for_numpy():
         import numpy
     except ImportError:
         print_status("numpy", "no")
-        print_message("You must install numpy 1.1 or later to build matplotlib.")
+        print_message("You must install numpy 1.4 or later to build matplotlib.")
         return False
     nn = numpy.__version__.split('.')
     if not (int(nn[0]) >= 1 and int(nn[1]) >= 1):
-        if not (int(nn[0]) >= 2):
+        if not (int(nn[0]) >= 4):
             print_message(
-               'numpy 1.1 or later is required; you have %s' %
+               'numpy 1.4 or later is required; you have %s' %
                numpy.__version__)
             return False
     module = Extension('test', [])
