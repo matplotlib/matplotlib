@@ -45,10 +45,10 @@ progress::
     >>> import numpy
     >>> print numpy.__version__
 
-matplotlib requires numpy version 1.4 or later.  Although it is not a
-requirement to use matplotlib, we strongly encourage you to install
-`ipython <http://ipython.org>`_, which is an interactive
-shell for python that is matplotlib-aware.
+matplotlib requires numpy version |minimum_numpy_version| or later.
+Although it is not a requirement to use matplotlib, we strongly
+encourage you to install `ipython <http://ipython.org>`_, which is an
+interactive shell for python that is matplotlib-aware.
 
 Next, we need to get matplotlib installed.  We provide prebuilt
 binaries for OS X and Windows on the matplotlib `download
@@ -182,7 +182,7 @@ libraries themselves.
 :term:`python` 2.4 (or later but not python3)
     matplotlib requires python 2.4 or later (`download <http://www.python.org/download/>`__)
 
-:term:`numpy` 1.4 (or later)
+:term:`numpy` |minimum_numpy_version| (or later)
     array support for python (`download
     <http://sourceforge.net/project/showfiles.php?group_id=1369&package_id=175103>`__)
 
