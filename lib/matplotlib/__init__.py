@@ -152,9 +152,9 @@ if not _python24:
 
 import numpy
 nmajor, nminor = [int(n) for n in numpy.__version__.split('.')[:2]]
-if not (nmajor > 1 or (nmajor == 1 and nminor >= 1)):
+if not (nmajor > 1 or (nmajor == 1 and nminor >= 4)):
     raise ImportError(
-            'numpy 1.1 or later is required; you have %s' % numpy.__version__)
+            'numpy 1.4 or later is required; you have %s' % numpy.__version__)
 
 def is_string_like(obj):
     if hasattr(obj, 'shape'): return 0
