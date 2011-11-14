@@ -46,7 +46,7 @@ WIN32 - VISUAL STUDIO 7.1 (2003)
 import os
 import re
 import subprocess
-from distutils import sysconfig
+from distutils import sysconfig, version
 
 basedir = {
     'win32'  : ['win32_static',],
@@ -541,20 +541,22 @@ def check_for_pdftops():
         print_status("pdftops", "no")
         return False
 
-def check_for_numpy():
+def check_for_numpy(min_version):
     try:
         import numpy
     except ImportError:
         print_status("numpy", "no")
-        print_message("You must install numpy 1.4 or later to build matplotlib.")
+        print_message("You must install numpy %s or later to build matplotlib." %
+                      min_version)
         return False
-    nn = numpy.__version__.split('.')
-    if not (int(nn[0]) >= 1 and int(nn[1]) >= 1):
-        if not (int(nn[0]) >= 4):
-            print_message(
-               'numpy 1.4 or later is required; you have %s' %
-               numpy.__version__)
-            return False
+
+    expected_version = version.StrictVersion(min_version)
+    found_version = version.StrictVersion(numpy.__version__)
+    if not found_version >= expected_version:
+        print_message(
+            'numpy %s or later is required; you have %s' %
+            (min_version, numpy.__version__))
+        return False
     module = Extension('test', [])
     add_numpy_flags(module)
     add_base_flags(module)
