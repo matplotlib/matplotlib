@@ -1491,10 +1491,10 @@ class Grouper(object):
         Clean dead weak references from the dictionary
         """
         mapping = self._mapping
-        for key, val in mapping.iteritems():
-            if key() is None:
-                del mapping[key]
-                val.remove(key)
+        to_drop = [key for key in mapping if key() is None]
+        for key in to_drop:
+            val = mapping.pop(key)
+            val.remove(key)
 
     def join(self, a, *args):
         """
