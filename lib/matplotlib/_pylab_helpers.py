@@ -72,9 +72,13 @@ class Gcf(object):
     @staticmethod
     def destroy_fig(fig):
         "*fig* is a Figure instance"
+        num = None
         for manager in Gcf.figs.itervalues():
             if manager.canvas.figure == fig:
-                Gcf.destroy(manager.num)
+                num = manager.num
+                break
+        if num is not None:
+            Gcf.destroy(num)
 
     @staticmethod
     def destroy_all():
