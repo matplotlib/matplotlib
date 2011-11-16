@@ -102,7 +102,6 @@ class Axis(maxis.XAxis):
 
         # Store dummy data in Polygon object
         self.pane = mpatches.Polygon(np.array([[0,0], [0,1], [1,0], [0,0]]),
-                                    closed=False,
                                     alpha=0.8,
                                     facecolor=(1,1,1,0),
                                     edgecolor=(1,1,1,0))
