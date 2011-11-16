@@ -251,13 +251,17 @@ class CallbackRegistry:
         func will be called
         """
         if func in self._func_cid_map:
-            return self._func_cid_map[func]
-        proxy = self.BoundMethodProxy(func)
-        self._cid += 1
+            cid = self._func_cid_map[func]
+        else:
+            self._cid += 1
+            cid = self._cid
+            self._func_cid_map[func] = cid
         self.callbacks.setdefault(s, dict())
-        self.callbacks[s][self._cid] = proxy
-        self._func_cid_map[func] = self._cid
-        return self._cid
+        if cid in self.callbacks[s]:
+            return cid
+        proxy = self.BoundMethodProxy(func)
+        self.callbacks[s][cid] = proxy
+        return cid
 
     def disconnect(self, cid):
         """
@@ -268,8 +272,6 @@ class CallbackRegistry:
                 del callbackd[cid]
             except KeyError:
                 continue
-            else:
-                return
 
     def process(self, s, *args, **kwargs):
         """
