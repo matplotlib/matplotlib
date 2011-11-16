@@ -12,6 +12,9 @@ from operator import xor
 import warnings
 
 
+class NonIntersectingPathException(ValueError):
+    pass
+
 # some functions
 
 def get_intersection(cx1, cy1, cos_t1, sin_t1,
@@ -126,7 +129,7 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t, inside_closedp
     end_inside = inside_closedpath(end)
 
     if not xor(start_inside, end_inside):
-        raise ValueError("the segment does not seemed to intersect with the path")
+        raise NonIntersectingPathException("the segment does not seemed to intersect with the path")
 
     while 1:
 
