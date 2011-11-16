@@ -185,7 +185,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
         self.set_events(self.__class__.event_mask)
 
-        self.set_double_buffered(False)
+        self.set_double_buffered(True)
         self.set_can_focus(True)
         self._renderer_init()
         self._idle_event_id = GObject.idle_add(self.idle_event)
