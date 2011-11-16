@@ -5,7 +5,6 @@ def fn_name(): return sys._getframe(1).f_code.co_name
 
 try:
     from gi.repository import Gtk, Gdk, GObject
-    from gi.repository import Pango
 except ImportError:
     raise ImportError("GTK3 backend requires pygobject to be installed.")
 
