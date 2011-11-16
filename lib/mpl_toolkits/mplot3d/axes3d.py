@@ -1916,7 +1916,7 @@ class Axes3D(Axes):
             vs = art3d.get_patch_verts(p)
             verts += vs.tolist()
             verts_zs += [z] * len(vs)
-            art3d.patch_2d_to_3d(p, zs, zdir)
+            art3d.patch_2d_to_3d(p, z, zdir)
             if 'alpha' in kwargs:
                 p.set_alpha(kwargs['alpha'])
 
