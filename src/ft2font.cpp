@@ -284,7 +284,7 @@ FT2Image::py_draw_rect_filled(const Py::Tuple & args)
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_draw_rect_filled)
 
 char FT2Image::as_str__doc__[] =
-    "width, height, s = image_as_str()\n"
+    "s = image.as_str()\n"
     "\n"
     "Return the image buffer as a string\n"
     "\n"
@@ -299,6 +299,70 @@ FT2Image::py_as_str(const Py::Tuple & args)
       (PyBytes_FromStringAndSize((const char *)_buffer, _width*_height));
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_str)
+
+char FT2Image::as_rgba_str__doc__[] =
+    "s = image.as_rgba_str()\n"
+    "\n"
+    "Return the image buffer as a RGBA string\n"
+    "\n"
+    ;
+Py::Object
+FT2Image::py_as_rgba_str(const Py::Tuple & args)
+{
+    _VERBOSE("FT2Image::as_str");
+    args.verify_length(0);
+
+    Py_ssize_t size = _width*_height*4;
+    PyObject* result = PyBytes_FromStringAndSize(NULL, size);
+
+    unsigned char *src     = _buffer;
+    unsigned char *src_end = src + (_width * _height);
+    unsigned char *dst     = (unsigned char *)PyBytes_AS_STRING(result);
+
+    while (src != src_end)
+    {
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = 0;
+        *dst++ = *src++;
+    }
+
+    return Py::asObject(result);
+}
+PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_rgba_str)
+
+/* TODO: This could take a color as an argument, but for
+   now it defaults to black on white background */
+char FT2Image::as_rgb_str__doc__[] =
+    "s = image.as_rgb_str()\n"
+    "\n"
+    "Return the image buffer as a RGB string\n"
+    "\n"
+    ;
+Py::Object
+FT2Image::py_as_rgb_str(const Py::Tuple & args)
+{
+    _VERBOSE("FT2Image::as_str");
+    args.verify_length(0);
+
+    Py_ssize_t size = _width*_height*3;
+    PyObject* result = PyBytes_FromStringAndSize(NULL, size);
+
+    unsigned char *src     = _buffer;
+    unsigned char *src_end = src + (_width * _height);
+    unsigned char *dst     = (unsigned char *)PyBytes_AS_STRING(result);
+
+    while (src != src_end)
+    {
+        unsigned char tmp = 255 - *src++;
+        *dst++ = tmp;
+        *dst++ = tmp;
+        *dst++ = tmp;
+    }
+
+    return Py::asObject(result);
+}
+PYCXX_VARARGS_METHOD_DECL(FT2Image, py_as_rgb_str)
 
 char FT2Image::as_array__doc__[] =
     "x = image.as_array()\n"
@@ -1986,6 +2050,10 @@ FT2Image::init_type(void)
                              FT2Image::as_array__doc__);
     PYCXX_ADD_VARARGS_METHOD(as_str, py_as_str,
                              FT2Image::as_str__doc__);
+    PYCXX_ADD_VARARGS_METHOD(as_rgb_str, py_as_rgb_str,
+                             FT2Image::as_rgb_str__doc__);
+    PYCXX_ADD_VARARGS_METHOD(as_rgba_str, py_as_rgba_str,
+                             FT2Image::as_rgba_str__doc__);
     PYCXX_ADD_VARARGS_METHOD(get_width, py_get_width,
                              "Returns the width of the image");
     PYCXX_ADD_VARARGS_METHOD(get_height, py_get_height,
