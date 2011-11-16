@@ -6,7 +6,6 @@ def fn_name(): return sys._getframe(1).f_code.co_name
 try:
     from gi.repository import Gtk, Gdk, GObject
     from gi.repository import Pango
-    import cairo
 except ImportError:
     raise ImportError("GTK3 backend requires pygobject to be installed.")
 
@@ -15,7 +14,6 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import ShowBase
-from matplotlib.backends import backend_cairo
 
 from matplotlib.cbook import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
@@ -60,16 +58,6 @@ class Show(ShowBase):
 
 show = Show()
 
-def new_figure_manager(num, *args, **kwargs):
-    """
-    Create a new figure manager instance
-    """
-    FigureClass = kwargs.pop('FigureClass', Figure)
-    thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasGTK3(thisFig)
-    manager = FigureManagerGTK3(canvas, num)
-    return manager
-
 
 class TimerGTK3(TimerBase):
     '''
@@ -112,11 +100,7 @@ class TimerGTK3(TimerBase):
             self._timer = None
             return False
 
-class RendererGTK3Cairo (backend_cairo.RendererCairo):
-    def set_context (self, ctx):
-        self.gc.ctx = ctx
-
-class FigureCanvasGTK3 (Gtk.DrawingArea, backend_cairo.FigureCanvasCairo):
+class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
     keyvald = {65507 : 'control',
                65505 : 'shift',
                65513 : 'alt',
@@ -318,30 +302,6 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, backend_cairo.FigureCanvasCairo):
             return False
         if self._idle_draw_id == 0:
             self._idle_draw_id = GObject.idle_add(idle_draw)
-
-    def _renderer_init(self):
-        """use cairo renderer"""
-        if _debug: print '%s.%s()' % (self.__class__.__name__, fn_name())
-        self._renderer = RendererGTK3Cairo(self.figure.dpi)
-
-    def _render_figure(self, width, height):
-        """use cairo renderer"""
-        self._renderer.set_width_height (width, height)
-        self.figure.draw (self._renderer)
-
-    def on_draw_event(self, widget, ctx):
-        """ GtkDrawable draw event, like expose_event in GTK 2.X
-        """
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
-
-        if self._need_redraw:
-            self._renderer.set_context(ctx)
-            allocation = self.get_allocation()
-            x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
-            self._render_figure(w, h)
-            self._need_redraw = False
-
-        return False  # finish event propagation?
 
     def get_default_filetype(self):
         return 'png'
@@ -561,7 +521,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             fname = os.path.join(basedir, image_file)
             image = Gtk.Image()
             image.set_from_file(fname)
-            tbutton = Gtk.ToolButton() 
+            tbutton = Gtk.ToolButton()
             tbutton.set_label(text)
             tbutton.set_icon_widget(image)
             self.insert(tbutton, -1)
@@ -624,7 +584,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         window.show()
 
     def _get_canvas(self, fig):
-        return FigureCanvasGTK3(fig)
+        return self.canvas.__class__(fig)
 
 
 class NavigationToolbar(Gtk.Toolbar):
@@ -702,7 +662,7 @@ class NavigationToolbar(Gtk.Toolbar):
                 continue
             image = Gtk.Image()
             image.set_from_stock(image_num, iconSize)
-            tbutton = Gtk.ToolButton() 
+            tbutton = Gtk.ToolButton()
             tbutton.set_label(text)
             tbutton.set_icon_widget(image)
             self.insert(tbutton, -1)
@@ -736,7 +696,7 @@ class NavigationToolbar(Gtk.Toolbar):
             x0, y0    = self.window.get_origin()
             x1, y1, m = self.window.get_pointer()
             x2, y2    = self.menubutton.get_pointer()
-            sc_h      = self.get_screen().get_height() 
+            sc_h      = self.get_screen().get_height()
             w, h      = menu.size_request()
 
             x = x0 + x1 - x2
@@ -1116,6 +1076,3 @@ def error_msg_gtk(msg, parent=None):
         message_format = msg)
     dialog.run()
     dialog.destroy()
-
-
-FigureManager = FigureManagerGTK3
