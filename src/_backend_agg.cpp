@@ -2199,7 +2199,8 @@ RendererAgg::buffer_rgba(const Py::Tuple& args)
     return Py::asObject(PyMemoryView_FromObject(this));
     #else
     int row_len = width * 4;
-    return Py::asObject(PyBuffer_FromMemory(pixBuffer, row_len*height));
+    return Py::asObject(PyBuffer_FromReadWriteMemory(
+                            pixBuffer, row_len*height));
     #endif
 }
 
