@@ -23,12 +23,10 @@ from matplotlib import lines
 from matplotlib import cbook
 from matplotlib import verbose
 
-backend_version = "0.1.0"
+backend_version = "%s.%s.%s" % (Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
 _debug = False
 #_debug = True
-
-if _debug: print "using backend_gtk3"
 
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
@@ -285,6 +283,9 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
         return False  # finish event propagation?
 
+    def on_draw_event(self, widget, ctx):
+        # to be overwritten by GTK3Agg or GTK3Cairo
+        pass
 
     def draw(self):
         self._need_redraw = True
