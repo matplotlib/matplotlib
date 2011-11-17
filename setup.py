@@ -6,6 +6,8 @@ are using a package manager like RPM or debian.
 The matplotlib build options can be modified with a setup.cfg file. See
 setup.cfg.template for more information.
 """
+from __future__ import print_function
+
 # distutils is breaking our sdists for files in symlinked dirs.
 # distutils will copy if os.link is not available, so this is a hack
 # to force copying
