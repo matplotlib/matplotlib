@@ -2,7 +2,6 @@ import backend_gtk3
 import backend_cairo
 from matplotlib.figure import Figure
 
-
 class RendererGTK3Cairo(backend_cairo.RendererCairo):
     def set_context(self, ctx):
         self.gc.ctx = ctx
@@ -24,14 +23,14 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
     def on_draw_event(self, widget, ctx):
         """ GtkDrawable draw event, like expose_event in GTK 2.X
         """
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
-
-        if self._need_redraw:
-            self._renderer.set_context(ctx)
-            allocation = self.get_allocation()
-            x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
-            self._render_figure(w, h)
-            self._need_redraw = False
+        # the _need_redraw flag doesnt work. it sometimes prevents 
+        # the rendering and leaving the canvas blank
+        #if self._need_redraw:
+        self._renderer.set_context(ctx)
+        allocation = self.get_allocation()
+        x, y, w, h = allocation.x, allocation.y, allocation.width, allocation.height
+        self._render_figure(w, h)
+        #self._need_redraw = False
 
         return False  # finish event propagation?
 
