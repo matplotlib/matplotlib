@@ -1,10 +1,15 @@
 import cairo
 import numpy as np
+import sys
+import warnings
 
 import backend_agg
 import backend_gtk3
 from matplotlib.figure import Figure
 from matplotlib import transforms
+
+if sys.version_info[0] >= 3:
+    warnings.warn("The Gtk3Agg backend is not known to work on Python 3.x.")
 
 
 class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
