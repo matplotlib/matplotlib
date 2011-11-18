@@ -24,8 +24,6 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
     def on_draw_event(self, widget, ctx):
         """ GtkDrawable draw event, like expose_event in GTK 2.X
         """
-        if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
-
         if self._need_redraw:
             self._renderer.set_context(ctx)
             allocation = self.get_allocation()
