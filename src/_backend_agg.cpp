@@ -178,7 +178,12 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
         }
     }
 
-    return Py::String(str, true);
+    #if PY3K
+    return Py::Bytes
+    #else
+    return Py::String
+    #endif
+        (str, true);
 }
 
 
