@@ -200,7 +200,10 @@ class RendererCairo(RendererBase):
            if angle:
               ctx.rotate (-angle * np.pi / 180)
            ctx.set_font_size (size)
-           ctx.show_text (s.encode("utf-8"))
+           if sys.version_info[0] < 3:
+              ctx.show_text (s.encode("utf-8"))
+           else:
+              ctx.show_text (s)
            ctx.restore()
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
