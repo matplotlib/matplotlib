@@ -1795,7 +1795,7 @@ class Annotation(Text, _AnnotationBase):
         self.arrow = None
 
         if arrowprops and "arrowstyle" in arrowprops:
-
+            arrowprops = self.arrowprops.copy()
             self._arrow_relpos = arrowprops.pop("relpos", (0.5, 0.5))
             self.arrow_patch = FancyArrowPatch((0, 0), (1,1),
                                                **arrowprops)
