@@ -2982,19 +2982,10 @@ def inside_poly(points, verts):
     that are inside the polygon.
     """
     # Make a closed polygon path
-    codes = [ Path.LINETO ] * len(verts)
-    codes[ -1 ] = Path.CLOSEPOLY
-    p = Path( verts, codes )
+    poly = Path( verts )
 
     # Check to see which points are contained withing the Path
-    res = []
-    idx = 0
-    while idx < len(points):
-        if p.contains_point( points[idx] ):
-            res.append( idx )
-        idx += 1
-
-    return res
+    return [ idx for idx, p in enumerate(points) if poly.contains_point(p) ]
 
 def poly_below(xmin, xs, ys):
     """
