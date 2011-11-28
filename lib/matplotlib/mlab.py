@@ -151,6 +151,7 @@ from matplotlib import verbose
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
+from matplotlib.path import Path
 
 
 def logspace(xmin,xmax,N):
@@ -2980,9 +2981,11 @@ def inside_poly(points, verts):
     Return value is a sequence of indices into points for the points
     that are inside the polygon.
     """
-    # PY3KTODO: Reimplement in terms of _path module
-    res, =  np.nonzero(nxutils.points_inside_poly(points, verts))
-    return res
+    # Make a closed polygon path
+    poly = Path( verts )
+
+    # Check to see which points are contained withing the Path
+    return [ idx for idx, p in enumerate(points) if poly.contains_point(p) ]
 
 def poly_below(xmin, xs, ys):
     """
