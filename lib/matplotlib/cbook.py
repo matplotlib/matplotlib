@@ -14,6 +14,7 @@ import cPickle
 import os.path
 import random
 from functools import reduce
+
 import matplotlib
 
 major, minor1, minor2, s, tmp = sys.version_info
@@ -31,9 +32,6 @@ else:
         return urllib2.addinfourl(io.StringIO(data),
                                   headers, url, code)
 
-import matplotlib
-
-
 # On some systems, locale.getpreferredencoding returns None,
 # which can break unicode; and the sage project reports that
 # some systems have incorrect locale specifications, e.g.,
@@ -43,16 +41,18 @@ import matplotlib
 # On some systems, getpreferredencoding sets the locale, which has
 # side effects.  Passing False eliminates those side effects.
 
-try:
-    preferredencoding = locale.getpreferredencoding(
-        matplotlib.rcParams['axes.formatter.use_locale']).strip()
-    if not preferredencoding:
-        preferredencoding = None
-except (ValueError, ImportError, AttributeError):
-    preferredencoding = None
-
 if sys.version_info[0] >= 3:
     def unicode_safe(s):
+        import matplotlib
+
+        try:
+            preferredencoding = locale.getpreferredencoding(
+                matplotlib.rcParams['axes.formatter.use_locale']).strip()
+            if not preferredencoding:
+                preferredencoding = None
+        except (ValueError, ImportError, AttributeError):
+            preferredencoding = None
+
         if isinstance(s, bytes):
             if preferredencoding is None:
                 return unicode(s)
@@ -63,6 +63,16 @@ if sys.version_info[0] >= 3:
         return s
 else:
     def unicode_safe(s):
+        import matplotlib
+
+        try:
+            preferredencoding = locale.getpreferredencoding(
+                matplotlib.rcParams['axes.formatter.use_locale']).strip()
+            if not preferredencoding:
+                preferredencoding = None
+        except (ValueError, ImportError, AttributeError):
+            preferredencoding = None
+
         if preferredencoding is None: return unicode(s)
         else: return unicode(s, preferredencoding)
 
