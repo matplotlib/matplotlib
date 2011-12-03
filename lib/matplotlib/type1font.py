@@ -193,7 +193,7 @@ class Type1Font(object):
         for token, value in filtered:
             if token == 'name' and value.startswith('/'):
                 key = value[1:]
-                token, value = next(filtered)
+                token, value = next(iter(filtered))
                 if token == 'name':
                     if value in ('true', 'false'):
                         value = value == 'true'

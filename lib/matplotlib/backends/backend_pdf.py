@@ -1587,17 +1587,17 @@ class RendererPdf(RendererBase):
         # string (if any kerns would be less than 0.1 points).
         i, curx, fontsize = 0, 0, None
         while i < len(seq)-1:
-            elt, next = seq[i:i+2]
+            elt, nxt = seq[i:i+2]
             if elt[0] == 'font':
                 fontsize = elt[2]
-            elif elt[0] == next[0] == 'text' and elt[2] == next[2]:
-                offset = elt[4] - next[1]
+            elif elt[0] == nxt[0] == 'text' and elt[2] == nxt[2]:
+                offset = elt[4] - nxt[1]
                 if abs(offset) < 0.1:
-                    elt[3][-1] += next[3][0]
-                    elt[4] += next[4]-next[1]
+                    elt[3][-1] += nxt[3][0]
+                    elt[4] += nxt[4]-nxt[1]
                 else:
-                    elt[3] += [offset*1000.0/fontsize, next[3][0]]
-                    elt[4] = next[4]
+                    elt[3] += [offset*1000.0/fontsize, nxt[3][0]]
+                    elt[4] = nxt[4]
                 del seq[i+1]
                 continue
             i += 1
