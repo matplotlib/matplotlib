@@ -189,7 +189,7 @@ class Type1Font(object):
         prop = { 'weight': 'Regular', 'ItalicAngle': 0.0, 'isFixedPitch': False,
                  'UnderlinePosition': -100, 'UnderlineThickness': 50 }
         tokenizer = self._tokens(self.parts[0])
-        filtered = filter(lambda x: x[0] != 'whitespace', tokenizer)
+        filtered = itertools.ifilter(lambda x: x[0] != 'whitespace', tokenizer)
         for token, value in filtered:
             if token == 'name' and value.startswith('/'):
                 key = value[1:]
