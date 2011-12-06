@@ -18,10 +18,8 @@ import os, sys
 
 try:
     import objc
-except:
-    print('The CococaAgg backend required PyObjC to be installed!', file=sys.stderr)
-    print('  (currently testing v1.3.7)', file=sys.stderr)
-    sys.exit()
+except ImportError:
+    raise ImportError('The CococaAgg backend required PyObjC to be installed!')
 
 from Foundation import *
 from AppKit import *
