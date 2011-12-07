@@ -102,6 +102,7 @@ that define the shape.
         'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd')
         
     fillstyles = ('full', 'left' , 'right' , 'bottom' , 'top', 'none')
+    _half_fillstyles = ('left' , 'right' , 'bottom' , 'top')
 
     # TODO: Is this ever used as a non-constant?
     _point_size_reduction = 0.5
@@ -244,11 +245,16 @@ that define the shape.
         self._path = text
         self._snap = False
 
+    def _half_fill(self):
+        fs = self.get_fillstyle()
+        result = fs in _half_fillstyles
+        return result
+
     def _set_circle(self, reduction = 1.0):
         self._transform = Affine2D().scale(0.5 * reduction)
         self._snap_threshold = 3.0
         fs = self.get_fillstyle()
-        if fs == 'full' or fs == 'none':
+        if not _half_fill():
             self._path = Path.unit_circle()
         else:
             # build a right-half circle
@@ -290,7 +296,7 @@ that define the shape.
         self._snap_threshold = 5.0
         fs = self.get_fillstyle()
 
-        if fs == 'full' or fs == 'none':
+        if not _half_fill():
             self._path = self._triangle_path
         else:
             mpaths = [self._triangle_path_u,
@@ -329,7 +335,7 @@ that define the shape.
         self._transform = Affine2D().translate(-0.5, -0.5)
         self._snap_threshold = 2.0
         fs = self.get_fillstyle()
-        if fs == 'full' or fs == 'none':
+        if not _half_fill():
             self._path = Path.unit_rectangle()
         else:
             # build a bottom filled square out of two rectangles, one
@@ -349,7 +355,7 @@ that define the shape.
         self._transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
         self._snap_threshold = 5.0
         fs = self.get_fillstyle()
-        if fs == 'full' or fs == 'none':
+        if not _half_fill():
             self._path = Path.unit_rectangle()
         else:
             self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]])
@@ -374,7 +380,7 @@ that define the shape.
         polypath = Path.unit_regular_polygon(5)
         fs = self.get_fillstyle()
 
-        if fs == 'full' or fs == 'none':
+        if not _half_fill():
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -404,7 +410,7 @@ that define the shape.
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_star(5, innerCircle=0.381966)
 
-        if fs == 'full' or fs == 'none':
+        if not _half_fill():
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -433,7 +439,7 @@ that define the shape.
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
 
-        if fs == 'full' or fs == 'none':
+        if not _half_fill():
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -465,7 +471,7 @@ that define the shape.
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
 
-        if fs == 'full' or fs == 'none':
+        if not _half_fill():
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -497,7 +503,7 @@ that define the shape.
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(8)
 
-        if fs == 'full' or fs == 'none':
+        if not _half_fill():
             self._transform.rotate_deg(22.5)
             self._path = polypath
         else:
