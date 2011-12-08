@@ -1,4 +1,5 @@
-import _tkagg
+from __future__ import print_function
+from matplotlib.backends import _tkagg
 import Tkinter as Tk
 
 def blit(photoimage, aggimage, bbox=None, colormode=1):
@@ -10,7 +11,7 @@ def blit(photoimage, aggimage, bbox=None, colormode=1):
         bbox_array = None
     try:
         tk.call("PyAggImagePhoto", photoimage, id(aggimage), colormode, id(bbox_array))
-    except Tk.TclError, v:
+    except Tk.TclError:
         try:
             try:
                 _tkagg.tkinit(tk.interpaddr(), 1)

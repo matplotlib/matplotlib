@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
 import fileinput
 import glob
 import os
@@ -169,7 +171,7 @@ def latex():
 
         os.chdir('../..')
     else:
-        print 'latex build has not been tested on windows'
+        print('latex build has not been tested on windows')
 
 def clean():
     shutil.rmtree("build", ignore_errors=True)

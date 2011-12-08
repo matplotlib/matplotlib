@@ -46,6 +46,20 @@ need to create a release branch::
 On the branch, do any additional testing you want to do, and then build
 binaries and source distributions for testing as release candidates.
 
+For each release candidate as well as for the final release version,
+please `git tag` the commit you will use for packaging like so::
+
+    git tag -a v1.1.0rc1
+
+The `-a` flag will allow you to write a message about the tag, and
+affiliate your name with it. A reasonable tag message would be something
+like ``v1.1.0 Release Candidate 1 (September 24, 2011)``. To tag a
+release after the fact, just track down the commit hash, and::
+
+    git tag -a v1.0.1 a9f3f3a50745
+
+Tags allow developers to quickly checkout different releases by name,
+and also provides source download via zip and tarball on github.
 
 .. _release-packaging:
 
@@ -64,7 +78,7 @@ Packaging
   OSX, the default backend should be TkAgg.  You should also turn on
   or off any platform specific build options you need.  Importantly,
   you also need to make sure that you delete the :file:`build` dir
-  after any changes to file:`setup.cfg` before rebuilding since cruft
+  after any changes to :file:`setup.cfg` before rebuilding since cruft
   in the :file:`build` dir can get carried along.
 
 * on windows, unix2dos the rc file

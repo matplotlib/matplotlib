@@ -1,3 +1,4 @@
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.pyplot import show
@@ -8,7 +9,7 @@ y = 2*np.sin(x)
 ax = fig.add_subplot(1,2,1)
 ax.set_title('dropped spines')
 ax.plot(x,y)
-for loc, spine in ax.spines.iteritems():
+for loc, spine in ax.spines.items():
     if loc in ['left','bottom']:
         spine.set_position(('outward',10)) # outward by 10 points
     elif loc in ['right','top']:
@@ -80,7 +81,7 @@ ax.yaxis.set_ticks_position('left')
 # ----------------------------------------------------
 
 def adjust_spines(ax,spines):
-    for loc, spine in ax.spines.iteritems():
+    for loc, spine in ax.spines.items():
         if loc in spines:
             spine.set_position(('outward',10)) # outward by 10 points
             spine.set_smart_bounds(True)
@@ -141,7 +142,10 @@ adjust_spines(ax,['left','bottom'])
 #   x
 ax.set_xlim((0,2*np.pi))
 ax.set_xticks([0,np.pi,2*np.pi])
-pichr = unichr(0x03C0)
+if sys.version_info[0] < 3:
+    pichr = unichr(0x03C0)
+else:
+    pichr = chr(0x03C0)
 ax.set_xticklabels(['0',pichr,'2 '+pichr])
 
 #   y

@@ -97,7 +97,7 @@ Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 
 """
-from __future__ import generators
+from __future__ import print_function
 
 __version__  = '1.2.x'
 
@@ -130,13 +130,24 @@ The default file location is given in the following order
 
 import sys, os, tempfile
 
+if sys.version_info[0] >= 3:
+    def ascii(s): return bytes(s, 'ascii')
+
+    def byte2str(b): return b.decode('ascii')
+
+else:
+    ascii = str
+
+    def byte2str(b): return b
+
+
 from matplotlib.rcsetup import (defaultParams,
                                 validate_backend,
                                 validate_toolbar,
                                 validate_cairo_format)
 
 major, minor1, minor2, s, tmp = sys.version_info
-_python24 = major>=2 and minor1>=4
+_python24 = (major == 2 and minor1 >= 4) or major >= 3
 
 # the havedate check was a legacy from old matplotlib which preceeded
 # datetime support
@@ -172,8 +183,10 @@ def _is_writable_dir(p):
     except TypeError: return False
     try:
         t = tempfile.TemporaryFile(dir=p)
-        t.write('1')
-        t.close()
+        try:
+            t.write(ascii('1'))
+        finally:
+            t.close()
     except OSError: return False
     else: return True
 
@@ -215,7 +228,7 @@ class Verbose:
             self.fileo = std[fname]
         else:
             try:
-                fileo = file(fname, 'w')
+                fileo = open(fname, 'w')
             except IOError:
                 raise ValueError('Verbose object could not open log file "%s" for writing.\nCheck your matplotlibrc verbose.fileo setting'%fname)
             else:
@@ -228,7 +241,7 @@ class Verbose:
 
         """
         if self.ge(level):
-            print >>self.fileo, s
+            print(s, file=self.fileo)
             return True
         return False
 
@@ -261,12 +274,13 @@ class Verbose:
 verbose=Verbose()
 
 
+
 def checkdep_dvipng():
     try:
         s = subprocess.Popen(['dvipng','-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         line = s.stdout.readlines()[1]
-        v = line.split()[-1]
+        v = byte2str(line.split()[-1])
         return v
     except (IndexError, ValueError, OSError):
         return None
@@ -279,7 +293,7 @@ def checkdep_ghostscript():
             command_args = ['gs', '--version']
         s = subprocess.Popen(command_args, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        v = s.stdout.read()[:-1]
+        v = byte2str(s.stdout.read()[:-1])
         return v
     except (IndexError, ValueError, OSError):
         return None
@@ -288,7 +302,7 @@ def checkdep_tex():
     try:
         s = subprocess.Popen(['tex','-version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        line = s.stdout.readlines()[0]
+        line = byte2str(s.stdout.readlines()[0])
         pattern = '3\.1\d+'
         match = re.search(pattern, line)
         v = match.group(0)
@@ -301,8 +315,8 @@ def checkdep_pdftops():
         s = subprocess.Popen(['pdftops','-v'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         for line in s.stderr:
-            if 'version' in line:
-                v = line.split()[-1]
+            if b'version' in line:
+                v = byte2str(line.split()[-1])
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
         return None
@@ -312,8 +326,8 @@ def checkdep_inkscape():
         s = subprocess.Popen(['inkscape','-V'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         for line in s.stdout:
-            if 'Inkscape' in line:
-                v = line.split()[1]
+            if b'Inkscape' in line:
+                v = byte2str(line.split()[1])
                 break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
@@ -324,8 +338,8 @@ def checkdep_xmllint():
         s = subprocess.Popen(['xmllint','--version'], stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         for line in s.stderr:
-            if 'version' in line:
-                v = line.split()[-1]
+            if b'version' in line:
+                v = byte2str(line.split()[-1])
                 break
         return v
     except (IndexError, ValueError, UnboundLocalError, OSError):
@@ -545,7 +559,7 @@ def get_py2exe_datafiles():
         root = root.replace(tail, 'mpl-data')
         root = root[root.index('mpl-data'):]
         d[root] = files
-    return d.items()
+    return list(d.items())
 
 
 def matplotlib_fname():
@@ -564,10 +578,10 @@ def matplotlib_fname():
 
     oldname = os.path.join( os.getcwd(), '.matplotlibrc')
     if os.path.exists(oldname):
-        print >> sys.stderr, """\
+        print("""\
 WARNING: Old rc filename ".matplotlibrc" found in working dir
   and and renamed to new default rc file name "matplotlibrc"
-  (no leading"dot"). """
+  (no leading"dot"). """, file=sys.stderr)
         shutil.move('.matplotlibrc', 'matplotlibrc')
 
     home = get_home()
@@ -575,9 +589,9 @@ WARNING: Old rc filename ".matplotlibrc" found in working dir
     if os.path.exists(oldname):
         configdir = get_configdir()
         newname = os.path.join(configdir, 'matplotlibrc')
-        print >> sys.stderr, """\
+        print("""\
 WARNING: Old rc filename "%s" found and renamed to
-  new default rc file name "%s"."""%(oldname, newname)
+  new default rc file name "%s"."""%(oldname, newname), file=sys.stderr)
 
         shutil.move(oldname, newname)
 
@@ -675,7 +689,7 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
         """
         Return values in order of sorted keys.
         """
-        return [self[k] for k in self.keys()]
+        return [self[k] for k in self.iterkeys()]
 
 def rc_params(fail_on_error=False):
     'Return the default params updated from the values in the rc file'
@@ -691,21 +705,22 @@ def rc_params(fail_on_error=False):
 
     cnt = 0
     rc_temp = {}
-    for line in file(fname):
-        cnt += 1
-        strippedline = line.split('#',1)[0].strip()
-        if not strippedline: continue
-        tup = strippedline.split(':',1)
-        if len(tup) !=2:
-            warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"'%\
-                          (cnt, line, fname))
-            continue
-        key, val = tup
-        key = key.strip()
-        val = val.strip()
-        if key in rc_temp:
-            warnings.warn('Duplicate key in file "%s", line #%d'%(fname,cnt))
-        rc_temp[key] = (val, line, cnt)
+    with open(fname) as fd:
+        for line in fd:
+            cnt += 1
+            strippedline = line.split('#',1)[0].strip()
+            if not strippedline: continue
+            tup = strippedline.split(':',1)
+            if len(tup) !=2:
+                warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"'%\
+                              (cnt, line, fname))
+                continue
+            key, val = tup
+            key = key.strip()
+            val = val.strip()
+            if key in rc_temp:
+                warnings.warn('Duplicate key in file "%s", line #%d'%(fname,cnt))
+            rc_temp[key] = (val, line, cnt)
 
     ret = RcParams([ (key, default) for key, (default, converter) in \
                     defaultParams.iteritems() ])
@@ -717,7 +732,7 @@ def rc_params(fail_on_error=False):
                 ret[key] = val # try to convert to proper type or raise
             else:
                 try: ret[key] = val # try to convert to proper type or skip
-                except Exception, msg:
+                except Exception as msg:
                     warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file \
 "%s"\n\t%s' % (val, cnt, line, fname, msg))
 
@@ -730,19 +745,19 @@ def rc_params(fail_on_error=False):
                 ret[key] = val # try to convert to proper type or raise
             else:
                 try: ret[key] = val # try to convert to proper type or skip
-                except Exception, msg:
+                except Exception as msg:
                     warnings.warn('Bad val "%s" on line #%d\n\t"%s"\n\tin file \
 "%s"\n\t%s' % (val, cnt, line, fname, msg))
         elif key in _deprecated_ignore_map:
             warnings.warn('%s is deprecated. Update your matplotlibrc to use %s instead.'% (key, _deprecated_ignore_map[key]))
 
         else:
-            print >> sys.stderr, """
+            print("""
 Bad key "%s" on line %d in
 %s.
 You probably need to get an updated matplotlibrc file from
 http://matplotlib.sf.net/_static/matplotlibrc or from the matplotlib source
-distribution""" % (key, cnt, fname)
+distribution""" % (key, cnt, fname), file=sys.stderr)
 
     if ret['datapath'] is None:
         ret['datapath'] = get_data_path()
@@ -853,7 +868,7 @@ def rc(group, **kwargs):
     if is_string_like(group):
         group = (group,)
     for g in group:
-        for k,v in kwargs.items():
+        for k,v in kwargs.iteritems():
             name = aliases.get(k) or k
             key = '%s.%s' % (g, name)
             try:
@@ -981,7 +996,7 @@ def test(verbosity=0):
     """run the matplotlib test suite"""
     import nose
     import nose.plugins.builtin
-    from testing.noseclasses import KnownFailure
+    from .testing.noseclasses import KnownFailure
     from nose.plugins.manager import PluginManager
 
     # store the old values before overriding
@@ -1004,4 +1019,4 @@ verbose.report('matplotlib version %s'%__version__)
 verbose.report('verbose.level %s'%verbose.level)
 verbose.report('interactive is %s'%rcParams['interactive'])
 verbose.report('platform is %s'%sys.platform)
-verbose.report('loaded modules: %s'%sys.modules.keys(), 'debug')
+verbose.report('loaded modules: %s'%sys.modules.iterkeys(), 'debug')

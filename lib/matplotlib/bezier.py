@@ -2,7 +2,7 @@
 A module providing some utility functions regarding bezier path manipulation.
 """
 
-
+from __future__ import print_function
 import numpy as np
 from math import sqrt
 
@@ -11,6 +11,9 @@ from matplotlib.path import Path
 from operator import xor
 import warnings
 
+
+class NonIntersectingPathException(ValueError):
+    pass
 
 # some functions
 
@@ -126,7 +129,7 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t, inside_closedp
     end_inside = inside_closedpath(end)
 
     if not xor(start_inside, end_inside):
-        raise ValueError("the segment does not seemed to intersect with the path")
+        raise NonIntersectingPathException("the segment does not seemed to intersect with the path")
 
     while 1:
 
@@ -244,7 +247,7 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
 
     path_iter = path.iter_segments()
 
-    ctl_points, command = path_iter.next()
+    ctl_points, command = next(path_iter)
     begin_inside = inside(ctl_points[-2:]) # true if begin point is inside
 
     bezier_path = None

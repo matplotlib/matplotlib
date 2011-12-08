@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division
+from __future__ import division, print_function
 import math
 
 import matplotlib as mpl
@@ -431,7 +431,7 @@ for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
     docstring.interpd.update({k:patchdoc})
 
 # define Patch.__init__ docstring after the class has been added to interpd
-docstring.dedent_interpd(Patch.__init__.im_func)
+docstring.dedent_interpd(Patch.__init__)
 
 class Shadow(Patch):
     def __str__(self):
@@ -974,13 +974,15 @@ class FancyArrow(Polygon):
                     coords=np.concatenate([left_half_arrow[:-1],
                                             right_half_arrow[-2::-1]])
                 else:
-                    raise ValueError, "Got unknown shape: %s" % shape
+                    raise ValueError("Got unknown shape: %s" % shape)
             cx = float(dx)/distance
             sx = float(dy)/distance
             M = np.array([[cx, sx],[-sx,cx]])
             verts = np.dot(coords, M) + (x+dx, y+dy)
 
         Polygon.__init__(self, map(tuple, verts), closed=True, **kwargs)
+
+docstring.interpd.update({"FancyArrow":FancyArrow.__init__.__doc__})
 
 docstring.interpd.update({"FancyArrow":FancyArrow.__init__.__doc__})
 
@@ -3459,13 +3461,24 @@ class ArrowStyle(_Style):
             head_length  = self.head_length * mutation_size
             arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
 
+            from bezier import NonIntersectingPathException
+
             # path for head
             in_f = inside_circle(x2, y2, head_length)
-            path_out, path_in = \
-                       split_bezier_intersecting_with_closedpath(arrow_path,
-                                                                 in_f,
-                                                                 tolerence=0.01)
-            path_head = path_in
+            try:
+                path_out, path_in = \
+                          split_bezier_intersecting_with_closedpath(arrow_path,
+                                                                    in_f,
+                                                                    tolerence=0.01)
+            except NonIntersectingPathException:
+                # if this happens, make a straight line of the head_length long.
+                dx, dy = x2 - x1, y2 - y1
+                ff = head_length/(dx*dx+dy*dy)**.5
+                x0, y0 = x2 - ff*dx, y2 - ff*dy
+                arrow_path = [(x0, y0), (x1, y1), (x2, y2)]
+                path_head = arrow_path
+            else:
+                path_head = path_in
 
             # path for head
             in_f = inside_circle(x2, y2, head_length*.8)
@@ -3510,21 +3523,6 @@ class ArrowStyle(_Style):
                           (Path.CURVE3, tail_left[0]),
                           (Path.LINETO, tail_start),
                           (Path.CLOSEPOLY, tail_start),
-                          ]
-            patch_path2 = [(Path.MOVETO, tail_right[0]),
-                          (Path.CURVE3, tail_right[1]),
-                          (Path.CURVE3, tail_right[2]),
-                          (Path.LINETO, head_right[0]),
-                          (Path.CURVE3, head_right[1]),
-                          (Path.CURVE3, head_right[2]),
-                          (Path.CURVE3, head_left[1]),
-                          (Path.CURVE3, head_left[0]),
-                          (Path.LINETO, tail_left[2]),
-                          (Path.CURVE3, tail_left[1]),
-                          (Path.CURVE3, tail_left[0]),
-                          (Path.CURVE3, tail_start),
-                          (Path.CURVE3, tail_right[0]),
-                          (Path.CLOSEPOLY, tail_right[0]),
                           ]
             path = Path([p for c, p in patch_path], [c for c, p in patch_path])
 

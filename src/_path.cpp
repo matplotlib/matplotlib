@@ -393,7 +393,7 @@ _path_module::update_path_extents(const Py::Tuple& args)
             "Must pass Bbox object as arg 3 of update_path_extents");
     }
     Py::Object minpos_obj = args[3];
-    bool ignore = bool(Py::Int(args[4]));
+    bool ignore = Py::Boolean(args[4]);
 
     double xm, ym;
     PyArrayObject* input_minpos = NULL;
@@ -613,7 +613,7 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
     Py::SeqBase<Py::Object> transforms_obj   = args[5];
     Py::SeqBase<Py::Object> offsets_obj      = args[6];
     agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7].ptr());
-    bool                    filled           = Py::Int(args[8]);
+    bool                    filled           = Py::Boolean(args[8]);
 
     PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(
         offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
@@ -942,7 +942,7 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
 
     PathIterator path(args[0]);
     Py::Object bbox_obj = args[1];
-    bool inside = Py::Int(args[2]);
+    bool inside = Py::Boolean(args[2]);
 
     double x0, y0, x1, y1;
     if (!py_convert_bbox(bbox_obj.ptr(), x0, y0, x1, y1))
@@ -1499,7 +1499,7 @@ _path_module::convert_to_svg(const Py::Tuple& args)
 
     Py::Object clip_obj = args[2];
     bool do_clip;
-    agg::rect_base<double> clip_rect;
+    agg::rect_base<double> clip_rect(0, 0, 0, 0);
     if (clip_obj.isNone() || !clip_obj.isTrue())
     {
         do_clip = false;
@@ -1596,18 +1596,29 @@ _path_module::convert_to_svg(const Py::Tuple& args)
         --wait;
     }
 
+    #if PY3K
+    PyObject* result = PyUnicode_FromStringAndSize(buffer, p - buffer);
+    #else
     PyObject* result = PyString_FromStringAndSize(buffer, p - buffer);
+    #endif
     free(buffer);
 
     return Py::Object(result, true);
 }
 
-extern "C"
-    DL_EXPORT(void)
-    init_path(void)
+PyMODINIT_FUNC
+#if PY3K
+PyInit__path(void)
+#else
+init_path(void)
+#endif
 {
     static _path_module* _path = NULL;
     _path = new _path_module;
 
     import_array();
+
+    #if PY3K
+    return _path->module().ptr();
+    #endif
 }

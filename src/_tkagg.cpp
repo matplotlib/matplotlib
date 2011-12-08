@@ -40,8 +40,6 @@ extern "C"
 #  define SIZE_T_FORMAT "%zu"
 #endif
 
-
-
 typedef struct
 {
     PyObject_HEAD
@@ -267,10 +265,34 @@ static PyMethodDef functions[] =
     {NULL, NULL} /* sentinel */
 };
 
-extern "C"
-    DL_EXPORT(void) init_tkagg(void)
+#if PY3K
+static PyModuleDef _tkagg_module = {
+    PyModuleDef_HEAD_INIT,
+    "_tkagg",
+    "",
+    -1,
+    functions,
+    NULL, NULL, NULL, NULL
+};
+
+PyMODINIT_FUNC
+PyInit__tkagg(void)
+{
+    PyObject* m;
+
+    m = PyModule_Create(&_tkagg_module);
+
+    import_array();
+
+    return m;
+}
+#else
+PyMODINIT_FUNC
+init_tkagg(void)
 {
     import_array();
 
     Py_InitModule("_tkagg", functions);
 }
+#endif
+

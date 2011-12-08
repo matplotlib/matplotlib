@@ -66,12 +66,15 @@ class CbarAxesBase(object):
 
     def colorbar(self, mappable, **kwargs):
         locator=kwargs.pop("locator", None)
+
         if locator is None:
-            locator = ticker.MaxNLocator(5)
-        self.locator = locator
-
-        kwargs["ticks"] = locator
-
+            if "ticks" not in kwargs:
+                kwargs["ticks"] = ticker.MaxNLocator(5)
+        if locator is not None:
+            if "ticks" in kwargs:
+                raise ValueError("Either *locator* or *ticks* need to be given, not both")
+            else:
+                kwargs["ticks"] = locator
 
         self.hold(True)
         if self.orientation in  ["top", "bottom"]:
@@ -90,6 +93,9 @@ class CbarAxesBase(object):
 
         self.cbid = mappable.callbacksSM.connect('changed', on_changed)
         mappable.set_colorbar(cb, self)
+
+        self.locator = cb.cbar_axis.get_major_locator()
+
         return cb
 
     def _config_axes(self):

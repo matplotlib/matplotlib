@@ -18,6 +18,7 @@ Interface::
           ...
 
 """
+from __future__ import print_function
 
 import errno
 import matplotlib
@@ -25,6 +26,11 @@ import matplotlib.cbook as mpl_cbook
 import numpy as np
 import struct
 import subprocess
+import sys
+
+if sys.version_info[0] >= 3:
+    def ord(x):
+        return x
 
 _dvistate = mpl_cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
 
@@ -117,7 +123,7 @@ class Dvi(object):
         False if there were no more pages.
         """
         while True:
-            byte = ord(self.file.read(1))
+            byte = ord(self.file.read(1)[0])
             self._dispatch(byte)
 #             if self.state == _dvistate.inpage:
 #                 matplotlib.verbose.report(
@@ -214,41 +220,41 @@ class Dvi(object):
         elif byte == 248: self._post()
         elif byte == 249: self._post_post()
         else:
-            raise ValueError, "unknown command: byte %d"%byte
+            raise ValueError("unknown command: byte %d"%byte)
 
     def _pre(self, i, num, den, mag, comment):
         if self.state != _dvistate.pre:
-            raise ValueError, "pre command in middle of dvi file"
+            raise ValueError("pre command in middle of dvi file")
         if i != 2:
-            raise ValueError, "Unknown dvi format %d"%i
+            raise ValueError("Unknown dvi format %d"%i)
         if num != 25400000 or den != 7227 * 2**16:
-            raise ValueError, "nonstandard units in dvi file"
+            raise ValueError("nonstandard units in dvi file")
             # meaning: TeX always uses those exact values, so it
             # should be enough for us to support those
             # (There are 72.27 pt to an inch so 7227 pt =
             # 7227 * 2**16 sp to 100 in. The numerator is multiplied
             # by 10^5 to get units of 10**-7 meters.)
         if mag != 1000:
-            raise ValueError, "nonstandard magnification in dvi file"
+            raise ValueError("nonstandard magnification in dvi file")
             # meaning: LaTeX seems to frown on setting \mag, so
             # I think we can assume this is constant
         self.state = _dvistate.outer
 
     def _set_char(self, char):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced set_char in dvi file"
+            raise ValueError("misplaced set_char in dvi file")
         self._put_char(char)
         self.h += self.fonts[self.f]._width_of(char)
 
     def _set_rule(self, a, b):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced set_rule in dvi file"
+            raise ValueError("misplaced set_rule in dvi file")
         self._put_rule(a, b)
         self.h += b
 
     def _put_char(self, char):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced put_char in dvi file"
+            raise ValueError("misplaced put_char in dvi file")
         font = self.fonts[self.f]
         if font._vf is None:
             self.text.append((self.h, self.v, font, char,
@@ -271,7 +277,7 @@ class Dvi(object):
 
     def _put_rule(self, a, b):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced put_rule in dvi file"
+            raise ValueError("misplaced put_rule in dvi file")
         if a > 0 and b > 0:
             self.boxes.append((self.h, self.v, a, b))
 #             matplotlib.verbose.report(
@@ -283,8 +289,7 @@ class Dvi(object):
 
     def _bop(self, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
         if self.state != _dvistate.outer:
-            raise ValueError, \
-                "misplaced bop in dvi file (state %d)" % self.state
+            raise ValueError("misplaced bop in dvi file (state %d)" % self.state)
         self.state = _dvistate.inpage
         self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
         self.stack = []
@@ -293,87 +298,95 @@ class Dvi(object):
 
     def _eop(self):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced eop in dvi file"
+            raise ValueError("misplaced eop in dvi file")
         self.state = _dvistate.outer
         del self.h, self.v, self.w, self.x, self.y, self.z, self.stack
 
     def _push(self):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced push in dvi file"
+            raise ValueError("misplaced push in dvi file")
         self.stack.append((self.h, self.v, self.w, self.x, self.y, self.z))
 
     def _pop(self):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced pop in dvi file"
+            raise ValueError("misplaced pop in dvi file")
         self.h, self.v, self.w, self.x, self.y, self.z = self.stack.pop()
 
     def _right(self, b):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced right in dvi file"
+            raise ValueError("misplaced right in dvi file")
         self.h += b
 
     def _right_w(self, new_w):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced w in dvi file"
+            raise ValueError("misplaced w in dvi file")
         if new_w is not None:
             self.w = new_w
         self.h += self.w
 
     def _right_x(self, new_x):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced x in dvi file"
+            raise ValueError("misplaced x in dvi file")
         if new_x is not None:
             self.x = new_x
         self.h += self.x
 
     def _down(self, a):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced down in dvi file"
+            raise ValueError("misplaced down in dvi file")
         self.v += a
 
     def _down_y(self, new_y):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced y in dvi file"
+            raise ValueError("misplaced y in dvi file")
         if new_y is not None:
             self.y = new_y
         self.v += self.y
 
     def _down_z(self, new_z):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced z in dvi file"
+            raise ValueError("misplaced z in dvi file")
         if new_z is not None:
             self.z = new_z
         self.v += self.z
 
     def _fnt_num(self, k):
         if self.state != _dvistate.inpage:
-            raise ValueError, "misplaced fnt_num in dvi file"
+            raise ValueError("misplaced fnt_num in dvi file")
         self.f = k
 
     def _xxx(self, special):
-        matplotlib.verbose.report(
-            'Dvi._xxx: encountered special: %s'
-            % ''.join([(32 <= ord(ch) < 127) and ch
-                       or '<%02x>' % ord(ch)
-                       for ch in special]),
-            'debug')
+        if sys.version_info[0] >= 3:
+            matplotlib.verbose.report(
+                'Dvi._xxx: encountered special: %s'
+                % ''.join([(32 <= ord(ch) < 127) and chr(ch)
+                           or '<%02x>' % ord(ch)
+                           for ch in special]),
+                'debug')
+        else:
+            matplotlib.verbose.report(
+                'Dvi._xxx: encountered special: %s'
+                % ''.join([(32 <= ord(ch) < 127) and ch
+                           or '<%02x>' % ord(ch)
+                           for ch in special]),
+                'debug')
 
     def _fnt_def(self, k, c, s, d, a, l, n):
-        tfm = _tfmfile(n[-l:])
+        tfm = _tfmfile(n[-l:].decode('ascii'))
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
-            raise ValueError, 'tfm checksum mismatch: %s'%n
+            raise ValueError('tfm checksum mismatch: %s'%n)
         # It seems that the assumption behind the following check is incorrect:
         #if d != tfm.design_size:
         #    raise ValueError, 'tfm design size mismatch: %d in dvi, %d in %s'%\
         #        (d, tfm.design_size, n)
 
-        vf = _vffile(n[-l:])
+        vf = _vffile(n[-l:].decode('ascii'))
 
         self.fonts[k] = DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
 
     def _post(self):
         if self.state != _dvistate.outer:
-            raise ValueError, "misplaced post in dvi file"
+            raise ValueError("misplaced post in dvi file")
         self.state = _dvistate.post_post
         # TODO: actually read the postamble and finale?
         # currently post_post just triggers closing the file
@@ -391,22 +404,22 @@ class DviFont(object):
     The size is in Adobe points (converted from TeX points).
 
     .. attribute:: texname
-    
+
        Name of the font as used internally by TeX and friends. This
        is usually very different from any external font names, and
        :class:`dviread.PsfontsMap` can be used to find the external
        name of the font.
 
     .. attribute:: size
-    
+
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
 
     .. attribute:: widths
-    
+
        Widths of glyphs in glyph-space units, typically 1/1000ths of
        the point size.
-    
+
     """
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
@@ -459,7 +472,7 @@ class DviFont(object):
             else:
                 result.append(_mul2012(value, self._scale))
         return result
-    
+
 class Vf(Dvi):
     """
     A virtual font (\*.vf file) containing subroutines for dvi files.
@@ -473,11 +486,13 @@ class Vf(Dvi):
 
     def __init__(self, filename):
         Dvi.__init__(self, filename, 0)
-        self._first_font = None
-        self._chars = {}
-        self._packet_ends = None
-        self._read()
-        self.close()
+        try:
+            self._first_font = None
+            self._chars = {}
+            self._packet_ends = None
+            self._read()
+        finally:
+            self.close()
 
     def __getitem__(self, code):
         return self._chars[code]
@@ -490,10 +505,10 @@ class Vf(Dvi):
                 self._finalize_packet()
                 # fall through
             elif byte_at > self._packet_ends:
-                raise ValueError, "Packet length mismatch in vf file"
+                raise ValueError("Packet length mismatch in vf file")
             else:
                 if byte in (139, 140) or byte >= 243:
-                    raise ValueError, "Inappropriate opcode %d in vf file" % byte
+                    raise ValueError("Inappropriate opcode %d in vf file" % byte)
                 Dvi._dispatch(self, byte)
                 return
 
@@ -514,11 +529,11 @@ class Vf(Dvi):
         elif byte == 248:       # postamble (just some number of 248s)
             self.state = _dvistate.post_post
         else:
-            raise ValueError, "unknown vf opcode %d" % byte
+            raise ValueError("unknown vf opcode %d" % byte)
 
     def _init_packet(self, pl, cc, tfm):
         if self.state != _dvistate.outer:
-            raise ValueError, "Misplaced packet in vf file"
+            raise ValueError("Misplaced packet in vf file")
         self.state = _dvistate.inpage
         self._packet_ends = self.file.tell() + pl
         self._packet_char = cc
@@ -534,9 +549,9 @@ class Vf(Dvi):
 
     def _pre(self, i, x, cs, ds):
         if self.state != _dvistate.pre:
-            raise ValueError, "pre command in middle of vf file"
+            raise ValueError("pre command in middle of vf file")
         if i != 202:
-            raise ValueError, "Unknown vf format %d" % i
+            raise ValueError("Unknown vf format %d" % i)
         if len(x):
             matplotlib.verbose.report('vf file comment: ' + x, 'debug')
         self.state = _dvistate.outer
@@ -586,18 +601,16 @@ class Tfm(object):
     .. attribute:: height
 
        Height of each character.
-    
+
     .. attribute:: depth
-        
+
        Depth of each character.
     """
     __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
 
     def __init__(self, filename):
         matplotlib.verbose.report('opening tfm file ' + filename, 'debug')
-        file = open(filename, 'rb')
-
-        try:
+        with open(filename, 'rb') as file:
             header1 = file.read(24)
             lh, bc, ec, nw, nh, nd = \
                 struct.unpack('!6H', header1[2:14])
@@ -612,14 +625,12 @@ class Tfm(object):
             widths = file.read(4*nw)
             heights = file.read(4*nh)
             depths = file.read(4*nd)
-        finally:
-            file.close()
 
         self.width, self.height, self.depth = {}, {}, {}
         widths, heights, depths = \
             [ struct.unpack('!%dI' % (len(x)/4), x)
               for x in (widths, heights, depths) ]
-        for idx, char in enumerate(range(bc, ec+1)):
+        for idx, char in enumerate(xrange(bc, ec+1)):
             self.width[char] = _fix2comp(widths[ord(char_info[4*idx])])
             self.height[char] = _fix2comp(heights[ord(char_info[4*idx+1]) >> 4])
             self.depth[char] = _fix2comp(depths[ord(char_info[4*idx+1]) & 0xf])
@@ -663,11 +674,8 @@ class PsfontsMap(object):
 
     def __init__(self, filename):
         self._font = {}
-        file = open(filename, 'rt')
-        try:
+        with open(filename, 'rt') as file:
             self._parse(file)
-        finally:
-            file.close()
 
     def __getitem__(self, texname):
         result = self._font[texname]
@@ -769,13 +777,10 @@ class Encoding(object):
     __slots__ = ('encoding',)
 
     def __init__(self, filename):
-        file = open(filename, 'rt')
-        try:
+        with open(filename, 'rt') as file:
             matplotlib.verbose.report('Parsing TeX encoding ' + filename, 'debug-annoying')
             self.encoding = self._parse(file)
-            matplotlib.verbose.report('Result: ' + `self.encoding`, 'debug-annoying')
-        finally:
-            file.close()
+            matplotlib.verbose.report('Result: ' + repr(self.encoding), 'debug-annoying')
 
     def __iter__(self):
         for name in self.encoding:
@@ -808,7 +813,7 @@ class Encoding(object):
                         subwords = w.split('/')
                         result.extend(subwords[1:])
                     else:
-                        raise ValueError, "Broken name in encoding file: " + w
+                        raise ValueError("Broken name in encoding file: " + w)
 
         return result
 
@@ -832,25 +837,25 @@ def find_tex_file(filename, format=None):
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]
-    
+
     matplotlib.verbose.report('find_tex_file(%s): %s' \
                                   % (filename,cmd), 'debug')
     pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     result = pipe.communicate()[0].rstrip()
     matplotlib.verbose.report('find_tex_file result: %s' % result,
                               'debug')
-    return result
+    return result.decode('ascii')
 
 def _read_nointr(pipe, bufsize=-1):
     while True:
         try:
             return pipe.read(bufsize)
-        except OSError, e:
+        except OSError as e:
             if e.errno == errno.EINTR:
                 continue
             else:
                 raise
-        
+
 
 # With multiple text objects per figure (e.g. tick labels) we may end
 # up reading the same tfm and vf files many times, so we implement a
@@ -891,12 +896,12 @@ if __name__ == '__main__':
     dvi = Dvi(fname, dpi)
     fontmap = PsfontsMap(find_tex_file('pdftex.map'))
     for page in dvi:
-        print '=== new page ==='
+        print('=== new page ===')
         fPrev = None
         for x,y,f,c,w in page.text:
             if f != fPrev:
-                print 'font', f.texname, 'scaled', f._scale/pow(2.0,20)
+                print('font', f.texname, 'scaled', f._scale/pow(2.0,20))
                 fPrev = f
-            print x,y,c, 32 <= c < 128 and chr(c) or '.', w
+            print(x,y,c, 32 <= c < 128 and chr(c) or '.', w)
         for x,y,w,h in page.boxes:
-            print x,y,'BOX',w,h
+            print(x,y,'BOX',w,h)

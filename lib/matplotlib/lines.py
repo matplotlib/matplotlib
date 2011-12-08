@@ -4,7 +4,7 @@ variety of line styles, markers and colors.
 """
 
 # TODO: expose cap and join style attrs
-from __future__ import division
+from __future__ import division, print_function
 
 import numpy as np
 from numpy import ma
@@ -237,10 +237,11 @@ class Line2D(Artist):
 
         TODO: sort returned indices by distance
         """
-        if callable(self._contains): return self._contains(self,mouseevent)
+        if callable(self._contains):
+            return self._contains(self,mouseevent)
 
         if not is_numlike(self.pickradius):
-            raise ValueError,"pick radius should be a distance"
+            raise ValueError("pick radius should be a distance")
 
         # Make sure we have data to plot
         if self._invalidy or self._invalidx:
@@ -275,12 +276,12 @@ class Line2D(Artist):
         ind += self.ind_offset
 
         # Debugging message
-        if False and self._label != u'':
-            print "Checking line",self._label,"at",mouseevent.x,mouseevent.y
-            print 'xt', xt
-            print 'yt', yt
+        if False and self._label != '':
+            print("Checking line",self._label,"at",mouseevent.x,mouseevent.y)
+            print('xt', xt)
+            print('yt', yt)
             #print 'dx,dy', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
-            print 'ind',ind
+            print('ind',ind)
 
         # Return the point(s) within radius
         return len(ind)>0,dict(ind=ind)
@@ -508,8 +509,15 @@ class Line2D(Artist):
         if self._marker:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
-            gc.set_foreground(self.get_markeredgecolor())
-            gc.set_linewidth(self._markeredgewidth)
+            rgbFace = self._get_rgb_face()
+            rgbFaceAlt = self._get_rgb_face(alt=True)
+            edgecolor = self.get_markeredgecolor()
+            if is_string_like(edgecolor) and edgecolor.lower() == 'none':
+                gc.set_linewidth(0)
+                gc.set_foreground(rgbFace)
+            else:
+                gc.set_foreground(edgecolor)
+                gc.set_linewidth(self._markeredgewidth)
             gc.set_alpha(self._alpha)
             marker = self._marker
             tpath, affine = self._transformed_path.get_transformed_points_and_affine()
@@ -539,7 +547,6 @@ class Line2D(Artist):
                 w = renderer.points_to_pixels(self._markersize)
                 if marker.get_marker() != ',': # Don't scale for pixels
                     marker_trans = marker_trans.scale(w)
-                rgbFace = self._get_rgb_face()
                 renderer.draw_markers(
                     gc, marker_path, marker_trans, subsampled, affine.frozen(),
                     rgbFace)
@@ -547,10 +554,9 @@ class Line2D(Artist):
                 if alt_marker_path:
                     alt_marker_trans = marker.get_alt_transform()
                     alt_marker_trans = alt_marker_trans.scale(w)
-                    rgbFace = self._get_rgb_face(alt=True)
                     renderer.draw_markers(
                         gc, alt_marker_path, alt_marker_trans, subsampled,
-                        affine.frozen(), rgbFace)
+                        affine.frozen(), rgbFaceAlt)
 
             gc.restore()
 
@@ -568,8 +574,10 @@ class Line2D(Artist):
     def get_markeredgecolor(self):
         mec = self._markeredgecolor
         if (is_string_like(mec) and mec == 'auto'):
+            if self._marker.get_marker() in ('.', ','):
+                return self._color
             if self._marker.is_filled() and self.get_fillstyle() != 'none':
-                return 'k'
+                return 'k'  # Bad hard-wired default...
             else:
                 return self._color
         else:
@@ -1178,4 +1186,4 @@ docstring.interpd.update(Line2D = artist.kwdoc(Line2D))
 
 # You can not set the docstring of an instancemethod,
 # but you can on the underlying function.  Go figure.
-docstring.dedent_interpd(Line2D.__init__.im_func)
+docstring.dedent_interpd(Line2D.__init__)

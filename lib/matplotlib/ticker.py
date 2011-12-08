@@ -123,8 +123,7 @@ major an minor ticks.  See the :mod:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """
 
-
-from __future__ import division
+from __future__ import division, print_function
 import decimal
 import locale
 import math
@@ -370,7 +369,7 @@ class ScalarFormatter(Formatter):
             self._useLocale = val
 
     useLocale = property(fget=get_useLocale, fset=set_useLocale)
-    
+
     def fix_minus(self, s):
         'use a unicode minus rather than hyphen'
         if rcParams['text.usetex'] or not rcParams['axes.unicode_minus']: return s
@@ -545,7 +544,7 @@ class ScalarFormatter(Formatter):
             else:
                 s = ('%se%s%s' %(significand, sign, exponent)).rstrip('e')
                 return s
-        except IndexError, msg:
+        except IndexError:
             return s
 
 
@@ -1396,7 +1395,7 @@ class SymmetricalLogLocator(Locator):
         #
         # "simple" mode is when the range falls entirely within (-t,
         # t) -- it should just display (vmin, 0, vmax)
-        
+
         has_a = has_b = has_c = False
         if vmin < -t:
             has_a = True
@@ -1446,11 +1445,11 @@ class SymmetricalLogLocator(Locator):
         if has_b:
             total_ticks += 1
         stride = max(np.floor(float(total_ticks) / (self.numticks - 1)), 1)
-        
+
         decades = []
         if has_a:
             decades.extend(-1 * (b ** (np.arange(a_range[0], a_range[1], stride)[::-1])))
-        
+
         if has_b:
             decades.append(0.0)
 
@@ -1469,7 +1468,7 @@ class SymmetricalLogLocator(Locator):
                 ticklocs.extend(subs * decade)
         else:
             ticklocs = decades
-            
+
         return self.raise_if_exceeds(np.array(ticklocs))
 
     def view_limits(self, vmin, vmax):

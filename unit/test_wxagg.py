@@ -29,6 +29,8 @@
 # the sale, use or other dealings in this Software without prior written
 # authorization from Illinois Institute of Technology.
 
+from __future__ import print_function
+
 
 import wx
 import time
@@ -112,10 +114,10 @@ def main():
     agg = canvas.get_renderer()
 
     if 0:
-        print 'll.x =', BBOX.ll().x().get()
-        print 'll.y =', BBOX.ll().y().get()
-        print 'ur.x =', BBOX.ur().x().get()
-        print 'ur.y =', BBOX.ur().y().get()
+        print('ll.x =', BBOX.ll().x().get())
+        print('ll.y =', BBOX.ll().y().get())
+        print('ur.x =', BBOX.ur().x().get())
+        print('ur.y =', BBOX.ur().y().get())
 
     # test the pure python implementation
     if TEST_PY:
@@ -144,30 +146,30 @@ def main():
     # time the pure python implementation
     if TIME_PY:
         t = time_loop(_py_convert_agg_to_wx_image, (agg,None))
-        print 'Python agg2img:        %.4f seconds (%.1f HZ)' % (t, 1/t)
+        print('Python agg2img:        %.4f seconds (%.1f HZ)' % (t, 1/t))
 
         t = time_loop(_py_convert_agg_to_wx_bitmap, (agg,None))
-        print 'Python agg2bmp:        %.4f seconds (%.1f HZ)' % (t, 1/t)
+        print('Python agg2bmp:        %.4f seconds (%.1f HZ)' % (t, 1/t))
 
         t = time_loop(_py_convert_agg_to_wx_image, (agg,BBOX))
-        print 'Python agg2img w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t)
+        print('Python agg2img w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t))
 
         t = time_loop(_py_convert_agg_to_wx_bitmap, (agg,BBOX))
-        print 'Python agg2bmp w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t)
+        print('Python agg2bmp w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t))
 
     # time the C++ implementation
     if TIME_EXT:
         t = time_loop(wxagg.convert_agg_to_wx_image, (agg,None))
-        print '_wxagg agg2img:        %.4f seconds (%.1f HZ)' % (t, 1/t)
+        print('_wxagg agg2img:        %.4f seconds (%.1f HZ)' % (t, 1/t))
 
         t = time_loop(wxagg.convert_agg_to_wx_bitmap, (agg,None))
-        print '_wxagg agg2bmp:        %.4f seconds (%.1f HZ)' % (t, 1/t)
+        print('_wxagg agg2bmp:        %.4f seconds (%.1f HZ)' % (t, 1/t))
 
         t = time_loop(wxagg.convert_agg_to_wx_image, (agg,BBOX))
-        print '_wxagg agg2img w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t)
+        print('_wxagg agg2img w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t))
 
         t = time_loop(wxagg.convert_agg_to_wx_bitmap, (agg,BBOX))
-        print '_wxagg agg2bmp w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t)
+        print('_wxagg agg2bmp w/bbox: %.4f seconds (%.1f HZ)' % (t, 1/t))
 
 
 if __name__ == '__main__':

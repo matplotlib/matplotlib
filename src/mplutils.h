@@ -15,9 +15,17 @@
 #ifndef _MPLUTILS_H
 #define _MPLUTILS_H
 
+#include <Python.h>
+
 #include <string>
 #include <iostream>
 #include <sstream>
+
+#if PY_MAJOR_VERSION >= 3
+#define PY3K 1
+#else
+#define PY3K 0
+#endif
 
 void _VERBOSE(const std::string&);
 

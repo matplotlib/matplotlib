@@ -6,6 +6,8 @@
   Python wrapper for TrueType conversion library in ../ttconv.
  */
 
+#include "mplutils.h"
+
 #include <Python.h>
 #include "ttconv/pprdrv.h"
 #include <vector>
@@ -46,7 +48,11 @@ public:
         PyObject* result = NULL;
         if (_write_method)
         {
+            #if PY3K
+            result = PyObject_CallFunction(_write_method, (char *)"y", a);
+            #else
             result = PyObject_CallFunction(_write_method, (char *)"s", a);
+            #endif
             if (! result)
             {
                 throw PythonExceptionOccurred();
@@ -86,7 +92,11 @@ int pyiterable_to_vector_int(PyObject* object, void* address)
     PyObject* item;
     while ((item = PyIter_Next(iterator)))
     {
+        #if PY3K
+        long value = PyLong_AsLong(item);
+        #else
         long value = PyInt_AsLong(item);
+        #endif
         Py_DECREF(item);
         if (value == -1 && PyErr_Occurred())
         {
@@ -169,7 +179,7 @@ public:
 
     virtual void add_pair(const char* a, const char* b)
     {
-        PyObject* value = PyString_FromString(b);
+        PyObject* value = PyBytes_FromString(b);
         if (value)
         {
             if (PyDict_SetItemString(_dict, a, value))
@@ -237,7 +247,7 @@ py_get_pdf_charprocs(PyObject* self, PyObject* args, PyObject* kwds)
 static PyMethodDef ttconv_methods[] =
 {
     {
-        "convert_ttf_to_ps", (PyCFunction)convert_ttf_to_ps, METH_KEYWORDS,
+        "convert_ttf_to_ps", (PyCFunction)convert_ttf_to_ps, METH_VARARGS | METH_KEYWORDS,
         "convert_ttf_to_ps(filename, output, fonttype, glyph_ids)\n"
         "\n"
         "Converts the Truetype font into a Type 3 or Type 42 Postscript font, "
@@ -255,7 +265,7 @@ static PyMethodDef ttconv_methods[] =
         "composite glyphs, then the component glyphs will also be included."
     },
     {
-        "get_pdf_charprocs", (PyCFunction)py_get_pdf_charprocs, METH_KEYWORDS,
+        "get_pdf_charprocs", (PyCFunction)py_get_pdf_charprocs, METH_VARARGS | METH_KEYWORDS,
         "get_pdf_charprocs(filename, glyph_ids)\n"
         "\n"
         "Given a Truetype font file, returns a dictionary containing the PDF Type 3\n"
@@ -271,17 +281,36 @@ static PyMethodDef ttconv_methods[] =
     {0, 0, 0, 0}  /* Sentinel */
 };
 
-#ifndef PyMODINIT_FUNC  /* declarations for DLL import/export */
-#define PyMODINIT_FUNC void
-#endif
+static const char* module_docstring =
+    "Module to handle converting and subsetting TrueType "
+    "fonts to Postscript Type 3, Postscript Type 42 and "
+    "Pdf Type 3 fonts.";
+
+#if PY3K
+static PyModuleDef ttconv_module = {
+    PyModuleDef_HEAD_INIT,
+    "ttconv",
+    module_docstring,
+    -1,
+    ttconv_methods,
+    NULL, NULL, NULL, NULL
+};
+
+PyMODINIT_FUNC
+PyInit_ttconv(void)
+{
+    PyObject* m;
+
+    m = PyModule_Create(&ttconv_module);
+
+    return m;
+}
+#else
 PyMODINIT_FUNC
 initttconv(void)
 {
     PyObject* m;
 
-    m = Py_InitModule3("ttconv", ttconv_methods,
-                       "Module to handle converting and subsetting TrueType "
-                       "fonts to Postscript Type 3, Postscript Type 42 and "
-                       "Pdf Type 3 fonts.");
+    m = Py_InitModule3("ttconv", ttconv_methods, module_docstring);
 }
-
+#endif
