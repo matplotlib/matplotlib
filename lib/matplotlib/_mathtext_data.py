@@ -1,9 +1,10 @@
 """
 font data tables for truetype and afm computer modern fonts
 """
-
 # this dict maps symbol names to fontnames, glyphindex.  To get the
 # glyph index from the character code, you have to use get_charmap
+from __future__ import print_function
+
 """
 from matplotlib.ft2font import FT2Font
 font = FT2Font('/usr/local/share/matplotlib/cmr10.ttf')
@@ -364,39 +365,39 @@ latex_to_standard = {
     r'\lceil'                    : ('psyr', 233),
     r'\lbrace'                   : ('psyr', 123),
     r'\Psi'                      : ('psyr',  89),
-    r'\bot'                      : ('psyr', 0136),
-    r'\Omega'                    : ('psyr', 0127),
-    r'\leftbracket'              : ('psyr', 0133),
-    r'\rightbracket'             : ('psyr', 0135),
+    r'\bot'                      : ('psyr', 0o136),
+    r'\Omega'                    : ('psyr', 0o127),
+    r'\leftbracket'              : ('psyr', 0o133),
+    r'\rightbracket'             : ('psyr', 0o135),
     r'\leftbrace'                : ('psyr', 123),
-    r'\leftparen'                : ('psyr', 050),
-    r'\prime'                    : ('psyr', 0242),
-    r'\sharp'                    : ('psyr', 043),
-    r'\slash'                    : ('psyr', 057),
-    r'\Lamda'                    : ('psyr', 0114),
-    r'\neg'                      : ('psyr', 0330),
-    r'\Upsilon'                  : ('psyr', 0241),
-    r'\rightbrace'               : ('psyr', 0175),
-    r'\rfloor'                   : ('psyr', 0373),
-    r'\lambda'                   : ('psyr', 0154),
-    r'\to'                       : ('psyr', 0256),
-    r'\Xi'                       : ('psyr', 0130),
-    r'\emptyset'                 : ('psyr', 0306),
-    r'\lfloor'                   : ('psyr', 0353),
-    r'\rightparen'               : ('psyr', 051),
-    r'\rceil'                    : ('psyr', 0371),
-    r'\ni'                       : ('psyr', 047),
-    r'\epsilon'                  : ('psyr', 0145),
-    r'\Theta'                    : ('psyr', 0121),
-    r'\langle'                   : ('psyr', 0341),
-    r'\leftangle'                : ('psyr', 0341),
-    r'\rangle'                   : ('psyr', 0361),
-    r'\rightangle'               : ('psyr', 0361),
-    r'\rbrace'                   : ('psyr', 0175),
-    r'\circ'                     : ('psyr', 0260),
-    r'\diamond'                  : ('psyr', 0340),
-    r'\mu'                       : ('psyr', 0155),
-    r'\mid'                      : ('psyr', 0352),
+    r'\leftparen'                : ('psyr', 0o50),
+    r'\prime'                    : ('psyr', 0o242),
+    r'\sharp'                    : ('psyr', 0o43),
+    r'\slash'                    : ('psyr', 0o57),
+    r'\Lamda'                    : ('psyr', 0o114),
+    r'\neg'                      : ('psyr', 0o330),
+    r'\Upsilon'                  : ('psyr', 0o241),
+    r'\rightbrace'               : ('psyr', 0o175),
+    r'\rfloor'                   : ('psyr', 0o373),
+    r'\lambda'                   : ('psyr', 0o154),
+    r'\to'                       : ('psyr', 0o256),
+    r'\Xi'                       : ('psyr', 0o130),
+    r'\emptyset'                 : ('psyr', 0o306),
+    r'\lfloor'                   : ('psyr', 0o353),
+    r'\rightparen'               : ('psyr', 0o51),
+    r'\rceil'                    : ('psyr', 0o371),
+    r'\ni'                       : ('psyr', 0o47),
+    r'\epsilon'                  : ('psyr', 0o145),
+    r'\Theta'                    : ('psyr', 0o121),
+    r'\langle'                   : ('psyr', 0o341),
+    r'\leftangle'                : ('psyr', 0o341),
+    r'\rangle'                   : ('psyr', 0o361),
+    r'\rightangle'               : ('psyr', 0o361),
+    r'\rbrace'                   : ('psyr', 0o175),
+    r'\circ'                     : ('psyr', 0o260),
+    r'\diamond'                  : ('psyr', 0o340),
+    r'\mu'                       : ('psyr', 0o155),
+    r'\mid'                      : ('psyr', 0o352),
     r'\imath'                    : ('pncri8a', 105),
     r'\%'                        : ('pncr8a',  37),
     r'\$'                        : ('pncr8a',  36),
@@ -1761,7 +1762,7 @@ type12uni = {
     'uni044B'        : 1099
 }
 
-uni2type1 = dict([(v,k) for k,v in type12uni.items()])
+uni2type1 = dict(((v,k) for k,v in type12uni.iteritems()))
 
 tex2uni = {
     'widehat'                  : 0x0302,

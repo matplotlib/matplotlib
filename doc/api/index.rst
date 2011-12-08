@@ -35,6 +35,7 @@
    nxutils_api.rst
    path_api.rst
    pyplot_api.rst
+   sankey_api.rst
    spines_api.rst
    ticker_api.rst
    tight_layout_api.rst

@@ -14,7 +14,7 @@ of the subplot in the figure.
 
 """
 
-from __future__ import division
+from __future__ import division, print_function
 
 import matplotlib
 rcParams = matplotlib.rcParams
@@ -218,7 +218,7 @@ class GridSpec(GridSpecBase):
         the current value, if set, otherwise to rc.
         """
 
-        for k, v in kwargs.items():
+        for k, v in kwargs.iteritems():
             if k in self._AllowedKeys:
                 setattr(self, k, v)
             else:
@@ -227,7 +227,7 @@ class GridSpec(GridSpecBase):
 
         from matplotlib import _pylab_helpers
         from matplotlib.axes import SubplotBase
-        for figmanager in _pylab_helpers.Gcf.figs.values():
+        for figmanager in _pylab_helpers.Gcf.figs.itervalues():
             for ax in figmanager.canvas.figure.axes:
                 # copied from Figure.subplots_adjust
                 if not isinstance(ax, SubplotBase):

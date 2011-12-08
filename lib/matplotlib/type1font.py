@@ -22,8 +22,9 @@ Sources:
   v1.1, 1993. ISBN 0-201-57044-0.
 """
 
+from __future__ import print_function
 import matplotlib.cbook as cbook
-import cStringIO
+import io
 import itertools
 import numpy as np
 import re
@@ -52,13 +53,10 @@ class Type1Font(object):
         if isinstance(input, tuple) and len(input) == 3:
             self.parts = input
         else:
-            file = open(input, 'rb')
-            try:
+            with open(input, 'rb') as file:
                 data = self._read(file)
-            finally:
-                file.close()
             self.parts = self._split(data)
-            
+
         self._parse()
 
     def _read(self, file):
@@ -72,9 +70,8 @@ class Type1Font(object):
         data = ''
         while len(rawdata) > 0:
             if not rawdata.startswith(chr(128)):
-                raise RuntimeError, \
-                    'Broken pfb file (expected byte 128, got %d)' % \
-                    ord(rawdata[0])
+                raise RuntimeError('Broken pfb file (expected byte 128, got %d)' % \
+                    ord(rawdata[0]))
             type = ord(rawdata[1])
             if type in (1,2):
                 length, = struct.unpack('<i', rawdata[2:6])
@@ -89,8 +86,7 @@ class Type1Font(object):
             elif type == 3:     # end of file
                 break
             else:
-                raise RuntimeError, \
-                    'Unknown segment type %d in pfb file' % type
+                raise RuntimeError('Unknown segment type %d in pfb file' % type)
 
         return data
 
@@ -120,7 +116,7 @@ class Type1Font(object):
                 zeros -= 1
             idx -= 1
         if zeros:
-            raise RuntimeError, 'Insufficiently many zeros in Type 1 font'
+            raise RuntimeError('Insufficiently many zeros in Type 1 font')
 
         # Convert encrypted part to binary (if we read a pfb file, we
         # may end up converting binary to hexadecimal to binary again;
@@ -197,7 +193,7 @@ class Type1Font(object):
         for token, value in filtered:
             if token == 'name' and value.startswith('/'):
                 key = value[1:]
-                token, value = filtered.next()
+                token, value = next(filtered)
                 if token == 'name':
                     if value in ('true', 'false'):
                         value = value == 'true'
@@ -214,16 +210,16 @@ class Type1Font(object):
                     prop[key] = value
 
         # Fill in the various *Name properties
-        if not prop.has_key('FontName'):
+        if 'FontName' not in prop:
             prop['FontName'] = prop.get('FullName') or prop.get('FamilyName') or 'Unknown'
-        if not prop.has_key('FullName'):
+        if 'FullName' not in prop:
             prop['FullName'] = prop['FontName']
-        if not prop.has_key('FamilyName'):
+        if 'FamilyName' not in prop:
             extras = r'(?i)([ -](regular|plain|italic|oblique|(semi)?bold|(ultra)?light|extra|condensed))+$'
             prop['FamilyName'] = re.sub(extras, '', prop['FullName'])
-                
+
         self.prop = prop
-                        
+
     @classmethod
     def _transformer(cls, tokens, slant, extend):
         def fontname(name):
@@ -251,19 +247,19 @@ class Type1Font(object):
 
         def replace(fun):
             def replacer(tokens):
-                token, value = tokens.next()      # name, e.g. /FontMatrix
+                token, value = next(tokens)      # name, e.g. /FontMatrix
                 yield value
-                token, value = tokens.next()      # possible whitespace
+                token, value = next(tokens)      # possible whitespace
                 while token == 'whitespace':
                     yield value
-                    token, value = tokens.next()
+                    token, value = next(tokens)
                 if value != '[':                  # name/number/etc.
                     yield fun(value)
                 else:                             # array, e.g. [1 2 3]
                     array = []
                     while value != ']':
                         array += value
-                        token, value = tokens.next()
+                        token, value = next(tokens)
                     array += value
                     yield fun(''.join(array))
             return replacer
@@ -272,20 +268,20 @@ class Type1Font(object):
             for x in itertools.takewhile(lambda x: x[1] != 'def', tokens):
                 pass
             yield ''
-        
+
         table = { '/FontName': replace(fontname),
                   '/ItalicAngle': replace(italicangle),
                   '/FontMatrix': replace(fontmatrix),
                   '/UniqueID': suppress }
 
         while True:
-            token, value = tokens.next()
+            token, value = next(tokens)
             if token == 'name' and value in table:
                 for value in table[value](itertools.chain([(token, value)], tokens)):
                     yield value
             else:
                 yield value
-                        
+
     def transform(self, effects):
         """
         Transform the font by slanting or extending. *effects* should
@@ -296,14 +292,16 @@ class Type1Font(object):
         than 1.0 condense). Returns a new :class:`Type1Font` object.
         """
 
-        buffer = cStringIO.StringIO()
-        tokenizer = self._tokens(self.parts[0])
-        for value in self._transformer(tokenizer,
-                                       slant=effects.get('slant', 0.0),
-                                       extend=effects.get('extend', 1.0)):
-            buffer.write(value)
-        result = buffer.getvalue()
-        buffer.close()
+        buffer = io.StringIO()
+        try:
+            tokenizer = self._tokens(self.parts[0])
+            for value in self._transformer(tokenizer,
+                                           slant=effects.get('slant', 0.0),
+                                           extend=effects.get('extend', 1.0)):
+                buffer.write(value)
+            result = buffer.getvalue()
+        finally:
+            buffer.close()
 
         return Type1Font((result, self.parts[1], self.parts[2]))
-    
+

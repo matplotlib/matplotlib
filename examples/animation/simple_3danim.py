@@ -15,7 +15,7 @@ def Gen_RandLine(length, dims=2) :
     """
     lineData = np.empty((dims, length))
     lineData[:, 0] = np.random.rand(dims)
-    for index in xrange(1, length) :
+    for index in range(1, length) :
         # scaling the random numbers by 0.1 so
         # movement is small compared to position.
         # subtraction by 0.5 is to change the range to [-0.5, 0.5]
@@ -37,7 +37,7 @@ fig = plt.figure()
 ax = p3.Axes3D(fig)
 
 # Fifty lines of random 3-D lines
-data = [Gen_RandLine(25, 3) for index in xrange(50)]
+data = [Gen_RandLine(25, 3) for index in range(50)]
 
 # Creating fifty line objects.
 # NOTE: Can't pass empty arrays into 3d version of plot()

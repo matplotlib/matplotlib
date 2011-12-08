@@ -3,7 +3,7 @@ The image module supports basic image loading, rescaling and display
 operations.
 
 """
-from __future__ import division
+from __future__ import division, print_function
 import os, warnings
 
 import numpy as np
@@ -52,7 +52,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     }
 
     # reverse interp dict
-    _interpdr = dict([ (v,k) for k,v in _interpd.items()])
+    _interpdr = dict([ (v,k) for k,v in _interpd.iteritems()])
 
     interpnames = _interpd.keys()
 
@@ -872,9 +872,9 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
             y = np.asarray(y, np.float64).ravel()
 
         if A.shape[:2] != (y.size-1, x.size-1):
-            print A.shape
-            print y.size
-            print x.size
+            print(A.shape)
+            print(y.size)
+            print(x.size)
             raise ValueError("Axes don't match array shape")
         if A.ndim not in [2, 3]:
             raise ValueError("A must be 2D or 3D")
@@ -1161,7 +1161,8 @@ class BboxImage(_AxesImageBase):
 def imread(fname, format=None):
     """
     Return image file in *fname* as :class:`numpy.array`.  *fname* may
-    be a string path or a Python file-like object.
+    be a string path or a Python file-like object.  If using a file
+    object, it must be opened in binary mode.
 
     If *format* is provided, will try to read file of that type,
     otherwise the format is deduced from the filename.  If nothing can
@@ -1194,7 +1195,7 @@ def imread(fname, format=None):
     else:
         ext = format
 
-    if ext not in handlers.keys():
+    if ext not in handlers.iterkeys():
         im = pilread()
         if im is None:
             raise ValueError('Only know how to handle extensions: %s; with PIL installed matplotlib can handle more images' % handlers.keys())
@@ -1206,9 +1207,10 @@ def imread(fname, format=None):
     # reader extension, since Python handles them quite well, but it's
     # tricky in C.
     if cbook.is_string_like(fname):
-        fname = open(fname, 'rb')
-
-    return handler(fname)
+        with open(fname, 'rb') as fd:
+            return handler(fd)
+    else:
+        return handler(fname)
 
 
 def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,

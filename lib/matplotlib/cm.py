@@ -4,6 +4,7 @@ registering new colormaps and for getting a colormap by name,
 and a mixin class for adding color mapping functionality.
 
 """
+from __future__ import print_function
 
 import os
 
@@ -79,7 +80,7 @@ for cmapname in _cmapnames:
 # Precache the cmaps with ``lutsize = LUTSIZE`` ...
 
 # Use datad.keys() to also add the reversed ones added in the section above:
-for cmapname in datad.keys():
+for cmapname in datad.iterkeys():
     cmap_d[cmapname] = _generate_cmap(cmapname, LUTSIZE)
 
 locals().update(cmap_d)

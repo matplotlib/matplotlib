@@ -1,7 +1,7 @@
 """
 Render to qt from agg
 """
-from __future__ import division
+from __future__ import division, print_function
 
 import os, sys
 
@@ -20,7 +20,7 @@ def new_figure_manager( num, *args, **kwargs ):
     """
     Create a new figure manager instance
     """
-    if DEBUG: print 'backend_qtagg.new_figure_manager'
+    if DEBUG: print('backend_qtagg.new_figure_manager')
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass( *args, **kwargs )
     canvas = FigureCanvasQTAgg( thisFig )
@@ -35,7 +35,7 @@ class FigureManagerQTAgg(FigureManagerQT):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if matplotlib.rcParams['toolbar']=='classic':
-            print "Classic toolbar is not supported"
+            print("Classic toolbar is not supported")
         elif matplotlib.rcParams['toolbar']=='toolbar2':
             toolbar = NavigationToolbar2QTAgg(canvas, parent)
         else:
@@ -53,13 +53,12 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
    """
 
     def __init__( self, figure ):
-        if DEBUG: print 'FigureCanvasQtAgg: ', figure
+        if DEBUG: print('FigureCanvasQtAgg: ', figure)
         FigureCanvasQT.__init__( self, figure )
         FigureCanvasAgg.__init__( self, figure )
         self.drawRect = False
         self.rect = []
         self.blitbox = None
-        self.replot = True
         self.setAttribute(QtCore.Qt.WA_OpaquePaintEvent)
 
     def drawRectangle( self, rect ):
@@ -69,18 +68,14 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
 
     def paintEvent( self, e ):
         """
-        Draw to the Agg backend and then copy the image to the qt.drawable.
+        Copy the image from the Agg canvas to the qt.drawable.
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
 
         #FigureCanvasQT.paintEvent( self, e )
-        if DEBUG: print 'FigureCanvasQtAgg.paintEvent: ', self, \
-           self.get_width_height()
-
-        if self.replot:
-            FigureCanvasAgg.draw(self)
-            self.replot = False
+        if DEBUG: print('FigureCanvasQtAgg.paintEvent: ', self, \
+           self.get_width_height())
 
         if self.blitbox is None:
             # matplotlib is in rgba byte order.  QImage wants to put the bytes
@@ -121,11 +116,13 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
 
     def draw( self ):
         """
-        Draw the figure when xwindows is ready for the update
+        Draw the figure with Agg, and queue a request
+        for a Qt draw.
         """
-
-        if DEBUG: print "FigureCanvasQtAgg.draw", self
-        self.replot = True
+        # The Agg draw is done here; delaying it until the paintEvent
+        # causes problems with code that uses the result of the
+        # draw() to update plot elements.
+        FigureCanvasAgg.draw(self)
         self.update()
 
     def blit(self, bbox=None):

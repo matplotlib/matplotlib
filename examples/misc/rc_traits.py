@@ -3,6 +3,8 @@
 # matplotlib does not ship with enthought.traits, so you will need to
 # install it separately.
 
+from __future__ import print_function
+
 import sys, os, re
 import enthought.traits.api as traits
 from matplotlib.cbook import is_string_like
@@ -140,11 +142,11 @@ class RC(traits.HasTraits):
 rc = RC()
 rc.lines.color = 'r'
 if doprint:
-   print 'RC'
+   print('RC')
    rc.print_traits()
-   print 'RC lines'
+   print('RC lines')
    rc.lines.print_traits()
-   print 'RC patches'
+   print('RC patches')
    rc.patch.print_traits()
 
 
@@ -182,13 +184,13 @@ p.edgecolor = 'gold'
 p.facecolor = (1,.5,.5,.25)
 p.facecolor = 0.25
 p.fill = 'f'
-print 'p.facecolor', type(p.facecolor), p.facecolor
-print 'p.fill', type(p.fill), p.fill
+print('p.facecolor', type(p.facecolor), p.facecolor)
+print('p.fill', type(p.fill), p.fill)
 if p.fill_: print 'fill'
 else: print 'no fill'
 if doprint:
-   print
-   print 'Patch'
+   print()
+   print('Patch')
    p.print_traits()
 
 

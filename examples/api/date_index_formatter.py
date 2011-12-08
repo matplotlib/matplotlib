@@ -3,6 +3,7 @@ When plotting time series, eg financial time series, one often wants
 to leave out days on which there is no data, eh weekends.  The example
 below shows how to use an 'index formatter' to achieve the desired plot
 """
+from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
@@ -10,7 +11,7 @@ import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 
 datafile = cbook.get_sample_data('aapl.csv', asfileobj=False)
-print 'loading', datafile
+print ('loading %s' % datafile)
 r = mlab.csv2rec(datafile)
 
 r.sort()

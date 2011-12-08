@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os,matplotlib
 matplotlib.use('Agg')
 from matplotlib.figure import Figure
@@ -7,7 +8,7 @@ def plot():
     fig = Figure()
     i = 0
     while True:
-        print i,report_memory(i)
+        print(i, report_memory(i))
         fig.clf()
         ax = fig.add_axes([0.1,0.1,0.7,0.7])
         ax.plot([1,2,3])

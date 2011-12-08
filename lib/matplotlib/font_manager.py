@@ -19,6 +19,7 @@ the advantage that it is the standard way to look up fonts on X11
 platforms, so if a font is installed, it is much more likely to be
 found.
 """
+from __future__ import print_function
 
 """
 KNOWN ISSUES
@@ -256,7 +257,6 @@ def OSXInstalledFonts(directories=None, fontext='ttf'):
             files.extend(list_fonts(path, fontext))
     return files
 
-
 def get_fontconfig_fonts(fontext='ttf'):
     """
     Grab a list of all the fonts that are being tracked by fontconfig
@@ -275,6 +275,7 @@ def get_fontconfig_fonts(fontext='ttf'):
         return fontfiles
 
     if pipe.returncode == 0:
+        output = str(output)
         for line in output.split('\n'):
             fname = line.split(':')[0]
             if (os.path.splitext(fname)[1][1:] in fontext and
@@ -322,7 +323,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
         for fname in files:
             fontfiles[os.path.abspath(fname)] = 1
 
-    return [fname for fname in fontfiles.keys() if os.path.exists(fname)]
+    return [fname for fname in fontfiles.iterkeys() if os.path.exists(fname)]
 
 def weight_as_number(weight):
     """
@@ -337,7 +338,7 @@ def weight_as_number(weight):
     elif weight in range(100, 1000, 100):
         pass
     else:
-        raise ValueError, 'weight not a valid integer'
+        raise ValueError('weight not a valid integer')
     return weight
 
 
@@ -419,7 +420,7 @@ def ttfFontProperty(font):
     #    lighter and bolder are also allowed.
 
     weight = None
-    for w in weight_dict.keys():
+    for w in weight_dict.iterkeys():
         if sfnt4.find(w) >= 0:
             weight = w
             break
@@ -550,7 +551,7 @@ def createFontList(fontfiles, fontext='ttf'):
         else: seen[fname] = 1
         if fontext == 'afm':
             try:
-                fh = open(fpath, 'r')
+                fh = open(fpath, 'rb')
             except:
                 verbose.report("Could not open font file %s" % fpath)
                 continue
@@ -573,8 +574,7 @@ def createFontList(fontfiles, fontext='ttf'):
                 verbose.report("Cannot handle unicode filenames")
                 #print >> sys.stderr, 'Bad file is', fpath
                 continue
-            try: prop = ttfFontProperty(font)
-            except: continue
+            prop = ttfFontProperty(font)
 
         fontlist.append(prop)
     return fontlist
@@ -890,7 +890,7 @@ class FontProperties(object):
         support for it to be enabled.  We are merely borrowing its
         pattern syntax for use here.
         """
-        for key, val in self._parse_fontconfig_pattern(pattern).items():
+        for key, val in self._parse_fontconfig_pattern(pattern).iteritems():
             if type(val) == list:
                 getattr(self, "set_" + key)(val[0])
             else:
@@ -905,12 +905,12 @@ def ttfdict_to_fnames(d):
     flatten a ttfdict to all the filenames it contains
     """
     fnames = []
-    for named in d.values():
-        for styled in named.values():
-            for variantd in styled.values():
-                for weightd in variantd.values():
-                    for stretchd in weightd.values():
-                        for fname in stretchd.values():
+    for named in d.itervalues():
+        for styled in named.itervalues():
+            for variantd in styled.itervalues():
+                for weightd in variantd.itervalues():
+                    for stretchd in weightd.itervalues():
+                        for fname in stretchd.itervalues():
                             fnames.append(fname)
     return fnames
 
@@ -919,22 +919,16 @@ def pickle_dump(data, filename):
     Equivalent to pickle.dump(data, open(filename, 'w'))
     but closes the file to prevent filehandle leakage.
     """
-    fh = open(filename, 'w')
-    try:
+    with open(filename, 'wb') as fh:
         pickle.dump(data, fh)
-    finally:
-        fh.close()
 
 def pickle_load(filename):
     """
     Equivalent to pickle.load(open(filename, 'r'))
     but closes the file to prevent filehandle leakage.
     """
-    fh = open(filename, 'r')
-    try:
+    with open(filename, 'rb') as fh:
         data = pickle.load(fh)
-    finally:
-        fh.close()
     return data
 
 class FontManager:
@@ -949,7 +943,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires a existing font
     # cache files to be rebuilt.
-    __version__ = 7
+    __version__ = 101
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -995,7 +989,7 @@ class FontManager:
         self.afmfiles = findSystemFonts(paths, fontext='afm') + \
             findSystemFonts(fontext='afm')
         self.afmlist = createFontList(self.afmfiles, fontext='afm')
-        self.defaultFont['afm'] = None
+        self.defaultFont['afm'] = self.afmfiles[0]
 
         self.ttf_lookup_cache = {}
         self.afm_lookup_cache = {}
@@ -1256,23 +1250,14 @@ def is_opentype_cff_font(filename):
     if os.path.splitext(filename)[1].lower() == '.otf':
         result = _is_opentype_cff_font_cache.get(filename)
         if result is None:
-            fd = open(filename, 'rb')
-            tag = fd.read(4)
-            fd.close()
+            with open(filename, 'rb') as fd:
+                tag = fd.read(4)
             result = (tag == 'OTTO')
             _is_opentype_cff_font_cache[filename] = result
         return result
     return False
 
 fontManager = None
-
-_fmcache = os.path.join(get_configdir(), 'fontList.cache')
-
-def _rebuild():
-    global fontManager
-    fontManager = FontManager()
-    pickle_dump(fontManager, _fmcache)
-    verbose.report("generated new fontManager")
 
 # The experimental fontconfig-based backend.
 if USE_FONTCONFIG and sys.platform != 'win32':
@@ -1311,6 +1296,19 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         return result
 
 else:
+    if sys.version_info[0] >= 3:
+        _fmcache = os.path.join(get_configdir(), 'fontList.py3k.cache')
+    else:
+        _fmcache = os.path.join(get_configdir(), 'fontList.cache')
+
+    fontManager = None
+
+    def _rebuild():
+        global fontManager
+        fontManager = FontManager()
+        pickle_dump(fontManager, _fmcache)
+        verbose.report("generated new fontManager")
+
     try:
         fontManager = pickle_load(_fmcache)
         if (not hasattr(fontManager, '_version') or

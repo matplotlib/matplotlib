@@ -1,7 +1,7 @@
 """
 Classes for the ticks and x and y axis
 """
-from __future__ import division
+from __future__ import division, print_function
 
 from matplotlib  import rcParams
 import matplotlib.artist as artist
@@ -102,7 +102,12 @@ class Tick(artist.Artist):
                 size = rcParams['%s.minor.size'%name]
         self._size = size
 
-        self._width = width # can be None for marker default
+        if width is None:
+            if major:
+                width = rcParams['%s.major.width'%name]
+            else:
+                width = rcParams['%s.minor.width'%name]
+        self._width = width
 
         if color is None:
             color = rcParams['%s.color' % name]
@@ -277,14 +282,14 @@ class Tick(artist.Artist):
             self.label2.set_transform(trans)
             self.tick1line.set_marker(self._tickmarkers[0])
             self.tick2line.set_marker(self._tickmarkers[1])
-        tick_kw = dict([kv for kv in kw.items()
-                             if kv[0] in ['color', 'zorder']])
+        tick_kw = dict([kv for kv in kw.iteritems()
+                        if kv[0] in ['color', 'zorder']])
         if tick_kw:
             self.tick1line.set(**tick_kw)
             self.tick2line.set(**tick_kw)
-            for k, v in tick_kw.items():
+            for k, v in tick_kw.iteritems():
                 setattr(self, '_'+k, v)
-        tick_list = [kv for kv in kw.items() if kv[0] in ['size', 'width']]
+        tick_list = [kv for kv in kw.iteritems() if kv[0] in ['size', 'width']]
         for k, v in tick_list:
             setattr(self, '_'+k, v)
             if k == 'size':
@@ -293,13 +298,13 @@ class Tick(artist.Artist):
             else:
                 self.tick1line.set_markeredgewidth(v)
                 self.tick2line.set_markeredgewidth(v)
-        label_list = [k for k in kw.items()
-                                if k[0] in ['labelsize', 'labelcolor']]
+        label_list = [k for k in kw.iteritems()
+                      if k[0] in ['labelsize', 'labelcolor']]
         if label_list:
             label_kw = dict([(k[5:], v) for (k, v) in label_list])
             self.label1.set(**label_kw)
             self.label2.set(**label_kw)
-            for k, v in label_kw.items():
+            for k, v in label_kw.iteritems():
                 setattr(self, '_'+k, v)
 
 

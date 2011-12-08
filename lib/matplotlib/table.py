@@ -19,7 +19,7 @@ Copyright : 2004 John Gill and John Hunter
 License   : matplotlib license
 
 """
-from __future__ import division
+from __future__ import division, print_function
 import warnings
 
 import artist
@@ -184,7 +184,7 @@ class Table(Artist):
         Artist.__init__(self)
 
         if is_string_like(loc) and loc not in self.codes:
-            warnings.warn('Unrecognized location %s. Falling back on bottom; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.keys())))
+            warnings.warn('Unrecognized location %s. Falling back on bottom; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.iterkeys())))
             loc = 'bottom'
         if is_string_like(loc): loc = self.codes.get(loc, 1)
         self.set_figure(ax.figure)
@@ -243,7 +243,7 @@ class Table(Artist):
 
         Only include those in the range (0,0) to (maxRow, maxCol)"""
         boxes = [self._cells[pos].get_window_extent(renderer)
-                 for pos in self._cells.keys()
+                 for pos in self._cells.iterkeys()
                  if pos[0] >= 0 and pos[1] >= 0]
 
         bbox = Bbox.union(boxes)
@@ -254,13 +254,14 @@ class Table(Artist):
 
         Returns T/F, {}
         """
-        if callable(self._contains): return self._contains(self,mouseevent)
+        if callable(self._contains):
+            return self._contains(self,mouseevent)
 
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
         if self._cachedRenderer is not None:
             boxes = [self._cells[pos].get_window_extent(self._cachedRenderer)
-                 for pos in self._cells.keys()
+                 for pos in self._cells.iterkeys()
                  if pos[0] >= 0 and pos[1] >= 0]
             bbox = bbox_all(boxes)
             return bbox.contains(mouseevent.x,mouseevent.y),{}

@@ -8,6 +8,7 @@
 # modified with no restriction; raw copies as well as modified versions
 # may be distributed without limitation.
 
+from __future__ import unicode_literals
 import sys, os, random
 from qt import *
 
@@ -75,7 +76,7 @@ class MyDynamicMplCanvas(MyMplCanvas):
 
     def update_figure(self):
         # Build a list of 4 random integers between 0 and 10 (both inclusive)
-        l = [ random.randint(0, 10) for i in xrange(4) ]
+        l = [ random.randint(0, 10) for i in range(4) ]
 
         self.axes.plot([0, 1, 2, 3], l, 'r')
         self.draw()
@@ -118,7 +119,7 @@ class ApplicationWindow(QMainWindow):
 
     def about(self):
         QMessageBox.about(self, "About %s" % progname,
-u"""%(prog)s version %(version)s
+"""%(prog)s version %(version)s
 Copyright \N{COPYRIGHT SIGN} 2005 Florent Rougon
 
 This program is a simple example of a Qt application embedding matplotlib

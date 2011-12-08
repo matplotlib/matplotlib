@@ -11,7 +11,7 @@ handlers are defined in the :mod:`~matplotlib.legend_handler` module). Note
 that not all kinds of artist are supported by the legend yet (See
 :ref:`plotting-guide-legend` for more information).
 """
-from __future__ import division
+from __future__ import division, print_function
 import warnings
 
 import numpy as np
@@ -50,7 +50,7 @@ class DraggableLegend(DraggableOffsetBox):
                                     use_blit=use_blit)
 
     def artist_picker(self, legend, evt):
-        return self.legend.legendPatch.contains(evt)
+        return self.legend.contains(evt)
 
     def finalize_offset(self):
         loc_in_canvas = self.get_loc_in_canvas()
@@ -257,7 +257,7 @@ in the normalized axes coordinate.
         bbox = parent.bbox
         axessize_fontsize = min(bbox.width, bbox.height)/self._fontsize
 
-        for k, v in deprecated_kwds.items():
+        for k, v in deprecated_kwds.iteritems():
             # use deprecated value if not None and if their newer
             # counter part is None.
             if localdict[k] is not None and localdict[v] is None:
@@ -315,12 +315,12 @@ in the normalized axes coordinate.
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back on "best"; '
                                   'valid locations are\n\t%s\n'
-                                  % (loc, '\n\t'.join(self.codes.keys())))
+                                  % (loc, '\n\t'.join(self.codes.iterkeys())))
                     loc = 0
                 else:
                     warnings.warn('Unrecognized location "%s". Falling back on "upper right"; '
                                   'valid locations are\n\t%s\n'
-                                   % (loc, '\n\t'.join(self.codes.keys())))
+                                   % (loc, '\n\t'.join(self.codes.iterkeys())))
                     loc = 1
             else:
                 loc = self.codes[loc]
@@ -924,6 +924,8 @@ in the normalized axes coordinate.
 
         return ox, oy
 
+    def contains(self, event):
+        return self.legendPatch.contains(event)
 
     def draggable(self, state=None, use_blit=False, update="loc"):
         """

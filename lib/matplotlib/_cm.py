@@ -4,6 +4,7 @@ and a dictionary of these dictionaries.
 
 """
 
+from __future__ import print_function
 import numpy as np
 
 _binary_data = {
