@@ -5,6 +5,7 @@ operations.
 """
 from __future__ import division
 import os, warnings
+import math
 
 import numpy as np
 from numpy import ma
@@ -1259,10 +1260,10 @@ def pil_to_array( pilImage ):
     grayscale images, the return array is MxN.  For RGB images, the
     return value is MxNx3.  For RGBA images the return value is MxNx4
     """
-    def toarray(im):
-        'return a 1D array of floats'
+    def toarray(im, dtype=np.uint8):
+        'return a 1D array of dtype'
         x_str = im.tostring('raw', im.mode)
-        x = np.fromstring(x_str,np.uint8)
+        x = np.fromstring(x_str, dtype)
         return x
 
     if pilImage.mode in ('RGBA', 'RGBX'):
@@ -1279,7 +1280,21 @@ def pil_to_array( pilImage ):
         x = toarray(im)
         x.shape = im.size[1], im.size[0], 3
         return x
-
+    elif pilImage.mode.startswith('I;16'):
+        # return MxN luminance array
+        # Normalize with the highest bit depth detected in image
+        # to minimize loss of dynamic range.
+        im = pilImage
+        if im.mode.endswith('B'):
+            x = toarray(im, '>u2')
+        else:
+            x = toarray(im, '<u2')
+        xmax = np.max(x)
+        if xmax > 255:
+            x >>= int(math.ceil(math.log(xmax, 2))) - 8
+        x = x.astype(np.uint8)
+        x.shape = im.size[1], im.size[0]
+        return x
     else: # try to convert to an rgba image
         try:
             im = pilImage.convert('RGBA')
