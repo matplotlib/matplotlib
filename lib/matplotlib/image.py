@@ -1261,7 +1261,7 @@ def pil_to_array( pilImage ):
     """
     def toarray(im):
         'return a 1D array of floats'
-        x_str = im.tostring('raw',im.mode,0,-1)
+        x_str = im.tostring('raw', im.mode)
         x = np.fromstring(x_str,np.uint8)
         return x
 
