@@ -50,7 +50,11 @@ class nf(float):
 CS.levels = [nf(val) for val in CS.levels ]
 
 # Label levels with specially formatted floats
-plt.clabel(CS, CS.levels, inline=True, fmt='%r %%', fontsize=10)
+if plt.rcParams["text.usetex"]:
+     fmt = r'%r \%%'
+else:
+     fmt = '%r %%'
+plt.clabel(CS, CS.levels, inline=True, fmt=fmt, fontsize=10)
 
 ##################################################
 # Label contours with arbitrary strings using a

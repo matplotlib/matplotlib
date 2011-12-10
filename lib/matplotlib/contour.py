@@ -110,6 +110,9 @@ class ContourLabeler:
             placement, delete or backspace act like the third mouse button,
             and any other key will select a label location).
 
+            *manual* can be an iterable object of x,y tuples. Contour labels
+            will be created as if mouse is clicked at each x,y positions.
+
           *rightside_up*:
             if *True* (default), label rotations will always be plus
             or minus 90 degrees from level.
@@ -197,7 +200,12 @@ class ContourLabeler:
         #self.labelCValues = [] # same
         self.labelXYs = []
 
-        if self.labelManual:
+        if cbook.iterable(self.labelManual):
+            for x,y in self.labelManual:
+                self.add_label_near(x, y, inline,
+                                    inline_spacing)
+
+        elif self.labelManual:
             print('Select label locations manually using first mouse button.')
             print('End manual selection with second mouse button.')
             if not inline:
@@ -532,6 +540,72 @@ class ContourLabeler:
         self._add_label(t, x, y, lev, cvalue)
 
 
+    def add_label_near(self, x, y, inline=True, inline_spacing=5,
+                       transform=None):
+        """
+        Add a label near the point (x, y) of the given transform.
+        If transform is None, data transform is used. If transform is
+        False, IdentityTransform is used.
+
+        *inline*:
+          controls whether the underlying contour is removed or
+          not. Default is *True*.
+
+        *inline_spacing*:
+          space in pixels to leave on each side of label when
+          placing inline.  Defaults to 5.  This spacing will be
+          exact for labels at locations where the contour is
+          straight, less so for labels on curved contours.
+        """
+
+        if transform is None:
+            transform = self.ax.transData
+
+        if transform:
+            x,y = transform.transform_point((x, y))
+
+        conmin,segmin,imin,xmin,ymin = self.find_nearest_contour(
+            x, y, self.labelIndiceList)[:5]
+
+        # Get index of nearest level in subset of levels used for labeling
+        lmin = self.labelIndiceList.index(conmin)
+
+        # Coordinates of contour
+        paths = self.collections[conmin].get_paths()
+        lc = paths[segmin].vertices
+
+        # In pixel/screen space
+        slc = self.ax.transData.transform(lc)
+
+        # Get label width for rotating labels and breaking contours
+        lw = self.get_label_width(self.labelLevelList[lmin],
+                                  self.labelFmt, self.labelFontSizeList[lmin])
+
+        """
+        # requires python 2.5
+        # Figure out label rotation.
+        rotation,nlc = cs.calc_label_rot_and_inline(
+            slc, imin, lw, lc if self.inline else [],
+            self.inline_spacing )
+        """
+        # Figure out label rotation.
+        if inline: lcarg = lc
+        else: lcarg = None
+        rotation,nlc = self.calc_label_rot_and_inline(
+            slc, imin, lw, lcarg,
+            inline_spacing )
+
+        self.add_label(xmin,ymin,rotation,self.labelLevelList[lmin],
+                       self.labelCValueList[lmin])
+
+        if inline:
+            # Remove old, not looping over paths so we can do this up front
+            paths.pop(segmin)
+
+            # Add paths if not empty or single point
+            for n in nlc:
+                if len(n)>1:
+                    paths.append( mpath.Path(n) )
 
     def pop_label(self,index=-1):
         '''Defaults to removing last label, but any index can be supplied'''
