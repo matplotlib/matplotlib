@@ -1259,7 +1259,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
 def pil_to_array( pilImage ):
     """
-    load a PIL image and return it as a numpy array of uint8.  For
+    load a PIL image and return it as a numpy array. For
     grayscale images, the return array is MxN.  For RGB images, the
     return value is MxNx3.  For RGBA images the return value is MxNx4
     """
@@ -1284,18 +1284,12 @@ def pil_to_array( pilImage ):
         x.shape = im.size[1], im.size[0], 3
         return x
     elif pilImage.mode.startswith('I;16'):
-        # return MxN luminance array
-        # Normalize with the highest bit depth detected in image
-        # to minimize loss of dynamic range.
+        # return MxN luminance array of uint16
         im = pilImage
         if im.mode.endswith('B'):
             x = toarray(im, '>u2')
         else:
             x = toarray(im, '<u2')
-        xmax = np.max(x)
-        if xmax > 255:
-            x >>= int(math.ceil(math.log(xmax, 2))) - 8
-        x = x.astype(np.uint8)
         x.shape = im.size[1], im.size[0]
         return x
     else: # try to convert to an rgba image
