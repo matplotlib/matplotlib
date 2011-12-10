@@ -1291,7 +1291,7 @@ def pil_to_array( pilImage ):
         else:
             x = toarray(im, '<u2')
         x.shape = im.size[1], im.size[0]
-        return x
+        return x.astype('=u2')
     else: # try to convert to an rgba image
         try:
             im = pilImage.convert('RGBA')
