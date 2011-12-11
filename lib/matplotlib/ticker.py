@@ -498,13 +498,27 @@ class ScalarFormatter(Formatter):
 
     def _set_format(self):
         # set the format string to format all the ticklabels
-        # The floating point black magic (adding 1e-15 and formatting
-        # to 8 digits) may warrant review and cleanup.
-        locs = (np.asarray(self.locs)-self.offset) / 10**self.orderOfMagnitude+1e-15
-        sigfigs = [len(str('%1.8f'% loc).split('.')[1].rstrip('0')) \
-                   for loc in locs]
-        sigfigs.sort()
-        self.format = '%1.' + str(sigfigs[-1]) + 'f'
+        locs = (np.asarray(self.locs)-self.offset) / 10**self.orderOfMagnitude
+        loc_range_oom = int(math.floor(math.log10(np.ptp(locs))))
+        # first estimate:
+        sigfigs = max(0, 3 - loc_range_oom)
+        # refined estimate:
+        if sigfigs > 0:
+            locdecs = []
+            for loc in locs:
+                rloc = round(loc, sigfigs)
+                if int(rloc) == rloc:
+                    continue
+                try:
+                    sloc = str(rloc)
+                    locdecs.append(len(sloc.split('.')[1]))
+                except IndexError:
+                    pass
+            if locdecs:
+                sigfigs = max(locdecs)
+            else:
+                sigfigs = 0
+        self.format = '%1.' + str(sigfigs) + 'f'
         if self._usetex:
             self.format = '$%s$' % self.format
         elif self._useMathText:
