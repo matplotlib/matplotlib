@@ -429,7 +429,7 @@ _png_module::read_png(const Py::Tuple& args)
     int num_dims  = (png_get_color_type(png_ptr, info_ptr)
                                 & PNG_COLOR_MASK_COLOR) ? 3 : 2;
 
-    double max_value = (1 << ((bit_depth < 8) ? 8 : bit_depth)) - 1;
+    double max_value = (1 << bit_depth) - 1;
     PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNew(
         num_dims, dimensions, PyArray_FLOAT);
 
