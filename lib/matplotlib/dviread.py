@@ -424,6 +424,8 @@ class DviFont(object):
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
+        if sys.version_info[0] >= 3 and isinstance(texname, bytes):
+            texname = texname.decode('ascii')
         self._scale, self._tfm, self.texname, self._vf = \
             scale, tfm, texname, vf
         self.size = scale * (72.0 / (72.27 * 2**16))
@@ -678,7 +680,10 @@ class PsfontsMap(object):
             self._parse(file)
 
     def __getitem__(self, texname):
-        result = self._font[texname]
+        try:
+            result = self._font[texname]
+        except KeyError:
+            result = self._font[texname.decode('ascii')]
         fn, enc = result.filename, result.encoding
         if fn is not None and not fn.startswith('/'):
             result.filename = find_tex_file(fn)
