@@ -113,7 +113,7 @@ if 1:
     baseline_images = [chop_package(f) for f in baseline_images]
     package_data['matplotlib'].extend(baseline_images)
 
-if not check_for_numpy():
+if not check_for_numpy(__version__numpy__):
     sys.exit(1)
 
 if not check_for_freetype():
