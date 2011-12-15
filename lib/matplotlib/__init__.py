@@ -483,8 +483,8 @@ def _get_configdir():
     else:
         if not _is_writable_dir(h):
             raise RuntimeError("Failed to create %s/.matplotlib; consider setting MPLCONFIGDIR to a writable directory for matplotlib configuration data"%h)
-
-        os.mkdir(p)
+        from matplotlib.cbook import mkdirs
+        mkdirs(p)
 
     return p
 get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
