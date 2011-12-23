@@ -264,21 +264,24 @@ class CallbackRegistry:
                 DeprecationWarning)
         self.callbacks = dict()
         self._cid = 0
-        self._func_cid_map = WeakKeyDictionary()
+        self._func_cid_map = {}
 
     def connect(self, s, func):
         """
         register *func* to be called when a signal *s* is generated
         func will be called
         """
-        if func in self._func_cid_map:
-            return self._func_cid_map[func]
-        proxy = self.BoundMethodProxy(func)
+        self._func_cid_map.setdefault(s, WeakKeyDictionary())
+        if func in self._func_cid_map[s]:
+            return self._func_cid_map[s][func]
+
         self._cid += 1
+        cid = self._cid
+        self._func_cid_map[s][func] = cid
         self.callbacks.setdefault(s, dict())
-        self.callbacks[s][self._cid] = proxy
-        self._func_cid_map[func] = self._cid
-        return self._cid
+        proxy = self.BoundMethodProxy(func)
+        self.callbacks[s][cid] = proxy
+        return cid
 
     def disconnect(self, cid):
         """
