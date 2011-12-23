@@ -54,6 +54,14 @@ def test_formatter_ticker():
     ax.set_xlabel( "x-label 005" )
     ax.autoscale_view()
 
+@image_comparison(baseline_images=["formatter_large_small"])
+def test_formatter_large_small():
+    # github issue #617, pull #619
+    fig, ax = plt.subplots(1)
+    x = [0.500000001, 0.500000002]
+    y = [500000001, 500000002]
+    ax.plot(x, y)
+
 @image_comparison(baseline_images=['offset_points'])
 def test_basic_annotate():
     # Setup some data
