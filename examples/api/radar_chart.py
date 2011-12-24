@@ -1,6 +1,12 @@
 """
 Example of creating a radar chart (a.k.a. a spider or star chart) [1]_.
 
+Although this example allows a frame of either 'circle' or 'polygon', polygon
+frames don't have proper gridlines (the lines are circles instead of polygons).
+It's possible to get a polygon grid by setting GRIDLINE_INTERPOLATION_STEPS in
+matplotlib.axis to the desired number of vertices, but the orientation of the
+polygon is not aligned with the radial axes.
+
 .. [1] http://en.wikipedia.org/wiki/Radar_chart
 """
 import numpy as np
