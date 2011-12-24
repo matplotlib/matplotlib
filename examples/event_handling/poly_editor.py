@@ -3,9 +3,10 @@ This is an example to show how to build cross-GUI applications using
 matplotlib event handling to interact with objects on the canvas
 
 """
+import numpy as np
+import matplotlib.pyplot as plt
 from matplotlib.artist import Artist
-from matplotlib.patches import Polygon, CirclePolygon
-from numpy import sqrt, nonzero, equal, array, asarray, dot, amin, cos, sin
+from matplotlib.patches import Polygon
 from matplotlib.mlab import dist_point_to_segment
 
 
@@ -36,7 +37,8 @@ class PolygonInteractor:
         self.poly = poly
 
         x, y = zip(*self.poly.xy)
-        self.line = Line2D(x,y,marker='o', markerfacecolor='r', animated=True)
+        self.line = plt.Line2D(x, y, marker='o', markerfacecolor='r',
+                               animated=True)
         self.ax.add_line(self.line)
         #self._update_line(poly)
 
@@ -69,11 +71,11 @@ class PolygonInteractor:
         'get the index of the vertex under point if within epsilon tolerance'
 
         # display coords
-        xy = asarray(self.poly.xy)
+        xy = np.asarray(self.poly.xy)
         xyt = self.poly.get_transform().transform(xy)
         xt, yt = xyt[:, 0], xyt[:, 1]
-        d = sqrt((xt-event.x)**2 + (yt-event.y)**2)
-        indseq = nonzero(equal(d, amin(d)))[0]
+        d = np.sqrt((xt-event.x)**2 + (yt-event.y)**2)
+        indseq = np.nonzero(np.equal(d, np.amin(d)))[0]
         ind = indseq[0]
 
         if d[ind]>=self.epsilon:
@@ -114,7 +116,7 @@ class PolygonInteractor:
                 s1 = xys[i+1]
                 d = dist_point_to_segment(p, s0, s1)
                 if d<=self.epsilon:
-                    self.poly.xy = array(
+                    self.poly.xy = np.array(
                         list(self.poly.xy[:i]) +
                         [(event.xdata, event.ydata)] +
                         list(self.poly.xy[i:]))
@@ -141,31 +143,22 @@ class PolygonInteractor:
         self.canvas.blit(self.ax.bbox)
 
 
-
-from pylab import *
-
-
-
-
-
-fig = figure()
-theta = arange(0, 2*pi, 0.1)
+fig = plt.figure()
+theta = np.arange(0, 2*np.pi, 0.1)
 r = 1.5
 
-xs = r*cos(theta)
-ys = r*sin(theta)
+xs = r*np.cos(theta)
+ys = r*np.sin(theta)
 
 poly = Polygon(zip(xs, ys,), animated=True)
 
-
-
-
-ax = subplot(111)
+ax = plt.subplot(111)
 ax.add_patch(poly)
-p = PolygonInteractor( ax, poly)
+p = PolygonInteractor(ax, poly)
 
 #ax.add_line(p.line)
 ax.set_title('Click and drag a point to move it')
 ax.set_xlim((-2,2))
 ax.set_ylim((-2,2))
-show()
+plt.show()
+

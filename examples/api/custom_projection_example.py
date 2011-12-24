@@ -1,11 +1,10 @@
 from __future__ import unicode_literals
+
+import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
-from matplotlib import cbook
 from matplotlib.patches import Circle
 from matplotlib.path import Path
-from matplotlib.ticker import Formatter, Locator, NullLocator, FixedLocator, NullFormatter
-from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
-    BboxTransformTo, IdentityTransform, Transform, TransformWrapper
+from matplotlib.transforms import Affine2D, BboxTransformTo, Transform
 from matplotlib.projections import register_projection
 import matplotlib.spines as mspines
 import matplotlib.axis as maxis
@@ -56,8 +55,8 @@ class HammerAxes(Axes):
         self.set_longitude_grid_ends(75)
 
         # Turn off minor ticking altogether
-        self.xaxis.set_minor_locator(NullLocator())
-        self.yaxis.set_minor_locator(NullLocator())
+        self.xaxis.set_minor_locator(plt.NullLocator())
+        self.yaxis.set_minor_locator(plt.NullLocator())
 
         # Do not display ticks -- we only want gridlines and text
         self.xaxis.set_ticks_position('none')
@@ -283,7 +282,7 @@ class HammerAxes(Axes):
         # \u00b0 : degree symbol
         return '%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(long), ew)
 
-    class DegreeFormatter(Formatter):
+    class DegreeFormatter(plt.Formatter):
         """
         This is a custom formatter that converts the native unit of
         radians into (truncated) degrees and adds a degree symbol.
@@ -309,7 +308,7 @@ class HammerAxes(Axes):
         # by degrees.
         number = (360.0 / degrees) + 1
         self.xaxis.set_major_locator(
-            FixedLocator(
+            plt.FixedLocator(
                 np.linspace(-np.pi, np.pi, number, True)[1:-1]))
         # Set the formatter to display the tick labels in degrees,
         # rather than radians.
@@ -327,7 +326,7 @@ class HammerAxes(Axes):
         # by degrees.
         number = (180.0 / degrees) + 1
         self.yaxis.set_major_locator(
-            FixedLocator(
+            plt.FixedLocator(
                 np.linspace(-np.pi / 2.0, np.pi / 2.0, number, True)[1:-1]))
         # Set the formatter to display the tick labels in degrees,
         # rather than radians.
@@ -448,10 +447,9 @@ class HammerAxes(Axes):
 register_projection(HammerAxes)
 
 # Now make a simple example using the custom projection.
-from pylab import *
+plt.subplot(111, projection="custom_hammer")
+p = plt.plot([-1, 1, 1], [-1, -1, 1], "o-")
+plt.grid(True)
 
-subplot(111, projection="custom_hammer")
-p = plot([-1, 1, 1], [-1, -1, 1], "o-")
-grid(True)
+plt.show()
 
-show()
