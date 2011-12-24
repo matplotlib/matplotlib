@@ -518,7 +518,7 @@ class BboxBase(TransformNode):
         if container is None:
             container = self
         l, b, w, h = container.bounds
-        if isinstance(c, str):
+        if isinstance(c, basestring):
             cx, cy = self.coefs[c]
         else:
             cx, cy = c
