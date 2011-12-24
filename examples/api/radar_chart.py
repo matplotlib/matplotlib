@@ -1,3 +1,8 @@
+"""
+Example of creating a radar chart (a.k.a. a spider or star chart) [1]_.
+
+.. [1] http://en.wikipedia.org/wiki/Radar_chart
+"""
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -8,38 +13,42 @@ from matplotlib.projections import register_projection
 
 
 def radar_factory(num_vars, frame='circle'):
-    """Create a radar chart with `num_vars` axes."""
+    """Create a radar chart with `num_vars` axes.
+
+    This function creates a RadarAxes projection and registers it.
+
+    Parameters
+    ----------
+    num_vars : int
+        Number of variables for radar chart.
+    frame : {'circle' | 'polygon'}
+        Shape of frame surrounding axes.
+
+    """
     # calculate evenly-spaced axis angles
     theta = 2*np.pi * np.linspace(0, 1-1./num_vars, num_vars)
     # rotate theta such that the first axis is at the top
     theta += np.pi/2
 
-    def poly_verts(x0, y0, r):
-        # TODO: use transforms to convert (x, y) to (r, theta)
-        verts = [(r*np.cos(t) + x0, r*np.sin(t) + y0) for t in theta]
-        return verts
-
-    def draw_poly_frame(self, x0, y0, r):
-        verts = poly_verts(x0, y0, r)
+    def draw_poly_patch(self):
+        verts = unit_poly_verts(theta)
         return plt.Polygon(verts, closed=True, edgecolor='k')
 
-    def draw_circle_frame(self, x0, y0, r):
-        return plt.Circle((x0, y0), r)
+    def draw_circle_patch(self):
+        # unit circle centered on (0.5, 0.5)
+        return plt.Circle((0.5, 0.5), 0.5)
 
-    frame_dict = {'polygon': draw_poly_frame, 'circle': draw_circle_frame}
-    if frame not in frame_dict:
+    patch_dict = {'polygon': draw_poly_patch, 'circle': draw_circle_patch}
+    if frame not in patch_dict:
         raise ValueError, 'unknown value for `frame`: %s' % frame
 
     class RadarAxes(PolarAxes):
-        """Class for creating a radar chart (a.k.a. a spider or star chart)
 
-        http://en.wikipedia.org/wiki/Radar_chart
-        """
         name = 'radar'
         # use 1 line segment to connect specified points
         RESOLUTION = 1
         # define draw_frame method
-        draw_frame = frame_dict[frame]
+        draw_patch = patch_dict[frame]
 
         def fill(self, *args, **kwargs):
             """Override fill so that line is closed by default"""
@@ -64,9 +73,7 @@ def radar_factory(num_vars, frame='circle'):
             self.set_thetagrids(theta * 180/np.pi, labels)
 
         def _gen_axes_patch(self):
-            x0, y0 = (0.5, 0.5)
-            r = 0.5
-            return self.draw_frame(x0, y0, r)
+            return self.draw_patch()
 
         def _gen_axes_spines(self):
             if frame == 'circle':
@@ -76,10 +83,7 @@ def radar_factory(num_vars, frame='circle'):
 
             # spine_type must be 'left', 'right', 'top', 'bottom', or `circle`.
             spine_type = 'circle'
-            r = 0.5
-            x0, y0 = (0.5, 0.5)
-            #verts = [(t, r) for t in theta]
-            verts = poly_verts(x0, y0, r)
+            verts = unit_poly_verts(theta)
             # close off polygon by repeating first vertex
             verts.append(verts[0])
             path = Path(verts)
@@ -92,7 +96,17 @@ def radar_factory(num_vars, frame='circle'):
     return theta
 
 
-if __name__ == '__main__':
+def unit_poly_verts(theta):
+    """Return vertices of polygon for subplot axes.
+
+    This polygon is circumscribed by a unit circle centered at (0.5, 0.5)
+    """
+    x0, y0, r = [0.5] * 3
+    verts = [(r*np.cos(t) + x0, r*np.sin(t) + y0) for t in theta]
+    return verts
+
+
+def example_data():
     #The following data is from the Denver Aerosol Sources and Health study.
     #See  doi:10.1016/j.atmosenv.2008.12.017
     #
@@ -111,51 +125,52 @@ if __name__ == '__main__':
     #  2)Inclusion of gas-phase specie carbon monoxide (CO)
     #  3)Inclusion of gas-phase specie ozone (O3).
     #  4)Inclusion of both gas-phase speciesis present...
+    data = {
+        'column names':
+            ['Sulfate', 'Nitrate', 'EC', 'OC1', 'OC2', 'OC3', 'OP', 'CO', 'O3'],
+        'Basecase':
+            [[0.88, 0.01, 0.03, 0.03, 0.00, 0.06, 0.01, 0.00, 0.00],
+             [0.07, 0.95, 0.04, 0.05, 0.00, 0.02, 0.01, 0.00, 0.00],
+             [0.01, 0.02, 0.85, 0.19, 0.05, 0.10, 0.00, 0.00, 0.00],
+             [0.02, 0.01, 0.07, 0.01, 0.21, 0.12, 0.98, 0.00, 0.00],
+             [0.01, 0.01, 0.02, 0.71, 0.74, 0.70, 0.00, 0.00, 0.00]],
+        'With CO':
+            [[0.88, 0.02, 0.02, 0.02, 0.00, 0.05, 0.00, 0.05, 0.00],
+             [0.08, 0.94, 0.04, 0.02, 0.00, 0.01, 0.12, 0.04, 0.00],
+             [0.01, 0.01, 0.79, 0.10, 0.00, 0.05, 0.00, 0.31, 0.00],
+             [0.00, 0.02, 0.03, 0.38, 0.31, 0.31, 0.00, 0.59, 0.00],
+             [0.02, 0.02, 0.11, 0.47, 0.69, 0.58, 0.88, 0.00, 0.00]],
+        'With O3':
+            [[0.89, 0.01, 0.07, 0.00, 0.00, 0.05, 0.00, 0.00, 0.03],
+             [0.07, 0.95, 0.05, 0.04, 0.00, 0.02, 0.12, 0.00, 0.00],
+             [0.01, 0.02, 0.86, 0.27, 0.16, 0.19, 0.00, 0.00, 0.00],
+             [0.01, 0.03, 0.00, 0.32, 0.29, 0.27, 0.00, 0.00, 0.95],
+             [0.02, 0.00, 0.03, 0.37, 0.56, 0.47, 0.87, 0.00, 0.00]],
+        'CO & O3':
+            [[0.87, 0.01, 0.08, 0.00, 0.00, 0.04, 0.00, 0.00, 0.01],
+             [0.09, 0.95, 0.02, 0.03, 0.00, 0.01, 0.13, 0.06, 0.00],
+             [0.01, 0.02, 0.71, 0.24, 0.13, 0.16, 0.00, 0.50, 0.00],
+             [0.01, 0.03, 0.00, 0.28, 0.24, 0.23, 0.00, 0.44, 0.88],
+             [0.02, 0.00, 0.18, 0.45, 0.64, 0.55, 0.86, 0.00, 0.16]]
+    }
+    return data
+
+
+if __name__ == '__main__':
     N = 9
     theta = radar_factory(N, frame='polygon')
-    spoke_labels = ['Sulfate', 'Nitrate', 'EC', 'OC1', 'OC2', 'OC3', 'OP', 'CO',
-                    'O3']
-    f1_base = [0.88, 0.01, 0.03, 0.03, 0.00, 0.06, 0.01, 0.00, 0.00]
-    f1_CO =   [0.88, 0.02, 0.02, 0.02, 0.00, 0.05, 0.00, 0.05, 0.00]
-    f1_O3 =   [0.89, 0.01, 0.07, 0.00, 0.00, 0.05, 0.00, 0.00, 0.03]
-    f1_both = [0.87, 0.01, 0.08, 0.00, 0.00, 0.04, 0.00, 0.00, 0.01]
 
-    f2_base = [0.07, 0.95, 0.04, 0.05, 0.00, 0.02, 0.01, 0.00, 0.00]
-    f2_CO =   [0.08, 0.94, 0.04, 0.02, 0.00, 0.01, 0.12, 0.04, 0.00]
-    f2_O3 =   [0.07, 0.95, 0.05, 0.04, 0.00, 0.02, 0.12, 0.00, 0.00]
-    f2_both = [0.09, 0.95, 0.02, 0.03, 0.00, 0.01, 0.13, 0.06, 0.00]
+    data = example_data()
+    spoke_labels = data.pop('column names')
 
-    f3_base = [0.01, 0.02, 0.85, 0.19, 0.05, 0.10, 0.00, 0.00, 0.00]
-    f3_CO =   [0.01, 0.01, 0.79, 0.10, 0.00, 0.05, 0.00, 0.31, 0.00]
-    f3_O3 =   [0.01, 0.02, 0.86, 0.27, 0.16, 0.19, 0.00, 0.00, 0.00]
-    f3_both = [0.01, 0.02, 0.71, 0.24, 0.13, 0.16, 0.00, 0.50, 0.00]
-
-    f4_base = [0.02, 0.01, 0.07, 0.01, 0.21, 0.12, 0.98, 0.00, 0.00]
-    f4_CO =   [0.00, 0.02, 0.03, 0.38, 0.31, 0.31, 0.00, 0.59, 0.00]
-    f4_O3 =   [0.01, 0.03, 0.00, 0.32, 0.29, 0.27, 0.00, 0.00, 0.95]
-    f4_both = [0.01, 0.03, 0.00, 0.28, 0.24, 0.23, 0.00, 0.44, 0.88]
-
-    f5_base = [0.01, 0.01, 0.02, 0.71, 0.74, 0.70, 0.00, 0.00, 0.00]
-    f5_CO =   [0.02, 0.02, 0.11, 0.47, 0.69, 0.58, 0.88, 0.00, 0.00]
-    f5_O3 =   [0.02, 0.00, 0.03, 0.37, 0.56, 0.47, 0.87, 0.00, 0.00]
-    f5_both = [0.02, 0.00, 0.18, 0.45, 0.64, 0.55, 0.86, 0.00, 0.16]
-
-    fig = plt.figure(figsize=(9,9))
-    # adjust spacing around the subplots
+    fig = plt.figure(figsize=(9, 9))
     fig.subplots_adjust(wspace=0.25, hspace=0.20, top=0.85, bottom=0.05)
-    title_list = ['Basecase', 'With CO', 'With O3', 'CO & O3']
-    data = {'Basecase': [f1_base, f2_base, f3_base, f4_base, f5_base],
-            'With CO': [f1_CO, f2_CO, f3_CO, f4_CO, f5_CO],
-            'With O3': [f1_O3, f2_O3, f3_O3, f4_O3, f5_O3],
-            'CO & O3': [f1_both, f2_both, f3_both, f4_both, f5_both]}
-    colors = ['b', 'r', 'g', 'm', 'y']
-    # chemicals range from 0 to 1
-    radial_grid = [0.2, 0.4, 0.6, 0.8]
 
-    # If you don't care about the order, you can loop over data_dict.items()
-    for n, title in enumerate(title_list):
+    colors = ['b', 'r', 'g', 'm', 'y']
+    # Plot the four cases from the example data on separate axes
+    for n, title in enumerate(data.keys()):
         ax = fig.add_subplot(2, 2, n+1, projection='radar')
-        plt.rgrids(radial_grid)
+        plt.rgrids([0.2, 0.4, 0.6, 0.8])
         ax.set_title(title, weight='bold', size='medium', position=(0.5, 1.1),
                      horizontalalignment='center', verticalalignment='center')
         for d, color in zip(data[title], colors):
