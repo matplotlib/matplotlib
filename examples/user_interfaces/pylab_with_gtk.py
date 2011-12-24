@@ -5,15 +5,16 @@ modify the GUI by accessing the underlying gtk widgets
 from __future__ import print_function
 import matplotlib
 matplotlib.use('GTKAgg')
-from pylab import get_current_fig_manager, subplot, plot, legend, connect, show
-
-ax = subplot(111)
-plot([1,2,3], 'ro-', label='easy as 1 2 3')
-plot([1,4,9], 'gs--', label='easy as 1 2 3 squared')
-legend()
+import matplotlib.pyplot as plt
 
 
-manager = get_current_fig_manager()
+ax = plt.subplot(111)
+plt.plot([1,2,3], 'ro-', label='easy as 1 2 3')
+plt.plot([1,4,9], 'gs--', label='easy as 1 2 3 squared')
+plt.legend()
+
+
+manager = plt.get_current_fig_manager()
 # you can also access the window or vbox attributes this way
 toolbar = manager.toolbar
 
@@ -50,6 +51,6 @@ def update(event):
     else:
         label.set_markup('<span color="#ef0000">x,y=(%f, %f)</span>'%(event.xdata, event.ydata))
 
-connect('motion_notify_event', update)
+plt.connect('motion_notify_event', update)
 
-show()
+plt.show()

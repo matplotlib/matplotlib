@@ -1,12 +1,12 @@
 import numpy as np
-from pylab import figure, show
+import matplotlib.pyplot as plt
 
 
 X = np.random.rand(100, 200)
 xs = np.mean(X, axis=1)
 ys = np.std(X, axis=1)
 
-fig = figure()
+fig = plt.figure()
 ax = fig.add_subplot(211)
 ax.set_title('click on point to plot time series')
 line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
@@ -79,4 +79,4 @@ browser = PointBrowser()
 fig.canvas.mpl_connect('pick_event', browser.onpick)
 fig.canvas.mpl_connect('key_press_event', browser.onpress)
 
-show()
+plt.show()
