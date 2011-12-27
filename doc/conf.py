@@ -182,3 +182,7 @@ latex_use_parts = True
 # Show both class-level docstring and __init__ docstring in class
 # documentation
 autoclass_content = 'both'
+
+rst_epilog = """
+.. |minimum_numpy_version| replace:: %s
+""" % matplotlib.__version__numpy__
