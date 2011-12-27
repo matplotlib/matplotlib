@@ -835,22 +835,16 @@ def find_tex_file(filename, format=None):
     
     matplotlib.verbose.report('find_tex_file(%s): %s' \
                                   % (filename,cmd), 'debug')
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    # stderr is unused, but reading it avoids a subprocess optimization
+    # that breaks EINTR handling in some Python versions:
+    # http://bugs.python.org/issue12493
+    # https://github.com/matplotlib/matplotlib/issues/633
+    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
     result = pipe.communicate()[0].rstrip()
     matplotlib.verbose.report('find_tex_file result: %s' % result,
                               'debug')
     return result
-
-def _read_nointr(pipe, bufsize=-1):
-    while True:
-        try:
-            return pipe.read(bufsize)
-        except OSError, e:
-            if e.errno == errno.EINTR:
-                continue
-            else:
-                raise
-        
 
 # With multiple text objects per figure (e.g. tick labels) we may end
 # up reading the same tfm and vf files many times, so we implement a
