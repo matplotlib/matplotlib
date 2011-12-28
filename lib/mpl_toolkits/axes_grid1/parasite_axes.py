@@ -324,14 +324,14 @@ class HostAxesBase:
         # for normal axes
 
         self.axis["right"].toggle(all=False)
-        self.axis["right"].line.set_visible(False)
+        self.axis["right"].line.set_visible(True)
 
         ax2.axis["right"].set_visible(True)
         ax2.axis["left","top", "bottom"].toggle(all=False)
         ax2.axis["left","top", "bottom"].line.set_visible(False)
 
         ax2.axis["right"].toggle(all=True)
-        ax2.axis["right"].line.set_visible(True)
+        ax2.axis["right"].line.set_visible(False)
 
         return ax2
 
@@ -356,14 +356,14 @@ class HostAxesBase:
         self.parasites.append(ax2)
 
         self.axis["top"].toggle(all=False)
-        self.axis["top"].line.set_visible(False)
+        self.axis["top"].line.set_visible(True)
 
         ax2.axis["top"].set_visible(True)
         ax2.axis["left","right", "bottom"].toggle(all=False)
         ax2.axis["left","right", "bottom"].line.set_visible(False)
 
         ax2.axis["top"].toggle(all=True)
-        ax2.axis["top"].line.set_visible(True)
+        ax2.axis["top"].line.set_visible(False)
 
         return ax2
 
