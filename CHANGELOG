@@ -1,3 +1,5 @@
+2011-12-27 Work around an EINTR bug in some versions of subprocess. - JKS
+
 2011-08-18 Change api of Axes.get_tightbbox and add an optional
            keyword parameter *call_axes_locator*. - JJL
 
