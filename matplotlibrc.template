@@ -217,6 +217,8 @@ backend      : %(backend)s
                                    # according to the user's locale.
                                    # For example, use ',' as a decimal
                                    # separator in the fr_FR locale.
+#axes.formatter.use_mathtext : False # When True, use mathtext for scientific
+                                     # notation.
 #axes.unicode_minus  : True    # use unicode for the minus symbol
                                # rather than hypen.  See
                                # http://en.wikipedia.org/wiki/Plus_sign

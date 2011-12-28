@@ -330,21 +330,22 @@ class ScalarFormatter(Formatter):
 
     """
 
-    def __init__(self, useOffset=True, useMathText=False, useLocale=None):
+    def __init__(self, useOffset=True, useMathText=None, useLocale=None):
         # useOffset allows plotting small data ranges with large offsets:
         # for example: [1+1e-9,1+2e-9,1+3e-9]
         # useMathText will render the offset and scientific notation in mathtext
         self.set_useOffset(useOffset)
         self._usetex = rcParams['text.usetex']
+        if useMathText is None:
+            useMathText = rcParams['axes.formatter.use_mathtext']
         self._useMathText = useMathText
         self.orderOfMagnitude = 0
         self.format = ''
         self._scientific = True
         self._powerlimits = rcParams['axes.formatter.limits']
         if useLocale is None:
-            self._useLocale = rcParams['axes.formatter.use_locale']
-        else:
-            self._useLocale = useLocale
+            useLocale = rcParams['axes.formatter.use_locale']
+        self._useLocale = useLocale
 
     def get_useOffset(self):
         return self._useOffset
