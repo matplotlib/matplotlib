@@ -13,6 +13,10 @@ for all these packages are available here:
 
   <http://pythonmac.org/packages/py25-fat/index.html>.
 
+*** Setup from source using Pip ***
+
+   pip install -e git://github.com/matplotlib/matplotlib.git#egg=Package
+
 *** Back Ends ***
 
 You may use TkAgg or WXAgg back ends; Qt and GTK support is not
