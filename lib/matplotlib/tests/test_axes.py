@@ -636,6 +636,16 @@ def test_markevery_line():
     ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
 
+@image_comparison(baseline_images=['marker_edges'])
+def test_marker_edges():
+    x = np.linspace(0, 1, 10)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, np.sin(x), 'y.', ms=30.0, mew=0, mec='r')
+    ax.plot(x+0.1, np.sin(x), 'y.', ms=30.0, mew=1, mec='r')
+    ax.plot(x+0.2, np.sin(x), 'y.', ms=30.0, mew=2, mec='b')
+    ax.set_xticks([])
+    ax.set_yticks([])
 
 if __name__=='__main__':
     import nose
