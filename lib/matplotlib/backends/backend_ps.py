@@ -593,8 +593,10 @@ grestore
 
         if rgbFace:
             ps_cmd.extend(['gsave', ps_color, 'fill', 'grestore'])
+        if gc.shouldstroke():
+            ps_cmd.append('stroke')
 
-        ps_cmd.extend(['stroke', 'grestore', '} bind def'])
+        ps_cmd.extend(['grestore', '} bind def'])
 
         for vertices, code in path.iter_segments(trans, simplify=False):
             if len(vertices):
@@ -855,8 +857,7 @@ grestore
         write = self._pswriter.write
         if debugPS and command:
             write("% "+command+"\n")
-        mightstroke = (gc.get_linewidth() > 0.0 and
-                  (len(gc.get_rgb()) <= 3 or gc.get_rgb()[3] != 0.0))
+        mightstroke = gc.shouldstroke()
         stroke = stroke and mightstroke
         fill = (fill and rgbFace is not None and
                 (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
@@ -917,6 +918,9 @@ class GraphicsContextPS(GraphicsContextBase):
                 'round':1,
                 'bevel':2}[GraphicsContextBase.get_joinstyle(self)]
 
+    def shouldstroke(self):
+        return (self.get_linewidth() > 0.0 and
+                (len(self.get_rgb()) <= 3 or self.get_rgb()[3] != 0.0))
 
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
