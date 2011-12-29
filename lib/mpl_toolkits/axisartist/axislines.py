@@ -438,9 +438,36 @@ class GridHelperBase(object):
         return not self._force_update
 
 
-    def get_gridlines(self):
+    def get_gridlines(self, which, axis):
+        """
+        Return list of grid lines as a list of paths (list of points).
+
+        *which* : "major" or "minor"
+        *axis* : "both", "x" or "y"
+        """
         return []
 
+    def new_gridlines(self, ax):
+        """
+        Create and return a new GridlineCollection instance.
+
+        *which* : "major" or "minor"
+        *axis* : "both", "x" or "y"
+
+        """
+        gridlines = GridlinesCollection(None, transform=ax.transData,
+                                        colors=rcParams['grid.color'],
+                                        linestyles=rcParams['grid.linestyle'],
+                                        linewidths=rcParams['grid.linewidth'])
+        ax._set_artist_props(gridlines)
+        gridlines.set_grid_helper(self)
+
+        ax.axes._set_artist_props(gridlines)
+        # gridlines.set_clip_path(self.axes.patch)
+        # set_clip_path need to be deferred after Axes.cla is completed.
+        # It is done inside the cla.
+
+        return gridlines
 
 
 class GridHelperRectlinear(GridHelperBase):
@@ -497,33 +524,43 @@ class GridHelperRectlinear(GridHelperBase):
         return axisline
 
 
-    def get_gridlines(self):
+    def get_gridlines(self, which="major", axis="both"):
         """
         return list of gridline coordinates in data coordinates.
+
+        *which* : "major" or "minor"
+        *axis* : "both", "x" or "y"
         """
 
         gridlines = []
 
-        locs = []
-        y1, y2 = self.axes.get_ylim()
-        if self.axes.xaxis._gridOnMajor:
-            locs.extend(self.axes.xaxis.major.locator())
-        if self.axes.xaxis._gridOnMinor:
-            locs.extend(self.axes.xaxis.minor.locator())
 
-        for x in locs:
-            gridlines.append([[x, x], [y1, y2]])
+        if axis in ["both", "x"]:
+            locs = []
+            y1, y2 = self.axes.get_ylim()
+            #if self.axes.xaxis._gridOnMajor:
+            if which in ["both", "major"]:
+                locs.extend(self.axes.xaxis.major.locator())
+            #if self.axes.xaxis._gridOnMinor:
+            if which in ["both", "minor"]:
+                locs.extend(self.axes.xaxis.minor.locator())
+
+            for x in locs:
+                gridlines.append([[x, x], [y1, y2]])
 
 
-        x1, x2 = self.axes.get_xlim()
-        locs = []
-        if self.axes.yaxis._gridOnMajor:
-            locs.extend(self.axes.yaxis.major.locator())
-        if self.axes.yaxis._gridOnMinor:
-            locs.extend(self.axes.yaxis.minor.locator())
+        if axis in ["both", "y"]:
+            x1, x2 = self.axes.get_xlim()
+            locs = []
+            if self.axes.yaxis._gridOnMajor:
+            #if which in ["both", "major"]:
+                locs.extend(self.axes.yaxis.major.locator())
+            if self.axes.yaxis._gridOnMinor:
+            #if which in ["both", "minor"]:
+                locs.extend(self.axes.yaxis.minor.locator())
 
-        for y in locs:
-            gridlines.append([[x1, x2], [y, y]])
+            for y in locs:
+                gridlines.append([[x1, x2], [y, y]])
 
         return gridlines
 
@@ -627,20 +664,25 @@ class Axes(maxes.Axes):
 
     axis = property(_get_axislines)
 
-    def _init_gridlines(self, grid_helper=None):
-        gridlines = GridlinesCollection(None, transform=self.transData,
-                                        colors=rcParams['grid.color'],
-                                        linestyles=rcParams['grid.linestyle'],
-                                        linewidths=rcParams['grid.linewidth'])
-        self._set_artist_props(gridlines)
+    def new_gridlines(self, grid_helper=None):
+        """
+        Create and return a new GridlineCollection instance.
+
+        *which* : "major" or "minor"
+        *axis* : "both", "x" or "y"
+
+        """
         if grid_helper is None:
             grid_helper = self.get_grid_helper()
-        gridlines.set_grid_helper(grid_helper)
 
-        self.axes._set_artist_props(gridlines)
-        # gridlines.set_clip_path(self.axes.patch)
-        # set_clip_path need to be deferred after Axes.cla is completed.
+        gridlines = grid_helper.new_gridlines(self)
+
+        return gridlines
+
+
+    def _init_gridlines(self, grid_helper=None):
         # It is done inside the cla.
+        gridlines = self.new_gridlines(grid_helper)
 
         self.gridlines = gridlines
 
@@ -668,7 +710,7 @@ class Axes(maxes.Axes):
         # axes_grid and the original mpl's grid, because axes_grid
         # explicitly set the visibility of the gridlines.
 
-        super(Axes, self).grid(b, **kwargs)
+        super(Axes, self).grid(b, which=which, axis=axis, **kwargs)
         if not self._axisline_on:
             return
 
@@ -680,6 +722,8 @@ class Axes(maxes.Axes):
             else:
                 b=False
 
+        self.gridlines.set_which(which)
+        self.gridlines.set_axis(axis)
         self.gridlines.set_visible(b)
 
         if len(kwargs):
