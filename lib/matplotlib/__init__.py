@@ -165,8 +165,8 @@ if not _python24:
 
 import numpy
 from distutils import version
-expected_version = version.StrictVersion(__version__numpy__)
-found_version = version.StrictVersion(numpy.__version__)
+expected_version = version.LooseVersion(__version__numpy__)
+found_version = version.LooseVersion(numpy.__version__)
 if not found_version >= expected_version:
     raise ImportError(
         'numpy %s or later is required; you have %s' % (
