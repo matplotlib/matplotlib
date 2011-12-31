@@ -46,7 +46,7 @@ WIN32 - VISUAL STUDIO 7.1 (2003)
 import os
 import re
 import subprocess
-from distutils import sysconfig, version
+from distutils import sysconfig
 
 basedir = {
     'win32'  : ['win32_static',],
@@ -558,8 +558,8 @@ def check_for_numpy(min_version):
                       min_version)
         return False
 
-    expected_version = version.StrictVersion(min_version)
-    found_version = version.StrictVersion(numpy.__version__)
+    expected_version = min_version.split('.')
+    found_version = numpy.__version__.split('.')
     if not found_version >= expected_version:
         print_message(
             'numpy %s or later is required; you have %s' %
