@@ -100,6 +100,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 from __future__ import print_function
 
 __version__  = '1.2.x'
+__version__numpy__ = '1.4' # minimum required numpy version
 
 import os, re, shutil, subprocess, sys, warnings
 import distutils.sysconfig
@@ -161,11 +162,17 @@ _havedate = True
 if not _python24:
     raise ImportError('matplotlib requires Python 2.4 or later')
 
+
 import numpy
-nmajor, nminor = [int(n) for n in numpy.__version__.split('.')[:2]]
-if not (nmajor > 1 or (nmajor == 1 and nminor >= 1)):
+from distutils import version
+expected_version = version.LooseVersion(__version__numpy__)
+found_version = version.LooseVersion(numpy.__version__)
+if not found_version >= expected_version:
     raise ImportError(
-            'numpy 1.1 or later is required; you have %s' % numpy.__version__)
+        'numpy %s or later is required; you have %s' % (
+            __version__numpy__, numpy.__version__))
+del version
+
 
 def is_string_like(obj):
     if hasattr(obj, 'shape'): return 0
