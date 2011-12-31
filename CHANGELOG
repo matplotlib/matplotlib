@@ -1,3 +1,5 @@
+2011-12-27 Work around an EINTR bug in some versions of subprocess. - JKS
+
 2011-10-25 added support for \operatorname to mathtext,
            including the ability to insert spaces, such as
            $\operatorname{arg\,max}$ - PI
