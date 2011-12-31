@@ -1682,6 +1682,8 @@ import matplotlib.colorbar
 def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
         mappable = gci()
+        if mappable is None:
+            raise RuntimeError('You must first define an image, eg with imshow')
     if ax is None:
         ax = gca()
 
@@ -1732,6 +1734,9 @@ def set_cmap(cmap):
 
     if im is not None:
         im.set_cmap(cmap)
+    else:
+        raise RuntimeError('You must first define an image, eg with imshow')
+
     draw_if_interactive()
 
 
