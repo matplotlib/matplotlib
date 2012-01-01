@@ -19,7 +19,7 @@ import numpy as np
 
 from matplotlib import verbose, get_configdir
 from matplotlib.dates import date2num
-from matplotlib.cbook import iterable
+from matplotlib.cbook import iterable, mkdirs
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import colorConverter
 from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
@@ -184,8 +184,7 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,dividends=False)
         fh = open(cachename)
         verbose.report('Using cachefile %s for %s'%(cachename, ticker))
     else:
-        if not os.path.isdir(cachedir):
-            os.mkdir(cachedir)
+        mkdirs(cachedir)
         urlfh = urlopen(url)
 
         fh = open(cachename, 'wb')
