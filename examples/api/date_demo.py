@@ -13,10 +13,8 @@ and num2date
 """
 import datetime
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
 
 years    = mdates.YearLocator()   # every year

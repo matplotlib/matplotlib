@@ -1,11 +1,10 @@
 from __future__ import unicode_literals
+
 from matplotlib.axes import Axes
-from matplotlib import cbook
 from matplotlib.patches import Circle
 from matplotlib.path import Path
-from matplotlib.ticker import Formatter, Locator, NullLocator, FixedLocator, NullFormatter
-from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
-    BboxTransformTo, IdentityTransform, Transform, TransformWrapper
+from matplotlib.ticker import NullLocator, Formatter, FixedLocator
+from matplotlib.transforms import Affine2D, BboxTransformTo, Transform
 from matplotlib.projections import register_projection
 import matplotlib.spines as mspines
 import matplotlib.axis as maxis
@@ -309,7 +308,7 @@ class HammerAxes(Axes):
         # by degrees.
         number = (360.0 / degrees) + 1
         self.xaxis.set_major_locator(
-            FixedLocator(
+            plt.FixedLocator(
                 np.linspace(-np.pi, np.pi, number, True)[1:-1]))
         # Set the formatter to display the tick labels in degrees,
         # rather than radians.
@@ -447,11 +446,12 @@ class HammerAxes(Axes):
 # it.
 register_projection(HammerAxes)
 
-# Now make a simple example using the custom projection.
-from pylab import *
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+    # Now make a simple example using the custom projection.
+    plt.subplot(111, projection="custom_hammer")
+    p = plt.plot([-1, 1, 1], [-1, -1, 1], "o-")
+    plt.grid(True)
 
-subplot(111, projection="custom_hammer")
-p = plot([-1, 1, 1], [-1, -1, 1], "o-")
-grid(True)
+    plt.show()
 
-show()
