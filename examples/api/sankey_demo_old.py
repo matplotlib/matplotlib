@@ -5,7 +5,7 @@ from __future__ import print_function
 __author__ = "Yannick Copin <ycopin@ipnl.in2p3.fr>"
 __version__ = "Time-stamp: <10/02/2010 16:49 ycopin@lyopc548.in2p3.fr>"
 
-import numpy as N
+import numpy as np
 
 def sankey(ax,
            outputs=[100.], outlabels=None,
@@ -30,19 +30,19 @@ Return (patch,[intexts,outtexts])."""
     import matplotlib.patches as mpatches
     from matplotlib.path import Path
 
-    outs = N.absolute(outputs)
-    outsigns = N.sign(outputs)
+    outs = np.absolute(outputs)
+    outsigns = np.sign(outputs)
     outsigns[-1] = 0 # Last output
 
-    ins = N.absolute(inputs)
-    insigns = N.sign(inputs)
+    ins = np.absolute(inputs)
+    insigns = np.sign(inputs)
     insigns[0] = 0 # First input
 
     assert sum(outs)==100, "Outputs don't sum up to 100%"
     assert sum(ins)==100, "Inputs don't sum up to 100%"
 
     def add_output(path, loss, sign=1):
-        h = (loss/2+w)*N.tan(outangle/180.*N.pi) # Arrow tip height
+        h = (loss/2+w)*np.tan(outangle/180.*np.pi) # Arrow tip height
         move,(x,y) = path[-1] # Use last point as reference
         if sign==0: # Final loss (horizontal)
             path.extend([(Path.LINETO,[x+dx,y]),
@@ -64,7 +64,7 @@ Return (patch,[intexts,outtexts])."""
             outtips.append((sign,path[-5][1]))
 
     def add_input(path, gain, sign=1):
-        h = (gain/2)*N.tan(inangle/180.*N.pi) # Dip depth
+        h = (gain/2)*np.tan(inangle/180.*np.pi) # Dip depth
         move,(x,y) = path[-1] # Use last point as reference
         if sign==0: # First gain (horizontal)
             path.extend([(Path.LINETO,[x-dx,y]),
@@ -109,7 +109,7 @@ curves."""
     path = urpath + revert(lrpath) + llpath + revert(ulpath)
 
     codes,verts = zip(*path)
-    verts = N.array(verts)
+    verts = np.array(verts)
 
     # Path patch
     path = Path(verts,codes)
@@ -168,7 +168,7 @@ curves."""
 
 if __name__=='__main__':
 
-    import matplotlib.pyplot as P
+    import matplotlib.pyplot as plt
 
     outputs = [10.,-20.,5.,15.,-10.,40.]
     outlabels = ['First','Second','Third','Fourth','Fifth','Hurray!']
@@ -176,7 +176,7 @@ if __name__=='__main__':
 
     inputs = [60.,-25.,15.]
 
-    fig = P.figure()
+    fig = plt.figure()
     ax = fig.add_subplot(1,1,1, xticks=[],yticks=[],
                          title="Sankey diagram"
                          )
@@ -187,5 +187,5 @@ if __name__=='__main__':
     outtexts[1].set_color('r')
     outtexts[-1].set_fontweight('bold')
 
-    P.show()
+    plt.show()
 

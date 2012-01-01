@@ -3,7 +3,6 @@ Clipping to arbitrary patches and paths
 """
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.path as path
 import matplotlib.patches as patches
 
 
