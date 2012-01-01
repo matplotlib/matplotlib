@@ -1,26 +1,28 @@
+import numpy as np
 import matplotlib
 from matplotlib.patches import Circle, Wedge, Polygon
 from matplotlib.collections import PatchCollection
-import pylab
+import matplotlib.pyplot as plt
 
-fig=pylab.figure()
+
+fig=plt.figure()
 ax=fig.add_subplot(111)
 
 resolution = 50 # the number of vertices
 N = 3
-x       = pylab.rand(N)
-y       = pylab.rand(N)
-radii   = 0.1*pylab.rand(N)
+x       = np.random.rand(N)
+y       = np.random.rand(N)
+radii   = 0.1*np.random.rand(N)
 patches = []
 for x1,y1,r in zip(x, y, radii):
     circle = Circle((x1,y1), r)
     patches.append(circle)
 
-x       = pylab.rand(N)
-y       = pylab.rand(N)
-radii   = 0.1*pylab.rand(N)
-theta1  = 360.0*pylab.rand(N)
-theta2  = 360.0*pylab.rand(N)
+x       = np.random.rand(N)
+y       = np.random.rand(N)
+radii   = 0.1*np.random.rand(N)
+theta1  = 360.0*np.random.rand(N)
+theta2  = 360.0*np.random.rand(N)
 for x1,y1,r,t1,t2 in zip(x, y, radii, theta1, theta2):
     wedge = Wedge((x1,y1), r, t1, t2)
     patches.append(wedge)
@@ -34,13 +36,13 @@ patches += [
 ]
 
 for i in range(N):
-    polygon = Polygon(pylab.rand(N,2), True)
+    polygon = Polygon(np.random.rand(N,2), True)
     patches.append(polygon)
 
-colors = 100*pylab.rand(len(patches))
+colors = 100*np.random.rand(len(patches))
 p = PatchCollection(patches, cmap=matplotlib.cm.jet, alpha=0.4)
-p.set_array(pylab.array(colors))
+p.set_array(np.array(colors))
 ax.add_collection(p)
-pylab.colorbar(p)
+plt.colorbar(p)
 
-pylab.show()
+plt.show()
