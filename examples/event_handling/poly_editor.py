@@ -4,9 +4,8 @@ matplotlib event handling to interact with objects on the canvas
 
 """
 import numpy as np
-import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
 from matplotlib.artist import Artist
-from matplotlib.patches import Polygon
 from matplotlib.mlab import dist_point_to_segment
 
 
@@ -37,8 +36,7 @@ class PolygonInteractor:
         self.poly = poly
 
         x, y = zip(*self.poly.xy)
-        self.line = plt.Line2D(x, y, marker='o', markerfacecolor='r',
-                               animated=True)
+        self.line = Line2D(x, y, marker='o', markerfacecolor='r', animated=True)
         self.ax.add_line(self.line)
         #self._update_line(poly)
 
@@ -143,22 +141,26 @@ class PolygonInteractor:
         self.canvas.blit(self.ax.bbox)
 
 
-fig = plt.figure()
-theta = np.arange(0, 2*np.pi, 0.1)
-r = 1.5
+if __name__ == '__main__':
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Polygon
 
-xs = r*np.cos(theta)
-ys = r*np.sin(theta)
+    fig = plt.figure()
+    theta = np.arange(0, 2*np.pi, 0.1)
+    r = 1.5
 
-poly = Polygon(zip(xs, ys,), animated=True)
+    xs = r*np.cos(theta)
+    ys = r*np.sin(theta)
 
-ax = plt.subplot(111)
-ax.add_patch(poly)
-p = PolygonInteractor(ax, poly)
+    poly = Polygon(zip(xs, ys,), animated=True)
 
-#ax.add_line(p.line)
-ax.set_title('Click and drag a point to move it')
-ax.set_xlim((-2,2))
-ax.set_ylim((-2,2))
-plt.show()
+    ax = plt.subplot(111)
+    ax.add_patch(poly)
+    p = PolygonInteractor(ax, poly)
+
+    #ax.add_line(p.line)
+    ax.set_title('Click and drag a point to move it')
+    ax.set_xlim((-2,2))
+    ax.set_ylim((-2,2))
+    plt.show()
 
