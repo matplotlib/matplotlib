@@ -544,9 +544,8 @@ class ColorbarBase(cm.ScalarMappable):
         del self.solids
         del self.dividers
 
-        col = self.ax.pcolor(*args, **kw)
-        col.set_antialiased(False) # This is to suppress artifacts. We
-                                   # may use pcolormesh instead.
+        col = self.ax.pcolormesh(*args, **kw)
+
         self.solids = col
         if self.drawedges:
             self.dividers = collections.LineCollection(self._edges(X,Y),
