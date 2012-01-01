@@ -518,9 +518,9 @@ class BboxBase(TransformNode):
         if container is None:
             container = self
         l, b, w, h = container.bounds
-        if isinstance(c, str):
+        try:
             cx, cy = self.coefs[c]
-        else:
+        except KeyError:
             cx, cy = c
         L, B, W, H = self.bounds
         return Bbox(self._points +
