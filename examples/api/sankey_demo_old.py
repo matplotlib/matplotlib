@@ -168,7 +168,7 @@ curves."""
 
 if __name__=='__main__':
 
-    import matplotlib.pyplot as P
+    import matplotlib.pyplot as plt
 
     outputs = [10.,-20.,5.,15.,-10.,40.]
     outlabels = ['First','Second','Third','Fourth','Fifth','Hurray!']
@@ -176,7 +176,7 @@ if __name__=='__main__':
 
     inputs = [60.,-25.,15.]
 
-    fig = P.figure()
+    fig = plt.figure()
     ax = fig.add_subplot(1,1,1, xticks=[],yticks=[],
                          title="Sankey diagram"
                          )
@@ -187,5 +187,5 @@ if __name__=='__main__':
     outtexts[1].set_color('r')
     outtexts[-1].set_fontweight('bold')
 
-    P.show()
+    plt.show()
 

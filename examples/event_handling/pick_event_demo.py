@@ -67,7 +67,7 @@ The examples below illustrate each of these methods.
 from __future__ import print_function
 from matplotlib.pyplot import figure, show
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch, Rectangle
+from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 from matplotlib.image import AxesImage
 import numpy as np
