@@ -48,6 +48,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib._png import read_png
+from matplotlib.cbook import mkdirs
 import matplotlib.dviread as dviread
 import re
 
@@ -91,8 +92,7 @@ class TexManager:
 WARNING: found a TeX cache dir in the deprecated location "%s".
   Moving it to the new default location "%s"."""%(oldcache, texcache), file=sys.stderr)
         shutil.move(oldcache, texcache)
-    if not os.path.exists(texcache):
-        os.mkdir(texcache)
+    mkdirs(texcache)
 
     _dvipng_hack_alpha = None
     #_dvipng_hack_alpha = dvipng_hack_alpha()
@@ -133,8 +133,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
     def __init__(self):
 
-        if not os.path.isdir(self.texcache):
-            os.mkdir(self.texcache)
+        mkdirs(self.texcache)
         ff = rcParams['font.family'].lower()
         if ff in self.font_families:
             self.font_family = ff
