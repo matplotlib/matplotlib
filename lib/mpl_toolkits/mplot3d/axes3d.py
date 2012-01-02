@@ -251,7 +251,7 @@ class Axes3D(Axes):
             This function was added, but not tested. Please report any bugs.
         """
         Axes.set_autoscale_on(self, b)
-        self.set_autoscalez_on(self, b)
+        self.set_autoscalez_on(b)
 
     def set_autoscalez_on(self, b) :
         """
