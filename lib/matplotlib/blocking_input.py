@@ -18,7 +18,7 @@ This provides several classes used for blocking interaction with figure windows:
 """
 
 from __future__ import print_function
-from matplotlib import path, verbose
+from matplotlib import verbose
 from matplotlib.cbook import is_sequence_of_strings
 import matplotlib.lines as mlines
 
@@ -306,52 +306,10 @@ class BlockingContourLabeler( BlockingMouseInput ):
         """
 
         # Shorthand
-        cs = self.cs
-
-        if event.inaxes == cs.ax:
-            conmin,segmin,imin,xmin,ymin = cs.find_nearest_contour(
-                event.x, event.y, cs.labelIndiceList)[:5]
-
-            # Get index of nearest level in subset of levels used for labeling
-            lmin = cs.labelIndiceList.index(conmin)
-
-            # Coordinates of contour
-            paths = cs.collections[conmin].get_paths()
-            lc = paths[segmin].vertices
-
-            # In pixel/screen space
-            slc = cs.ax.transData.transform(lc)
-
-            # Get label width for rotating labels and breaking contours
-            lw = cs.get_label_width(cs.labelLevelList[lmin],
-                                    cs.labelFmt, cs.labelFontSizeList[lmin])
-
-            """
-            # requires python 2.5
-            # Figure out label rotation.
-            rotation,nlc = cs.calc_label_rot_and_inline(
-                slc, imin, lw, lc if self.inline else [],
-                self.inline_spacing )
-            """
-            # Figure out label rotation.
-            if self.inline: lcarg = lc
-            else: lcarg = None
-            rotation,nlc = cs.calc_label_rot_and_inline(
-                slc, imin, lw, lcarg,
-                self.inline_spacing )
-
-            cs.add_label(xmin,ymin,rotation,cs.labelLevelList[lmin],
-                         cs.labelCValueList[lmin])
-
-            if self.inline:
-                # Remove old, not looping over paths so we can do this up front
-                paths.pop(segmin)
-
-                # Add paths if not empty or single point
-                for n in nlc:
-                    if len(n)>1:
-                        paths.append( path.Path(n) )
-
+        if event.inaxes == self.cs.ax:
+            self.cs.add_label_near(event.x, event.y, self.inline,
+                                   inline_spacing=self.inline_spacing,
+                                   transform=False)
             self.fig.canvas.draw()
         else: # Remove event if not valid
             BlockingInput.pop(self)
