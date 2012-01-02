@@ -28,7 +28,8 @@ if major >= 3:
     def addinfourl(data, headers, url, code=None):
         return urllib.request.addinfourl(io.BytesIO(data),
                                          headers, url, code)
-    urllib_HTTPSHandler = urllib.request.HTTPSHandler
+    if hasattr(urllib.request, 'HTTPSHandler'):
+        urllib_HTTPSHandler = urllib.request.HTTPSHandler
     urllib_build_opener = urllib.request.build_opener
     urllib_URLError = urllib.error.URLError
 else:
