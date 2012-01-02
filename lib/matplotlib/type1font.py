@@ -298,7 +298,7 @@ class Type1Font(object):
             for value in self._transformer(tokenizer,
                                            slant=effects.get('slant', 0.0),
                                            extend=effects.get('extend', 1.0)):
-                buffer.write(value)
+                buffer.write(unicode(value))
             result = buffer.getvalue()
         finally:
             buffer.close()
