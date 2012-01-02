@@ -35,6 +35,16 @@ plt.clabel(CS, inline=1, fontsize=10)
 plt.title('Simplest default with labels')
 
 
+# contour labels can be placed manually by providing list of positions
+# (in data coordinate). See ginput_manual_clabel.py for interactive
+# placement.
+plt.figure()
+CS = plt.contour(X, Y, Z)
+manual_locations = [(-1, -1.4), (-0.62, -0.7), (-2, 0.5), (1.7, 1.2), (2.0, 1.4), (2.4, 1.7)]
+plt.clabel(CS, inline=1, fontsize=10, manual=manual_locations)
+plt.title('labels at selected locations')
+
+
 # You can force all the contours to be the same color.
 plt.figure()
 CS = plt.contour(X, Y, Z, 6,
