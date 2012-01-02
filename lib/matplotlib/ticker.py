@@ -455,7 +455,7 @@ class ScalarFormatter(Formatter):
             if self._useOffset:
                 self._set_offset(d)
             self._set_orderOfMagnitude(d)
-            self._set_format()
+            self._set_format(vmin, vmax)
 
     def _set_offset(self, range):
         # offset of 20,001 is 20,000, for example
@@ -496,10 +496,19 @@ class ScalarFormatter(Formatter):
         else:
             self.orderOfMagnitude = 0
 
-    def _set_format(self):
+    def _set_format(self, vmin, vmax):
         # set the format string to format all the ticklabels
-        locs = (np.asarray(self.locs)-self.offset) / 10**self.orderOfMagnitude
-        loc_range_oom = int(math.floor(math.log10(np.ptp(locs))))
+        if len(self.locs) < 2:
+            # Temporarily augment the locations with the axis end points.
+            _locs = list(self.locs) + [vmin, vmax]
+        else:
+            _locs = self.locs
+        locs = (np.asarray(_locs)-self.offset) / 10**self.orderOfMagnitude
+        loc_range = np.ptp(locs)
+        if len(self.locs) < 2:
+            # We needed the end points only for the loc_range calculation.
+            locs = locs[:-2]
+        loc_range_oom = int(math.floor(math.log10(loc_range)))
         # first estimate:
         sigfigs = max(0, 3 - loc_range_oom)
         # refined estimate:
