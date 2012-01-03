@@ -297,13 +297,14 @@ class Type1Font(object):
         multiplier by which the font is to be extended (so values less
         than 1.0 condense). Returns a new :class:`Type1Font` object.
         """
-
-        buffer = io.StringIO()
+        buffer = io.BytesIO()
         try:
             tokenizer = self._tokens(self.parts[0])
             for value in self._transformer(tokenizer,
                                            slant=effects.get('slant', 0.0),
                                            extend=effects.get('extend', 1.0)):
+                if sys.version_info[0] >= 3 and isinstance(value, int):
+                    value = chr(value).encode('latin-1')
                 buffer.write(value)
             result = buffer.getvalue()
         finally:
