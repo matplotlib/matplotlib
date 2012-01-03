@@ -10,7 +10,6 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 import matplotlib.transforms as transforms
 
 
-
 class _Base(object):
     """
     A base class for PathEffect. Derived must override draw_path method.
@@ -22,6 +21,9 @@ class _Base(object):
         """
         super(_Base, self).__init__()
 
+    def get_proxy_renderer(self, renderer):
+        pe_renderer = ProxyRenderer(self, renderer)
+        return pe_renderer
 
     def _update_gc(self, gc, new_gc_dict):
         new_gc_dict = new_gc_dict.copy()
@@ -39,7 +41,7 @@ class _Base(object):
         return gc
 
 
-    def draw_path(self, renderer, gc, tpath, affine, rgbFace):
+    def draw_path(self, renderer, gc, tpath, affine, rgbFace=None):
         """
         Derived should override this method. The argument is same
         as *draw_path* method of :class:`matplotlib.backend_bases.RendererBase`
@@ -71,6 +73,33 @@ class _Base(object):
         gc.set_linewidth(0.0)
         self.draw_path(renderer, gc, path, transform, rgbFace=color)
 
+    def draw_markers(self, renderer, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        """
+        Draws a marker at each of the vertices in path.  This includes
+        all vertices, including control points on curves.  To avoid
+        that behavior, those vertices should be removed before calling
+        this function.
+
+        *gc*
+            the :class:`GraphicsContextBase` instance
+
+        *marker_trans*
+            is an affine transform applied to the marker.
+
+        *trans*
+             is an affine transform applied to the path.
+
+        This provides a fallback implementation of draw_markers that
+        makes multiple calls to :meth:`draw_path`.  Some backends may
+        want to override this method in order to draw the marker only
+        once and reuse it multiple times.
+        """
+        for vertices, codes in path.iter_segments(trans, simplify=False):
+            if len(vertices):
+                x,y = vertices[-2:]
+                self.draw_path(renderer, gc, marker_path,
+                               marker_trans + transforms.Affine2D().translate(x, y),
+                               rgbFace)
 
 #     def draw_path_collection(self, renderer,
 #                              gc, master_transform, paths, all_transforms,
@@ -87,6 +116,27 @@ class _Base(object):
 #             path, transform = path_id
 #             transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
 #             self.draw_path(renderer, gc0, path, transform, rgbFace)
+
+class ProxyRenderer(object):
+    def __init__(self, path_effect, renderer):
+        self._path_effect = path_effect
+        self._renderer = renderer
+
+    def draw_path(self, gc, tpath, affine, rgbFace=None):
+        self._path_effect.draw_path(self._renderer, gc, tpath, affine, rgbFace)
+
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+        self._path_effect._draw_text_as_path(self._renderer,
+                                             gc, x, y, s, prop, angle, ismath="TeX")
+
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+        self._path_effect._draw_text(self.renderer,
+                                     gc, x, y, s, prop, angle, ismath)
+
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        self._path_effect.draw_markers(self._renderer,
+                                       gc, marker_path, marker_trans, path, trans,
+                                       rgbFace=rgbFace)
 
 
 class Normal(_Base):

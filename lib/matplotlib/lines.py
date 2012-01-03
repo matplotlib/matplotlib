@@ -144,6 +144,7 @@ class Line2D(Artist):
                  pickradius      = 5,
                  drawstyle       = None,
                  markevery       = None,
+                 path_effects = None,
                  **kwargs
                  ):
         """
@@ -221,6 +222,8 @@ class Line2D(Artist):
         self._invalidx = True
         self._invalidy = True
         self.set_data(xdata, ydata)
+
+        self.set_path_effects(path_effects)
 
     def contains(self, mouseevent):
         """
@@ -504,7 +507,14 @@ class Line2D(Artist):
                 self._lineFunc = getattr(self, funcname)
                 funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
                 drawFunc = getattr(self, funcname)
-                drawFunc(renderer, gc, tpath, affine.frozen())
+
+                if self.get_path_effects():
+                    affine_frozen = affine.frozen()
+                    for pe in self.get_path_effects():
+                        pe_renderer = pe.get_proxy_renderer(renderer)
+                        drawFunc(pe_renderer, gc, tpath, affine_frozen)
+                else:
+                    drawFunc(renderer, gc, tpath, affine.frozen())
 
         if self._marker:
             gc = renderer.new_gc()
@@ -547,16 +557,31 @@ class Line2D(Artist):
                 w = renderer.points_to_pixels(self._markersize)
                 if marker.get_marker() != ',': # Don't scale for pixels
                     marker_trans = marker_trans.scale(w)
-                renderer.draw_markers(
-                    gc, marker_path, marker_trans, subsampled, affine.frozen(),
-                    rgbFace)
+
+                if self.get_path_effects():
+                    affine_frozen = affine.frozen()
+                    for pe in self.get_path_effects():
+                        pe.draw_markers(renderer, gc, marker_path, marker_trans,
+                                        subsampled, affine_frozen, rgbFace)
+                else:
+                    renderer.draw_markers(
+                        gc, marker_path, marker_trans, subsampled, affine.frozen(),
+                        rgbFace)
+
                 alt_marker_path = marker.get_alt_path()
                 if alt_marker_path:
                     alt_marker_trans = marker.get_alt_transform()
                     alt_marker_trans = alt_marker_trans.scale(w)
-                    renderer.draw_markers(
-                        gc, alt_marker_path, alt_marker_trans, subsampled,
-                        affine.frozen(), rgbFaceAlt)
+                    if self.get_path_effects():
+                        affine_frozen = affine.frozen()
+                        for pe in self.get_path_effects():
+                            pe.draw_markers(renderer, gc, alt_marker_path,
+                                            alt_marker_trans, subsampled,
+                                            affine_frozen, rgbFaceAlt)
+                    else:
+                        renderer.draw_markers(
+                            gc, alt_marker_path, alt_marker_trans, subsampled,
+                            affine.frozen(), rgbFaceAlt)
 
             gc.restore()
 
@@ -1097,6 +1122,17 @@ class Line2D(Artist):
     def is_dashed(self):
         'return True if line is dashstyle'
         return self._linestyle in ('--', '-.', ':')
+
+    def set_path_effects(self, path_effects):
+        """
+        set path_effects, which should be a list of instances of
+        matplotlib.patheffect._Base class or its derivatives.
+        """
+        self._path_effects = path_effects
+
+    def get_path_effects(self):
+        return self._path_effects
+
 
 class VertexSelector:
     """
