@@ -160,7 +160,7 @@ axes coordinates.
 For example, if you want your axes legend located at the figure corner
 (instead of the axes corner)::
 
-   l = legend(bbox_to_anchor=(0, 0, 1, 1), transform=gcf().transFigure)
+   l = legend(bbox_to_anchor=(0, 0, 1, 1), bbox_transform=gcf().transFigure)
 
 Also, you can place above or outer right-hand side of the axes,
 
