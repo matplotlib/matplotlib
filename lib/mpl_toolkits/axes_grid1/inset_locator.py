@@ -309,7 +309,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc=1,
                               **axes_kwargs)
 
    axes_locator = AnchoredZoomLocator(parent_axes, zoom=zoom, loc=loc,
-                                      bbox_to_anchor=None, bbox_transform=None,
+                                      bbox_to_anchor=bbox_to_anchor, bbox_transform=bbox_transform,
                                       **kwargs)
    inset_axes.set_axes_locator(axes_locator)
 
