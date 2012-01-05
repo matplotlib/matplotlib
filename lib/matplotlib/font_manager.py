@@ -1033,6 +1033,8 @@ class FontManager:
 
         No match will return 1.0.
         """
+        if not isinstance(families, (list, tuple)):
+            families = [families]
         family2 = family2.lower()
         for i, family1 in enumerate(families):
             family1 = family1.lower()
