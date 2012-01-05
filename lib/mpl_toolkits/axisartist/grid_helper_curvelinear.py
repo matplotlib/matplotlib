@@ -201,7 +201,10 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             xx0 = lon_levs
             dx = 0.01
 
-        e0, e1 = sorted(self._extremes)
+        if None in self._extremes:
+            e0, e1 = self._extremes
+        else:
+            e0, e1 = sorted(self._extremes)
         if e0 is None:
             e0 = -np.inf
         if e1 is None:
