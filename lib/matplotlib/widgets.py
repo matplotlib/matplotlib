@@ -1243,6 +1243,21 @@ class RectangleSelector:
             return event.inaxes!= self.ax
 
         # If a button was pressed, check if the release-button is the
+        # same. If event is out of axis, limit the data coordinates to axes
+        # boundaries.
+        if event.button == self.eventpress.button and event.inaxes != self.ax:
+            (xdata, ydata) = self.ax.transData.inverted().transform_point((event.x, event.y))
+            xlim = self.ax.get_xlim()
+            ylim = self.ax.get_ylim()
+            if xdata < xlim[0]: xdata = xlim[0]
+            if xdata > xlim[1]: xdata = xlim[1]
+            if ydata < ylim[0]: ydata = ylim[0]
+            if ydata > ylim[1]: ydata = ylim[1]
+            event.xdata = xdata
+            event.ydata = ydata
+            return False
+
+        # If a button was pressed, check if the release-button is the
         # same.
         return  (event.inaxes!=self.ax or
                  event.button != self.eventpress.button)
