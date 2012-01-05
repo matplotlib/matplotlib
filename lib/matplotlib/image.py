@@ -200,6 +200,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             else:
                 if self._rgbacache is None:
                     x = self.to_rgba(self._A, bytes=True)
+                    # premultiply the colors
+                    x[...,0:3] *= x[...,3:4] / 255.0
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
