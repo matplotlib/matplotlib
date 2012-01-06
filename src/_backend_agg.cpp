@@ -2239,7 +2239,12 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
 
     int newwidth = 0;
     int newheight = 0;
+    #if PY3K
+    Py::Bytes data;
+    #else
     Py::String data;
+    #endif
+
     if (xmin < xmax && ymin < ymax)
     {
         // Expand the bounds by 1 pixel on all sides
@@ -2269,7 +2274,11 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
         }
 
         // The Py::String will take over the buffer
-        data = Py::String((const char *)buf, (int)newsize);
+        #if PY3K
+        data = Py::Bytes((const char *)buf, (int) newsize);
+        #else
+        data = Py::String((const char *)buf, (int) newsize);
+        #endif
     }
 
     Py::Tuple bounds(4);
