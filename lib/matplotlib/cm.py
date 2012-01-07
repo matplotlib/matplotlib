@@ -183,33 +183,59 @@ class ScalarMappable:
         self.colorbar = im, ax
 
     def to_rgba(self, x, alpha=None, bytes=False):
-        '''Return a normalized rgba array corresponding to *x*. If *x*
-        is already an rgb array, insert *alpha*; if it is already
-        rgba, return it unchanged. If *bytes* is True, return rgba as
-        4 uint8s instead of 4 floats.
-        '''
-        if alpha is None:
-            _alpha = 1.0
-        else:
-            _alpha = alpha
+        """
+        Return a normalized rgba array corresponding to *x*.
+
+        In the normal case, *x* is a 1-D or 2-D sequence of scalars, and
+        the corresponding ndarray of rgba values will be returned,
+        based on the norm and colormap set for this ScalarMappable.
+
+        There is one special case, for handling images that are already
+        rgb or rgba, such as might have been read from an image file.
+        If *x* is an ndarray with 3 dimensions,
+        and the last dimension is either 3 or 4, then it will be
+        treated as an rgb or rgba array, and no mapping will be done.
+        If the last dimension is 3, the *alpha* kwarg (defaulting to 1)
+        will be used to fill in the transparency.  If the last dimension
+        is 4, the *alpha* kwarg is ignored; it does not
+        replace the pre-existing alpha.  A ValueError will be raised
+        if the third dimension is other than 3 or 4.
+
+        In either case, if *bytes* is *False* (default), the rgba
+        array will be floats in the 0-1 range; if it is *True*,
+        the returned rgba array will be uint8 in the 0 to 255 range.
+
+        Note: this method assumes the input is well-behaved; it does
+        not check for anomalies such as *x* being a masked rgba
+        array, or being an integer type other than uint8, or being
+        a floating point rgba array with values outside the 0-1 range.
+        """
+        # First check for special case, image input:
         try:
             if x.ndim == 3:
                 if x.shape[2] == 3:
+                    if alpha is None:
+                        alpha = 1
                     if x.dtype == np.uint8:
-                        _alpha = np.array(_alpha*255, np.uint8)
+                        alpha = np.uint8(alpha * 255)
                     m, n = x.shape[:2]
                     xx = np.empty(shape=(m,n,4), dtype = x.dtype)
                     xx[:,:,:3] = x
-                    xx[:,:,3] = _alpha
+                    xx[:,:,3] = alpha
                 elif x.shape[2] == 4:
                     xx = x
                 else:
                     raise ValueError("third dimension must be 3 or 4")
                 if bytes and xx.dtype != np.uint8:
                     xx = (xx * 255).astype(np.uint8)
+                if not bytes and xx.dtype == np.uint8:
+                    xx = xx.astype(float) / 255
                 return xx
         except AttributeError:
+            # e.g., x is not an ndarray; so try mapping it
             pass
+
+        # This is the normal case, mapping a scalar array:
         x = ma.asarray(x)
         x = self.norm(x)
         x = self.cmap(x, alpha=alpha, bytes=bytes)
