@@ -199,9 +199,14 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
                 im.is_grayscale = False
             else:
                 if self._rgbacache is None:
-                    x = self.to_rgba(self._A, bytes=True)
+                    x = self.to_rgba(self._A, bytes=False)
+                    # Avoid side effects: to_rgba can return its argument
+                    # unchanged.
+                    if np.may_share_memory(x, self._A):
+                        x = x.copy()
                     # premultiply the colors
-                    x[...,0:3] *= x[...,3:4] / 255.0
+                    x[...,0:3] *= x[...,3:4]
+                    x = (x * 255).astype(np.uint8)
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
