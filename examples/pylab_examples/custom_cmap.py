@@ -103,6 +103,16 @@ cdict3 = {'red':  ((0.0, 0.0, 0.0),
                    (1.0, 0.0, 0.0))
         }
 
+# Make a modified version of cdict3 with some transparency
+# in the middle of the range.
+cdict4 = cdict3.copy()
+cdict4['alpha'] = ((0.0, 1.0, 1.0),
+                #   (0.25,1.0, 1.0),
+                   (0.5, 0.3, 0.3),
+                #   (0.75,1.0, 1.0),
+                   (1.0, 1.0, 1.0))
+
+
 # Now we will use this example to illustrate 3 ways of
 # handling custom colormaps.
 # First, the most direct and explicit:
@@ -121,20 +131,27 @@ plt.register_cmap(cmap=blue_red2)
 # leave everything to register_cmap:
 
 plt.register_cmap(name='BlueRed3', data=cdict3) # optional lut kwarg
+plt.register_cmap(name='BlueRedAlpha', data=cdict4)
+
+# Make some illustrative fake data:
 
 x = np.arange(0, np.pi, 0.1)
 y = np.arange(0, 2*np.pi, 0.1)
 X, Y = np.meshgrid(x,y)
-Z = np.cos(X) * np.sin(Y)
+Z = np.cos(X) * np.sin(Y) * 10
 
-plt.figure(figsize=(10,4))
-plt.subplots_adjust(wspace=0.3)
+# Make the figure:
 
-plt.subplot(1,3,1)
+plt.figure(figsize=(6,9))
+plt.subplots_adjust(left=0.02, bottom=0.06, right=0.95, top=0.94, wspace=0.05)
+
+# Make 4 subplots:
+
+plt.subplot(2,2,1)
 plt.imshow(Z, interpolation='nearest', cmap=blue_red1)
 plt.colorbar()
 
-plt.subplot(1,3,2)
+plt.subplot(2,2,2)
 cmap = plt.get_cmap('BlueRed2')
 plt.imshow(Z, interpolation='nearest', cmap=cmap)
 plt.colorbar()
@@ -145,24 +162,32 @@ plt.colorbar()
 
 plt.rcParams['image.cmap'] = 'BlueRed3'
 
-# Also see below for an alternative, particularly for
-# interactive use.
+plt.subplot(2,2,3)
+plt.imshow(Z, interpolation='nearest')
+plt.colorbar()
+plt.title("Alpha = 1")
 
-plt.subplot(1,3,3)
+# Or as yet another variation, we can replace the rcParams
+# specification *before* the imshow with the following *after*
+# imshow.
+# This sets the new default *and* sets the colormap of the last
+# image-like item plotted via pyplot, if any.
+#
+
+plt.subplot(2,2,4)
+# Draw a line with low zorder so it will be behind the image.
+plt.plot([0, 10*np.pi], [0, 20*np.pi], color='c', lw=20, zorder=-1)
+
 plt.imshow(Z, interpolation='nearest')
 plt.colorbar()
 
-# Or as yet another variation, we could replace the rcParams
-# specification *before* the imshow with the following *after*
-# imshow:
+# Here it is: changing the colormap for the current image and its
+# colorbar after they have been plotted.
+plt.set_cmap('BlueRedAlpha')
+plt.title("Varying alpha")
 #
-# plt.set_cmap('BlueRed3')
-#
-# This sets the new default *and* sets the colormap of the last
-# image-like item plotted via pyplot, if any.
 
-
-plt.suptitle('Custom Blue-Red colormaps')
+plt.suptitle('Custom Blue-Red colormaps', fontsize=16)
 
 plt.show()
 
