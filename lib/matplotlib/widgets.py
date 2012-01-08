@@ -1247,12 +1247,12 @@ class RectangleSelector:
         # boundaries.
         if event.button == self.eventpress.button and event.inaxes != self.ax:
             (xdata, ydata) = self.ax.transData.inverted().transform_point((event.x, event.y))
-            xlim = self.ax.get_xlim()
-            ylim = self.ax.get_ylim()
-            if xdata < xlim[0]: xdata = xlim[0]
-            if xdata > xlim[1]: xdata = xlim[1]
-            if ydata < ylim[0]: ydata = ylim[0]
-            if ydata > ylim[1]: ydata = ylim[1]
+            x0, x1 = self.ax.get_xbound()
+            y0, y1 = self.ax.get_ybound()
+            xdata = max(x0, xdata)
+            xdata = min(x1, xdata)
+            ydata = max(y0, ydata)
+            ydata = min(y1, ydata)
             event.xdata = xdata
             event.ydata = ydata
             return False
