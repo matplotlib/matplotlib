@@ -507,7 +507,7 @@ class Sankey:
         label_locations = np.zeros((n,2))
         # Add the top-side inputs and outputs from the middle outwards.
         for i, (angle, is_input, spec) \
-            in enumerate(zip(angles, are_inputs, 
+            in enumerate(zip(angles, are_inputs,
                              zip(scaled_flows, pathlengths))):
             if angle == DOWN and is_input:
                 tips[i,:], label_locations[i,:] = self._add_input(ulpath, angle,
@@ -609,7 +609,7 @@ class Sankey:
                           fc=kwargs.pop('fc', kwargs.pop('facecolor',
                                         '#bfd1d4')), # Custom defaults
                           lw=kwargs.pop('lw', kwargs.pop('linewidth',
-                                        '0.5')),
+                                        0.5)),
                           **kwargs)
         self.ax.add_patch(patch)
 
