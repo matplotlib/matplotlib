@@ -299,9 +299,6 @@ class StreamMask(object):
 class InvalidIndexError(Exception):
     pass
 
-class OutOfBounds(Exception):
-    pass
-
 
 # Integrator definitions
 #========================
@@ -401,65 +398,66 @@ def _rk12(x0, y0, dmap, f):
     xf_traj = []
     yf_traj = []
 
-    try:
-        while dmap.grid.valid_index(xi, yi):
-            xf_traj.append(xi)
-            yf_traj.append(yi)
-            try:
-                k1x, k1y = f(xi, yi)
-                k2x, k2y = f(xi + ds * k1x,
-                             yi + ds * k1y)
-            except IndexError:
-                # Out of the domain on one of the intermediate steps
-                raise OutOfBounds
+    while dmap.grid.valid_index(xi, yi):
+        xf_traj.append(xi)
+        yf_traj.append(yi)
+        try:
+            k1x, k1y = f(xi, yi)
+            k2x, k2y = f(xi + ds * k1x,
+                         yi + ds * k1y)
+        except IndexError:
+            # Out of the domain on one of the intermediate integration steps.
+            # Take an Euler step to the boundary to improve neatness.
+            ds, xf_traj, yf_traj = _euler_step(xf_traj, yf_traj, dmap, f)
+            stotal += ds
+            break
 
-            dx1 = ds * k1x
-            dy1 = ds * k1y
-            dx2 = ds * 0.5 * (k1x + k2x)
-            dy2 = ds * 0.5 * (k1y + k2y)
+        dx1 = ds * k1x
+        dy1 = ds * k1y
+        dx2 = ds * 0.5 * (k1x + k2x)
+        dy2 = ds * 0.5 * (k1y + k2y)
 
-            nx, ny = dmap.grid.shape
-            # Error is normalized to the axes coordinates
-            error = np.sqrt(((dx2-dx1)/nx)**2 + ((dy2-dy1)/ny)**2)
-
-            # Only save step if within error tolerance
-            if error < maxerror:
-                xi += dx2
-                yi += dy2
-                try:
-                    dmap.update_trajectory(xi, yi)
-                except InvalidIndexError:
-                    break
-                if (stotal + ds) > 2:
-                    break
-                stotal += ds
-
-            # recalculate stepsize based on step error
-            ds = min(maxds, 0.85 * ds * (maxerror/error)**0.2)
-
-    except OutOfBounds:
-        ## This is raised when the edge of the domain is
-        ## reached. Here, a simple Euler integration is used up to the
-        ## boundary of the domain, improving the neatness of the
-        ## figure.
         nx, ny = dmap.grid.shape
-        xi = xf_traj[-1] # in data coordinates
-        yi = yf_traj[-1]
-        cx, cy = f(xi, yi) # ds.cx is in data coordinates, ds in axis coord.
-        if cx > 0:
-            dsx = (nx - 1 - xi) / cx
-        else:
-            dsx = xi / -cx
-        if cy > 0:
-            dsy = (ny - 1 - yi) / cy
-        else:
-            dsy = yi / -cy
-        ds = min(dsx, dsy)
-        xf_traj.append(xi+cx*ds)
-        yf_traj.append(yi+cy*ds)
-        stotal += ds
+        # Error is normalized to the axes coordinates
+        error = np.sqrt(((dx2-dx1)/nx)**2 + ((dy2-dy1)/ny)**2)
+
+        # Only save step if within error tolerance
+        if error < maxerror:
+            xi += dx2
+            yi += dy2
+            try:
+                dmap.update_trajectory(xi, yi)
+            except InvalidIndexError:
+                break
+            if (stotal + ds) > 2:
+                break
+            stotal += ds
+
+        # recalculate stepsize based on step error
+        ds = min(maxds, 0.85 * ds * (maxerror/error)**0.2)
 
     return stotal, xf_traj, yf_traj
+
+
+def _euler_step(xf_traj, yf_traj, dmap, f):
+    """Simple Euler integration step."""
+    nx, ny = dmap.grid.shape
+    xi = xf_traj[-1]
+    yi = yf_traj[-1]
+    cx, cy = f(xi, yi) # ds.cx is in data coordinates, ds in axis coord.
+    if cx > 0:
+        dsx = (nx - 1 - xi) / cx
+    else:
+        dsx = xi / -cx
+    if cy > 0:
+        dsy = (ny - 1 - yi) / cy
+    else:
+        dsy = yi / -cy
+    ds = min(dsx, dsy)
+    xf_traj.append(xi + cx*ds)
+    yf_traj.append(yi + cy*ds)
+    return ds, xf_traj, yf_traj
+
 
 def _rk4(x0, y0, dmap, f):
     """4th-order Runge-Kutta algorithm with fixed step size"""
