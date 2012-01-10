@@ -302,9 +302,6 @@ class InvalidIndexError(Exception):
 class OutOfBounds(Exception):
     pass
 
-class Terminated(Exception):
-    pass
-
 
 # Integrator definitions
 #========================
@@ -432,12 +429,12 @@ def _rk12(x0, y0, dmap, f):
                 try:
                     dmap.update_trajectory(xi, yi)
                 except InvalidIndexError:
-                    raise Terminated
+                    break
                 if (stotal + ds) > 2:
-                    raise Terminated
+                    break
                 stotal += ds
 
-            # recalculate stepsize based on Runge-Kutta-Fehlberg method
+            # recalculate stepsize based on step error
             ds = min(maxds, 0.85 * ds * (maxerror/error)**0.2)
 
     except OutOfBounds:
@@ -461,8 +458,6 @@ def _rk12(x0, y0, dmap, f):
         xf_traj.append(xi+cx*ds)
         yf_traj.append(yi+cy*ds)
         stotal += ds
-    except Terminated:
-        pass
 
     return stotal, xf_traj, yf_traj
 
