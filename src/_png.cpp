@@ -467,9 +467,9 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
 
     PyArrayObject *A = NULL;
     if (float_result) {
-        double max_value = (1 << ((bit_depth < 8) ? 8 : bit_depth)) - 1;
-
-        A = (PyArrayObject *) PyArray_SimpleNew(num_dims, dimensions, NPY_FLOAT);
+        double max_value = (1 << bit_depth) - 1;
+        PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNew(
+            num_dims, dimensions, PyArray_FLOAT);
 
         if (A == NULL)
         {
