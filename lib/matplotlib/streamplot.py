@@ -136,7 +136,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
         ## Add arrows half way along each trajectory.
         s = np.cumsum(np.sqrt(np.diff(tx)**2 + np.diff(ty)**2))
         n = np.searchsorted(s, s[-1] / 2.)
-        p = mpp.FancyArrowPatch((tx[n], ty[n]), (tx[n+1], ty[n+1]), **arrow_kw)
+        arrow_tail = (tx[n], ty[n])
+        arrow_head = (np.mean(tx[n:n+2]), np.mean(ty[n:n+2]))
+        p = mpp.FancyArrowPatch(arrow_tail, arrow_head, **arrow_kw)
         axes.add_patch(p)
 
     axes.update_datalim(((x.min(), y.min()), (x.max(), y.max())))
@@ -297,6 +299,12 @@ class StreamMask(object):
 class InvalidIndexError(Exception):
     pass
 
+class OutOfBounds(Exception):
+    pass
+
+class Terminated(Exception):
+    pass
+
 
 # Integrator definitions
 #========================
@@ -326,6 +334,8 @@ def get_integrator(u, v, dmap, minlength, integrator):
         _integrate = _rk4
     elif integrator == 'RK45':
         _integrate = _rk45
+    elif integrator == 'RK12':
+        _integrate = _rk12
 
     def rk4_integrate(x0, y0):
         """Return x, y coordinates of trajectory based on starting point.
@@ -353,10 +363,112 @@ def get_integrator(u, v, dmap, minlength, integrator):
 
     return rk4_integrate
 
+## I have added this RK12 integrator, which I think supercedes both
+## other integrators. The rationale is two-fold:
+##
+## 1. To get decent looking trajectories and to sample every mask cell
+##    on the trajectory we need a small timestep, so a lower order
+##    solver doesn't hurt us unless the data is *very* high resolution.
+##    In fact, for cases where the user inputs
+##    data smaller or of similar grid size to the mask grid, the higher
+##    order corrections are negligable because of the v fast linear
+##    interpolation used in interpgrid.
+##
+## 2. For high resolution input data (i.e. beyond the mask
+##    resolution), we must reduce the timestep. Therefore, an adaptive
+##    timestep is more suited to the problem as this would be very hard
+##    to judge automatically otherwise.
+##
+## This integrator is about 1.5 - 2x as fast as both the RK4 and RK45
+## solvers in most setups on my machine. I would recommend removing the
+## other two to keep things simple.
+
+def _rk12(x0, y0, dmap, f):
+    ## This error is below that needed to match the RK4 integrator. It
+    ## is set for visual reasons -- too low and corners start
+    ## appearing ugly and jagged. Can be tuned.
+    maxerror = 0.003
+
+    ## This limit is important (for all integrators) to avoid the
+    ## trajectory skipping some mask cells. We could relax this
+    ## condition if we use the code which is commented out below to
+    ## increment the location gradually. However, due to the efficient
+    ## nature of the interpolation, this doesn't boost speed by much
+    ## for quite a bit of complexity.
+    maxds = min(1./dmap.mask.nx, 1./dmap.mask.ny, 0.1)
+
+    ds = maxds
+    stotal = 0
+    xi = x0
+    yi = y0
+    xf_traj = []
+    yf_traj = []
+
+    try:
+        while dmap.grid.valid_index(xi, yi):
+            xf_traj.append(xi)
+            yf_traj.append(yi)
+            try:
+                k1x, k1y = f(xi, yi)
+                k2x, k2y = f(xi + ds * k1x,
+                             yi + ds * k1y)
+            except IndexError:
+                # Out of the domain on one of the intermediate steps
+                raise OutOfBounds
+
+            dx1 = ds * k1x
+            dy1 = ds * k1y
+            dx2 = ds * 0.5 * (k1x + k2x)
+            dy2 = ds * 0.5 * (k1y + k2y)
+
+            nx, ny = dmap.grid.shape
+            # Error is normalized to the axes coordinates
+            error = np.sqrt(((dx2-dx1)/nx)**2 + ((dy2-dy1)/ny)**2)
+
+            # Only save step if within error tolerance
+            if error < maxerror:
+                xi += dx2
+                yi += dy2
+                try:
+                    dmap.update_trajectory(xi, yi)
+                except InvalidIndexError:
+                    raise Terminated
+                if (stotal + ds) > 2:
+                    raise Terminated
+                stotal += ds
+
+            # recalculate stepsize based on Runge-Kutta-Fehlberg method
+            ds = min(maxds, 0.85 * ds * (maxerror/error)**0.2)
+
+    except OutOfBounds:
+        ## This is raised when the edge of the domain is
+        ## reached. Here, a simple Euler integration is used up to the
+        ## boundary of the domain, improving the neatness of the
+        ## figure.
+        nx, ny = dmap.grid.shape
+        xi = xf_traj[-1] # in data coordinates
+        yi = yf_traj[-1]
+        cx, cy = f(xi, yi) # ds.cx is in data coordinates, ds in axis coord.
+        if cx > 0:
+            dsx = (nx - 1 - xi) / cx
+        else:
+            dsx = xi / -cx
+        if cy > 0:
+            dsy = (ny - 1 - yi) / cy
+        else:
+            dsy = yi / -cy
+        ds = min(dsx, dsy)
+        xf_traj.append(xi+cx*ds)
+        yf_traj.append(yi+cy*ds)
+        stotal += ds
+    except Terminated:
+        pass
+
+    return stotal, xf_traj, yf_traj
 
 def _rk4(x0, y0, dmap, f):
     """4th-order Runge-Kutta algorithm with fixed step size"""
-    ds = 0.01 #min(1./grid.ny, 1./grid.ny, 0.01)
+    ds = min(1./dmap.mask.nx, 1./dmap.mask.ny, 0.01)
     stotal = 0
     xi = x0
     yi = y0
@@ -394,7 +506,7 @@ def _rk4(x0, y0, dmap, f):
 def _rk45(x0, y0, dmap, f):
     """5th-order Runge-Kutta algorithm with adaptive step size"""
     maxerror = 0.001
-    maxds = 0.03
+    maxds = min(1./dmap.mask.nx, 1./dmap.mask.ny, 0.03)
     ds = maxds
     stotal = 0
     xi = x0
@@ -456,7 +568,6 @@ def _rk45(x0, y0, dmap, f):
         # recalculate stepsize based on Runge-Kutta-Fehlberg method
         ds = min(maxds, 0.85 * ds * (maxerror/error)**0.2)
     return stotal, xf_traj, yf_traj
-
 
 # Utility functions
 #========================
