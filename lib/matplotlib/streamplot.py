@@ -244,7 +244,7 @@ class Grid(object):
 
     def valid_index(self, xi, yi):
         """Return True if point is a valid index of grid."""
-        return xi >= 0 and xi < self.nx and yi >= 0 and yi < self.ny
+        return xi >= 0 and xi <= self.nx-1 and yi >= 0 and yi <= self.ny-1
 
 
 class StreamMask(object):
