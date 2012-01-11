@@ -21,9 +21,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 """
-from operator import mul
-from itertools import imap
-
 import numpy as np
 import matplotlib
 import matplotlib.patches as mpp
@@ -33,7 +30,7 @@ __all__ = ['streamplot']
 
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
-               arrowsize=1, arrowstyle='-|>', minlength=0.1, integrator='RK4'):
+               arrowsize=1, arrowstyle='-|>', minlength=0.1):
     """Draws streamlines of a vector flow.
 
     Parameters
@@ -63,10 +60,6 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
         Arrow style specification. See `matplotlib.patches.FancyArrowPatch`.
     minlength : float
         Minimum length of streamline in axes coordinates.
-    integrator : {'RK4'|'RK45'}
-        Integration scheme.
-            RK4 = 4th-order Runge-Kutta
-            RK45 = adaptive-step Runge-Kutta-Fehlberg
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
@@ -86,7 +79,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
     assert u.shape == grid.shape
     assert v.shape == grid.shape
 
-    integrate = get_integrator(u, v, dmap, minlength, integrator)
+    integrate = get_integrator(u, v, dmap, minlength)
 
     trajectories = []
     for xm, ym in _gen_starting_points(mask.shape):
@@ -303,7 +296,7 @@ class InvalidIndexError(Exception):
 # Integrator definitions
 #========================
 
-def get_integrator(u, v, dmap, minlength, integrator):
+def get_integrator(u, v, dmap, minlength):
 
     # rescale velocity onto grid-coordinates for integrations.
     u, v = dmap.data2grid(u, v)
@@ -324,14 +317,7 @@ def get_integrator(u, v, dmap, minlength, integrator):
         dxi, dyi = forward_time(xi, yi)
         return -dxi, -dyi
 
-    if integrator == 'RK4':
-        _integrate = _rk4
-    elif integrator == 'RK45':
-        _integrate = _rk45
-    elif integrator == 'RK12':
-        _integrate = _rk12
-
-    def rk4_integrate(x0, y0):
+    def integrate(x0, y0):
         """Return x, y coordinates of trajectory based on starting point.
 
         Integrate both forward and backward in time from starting point.
@@ -341,9 +327,9 @@ def get_integrator(u, v, dmap, minlength, integrator):
         """
 
         dmap.start_trajectory(x0, y0)
-        sf, xf_traj, yf_traj = _integrate(x0, y0, dmap, forward_time)
+        sf, xf_traj, yf_traj = _integrate_rk12(x0, y0, dmap, forward_time)
         dmap.reset_start_point(x0, y0)
-        sb, xb_traj, yb_traj = _integrate(x0, y0, dmap, backward_time)
+        sb, xb_traj, yb_traj = _integrate_rk12(x0, y0, dmap, backward_time)
         # combine forward and backward trajectories
         stotal = sf + sb
         x_traj = xb_traj[::-1] + xf_traj[1:]
@@ -355,10 +341,10 @@ def get_integrator(u, v, dmap, minlength, integrator):
             dmap.undo_trajectory()
             return None
 
-    return rk4_integrate
+    return integrate
 
 
-def _rk12(x0, y0, dmap, f):
+def _integrate_rk12(x0, y0, dmap, f):
     """2nd-order Runge-Kutta algorithm with adaptive step size.
 
     This method is also referred to as the improved Euler's method, or Heun's
@@ -462,109 +448,6 @@ def _euler_step(xf_traj, yf_traj, dmap, f):
     return ds, xf_traj, yf_traj
 
 
-def _rk4(x0, y0, dmap, f):
-    """4th-order Runge-Kutta algorithm with fixed step size"""
-    ds = min(1./dmap.mask.nx, 1./dmap.mask.ny, 0.01)
-    stotal = 0
-    xi = x0
-    yi = y0
-    xf_traj = []
-    yf_traj = []
-
-    while dmap.grid.valid_index(xi, yi):
-        # Time step. First save the point.
-        xf_traj.append(xi)
-        yf_traj.append(yi)
-        # Next, advance one using RK4
-        try:
-            k1x, k1y = f(xi, yi)
-            k2x, k2y = f(xi + .5*ds*k1x, yi + .5*ds*k1y)
-            k3x, k3y = f(xi + .5*ds*k2x, yi + .5*ds*k2y)
-            k4x, k4y = f(xi + ds*k3x, yi + ds*k3y)
-        except IndexError:
-            # Out of the domain on one of the intermediate steps
-            break
-        xi += ds*(k1x+2*k2x+2*k3x+k4x) / 6.
-        yi += ds*(k1y+2*k2y+2*k3y+k4y) / 6.
-        # Final position might be out of the domain
-
-        try:
-            dmap.update_trajectory(xi, yi)
-        except InvalidIndexError:
-            break
-        if (stotal + ds) > 2:
-            break
-        stotal += ds
-
-    return stotal, xf_traj, yf_traj
-
-
-def _rk45(x0, y0, dmap, f):
-    """5th-order Runge-Kutta algorithm with adaptive step size"""
-    maxerror = 0.001
-    maxds = min(1./dmap.mask.nx, 1./dmap.mask.ny, 0.03)
-    ds = maxds
-    stotal = 0
-    xi = x0
-    yi = y0
-    xf_traj = []
-    yf_traj = []
-
-    # RK45 coefficients (Runge-Kutta-Fehlberg method)
-    a2 = 0.25
-    a3 = (3./32, 9./32)
-    a4 = (1932./2197, -7200./2197, 7296./2197)
-    a5 = (439./216, -8, 3680./513, -845./4104)
-    a6 = (-8./27, 2, -3544./2565, 1859./4104, -11./40)
-
-    b4 = (25./216, 1408./2565, 2197./4104, -1./5)
-    b5 = (16./135, 6656./12825, 28561./56430, -9./50, 2./55)
-
-    while dmap.grid.valid_index(xi, yi):
-        xf_traj.append(xi)
-        yf_traj.append(yi)
-
-        try:
-            k1x, k1y = f(xi, yi)
-            k2x, k2y = f(xi + ds * a2 * k1x,
-                         yi + ds * a2 * k1y)
-            k3x, k3y = f(xi + ds * dot(a3, (k1x, k2x)),
-                         yi + ds * dot(a3, (k1y, k2y)))
-            k4x, k4y = f(xi + ds * dot(a4, (k1x, k2x, k3x)),
-                         yi + ds * dot(a4, (k1y, k2y, k3y)))
-            k5x, k5y = f(xi + ds * dot(a5, (k1x, k2x, k3x, k4x)),
-                         yi + ds * dot(a5, (k1y, k2y, k3y, k4y)))
-            k6x, k6y = f(xi + ds * dot(a6, (k1x, k2x, k3x, k4x, k5x)),
-                         yi + ds * dot(a6, (k1y, k2y, k3y, k4y, k5y)))
-        except IndexError:
-            # Out of the domain on one of the intermediate steps
-            break
-
-        dx4 = ds * dot(b4, (k1x, k3x, k4x, k5x))
-        dy4 = ds * dot(b4, (k1y, k3y, k4y, k5y))
-        dx5 = ds * dot(b5, (k1x, k3x, k4x, k5x, k6x))
-        dy5 = ds * dot(b5, (k1y, k3y, k4y, k5y, k6y))
-
-        nx, ny = dmap.grid.shape
-        # Error is normalized to the axes coordinates
-        error = np.sqrt(((dx5-dx4)/nx)**2 + ((dy5-dy4)/ny)**2)
-
-        # Only save step if within error tolerance
-        if error < maxerror:
-            xi += dx5
-            yi += dy5
-            try:
-                dmap.update_trajectory(xi, yi)
-            except InvalidIndexError:
-                break
-            if (stotal + ds) > 2:
-                break
-            stotal += ds
-
-        # recalculate stepsize based on Runge-Kutta-Fehlberg method
-        ds = min(maxds, 0.85 * ds * (maxerror/error)**0.2)
-    return stotal, xf_traj, yf_traj
-
 # Utility functions
 #========================
 
@@ -596,14 +479,6 @@ def interpgrid(a, xi, yi):
     a0 = a00 * (1 - xt) + a01 * xt
     a1 = a10 * (1 - xt) + a11 * xt
     return a0 * (1 - yt) + a1 * yt
-
-
-def dot(seq1, seq2):
-    """Dot product of two sequences.
-
-    For short sequences, this is faster than transforming to numpy arrays.
-    """
-    return sum(imap(mul, seq1, seq2))
 
 
 def _gen_starting_points(shape):
