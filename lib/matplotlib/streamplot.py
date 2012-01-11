@@ -570,16 +570,27 @@ def _rk45(x0, y0, dmap, f):
 
 def interpgrid(a, xi, yi):
     """Fast 2D, linear interpolation on an integer grid"""
+
+    Ny, Nx = np.shape(a)
     if type(xi) == np.ndarray:
         x = xi.astype(np.int)
         y = yi.astype(np.int)
+        # Check that xn, yn don't exceed max index
+        xn = np.clip(x + 1, 0, Nx - 1)
+        yn = np.clip(y + 1, 0, Ny - 1)
     else:
         x = np.int(xi)
         y = np.int(yi)
+        # conditional is faster than clipping for integers
+        if x == (Nx - 2): xn = x
+        else: xn = x + 1
+        if y == (Ny - 2): yn = y
+        else: yn = y + 1
+
     a00 = a[y, x]
-    a01 = a[y, x + 1]
-    a10 = a[y + 1, x]
-    a11 = a[y + 1, x + 1]
+    a01 = a[y, xn]
+    a10 = a[yn, x]
+    a11 = a[yn, xn]
     xt = xi - x
     yt = yi - y
     a0 = a00 * (1 - xt) + a01 * xt
