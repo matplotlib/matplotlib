@@ -357,27 +357,30 @@ def get_integrator(u, v, dmap, minlength, integrator):
 
     return rk4_integrate
 
-## I have added this RK12 integrator, which I think supercedes both
-## other integrators. The rationale is two-fold:
-##
-## 1. To get decent looking trajectories and to sample every mask cell
-##    on the trajectory we need a small timestep, so a lower order
-##    solver doesn't hurt us unless the data is *very* high resolution.
-##    In fact, for cases where the user inputs
-##    data smaller or of similar grid size to the mask grid, the higher
-##    order corrections are negligable because of the v fast linear
-##    interpolation used in interpgrid.
-##
-## 2. For high resolution input data (i.e. beyond the mask
-##    resolution), we must reduce the timestep. Therefore, an adaptive
-##    timestep is more suited to the problem as this would be very hard
-##    to judge automatically otherwise.
-##
-## This integrator is about 1.5 - 2x as fast as both the RK4 and RK45
-## solvers in most setups on my machine. I would recommend removing the
-## other two to keep things simple.
 
 def _rk12(x0, y0, dmap, f):
+    """2nd-order Runge-Kutta algorithm with adaptive step size.
+
+    This method is also referred to as the improved Euler's method, or Heun's
+    method. This method is favored over higher-order methods because:
+
+    1. To get decent looking trajectories and to sample every mask cell
+       on the trajectory we need a small timestep, so a lower order
+       solver doesn't hurt us unless the data is *very* high resolution.
+       In fact, for cases where the user inputs
+       data smaller or of similar grid size to the mask grid, the higher
+       order corrections are negligible because of the very fast linear
+       interpolation used in `interpgrid`.
+
+    2. For high resolution input data (i.e. beyond the mask
+       resolution), we must reduce the timestep. Therefore, an adaptive
+       timestep is more suited to the problem as this would be very hard
+       to judge automatically otherwise.
+
+    This integrator is about 1.5 - 2x as fast as both the RK4 and RK45
+    solvers in most setups on my machine. I would recommend removing the
+    other two to keep things simple.
+    """
     ## This error is below that needed to match the RK4 integrator. It
     ## is set for visual reasons -- too low and corners start
     ## appearing ugly and jagged. Can be tuned.
