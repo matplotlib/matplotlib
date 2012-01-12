@@ -13,9 +13,9 @@ of ticklabels, axis labels, and titles.
 Simple Example
 ==============
 
-In matplotlib location of axes (including subplots) are specified in
-normalized figure coordinate. It can happen that your axis labels or
-titles (or sometimes even ticklabels) go outside the figure area thus
+In matplotlib, the location of axes (including subplots) are specified in
+normalized figure coordinates. It can happen that your axis labels or
+titles (or sometimes even ticklabels) go outside the figure area, and are thus
 clipped.
 
 .. plot::
@@ -35,7 +35,7 @@ clipped.
    fig, ax = plt.subplots()
    example_plot(ax, fontsize=24)
 
-To prevent this, the location of axes need to be adjusted. For
+To prevent this, the location of axes needs to be adjusted. For
 subplots, this can be done by adjusting the subplot params
 (:ref:`howto-subplots-adjust`). Matplotlib v1.1 introduces a new
 command :func:`~matplotlib.pyplot.tight_layout` that does this
@@ -48,7 +48,7 @@ automatically for you.
    plt.tight_layout()
 
 When you have multiple subplots, often you see labels of different
-axes overlaps each other.
+axes overlapping each other.
 
 .. plot::
    :include-source:
@@ -62,8 +62,8 @@ axes overlaps each other.
    example_plot(ax4)
 
 
-*tight_layout* will also adjust spacing betweens subplots to minimize
-the overlaps.
+:func:`~matplotlib.pyplot.tight_layout` will also adjust spacing between
+subplots to minimize the overlaps.
 
 .. plot::
    :include-source:
@@ -72,7 +72,7 @@ the overlaps.
    plt.tight_layout()
 
 :func:`~matplotlib.pyplot.tight_layout` can take keyword arguments of
-*pad*, *w_pad* and *h_pad*. These controls the extra pad around the
+*pad*, *w_pad* and *h_pad*. These control the extra padding around the
 figure border and between subplots. The pads are specified in fraction
 of fontsize.
 
@@ -83,9 +83,9 @@ of fontsize.
    plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
 :func:`~matplotlib.pyplot.tight_layout` will work even if the sizes of
-subplot are different as far as their grid specification is
-compatible. In the example below, *ax1* and *ax2* are subplots of 2x2
-grid, while *ax3* is of 1x2 grid.
+subplots are different as far as their grid specification is
+compatible. In the example below, *ax1* and *ax2* are subplots of a 2x2
+grid, while *ax3* is of a 1x2 grid.
 
 
 .. plot::
@@ -152,11 +152,13 @@ aspect != "auto" (e.g., axes with images).
 Caveats
 -------
 
- * *tight_layout* only considers ticklabels, axis labels, and titles. Thus, other atists may be clipped and also may overlap. 
+ * :func:`~matplotlib.pyplot.tight_layout` only considers ticklabels, axis
+   labels, and titles. Thus, other artists may be clipped and also may
+   overlap.
 
  * It assumes that the extra space needed for ticklabels, axis labels,
    and titles is independent of original location of axes. This is
-   often True, but there are rare cases it is not.
+   often true, but there are rare cases where it is not.
 
  * pad=0 clips some of the texts by a few pixels. This may be a bug or
    a limitation of the current algorithm and it is not clear why it
@@ -169,7 +171,7 @@ Caveats
 Use with GridSpec
 -----------------
 
-GridSpec has its own tight_layout method
+GridSpec has its own :func:`~matplotlib.gridspec.GridSpec.tight_layout` method
 (the pyplot api :func:`~matplotlib.pyplot.tight_layout` also works).
 
 .. plot::
@@ -191,9 +193,9 @@ GridSpec has its own tight_layout method
     gs1.tight_layout(fig)
 
 
-You may provide an optional *rect* parameter, which specify the bbox
-that the subplots will be fit in. The coordinate must be in normalized
-figure coordinate and the default is (0, 0, 1, 1).
+You may provide an optional *rect* parameter, which specifies the bounding box
+that the subplots will be fit inside. The coordinates must be in normalized
+figure coordinates and the default is (0, 0, 1, 1).
 
 .. plot::
    :include-source:
@@ -202,7 +204,7 @@ figure coordinate and the default is (0, 0, 1, 1).
    gs1.tight_layout(fig, rect=[0, 0, 0.5, 1])
 
 
-For example, this can be used for a figure with multiple grid_spec's.
+For example, this can be used for a figure with multiple gridspecs.
 
 .. plot::
    :include-source:
@@ -230,13 +232,13 @@ We may try to match the top and bottom of two grids ::
     gs2.update(top=top, bottom=bottom)
     
 
-While this should be mostly good enough, but adjusting top and bottom
-may requires adjustment in hspace also.  To update hspace & vspace, we
-call tight_layout again with updated rect argument. Note the rect
-argument specifies area including the ticklabels etc.  Thus we will
-increase the bottom (which is 0 in normal case) by the difference
-between the *bottom* from above and bottom of each gridspec. Same
-thing for top.
+While this should be mostly good enough, adjusting top and bottom
+may require adjustment of hspace also.  To update hspace & vspace, we
+call :func:`~matplotlib.gridspec.GridSpec.tight_layout` again with updated
+rect argument. Note that the rect argument specifies the area including the
+ticklabels, etc.  Thus, we will increase the bottom (which is 0 for the normal
+case) by the difference between the *bottom* from above and the bottom of each
+gridspec. Same thing for the top.
 
 .. plot::
    :include-source:
@@ -256,7 +258,7 @@ thing for top.
 Use with AxesGrid1
 ------------------
 
-While limited, axes_grid1 toolkit is also supported.
+While limited, the axes_grid1 toolkit is also supported.
 
 
 .. plot::
@@ -282,8 +284,8 @@ While limited, axes_grid1 toolkit is also supported.
 Colorbar
 --------
 
-If you create colorbar with :func:`~matplotlib.pyplot.colorbar`
-command, the created colorbar is an instance of Axes not Subplot, thus
+If you create a colorbar with the :func:`~matplotlib.pyplot.colorbar`
+command, the created colorbar is an instance of Axes, *not* Subplot, so
 tight_layout does not work. With Matplotlib v1.1, you may create a
 colobar as a subplot using the gridspec.
 
