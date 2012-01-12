@@ -22,8 +22,241 @@
 from __future__ import print_function
 
 import itertools
-from matplotlib.cbook import iterable
+import contextlib
+from matplotlib.cbook import iterable, is_string_like
 from matplotlib import verbose
+
+
+# Other potential writing support methods:
+# * ImageMagick convert: convert -set delay 3 -colorspace GRAY -colors 16 -dispose 1 -loop 0 -scale 50% *.png Output.gif
+# * http://pymedia.org/
+# * libmng (produces swf) python wrappers: https://github.com/libming/libming
+# * Wrap x264 API: http://stackoverflow.com/questions/2940671/how-to-encode-series-of-images-into-h264-using-x264-api-c-c
+# * Can pipe buffers to ffmpeg/mencoder:
+# http://stackoverflow.com/questions/4092927/generating-movie-from-python-without-saving-individual-frames-to-files
+#   * Mencoder:
+#		cmdstring  = ('mencoder',
+#			'/dev/stdin',
+#			'-demuxer', 'rawvideo',
+#			'-rawvideo', 'w=%i:h=%i'%size[::-1]+":fps=%i:format=%s"%(1,'bgra'),
+#			'-o', filename+'.avi',
+#			'-ovc', 'lavc',
+#			)
+#		self.p = subprocess.Popen(cmdstring, stdin=subprocess.PIPE, shell=False)
+#   * ffmpeg:
+#        cmdstring = ('local/bin/ffmpeg',
+#                     '-r', '%d' % rate,
+#                     '-f','image2pipe',
+#                     '-vcodec', 'png',
+#                     '-i', 'pipe:', outf
+#                     )
+
+#Needs:
+# - Add RC param to control which backend and parameter string
+# - Pass in either string identifying backend or an instance of one of the
+#   writers, or None, which will use RC.
+# - Movie writer should definitely be able to have arbitrary additional arguments
+# - By allowing passing in an instance, we allow power users configurability
+#   without putting a boatload of keyword arguments into the save() call.
+# - Need a way to handle mapping image/frame formats -- need to explore what
+#   works more. There may not be as many options
+# - Need comments, docstrings
+# - Need to look at codecs
+# - Figure out implementation of isAvailable() -- have classes look for path
+#   to binary in rcparams, otherwise:
+#       just try to run with subprocess?
+#       walk $PATH?
+# - Could we fix the pipe version to work better by dumping raw canvas?
+#   - Does the canvas even exist when we get it?
+
+# A registry for available MovieWriter classes
+class MovieWriterRegistry(object):
+    def __init__(self):
+        self.avail = dict()
+
+    # Returns a decorator that can be used on classes to register them under
+    # a name. As in:
+    # @regiser('foo')
+    # class Foo:
+    #    pass
+    def register(self, name):
+        def wrapper(writerClass):
+            if writerClass.isAvailable():
+                self.avail[name] = writerClass
+            return writerClass
+        return wrapper
+
+    def list(self):
+        return self.avail.keys()
+
+    def __getitem__(self, name):
+        if not self.avail:
+            raise RuntimeError("No MovieWriters available!")
+        return self.avail[name]
+
+writers = MovieWriterRegistry()
+
+class MovieWriter(object):
+    def __init__(self, fps=5, extra_args=None):
+        self.fps = fps
+        self.frame_format = 'png'
+        if extra_args is None:
+            self.extra_args = list()
+        else:
+            self.extra_args = extra_args
+
+    @property
+    def frame_format(self):
+        return self._frame_format
+
+    @frame_format.setter
+    def frame_format(self, frame_format):
+        if frame_format in self.supported_formats:
+            self._frame_format = frame_format
+        else:
+            self._frame_format = self.supported_formats[0]
+
+    def setup(self, fig, outfile, *args):
+        self.outfile = outfile
+        self.fig = fig
+        self._run()
+
+    @contextlib.contextmanager
+    def saving(self, outfile, *args):
+        self.setup(outfile, *args)
+        yield
+        self.finish()
+
+    def _run(self):
+        # Uses subprocess to call the program for assembling frames into a
+        # movie file.  *args* returns the sequence of command line arguments
+        # from a few configuration options.
+        from subprocess import Popen, PIPE
+        command = self.args()
+        verbose.report('MovieWriter.run: running command: %s'%' '.join(command))
+        self._proc = Popen(command, shell=False, stdin=PIPE, stdout=PIPE,
+            stderr=PIPE)
+
+    def finish(self):
+        self.cleanup()
+
+    def grab_frame(self):
+        self.fig.savefig(self._frame_sink(), format=self.frame_format)
+
+    def _frame_sink(self):
+        return self._proc.stdin
+
+    def args(self):
+        return NotImplementedError("args needs to be implemented by subclass.")
+
+    def cleanup(self):
+        out,err = self._proc.communicate()
+        print(out)
+        print(err)
+
+    @staticmethod
+    def isAvailable():
+        return True
+
+class FileMovieWriter(MovieWriter):
+    def setup(self, outfile, frame_prefix='_tmp', clear_temp=True):
+        self.outfile = outfile
+        self.clear_temp = clear_temp
+        self.temp_prefix = frame_prefix
+        self._frame_counter = 0
+        self._temp_names = list()
+        self.fname_format_str = '%s%%04d.%s'
+
+    def _base_temp_name(self):
+        return self.fname_format_str % (self.temp_prefix, self.frame_format)
+
+    def _frame_sink(self):
+        fname = self._base_temp_name() % self._frame_counter
+        self._temp_names.append(fname)
+        verbose.report(
+            'MovieWriter.frame_sink: saving frame %d to fname=%s' % (self._frame_counter, fname),
+            level='debug')
+        self._frame_counter += 1
+
+        # This file returned here will be closed once it's used by savefig()
+        # because it will no longer be referenced and will be gc-ed.
+        return open(fname, 'wb')
+
+    def finish(self):
+        #Delete temporary files
+        self._run()
+        MovieWriter.finish(self)
+
+    def cleanup(self):
+        MovieWriter.cleanup(self)
+        if self.clear_temp:
+            import os
+            verbose.report(
+                'MovieWriter: clearing temporary fnames=%s' % str(self._temp_names),
+                level='debug')
+            for fname in self._temp_names:
+                os.remove(fname)
+
+
+@writers.register('ffmpeg_file')
+class FFMpegFileWriter(FileMovieWriter):
+    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp', 'pbm']
+    def args(self):
+        # Returns the command line parameters for subprocess to use
+        # ffmpeg to create a movie
+        return ['ffmpeg', '-y', '-r', str(self.fps)] + self.extra_args + ['-i',
+            self._base_temp_name(), self.outfile]
+
+
+@writers.register('ffmpeg')
+class FFMpegWriter(MovieWriter):
+    supported_formats = ['jpeg', 'ppm', 'tiff', 'sgi', 'bmp', 'pbm']
+    def args(self):
+        # Returns the command line parameters for subprocess to use
+        # ffmpeg to create a movie
+#        return ['ffmpeg', '-y', '-r', str(self.fps), '-i',
+#            self._base_temp_name(), self.outfile]
+        
+        format = {'jpeg':'mjpeg'}.get(self.frame_format, self.frame_format)
+        return (['ffmpeg', '-y', '-r', str(self.fps)] + self.extra_args +
+            ['-f','image2pipe', '-vcodec', format, '-i', 'pipe:', self.outfile])
+
+
+@writers.register('mencoder_file')
+class MencoderFileWriter(FileMovieWriter):
+    supported_formats = ['png', 'jpeg', 'tga', 'sgi']
+    def __init__(self, fps=5, extra_args=None, codec='mpeg4'):
+        MovieWriter.__init__(self, fps, extra_args)
+        self.codec = codec
+
+    def args(self):
+        # Returns the command line parameters for subprocess to use
+        # mencoder to create a movie
+        return ['mencoder',
+            'mf://%s*.%s' % (self.temp_prefix, self.frame_format), '-mf',
+            'type=%s:fps=%d' % (self.frame_format, self.fps),
+            '-ovc', 'lavc', '-lavcopts',
+            'vcodec=%s' % self.codec, '-o', self.outfile]
+
+
+@writers.register('mencoder')
+class MencoderWriter(MovieWriter):
+    supported_formats = ['jpeg', 'tga', 'sgi']
+    def __init__(self, fps=5, extra_args=None, codec='mpeg4'):
+        MovieWriter.__init__(self, fps, extra_args)
+        self.codec = codec
+
+    def args(self):
+        # Returns the command line parameters for subprocess to use
+        # mencoder to create a movie
+        return ['mencoder',
+            '-', '-demuxer', 'lavf', '-lavfdopts', 'format=mjpeg',
+            '-ovc', 'copy', '-o', self.outfile]
+#        return ['mencoder', '/dev/stdin', '-demuxer', 'rawvideo', '-rawvideo',
+#            ('w=%i:h=%i:fps=%i:format=%s' % 
+#            (self.fig.canvas.get_width_height() + (self.fps, 'bgra'))),
+#            '-ovc', 'lavc', '-o', self.outfile]
+
 
 class Animation(object):
     '''
@@ -85,14 +318,16 @@ class Animation(object):
         self.event_source.remove_callback(self._step)
         self.event_source = None
 
-    def save(self, filename, fps=5, codec='mpeg4', clear_temp=True,
+    def save(self, filename, writer=None, fps=None, clear_temp=True,
         frame_prefix='_tmp'):
         '''
         Saves a movie file by drawing every frame.
 
         *filename* is the output filename, eg :file:`mymovie.mp4`
 
-        *fps* is the frames per second in the movie
+        *fps* is the frames per second in the movie. Defaults to None,
+        which will use the animation's specified interval to set the frames
+        per second.
 
         *codec* is the codec to be used,if it is supported by the output method.
 
@@ -111,60 +346,43 @@ class Animation(object):
         else:
             reconnect_first_draw = False
 
-        fnames = []
+        if fps is None and hasattr(self, '_interval'):
+            # Convert interval in ms to frames per second
+            fps = 1000. / self._interval
+
+        # If the writer is None, use the rc param to find the name of the one
+        # to use
+        if writer is None:
+            # TODO: Get from rcparam
+            writer = writers.list()[0]
+
+        # If we have the name of a writer, instantiate an instance of the
+        # registered class.
+        if is_string_like(writer):
+            if writer in writers.avail:
+                writer = writers[writer](fps)
+            else:
+                import warnings
+                warnings.warn("MovieWriter %s unavailable" % writer)
+                writer = writers.list()[0]
+
+        verbose.report('Animation.save using %s' % type(writer), level='helpful')
         # Create a new sequence of frames for saved data. This is different
         # from new_frame_seq() to give the ability to save 'live' generated
         # frame information to be saved later.
         # TODO: Right now, after closing the figure, saving a movie won't
         # work since GUI widgets are gone. Either need to remove extra code
         # to allow for this non-existant use case or find a way to make it work.
-        for idx,data in enumerate(self.new_saved_frame_seq()):
-            #TODO: Need to see if turning off blit is really necessary
-            self._draw_next_frame(data, blit=False)
-            fname = '%s%04d.png' % (frame_prefix, idx)
-            fnames.append(fname)
-            verbose.report('Animation.save: saved frame %d to fname=%s'%(idx, fname), level='debug')
-            self._fig.savefig(fname)
-
-        self._make_movie(filename, fps, codec, frame_prefix)
-
-        #Delete temporary files
-        if clear_temp:
-            import os
-            verbose.report('Animation.save: clearing temporary fnames=%s'%str(fnames), level='debug')
-            for fname in fnames:
-                os.remove(fname)
+        with writer.saving(self._fig, filename, frame_prefix, clear_temp):
+            for data in self.new_saved_frame_seq():
+                #TODO: Need to see if turning off blit is really necessary
+                self._draw_next_frame(data, blit=False)
+                writer.grab_frame()
 
         # Reconnect signal for first draw if necessary
         if reconnect_first_draw:
             self._first_draw_id = self._fig.canvas.mpl_connect('draw_event',
                 self._start)
-
-    def ffmpeg_cmd(self, fname, fps, codec, frame_prefix):
-        # Returns the command line parameters for subprocess to use
-        # ffmpeg to create a movie
-        return ['ffmpeg', '-y', '-r', str(fps), '-b', '1800k', '-i',
-            '%s%%04d.png' % frame_prefix, fname]
-
-    def mencoder_cmd(self, fname, fps, codec, frame_prefix):
-        # Returns the command line parameters for subprocess to use
-        # mencoder to create a movie
-        return ['mencoder', 'mf://%s*.png' % frame_prefix, '-mf',
-            'type=png:fps=%d' % fps, '-ovc', 'lavc', '-lavcopts',
-            'vcodec=%s' % codec, '-oac', 'copy', '-o', fname]
-
-    def _make_movie(self, fname, fps, codec, frame_prefix, cmd_gen=None):
-        # Uses subprocess to call the program for assembling frames into a
-        # movie file.  *cmd_gen* is a callable that generates the sequence
-        # of command line arguments from a few configuration options.
-        from subprocess import Popen, PIPE
-        if cmd_gen is None:
-            cmd_gen = self.ffmpeg_cmd
-        command = cmd_gen(fname, fps, codec, frame_prefix)
-        verbose.report('Animation._make_movie running command: %s'%' '.join(command))
-        proc = Popen(command, shell=False,
-            stdout=PIPE, stderr=PIPE)
-        proc.wait()
 
     def _step(self, *args):
         '''
