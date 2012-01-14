@@ -1045,13 +1045,20 @@ class AnchoredOffsetbox(OffsetBox):
 
         def _offset(w, h, xd, yd, renderer, fontsize=fontsize, self=self):
             bbox = Bbox.from_bounds(0, 0, w, h)
-            borderpad = self.borderpad*fontsize
+            try:
+                borderpadx, borderpady = self.borderpad
+            except TypeError:
+                borderpadx = self.borderpad
+                borderpady = self.borderpad
+            borderpadx = borderpadx*fontsize
+            borderpady = borderpady*fontsize
+
             bbox_to_anchor = self.get_bbox_to_anchor()
 
             x0, y0 = self._get_anchored_bbox(self.loc,
                                              bbox,
                                              bbox_to_anchor,
-                                             borderpad)
+                                             borderpadx, borderpady)
             return x0+xd, y0+yd
 
         self.set_offset(_offset)
@@ -1088,7 +1095,8 @@ class AnchoredOffsetbox(OffsetBox):
 
 
 
-    def _get_anchored_bbox(self, loc, bbox, parentbbox, borderpad):
+    def _get_anchored_bbox(self, loc, bbox, parentbbox,
+                           borderpadx, borderpady):
         """
         return the position of the bbox anchored at the parentbbox
         with the loc code, with the borderpad.
@@ -1110,7 +1118,7 @@ class AnchoredOffsetbox(OffsetBox):
 
         c = anchor_coefs[loc]
 
-        container = parentbbox.padded(-borderpad)
+        container = parentbbox.padded(-borderpadx, -borderpady)
         anchored_box = bbox.anchored(c, container=container)
         return anchored_box.x0, anchored_box.y0
 
