@@ -1,3 +1,5 @@
+2012-01-08 Add axes.streamplot to plot streamlines of a velocity field. -TSY
+
 2011-12-29 ps and pdf markers are now stroked only if the line width
            is nonzero for consistency with agg, fixes issue #621. - JKS
 

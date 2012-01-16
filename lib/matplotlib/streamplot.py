@@ -136,6 +136,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
 
     axes.update_datalim(((x.min(), y.min()), (x.max(), y.max())))
     axes.autoscale_view(tight=True)
+    # TODO: Currently this returns only the last streamline and arrow patch.
+    return lc, p
 
 
 # Coordinate definitions
