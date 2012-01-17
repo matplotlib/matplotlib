@@ -79,10 +79,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
     assert u.shape == grid.shape
     assert v.shape == grid.shape
 
-    if np.ma.is_masked(u):
-        u = u.astype(float).filled(np.nan)
-    if np.ma.is_masked(v):
-        v = v.astype(float).filled(np.nan)
+    if np.any(np.isnan(u)):
+        u = np.ma.array(u, mask=np.isnan(u))
+    if np.any(np.isnan(v)):
+        v = np.ma.array(v, mask=np.isnan(v))
 
     integrate = get_integrator(u, v, dmap, minlength)
 
@@ -505,7 +505,7 @@ def interpgrid(a, xi, yi):
     ai = a0 * (1 - yt) + a1 * yt
 
     if not type(xi) == np.ndarray:
-        if np.isnan(ai):
+        if np.ma.is_masked(ai):
             raise TerminateTrajectory
 
     return ai
