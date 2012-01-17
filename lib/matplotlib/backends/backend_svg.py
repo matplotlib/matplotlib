@@ -1068,7 +1068,7 @@ class FigureCanvasSVG(FigureCanvasBase):
                 if sys.version_info[0] >= 3:
                     svgwriter = io.TextIOWrapper(filename, 'utf-8')
                 else:
-                    svgwriter = codecs.EncodedFile(filename, 'utf-8')
+                    svgwriter = codecs.getwriter('utf-8')(filename)
             fh_to_close = None
         else:
             raise ValueError("filename must be a path or a file-like object")
