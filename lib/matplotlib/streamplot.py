@@ -134,10 +134,18 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
         p = mpp.FancyArrowPatch(arrow_tail, arrow_head, **arrow_kw)
         axes.add_patch(p)
 
+    # Add dummy line collection so that colorbar works correctly.
+    if type(color) == np.ndarray:
+        lc = matplotlib.collections.LineCollection([], **line_kw)
+        lc.set_array(color.ravel())
+        lc.set_cmap(cmap)
+        lc.set_norm(norm)
+        axes.add_collection(lc)
+
     axes.update_datalim(((x.min(), y.min()), (x.max(), y.max())))
     axes.autoscale_view(tight=True)
-    # TODO: Currently this returns only the last streamline and arrow patch.
-    return lc, p
+    # TODO: Currently this returns only dummy streamline
+    return lc
 
 
 # Coordinate definitions
