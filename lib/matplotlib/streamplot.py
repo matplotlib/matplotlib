@@ -98,24 +98,17 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10*arrowsize)
 
+    if not type(linewidth) == np.ndarray:
+        line_kw['linewidth'] = linewidth
+        arrow_kw['linewidth'] = linewidth
+
+    if not type(color) == np.ndarray:
+        line_kw['color'] = color
+        arrow_kw['color'] = color
+
     for t in trajectories:
         tgx = np.array(t[0])
         tgy = np.array(t[1])
-
-        if type(linewidth) == np.ndarray:
-            line_kw['linewidth'] = interpgrid(linewidth, tgx, tgy)[:-1]
-            arrow_kw['linewidth'] = line_kw['linewidth'][len(tgx) / 2]
-        else:
-            line_kw['linewidth'] = linewidth
-            arrow_kw['linewidth'] = linewidth
-
-        if type(color) == np.ndarray:
-            line_kw['color'] = cmap(norm(interpgrid(color, tgx, tgy)[:-1]))
-            arrow_kw['color'] = line_kw['color'][len(tgx) / 2]
-        else:
-            line_kw['color'] = color
-            arrow_kw['color'] = color
-
         # Rescale from grid-coordinates to data-coordinates.
         tx = np.array(t[0]) * grid.dx + grid.x_origin
         ty = np.array(t[1]) * grid.dy + grid.y_origin
@@ -123,14 +116,23 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
         points = np.transpose([tx, ty]).reshape(-1, 1, 2)
         segments = np.concatenate([points[:-1], points[1:]], axis=1)
 
-        lc = matplotlib.collections.LineCollection(segments, **line_kw)
-        axes.add_collection(lc)
-
         ## Add arrows half way along each trajectory.
         s = np.cumsum(np.sqrt(np.diff(tx)**2 + np.diff(ty)**2))
         n = np.searchsorted(s, s[-1] / 2.)
         arrow_tail = (tx[n], ty[n])
         arrow_head = (np.mean(tx[n:n+2]), np.mean(ty[n:n+2]))
+
+        if type(linewidth) == np.ndarray:
+            line_kw['linewidth'] = interpgrid(linewidth, tgx, tgy)[:-1]
+            arrow_kw['linewidth'] = line_kw['linewidth'][n]
+
+        if type(color) == np.ndarray:
+            line_kw['color'] = cmap(norm(interpgrid(color, tgx, tgy)[:-1]))
+            arrow_kw['color'] = line_kw['color'][n]
+
+        lc = matplotlib.collections.LineCollection(segments, **line_kw)
+        axes.add_collection(lc)
+
         p = mpp.FancyArrowPatch(arrow_tail, arrow_head, **arrow_kw)
         axes.add_patch(p)
 

@@ -13,7 +13,7 @@ f, (ax1, ax2) = plt.subplots(ncols=2)
 ax1.streamplot(X, Y, U, V)
 
 lw = 5*speed/speed.max()
-ax2.streamplot(X, Y, U, V, density=0.6, color=U, linewidth=lw)
+ax2.streamplot(X, Y, U, V, density=0.6, color='k', linewidth=lw)
 
 plt.show()
 
