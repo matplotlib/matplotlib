@@ -79,6 +79,11 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
     assert u.shape == grid.shape
     assert v.shape == grid.shape
 
+    if np.ma.is_masked(u):
+        u = u.astype(float).filled(np.nan)
+    if np.ma.is_masked(v):
+        v = v.astype(float).filled(np.nan)
+
     integrate = get_integrator(u, v, dmap, minlength)
 
     trajectories = []
@@ -304,6 +309,9 @@ class StreamMask(object):
 class InvalidIndexError(Exception):
     pass
 
+class TerminateTrajectory(Exception):
+    pass
+
 
 # Integrator definitions
 #========================
@@ -320,7 +328,9 @@ def get_integrator(u, v, dmap, minlength):
 
     def forward_time(xi, yi):
         ds_dt = interpgrid(speed, xi, yi)
-        dt_ds = 0 if ds_dt == 0 else 1. / ds_dt
+        if ds_dt == 0:
+            raise TerminateTrajectory
+        dt_ds = 1. / ds_dt
         ui = interpgrid(u, xi, yi)
         vi = interpgrid(v, xi, yi)
         return ui * dt_ds, vi * dt_ds
@@ -412,6 +422,8 @@ def _integrate_rk12(x0, y0, dmap, f):
             ds, xf_traj, yf_traj = _euler_step(xf_traj, yf_traj, dmap, f)
             stotal += ds
             break
+        except TerminateTrajectory:
+            break
 
         dx1 = ds * k1x
         dy1 = ds * k1y
@@ -490,7 +502,13 @@ def interpgrid(a, xi, yi):
     yt = yi - y
     a0 = a00 * (1 - xt) + a01 * xt
     a1 = a10 * (1 - xt) + a11 * xt
-    return a0 * (1 - yt) + a1 * yt
+    ai = a0 * (1 - yt) + a1 * yt
+
+    if not type(xi) == np.ndarray:
+        if np.isnan(ai):
+            raise TerminateTrajectory
+
+    return ai
 
 
 def _gen_starting_points(shape):
