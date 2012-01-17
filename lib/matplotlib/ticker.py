@@ -1373,12 +1373,15 @@ class SymmetricalLogLocator(Locator):
     Determine the tick locations for log axes
     """
 
-    def __init__(self, transform, subs=[1.0]):
+    def __init__(self, transform, subs=None):
         """
         place ticks on the location= base**i*subs[j]
         """
         self._transform = transform
-        self._subs = subs
+        if subs is None:
+            self._subs = [1.0]
+        else:
+            self._subs = subs
         self.numticks = 15
 
     def __call__(self):
