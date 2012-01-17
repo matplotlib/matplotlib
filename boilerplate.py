@@ -124,7 +124,7 @@ cmappable = {
     #'spy'    :  'sci(%(ret)s)',  ### may return image or Line2D
     'quiver' :  'sci(%(ret)s)',
     'specgram'  : 'sci(%(ret)s[-1])',
-    'streamplot' :  'sci(%(ret)s[0])',
+    'streamplot' :  'sci(%(ret)s)',
     'tricontour' : 'if %(ret)s._A is not None: sci(%(ret)s)',
     'tricontourf': 'if %(ret)s._A is not None: sci(%(ret)s)',
     'tripcolor'  : 'sci(%(ret)s)',
