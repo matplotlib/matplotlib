@@ -1,6 +1,6 @@
 from __future__ import division
 
-import os, base64, tempfile, urllib, gzip, io, sys
+import os, base64, tempfile, urllib, gzip, io, sys, codecs
 
 import numpy as np
 
@@ -1064,7 +1064,11 @@ class FigureCanvasSVG(FigureCanvasBase):
         if is_string_like(filename):
             fh_to_close = svgwriter = io.open(filename, 'w', encoding='utf-8')
         elif is_writable_file_like(filename):
-            svgwriter = io.TextIOWrapper(filename, 'utf-8')
+            if not isinstance(filename, io.TextIOBase):
+                if sys.version_info[0] >= 3:
+                    svgwriter = io.TextIOWrapper(filename, 'utf-8')
+                else:
+                    svgwriter = codecs.getwriter('utf-8')(filename)
             fh_to_close = None
         else:
             raise ValueError("filename must be a path or a file-like object")
