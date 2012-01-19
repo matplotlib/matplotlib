@@ -41,6 +41,14 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
         Arrow style specification. See `matplotlib.patches.FancyArrowPatch`.
     minlength : float
         Minimum length of streamline in axes coordinates.
+
+    Returns
+    -------
+    streamlines : `matplotlib.collections.LineCollection`
+        Line collection with all streamlines as a series of line segments.
+        Currently, there is no way to differentiate between line segments
+        on different streamlines (other than manually checking that segments
+        are connected).
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
@@ -84,14 +92,19 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10*arrowsize)
 
-    if not type(linewidth) == np.ndarray:
+    if type(linewidth) == np.ndarray:
+        line_kw['linewidth'] = []
+    else:
         line_kw['linewidth'] = linewidth
         arrow_kw['linewidth'] = linewidth
 
-    if not type(color) == np.ndarray:
+    if type(color) == np.ndarray:
+        line_colors = []
+    else:
         line_kw['color'] = color
         arrow_kw['color'] = color
 
+    streamlines = []
     for t in trajectories:
         tgx = np.array(t[0])
         tgy = np.array(t[1])
@@ -100,7 +113,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
         ty = np.array(t[1]) * grid.dy + grid.y_origin
 
         points = np.transpose([tx, ty]).reshape(-1, 1, 2)
-        segments = np.concatenate([points[:-1], points[1:]], axis=1)
+        streamlines.extend(np.hstack([points[:-1], points[1:]]))
 
         ## Add arrows half way along each trajectory.
         s = np.cumsum(np.sqrt(np.diff(tx)**2 + np.diff(ty)**2))
@@ -109,30 +122,27 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
         arrow_head = (np.mean(tx[n:n+2]), np.mean(ty[n:n+2]))
 
         if type(linewidth) == np.ndarray:
-            line_kw['linewidth'] = interpgrid(linewidth, tgx, tgy)[:-1]
-            arrow_kw['linewidth'] = line_kw['linewidth'][n]
+            line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
+            line_kw['linewidth'].extend(line_widths)
+            arrow_kw['linewidth'] = line_widths[n]
 
         if type(color) == np.ndarray:
-            line_kw['color'] = cmap(norm(interpgrid(color, tgx, tgy)[:-1]))
-            arrow_kw['color'] = line_kw['color'][n]
-
-        lc = matplotlib.collections.LineCollection(segments, **line_kw)
-        axes.add_collection(lc)
+            color_values = interpgrid(color, tgx, tgy)[:-1]
+            line_colors.extend(color_values)
+            arrow_kw['color'] = cmap(norm(color_values[n]))
 
         p = mpp.FancyArrowPatch(arrow_tail, arrow_head, **arrow_kw)
         axes.add_patch(p)
 
-    # Add dummy line collection so that colorbar works correctly.
+    lc = matplotlib.collections.LineCollection(streamlines, **line_kw)
     if type(color) == np.ndarray:
-        lc = matplotlib.collections.LineCollection([], **line_kw)
-        lc.set_array(color.ravel())
+        lc.set_array(np.asarray(line_colors))
         lc.set_cmap(cmap)
         lc.set_norm(norm)
-        axes.add_collection(lc)
+    axes.add_collection(lc)
 
     axes.update_datalim(((x.min(), y.min()), (x.max(), y.max())))
     axes.autoscale_view(tight=True)
-    # TODO: Currently this returns only dummy streamline
     return lc
 
 
