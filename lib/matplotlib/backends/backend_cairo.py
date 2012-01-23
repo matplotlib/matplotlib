@@ -127,6 +127,8 @@ class RendererCairo(RendererBase):
         for points, code in path.iter_segments(transform):
             if code == Path.MOVETO:
                 ctx.move_to(*points)
+            elif code == Path.CLOSEPOLY:
+                ctx.close_path()
             elif code == Path.LINETO:
                 ctx.line_to(*points)
             elif code == Path.CURVE3:
@@ -135,8 +137,6 @@ class RendererCairo(RendererBase):
                              points[2], points[3])
             elif code == Path.CURVE4:
                 ctx.curve_to(*points)
-            elif code == Path.CLOSEPOLY:
-                ctx.close_path()
 
 
     def draw_path(self, gc, path, transform, rgbFace=None):
