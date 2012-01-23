@@ -533,6 +533,11 @@ grestore
                                                simplify=simplify):
             if code == Path.MOVETO:
                 ps.append("%g %g m" % tuple(points))
+            elif code == Path.CLOSEPOLY:
+                ps.append("cl")
+            elif last_points is None:
+                # The other operations require a previous point
+                raise ValueError('Path lacks initial MOVETO')
             elif code == Path.LINETO:
                 ps.append("%g %g l" % tuple(points))
             elif code == Path.CURVE3:
@@ -541,8 +546,6 @@ grestore
                           tuple(points[2:]))
             elif code == Path.CURVE4:
                 ps.append("%g %g %g %g %g %g c" % tuple(points))
-            elif code == Path.CLOSEPOLY:
-                ps.append("cl")
             last_points = points
 
         ps = "\n".join(ps)
