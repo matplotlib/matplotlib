@@ -1227,6 +1227,8 @@ end"""
                 # This is allowed anywhere in the path
                 cmds.extend(points)
                 cmds.append(Op.moveto)
+            elif code == Path.CLOSEPOLY:
+                cmds.append(Op.closepath)
             elif last_points is None:
                 # The other operations require a previous point
                 raise ValueError, 'Path lacks initial MOVETO'
@@ -1240,8 +1242,6 @@ end"""
             elif code == Path.CURVE4:
                 cmds.extend(points)
                 cmds.append(Op.curveto)
-            elif code == Path.CLOSEPOLY:
-                cmds.append(Op.closepath)
             last_points = points
         return cmds
 
