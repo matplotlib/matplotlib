@@ -234,6 +234,8 @@ class RendererEMF(RendererBase):
         for points, code in tpath.iter_segments():
             if code == Path.MOVETO:
                 self.emf.MoveTo(*points)
+            elif code == Path.CLOSEPOLY:
+                self.emf.CloseFigure()
             elif code == Path.LINETO:
                 self.emf.LineTo(*points)
             elif code == Path.CURVE3:
@@ -241,8 +243,6 @@ class RendererEMF(RendererBase):
                 self.emf.PolyBezierTo(zip(points[2::2], points[3::2]))
             elif code == Path.CURVE4:
                 self.emf.PolyBezierTo(zip(points[::2], points[1::2]))
-            elif code == Path.CLOSEPOLY:
-                self.emf.CloseFigure()
             last_points = points
         self.emf.EndPath()
 
