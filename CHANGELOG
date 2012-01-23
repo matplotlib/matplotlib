@@ -1,3 +1,8 @@
+2012-01-23 The radius labels in polar plots no longer use a fixed
+           padding, but use a different alignment depending on the
+           quadrant they are in.  This fixes numerical problems when
+           (rmax - rmin) gets too small. - MGD
+
 2011-12-27 Work around an EINTR bug in some versions of subprocess. - JKS
 
 2011-08-18 Change api of Axes.get_tightbbox and add an optional
