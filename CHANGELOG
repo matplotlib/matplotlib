@@ -1,11 +1,17 @@
 2012-02-29 errorevery keyword added to errorbar to enable errorbar
            subsampling. fixes issue #600.
 
+2012-01-23 The radius labels in polar plots no longer use a fixed
+           padding, but use a different alignment depending on the
+           quadrant they are in.  This fixes numerical problems when
+           (rmax - rmin) gets too small. - MGD
+
 2012-01-08 Add axes.streamplot to plot streamlines of a velocity field.
 		   Adapted from Tom Flannaghan streamplot implementation. -TSY
 
 2011-12-29 ps and pdf markers are now stroked only if the line width
            is nonzero for consistency with agg, fixes issue #621. - JKS
+
 
 2011-12-27 Work around an EINTR bug in some versions of subprocess. - JKS
 
