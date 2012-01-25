@@ -291,7 +291,7 @@ object.
 
 .. sourcecode:: ipython
 
-    In[11]: imgplot.set_clim=(0.0,0.7)
+    In[11]: imgplot.set_clim(0.0,0.7)
 
 .. plot::
 
