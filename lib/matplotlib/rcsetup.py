@@ -594,7 +594,7 @@ defaultParams = {
     # Animation settings
     'animation.writer' : ['ffmpeg', validate_movie_writer],
     'animation.codec' : ['mpeg4', str],
-    'animation.bitrate' : [1800, validate_int],
+    'animation.bitrate' : [-1, validate_int],
     'animation.frame_format' : ['png', validate_movie_frame_fmt], # Controls image format when frames are written to disk
     'animation.ffmpeg_path' : ['ffmpeg', str], # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
     'animation.ffmpeg_args' : ['', validate_stringlist], # Additional arguments for ffmpeg movie writer (using pipes)
