@@ -217,7 +217,9 @@ class FFMpegBase:
     def output_args(self):
         # The %dk adds 'k' as a suffix so that ffmpeg treats our bitrate as in
         # kbps
-        args = ['-vcodec', self.codec, '-b', '%dk' % self.bitrate]
+        args = ['-vcodec', self.codec]
+	if self.bitrate > 0:
+		args.extend(['-b', '%dk' % self.bitrate])
         if self.extra_args:
             args.extend(self.extra_args)
         return args + ['-y', self.outfile]
@@ -249,8 +251,9 @@ class MencoderBase:
 
     @property
     def output_args(self):
-        args = ['-o', self.outfile, '-ovc', 'lavc', 'vcodec=%s' % self.codec,
-            'vbitrate=%d' % self.bitrate]
+        args = ['-o', self.outfile, '-ovc', 'lavc', 'vcodec=%s' % self.codec]
+	if self.bitrate:
+            args.append('vbitrate=%d' % self.bitrate)
         if self.extra_args:
             args.extend(self.extra_args)
         return args
