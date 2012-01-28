@@ -827,11 +827,11 @@ class MultiCursor:
     Example usage::
 
         from matplotlib.widgets import MultiCursor
-        from pylab import figure, show, nx
+        from pylab import figure, show, np
 
-        t = nx.arange(0.0, 2.0, 0.01)
-        s1 = nx.sin(2*nx.pi*t)
-        s2 = nx.sin(4*nx.pi*t)
+        t = np.arange(0.0, 2.0, 0.01)
+        s1 = np.sin(2*np.pi*t)
+        s2 = np.sin(4*np.pi*t)
         fig = figure()
         ax1 = fig.add_subplot(211)
         ax1.plot(t, s1)
