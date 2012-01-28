@@ -2999,17 +2999,15 @@ def poly_below(xmin, xs, ys):
       ax.fill(xv, yv)
     """
     if ma.isMaskedArray(xs) or ma.isMaskedArray(ys):
-        nx = ma
-    else:
-        nx = np
+        np = ma
 
-    xs = nx.asarray(xs)
-    ys = nx.asarray(ys)
+    xs = np.asarray(xs)
+    ys = np.asarray(ys)
     Nx = len(xs)
     Ny = len(ys)
     assert(Nx==Ny)
-    x = xmin*nx.ones(2*Nx)
-    y = nx.ones(2*Nx)
+    x = xmin*np.ones(2*Nx)
+    y = np.ones(2*Nx)
     x[:Nx] = xs
     y[:Nx] = ys
     y[Nx:] = ys[::-1]
@@ -3028,19 +3026,17 @@ def poly_between(x, ylower, yupper):
     :meth:`matplotlib.axes.Axes.fill`.
     """
     if ma.isMaskedArray(ylower) or ma.isMaskedArray(yupper) or ma.isMaskedArray(x):
-        nx = ma
-    else:
-        nx = np
+        np = ma
 
     Nx = len(x)
     if not cbook.iterable(ylower):
-        ylower = ylower*nx.ones(Nx)
+        ylower = ylower*np.ones(Nx)
 
     if not cbook.iterable(yupper):
-        yupper = yupper*nx.ones(Nx)
+        yupper = yupper*np.ones(Nx)
 
-    x = nx.concatenate( (x, x[::-1]) )
-    y = nx.concatenate( (yupper, ylower[::-1]) )
+    x = np.concatenate( (x, x[::-1]) )
+    y = np.concatenate( (yupper, ylower[::-1]) )
     return x,y
 
 
