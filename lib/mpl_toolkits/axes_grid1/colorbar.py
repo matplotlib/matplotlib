@@ -882,11 +882,63 @@ def _get_colorbar_params(loc, orientation, length, thickness):
     return loc, orientation, height, width, tickdir
 
 
+@docstring.Substitution(colormap_kw_doc)
 def inner_colorbar(ax, mappable, loc,
                    orientation=None,
                    length="45%", thickness="5%",
                    pad=None,
                    **kw):
+    """
+    Create a colorbar at the inner side of the Axes of the given
+    location. The size and location of the original axes is not
+    changed. For example::
+
+      inner_colorbar(ax, mappable, loc=2, **kwargs)
+
+    required arguments are:
+
+      *ax*
+        parent axes object a new
+        colorbar axes will be attached
+
+      *mappable*
+        the :class:`~matplotlib.image.Image`,
+        :class:`~matplotlib.contour.ContourSet`, etc. to
+        which the colorbar applies; this argument is mandatory for the
+        :meth:`~matplotlib.figure.Figure.colorbar` method but optional for the
+        :func:`~matplotlib.pyplot.colorbar` function, which sets the
+        default to the current image.
+
+      *loc*
+        location code as in Legend
+
+    Keyword arguments are:
+
+    ============= ====================================================
+    Property      Description
+    ============= ====================================================
+    *orientation* None, vertical or horizontal
+    *length*      length of the colorbar.
+    *thickness*   thickness of the colorbar.
+    *pad*         pad bewtween original axes and colorbar in inches
+    ============= ====================================================
+
+    For *thickness* and *length*, if a float is given, it is
+    considered as a size in inches. If a string in the form of
+    '50%%' is given, the value is considered as a fraction of the
+    original axes.
+
+    Additional keyword arguments are:
+
+    %s
+
+    returns:
+     :class:`~matplotlib.colorbar.Colorbar` instance; see also its base class,
+     :class:`~matplotlib.colorbar.ColorbarBase`.  Call the
+     :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
+     to label the colorbar.
+
+    """
 
     if pad is None:
         pad = mpl.rcParams['legend.borderaxespad']
@@ -917,11 +969,64 @@ def inner_colorbar(ax, mappable, loc,
     return cb
 
 
+@docstring.Substitution(colormap_kw_doc)
 def outer_colorbar(ax, mappable, loc,
                    orientation=None,
                    length="100%", thickness="5%",
                    pad=None,
                    **kw):
+
+    """
+    Create a colorbar at the outer side of the Axes of the given
+    location. The size and location of the original axes is not
+    changed. For example::
+
+      outer_colorbar(ax, mappable, loc=2, **kwargs)
+
+    required arguments are:
+
+      *ax*
+        parent axes object a new
+        colorbar axes will be attached
+
+      *mappable*
+        the :class:`~matplotlib.image.Image`,
+        :class:`~matplotlib.contour.ContourSet`, etc. to
+        which the colorbar applies; this argument is mandatory for the
+        :meth:`~matplotlib.figure.Figure.colorbar` method but optional for the
+        :func:`~matplotlib.pyplot.colorbar` function, which sets the
+        default to the current image.
+
+      *loc*
+        location code as in Legend
+
+    Keyword arguments are:
+
+    ============= ====================================================
+    Property      Description
+    ============= ====================================================
+    *orientation* None, vertical or horizontal
+    *length*      length of the colorbar.
+    *thickness*   thickness of the colorbar.
+    *pad*         pad bewtween original axes and colorbar in inches
+    ============= ====================================================
+
+    For *thickness* and *length*, if a float is given, it is
+    considered as a size in inches. If a string in the form of
+    '50%%' is given, the value is considered as a fraction of the
+    original axes.
+
+    Additional keyword arguments are:
+
+    %s
+
+    returns:
+     :class:`~matplotlib.colorbar.Colorbar` instance; see also its base class,
+     :class:`~matplotlib.colorbar.ColorbarBase`.  Call the
+     :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
+     to label the colorbar.
+
+    """
 
     if pad is None:
         pad = mpl.rcParams['legend.borderaxespad']
