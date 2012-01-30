@@ -1287,6 +1287,13 @@ class Figure(Artist):
         return blocking_input(timeout=timeout)
 
 
+    def get_default_bbox_extra_artists(self, renderer):
+        bbox_extra_artists = [t for t in self.texts if t.get_visible()]
+        for ax in self.axes:
+            if ax.get_visible():
+                bbox_extra_artists.extend(ax.get_default_bbox_extra_artists(renderer))
+        return bbox_extra_artists
+
 
     def get_tightbbox(self, renderer):
         """
