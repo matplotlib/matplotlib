@@ -8250,6 +8250,11 @@ class Axes(martist.Artist):
                                                  integer=True))
         return im
 
+    def get_default_bbox_extra_artists(self, renderer):
+        bbox_extra_artists = [t for t in self.texts if t.get_visible()]
+        return bbox_extra_artists
+
+
     def get_tightbbox(self, renderer, call_axes_locator=True):
         """
         return the tight bounding box of the axes.
