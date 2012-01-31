@@ -1996,7 +1996,7 @@ class FigureCanvasBase(object):
 
                 bbox_extra_artists = kwargs.pop("bbox_extra_artists", None)
                 if bbox_extra_artists is None:
-                    bbox_extra_artists = self.figure.get_default_bbox_extra_artists(renderer)
+                    bbox_extra_artists = self.figure.get_default_bbox_extra_artists()
 
                 bb = [a.get_window_extent(renderer) for a in bbox_extra_artists]
                 
