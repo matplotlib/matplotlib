@@ -758,7 +758,12 @@ class Figure(Artist):
                         projection)
                 projection = 'polar'
 
-            projection_class = get_projection_class(projection)
+            if isinstance(projection, basestring) or projection is None:
+                projection_class = get_projection_class(projection)
+            else:
+                projection_class, extra_kwargs = projection._as_mpl_axes()
+                # XXX Do the extra arguments need to be hashable???
+                kwargs.update(**extra_kwargs)
 
             # Remake the key without projection kwargs:
             key = self._make_key(*args, **kwargs)
