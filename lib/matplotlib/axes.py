@@ -8267,7 +8267,7 @@ class Axes(martist.Artist):
                                                  integer=True))
         return im
 
-    def get_default_bbox_extra_artists(self, renderer):
+    def get_default_bbox_extra_artists(self):
         bbox_extra_artists = [t for t in self.texts if t.get_visible()]
         if self.legend_:
             bbox_extra_artists.append(self.legend_)
