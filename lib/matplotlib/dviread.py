@@ -424,6 +424,8 @@ class DviFont(object):
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
     def __init__(self, scale, tfm, texname, vf):
+        if sys.version_info[0] >= 3 and isinstance(texname, bytes):
+            texname = texname.decode('ascii')
         self._scale, self._tfm, self.texname, self._vf = \
             scale, tfm, texname, vf
         self.size = scale * (72.0 / (72.27 * 2**16))
@@ -678,7 +680,10 @@ class PsfontsMap(object):
             self._parse(file)
 
     def __getitem__(self, texname):
-        result = self._font[texname]
+        try:
+            result = self._font[texname]
+        except KeyError:
+            result = self._font[texname.decode('ascii')]
         fn, enc = result.filename, result.encoding
         if fn is not None and not fn.startswith('/'):
             result.filename = find_tex_file(fn)
@@ -840,22 +845,16 @@ def find_tex_file(filename, format=None):
 
     matplotlib.verbose.report('find_tex_file(%s): %s' \
                                   % (filename,cmd), 'debug')
-    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    # stderr is unused, but reading it avoids a subprocess optimization
+    # that breaks EINTR handling in some Python versions:
+    # http://bugs.python.org/issue12493
+    # https://github.com/matplotlib/matplotlib/issues/633
+    pipe = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
     result = pipe.communicate()[0].rstrip()
     matplotlib.verbose.report('find_tex_file result: %s' % result,
                               'debug')
     return result.decode('ascii')
-
-def _read_nointr(pipe, bufsize=-1):
-    while True:
-        try:
-            return pipe.read(bufsize)
-        except OSError as e:
-            if e.errno == errno.EINTR:
-                continue
-            else:
-                raise
-
 
 # With multiple text objects per figure (e.g. tick labels) we may end
 # up reading the same tfm and vf files many times, so we implement a

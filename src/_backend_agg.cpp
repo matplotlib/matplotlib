@@ -26,6 +26,7 @@
 #include "agg_scanline_storage_aa.h"
 #include "agg_scanline_storage_bin.h"
 #include "agg_span_allocator.h"
+#include "agg_span_converter.h"
 #include "agg_span_image_filter_gray.h"
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
@@ -178,7 +179,12 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
         }
     }
 
-    return Py::String(str, true);
+    #if PY3K
+    return Py::Bytes
+    #else
+    return Py::String
+    #endif
+        (str, true);
 }
 
 
@@ -979,6 +985,30 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
     return Py::Object();
 }
 
+class span_conv_alpha
+{
+public:
+    typedef agg::rgba8 color_type;
+
+    double m_alpha;
+
+    span_conv_alpha(double alpha) :
+        m_alpha(alpha)
+    {
+    }
+
+    void prepare() {}
+    void generate(color_type* span, int x, int y, unsigned len) const
+    {
+        do
+            {
+                span->a = (agg::int8u)((double)span->a * m_alpha);
+                ++span;
+            }
+        while(--len);
+    }
+};
+
 
 Py::Object
 RendererAgg::draw_image(const Py::Tuple& args)
@@ -1063,11 +1093,14 @@ RendererAgg::draw_image(const Py::Tuple& args)
         typedef agg::span_interpolator_linear<> interpolator_type;
         typedef agg::span_image_filter_rgba_nn<image_accessor_type,
                                                interpolator_type> image_span_gen_type;
+        typedef agg::span_converter<image_span_gen_type, span_conv_alpha> span_conv;
 
         color_span_alloc_type sa;
         image_accessor_type ia(pixf, agg::rgba8(0, 0, 0, 0));
         interpolator_type interpolator(inv_mtx);
         image_span_gen_type image_span_generator(ia, interpolator);
+        span_conv_alpha conv_alpha(alpha);
+        span_conv spans(image_span_generator, conv_alpha);
 
         if (has_clippath)
         {
@@ -1076,12 +1109,12 @@ RendererAgg::draw_image(const Py::Tuple& args)
             typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
             typedef agg::renderer_scanline_aa<amask_ren_type,
                                               color_span_alloc_type,
-                                              image_span_gen_type>
+                                              span_conv>
                 renderer_type_alpha;
 
             pixfmt_amask_type pfa(pixFmt, alphaMask);
             amask_ren_type r(pfa);
-            renderer_type_alpha ri(r, sa, image_span_generator);
+            renderer_type_alpha ri(r, sa, spans);
 
             theRasterizer.add_path(rect2);
             agg::render_scanlines(theRasterizer, slineP8, ri);
@@ -1091,11 +1124,11 @@ RendererAgg::draw_image(const Py::Tuple& args)
             typedef agg::renderer_base<pixfmt> ren_type;
             typedef agg::renderer_scanline_aa<ren_type,
                                               color_span_alloc_type,
-                                              image_span_gen_type>
+                                              span_conv>
                 renderer_type;
 
             ren_type r(pixFmt);
-            renderer_type ri(r, sa, image_span_generator);
+            renderer_type ri(r, sa, spans);
 
             theRasterizer.add_path(rect2);
             agg::render_scanlines(theRasterizer, slineP8, ri);
@@ -1106,7 +1139,8 @@ RendererAgg::draw_image(const Py::Tuple& args)
     {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(
-            pixf, 0, (int)x, (int)(height - (y + image->rowsOut)), alpha * 255);
+            pixf, 0, (int)x, (int)(height - (y + image->rowsOut)),
+            (agg::int8u)(alpha * 255));
     }
 
     rendererBase.reset_clipping(true);
@@ -2199,7 +2233,8 @@ RendererAgg::buffer_rgba(const Py::Tuple& args)
     return Py::asObject(PyMemoryView_FromObject(this));
     #else
     int row_len = width * 4;
-    return Py::asObject(PyBuffer_FromMemory(pixBuffer, row_len*height));
+    return Py::asObject(PyBuffer_FromReadWriteMemory(
+                            pixBuffer, row_len*height));
     #endif
 }
 
@@ -2233,7 +2268,12 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
 
     int newwidth = 0;
     int newheight = 0;
+    #if PY3K
+    Py::Bytes data;
+    #else
     Py::String data;
+    #endif
+
     if (xmin < xmax && ymin < ymax)
     {
         // Expand the bounds by 1 pixel on all sides
@@ -2263,7 +2303,11 @@ RendererAgg::tostring_rgba_minimized(const Py::Tuple& args)
         }
 
         // The Py::String will take over the buffer
-        data = Py::String((const char *)buf, (int)newsize);
+        #if PY3K
+        data = Py::Bytes((const char *)buf, (int) newsize);
+        #else
+        data = Py::String((const char *)buf, (int) newsize);
+        #endif
     }
 
     Py::Tuple bounds(4);

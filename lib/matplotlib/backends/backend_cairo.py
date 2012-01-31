@@ -127,6 +127,8 @@ class RendererCairo(RendererBase):
         for points, code in path.iter_segments(transform):
             if code == Path.MOVETO:
                 ctx.move_to(*points)
+            elif code == Path.CLOSEPOLY:
+                ctx.close_path()
             elif code == Path.LINETO:
                 ctx.line_to(*points)
             elif code == Path.CURVE3:
@@ -135,8 +137,6 @@ class RendererCairo(RendererBase):
                              points[2], points[3])
             elif code == Path.CURVE4:
                 ctx.curve_to(*points)
-            elif code == Path.CLOSEPOLY:
-                ctx.close_path()
 
 
     def draw_path(self, gc, path, transform, rgbFace=None):
@@ -200,7 +200,10 @@ class RendererCairo(RendererBase):
            if angle:
               ctx.rotate (-angle * np.pi / 180)
            ctx.set_font_size (size)
-           ctx.show_text (s.encode("utf-8"))
+           if sys.version_info[0] < 3:
+              ctx.show_text (s.encode("utf-8"))
+           else:
+              ctx.show_text (s)
            ctx.restore()
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):

@@ -17,23 +17,23 @@ units.  This behavior is available only for the LineCollection.
 
 '''
 
-import matplotlib.pyplot as P
-from matplotlib import collections, axes, transforms
+import matplotlib.pyplot as plt
+from matplotlib import collections, transforms
 from matplotlib.colors import colorConverter
-import numpy as N
+import numpy as np
 
 nverts = 50
 npts = 100
 
 # Make some spirals
-r = N.array(range(nverts))
-theta = N.array(range(nverts)) * (2*N.pi)/(nverts-1)
-xx = r * N.sin(theta)
-yy = r * N.cos(theta)
+r = np.array(range(nverts))
+theta = np.array(range(nverts)) * (2*np.pi)/(nverts-1)
+xx = r * np.sin(theta)
+yy = r * np.cos(theta)
 spiral = list(zip(xx,yy))
 
 # Make some offsets
-rs = N.random.RandomState([12345678])
+rs = np.random.RandomState([12345678])
 xo = rs.randn(npts)
 yo = rs.randn(npts)
 xyo = list(zip(xo, yo))
@@ -41,7 +41,7 @@ xyo = list(zip(xo, yo))
 # Make a list of colors cycling through the rgbcmyk series.
 colors = [colorConverter.to_rgba(c) for c in ('r','g','b','c','y','m','k')]
 
-fig = P.figure()
+fig = plt.figure()
 
 a = fig.add_subplot(2,2,1)
 col = collections.LineCollection([spiral], offsets=xyo,
@@ -88,7 +88,7 @@ a.set_title('PolyCollection using offsets')
 a = fig.add_subplot(2,2,3)
 
 col = collections.RegularPolyCollection(7,
-                                        sizes = N.fabs(xx)*10.0, offsets=xyo,
+                                        sizes = np.fabs(xx)*10.0, offsets=xyo,
                                         transOffset=a.transData)
 trans = transforms.Affine2D().scale(fig.dpi/72.0)
 col.set_transform(trans)  # the points to pixels transform
@@ -108,9 +108,9 @@ nverts = 60
 ncurves = 20
 offs = (0.1, 0.0)
 
-yy = N.linspace(0, 2*N.pi, nverts)
-ym = N.amax(yy)
-xx = (0.2 + (ym-yy)/ym)**2 * N.cos(yy-0.4) * 0.5
+yy = np.linspace(0, 2*np.pi, nverts)
+ym = np.amax(yy)
+xx = (0.2 + (ym-yy)/ym)**2 * np.cos(yy-0.4) * 0.5
 segs = []
 for i in range(ncurves):
     xxx = xx + 0.02*rs.randn(nverts)
@@ -128,6 +128,6 @@ a.set_ylabel('Depth (m)')
 a.set_ylim(a.get_ylim()[::-1])
 
 
-P.show()
+plt.show()
 
 

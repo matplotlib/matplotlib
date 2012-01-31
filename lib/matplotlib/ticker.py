@@ -455,7 +455,7 @@ class ScalarFormatter(Formatter):
             if self._useOffset:
                 self._set_offset(d)
             self._set_orderOfMagnitude(d)
-            self._set_format()
+            self._set_format(vmin, vmax)
 
     def _set_offset(self, range):
         # offset of 20,001 is 20,000, for example
@@ -496,15 +496,30 @@ class ScalarFormatter(Formatter):
         else:
             self.orderOfMagnitude = 0
 
-    def _set_format(self):
+    def _set_format(self, vmin, vmax):
         # set the format string to format all the ticklabels
-        # The floating point black magic (adding 1e-15 and formatting
-        # to 8 digits) may warrant review and cleanup.
-        locs = (np.asarray(self.locs)-self.offset) / 10**self.orderOfMagnitude+1e-15
-        sigfigs = [len(str('%1.8f'% loc).split('.')[1].rstrip('0')) \
-                   for loc in locs]
-        sigfigs.sort()
-        self.format = '%1.' + str(sigfigs[-1]) + 'f'
+        if len(self.locs) < 2:
+            # Temporarily augment the locations with the axis end points.
+            _locs = list(self.locs) + [vmin, vmax]
+        else:
+            _locs = self.locs
+        locs = (np.asarray(_locs)-self.offset) / 10**self.orderOfMagnitude
+        loc_range = np.ptp(locs)
+        if len(self.locs) < 2:
+            # We needed the end points only for the loc_range calculation.
+            locs = locs[:-2]
+        loc_range_oom = int(math.floor(math.log10(loc_range)))
+        # first estimate:
+        sigfigs = max(0, 3 - loc_range_oom)
+        # refined estimate:
+        thresh = 1e-3 * 10**loc_range_oom
+        while sigfigs >= 0:
+            if np.abs(locs - np.round(locs, decimals=sigfigs)).max() < thresh:
+                sigfigs -= 1
+            else:
+                break
+        sigfigs += 1
+        self.format = '%1.' + str(sigfigs) + 'f'
         if self._usetex:
             self.format = '$%s$' % self.format
         elif self._useMathText:
@@ -1358,12 +1373,15 @@ class SymmetricalLogLocator(Locator):
     Determine the tick locations for log axes
     """
 
-    def __init__(self, transform, subs=[1.0]):
+    def __init__(self, transform, subs=None):
         """
         place ticks on the location= base**i*subs[j]
         """
         self._transform = transform
-        self._subs = subs
+        if subs is None:
+            self._subs = [1.0]
+        else:
+            self._subs = subs
         self.numticks = 15
 
     def __call__(self):

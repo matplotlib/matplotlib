@@ -90,7 +90,11 @@ class PsBackendHelper(object):
         from subprocess import Popen, PIPE
         pipe = Popen(self.gs_exe + " --version",
                      shell=True, stdout=PIPE).stdout
-        gs_version = tuple(map(int, pipe.read().strip().split(".")))
+        if sys.version_info[0] >= 3:
+            ver = pipe.read().decode('ascii')
+        else:
+            ver = pipe.read()
+        gs_version = tuple(map(int, ver.strip().split(".")))
 
         self._cached["gs_version"] = gs_version
         return gs_version
@@ -529,6 +533,11 @@ grestore
                                                simplify=simplify):
             if code == Path.MOVETO:
                 ps.append("%g %g m" % tuple(points))
+            elif code == Path.CLOSEPOLY:
+                ps.append("cl")
+            elif last_points is None:
+                # The other operations require a previous point
+                raise ValueError('Path lacks initial MOVETO')
             elif code == Path.LINETO:
                 ps.append("%g %g l" % tuple(points))
             elif code == Path.CURVE3:
@@ -537,8 +546,6 @@ grestore
                           tuple(points[2:]))
             elif code == Path.CURVE4:
                 ps.append("%g %g %g %g %g %g c" % tuple(points))
-            elif code == Path.CLOSEPOLY:
-                ps.append("cl")
             last_points = points
 
         ps = "\n".join(ps)
@@ -589,8 +596,10 @@ grestore
 
         if rgbFace:
             ps_cmd.extend(['gsave', ps_color, 'fill', 'grestore'])
+        if gc.shouldstroke():
+            ps_cmd.append('stroke')
 
-        ps_cmd.extend(['stroke', 'grestore', '} bind def'])
+        ps_cmd.extend(['grestore', '} bind def'])
 
         for vertices, code in path.iter_segments(trans, simplify=False):
             if len(vertices):
@@ -851,8 +860,7 @@ grestore
         write = self._pswriter.write
         if debugPS and command:
             write("% "+command+"\n")
-        mightstroke = (gc.get_linewidth() > 0.0 and
-                  (len(gc.get_rgb()) <= 3 or gc.get_rgb()[3] != 0.0))
+        mightstroke = gc.shouldstroke()
         stroke = stroke and mightstroke
         fill = (fill and rgbFace is not None and
                 (len(rgbFace) <= 3 or rgbFace[3] != 0.0))
@@ -913,6 +921,9 @@ class GraphicsContextPS(GraphicsContextBase):
                 'round':1,
                 'bevel':2}[GraphicsContextBase.get_joinstyle(self)]
 
+    def shouldstroke(self):
+        return (self.get_linewidth() > 0.0 and
+                (len(self.get_rgb()) <= 3 or self.get_rgb()[3] != 0.0))
 
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
@@ -1198,7 +1209,10 @@ class FigureCanvasPS(FigureCanvasBase):
 
             self._pswriter = NullWriter()
         else:
-            self._pswriter = StringIO()
+            if sys.version_info[0] >= 3:
+                self._pswriter = io.StringIO()
+            else:
+                self._pswriter = cStringIO.StringIO()
 
 
         # mixed mode rendering
@@ -1219,7 +1233,11 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
         fd, tmpfile = mkstemp()
-        with io.fdopen(fd, 'w', encoding='ascii') as fh:
+        if sys.version_info[0] >= 3:
+            fh = io.open(fd, 'w', encoding='ascii')
+        else:
+            fh = io.open(fd, 'wb')
+        with fh:
             # write the Encapsulated PostScript headers
             print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
@@ -1298,7 +1316,15 @@ class FigureCanvasPS(FigureCanvasBase):
             else: gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
 
-        if  isinstance(outfile, file):
+        is_file = False
+        if sys.version_info[0] >= 3:
+            if isinstance(outfile, io.IOBase):
+                is_file = True
+        else:
+            if isinstance(outfile, file):
+                is_file = True
+
+        if is_file:
             with open(tmpfile, 'rb') as fh:
                 outfile.write(fh.read())
         else:
@@ -1355,12 +1381,12 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
       paperWidth, paperHeight,
       '\n'.join(psfrags), angle, os.path.split(epsfile)[-1])
 
-    with io.open(latexfile, 'w', encoding='ascii') as latexh:
+    with io.open(latexfile, 'wb') as latexh:
         if rcParams['text.latex.unicode']:
             latexh.write(s.encode('utf8'))
         else:
             try:
-                latexh.write(s)
+                latexh.write(s.encode('ascii'))
             except UnicodeEncodeError:
                 verbose.report("You are using unicode and latex, but have "
                                "not enabled the matplotlib 'text.latex.unicode' "
@@ -1375,7 +1401,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                 %(precmd, tmpdir, latexfile, outfile)
     verbose.report(command, 'debug')
     exit_status = os.system(command)
-    
+
     with io.open(outfile, 'rb') as fh:
         if exit_status:
             raise RuntimeError('LaTeX was not able to process your file:\
@@ -1447,7 +1473,7 @@ def gs_distill(tmpfile, eps=False, ptype='letter', bbox=None, rotated=False):
     verbose.report(command, 'debug')
     exit_status = os.system(command)
 
-    with io.open(outfile, 'rb'):
+    with io.open(outfile, 'rb') as fh:
         if exit_status:
             raise RuntimeError('ghostscript was not able to process \
     your image.\nHere is the full report generated by ghostscript:\n\n' + fh.read())
@@ -1597,55 +1623,56 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
         bbox_info, rotate = None, None
 
     epsfile = tmpfile + '.eps'
-    with io.open(epsfile, 'w', encoding='ascii') as epsh:
-        with io.open(tmpfile, 'r', encoding='ascii') as tmph:
+    with io.open(epsfile, 'wb') as epsh:
+        write = epsh.write
+        with io.open(tmpfile, 'rb') as tmph:
             line = tmph.readline()
             # Modify the header:
             while line:
-                if line.startswith('%!PS'):
-                    print("%!PS-Adobe-3.0 EPSF-3.0", file=epsh)
+                if line.startswith(b'%!PS'):
+                    write(b"%!PS-Adobe-3.0 EPSF-3.0\n")
                     if bbox:
-                        print(bbox_info, file=epsh)
-                elif line.startswith('%%EndComments'):
-                    epsh.write(line)
-                    print('%%BeginProlog', file=epsh)
-                    print('save', file=epsh)
-                    print('countdictstack', file=epsh)
-                    print('mark', file=epsh)
-                    print('newpath', file=epsh)
-                    print('/showpage {} def', file=epsh)
-                    print('/setpagedevice {pop} def', file=epsh)
-                    print('%%EndProlog', file=epsh)
-                    print('%%Page 1 1', file=epsh)
+                        write(bbox_info.encode('ascii') + b'\n')
+                elif line.startswith(b'%%EndComments'):
+                    write(line)
+                    write(b'%%BeginProlog\n')
+                    write(b'save\n')
+                    write(b'countdictstack\n')
+                    write(b'mark\n')
+                    write(b'newpath\n')
+                    write(b'/showpage {} def\n')
+                    write(b'/setpagedevice {pop} def\n')
+                    write(b'%%EndProlog\n')
+                    write(b'%%Page 1 1\n')
                     if rotate:
-                        print(rotate, file=epsh)
+                        write(rotate.encode('ascii') + b'\n')
                     break
-                elif bbox and (line.startswith('%%Bound') \
-                               or line.startswith('%%HiResBound') \
-                               or line.startswith('%%DocumentMedia') \
-                               or line.startswith('%%Pages')):
+                elif bbox and (line.startswith(b'%%Bound') \
+                               or line.startswith(b'%%HiResBound') \
+                               or line.startswith(b'%%DocumentMedia') \
+                               or line.startswith(b'%%Pages')):
                     pass
                 else:
-                    epsh.write(line)
+                    write(line)
                 line = tmph.readline()
             # Now rewrite the rest of the file, and modify the trailer.
             # This is done in a second loop such that the header of the embedded
             # eps file is not modified.
             line = tmph.readline()
             while line:
-                if line.startswith('%%Trailer'):
-                    print('%%Trailer', file=epsh)
-                    print('cleartomark', file=epsh)
-                    print('countdictstack', file=epsh)
-                    print('exch sub { end } repeat', file=epsh)
-                    print('restore', file=epsh)
+                if line.startswith(b'%%Trailer'):
+                    write(b'%%Trailer\n')
+                    write(b'cleartomark\n')
+                    write(b'countdictstack\n')
+                    write(b'exch sub { end } repeat\n')
+                    write(b'restore\n')
                     if rcParams['ps.usedistiller'] == 'xpdf':
                         # remove extraneous "end" operator:
                         line = tmph.readline()
-                elif line.startswith('%%PageBoundingBox'):
+                elif line.startswith(b'%%PageBoundingBox'):
                     pass
                 else:
-                    epsh.write(line)
+                    write(line)
                 line = tmph.readline()
 
     os.remove(tmpfile)

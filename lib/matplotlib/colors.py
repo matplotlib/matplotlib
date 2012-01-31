@@ -624,7 +624,7 @@ class LinearSegmentedColormap(Colormap):
 
         segmentdata argument is a dictionary with a red, green and blue
         entries. Each entry should be a list of *x*, *y0*, *y1* tuples,
-        forming rows in a table.
+        forming rows in a table. Entries for alpha are optional.
 
         Example: suppose you want red to increase from 0 to 1 over
         the bottom half, green to do the same over the middle half,
@@ -680,6 +680,9 @@ class LinearSegmentedColormap(Colormap):
                 self._segmentdata['green'], self._gamma)
         self._lut[:-3, 2] = makeMappingArray(self.N,
                 self._segmentdata['blue'], self._gamma)
+        if 'alpha' in self._segmentdata:
+            self._lut[:-3, 3] = makeMappingArray(self.N,
+                    self._segmentdata['alpha'], 1)
         self._isinit = True
         self._set_extremes()
 
@@ -711,12 +714,13 @@ class LinearSegmentedColormap(Colormap):
         else:
             vals = np.linspace(0., 1., len(colors))
 
-        cdict = dict(red=[], green=[], blue=[])
+        cdict = dict(red=[], green=[], blue=[], alpha=[])
         for val, color in zip(vals, colors):
-            r,g,b = colorConverter.to_rgb(color)
+            r,g,b,a = colorConverter.to_rgba(color)
             cdict['red'].append((val, r, r))
             cdict['green'].append((val, g, g))
             cdict['blue'].append((val, b, b))
+            cdict['alpha'].append((val, a, a))
 
         return LinearSegmentedColormap(name, cdict, N, gamma)
 
@@ -733,7 +737,8 @@ class ListedColormap(Colormap):
 
         *colors*
             a list of matplotlib color specifications,
-            or an equivalent Nx3 floating point array (*N* rgb values)
+            or an equivalent Nx3  or Nx4 floating point array
+            (*N* rgb or rgba values)
         *name*
             a string to identify the colormap
         *N*
@@ -774,11 +779,9 @@ class ListedColormap(Colormap):
 
 
     def _init(self):
-        rgb = np.array([colorConverter.to_rgb(c)
-                    for c in self.colors], np.float)
+        rgba = colorConverter.to_rgba_array(self.colors)
         self._lut = np.zeros((self.N + 3, 4), np.float)
-        self._lut[:-3, :-1] = rgb
-        self._lut[:-3, -1] = 1
+        self._lut[:-3] = rgba
         self._isinit = True
         self._set_extremes()
 

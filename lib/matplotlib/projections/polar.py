@@ -481,6 +481,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
         ACCEPTS: sequence of floats
         """
+        # Make sure we take into account unitized data
+        angles = self.convert_yunits(angles)
         angles = np.asarray(angles, np.float_)
         self.set_xticks(angles * (np.pi / 180.0))
         if labels is not None:
@@ -521,6 +523,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
         ACCEPTS: sequence of floats
         """
+        # Make sure we take into account unitized data
+        radii = self.convert_xunits(radii)
         radii = np.asarray(radii)
         rmin = radii.min()
         if rmin <= 0:

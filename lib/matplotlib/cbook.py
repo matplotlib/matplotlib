@@ -14,25 +14,34 @@ import cPickle
 import os.path
 import random
 from functools import reduce
+
 import matplotlib
 
 major, minor1, minor2, s, tmp = sys.version_info
 
+# Handle the transition from urllib2 in Python 2 to urllib in Python 3
 if major >= 3:
     import types
-    import urllib.request
+    import urllib.request, urllib.error, urllib.parse
+    def urllib_quote():
+        return urllib.parse.quote
     def addinfourl(data, headers, url, code=None):
         return urllib.request.addinfourl(io.BytesIO(data),
                                          headers, url, code)
+    urllib_HTTPSHandler = urllib.request.HTTPSHandler
+    urllib_build_opener = urllib.request.build_opener
+    urllib_URLError = urllib.error.URLError
 else:
     import new
     import urllib2
+    def urllib_quote():
+        return urllib2.quote
     def addinfourl(data, headers, url, code=None):
         return urllib2.addinfourl(io.StringIO(data),
                                   headers, url, code)
-
-import matplotlib
-
+    urllib_HTTPSHandler = urllib2.HTTPSHandler
+    urllib_build_opener = urllib2.build_opener
+    urllib_URLError = urllib2.URLError
 
 # On some systems, locale.getpreferredencoding returns None,
 # which can break unicode; and the sage project reports that
@@ -43,16 +52,18 @@ import matplotlib
 # On some systems, getpreferredencoding sets the locale, which has
 # side effects.  Passing False eliminates those side effects.
 
-try:
-    preferredencoding = locale.getpreferredencoding(
-        matplotlib.rcParams['axes.formatter.use_locale']).strip()
-    if not preferredencoding:
-        preferredencoding = None
-except (ValueError, ImportError, AttributeError):
-    preferredencoding = None
-
 if sys.version_info[0] >= 3:
     def unicode_safe(s):
+        import matplotlib
+
+        try:
+            preferredencoding = locale.getpreferredencoding(
+                matplotlib.rcParams['axes.formatter.use_locale']).strip()
+            if not preferredencoding:
+                preferredencoding = None
+        except (ValueError, ImportError, AttributeError):
+            preferredencoding = None
+
         if isinstance(s, bytes):
             if preferredencoding is None:
                 return unicode(s)
@@ -63,6 +74,16 @@ if sys.version_info[0] >= 3:
         return s
 else:
     def unicode_safe(s):
+        import matplotlib
+
+        try:
+            preferredencoding = locale.getpreferredencoding(
+                matplotlib.rcParams['axes.formatter.use_locale']).strip()
+            if not preferredencoding:
+                preferredencoding = None
+        except (ValueError, ImportError, AttributeError):
+            preferredencoding = None
+
         if preferredencoding is None: return unicode(s)
         else: return unicode(s, preferredencoding)
 
@@ -243,21 +264,24 @@ class CallbackRegistry:
                 DeprecationWarning)
         self.callbacks = dict()
         self._cid = 0
-        self._func_cid_map = WeakKeyDictionary()
+        self._func_cid_map = {}
 
     def connect(self, s, func):
         """
         register *func* to be called when a signal *s* is generated
         func will be called
         """
-        if func in self._func_cid_map:
-            return self._func_cid_map[func]
-        proxy = self.BoundMethodProxy(func)
+        self._func_cid_map.setdefault(s, WeakKeyDictionary())
+        if func in self._func_cid_map[s]:
+            return self._func_cid_map[s][func]
+
         self._cid += 1
+        cid = self._cid
+        self._func_cid_map[s][func] = cid
         self.callbacks.setdefault(s, dict())
-        self.callbacks[s][self._cid] = proxy
-        self._func_cid_map[func] = self._cid
-        return self._cid
+        proxy = self.BoundMethodProxy(func)
+        self.callbacks[s][cid] = proxy
+        return cid
 
     def disconnect(self, cid):
         """
@@ -471,19 +495,18 @@ def is_scalar_or_string(val):
     return is_string_like(val) or not iterable(val)
 
 def _get_data_server(cache_dir, baseurl):
-    import urllib2
-    class ViewVCCachedServer(urllib2.HTTPSHandler):
+    class ViewVCCachedServer(urllib_HTTPSHandler):
         """
-        Urllib2 handler that takes care of caching files.
+        Urllib handler that takes care of caching files.
         The file cache.pck holds the directory of files that have been cached.
         """
         def __init__(self, cache_dir, baseurl):
-            urllib2.HTTPSHandler.__init__(self)
+            urllib_HTTPSHandler.__init__(self)
             self.cache_dir = cache_dir
             self.baseurl = baseurl
             self.read_cache()
             self.remove_stale_files()
-            self.opener = urllib2.build_opener(self)
+            self.opener = urllib_build_opener(self)
 
         def in_cache_dir(self, fn):
             # make sure the datadir exists
@@ -566,7 +589,7 @@ def _get_data_server(cache_dir, baseurl):
                                headers.get('Last-Modified'))
             self.write_cache()
 
-        # These urllib2 entry points are used:
+        # These urllib entry points are used:
         # http_request for preprocessing requests
         # http_error_304 for handling 304 Not Modified responses
         # http_response for postprocessing requests
@@ -597,7 +620,7 @@ def _get_data_server(cache_dir, baseurl):
                 'ViewVCCachedServer: reading data file from cache file "%s"'
                 %fn, 'debug')
             with open(fn, 'rb') as file:
-                handle = urllib2.addinfourl(file, hdrs, url)
+                handle = addinfourl(file, hdrs, url)
             handle.code = 304
             return handle
 
@@ -613,9 +636,9 @@ def _get_data_server(cache_dir, baseurl):
             else:
                 data = response.read()
                 self.cache_file(req.get_full_url(), data, response.headers)
-                result = urllib2.addinfourl(StringIO.StringIO(data),
-                                            response.headers,
-                                            req.get_full_url())
+                result = addinfourl(StringIO.StringIO(data),
+                                    response.headers,
+                                    req.get_full_url())
                 result.code = response.code
                 result.msg = response.msg
                 return result
@@ -630,14 +653,9 @@ def _get_data_server(cache_dir, baseurl):
             path to the file as a string will be returned.
             """
             # TODO: time out if the connection takes forever
-            # (may not be possible with urllib2 only - spawn a helper process?)
+            # (may not be possible with urllib only - spawn a helper process?)
 
-            # quote is not in python2.4, so check for it and get it from
-            # urllib if it is not available
-            quote = getattr(urllib2, 'quote', None)
-            if quote is None:
-                import urllib
-                quote = urllib.quote
+            quote = urllib_quote()
 
             # retrieve the URL for the side effect of refreshing the cache
             url = self.baseurl + quote(fname)
@@ -646,7 +664,7 @@ def _get_data_server(cache_dir, baseurl):
                                       % url, 'debug')
             try:
                 response = self.opener.open(url)
-            except urllib2.URLError, e:
+            except urllib_URLError as e:
                 # could be a missing network connection
                 error = str(e)
 

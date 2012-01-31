@@ -1,7 +1,7 @@
 # -*- coding: iso-8859-1 -*-
 
 """
-A PDF matplotlib backend (not yet complete)
+A PDF matplotlib backend
 Author: Jouni K Seppänen <jks@iki.fi>
 """
 from __future__ import division, print_function
@@ -289,6 +289,29 @@ _pdfops = dict(close_fill_stroke=b'b', fill_stroke=b'B', fill=b'f',
 
 Op = Bunch(**dict([(name, Operator(value))
                    for name, value in _pdfops.iteritems()]))
+
+def _paint_path(closep, fillp, strokep):
+    """Return the PDF operator to paint a path in the following way:
+    closep:  close the path before painting
+    fillp:   fill the path with the fill color
+    strokep: stroke the outline of the path with the line color"""
+    if strokep:
+        if closep:
+            if fillp:
+                return Op.close_fill_stroke
+            else:
+                return Op.close_stroke
+        else:
+            if fillp:
+                return Op.fill_stroke
+            else:
+                return Op.stroke
+    else:
+        if fillp:
+            return Op.fill
+        else:
+            return Op.endpath
+Op.paint_path = _paint_path
 
 class Stream(object):
     """PDF stream object.
@@ -1190,10 +1213,22 @@ end"""
 
             img.flipud_out()
 
-    def markerObject(self, path, trans, fillp, lw):
+    def markerObject(self, path, trans, fillp, strokep, lw):
         """Return name of a marker XObject representing the given path."""
+        # self.markers used by markerObject, writeMarkers, close:
+        # mapping from (path operations, fill?, stroke?) to
+        #   [name, object reference, bounding box, linewidth]
+        # This enables different draw_markers calls to share the XObject
+        # if the gc is sufficiently similar: colors etc can vary, but
+        # the choices of whether to fill and whether to stroke cannot.
+        # We need a bounding box enclosing all of the XObject path,
+        # but since line width may vary, we store the maximum of all
+        # occurring line widths in self.markers.
+        # close() is somewhat tightly coupled in that it expects the
+        # first two components of each value in self.markers to be the
+        # name and object reference.
         pathops = self.pathOperations(path, trans, simplify=False)
-        key = (tuple(pathops), bool(fillp))
+        key = (tuple(pathops), bool(fillp), bool(strokep))
         result = self.markers.get(key)
         if result is None:
             name = Name('M%d' % len(self.markers))
@@ -1207,17 +1242,15 @@ end"""
         return name
 
     def writeMarkers(self):
-        for (pathops, fillp),(name, ob, bbox, lw) in self.markers.iteritems():
+        for ((pathops, fillp, strokep),
+             (name, ob, bbox, lw)) in self.markers.iteritems():
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 ob.id, None,
                 {'Type': Name('XObject'), 'Subtype': Name('Form'),
                  'BBox': list(bbox.extents) })
             self.output(*pathops)
-            if fillp:
-                self.output(Op.fill_stroke)
-            else:
-                self.output(Op.stroke)
+            self.output(Op.paint_path(False, fillp, strokep))
             self.endStream()
 
     @staticmethod
@@ -1230,6 +1263,8 @@ end"""
                 # This is allowed anywhere in the path
                 cmds.extend(points)
                 cmds.append(Op.moveto)
+            elif code == Path.CLOSEPOLY:
+                cmds.append(Op.closepath)
             elif last_points is None:
                 # The other operations require a previous point
                 raise ValueError('Path lacks initial MOVETO')
@@ -1243,8 +1278,6 @@ end"""
             elif code == Path.CURVE4:
                 cmds.extend(points)
                 cmds.append(Op.curveto)
-            elif code == Path.CLOSEPOLY:
-                cmds.append(Op.closepath)
             last_points = points
         return cmds
 
@@ -1436,11 +1469,12 @@ class RendererPdf(RendererBase):
             return
 
         self.check_gc(gc, rgbFace)
-        fillp = rgbFace is not None
+        fillp = gc.fillp()
+        strokep = gc.strokep()
 
         output = self.file.output
         marker = self.file.markerObject(
-            marker_path, marker_trans, fillp, self.gc._linewidth)
+            marker_path, marker_trans, fillp, strokep, self.gc._linewidth)
 
         output(Op.gsave)
         lastx, lasty = 0, 0
@@ -1554,7 +1588,7 @@ class RendererPdf(RendererBase):
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
         dvi = dviread.Dvi(dvifile, 72)
-        page = next(iter(dvi))
+        page = iter(dvi).next()
         dvi.close()
 
         # Gather font information and do some setup for combining
@@ -1587,17 +1621,17 @@ class RendererPdf(RendererBase):
         # string (if any kerns would be less than 0.1 points).
         i, curx, fontsize = 0, 0, None
         while i < len(seq)-1:
-            elt, next = seq[i:i+2]
+            elt, nxt = seq[i:i+2]
             if elt[0] == 'font':
                 fontsize = elt[2]
-            elif elt[0] == next[0] == 'text' and elt[2] == next[2]:
-                offset = elt[4] - next[1]
+            elif elt[0] == nxt[0] == 'text' and elt[2] == nxt[2]:
+                offset = elt[4] - nxt[1]
                 if abs(offset) < 0.1:
-                    elt[3][-1] += next[3][0]
-                    elt[4] += next[4]-next[1]
+                    elt[3][-1] += nxt[3][0]
+                    elt[4] += nxt[4]-nxt[1]
                 else:
-                    elt[3] += [offset*1000.0/fontsize, next[3][0]]
-                    elt[4] = next[4]
+                    elt[3] += [offset*1000.0/fontsize, nxt[3][0]]
+                    elt[4] = nxt[4]
                 del seq[i+1]
                 continue
             i += 1
@@ -1869,16 +1903,18 @@ class GraphicsContextPdf(GraphicsContextBase):
         del d['parent']
         return repr(d)
 
-    def _strokep(self):
+    def strokep(self):
         """
         Predicate: does the path need to be stroked (its outline drawn)?
         This tests for the various conditions that disable stroking
         the path, in which case it would presumably be filled.
         """
+        # _linewidth > 0: in pdf a line of width 0 is drawn at minimum
+        #   possible device width, but e.g. agg doesn't draw at all
         return (self._linewidth > 0 and self._alpha > 0 and
                 (len(self._rgb) <= 3 or self._rgb[3] != 0.0))
 
-    def _fillp(self):
+    def fillp(self):
         """
         Predicate: does the path need to be filled?
         """
@@ -1891,32 +1927,14 @@ class GraphicsContextPdf(GraphicsContextBase):
         Return the appropriate pdf operator to close the path and
         cause it to be stroked, filled, or both.
         """
-        if self._strokep():
-            if self._fillp():
-                return Op.close_fill_stroke
-            else:
-                return Op.close_stroke
-        else:
-            if self._fillp():
-                return Op.fill
-            else:
-                return Op.endpath
+        return Op.paint_path(True, self.fillp(), self.strokep())
 
     def paint(self):
         """
         Return the appropriate pdf operator to cause the path to be
         stroked, filled, or both.
         """
-        if self._strokep():
-            if self._fillp():
-                return Op.fill_stroke
-            else:
-                return Op.stroke
-        else:
-            if self._fillp():
-                return Op.fill
-            else:
-                return Op.endpath
+        return Op.paint_path(False, self.fillp(), self.strokep())
 
     capstyles = { 'butt': 0, 'round': 1, 'projecting': 2 }
     joinstyles = { 'miter': 0, 'round': 1, 'bevel': 2 }

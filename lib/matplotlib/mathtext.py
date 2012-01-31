@@ -2259,10 +2259,10 @@ class Parser(object):
                               | Error("Expected \operatorname{value}"))
                          )
 
-        placeable     << ( symbol # Must be first
+        placeable     << ( accent # Must be first
+                         | symbol # Must be second
                          | c_over_c
                          | function
-                         | accent
                          | group
                          | frac
                          | stackrel
