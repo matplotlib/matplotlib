@@ -273,6 +273,7 @@ class FormWidget(QWidget):
             elif isinstance(value, (str, unicode)):
                 field = QLineEdit(value, self)
             elif isinstance(value, (list, tuple)):
+                value = list(value)  # in case this is a tuple
                 selindex = value.pop(0)
                 field = QComboBox(self)
                 if isinstance(value[0], (list, tuple)):
