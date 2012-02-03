@@ -8374,10 +8374,12 @@ class SubplotBase:
 
         self.update_params()
 
+        # initialise the axes_class
+        self._init_axes(fig, **kwargs)
+
+    def _init_axes(self, fig, **kwargs):
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
-
-
 
     def get_geometry(self):
         'get the subplot geometry, eg 2,2,3'
@@ -8439,7 +8441,7 @@ class SubplotBase:
 
 _subplot_classes = {}
 def subplot_class_factory(axes_class=None):
-    # This makes a new class that inherits from SubclassBase and the
+    # This makes a new class that inherits from SubplotBase and the
     # given axes_class (which is assumed to be a subclass of Axes).
     # This is perhaps a little bit roundabout to make a new class on
     # the fly like this, but it means that a new Subplot class does

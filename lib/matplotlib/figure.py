@@ -758,24 +758,33 @@ class Figure(Artist):
                         projection)
                 projection = 'polar'
 
-            projection_class = get_projection_class(projection)
-
             # Remake the key without projection kwargs:
             key = self._make_key(*args, **kwargs)
             ax = self._axstack.get(key)
             if ax is not None:
-                if isinstance(ax, projection_class):
+                if projection is None or isinstance(projection, basestring):
+                    projection_class = get_projection_class(projection)
+                    if isinstance(ax, projection_class):
+                        self.sca(ax)
+                        return ax
+
+                elif hasattr(projection, 'axes_isinstance') and projection.axes_isinstance(ax):
                     self.sca(ax)
                     return ax
-                else:
-                    self._axstack.remove(ax)
-                    # Undocumented convenience behavior:
-                    # subplot(111); subplot(111, projection='polar')
-                    # will replace the first with the second.
-                    # Without this, add_subplot would be simpler and
-                    # more similar to add_axes.
+                        
+                self._axstack.remove(ax)
+                # Undocumented convenience behavior:
+                # subplot(111); subplot(111, projection='polar')
+                # will replace the first with the second.
+                # Without this, add_subplot would be simpler and
+                # more similar to add_axes.
 
-            a = subplot_class_factory(projection_class)(self, *args, **kwargs)
+            if projection is None or isinstance(projection, basestring):
+                projection_class = get_projection_class(projection)
+                a = subplot_class_factory(projection_class)(self, *args, **kwargs)
+            else:
+                a = projection.subplot(self, *args, **kwargs)
+
         self._axstack.add(key, a)
         self.sca(a)
         return a
@@ -1048,9 +1057,13 @@ class Figure(Artist):
                         projection)
                 projection = 'polar'
 
-            projection_class = get_projection_class(projection)
-            if isinstance(ax, projection_class):
+            if projection is None or isinstance(projection, basestring):
+                projection_class = get_projection_class(projection)
+                if isinstance(ax, projection_class):
+                    return ax
+            elif hasattr(projection, 'axes_isinstance') and projection.axes_isinstance(ax):
                 return ax
+
         return self.add_subplot(111, **kwargs)
 
     def sca(self, a):
