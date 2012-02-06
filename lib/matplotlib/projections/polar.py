@@ -757,14 +757,3 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 #             return mpath.Path(result, codes)
 #         transform_path_non_affine = transform_path
 
-class Polar(object):
-    """
-    Represents the polar projection, a Polar instance can be used to initialise
-    a polar plot in the standard ways, for example::
-    
-        plt.axes(projection=Polar())
-        
-    """
-    def _as_mpl_axes(self):
-        # implement the matplotlib axes interface
-        return PolarAxes, {}

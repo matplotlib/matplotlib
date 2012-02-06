@@ -60,7 +60,8 @@ def get_projection_class(projection=None):
         return projection_registry.get_projection_class(projection)
     except KeyError:
         raise ValueError("Unknown projection '%s'" % projection)
-    
+
+
 
 def projection_factory(projection, figure, rect, **kwargs):
     """

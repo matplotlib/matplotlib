@@ -100,11 +100,6 @@ elements:
     "advanced" feature left to the reader, but there is an example of
     this for polar plots in :mod:`matplotlib.projections.polar`.
     
-  - Optionally define the class attribute ``NAME`` which can be 
-    registered with :func:`matplotlib.projections.register_projection` 
-    and used for simple projection instantiation such as 
-    ``plt.axes(projection=NAME)``, where ``NAME`` is a string. 
-
   - Any additional methods for additional convenience or features.
 
 Once the projection axes is defined, it can be used in one of two ways:
