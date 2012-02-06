@@ -61,8 +61,6 @@ def get_projection_class(projection=None):
     except KeyError:
         raise ValueError("Unknown projection '%s'" % projection)
 
-
-
 def projection_factory(projection, figure, rect, **kwargs):
     """
     Get a new projection instance.
