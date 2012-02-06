@@ -370,7 +370,7 @@ class RendererSVG(RendererBase):
             writer.end('pattern')
         writer.end('defs')
 
-    def _get_style(self, gc, rgbFace):
+    def _get_style_dict(self, gc, rgbFace):
         """
         return the style string.  style is generated from the
         GraphicsContext and rgbFace
@@ -403,7 +403,10 @@ class RendererSVG(RendererBase):
             if gc.get_capstyle() != 'projecting':
                 attrib['stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
 
-        return generate_css(attrib)
+        return attrib
+
+    def _get_style(self, gc, rgbFace):
+        return generate_css(self._get_style_dict(gc, rgbFace))
 
     def _get_clip(self, gc):
         cliprect = gc.get_clip_rectangle()
@@ -536,12 +539,18 @@ class RendererSVG(RendererBase):
             marker_path,
             marker_trans + Affine2D().scale(1.0, -1.0),
             simplify=False)
-        dictkey = (path_data)
+        style = self._get_style_dict(gc, rgbFace)
+        dictkey = (path_data, generate_css(style))
         oid = self._markers.get(dictkey)
+        for key in style.keys():
+            if not key.startswith('stroke'):
+                del style[key]
+        style = generate_css(style)
+
         if oid is None:
             oid = self._make_id('m', dictkey)
             writer.start('defs')
-            writer.element('path', id=oid, d=path_data)
+            writer.element('path', id=oid, d=path_data, style=style)
             writer.end('defs')
             self._markers[dictkey] = oid
 
