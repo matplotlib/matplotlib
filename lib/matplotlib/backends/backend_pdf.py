@@ -1213,7 +1213,7 @@ end"""
 
             img.flipud_out()
 
-    def markerObject(self, path, trans, fillp, strokep, lw):
+    def markerObject(self, path, trans, fillp, strokep, lw, joinstyle, capstyle):
         """Return name of a marker XObject representing the given path."""
         # self.markers used by markerObject, writeMarkers, close:
         # mapping from (path operations, fill?, stroke?) to
@@ -1228,7 +1228,7 @@ end"""
         # first two components of each value in self.markers to be the
         # name and object reference.
         pathops = self.pathOperations(path, trans, simplify=False)
-        key = (tuple(pathops), bool(fillp), bool(strokep))
+        key = (tuple(pathops), bool(fillp), bool(strokep), joinstyle, capstyle)
         result = self.markers.get(key)
         if result is None:
             name = Name('M%d' % len(self.markers))
@@ -1242,13 +1242,15 @@ end"""
         return name
 
     def writeMarkers(self):
-        for ((pathops, fillp, strokep),
+        for ((pathops, fillp, strokep, joinstyle, capstyle),
              (name, ob, bbox, lw)) in self.markers.iteritems():
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 ob.id, None,
                 {'Type': Name('XObject'), 'Subtype': Name('Form'),
                  'BBox': list(bbox.extents) })
+            self.output(GraphicsContextPdf.joinstyles[joinstyle], Op.setlinejoin)
+            self.output(GraphicsContextPdf.capstyles[capstyle], Op.setlinecap)
             self.output(*pathops)
             self.output(Op.paint_path(False, fillp, strokep))
             self.endStream()
@@ -1474,7 +1476,8 @@ class RendererPdf(RendererBase):
 
         output = self.file.output
         marker = self.file.markerObject(
-            marker_path, marker_trans, fillp, strokep, self.gc._linewidth)
+            marker_path, marker_trans, fillp, strokep, self.gc._linewidth,
+            gc.get_joinstyle(), gc.get_capstyle())
 
         output(Op.gsave)
         lastx, lasty = 0, 0
