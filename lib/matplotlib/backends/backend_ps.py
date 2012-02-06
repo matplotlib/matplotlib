@@ -591,6 +591,11 @@ grestore
 
         # construct the generic marker command:
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # dont want the translate to be global
+        jint = gc.get_joinstyle()
+        ps_cmd.append('%d setlinejoin' % jint)
+        cint = gc.get_capstyle()
+        ps_cmd.append('%d setlinecap' % cint)
+
         ps_cmd.append(self._convert_path(marker_path, marker_trans,
                                          simplify=False))
 

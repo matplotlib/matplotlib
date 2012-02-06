@@ -374,7 +374,7 @@ class RendererSVG(RendererBase):
             writer.end(u'pattern')
         writer.end(u'defs')
 
-    def _get_style(self, gc, rgbFace):
+    def _get_style_dict(self, gc, rgbFace):
         """
         return the style string.  style is generated from the
         GraphicsContext and rgbFace
@@ -407,7 +407,10 @@ class RendererSVG(RendererBase):
             if gc.get_capstyle() != 'projecting':
                 attrib[u'stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
 
-        return generate_css(attrib)
+        return attrib
+
+    def _get_style(self, gc, rgbFace):
+        return generate_css(self._get_style_dict(gc, rgbFace))
 
     def _get_clip(self, gc):
         cliprect = gc.get_clip_rectangle()
@@ -540,12 +543,18 @@ class RendererSVG(RendererBase):
             marker_path,
             marker_trans + Affine2D().scale(1.0, -1.0),
             simplify=False)
-        dictkey = (path_data)
+        style = self._get_style_dict(gc, rgbFace)
+        dictkey = (path_data, generate_css(style))
         oid = self._markers.get(dictkey)
+        for key in style.keys():
+            if not key.startswith('stroke'):
+                del style[key]
+        style = generate_css(style)
+
         if oid is None:
             oid = self._make_id(u'm', dictkey)
             writer.start(u'defs')
-            writer.element(u'path', id=oid, d=path_data)
+            writer.element(u'path', id=oid, d=path_data, style=style)
             writer.end(u'defs')
             self._markers[dictkey] = oid
 
@@ -576,15 +585,9 @@ class RendererSVG(RendererBase):
             master_transform, paths, all_transforms)):
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
             d = self._convert_path(path, transform, simplify=False)
-<<<<<<< HEAD
             oid = u'C%x_%x_%s' % (self._path_collection_id, i,
                                   self._make_id(u'', d))
             writer.element(u'path', id=oid, d=d)
-=======
-            oid = 'C%x_%x_%s' % (self._path_collection_id, i,
-                                 self._make_id('', d))
-            writer.element('path', id=oid, d=d)
->>>>>>> Prevent duplicate marker ids
             path_codes.append(oid)
         writer.end(u'defs')
 
