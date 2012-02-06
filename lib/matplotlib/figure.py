@@ -698,8 +698,8 @@ class Figure(Artist):
                 if projection is not None and projection != 'polar':
                     raise ValueError(
                         "polar=True, yet projection=%r. "
-                        "Only one of these arguments should be supplied."
-                        % projection)
+                        "Only one of these arguments should be supplied." %
+                        projection)
                 projection = 'polar'
 
             if isinstance(projection, basestring) or projection is None:
@@ -761,11 +761,11 @@ class Figure(Artist):
             ispolar = kwargs.pop('polar', False)
             projection = kwargs.pop('projection', None)
             if ispolar:
-                if projection is not None:
+                if projection is not None and projection != 'polar':
                     raise ValueError(
                         "polar=True, yet projection=%r. " 
-                        "Only one of these arguments should be supplied."
-                        % projection)
+                        "Only one of these arguments should be supplied." %
+                        projection)
                 projection = 'polar'
 
             if isinstance(projection, basestring) or projection is None:
