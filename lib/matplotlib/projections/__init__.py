@@ -56,10 +56,19 @@ def get_projection_class(projection=None):
     if projection is None:
         projection = 'rectilinear'
 
-    try:
-        return projection_registry.get_projection_class(projection)
-    except KeyError:
-        raise ValueError("Unknown projection '%s'" % projection)
+    if isinstance(projection, basestring):
+        try:
+            return projection_registry.get_projection_class(projection)
+        except KeyError:
+            raise ValueError("Unknown projection '%s'" % projection)
+        
+    elif hasattr(projection, '_as_mpl_axes'):
+        projection_class, extra_kwargs = projection._as_mpl_axes()
+        kwargs.update(**extra_kwargs)
+    else:
+        TypeError('projection must be a string, None or implement a _as_mpl_axes method. Got %r' % projection)
+
+    
 
 def projection_factory(projection, figure, rect, **kwargs):
     """
