@@ -697,9 +697,8 @@ class Figure(Artist):
             if ispolar:
                 if projection is not None and projection != 'polar':
                     raise ValueError(
-                        "polar=True, yet projection='%s'. " +
-                        "Only one of these arguments should be supplied." %
-                        projection)
+                        "polar=True, yet projection='%s'. " % projection +
+                        "Only one of these arguments should be supplied.")
                 projection = 'polar'
 
             if isinstance(projection, basestring) or projection is None:
@@ -708,7 +707,8 @@ class Figure(Artist):
                 projection_class, extra_kwargs = projection._as_mpl_axes()
                 kwargs.update(**extra_kwargs)
             else:
-                TypeError('projection must be a string, None or implement a _as_mpl_axes method. Got %r' % projection)
+                TypeError('projection must be a string, None or implement a ' 
+                          '_as_mpl_axes method. Got %r' % projection)
             
             a = projection_factory(projection, self, rect, **kwargs)
             
@@ -762,9 +762,8 @@ class Figure(Artist):
             if ispolar:
                 if projection is not None:
                     raise ValueError(
-                        "polar=True, yet projection=%r. " +
-                        "Only one of these arguments should be supplied." %
-                        projection)
+                        "polar=True, yet projection=%r. " % projection +
+                        "Only one of these arguments should be supplied.")
                 projection = 'polar'
 
             if isinstance(projection, basestring) or projection is None:
@@ -773,7 +772,8 @@ class Figure(Artist):
                 projection_class, extra_kwargs = projection._as_mpl_axes()
                 kwargs.update(**extra_kwargs)
             else:
-                TypeError('projection must be a string, None or implement a _as_mpl_axes method. Got %r' % projection)
+                TypeError('projection must be a string, None or implement a ' 
+                          '_as_mpl_axes method. Got %r' % projection)
 
             # Remake the key without projection kwargs:
             key = self._make_key(*args, **kwargs)
@@ -1058,9 +1058,8 @@ class Figure(Artist):
             if ispolar:
                 if projection is not None and projection != 'polar':
                     raise ValueError(
-                        "polar=True, yet projection='%s'. " +
-                        "Only one of these arguments should be supplied." %
-                        projection)
+                        "polar=True, yet projection='%s'. " % projection + 
+                        "Only one of these arguments should be supplied.")
                 projection = 'polar'
 
             projection_class = get_projection_class(projection)
