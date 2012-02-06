@@ -703,15 +703,14 @@ class Figure(Artist):
                 projection = 'polar'
 
             if isinstance(projection, basestring) or projection is None:
-                projection_class = get_projection_class(projection)
+                a = projection_factory(projection, self, rect, **kwargs)
             elif hasattr(projection, '_as_mpl_axes'):
                 projection_class, extra_kwargs = projection._as_mpl_axes()
                 kwargs.update(**extra_kwargs)
+                a = projection_class(self, rect, **kwargs)                
             else:
                 TypeError('projection must be a string, None or implement a ' 
                           '_as_mpl_axes method. Got %r' % projection)
-            
-            a = projection_factory(projection, self, rect, **kwargs)
             
         self._axstack.add(key, a)
         self.sca(a)

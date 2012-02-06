@@ -8439,7 +8439,7 @@ class SubplotBase:
 
 _subplot_classes = {}
 def subplot_class_factory(axes_class=None):
-    # This makes a new class that inherits from SubclassBase and the
+    # This makes a new class that inherits from SubplotBase and the
     # given axes_class (which is assumed to be a subclass of Axes).
     # This is perhaps a little bit roundabout to make a new class on
     # the fly like this, but it means that a new Subplot class does
