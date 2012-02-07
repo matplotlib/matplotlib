@@ -536,14 +536,14 @@ class RendererSVG(RendererBase):
             return
 
         writer = self.writer
-        dictkey = (id(marker_path), marker_trans)
+        path_data = self._convert_path(
+            marker_path,
+            marker_trans + Affine2D().scale(1.0, -1.0),
+            simplify=False)
+        dictkey = (path_data)
         oid = self._markers.get(dictkey)
         if oid is None:
             oid = self._make_id(u'm', dictkey)
-            path_data = self._convert_path(
-                marker_path,
-                marker_trans + Affine2D().scale(1.0, -1.0),
-                simplify=False)
             writer.start(u'defs')
             writer.element(u'path', id=oid, d=path_data)
             writer.end(u'defs')
@@ -576,9 +576,15 @@ class RendererSVG(RendererBase):
             master_transform, paths, all_transforms)):
             transform = Affine2D(transform.get_matrix()).scale(1.0, -1.0)
             d = self._convert_path(path, transform, simplify=False)
+<<<<<<< HEAD
             oid = u'C%x_%x_%s' % (self._path_collection_id, i,
                                   self._make_id(u'', d))
             writer.element(u'path', id=oid, d=d)
+=======
+            oid = 'C%x_%x_%s' % (self._path_collection_id, i,
+                                 self._make_id('', d))
+            writer.element('path', id=oid, d=d)
+>>>>>>> Prevent duplicate marker ids
             path_codes.append(oid)
         writer.end(u'defs')
 
