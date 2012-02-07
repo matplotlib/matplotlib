@@ -245,6 +245,8 @@ class Grid(object):
 
     def valid_index(self, xi, yi):
         """Return True if point is a valid index of grid."""
+        # Note that xi/yi can be floats; so, for example, we can't simply check
+        # `xi < self.nx` since `xi` can be `self.nx - 1 < xi < self.nx`
         return xi >= 0 and xi <= self.nx-1 and yi >= 0 and yi <= self.ny-1
 
 
@@ -258,7 +260,7 @@ class StreamMask(object):
     """
 
     def __init__(self, density):
-        if type(density) == float or type(density) == int:
+        if isinstance(density, (float, int)):
             assert density > 0
             self.nx = self.ny = int(30 * density)
         else:
@@ -320,7 +322,7 @@ def get_integrator(u, v, dmap, minlength):
     def forward_time(xi, yi):
         ds_dt = interpgrid(speed, xi, yi)
         if ds_dt == 0:
-            raise TerminateTrajectory
+            raise TerminateTrajectory()
         dt_ds = 1. / ds_dt
         ui = interpgrid(u, xi, yi)
         vi = interpgrid(v, xi, yi)
