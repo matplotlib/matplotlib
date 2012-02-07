@@ -181,7 +181,7 @@ This is array slicing.  You can read more in the `Numpy tutorial <http://www.sci
 
 .. sourcecode:: ipython
 
-    In [7]: imgplot = mpimg.imshow(lum_img)
+    In [7]: imgplot = plt.imshow(lum_img)
 
 .. plot::
 
@@ -291,7 +291,7 @@ object.
 
 .. sourcecode:: ipython
 
-    In[11]: imgplot.set_clim=(0.0,0.7)
+    In[11]: imgplot.set_clim(0.0,0.7)
 
 .. plot::
 
