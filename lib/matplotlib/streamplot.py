@@ -200,7 +200,7 @@ class DomainMap(object):
         self.mask._current_xy = (xm, ym)
 
     def update_trajectory(self, xg, yg):
-        if not self.grid.valid_index(xg, yg):
+        if not self.grid.within_grid(xg, yg):
             raise InvalidIndexError
         xm, ym = self.grid2mask(xg, yg)
         self.mask._update_trajectory(xm, ym)
@@ -243,7 +243,7 @@ class Grid(object):
     def shape(self):
         return self.ny, self.nx
 
-    def valid_index(self, xi, yi):
+    def within_grid(self, xi, yi):
         """Return True if point is a valid index of grid."""
         # Note that xi/yi can be floats; so, for example, we can't simply check
         # `xi < self.nx` since `xi` can be `self.nx - 1 < xi < self.nx`
@@ -402,7 +402,7 @@ def _integrate_rk12(x0, y0, dmap, f):
     xf_traj = []
     yf_traj = []
 
-    while dmap.grid.valid_index(xi, yi):
+    while dmap.grid.within_grid(xi, yi):
         xf_traj.append(xi)
         yf_traj.append(yi)
         try:
