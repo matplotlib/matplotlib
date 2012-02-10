@@ -35,6 +35,7 @@ from matplotlib import rcParams
 # - Need comments, docstrings
 # - Need to look at codecs
 # - Is there a common way to add metadata?
+# - Should refactor the way we get frames to save to simplify saving from multiple figures
 
 # A registry for available MovieWriter classes
 class MovieWriterRegistry(object):
@@ -341,7 +342,7 @@ class Animation(object):
         self.event_source = None
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
-            bitrate=None):
+            bitrate=None, extra_anim=None):
         '''
         Saves a movie file by drawing every frame.
 
@@ -368,6 +369,12 @@ class Animation(object):
         higher quality movie, but at the cost of increased file size. If no
         value is given, this defaults to the value given by the rcparam
         `animation.bitrate`.
+        
+        *extra_anim* is a list of additional `Animation` objects that should
+        be included in the saved movie file. These need to be from the same
+        `matplotlib.Figure` instance. Also, animation frames will just be
+        simply combined, so there should be a 1:1 correspondence between
+        the frames from the different animations.
         '''
         # Need to disconnect the first draw callback, since we'll be doing
         # draws. Otherwise, we'll end up starting the animation.
@@ -396,6 +403,10 @@ class Animation(object):
         if bitrate is None:
             bitrate = rcParams['animation.bitrate']
 
+	    all_anim = [self]
+	    if not extra_anim is None:
+	        all_anim.extend(anim for anim in extra_anim if anim._fig is self._fig)
+
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
         if is_string_like(writer):
@@ -414,9 +425,10 @@ class Animation(object):
         # work since GUI widgets are gone. Either need to remove extra code
         # to allow for this non-existant use case or find a way to make it work.
         with writer.saving(self._fig, filename, dpi):
-            for data in self.new_saved_frame_seq():
-                #TODO: Need to see if turning off blit is really necessary
-                self._draw_next_frame(data, blit=False)
+            for data in itertools.izip(*[a.new_saved_frame_seq() for a in all_anim]):
+                for anim,d in zip(all_anim, data):
+                    #TODO: Need to see if turning off blit is really necessary
+                    anim._draw_next_frame(d, blit=False)
                 writer.grab_frame()
 
         # Reconnect signal for first draw if necessary
