@@ -4917,7 +4917,7 @@ class Axes(martist.Artist):
         *baseline*).
 
         .. seealso::
-            This `document <http://www.mathworks.com/access/helpdesk/help/techdoc/ref/stem.html>`_
+            This `document <http://www.mathworks.co.uk/help/techdoc/ref/stem.html>`_
             for details.
 
 
