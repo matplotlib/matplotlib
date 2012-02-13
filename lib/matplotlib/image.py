@@ -97,6 +97,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         self.axes = ax
 
         self._imcache = None
+        self._oldxslice = None
+        self._oldyslice = None
 
         # this is an experimental attribute, if True, unsampled image
         # will be drawn using the affine transform that are
@@ -129,73 +131,94 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         update state
         """
         self._imcache = None
+        # XXX Does self._oldxslice = None need to be called here?
         self._rgbacache = None
         cm.ScalarMappable.changed(self)
 
     def make_image(self, magnification=1.0):
         raise RuntimeError('The make_image method must be overridden.')
 
-
     def _get_unsampled_image(self, A, image_extents, viewlim):
         """
         convert numpy array A with given extents ([x1, x2, y1, y2] in
-        data coordinate) into the Image, given the viewlim (should be a
-        bbox instance).  Image will be clipped if the extents is
+        data coordinates) into the Image, given the viewlim (should be a
+        bbox instance).  Image will be clipped if the extents are
         significantly larger than the viewlim.
         """
         xmin, xmax, ymin, ymax = image_extents
-        dxintv = xmax-xmin
-        dyintv = ymax-ymin
+        x_rng = xmax - xmin
+        y_rng = ymax - ymin
+
+        def compute_sf(img_range, view_range):
+            """Return the scale factor between the original range and the new range."""
+            result = 1.0
+            if not (img_range == 0.0 and view_range == 0.0):
+                result = img_range/view_range
+            return result
+
+        def to_index_coords(data_pt, dat_rng, n_inds):
+            """Convert from data coordinates to image "index" coordinates."""
+            # note, the result may be a float, this should be handled by the caller. 
+            return (data_pt) / dat_rng * n_inds
 
         # the viewport scale factor
-        if viewlim.width == 0.0 and dxintv == 0.0:
-            sx = 1.0
+        sx = compute_sf(x_rng, viewlim.width)
+        sy = compute_sf(y_rng, viewlim.height)
+        
+        ny, nx = A.shape[:2]
+        
+        # if the source image is more than twice the size of the target
+        # image, define a sub-slice for image indexing later on        
+        if sx <= 2:
+            xslice = slice(0, None)
         else:
-            sx = dxintv/viewlim.width
-        if viewlim.height == 0.0 and dyintv == 0.0:
-            sy = 1.0
-        else:
-            sy = dyintv/viewlim.height
-        numrows, numcols = A.shape[:2]
-        if sx > 2:
-            x0 = (viewlim.x0-xmin)/dxintv * numcols
-            ix0 = max(0, int(x0 - self._filterrad))
-            x1 = (viewlim.x1-xmin)/dxintv * numcols
-            ix1 = min(numcols, int(x1 + self._filterrad))
+            x0_index = to_index_coords(viewlim.x0 - xmin, x_rng, nx)
+            # take into account the required filter radius from the x0 index 
+            ix0 = max(0, int(x0_index - self._filterrad))
+            
+            x1_index = to_index_coords(viewlim.x1 - xmin, x_rng, nx)
+            ix1 = min(nx, int(x1_index + self._filterrad))
+            
             xslice = slice(ix0, ix1)
+            
+            # calculate the new x information for this subsetted image
             xmin_old = xmin
-            xmin = xmin_old + ix0*dxintv/numcols
-            xmax = xmin_old + ix1*dxintv/numcols
-            dxintv = xmax - xmin
-            sx = dxintv/viewlim.width
+            xmin = xmin_old + ix0 * x_rng / nx
+            xmax = xmin_old + ix1 * x_rng / nx
+            x_rng = xmax - xmin
+            sx = compute_sf(x_rng, viewlim.width)
+        
+        if sy <= 2:
+            yslice = slice(0, ny)
         else:
-            xslice = slice(0, numcols)
-
-        if sy > 2:
-            y0 = (viewlim.y0-ymin)/dyintv * numrows
-            iy0 = max(0, int(y0 - self._filterrad))
-            y1 = (viewlim.y1-ymin)/dyintv * numrows
-            iy1 = min(numrows, int(y1 + self._filterrad))
+            y0_index = to_index_coords(viewlim.y0 - ymin, y_rng, ny)
+            iy0 = max(0, int(y0_index - self._filterrad))
+            
+            y1_index = to_index_coords(viewlim.y1 - ymin, y_rng, ny)
+            iy1 = min(ny, int(y1_index + self._filterrad))
+            
             if self.origin == 'upper':
-                yslice = slice(numrows-iy1, numrows-iy0)
+                yslice = slice(ny-iy1, ny-iy0)
             else:
                 yslice = slice(iy0, iy1)
+                
             ymin_old = ymin
-            ymin = ymin_old + iy0*dyintv/numrows
-            ymax = ymin_old + iy1*dyintv/numrows
-            dyintv = ymax - ymin
-            sy = dyintv/viewlim.height
-        else:
-            yslice = slice(0, numrows)
-
+            ymin = ymin_old + iy0 * y_rng / ny
+            ymax = ymin_old + iy1 * y_rng / ny
+            y_rng = ymax - ymin
+            sy = compute_sf(y_rng, viewlim.height)
+        
+        # if the slices have changed, invalidate the cache & store the new ones.
         if xslice != self._oldxslice or yslice != self._oldyslice:
             self._imcache = None
             self._oldxslice = xslice
             self._oldyslice = yslice
 
-        if self._imcache is None:
+        if self._imcache is not None:
+            im = self._imcache
+        else:
             if self._A.dtype == np.uint8 and self._A.ndim == 3:
-                im = _image.frombyte(self._A[yslice,xslice,:], 0)
+                im = _image.frombyte(self._A[yslice, xslice, :], 0)
                 im.is_grayscale = False
             else:
                 if self._rgbacache is None:
@@ -205,12 +228,12 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
                     if np.may_share_memory(x, self._A):
                         x = x.copy()
                     # premultiply the colors
-                    x[...,0:3] *= x[...,3:4]
+                    x[..., 0:3] *= x[..., 3:4 ]
                     x = (x * 255).astype(np.uint8)
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
-                im = _image.frombyte(x[yslice,xslice,:], 0)
+                im = _image.frombyte(x[yslice, xslice, :], 0)
                 if self._A.ndim == 2:
                     im.is_grayscale = self.cmap.is_gray()
                 else:
@@ -219,23 +242,20 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
             if self.origin=='upper':
                 im.flipud_in()
-        else:
-            im = self._imcache
-
-        return im, xmin, ymin, dxintv, dyintv, sx, sy
-
+        
+        return im, xmin, ymin, x_rng, y_rng, sx, sy
 
     @staticmethod
     def _get_rotate_and_skew_transform(x1, y1, x2, y2, x3, y3):
         """
-        Retuen a transform that does
+        Return a transform that does
          (x1, y1) -> (x1, y1)
          (x2, y2) -> (x2, y2)
          (x2, y1) -> (x3, y3)
 
         It was intended to derive a skew transform that preserve the
-        lower-left corner (x1, y1) and top-right corner(x2,y2), but
-        change the the lower-right-corner(x2, y1) to a new position
+        lower-left corner (x1, y1) and top-right corner (x2, y2), but
+        change the the lower-right-corner (x2, y1) to a new position
         (x3, y3).
         """
         tr1 = mtransforms.Affine2D()
@@ -260,18 +280,16 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         draw unsampled image. The renderer should support a draw_image method
         with scale parameter.
         """
-
-
-        trans = self.get_transform() #axes.transData
+        trans = self.get_transform()
 
         # convert the coordinates to the intermediate coordinate (ic).
         # The transformation from the ic to the canvas is a pure
-        # affine transfor.
+        # affine transform.
 
         # A straight-forward way is to use the non-affine part of the
         # original transform for conversion to the ic.
 
-        # firs, convert the image extent to the ic
+        # first, convert the image extent to the ic
         x_llc, x_trc, y_llc, y_trc = self.get_extent()
 
         xy = trans.transform_non_affine(np.array([(x_llc, y_llc),
@@ -293,11 +311,11 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             tr_rotate_skew = self._get_rotate_and_skew_transform(_xx1, _yy1,
                                                                  _xx2, _yy2,
                                                                  _xx3, _yy3)
-            trans_ic_to_canvas = tr_rotate_skew+trans.get_affine()
+            trans_ic_to_canvas = tr_rotate_skew + trans.get_affine()
         else:
             trans_ic_to_canvas = trans.get_affine()
 
-        # Now, viewLim in the ic.  It can be roated and can be
+        # Now, viewLim in the ic.  It can be rotated and can be
         # skewed. Make it big enough.
         x1, y1, x2, y2 = self.axes.bbox.extents
         trans_canvas_to_ic = trans_ic_to_canvas.inverted()
@@ -307,18 +325,18 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
                                                      (x1, y2)]))
         x1_, x2_ = min(xy_[:,0]), max(xy_[:,0])
         y1_, y2_ = min(xy_[:,1]), max(xy_[:,1])
-        viewLim_in_ic =  Bbox.from_extents(x1_, y1_, x2_, y2_)
+        viewLim_in_ic = Bbox.from_extents(x1_, y1_, x2_, y2_)
 
 
         # get the image, sliced if necessary. This is done in the ic.
         im, xmin, ymin, dxintv, dyintv, sx, sy = \
             self._get_unsampled_image(self._A, extent_in_ic, viewLim_in_ic)
 
-        if im is None: return # I'm not if this check is required. -JJL
+        if im is None: return # I'm not sure if this check is required. -JJL
 
         fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
-        im.set_bg( *bg)
+        im.set_bg(*bg)
 
         # image input dimensions
         im.reset_matrix()
@@ -423,7 +441,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             (self._A.ndim == 3 and self._A.shape[-1] not in (3, 4))):
             raise TypeError("Invalid dimensions for image data")
 
-        self._imcache =None
+        self._imcache = None
         self._rgbacache = None
         self._oldxslice = None
         self._oldyslice = None
@@ -438,8 +456,6 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         # by mistake.
 
         self.set_data(A)
-
-
 
     def get_interpolation(self):
         """
@@ -517,8 +533,10 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         return self._filterrad
 
 
-
 class AxesImage(_AxesImageBase):
+    """
+    XXX Not documented...
+    """
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
 
@@ -668,6 +686,9 @@ class AxesImage(_AxesImageBase):
 
 
 class NonUniformImage(AxesImage):
+    """
+    XXX No docstring...
+    """
     def __init__(self, ax, **kwargs):
         """
         kwargs are identical to those for AxesImage, except
@@ -748,12 +769,9 @@ class NonUniformImage(AxesImage):
         self._A = A
         self._Ax = x
         self._Ay = y
+        
+        # clear the image cache
         self._imcache = None
-
-        # I am adding this in accor with _AxesImageBase.set_data --
-        # examples/pylab_examples/image_nonuniform.py was breaking on
-        # the call to _get_unsampled_image when the oldxslice attr was
-        # accessed - JDH 3/3/2010
         self._oldxslice = None
         self._oldyslice = None
 
@@ -761,7 +779,7 @@ class NonUniformImage(AxesImage):
         raise NotImplementedError('Method not supported')
 
     def set_interpolation(self, s):
-        if s != None and not s in ('nearest','bilinear'):
+        if s is not None and s not in ('nearest','bilinear'):
             raise NotImplementedError('Only nearest neighbor and bilinear interpolations are supported')
         AxesImage.set_interpolation(self, s)
 
@@ -786,13 +804,14 @@ class NonUniformImage(AxesImage):
             raise RuntimeError('Cannot change colors after loading data')
         cm.ScalarMappable.set_cmap(self, cmap)
 
+
 class PcolorImage(martist.Artist, cm.ScalarMappable):
-    '''
+    """
     Make a pcolor-style plot with an irregular rectangular grid.
 
     This uses a variation of the original irregular image code,
     and it is used by pcolorfast for the corresponding grid type.
-    '''
+    """
     def __init__(self, ax,
                  x=None,
                  y=None,
@@ -866,7 +885,6 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
                             im)
         gc.restore()
 
-
     def set_data(self, x, y, A):
         A = cbook.safe_masked_invalid(A)
         if x is None:
@@ -912,7 +930,12 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         martist.Artist.set_alpha(self, alpha)
         self.update_dict['array'] = True
 
+
 class FigureImage(martist.Artist, cm.ScalarMappable):
+    """
+    XXX Not documented...
+    Represents a figure in axes coords???
+    """
     zorder = 0
     def __init__(self, fig,
                  cmap = None,
@@ -922,7 +945,6 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
                  origin=None,
                  **kwargs
                  ):
-
         """
         cmap is a colors.Colormap instance
         norm is a colors.Normalize instance to map luminance to 0-1
@@ -940,8 +962,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         self.magnification = 1.0
 
     def contains(self, mouseevent):
-        """Test whether the mouse event occured within the image.
-        """
+        """Test whether the mouse event occured within the image."""
         if callable(self._contains): return self._contains(self,mouseevent)
         xmin, xmax, ymin, ymax = self.get_extent()
         xdata, ydata = mouseevent.x, mouseevent.y
@@ -954,7 +975,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
         return inside,{}
 
     def get_size(self):
-        'Get the numrows, numcols of the input image'
+        """Get the numrows, numcols of the input image"""
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
@@ -1090,7 +1111,7 @@ class BboxImage(_AxesImageBase):
         return inside,{}
 
     def get_size(self):
-        'Get the numrows, numcols of the input image'
+        """"Get the numrows, numcols of the input image"""
         if self._A is None:
             raise RuntimeError('You must first set the image array')
 
@@ -1264,7 +1285,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
 def pil_to_array( pilImage ):
     """
-    load a PIL image and return it as a numpy array of uint8.  For
+    Load a PIL image and return it as a numpy array of uint8.  For
     grayscale images, the return array is MxN.  For RGB images, the
     return value is MxNx3.  For RGBA images the return value is MxNx4
     """
@@ -1303,7 +1324,7 @@ def pil_to_array( pilImage ):
 def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
               preview=False):
     """
-    make a thumbnail of image in *infile* with output filename
+    Make a thumbnail of image in *infile* with output filename
     *thumbfile*.
 
       *infile* the image file -- must be PNG or PIL readable if you

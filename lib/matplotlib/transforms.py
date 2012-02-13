@@ -1377,11 +1377,6 @@ class Affine2DBase(AffineBase):
     input_dims = 2
     output_dims = 2
 
-    #* Redundant: Removed for performance
-    #
-    # def __init__(self):
-    #     Affine2DBase.__init__(self)
-
     def frozen(self):
         return Affine2D(self.get_matrix().copy())
     frozen.__doc__ = AffineBase.frozen.__doc__

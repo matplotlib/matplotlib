@@ -4,12 +4,11 @@ of the selected points.  A callback is used to change the color of the
 selected points
 
 This is currently a proof-of-concept implementation (though it is
-usable as is).  There will be some refinement of the API and the
-inside polygon detection routine.
+usable as is).  There will be some refinement of the API.
 """
 from matplotlib.widgets import Lasso
 import matplotlib.mlab
-from matplotlib.nxutils import points_inside_poly
+from matplotlib.path import Path
 from matplotlib.colors import colorConverter
 from matplotlib.collections import RegularPolyCollection
 
@@ -47,13 +46,12 @@ class LassoManager:
         ax.add_collection(self.collection)
 
         self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
-        self.ind = None
 
     def callback(self, verts):
         facecolors = self.collection.get_facecolors()
-        ind = nonzero(points_inside_poly(self.xys, verts))[0]
+        p = Path(verts)
         for i in range(self.Nxy):
-            if i in ind:
+            if p.contains_point(self.xys[i]):
                 facecolors[i] = Datum.colorin
             else:
                 facecolors[i] = Datum.colorout
@@ -61,7 +59,7 @@ class LassoManager:
         self.canvas.draw_idle()
         self.canvas.widgetlock.release(self.lasso)
         del self.lasso
-        self.ind = ind
+
     def onpress(self, event):
         if self.canvas.widgetlock.locked(): return
         if event.inaxes is None: return
