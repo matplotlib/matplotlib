@@ -1490,6 +1490,7 @@ class QuadContourSet(ContourSet):
           *hatches*: 
             A list of cross hatch patterns to use on the filled areas.
             If None, no hatching will be added to the contour.
+            Currently only supported on a few backends.
 
         Note: contourf fills intervals that are closed at the top; that
         is, for boundaries *z1* and *z2*, the filled region is::
