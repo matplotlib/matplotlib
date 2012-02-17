@@ -731,6 +731,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.linewidths = kwargs.get('linewidths', None)
         self.linestyles = kwargs.get('linestyles', None)
 
+        self.hatch = kwargs.get('hatch', [None])
+
         self.alpha = kwargs.get('alpha', None)
         self.origin = kwargs.get('origin', None)
         self.extent = kwargs.get('extent', None)
@@ -909,9 +911,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         tcolors = [ (tuple(rgba),) for rgba in
                                 self.to_rgba(self.cvalues, alpha=self.alpha)]
         self.tcolors = tcolors
-        for color, collection in zip(tcolors, self.collections):
+        thatches = self.hatch * len(tcolors)
+        self.thatches = thatches        
+        for color, hatch, collection in zip(tcolors, thatches, self.collections):
             if self.filled:
                 collection.set_facecolor(color)
+                collection.set_hatch(hatch)
             else:
                 collection.set_color(color)
         for label, cv in zip(self.labelTexts, self.labelCValues):
