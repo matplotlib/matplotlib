@@ -46,6 +46,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
           :class:`matplotlib.cm.ScalarMappable`)
         * *cmap*: None (optional for
           :class:`matplotlib.cm.ScalarMappable`)
+        * *hatch*: None
 
     *offsets* and *transOffset* are used to translate the patch after
     rendering (default no offsets).
@@ -77,6 +78,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  norm = None,  # optional for ScalarMappable
                  cmap = None,  # ditto
                  pickradius = 5.0,
+                 hatch=None,
                  urls = None,
                  **kwargs
                  ):
@@ -95,6 +97,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_antialiased(antialiaseds)
         self.set_pickradius(pickradius)
         self.set_urls(urls)
+        self.set_hatch(hatch)
 
 
         self._uniform_offsets = None
@@ -232,7 +235,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_snap(self.get_snap())
-
+        
+        if self._hatch:
+            gc.set_hatch(self._hatch)
+        
         renderer.draw_path_collection(
             gc, transform.frozen(), paths, self.get_transforms(),
             offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
@@ -291,6 +297,38 @@ class Collection(artist.Artist, cm.ScalarMappable):
             self._urls = urls
 
     def get_urls(self): return self._urls
+
+    def set_hatch(self, hatch):
+        """
+        Set the hatching pattern
+
+        *hatch* can be one of::
+
+          /   - diagonal hatching
+          \   - back diagonal
+          |   - vertical
+          -   - horizontal
+          +   - crossed
+          x   - crossed diagonal
+          o   - small circle
+          O   - large circle
+          .   - dots
+          *   - stars
+
+        Letters can be combined, in which case all the specified
+        hatchings are done.  If same letter repeats, it increases the
+        density of hatching of that pattern.
+
+        Hatching is supported in the PostScript, PDF, SVG and Agg
+        backends only.
+
+        ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
+        """
+        self._hatch = hatch
+
+    def get_hatch(self):
+        'Return the current hatching pattern'
+        return self._hatch
 
     def set_offsets(self, offsets):
         """
