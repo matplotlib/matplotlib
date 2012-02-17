@@ -731,7 +731,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.linewidths = kwargs.get('linewidths', None)
         self.linestyles = kwargs.get('linestyles', None)
 
-        self.hatch = kwargs.get('hatch', [None])
+        self.hatches = kwargs.get('hatches', [None])
 
         self.alpha = kwargs.get('alpha', None)
         self.origin = kwargs.get('origin', None)
@@ -911,11 +911,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         tcolors = [ (tuple(rgba),) for rgba in
                                 self.to_rgba(self.cvalues, alpha=self.alpha)]
         self.tcolors = tcolors
-        thatches = self.hatch * len(tcolors)
-        self.thatches = thatches        
-        for color, hatch, collection in zip(tcolors, thatches, self.collections):
+        hatches = self.hatches * len(tcolors)
+        for color, hatch, collection in zip(tcolors, hatches, self.collections):
             if self.filled:
                 collection.set_facecolor(color)
+                # update the collection's hatch (may be None)
                 collection.set_hatch(hatch)
             else:
                 collection.set_color(color)
@@ -1486,6 +1486,10 @@ class QuadContourSet(ContourSet):
             points. This may never actually be advantageous, so this option may
             be removed. Chunking introduces artifacts at the chunk boundaries
             unless *antialiased* is *False*.
+            
+          *hatches*: 
+            A list of cross hatch patterns to use on the filled areas.
+            If None, no hatching will be added to the contour.
 
         Note: contourf fills intervals that are closed at the top; that
         is, for boundaries *z1* and *z2*, the filled region is::
