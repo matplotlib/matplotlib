@@ -46,6 +46,7 @@ projection_registry.register(
 def register_projection(cls):
     projection_registry.register(cls)
 
+
 def get_projection_class(projection=None):
     """
     Get a projection class from its name.
@@ -61,22 +62,42 @@ def get_projection_class(projection=None):
     except KeyError:
         raise ValueError("Unknown projection '%s'" % projection)
 
-def projection_factory(projection, figure, rect, **kwargs):
-    """
-    Get a new projection instance.
 
-    *projection* is a projection name.
+def process_projection_requirements(figure, *args, **kwargs):
+        """
+        Handle the args/kwargs to for add_axes/add_subplot/gca,
+        returning::
+        
+            (axes_proj_class, proj_class_kwargs, proj_stack_key)
+            
+        Which can be used for new axes initialization/identification.        
+        
+        """
+        ispolar = kwargs.pop('polar', False)
+        projection = kwargs.pop('projection', None)
+        if ispolar:
+            if projection is not None and projection != 'polar':
+                raise ValueError(
+                    "polar=True, yet projection=%r. " 
+                    "Only one of these arguments should be supplied." %
+                    projection)
+            projection = 'polar'
 
-    *figure* is a figure to add the axes to.
+        if isinstance(projection, basestring) or projection is None:
+            projection_class = get_projection_class(projection)
+        elif hasattr(projection, '_as_mpl_axes'):
+            projection_class, extra_kwargs = projection._as_mpl_axes()
+            kwargs.update(**extra_kwargs)
+        else:
+            raise TypeError('projection must be a string, None or implement a ' 
+                                '_as_mpl_axes method. Got %r' % projection)
 
-    *rect* is a :class:`~matplotlib.transforms.Bbox` object specifying
-    the location of the axes within the figure.
+        # Make the key without projection kwargs, this is used as a unique
+        # lookup for axes instances
+        key = figure._make_key(*args, **kwargs)
+        
+        return projection_class, kwargs, key
 
-    Any other kwargs are passed along to the specific projection
-    constructor being used.
-    """
-
-    return get_projection_class(projection)(figure, rect, **kwargs)
 
 def get_projection_names():
     """
