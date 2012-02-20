@@ -108,7 +108,7 @@ class AxesStack(Stack):
         return Stack.push(self, (key, (self._ind, a)))
 
     def current_key_axes(self):
-        """Return a tuple of  (key, axes) for the last axes added."""
+        """Return a tuple of  (key, axes) for the active axes."""
         if not len(self._elements):
             return self._default, self._default
         else:
@@ -1052,15 +1052,15 @@ class Figure(Artist):
             were used in its creation.
             
         """
-        ckey, kax = self._axstack.current_key_axes()
+        ckey, cax = self._axstack.current_key_axes()
         # if there exists an axes on the stack see if it maches 
         # the desired axes configuration
-        if kax is not None:
+        if cax is not None:
             
             # if no kwargs are given just return the current axes
             # this is a convenience for gca() on axes such as polar etc.
             if not kwargs:
-                return kax
+                return cax
             
             # if the user has specified particular projection detail
             # then build up a key which can represent this
@@ -1070,10 +1070,10 @@ class Figure(Artist):
                 kwargs_copy = kwargs.copy()
                 projection_class, _, key = \
                         process_projection_requirements(self, **kwargs_copy)
-                # if the kax matches this key then return the axes, otherwise
+                # if the cax matches this key then return the axes, otherwise
                 # continue and a new axes will be created 
-                if key == ckey and isinstance(kax, projection_class):
-                    return kax            
+                if key == ckey and isinstance(cax, projection_class):
+                    return cax            
                 
         return self.add_subplot(111, **kwargs)
 
