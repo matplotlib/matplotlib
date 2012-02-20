@@ -700,7 +700,7 @@ class Figure(Artist):
         else:
             rect = args[0]
             projection_class, kwargs, key = \
-                            process_projection_requirements(self, **kwargs)
+                            process_projection_requirements(self, *args, **kwargs)
             
             # check that an axes of this type doesn't already exist, if it 
             # does, set it as active and return it
@@ -757,14 +757,15 @@ class Figure(Artist):
 
         if len(args) == 1 and isinstance(args[0], int):
             args = tuple([int(c) for c in str(args[0])])
-
+        
         if isinstance(args[0], SubplotBase):
+            
             a = args[0]
             assert(a.get_figure() is self)
-            key = self._make_key(*args, **kwargs)
+            key = self._make_key(*args[1:], **kwargs)
         else:
             projection_class, kwargs, key = \
-                        process_projection_requirements(self, **kwargs)
+                        process_projection_requirements(self, *args, **kwargs)
             
             # try to find the axes with this key in the stack    
             ax = self._axstack.get(key)
@@ -781,7 +782,7 @@ class Figure(Artist):
                     # Without this, add_subplot would be simpler and
                     # more similar to add_axes.
                     self._axstack.remove(ax)                    
-
+            
             a = subplot_class_factory(projection_class)(self, *args, **kwargs)
             
         self._axstack.add(key, a)
