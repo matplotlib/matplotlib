@@ -10,8 +10,8 @@ import matplotlib.patches as mpp
 __all__ = ['streamplot']
 
 
-def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
-               arrowsize=1, arrowstyle='-|>', minlength=0.1):
+def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
+               cmap=None, arrowsize=1, arrowstyle='-|>', minlength=0.1):
     """Draws streamlines of a vector flow.
 
     Parameters
@@ -56,13 +56,26 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
 
     if color is None:
         color = matplotlib.rcParams['lines.color']
-    elif isinstance(color, np.ndarray):
-        assert color.shape == grid.shape
 
     if linewidth is None:
         linewidth = matplotlib.rcParams['lines.linewidth']
-    elif isinstance(linewidth, np.ndarray):
+
+    line_kw = {}
+    arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10*arrowsize)
+
+    if isinstance(color, np.ndarray):
+        assert color.shape == grid.shape
+        line_colors = []
+    else:
+        line_kw['color'] = color
+        arrow_kw['color'] = color
+
+    if isinstance(linewidth, np.ndarray):
         assert linewidth.shape == grid.shape
+        line_kw['linewidth'] = []
+    else:
+        line_kw['linewidth'] = linewidth
+        arrow_kw['linewidth'] = linewidth
 
     ## Sanity checks.
     assert u.shape == grid.shape
@@ -89,20 +102,6 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
         if cmap == None: cmap = matplotlib.cm.get_cmap(
             matplotlib.rcParams['image.cmap'])
 
-    line_kw = {}
-    arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10*arrowsize)
-
-    if isinstance(linewidth, np.ndarray):
-        line_kw['linewidth'] = []
-    else:
-        line_kw['linewidth'] = linewidth
-        arrow_kw['linewidth'] = linewidth
-
-    if isinstance(color, np.ndarray):
-        line_colors = []
-    else:
-        line_kw['color'] = color
-        arrow_kw['color'] = color
 
     streamlines = []
     for t in trajectories:
