@@ -55,7 +55,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     dmap = DomainMap(grid, mask)
 
     if color is None:
-        color = matplotlib.rcParams['lines.color']
+        color = axes._get_lines.color_cycle.next()
 
     if linewidth is None:
         linewidth = matplotlib.rcParams['lines.linewidth']
