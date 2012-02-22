@@ -56,12 +56,12 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
 
     if color is None:
         color = matplotlib.rcParams['lines.color']
-    elif type(color) == np.ndarray:
+    elif isinstance(color, np.ndarray):
         assert color.shape == grid.shape
 
     if linewidth is None:
         linewidth = matplotlib.rcParams['lines.linewidth']
-    elif type(linewidth) == np.ndarray:
+    elif isinstance(linewidth, np.ndarray):
         assert linewidth.shape == grid.shape
 
     ## Sanity checks.
@@ -84,7 +84,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
                 trajectories.append(t)
 
     # Load up the defaults - needed to get the color right.
-    if type(color) == np.ndarray:
+    if isinstance(color, np.ndarray):
         norm = matplotlib.colors.normalize(color.min(), color.max())
         if cmap == None: cmap = matplotlib.cm.get_cmap(
             matplotlib.rcParams['image.cmap'])
@@ -92,13 +92,13 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10*arrowsize)
 
-    if type(linewidth) == np.ndarray:
+    if isinstance(linewidth, np.ndarray):
         line_kw['linewidth'] = []
     else:
         line_kw['linewidth'] = linewidth
         arrow_kw['linewidth'] = linewidth
 
-    if type(color) == np.ndarray:
+    if isinstance(color, np.ndarray):
         line_colors = []
     else:
         line_kw['color'] = color
@@ -121,12 +121,12 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
         arrow_tail = (tx[n], ty[n])
         arrow_head = (np.mean(tx[n:n+2]), np.mean(ty[n:n+2]))
 
-        if type(linewidth) == np.ndarray:
+        if isinstance(linewidth, np.ndarray):
             line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
             line_kw['linewidth'].extend(line_widths)
             arrow_kw['linewidth'] = line_widths[n]
 
-        if type(color) == np.ndarray:
+        if isinstance(color, np.ndarray):
             color_values = interpgrid(color, tgx, tgy)[:-1]
             line_colors.extend(color_values)
             arrow_kw['color'] = cmap(norm(color_values[n]))
@@ -135,7 +135,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=1, color='k', cmap=None,
         axes.add_patch(p)
 
     lc = matplotlib.collections.LineCollection(streamlines, **line_kw)
-    if type(color) == np.ndarray:
+    if isinstance(color, np.ndarray):
         lc.set_array(np.asarray(line_colors))
         lc.set_cmap(cmap)
         lc.set_norm(norm)
@@ -472,7 +472,7 @@ def interpgrid(a, xi, yi):
     """Fast 2D, linear interpolation on an integer grid"""
 
     Ny, Nx = np.shape(a)
-    if type(xi) == np.ndarray:
+    if isinstance(xi, np.ndarray):
         x = xi.astype(np.int)
         y = yi.astype(np.int)
         # Check that xn, yn don't exceed max index
@@ -497,7 +497,7 @@ def interpgrid(a, xi, yi):
     a1 = a10 * (1 - xt) + a11 * xt
     ai = a0 * (1 - yt) + a1 * yt
 
-    if not type(xi) == np.ndarray:
+    if not isinstance(xi, np.ndarray):
         if np.ma.is_masked(ai):
             raise TerminateTrajectory
 
