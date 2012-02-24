@@ -2202,6 +2202,12 @@ class TransformedPath(TransformNode):
     the :class:`~matplotlib.path.Path`.  This cached copy is
     automatically updated when the non-affine part of the transform
     changes.
+
+    .. note::
+    
+        Paths are considered immutable by this class. Any update to the
+        path's vertices/codes will not trigger a transform recomputation.
+ 
     """
     def __init__(self, path, transform):
         """
