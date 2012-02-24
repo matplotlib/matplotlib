@@ -151,10 +151,9 @@ class ContourLabeler:
         self.labelManual=kwargs.get('manual',False)
 
         self.rightside_up = kwargs.get('rightside_up', True)
-
         if len(args) == 0:
             levels = self.levels
-            indices = range(len(levels))
+            indices = range(len(levels)-1)
         elif len(args) == 1:
             levlabs = list(args[0])
             indices, levels = [], []
