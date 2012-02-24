@@ -25,7 +25,7 @@ class Spine(mpatches.Patch):
     The default position is ``('outward',0)``.
 
     Spines are subclasses of class:`~matplotlib.patches.Patch`, and
-    inherit much of their behavior.
+    inherit much of their behaviour.
 
     Spines draw a line or a circle, depending if
     function:`~matplotlib.spines.Spine.set_patch_line` or
