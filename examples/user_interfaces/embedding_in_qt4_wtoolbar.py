@@ -23,7 +23,7 @@ class AppForm(QMainWindow):
         self.fig = Figure((5.0, 4.0), dpi=100)
         self.canvas = FigureCanvas(self.fig)
         self.canvas.setParent(self.main_frame)
-        self.canvas.setFocusPolicy( Qt.ClickFocus )
+        self.canvas.setFocusPolicy( Qt.StrongFocus )
         self.canvas.setFocus()
 
         self.mpl_toolbar = NavigationToolbar(self.canvas, self.main_frame)
@@ -43,8 +43,8 @@ class AppForm(QMainWindow):
         self.fig.clear()
         self.axes = self.fig.add_subplot(111)
         #self.axes.plot(self.x, self.y, 'ro')
-        #self.axes.imshow(self.data, interpolation='nearest')
-        self.axes.plot([1,2,3])
+        self.axes.imshow(self.data, interpolation='nearest')
+        #self.axes.plot([1,2,3])
         self.canvas.draw()
 
     def on_key_press(self, event):
