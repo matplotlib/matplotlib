@@ -76,6 +76,8 @@ The ``Save`` button
     ``svg`` and ``pdf``.
 
 
+.. _key-event-handling:
+
 Navigation Keyboard Shortcuts
 -----------------------------
 
