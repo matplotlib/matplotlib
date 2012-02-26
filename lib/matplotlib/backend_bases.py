@@ -2216,14 +2216,14 @@ class FigureCanvasBase(object):
 def key_press_handler(event, canvas, toolbar=None):
     """
     Implement the default mpl key bindings for the canvas and toolbar
-    described at :ref:`navigation-keyboard-shortcuts`
+    described at :ref:`key-event-handling`
 
     *event*
       a :class:`KeyEvent` instance
     *canvas*
       a :class:`FigureCanvasBase` instance
     *toolbar*
-      a class:`NavigationToolbar2` instance
+      a :class:`NavigationToolbar2` instance
 
     """
     # these bindings happen whether you are over an axes or not
@@ -2328,7 +2328,7 @@ class FigureManagerBase:
         A :class:`FigureCanvasBase` instance
 
     *num*
-        The figure nuamber
+        The figure number
     """
     def __init__(self, canvas, num):
         self.canvas = canvas
@@ -2350,7 +2350,7 @@ class FigureManagerBase:
     def key_press(self, event):
         """
         implement the default mpl key bindings defined at
-        :ref:`navigation-keyboard-shortcuts`
+        :ref:`key-event-handling`
         """
         key_press_handler(event, self.canvas, self.canvas.toolbar)
 
