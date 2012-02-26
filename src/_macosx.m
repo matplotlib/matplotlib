@@ -5,6 +5,15 @@
 #include "numpy/arrayobject.h"
 #include "path_cleanup.h"
 
+/* Some Python 3 compat */
+#if PY_MAJOR_VERSION >= 3
+#define PY3K 1
+#define PyInt_AsLong PyLong_AsLong
+#define PyInt_Check PyLong_Check
+#else
+#define PY3K 0
+#endif
+
 /* Must define Py_TYPE for Python 2.5 or older */
 #ifndef Py_TYPE
 # define Py_TYPE(o) ((o)->ob_type)
@@ -748,7 +757,7 @@ _set_dashes(CGContextRef cr, PyObject* linestyle)
             if (PyFloat_Check(value))
                 lengths[i] = (CGFloat) PyFloat_AS_DOUBLE(value);
             else if (PyInt_Check(value))
-                lengths[i] = (CGFloat) PyInt_AS_LONG(value);
+                lengths[i] = (CGFloat) PyInt_AsLong(value);
             else break;
         }
         Py_DECREF(dashes);
@@ -5847,4 +5856,8 @@ void init_macosx(void)
     PyModule_AddObject(module, "Timer", (PyObject*) &TimerType);
 
     PyOS_InputHook = wait_for_stdin;
+
+#if PY3K
+    return module;
+#endif
 }
