@@ -2122,9 +2122,9 @@ class Parser(object):
       | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
       \Downarrow \Updownarrow .""".split())
 
-    _left_delim = set(r"( \[ \{ < \lfloor \langle \lceil".split())
+    _left_delim = set(r"( [ \{ < \lfloor \langle \lceil".split())
 
-    _right_delim = set(r") \] \} > \rfloor \rangle \rceil".split())
+    _right_delim = set(r") ] \} > \rfloor \rangle \rceil".split())
 
     def __init__(self):
         # All forward declarations are here
