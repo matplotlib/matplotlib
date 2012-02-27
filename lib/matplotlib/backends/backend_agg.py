@@ -220,7 +220,9 @@ class RendererAgg(RendererBase):
             fname = findfont(prop)
             font = self._fontd.get(fname)
             if font is None:
-                font = FT2Font(str(fname))
+                font = FT2Font(
+                    str(fname),
+                    hinting_factor=rcParams['text.hinting_factor'])
                 self._fontd[fname] = font
             self._fontd[key] = font
 
