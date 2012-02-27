@@ -63,10 +63,23 @@ class Widget(object):
     drawon = True
     eventson = True
 
+class AxesWidget(Widget):
+    """
+    Widget that is connected to a single :class:`Axes`.
+
+    Attributes
+    ----------
+    *ax*
+        The parent :class:`matplotlib.axes.Axes` for the widget
+    *canvas*
+        The parent FigureCanvas for the widget
+    """
+    def __init__(self, ax):
+        self.ax = ax
+        self.canvas = ax.figure.canvas
 
 
-
-class Button(Widget):
+class Button(AxesWidget):
     """
     A GUI neutral button
 
@@ -108,6 +121,8 @@ class Button(Widget):
         *hovercolor*
             The color of the button when the mouse is over it
         """
+        AxesWidget.__init__(self, ax)
+
         if image is not None:
             ax.imshow(image)
         self.label = ax.text(0.5, 0.5, label,
@@ -117,8 +132,6 @@ class Button(Widget):
 
         self.cnt = 0
         self.observers = {}
-        self.ax = ax
-
 
         ax.figure.canvas.mpl_connect('button_press_event', self._click)
         ax.figure.canvas.mpl_connect('button_release_event', self._release)
@@ -179,7 +192,7 @@ class Button(Widget):
 
 
 
-class Slider(Widget):
+class Slider(AxesWidget):
     """
     A slider representing a floating point range
 
@@ -240,7 +253,7 @@ class Slider(Widget):
         knob.  See the :class:`matplotlib.patches.Rectangle` documentation
         valid property names (e.g., *facecolor*, *edgecolor*, *alpha*, ...)
         """
-        self.ax = ax
+        AxesWidget.__init__(self, ax)
 
         self.valmin = valmin
         self.valmax = valmax
@@ -351,7 +364,7 @@ class Slider(Widget):
 
 
 
-class CheckButtons(Widget):
+class CheckButtons(AxesWidget):
     """
     A GUI neutral radio button
 
@@ -385,6 +398,7 @@ class CheckButtons(Widget):
             A len(buttons) list of booleans indicating whether
              the button is active
         """
+        AxesWidget.__init__(self, ax)
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -433,8 +447,6 @@ class CheckButtons(Widget):
             cnt += 1
 
         ax.figure.canvas.mpl_connect('button_press_event', self._clicked)
-        self.ax = ax
-
 
         self.cnt = 0
         self.observers = {}
@@ -479,7 +491,7 @@ class CheckButtons(Widget):
         except KeyError: pass
 
 
-class RadioButtons(Widget):
+class RadioButtons(AxesWidget):
     """
     A GUI neutral radio button
 
@@ -512,8 +524,9 @@ class RadioButtons(Widget):
         *activecolor*
             The color of the button when clicked
         """
-        self.activecolor = activecolor
+        AxesWidget.__init__(self, ax)
 
+        self.activecolor = activecolor
 
         ax.set_xticks([])
         ax.set_yticks([])
@@ -545,8 +558,6 @@ class RadioButtons(Widget):
             cnt += 1
 
         ax.figure.canvas.mpl_connect('button_press_event', self._clicked)
-        self.ax = ax
-
 
         self.cnt = 0
         self.observers = {}
@@ -734,7 +745,7 @@ class SubplotTool(Widget):
         if self.drawon: self.targetfig.canvas.draw()
 
 
-class Cursor(Widget):
+class Cursor(AxesWidget):
     """
     A horizontal and vertical line span the axes that and move with
     the pointer.  You can turn off the hline or vline spectively with
@@ -757,9 +768,7 @@ class Cursor(Widget):
         .. plot :: mpl_examples/widgets/cursor.py
         """
         # TODO: Is the GTKAgg limitation still true?
-
-        self.ax = ax
-        self.canvas = ax.figure.canvas
+        AxesWidget.__init__(self, ax)
 
         self.canvas.mpl_connect('motion_notify_event', self.onmove)
         self.canvas.mpl_connect('draw_event', self.clear)
@@ -895,7 +904,7 @@ class MultiCursor(Widget):
 
             self.canvas.draw_idle()
 
-class SpanSelector(Widget):
+class SpanSelector(AxesWidget):
     """
     Select a min/max range of the x or y axes for a matplotlib Axes
 
@@ -933,14 +942,14 @@ class SpanSelector(Widget):
         Set the visible attribute to ``False`` if you want to turn off
         the functionality of the span selector
         """
+        AxesWidget.__init__(self, ax)
+
         if rectprops is None:
             rectprops = dict(facecolor='red', alpha=0.5)
 
         assert direction in ['horizontal', 'vertical'], 'Must choose horizontal or vertical for direction'
         self.direction = direction
 
-        self.ax = ax
-        self.canvas = ax.figure.canvas
         self.visible = True
         self.cids=[]
 
@@ -1101,7 +1110,7 @@ class HorizontalSpanSelector(SpanSelector):
         SpanSelector.__init__(self, ax, onselect, 'horizontal', **kwargs)
 
 
-class RectangleSelector(Widget):
+class RectangleSelector(AxesWidget):
     """
     Select a min/max range of the x axes for a matplotlib Axes
 
@@ -1181,9 +1190,9 @@ class RectangleSelector(Widget):
          2 = center mouse button (scroll wheel)
          3 = right mouse button
         """
-        self.ax = ax
+        AxesWidget.__init__(self, ax)
+
         self.visible = True
-        self.canvas = ax.figure.canvas
         self.canvas.mpl_connect('motion_notify_event', self.onmove)
         self.canvas.mpl_connect('button_press_event', self.press)
         self.canvas.mpl_connect('button_release_event', self.release)
@@ -1378,19 +1387,18 @@ class RectangleSelector(Widget):
         """ Get status of active mode (boolean variable)"""
         return self.active
 
-class Lasso(Widget):
+class Lasso(AxesWidget):
     def __init__(self, ax, xy, callback=None, useblit=True):
-        self.axes = ax
-        self.figure = ax.figure
-        self.canvas = self.figure.canvas
+        AxesWidget.__init__(self, ax)
+
         self.useblit = useblit
         if useblit:
-            self.background = self.canvas.copy_from_bbox(self.axes.bbox)
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
         x, y = xy
         self.verts = [(x,y)]
         self.line = Line2D([x], [y], linestyle='-', color='black', lw=2)
-        self.axes.add_line(self.line)
+        self.ax.add_line(self.line)
         self.callback = callback
         self.cids = []
         self.cids.append(self.canvas.mpl_connect('button_release_event', self.onrelease))
@@ -1401,14 +1409,14 @@ class Lasso(Widget):
             self.verts.append((event.xdata, event.ydata))
             if len(self.verts)>2:
                 self.callback(self.verts)
-            self.axes.lines.remove(self.line)
+            self.ax.lines.remove(self.line)
         self.verts = None
         for cid in self.cids:
             self.canvas.mpl_disconnect(cid)
 
     def onmove(self, event):
         if self.verts is None: return
-        if event.inaxes != self.axes: return
+        if event.inaxes != self.ax: return
         if event.button!=1: return
         self.verts.append((event.xdata, event.ydata))
 
@@ -1416,7 +1424,7 @@ class Lasso(Widget):
 
         if self.useblit:
             self.canvas.restore_region(self.background)
-            self.axes.draw_artist(self.line)
-            self.canvas.blit(self.axes.bbox)
+            self.ax.draw_artist(self.line)
+            self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
