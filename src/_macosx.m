@@ -5,6 +5,12 @@
 #include "numpy/arrayobject.h"
 #include "path_cleanup.h"
 
+#if PY_MAJOR_VERSION >= 3
+#define PY3K 1
+#else
+#define PY3K 0
+#endif
+
 /* Must define Py_TYPE for Python 2.5 or older */
 #ifndef Py_TYPE
 # define Py_TYPE(o) ((o)->ob_type)
@@ -714,7 +720,11 @@ _set_dashes(CGContextRef cr, PyObject* linestyle)
     if (offset!=Py_None)
     {
         if (PyFloat_Check(offset)) phase = PyFloat_AsDouble(offset);
+#if PY3K
+        else if (PyLong_Check(offset)) phase = PyLong_AsLong(offset);
+#else
         else if (PyInt_Check(offset)) phase = PyInt_AsLong(offset);
+#endif
         else
         {
             PyErr_SetString(PyExc_TypeError,
@@ -747,8 +757,13 @@ _set_dashes(CGContextRef cr, PyObject* linestyle)
             PyObject* value = PyTuple_GET_ITEM(dashes, i);
             if (PyFloat_Check(value))
                 lengths[i] = (CGFloat) PyFloat_AS_DOUBLE(value);
+#if PY3K
+            else if (PyLong_Check(value))
+                lengths[i] = (CGFloat) PyLong_AsLong(value);
+#else
             else if (PyInt_Check(value))
                 lengths[i] = (CGFloat) PyInt_AS_LONG(value);
+#endif
             else break;
         }
         Py_DECREF(dashes);
@@ -5847,4 +5862,8 @@ void init_macosx(void)
     PyModule_AddObject(module, "Timer", (PyObject*) &TimerType);
 
     PyOS_InputHook = wait_for_stdin;
+
+#if PY3K
+    return module;
+#endif
 }
