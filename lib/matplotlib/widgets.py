@@ -55,13 +55,13 @@ class LockDraw:
         return self._owner is not None
 
 
-
 class Widget(object):
     """
     Abstract base class for GUI neutral widgets
     """
     drawon = True
     eventson = True
+
 
 class AxesWidget(Widget):
     """
@@ -77,6 +77,15 @@ class AxesWidget(Widget):
     def __init__(self, ax):
         self.ax = ax
         self.canvas = ax.figure.canvas
+        self.cids = []
+
+    def connect_event(self, event, callback):
+        self.canvas.mpl_connect(event, callback)
+        self.cids.append(callback)
+
+    def disconnect_events(self):
+        for c in self.cids:
+            self.canvas.mpl_disconnect(c)
 
 
 class Button(AxesWidget):
@@ -133,9 +142,9 @@ class Button(AxesWidget):
         self.cnt = 0
         self.observers = {}
 
-        ax.figure.canvas.mpl_connect('button_press_event', self._click)
-        ax.figure.canvas.mpl_connect('button_release_event', self._release)
-        ax.figure.canvas.mpl_connect('motion_notify_event', self._motion)
+        self.connect_event('button_press_event', self._click)
+        self.connect_event('button_release_event', self._release)
+        self.connect_event('motion_notify_event', self._motion)
         ax.set_navigate(False)
         ax.set_axis_bgcolor(color)
         ax.set_xticks([])
@@ -270,10 +279,10 @@ class Slider(AxesWidget):
         ax.set_xticks([])
         ax.set_navigate(False)
 
-        ax.figure.canvas.mpl_connect('button_press_event', self._update)
-        ax.figure.canvas.mpl_connect('button_release_event', self._update)
+        self.connect_event('button_press_event', self._update)
+        self.connect_event('button_release_event', self._update)
         if dragging:
-            ax.figure.canvas.mpl_connect('motion_notify_event', self._update)
+            self.connect_event('motion_notify_event', self._update)
         self.label = ax.text(-0.02, 0.5, label, transform=ax.transAxes,
                              verticalalignment='center',
                              horizontalalignment='right')
@@ -446,7 +455,7 @@ class CheckButtons(AxesWidget):
             ax.add_line(l2)
             cnt += 1
 
-        ax.figure.canvas.mpl_connect('button_press_event', self._clicked)
+        self.connect_event('button_press_event', self._clicked)
 
         self.cnt = 0
         self.observers = {}
@@ -557,7 +566,7 @@ class RadioButtons(AxesWidget):
             ax.add_patch(p)
             cnt += 1
 
-        ax.figure.canvas.mpl_connect('button_press_event', self._clicked)
+        self.connect_event('button_press_event', self._clicked)
 
         self.cnt = 0
         self.observers = {}
@@ -770,8 +779,8 @@ class Cursor(AxesWidget):
         # TODO: Is the GTKAgg limitation still true?
         AxesWidget.__init__(self, ax)
 
-        self.canvas.mpl_connect('motion_notify_event', self.onmove)
-        self.canvas.mpl_connect('draw_event', self.clear)
+        self.connect_event('motion_notify_event', self.onmove)
+        self.connect_event('draw_event', self.clear)
 
         self.visible = True
         self.horizOn = True
@@ -951,7 +960,6 @@ class SpanSelector(AxesWidget):
         self.direction = direction
 
         self.visible = True
-        self.cids=[]
 
         self.rect = None
         self.background = None
@@ -967,10 +975,10 @@ class SpanSelector(AxesWidget):
         self.buttonDown = False
         self.prev = (0, 0)
 
-        self.cids.append(self.canvas.mpl_connect('motion_notify_event', self.onmove))
-        self.cids.append(self.canvas.mpl_connect('button_press_event', self.press))
-        self.cids.append(self.canvas.mpl_connect('button_release_event', self.release))
-        self.cids.append(self.canvas.mpl_connect('draw_event', self.update_background))
+        self.connect_event('motion_notify_event', self.onmove)
+        self.connect_event('button_press_event', self.press)
+        self.connect_event('button_release_event', self.release)
+        self.connect_event('draw_event', self.update_background)
 
         if self.direction == 'horizontal':
             trans = blended_transform_factory(self.ax.transData, self.ax.transAxes)
@@ -989,15 +997,14 @@ class SpanSelector(AxesWidget):
     def new_axes(self,ax):
         self.ax = ax
         if self.canvas is not ax.figure.canvas:
-            for cid in self.cids:
-                self.canvas.mpl_disconnect(cid)
+            self.disconnect_events()
 
             self.canvas = ax.figure.canvas
+            self.connect_event('motion_notify_event', self.onmove)
+            self.connect_event('button_press_event', self.press)
+            self.connect_event('button_release_event', self.release)
+            self.connect_event('draw_event', self.update_background)
 
-            self.cids.append(self.canvas.mpl_connect('motion_notify_event', self.onmove))
-            self.cids.append(self.canvas.mpl_connect('button_press_event', self.press))
-            self.cids.append(self.canvas.mpl_connect('button_release_event', self.release))
-            self.cids.append(self.canvas.mpl_connect('draw_event', self.update_background))
         if self.direction == 'horizontal':
             trans = blended_transform_factory(self.ax.transData, self.ax.transAxes)
             w,h = 0,1
@@ -1193,10 +1200,10 @@ class RectangleSelector(AxesWidget):
         AxesWidget.__init__(self, ax)
 
         self.visible = True
-        self.canvas.mpl_connect('motion_notify_event', self.onmove)
-        self.canvas.mpl_connect('button_press_event', self.press)
-        self.canvas.mpl_connect('button_release_event', self.release)
-        self.canvas.mpl_connect('draw_event', self.update_background)
+        self.connect_event('motion_notify_event', self.onmove)
+        self.connect_event('button_press_event', self.press)
+        self.connect_event('button_release_event', self.release)
+        self.connect_event('draw_event', self.update_background)
 
         self.active = True                    # for activation / deactivation
         self.to_draw = None
@@ -1400,9 +1407,8 @@ class Lasso(AxesWidget):
         self.line = Line2D([x], [y], linestyle='-', color='black', lw=2)
         self.ax.add_line(self.line)
         self.callback = callback
-        self.cids = []
-        self.cids.append(self.canvas.mpl_connect('button_release_event', self.onrelease))
-        self.cids.append(self.canvas.mpl_connect('motion_notify_event', self.onmove))
+        self.connect_event('button_release_event', self.onrelease)
+        self.connect_event('motion_notify_event', self.onmove)
 
     def onrelease(self, event):
         if self.verts is not None:
@@ -1411,8 +1417,7 @@ class Lasso(AxesWidget):
                 self.callback(self.verts)
             self.ax.lines.remove(self.line)
         self.verts = None
-        for cid in self.cids:
-            self.canvas.mpl_disconnect(cid)
+        self.disconnect_events()
 
     def onmove(self, event):
         if self.verts is None: return
