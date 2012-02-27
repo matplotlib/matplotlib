@@ -5108,7 +5108,7 @@ class Axes(martist.Artist):
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='-', ecolor=None, elinewidth=None, capsize=3,
                  barsabove=False, lolims=False, uplims=False,
-                 xlolims=False, xuplims=False, **kwargs):
+                 xlolims=False, xuplims=False, errorevery=1, **kwargs):
         """
         call signature::
 
@@ -5157,6 +5157,10 @@ class Axes(martist.Artist):
             only upper/lower limits. In that case a caret symbol is
             used to indicate this. lims-arguments may be of the same
             type as *xerr* and *yerr*.
+            
+          *errorevery*: positive integer
+            subsamples the errorbars. Eg if everyerror=5, errorbars for every
+            5-th datapoint will be plotted.
 
         All other keyword arguments are passed on to the plot command for the
         markers. For example, this code makes big red squares with
@@ -5247,6 +5251,8 @@ class Axes(martist.Artist):
         if not iterable(xuplims): xuplims = np.array([xuplims]*len(x), bool)
         else: xuplims = np.asarray(xuplims, bool)
 
+        everymask = np.arange(len(x)) % errorevery == 0
+
         def xywhere(xs, ys, mask):
             """
             return xs[mask], ys[mask] where mask is True but xs and
@@ -5285,33 +5291,38 @@ class Axes(martist.Artist):
                 right  = [thisx+thiserr for (thisx, thiserr)
                           in cbook.safezip(x,xerr)]
 
-            barcols.append( self.hlines(y, left, right, **lines_kw ) )
+            yo, _ = xywhere(y, right, everymask)
+            lo, ro= xywhere(left, right, everymask)
+            barcols.append( self.hlines(yo, lo, ro, **lines_kw ) )
             if capsize > 0:
                 if xlolims.any():
                     # can't use numpy logical indexing since left and
                     # y are lists
-                    leftlo, ylo = xywhere(left, y, xlolims)
+                    leftlo, ylo = xywhere(left, y, xlolims & everymask)
 
                     caplines.extend(
                         self.plot(leftlo, ylo, ls='None',
                                   marker=mlines.CARETLEFT, **plot_kw) )
                     xlolims = ~xlolims
-                    leftlo, ylo = xywhere(left, y, xlolims)
+                    leftlo, ylo = xywhere(left, y, xlolims & everymask)
                     caplines.extend( self.plot(leftlo, ylo, 'k|', **plot_kw) )
                 else:
-                    caplines.extend( self.plot(left, y, 'k|', **plot_kw) )
+                    
+                    leftlo, ylo = xywhere(left, y, everymask)
+                    caplines.extend( self.plot(leftlo, ylo, 'k|', **plot_kw) )
 
                 if xuplims.any():
 
-                    rightup, yup = xywhere(right, y, xuplims)
+                    rightup, yup = xywhere(right, y, xuplims & everymask)
                     caplines.extend(
                         self.plot(rightup,  yup, ls='None',
                                   marker=mlines.CARETRIGHT, **plot_kw) )
                     xuplims = ~xuplims
-                    rightup, yup = xywhere(right, y, xuplims)
+                    rightup, yup = xywhere(right, y, xuplims & everymask)
                     caplines.extend( self.plot(rightup,  yup, 'k|', **plot_kw) )
                 else:
-                    caplines.extend( self.plot(right, y, 'k|', **plot_kw) )
+                    rightup, yup = xywhere(right, y, everymask)
+                    caplines.extend( self.plot(rightup,  yup, 'k|', **plot_kw) )
 
         if yerr is not None:
             if (iterable(yerr) and len(yerr)==2 and
@@ -5328,31 +5339,35 @@ class Axes(martist.Artist):
                 upper  = [thisy+thiserr for (thisy, thiserr)
                           in cbook.safezip(y,yerr)]
 
-            barcols.append( self.vlines(x, lower, upper, **lines_kw) )
+            xo, _ = xywhere(x, lower, everymask)
+            lo, uo= xywhere(lower, upper, everymask)
+            barcols.append( self.vlines(xo, lo, uo, **lines_kw) )
             if capsize > 0:
 
                 if lolims.any():
-                    xlo, lowerlo = xywhere(x, lower, lolims)
+                    xlo, lowerlo = xywhere(x, lower, lolims & everymask)
                     caplines.extend(
                         self.plot(xlo, lowerlo, ls='None',
                                   marker=mlines.CARETDOWN, **plot_kw) )
                     lolims = ~lolims
-                    xlo, lowerlo = xywhere(x, lower, lolims)
+                    xlo, lowerlo = xywhere(x, lower, lolims & everymask)
                     caplines.extend( self.plot(xlo, lowerlo, 'k_', **plot_kw) )
                 else:
-                    caplines.extend( self.plot(x, lower, 'k_', **plot_kw) )
+                    xlo, lowerlo = xywhere(x, lower, everymask)
+                    caplines.extend( self.plot(xlo, lowerlo, 'k_', **plot_kw) )
 
                 if uplims.any():
-                    xup, upperup = xywhere(x, upper, uplims)
+                    xup, upperup = xywhere(x, upper, uplims & everymask)
 
                     caplines.extend(
                         self.plot(xup, upperup, ls='None',
                                   marker=mlines.CARETUP, **plot_kw) )
                     uplims = ~uplims
-                    xup, upperup = xywhere(x, upper, uplims)
+                    xup, upperup = xywhere(x, upper, uplims & everymask)
                     caplines.extend( self.plot(xup, upperup, 'k_', **plot_kw) )
                 else:
-                    caplines.extend( self.plot(x, upper, 'k_', **plot_kw) )
+                    xup, upperup = xywhere(x, upper, everymask)
+                    caplines.extend( self.plot(xup, upperup, 'k_', **plot_kw) )
 
         if not barsabove and fmt is not None:
             l0, = self.plot(x,y,fmt,**kwargs)
