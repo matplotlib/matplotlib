@@ -939,8 +939,8 @@ class SpanSelector(Widget):
         assert direction in ['horizontal', 'vertical'], 'Must choose horizontal or vertical for direction'
         self.direction = direction
 
-        self.ax = None
-        self.canvas = None
+        self.ax = ax
+        self.canvas = ax.figure.canvas
         self.visible = True
         self.cids=[]
 
@@ -958,8 +958,24 @@ class SpanSelector(Widget):
         self.buttonDown = False
         self.prev = (0, 0)
 
-        self.new_axes(ax)
+        self.cids.append(self.canvas.mpl_connect('motion_notify_event', self.onmove))
+        self.cids.append(self.canvas.mpl_connect('button_press_event', self.press))
+        self.cids.append(self.canvas.mpl_connect('button_release_event', self.release))
+        self.cids.append(self.canvas.mpl_connect('draw_event', self.update_background))
 
+        if self.direction == 'horizontal':
+            trans = blended_transform_factory(self.ax.transData, self.ax.transAxes)
+            w,h = 0,1
+        else:
+            trans = blended_transform_factory(self.ax.transAxes, self.ax.transData)
+            w,h = 1,0
+        self.rect = Rectangle( (0,0), w, h,
+                               transform=trans,
+                               visible=False,
+                               **self.rectprops
+                               )
+
+        if not self.useblit: self.ax.add_patch(self.rect)
 
     def new_axes(self,ax):
         self.ax = ax
