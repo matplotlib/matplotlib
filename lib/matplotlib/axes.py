@@ -311,7 +311,6 @@ class _process_plot_var_args:
             ret.append(seg)
         return ret
 
-
     def _grab_next_args(self, *args, **kwargs):
 
         remaining = args
@@ -332,7 +331,6 @@ class _process_plot_var_args:
             for seg in self._plot_args(remaining[:isplit], kwargs):
                 yield seg
             remaining=remaining[isplit:]
-
 
 
 class Axes(martist.Artist):
@@ -491,10 +489,10 @@ class Axes(martist.Artist):
                                                       self.relim)
 
     def get_window_extent(self, *args, **kwargs):
-        '''
+        """
         get the axes bounding box in display space; *args* and
         *kwargs* are empty
-        '''
+        """
         return self.bbox
 
     def _init_axis(self):
@@ -532,12 +530,14 @@ class Axes(martist.Artist):
         transformations.
 
         .. note::
+        
             This method is primarily used by rectilinear projections
             of the :class:`~matplotlib.axes.Axes` class, and is meant
             to be overridden by new kinds of projection axes that need
             different transformations and limits. (See
             :class:`~matplotlib.projections.polar.PolarAxes` for an
             example.
+            
         """
         self.transAxes = mtransforms.BboxTransformTo(self.bbox)
 
@@ -569,10 +569,12 @@ class Axes(martist.Artist):
         y-direction is in axis coordinates.
 
         .. note::
+        
             This transformation is primarily used by the
             :class:`~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
+            
         """
         if which=='grid':
             return self._xaxis_transform
@@ -599,10 +601,12 @@ class Axes(martist.Artist):
         text.
 
         .. note::
+        
             This transformation is primarily used by the
             :class:`~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
+            
         """
         return (self.get_xaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(0, -1 * pad_points / 72.0,
@@ -623,10 +627,12 @@ class Axes(martist.Artist):
         text.
 
         .. note::
+        
             This transformation is primarily used by the
             :class:`~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
+            
         """
         return (self.get_xaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(0, pad_points / 72.0,
@@ -640,10 +646,12 @@ class Axes(martist.Artist):
         y-direction is in data coordinates.
 
         .. note::
+        
             This transformation is primarily used by the
             :class:`~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
+            
         """
         if which=='grid':
             return self._yaxis_transform
@@ -670,10 +678,12 @@ class Axes(martist.Artist):
         text.
 
         .. note::
+        
             This transformation is primarily used by the
             :class:`~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
+            
         """
         return (self.get_yaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
@@ -699,6 +709,7 @@ class Axes(martist.Artist):
             :class:`~matplotlib.axis.Axis` class, and is meant to be
             overridden by new kinds of projections that may need to
             place axis elements in different locations.
+            
         """
         return (self.get_yaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(pad_points / 72.0, 0,
@@ -758,7 +769,7 @@ class Axes(martist.Artist):
             self._originalPosition.set(pos)
 
     def reset_position(self):
-        'Make the original position the active position'
+        """Make the original position the active position"""
         pos = self.get_position(original=True)
         self.set_position(pos, which='active')
 
@@ -778,7 +789,7 @@ class Axes(martist.Artist):
         return self._axes_locator
 
     def _set_artist_props(self, a):
-        'set the boilerplate props for artists added to axes'
+        """set the boilerplate props for artists added to axes"""
         a.set_figure(self.figure)
         if not a.is_transform_set():
             a.set_transform(self.transData)
@@ -795,7 +806,9 @@ class Axes(martist.Artist):
         projections it may not be.
 
         .. note::
+        
             Intended to be overridden by new projection types.
+            
         """
         return mpatches.Rectangle((0.0, 0.0), 1.0, 1.0)
 
@@ -809,7 +822,9 @@ class Axes(martist.Artist):
         other projections it may not be.
 
         .. note::
+        
             Intended to be overridden by new projection types.
+            
         """
         return {
             'left':mspines.Spine.linear_spine(self,'left'),
@@ -819,7 +834,7 @@ class Axes(martist.Artist):
             }
 
     def cla(self):
-        'Clear the current axes'
+        """Clear the current axes"""
         # Note: this is called by Axes.__init__()
         self.xaxis.cla()
         self.yaxis.cla()
@@ -912,7 +927,7 @@ class Axes(martist.Artist):
     frame = property(get_frame)
 
     def clear(self):
-        'clear the axes'
+        """clear the axes"""
         self.cla()
 
     def set_color_cycle(self, clist):
@@ -926,7 +941,7 @@ class Axes(martist.Artist):
 
 
     def ishold(self):
-        'return the HOLD status of the axes'
+        """return the HOLD status of the axes"""
         return self._hold
 
     def hold(self, b=None):
@@ -1090,10 +1105,10 @@ class Axes(martist.Artist):
 
 
     def apply_aspect(self, position=None):
-        '''
+        """
         Use :meth:`_aspect` and :meth:`_adjustable` to modify the
         axes box or the view limits.
-        '''
+        """
         if position is None:
             position = self.get_position(original=True)
 
@@ -1237,14 +1252,14 @@ class Axes(martist.Artist):
             #print 'New xsize, ysize/xsize', x1-x0, ysize/(x1-x0)
 
     def axis(self, *v, **kwargs):
-        '''
+        """
         Convenience method for manipulating the x and y view limits
         and the aspect ratio of the plot. For details, see
         :func:`~matplotlib.pyplot.axis`.
 
         *kwargs* are passed on to :meth:`set_xlim` and
         :meth:`set_ylim`
-        '''
+        """
         if len(v) == 0 and len(kwargs) == 0:
             xmin, xmax = self.get_xlim()
             ymin, ymax = self.get_ylim()
@@ -1316,46 +1331,46 @@ class Axes(martist.Artist):
         raise DeprecationWarning('Use get_children instead')
 
     def get_frame(self):
-        'Return the axes Rectangle frame'
+        """Return the axes Rectangle frame"""
         warnings.warn('use ax.patch instead', DeprecationWarning)
         return self.patch
 
     def get_legend(self):
-        'Return the legend.Legend instance, or None if no legend is defined'
+        """Return the legend.Legend instance, or None if no legend is defined"""
         return self.legend_
 
     def get_images(self):
-        'return a list of Axes images contained by the Axes'
+        """return a list of Axes images contained by the Axes"""
         return cbook.silent_list('AxesImage', self.images)
 
     def get_lines(self):
-        'Return a list of lines contained by the Axes'
+        """Return a list of lines contained by the Axes"""
         return cbook.silent_list('Line2D', self.lines)
 
     def get_xaxis(self):
-        'Return the XAxis instance'
+        """Return the XAxis instance"""
         return self.xaxis
 
     def get_xgridlines(self):
-        'Get the x grid lines as a list of Line2D instances'
+        """Get the x grid lines as a list of Line2D instances"""
         return cbook.silent_list('Line2D xgridline', self.xaxis.get_gridlines())
 
 
     def get_xticklines(self):
-        'Get the xtick lines as a list of Line2D instances'
+        """Get the xtick lines as a list of Line2D instances"""
         return cbook.silent_list('Text xtickline', self.xaxis.get_ticklines())
 
 
     def get_yaxis(self):
-        'Return the YAxis instance'
+        """Return the YAxis instance"""
         return self.yaxis
 
     def get_ygridlines(self):
-        'Get the y grid lines as a list of Line2D instances'
+        """Get the y grid lines as a list of Line2D instances"""
         return cbook.silent_list('Line2D ygridline', self.yaxis.get_gridlines())
 
     def get_yticklines(self):
-        'Get the ytick lines as a list of Line2D instances'
+        """Get the ytick lines as a list of Line2D instances"""
         return cbook.silent_list('Line2D ytickline', self.yaxis.get_ticklines())
 
     #### Adding and tracking artists
@@ -1382,12 +1397,13 @@ class Axes(martist.Artist):
         return self._current_image
 
     def has_data(self):
-        '''Return *True* if any artists have been added to axes.
+        """
+        "Return *True* if any artists have been added to axes.
 
         This should not be used to determine whether the *dataLim*
         need to be updated, and may not actually be useful for
         anything.
-        '''
+        """
         return (
             len(self.collections) +
             len(self.images) +
@@ -1395,11 +1411,11 @@ class Axes(martist.Artist):
             len(self.patches))>0
 
     def add_artist(self, a):
-        '''
+        """
         Add any :class:`~matplotlib.artist.Artist` to the axes.
 
         Returns the artist.
-        '''
+        """
         a.set_axes(self)
         self.artists.append(a)
         self._set_artist_props(a)
@@ -1408,12 +1424,12 @@ class Axes(martist.Artist):
         return a
 
     def add_collection(self, collection, autolim=True):
-        '''
+        """
         Add a :class:`~matplotlib.collections.Collection` instance
         to the axes.
 
         Returns the collection.
-        '''
+        """
         label = collection.get_label()
         if not label:
             collection.set_label('_collection%d'%len(self.collections))
@@ -1430,12 +1446,12 @@ class Axes(martist.Artist):
         return collection
 
     def add_line(self, line):
-        '''
+        """
         Add a :class:`~matplotlib.lines.Line2D` to the list of plot
         lines
 
         Returns the line.
-        '''
+        """
         self._set_artist_props(line)
         if line.get_clip_path() is None:
             line.set_clip_path(self.patch)
@@ -1474,7 +1490,7 @@ class Axes(martist.Artist):
         return p
 
     def _update_patch_limits(self, patch):
-        'update the data limits for patch *p*'
+        """update the data limits for patch *p*"""
         # hist can add zero height Rectangles, which is useful to keep
         # the bins, counts and patches lined up, but it throws off log
         # scaling.  We'll ignore rects with zero height or width in
@@ -1496,12 +1512,12 @@ class Axes(martist.Artist):
 
 
     def add_table(self, tab):
-        '''
+        """
         Add a :class:`~matplotlib.tables.Table` instance to the
         list of axes tables
 
         Returns the table.
-        '''
+        """
         self._set_artist_props(tab)
         self.tables.append(tab)
         tab.set_clip_path(self.patch)
@@ -1509,12 +1525,12 @@ class Axes(martist.Artist):
         return tab
 
     def add_container(self, container):
-        '''
+        """
         Add a :class:`~matplotlib.container.Container` instance
         to the axes.
 
         Returns the collection.
-        '''
+        """
         label = container.get_label()
         if not label:
             container.set_label('_container%d'%len(self.containers))
@@ -1541,7 +1557,7 @@ class Axes(martist.Artist):
             self._update_patch_limits(p)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
-        'Update the data lim bbox with seq of xy tups or equiv. 2-D array'
+        """Update the data lim bbox with seq of xy tups or equiv. 2-D array"""
         # if no data is set currently, the bbox will ignore its
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
@@ -1555,7 +1571,7 @@ class Axes(martist.Artist):
         self.ignore_existing_data_limits = False
 
     def update_datalim_numerix(self, x, y):
-        'Update the data lim bbox with seq of xy tups'
+        """Update the data lim bbox with seq of xy tups"""
         # if no data is set currently, the bbox will ignore it's
         # limits and set the bound to be the bounds of the xydata.
         # Otherwise, it will compute the bounds of it's current data
@@ -1565,14 +1581,14 @@ class Axes(martist.Artist):
         self.ignore_existing_data_limits = False
 
     def update_datalim_bounds(self, bounds):
-        '''
+        """
         Update the datalim to include the given
         :class:`~matplotlib.transforms.Bbox` *bounds*
-        '''
+        """
         self.dataLim.set(mtransforms.Bbox.union([self.dataLim, bounds]))
 
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
-        'look for unit *kwargs* and update the axis instances as necessary'
+        """Look for unit *kwargs* and update the axis instances as necessary"""
 
         if self.xaxis is None or self.yaxis is None: return
 
@@ -1614,10 +1630,10 @@ class Axes(martist.Artist):
                     self.yaxis.update_units(ydata)
 
     def in_axes(self, mouseevent):
-        '''
-        return *True* if the given *mouseevent* (in display coords)
+        """
+        Return *True* if the given *mouseevent* (in display coords)
         is in the Axes
-        '''
+        """
         return self.patch.contains(mouseevent)[0]
 
     def get_autoscale_on(self):
@@ -1865,7 +1881,7 @@ class Axes(martist.Artist):
 
     @allow_rasterization
     def draw(self, renderer=None, inframe=False):
-        "Draw everything (plot lines, axes, labels)"
+        """Draw everything (plot lines, axes, labels)"""
         if renderer is None:
             renderer = self._cachedRenderer
 
@@ -1908,11 +1924,8 @@ class Axes(martist.Artist):
         if self.axison and self._frameon:
             artists.extend(self.spines.itervalues())
 
-
-
         dsu = [ (a.zorder, a) for a in artists
                 if not a.get_animated() ]
-
 
         # add images to dsu if the backend support compositing.
         # otherwise, does the manaul compositing  without adding images to dsu.
@@ -1934,7 +1947,6 @@ class Axes(martist.Artist):
             dsu = [l for l in dsu if l[0] >= rasterization_zorder]
         else:
             dsu_rasterized = []
-
 
         # the patch draws the background rectangle -- the frame below
         # will draw the edges
@@ -2301,7 +2313,7 @@ class Axes(martist.Artist):
         self.axison = True
 
     def get_axis_bgcolor(self):
-        'Return the axis background color'
+        """Return the axis background color"""
         return self._axisbg
 
     def set_axis_bgcolor(self, color):
@@ -2323,7 +2335,7 @@ class Axes(martist.Artist):
         self.set_xlim(right, left)
 
     def xaxis_inverted(self):
-        'Returns True if the x-axis is inverted.'
+        """Returns True if the x-axis is inverted."""
         left, right = self.get_xlim()
         return right < left
 
@@ -2457,7 +2469,7 @@ class Axes(martist.Artist):
         return left, right
 
     def get_xscale(self):
-        'return the xaxis scale string: %s' % (
+        """return the xaxis scale string: %s""" % (
             ", ".join(mscale.get_scale_names()))
         return self.xaxis.get_scale()
 
@@ -2480,7 +2492,7 @@ class Axes(martist.Artist):
         self._update_transScale()
 
     def get_xticks(self, minor=False):
-        'Return the x ticks as a list of locations'
+        """Return the x ticks as a list of locations"""
         return self.xaxis.get_ticklocs(minor=minor)
 
     def set_xticks(self, ticks, minor=False):
@@ -2492,17 +2504,17 @@ class Axes(martist.Artist):
         return self.xaxis.set_ticks(ticks, minor=minor)
 
     def get_xmajorticklabels(self):
-        'Get the xtick labels as a list of Text instances'
+        """Get the xtick labels as a list of Text instances"""
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_majorticklabels())
 
     def get_xminorticklabels(self):
-        'Get the xtick labels as a list of Text instances'
+        """Get the xtick labels as a list of Text instances"""
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_minorticklabels())
 
     def get_xticklabels(self, minor=False):
-        'Get the xtick labels as a list of Text instances'
+        """Get the xtick labels as a list of Text instances"""
         return cbook.silent_list('Text xticklabel',
                                  self.xaxis.get_ticklabels(minor=minor))
 
@@ -2531,7 +2543,7 @@ class Axes(martist.Artist):
         self.set_ylim(top, bottom)
 
     def yaxis_inverted(self):
-        'Returns True if the y-axis is inverted.'
+        """Returns True if the y-axis is inverted."""
         bottom, top = self.get_ylim()
         return top < bottom
 
@@ -2660,7 +2672,7 @@ class Axes(martist.Artist):
         return bottom, top
 
     def get_yscale(self):
-        'return the xaxis scale string: %s' % (
+        """return the xaxis scale string: %s""" % (
                 ", ".join(mscale.get_scale_names()))
         return self.yaxis.get_scale()
 
@@ -2683,7 +2695,7 @@ class Axes(martist.Artist):
         self._update_transScale()
 
     def get_yticks(self, minor=False):
-        'Return the y ticks as a list of locations'
+        """Return the y ticks as a list of locations"""
         return self.yaxis.get_ticklocs(minor=minor)
 
     def set_yticks(self, ticks, minor=False):
@@ -2700,17 +2712,17 @@ class Axes(martist.Artist):
         return self.yaxis.set_ticks(ticks, minor=minor)
 
     def get_ymajorticklabels(self):
-        'Get the xtick labels as a list of Text instances'
+        """Get the xtick labels as a list of Text instances"""
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_majorticklabels())
 
     def get_yminorticklabels(self):
-        'Get the xtick labels as a list of Text instances'
+        """Get the xtick labels as a list of Text instances"""
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_minorticklabels())
 
     def get_yticklabels(self, minor=False):
-        'Get the xtick labels as a list of Text instances'
+        """Get the xtick labels as a list of Text instances"""
         return cbook.silent_list('Text yticklabel',
                                  self.yaxis.get_ticklabels(minor=minor))
 
@@ -2734,7 +2746,8 @@ class Axes(martist.Artist):
                                          minor=minor, **kwargs)
 
     def xaxis_date(self, tz=None):
-        """Sets up x-axis ticks and labels that treat the x data as dates.
+        """
+        Sets up x-axis ticks and labels that treat the x data as dates.
 
         *tz* is a timezone string or :class:`tzinfo` instance.
         Defaults to rc value.
@@ -2744,7 +2757,8 @@ class Axes(martist.Artist):
         self.xaxis.axis_date(tz)
 
     def yaxis_date(self, tz=None):
-        """Sets up y-axis ticks and labels that treat the y data as dates.
+        """
+        Sets up y-axis ticks and labels that treat the y data as dates.
 
         *tz* is a timezone string or :class:`tzinfo` instance.
         Defaults to rc value.
@@ -2776,7 +2790,7 @@ class Axes(martist.Artist):
             return val
 
     def format_coord(self, x, y):
-        'return a format string formatting the *x*, *y* coord'
+        """Return a format string formatting the *x*, *y* coord"""
         if x is None:
             xs = '???'
         else:
@@ -2843,7 +2857,9 @@ class Axes(martist.Artist):
         * 3: RIGHT
 
         .. note::
+        
             Intended to be overridden by new projection types.
+            
         """
         self._pan_start = cbook.Bunch(
             lim           = self.viewLim.frozen(),
@@ -2860,7 +2876,9 @@ class Axes(martist.Artist):
         is up.)
 
         .. note::
+        
             Intended to be overridden by new projection types.
+            
         """
         del self._pan_start
 
@@ -2879,7 +2897,9 @@ class Axes(martist.Artist):
         *x*, *y* are the mouse coordinates in display coords.
 
         .. note::
+        
             Intended to be overridden by new projection types.
+            
         """
         def format_deltas(key, dx, dy):
             if key=='control':
@@ -2982,12 +3002,12 @@ class Axes(martist.Artist):
                                  'instead')
 
     def disconnect(self, cid):
-        'disconnect from the Axes event.'
+        """disconnect from the Axes event."""
         raise DeprecationWarning('use the callbacks CallbackRegistry instance '
                                  'instead')
 
     def get_children(self):
-        'return a list of child artists'
+        """return a list of child artists"""
         children = []
         children.append(self.xaxis)
         children.append(self.yaxis)
@@ -4087,7 +4107,7 @@ class Axes(martist.Artist):
 
     @docstring.dedent_interpd
     def acorr(self, x, **kwargs):
-        """
+        r'''
         call signature::
 
             acorr(x, normed=True, detrend=mlab.detrend_none, usevlines=True,
@@ -4145,7 +4165,7 @@ class Axes(martist.Artist):
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/xcorr_demo.py
-        """
+        '''
         return self.xcorr(x, x, **kwargs)
 
     @docstring.dedent_interpd
@@ -4917,7 +4937,7 @@ class Axes(martist.Artist):
         *baseline*).
 
         .. seealso::
-            This `document <http://www.mathworks.co.uk/help/techdoc/ref/stem.html>`_
+            This `document <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
             for details.
 
 
@@ -8214,7 +8234,7 @@ class Axes(martist.Artist):
         return ret
 
     def matshow(self, Z, **kwargs):
-        '''
+        """
         Plot a matrix or array as an image.
 
         The matrix will be shown the way it would be printed,
@@ -8231,7 +8251,7 @@ class Axes(martist.Artist):
         kwarg to "lower".
 
         Returns: an :class:`matplotlib.image.AxesImage` instance.
-        '''
+        """
         Z = np.asanyarray(Z)
         nr, nc = Z.shape
         kw = {'origin': 'upper',
@@ -8300,7 +8320,7 @@ class Axes(martist.Artist):
                 ax.set_minor_locator(mticker.AutoMinorLocator())
 
     def minorticks_off(self):
-        'Remove minor ticks from the axes.'
+        """Remove minor ticks from the axes."""
         self.xaxis.set_minor_locator(mticker.NullLocator())
         self.yaxis.set_minor_locator(mticker.NullLocator())
 
@@ -8380,27 +8400,27 @@ class SubplotBase:
 
 
     def get_geometry(self):
-        'get the subplot geometry, eg 2,2,3'
+        """get the subplot geometry, eg 2,2,3"""
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
         return rows, cols, num1+1 # for compatibility
 
     # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
-        'change subplot geometry, eg. from 1,1,1 to 2,2,3'
+        """change subplot geometry, eg. from 1,1,1 to 2,2,3"""
         self._subplotspec = GridSpec(numrows, numcols)[num-1]
         self.update_params()
         self.set_position(self.figbox)
 
     def get_subplotspec(self):
-        'get the SubplotSpec instance associated with the subplot'
+        """get the SubplotSpec instance associated with the subplot"""
         return self._subplotspec
 
     def set_subplotspec(self, subplotspec):
-        'set the SubplotSpec instance associated with the subplot'
+        """set the SubplotSpec instance associated with the subplot"""
         self._subplotspec = subplotspec
 
     def update_params(self):
-        'update the subplot position from fig.subplotpars'
+        """update the subplot position from fig.subplotpars"""
 
         self.figbox, self.rowNum, self.colNum, self.numRows, self.numCols = \
                      self.get_subplotspec().get_position(self.figure,

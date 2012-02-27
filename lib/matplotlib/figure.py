@@ -697,21 +697,13 @@ class Figure(Artist):
             if ispolar:
                 if projection is not None and projection != 'polar':
                     raise ValueError(
-                        "polar=True, yet projection=%r. "
+                        "polar=True, yet projection='%s'. " +
                         "Only one of these arguments should be supplied." %
                         projection)
                 projection = 'polar'
 
-            if isinstance(projection, basestring) or projection is None:
-                a = projection_factory(projection, self, rect, **kwargs)
-            elif hasattr(projection, '_as_mpl_axes'):
-                projection_class, extra_kwargs = projection._as_mpl_axes()
-                kwargs.update(**extra_kwargs)
-                a = projection_class(self, rect, **kwargs)                
-            else:
-                TypeError('projection must be a string, None or implement a ' 
-                          '_as_mpl_axes method. Got %r' % projection)
-            
+            a = projection_factory(projection, self, rect, **kwargs)
+
         self._axstack.add(key, a)
         self.sca(a)
         return a
@@ -722,11 +714,10 @@ class Figure(Artist):
         Add a subplot.  Examples:
 
             fig.add_subplot(111)
-            fig.add_subplot(1,1,1)                    # equivalent but more general
-            fig.add_subplot(212, axisbg='r')          # add subplot with red background
-            fig.add_subplot(111, projection='polar')  # add a polar subplot
-            fig.add_subplot(111, polar=True)          # add a polar subplot
-            fig.add_subplot(sub)                      # add Subplot instance sub
+            fig.add_subplot(1,1,1)            # equivalent but more general
+            fig.add_subplot(212, axisbg='r')  # add subplot with red background
+            fig.add_subplot(111, polar=True)  # add a polar subplot
+            fig.add_subplot(sub)              # add Subplot instance sub
 
         *kwargs* are legal :class:`!matplotlib.axes.Axes` kwargs plus
         *projection*, which chooses a projection type for the axes.
@@ -762,19 +753,12 @@ class Figure(Artist):
             if ispolar:
                 if projection is not None and projection != 'polar':
                     raise ValueError(
-                        "polar=True, yet projection=%r. " 
+                        "polar=True, yet projection='%s'. " +
                         "Only one of these arguments should be supplied." %
                         projection)
                 projection = 'polar'
 
-            if isinstance(projection, basestring) or projection is None:
-                projection_class = get_projection_class(projection)
-            elif hasattr(projection, '_as_mpl_axes'):
-                projection_class, extra_kwargs = projection._as_mpl_axes()
-                kwargs.update(**extra_kwargs)
-            else:
-                TypeError('projection must be a string, None or implement a ' 
-                          '_as_mpl_axes method. Got %r' % projection)
+            projection_class = get_projection_class(projection)
 
             # Remake the key without projection kwargs:
             key = self._make_key(*args, **kwargs)
@@ -1059,8 +1043,9 @@ class Figure(Artist):
             if ispolar:
                 if projection is not None and projection != 'polar':
                     raise ValueError(
-                        "polar=True, yet projection='%s'. " % projection + 
-                        "Only one of these arguments should be supplied.")
+                        "polar=True, yet projection='%s'. " +
+                        "Only one of these arguments should be supplied." %
+                        projection)
                 projection = 'polar'
 
             projection_class = get_projection_class(projection)

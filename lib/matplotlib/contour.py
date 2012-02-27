@@ -766,8 +766,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise ValueError('Either colors or cmap must be None')
         if self.origin == 'image': self.origin = mpl.rcParams['image.origin']
 
-        self.transform = kwargs.get('transform', None)
-
         self._process_args(*args, **kwargs)
         self._process_levels()
 
@@ -812,7 +810,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                                      antialiaseds = (self.antialiased,),
                                      edgecolors= 'none',
                                      alpha=self.alpha,
-                                     transform=self.transform,
                                      zorder=zorder)
                 self.ax.add_collection(col)
                 self.collections.append(col)
@@ -832,7 +829,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                                      linewidths = width,
                                      linestyle = lstyle,
                                      alpha=self.alpha,
-                                     transform=self.transform,
                                      zorder=zorder)
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, False)

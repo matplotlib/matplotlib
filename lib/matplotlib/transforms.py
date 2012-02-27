@@ -1022,7 +1022,7 @@ class Transform(TransformNode):
       - :meth:`inverted` (if :meth:`has_inverse` can return True)
 
     If the transform needs to do something non-standard with
-    :class:`mathplotlib.path.Path` objects, such as adding curves
+    :class:`matplotlib.path.Path` objects, such as adding curves
     where there were once line segments, it should override:
 
       - :meth:`transform_path`
@@ -1490,6 +1490,7 @@ class Affine2D(Affine2DBase):
           a c e
           b d f
           0 0 1
+          
         """
         return Affine2D(
             np.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], np.float_)
@@ -1514,6 +1515,7 @@ class Affine2D(Affine2DBase):
           a c e
           b d f
           0 0 1
+          
         """
         self._mtx = mtx
         self.invalidate()

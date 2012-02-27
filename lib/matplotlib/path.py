@@ -3,7 +3,6 @@ Contains a class for managing paths (polylines).
 """
 
 from __future__ import print_function
-import math
 from weakref import WeakValueDictionary
 
 import numpy as np
@@ -271,7 +270,6 @@ class Path(object):
                 transformed result and automatically update when the
                 transform changes.
         """
-        # itpe: Why is this not using transform.transform_path? Doesn't seem to be breaking anything though???
         return Path(transform.transform(self.vertices), self.codes,
                     self._interpolation_steps)
 
