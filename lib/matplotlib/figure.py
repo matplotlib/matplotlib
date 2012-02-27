@@ -41,11 +41,18 @@ docstring.interpd.update(projection_names = get_projection_names())
 
 class AxesStack(Stack):
     """
-    Specialization of the Stack to handle all
-    tracking of Axes in a Figure.  This requires storing
-    key, (ind, axes) pairs. The key is based on the args and kwargs
-    used in generating the Axes. ind is a serial number for tracking
-    the order in which axes were added.
+    Specialization of the Stack to handle all tracking of Axes in a Figure.
+    This stack stores ``key, (ind, axes)`` pairs, where:
+    
+        * **key** should be a hash of the args and kwargs
+          used in generating the Axes. 
+        * **ind** is a serial number for tracking the order
+          in which axes were added.
+          
+    The AxesStack is a callable, where ``ax_stack()`` returns
+    the current axes. Alternatively the :meth:`current_key_axes` will
+    return the current key and associated axes.
+    
     """
     def __init__(self):
         Stack.__init__(self)
@@ -74,9 +81,14 @@ class AxesStack(Stack):
         return (k, (ind, e))
 
     def remove(self, a):
+        """Remove the axes from the stack."""
         Stack.remove(self, self._entry_from_axes(a))
-
+    
     def bubble(self, a):
+        """
+        Move the given axes, which must already exist in the 
+        stack, to the top.
+        """
         return Stack.bubble(self, self._entry_from_axes(a))
 
     def add(self, key, a):
@@ -108,7 +120,12 @@ class AxesStack(Stack):
         return Stack.push(self, (key, (self._ind, a)))
 
     def current_key_axes(self):
-        """Return a tuple of  (key, axes) for the active axes."""
+        """
+        Return a tuple of ``(key, axes)`` for the active axes.
+        
+        If no axes exists on the stack, then returns ``(None, None)``.
+                
+        """
         if not len(self._elements):
             return self._default, self._default
         else:

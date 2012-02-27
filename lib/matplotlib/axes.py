@@ -3512,7 +3512,7 @@ class Axes(martist.Artist):
         Return value is the :class:`matplotlib.patches.Polygon`
         instance.
 
-        Examples:
+        Examples::
 
             # draw a vertical green translucent rectangle from x=1.25 to 1.55
             # that spans the yrange of the axes
