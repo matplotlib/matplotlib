@@ -29,6 +29,7 @@ import matplotlib.patches as mpatches
 import matplotlib.spines as mspines
 import matplotlib.quiver as mquiver
 import matplotlib.scale as mscale
+import matplotlib.streamplot as mstream
 import matplotlib.table as mtable
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
@@ -6302,6 +6303,20 @@ class Axes(martist.Artist):
         self.autoscale_view()
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
+
+    def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
+                   cmap=None, arrowsize=1, arrowstyle='-|>', minlength=0.1):
+        if not self._hold: self.cla()
+        lines = mstream.streamplot(self, x, y, u, v,
+                                   density=density,
+                                   linewidth=linewidth,
+                                   color=color,
+                                   cmap=cmap,
+                                   arrowsize=arrowsize,
+                                   arrowstyle=arrowstyle,
+                                   minlength=minlength)
+        return lines
+    streamplot.__doc__ = mstream.streamplot.__doc__
 
     @docstring.dedent_interpd
     def barbs(self, *args, **kw):
