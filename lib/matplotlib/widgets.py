@@ -734,7 +734,7 @@ class SubplotTool(Widget):
         if self.drawon: self.targetfig.canvas.draw()
 
 
-class Cursor:
+class Cursor(Widget):
     """
     A horizontal and vertical line span the axes that and move with
     the pointer.  You can turn off the hline or vline spectively with
@@ -820,7 +820,7 @@ class Cursor:
 
         return False
 
-class MultiCursor:
+class MultiCursor(Widget):
     """
     Provide a vertical line cursor shared between multiple axes
 
@@ -895,7 +895,7 @@ class MultiCursor:
 
             self.canvas.draw_idle()
 
-class SpanSelector:
+class SpanSelector(Widget):
     """
     Select a min/max range of the x or y axes for a matplotlib Axes
 
@@ -1085,7 +1085,7 @@ class HorizontalSpanSelector(SpanSelector):
         SpanSelector.__init__(self, ax, onselect, 'horizontal', **kwargs)
 
 
-class RectangleSelector:
+class RectangleSelector(Widget):
     """
     Select a min/max range of the x axes for a matplotlib Axes
 
