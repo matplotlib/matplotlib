@@ -4107,7 +4107,7 @@ class Axes(martist.Artist):
 
     @docstring.dedent_interpd
     def acorr(self, x, **kwargs):
-        r'''
+        """
         call signature::
 
             acorr(x, normed=True, detrend=mlab.detrend_none, usevlines=True,
@@ -4140,8 +4140,8 @@ class Axes(martist.Artist):
         :class:`~matplotlib.lines.Line2D` properties.
 
         *maxlags* is a positive integer detailing the number of lags
-        to show.  The default value of *None* will return all
-        :math:`2 \times \mathrm{len}(x) - 1` lags.
+        to show.  The default value of *None* will return all 
+        ``(2*len(x)-1)`` lags.
 
         The return value is a tuple (*lags*, *c*, *linecol*, *b*)
         where
@@ -4165,7 +4165,7 @@ class Axes(martist.Artist):
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/xcorr_demo.py
-        '''
+        """
         return self.xcorr(x, x, **kwargs)
 
     @docstring.dedent_interpd

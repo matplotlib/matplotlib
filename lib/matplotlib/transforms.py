@@ -213,7 +213,7 @@ class BboxBase(TransformNode):
     The canonical representation is as two points, with no
     restrictions on their ordering.  Convenience properties are
     provided to get the left, bottom, right and top edges and width
-    and height, but these are not stored explicity.
+    and height, but these are not stored explicitly.
     """
     is_bbox = True
     is_affine = True
