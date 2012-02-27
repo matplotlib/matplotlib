@@ -172,6 +172,9 @@ backend      : %(backend)s
 
 #text.hinting : True # If True, text will be hinted, otherwise not.  This only
                      # affects the Agg backend.
+#text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
+                         # horizontal direction.  A value of 1 will hint to full
+                         # pixels.  A value of 2 will hint to half pixels etc.
 
 # The following settings allow you to select the fonts in math mode.
 # They map from a TeX font name to a fontconfig font pattern.

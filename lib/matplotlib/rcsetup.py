@@ -408,6 +408,7 @@ defaultParams = {
     'text.latex.preview' : [False, validate_bool],
     'text.dvipnghack'     : [None, validate_bool_maybe_none],
     'text.hinting'        : [True, validate_bool],
+    'text.hinting_factor' : [8, validate_int],
 
     # The following are deprecated and replaced by, e.g., 'font.style'
     #'text.fontstyle'      : ['normal', str],
