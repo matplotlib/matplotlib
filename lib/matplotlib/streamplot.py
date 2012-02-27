@@ -4,7 +4,8 @@ Streamline plotting for 2D vector fields.
 """
 import numpy as np
 import matplotlib
-import matplotlib.patches as mpp
+import matplotlib.patches as patches
+import matplotlib.cbook as cbook
 
 
 __all__ = ['streamplot']
@@ -16,35 +17,34 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     Parameters
     ----------
-    x, y : 1d arrays
+    *x*, *y* : 1d arrays
         an *evenly spaced* grid.
-    u, v : 2d arrays
+    *u*, *v* : 2d arrays
         x and y-velocities. Number of rows should match length of y, and
         the number of columns should match x.
-    density : float or 2-tuple
+    *density* : float or 2-tuple
         Controls the closeness of streamlines. When `density = 1`, the domain
-        is divided into a 25x25 grid---`density` linearly scales this grid.
+        is divided into a 25x25 grid---*density* linearly scales this grid.
         Each cell in the grid can have, at most, one traversing streamline.
         For different densities in each direction, use [density_x, density_y].
-    linewidth : numeric or 2d array
+    *linewidth* : numeric or 2d array
         vary linewidth when given a 2d array with the same shape as velocities.
-    color : matplotlib color code, or 2d array
+    *color* : matplotlib color code, or 2d array
         Streamline color. When given an array with the same shape as
-        velocities, values are converted to color using cmap, norm, vmin and
-        vmax args.
-    cmap : Colormap
+        velocities, *color* values are converted to colors using *cmap*.
+    *cmap* : Colormap
         Colormap used to plot streamlines and arrows. Only necessary when using
-        an array input for `color`.
-    arrowsize : float
+        an array input for *color*.
+    *arrowsize* : float
         Factor scale arrow size.
-    arrowstyle : str
+    *arrowstyle* : str
         Arrow style specification. See `matplotlib.patches.FancyArrowPatch`.
-    minlength : float
+    *minlength* : float
         Minimum length of streamline in axes coordinates.
 
     Returns
     -------
-    streamlines : `matplotlib.collections.LineCollection`
+    *streamlines* : `matplotlib.collections.LineCollection`
         Line collection with all streamlines as a series of line segments.
         Currently, there is no way to differentiate between line segments
         on different streamlines (other than manually checking that segments
@@ -130,7 +130,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             line_colors.extend(color_values)
             arrow_kw['color'] = cmap(norm(color_values[n]))
 
-        p = mpp.FancyArrowPatch(arrow_tail, arrow_head, **arrow_kw)
+        p = patches.FancyArrowPatch(arrow_tail, arrow_head, **arrow_kw)
         axes.add_patch(p)
 
     lc = matplotlib.collections.LineCollection(streamlines, **line_kw)
@@ -259,7 +259,7 @@ class StreamMask(object):
     """
 
     def __init__(self, density):
-        if isinstance(density, (float, int)):
+        if cbook.is_numlike(density):
             assert density > 0
             self.nx = self.ny = int(30 * density)
         else:
