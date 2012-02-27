@@ -1391,14 +1391,14 @@ class Axes(martist.Artist):
 
     def _gci(self):
         """
-        helper for :func:`~matplotlib.pyplot.gci`;
+        Helper for :func:`~matplotlib.pyplot.gci`;
         do not use elsewhere.
         """
         return self._current_image
 
     def has_data(self):
         """
-        "Return *True* if any artists have been added to axes.
+        Return *True* if any artists have been added to axes.
 
         This should not be used to determine whether the *dataLim*
         need to be updated, and may not actually be useful for
@@ -2469,9 +2469,9 @@ class Axes(martist.Artist):
         return left, right
 
     def get_xscale(self):
-        """return the xaxis scale string: %s""" % (
-            ", ".join(mscale.get_scale_names()))
         return self.xaxis.get_scale()
+    get_xscale.__doc__ = "Return the xaxis scale string: %s""" % (
+                                ", ".join(mscale.get_scale_names()))
 
     @docstring.dedent_interpd
     def set_xscale(self, value, **kwargs):
@@ -2556,9 +2556,10 @@ class Axes(martist.Artist):
             return top, bottom
 
     def set_ybound(self, lower=None, upper=None):
-        """Set the lower and upper numerical bounds of the y-axis.
-           This method will honor axes inversion regardless of parameter order.
-           It will not change the _autoscaleYon attribute.
+        """
+        Set the lower and upper numerical bounds of the y-axis.
+        This method will honor axes inversion regardless of parameter order.
+        It will not change the _autoscaleYon attribute.
         """
         if upper is None and iterable(lower):
             lower,upper = lower
@@ -2672,9 +2673,9 @@ class Axes(martist.Artist):
         return bottom, top
 
     def get_yscale(self):
-        """return the xaxis scale string: %s""" % (
-                ", ".join(mscale.get_scale_names()))
         return self.yaxis.get_scale()
+    get_yscale.__doc__ = "Return the yaxis scale string: %s""" % (
+                                ", ".join(mscale.get_scale_names()))
 
     @docstring.dedent_interpd
     def set_yscale(self, value, **kwargs):
