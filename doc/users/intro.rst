@@ -70,7 +70,7 @@ nothing about output.  The *backends* are device dependent drawing
 devices, aka renderers, that transform the frontend representation to
 hardcopy or a display device (:ref:`what-is-a-backend`).  Example
 backends: PS creates `PostScript®
-<http://http://www.adobe.com/products/postscript/>`_ hardcopy, SVG
+<http://www.adobe.com/products/postscript/>`_ hardcopy, SVG
 creates `Scalable Vector Graphics <http://www.w3.org/Graphics/SVG/>`_
 hardcopy, Agg creates PNG output using the high quality `Anti-Grain
 Geometry <http://www.antigrain.com>`_ library that ships with
