@@ -19,6 +19,7 @@ from matplotlib.transforms import Bbox
 import matplotlib.collections as mcoll
 from matplotlib import docstring
 import matplotlib.scale as mscale
+from matplotlib.tri.triangulation import Triangulation
 import numpy as np
 from matplotlib.colors import Normalize, colorConverter, LightSource
 
@@ -1569,6 +1570,94 @@ class Axes3D(Axes):
         self.auto_scale_xyz(X, Y, Z, had_data)
 
         return linec
+
+    def plot_trisurf(self, X, Y, Z, *args, **kwargs):
+        '''
+        ============= ================================================
+        Argument      Description
+        ============= ================================================
+        *X*, *Y*, *Z* Data values as 1D arrays
+        *color*       Color of the surface patches
+        *cmap*        A colormap for the surface patches.
+        *norm*        An instance of Normalize to map values to colors
+        *vmin*        Minimum value to map
+        *vmax*        Maximum value to map
+        *shade*       Whether to shade the facecolors
+        ============= ================================================
+
+        Other arguments are passed on to
+        :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+        '''
+
+        had_data = self.has_data()
+
+        # TODO: Support custom face colours
+        color = np.array(colorConverter.to_rgba(kwargs.pop('color', 'b')))
+
+        cmap = kwargs.get('cmap', None)
+        norm = kwargs.pop('norm', None)
+        vmin = kwargs.pop('vmin', None)
+        vmax = kwargs.pop('vmax', None)
+        linewidth = kwargs.get('linewidth', None)
+        shade = kwargs.pop('shade', cmap is None)
+        lightsource = kwargs.pop('lightsource', None)
+
+        # TODO: Support masked triangulations
+        tri = Triangulation(X, Y)
+        x = tri.x
+        y = tri.y
+        triangles = tri.triangles
+
+        xt = x[triangles][...,np.newaxis]
+        yt = y[triangles][...,np.newaxis]
+        zt = np.array(Z)[triangles][...,np.newaxis]
+
+        verts = np.concatenate((xt, yt, zt), axis=2)
+
+        # Only need these vectors to shade if there is no cmap
+        if cmap is None and shade:
+            totpts = len(verts)
+            v1 = np.empty((totpts, 3))
+            v2 = np.empty((totpts, 3))
+            # This indexes the vertex points
+            which_pt = 0
+
+        colset = []
+        for i in xrange(len(verts)):
+            avgzsum = verts[i,0,2] + verts[i,1,2] + verts[i,2,2]
+            colset.append(avgzsum / 3.0)
+
+            # Only need vectors to shade if no cmap
+            if cmap is None and shade:
+                v1[which_pt] = np.array(verts[i,0]) - np.array(verts[i,1])
+                v2[which_pt] = np.array(verts[i,1]) - np.array(verts[i,2])
+                which_pt += 1
+
+        if cmap is None and shade:
+            normals = np.cross(v1, v2)
+        else:
+            normals = []
+
+        polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
+
+        if cmap:
+            colset = np.array(colset)
+            polyc.set_array(colset)
+            if vmin is not None or vmax is not None:
+                polyc.set_clim(vmin, vmax)
+            if norm is not None:
+                polyc.set_norm(norm)
+        else:
+            if shade:
+                colset = self._shade_colors(color, normals)
+            else:
+                colset = color
+            polyc.set_facecolors(colset)
+
+        self.add_collection(polyc)
+        self.auto_scale_xyz(X, Y, Z, had_data)
+
+        return polyc
 
     def _3d_extend_contour(self, cset, stride=5):
         '''
