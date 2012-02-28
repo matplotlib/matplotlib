@@ -1000,24 +1000,9 @@ class SpanSelector(AxesWidget):
         self.buttonDown = False
         self.prev = (0, 0)
 
-        self.connect_event('motion_notify_event', self.onmove)
-        self.connect_event('button_press_event', self.press)
-        self.connect_event('button_release_event', self.release)
-        self.connect_event('draw_event', self.update_background)
-
-        if self.direction == 'horizontal':
-            trans = blended_transform_factory(self.ax.transData, self.ax.transAxes)
-            w,h = 0,1
-        else:
-            trans = blended_transform_factory(self.ax.transAxes, self.ax.transData)
-            w,h = 1,0
-        self.rect = Rectangle( (0,0), w, h,
-                               transform=trans,
-                               visible=False,
-                               **self.rectprops
-                               )
-
-        if not self.useblit: self.ax.add_patch(self.rect)
+        # Reset canvas so that `new_axes` connects events.
+        self.canvas = None
+        self.new_axes(ax)
 
     def new_axes(self,ax):
         self.ax = ax
