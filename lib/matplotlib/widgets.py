@@ -10,7 +10,6 @@ wide and tall you want your Axes to be to accommodate your widget.
 """
 
 from __future__ import print_function
-import functools
 import numpy as np
 
 from mlab import dist
@@ -82,8 +81,8 @@ class AxesWidget(Widget):
         self.active = True
 
     def connect_event(self, event, callback):
-        self.canvas.mpl_connect(event, callback)
-        self.cids.append(callback)
+        cid = self.canvas.mpl_connect(event, callback)
+        self.cids.append(cid)
 
     def disconnect_events(self):
         for c in self.cids:
