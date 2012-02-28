@@ -1,3 +1,6 @@
+2012-02-28 Added plot_trisurf to the mplot3d toolkit. This supports plotting
+           three dimensional surfaces on an irregular grid. - Damon McDougall
+
 2011-12-29 ps and pdf markers are now stroked only if the line width
            is nonzero for consistency with agg, fixes issue #621. - JKS
 
