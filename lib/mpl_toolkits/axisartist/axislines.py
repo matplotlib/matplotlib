@@ -109,7 +109,7 @@ class AxisArtistHelper(object):
             return trans
 
         def get_tick_iterators(self, axes):
-            # iter : iteratable object that yields (c, angle, l) where
+            # iter : iterable object that yields (c, angle, l) where
             # c, angle, l is position, tick angle, and label
 
             return iter_major, iter_minor

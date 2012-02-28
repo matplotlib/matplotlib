@@ -756,4 +756,3 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 #             return mpath.Path(result, codes)
 #         transform_path_non_affine = transform_path
 
-
