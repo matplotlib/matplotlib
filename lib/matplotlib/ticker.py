@@ -207,7 +207,7 @@ class Formatter(TickHelper):
         Note, if you use this method, eg in :meth`format_data` or
         call, you probably don't want to use it for
         :meth:`format_data_short` since the toolbar uses this for
-        interative coord reporting and I doubt we can expect GUIs
+        interactive coord reporting and I doubt we can expect GUIs
         across platforms will handle the unicode correctly.  So for
         now the classes that override :meth:`fix_minus` should have an
         explicit :meth:`format_data_short` method
