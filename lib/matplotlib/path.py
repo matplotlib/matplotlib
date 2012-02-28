@@ -3,7 +3,6 @@ Contains a class for managing paths (polylines).
 """
 
 from __future__ import print_function
-import math
 from weakref import WeakValueDictionary
 
 import numpy as np
@@ -60,10 +59,13 @@ class Path(object):
     at all, but have a default one provided for them by
     :meth:`iter_segments`.
 
-    Note also that the vertices and codes arrays should be treated as
-    immutable -- there are a number of optimizations and assumptions
-    made up front in the constructor that will not change when the
-    data changes.
+    .. note::
+
+        The vertices and codes arrays should be treated as
+        immutable -- there are a number of optimizations and assumptions
+        made up front in the constructor that will not change when the
+        data changes.
+
     """
 
     # Path codes

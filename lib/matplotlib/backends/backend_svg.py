@@ -722,7 +722,7 @@ class RendererSVG(RendererBase):
         clipid = self._get_clip(gc)
         if clipid is not None:
             # Can't apply clip-path directly to the image because the
-            # image as a transformation, which would also be applied
+            # image has a transformation, which would also be applied
             # to the clip-path
             self.writer.start(u'g', attrib={u'clip-path': u'url(#%s)' % clipid})
 

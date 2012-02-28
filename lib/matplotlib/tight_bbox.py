@@ -16,7 +16,7 @@ def adjust_bbox(fig, format, bbox_inches):
     It modifies fig.bbox, fig.bbox_inches,
     fig.transFigure._boxout, and fig.patch.  While the figure size
     changes, the scale of the original figure is conserved.  A
-    function whitch restores the original values are returned.
+    function which restores the original values are returned.
     """
 
     origBbox = fig.bbox
