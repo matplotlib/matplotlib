@@ -10,6 +10,7 @@ wide and tall you want your Axes to be to accommodate your widget.
 """
 
 from __future__ import print_function
+import functools
 import numpy as np
 
 from mlab import dist
@@ -78,6 +79,7 @@ class AxesWidget(Widget):
         self.ax = ax
         self.canvas = ax.figure.canvas
         self.cids = []
+        self.active = True
 
     def connect_event(self, event, callback):
         self.canvas.mpl_connect(event, callback)
@@ -86,6 +88,14 @@ class AxesWidget(Widget):
     def disconnect_events(self):
         for c in self.cids:
             self.canvas.mpl_disconnect(c)
+
+    def ignore(self, event):
+        """Return True if event should be ignored.
+
+        This method (or a version of it) should be called at the beginning
+        of any event callback.
+        """
+        return not self.active
 
 
 class Button(AxesWidget):
@@ -155,6 +165,8 @@ class Button(AxesWidget):
         self._lastcolor = color
 
     def _click(self, event):
+        if self.ignore(event):
+            return
         if event.inaxes != self.ax:
             return
         if not self.eventson:
@@ -163,6 +175,8 @@ class Button(AxesWidget):
             event.canvas.grab_mouse(self.ax)
 
     def _release(self, event):
+        if self.ignore(event):
+            return
         if event.canvas.mouse_grabber != self.ax:
             return
         event.canvas.release_mouse(self.ax)
@@ -174,6 +188,8 @@ class Button(AxesWidget):
             func(event)
 
     def _motion(self, event):
+        if self.ignore(event):
+            return
         if event.inaxes==self.ax:
             c = self.hovercolor
         else:
@@ -303,6 +319,9 @@ class Slider(AxesWidget):
 
     def _update(self, event):
         'update the slider position'
+        if self.ignore(event):
+            return
+
         if event.button != 1:
             return
 
@@ -461,6 +480,8 @@ class CheckButtons(AxesWidget):
         self.observers = {}
 
     def _clicked(self, event):
+        if self.ignore(event):
+            return
         if event.button !=1 : return
         if event.inaxes != self.ax: return
 
@@ -572,6 +593,8 @@ class RadioButtons(AxesWidget):
         self.observers = {}
 
     def _clicked(self, event):
+        if self.ignore(event):
+            return
         if event.button !=1 : return
         if event.inaxes != self.ax: return
         xy = self.ax.transAxes.inverted().transform_point((event.x, event.y))
@@ -795,9 +818,10 @@ class Cursor(AxesWidget):
         self.background = None
         self.needclear = False
 
-
     def clear(self, event):
         'clear the cursor'
+        if self.ignore(event):
+            return
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         self.linev.set_visible(False)
@@ -805,6 +829,8 @@ class Cursor(AxesWidget):
 
     def onmove(self, event):
         'on mouse motion draw the cursor if visible'
+        if self.ignore(event):
+            return
         if event.inaxes != self.ax:
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
@@ -1021,17 +1047,21 @@ class SpanSelector(AxesWidget):
 
     def update_background(self, event):
         'force an update of the background'
+        # If you add a call to `ignore` here, you'll want to check edge case:
+        # `release` can call a draw event even when `ignore` is True.
         if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
-
     def ignore(self, event):
         'return ``True`` if *event* should be ignored'
-        return  event.inaxes!=self.ax or not self.visible or event.button !=1
+        widget_off = not self.visible or not self.active
+        non_event = event.inaxes!=self.ax or event.button !=1
+        return widget_off or non_event
 
     def press(self, event):
         'on button press event'
-        if self.ignore(event): return
+        if self.ignore(event):
+            return
         self.buttonDown = True
 
         self.rect.set_visible(self.visible)
@@ -1041,10 +1071,12 @@ class SpanSelector(AxesWidget):
             self.pressv = event.ydata
         return False
 
-
     def release(self, event):
         'on button release event'
-        if self.pressv is None or (self.ignore(event) and not self.buttonDown): return
+        if self.ignore(event) and not self.buttonDown:
+            return
+        if self.pressv is None:
+            return
         self.buttonDown = False
 
         self.rect.set_visible(False)
@@ -1079,7 +1111,8 @@ class SpanSelector(AxesWidget):
 
     def onmove(self, event):
         'on motion notify event'
-        if self.pressv is None or self.ignore(event): return
+        if self.pressv is None or self.ignore(event):
+            return
         x, y = event.xdata, event.ydata
         self.prev = x, y
         if self.direction == 'horizontal':
@@ -1255,7 +1288,6 @@ class RectangleSelector(AxesWidget):
 
     def ignore(self, event):
         'return ``True`` if *event* should be ignored'
-        # If RectangleSelector is not active :
         if not self.active:
             return True
 
@@ -1296,10 +1328,8 @@ class RectangleSelector(AxesWidget):
 
     def press(self, event):
         'on button press event'
-        # Is the correct button pressed within the correct axes?
-        if self.ignore(event): return
-
-
+        if self.ignore(event):
+            return
         # make the drawed box/line visible get the click-coordinates,
         # button, ...
         self.to_draw.set_visible(self.visible)
@@ -1309,7 +1339,8 @@ class RectangleSelector(AxesWidget):
 
     def release(self, event):
         'on button release event'
-        if self.eventpress is None or self.ignore(event): return
+        if self.eventpress is None or self.ignore(event):
+            return
         # make the box/line invisible again
         self.to_draw.set_visible(False)
         self.canvas.draw()
@@ -1360,10 +1391,10 @@ class RectangleSelector(AxesWidget):
             self.canvas.draw_idle()
         return False
 
-
     def onmove(self, event):
         'on motion notify event if box/line is wanted'
-        if self.eventpress is None or self.ignore(event): return
+        if self.eventpress is None or self.ignore(event):
+            return
         x,y = event.xdata, event.ydata            # actual position (with
                                                   #   (button still pressed)
         if self.drawtype == 'box':
@@ -1411,6 +1442,8 @@ class Lasso(AxesWidget):
         self.connect_event('motion_notify_event', self.onmove)
 
     def onrelease(self, event):
+        if self.ignore(event):
+            return
         if self.verts is not None:
             self.verts.append((event.xdata, event.ydata))
             if len(self.verts)>2:
@@ -1420,6 +1453,8 @@ class Lasso(AxesWidget):
         self.disconnect_events()
 
     def onmove(self, event):
+        if self.ignore(event):
+            return
         if self.verts is None: return
         if event.inaxes != self.ax: return
         if event.button!=1: return
