@@ -274,10 +274,8 @@ that define the shape.
 
     def _set_pixel(self):
         self._path = Path.unit_rectangle()
-        self._transform = Affine2D().translate(-0.5, -0.5) \
-                          .scale(0.5, 0.5).translate(0.5, 0.5)
+        self._transform = Affine2D().translate(-0.49999, -0.50001)
         self._snap_threshold = False
-        self._joinstyle = 'miter'
 
     def _set_point(self):
         self._set_circle(reduction = self._point_size_reduction)
