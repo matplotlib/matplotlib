@@ -650,7 +650,7 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     // Deal with the difference in y-axis direction
     marker_trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_scaling(1.0, -1.0);
-    trans *= agg::trans_affine_translation(0.0, (double)height);
+    trans *= agg::trans_affine_translation(0.5, (double)height+0.5);
 
     PathIterator       marker_path(marker_path_obj);
     transformed_path_t marker_path_transformed(marker_path, marker_trans);
