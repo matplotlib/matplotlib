@@ -112,6 +112,7 @@ documentation figure size defaults are different.
 
 
 .. note::
+
   If you run the source code in the example above in a GUI backend,
   you may also find that the two arrows for the `data` and `display`
   annotations do not point to exactly the same point.  This is because
