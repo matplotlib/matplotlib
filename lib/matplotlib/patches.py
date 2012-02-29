@@ -43,7 +43,7 @@ docstring.interpd.update(Patch = """
 
 class Patch(artist.Artist):
     """
-    A patch is a 2D thingy with a face color and an edge color.
+    A patch is a 2D artist with a face color and an edge color.
 
     If any of *edgecolor*, *facecolor*, *linewidth*, or *antialiased*
     are *None*, they default to their rc params setting.
