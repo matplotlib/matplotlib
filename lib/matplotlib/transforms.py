@@ -46,7 +46,7 @@ except NameError:
 import cbook
 from path import Path
 
-DEBUG = True
+DEBUG = False
 if DEBUG:
     import warnings
 
