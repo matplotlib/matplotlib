@@ -167,22 +167,30 @@ def test_clipping_of_log():
     assert np.allclose(tpoints[-1], tpoints[0])
 
 
+class NonAffineForTest(mtrans.Transform):
+    """
+    A class which looks like a non affine transform, but does whatever
+    the given transform does (even if it is affine). This is very useful
+    for testing NonAffine behaviour with a simple Affine transform.
+
+    """
+    is_affine = False
+    output_dims = 2
+    input_dims = 2
+
+    def __init__(self, real_trans, *args, **kwargs):
+        self.real_trans = real_trans
+        r = mtrans.Transform.__init__(self, *args, **kwargs)
+
+    def transform_non_affine(self, values):
+        return self.real_trans.transform(values)
+
+    def transform_path_non_affine(self, path):
+        return self.real_trans.transform_path(path)
+
+
 class BasicTransformTests(unittest.TestCase):
     def setUp(self):
-        class NonAffineForTest(mtrans.Transform):
-            is_affine = False
-            output_dims = 2
-            input_dims = 2
-
-            def __init__(self, real_trans, *args, **kwargs):
-                self.real_trans = real_trans
-                r = mtrans.Transform.__init__(self, *args, **kwargs)
-
-            def transform_non_affine(self, values):
-                return self.real_trans.transform(values)
-
-            def transform_path_non_affine(self, path):
-                return self.real_trans.transform_path(path)
 
         self.ta1 = mtrans.Affine2D(shorthand_name='ta1').rotate(np.pi / 2)
         self.ta2 = mtrans.Affine2D(shorthand_name='ta2').translate(10, 0)
@@ -214,12 +222,30 @@ class BasicTransformTests(unittest.TestCase):
                              self.tn2 + self.ta3,
                              self.ta3,
                              ]
-        r = list(self.stack3._iter_break_from_left_to_right())
+        r = [rh for lh, rh in stack3._iter_break_from_left_to_right()]
         self.assertEqual(len(r), len(target_transforms))
 
         for target_stack, stack in itertools.izip(target_transforms, r):
             self.assertEqual(target_stack, stack)
 
+    def test_transform_shortcuts(self):
+        self.assertEqual(self.stack1 - self.stack2_subset, self.ta1)
+        self.assertEqual(self.stack2 - self.stack2_subset, self.ta1)
+
+        # check that we cannot find a chain from the subset back to the superset
+        # (since the inverse of the Transform is not defined.)
+        self.assertRaises(ValueError, self.stack2_subset.__sub__, self.stack2)
+        self.assertRaises(ValueError, self.stack1.__sub__, self.stack2)
+
+        aff1 = self.ta1 + (self.ta2 + self.ta3)
+        aff2 = self.ta2 + self.ta3
+
+        self.assertEqual(aff1 - aff2, self.ta1)
+        self.assertEqual(aff1 - self.ta2, aff1 + self.ta2.inverted())
+
+        self.assertEqual(self.stack1 - self.ta3, self.ta1 + (self.tn1 + self.ta2))
+        self.assertEqual(self.stack2 - self.ta3, self.ta1 + self.tn1 + self.ta2)
+        
     def test_contains_branch(self):
         r1 = (self.ta2 + self.ta1)
         r2 = (self.ta2 + self.ta1)
@@ -247,6 +273,9 @@ class BasicTransformTests(unittest.TestCase):
         self.assertFalse(self.stack1.contains_branch((self.tn1 + self.ta2)))
 
     def test_affine_simplification(self):
+        # tests that a transform stack only calls as much is absolutely necessary
+        # "non-affine" allowing the best possible optimization with complex
+        # transformation stacks.
         points = np.array([[0, 0], [10, 20], [np.nan, 1], [-1, 0]], dtype=np.float64)
         na_pts = self.stack1.transform_non_affine(points)
         all_pts = self.stack1.transform(points)
@@ -276,6 +305,28 @@ class BasicTransformTests(unittest.TestCase):
         np_test.assert_array_equal(expected_result, result)
 
 
+class TestTransformPlotInterface(unittest.TestCase):
+    def tearDown(self):
+        plt.close()
+
+    def test_line_extents_affine(self):
+        ax = plt.axes()
+        offset = mtrans.Affine2D().translate(10, 10)
+        plt.plot(range(10), transform=offset + ax.transData)
+        expeted_data_lim = np.array([[0., 0.], [9.,  9.]]) + 10
+        np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
+                                             expeted_data_lim)
+
+    def test_line_extents_non_affine(self):
+        ax = plt.axes()
+        offset = mtrans.Affine2D().translate(10, 10)
+        na_offset = NonAffineForTest(mtrans.Affine2D().translate(10, 10))
+        plt.plot(range(10), transform=offset + na_offset + ax.transData)
+        expeted_data_lim = np.array([[0., 0.], [9.,  9.]]) + 20
+        np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
+                                             expeted_data_lim)
+        
+        
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
