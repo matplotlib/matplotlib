@@ -20,26 +20,26 @@
 .. _git svn crash course: http://git-scm.com/course/svn.html
 .. _learn.github: http://learn.github.com/
 .. _network graph visualizer: http://github.com/blog/39-say-hello-to-the-network-graph-visualizer
-.. _git user manual: http://www.kernel.org/pub/software/scm/git/docs/user-manual.html
-.. _git tutorial: http://www.kernel.org/pub/software/scm/git/docs/gittutorial.html
+.. _git user manual: http://schacon.github.com/git/user-manual.html
+.. _git tutorial: http://schacon.github.com/git/gittutorial.html
 .. _git community book: http://book.git-scm.com/
 .. _git ready: http://www.gitready.com/
 .. _git casts: http://www.gitcasts.com/
 .. _Fernando's git page: http://www.fperez.org/py4science/git.html
 .. _git magic: http://www-cs-students.stanford.edu/~blynn/gitmagic/index.html
 .. _git concepts: http://www.eecs.harvard.edu/~cduan/technical/git/
-.. _git clone: http://www.kernel.org/pub/software/scm/git/docs/git-clone.html
-.. _git checkout: http://www.kernel.org/pub/software/scm/git/docs/git-checkout.html
-.. _git commit: http://www.kernel.org/pub/software/scm/git/docs/git-commit.html
-.. _git push: http://www.kernel.org/pub/software/scm/git/docs/git-push.html
-.. _git pull: http://www.kernel.org/pub/software/scm/git/docs/git-pull.html
-.. _git add: http://www.kernel.org/pub/software/scm/git/docs/git-add.html
-.. _git status: http://www.kernel.org/pub/software/scm/git/docs/git-status.html
-.. _git diff: http://www.kernel.org/pub/software/scm/git/docs/git-diff.html
-.. _git log: http://www.kernel.org/pub/software/scm/git/docs/git-log.html
-.. _git branch: http://www.kernel.org/pub/software/scm/git/docs/git-branch.html
-.. _git remote: http://www.kernel.org/pub/software/scm/git/docs/git-remote.html
-.. _git config: http://www.kernel.org/pub/software/scm/git/docs/git-config.html
+.. _git clone: http://schacon.github.com/git/git-clone.html
+.. _git checkout: http://schacon.github.com/git/git-checkout.html
+.. _git commit: http://schacon.github.com/git/git-commit.html
+.. _git push: http://schacon.github.com/git/git-push.html
+.. _git pull: http://schacon.github.com/git/git-pull.html
+.. _git add: http://schacon.github.com/git/git-add.html
+.. _git status: http://schacon.github.com/git/git-status.html
+.. _git diff: http://schacon.github.com/git/git-diff.html
+.. _git log: http://schacon.github.com/git/git-log.html
+.. _git branch: http://schacon.github.com/git/git-branch.html
+.. _git remote: http://schacon.github.com/git/git-remote.html
+.. _git config: http://schacon.github.com/git/git-config.html
 .. _why the -a flag?: http://www.gitready.com/beginner/2009/01/18/the-staging-area.html
 .. _git staging area: http://www.gitready.com/beginner/2009/01/18/the-staging-area.html
 .. _tangled working copy problem: http://tomayko.com/writings/the-thing-about-git
