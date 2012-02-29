@@ -259,11 +259,11 @@ class StreamMask(object):
     """
 
     def __init__(self, density):
-        if cbook.is_numlike(density):
+        if np.isscalar(density):
             assert density > 0
             self.nx = self.ny = int(30 * density)
         else:
-            assert len(density) > 0
+            assert len(density) == 2
             self.nx = int(25 * density[0])
             self.ny = int(25 * density[1])
         self._mask = np.zeros((self.ny, self.nx))
