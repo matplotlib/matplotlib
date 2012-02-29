@@ -72,7 +72,7 @@ class PsBackendHelper(object):
         self._cached["gs_exe"] = gs_exe
         return gs_exe
 
-    
+
     @property
     def gs_version(self):
         """
@@ -97,7 +97,7 @@ class PsBackendHelper(object):
         True if the installed ghostscript supports ps2write device.
         """
         return self.gs_version[0] >= 9
-    
+
 ps_backend_helper = PsBackendHelper()
 
 papersize = {'letter': (8.5,11),
@@ -582,13 +582,29 @@ grestore
 
         # construct the generic marker command:
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # dont want the translate to be global
+
+        lw = gc.get_linewidth()
+        stroke = lw != 0.0
+        if stroke:
+            ps_cmd.append('%.1f setlinewidth' % lw)
+            jint = gc.get_joinstyle()
+            ps_cmd.append('%d setlinejoin' % jint)
+            cint = gc.get_capstyle()
+            ps_cmd.append('%d setlinecap' % cint)
+
         ps_cmd.append(self._convert_path(marker_path, marker_trans,
                                          simplify=False))
 
         if rgbFace:
-            ps_cmd.extend(['gsave', ps_color, 'fill', 'grestore'])
+            if stroke:
+                ps_cmd.append('gsave')
+            ps_cmd.extend([ps_color, 'fill'])
+            if stroke:
+                ps_cmd.append('grestore')
 
-        ps_cmd.extend(['stroke', 'grestore', '} bind def'])
+        if stroke:
+            ps_cmd.append('stroke')
+        ps_cmd.extend(['grestore', '} bind def'])
 
         for vertices, code in path.iter_segments(trans, simplify=False):
             if len(vertices):
