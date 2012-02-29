@@ -8,7 +8,6 @@ usable as is).  There will be some refinement of the API and the
 inside polygon detection routine.
 """
 from matplotlib.widgets import Lasso
-import matplotlib.mlab
 from matplotlib.nxutils import points_inside_poly
 from matplotlib.colors import colorConverter
 from matplotlib.collections import RegularPolyCollection

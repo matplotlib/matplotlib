@@ -366,4 +366,4 @@ a single click installer.
 * The Enthought Python Distribution `EPD
   <http://www.enthought.com/products/epd.php>`_
 
-* `python (x, y) <http://www.pythonxy.com/foreword.php>`_
+* `python (x, y) <http://www.pythonxy.com>`_
