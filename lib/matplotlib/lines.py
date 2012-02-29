@@ -446,6 +446,10 @@ class Line2D(Artist):
         self._invalidy = False
 
     def _transform_path(self, subslice=None):
+        """
+        Puts a TransformedPath instance at self._transformed_path,
+        all invalidation of the transform is then handled by the TransformedPath instance.
+        """
         # Masked arrays are now handled by the Path class itself
         if subslice is not None:
             _path = Path(self._xy[subslice,:])
@@ -453,6 +457,11 @@ class Line2D(Artist):
             _path = self._path
         self._transformed_path = TransformedPath(_path, self.get_transform())
 
+    def get_transformed_path(self):
+        """Return the path of this line, (fully) transformed using the line's transform."""
+        if self._transformed_path is None:
+            self._transform_path()
+        return self._transformed_path.get_fully_transformed_path()
 
     def set_transform(self, t):
         """
