@@ -46,7 +46,7 @@ except NameError:
 import cbook
 from path import Path
 
-DEBUG = False
+DEBUG = True
 if DEBUG:
     import warnings
 
@@ -1101,13 +1101,14 @@ class Transform(TransformNode):
         """
         Returns an iterator breaking down this transform stack from left to
         right recursively. If self == ((A, N), A) then the result will be an
-        iterator which yields ((A, N), A), followed by (N, A), followed by (A).
+        iterator which yields I : ((A, N), A), followed by A : (N, A),
+        followed by (A, N) : (A), but not ((A, N), A) : I.
         This is equivalent to flattening the stack then slicing it with
-        flat_stack[i:] where i starts at 0.
-
+        ``flat_stack[i:]`` where i starts at 0 and ends at -1.
+        
         """
-        yield self
-
+        yield IdentityTransform(), self
+    
     def contains_branch(self, other):
         """
         Return whether the given transform is a sub-tree of this transform.
@@ -1120,10 +1121,50 @@ class Transform(TransformNode):
 
         """
         # check that a subtree is equal to other (starting from self)
-        for sub_tree in self._iter_break_from_left_to_right():
+        for _, sub_tree in self._iter_break_from_left_to_right():
             if sub_tree == other:
                 return True
-        return False
+        return False 
+     
+    def __sub__(self, other):
+        """
+        Returns a transform stack which goes all the way down self's transform
+        stack, and then ascends back up other's stack. If it can, this is optimised::
+
+            # normally
+            A - B == a + b.inverted()
+
+            # sometimes, when A contains the tree B there is no need to descend all the way down
+            # to the base of A (via B), instead we can just stop at B.
+            (A, B) - (B)-1 == A
+
+            # similarly, when B contains tree A, we can avoid decending A at all, basically:
+            A - B == (B - A).inverted() or B-1
+
+        """
+        # we only know how to do this operation if other is a Transform.
+        if not isinstance(other, Transform):
+            return NotImplemented
+
+        for remainder, sub_tree in self._iter_break_from_left_to_right():
+            if sub_tree == other:
+                return remainder
+
+        for remainder, sub_tree in self._iter_break_from_left_to_right():
+            if sub_tree == other:
+                if not remainder.has_inverse:
+                    raise ValueError("The shortcut cannot be computed since "
+                     "other's transform includes a non-invertable component.")
+                return remainder.inverted()
+
+        # if we have got this far, then there was no shortcut possible
+        if other.has_inverse:
+            return self + other.inverted()
+        else:
+            raise ValueError('It is not possible to compute transA - transB '
+                             'since transB cannot be inverted and there is no '
+                             'shortcut possible.')
+>>>>>>> Several bugs fixed, particularly with Polar & Geo.
 
     def __array__(self, *args, **kwargs):
         """
@@ -1427,22 +1468,26 @@ class AffineBase(Transform):
             return np.all(self.get_matrix() == other.get_matrix())
         return NotImplemented
 
+    def transform(self, values):
+        return self.transform_affine(values)
+    transform.__doc__ = Transform.transform.__doc__
+
+    def transform_affine(self, values):
+        raise NotImplementedError('Affine subclasses should override this method.')
+    transform_affine.__doc__ = Transform.transform_affine.__doc__
+
     def transform_non_affine(self, points):
         return points
     transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
-    def transform_affine(self, points):
-        return points
-    transform_affine.__doc__ = Transform.transform_affine.__doc__
+    def transform_path(self, path):
+        return self.transform_path_affine(path)
+    transform_path.__doc__ = Transform.transform_path.__doc__
 
     def transform_path_affine(self, path):
         return Path(self.transform_affine(path.vertices),
                     path.codes, path._interpolation_steps)
     transform_path_affine.__doc__ = Transform.transform_path_affine.__doc__
-
-    def transform_path(self, path):
-        return self.transform_path_affine(path)
-    transform_path.__doc__ = Transform.transform_path.__doc__
 
     def transform_path_non_affine(self, path):
         return path
@@ -1469,7 +1514,8 @@ class Affine2DBase(AffineBase):
     Subclasses of this class will generally only need to override a
     constructor and :meth:`get_matrix` that generates a custom 3x3 matrix.
     """
-
+    has_inverse = True # there are some Affine transformations
+                       # which don't have inverses...
     input_dims = 2
     output_dims = 2
 
@@ -1531,7 +1577,10 @@ class Affine2DBase(AffineBase):
     def inverted(self):
         if self._inverted is None or self._invalid:
             mtx = self.get_matrix()
-            self._inverted = Affine2D(inv(mtx))
+            shorthand_name = None
+            if self._shorthand_name:
+                shorthand_name = '(%s)-1' % self._shorthand_name
+            self._inverted = Affine2D(inv(mtx), shorthand_name=shorthand_name)
             self._invalid = 0
         return self._inverted
     inverted.__doc__ = AffineBase.inverted.__doc__
@@ -2008,10 +2057,10 @@ class CompositeGenericTransform(Transform):
             return False
 
     def _iter_break_from_left_to_right(self):
-        for broken in self._a._iter_break_from_left_to_right():
-            yield broken + self._b
-        for broken in self._b._iter_break_from_left_to_right():
-            yield broken
+        for lh_compliment, rh_compliment in self._a._iter_break_from_left_to_right():
+            yield lh_compliment, rh_compliment + self._b
+        for lh_compliment, rh_compliment in self._b._iter_break_from_left_to_right():
+            yield self._a + lh_compliment, rh_compliment
 
     def _get_is_affine(self):
         return self._a.is_affine and self._b.is_affine
@@ -2105,11 +2154,11 @@ class CompositeAffine2D(Affine2DBase):
             return '(%s, %s)' % (self._a, self._b)
 
     def _iter_break_from_left_to_right(self):
-        for broken in self._a._iter_break_from_left_to_right():
-              yield broken + self._b
-
-        for broken in self._b._iter_break_from_left_to_right():
-              yield broken
+        for lh_compliment, rh_compliment in self._a._iter_break_from_left_to_right():
+            yield lh_compliment, rh_compliment + self._b
+        for lh_compliment, rh_compliment in self._b._iter_break_from_left_to_right():
+            yield self._a + lh_compliment, rh_compliment
+        
 
     def __repr__(self):
         return "CompositeAffine2D(%r, %r)" % (self._a, self._b)
