@@ -1,3 +1,6 @@
+2012-02-29 errorevery keyword added to errorbar to enable errorbar
+           subsampling. fixes issue #600.
+
 2011-12-29 ps and pdf markers are now stroked only if the line width
            is nonzero for consistency with agg, fixes issue #621. - JKS
 
