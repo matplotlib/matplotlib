@@ -1,3 +1,6 @@
+2012-02-29 errorevery keyword added to errorbar to enable errorbar
+           subsampling. fixes issue #600.
+
 2012-01-08 Add axes.streamplot to plot streamlines of a velocity field.
 		   Adapted from Tom Flannaghan streamplot implementation. -TSY
 
