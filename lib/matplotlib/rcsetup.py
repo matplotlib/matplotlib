@@ -313,6 +313,13 @@ def deprecate_svg_embed_char_paths(value):
 
 validate_svg_fonttype = ValidateInStrings('fonttype', ['none', 'path', 'svgfont'])
 
+def validate_hinting(s):
+    if s in (True, False):
+        return s
+    if s.lower() in ('auto', 'native', 'either', 'none'):
+        return s.lower()
+    raise ValueError("hinting should be 'auto', 'native', 'either' or 'none'")
+
 class ValidateInterval:
     """
     Value must be in interval
@@ -407,7 +414,8 @@ defaultParams = {
     'text.latex.preamble' : [[''], validate_stringlist],
     'text.latex.preview' : [False, validate_bool],
     'text.dvipnghack'     : [None, validate_bool_maybe_none],
-    'text.hinting'        : [True, validate_bool],
+    'text.hinting'        : [True, validate_hinting],
+    'text.hinting_factor' : [8, validate_int],
 
     # The following are deprecated and replaced by, e.g., 'font.style'
     #'text.fontstyle'      : ['normal', str],

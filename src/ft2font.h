@@ -83,7 +83,7 @@ public:
     Glyph(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
         Py::PythonClass<Glyph>::PythonClass(self, args, kwds) { }
     virtual ~Glyph();
-    static Py::PythonClassObject<Glyph> factory(const FT_Face&, const FT_Glyph&, size_t);
+    static Py::PythonClassObject<Glyph> factory(const FT_Face&, const FT_Glyph&, size_t, long);
     int setattro(const Py::String &name, const Py::Object &value);
     Py::Object getattro(const Py::String &name);
     static void init_type(void);
@@ -137,6 +137,7 @@ private:
     double angle;
     double ptsize;
     double dpi;
+    long hinting_factor;
 
     FT_BBox compute_string_bbox();
     void set_scalable_attributes();

@@ -30,7 +30,8 @@ from matplotlib.backend_bases import RendererBase,\
 from matplotlib.cbook import is_string_like, maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
-from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
+from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING, \
+     LOAD_DEFAULT, LOAD_NO_AUTOHINT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
@@ -39,6 +40,18 @@ from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
 from matplotlib import _png
 
 backend_version = 'v2.2'
+
+def get_hinting_flag():
+    mapping = {
+        True: LOAD_FORCE_AUTOHINT,
+        False: LOAD_NO_HINTING,
+        'either': LOAD_DEFAULT,
+        'native': LOAD_NO_AUTOHINT,
+        'auto': LOAD_FORCE_AUTOHINT,
+        'none': LOAD_NO_HINTING
+        }
+    return mapping[rcParams['text.hinting']]
+
 
 class RendererAgg(RendererBase):
     """
@@ -68,12 +81,6 @@ class RendererAgg(RendererBase):
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
-
-    def _get_hinting_flag(self):
-        if rcParams['text.hinting']:
-            return LOAD_FORCE_AUTOHINT
-        else:
-            return LOAD_NO_HINTING
 
     # for filtering to work with rasterization, methods needs to be wrapped.
     # maybe there is better way to do it.
@@ -141,7 +148,7 @@ class RendererAgg(RendererBase):
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
-        flags = self._get_hinting_flag()
+        flags = get_hinting_flag()
         font = self._get_agg_font(prop)
         if font is None: return None
         if len(s) == 1 and ord(s) > 127:
@@ -178,7 +185,7 @@ class RendererAgg(RendererBase):
                 self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
 
-        flags = self._get_hinting_flag()
+        flags = get_hinting_flag()
         font = self._get_agg_font(prop)
         font.set_text(s, 0.0, flags=flags)  # the width and height of unrotated string
         w, h = font.get_width_height()
@@ -220,7 +227,9 @@ class RendererAgg(RendererBase):
             fname = findfont(prop)
             font = self._fontd.get(fname)
             if font is None:
-                font = FT2Font(str(fname))
+                font = FT2Font(
+                    str(fname),
+                    hinting_factor=rcParams['text.hinting_factor'])
                 self._fontd[fname] = font
             self._fontd[key] = font
 
