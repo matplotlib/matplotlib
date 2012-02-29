@@ -224,10 +224,8 @@ class MathtextBackendAgg(MathtextBackend):
         return result
 
     def get_hinting_type(self):
-        if rcParams['text.hinting']:
-            return LOAD_FORCE_AUTOHINT
-        else:
-            return LOAD_NO_HINTING
+        from matplotlib.backends import backend_agg
+        return backend_agg.get_hinting_flag()
 
 class MathtextBackendBitmap(MathtextBackendAgg):
     def get_results(self, box, used_characters):

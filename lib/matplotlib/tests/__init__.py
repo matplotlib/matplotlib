@@ -12,3 +12,4 @@ def setup():
     rcdefaults() # Start with all defaults
     rcParams['font.family'] = 'Bitstream Vera Sans'
     rcParams['text.hinting'] = False
+    rcParams['text.hinting_factor'] = 8
