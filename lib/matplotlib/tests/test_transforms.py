@@ -1,5 +1,4 @@
 from __future__ import print_function
-import itertools
 import unittest
 
 from nose.tools import assert_equal
@@ -228,7 +227,7 @@ class BasicTransformTests(unittest.TestCase):
         r = [rh for lh, rh in stack3._iter_break_from_left_to_right()]
         self.assertEqual(len(r), len(target_transforms))
 
-        for target_stack, stack in itertools.izip(target_transforms, r):
+        for target_stack, stack in zip(target_transforms, r):
             self.assertEqual(target_stack, stack)
 
     def test_transform_shortcuts(self):
