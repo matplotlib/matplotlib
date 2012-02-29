@@ -74,13 +74,20 @@ class TransformNode(object):
     is_affine = False
     is_bbox   = False
 
-    # If pass_through is True, all ancestors will always be
-    # invalidated, even if 'self' is already invalid.
     pass_through = False
+    """
+    If pass_through is True, all ancestors will always be
+    invalidated, even if 'self' is already invalid.
+    """
 
-    def __init__(self):
+    def __init__(self, shorthand_name=None):
         """
         Creates a new :class:`TransformNode`.
+
+        **shorthand_name** - a string representing the "name" of this
+                             transform. The name carries no significance
+                             other than to improve the readability of
+                             ``str(transform)`` when DEBUG=True.
         """
         # Parents are stored in a WeakKeyDictionary, so that if the
         # parents are deleted, references from the children won't keep
@@ -90,6 +97,12 @@ class TransformNode(object):
         # TransformNodes start out as invalid until their values are
         # computed for the first time.
         self._invalid = 1
+        self._shorthand_name = shorthand_name or ''
+
+    if DEBUG:
+        def __str__(self):
+            # either just return the name of this TransformNode, or it's repr
+            return self._shorthand_name or repr(self)
 
     def __copy__(self, *args):
         raise NotImplementedError(
@@ -170,6 +183,12 @@ class TransformNode(object):
             marked in yellow.
 
             *fobj*: A Python file-like object
+
+            Once the "dot" file has been created, it can be turned into a
+            png easily with::
+
+                $> dot -Tpng -o $OUTPUT_FILE $DOT_FILE
+
             """
             seen = set()
 
@@ -197,7 +216,7 @@ class TransformNode(object):
                             if val is child:
                                 name = key
                                 break
-                        fobj.write('%s -> %s [label="%s", fontsize=10];\n' % (
+                        fobj.write('"%s" -> "%s" [label="%s", fontsize=10];\n' % (
                                 hash(root),
                                 hash(child),
                                 name))
@@ -206,9 +225,6 @@ class TransformNode(object):
             fobj.write("digraph G {\n")
             recurse(self)
             fobj.write("}\n")
-    else:
-        def write_graphviz(self, fobj, highlight=[]):
-            return
 
 
 class BboxBase(TransformNode):
@@ -707,7 +723,7 @@ class Bbox(BboxBase):
     A mutable bounding box.
     """
 
-    def __init__(self, points):
+    def __init__(self, points, **kwargs):
         """
         *points*: a 2x2 numpy array of the form [[x0, y0], [x1, y1]]
 
@@ -715,7 +731,7 @@ class Bbox(BboxBase):
         of data, consider the static methods :meth:`unit`,
         :meth:`from_bounds` and :meth:`from_extents`.
         """
-        BboxBase.__init__(self)
+        BboxBase.__init__(self, **kwargs)
         self._points = np.asarray(points, np.float_)
         self._minpos = np.array([0.0000001, 0.0000001])
         self._ignore = True
@@ -725,9 +741,9 @@ class Bbox(BboxBase):
         self._points_orig = self._points.copy()
     if DEBUG:
         ___init__ = __init__
-        def __init__(self, points):
+        def __init__(self, points, **kwargs):
             self._check(points)
-            self.___init__(points)
+            self.___init__(points, **kwargs)
 
         def invalidate(self):
             self._check(self._points)
@@ -764,8 +780,7 @@ class Bbox(BboxBase):
         return Bbox(points)
 
     def __repr__(self):
-        return 'Bbox(%s)' % repr(self._points)
-    __str__ = __repr__
+        return 'Bbox(%r)' % repr(self._points)
 
     def ignore(self, value):
         """
@@ -819,6 +834,7 @@ class Bbox(BboxBase):
         *updatex*: when True, update the x values
 
         *updatey*: when True, update the y values
+
         """
         if ignore is None:
             ignore = self._ignore
@@ -964,15 +980,13 @@ class Bbox(BboxBase):
                 self._points[1,1]!=self._points_orig[1,1])
 
 
-
-
 class TransformedBbox(BboxBase):
     """
     A :class:`Bbox` that is automatically transformed by a given
     transform.  When either the child bounding box or transform
     changes, the bounds of this bbox will update accordingly.
     """
-    def __init__(self, bbox, transform):
+    def __init__(self, bbox, transform, **kwargs):
         """
         *bbox*: a child :class:`Bbox`
 
@@ -983,15 +997,14 @@ class TransformedBbox(BboxBase):
         assert transform.input_dims == 2
         assert transform.output_dims == 2
 
-        BboxBase.__init__(self)
+        BboxBase.__init__(self, **kwargs)
         self._bbox = bbox
         self._transform = transform
         self.set_children(bbox, transform)
         self._points = None
 
     def __repr__(self):
-        return "TransformedBbox(%s, %s)" % (self._bbox, self._transform)
-    __str__ = __repr__
+        return "TransformedBbox(%r, %r)" % (self._bbox, self._transform)
 
     def get_points(self):
         if self._invalid:
@@ -1008,6 +1021,7 @@ class TransformedBbox(BboxBase):
             points = self._get_points()
             self._check(points)
             return points
+
 
 class Transform(TransformNode):
     """
@@ -1034,16 +1048,23 @@ class Transform(TransformNode):
 
       - :meth:`transform_path`
     """
-    # The number of input and output dimensions for this transform.
-    # These must be overridden (with integers) in the subclass.
     input_dims = None
+    """
+    The number of input dimensions of this transform.
+    Must be overridden (with integers) in the subclass.
+    """
+
     output_dims = None
+    """
+    The number of output dimensions of this transform.
+    Must be overridden (with integers) in the subclass.
+    """
 
-    # True if this transform as a corresponding inverse transform.
     has_inverse = False
+    """True if this transform as a corresponding inverse transform."""
 
-    # True if this transform is separable in the x- and y- dimensions.
     is_separable = False
+    """True if this transform is separable in the x- and y- dimensions."""
 
     #* Redundant: Removed for performance
     #
@@ -1070,6 +1091,40 @@ class Transform(TransformNode):
         raise TypeError(
             "Can not add Transform to object of type '%s'" % type(other))
 
+    def __eq__(self, other):
+        # equality is based on transform object id. Hence:
+        # Transform() != Transform().
+        # Some classes, such as TransformWrapper & AffineBase, will override.
+        return self is other
+
+    def _iter_break_from_left_to_right(self):
+        """
+        Returns an iterator breaking down this transform stack from left to
+        right recursively. If self == ((A, N), A) then the result will be an
+        iterator which yields ((A, N), A), followed by (N, A), followed by (A).
+        This is equivalent to flattening the stack then slicing it with
+        flat_stack[i:] where i starts at 0.
+
+        """
+        yield self
+
+    def contains_branch(self, other):
+        """
+        Return whether the given transform is a sub-tree of this transform.
+
+        This routine uses transform equality to identify sub-trees, therefore
+        in many situations it is object id which will be used.
+
+        For the case where the given transform represents the whole
+        of this transform, returns True.
+
+        """
+        # check that a subtree is equal to other (starting from self)
+        for sub_tree in self._iter_break_from_left_to_right():
+            if sub_tree == other:
+                return True
+        return False
+
     def __array__(self, *args, **kwargs):
         """
         Array interface to get at this Transform's matrix.
@@ -1087,7 +1142,7 @@ class Transform(TransformNode):
         Accepts a numpy array of shape (N x :attr:`input_dims`) and
         returns a numpy array of shape (N x :attr:`output_dims`).
         """
-        raise NotImplementedError()
+        return self.transform_affine(self.transform_non_affine(values))
 
     def transform_affine(self, values):
         """
@@ -1104,7 +1159,7 @@ class Transform(TransformNode):
         Accepts a numpy array of shape (N x :attr:`input_dims`) and
         returns a numpy array of shape (N x :attr:`output_dims`).
         """
-        return values
+        return self.get_affine().transform(values)
 
     def transform_non_affine(self, values):
         """
@@ -1120,7 +1175,7 @@ class Transform(TransformNode):
         Accepts a numpy array of shape (N x :attr:`input_dims`) and
         returns a numpy array of shape (N x :attr:`output_dims`).
         """
-        return self.transform(values)
+        return values
 
     def get_affine(self):
         """
@@ -1130,7 +1185,9 @@ class Transform(TransformNode):
 
     def get_matrix(self):
         """
-        Get the transformation matrix for the affine part of this transform.
+        Get the Affine transformation array for the affine part
+        of this transform.
+
         """
         return self.get_affine().get_matrix()
 
@@ -1148,19 +1205,18 @@ class Transform(TransformNode):
 
     def transform_path(self, path):
         """
-        Returns a transformed copy of path.
+        Returns a transformed path.
 
         *path*: a :class:`~matplotlib.path.Path` instance.
 
         In some cases, this transform may insert curves into the path
         that began as line segments.
         """
-        return Path(self.transform(path.vertices), path.codes,
-                    path._interpolation_steps)
+        return self.transform_path_affine(self.transform_path_non_affine(path))
 
     def transform_path_affine(self, path):
         """
-        Returns a copy of path, transformed only by the affine part of
+        Returns a path, transformed only by the affine part of
         this transform.
 
         *path*: a :class:`~matplotlib.path.Path` instance.
@@ -1168,11 +1224,11 @@ class Transform(TransformNode):
         ``transform_path(path)`` is equivalent to
         ``transform_path_affine(transform_path_non_affine(values))``.
         """
-        return path
+        return self.get_affine().transform_path_affine(path)
 
     def transform_path_non_affine(self, path):
         """
-        Returns a copy of path, transformed only by the non-affine
+        Returns a path, transformed only by the non-affine
         part of this transform.
 
         *path*: a :class:`~matplotlib.path.Path` instance.
@@ -1282,9 +1338,15 @@ class TransformWrapper(Transform):
         self._set(child)
         self._invalid = 0
 
+    def __eq__(self, other):
+        return self._child == other
+
+    if DEBUG:
+        def __str__(self):
+            return str(self._child)
+
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child
-    __str__ = __repr__
 
     def frozen(self):
         return self._child.frozen()
@@ -1344,8 +1406,8 @@ class AffineBase(Transform):
     """
     is_affine = True
 
-    def __init__(self):
-        Transform.__init__(self)
+    def __init__(self, *args, **kwargs):
+        Transform.__init__(self, *args, **kwargs)
         self._inverted = None
 
     def __array__(self, *args, **kwargs):
@@ -1360,19 +1422,27 @@ class AffineBase(Transform):
         """
         return np.dot(b, a)
 
-    def get_matrix(self):
-        """
-        Get the underlying transformation matrix as a numpy array.
-        """
-        raise NotImplementedError()
+    def __eq__(self, other):
+        if other.is_affine:
+            return np.all(self.get_matrix() == other.get_matrix())
+        return NotImplemented
 
     def transform_non_affine(self, points):
         return points
     transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
+    def transform_affine(self, points):
+        return points
+    transform_affine.__doc__ = Transform.transform_affine.__doc__
+
     def transform_path_affine(self, path):
-        return self.transform_path(path)
+        return Path(self.transform_affine(path.vertices),
+                    path.codes, path._interpolation_steps)
     transform_path_affine.__doc__ = Transform.transform_path_affine.__doc__
+
+    def transform_path(self, path):
+        return self.transform_path_affine(path)
+    transform_path.__doc__ = Transform.transform_path.__doc__
 
     def transform_path_non_affine(self, path):
         return path
@@ -1431,7 +1501,7 @@ class Affine2DBase(AffineBase):
         """
         return np.array([[a, c, e], [b, d, f], [0.0, 0.0, 1.0]], np.float_)
 
-    def transform(self, points):
+    def transform_affine(self, points):
         mtx = self.get_matrix()
         if isinstance(points, MaskedArray):
             tpoints = affine_transform(points.data, mtx)
@@ -1444,8 +1514,8 @@ class Affine2DBase(AffineBase):
     transform_point.__doc__ = AffineBase.transform_point.__doc__
 
     if DEBUG:
-        _transform = transform
-        def transform(self, points):
+        _transform_affine = transform_affine
+        def transform_affine(self, points):
             # The major speed trap here is just converting to the
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
@@ -1455,10 +1525,7 @@ class Affine2DBase(AffineBase):
                     ('A non-numpy array of type %s was passed in for ' +
                      'transformation.  Please correct this.')
                     % type(points))
-            return self._transform(points)
-    transform.__doc__ = AffineBase.transform.__doc__
-
-    transform_affine = transform
+            return self._transform_affine(points)
     transform_affine.__doc__ = AffineBase.transform_affine.__doc__
 
     def inverted(self):
@@ -1475,7 +1542,7 @@ class Affine2D(Affine2DBase):
     A mutable 2D affine transformation.
     """
 
-    def __init__(self, matrix = None):
+    def __init__(self, matrix=None, **kwargs):
         """
         Initialize an Affine transform from a 3x3 numpy float array::
 
@@ -1485,7 +1552,7 @@ class Affine2D(Affine2DBase):
 
         If *matrix* is None, initialize with the identity transform.
         """
-        Affine2DBase.__init__(self)
+        Affine2DBase.__init__(self, **kwargs)
         if matrix is None:
             matrix = np.identity(3)
         elif DEBUG:
@@ -1496,9 +1563,9 @@ class Affine2D(Affine2DBase):
 
     def __repr__(self):
         return "Affine2D(%s)" % repr(self._mtx)
-    __str__ = __repr__
 
     def __cmp__(self, other):
+        # XXX redundant. this only tells us eq.
         if (isinstance(other, Affine2D) and
             (self.get_matrix() == other.get_matrix()).all()):
             return 0
@@ -1722,7 +1789,7 @@ class BlendedGenericTransform(Transform):
     is_separable = True
     pass_through = True
 
-    def __init__(self, x_transform, y_transform):
+    def __init__(self, x_transform, y_transform, **kwargs):
         """
         Create a new "blended" transform using *x_transform* to
         transform the *x*-axis and *y_transform* to transform the
@@ -1735,7 +1802,7 @@ class BlendedGenericTransform(Transform):
         """
         # Here we ask: "Does it blend?"
 
-        Transform.__init__(self)
+        Transform.__init__(self, **kwargs)
         self._x = x_transform
         self._y = y_transform
         self.set_children(x_transform, y_transform)
@@ -1753,11 +1820,17 @@ class BlendedGenericTransform(Transform):
         return "BlendedGenericTransform(%s,%s)" % (self._x, self._y)
     __str__ = __repr__
 
-    def transform(self, points):
+    def transform_affine(self, points):
+        return self.get_affine().transform(points)
+    transform_affine.__doc__ = Transform.transform_affine.__doc__
+
+    def transform_non_affine(self, points):
+        if self._x.is_affine and self._y.is_affine:
+            return points
         x = self._x
         y = self._y
 
-        if x is y and x.input_dims == 2:
+        if x == y and x.input_dims == 2:
             return x.transform(points)
 
         if x.input_dims == 2:
@@ -1776,16 +1849,6 @@ class BlendedGenericTransform(Transform):
             return ma.concatenate((x_points, y_points), 1)
         else:
             return np.concatenate((x_points, y_points), 1)
-    transform.__doc__ = Transform.transform.__doc__
-
-    def transform_affine(self, points):
-        return self.get_affine().transform(points)
-    transform_affine.__doc__ = Transform.transform_affine.__doc__
-
-    def transform_non_affine(self, points):
-        if self._x.is_affine and self._y.is_affine:
-            return points
-        return self.transform(points)
     transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
     def inverted(self):
@@ -1822,7 +1885,7 @@ class BlendedAffine2D(Affine2DBase):
     """
     is_separable = True
 
-    def __init__(self, x_transform, y_transform):
+    def __init__(self, x_transform, y_transform, **kwargs):
         """
         Create a new "blended" transform using *x_transform* to
         transform the *x*-axis and *y_transform* to transform the
@@ -1841,7 +1904,7 @@ class BlendedAffine2D(Affine2DBase):
         assert x_transform.is_separable
         assert y_transform.is_separable
 
-        Transform.__init__(self)
+        Transform.__init__(self, **kwargs)
         self._x = x_transform
         self._y = y_transform
         self.set_children(x_transform, y_transform)
@@ -1894,7 +1957,7 @@ class CompositeGenericTransform(Transform):
     """
     pass_through = True
 
-    def __init__(self, a, b):
+    def __init__(self, a, b, **kwargs):
         """
         Create a new composite transform that is the result of
         applying transform *a* then transform *b*.
@@ -1908,7 +1971,7 @@ class CompositeGenericTransform(Transform):
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
 
-        Transform.__init__(self)
+        Transform.__init__(self, **kwargs)
         self._a = a
         self._b = b
         self.set_children(a, b)
@@ -1938,6 +2001,18 @@ class CompositeGenericTransform(Transform):
         Transform._invalidate_internal(self, value=value,
                                        invalidating_node=invalidating_node)
 
+    def __eq__(self, other):
+        if isinstance(other, CompositeGenericTransform):
+            return self is other or (self._a == other._a and self._b == other._b)
+        else:
+            return False
+
+    def _iter_break_from_left_to_right(self):
+        for broken in self._a._iter_break_from_left_to_right():
+            yield broken + self._b
+        for broken in self._b._iter_break_from_left_to_right():
+            yield broken
+
     def _get_is_affine(self):
         return self._a.is_affine and self._b.is_affine
     is_affine = property(_get_is_affine)
@@ -1946,14 +2021,12 @@ class CompositeGenericTransform(Transform):
         return self._a.is_separable and self._b.is_separable
     is_separable = property(_get_is_separable)
 
-    def __repr__(self):
-        return "CompositeGenericTransform(%s, %s)" % (self._a, self._b)
-    __str__ = __repr__
+    if DEBUG:
+        def __str__(self):
+            return '(%s, %s)' % (self._a, self._b)
 
-    def transform(self, points):
-        return self._b.transform(
-            self._a.transform(points))
-    transform.__doc__ = Transform.transform.__doc__
+    def __repr__(self):
+        return "CompositeGenericTransform(%r, %r)" % (self._a, self._b)
 
     def transform_affine(self, points):
         return self.get_affine().transform(points)
@@ -1962,33 +2035,33 @@ class CompositeGenericTransform(Transform):
     def transform_non_affine(self, points):
         if self._a.is_affine and self._b.is_affine:
             return points
-        return self._b.transform_non_affine(
-            self._a.transform(points))
+        elif not self._a.is_affine and self._b.is_affine:
+            return self._a.transform_non_affine(points)
+        else:
+            return self._b.transform_non_affine(
+                                self._a.transform(points))
     transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
-    def transform_path(self, path):
-        return self._b.transform_path(
-            self._a.transform_path(path))
-    transform_path.__doc__ = Transform.transform_path.__doc__
-
     def transform_path_affine(self, path):
-        return self._b.transform_path_affine(
-            self._a.transform_path(path))
+        return self.get_affine().transform_path_affine(path)
     transform_path_affine.__doc__ = Transform.transform_path_affine.__doc__
 
     def transform_path_non_affine(self, path):
         if self._a.is_affine and self._b.is_affine:
             return path
-        return self._b.transform_path_non_affine(
-            self._a.transform_path(path))
+        elif not self._a.is_affine and self._b.is_affine:
+            return self._a.transform_path_non_affine(path)
+        else:
+            return self._b.transform_path_non_affine(
+                                    self._a.transform_path(path))
     transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
 
     def get_affine(self):
-        if self._a.is_affine and self._b.is_affine:
-            return Affine2D(np.dot(self._b.get_affine().get_matrix(),
-                                    self._a.get_affine().get_matrix()))
-        else:
+        if not self._b.is_affine:
             return self._b.get_affine()
+        else:
+            return Affine2D(np.dot(self._b.get_affine().get_matrix(),
+                                self._a.get_affine().get_matrix()))
     get_affine.__doc__ = Transform.get_affine.__doc__
 
     def inverted(self):
@@ -2003,7 +2076,7 @@ class CompositeAffine2D(Affine2DBase):
     This version is an optimization that handles the case where both *a*
     and *b* are 2D affines.
     """
-    def __init__(self, a, b):
+    def __init__(self, a, b, **kwargs):
         """
         Create a new composite transform that is the result of
         applying transform *a* then transform *b*.
@@ -2021,15 +2094,25 @@ class CompositeAffine2D(Affine2DBase):
         assert a.is_affine
         assert b.is_affine
 
-        Affine2DBase.__init__(self)
+        Affine2DBase.__init__(self, **kwargs)
         self._a = a
         self._b = b
         self.set_children(a, b)
         self._mtx = None
 
+    if DEBUG:
+        def __str__(self):
+            return '(%s, %s)' % (self._a, self._b)
+
+    def _iter_break_from_left_to_right(self):
+        for broken in self._a._iter_break_from_left_to_right():
+              yield broken + self._b
+
+        for broken in self._b._iter_break_from_left_to_right():
+              yield broken
+
     def __repr__(self):
-        return "CompositeAffine2D(%s, %s)" % (self._a, self._b)
-    __str__ = __repr__
+        return "CompositeAffine2D(%r, %r)" % (self._a, self._b)
 
     def get_matrix(self):
         if self._invalid:
@@ -2076,7 +2159,7 @@ class BboxTransform(Affine2DBase):
     """
     is_separable = True
 
-    def __init__(self, boxin, boxout):
+    def __init__(self, boxin, boxout, **kwargs):
         """
         Create a new :class:`BboxTransform` that linearly transforms
         points from *boxin* to *boxout*.
@@ -2084,7 +2167,7 @@ class BboxTransform(Affine2DBase):
         assert boxin.is_bbox
         assert boxout.is_bbox
 
-        Affine2DBase.__init__(self)
+        Affine2DBase.__init__(self, **kwargs)
         self._boxin = boxin
         self._boxout = boxout
         self.set_children(boxin, boxout)
@@ -2092,8 +2175,7 @@ class BboxTransform(Affine2DBase):
         self._inverted = None
 
     def __repr__(self):
-        return "BboxTransform(%s, %s)" % (self._boxin, self._boxout)
-    __str__ = __repr__
+        return "BboxTransform(%r, %r)" % (self._boxin, self._boxout)
 
     def get_matrix(self):
         if self._invalid:
@@ -2121,22 +2203,21 @@ class BboxTransformTo(Affine2DBase):
     """
     is_separable = True
 
-    def __init__(self, boxout):
+    def __init__(self, boxout, **kwargs):
         """
         Create a new :class:`BboxTransformTo` that linearly transforms
         points from the unit bounding box to *boxout*.
         """
         assert boxout.is_bbox
 
-        Affine2DBase.__init__(self)
+        Affine2DBase.__init__(self, **kwargs)
         self._boxout = boxout
         self.set_children(boxout)
         self._mtx = None
         self._inverted = None
 
     def __repr__(self):
-        return "BboxTransformTo(%s)" % (self._boxout)
-    __str__ = __repr__
+        return "BboxTransformTo(%r)" % (self._boxout)
 
     def get_matrix(self):
         if self._invalid:
@@ -2160,8 +2241,7 @@ class BboxTransformToMaxOnly(BboxTransformTo):
     :class:`Bbox` with a fixed upper left of (0, 0).
     """
     def __repr__(self):
-        return "BboxTransformToMaxOnly(%s)" % (self._boxout)
-    __str__ = __repr__
+        return "BboxTransformToMaxOnly(%r)" % (self._boxout)
 
     def get_matrix(self):
         if self._invalid:
@@ -2185,18 +2265,17 @@ class BboxTransformFrom(Affine2DBase):
     """
     is_separable = True
 
-    def __init__(self, boxin):
+    def __init__(self, boxin, **kwargs):
         assert boxin.is_bbox
 
-        Affine2DBase.__init__(self)
+        Affine2DBase.__init__(self, **kwargs)
         self._boxin = boxin
         self.set_children(boxin)
         self._mtx = None
         self._inverted = None
 
     def __repr__(self):
-        return "BboxTransformFrom(%s)" % (self._boxin)
-    __str__ = __repr__
+        return "BboxTransformFrom(%r)" % (self._boxin)
 
     def get_matrix(self):
         if self._invalid:
@@ -2220,8 +2299,8 @@ class ScaledTranslation(Affine2DBase):
     A transformation that translates by *xt* and *yt*, after *xt* and *yt*
     have been transformad by the given transform *scale_trans*.
     """
-    def __init__(self, xt, yt, scale_trans):
-        Affine2DBase.__init__(self)
+    def __init__(self, xt, yt, scale_trans, **kwargs):
+        Affine2DBase.__init__(self, **kwargs)
         self._t = (xt, yt)
         self._scale_trans = scale_trans
         self.set_children(scale_trans)
@@ -2229,8 +2308,7 @@ class ScaledTranslation(Affine2DBase):
         self._inverted = None
 
     def __repr__(self):
-        return "ScaledTranslation(%s)" % (self._t,)
-    __str__ = __repr__
+        return "ScaledTranslation(%r)" % (self._t,)
 
     def get_matrix(self):
         if self._invalid:
@@ -2307,11 +2385,7 @@ class TransformedPath(TransformNode):
         """
         Return a fully-transformed copy of the child path.
         """
-        if ((self._invalid & self.INVALID_NON_AFFINE == self.INVALID_NON_AFFINE)
-            or self._transformed_path is None):
-            self._transformed_path = \
-                self._transform.transform_path_non_affine(self._path)
-        self._invalid = 0
+        self._revalidate()
         return self._transform.transform_path_affine(self._transformed_path)
 
     def get_affine(self):

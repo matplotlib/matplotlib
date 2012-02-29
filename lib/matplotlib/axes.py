@@ -1461,17 +1461,44 @@ class Axes(martist.Artist):
 
         self._update_line_limits(line)
         if not line.get_label():
-            line.set_label('_line%d'%len(self.lines))
+            line.set_label('_line%d' % len(self.lines))
         self.lines.append(line)
         line._remove_method = lambda h: self.lines.remove(h)
         return line
 
     def _update_line_limits(self, line):
-        p = line.get_path()
-        if p.vertices.size > 0:
-            self.dataLim.update_from_path(p, self.ignore_existing_data_limits,
-                                            updatex=line.x_isdata,
-                                            updatey=line.y_isdata)
+        """Figures out the data limit of the given line, updating self.dataLim."""
+        path = line.get_path()
+        if path.vertices.size == 0:
+            return
+
+        line_trans = line.get_transform()
+
+        if line.get_transform() == self.transData:
+            data_path = path
+
+        elif line_trans.contains_branch(self.transData):
+            # transform the path all the way down (to device coordinates)
+            # then come back up (by inverting transData) to data coordinates.
+            # it would be possible to do this by identifying the transform
+            # needed to go from line_trans directly to transData, doing it
+            # this way means that the line instance has an opportunity to
+            # cache the transformed path.
+            device2data = self.transData.inverted()
+            data_path = device2data.transform_path(line.get_transformed_path())
+        else:
+            # for backwards compatibility we update the dataLim with the
+            # coordinate range of the given path, even though the coordinate
+            # systems are completely different. This may occur in situations
+            # such as when ax.transAxes is passed through for absolute
+            # positioning.
+            data_path = path
+
+        if data_path.vertices.size > 0:
+            self.dataLim.update_from_path(data_path,
+                                          self.ignore_existing_data_limits,
+                                          updatex=line.x_isdata,
+                                          updatey=line.y_isdata)
             self.ignore_existing_data_limits = False
 
     def add_patch(self, p):
@@ -3908,7 +3935,6 @@ class Axes(martist.Artist):
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
-
 
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines
