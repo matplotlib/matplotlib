@@ -5159,7 +5159,8 @@ class Axes(martist.Artist):
             
           *errorevery*: positive integer
             subsamples the errorbars. Eg if everyerror=5, errorbars for every
-            5-th datapoint will be plotted.
+            5-th datapoint will be plotted. The data plot itself still shows
+            all data points.
 
         All other keyword arguments are passed on to the plot command for the
         markers. For example, this code makes big red squares with
@@ -5193,6 +5194,9 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/errorbar_demo.py
 
         """
+
+        if errorevery < 1:
+            raise ValueError('errorevery has to be a strictly positive integer ')
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         if not self._hold: self.cla()
