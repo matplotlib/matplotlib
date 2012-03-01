@@ -7,16 +7,15 @@ This is currently a proof-of-concept implementation (though it is
 usable as is).  There will be some refinement of the API.
 """
 from matplotlib.widgets import Lasso
-import matplotlib.mlab
 from matplotlib.path import Path
 from matplotlib.colors import colorConverter
 from matplotlib.collections import RegularPolyCollection
 
-from matplotlib.pyplot import figure, show
+import matplotlib.pyplot as plt
 from numpy import nonzero
 from numpy.random import rand
 
-class Datum:
+class Datum(object):
     colorin = colorConverter.to_rgba('red')
     colorout = colorConverter.to_rgba('blue')
     def __init__(self, x, y, include=False):
@@ -26,7 +25,7 @@ class Datum:
         else: self.color = self.colorout
 
 
-class LassoManager:
+class LassoManager(object):
     def __init__(self, ax, data):
         self.axes = ax
         self.canvas = ax.figure.canvas
@@ -71,8 +70,7 @@ if __name__ == '__main__':
 
     data = [Datum(*xy) for xy in rand(100, 2)]
 
-    fig = figure()
-    ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
+    ax = plt.axes(xlim=(0,1), ylim=(0,1), autoscale_on=False)
     lman = LassoManager(ax, data)
 
-    show()
+    plt.show()
