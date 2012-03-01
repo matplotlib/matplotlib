@@ -1409,6 +1409,71 @@ class RectangleSelector(AxesWidget):
         """ Get status of active mode (boolean variable)"""
         return self.active
 
+
+class LassoSelector(AxesWidget):
+    def __init__(self, ax, onselect=None, useblit=True, lineprops=None):
+        AxesWidget.__init__(self, ax)
+
+        self.useblit = useblit
+        self.onselect = onselect
+        self.verts = None
+
+        if lineprops is None:
+            lineprops = dict()
+        self.line = Line2D([], [], **lineprops)
+        self.line.set_visible(False)
+        self.ax.add_line(self.line)
+
+        self.connect_event('button_press_event', self.onpress)
+        self.connect_event('button_release_event', self.onrelease)
+        self.connect_event('motion_notify_event', self.onmove)
+        self.connect_event('draw_event', self.update_background)
+
+    def ignore(self, event):
+        wrong_button = hasattr(event, 'button') and event.button != 1
+        return not self.active or wrong_button
+
+    def onpress(self, event):
+        if self.ignore(event) or event.inaxes != self.ax:
+            return
+        self.verts = [(event.xdata, event.ydata)]
+        self.line.set_visible(True)
+
+    def onrelease(self, event):
+        if self.ignore(event):
+            return
+        if self.verts is not None:
+            if event.inaxes == self.ax:
+                self.verts.append((event.xdata, event.ydata))
+            self.onselect(self.verts)
+        self.line.set_data([[], []])
+        self.line.set_visible(False)
+        self.verts = None
+
+    def onmove(self, event):
+        if self.ignore(event) or event.inaxes != self.ax:
+            return
+        if self.verts is None: return
+        if event.inaxes != self.ax: return
+        if event.button!=1: return
+        self.verts.append((event.xdata, event.ydata))
+
+        self.line.set_data(zip(*self.verts))
+
+        if self.useblit:
+            self.canvas.restore_region(self.background)
+            self.ax.draw_artist(self.line)
+            self.canvas.blit(self.ax.bbox)
+        else:
+            self.canvas.draw_idle()
+
+    def update_background(self, event):
+        if self.ignore(event):
+            return
+        if self.useblit:
+            self.background = self.canvas.copy_from_bbox(self.ax.bbox)
+
+
 class Lasso(AxesWidget):
     def __init__(self, ax, xy, callback=None, useblit=True):
         AxesWidget.__init__(self, ax)
@@ -1452,3 +1517,4 @@ class Lasso(AxesWidget):
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
+
