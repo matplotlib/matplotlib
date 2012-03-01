@@ -630,7 +630,7 @@ class Path(object):
 
         if is_wedge:
             length = n * 3 + 4
-            vertices = np.empty((length, 2), np.float_)
+            vertices = np.zeros((length, 2), np.float_)
             codes = cls.CURVE4 * np.ones((length, ), cls.code_type)
             vertices[1] = [xA[0], yA[0]]
             codes[0:2] = [cls.MOVETO, cls.LINETO]
