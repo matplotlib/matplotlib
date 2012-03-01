@@ -1103,8 +1103,9 @@ class Transform(TransformNode):
         right recursively. If self == ((A, N), A) then the result will be an
         iterator which yields I : ((A, N), A), followed by A : (N, A),
         followed by (A, N) : (A), but not ((A, N), A) : I.
-        This is equivalent to flattening the stack then slicing it with
-        ``flat_stack[i:]`` where i starts at 0 and ends at -1.
+
+        This is equivalent to flattening the stack then yielding
+        ``flat_stack[:i], flat_stack[i:]`` where i=0..(n-1).
         
         """
         yield IdentityTransform(), self
@@ -1136,11 +1137,12 @@ class Transform(TransformNode):
 
             # sometimes, when A contains the tree B there is no need to descend all the way down
             # to the base of A (via B), instead we can just stop at B.
-            (A, B) - (B)-1 == A
 
+            (A + B) - (B)^-1 == A
+            
             # similarly, when B contains tree A, we can avoid decending A at all, basically:
-            A - B == (B - A).inverted() or B-1
-
+            A - (A + B) == ((B + A) - A).inverted() or B^-1
+        
         For clarity, the result of ``(A + B) - B + B == (A + B)``.
 
         """
@@ -1171,11 +1173,7 @@ class Transform(TransformNode):
         """
         Array interface to get at this Transform's matrix.
         """
-        # note, this method is also used by C/C++ -based backends
-        if self.is_affine:
-            return self.get_matrix()
-        else:
-            raise ValueError('Cannot convert this transform to an array.')
+        raise NotImplementedError()
 
     def transform(self, values):
         """
@@ -1870,10 +1868,6 @@ class BlendedGenericTransform(Transform):
         return "BlendedGenericTransform(%s,%s)" % (self._x, self._y)
     __str__ = __repr__
 
-    def transform_affine(self, points):
-        return self.get_affine().transform(points)
-    transform_affine.__doc__ = Transform.transform_affine.__doc__
-
     def transform_non_affine(self, points):
         if self._x.is_affine and self._y.is_affine:
             return points
@@ -2091,10 +2085,6 @@ class CompositeGenericTransform(Transform):
             return self._b.transform_non_affine(
                                 self._a.transform(points))
     transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
-
-    def transform_path_affine(self, path):
-        return self.get_affine().transform_path_affine(path)
-    transform_path_affine.__doc__ = Transform.transform_path_affine.__doc__
 
     def transform_path_non_affine(self, path):
         if self._a.is_affine and self._b.is_affine:

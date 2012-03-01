@@ -1473,8 +1473,8 @@ class Axes(martist.Artist):
             return
 
         line_trans = line.get_transform()
-
-        if line.get_transform() == self.transData:
+        
+        if line_trans == self.transData:
             data_path = path
 
         elif line_trans.contains_branch(self.transData):
