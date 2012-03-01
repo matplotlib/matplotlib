@@ -3,7 +3,6 @@ from numpy import ma
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
-import matplotlib.transforms as mtrans
 
 
 @image_comparison(baseline_images=['formatter_ticker_001',
