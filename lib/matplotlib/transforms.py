@@ -1040,7 +1040,7 @@ class Transform(TransformNode):
       - :meth:`transform`
       - :attr:`is_separable`
       - :attr:`has_inverse`
-      - :meth:`inverted` (if :meth:`has_inverse` can return True)
+      - :meth:`inverted` (if :attr:`has_inverse` is True)
 
     If the transform needs to do something non-standard with
     :class:`matplotlib.path.Path` objects, such as adding curves
@@ -1141,6 +1141,8 @@ class Transform(TransformNode):
             # similarly, when B contains tree A, we can avoid decending A at all, basically:
             A - B == (B - A).inverted() or B-1
 
+        For clarity, the result of ``(A + B) - B + B == (A + B)``.
+
         """
         # we only know how to do this operation if other is a Transform.
         if not isinstance(other, Transform):
@@ -1164,7 +1166,6 @@ class Transform(TransformNode):
             raise ValueError('It is not possible to compute transA - transB '
                              'since transB cannot be inverted and there is no '
                              'shortcut possible.')
->>>>>>> Several bugs fixed, particularly with Polar & Geo.
 
     def __array__(self, *args, **kwargs):
         """

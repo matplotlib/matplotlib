@@ -248,6 +248,8 @@ class BasicTransformTests(unittest.TestCase):
         self.assertEqual(self.stack1 - self.ta3, self.ta1 + (self.tn1 + self.ta2))
         self.assertEqual(self.stack2 - self.ta3, self.ta1 + self.tn1 + self.ta2)
         
+        self.assertEqual((self.ta2 + self.ta3) - self.ta3 + self.ta3, self.ta2 + self.ta3)
+
     def test_contains_branch(self):
         r1 = (self.ta2 + self.ta1)
         r2 = (self.ta2 + self.ta1)
@@ -346,6 +348,20 @@ class TestTransformPlotInterface(unittest.TestCase):
         patch = mpatches.PathPatch(pth, transform=offset + ax.transData)
         ax.add_patch(patch)
         expeted_data_lim = np.array([[0., 0.], [10.,  10.]]) + 10
+        np.testing.assert_array_almost_equal(ax.dataLim.get_points(), 
+                                             expeted_data_lim)
+
+
+    def test_line_extents_for_non_affine_transData(self):
+        ax = plt.axes(projection='polar')
+        # add 10 to the radius of the data
+        offset = mtrans.Affine2D().translate(0, 10)
+
+        plt.plot(range(10), transform=offset + ax.transData)
+        # the data lim of a polar plot is stored in coordinates
+        # before a transData transformation, hence the data limits
+        # are not what is being shown on the actual plot.
+        expeted_data_lim = np.array([[0., 0.], [9.,  9.]]) + [0, 10]
         np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
                                              expeted_data_lim)
 

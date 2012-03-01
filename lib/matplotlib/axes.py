@@ -1478,17 +1478,22 @@ class Axes(martist.Artist):
             data_path = path
 
         elif line_trans.contains_branch(self.transData):
-            # transform the path all the way down (to device coordinates)
-            # then come back up (by inverting transData) to data coordinates.
-            # it would be possible to do this by identifying the transform
-            # needed to go from line_trans directly to transData, doing it
-            # this way means that the line instance has an opportunity to
-            # cache the transformed path.
-            device2data = self.transData.inverted()
-            data_path = device2data.transform_path(line.get_transformed_path())
-        else:
-            # for backwards compatibility we update the dataLim with the
-            # coordinate range of the given path, even though the coordinate
+            # identify the transform to go from line's coordinates
+            # to data coordinates
+            trans_to_data = line_trans - self.transData
+
+            # if transData is affine we can use the cached non-affine component
+            # of line's path. (since the non-affine part of line_trans is
+            # entirely encapsulated in trans_to_data).
+            if self.transData.is_affine:
+                line_trans_path = line._get_transformed_path()
+                na_path, _ = line_trans_path.get_transformed_path_and_affine()
+                data_path = trans_to_data.transform_path_affine(na_path)
+            else:
+                data_path = trans_to_data.transform_path(path)
+        else:               
+            # for backwards compatibility we update the dataLim with the 
+            # coordinate range of the given path, even though the coordinate 
             # systems are completely different. This may occur in situations
             # such as when ax.transAxes is passed through for absolute
             # positioning.
