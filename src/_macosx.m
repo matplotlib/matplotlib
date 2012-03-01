@@ -5567,7 +5567,10 @@ set_cursor(PyObject* unused, PyObject* args)
 static PyObject*
 show(PyObject* self)
 {
-    if(nwin > 0) [NSApp run];
+    if(nwin > 0) {
+        [NSApp activateIgnoringOtherApps:YES];
+        [NSApp run];
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
