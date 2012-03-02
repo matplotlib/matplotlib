@@ -156,9 +156,15 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_transforms(self):
         return self._transforms
 
+    def get_offset_transform(self):
+        t = self._transOffset
+        if not isinstance(t, transforms.Transform) and hasattr(t, '_as_mpl_transform'):
+            t = t._as_mpl_transform(self.axes)
+        return t
+
     def get_datalim(self, transData):
         transform = self.get_transform()
-        transOffset = self._transOffset
+        transOffset = self.get_offset_transform()
         offsets = self._offsets
         paths = self.get_paths()
 
@@ -192,7 +198,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """Point prep for drawing and hit testing"""
 
         transform = self.get_transform()
-        transOffset = self._transOffset
+        transOffset = self.get_offset_transform()
         offsets = self._offsets
         paths = self.get_paths()
 
@@ -1407,7 +1413,7 @@ class QuadMesh(Collection):
         if not self.get_visible(): return
         renderer.open_group(self.__class__.__name__, self.get_gid())
         transform = self.get_transform()
-        transOffset = self._transOffset
+        transOffset = self.get_offset_transform()
         offsets = self._offsets
 
         if self.have_units():
