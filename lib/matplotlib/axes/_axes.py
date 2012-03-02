@@ -15,6 +15,7 @@ import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
 import matplotlib.dates as _  # <-registers a date unit converter
 from matplotlib import docstring
+import matplotlib.fplot as mfplot
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
@@ -3761,6 +3762,10 @@ class Axes(_AxesBase):
                                               transform=transform)
         return stream_container
     streamplot.__doc__ = mstream.streamplot.__doc__
+
+    def fplot(self, *args, **kwargs):
+        return mfplot.fplot(self, *args, **kwargs)
+    fplot.__doc__ = mfplot.fplot.__doc__
 
     @docstring.dedent_interpd
     def barbs(self, *args, **kw):

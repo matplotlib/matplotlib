@@ -112,6 +112,7 @@ def boilerplate_gen():
         'fill',
         'fill_between',
         'fill_betweenx',
+        'fplot',
         'hexbin',
         'hist',
         'hist2d',
