@@ -5,7 +5,7 @@ from matplotlib.nxutils import points_inside_poly
 
 
 class SelectFromCollection(object):
-    """Select indices from a matplotlib collection using :class:`LassoSelector`.
+    """Select indices from a matplotlib collection using `LassoSelector`.
 
     Selected indices are saved in the `ind` attribute. This tool highlights
     selected points by fading them out (i.e., reducing their alpha values).
@@ -16,10 +16,10 @@ class SelectFromCollection(object):
 
     Parameters
     ----------
-    ax : :class:`Axes`
+    ax : :class:`~matplotlib.axes.Axes`
         Axes to interact with.
 
-    collection : :class:`Collection`
+    collection : :class:`matplotlib.collections.Collection` subclass
         Collection you want to select from.
 
     alpha_other : 0 <= float <= 1
