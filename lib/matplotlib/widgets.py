@@ -64,15 +64,16 @@ class Widget(object):
 
 
 class AxesWidget(Widget):
-    """
-    Widget that is connected to a single :class:`Axes`.
+    """Widget that is connected to a single :class:`~matplotlib.axes.Axes`.
 
-    Attributes
-    ----------
-    *ax*
-        The parent :class:`matplotlib.axes.Axes` for the widget
-    *canvas*
-        The parent FigureCanvas for the widget
+    Attributes:
+
+    *ax* : :class:`~matplotlib.axes.Axes`
+        The parent axes for the widget
+    *canvas* : :class:`~matplotlib.backend_bases.FigureCanvasBase` subclass
+        The parent figure canvs for the widget.
+    *active* : bool
+        If False, the widget does not respond to events.
     """
     def __init__(self, ax):
         self.ax = ax
@@ -81,10 +82,16 @@ class AxesWidget(Widget):
         self.active = True
 
     def connect_event(self, event, callback):
+        """Connect callback with an event.
+
+        This should be used in lieu of `figure.canvas.mpl_connect` since this
+        function stores call back ids for later clean up.
+        """
         cid = self.canvas.mpl_connect(event, callback)
         self.cids.append(cid)
 
     def disconnect_events(self):
+        """Disconnect all events created by this widget."""
         for c in self.cids:
             self.canvas.mpl_disconnect(c)
 
