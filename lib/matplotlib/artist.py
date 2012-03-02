@@ -3,7 +3,7 @@ import re, warnings
 import matplotlib
 import matplotlib.cbook as cbook
 from matplotlib import docstring, rcParams
-from transforms import Bbox, IdentityTransform, TransformedBbox,
+from transforms import Bbox, IdentityTransform, TransformedBbox, \
                        TransformedPath, Transform
 from path import Path
 
