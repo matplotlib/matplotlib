@@ -897,12 +897,27 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             for label in ax.get_xticklabels():
                 label.set_visible(False)
 
+    if nrows>1:
+        # scale # of ticks to be based on size how many rows we have
+        nbins = max(2, 7 - int(nrows))
+        #nbins = max(2, int(10/ nrows))
+        print(nbins, "y")
+        for ax in axarr[:,:].flat:
+            ax.locator_params(axis='y', nbins=nbins)
+
 
     if sharey and ncols>1:
         # turn off all but the first column
         for ax in axarr[:,1:].flat:
             for label in ax.get_yticklabels():
                 label.set_visible(False)
+
+    if ncols>1:
+        # scale # of ticks to be based on size how many cols we have
+        nbins = max(2, 7 - int(ncols))
+        print(nbins, "x")
+        for ax in axarr[:,:].flat:
+            ax.locator_params(axis='x', nbins=nbins)
 
     if squeeze:
         # Reshape the array to have the final desired dimension (nrow,ncol),
