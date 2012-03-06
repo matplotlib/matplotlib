@@ -1288,6 +1288,10 @@ class TransformWrapper(Transform):
         self.get_affine                = child.get_affine
         self.inverted                  = child.inverted
         self.is_affine                 = child.is_affine
+        self.get_matrix                = child.get_matrix
+
+    def __eq__(self, other):
+        return self._child == other
 
     def set(self, child):
         """
@@ -2034,11 +2038,11 @@ def composite_transform_factory(a, b):
 
       c = a + b
     """
-    if isinstance(a, IdentityTransform):
+    if a == IdentityTransform():
         return b
-    elif isinstance(b, IdentityTransform):
+    elif b == IdentityTransform():
         return a
-    elif isinstance(a, AffineBase) and isinstance(b, AffineBase):
+    elif a.is_affine and b.is_affine:
         return CompositeAffine2D(a, b)
     return CompositeGenericTransform(a, b)
 
