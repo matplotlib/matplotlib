@@ -586,12 +586,14 @@ class TimedAnimation(Animation):
         # callback to one which will then set the interval back.
         still_going = Animation._step(self, *args)
         if not still_going and self.repeat:
+            self.frame_seq = self.new_frame_seq()
             if self._repeat_delay:
                 self.event_source.remove_callback(self._step)
                 self.event_source.add_callback(self._loop_delay)
                 self.event_source.interval = self._repeat_delay
-            self.frame_seq = self.new_frame_seq()
-            return True
+                return True
+            else:
+                return Animation._step(self, *args)
         else:
             return still_going
 
@@ -607,6 +609,7 @@ class TimedAnimation(Animation):
         self.event_source.remove_callback(self._loop_delay)
         self.event_source.interval = self._interval
         self.event_source.add_callback(self._step)
+        Animation._step(self)
 
 
 class ArtistAnimation(TimedAnimation):
