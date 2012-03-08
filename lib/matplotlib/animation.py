@@ -241,7 +241,7 @@ class MovieWriter(object):
 
 class FileMovieWriter(MovieWriter):
     '`MovieWriter` subclass that handles writing to a file.'
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         MovieWriter.__init__(self, *args)
         self.frame_format = rcParams['animation.frame_format']
 
@@ -379,7 +379,7 @@ class MencoderBase:
     @property
     def output_args(self):
         args = ['-o', self.outfile, '-ovc', 'lavc', 'vcodec=%s' % self.codec]
-	if self.bitrate:
+	if self.bitrate > 0:
             args.append('vbitrate=%d' % self.bitrate)
         if self.extra_args:
             args.extend(self.extra_args)
@@ -491,13 +491,13 @@ class Animation(object):
         *codec* is the video codec to be used. Not all codecs are supported
         by a given :class:`MovieWriter`. If none is given, this defaults to the
         value specified by the rcparam `animation.codec`.
-        
+
         *bitrate* specifies the amount of bits used per second in the
         compressed movie, in kilobits per second. A higher number means a
         higher quality movie, but at the cost of increased file size. If no
         value is given, this defaults to the value given by the rcparam
         `animation.bitrate`.
-        
+
         *extra_anim* is a list of additional `Animation` objects that should
         be included in the saved movie file. These need to be from the same
         `matplotlib.Figure` instance. Also, animation frames will just be
@@ -531,9 +531,9 @@ class Animation(object):
         if bitrate is None:
             bitrate = rcParams['animation.bitrate']
 
-	    all_anim = [self]
-	    if not extra_anim is None:
-	        all_anim.extend(anim for anim in extra_anim if anim._fig is self._fig)
+        all_anim = [self]
+        if not extra_anim is None:
+            all_anim.extend(anim for anim in extra_anim if anim._fig is self._fig)
 
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
