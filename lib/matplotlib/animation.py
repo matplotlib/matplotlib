@@ -15,7 +15,6 @@
 #   * Need example that uses something like inotify or subprocess
 #   * Complex syncing examples
 # * Movies
-#   * Library to make movies?
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
 import itertools
@@ -32,9 +31,6 @@ from matplotlib import rcParams
 # * Wrap x264 API: http://stackoverflow.com/questions/2940671/how-to-encode-series-of-images-into-h264-using-x264-api-c-c
 
 #Needs:
-# - Need comments, docstrings
-# - Is there a common way to add metadata? Yes. Could probably just pass
-#   in a dict and assemble the string from there.
 # - Examples showing:
 #   - Passing in a MovieWriter instance
 #   - Using a movie writer's context manager to make a movie using only Agg,
@@ -89,7 +85,8 @@ class MovieWriter(object):
     frame_format: string
         The format used in writing frame data, defaults to 'rgba'
     '''
-    def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None):
+    def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
+            metadata=None):
         '''
         Construct a new MovieWriter object.
 
@@ -110,6 +107,10 @@ class MovieWriter(object):
             A list of extra string arguments to be passed to the underlying
             movie utiltiy. The default is None, which passes the additional
             argurments in the 'animation.extra_args' rcParam.
+        metadata: dict of string:string or None
+            A dictionary of keys and values for metadata to include in the 
+            output file. Some keys that may be of use include:
+            title, artist, genre, subject, copyright, srcform, comment.
         '''
         self.fps = fps
         self.frame_format = 'rgba'
@@ -128,6 +129,11 @@ class MovieWriter(object):
             self.extra_args = list(rcParams[self.args_key])
         else:
             self.extra_args = extra_args
+
+        if metadata is None:
+            self.metadata = dict()
+        else:
+            self.metadata = metadata
 
     @property
     def frame_size(self):
@@ -342,9 +348,12 @@ class FFMpegBase:
         # kbps
         args = ['-vcodec', self.codec]
 	if self.bitrate > 0:
-		args.extend(['-b', '%dk' % self.bitrate])
+            args.extend(['-b', '%dk' % self.bitrate])
         if self.extra_args:
             args.extend(self.extra_args)
+        for k,v in self.metadata.items():
+            args.extend(['-metadata', '%s=%s' % (k,v)])
+
         return args + ['-y', self.outfile]
 
 
@@ -376,13 +385,27 @@ class MencoderBase:
     exec_key = 'animation.mencoder_path'
     args_key = 'animation.mencoder_args'
 
+    # Mencoder only allows certain keys, other ones cause the program
+    # to fail.
+    allowed_metadata = ['name', 'artist', 'genre', 'subject', 'copyright',
+            'srcform', 'comment']
+
+    # Mencoder mandates using name, but 'title' works better with ffmpeg.
+    # If we find it, just put it's value into name
+    def _remap_metadata(self):
+        if 'title' in self.metadata:
+            self.metadata['name'] = self.metadata['title']
+
     @property
     def output_args(self):
+        self._remap_metadata()
         args = ['-o', self.outfile, '-ovc', 'lavc', 'vcodec=%s' % self.codec]
 	if self.bitrate > 0:
             args.append('vbitrate=%d' % self.bitrate)
         if self.extra_args:
             args.extend(self.extra_args)
+        args.extend(['-info', ':'.join('%s=%s' % (k,v)
+            for k,v in self.metadata.items() if k in self.allowed_metadata)])
         return args
 
 
@@ -470,7 +493,7 @@ class Animation(object):
         self.event_source = None
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
-            bitrate=None, extra_anim=None):
+            bitrate=None, extra_args=None, metadata=None, extra_anim=None):
         '''
         Saves a movie file by drawing every frame.
 
@@ -497,6 +520,14 @@ class Animation(object):
         higher quality movie, but at the cost of increased file size. If no
         value is given, this defaults to the value given by the rcparam
         `animation.bitrate`.
+
+        *extra_args* is a list of extra string arguments to be passed to the
+        underlying movie utiltiy. The default is None, which passes the
+        additional argurments in the 'animation.extra_args' rcParam.
+
+        *metadata* is a dictionary of keys and values for metadata to include
+        in the output file. Some keys that may be of use include:
+        title, artist, genre, subject, copyright, srcform, comment.
 
         *extra_anim* is a list of additional `Animation` objects that should
         be included in the saved movie file. These need to be from the same
@@ -539,7 +570,8 @@ class Animation(object):
         # registered class.
         if is_string_like(writer):
             if writer in writers.avail:
-                writer = writers[writer](fps, codec, bitrate)
+                writer = writers[writer](fps, codec, bitrate,
+                    extra_args=extra_args, metadata=metadata)
             else:
                 import warnings
                 warnings.warn("MovieWriter %s unavailable" % writer)
