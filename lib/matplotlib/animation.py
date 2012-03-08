@@ -30,12 +30,6 @@ from matplotlib import rcParams
 # * libmng (produces swf) python wrappers: https://github.com/libming/libming
 # * Wrap x264 API: http://stackoverflow.com/questions/2940671/how-to-encode-series-of-images-into-h264-using-x264-api-c-c
 
-#Needs:
-# - Examples showing:
-#   - Passing in a MovieWriter instance
-#   - Using a movie writer's context manager to make a movie using only Agg,
-#     no GUI toolkit.
-
 
 # A registry for available MovieWriter classes
 class MovieWriterRegistry(object):
