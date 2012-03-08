@@ -8,9 +8,9 @@ usable as is).  There will be some refinement of the API and the
 inside polygon detection routine.
 """
 from matplotlib.widgets import Lasso
-from matplotlib.nxutils import points_inside_poly
 from matplotlib.colors import colorConverter
 from matplotlib.collections import RegularPolyCollection
+from matplotlib import path
 
 from matplotlib.pyplot import figure, show
 from numpy import nonzero
@@ -50,7 +50,8 @@ class LassoManager:
 
     def callback(self, verts):
         facecolors = self.collection.get_facecolors()
-        ind = nonzero(points_inside_poly(self.xys, verts))[0]
+        p = path.Path(verts)
+        ind = nonzero(p.contains_points(self.xys))[0]
         for i in range(self.Nxy):
             if i in ind:
                 facecolors[i] = Datum.colorin

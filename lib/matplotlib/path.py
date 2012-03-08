@@ -12,7 +12,7 @@ from numpy import ma
 from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \
     path_in_path, path_intersects_path, convert_path_to_polygons, \
-    cleanup_path
+    cleanup_path, points_in_path
 from matplotlib.cbook import simple_linear_interpolation, maxdict
 from matplotlib import rcParams
 
@@ -280,10 +280,29 @@ class Path(object):
 
         If *transform* is not *None*, the path will be transformed
         before performing the test.
+
+        *radius* allows the path to be made slightly larger or
+        smaller.
         """
         if transform is not None:
             transform = transform.frozen()
         result = point_in_path(point[0], point[1], radius, self, transform)
+        return result
+
+    def contains_points(self, points, transform=None, radius=0.0):
+        """
+        Returns a bool array which is *True* if the path contains the
+        corresponding point.
+
+        If *transform* is not *None*, the path will be transformed
+        before performing the test.
+
+        *radius* allows the path to be made slightly larger or
+        smaller.
+        """
+        if transform is not None:
+            transform = transform.frozen()
+        result = points_in_path(points, radius, self, transform)
         return result
 
     def contains_path(self, path, transform=None):
