@@ -13,11 +13,13 @@ def pnpoly(x, y, xyverts):
 
     A point on the boundary may be treated as inside or outside.
 
-    Deprecated: Use `matplotlib.path.Path.contains_point` instead.
+    .. deprecated:: 1.2.0
+        Use :meth:`~matplotlib.path.Path.contains_point` instead.
     """
     warings.warn(
-        DeprecationWarning,
-        "nxutils is deprecated.  Use matplotlib.path.Path.contains_point instead.")
+        "nxutils is deprecated.  Use matplotlib.path.Path.contains_point"
+        " instead.",
+        DeprecationWarning)
 
     p = path.Path(xyverts)
     return p.contains_point(x, y)
@@ -36,11 +38,13 @@ def points_inside_poly(xypoints, xyverts):
 
     A point on the boundary may be treated as inside or outside.
 
-    Deprecated: Use `matplotlib.path.Path.contains_points` instead.
+    .. deprecated:: 1.2.0
+        Use :meth:`~matplotlib.path.Path.contains_points` instead.
     """
     warnings.warn(
-        DeprecationWarning,
-        "nxutils is deprecated.  Use matplotlib.path.Path.contains_points instead.")
+        "nxutils is deprecated.  Use matplotlib.path.Path.contains_points"
+        " instead.",
+        DeprecationWarning)
 
     p = path.Path(xyverts)
     return p.contains_points(xypoints)

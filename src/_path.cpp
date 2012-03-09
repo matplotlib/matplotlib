@@ -127,8 +127,9 @@ point_in_path_impl(const void* const points_, const size_t s0,
                    const size_t s1, const size_t n, T& path,
                    npy_bool* const inside_flag)
 {
-    int *yflag0, *yflag1;
-    double *vtx0, *vty0, *vtx1, *vty1;
+    int *yflag0;
+    int yflag1;
+    double vtx0, vty0, vtx1, vty1;
     double tx, ty;
     double sx, sy;
     double x, y;
@@ -137,11 +138,6 @@ point_in_path_impl(const void* const points_, const size_t s0,
     const char *const points = (const char * const)points_;
 
     yflag0 = (int *)malloc(n * sizeof(int));
-    yflag1 = (int *)malloc(n * sizeof(int));
-    vtx0 = (double *)malloc(n * sizeof(double));
-    vty0 = (double *)malloc(n * sizeof(double));
-    vtx1 = (double *)malloc(n * sizeof(double));
-    vty1 = (double *)malloc(n * sizeof(double));
 
     path.rewind(0);
 
@@ -157,17 +153,14 @@ point_in_path_impl(const void* const points_, const size_t s0,
             code = path.vertex(&x, &y);
         }
 
-        sx = x;
-        sy = y;
+        sx = vtx0 = vtx1 = x;
+        sy = vty0 = vty1 = y;
 
         for (i = 0; i < n; ++i) {
-            vtx0[i] = vtx1[i] = x;
-            vty0[i] = vty1[i] = y;
-
             ty = *(double *)(points + s0 * i + s1);
 
             // get test bit for above/below X axis
-            yflag0[i] = (vty0[i] >= ty);
+            yflag0[i] = (vty0 >= ty);
 
             inside_flag[i] = 0;
         }
@@ -192,7 +185,7 @@ point_in_path_impl(const void* const points_, const size_t s0,
                 tx = *(double *)(points + s0 * i);
                 ty = *(double *)(points + s0 * i + s1);
 
-                yflag1[i] = (vty1[i] >= ty);
+                yflag1 = (vty1 >= ty);
                 // Check if endpoints straddle (are on opposite sides) of
                 // X axis (i.e. the Y's differ); if so, +X ray could
                 // intersect this edge.  The old test also checked whether
@@ -205,7 +198,7 @@ point_in_path_impl(const void* const points_, const size_t s0,
                 // have the X intersection computed anyway).  I credit
                 // Joseph Samosky with inspiring me to try dropping the
                 // "both left or both right" part of my code.
-                if (yflag0[i] != yflag1[i]) {
+                if (yflag0[i] != yflag1) {
                     // Check intersection of pgon segment with +X ray.
                     // Note if >= point's X; if so, the ray hits it.  The
                     // division operation is avoided for the ">=" test by
@@ -213,22 +206,22 @@ point_in_path_impl(const void* const points_, const size_t s0,
                     // point; idea inspired by Joseph Samosky's and Mark
                     // Haigh-Hutchinson's different polygon inclusion
                     // tests.
-                    if (((vty1[i] - ty) * (vtx0[i] - vtx1[i]) >=
-                         (vtx1[i] - tx) * (vty0[i] - vty1[i])) == yflag1[i]) {
+                    if (((vty1 - ty) * (vtx0 - vtx1) >=
+                         (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
                         inside_flag[i] ^= 1;
                     }
                 }
 
-
                 // Move to the next pair of vertices, retaining info as
                 // possible.
-                yflag0[i] = yflag1[i];
-                vtx0[i] = vtx1[i];
-                vty0[i] = vty1[i];
-
-                vtx1[i] = x;
-                vty1[i] = y;
+                yflag0[i] = yflag1;
             }
+
+            vtx0 = vtx1;
+            vty0 = vty1;
+
+            vtx1 = x;
+            vty1 = y;
         }
         while (code != agg::path_cmd_stop &&
                (code & agg::path_cmd_end_poly) != agg::path_cmd_end_poly);
@@ -238,10 +231,10 @@ point_in_path_impl(const void* const points_, const size_t s0,
             tx = *(double *)(points + s0 * i);
             ty = *(double *)(points + s0 * i + s1);
 
-            yflag1[i] = (vty1[i] >= ty);
-            if (yflag0[i] != yflag1[i]) {
-                if (((vty1[i] - ty) * (vtx0[i] - vtx1[i]) >=
-                     (vtx1[i] - tx) * (vty0[i] - vty1[i])) == yflag1[i]) {
+            yflag1 = (vty1 >= ty);
+            if (yflag0[i] != yflag1) {
+                if (((vty1 - ty) * (vtx0 - vtx1) >=
+                     (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
                     inside_flag[i] ^= 1;
                 }
             }
@@ -260,11 +253,6 @@ point_in_path_impl(const void* const points_, const size_t s0,
  exit:
 
     free(yflag0);
-    free(yflag1);
-    free(vtx0);
-    free(vty0);
-    free(vtx1);
-    free(vty1);
 }
 
 inline void
