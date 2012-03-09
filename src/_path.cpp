@@ -376,6 +376,8 @@ _path_module::points_in_path(const Py::Tuple& args)
                      PyArray_STRIDE(points_array, 1),
                      n, r, path, trans,
                      (npy_bool *)PyArray_DATA(result));
+    Py_DECREF(points_array);
+
     return Py::Object(result, true);;
 }
 
