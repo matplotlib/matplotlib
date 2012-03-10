@@ -17,6 +17,8 @@ from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanva
 #from matplotlib.backends.backend_gtk import NavigationToolbar2GTK as NavigationToolbar
 from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 
+# implement the default mpl key bindings
+from matplotlib.backend_bases import key_press_handler
 
 win = gtk.Window()
 win.connect("destroy", lambda x: gtk.main_quit())
@@ -39,6 +41,12 @@ vbox.pack_start(canvas)
 toolbar = NavigationToolbar(canvas, win)
 vbox.pack_start(toolbar, False, False)
 
+
+def on_key_event(event):
+    print('you pressed %s'%event.key)
+    key_press_handler(event, canvas, toolbar)
+
+canvas.mpl_connect('key_press_event', on_key_event)
 
 win.show_all()
 gtk.main()
