@@ -127,7 +127,7 @@ cnames = {
     'lightcyan'            : '#E0FFFF',
     'lightgoldenrodyellow' : '#FAFAD2',
     'lightgreen'           : '#90EE90',
-    'lightgrey'            : '#D3D3D3',
+    'lightgray'            : '#D3D3D3',
     'lightpink'            : '#FFB6C1',
     'lightsalmon'          : '#FFA07A',
     'lightseagreen'        : '#20B2AA',
