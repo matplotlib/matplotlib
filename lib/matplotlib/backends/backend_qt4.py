@@ -317,8 +317,13 @@ class FigureManagerQT( FigureManagerBase ):
         image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
         self.window.setWindowIcon(QtGui.QIcon( image ))
 
-        # Give the keyboard focus to the figure instead of the manager
-        self.canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
+        # Give the keyboard focus to the figure instead of the
+        # manager; StrongFocus accepts both tab and click to focus and
+        # will enable the canvas to process event w/o clicking.
+        # ClickFocus only takes the focus is the window has been
+        # clicked
+        # on. http://developer.qt.nokia.com/doc/qt-4.8/qt.html#FocusPolicy-enum
+        self.canvas.setFocusPolicy( QtCore.Qt.StrongFocus )
         self.canvas.setFocus()
 
         QtCore.QObject.connect( self.window, QtCore.SIGNAL( 'destroyed()' ),
