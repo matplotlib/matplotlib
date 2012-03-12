@@ -1418,6 +1418,35 @@ class RectangleSelector(AxesWidget):
 
 
 class LassoSelector(AxesWidget):
+    """Selection curve of an arbitrary shape.
+
+    The selected path can be used in conjunction with
+    :function:`~matplotlib.path.Path.contains_point` to select
+    data points from an image.
+
+    In contrast to :class:`Lasso`, `LassoSelector` is written with an interface
+    similar to :class:`RectangleSelector` and :class:`SpanSelector` and will
+    continue to interact with the axes until disconnected.
+
+    Parameters:
+
+    *ax* : :class:`~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    *onselect* : function
+        Whenever the lasso is released, the `onselect` function is called and
+        passed the vertices of the selected path.
+
+    Example usage::
+
+        ax = subplot(111)
+        ax.plot(x,y)
+
+        def onselect(verts):
+            print verts
+        lasso = LassoSelector(ax, onselect)
+
+    """
+
     def __init__(self, ax, onselect=None, useblit=True, lineprops=None):
         AxesWidget.__init__(self, ax)
 
@@ -1482,6 +1511,27 @@ class LassoSelector(AxesWidget):
 
 
 class Lasso(AxesWidget):
+    """Selection curve of an arbitrary shape.
+
+    The selected path can be used in conjunction with
+    :function:`~matplotlib.path.Path.contains_point` to select
+    data points from an image.
+
+    Unlike :class:`LassoSelector`, this must be initialized with a starting
+    point `xy`, and the `Lasso` events are destroyed upon release.
+
+    Parameters:
+
+    *ax* : :class:`~matplotlib.axes.Axes`
+        The parent axes for the widget.
+    *xy* : array
+        Coordinates of the start of the lasso.
+    *callback* : function
+        Whenever the lasso is released, the `callback` function is called and
+        passed the vertices of the selected path.
+
+    """
+
     def __init__(self, ax, xy, callback=None, useblit=True):
         AxesWidget.__init__(self, ax)
 
