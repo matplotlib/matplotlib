@@ -1,7 +1,7 @@
 import numpy as np
 
 from matplotlib.widgets import LassoSelector
-from matplotlib.nxutils import points_inside_poly
+from matplotlib.path import Path
 
 
 class SelectFromCollection(object):
@@ -45,7 +45,8 @@ class SelectFromCollection(object):
         self.ind = []
 
     def onselect(self, verts):
-        self.ind = np.nonzero(points_inside_poly(self.xys, verts))[0]
+        path = Path(verts)
+        self.ind = np.nonzero([path.contains_point(xy) for xy in self.xys])[0]
         self.fc[:, -1] = self.alpha_other
         self.fc[self.ind, -1] = 1
         self.collection.set_facecolors(self.fc)
@@ -76,6 +77,6 @@ if __name__ == '__main__':
     print selector.xys[selector.ind]
     selector.disconnect()
 
-    # Block end of script so you can check that lasso is disconnected.
+    # Block end of script so you can check that the lasso is disconnected.
     raw_input('Press any key to quit')
 
