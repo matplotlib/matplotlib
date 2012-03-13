@@ -613,6 +613,7 @@ grestore
 
         if stroke:
             ps_cmd.append('stroke')
+        ps_cmd.extend(['grestore', '} bind def'])
 
         for vertices, code in path.iter_segments(trans, simplify=False):
             if len(vertices):
