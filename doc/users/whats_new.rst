@@ -12,6 +12,20 @@ This page just covers the highlights -- for the full story, see the
    versions 2.4 to 2.7.  matplotlib 1.2 and later require
    versions 2.6, 2.7, and 3.1 and higher.
 
+.. _whats-new-1-2:
+
+new in matplotlib-1.2
+=====================
+
+Tri-Surface Plots
+-----------------
+
+Damon McDougall added a new plotting method for the
+:mod:`~mpl_toolkits.mplot3d` toolkit called
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf`.
+
+.. plot:: mpl_examples/mplot3d/trisurf3d_demo.py
+
 .. _whats-new-1-1:
 
 new in matplotlib-1.1
