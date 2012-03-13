@@ -1,6 +1,9 @@
 2012-02-29 errorevery keyword added to errorbar to enable errorbar
            subsampling. fixes issue #600.
 
+2012-02-28 Added plot_trisurf to the mplot3d toolkit. This supports plotting
+           three dimensional surfaces on an irregular grid. - Damon McDougall
+
 2012-01-23 The radius labels in polar plots no longer use a fixed
            padding, but use a different alignment depending on the
            quadrant they are in.  This fixes numerical problems when
