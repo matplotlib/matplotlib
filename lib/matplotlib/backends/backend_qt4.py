@@ -159,8 +159,17 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         w,h = self.get_width_height()
         self.resize( w, h )
 
+        # JDH: Note the commented out code below does not work as
+        # expected, because according to Pierre Raybaut, The reason is
+        # that PyQt fails (silently) to call a method of this object
+        # just before detroying it. Using a lambda function will work,
+        # exactly the same as using a function (which is not bound to
+        # the object to be destroyed).
+        #
+        #QtCore.QObject.connect(self, QtCore.SIGNAL('destroyed()'),
+        #    self.close_event)
         QtCore.QObject.connect(self, QtCore.SIGNAL('destroyed()'),
-            self.close_event)
+                               lambda: self.close_event())
 
     def __timerEvent(self, event):
         # hide until we can test and fix
