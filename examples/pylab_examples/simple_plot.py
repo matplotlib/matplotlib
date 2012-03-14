@@ -17,6 +17,5 @@ plt.xlabel('time (s)')
 plt.ylabel('voltage (mV)')
 plt.title('About as simple as it gets, folks')
 plt.grid(True)
-plt.savefig('simple_plot')
 
 plt.show()
