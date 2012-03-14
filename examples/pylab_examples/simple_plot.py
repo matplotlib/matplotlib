@@ -1,12 +1,22 @@
-from pylab import *
+#!/usr/bin/env python
+"""
+Example: simple line plot.
 
-t = arange(0.0, 2.0, 0.01)
-s = sin(2*pi*t)
-plot(t, s, linewidth=1.0)
+Show how to make and save a simple line plot with labels, title and
+grid
 
-xlabel('time (s)')
-ylabel('voltage (mV)')
-title('About as simple as it gets, folks')
-grid(True)
-savefig("test.png")
-show()
+"""
+import numpy as np
+import matplotlib.pyplot as plt
+
+t = np.arange(0.0, 1.0+0.01, 0.01)
+s = np.cos(2*2*np.pi*t)
+plt.plot(t, s)
+
+plt.xlabel('time (s)')
+plt.ylabel('voltage (mV)')
+plt.title('About as simple as it gets, folks')
+plt.grid(True)
+plt.savefig('simple_plot')
+
+plt.show()
