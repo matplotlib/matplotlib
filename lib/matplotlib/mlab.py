@@ -638,7 +638,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         FFTSlices[iCol] = Slices
         if preferSpeedOverMemory:
             FFTConjSlices[iCol] = np.conjugate(Slices)
-        Pxx[iCol] = np.divide(np.mean(abs(Slices)**2), normVal)
+        Pxx[iCol] = np.divide(np.mean(abs(Slices)**2, axis=0), normVal)
     del Slices, ind, windowVals
 
     # compute the coherences and phases for all pairs using the
@@ -656,7 +656,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
             Pxy = FFTSlices[i] * FFTConjSlices[j]
         else:
             Pxy = FFTSlices[i] * np.conjugate(FFTSlices[j])
-        if numSlices>1: Pxy = np.mean(Pxy)
+        if numSlices>1: Pxy = np.mean(Pxy, axis=0)
         #Pxy = np.divide(Pxy, normVal)
         Pxy /= normVal
         #Cxy[(i,j)] = np.divide(np.absolute(Pxy)**2, Pxx[i]*Pxx[j])
