@@ -6,8 +6,9 @@ from matplotlib import pyplot, mpl
 
 # Make a figure and axes with dimensions as desired.
 fig = pyplot.figure(figsize=(8,3))
-ax1 = fig.add_axes([0.05, 0.65, 0.9, 0.15])
-ax2 = fig.add_axes([0.05, 0.25, 0.9, 0.15])
+ax1 = fig.add_axes([0.05, 0.80, 0.9, 0.15])
+ax2 = fig.add_axes([0.05, 0.475, 0.9, 0.15])
+ax3 = fig.add_axes([0.05, 0.15, 0.9, 0.15])
 
 # Set the colormap and norm to correspond to the data for which
 # the colorbar will be used.
@@ -46,6 +47,28 @@ cb2 = mpl.colorbar.ColorbarBase(ax2, cmap=cmap,
                                      spacing='proportional',
                                      orientation='horizontal')
 cb2.set_label('Discrete intervals, some other units')
+
+# The third example illustrates the use of custom length colorbar
+# extensions, used on a colorbar with discrete intervals.
+cmap = mpl.colors.ListedColormap([[0., .4, 1.], [0., .8, 1.],
+    [1., .8, 0.], [1., .4, 0.]])
+cmap.set_over((1., 0., 0.))
+cmap.set_under((0., 0., 1.))
+
+bounds = [-1., -.5, 0., .5, 1.]
+norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+cb3 = mpl.colorbar.ColorbarBase(ax3, cmap=cmap,
+                                     norm=norm,
+                                     boundaries=[-10]+bounds+[10],
+                                     extend='both',
+                                     # Make the length of each extension
+                                     # the same as the length of the
+                                     # interior colors:
+                                     extendfrac='auto',
+                                     ticks=bounds,
+                                     spacing='uniform',
+                                     orientation='horizontal')
+cb3.set_label('Custom extension lengths, some other units')
 
 pyplot.show()
 

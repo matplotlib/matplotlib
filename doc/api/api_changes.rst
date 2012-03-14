@@ -51,6 +51,9 @@ Changes in 1.2.x
   matplotlib axes by providing a ``_as_mpl_axes`` method. See
   :ref:`adding-new-scales` for more detail.
 
+* A new keyword *extendfrac* in :meth:`~matplotlib.pyplot.colorbar` and
+  :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the size of
+  the triangular minimum and maximum extensions on colorbars.
 
 Changes in 1.1.x
 ================
