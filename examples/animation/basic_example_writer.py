@@ -1,5 +1,6 @@
 # Same as basic_example, but writes files using a single MovieWriter instance
 # without putting on screen
+# -*- noplot -*-
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
