@@ -1,10 +1,20 @@
+# Same as basic_example, but writes files using a single MovieWriter instance
+# without putting on screen
+# -*- noplot -*-
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 def update_line(num, data, line):
     line.set_data(data[...,:num])
     return line,
+
+# Set up formatting for the movie files
+Writer = animation.writers['ffmpeg']
+writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+
 
 fig1 = plt.figure()
 
@@ -16,7 +26,7 @@ plt.xlabel('x')
 plt.title('test')
 line_ani = animation.FuncAnimation(fig1, update_line, 25, fargs=(data, l),
     interval=50, blit=True)
-#line_ani.save('lines.mp4')
+line_ani.save('lines.mp4', writer=writer)
 
 fig2 = plt.figure()
 
@@ -29,6 +39,4 @@ for add in np.arange(15):
 
 im_ani = animation.ArtistAnimation(fig2, ims, interval=50, repeat_delay=3000,
     blit=True)
-#im_ani.save('im.mp4', metadata={'artist':'Guido'})
-
-plt.show()
+im_ani.save('im.mp4', writer=writer)
