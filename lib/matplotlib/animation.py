@@ -67,9 +67,9 @@ class MovieWriter(object):
     This class is set up to provide for writing movie frame data to a pipe.
     saving() is provided as a context manager to facilitate this process as::
 
-    ``  with moviewriter.saving('myfile.mp4'):
-            # Iterate over frames
-            moviewriter.grab_frame()``
+      with moviewriter.saving('myfile.mp4'):
+          # Iterate over frames
+          moviewriter.grab_frame()
 
     The use of the context manager ensures that setup and cleanup are
     performed as necessary.
@@ -341,7 +341,7 @@ class FFMpegBase:
         # The %dk adds 'k' as a suffix so that ffmpeg treats our bitrate as in
         # kbps
         args = ['-vcodec', self.codec]
-	if self.bitrate > 0:
+        if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])
         if self.extra_args:
             args.extend(self.extra_args)
@@ -394,7 +394,7 @@ class MencoderBase:
     def output_args(self):
         self._remap_metadata()
         args = ['-o', self.outfile, '-ovc', 'lavc', 'vcodec=%s' % self.codec]
-	if self.bitrate > 0:
+        if self.bitrate > 0:
             args.append('vbitrate=%d' % self.bitrate)
         if self.extra_args:
             args.extend(self.extra_args)
