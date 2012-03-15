@@ -542,11 +542,16 @@ class Line2D(Artist):
                 if type(snap) == float:
                     snap = renderer.points_to_pixels(self._markersize) >= snap
                 gc.set_snap(snap)
+                gc.set_joinstyle(marker.get_joinstyle())
+                gc.set_capstyle(marker.get_capstyle())
                 marker_path = marker.get_path()
                 marker_trans = marker.get_transform()
                 w = renderer.points_to_pixels(self._markersize)
-                if marker.get_marker() != ',': # Don't scale for pixels
+                if marker.get_marker() != ',':
+                    # Don't scale for pixels, and don't stroke them
                     marker_trans = marker_trans.scale(w)
+                else:
+                    gc.set_linewidth(0)
                 renderer.draw_markers(
                     gc, marker_path, marker_trans, subsampled, affine.frozen(),
                     rgbFace)

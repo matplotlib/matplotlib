@@ -63,7 +63,7 @@ class PolarAxes(Axes):
 
             t *= theta_direction
             t += theta_offset
-            
+
             if rmin != 0:
                 r = r - rmin
                 mask = r < 0
@@ -150,7 +150,7 @@ class PolarAxes(Axes):
                 rmin = 0
                 theta_offset = 0
                 theta_direction = 1
-            
+
             x = xy[:, 0:1]
             y = xy[:, 1:]
             r = np.sqrt(x*x + y*y)
@@ -161,7 +161,7 @@ class PolarAxes(Axes):
             theta *= theta_direction
 
             r += rmin
-            
+
             return np.concatenate((theta, r), 1)
         transform.__doc__ = Transform.transform.__doc__
 
@@ -230,7 +230,6 @@ class PolarAxes(Axes):
             interpolation.
         """
 
-        self._rpad = 0.05
         self.resolution = kwargs.pop('resolution', None)
         if self.resolution not in (None, 1):
             warnings.warn(
@@ -262,7 +261,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 
         self.set_theta_offset(0)
         self.set_theta_direction(1)
-        
+
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
         self.xaxis = maxis.XAxis(self)
@@ -320,21 +319,10 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             Affine2D().scale(np.pi * 2.0, 1.0) +
             self.transData)
         # The r-axis labels are put at an angle and padded in the r-direction
-        self._r_label1_position = ScaledTranslation(
-            22.5, self._rpad,
-            blended_transform_factory(
-                Affine2D(), BboxTransformToMaxOnly(self.viewLim)))
-        self._yaxis_text1_transform = (
-            self._r_label1_position +
-            Affine2D().scale(1.0 / 360.0, 1.0) +
-            self._yaxis_transform
-            )
-        self._r_label2_position = ScaledTranslation(
-            22.5, -self._rpad,
-            blended_transform_factory(
-                Affine2D(), BboxTransformToMaxOnly(self.viewLim)))
-        self._yaxis_text2_transform = (
-            self._r_label2_position +
+        self._r_label_position = ScaledTranslation(
+            22.5, 0.0, Affine2D())
+        self._yaxis_text_transform = (
+            self._r_label_position +
             Affine2D().scale(1.0 / 360.0, 1.0) +
             self._yaxis_transform
             )
@@ -354,10 +342,26 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         return self._yaxis_transform
 
     def get_yaxis_text1_transform(self, pad):
-        return self._yaxis_text1_transform, 'center', 'center'
+        angle = self._r_label_position.to_values()[4]
+        if angle < 90.:
+            return self._yaxis_text_transform, 'bottom', 'left'
+        elif angle < 180.:
+            return self._yaxis_text_transform, 'bottom', 'right'
+        elif angle < 270.:
+            return self._yaxis_text_transform, 'top', 'right'
+        else:
+            return self._yaxis_text_transform, 'top', 'left'
 
     def get_yaxis_text2_transform(self, pad):
-        return self._yaxis_text2_transform, 'center', 'center'
+        angle = self._r_label_position.to_values()[4]
+        if angle < 90.:
+            return self._yaxis_text_transform, 'top', 'right'
+        elif angle < 180.:
+            return self._yaxis_text_transform, 'top', 'left'
+        elif angle < 270.:
+            return self._yaxis_text_transform, 'bottom', 'left'
+        else:
+            return self._yaxis_text_transform, 'bottom', 'right'
 
     def _gen_axes_patch(self):
         return Circle((0.5, 0.5), 0.5)
@@ -407,7 +411,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             'E': 0,
             'NE': np.pi * 0.25 }
         return self.set_theta_offset(mapping[loc])
-    
+
     def set_theta_direction(self, direction):
         """
         Set the direction in which theta increases.
@@ -438,7 +442,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
            Theta increases in the counterclockwise direction
         """
         return self._direction
-        
+
     def set_rlim(self, *args, **kwargs):
         if 'rmin' in kwargs:
             kwargs['ymin'] = kwargs.pop('rmin')
@@ -497,7 +501,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
 
     @docstring.dedent_interpd
-    def set_rgrids(self, radii, labels=None, angle=None, rpad=None, fmt=None,
+    def set_rgrids(self, radii, labels=None, angle=None, fmt=None,
                    **kwargs):
         """
         Set the radial locations and labels of the *r* grids.
@@ -509,9 +513,6 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         labels to use at each radius.
 
         If *labels* is None, the built-in formatter will be used.
-
-        *rpad* is a fraction of the max of *radii* which will pad each of
-        the radial labels in the radial direction.
 
         Return value is a list of tuples (*line*, *label*), where
         *line* is :class:`~matplotlib.lines.Line2D` instances and the
@@ -536,13 +537,9 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         elif fmt is not None:
             self.yaxis.set_major_formatter(FormatStrFormatter(fmt))
         if angle is None:
-            angle = self._r_label1_position.to_values()[4]
-        if rpad is not None:
-            self._rpad = rpad
-        self._r_label1_position._t = (angle, self._rpad)
-        self._r_label1_position.invalidate()
-        self._r_label2_position._t = (angle, -self._rpad)
-        self._r_label2_position.invalidate()
+            angle = self._r_label_position.to_values()[4]
+        self._r_label_position._t = (angle, 0.0)
+        self._r_label_position.invalidate()
         for t in self.yaxis.get_ticklabels():
             t.update(kwargs)
         return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
@@ -594,7 +591,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         return True
 
     def start_pan(self, x, y, button):
-        angle = self._r_label1_position.to_values()[4] / 180.0 * np.pi
+        angle = np.deg2rad(self._r_label_position.to_values()[4])
         mode = ''
         if button == 1:
             epsilon = np.pi / 45.0
@@ -608,7 +605,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             rmax          = self.get_rmax(),
             trans         = self.transData.frozen(),
             trans_inverse = self.transData.inverted().frozen(),
-            r_label_angle = self._r_label1_position.to_values()[4],
+            r_label_angle = self._r_label_position.to_values()[4],
             x             = x,
             y             = y,
             mode          = mode
@@ -633,11 +630,16 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
                 dt = dt0 * -1.0
             dt = (dt / np.pi) * 180.0
 
-            rpad = self._rpad
-            self._r_label1_position._t = (p.r_label_angle - dt, rpad)
-            self._r_label1_position.invalidate()
-            self._r_label2_position._t = (p.r_label_angle - dt, -rpad)
-            self._r_label2_position.invalidate()
+            self._r_label_position._t = (p.r_label_angle - dt, 0.0)
+            self._r_label_position.invalidate()
+
+            trans, vert1, horiz1 = self.get_yaxis_text1_transform(0.0)
+            trans, vert2, horiz2 = self.get_yaxis_text2_transform(0.0)
+            for t in self.yaxis.majorTicks + self.yaxis.minorTicks:
+                t.label1.set_va(vert1)
+                t.label1.set_ha(horiz1)
+                t.label2.set_va(vert2)
+                t.label2.set_ha(horiz2)
 
         elif p.mode == 'zoom':
             startt, startr = p.trans_inverse.transform_point((p.x, p.y))
@@ -760,5 +762,4 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
 #             result = self.transform(result)
 #             return mpath.Path(result, codes)
 #         transform_path_non_affine = transform_path
-
 

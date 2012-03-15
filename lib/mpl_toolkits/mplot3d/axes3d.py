@@ -1572,7 +1572,7 @@ class Axes3D(Axes):
         return linec
 
     def plot_trisurf(self, X, Y, Z, *args, **kwargs):
-        '''
+        """
         ============= ================================================
         Argument      Description
         ============= ================================================
@@ -1587,7 +1587,10 @@ class Axes3D(Axes):
 
         Other arguments are passed on to
         :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
-        '''
+
+        .. versionadded:: 1.2.0
+            This plotting function was added for the v1.2.0 release.
+        """
 
         had_data = self.has_data()
 

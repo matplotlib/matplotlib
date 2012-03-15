@@ -33,6 +33,8 @@ public:
     {
         add_varargs_method("point_in_path", &_path_module::point_in_path,
                            "point_in_path(x, y, path, trans)");
+        add_varargs_method("points_in_path", &_path_module::points_in_path,
+                           "points_in_path(points, path, trans)");
         add_varargs_method("point_on_path", &_path_module::point_on_path,
                            "point_on_path(x, y, r, path, trans)");
         add_varargs_method("get_path_extents", &_path_module::get_path_extents,
@@ -66,6 +68,7 @@ public:
 
 private:
     Py::Object point_in_path(const Py::Tuple& args);
+    Py::Object points_in_path(const Py::Tuple& args);
     Py::Object point_on_path(const Py::Tuple& args);
     Py::Object get_path_extents(const Py::Tuple& args);
     Py::Object update_path_extents(const Py::Tuple& args);
@@ -119,16 +122,28 @@ private:
 // Input 2D polygon _pgon_ with _numverts_ number of vertices and test point
 // _point_, returns 1 if inside, 0 if outside.
 template<class T>
-bool
-point_in_path_impl(const double tx, const double ty, T& path)
+static void
+point_in_path_impl(const void* const points_, const size_t s0,
+                   const size_t s1, const size_t n, T& path,
+                   npy_bool* const inside_flag)
 {
-    int yflag0, yflag1, inside_flag;
-    double vtx0, vty0, vtx1, vty1, sx, sy;
+    int *yflag0;
+    int yflag1;
+    double vtx0, vty0, vtx1, vty1;
+    double tx, ty;
+    double sx, sy;
     double x, y;
+    size_t i;
+    int all_done;
+    const char *const points = (const char * const)points_;
+
+    yflag0 = (int *)malloc(n * sizeof(int));
 
     path.rewind(0);
 
-    inside_flag = 0;
+    for (i = 0; i < n; ++i) {
+        inside_flag[i] = 0;
+    }
 
     unsigned code = 0;
     do
@@ -138,23 +153,25 @@ point_in_path_impl(const double tx, const double ty, T& path)
             code = path.vertex(&x, &y);
         }
 
-        sx = vtx0 = x;
-        sy = vty0 = y;
+        sx = vtx0 = vtx1 = x;
+        sy = vty0 = vty1 = y;
 
-        // get test bit for above/below X axis
-        yflag0 = (vty0 >= ty);
+        for (i = 0; i < n; ++i) {
+            ty = *(double *)(points + s0 * i + s1);
 
-        vtx1 = x;
-        vty1 = y;
+            // get test bit for above/below X axis
+            yflag0[i] = (vty0 >= ty);
 
-        inside_flag = 0;
+            inside_flag[i] = 0;
+        }
+
         do
         {
             code = path.vertex(&x, &y);
 
             // The following cases denote the beginning on a new subpath
             if (code == agg::path_cmd_stop ||
-                    (code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
+                (code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly)
             {
                 x = sx;
                 y = sy;
@@ -164,38 +181,42 @@ point_in_path_impl(const double tx, const double ty, T& path)
                 break;
             }
 
-            yflag1 = (vty1 >= ty);
-            // Check if endpoints straddle (are on opposite sides) of
-            // X axis (i.e. the Y's differ); if so, +X ray could
-            // intersect this edge.  The old test also checked whether
-            // the endpoints are both to the right or to the left of
-            // the test point.  However, given the faster intersection
-            // point computation used below, this test was found to be
-            // a break-even proposition for most polygons and a loser
-            // for triangles (where 50% or more of the edges which
-            // survive this test will cross quadrants and so have to
-            // have the X intersection computed anyway).  I credit
-            // Joseph Samosky with inspiring me to try dropping the
-            // "both left or both right" part of my code.
-            if (yflag0 != yflag1)
-            {
-                // Check intersection of pgon segment with +X ray.
-                // Note if >= point's X; if so, the ray hits it.  The
-                // division operation is avoided for the ">=" test by
-                // checking the sign of the first vertex wrto the test
-                // point; idea inspired by Joseph Samosky's and Mark
-                // Haigh-Hutchinson's different polygon inclusion
-                // tests.
-                if (((vty1 - ty) * (vtx0 - vtx1) >=
-                        (vtx1 - tx) * (vty0 - vty1)) == yflag1)
-                {
-                    inside_flag ^= 1;
+            for (i = 0; i < n; ++i) {
+                tx = *(double *)(points + s0 * i);
+                ty = *(double *)(points + s0 * i + s1);
+
+                yflag1 = (vty1 >= ty);
+                // Check if endpoints straddle (are on opposite sides) of
+                // X axis (i.e. the Y's differ); if so, +X ray could
+                // intersect this edge.  The old test also checked whether
+                // the endpoints are both to the right or to the left of
+                // the test point.  However, given the faster intersection
+                // point computation used below, this test was found to be
+                // a break-even proposition for most polygons and a loser
+                // for triangles (where 50% or more of the edges which
+                // survive this test will cross quadrants and so have to
+                // have the X intersection computed anyway).  I credit
+                // Joseph Samosky with inspiring me to try dropping the
+                // "both left or both right" part of my code.
+                if (yflag0[i] != yflag1) {
+                    // Check intersection of pgon segment with +X ray.
+                    // Note if >= point's X; if so, the ray hits it.  The
+                    // division operation is avoided for the ">=" test by
+                    // checking the sign of the first vertex wrto the test
+                    // point; idea inspired by Joseph Samosky's and Mark
+                    // Haigh-Hutchinson's different polygon inclusion
+                    // tests.
+                    if (((vty1 - ty) * (vtx0 - vtx1) >=
+                         (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
+                        inside_flag[i] ^= 1;
+                    }
                 }
+
+                // Move to the next pair of vertices, retaining info as
+                // possible.
+                yflag0[i] = yflag1;
             }
 
-            // Move to the next pair of vertices, retaining info as
-            // possible.
-            yflag0 = yflag1;
             vtx0 = vtx1;
             vty0 = vty1;
 
@@ -205,38 +226,55 @@ point_in_path_impl(const double tx, const double ty, T& path)
         while (code != agg::path_cmd_stop &&
                (code & agg::path_cmd_end_poly) != agg::path_cmd_end_poly);
 
-        yflag1 = (vty1 >= ty);
-        if (yflag0 != yflag1)
-        {
-            if (((vty1 - ty) * (vtx0 - vtx1) >=
-                    (vtx1 - tx) * (vty0 - vty1)) == yflag1)
-            {
-                inside_flag ^= 1;
+        all_done = 1;
+        for (i = 0; i < n; ++i) {
+            tx = *(double *)(points + s0 * i);
+            ty = *(double *)(points + s0 * i + s1);
+
+            yflag1 = (vty1 >= ty);
+            if (yflag0[i] != yflag1) {
+                if (((vty1 - ty) * (vtx0 - vtx1) >=
+                     (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
+                    inside_flag[i] ^= 1;
+                }
+            }
+
+            if (inside_flag[i] == 0) {
+                all_done = 0;
             }
         }
 
-        if (inside_flag != 0)
-        {
-            return true;
+        if (all_done) {
+            goto exit;
         }
     }
     while (code != agg::path_cmd_stop);
 
-    return (inside_flag != 0);
+ exit:
+
+    free(yflag0);
 }
 
-inline bool
-point_in_path(double x, double y, double r, PathIterator& path,
-              const agg::trans_affine& trans)
+inline void
+points_in_path(const void* const points, const size_t s0,
+               const size_t s1, const size_t n,
+               const double r, PathIterator& path,
+               const agg::trans_affine& trans,
+               npy_bool* result)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> no_nans_t;
     typedef agg::conv_curve<no_nans_t> curve_t;
     typedef agg::conv_contour<curve_t> contour_t;
 
+    size_t i;
+    for (i = 0; i < n; ++i) {
+        result[i] = 0;
+    }
+
     if (path.total_vertices() < 3)
     {
-        return false;
+        return;
     }
 
     transformed_path_t trans_path(path, trans);
@@ -244,12 +282,29 @@ point_in_path(double x, double y, double r, PathIterator& path,
     curve_t curved_path(no_nans_path);
     contour_t contoured_path(curved_path);
     contoured_path.width(fabs(r));
-    return point_in_path_impl(x, y, contoured_path);
+    point_in_path_impl(points, s0, s1, n, contoured_path, result);
 }
 
 inline bool
-point_on_path(double x, double y, double r, PathIterator& path,
-              const agg::trans_affine& trans)
+point_in_path(const double x, const double y, const double r,
+              PathIterator& path, const agg::trans_affine& trans)
+{
+    double points[2];
+    npy_bool result;
+
+    points[0] = x;
+    points[1] = y;
+
+    points_in_path(points, 0, sizeof(double), 1, r, path, trans, &result);
+    return result;
+}
+
+inline void
+points_on_path(const void* const points, const size_t s0,
+               const size_t s1, const size_t n,
+               const double r, PathIterator& path,
+               const agg::trans_affine& trans,
+               npy_bool* result)
 {
     typedef agg::conv_transform<PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> no_nans_t;
@@ -261,32 +316,74 @@ point_on_path(double x, double y, double r, PathIterator& path,
     curve_t curved_path(nan_removed_path);
     stroke_t stroked_path(curved_path);
     stroked_path.width(r * 2.0);
-    return point_in_path_impl(x, y, stroked_path);
+    point_in_path_impl(points, s0, s1, n, stroked_path, result);
+}
+
+inline bool
+point_on_path(const double x, const double y, const double r,
+              PathIterator& path, const agg::trans_affine& trans)
+{
+    double points[2];
+    npy_bool result;
+
+    points[0] = x;
+    points[1] = y;
+
+    points_on_path(points, 0, sizeof(double), 1, r, path, trans, &result);
+    return result;
 }
 
 Py::Object
 _path_module::point_in_path(const Py::Tuple& args)
 {
-    args.verify_length(5);
-
     double x = Py::Float(args[0]);
     double y = Py::Float(args[1]);
     double r = Py::Float(args[2]);
     PathIterator path(args[3]);
     agg::trans_affine trans = py_to_agg_transformation_matrix(args[4].ptr(), false);
 
-    if (::point_in_path(x, y, r, path, trans))
-    {
+    if (::point_in_path(x, y, r, path, trans)) {
         return Py::Int(1);
     }
     return Py::Int(0);
 }
 
 Py::Object
+_path_module::points_in_path(const Py::Tuple& args)
+{
+    args.verify_length(4);
+
+    npy_intp n;
+    PyArrayObject* points_array;
+    points_array = (PyArrayObject*)PyArray_FromObject(args[0].ptr(), PyArray_DOUBLE, 2, 2);
+    if (points_array == NULL || PyArray_DIM(points_array, 1) != 2) {
+        throw Py::TypeError(
+            "Argument 0 to points_in_path must be an Nx2 numpy array");
+
+    }
+    double r = Py::Float(args[1]);
+    PathIterator path(args[2]);
+    agg::trans_affine trans = py_to_agg_transformation_matrix(args[3].ptr(), false);
+
+    n = PyArray_DIM(points_array, 0);
+    PyObject* result = PyArray_ZEROS(1, &n, PyArray_BOOL, 0);
+    if (result == NULL) {
+        throw Py::MemoryError("Could not allocate memory for result");
+    }
+
+    ::points_in_path(PyArray_DATA(points_array),
+                     PyArray_STRIDE(points_array, 0),
+                     PyArray_STRIDE(points_array, 1),
+                     n, r, path, trans,
+                     (npy_bool *)PyArray_DATA(result));
+    Py_DECREF(points_array);
+
+    return Py::Object(result, true);;
+}
+
+Py::Object
 _path_module::point_on_path(const Py::Tuple& args)
 {
-    args.verify_length(5);
-
     double x = Py::Float(args[0]);
     double y = Py::Float(args[1]);
     double r = Py::Float(args[2]);

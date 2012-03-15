@@ -4,21 +4,20 @@ of the selected points.  A callback is used to change the color of the
 selected points
 
 This is currently a proof-of-concept implementation (though it is
-usable as is).  There will be some refinement of the API and the
-inside polygon detection routine.
+usable as is).  There will be some refinement of the API.
 """
 from matplotlib.widgets import Lasso
-from matplotlib.nxutils import points_inside_poly
 from matplotlib.colors import colorConverter
 from matplotlib.collections import RegularPolyCollection
+from matplotlib import path
 
-from matplotlib.pyplot import figure, show
+import matplotlib.pyplot as plt
 from numpy import nonzero
 from numpy.random import rand
 
-class Datum:
+class Datum(object):
     colorin = colorConverter.to_rgba('red')
-    colorout = colorConverter.to_rgba('green')
+    colorout = colorConverter.to_rgba('blue')
     def __init__(self, x, y, include=False):
         self.x = x
         self.y = y
@@ -26,7 +25,7 @@ class Datum:
         else: self.color = self.colorout
 
 
-class LassoManager:
+class LassoManager(object):
     def __init__(self, ax, data):
         self.axes = ax
         self.canvas = ax.figure.canvas
@@ -46,13 +45,13 @@ class LassoManager:
         ax.add_collection(self.collection)
 
         self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
-        self.ind = None
 
     def callback(self, verts):
         facecolors = self.collection.get_facecolors()
-        ind = nonzero(points_inside_poly(self.xys, verts))[0]
-        for i in range(self.Nxy):
-            if i in ind:
+        p = path.Path(verts)
+        ind = p.contains_points(self.xys)
+        for i in range(len(self.xys)):
+            if ind[i]:
                 facecolors[i] = Datum.colorin
             else:
                 facecolors[i] = Datum.colorout
@@ -60,7 +59,7 @@ class LassoManager:
         self.canvas.draw_idle()
         self.canvas.widgetlock.release(self.lasso)
         del self.lasso
-        self.ind = ind
+
     def onpress(self, event):
         if self.canvas.widgetlock.locked(): return
         if event.inaxes is None: return
@@ -72,8 +71,7 @@ if __name__ == '__main__':
 
     data = [Datum(*xy) for xy in rand(100, 2)]
 
-    fig = figure()
-    ax = fig.add_subplot(111, xlim=(0,1), ylim=(0,1), autoscale_on=False)
+    ax = plt.axes(xlim=(0,1), ylim=(0,1), autoscale_on=False)
     lman = LassoManager(ax, data)
 
-    show()
+    plt.show()

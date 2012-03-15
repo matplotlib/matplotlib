@@ -54,6 +54,7 @@ class Sankey:
     "Sankey diagrams are a specific type of flow diagram, in which the width of
     the arrows is shown proportionally to the flow quantity.  They are typically
     used to visualize energy or material or cost transfers between processes."
+
     --http://en.wikipedia.org/wiki/Sankey_diagram, accessed 6/1/2011
     """
     def _arc(self, quadrant=0, cw=True, radius=1, center=(0,0)):
@@ -246,9 +247,9 @@ class Sankey:
 
         Optional keyword arguments:
 
-          ===============   ==========================================
+          ===============   ==========================================================
           Keyword           Description
-          ===============   ==========================================
+          ===============   ==========================================================
           *patchlabel*      label to be placed at the center of the diagram
                             Note: *label* (not *patchlabel*) will be passed to
                             the patch through **kwargs and can be used to create
@@ -293,9 +294,9 @@ class Sankey:
                             will be rotated accordingly (e.g., if *rotation*
                             == 90, an *orientations* entry of 1 means to/from
                             the left).
-          ===============   ==========================================
+          ===============   ==========================================================
 
-        Valid kwargs are :meth:`~matplotlib.patches.PathPatch` arguments:
+        Valid kwargs are :meth:`matplotlib.patches.PathPatch` arguments:
         %(PathPatch)s
         As examples, *fill*=False and *label*="A legend entry".  By default,
         *facecolor*='#bfd1d4' (light blue) and *lineweight*=0.5.
@@ -664,9 +665,9 @@ class Sankey:
         Return value is a list of subdiagrams represented with the following
         fields:
 
-          ===============   ==========================================
+          ===============   =====================================================
           Field             Description
-          ===============   ==========================================
+          ===============   =====================================================
           *patch*           Sankey outline (an instance of
                             :class:`~maplotlib.patches.PathPatch`)
           *flows*           values of the flows (positive for input, negative
@@ -689,7 +690,7 @@ class Sankey:
                             label of the diagram
           *texts*           list of :class:`~matplotlib.text.Text` instances for
                             the labels of flows
-          ===============   ==========================================
+          ===============   =====================================================
 
         .. seealso::
 
@@ -718,9 +719,9 @@ class Sankey:
 
         Optional keyword arguments:
 
-          ===============   ==========================================
+          ===============   ====================================================
           Field             Description
-          ===============   ==========================================
+          ===============   ====================================================
           *ax*              axes onto which the data should be plotted
                             If *ax* isn't provided, new axes will be created.
           *scale*           scaling factor for the flows
@@ -751,7 +752,7 @@ class Sankey:
                             flows
                             The magnitude of the sum of connected flows cannot
                             be greater than *tolerance*.
-          ===============   ==========================================
+          ===============   ====================================================
 
         The optional arguments listed above are applied to all subdiagrams so
         that there is consistent alignment and formatting.

@@ -312,7 +312,8 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.leave_notify_event(self, event)
 
     def enter_notify_event(self, widget, event):
-        FigureCanvasBase.enter_notify_event(self, event)
+        x, y, state = event.window.get_pointer()
+        FigureCanvasBase.enter_notify_event(self, event, xy=(x,y))
 
     def _get_key(self, event):
         if event.keyval in self.keyvald:

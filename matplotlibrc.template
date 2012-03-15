@@ -170,8 +170,19 @@ backend      : %(backend)s
                              # correction off.  None will try and
                              # guess based on your dvipng version
 
-#text.hinting : True # If True, text will be hinted, otherwise not.  This only
-                     # affects the Agg backend.
+#text.hinting : 'auto' # May be one of the following:
+                       #   'none': Perform no hinting
+                       #   'auto': Use freetype's autohinter
+                       #   'native': Use the hinting information in the
+                       #             font file, if available, and if your
+                       #             freetype library supports it
+                       #   'either': Use the native hinting information,
+                       #             or the autohinter if none is available.
+                       # For backward compatibility, this value may also be
+                       # True === 'auto' or False === 'none'.
+text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
+                         # horizontal direction.  A value of 1 will hint to full
+                         # pixels.  A value of 2 will hint to half pixels etc.
 
 # The following settings allow you to select the fonts in math mode.
 # They map from a TeX font name to a fontconfig font pattern.

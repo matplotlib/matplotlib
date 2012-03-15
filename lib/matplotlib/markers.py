@@ -118,6 +118,8 @@ that define the shape.
         self._alt_path = None
         self._alt_transform = None
         self._snap_threshold = None
+        self._joinstyle = 'round'
+        self._capstyle = 'butt'
         self._filled = True
         self._marker_function()
 
@@ -135,6 +137,12 @@ that define the shape.
         assert fillstyle in self.fillstyles
         self._fillstyle = fillstyle
         self._recache()
+
+    def get_joinstyle(self):
+        return self._joinstyle
+
+    def get_capstyle(self):
+        return self._capstyle
 
     def get_marker(self):
         return self._marker
@@ -201,11 +209,14 @@ that define the shape.
             symstyle = marker[1]
             if symstyle == 0:
                 self._path = Path.unit_regular_polygon(numsides)
+                self._joinstyle = 'miter'
             elif symstyle == 1:
                 self._path = Path.unit_regular_star(numsides)
+                self._joinstyle = 'bevel'
             elif symstyle == 2:
                 self._path = Path.unit_regular_asterisk(numsides)
                 self._filled = False
+                self._joinstyle = 'bevel'
             elif symstyle == 3:
                 self._path = Path.unit_circle()
             self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
@@ -269,8 +280,17 @@ that define the shape.
 
     def _set_pixel(self):
         self._path = Path.unit_rectangle()
-        self._transform = Affine2D().translate(-0.5, 0.5)
-        self._snap_threshold = False
+        # Ideally, you'd want -0.5, -0.5 here, but then the snapping
+        # algorithm in the Agg backend will round this to a 2x2
+        # rectangle from (-1, -1) to (1, 1).  By offsetting it
+        # slightly, we can force it to be (0, 0) to (1, 1), which both
+        # makes it only be a single pixel and places it correctly
+        # aligned to 1-width stroking (i.e. the ticks).  This hack is
+        # the best of a number of bad alternatives, mainly because the
+        # backends are not aware of what marker is actually being used
+        # beyond just its path data.
+        self._transform = Affine2D().translate(-0.49999, -0.49999)
+        self._snap_threshold = None
 
     def _set_point(self):
         self._set_circle(reduction = self._point_size_reduction)
@@ -319,6 +339,8 @@ that define the shape.
 
             self._alt_transform = self._transform
 
+        self._joinstyle = 'miter'
+
     def _set_triangle_up(self):
         return self._set_triangle(0.0, 0)
 
@@ -351,6 +373,8 @@ that define the shape.
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
 
+        self._joinstyle = 'miter'
+
     def _set_diamond(self):
         self._transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
         self._snap_threshold = 5.0
@@ -368,6 +392,8 @@ that define the shape.
 
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
+
+        self._joinstyle = 'miter'
 
     def _set_thin_diamond(self):
         self._set_diamond()
@@ -403,6 +429,8 @@ that define the shape.
             self._alt_path = mpath_alt
             self._alt_transform = self._transform
 
+        self._joinstyle = 'miter'
+
     def _set_star(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 5.0
@@ -431,6 +459,8 @@ that define the shape.
             self._path = mpath
             self._alt_path = mpath_alt
             self._alt_transform = self._transform
+
+        self._joinstyle = 'bevel'
 
     def _set_hexagon1(self):
         self._transform = Affine2D().scale(0.5)
@@ -464,6 +494,8 @@ that define the shape.
             self._alt_path = mpath_alt
             self._alt_transform = self._transform
 
+        self._joinstyle = 'miter'
+
     def _set_hexagon2(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(30)
         self._snap_threshold = 5.0
@@ -496,6 +528,8 @@ that define the shape.
             self._alt_path = mpath_alt
             self._alt_transform = self._transform
 
+        self._joinstyle = 'miter'
+
     def _set_octagon(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 5.0
@@ -519,6 +553,8 @@ that define the shape.
             self._transform.rotate_deg(rotate)
             self._path = self._alt_path = half
             self._alt_transform = self._transform.frozen().rotate_deg(180.0)
+
+        self._joinstyle = 'miter'
 
     _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]])
     def _set_vline(self):
@@ -605,24 +641,28 @@ that define the shape.
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
+        self._joinstyle = 'miter'
 
     def _set_caretup(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(180)
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
+        self._joinstyle = 'miter'
 
     def _set_caretleft(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(270)
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
+        self._joinstyle = 'miter'
 
     def _set_caretright(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(90)
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
+        self._joinstyle = 'miter'
 
     _x_path = Path([[-1.0, -1.0], [1.0, 1.0],
                     [-1.0, 1.0], [1.0, -1.0]],

@@ -374,7 +374,7 @@ class RendererSVG(RendererBase):
             writer.end(u'pattern')
         writer.end(u'defs')
 
-    def _get_style(self, gc, rgbFace):
+    def _get_style_dict(self, gc, rgbFace):
         """
         return the style string.  style is generated from the
         GraphicsContext and rgbFace
@@ -407,7 +407,10 @@ class RendererSVG(RendererBase):
             if gc.get_capstyle() != 'projecting':
                 attrib[u'stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
 
-        return generate_css(attrib)
+        return attrib
+
+    def _get_style(self, gc, rgbFace):
+        return generate_css(self._get_style_dict(gc, rgbFace))
 
     def _get_clip(self, gc):
         cliprect = gc.get_clip_rectangle()
@@ -536,16 +539,22 @@ class RendererSVG(RendererBase):
             return
 
         writer = self.writer
-        dictkey = (id(marker_path), marker_trans)
+        path_data = self._convert_path(
+            marker_path,
+            marker_trans + Affine2D().scale(1.0, -1.0),
+            simplify=False)
+        style = self._get_style_dict(gc, rgbFace)
+        dictkey = (path_data, generate_css(style))
         oid = self._markers.get(dictkey)
+        for key in style.keys():
+            if not key.startswith('stroke'):
+                del style[key]
+        style = generate_css(style)
+
         if oid is None:
             oid = self._make_id(u'm', dictkey)
-            path_data = self._convert_path(
-                marker_path,
-                marker_trans + Affine2D().scale(1.0, -1.0),
-                simplify=False)
             writer.start(u'defs')
-            writer.element(u'path', id=oid, d=path_data)
+            writer.element(u'path', id=oid, d=path_data, style=style)
             writer.end(u'defs')
             self._markers[dictkey] = oid
 
@@ -722,7 +731,7 @@ class RendererSVG(RendererBase):
         clipid = self._get_clip(gc)
         if clipid is not None:
             # Can't apply clip-path directly to the image because the
-            # image as a transformation, which would also be applied
+            # image has a transformation, which would also be applied
             # to the clip-path
             self.writer.start(u'g', attrib={u'clip-path': u'url(#%s)' % clipid})
 

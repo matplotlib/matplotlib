@@ -1436,7 +1436,7 @@ class FigureCanvasBase(object):
         self.button_pick_id = self.mpl_connect('button_press_event',self.pick)
         self.scroll_pick_id = self.mpl_connect('scroll_event',self.pick)
         self.mouse_grabber = None # the axes currently grabbing mouse
-
+        self.toolbar = None  # NavigationToolbar2 will set me
         if False:
             ## highlight the artists that are hit
             self.mpl_connect('motion_notify_event',self.onHilite)
@@ -1693,18 +1693,27 @@ class FigureCanvasBase(object):
             the native UI event that generated the mpl event
 
         """
+
         self.callbacks.process('figure_leave_event', LocationEvent.lastevent)
         LocationEvent.lastevent = None
+        self._lastx, self._lasty = None, None
 
-    def enter_notify_event(self, guiEvent=None):
+    def enter_notify_event(self, guiEvent=None, xy=None):
         """
         Backend derived classes should call this function when entering
         canvas
 
         *guiEvent*
             the native UI event that generated the mpl event
+        *xy*
+            the coordinate location of the pointer when the canvas is
+            entered
 
         """
+        if xy is not None:
+            x, y = xy
+            self._lastx, self._lasty = x, y
+
         event = Event('figure_enter_event', self, guiEvent)
         self.callbacks.process('figure_enter_event', event)
 
@@ -2213,6 +2222,110 @@ class FigureCanvasBase(object):
         self._looping = False
 
 
+def key_press_handler(event, canvas, toolbar=None):
+    """
+    Implement the default mpl key bindings for the canvas and toolbar
+    described at :ref:`key-event-handling`
+
+    *event*
+      a :class:`KeyEvent` instance
+    *canvas*
+      a :class:`FigureCanvasBase` instance
+    *toolbar*
+      a :class:`NavigationToolbar2` instance
+
+    """
+    # these bindings happen whether you are over an axes or not
+    #if event.key == 'q':
+    #    self.destroy() # how cruel to have to destroy oneself!
+    #    return
+
+    if event.key is None:
+        return
+
+    # Load key-mappings from your matplotlibrc file.
+    fullscreen_keys = rcParams['keymap.fullscreen']
+    home_keys = rcParams['keymap.home']
+    back_keys = rcParams['keymap.back']
+    forward_keys = rcParams['keymap.forward']
+    pan_keys = rcParams['keymap.pan']
+    zoom_keys = rcParams['keymap.zoom']
+    save_keys = rcParams['keymap.save']
+    grid_keys = rcParams['keymap.grid']
+    toggle_yscale_keys = rcParams['keymap.yscale']
+    toggle_xscale_keys = rcParams['keymap.xscale']
+    all = rcParams['keymap.all_axes']
+
+    # toggle fullscreen mode (default key 'f')
+    if event.key in fullscreen_keys:
+        self.full_screen_toggle()
+
+    if toolbar is not None:
+        # home or reset mnemonic  (default key 'h', 'home' and 'r')
+        if event.key in home_keys:
+            toolbar.home()
+        # forward / backward keys to enable left handed quick navigation
+        # (default key for backward: 'left', 'backspace' and 'c')
+        elif event.key in back_keys:
+            toolbar.back()
+        # (default key for forward: 'right' and 'v')
+        elif event.key in forward_keys:
+            toolbar.forward()
+        # pan mnemonic (default key 'p')
+        elif event.key in pan_keys:
+            toolbar.pan()
+        # zoom mnemonic (default key 'o')
+        elif event.key in zoom_keys:
+            toolbar.zoom()
+        # saving current figure (default key 's')
+        elif event.key in save_keys:
+            toolbar.save_figure()
+
+    if event.inaxes is None:
+        return
+
+    # the mouse has to be over an axes to trigger these
+    # switching on/off a grid in current axes (default key 'g')
+    if event.key in grid_keys:
+        event.inaxes.grid()
+        canvas.draw()
+    # toggle scaling of y-axes between 'log and 'linear' (default key 'l')
+    elif event.key in toggle_yscale_keys:
+        ax = event.inaxes
+        scale = ax.get_yscale()
+        if scale == 'log':
+            ax.set_yscale('linear')
+            ax.figure.canvas.draw()
+        elif scale == 'linear':
+            ax.set_yscale('log')
+            ax.figure.canvas.draw()
+    # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
+    elif event.key in toggle_xscale_keys:
+        ax = event.inaxes
+        scalex = ax.get_xscale()
+        if scalex == 'log':
+            ax.set_xscale('linear')
+            ax.figure.canvas.draw()
+        elif scalex == 'linear':
+            ax.set_xscale('log')
+            ax.figure.canvas.draw()
+
+    elif (event.key.isdigit() and event.key!='0') or event.key in all:
+        # keys in list 'all' enables all axes (default key 'a'),
+        # otherwise if key is a number only enable this particular axes
+        # if it was the axes, where the event was raised
+        if not (event.key in all):
+            n = int(event.key)-1
+        for i, a in enumerate(canvas.figure.get_axes()):
+            # consider axes, in which the event was raised
+            # FIXME: Why only this axes?
+            if event.x is not None and event.y is not None \
+                   and a.in_axes(event):
+                if event.key in all:
+                    a.set_navigate(True)
+                else:
+                    a.set_navigate(i==n)
+
 
 class FigureManagerBase:
     """
@@ -2224,7 +2337,7 @@ class FigureManagerBase:
         A :class:`FigureCanvasBase` instance
 
     *num*
-        The figure nuamber
+        The figure number
     """
     def __init__(self, canvas, num):
         self.canvas = canvas
@@ -2244,97 +2357,11 @@ class FigureManagerBase:
         pass
 
     def key_press(self, event):
-
-        # these bindings happen whether you are over an axes or not
-        #if event.key == 'q':
-        #    self.destroy() # how cruel to have to destroy oneself!
-        #    return
-
-        if event.key is None:
-            return
-
-        # Load key-mappings from your matplotlibrc file.
-        fullscreen_keys = rcParams['keymap.fullscreen']
-        home_keys = rcParams['keymap.home']
-        back_keys = rcParams['keymap.back']
-        forward_keys = rcParams['keymap.forward']
-        pan_keys = rcParams['keymap.pan']
-        zoom_keys = rcParams['keymap.zoom']
-        save_keys = rcParams['keymap.save']
-        grid_keys = rcParams['keymap.grid']
-        toggle_yscale_keys = rcParams['keymap.yscale']
-        toggle_xscale_keys = rcParams['keymap.xscale']
-        all = rcParams['keymap.all_axes']
-
-        # toggle fullscreen mode (default key 'f')
-        if event.key in fullscreen_keys:
-            self.full_screen_toggle()
-
-        # home or reset mnemonic  (default key 'h', 'home' and 'r')
-        elif event.key in home_keys:
-            self.canvas.toolbar.home()
-        # forward / backward keys to enable left handed quick navigation
-        # (default key for backward: 'left', 'backspace' and 'c')
-        elif event.key in back_keys:
-            self.canvas.toolbar.back()
-        # (default key for forward: 'right' and 'v')
-        elif event.key in forward_keys:
-            self.canvas.toolbar.forward()
-        # pan mnemonic (default key 'p')
-        elif event.key in pan_keys:
-            self.canvas.toolbar.pan()
-        # zoom mnemonic (default key 'o')
-        elif event.key in zoom_keys:
-            self.canvas.toolbar.zoom()
-        # saving current figure (default key 's')
-        elif event.key in save_keys:
-            self.canvas.toolbar.save_figure()
-
-        if event.inaxes is None:
-            return
-
-        # the mouse has to be over an axes to trigger these
-        # switching on/off a grid in current axes (default key 'g')
-        if event.key in grid_keys:
-            event.inaxes.grid()
-            self.canvas.draw()
-        # toggle scaling of y-axes between 'log and 'linear' (default key 'l')
-        elif event.key in toggle_yscale_keys:
-            ax = event.inaxes
-            scale = ax.get_yscale()
-            if scale == 'log':
-                ax.set_yscale('linear')
-                ax.figure.canvas.draw()
-            elif scale == 'linear':
-                ax.set_yscale('log')
-                ax.figure.canvas.draw()
-        # toggle scaling of x-axes between 'log and 'linear' (default key 'k')
-        elif event.key in toggle_xscale_keys:
-            ax = event.inaxes
-            scalex = ax.get_xscale()
-            if scalex == 'log':
-                ax.set_xscale('linear')
-                ax.figure.canvas.draw()
-            elif scalex == 'linear':
-                ax.set_xscale('log')
-                ax.figure.canvas.draw()
-
-        elif (event.key.isdigit() and event.key!='0') or event.key in all:
-            # keys in list 'all' enables all axes (default key 'a'),
-            # otherwise if key is a number only enable this particular axes
-            # if it was the axes, where the event was raised
-            if not (event.key in all):
-                n = int(event.key)-1
-            for i, a in enumerate(self.canvas.figure.get_axes()):
-                # consider axes, in which the event was raised
-                # FIXME: Why only this axes?
-                if event.x is not None and event.y is not None \
-                       and a.in_axes(event):
-                    if event.key in all:
-                        a.set_navigate(True)
-                    else:
-                        a.set_navigate(i==n)
-
+        """
+        implement the default mpl key bindings defined at
+        :ref:`key-event-handling`
+        """
+        key_press_handler(event, self.canvas, self.canvas.toolbar)
 
     def show_popup(self, msg):
         """

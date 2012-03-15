@@ -213,7 +213,7 @@ class BboxBase(TransformNode):
     The canonical representation is as two points, with no
     restrictions on their ordering.  Convenience properties are
     provided to get the left, bottom, right and top edges and width
-    and height, but these are not stored explicity.
+    and height, but these are not stored explicitly.
     """
     is_bbox = True
     is_affine = True
@@ -1022,7 +1022,7 @@ class Transform(TransformNode):
       - :meth:`inverted` (if :meth:`has_inverse` can return True)
 
     If the transform needs to do something non-standard with
-    :class:`mathplotlib.path.Path` objects, such as adding curves
+    :class:`matplotlib.path.Path` objects, such as adding curves
     where there were once line segments, it should override:
 
       - :meth:`transform_path`
@@ -1377,11 +1377,6 @@ class Affine2DBase(AffineBase):
     input_dims = 2
     output_dims = 2
 
-    #* Redundant: Removed for performance
-    #
-    # def __init__(self):
-    #     Affine2DBase.__init__(self)
-
     def frozen(self):
         return Affine2D(self.get_matrix().copy())
     frozen.__doc__ = AffineBase.frozen.__doc__
@@ -1495,6 +1490,7 @@ class Affine2D(Affine2DBase):
           a c e
           b d f
           0 0 1
+
         """
         return Affine2D(
             np.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], np.float_)
@@ -1519,6 +1515,7 @@ class Affine2D(Affine2DBase):
           a c e
           b d f
           0 0 1
+
         """
         self._mtx = mtx
         self.invalidate()
@@ -2207,6 +2204,12 @@ class TransformedPath(TransformNode):
     the :class:`~matplotlib.path.Path`.  This cached copy is
     automatically updated when the non-affine part of the transform
     changes.
+
+    .. note::
+
+        Paths are considered immutable by this class. Any update to the
+        path's vertices/codes will not trigger a transform recomputation.
+
     """
     def __init__(self, path, transform):
         """

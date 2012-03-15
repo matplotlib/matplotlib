@@ -1043,6 +1043,7 @@ class TextWithDash(Text):
     amount in canvas units.  (default = 0)
 
     .. note::
+
         The alignment of the two objects is based on the bounding box
         of the :class:`~matplotlib.text.Text`, as obtained by
         :meth:`~matplotlib.artist.Artist.get_window_extent`.  This, in
@@ -1052,10 +1053,12 @@ class TextWithDash(Text):
         backend used.
 
     .. note::
+
         I'm not sure that I got the
         :meth:`~matplotlib.text.TextWithDash.get_window_extent` right,
         or whether that's sufficient for providing the object bounding
         box.
+
     """
     __name__ = 'textwithdash'
 
