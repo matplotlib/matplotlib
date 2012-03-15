@@ -476,7 +476,11 @@ class PdfFile(object):
                     'Parent': self.pagesObject,
                     'Resources': self.resourceObject,
                     'MediaBox': [ 0, 0, 72*width, 72*height ],
-                    'Contents': contentObject }
+                    'Contents': contentObject,
+                    'Group': {'Type': Name('Group'),
+                              'S': Name('Transparency'),
+                              'CS': Name('DeviceRGB')}
+                    }
         pageObject = self.reserveObject('page')
         self.writeObject(pageObject, thePage)
         self.pageList.append(pageObject)
