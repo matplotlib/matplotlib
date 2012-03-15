@@ -15,15 +15,416 @@
 #   * Need example that uses something like inotify or subprocess
 #   * Complex syncing examples
 # * Movies
-#   * Library to make movies?
-#   * RC parameter for config?
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
-from __future__ import print_function
-
 import itertools
-from matplotlib.cbook import iterable
+import contextlib
+import subprocess
+from matplotlib.cbook import iterable, is_string_like
 from matplotlib import verbose
+from matplotlib import rcParams
+
+# Other potential writing methods:
+# * ImageMagick convert: convert -set delay 3 -colorspace GRAY -colors 16 -dispose 1 -loop 0 -scale 50% *.png Output.gif
+# * http://pymedia.org/
+# * libmng (produces swf) python wrappers: https://github.com/libming/libming
+# * Wrap x264 API: http://stackoverflow.com/questions/2940671/how-to-encode-series-of-images-into-h264-using-x264-api-c-c
+
+
+# A registry for available MovieWriter classes
+class MovieWriterRegistry(object):
+    def __init__(self):
+        self.avail = dict()
+
+    # Returns a decorator that can be used on classes to register them under
+    # a name. As in:
+    # @register('foo')
+    # class Foo:
+    #    pass
+    def register(self, name):
+        def wrapper(writerClass):
+            if writerClass.isAvailable():
+                self.avail[name] = writerClass
+            return writerClass
+        return wrapper
+
+    def list(self):
+        ''' Get a list of available MovieWriters.'''
+        return self.avail.keys()
+
+    def __getitem__(self, name):
+        if not self.avail:
+            raise RuntimeError("No MovieWriters available!")
+        return self.avail[name]
+
+writers = MovieWriterRegistry()
+
+class MovieWriter(object):
+    '''
+    Base class for writing movies. Fundamentally, what a MovieWriter does
+    is provide is a way to grab frames by calling grab_frame(). setup()
+    is called to start the process and finish() is called afterwards.
+    This class is set up to provide for writing movie frame data to a pipe.
+    saving() is provided as a context manager to facilitate this process as::
+
+      with moviewriter.saving('myfile.mp4'):
+          # Iterate over frames
+          moviewriter.grab_frame()
+
+    The use of the context manager ensures that setup and cleanup are
+    performed as necessary.
+
+    Attributes
+    ----------
+    frame_format: string
+        The format used in writing frame data, defaults to 'rgba'
+    '''
+    def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
+            metadata=None):
+        '''
+        Construct a new MovieWriter object.
+
+        Parameters
+        ----------
+        fps: int
+            Framerate for movie.
+        codec: string or None, optional
+            The codec to use. If None (the default) the setting in the
+            rcParam `animation.codec` is used.
+        bitrate: int or None, optional
+            The bitrate for the saved movie file, which is one way to control
+            the output file size and quality. The default value is None,
+            which uses the value stored in the rcParam `animation.bitrate`.
+            A value of -1 implies that the bitrate should be determined
+            automatically by the underlying utility.
+        extra_args: list of strings or None
+            A list of extra string arguments to be passed to the underlying
+            movie utiltiy. The default is None, which passes the additional
+            argurments in the 'animation.extra_args' rcParam.
+        metadata: dict of string:string or None
+            A dictionary of keys and values for metadata to include in the 
+            output file. Some keys that may be of use include:
+            title, artist, genre, subject, copyright, srcform, comment.
+        '''
+        self.fps = fps
+        self.frame_format = 'rgba'
+
+        if codec is None:
+            self.codec = rcParams['animation.codec']
+        else:
+            self.codec = codec
+
+        if bitrate is None:
+            self.bitrate = rcParams['animation.bitrate']
+        else:
+            self.bitrate = bitrate
+
+        if extra_args is None:
+            self.extra_args = list(rcParams[self.args_key])
+        else:
+            self.extra_args = extra_args
+
+        if metadata is None:
+            self.metadata = dict()
+        else:
+            self.metadata = metadata
+
+    @property
+    def frame_size(self):
+        'A tuple (width,height) in pixels of a movie frame.'
+        width_inches, height_inches = self.fig.get_size_inches()
+        return width_inches * self.dpi, height_inches * self.dpi
+
+    def setup(self, fig, outfile, dpi, *args):
+        '''
+        Perform setup for writing the movie file.
+
+        Parameters
+        ----------
+
+        fig: `matplotlib.Figure` instance
+            The figure object that contains the information for frames
+        outfile: string
+            The filename of the resulting movie file
+        dpi: int
+            The DPI (or resolution) for the file.  This controls the size
+            in pixels of the resulting movie file.
+        '''
+        self.outfile = outfile
+        self.fig = fig
+        self.dpi = dpi
+
+        # Run here so that grab_frame() can write the data to a pipe. This
+        # eliminates the need for temp files.
+        self._run()
+
+    @contextlib.contextmanager
+    def saving(self, *args):
+        '''
+        Context manager to facilitate writing the movie file.
+
+        *args are any parameters that should be passed to setup()
+        '''
+        # This particular sequence is what contextlib.contextmanager wants
+        self.setup(*args)
+        yield
+        self.finish()
+
+    def _run(self):
+        # Uses subprocess to call the program for assembling frames into a
+        # movie file.  *args* returns the sequence of command line arguments
+        # from a few configuration options.
+        command = self._args()
+        verbose.report('MovieWriter.run: running command: %s'%' '.join(command))
+        self._proc = subprocess.Popen(command, shell=False,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            stdin=subprocess.PIPE)
+
+    def finish(self):
+        'Finish any processing for writing the movie.'
+        self.cleanup()
+
+    def grab_frame(self):
+        '''
+        Grab the image information from the figure and save as a movie frame.
+        '''
+        verbose.report('MovieWriter.grab_frame: Grabbing frame.', level='debug')
+        try:
+            # Tell the figure to save its data to the sink, using the
+            # frame format and dpi.
+            self.fig.savefig(self._frame_sink(), format=self.frame_format,
+                dpi=self.dpi)
+        except RuntimeError:
+            out, err = self._proc.communicate()
+            verbose.report('MovieWriter -- Error running proc:\n%s\n%s' % (out,
+                err), level='helpful')
+            raise
+
+    def _frame_sink(self):
+        'Returns the place to which frames should be written.'
+        return self._proc.stdin
+
+    def _args(self):
+        'Assemble list of utility-specific command-line arguments.'
+        return NotImplementedError("args needs to be implemented by subclass.")
+
+    def cleanup(self):
+        'Clean-up and collect the process used to write the movie file.'
+        out,err = self._proc.communicate()
+        verbose.report('MovieWriter -- Command stdout:\n%s' % out,
+            level='debug')
+        verbose.report('MovieWriter -- Command stderr:\n%s' % err,
+            level='debug')
+
+    @classmethod
+    def bin_path(cls):
+        '''
+        Returns the binary path to the commandline tool used by a specific
+        subclass. This is a class method so that the tool can be looked for
+        before making a particular MovieWriter subclass available.
+        '''
+        return rcParams[cls.exec_key]
+
+    @classmethod
+    def isAvailable(cls):
+        '''
+        Check to see if a MovieWriter subclass is actually available by
+        running the commandline tool.
+        '''
+        try:
+            subprocess.Popen(cls.bin_path(), shell=False,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            return True
+        except OSError:
+            return False
+
+
+class FileMovieWriter(MovieWriter):
+    '`MovieWriter` subclass that handles writing to a file.'
+    def __init__(self, *args, **kwargs):
+        MovieWriter.__init__(self, *args)
+        self.frame_format = rcParams['animation.frame_format']
+
+    def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True):
+        '''
+        Perform setup for writing the movie file.
+
+        Parameters
+        ----------
+
+        fig: `matplotlib.Figure` instance
+            The figure object that contains the information for frames
+        outfile: string
+            The filename of the resulting movie file
+        dpi: int
+            The DPI (or resolution) for the file.  This controls the size
+            in pixels of the resulting movie file.
+        frame_prefix: string, optional
+            The filename prefix to use for the temporary files. Defaults
+            to '_tmp'
+        clear_temp: bool
+            Specifies whether the temporary files should be deleted after
+            the movie is written. (Useful for debugging.) Defaults to True.
+        '''
+        self.fig = fig
+        self.outfile = outfile
+        self.dpi = dpi
+        self.clear_temp = clear_temp
+        self.temp_prefix = frame_prefix
+        self._frame_counter = 0 # used for generating sequential file names
+        self._temp_names = list()
+        self.fname_format_str = '%s%%04d.%s'
+
+    @property
+    def frame_format(self):
+        '''
+        Format (png, jpeg, etc.) to use for saving the frames, which can be
+        decided by the individual subclasses.
+        '''
+        return self._frame_format
+
+    @frame_format.setter
+    def frame_format(self, frame_format):
+        if frame_format in self.supported_formats:
+            self._frame_format = frame_format
+        else:
+            self._frame_format = self.supported_formats[0]
+
+    def _base_temp_name(self):
+        # Generates a template name (without number) given the frame format
+        # for extension and the prefix.
+        return self.fname_format_str % (self.temp_prefix, self.frame_format)
+
+    def _frame_sink(self):
+        # Creates a filename for saving using the basename and the current
+        # counter.
+        fname = self._base_temp_name() % self._frame_counter
+
+        # Save the filename so we can delete it later if necessary
+        self._temp_names.append(fname)
+        verbose.report(
+            'FileMovieWriter.frame_sink: saving frame %d to fname=%s' % (self._frame_counter, fname),
+            level='debug')
+        self._frame_counter += 1 # Ensures each created name is 'unique'
+
+        # This file returned here will be closed once it's used by savefig()
+        # because it will no longer be referenced and will be gc-ed.
+        return open(fname, 'wb')
+
+    def finish(self):
+        # Call run here now that all frame grabbing is done. All temp files
+        # are available to be assembled.
+        self._run()
+        MovieWriter.finish(self) # Will call clean-up
+
+    def cleanup(self):
+        MovieWriter.cleanup(self)
+
+        #Delete temporary files
+        if self.clear_temp:
+            import os
+            verbose.report(
+                'MovieWriter: clearing temporary fnames=%s' % str(self._temp_names),
+                level='debug')
+            for fname in self._temp_names:
+                os.remove(fname)
+
+
+# Base class of ffmpeg information. Has the config keys and the common set
+# of arguments that controls the *output* side of things.
+class FFMpegBase:
+    exec_key = 'animation.ffmpeg_path'
+    args_key = 'animation.ffmpeg_args'
+
+    @property
+    def output_args(self):
+        # The %dk adds 'k' as a suffix so that ffmpeg treats our bitrate as in
+        # kbps
+        args = ['-vcodec', self.codec]
+        if self.bitrate > 0:
+            args.extend(['-b', '%dk' % self.bitrate])
+        if self.extra_args:
+            args.extend(self.extra_args)
+        for k,v in self.metadata.items():
+            args.extend(['-metadata', '%s=%s' % (k,v)])
+
+        return args + ['-y', self.outfile]
+
+
+# Combine FFMpeg options with pipe-based writing
+@writers.register('ffmpeg')
+class FFMpegWriter(MovieWriter, FFMpegBase):
+    def _args(self):
+        # Returns the command line parameters for subprocess to use
+        # ffmpeg to create a movie using a pipe
+        return [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
+             '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format, 
+             '-r', str(self.fps), '-i', 'pipe:'] + self.output_args
+
+
+#Combine FFMpeg options with temp file-based writing
+@writers.register('ffmpeg_file')
+class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
+    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp', 'pbm', 'raw', 'rgba']
+    def _args(self):
+        # Returns the command line parameters for subprocess to use
+        # ffmpeg to create a movie using a collection of temp images
+        return [self.bin_path(), '-r', str(self.fps), '-i',
+            self._base_temp_name()] + self.output_args
+
+
+# Base class of mencoder information. Contains configuration key information
+# as well as arguments for controlling *output*
+class MencoderBase:
+    exec_key = 'animation.mencoder_path'
+    args_key = 'animation.mencoder_args'
+
+    # Mencoder only allows certain keys, other ones cause the program
+    # to fail.
+    allowed_metadata = ['name', 'artist', 'genre', 'subject', 'copyright',
+            'srcform', 'comment']
+
+    # Mencoder mandates using name, but 'title' works better with ffmpeg.
+    # If we find it, just put it's value into name
+    def _remap_metadata(self):
+        if 'title' in self.metadata:
+            self.metadata['name'] = self.metadata['title']
+
+    @property
+    def output_args(self):
+        self._remap_metadata()
+        args = ['-o', self.outfile, '-ovc', 'lavc', 'vcodec=%s' % self.codec]
+        if self.bitrate > 0:
+            args.append('vbitrate=%d' % self.bitrate)
+        if self.extra_args:
+            args.extend(self.extra_args)
+        args.extend(['-info', ':'.join('%s=%s' % (k,v)
+            for k,v in self.metadata.items() if k in self.allowed_metadata)])
+        return args
+
+
+# Combine Mencoder options with pipe-based writing
+@writers.register('mencoder')
+class MencoderWriter(MovieWriter, MencoderBase):
+    def _args(self):
+        # Returns the command line parameters for subprocess to use
+        # mencoder to create a movie
+        return [self.bin_path(), '-', '-demuxer', 'rawvideo', '-rawvideo',
+            ('w=%i:h=%i:' % self.frame_size +
+            'fps=%i:format=%s' % (self.fps, self.frame_format))] + self.output_args
+
+
+# Combine Mencoder options with temp file-based writing
+@writers.register('mencoder_file')
+class MencoderFileWriter(FileMovieWriter, MencoderBase):
+    supported_formats = ['png', 'jpeg', 'tga', 'sgi']
+    def _args(self):
+        # Returns the command line parameters for subprocess to use
+        # mencoder to create a movie
+        return [self.bin_path(),
+            'mf://%s*.%s' % (self.temp_prefix, self.frame_format), '-mf',
+            'type=%s:fps=%d' % (self.frame_format, self.fps)] + self.output_args
+
 
 class Animation(object):
     '''
@@ -85,23 +486,48 @@ class Animation(object):
         self.event_source.remove_callback(self._step)
         self.event_source = None
 
-    def save(self, filename, fps=5, codec='mpeg4', clear_temp=True,
-        frame_prefix='_tmp'):
+    def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
+            bitrate=None, extra_args=None, metadata=None, extra_anim=None):
         '''
         Saves a movie file by drawing every frame.
 
         *filename* is the output filename, eg :file:`mymovie.mp4`
 
-        *fps* is the frames per second in the movie
+        *writer* is either an instance of :class:`MovieWriter` or a string
+        key that identifies a class to use, such as 'ffmpeg' or 'mencoder'.
+        If nothing is passed, the value of the rcparam `animation.writer` is
+        used.
 
-        *codec* is the codec to be used,if it is supported by the output method.
+        *fps* is the frames per second in the movie. Defaults to None,
+        which will use the animation's specified interval to set the frames
+        per second.
 
-        *clear_temp* specifies whether the temporary image files should be
-        deleted.
+        *dpi* controls the dots per inch for the movie frames. This combined
+        with the figure's size in inches controls the size of the movie.
 
-        *frame_prefix* gives the prefix that should be used for individual
-        image files.  This prefix will have a frame number (i.e. 0001) appended
-        when saving individual frames.
+        *codec* is the video codec to be used. Not all codecs are supported
+        by a given :class:`MovieWriter`. If none is given, this defaults to the
+        value specified by the rcparam `animation.codec`.
+
+        *bitrate* specifies the amount of bits used per second in the
+        compressed movie, in kilobits per second. A higher number means a
+        higher quality movie, but at the cost of increased file size. If no
+        value is given, this defaults to the value given by the rcparam
+        `animation.bitrate`.
+
+        *extra_args* is a list of extra string arguments to be passed to the
+        underlying movie utiltiy. The default is None, which passes the
+        additional argurments in the 'animation.extra_args' rcParam.
+
+        *metadata* is a dictionary of keys and values for metadata to include
+        in the output file. Some keys that may be of use include:
+        title, artist, genre, subject, copyright, srcform, comment.
+
+        *extra_anim* is a list of additional `Animation` objects that should
+        be included in the saved movie file. These need to be from the same
+        `matplotlib.Figure` instance. Also, animation frames will just be
+        simply combined, so there should be a 1:1 correspondence between
+        the frames from the different animations.
         '''
         # Need to disconnect the first draw callback, since we'll be doing
         # draws. Otherwise, we'll end up starting the animation.
@@ -111,60 +537,58 @@ class Animation(object):
         else:
             reconnect_first_draw = False
 
-        fnames = []
+        if fps is None and hasattr(self, '_interval'):
+            # Convert interval in ms to frames per second
+            fps = 1000. / self._interval
+
+        # If the writer is None, use the rc param to find the name of the one
+        # to use
+        if writer is None:
+            writer = rcParams['animation.writer']
+
+        # Re-use the savefig DPI for ours if none is given
+        if dpi is None:
+            dpi = rcParams['savefig.dpi']
+
+        if codec is None:
+            codec = rcParams['animation.codec']
+
+        if bitrate is None:
+            bitrate = rcParams['animation.bitrate']
+
+        all_anim = [self]
+        if not extra_anim is None:
+            all_anim.extend(anim for anim in extra_anim if anim._fig is self._fig)
+
+        # If we have the name of a writer, instantiate an instance of the
+        # registered class.
+        if is_string_like(writer):
+            if writer in writers.avail:
+                writer = writers[writer](fps, codec, bitrate,
+                    extra_args=extra_args, metadata=metadata)
+            else:
+                import warnings
+                warnings.warn("MovieWriter %s unavailable" % writer)
+                writer = writers.list()[0]
+
+        verbose.report('Animation.save using %s' % type(writer), level='helpful')
         # Create a new sequence of frames for saved data. This is different
         # from new_frame_seq() to give the ability to save 'live' generated
         # frame information to be saved later.
         # TODO: Right now, after closing the figure, saving a movie won't
         # work since GUI widgets are gone. Either need to remove extra code
         # to allow for this non-existant use case or find a way to make it work.
-        for idx,data in enumerate(self.new_saved_frame_seq()):
-            #TODO: Need to see if turning off blit is really necessary
-            self._draw_next_frame(data, blit=False)
-            fname = '%s%04d.png' % (frame_prefix, idx)
-            fnames.append(fname)
-            verbose.report('Animation.save: saved frame %d to fname=%s'%(idx, fname), level='debug')
-            self._fig.savefig(fname)
-
-        self._make_movie(filename, fps, codec, frame_prefix)
-
-        #Delete temporary files
-        if clear_temp:
-            import os
-            verbose.report('Animation.save: clearing temporary fnames=%s'%str(fnames), level='debug')
-            for fname in fnames:
-                os.remove(fname)
+        with writer.saving(self._fig, filename, dpi):
+            for data in itertools.izip(*[a.new_saved_frame_seq() for a in all_anim]):
+                for anim,d in zip(all_anim, data):
+                    #TODO: Need to see if turning off blit is really necessary
+                    anim._draw_next_frame(d, blit=False)
+                writer.grab_frame()
 
         # Reconnect signal for first draw if necessary
         if reconnect_first_draw:
             self._first_draw_id = self._fig.canvas.mpl_connect('draw_event',
                 self._start)
-
-    def ffmpeg_cmd(self, fname, fps, codec, frame_prefix):
-        # Returns the command line parameters for subprocess to use
-        # ffmpeg to create a movie
-        return ['ffmpeg', '-y', '-r', str(fps), '-b', '1800k', '-i',
-            '%s%%04d.png' % frame_prefix, fname]
-
-    def mencoder_cmd(self, fname, fps, codec, frame_prefix):
-        # Returns the command line parameters for subprocess to use
-        # mencoder to create a movie
-        return ['mencoder', 'mf://%s*.png' % frame_prefix, '-mf',
-            'type=png:fps=%d' % fps, '-ovc', 'lavc', '-lavcopts',
-            'vcodec=%s' % codec, '-oac', 'copy', '-o', fname]
-
-    def _make_movie(self, fname, fps, codec, frame_prefix, cmd_gen=None):
-        # Uses subprocess to call the program for assembling frames into a
-        # movie file.  *cmd_gen* is a callable that generates the sequence
-        # of command line arguments from a few configuration options.
-        from subprocess import Popen, PIPE
-        if cmd_gen is None:
-            cmd_gen = self.ffmpeg_cmd
-        command = cmd_gen(fname, fps, codec, frame_prefix)
-        verbose.report('Animation._make_movie running command: %s'%' '.join(command))
-        proc = Popen(command, shell=False,
-            stdout=PIPE, stderr=PIPE)
-        proc.wait()
 
     def _step(self, *args):
         '''
@@ -316,12 +740,14 @@ class TimedAnimation(Animation):
         # callback to one which will then set the interval back.
         still_going = Animation._step(self, *args)
         if not still_going and self.repeat:
+            self.frame_seq = self.new_frame_seq()
             if self._repeat_delay:
                 self.event_source.remove_callback(self._step)
                 self.event_source.add_callback(self._loop_delay)
                 self.event_source.interval = self._repeat_delay
-            self.frame_seq = self.new_frame_seq()
-            return True
+                return True
+            else:
+                return Animation._step(self, *args)
         else:
             return still_going
 
@@ -337,6 +763,7 @@ class TimedAnimation(Animation):
         self.event_source.remove_callback(self._loop_delay)
         self.event_source.interval = self._interval
         self.event_source.add_callback(self._step)
+        Animation._step(self)
 
 
 class ArtistAnimation(TimedAnimation):
