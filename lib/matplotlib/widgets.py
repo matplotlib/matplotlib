@@ -307,11 +307,15 @@ class Slider(Widget):
                 return
             val = self.valmax
 
-        if self.slidermin is not None:
-            if val<=self.slidermin.val: return
+        if self.slidermin is not None and val <= self.slidermin.val:
+            if not self.closedmin:
+                return
+            val = self.slidermin.val
 
-        if self.slidermax is not None:
-            if val>=self.slidermax.val: return
+        if self.slidermax is not None and val >= self.slidermax.val:
+            if not self.closedmax:
+                return
+            val = self.slidermax.val
 
         self.set_val(val)
 
