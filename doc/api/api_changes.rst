@@ -11,7 +11,7 @@ help figure out possible sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
-Changes in 1.1.x
+Changes in 1.2.x
 ================
 * Use of :func:`matplotlib.projections.projection_factory` is now deprecated
   in favour of axes class identification using 
@@ -23,6 +23,10 @@ Changes in 1.1.x
   This change means that third party objects can expose themselves as 
   matplotlib axes by providing a ``_as_mpl_axes`` method (see 
   :ref:`adding-new-scales` for more detail).
+
+
+Changes in 1.1.x
+================
 
 * Added new :class:`matplotlib.sankey.Sankey` for generating Sankey diagrams.
 
