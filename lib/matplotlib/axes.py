@@ -3700,7 +3700,7 @@ class Axes(martist.Artist):
         heights of the lines are determined by *ymin* and *ymax*.
 
         *colors* :
-          A line collection`s color args, either a single color
+          A line collection's color args, either a single color
           or a ``len(x)`` list of colors
 
         *linestyles* : [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
