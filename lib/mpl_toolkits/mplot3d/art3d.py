@@ -183,6 +183,7 @@ class Line3DCollection(LineCollection):
         segments_2d = [zip(xs, ys) for (xs, ys, zs) in xyslist]
         LineCollection.set_segments(self, segments_2d)
 
+        # FIXME
         minz = 1e9
         for (xs, ys, zs) in xyslist:
             minz = min(minz, min(zs))
@@ -300,6 +301,9 @@ class Patch3DCollection(PatchCollection):
         self._sort_zpos = val
 
     def set_3d_properties(self, zs, zdir):
+        # Force the collection to initialize the face and edgecolors
+        # just in case it is a scalarmappable with a colormap.
+        self.update_scalarmappable()
         offsets = self.get_offsets()
         if len(offsets) > 0:
             xs, ys = zip(*self.get_offsets())
@@ -416,6 +420,9 @@ class Poly3DCollection(PolyCollection):
         PolyCollection.set_verts(self, [], closed)
 
     def set_3d_properties(self):
+        # Force the collection to initialize the face and edgecolors
+        # just in case it is a scalarmappable with a colormap.
+        self.update_scalarmappable()
         self._sort_zpos = None
         self.set_zsort(True)
         self._facecolors3d = PolyCollection.get_facecolors(self)
@@ -429,7 +436,7 @@ class Poly3DCollection(PolyCollection):
         '''
         Perform the 3D projection for this object.
         '''
-
+        # FIXME: This may no longer be needed?
         if self._A is not None:
             self.update_scalarmappable()
             self._facecolors3d = self._facecolors
@@ -572,6 +579,10 @@ def get_colors(c, num):
 
 def zalpha(colors, zs):
     """Modify the alphas of the color list according to depth"""
+    # FIXME: This only works well if the points for *zs* are well-spaced
+    #        in all three dimensions. Otherwise, at certain orientations,
+    #        the min and max zs are very close together.
+    #        Should really normalize against the viewing depth.
     colors = get_colors(colors, len(zs))
     if zs.size > 0 :
         norm = Normalize(min(zs), max(zs))
