@@ -97,7 +97,7 @@ class Button(Widget):
             The button text. Accepts string.
 
         *image*
-            The image to place in the button, if not ``None``.
+            The image to place in the button, if not *None*.
             Can be any legal arg to imshow (numpy array,
             matplotlib Image instance, or PIL image).
 
@@ -202,10 +202,10 @@ class Slider(Widget):
 
       *closedmax* : whether the slider is closed on the maximum
 
-      *slidermin* : another slider - if not ``None``, this slider must be
+      *slidermin* : another slider - if not *None*, this slider must be
                      greater than *slidermin*
 
-      *slidermax* : another slider - if not ``None``, this slider must be
+      *slidermax* : another slider - if not *None*, this slider must be
                      less than *slidermax*
 
       *dragging*  : allow for mouse dragging on slider
@@ -924,12 +924,12 @@ class SpanSelector:
 
         *direction* must be 'horizontal' or 'vertical'
 
-        If *minspan* is not ``None``, ignore events smaller than *minspan*
+        If *minspan* is not *None*, ignore events smaller than *minspan*
 
         The span rectangle is drawn with *rectprops*; default::
           rectprops = dict(facecolor='red', alpha=0.5)
 
-        Set the visible attribute to ``False`` if you want to turn off
+        Set the visible attribute to *False* if you want to turn off
         the functionality of the span selector
         """
         if rectprops is None:
@@ -993,7 +993,7 @@ class SpanSelector:
 
 
     def ignore(self, event):
-        'return ``True`` if *event* should be ignored'
+        'return *True* if *event* should be ignored'
         return  event.inaxes!=self.ax or not self.visible or event.button !=1
 
     def press(self, event):
@@ -1132,7 +1132,7 @@ class RectangleSelector:
         and clear the drawn box/line. The ``pos_1`` and ``pos_2`` are
         arrays of length 2 containing the x- and y-coordinate.
 
-        If *minspanx* is not ``None`` then events smaller than *minspanx*
+        If *minspanx* is not *None* then events smaller than *minspanx*
         in x direction are ignored (it's the same for y).
 
         The rectangle is drawn with *rectprops*; default::
@@ -1156,7 +1156,7 @@ class RectangleSelector:
 
         *button* is a list of integers indicating which mouse buttons should
         be used for rectangle selection.  You can also specify a single
-        integer if only a single button is desired.  Default is ``None``,
+        integer if only a single button is desired.  Default is *None*,
         which does not limit which button can be used.
 
         Note, typically:
@@ -1221,7 +1221,7 @@ class RectangleSelector:
 
 
     def ignore(self, event):
-        'return ``True`` if *event* should be ignored'
+        'return *True* if *event* should be ignored'
         # If RectangleSelector is not active :
         if not self.active:
             return True
