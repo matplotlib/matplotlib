@@ -825,7 +825,9 @@ class Axes3D(Axes):
     def cla(self):
         """Clear axes and disable mouse button callbacks.
         """
-        self.disable_mouse_rotation()
+        # Disabling mouse interaction might have been needed a long
+        # time ago, but I can't find a reason for it now - BVR (2012-03)
+        #self.disable_mouse_rotation()
         self.zaxis.cla()
 
         # TODO: Support sharez
