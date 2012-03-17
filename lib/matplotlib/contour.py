@@ -51,7 +51,7 @@ class ContourLabeler:
 
     def clabel(self, *args, **kwargs):
         """
-        call signature::
+        Call signature::
 
           clabel(cs, **kwargs)
 
@@ -228,7 +228,7 @@ class ContourLabeler:
 
 
     def print_label(self, linecontour, labelwidth):
-        "Return False if contours are too short for a label."
+        "Return *False* if contours are too short for a label."
         lcsize = len(linecontour)
         if lcsize > 10 * labelwidth:
             return True
@@ -245,7 +245,7 @@ class ContourLabeler:
             return False
 
     def too_close(self, x, y, lw):
-        "Return True if a label is already near this location."
+        "Return *True* if a label is already near this location."
         for loc in self.labelXYs:
             d = np.sqrt((x-loc[0]) ** 2 + (y-loc[1]) ** 2)
             if d < 1.2*lw:
@@ -521,7 +521,7 @@ class ContourLabeler:
 
     def add_label(self,x,y,rotation,lev,cvalue):
         """
-        Addd contour label using Text class.
+        Add contour label using :class:`~matplotlib.text.Text` class.
         """
 
         t = self._get_label_text(x,y,rotation)
@@ -529,7 +529,7 @@ class ContourLabeler:
 
     def add_label_clabeltext(self,x,y,rotation,lev,cvalue):
         """
-        Addd contour label using ClabelText class.
+        Add contour label using :class:`ClabelText` class.
         """
         # x, y, rotation is given in pixel coordinate. Convert them to
         # the data coordinate and create a label using ClabelText
@@ -672,11 +672,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     Useful attributes:
       ax:
-        the axes object in which the contours are drawn
+        The axes object in which the contours are drawn
+
       collections:
         a silent_list of LineCollections or PolyCollections
+
       levels:
         contour levels
+
       layers:
         same as levels for line contours; half-way between
         levels for filled contours.  See _process_colors method.
@@ -684,7 +687,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     def __init__(self, ax, *args, **kwargs):
         """
         Draw contour lines or filled regions, depending on
-        whether keyword arg 'filled' is False (default) or True.
+        whether keyword arg 'filled' is *False* (default) or *True*.
 
         The first three arguments must be:
 
@@ -696,24 +699,24 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
           *allsegs*: [level0segs, level1segs, ...]
             List of all the polygon segments for all the *levels*.
-            For contour lines len(allsegs) == len(levels), and for
-            filled contour regions len(allsegs) = len(levels)-1.
+            For contour lines ``len(allsegs) == len(levels)``, and for
+            filled contour regions ``len(allsegs) = len(levels)-1``.
 
             level0segs = [polygon0, polygon1, ...]
 
             polygon0 = array_like [[x0,y0], [x1,y1], ...]
 
-          *allkinds*: None or [level0kinds, level1kinds, ...]
+          *allkinds*: *None* or [level0kinds, level1kinds, ...]
             Optional list of all the polygon vertex kinds (code types), as
             described and used in Path.   This is used to allow multiply-
             connected paths such as holes within filled polygons.
-            If not None, len(allkinds) == len(allsegs).
+            If not *None*, len(allkinds) == len(allsegs).
 
             level0kinds = [polygon0kinds, ...]
 
             polygon0kinds = [vertexcode0, vertexcode1, ...]
 
-            If allkinds is not None, usually all polygons for a particular
+            If *allkinds* is not *None*, usually all polygons for a particular
             contour level are grouped together so that
 
             level0segs = [polygon0] and level0kinds = [polygon0kinds].
@@ -837,7 +840,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
     def _process_args(self, *args, **kwargs):
         """
-        Process args and kwargs; override in derived classes.
+        Process *args* and *kwargs*; override in derived classes.
 
         Must set self.levels, self.zmin and self.zmax, and update axes
         limits.
@@ -1093,15 +1096,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
           conmin,segmin,imin,xmin,ymin,dmin = find_nearest_contour(
                      self, x, y, indices=None, pixel=True )
 
-        Optional keyword arguments::
+        Optional keyword arguments:
 
-        *indices*:
-           Indexes of contour levels to consider when looking for
-           nearest point.  Defaults to using all levels.
+          *indices*:
+            Indexes of contour levels to consider when looking for
+            nearest point.  Defaults to using all levels.
 
-        *pixel*:
-           If *True*, measure distance in pixel space, if not, measure
-           distance in axes space.  Defaults to *True*.
+          *pixel*:
+            If *True*, measure distance in pixel space, if not, measure
+            distance in axes space.  Defaults to *True*.
 
         """
 
@@ -1150,18 +1153,21 @@ class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.
 
-    User-callable method: clabel
+    User-callable method: :meth:`clabel`
 
     Useful attributes:
       ax:
-        the axes object in which the contours are drawn
+        The axes object in which the contours are drawn
+
       collections:
-        a silent_list of LineCollections or PolyCollections
+        A silent_list of LineCollections or PolyCollections
+
       levels:
-        contour levels
+        Contour levels
+
       layers:
-        same as levels for line contours; half-way between
-        levels for filled contours.  See _process_colors method.
+        Same as levels for line contours; half-way between
+        levels for filled contours.  See :meth:`_process_colors` method.
     """
     def __init__(self, ax, *args, **kwargs):
         """
@@ -1328,7 +1334,7 @@ class QuadContourSet(ContourSet):
         calls to :func:`~matplotlib.pyplot.contour`.
 
 
-        call signatures::
+        Call signatures::
 
           contour(Z)
 
@@ -1339,7 +1345,7 @@ class QuadContourSet(ContourSet):
 
           contour(X,Y,Z)
 
-        *X*, *Y* specify the (*x*, *y*) coordinates of the surface
+        *X*, *Y* specify the (x, y) coordinates of the surface
 
         ::
 
@@ -1359,7 +1365,7 @@ class QuadContourSet(ContourSet):
 
           contourf(..., V)
 
-        fill the (len(*V*)-1) regions between the values in *V*
+        fill the ``len(V)-1`` regions between the values in *V*
 
         ::
 
@@ -1377,7 +1383,7 @@ class QuadContourSet(ContourSet):
 
         Optional keyword arguments:
 
-          *colors*: [ None | string | (mpl_colors) ]
+          *colors*: [ *None* | string | (mpl_colors) ]
             If *None*, the colormap specified by cmap will be used.
 
             If a string, like 'r' or 'red', all levels will be plotted in this
@@ -1390,22 +1396,22 @@ class QuadContourSet(ContourSet):
           *alpha*: float
             The alpha blending value
 
-          *cmap*: [ None | Colormap ]
-            A cm :class:`~matplotlib.cm.Colormap` instance or
+          *cmap*: [ *None* | Colormap ]
+            A cm :class:`~matplotlib.colors.Colormap` instance or
             *None*. If *cmap* is *None* and *colors* is *None*, a
             default Colormap is used.
 
-          *norm*: [ None | Normalize ]
+          *norm*: [ *None* | Normalize ]
             A :class:`matplotlib.colors.Normalize` instance for
             scaling data values to colors. If *norm* is *None* and
             *colors* is *None*, the default linear scaling is used.
 
-          *levels* [level0, level1, ..., leveln]
+          *levels*: [level0, level1, ..., leveln]
             A list of floating point numbers indicating the level
             curves to draw; eg to draw just the zero contour pass
             ``levels=[0]``
 
-          *origin*: [ None | 'upper' | 'lower' | 'image' ]
+          *origin*: [ *None* | 'upper' | 'lower' | 'image' ]
             If *None*, the first value of *Z* will correspond to the
             lower left corner, location (0,0). If 'image', the rc
             value for ``image.origin`` will be used.
@@ -1413,7 +1419,7 @@ class QuadContourSet(ContourSet):
             This keyword is not active if *X* and *Y* are specified in
             the call to contour.
 
-          *extent*: [ None | (x0,x1,y0,y1) ]
+          *extent*: [ *None* | (x0,x1,y0,y1) ]
 
             If *origin* is not *None*, then *extent* is interpreted as
             in :func:`matplotlib.pyplot.imshow`: it gives the outer
@@ -1425,8 +1431,8 @@ class QuadContourSet(ContourSet):
             This keyword is not active if *X* and *Y* are specified in
             the call to contour.
 
-          *locator*: [ None | ticker.Locator subclass ]
-            If *locator* is None, the default
+          *locator*: [ *None* | ticker.Locator subclass ]
+            If *locator* is *None*, the default
             :class:`~matplotlib.ticker.MaxNLocator` is used. The
             locator is used to determine the contour levels if they
             are not given explicitly via the *V* argument.
@@ -1440,18 +1446,18 @@ class QuadContourSet(ContourSet):
             :meth:`matplotlib.colors.Colormap.set_under` and
             :meth:`matplotlib.colors.Colormap.set_over` methods.
 
-          *xunits*, *yunits*: [ None | registered units ]
+          *xunits*, *yunits*: [ *None* | registered units ]
             Override axis units by specifying an instance of a
             :class:`matplotlib.units.ConversionInterface`.
 
-          *antialiased*: [ True | False ]
+          *antialiased*: [ *True* | *False* ]
             enable antialiasing, overriding the defaults.  For
-            filled contours, the default is True.  For line contours,
+            filled contours, the default is *True*.  For line contours,
             it is taken from rcParams['lines.antialiased'].
 
         contour-only keyword arguments:
 
-          *linewidths*: [ None | number | tuple of numbers ]
+          *linewidths*: [ *None* | number | tuple of numbers ]
             If *linewidths* is *None*, the default width in
             ``lines.linewidth`` in ``matplotlibrc`` is used.
 
@@ -1460,7 +1466,7 @@ class QuadContourSet(ContourSet):
             If a tuple, different levels will be plotted with different
             linewidths in the order specified
 
-          *linestyles*: [None | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+          *linestyles*: [ *None* | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
             If *linestyles* is *None*, the 'solid' is used.
 
             *linestyles* can also be an iterable of the above strings
