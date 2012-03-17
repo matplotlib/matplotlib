@@ -681,13 +681,34 @@ class NonUniformImage(AxesImage):
     def make_image(self, magnification=1.0):
         if self._A is None:
             raise RuntimeError('You must first set the image array')
+
+        A = self._A
+        if len(A.shape) == 2:
+            if A.dtype != np.uint8:
+                A = self.to_rgba(A, bytes=True)
+                self.is_grayscale = self.cmap.is_gray()
+            else:
+                A = np.repeat(A[:,:,np.newaxis], 4, 2)
+                A[:,:,3] = 255
+                self.is_grayscale = True
+        else:
+            if A.dtype != np.uint8:
+                A = (255*A).astype(np.uint8)
+            if A.shape[2] == 3:
+                B = zeros(tuple(list(A.shape[0:2]) + [4]), np.uint8)
+                B[:,:,0:3] = A
+                B[:,:,3] = 255
+                A = B
+            self.is_grayscale = False
+
+
         x0, y0, v_width, v_height = self.axes.viewLim.bounds
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
         height = (round(t) + 0.5) - (round(b) - 0.5)
         width *= magnification
         height *= magnification
-        im = _image.pcolor(self._Ax, self._Ay, self._A,
+        im = _image.pcolor(self._Ax, self._Ay, A,
                            height, width,
                            (x0, x0+v_width, y0, y0+v_height),
                            self._interpd[self._interpolation])
@@ -721,23 +742,6 @@ class NonUniformImage(AxesImage):
             raise TypeError("3D arrays must have three (RGB) or four (RGBA) color components")
         if len(A.shape) == 3 and A.shape[2] == 1:
             A.shape = A.shape[0:2]
-        if len(A.shape) == 2:
-            if A.dtype != np.uint8:
-                A = self.to_rgba(A, bytes=True)
-                self.is_grayscale = self.cmap.is_gray()
-            else:
-                A = np.repeat(A[:,:,np.newaxis], 4, 2)
-                A[:,:,3] = 255
-                self.is_grayscale = True
-        else:
-            if A.dtype != np.uint8:
-                A = (255*A).astype(np.uint8)
-            if A.shape[2] == 3:
-                B = zeros(tuple(list(A.shape[0:2]) + [4]), np.uint8)
-                B[:,:,0:3] = A
-                B[:,:,3] = 255
-                A = B
-            self.is_grayscale = False
         self._A = A
         self._Ax = x
         self._Ay = y
