@@ -1,3 +1,8 @@
+2012-03-07 Refactor movie writing into useful classes that make use
+           of pipes to write image data to ffmpeg or mencoder. Also
+           improve settings for these and the ability to pass custom
+           options. - RMM
+
 2012-02-29 errorevery keyword added to errorbar to enable errorbar
            subsampling. fixes issue #600.
 
