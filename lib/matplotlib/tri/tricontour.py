@@ -155,7 +155,7 @@ class TriContourSet(ContourSet):
 
         Optional keyword arguments:
 
-          *colors*: [ None | string | (mpl_colors) ]
+          *colors*: [ *None* | string | (mpl_colors) ]
             If *None*, the colormap specified by cmap will be used.
 
             If a string, like 'r' or 'red', all levels will be plotted in this
@@ -168,12 +168,12 @@ class TriContourSet(ContourSet):
           *alpha*: float
             The alpha blending value
 
-          *cmap*: [ None | Colormap ]
-            A cm :class:`~matplotlib.cm.Colormap` instance or
+          *cmap*: [ *None* | Colormap ]
+            A cm :class:`~matplotlib.colors.Colormap` instance or
             *None*. If *cmap* is *None* and *colors* is *None*, a
             default Colormap is used.
 
-          *norm*: [ None | Normalize ]
+          *norm*: [ *None* | Normalize ]
             A :class:`matplotlib.colors.Normalize` instance for
             scaling data values to colors. If *norm* is *None* and
             *colors* is *None*, the default linear scaling is used.
@@ -183,7 +183,7 @@ class TriContourSet(ContourSet):
             curves to draw; eg to draw just the zero contour pass
             ``levels=[0]``
 
-          *origin*: [ None | 'upper' | 'lower' | 'image' ]
+          *origin*: [ *None* | 'upper' | 'lower' | 'image' ]
             If *None*, the first value of *Z* will correspond to the
             lower left corner, location (0,0). If 'image', the rc
             value for ``image.origin`` will be used.
@@ -191,7 +191,7 @@ class TriContourSet(ContourSet):
             This keyword is not active if *X* and *Y* are specified in
             the call to contour.
 
-          *extent*: [ None | (x0,x1,y0,y1) ]
+          *extent*: [ *None* | (x0,x1,y0,y1) ]
 
             If *origin* is not *None*, then *extent* is interpreted as
             in :func:`matplotlib.pyplot.imshow`: it gives the outer
@@ -203,7 +203,7 @@ class TriContourSet(ContourSet):
             This keyword is not active if *X* and *Y* are specified in
             the call to contour.
 
-          *locator*: [ None | ticker.Locator subclass ]
+          *locator*: [ *None* | ticker.Locator subclass ]
             If *locator* is None, the default
             :class:`~matplotlib.ticker.MaxNLocator` is used. The
             locator is used to determine the contour levels if they
@@ -218,14 +218,14 @@ class TriContourSet(ContourSet):
             :meth:`matplotlib.colors.Colormap.set_under` and
             :meth:`matplotlib.colors.Colormap.set_over` methods.
 
-          *xunits*, *yunits*: [ None | registered units ]
+          *xunits*, *yunits*: [ *None* | registered units ]
             Override axis units by specifying an instance of a
             :class:`matplotlib.units.ConversionInterface`.
 
 
         tricontour-only keyword arguments:
 
-          *linewidths*: [ None | number | tuple of numbers ]
+          *linewidths*: [ *None* | number | tuple of numbers ]
             If *linewidths* is *None*, the default width in
             ``lines.linewidth`` in ``matplotlibrc`` is used.
 
@@ -234,7 +234,7 @@ class TriContourSet(ContourSet):
             If a tuple, different levels will be plotted with different
             linewidths in the order specified
 
-          *linestyles*: [None | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+          *linestyles*: [ *None* | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
             If *linestyles* is *None*, the 'solid' is used.
 
             *linestyles* can also be an iterable of the above strings
@@ -249,7 +249,7 @@ class TriContourSet(ContourSet):
 
         tricontourf-only keyword arguments:
 
-          *antialiased*: [ True | False ]
+          *antialiased*: [ *True* | *False* ]
             enable antialiasing
 
           *nchunk*: [ 0 | integer ]
