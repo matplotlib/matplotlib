@@ -250,7 +250,7 @@ class Sankey:
           ===============   ==========================================================
           *patchlabel*      label to be placed at the center of the diagram
                             Note: *label* (not *patchlabel*) will be passed to
-                            the patch through `**kwargs` and can be used to create
+                            the patch through ``**kwargs`` and can be used to create
                             an entry in the legend.
           *flows*           array of flow values
                             By convention, inputs are positive and outputs are
@@ -298,8 +298,9 @@ class Sankey:
 
         %(Patch)s
 
-        As examples, `fill=False` and `label='A legend entry'`.  By default,
-        *facecolor*='#bfd1d4'` (light blue) and *linewidth*=0.5.
+        As examples, ``fill=False`` and ``label='A legend entry'``.
+        By default, ``facecolor='#bfd1d4'`` (light blue) and
+        ``linewidth=0.5``.
 
         The indexing parameters (*prior* and *connect*) are zero-based.
 
@@ -746,7 +747,7 @@ class Sankey:
         that there is consistent alignment and formatting.
 
         If :class:`Sankey` is instantiated with any keyword arguments other than
-        those explicitly listed above (`**kwargs`), they will be passed to
+        those explicitly listed above (``**kwargs``), they will be passed to
         :meth:`add`, which will create the first subdiagram.
 
         In order to draw a complex Sankey diagram, create an instance of
@@ -773,6 +774,7 @@ class Sankey:
 
             :meth:`add`
             :meth:`finish`
+
 
         **Examples:**
 
