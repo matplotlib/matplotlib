@@ -1984,8 +1984,12 @@ class FigureCanvasBase(object):
                 renderer = self.figure._cachedRenderer
                 bbox_inches = self.figure.get_tightbbox(renderer)
 
-                bb = [a.get_window_extent(renderer) for a \
-                      in kwargs.pop("bbox_extra_artists", [])]
+                bbox_extra_artists = kwargs.pop("bbox_extra_artists", None)
+                if bbox_extra_artists is None:
+                    bbox_extra_artists = self.figure.get_default_bbox_extra_artists()
+
+                bb = [a.get_window_extent(renderer) for a in bbox_extra_artists]
+                
                 if bb:
                     _bbox = Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
 
