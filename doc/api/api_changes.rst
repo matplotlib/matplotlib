@@ -11,6 +11,20 @@ help figure out possible sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+Changes in 1.2.x
+================
+* Use of :func:`matplotlib.projections.projection_factory` is now deprecated
+  in favour of axes class identification using 
+  :func:`matplotlib.projections.process_projection_requirements` followed by 
+  direct axes class invocation (at the time of writing, this is done by 
+  :meth:`matplotlib.figure.Figure.add_axes`, 
+  :meth:`matplotlib.figure.Figure.add_subplot` and 
+  :meth:`matplotlib.figure.Figure.gca`. 
+  This change means that third party objects can expose themselves as 
+  matplotlib axes by providing a ``_as_mpl_axes`` method (see 
+  :ref:`adding-new-scales` for more detail).
+
+
 Changes in 1.1.x
 ================
 

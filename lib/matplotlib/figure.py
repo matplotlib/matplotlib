@@ -27,8 +27,8 @@ from text import Text, _process_text_args
 
 from legend import Legend
 from transforms import Affine2D, Bbox, BboxTransformTo, TransformedBbox
-from projections import projection_factory, get_projection_names, \
-    get_projection_class
+from projections import get_projection_names, get_projection_class, \
+        process_projection_requirements
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 
 import matplotlib.cbook as cbook
@@ -41,11 +41,18 @@ docstring.interpd.update(projection_names = get_projection_names())
 
 class AxesStack(Stack):
     """
-    Specialization of the Stack to handle all
-    tracking of Axes in a Figure.  This requires storing
-    key, (ind, axes) pairs. The key is based on the args and kwargs
-    used in generating the Axes. ind is a serial number for tracking
-    the order in which axes were added.
+    Specialization of the Stack to handle all tracking of Axes in a Figure.
+    This stack stores ``key, (ind, axes)`` pairs, where:
+    
+        * **key** should be a hash of the args and kwargs
+          used in generating the Axes. 
+        * **ind** is a serial number for tracking the order
+          in which axes were added.
+          
+    The AxesStack is a callable, where ``ax_stack()`` returns
+    the current axes. Alternatively the :meth:`current_key_axes` will
+    return the current key and associated axes.
+    
     """
     def __init__(self):
         Stack.__init__(self)
@@ -74,9 +81,14 @@ class AxesStack(Stack):
         return (k, (ind, e))
 
     def remove(self, a):
+        """Remove the axes from the stack."""
         Stack.remove(self, self._entry_from_axes(a))
-
+    
     def bubble(self, a):
+        """
+        Move the given axes, which must already exist in the 
+        stack, to the top.
+        """
         return Stack.bubble(self, self._entry_from_axes(a))
 
     def add(self, key, a):
@@ -107,12 +119,22 @@ class AxesStack(Stack):
         self._ind += 1
         return Stack.push(self, (key, (self._ind, a)))
 
-    def __call__(self):
+    def current_key_axes(self):
+        """
+        Return a tuple of ``(key, axes)`` for the active axes.
+        
+        If no axes exists on the stack, then returns ``(None, None)``.
+                
+        """
         if not len(self._elements):
-            return self._default
+            return self._default, self._default
         else:
-            return self._elements[self._pos][1][1]
+            key, (index, axes) = self._elements[self._pos]
+            return key, axes
 
+    def __call__(self):
+        return self.current_key_axes()[1]
+    
     def __contains__(self, a):
         return a in self.as_list()
 
@@ -681,6 +703,8 @@ class Figure(Artist):
         """
         if not len(args): return
 
+        # shortcut the projection "key" modifications later on, if an axes
+        # with the exact args/kwargs exists, return it immediately.
         key = self._make_key(*args, **kwargs)
         ax = self._axstack.get(key)
         if ax is not None:
@@ -692,18 +716,19 @@ class Figure(Artist):
             assert(a.get_figure() is self)
         else:
             rect = args[0]
-            ispolar = kwargs.pop('polar', False)
-            projection = kwargs.pop('projection', None)
-            if ispolar:
-                if projection is not None and projection != 'polar':
-                    raise ValueError(
-                        "polar=True, yet projection='%s'. " +
-                        "Only one of these arguments should be supplied." %
-                        projection)
-                projection = 'polar'
-
-            a = projection_factory(projection, self, rect, **kwargs)
-
+            projection_class, kwargs, key = \
+                            process_projection_requirements(self, *args, **kwargs)
+            
+            # check that an axes of this type doesn't already exist, if it 
+            # does, set it as active and return it
+            ax = self._axstack.get(key)
+            if ax is not None and isinstance(ax, projection_class):
+                self.sca(ax)
+                return ax
+            
+            # create the new axes using the axes class given
+            a = projection_class(self, rect, **kwargs) 
+            
         self._axstack.add(key, a)
         self.sca(a)
         return a
@@ -711,13 +736,21 @@ class Figure(Artist):
     @docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
         """
-        Add a subplot.  Examples:
+        Add a subplot.  Examples::
 
             fig.add_subplot(111)
-            fig.add_subplot(1,1,1)            # equivalent but more general
-            fig.add_subplot(212, axisbg='r')  # add subplot with red background
-            fig.add_subplot(111, polar=True)  # add a polar subplot
-            fig.add_subplot(sub)              # add Subplot instance sub
+            
+            # equivalent but more general
+            fig.add_subplot(1,1,1)
+                   
+            # add subplot with red background
+            fig.add_subplot(212, axisbg='r')
+            
+            # add a polar subplot
+            fig.add_subplot(111, projection='polar')
+              
+            # add Subplot instance sub
+            fig.add_subplot(sub)                      
 
         *kwargs* are legal :class:`!matplotlib.axes.Axes` kwargs plus
         *projection*, which chooses a projection type for the axes.
@@ -741,41 +774,34 @@ class Figure(Artist):
 
         if len(args) == 1 and isinstance(args[0], int):
             args = tuple([int(c) for c in str(args[0])])
-
+        
         if isinstance(args[0], SubplotBase):
+            
             a = args[0]
             assert(a.get_figure() is self)
-            key = self._make_key(*args, **kwargs)
+            key = self._make_key(*args[1:], **kwargs)
         else:
-            kwargs = kwargs.copy()
-            ispolar = kwargs.pop('polar', False)
-            projection = kwargs.pop('projection', None)
-            if ispolar:
-                if projection is not None and projection != 'polar':
-                    raise ValueError(
-                        "polar=True, yet projection='%s'. " +
-                        "Only one of these arguments should be supplied." %
-                        projection)
-                projection = 'polar'
-
-            projection_class = get_projection_class(projection)
-
-            # Remake the key without projection kwargs:
-            key = self._make_key(*args, **kwargs)
+            projection_class, kwargs, key = \
+                        process_projection_requirements(self, *args, **kwargs)
+            
+            # try to find the axes with this key in the stack    
             ax = self._axstack.get(key)
+            
             if ax is not None:
                 if isinstance(ax, projection_class):
+                    # the axes already existed, so set it as active & return
                     self.sca(ax)
                     return ax
                 else:
-                    self._axstack.remove(ax)
                     # Undocumented convenience behavior:
                     # subplot(111); subplot(111, projection='polar')
                     # will replace the first with the second.
                     # Without this, add_subplot would be simpler and
                     # more similar to add_axes.
-
+                    self._axstack.remove(ax)                    
+            
             a = subplot_class_factory(projection_class)(self, *args, **kwargs)
+            
         self._axstack.add(key, a)
         self.sca(a)
         return a
@@ -1033,24 +1059,40 @@ class Figure(Artist):
         """
         Return the current axes, creating one if necessary
 
-        The following kwargs are supported
+        The following kwargs are supported for ensuring the returned axes
+        adheres to the given projection etc., and for axes creation if
+        the active axes does not exist:
         %(Axes)s
+        
+        .. note::
+            When specifying kwargs to ``gca`` to find the pre-created active
+            axes, they should be equivalent in every way to the kwargs which
+            were used in its creation.
+            
         """
-        ax = self._axstack()
-        if ax is not None:
-            ispolar = kwargs.get('polar', False)
-            projection = kwargs.get('projection', None)
-            if ispolar:
-                if projection is not None and projection != 'polar':
-                    raise ValueError(
-                        "polar=True, yet projection='%s'. " +
-                        "Only one of these arguments should be supplied." %
-                        projection)
-                projection = 'polar'
-
-            projection_class = get_projection_class(projection)
-            if isinstance(ax, projection_class):
-                return ax
+        ckey, cax = self._axstack.current_key_axes()
+        # if there exists an axes on the stack see if it maches 
+        # the desired axes configuration
+        if cax is not None:
+            
+            # if no kwargs are given just return the current axes
+            # this is a convenience for gca() on axes such as polar etc.
+            if not kwargs:
+                return cax
+            
+            # if the user has specified particular projection detail
+            # then build up a key which can represent this
+            else:    
+                # we don't want to modify the original kwargs
+                # so take a copy so that we can do what we like to it
+                kwargs_copy = kwargs.copy()
+                projection_class, _, key = \
+                        process_projection_requirements(self, **kwargs_copy)
+                # if the cax matches this key then return the axes, otherwise
+                # continue and a new axes will be created 
+                if key == ckey and isinstance(cax, projection_class):
+                    return cax            
+                
         return self.add_subplot(111, **kwargs)
 
     def sca(self, a):
@@ -1081,7 +1123,7 @@ class Figure(Artist):
 
           savefig(fname, dpi=None, facecolor='w', edgecolor='w',
                   orientation='portrait', papertype=None, format=None,
-                  transparent=False, bbox_inches=None, pad_inches=0.1):
+                  transparent=False, bbox_inches=None, pad_inches=0.1)
 
         Save the current figure.
 

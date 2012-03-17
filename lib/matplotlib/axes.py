@@ -954,15 +954,11 @@ class Axes(martist.Artist):
         Set the hold state.  If *hold* is *None* (default), toggle the
         *hold* state.  Else set the *hold* state to boolean value *b*.
 
-        Examples:
-
-        * toggle hold:
-          >>> hold()
-        * turn hold on:
-          >>> hold(True)
-        * turn hold off
-          >>> hold(False)
-
+        Examples::
+          
+          hold()      # toggle hold
+          hold(True)  # turn hold on
+          hold(False) # turn hold off
 
         When hold is True, subsequent plot commands will be added to
         the current axes.  When hold is False, the current axes and
@@ -3483,12 +3479,11 @@ class Axes(martist.Artist):
         Return value is a :class:`matplotlib.patches.Polygon`
         instance.
 
-        Examples:
+        Examples::
 
-        * draw a gray rectangle from *y* = 0.25-0.75 that spans the
-          horizontal extent of the axes
-
-            >>> axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
+            # draw a gray rectangle from *y* = 0.25-0.75 that spans the
+            # horizontal extent of the axes
+            axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
 
         Valid kwargs are :class:`~matplotlib.patches.Polygon` properties:
 
@@ -3539,12 +3534,11 @@ class Axes(martist.Artist):
         Return value is the :class:`matplotlib.patches.Polygon`
         instance.
 
-        Examples:
+        Examples::
 
-        * draw a vertical green translucent rectangle from x=1.25 to 1.55 that
-          spans the yrange of the axes
-
-            >>> axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
+            # draw a vertical green translucent rectangle from x=1.25 to 1.55
+            # that spans the yrange of the axes
+            axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
 
         Valid kwargs are :class:`~matplotlib.patches.Polygon`
         properties:
@@ -6927,7 +6921,7 @@ class Axes(martist.Artist):
           y = np.arange(3)
           X, Y = meshgrid(x,y)
 
-        is equivalent to:
+        is equivalent to::
 
           X = array([[0, 1, 2, 3, 4],
                      [0, 1, 2, 3, 4],
@@ -7467,11 +7461,11 @@ class Axes(martist.Artist):
         """
         call signature::
 
-          def hist(x, bins=10, range=None, normed=False, weights=None,
+          hist(x, bins=10, range=None, normed=False, weights=None,
                  cumulative=False, bottom=None, histtype='bar', align='mid',
                  orientation='vertical', rwidth=None, log=False,
                  color=None, label=None,
-                 **kwargs):
+                 **kwargs)
 
         Compute and draw the histogram of *x*. The return value is a
         tuple (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*,
