@@ -6385,6 +6385,7 @@ class Axes(martist.Artist):
 
     def fplot(self, f, limits, *args, **kwargs):
         return mfplot.fplot(self, f, limits, *args, **kwargs)
+    fplot.__doc__ = mfplot.fplot.__doc__
 
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, arrowsize=1, arrowstyle='-|>', minlength=0.1):
