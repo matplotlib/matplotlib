@@ -63,8 +63,8 @@ supported at present.
 
 Keyword arguments:
 
-  *units*: [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy']
-    arrow units; the arrow dimensions *except for length* are in
+  *units*: [ 'width' | 'height' | 'dots' | 'inches' | 'x' | 'y' | 'xy' ]
+    Arrow units; the arrow dimensions *except for length* are in
     multiples of this unit.
 
     * 'width' or 'height': the width or height of the axes
@@ -81,7 +81,7 @@ Keyword arguments:
     for 'dots' or 'inches', resizing does not change the arrows.
 
 
-   *angles*: [ 'uv' | 'xy' | array]
+  *angles*: [ 'uv' | 'xy' | array ]
     With the default 'uv', the arrow aspect ratio is 1, so that
     if *U*==*V* the angle of the arrow on the plot is 45 degrees
     CCW from the *x*-axis.
@@ -90,13 +90,13 @@ Keyword arguments:
     of values in degrees, CCW from the *x*-axis.
 
   *scale*: [ *None* | float ]
-    data units per arrow length unit, e.g. m/s per plot width; a smaller
+    Data units per arrow length unit, e.g. m/s per plot width; a smaller
     scale parameter makes the arrow longer.  If *None*, a simple
     autoscaling algorithm is used, based on the average vector length
     and the number of vectors.  The arrow length unit is given by
     the *scale_units* parameter
 
-   *scale_units*: *None*, or any of the *units* options.
+  *scale_units*: *None*, or any of the *units* options.
     For example, if *scale_units* is 'inches', *scale* is 2.0, and
     ``(u,v) = (1,0)``, then the vector will be 0.5 inches long.
     If *scale_units* is 'width', then the vector will be half the width
@@ -108,26 +108,26 @@ Keyword arguments:
     "angles='xy', scale_units='xy', scale=1".
 
   *width*:
-    shaft width in arrow units; default depends on choice of units,
+    Shaft width in arrow units; default depends on choice of units,
     above, and number of vectors; a typical starting value is about
     0.005 times the width of the plot.
 
   *headwidth*: scalar
-    head width as multiple of shaft width, default is 3
+    Head width as multiple of shaft width, default is 3
 
   *headlength*: scalar
-    head length as multiple of shaft width, default is 5
+    Head length as multiple of shaft width, default is 5
 
   *headaxislength*: scalar
-    head length at shaft intersection, default is 4.5
+    Head length at shaft intersection, default is 4.5
 
   *minshaft*: scalar
-    length below which arrow scales, in units of head length. Do not
+    Length below which arrow scales, in units of head length. Do not
     set this to less than 1, or small arrows will look terrible!
     Default is 1
 
   *minlength*: scalar
-    minimum length as a multiple of shaft width; if an arrow length
+    Minimum length as a multiple of shaft width; if an arrow length
     is less than this, plot a dot (hexagon) of this diameter instead.
     Default is 1.
 
@@ -173,7 +173,7 @@ Arguments:
     The length of the key
 
   *label*:
-    a string with the length and units of the key
+    A string with the length and units of the key
 
 Keyword arguments:
 
@@ -217,8 +217,7 @@ middle of the arrow+label key object.
 
 
 class QuiverKey(martist.Artist):
-    """ Labelled arrow for use as a quiver plot scale key.
-    """
+    """ Labelled arrow for use as a quiver plot scale key."""
     halign = {'N': 'center', 'S': 'center', 'E': 'left',   'W': 'right'}
     valign = {'N': 'bottom', 'S': 'top',    'E': 'center', 'W': 'center'}
     pivot  = {'N': 'mid',    'S': 'mid',    'E': 'tip',    'W': 'tail'}
