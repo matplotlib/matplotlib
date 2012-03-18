@@ -35,9 +35,16 @@ triang.set_mask(mask)
 # pcolor plot.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.tripcolor(triang, z, shading='faceted')
+plt.tripcolor(triang, z, shading='flat')
 plt.colorbar()
-plt.title('tripcolor of Delaunay triangulation')
+plt.title('tripcolor of Delaunay triangulation: flat')
+
+# Illustrate Gouraud shading.
+plt.figure()
+plt.gca().set_aspect('equal')
+plt.tripcolor(triang, z, shading='gouraud')
+plt.colorbar()
+plt.title('tripcolor with Gouraud shading')
 
 
 # You can specify your own triangulation rather than perform a Delaunay
@@ -89,7 +96,7 @@ triangles = np.asarray([
 # calculations.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.tripcolor(x, y, triangles, z, shading='faceted')
+plt.tripcolor(x, y, triangles, z, shading='flat', edgecolors='k')
 plt.colorbar()
 plt.title('tripcolor of user-specified triangulation')
 plt.xlabel('Longitude (degrees)')
