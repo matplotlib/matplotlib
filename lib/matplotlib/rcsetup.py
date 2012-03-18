@@ -544,7 +544,7 @@ defaultParams = {
     'figure.dpi'        : [ 80, validate_float],   # DPI
     'figure.facecolor'  : [ '0.75', validate_color], # facecolor; scalar gray
     'figure.edgecolor'  : [ 'w', validate_color],  # edgecolor; white
-    'figure.autolayout' : [ False, validate_autolayout],
+    'figure.autolayout' : [ False, validate_bool],
 
     'figure.subplot.left'   : [0.125, ValidateInterval(0, 1, closedmin=True, closedmax=True)],
     'figure.subplot.right'  : [0.9, ValidateInterval(0, 1, closedmin=True, closedmax=True)],
