@@ -1,5 +1,5 @@
 from __future__ import print_function
-from matplotlib.collections import PolyCollection
+from matplotlib.collections import PolyCollection, TriMesh
 from matplotlib.colors import Normalize
 from matplotlib.tri.triangulation import Triangulation
 import numpy as np
@@ -29,8 +29,11 @@ def tripcolor(ax, *args, **kwargs):
     possibilities.
 
     The next argument must be *C*, the array of color values, one per
-    point in the triangulation.  The colors used for each triangle
-    are from the mean C of the triangle's three points.
+    point in the triangulation.
+
+    *shading* may be 'flat', 'faceted' or 'gouraud'. If *shading* is
+    'flat' or 'faceted', the colors used for each triangle are from
+    the mean C of the triangle's three points.
 
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
@@ -53,29 +56,30 @@ def tripcolor(ax, *args, **kwargs):
     y = tri.y
     triangles = tri.get_masked_triangles()
 
-    # Vertices of triangles.
-    verts = np.concatenate((x[triangles][...,np.newaxis],
-                            y[triangles][...,np.newaxis]), axis=2)
-
     C = np.asarray(args[0])
     if C.shape != x.shape:
         raise ValueError('C array must have same length as triangulation x and'
                          ' y arrays')
 
-    # Color values, one per triangle, mean of the 3 vertex color values.
-    C = C[triangles].mean(axis=1)
-
-    if shading == 'faceted':
-        edgecolors = (0,0,0,1),
-        linewidths = (0.25,)
+    if shading == 'gouraud':
+        collection = TriMesh(tri, **kwargs)
     else:
-        edgecolors = 'face'
-        linewidths = (1.0,)
-    kwargs.setdefault('edgecolors', edgecolors)
-    kwargs.setdefault('antialiaseds', (0,))
-    kwargs.setdefault('linewidths', linewidths)
+        if shading == 'faceted':
+            edgecolors = (0,0,0,1),
+            linewidths = (0.25,)
+        else:
+            edgecolors = 'face'
+            linewidths = (1.0,)
+        kwargs.setdefault('edgecolors', edgecolors)
+        kwargs.setdefault('antialiaseds', (0,))
+        kwargs.setdefault('linewidths', linewidths)
 
-    collection = PolyCollection(verts, **kwargs)
+        # Vertices of triangles.
+        verts = np.concatenate((x[triangles][...,np.newaxis],
+                                y[triangles][...,np.newaxis]), axis=2)
+        # Color values, one per triangle, mean of the 3 vertex color values.
+        C = C[triangles].mean(axis=1)
+        collection = PolyCollection(verts, **kwargs)
 
     collection.set_alpha(alpha)
     collection.set_array(C)
