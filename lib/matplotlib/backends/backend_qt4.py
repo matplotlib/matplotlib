@@ -352,7 +352,9 @@ class FigureManagerQT( FigureManagerBase ):
         # requested size:
         cs = canvas.sizeHint()
         sbs = self.window.statusBar().sizeHint()
-        self.window.resize(cs.width(), cs.height()+tbs_height+sbs.height())
+        self._status_and_tool_height = tbs_height+sbs.height()
+        height = cs.height() + self._status_and_tool_height
+        self.window.resize(cs.width(), height)
 
         self.window.setCentralWidget(self.canvas)
 
@@ -398,7 +400,7 @@ class FigureManagerQT( FigureManagerBase ):
 
     def resize(self, width, height):
         'set the canvas size in pixels'
-        self.window.resize(width, height)
+        self.window.resize(width, height + self._status_and_tool_height)
 
     def show(self):
         self.window.show()
