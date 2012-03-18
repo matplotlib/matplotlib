@@ -240,7 +240,7 @@ class Figure(Artist):
        For multiple figure images, the figure will make composite
        images depending on the renderer option_image_nocomposite
        function.  If suppressComposite is True|False, this will
-       override the renderer
+       override the renderer.
     """
 
     def __str__(self):
@@ -254,6 +254,7 @@ class Figure(Artist):
                  linewidth = 0.0,   # the default linewidth of the frame
                  frameon = True,    # whether or not to draw the figure frame
                  subplotpars = None, # default to rc
+                 tight = None,     # whether to apply tight_layout
                  ):
         """
         *figsize*
@@ -276,6 +277,11 @@ class Figure(Artist):
 
         *subplotpars*
             A :class:`SubplotParams` instance, defaults to rc
+
+        *tight*
+            If *False* use *subplotpars*; if *True* adjust subplot
+            parameters using :meth:`tight_layout`.  Defaults to
+            rc ``figure.autolayout``.
         """
         Artist.__init__(self)
 
@@ -311,6 +317,7 @@ class Figure(Artist):
             subplotpars = SubplotParams()
 
         self.subplotpars = subplotpars
+        self._set_tight(tight)
 
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
@@ -328,6 +335,16 @@ class Figure(Artist):
         self.dpi_scale_trans.clear().scale(dpi, dpi)
         self.callbacks.process('dpi_changed', self)
     dpi = property(_get_dpi, _set_dpi)
+
+    def _get_tight(self):
+        return self._tight
+    def _set_tight(self, tight):
+        if tight is None:
+            tight = rcParams['figure.autolayout']
+        tight = bool(tight)
+        self._tight = tight
+    tight = property(_get_tight, _set_tight,
+                     doc="If *True*, use :meth:`tight_layout`")
 
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
         """
@@ -862,6 +879,13 @@ class Figure(Artist):
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible(): return
         renderer.open_group('figure')
+
+        if self.tight and self.axes:
+            try:
+                self.tight_layout(renderer)
+            except ValueError:
+                pass
+                # ValueError can occur when resizing a window.
 
         if self.frameon: self.patch.draw(renderer)
 
