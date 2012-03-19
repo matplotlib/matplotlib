@@ -65,8 +65,7 @@ levels = [-1.5, -1, -0.5, 0, 0.5, 1]
 CS3 = contourf(X, Y, Z, levels,
                         colors = ('r', 'g', 'b'),
                         origin=origin,
-                        extend='both', 
-                        hatches=['/', '\\'])
+                        extend='both')
 # Our data range extends outside the range of levels; make
 # data below the lowest contour level yellow, and above the
 # highest level cyan:

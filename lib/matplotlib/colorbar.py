@@ -22,20 +22,21 @@ from __future__ import print_function
 import warnings
 
 import numpy as np
+
 import matplotlib as mpl
-import matplotlib.colors as colors
-import matplotlib.cm as cm
-from matplotlib import docstring
-import matplotlib.ticker as ticker
-import matplotlib.cbook as cbook
-import matplotlib.lines as lines
-import matplotlib.patches as patches
-import matplotlib.collections as collections
-import matplotlib.contour as contour
 import matplotlib.artist as martist
-
+import matplotlib.cbook as cbook
+import matplotlib.collections as collections
+import matplotlib.colors as colors
+import matplotlib.contour as contour
+import matplotlib.cm as cm
 import matplotlib.gridspec as gridspec
+import matplotlib.lines as lines
+import matplotlib.patches as mpatches
+import matplotlib.path as mpath
+import matplotlib.ticker as ticker
 
+from matplotlib import docstring
 
 make_axes_kw_doc = '''
 
@@ -203,10 +204,11 @@ class ColorbarBase(cm.ScalarMappable):
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
 
     '''
-    _slice_dict = {'neither': slice(0,1000000),
-                   'both': slice(1,-1),
-                   'min': slice(1,1000000),
-                   'max': slice(0,-1)}
+    # XXX Double check these, as I don't have an example where the change was necessary...
+    _slice_dict = {'neither': slice(0, None),
+                   'both': slice(1, -1),
+                   'min': slice(1, None),
+                   'max': slice(0, -1)}
 
     def __init__(self, ax, cmap=None,
                            norm=None,
@@ -258,6 +260,14 @@ class ColorbarBase(cm.ScalarMappable):
         self.config_axis()
         self.draw_all()
 
+    def _extend_lower(self):
+        """Returns whether the lower limit is open ended."""
+        return self.extend in ('both', 'min')
+
+    def _extend_upper(self):
+        """Returns whether the uper limit is open ended."""
+        return self.extend in ('both', 'max')
+
     def _patch_ax(self):
         def _warn(*args, **kw):
             warnings.warn("Use the colorbar set_ticks() method instead.")
@@ -273,7 +283,7 @@ class ColorbarBase(cm.ScalarMappable):
         self._process_values()
         self._find_range()
         X, Y = self._mesh()
-        C = self._values[:,np.newaxis]
+        C = self._values[:, np.newaxis]
         self._config_axes(X, Y)
         if self.filled:
             self._add_solids(X, Y, C)
@@ -354,7 +364,7 @@ class ColorbarBase(cm.ScalarMappable):
         c = mpl.rcParams['axes.facecolor']
         if self.patch is not None:
             self.patch.remove()
-        self.patch = patches.Polygon(xy, edgecolor=c,
+        self.patch = mpatches.Polygon(xy, edgecolor=c,
                  facecolor=c,
                  linewidth=0.01,
                  zorder=-1)
@@ -401,13 +411,13 @@ class ColorbarBase(cm.ScalarMappable):
         # Using the non-array form of these line segments is much
         # simpler than making them into arrays.
         if self.orientation == 'vertical':
-            return [zip(X[i], Y[i]) for i in range(1, N-1)]
+            return [zip(X[i], Y[i]) for i in xrange(1, N-1)]
         else:
-            return [zip(Y[i], X[i]) for i in range(1, N-1)]
+            return [zip(Y[i], X[i]) for i in xrange(1, N-1)]
 
     def _add_solids(self, X, Y, C):
         '''
-        Draw the colors using :meth:`~matplotlib.axes.Axes.pcolor`;
+        Draw the colors using :meth:`~matplotlib.axes.Axes.pcolormesh`;
         optionally add separators.
         '''
         if self.orientation == 'vertical':
@@ -449,9 +459,9 @@ class ColorbarBase(cm.ScalarMappable):
         x = np.array([0.0, 1.0])
         X, Y = np.meshgrid(x,y)
         if self.orientation == 'vertical':
-            xy = [zip(X[i], Y[i]) for i in range(N)]
+            xy = [zip(X[i], Y[i]) for i in xrange(N)]
         else:
-            xy = [zip(Y[i], X[i]) for i in range(N)]
+            xy = [zip(Y[i], X[i]) for i in xrange(N)]
         col = collections.LineCollection(xy, linewidths=linewidths)
 
         if self.lines:
@@ -540,26 +550,26 @@ class ColorbarBase(cm.ScalarMappable):
             b = self._uniform_y(self.cmap.N+1) * self.cmap.N - 0.5
             v = np.zeros((len(b)-1,), dtype=np.int16)
             v[self._inside] = np.arange(self.cmap.N, dtype=np.int16)
-            if self.extend in ('both', 'min'):
+            if self._extend_lower():
                 v[0] = -1
-            if self.extend in ('both', 'max'):
+            if self._extend_upper():
                 v[-1] = self.cmap.N
             self._boundaries = b
             self._values = v
             return
         elif isinstance(self.norm, colors.BoundaryNorm):
             b = list(self.norm.boundaries)
-            if self.extend in ('both', 'min'):
+            if self._extend_lower():
                 b = [b[0]-1] + b
-            if self.extend in ('both', 'max'):
+            if self._extend_upper():
                 b = b + [b[-1] + 1]
             b = np.array(b)
             v = np.zeros((len(b)-1,), dtype=float)
             bi = self.norm.boundaries
             v[self._inside] = 0.5*(bi[:-1] + bi[1:])
-            if self.extend in ('both', 'min'):
+            if self._extend_lower():
                 v[0] = b[0] - 1
-            if self.extend in ('both', 'max'):
+            if self._extend_upper():
                 v[-1] = b[-1] + 1
             self._boundaries = b
             self._values = v
@@ -569,9 +579,9 @@ class ColorbarBase(cm.ScalarMappable):
                 self.norm.vmin = 0
                 self.norm.vmax = 1
             b = self.norm.inverse(self._uniform_y(self.cmap.N+1))
-            if self.extend in ('both', 'min'):
+            if self._extend_lower():
                 b[0] = b[0] - 1
-            if self.extend in ('both', 'max'):
+            if self._extend_upper():
                 b[-1] = b[-1] + 1
         self._process_values(b)
 
@@ -589,7 +599,7 @@ class ColorbarBase(cm.ScalarMappable):
         nb = len(self._boundaries)
         if self.extend == 'both':
             nb -= 2
-        elif self.extend in ('min', 'max'):
+        elif self._extend_lower():
             nb -= 1
         return nb
 
@@ -637,9 +647,9 @@ class ColorbarBase(cm.ScalarMappable):
             y = y / (self._boundaries[-1] - self._boundaries[0])
         else:
             y = self.norm(self._boundaries.copy())
-        if self.extend in ('both', 'min'):
+        if self._extend_lower():
             y[0] = -0.05
-        if self.extend in ('both', 'max'):
+        if self._extend_upper():
             y[-1] = 1.05
         yi = y[self._inside]
         norm = colors.Normalize(yi[0], yi[-1])
@@ -660,10 +670,10 @@ class ColorbarBase(cm.ScalarMappable):
             y = self._proportional_y()
         self._y = y
         X, Y = np.meshgrid(x,y)
-        if self.extend in ('min', 'both'):
-            X[0,:] = 0.5
-        if self.extend in ('max', 'both'):
-            X[-1,:] = 0.5
+        if self._extend_lower():
+            X[0, :] = 0.5
+        if self._extend_upper():
+            X[-1, :] = 0.5
         return X, Y
 
     def _locate(self, x):
@@ -702,6 +712,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def set_alpha(self, alpha):
         self.alpha = alpha
+
 
 class Colorbar(ColorbarBase):
     """
@@ -743,6 +754,17 @@ class Colorbar(ColorbarBase):
 
             ColorbarBase.__init__(self, ax, **kw)
 
+    def on_mappable_changed(self, mappable):
+        """
+        Updates this colorbar to match the mappable's properties.
+        
+        Typically this is automatically registered as an event handler
+        by :func:`colorbar_factory` and should not be called manually.
+        
+        """        
+        self.set_cmap(mappable.get_cmap())
+        self.set_clim(mappable.get_clim())
+        self.update_normal(mappable)
 
     def add_lines(self, CS):
         '''
@@ -952,3 +974,102 @@ def make_axes_gridspec(parent, **kw):
     cax = fig.add_subplot(gs2[1])
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
+
+
+class ColorbarPatch(Colorbar):
+    """
+    A Colorbar which is created using :class:`~matplotlib.patches.Patch`
+    rather than the default :func:`~matplotlib.axes.pcolor`.
+    
+    """
+    def __init__(self, ax, mappable, **kw):
+        # we do not want to override the behaviour of solids
+        # so add a new attribute which will be a list of the
+        # colored patches in the colorbar  
+        self.solids_patches = []
+        Colorbar.__init__(self, ax, mappable, **kw)
+    
+    def _add_solids(self, X, Y, C):
+        '''
+        Draw the colors using :class:`~matplotlib.patches.Patch`;
+        optionally add separators.
+        '''
+        # Save, set, and restore hold state to keep pcolor from
+        # clearing the axes. Ordinarily this will not be needed,
+        # since the axes object should already have hold set.
+        _hold = self.ax.ishold()
+        self.ax.hold(True)
+        
+        kw = {'alpha':self.alpha,}
+        
+        n_segments = len(C)
+        
+        # ensure there are sufficent hatches
+        hatches = self.mappable.hatches * n_segments
+        
+        patches = []
+        for i in xrange(len(X)-1):
+            val = C[i][0]
+            hatch = hatches[i]
+            
+            xy = np.array([[X[i][0], Y[i][0]], [X[i][1], Y[i][0]], 
+                          [X[i+1][1], Y[i+1][0]], [X[i+1][0], Y[i+1][1]]])
+            
+            if self.orientation == 'horizontal':
+                # if horizontal swap the xs and ys
+                xy = xy[..., ::-1]
+            
+            patch = mpatches.PathPatch(mpath.Path(xy),
+                                       facecolor=self.cmap(self.norm(val)),
+                                       hatch=hatch,
+                                       edgecolor='none', linewidth=0, 
+                                       antialiased=False, **kw
+                                       )
+            c = self.mappable.collections[i]
+            
+            self.ax.add_patch(patch)
+            patches.append(patch)
+        
+        if self.solids_patches:
+            for solid in self.solids_patches:
+                solid.remove()
+            
+        self.solids_patches = patches
+
+        # for compatibility with Colorbar, we will implement edge drawing as a 
+        # seperate line collection, even though we could have put a line on
+        # the patches in self.solids_patches.
+        if self.dividers is not None:
+            self.dividers.remove()
+            self.dividers = None
+            
+        if self.drawedges:
+            self.dividers = collections.LineCollection(self._edges(X,Y),
+                              colors=(mpl.rcParams['axes.edgecolor'],),
+                              linewidths=(0.5*mpl.rcParams['axes.linewidth'],)
+                              )
+            self.ax.add_collection(self.dividers)
+        
+        self.ax.hold(_hold)
+        
+            
+def colorbar_factory(cax, mappable, **kwargs):
+    """
+    Creates a colorbar on the given axes for the given mappable.
+    
+    Typically, for automatic colorbar placement given only a mappable use
+    :meth:`~matplotlib.figure.Figure.colorbar`.
+    
+    """
+    # if the given mappable is a contourset with any hatching, use 
+    # ColorbarPatch else use Colorbar
+    if (isinstance(mappable, contour.ContourSet) \
+            and any([hatch is not None for hatch in mappable.hatches])):
+        cb = ColorbarPatch(cax, mappable, **kwargs)
+    else:
+        cb = Colorbar(cax, mappable, **kwargs)
+    
+    mappable.callbacksSM.connect('changed', cb.on_mappable_changed)
+    mappable.set_colorbar(cb, cax)
+        
+    return cb            
