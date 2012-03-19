@@ -585,6 +585,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._linewidths = other._linewidths
         self._linestyles = other._linestyles
         self._pickradius = other._pickradius
+        self._hatch = other._hatch
 
         # update_from for scalarmappable
         self._A = other._A

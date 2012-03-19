@@ -1684,7 +1684,10 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
         mappable = gci()
         if mappable is None:
-            raise RuntimeError('You must first define an image, eg with imshow')
+            raise RuntimeError('No mappable was found to use for colorbar '
+                               'creation. First define a mappable such as '
+                               'an image (with imshow) or a contour set ('
+                               'with contourf).')
     if ax is None:
         ax = gca()
 
