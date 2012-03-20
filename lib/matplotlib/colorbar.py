@@ -204,7 +204,6 @@ class ColorbarBase(cm.ScalarMappable):
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
 
     '''
-    # XXX Double check these, as I don't have an example where the change was necessary...
     _slice_dict = {'neither': slice(0, None),
                    'both': slice(1, -1),
                    'min': slice(1, None),
