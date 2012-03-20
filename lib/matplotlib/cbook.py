@@ -240,9 +240,6 @@ class CallbackRegistry:
         for eventname, callbackd in self.callbacks.items():
             try:
                 del callbackd[cid]
-                for key, value in self._func_cid_map.items():
-                    if value == cid:
-                        del self._func_cid_map[key]
             except KeyError:
                 continue
             else:
