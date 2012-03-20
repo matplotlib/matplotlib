@@ -1,6 +1,6 @@
 from __future__ import division
 
-import os, sys
+import os, sys, warnings
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 try:
@@ -44,6 +44,9 @@ _debug = False
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
+
+# Hide the benign warning that it can't stat a file that doesn't
+warnings.filterwarnings('ignore', '.*Unable to retrieve the file info for.*', gtk.Warning)
 
 cursord = {
     cursors.MOVE          : gdk.Cursor(gdk.FLEUR),
