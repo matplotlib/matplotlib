@@ -851,10 +851,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         artists = []
         labels = []
-        lowers, uppers = self._get_lowers_and_uppers()
-        n_levels = len(self.collections)
-        
+                
         if self.filled:
+            lowers, uppers = self._get_lowers_and_uppers()
+            n_levels = len(self.collections)
+            
             for i, (collection, lower, upper) in enumerate(zip(self.collections,
                                                                lowers, uppers)):
                     patch = mpatches.Rectangle((0, 0), 1, 1, 
