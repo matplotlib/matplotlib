@@ -330,6 +330,9 @@ class XTick(Tick):
         if self._tickdir == 'in':
             self._tickmarkers = (mlines.TICKUP, mlines.TICKDOWN)
             self._pad = self._base_pad
+        elif self._tickdir == 'inout':
+            self._tickmarkers = ('|', '|')
+            self._pad = self._base_pad + self._size/2.
         else:
             self._tickmarkers = (mlines.TICKDOWN, mlines.TICKUP)
             self._pad = self._base_pad + self._size
@@ -469,6 +472,9 @@ class YTick(Tick):
         if self._tickdir == 'in':
             self._tickmarkers = (mlines.TICKRIGHT, mlines.TICKLEFT)
             self._pad = self._base_pad
+        elif self._tickdir == 'inout':
+            self._tickmarkers = ('_', '_')
+            self._pad = self._base_pad + self._size/2.
         else:
             self._tickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
             self._pad = self._base_pad + self._size
