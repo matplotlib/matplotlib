@@ -650,6 +650,7 @@ def test_marker_edges():
     ax.set_xticks([])
     ax.set_yticks([])
 
+<<<<<<< HEAD
 @image_comparison(baseline_images=['hist_log'])
 def test_hist_log():
     data0 = np.linspace(0,1,200)**3
@@ -696,6 +697,13 @@ def test_hist2d_transpose():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist2d(x,y,bins=10)
+
+
+@image_comparison(baseline_images=['scatter'])
+def test_scatter_plot():
+    ax = plt.axes()
+    ax.scatter([3, 4, 2, 6], [2, 5, 2, 3], c=['r', 'y', 'b', 'lime'], s=[24, 15, 19, 29])
+
 
 if __name__=='__main__':
     import nose
