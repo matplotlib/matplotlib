@@ -167,7 +167,8 @@ def make_all_testfuncs(allfuncs=allfuncs):
 
         # We only generate PNGs to save disk space -- we just assume
         # that any backend differences are caught by other tests.
-        @image_comparison(filenames, extensions=['png'])
+        @image_comparison(filenames, extensions=['png'],
+                          freetype_version=('2.4.5', '2.4.9'))
         def reference_test():
             nnt.plot(func, interp=False, plotter='imshow')
             nnt.plot(func, interp=True, plotter='imshow')
