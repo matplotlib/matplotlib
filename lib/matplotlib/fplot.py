@@ -31,6 +31,10 @@ def fplot(axes, f, limits, *args, **kwargs):
     # Some small number, usually close to machine epsilon
     eps = 1e-10
 
+    # The scaling factor used to scale the step size
+    # as a function of the domain length
+    scale = max(1.0, abs(limits[1] - limits[0]))
+
     tol = kwargs.pop('tol', None)
     n = kwargs.pop('tol', None)
 
@@ -54,7 +58,8 @@ def fplot(axes, f, limits, *args, **kwargs):
             #
             # The temporary variable is to ensure the step size is
             # represented properly in binary.
-            min_step = np.sqrt(eps) * x[i]
+            min_step = np.sqrt(eps) * x[i] * scale
+
             tmp = x[i] + min_step
 
             # The multiplation by two is just to be conservative.
