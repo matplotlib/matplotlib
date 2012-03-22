@@ -128,20 +128,23 @@ class SubplotParams:
 
         The following attributes are available
 
-        *left*  = 0.125
-            the left side of the subplots of the figure
-        *right* = 0.9
-            the right side of the subplots of the figure
-        *bottom* = 0.1
-            the bottom of the subplots of the figure
-        *top* = 0.9
-            the top of the subplots of the figure
-        *wspace* = 0.2
-            the amount of width reserved for blank space between subplots
-        *hspace* = 0.2
-            the amount of height reserved for white space between subplots
-        *validate*
-            make sure the params are in a legal state (*left*<*right*, etc)
+        *left*  : 0.125
+            The left side of the subplots of the figure
+
+        *right* : 0.9
+            The right side of the subplots of the figure
+
+        *bottom* : 0.1
+            The bottom of the subplots of the figure
+
+        *top* : 0.9
+            The top of the subplots of the figure
+
+        *wspace* : 0.2
+            The amount of width reserved for blank space between subplots
+
+        *hspace* : 0.2
+            The amount of height reserved for white space between subplots
         """
 
         self.validate = True
@@ -233,18 +236,24 @@ class Figure(Artist):
         """
         *figsize*
             w,h tuple in inches
+
         *dpi*
-            dots per inch
+            Dots per inch
+
         *facecolor*
-            the figure patch facecolor; defaults to rc ``figure.facecolor``
+            The figure patch facecolor; defaults to rc ``figure.facecolor``
+
         *edgecolor*
-            the figure patch edge color; defaults to rc ``figure.edgecolor``
+            The figure patch edge color; defaults to rc ``figure.edgecolor``
+
         *linewidth*
-            the figure patch edge linewidth; the default linewidth of the frame
+            The figure patch edge linewidth; the default linewidth of the frame
+
         *frameon*
-            if ``False``, suppress drawing the figure frame
+            If *False*, suppress drawing the figure frame
+
         *subplotpars*
-            a :class:`SubplotParams` instance, defaults to rc
+            A :class:`SubplotParams` instance, defaults to rc
         """
         Artist.__init__(self)
 
@@ -308,11 +317,13 @@ class Figure(Artist):
         turn off xlabels.
 
         *bottom*
-            the bottom of the subplots for :meth:`subplots_adjust`
+            The bottom of the subplots for :meth:`subplots_adjust`
+
         *rotation*
-            the rotation of the xtick labels
+            The rotation of the xtick labels
+
         *ha*
-            the horizontal alignment of the xticklabels
+            The horizontal alignment of the xticklabels
         """
         allsubplots = np.alltrue([hasattr(ax, 'is_last_row') for ax in self.axes])
         if len(self.axes)==1:
@@ -369,17 +380,17 @@ class Figure(Artist):
         kwargs are :class:`matplotlib.text.Text` properties.  Using figure
         coordinates, the defaults are:
 
-          - *x* = 0.5
-              the x location of text in figure coords
+          *x* : 0.5
+            The x location of the text in figure coords
 
-          - *y* = 0.98
-              the y location of the text in figure coords
+          *y* : 0.98
+            The y location of the text in figure coords
 
-          - *horizontalalignment* = 'center'
-              the horizontal alignment of the text
+          *horizontalalignment* : 'center'
+            The horizontal alignment of the text
 
-          - *verticalalignment* = 'top'
-              the vertical alignment of the text
+          *verticalalignment* : 'top'
+            The vertical alignment of the text
 
         A :class:`matplotlib.text.Text` instance is returned.
 
@@ -455,15 +466,15 @@ class Figure(Artist):
           Keyword     Description
           =========   ==========================================================
           xo or yo    An integer, the *x* and *y* image offset in pixels
-          cmap        a :class:`matplotlib.cm.ColorMap` instance, eg cm.jet.
-                      If None, default to the rc ``image.cmap`` value
+          cmap        a :class:`matplotlib.colors.Colormap` instance, eg cm.jet.
+                      If *None*, default to the rc ``image.cmap`` value
           norm        a :class:`matplotlib.colors.Normalize` instance. The
                       default is normalization().  This scales luminance -> 0-1
           vmin|vmax   are used to scale a luminance image to 0-1.  If either is
-                      None, the min and max of the luminance values will be
+                      *None*, the min and max of the luminance values will be
                       used.  Note if you pass a norm instance, the settings for
                       *vmin* and *vmax* will be ignored.
-          alpha       the alpha blending value, default is None
+          alpha       the alpha blending value, default is *None*
           origin      [ 'upper' | 'lower' ] Indicates where the [0,0] index of
                       the array is in the upper left or lower left corner of
                       the axes. Defaults to the rc image.origin value
@@ -711,7 +722,7 @@ class Figure(Artist):
     @docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
         """
-        Add a subplot.  Examples:
+        Add a subplot.  Examples::
 
             fig.add_subplot(111)
             fig.add_subplot(1,1,1)            # equivalent but more general
@@ -719,11 +730,12 @@ class Figure(Artist):
             fig.add_subplot(111, polar=True)  # add a polar subplot
             fig.add_subplot(sub)              # add Subplot instance sub
 
-        *kwargs* are legal :class:`!matplotlib.axes.Axes` kwargs plus
+        *kwargs* are legal :class:`~matplotlib.axes.Axes` kwargs plus
         *projection*, which chooses a projection type for the axes.
         (For backward compatibility, *polar=True* may also be
         provided, which is equivalent to *projection='polar'*). Valid
-        values for *projection* are: %(projection_names)s.  Some of these projections
+        values for *projection* are: %(projection_names)s.  Some of
+        these projections
         support additional *kwargs*, which may be provided to
         :meth:`add_axes`.
 
@@ -809,14 +821,15 @@ class Figure(Artist):
 
     def clear(self):
         """
-        Clear the figure -- synonym for fig.clf
+        Clear the figure -- synonym for :meth:`clf`.
         """
         self.clf()
 
     @allow_rasterization
     def draw(self, renderer):
         """
-        Render the figure using :class:`matplotlib.backend_bases.RendererBase` instance renderer
+        Render the figure using :class:`matplotlib.backend_bases.RendererBase`
+        instance *renderer*.
         """
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible(): return
@@ -937,7 +950,7 @@ class Figure(Artist):
 
         Keyword arguments:
 
-          *prop*: [ None | FontProperties | dict ]
+          *prop*: [ *None* | FontProperties | dict ]
             A :class:`matplotlib.font_manager.FontProperties`
             instance. If *prop* is a dictionary, a new instance will be
             created with *prop*. If *None*, use rc settings.
@@ -951,20 +964,20 @@ class Figure(Artist):
           *scatteroffsets*: list of floats
             a list of yoffsets for scatter symbols in legend
 
-          *markerscale*: [ None | scalar ]
+          *markerscale*: [ *None* | scalar ]
             The relative size of legend markers vs. original. If *None*, use rc
             settings.
 
-          *fancybox*: [ None | False | True ]
-            if True, draw a frame with a round fancybox.  If None, use rc
+          *fancybox*: [ *None* | *False* | *True* ]
+            if *True*, draw a frame with a round fancybox.  If *None*, use rc
 
-          *shadow*: [ None | False | True ]
+          *shadow*: [ *None* | *False* | *True* ]
             If *True*, draw a shadow behind legend. If *None*, use rc settings.
 
           *ncol* : integer
             number of columns. default is 1
 
-          *mode* : [ "expand" | None ]
+          *mode* : [ "expand" | *None* ]
             if mode is "expand", the legend will be horizontally expanded
             to fill the axes area (or *bbox_to_anchor*)
 
@@ -1071,7 +1084,7 @@ class Figure(Artist):
         return None
 
     def add_axobserver(self, func):
-        'whenever the axes state change, func(self) will be called'
+        'whenever the axes state change, ``func(self)`` will be called'
         self._axobservers.append(func)
 
 
@@ -1090,9 +1103,9 @@ class Figure(Artist):
         Arguments:
 
           *fname*:
-            A string containing a path to a filename, or a Python file-like object,
-            or possibly some backend-dependent object such as
-            :class:`~matplotlib.backends.backend_pdf.PdfPages`.
+            A string containing a path to a filename, or a Python
+            file-like object, or possibly some backend-dependent object
+            such as :class:`~matplotlib.backends.backend_pdf.PdfPages`.
 
             If *format* is *None* and *fname* is a string, the output
             format is deduced from the extension of the filename. If
@@ -1105,7 +1118,7 @@ class Figure(Artist):
 
         Keyword arguments:
 
-          *dpi*: [ None | scalar > 0 ]
+          *dpi*: [ *None* | ``scalar > 0`` ]
             The resolution in dots per inch.  If *None* it will default to
             the value ``savefig.dpi`` in the matplotlibrc file.
 
@@ -1180,7 +1193,7 @@ class Figure(Artist):
     @docstring.dedent_interpd
     def colorbar(self, mappable, cax=None, ax=None, **kw):
         """
-        Create a colorbar for a ScalarMappable instance.
+        Create a colorbar for a ScalarMappable instance, *mappable*.
 
         Documentation for the pylab thin wrapper:
         %(colorbar_doc)s
@@ -1209,11 +1222,13 @@ class Figure(Artist):
 
     def subplots_adjust(self, *args, **kwargs):
         """
-        fig.subplots_adjust(left=None, bottom=None, right=None, top=None,
-            wspace=None, hspace=None)
+        Call signature::
 
-        Update the :class:`SubplotParams` with *kwargs* (defaulting to rc where
-        None) and update the subplot locations
+          fig.subplots_adjust(left=None, bottom=None, right=None, top=None,
+                              wspace=None, hspace=None)
+
+        Update the :class:`SubplotParams` with *kwargs* (defaulting to rc when
+        *None*) and update the subplot locations
 
         """
         self.subplotpars.update(*args, **kwargs)
@@ -1233,7 +1248,7 @@ class Figure(Artist):
 
     def ginput(self, n=1, timeout=30, show_clicks=True, mouse_add=1, mouse_pop=3, mouse_stop=2):
         """
-        call signature::
+        Call signature::
 
           ginput(self, n=1, timeout=30, show_clicks=True,
                  mouse_add=1, mouse_pop=3, mouse_stop=2)
@@ -1271,7 +1286,7 @@ class Figure(Artist):
 
     def waitforbuttonpress(self, timeout=-1):
         """
-        call signature::
+        Call signature::
 
           waitforbuttonpress(self, timeout=-1)
 
@@ -1287,6 +1302,13 @@ class Figure(Artist):
         blocking_input = BlockingKeyMouseInput(self)
         return blocking_input(timeout=timeout)
 
+
+    def get_default_bbox_extra_artists(self):
+        bbox_extra_artists = [t for t in self.texts if t.get_visible()]
+        for ax in self.axes:
+            if ax.get_visible():
+                bbox_extra_artists.extend(ax.get_default_bbox_extra_artists())
+        return bbox_extra_artists
 
 
     def get_tightbbox(self, renderer):
@@ -1316,9 +1338,10 @@ class Figure(Artist):
 
         Parameters:
 
-        pad : float
-            padding between the figure edge and the edges of subplots, as a fraction of the font-size.
-        h_pad, w_pad : float
+          *pad* : float
+            padding between the figure edge and the edges of subplots,
+            as a fraction of the font-size.
+          *h_pad*, *w_pad* : float
             padding (height/width) between edges of adjacent subplots.
             Defaults to `pad_inches`.
         """

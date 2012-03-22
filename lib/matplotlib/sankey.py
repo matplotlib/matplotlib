@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-"""Module for creating Sankey diagrams using matplotlib
+"""
+Module for creating Sankey diagrams using matplotlib
 """
 __author__ = "Kevin L. Davies"
 __credits__ = ["Yannick Copin"]
@@ -40,6 +41,7 @@ from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
 from matplotlib import verbose
+from matplotlib import docstring
 
 # Angles [deg/90]
 RIGHT = 0
@@ -49,20 +51,18 @@ DOWN = 3
 
 
 class Sankey:
-    """Sankey diagram in matplotlib
+    """
+    Sankey diagram in matplotlib
 
-    "Sankey diagrams are a specific type of flow diagram, in which the width of
-    the arrows is shown proportionally to the flow quantity.  They are typically
-    used to visualize energy or material or cost transfers between processes."
+      Sankey diagrams are a specific type of flow diagram, in which
+      the width of the arrows is shown proportionally to the flow
+      quantity.  They are typically used to visualize energy or
+      material or cost transfers between processes.
+      `Wikipedia (6/1/2011) <http://en.wikipedia.org/wiki/Sankey_diagram>`_
 
-    --http://en.wikipedia.org/wiki/Sankey_diagram, accessed 6/1/2011
     """
     def _arc(self, quadrant=0, cw=True, radius=1, center=(0,0)):
         """
-        call signature::
-
-          _arc(quadrant=0, cw=True, radius=1, center=(0,0))
-
         Return the codes and vertices for a rotated, scaled, and translated
         90 degree arc.
 
@@ -115,7 +115,8 @@ class Sankey:
                               np.tile(center, (ARC_VERTICES.shape[0], 1)))
 
     def _add_input(self, path, angle, flow, length):
-        """Add an input to a path and return its tip and label locations.
+        """
+        Add an input to a path and return its tip and label locations.
         """
         if angle is None:
             return [0, 0], [0, 0]
@@ -161,7 +162,8 @@ class Sankey:
             return dip, label_location
 
     def _add_output(self, path, angle, flow, length):
-        """Append an output to a path and return its tip and label locations.
+        """
+        Append an output to a path and return its tip and label locations.
 
         Note: *flow* is negative for an output.
         """
@@ -215,7 +217,8 @@ class Sankey:
             return tip, label_location
 
     def _revert(self, path, first_action=Path.LINETO):
-        """A path is not simply revertable by path[::-1] since the code
+        """
+        A path is not simply revertable by path[::-1] since the code
         specifies an action to take from the **previous** point.
         """
         reverse_path = []
@@ -231,16 +234,11 @@ class Sankey:
         #path[2] = path[2][::-1]
         #return path
 
+    @docstring.dedent_interpd
     def add(self, patchlabel='', flows=np.array([1.0,-1.0]), orientations=[0,0],
             labels='', trunklength=1.0, pathlengths=0.25, prior=None,
             connect=(0,0), rotation=0, **kwargs):
         """
-        call signature::
-
-          add(patchlabel='', flows=np.array([1.0,-1.0]), orientations=[0,0],
-              labels='', trunklength=1.0, pathlengths=0.25, prior=None,
-              connect=(0,0), rotation=0, **kwargs)
-
         Add a simple Sankey diagram with flows at the same hierarchical level.
 
         Return value is the instance of :class:`Sankey`.
@@ -252,7 +250,7 @@ class Sankey:
           ===============   ==========================================================
           *patchlabel*      label to be placed at the center of the diagram
                             Note: *label* (not *patchlabel*) will be passed to
-                            the patch through **kwargs and can be used to create
+                            the patch through ``**kwargs`` and can be used to create
                             an entry in the legend.
           *flows*           array of flow values
                             By convention, inputs are positive and outputs are
@@ -297,9 +295,12 @@ class Sankey:
           ===============   ==========================================================
 
         Valid kwargs are :meth:`matplotlib.patches.PathPatch` arguments:
-        %(PathPatch)s
-        As examples, *fill*=False and *label*="A legend entry".  By default,
-        *facecolor*='#bfd1d4' (light blue) and *lineweight*=0.5.
+
+        %(Patch)s
+
+        As examples, ``fill=False`` and ``label='A legend entry'``.
+        By default, ``facecolor='#bfd1d4'`` (light blue) and
+        ``linewidth=0.5``.
 
         The indexing parameters (*prior* and *connect*) are zero-based.
 
@@ -655,10 +656,6 @@ class Sankey:
 
     def finish(self):
         """
-        call signature::
-
-          finish()
-
         Adjust the axes and return a list of information about the Sankey
         subdiagram(s).
 
@@ -707,15 +704,7 @@ class Sankey:
                  radius=0.1, shoulder=0.03, offset=0.15, head_angle=100,
                  margin=0.4, tolerance=1e-6, **kwargs):
         """
-        call signature::
-
-          Sankey(ax=None, scale=1.0, unit='', format='%G', gap=0.25, radius=0.1,
-                 shoulder=0.03, offset=0.15, head_angle=100, margin=0.4,
-                 tolerance=1e-6, **kwargs)
-
-        Create a new Sankey diagram.
-
-        Return value is an instance of :class:`Sankey`.
+        Create a new Sankey instance.
 
         Optional keyword arguments:
 
@@ -758,26 +747,34 @@ class Sankey:
         that there is consistent alignment and formatting.
 
         If :class:`Sankey` is instantiated with any keyword arguments other than
-        those explicitly listed above (**kwargs), they will be passed to
+        those explicitly listed above (``**kwargs``), they will be passed to
         :meth:`add`, which will create the first subdiagram.
 
         In order to draw a complex Sankey diagram, create an instance of
-        :class:`Sankey` by calling it without any kwargs:
-            >>> sankey = Sankey()
-        Then add simple Sankey sub-diagrams:
-            >>> sankey.add() # 1
-            >>> sankey.add() # 2
-            >>> #...
-            >>> sankey.add() # n
-        Finally, create the full diagram:
-            >>> sankey.finish()
-        Or, instead, simply daisy-chain those calls:
-            >>> Sankey().add().add...  .add().finish()
+        :class:`Sankey` by calling it without any kwargs::
+
+            sankey = Sankey()
+
+        Then add simple Sankey sub-diagrams::
+
+            sankey.add() # 1
+            sankey.add() # 2
+            #...
+            sankey.add() # n
+
+        Finally, create the full diagram::
+
+            sankey.finish()
+
+        Or, instead, simply daisy-chain those calls::
+
+            Sankey().add().add...  .add().finish()
 
         .. seealso::
 
             :meth:`add`
             :meth:`finish`
+
 
         **Examples:**
 

@@ -1130,6 +1130,74 @@ class PatchCollection(Collection):
                         for p in patches]
         self._paths = paths
 
+class TriMesh(Collection):
+    """
+    Class for the efficient drawing of a triangular mesh using
+    Gouraud shading.
+
+    A triangular mesh is a :class:`~matplotlib.tri.Triangulation`
+    object.
+    """
+    def __init__(self, triangulation, **kwargs):
+        Collection.__init__(self, **kwargs)
+        self._triangulation = triangulation;
+        self._shading = 'gouraud'
+        self._is_filled = True
+
+        self._bbox = transforms.Bbox.unit()
+
+        # Unfortunately this requires a copy, unless Triangulation
+        # was rewritten.
+        xy = np.hstack((triangulation.x.reshape(-1,1),
+                        triangulation.y.reshape(-1,1)))
+        self._bbox.update_from_data_xy(xy)
+
+    def get_paths(self):
+        if self._paths is None:
+            self.set_paths()
+        return self._paths
+
+    def set_paths(self):
+        self._paths = self.convert_mesh_to_paths(self._triangulation)
+
+    @staticmethod
+    def convert_mesh_to_paths(tri):
+        """
+        Converts a given mesh into a sequence of
+        :class:`matplotlib.path.Path` objects for easier rendering by
+        backends that do not directly support meshes.
+
+        This function is primarily of use to backend implementers.
+        """
+        Path = mpath.Path
+        triangles = tri.get_masked_triangles()
+        verts = np.concatenate((tri.x[triangles][...,np.newaxis],
+                                tri.y[triangles][...,np.newaxis]), axis=2)
+        return [Path(x) for x in verts]
+
+    @allow_rasterization
+    def draw(self, renderer):
+        if not self.get_visible(): return
+        renderer.open_group(self.__class__.__name__)
+        transform = self.get_transform()
+
+        # Get a list of triangles and the color at each vertex.
+        tri = self._triangulation
+        triangles = tri.get_masked_triangles()
+
+        verts = np.concatenate((tri.x[triangles][...,np.newaxis],
+                                tri.y[triangles][...,np.newaxis]), axis=2)
+
+        self.update_scalarmappable()
+        colors = self._facecolors[triangles];
+
+        gc = renderer.new_gc()
+        self._set_gc_clip(gc)
+        gc.set_linewidth(self.get_linewidth()[0])
+        renderer.draw_gouraud_triangles(gc, verts, colors, transform.frozen())
+        gc.restore()
+        renderer.close_group(self.__class__.__name__)
+
 
 class QuadMesh(Collection):
     """
@@ -1316,7 +1384,7 @@ class QuadMesh(Collection):
 
 
 patchstr = artist.kwdoc(Collection)
-for k in ('QuadMesh', 'PolyCollection', 'BrokenBarHCollection',
+for k in ('QuadMesh', 'TriMesh', 'PolyCollection', 'BrokenBarHCollection',
            'RegularPolyCollection', 'PathCollection',
           'StarPolygonCollection', 'PatchCollection',
           'CircleCollection', 'Collection',):
