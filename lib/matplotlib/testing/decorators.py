@@ -6,6 +6,7 @@ import matplotlib
 import matplotlib.tests
 import matplotlib.units
 from matplotlib import pyplot as plt
+from matplotlib import ft2font
 import numpy as np
 from matplotlib.testing.compare import comparable_formats, compare_images
 import warnings
@@ -63,7 +64,7 @@ class CleanupTest:
         matplotlib.units.registry.clear()
         matplotlib.units.registry.update(cls.original_units_registry)
         warnings.resetwarnings() #reset any warning filters set in tests
-        
+
     def test(self):
         self._func()
 
@@ -76,6 +77,18 @@ def cleanup(func):
         (CleanupTest,),
         {'_func': func})
     return new_class
+
+def check_freetype_version(ver):
+    if ver is None:
+        return True
+
+    from distutils import version
+    if isinstance(ver, str):
+        ver = (ver, ver)
+    ver = [version.StrictVersion(x) for x in ver]
+    found = version.StrictVersion(ft2font.__freetype_version__)
+
+    return found >= ver[0] and found <= ver[1]
 
 class ImageComparisonTest(CleanupTest):
     @classmethod
@@ -116,18 +129,25 @@ class ImageComparisonTest(CleanupTest):
 
                     err = compare_images(expected_fname, actual_fname, self._tol, in_decorator=True)
 
-                    if not os.path.exists(expected_fname):
-                        raise ImageComparisonFailure(
-                            'image does not exist: %s' % expected_fname)
+                    try:
+                        if not os.path.exists(expected_fname):
+                            raise ImageComparisonFailure(
+                                'image does not exist: %s' % expected_fname)
 
-                    if err:
-                        raise ImageComparisonFailure(
-                            'images not close: %(actual)s vs. %(expected)s '
-                            '(RMS %(rms).3f)'%err)
+                        if err:
+                            raise ImageComparisonFailure(
+                                'images not close: %(actual)s vs. %(expected)s '
+                                '(RMS %(rms).3f)'%err)
+                    except ImageComparisonFailure:
+                        if not check_freetype_version(self._freetype_version):
+                            raise KnownFailureTest(
+                                "Mismatched version of freetype.  Test requires '%s', you have '%s'" %
+                                (self._freetype_version, ft2font.__freetype_version__))
+                        raise
 
                 yield (do_test,)
 
-def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
+def image_comparison(baseline_images=None, extensions=None, tol=1e-3, freetype_version=None):
     """
     call signature::
 
@@ -148,6 +168,13 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
         If *None*, default to all supported extensions.
 
         Otherwise, a list of extensions to test. For example ['png','pdf'].
+
+      *tol*: (default 1e-3)
+        The RMS threshold above which the test is considered failed.
+
+      *freetype_version*: str or tuple
+        The expected freetype version or range of versions for this
+        test to pass.
     """
 
     if baseline_images is None:
@@ -178,7 +205,9 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
             {'_func': func,
              '_baseline_images': baseline_images,
              '_extensions': extensions,
-             '_tol': tol})
+             '_tol': tol,
+             '_freetype_version': freetype_version})
+
         return new_class
     return compare_images_decorator
 

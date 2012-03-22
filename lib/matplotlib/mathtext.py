@@ -209,7 +209,8 @@ class MathtextBackendAggRender(MathtextBackend):
 
     def render_glyph(self, ox, oy, info):
         info.font.draw_glyph_to_bitmap(
-            self.image, ox, oy - info.metrics.iceberg, info.glyph)
+            self.image, ox, oy - info.metrics.iceberg, info.glyph,
+            antialiased=rcParams['text.antialiased'])
 
     def render_rect_filled(self, x1, y1, x2, y2):
         height = max(int(y2 - y1) - 1, 0)
