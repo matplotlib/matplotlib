@@ -459,7 +459,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         else:
             close = False
         try:
-            _png.write_png(renderer._renderer.buffer_rgba(),
+            _png.write_png(renderer._renderer.buffer_rgba(0, 0),
                            renderer.width, renderer.height,
                            filename_or_obj, self.figure.dpi)
         finally:
