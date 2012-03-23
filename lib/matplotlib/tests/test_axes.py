@@ -278,7 +278,8 @@ def test_polar_wrap():
     plt.polar( [358*D2R,  2*D2R], [0.2, 0.1], "r.-" )
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
 
-@image_comparison(baseline_images=['polar_units', 'polar_units_2'])
+@image_comparison(baseline_images=['polar_units', 'polar_units_2'],
+                  freetype_version=('2.4.5', '2.4.9'))
 def test_polar_units():
     import matplotlib.testing.jpl_units as units
     from nose.tools import assert_true
@@ -561,7 +562,8 @@ def test_canonical():
     ax.plot([1,2,3])
 
 
-@image_comparison(baseline_images=['arc_ellipse'])
+@image_comparison(baseline_images=['arc_ellipse'],
+                  freetype_version=('2.4.5', '2.4.9'))
 def test_arc_ellipse():
     from matplotlib import patches
     xcenter, ycenter = 0.38, 0.52
@@ -622,7 +624,8 @@ def test_markevery():
     ax.plot(x, y, '+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
 
-@image_comparison(baseline_images=['markevery_line'])
+@image_comparison(baseline_images=['markevery_line'],
+                  freetype_version=('2.4.5', '2.4.9'))
 def test_markevery_line():
     x = np.linspace(0, 10, 100)
     y = np.sin(x) * np.sqrt(x/10 + 0.5)

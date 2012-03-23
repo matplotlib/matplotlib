@@ -1002,27 +1002,35 @@ default_test_modules = [
     'matplotlib.tests.test_simplification',
     'matplotlib.tests.test_mathtext',
     'matplotlib.tests.test_text',
-    'matplotlib.tests.test_tightlayout'
+    'matplotlib.tests.test_tightlayout',
+    'matplotlib.tests.test_delaunay',
+    'matplotlib.tests.test_legend'
     ]
 
 def test(verbosity=0):
     """run the matplotlib test suite"""
-    import nose
-    import nose.plugins.builtin
-    from .testing.noseclasses import KnownFailure
-    from nose.plugins.manager import PluginManager
+    old_backend = rcParams['backend']
+    try:
+        use('agg')
+        import nose
+        import nose.plugins.builtin
+        from .testing.noseclasses import KnownFailure
+        from nose.plugins.manager import PluginManager
 
-    # store the old values before overriding
-    plugins = []
-    plugins.append( KnownFailure() )
-    plugins.extend( [plugin() for plugin in nose.plugins.builtin.plugins] )
+        # store the old values before overriding
+        plugins = []
+        plugins.append( KnownFailure() )
+        plugins.extend( [plugin() for plugin in nose.plugins.builtin.plugins] )
 
-    manager = PluginManager(plugins=plugins)
-    config = nose.config.Config(verbosity=verbosity, plugins=manager)
+        manager = PluginManager(plugins=plugins)
+        config = nose.config.Config(verbosity=verbosity, plugins=manager)
 
-    success = nose.run( defaultTest=default_test_modules,
-                        config=config,
-                        )
+        success = nose.run( defaultTest=default_test_modules,
+                            config=config,
+                            )
+    finally:
+        if old_backend.lower() != 'agg':
+            use(old_backend)
 
     return success
 

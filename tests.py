@@ -5,6 +5,9 @@
 # See http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
 # for options.
 
+import matplotlib
+matplotlib.use('agg')
+
 import nose
 from matplotlib.testing.noseclasses import KnownFailure
 from matplotlib import default_test_modules

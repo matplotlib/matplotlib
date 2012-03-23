@@ -110,9 +110,10 @@ public:
     Py::Object load_glyph(const Py::Tuple & args, const Py::Dict & kws);
     Py::Object get_width_height(const Py::Tuple & args);
     Py::Object get_descent(const Py::Tuple & args);
-    Py::Object get_xys(const Py::Tuple & args);
-    Py::Object draw_glyphs_to_bitmap(const Py::Tuple & args);
-    Py::Object draw_glyph_to_bitmap(const Py::Tuple & args);
+    Py::Object draw_rect_filled(const Py::Tuple & args);
+    Py::Object get_xys(const Py::Tuple & args, const Py::Dict & kws);
+    Py::Object draw_glyphs_to_bitmap(const Py::Tuple & args, const Py::Dict & kws);
+    Py::Object draw_glyph_to_bitmap(const Py::Tuple & args, const Py::Dict & kws);
     Py::Object get_glyph_name(const Py::Tuple & args);
     Py::Object get_charmap(const Py::Tuple & args);
     Py::Object get_sfnt(const Py::Tuple & args);

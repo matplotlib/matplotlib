@@ -695,13 +695,13 @@ class RendererSVG(RendererBase):
         href = u'#GT%x' % self._n_gradients
         writer.element(
             u'use',
-            attrib={u'xlink:href': u'#%s' % href,
+            attrib={u'xlink:href': href,
                     u'fill': rgb2hex(avg_color),
                     u'fill-opacity': str(avg_color[-1])})
         for i in range(3):
             writer.element(
                 u'use',
-                attrib={u'xlink:href': u'#%s' % href,
+                attrib={u'xlink:href': href,
                         u'fill': u'url(#GR%x_%d)' % (self._n_gradients, i),
                         u'fill-opacity': u'1',
                         u'filter': u'url(#colorAdd)'})
