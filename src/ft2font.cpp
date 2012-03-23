@@ -121,14 +121,27 @@ FT2Image::draw_bitmap(FT_Bitmap*  bitmap,
     FT_Int x_start = MAX(0, -x);
     FT_Int y_offset = y1 - MAX(0, -y);
 
-    for (FT_Int i = y1; i < y2; ++i)
-    {
-        unsigned char* dst = _buffer + (i * image_width + x1);
-        unsigned char* src = bitmap->buffer + (((i - y_offset) * bitmap->pitch) + x_start);
-        for (FT_Int j = x1; j < x2; ++j, ++dst, ++src)
+    if (bitmap->pixel_mode == FT_PIXEL_MODE_GRAY) {
+        for (FT_Int i = y1; i < y2; ++i)
         {
-            *dst |= *src;
+            unsigned char* dst = _buffer + (i * image_width + x1);
+            unsigned char* src = bitmap->buffer + (((i - y_offset) * bitmap->pitch) + x_start);
+            for (FT_Int j = x1; j < x2; ++j, ++dst, ++src)
+                *dst |= *src;
         }
+    } else if (bitmap->pixel_mode == FT_PIXEL_MODE_MONO) {
+        for (FT_Int i = y1; i < y2; ++i)
+        {
+            unsigned char* dst = _buffer + (i * image_width + x1);
+            unsigned char* src = bitmap->buffer + ((i - y_offset) * bitmap->pitch);
+            for (FT_Int j = x1; j < x2; ++j, ++dst) {
+                int x = (j - x1 + x_start);
+                int val = *(src + (x >> 3)) & (1 << (7 - (x & 0x7)));
+                *dst = val ? 255 : 0;
+            }
+        }
+    } else {
+        throw Py::Exception("Unknown pixel mode");
     }
 
     _isDirty = true;
@@ -1406,11 +1419,17 @@ char FT2Font::draw_glyphs_to_bitmap__doc__[] =
     "The bitmap size will be automatically set to include the glyphs\n"
     ;
 Py::Object
-FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
+FT2Font::draw_glyphs_to_bitmap(const Py::Tuple &args, const Py::Dict &kwargs)
 {
 
     _VERBOSE("FT2Font::draw_glyphs_to_bitmap");
     args.verify_length(0);
+
+    long antialiased = 1;
+    if (kwargs.hasKey("antialiased"))
+    {
+        antialiased = Py::Long(kwargs["antialiased"]);
+    }
 
     FT_BBox string_bbox = compute_string_bbox();
     size_t width = (string_bbox.xMax - string_bbox.xMin) / 64 + 2;
@@ -1424,11 +1443,11 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
         FT_BBox bbox;
         FT_Glyph_Get_CBox(glyphs[n], ft_glyph_bbox_pixels, &bbox);
 
-        error = FT_Glyph_To_Bitmap(&glyphs[n],
-                                   ft_render_mode_normal,
-                                   0,
-                                   1
-                                  );
+        error = FT_Glyph_To_Bitmap(
+            &glyphs[n],
+            antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO,
+            0,
+            1);
         if (error)
         {
             throw Py::RuntimeError("Could not convert glyph to bitmap");
@@ -1446,7 +1465,7 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
 
     return Py::Object();
 }
-PYCXX_VARARGS_METHOD_DECL(FT2Font, draw_glyphs_to_bitmap)
+PYCXX_KEYWORDS_METHOD_DECL(FT2Font, draw_glyphs_to_bitmap)
 
 char FT2Font::get_xys__doc__[] =
     "get_xys()\n"
@@ -1454,11 +1473,16 @@ char FT2Font::get_xys__doc__[] =
     "Get the xy locations of the current glyphs\n"
     ;
 Py::Object
-FT2Font::get_xys(const Py::Tuple & args)
+FT2Font::get_xys(const Py::Tuple &args, const Py::Dict &kwargs)
 {
-
     _VERBOSE("FT2Font::get_xys");
     args.verify_length(0);
+
+    long antialiased = 1;
+    if (kwargs.hasKey("antialiased"))
+    {
+        antialiased = Py::Long(kwargs["antialiased"]);
+    }
 
     FT_BBox string_bbox = compute_string_bbox();
     Py::Tuple xys(glyphs.size());
@@ -1469,11 +1493,11 @@ FT2Font::get_xys(const Py::Tuple & args)
         FT_BBox bbox;
         FT_Glyph_Get_CBox(glyphs[n], ft_glyph_bbox_pixels, &bbox);
 
-        error = FT_Glyph_To_Bitmap(&glyphs[n],
-                                   ft_render_mode_normal,
-                                   0,
-                                   1
-                                  );
+        error = FT_Glyph_To_Bitmap(
+            &glyphs[n],
+            antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO,
+            0,
+            1);
         if (error)
         {
             throw Py::RuntimeError("Could not convert glyph to bitmap");
@@ -1496,7 +1520,7 @@ FT2Font::get_xys(const Py::Tuple & args)
 
     return xys;
 }
-PYCXX_VARARGS_METHOD_DECL(FT2Font, get_xys)
+PYCXX_KEYWORDS_METHOD_DECL(FT2Font, get_xys)
 
 char FT2Font::draw_glyph_to_bitmap__doc__[] =
     "draw_glyph_to_bitmap(bitmap, x, y, glyph)\n"
@@ -1511,7 +1535,7 @@ char FT2Font::draw_glyph_to_bitmap__doc__[] =
     "a glyph returned by load_char\n";
 
 Py::Object
-FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args)
+FT2Font::draw_glyph_to_bitmap(const Py::Tuple &args, const Py::Dict &kwargs)
 {
     _VERBOSE("FT2Font::draw_glyph_to_bitmap");
     args.verify_length(4);
@@ -1528,16 +1552,23 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args)
 
     Glyph* glyph = Py::PythonClassObject<Glyph>(args[3]).getCxxObject();
 
+    long antialiased = 1;
+    if (kwargs.hasKey("antialiased"))
+    {
+        antialiased = Py::Long(kwargs["antialiased"]);
+    }
+
     if (glyph->glyphInd >= glyphs.size())
     {
         throw Py::ValueError("glyph num is out of range");
     }
 
-    error = FT_Glyph_To_Bitmap(&glyphs[glyph->glyphInd],
-                               ft_render_mode_normal,
-                               &sub_offset,  //no additional translation
-                               1   //destroy image;
-                              );
+    error = FT_Glyph_To_Bitmap(
+        &glyphs[glyph->glyphInd],
+        antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO,
+        &sub_offset,  // additional translation
+        1   //destroy image
+        );
     if (error)
     {
         throw Py::RuntimeError("Could not convert glyph to bitmap");
@@ -1548,7 +1579,7 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args)
     im->draw_bitmap(&bitmap->bitmap, x + bitmap->left, y);
     return Py::Object();
 }
-PYCXX_VARARGS_METHOD_DECL(FT2Font, draw_glyph_to_bitmap)
+PYCXX_KEYWORDS_METHOD_DECL(FT2Font, draw_glyph_to_bitmap)
 
 char FT2Font::get_glyph_name__doc__[] =
     "get_glyph_name(index)\n"
@@ -2070,11 +2101,11 @@ FT2Font::init_type()
 
     PYCXX_ADD_VARARGS_METHOD(clear, clear,
                              FT2Font::clear__doc__);
-    PYCXX_ADD_VARARGS_METHOD(draw_glyph_to_bitmap, draw_glyph_to_bitmap,
+    PYCXX_ADD_KEYWORDS_METHOD(draw_glyph_to_bitmap, draw_glyph_to_bitmap,
                              FT2Font::draw_glyph_to_bitmap__doc__);
-    PYCXX_ADD_VARARGS_METHOD(draw_glyphs_to_bitmap, draw_glyphs_to_bitmap,
+    PYCXX_ADD_KEYWORDS_METHOD(draw_glyphs_to_bitmap, draw_glyphs_to_bitmap,
                              FT2Font::draw_glyphs_to_bitmap__doc__);
-    PYCXX_ADD_VARARGS_METHOD(get_xys, get_xys,
+    PYCXX_ADD_KEYWORDS_METHOD(get_xys, get_xys,
                              FT2Font::get_xys__doc__);
 
     PYCXX_ADD_VARARGS_METHOD(get_num_glyphs, get_num_glyphs,
@@ -2250,6 +2281,16 @@ initft2font(void)
     if (error)
     {
         throw Py::RuntimeError("Could not find initialize the freetype2 library");
+    }
+
+    {
+        FT_Int major, minor, patch;
+        char version_string[64];
+
+        FT_Library_Version(_ft2Library, &major, &minor, &patch);
+        sprintf(version_string, "%d.%d.%d", major, minor, patch);
+
+        d["__freetype_version__"] = Py::String(version_string);
     }
 
     import_array();

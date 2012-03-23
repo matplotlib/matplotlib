@@ -1,9 +1,11 @@
 from __future__ import print_function
 import numpy as np
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 import matplotlib.pyplot as plt
 import warnings
+from nose.tools import with_setup
+
 
 @image_comparison(baseline_images=['font_styles'])
 def test_font_styles():
@@ -71,6 +73,7 @@ def test_font_styles():
     ax.set_xticks([])
     ax.set_yticks([])
 
+
 @image_comparison(baseline_images=['multiline'])
 def test_multiline():
     fig = plt.figure()
@@ -79,3 +82,16 @@ def test_multiline():
 
     ax.set_xticks([])
     ax.set_yticks([])
+
+@image_comparison(baseline_images=['antialiased'], extensions=['png'],
+                  freetype_version=("2.4.5", "2.4.6"))
+def test_antialiasing():
+    matplotlib.rcParams['text.antialiased'] = True
+
+    fig = plt.figure(figsize=(5.25, 0.75))
+    fig.text(0.5, 0.75, "antialiased", horizontalalignment='center', verticalalignment='center')
+    fig.text(0.5, 0.25, "$\sqrt{x}$", horizontalalignment='center', verticalalignment='center')
+    # NOTE: We don't need to restore the rcParams here, because the
+    # test cleanup will do it for us.  In fact, if we do it here, it
+    # will turn antialiasing back off before the images are actually
+    # rendered.

@@ -435,7 +435,7 @@ it::
   from matplotlib.testing.decorators import image_comparison
   import matplotlib.pyplot as plt
 
-  @image_comparison(baseline_images=['spines_axes_positions.png'])
+  @image_comparison(baseline_images=['spines_axes_positions'])
   def test_spines_axes_positions():
       # SF bug 2852168
       fig = plt.figure()
@@ -450,23 +450,25 @@ it::
       ax.xaxis.set_ticks_position('top')
       ax.spines['left'].set_color('none')
       ax.spines['bottom'].set_color('none')
-      fig.savefig('spines_axes_positions.png')
 
-The mechanism for comparing images is extremely simple -- it compares
-an image saved in the current directory with one from the Matplotlib
-sample_data repository. The correspondence is done by matching
-filenames, so ensure that:
+The first time this test is run, there will be no baseline image to
+compare against, so the test will fail.  Copy the output images (in
+this case `result_images/test_category/spines_axes_positions.*`) to
+the `baseline_images` tree in the source directory (in this case
+`lib/matplotlib/tests/baseline_images/test_category`) and put them
+under source code revision control (with `git add`).  When rerunning
+the tests, they should now pass.
 
- * The filename given to :meth:`~matplotlib.figure.Figure.savefig` is
-   exactly the same as the filename given to
-   :func:`~matplotlib.testing.decorators.image_comparison` in the
-   ``baseline_images`` argument.
+There are two optional keyword arguments to the `image_comparison`
+decorator:
 
- * The correct image gets added to the sample_data respository with
-   the name ``test_baseline_<IMAGE_FILENAME.png>``. (See
-   :ref:`sample-data` above for a description of how to add files to
-   the sample_data repository.)
+   - `extensions`: If you only wish to test some of the image formats
+     (rather than the default `png`, `svg` and `pdf` formats), pass a
+     list of the extensions to test.
 
+   - `tol`: This is the image matching tolerance, the default `1e-3`.
+     If some variation is expected in the image between runs, this
+     value may be adjusted.
 
 Known failing tests
 -------------------

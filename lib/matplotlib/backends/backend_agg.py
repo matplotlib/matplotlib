@@ -157,7 +157,7 @@ class RendererAgg(RendererBase):
             # We pass '0' for angle here, since it will be rotated (in raster
             # space) in the following call to draw_text_image).
             font.set_text(s, 0, flags=flags)
-        font.draw_glyphs_to_bitmap()
+        font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
 
         #print x, y, int(x), int(y), s
         self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, angle, gc)

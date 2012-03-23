@@ -719,11 +719,11 @@ _set_dashes(CGContextRef cr, PyObject* linestyle)
 
     if (offset!=Py_None)
     {
-        if (PyFloat_Check(offset)) phase = PyFloat_AsDouble(offset);
+        if (PyFloat_Check(offset)) phase = PyFloat_AS_DOUBLE(offset);
 #if PY3K
-        else if (PyLong_Check(offset)) phase = PyLong_AsLong(offset);
+        else if (PyLong_Check(offset)) phase = PyLong_AS_LONG(offset);
 #else
-        else if (PyInt_Check(offset)) phase = PyInt_AsLong(offset);
+        else if (PyInt_Check(offset)) phase = PyInt_AS_LONG(offset);
 #endif
         else
         {
@@ -759,7 +759,7 @@ _set_dashes(CGContextRef cr, PyObject* linestyle)
                 lengths[i] = (CGFloat) PyFloat_AS_DOUBLE(value);
 #if PY3K
             else if (PyLong_Check(value))
-                lengths[i] = (CGFloat) PyLong_AsLong(value);
+                lengths[i] = (CGFloat) PyLong_AS_LONG(value);
 #else
             else if (PyInt_Check(value))
                 lengths[i] = (CGFloat) PyInt_AS_LONG(value);
@@ -2451,6 +2451,40 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
     {
         PyObject* item = PyList_GET_ITEM(family, i);
 #if PY3K
+        ascii = PyUnicode_AsASCIIString(item);
+        if(!ascii) return 0;
+        temp = PyBytes_AS_STRING(ascii);
+#else
+        if(!PyString_Check(item)) return 0;
+        temp = PyString_AS_STRING(item);
+#endif
+        for (j = 0; j < NMAP; j++)
+        {    if (!strcmp(map[j].name, temp))
+             {    temp = psnames[map[j].index][k];
+                  break;
+             }
+        }
+        /* If the font name is not found in mapping, we assume */
+        /* that the user specified the Postscript name directly */
+
+        /* Check if this font can be found on the system */
+        string = CFStringCreateWithCString(kCFAllocatorDefault,
+                                           temp,
+                                           kCFStringEncodingMacRoman);
+#ifdef COMPILING_FOR_10_5
+        font = CTFontCreateWithName(string, size, NULL);
+#else
+        font = ATSFontFindFromPostScriptName(string, kATSOptionFlagsDefault);
+#endif
+
+        CFRelease(string);
+
+        if(font)
+        {
+            name = temp;
+            break;
+        }
+#if PY3K
         Py_DECREF(ascii);
         ascii = NULL;
 #endif
@@ -2994,12 +3028,12 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
     }
 
     Py_INCREF(image);
-#if PY3K
-    n = PyByteArray_GET_SIZE(image);
-    data = PyByteArray_AS_STRING(image);
+#ifdef PY3K
+    n = PyBytes_GET_SIZE(image);
+    data = PyBytes_AS_STRING(image);
 #else
     n = PyString_GET_SIZE(image);
-    data = PyString_AsString(image);
+    data = PyString_AS_STRING(image);
 #endif
 
     provider = CGDataProviderCreateWithData(image,
@@ -3016,7 +3050,7 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
                                        provider,
                                        NULL,
                                        false,
-                                       kCGRenderingIntentDefault);
+				       kCGRenderingIntentDefault);
     CGColorSpaceRelease(colorspace);
     CGDataProviderRelease(provider);
 
@@ -4698,7 +4732,12 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
 {
     const char* message;
 
+#if PY3K
+    if(!PyArg_ParseTuple(args, "y", &message)) return NULL;
+#else
     if(!PyArg_ParseTuple(args, "s", &message)) return NULL;
+#endif
+
     NSText* messagebox = self->messagebox;
 
     if (messagebox)
@@ -5567,7 +5606,11 @@ set_cursor(PyObject* unused, PyObject* args)
 static PyObject*
 show(PyObject* self)
 {
-    if(nwin > 0) [NSApp run];
+    if(nwin > 0)
+    {
+        [NSApp activateIgnoringOtherApps: YES];
+        [NSApp run];
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
