@@ -46,11 +46,13 @@ class RendererAgg(RendererBase):
     context instance that controls the colors/styles
     """
     debug=1
+    _fontd = maxdict(50)
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
         self.texd = maxdict(50)  # a cache of tex image rasters
-        self._fontd = maxdict(50)
+
+
 
         self.dpi = dpi
         self.width = width
@@ -82,7 +84,7 @@ class RendererAgg(RendererBase):
 
     def draw_path_collection(self, *kl, **kw):
         return self._renderer.draw_path_collection(*kl, **kw)
-        
+
     def _update_methods(self):
         #self.draw_path = self._renderer.draw_path  # see below
         #self.draw_markers = self._renderer.draw_markers
@@ -215,15 +217,16 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
 
         key = hash(prop)
-        font = self._fontd.get(key)
+        font = RendererAgg._fontd.get(key)
 
         if font is None:
             fname = findfont(prop)
-            font = self._fontd.get(fname)
+            font = RendererAgg._fontd.get(fname)
             if font is None:
                 font = FT2Font(str(fname))
-                self._fontd[fname] = font
-            self._fontd[key] = font
+                RendererAgg._fontd[fname] = font
+
+            RendererAgg._fontd[key] = font
 
         font.clear()
         size = prop.get_size_in_points()
