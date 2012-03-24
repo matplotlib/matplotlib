@@ -46,12 +46,23 @@ class RendererAgg(RendererBase):
     context instance that controls the colors/styles
     """
     debug=1
-    _fontd = maxdict(50)
+
+    # we want to cache the fonts at the class level so that when
+    # multiple figures are created we can reuse them.  This helps with
+    # a bug on windows where the creation of too many figures leads to
+    # too many open file handles.  However, storing them at the class
+    # level is not thread safe.  The solution here is to cache the
+    # fonts at class level, but for a given renderer to slurp them
+    # down into the instance cache "_fontd_instance" from the
+    # "_fontd_class" in a call to pre_draw_hook (managed by the
+    # FigureCanvas) and to restore them to the fontd_class in the
+    # post_draw_hook.
+    _fontd_class = maxdict(50)
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
         self.texd = maxdict(50)  # a cache of tex image rasters
-
+        self._fontd_instance = maxdict(50)
 
 
         self.dpi = dpi
@@ -70,6 +81,16 @@ class RendererAgg(RendererBase):
         self.bbox = Bbox.from_bounds(0, 0, self.width, self.height)
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
+
+    def pre_draw_hook(self):
+        'called by FigureCanvas right before draw; slurp in the class level cache'
+        self._fontd_instance = RendererAgg._fontd_class
+        RendererAgg._fontd_class = {}
+
+    def post_draw_hook(self):
+        'called by FigureCanvas right after draw; restore the class level cache'
+        RendererAgg._fontd_class = self._fontd_instance
+        self._fontd_instance = {}
 
     def _get_hinting_flag(self):
         if rcParams['text.hinting']:
@@ -217,16 +238,16 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
 
         key = hash(prop)
-        font = RendererAgg._fontd.get(key)
+        font = self._fontd_instance.get(key)
 
         if font is None:
             fname = findfont(prop)
-            font = RendererAgg._fontd.get(fname)
+            font = self._fontd_instance.get(fname)
             if font is None:
                 font = FT2Font(str(fname))
-                RendererAgg._fontd[fname] = font
+                self._fontd_instance[fname] = font
 
-            RendererAgg._fontd[key] = font
+            self._fontd_instance[key] = font
 
         font.clear()
         size = prop.get_size_in_points()
@@ -361,6 +382,7 @@ class RendererAgg(RendererBase):
                                       image)
 
 
+
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -401,7 +423,9 @@ class FigureCanvasAgg(FigureCanvasBase):
         if __debug__: verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
 
         self.renderer = self.get_renderer()
+        self.renderer.pre_draw_hook()
         self.figure.draw(self.renderer)
+        self.renderer.post_draw_hook()
 
     def get_renderer(self):
         l, b, w, h = self.figure.bbox.bounds
