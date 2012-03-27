@@ -494,8 +494,8 @@ public:
         code = m_source->vertex(x, y);
         if (m_snap && agg::is_vertex(code))
         {
-            *x = floor(*x - m_snap_value) + m_snap_value;
-            *y = floor(*y - m_snap_value) + m_snap_value;
+            *x = floor(*x + 0.5 - m_snap_value) + m_snap_value;
+            *y = floor(*y + 0.5 - m_snap_value) + m_snap_value;
         }
         return code;
     }
