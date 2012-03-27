@@ -1417,6 +1417,18 @@ class Figure(Artist):
         self.subplots_adjust(**kwargs)
 
 
+    def tight_labels(self, renderer=None, label_fraction_x=0.5, label_fraction_y=0.3):
+        """
+        """
+
+        from tight_layout import get_renderer
+
+        if renderer is None:
+            renderer = get_renderer(self)
+
+        for ax in self.axes:
+            ax.optimize_ticker_nbin( label_fraction_x, label_fraction_y, renderer)
+
 
 def figaspect(arg):
     """

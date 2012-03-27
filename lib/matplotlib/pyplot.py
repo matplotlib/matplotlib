@@ -1057,6 +1057,15 @@ def tight_layout(pad=1.2, h_pad=None, w_pad=None):
     draw_if_interactive()
 
 
+def tight_labels(label_fraction_x=0.5, label_fraction_y=0.3):
+    """
+    """
+
+    fig = gcf()
+    fig.tight_labels(None, label_fraction_x, label_fraction_y)
+    draw_if_interactive()
+
+
 
 def box(on=None):
     """
