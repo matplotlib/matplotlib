@@ -108,6 +108,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             cmap = cm.get_cmap(cmap)
 
     streamlines = []
+    arrows = []
     for t in trajectories:
         tgx = np.array(t[0])
         tgy = np.array(t[1])
@@ -139,6 +140,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                                     transform=transform, 
                                     **arrow_kw)
         axes.add_patch(p)
+        arrows.append(p)
 
     lc = mcollections.LineCollection(streamlines, 
                                      transform=transform, 
@@ -151,7 +153,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     axes.update_datalim(((x.min(), y.min()), (x.max(), y.max())))
     axes.autoscale_view(tight=True)
-    return lc
+
+    arrow_collection = matplotlib.collections.PatchCollection(arrows)
+    return lc, arrow_collection
 
 
 # Coordinate definitions
