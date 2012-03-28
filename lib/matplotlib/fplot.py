@@ -74,20 +74,22 @@ def fplot(axes, f, limits, *args, **kwargs):
             #
             # If the function values are too close, the payoff is
             # negligible, so skip them.
-            if np.abs(x_new - x[i]) < min_step or np.abs(f(x_new) - f(x[i])) < min_step:
+            f_new = f(x_new)    # Used later, so store it
+            f_i = f(x[i])       # Used later, so store it
+            if abs(x_new - x[i]) < min_step or abs(f_new - f_i) < min_step:
                 continue
 
-            # Compute gradient
-            # FIXME: What if f(x[i]) is nan?
-            grad = (f(x[i+1]) - f(x[i])) / (x[i+1] - x[i])
+            # Compare gradients of actual f and linear approximation
+            # FIXME: What if f(x[i]) or f(x[i+1]) is nan?
+            dx = abs(x[i+1] - x[i])
+            f_interp = (f(x[i+1]) + f_i)
 
-            # Compute gradients to the left and right of x_new
-            grad_right = (f(x[i+1]) - f(x_new)) / (x[i+1] - x_new)
-            grad_left = (f(x_new) - f(x[i])) / (x_new - x[i])
+            # This line is the absolute error of the gradient
+            grad_error = np.abs(f_interp - 2.0 * f_new) / dx
 
-            # If the new gradients are not within the tolerance, store
+            # If the new gradient is not within the tolerance, store
             # the subdivision point for merging later
-            if np.abs(grad_right - grad) > tol or np.abs(grad_left - grad) > tol:
+            if grad_error > tol:
                 within_tol = False
                 new_pts.append(x_new)
 
