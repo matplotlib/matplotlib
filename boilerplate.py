@@ -71,6 +71,7 @@ _plotcommands = (
     'fill_betweenx',
     'hexbin',
     'hist',
+    'hist2d',
     'hlines',
     'imshow',
     'loglog',
