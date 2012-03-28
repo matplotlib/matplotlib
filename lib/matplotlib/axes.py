@@ -7955,13 +7955,17 @@ class Axes(martist.Artist):
 
         *cmin* : [None| scalar]
             All bins that has count less than cmin will not be displayed 
-            and these count values in the return value count histogram will also be set to None upon return
+            and these count values in the return value count histogram will also be set to nan upon return
  
         *cmax* : [None| scalar]
             All bins that has count more than cmax will not be displayed (set to none before passing to imshow)
-            and these count values in the return value count histogram will also be set to None upon return
+            and these count values in the return value count histogram will also be set to nan upon return
         
         Remaining keyword arguments are passed directly to :meth:imshow
+        
+        **Example:**
+
+        .. plot:: mpl_examples/pylab_examples/hist2d_demo.py
         """
 
         # xrange becomes range after 2to3
