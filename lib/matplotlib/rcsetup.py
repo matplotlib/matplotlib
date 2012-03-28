@@ -423,6 +423,7 @@ defaultParams = {
     'text.dvipnghack'     : [None, validate_bool_maybe_none],
     'text.hinting'        : [True, validate_hinting],
     'text.hinting_factor' : [8, validate_int],
+    'text.antialiased'    : [True, validate_bool],
 
     # The following are deprecated and replaced by, e.g., 'font.style'
     #'text.fontstyle'      : ['normal', str],
