@@ -121,6 +121,7 @@ cmappable = {
     'scatter' : 'sci(%(ret)s)',
     'pcolor'  : 'sci(%(ret)s)',
     'pcolormesh': 'sci(%(ret)s)',
+    'hist2d' : 'sci(%(ret)s[-1])',
     'imshow'  : 'sci(%(ret)s)',
     #'spy'    :  'sci(%(ret)s)',  ### may return image or Line2D
     'quiver' :  'sci(%(ret)s)',
