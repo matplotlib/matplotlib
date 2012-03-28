@@ -35,15 +35,10 @@ def fplot(axes, f, limits, *args, **kwargs):
     # as a function of the domain length
     scale = max(1.0, abs(limits[1] - limits[0]))
 
-    tol = kwargs.pop('tol', None)
-    n = kwargs.pop('tol', None)
+    # 0.2% absolute error
+    tol = kwargs.pop('tol', 2e-3)
+    n = kwargs.pop('tol', 50)
 
-    if tol is None:
-        # 0.2% absolute error
-        tol = 2e-3
-
-    if n is None:
-        n = 50
     x = np.linspace(limits[0], limits[1], n)
 
     # Bisect abscissa until the gradient error changes by less than tol
