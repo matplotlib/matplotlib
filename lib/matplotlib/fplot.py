@@ -31,6 +31,9 @@ def fplot(axes, f, limits, *args, **kwargs):
     # Some small number, usually close to machine epsilon
     eps = 1e-10
 
+    # If the gradient is bigger than this, we say it has a singularity
+    sing_tol = 1e6
+
     # The scaling factor used to scale the step size
     # as a function of the domain length
     scale = max(1.0, abs(limits[1] - limits[0]))
@@ -50,6 +53,8 @@ def fplot(axes, f, limits, *args, **kwargs):
         new_pts = []
         new_f = []
         for i in xrange(len(x)-1):
+            if np.isnan(f_vals[i]):
+                continue
             # Make sure the step size is not pointlessly small.
             # This is a numerical check to prevent silly roundoff errors.
             #
@@ -85,7 +90,10 @@ def fplot(axes, f, limits, *args, **kwargs):
 
             # If the new gradient is not within the tolerance, store
             # the subdivision point for merging later
-            if grad_error > tol:
+            if grad_error > sing_tol:
+                f_vals[i] = np.nan
+                f_vals[i+1] = np.nan
+            elif grad_error > tol:
                 within_tol = False
                 new_pts.append(x_new)
                 new_f.append(f_new)
