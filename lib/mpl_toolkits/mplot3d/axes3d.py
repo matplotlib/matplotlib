@@ -609,9 +609,9 @@ class Axes3D(Axes):
         """
         return self.zaxis.set_ticks(*args, **kwargs)
         
-    def get_zticks(self, *args, **kwargs):
+    def get_zticks(self, minor=False):
         """
-        Get the z-axis tick objects.
+        Return the z ticks as a list of locations  
         See :meth:`matplotlib.axes.Axes.get_yticks` for more details.
 
         .. note::
@@ -619,7 +619,7 @@ class Axes3D(Axes):
 
         .. versionadded:: 1.1.0
         """
-        return self.zaxis.get_ticks(*args, **kwargs)
+        return self.zaxis.get_ticklocs(minor=minor)
 
     def get_zmajorticklabels(self) :
         """
