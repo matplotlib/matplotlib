@@ -36,7 +36,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 
-from matplotlib.container import Container, BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -7863,10 +7863,10 @@ class Axes(martist.Artist):
 
                 if fill:
                     patches.append( self.fill(x, y,
-                        closed=False, facecolor=c)[0] )
+                        closed=False, facecolor=c) )
                 else:
                     patches.append( self.fill(x, y,
-                        closed=False, edgecolor=c, fill=False)[0] )
+                        closed=False, edgecolor=c, fill=False) )
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
@@ -7899,7 +7899,7 @@ class Axes(martist.Artist):
             labels += [None] * (nx - len(labels))
 
         for (patch, lbl) in zip(patches, labels):
-            if isinstance(patch,Container):
+            if patch:
                 p = patch[0]
                 p.update(kwargs)
                 if lbl is not None: p.set_label(lbl)
@@ -7909,11 +7909,7 @@ class Axes(martist.Artist):
                 for p in patch[1:]:
                     p.update(kwargs)
                     p.set_label('_nolegend_')
-            else:
-                patch.set_label(lbl)
-                patch.update(kwargs)
-                patch.set_snap(False)
-        
+
         if binsgiven:
             if orientation == 'vertical':
                 self.update_datalim([(bins[0],0), (bins[-1],0)], updatey=False)
