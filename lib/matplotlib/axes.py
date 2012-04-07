@@ -29,6 +29,7 @@ import matplotlib.patches as mpatches
 import matplotlib.spines as mspines
 import matplotlib.quiver as mquiver
 import matplotlib.scale as mscale
+import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
 import matplotlib.table as mtable
 import matplotlib.text as mtext
@@ -6381,6 +6382,10 @@ class Axes(martist.Artist):
         self.autoscale_view()
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
+
+    def stackplot(self, x, y):
+        return mstack.stackplot(self, x, y)
+    stackplot.__doc__ = mstack.stackplot.__doc__
 
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, arrowsize=1, arrowstyle='-|>', minlength=0.1):
