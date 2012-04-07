@@ -635,7 +635,7 @@ in the normalized axes coordinate.
 
         if len(handleboxes) > 0:
 
-            # We calculate number of lows in each column. The first
+            # We calculate number of rows in each column. The first
             # (num_largecol) columns will have (nrows+1) rows, and remaing
             # (num_smallcol) columns will have (nrows) rows.
             ncol = min(self._ncol, len(handleboxes))
