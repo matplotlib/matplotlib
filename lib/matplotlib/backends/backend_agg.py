@@ -21,7 +21,7 @@ TODO:
   * integrate screen dpi w/ ppi and text
 """
 from __future__ import division
-
+import threading
 import numpy as np
 
 from matplotlib import verbose, rcParams
@@ -46,11 +46,24 @@ class RendererAgg(RendererBase):
     context instance that controls the colors/styles
     """
     debug=1
+
+    # we want to cache the fonts at the class level so that when
+    # multiple figures are created we can reuse them.  This helps with
+    # a bug on windows where the creation of too many figures leads to
+    # too many open file handles.  However, storing them at the class
+    # level is not thread safe.  The solution here is to let the
+    # FigureCanvas acquire a lock on the fontd at the start of the
+    # draw, and release it when it is done.  This allows multiple
+    # renderers to share the cached fonts, but only one figure can
+    # draw at at time and so the font cache is used by only one
+    # renderer at a time
+
+    lock = threading.Lock()
+    _fontd = maxdict(50)
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
         self.texd = maxdict(50)  # a cache of tex image rasters
-        self._fontd = maxdict(50)
 
         self.dpi = dpi
         self.width = width
@@ -69,6 +82,7 @@ class RendererAgg(RendererBase):
         if __debug__: verbose.report('RendererAgg.__init__ done',
                                      'debug-annoying')
 
+
     def _get_hinting_flag(self):
         if rcParams['text.hinting']:
             return LOAD_FORCE_AUTOHINT
@@ -82,7 +96,7 @@ class RendererAgg(RendererBase):
 
     def draw_path_collection(self, *kl, **kw):
         return self._renderer.draw_path_collection(*kl, **kw)
-        
+
     def _update_methods(self):
         #self.draw_path = self._renderer.draw_path  # see below
         #self.draw_markers = self._renderer.draw_markers
@@ -215,15 +229,16 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
 
         key = hash(prop)
-        font = self._fontd.get(key)
+        font = RendererAgg._fontd.get(key)
 
         if font is None:
             fname = findfont(prop)
-            font = self._fontd.get(fname)
+            font = RendererAgg._fontd.get(fname)
             if font is None:
                 font = FT2Font(str(fname))
-                self._fontd[fname] = font
-            self._fontd[key] = font
+                RendererAgg._fontd[fname] = font
+
+            RendererAgg._fontd[key] = font
 
         font.clear()
         size = prop.get_size_in_points()
@@ -358,6 +373,7 @@ class RendererAgg(RendererBase):
                                       image)
 
 
+
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -398,7 +414,15 @@ class FigureCanvasAgg(FigureCanvasBase):
         if __debug__: verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
 
         self.renderer = self.get_renderer()
-        self.figure.draw(self.renderer)
+        # acquire a lock on the shared font cache
+        RendererAgg.lock.acquire()
+
+        try:
+            self.figure.draw(self.renderer)
+        finally:
+            RendererAgg.lock.release()
+
+
 
     def get_renderer(self):
         l, b, w, h = self.figure.bbox.bounds
