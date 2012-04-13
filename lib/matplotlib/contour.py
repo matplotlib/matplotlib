@@ -18,6 +18,7 @@ import matplotlib.text as text
 import matplotlib.cbook as cbook
 import matplotlib.mlab as mlab
 import matplotlib.mathtext as mathtext
+import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
 
 # Import needed for adding manual selection capability to clabel
@@ -151,10 +152,9 @@ class ContourLabeler:
         self.labelManual=kwargs.get('manual',False)
 
         self.rightside_up = kwargs.get('rightside_up', True)
-
         if len(args) == 0:
             levels = self.levels
-            indices = range(len(levels))
+            indices = range(len(self.cvalues))
         elif len(args) == 1:
             levlabs = list(args[0])
             indices, levels = [], []
@@ -734,6 +734,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         self.linewidths = kwargs.get('linewidths', None)
         self.linestyles = kwargs.get('linestyles', None)
 
+        self.hatches = kwargs.get('hatches', [None])
+
         self.alpha = kwargs.get('alpha', None)
         self.origin = kwargs.get('origin', None)
         self.extent = kwargs.get('extent', None)
@@ -838,6 +840,56 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.collections.append(col)
         self.changed() # set the colors
 
+    def legend_elements(self, variable_name='x', str_format=str):
+        """
+        Return a list of artist and labels suitable for passing through
+        to :func:`plt.legend` which represent this ContourSet.
+         
+        Args:
+        
+            *variable_name*: the string used inside the innequality used 
+              on the labels
+            
+            *str_format*: function used to format the numbers in the labels
+        """
+        artists = []
+        labels = []
+                
+        if self.filled:
+            lowers, uppers = self._get_lowers_and_uppers()
+            n_levels = len(self.collections)
+            
+            for i, (collection, lower, upper) in enumerate(zip(self.collections,
+                                                               lowers, uppers)):
+                    patch = mpatches.Rectangle((0, 0), 1, 1, 
+                                               facecolor=collection.get_facecolor()[0],
+                                               hatch=collection.get_hatch(),
+                                               alpha=collection.get_alpha(),
+                                               )
+                    artists.append(patch)
+                    
+                    lower = str_format(lower)
+                    upper = str_format(upper)
+                    
+                    if i == 0 and self.extend in ('lower', 'both'):
+                        labels.append(r'$%s \leq %s$' % (variable_name, upper, ))
+                    elif i == n_levels-1 and self.extend in ('upper', 'both'):
+                        labels.append(r'$%s > %s$' % (variable_name, lower, ))
+                    else:
+                        labels.append(r'$%s < %s \leq %s$' % (lower, variable_name, upper))
+        else:
+            for collection, level in zip(self.collections, self.levels):
+                
+                patch = mcoll.LineCollection(None)
+                patch.update_from(collection)
+                    
+                artists.append(patch)
+                # format the level for insertion into the labels
+                level = str_format(level)
+                labels.append(r'$%s = %s$' % (variable_name, level))
+                
+        return artists, labels        
+
     def _process_args(self, *args, **kwargs):
         """
         Process *args* and *kwargs*; override in derived classes.
@@ -912,9 +964,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         tcolors = [ (tuple(rgba),) for rgba in
                                 self.to_rgba(self.cvalues, alpha=self.alpha)]
         self.tcolors = tcolors
-        for color, collection in zip(tcolors, self.collections):
+        hatches = self.hatches * len(tcolors)
+        for color, hatch, collection in zip(tcolors, hatches, self.collections):
             if self.filled:
                 collection.set_facecolor(color)
+                # update the collection's hatch (may be None)
+                collection.set_hatch(hatch)
             else:
                 collection.set_color(color)
         for label, cv in zip(self.labelTexts, self.labelCValues):
@@ -1487,6 +1542,11 @@ class QuadContourSet(ContourSet):
             points. This may never actually be advantageous, so this option may
             be removed. Chunking introduces artifacts at the chunk boundaries
             unless *antialiased* is *False*.
+            
+          *hatches*: 
+            A list of cross hatch patterns to use on the filled areas.
+            If None, no hatching will be added to the contour.
+            Currently only supported on a few backends.
 
         Note: contourf fills intervals that are closed at the top; that
         is, for boundaries *z1* and *z2*, the filled region is::
