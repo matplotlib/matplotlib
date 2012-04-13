@@ -19,6 +19,7 @@ import matplotlib.contour as mcontour
 import matplotlib.dates as mdates
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
+import matplotlib.fplot as mfplot
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
@@ -6387,6 +6388,10 @@ class Axes(martist.Artist):
         self.autoscale_view()
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
+
+    def fplot(self, f, limits, *args, **kwargs):
+        return mfplot.fplot(self, f, limits, *args, **kwargs)
+    fplot.__doc__ = mfplot.fplot.__doc__
 
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, arrowsize=1, arrowstyle='-|>', minlength=0.1):
