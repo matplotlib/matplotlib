@@ -285,13 +285,17 @@ class PathClipper
     double                 m_nextX;
     double                 m_nextY;
     bool                   m_has_next;
+    double                 m_initX;
+    double                 m_initY;
+    bool                   m_has_init;
+    bool                   m_broke_path;
 
 public:
     PathClipper(VertexSource& source, bool do_clipping,
                 double width, double height) :
         m_source(&source), m_do_clipping(do_clipping),
         m_cliprect(-1.0, -1.0, width + 1.0, height + 1.0), m_moveto(true),
-        m_has_next(false)
+        m_has_next(false), m_has_init(false), m_broke_path(false)
     {
         // empty
     }
@@ -299,7 +303,8 @@ public:
     PathClipper(VertexSource& source, bool do_clipping,
                 const agg::rect_base<double>& rect) :
         m_source(&source), m_do_clipping(do_clipping),
-        m_cliprect(rect), m_moveto(true), m_has_next(false)
+        m_cliprect(rect), m_moveto(true), m_has_next(false),
+        m_has_init(false), m_broke_path(false)
     {
         m_cliprect.x1 -= 1.0;
         m_cliprect.y1 -= 1.0;
@@ -334,6 +339,12 @@ public:
 
             while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop)
             {
+                if (!m_has_init)
+                {
+                    m_initX = *x;
+                    m_initY = *y;
+                    m_has_init = true;
+                }
                 if (m_moveto)
                 {
                     m_moveto = false;
@@ -362,12 +373,20 @@ public:
                             m_nextX = x1;
                             m_nextY = y1;
                             m_has_next = true;
+                            m_broke_path = true;
                             return agg::path_cmd_move_to;
                         }
                         *x = x1;
                         *y = y1;
                         return code;
                     }
+                }
+                else if (code == agg::path_cmd_end_poly | agg::path_flags_close
+                         && m_broke_path && m_has_init)
+                {
+                    *x = m_initX;
+                    *y = m_initY;
+                    return agg::path_cmd_line_to;
                 }
                 else
                 {
