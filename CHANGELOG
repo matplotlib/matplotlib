@@ -1,3 +1,9 @@
+2012-04-06 When path clipping changes a LINETO to a MOVETO, it also
+           changes any CLOSEPOLY command to a LINETO to the initial
+           point. This fixes a problem with pdf and svg where the
+           CLOSEPOLY would then draw a line to the latest MOVETO
+           position instead of the intended initial position. - JKS
+
 2012-01-23 The radius labels in polar plots no longer use a fixed
            padding, but use a different alignment depending on the
            quadrant they are in.  This fixes numerical problems when

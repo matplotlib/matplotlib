@@ -631,6 +631,15 @@ def test_markevery_line():
     ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
 
+@image_comparison(baseline_images=['hist_log'])
+def test_hist_log():
+    data0 = np.linspace(0,1,200)**3
+    data = np.r_[1-data0, 1+data0]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(data, fill=False, log=True)
+    ax.set_xticks([])
+    ax.set_yticks([])
 
 if __name__=='__main__':
     import nose
