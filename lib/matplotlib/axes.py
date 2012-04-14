@@ -6409,8 +6409,8 @@ class Axes(martist.Artist):
         return q
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
-    def stackplot(self, x, y):
-        return mstack.stackplot(self, x, y)
+    def stackplot(self, x, *args):
+        return mstack.stackplot(self, x, *args)
     stackplot.__doc__ = mstack.stackplot.__doc__
 
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
