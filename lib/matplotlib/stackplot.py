@@ -18,12 +18,12 @@ def stackplot(axes, x, y):
     Parameters
     ----------
     *x* : 1d array of dimension N
-    *y* : 2d array of dimension MxN
+    *y* : 2d array of dimension MxN. The data is assumed to be unstacked.
 
     Returns
     -------
     *r* : A list of `matplotlib.collections.PolyCollection`, one for each
-        element in the stacked area plot.
+          element in the stacked area plot.
     """
 
     y = np.atleast_2d(y)
