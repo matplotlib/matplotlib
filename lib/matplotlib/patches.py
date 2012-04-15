@@ -505,6 +505,7 @@ class Rectangle(Patch):
         return self.__class__.__name__ \
             + "(%g,%g;%gx%g)" % (self._x, self._y, self._width, self._height)
 
+    
     @docstring.dedent_interpd
     def __init__(self, xy, width, height, **kwargs):
         """
