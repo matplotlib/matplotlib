@@ -235,10 +235,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_snap(self.get_snap())
-        
+
         if self._hatch:
             gc.set_hatch(self._hatch)
-        
+
         renderer.draw_path_collection(
             gc, transform.frozen(), paths, self.get_transforms(),
             offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
@@ -321,6 +321,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Hatching is supported in the PostScript, PDF, SVG and Agg
         backends only.
+
+        Unlike other properties such as linewidth and colors, hatching
+        can only be specified for the collection as a whole, not separately
+        for each member.
 
         ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
         """
