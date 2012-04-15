@@ -135,7 +135,7 @@ keyword arguments:
     False | If *cax* is None, a new *cax* is created as an instance of
     Axes. If *ax* is an instance of Subplot and *use_gridspec* is True,
     *cax* is created as an instance of Subplot using the
-    grid_spec module. 
+    grid_spec module.
 
 
 Additional keyword arguments are of two kinds:
@@ -756,11 +756,11 @@ class Colorbar(ColorbarBase):
     def on_mappable_changed(self, mappable):
         """
         Updates this colorbar to match the mappable's properties.
-        
+
         Typically this is automatically registered as an event handler
         by :func:`colorbar_factory` and should not be called manually.
-        
-        """        
+
+        """
         self.set_cmap(mappable.get_cmap())
         self.set_clim(mappable.get_clim())
         self.update_normal(mappable)
@@ -892,7 +892,7 @@ def make_axes_gridspec(parent, **kw):
 
      * *make_axes* creates an instance of Axes. *make_axes_gridspec*
         creates an instance of Subplot.
-       
+
      * *make_axes* updates the position of the
         parent. *make_axes_gridspec* replaces the grid_spec attribute
         of the parent with a new one.
@@ -979,96 +979,97 @@ class ColorbarPatch(Colorbar):
     """
     A Colorbar which is created using :class:`~matplotlib.patches.Patch`
     rather than the default :func:`~matplotlib.axes.pcolor`.
-    
+
+    It uses a list of Patch instances instead of a
+    :class:`~matplotlib.collections.PatchCollection` because the
+    latter does not allow the hatch pattern to vary among the
+    members of the collection.
     """
     def __init__(self, ax, mappable, **kw):
         # we do not want to override the behaviour of solids
         # so add a new attribute which will be a list of the
-        # colored patches in the colorbar  
+        # colored patches in the colorbar
         self.solids_patches = []
         Colorbar.__init__(self, ax, mappable, **kw)
-    
+
     def _add_solids(self, X, Y, C):
-        '''
+        """
         Draw the colors using :class:`~matplotlib.patches.Patch`;
         optionally add separators.
-        '''
+        """
         # Save, set, and restore hold state to keep pcolor from
         # clearing the axes. Ordinarily this will not be needed,
         # since the axes object should already have hold set.
         _hold = self.ax.ishold()
         self.ax.hold(True)
-        
+
         kw = {'alpha':self.alpha,}
-        
+
         n_segments = len(C)
-        
+
         # ensure there are sufficent hatches
         hatches = self.mappable.hatches * n_segments
-        
+
         patches = []
         for i in xrange(len(X)-1):
             val = C[i][0]
             hatch = hatches[i]
-            
-            xy = np.array([[X[i][0], Y[i][0]], [X[i][1], Y[i][0]], 
+
+            xy = np.array([[X[i][0], Y[i][0]], [X[i][1], Y[i][0]],
                           [X[i+1][1], Y[i+1][0]], [X[i+1][0], Y[i+1][1]]])
-            
+
             if self.orientation == 'horizontal':
                 # if horizontal swap the xs and ys
                 xy = xy[..., ::-1]
-            
+
             patch = mpatches.PathPatch(mpath.Path(xy),
                                        facecolor=self.cmap(self.norm(val)),
                                        hatch=hatch,
-                                       edgecolor='none', linewidth=0, 
+                                       edgecolor='none', linewidth=0,
                                        antialiased=False, **kw
                                        )
-            c = self.mappable.collections[i]
-            
+
             self.ax.add_patch(patch)
             patches.append(patch)
-        
+
         if self.solids_patches:
             for solid in self.solids_patches:
                 solid.remove()
-            
+
         self.solids_patches = patches
 
-        # for compatibility with Colorbar, we will implement edge drawing as a 
-        # seperate line collection, even though we could have put a line on
-        # the patches in self.solids_patches.
         if self.dividers is not None:
             self.dividers.remove()
             self.dividers = None
-            
+
         if self.drawedges:
             self.dividers = collections.LineCollection(self._edges(X,Y),
                               colors=(mpl.rcParams['axes.edgecolor'],),
                               linewidths=(0.5*mpl.rcParams['axes.linewidth'],)
                               )
             self.ax.add_collection(self.dividers)
-        
+
         self.ax.hold(_hold)
-        
-            
+
+
 def colorbar_factory(cax, mappable, **kwargs):
     """
     Creates a colorbar on the given axes for the given mappable.
-    
+
     Typically, for automatic colorbar placement given only a mappable use
     :meth:`~matplotlib.figure.Figure.colorbar`.
-    
+
     """
-    # if the given mappable is a contourset with any hatching, use 
+    # if the given mappable is a contourset with any hatching, use
     # ColorbarPatch else use Colorbar
     if (isinstance(mappable, contour.ContourSet) \
             and any([hatch is not None for hatch in mappable.hatches])):
         cb = ColorbarPatch(cax, mappable, **kwargs)
     else:
         cb = Colorbar(cax, mappable, **kwargs)
-    
+
     mappable.callbacksSM.connect('changed', cb.on_mappable_changed)
     mappable.set_colorbar(cb, cax)
-        
-    return cb            
+
+    return cb
+
