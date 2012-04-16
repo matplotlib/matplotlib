@@ -16,13 +16,13 @@ functions are directed to the current axes
 .. plot:: pyplots/pyplot_simple.py
    :include-source:
 
-You may be wondering why the x-axis ranges from 0-2 and the y-axis
-from 1-3.  If you provide a single list or array to the
+You may be wondering why the x-axis ranges from 0-3 and the y-axis
+from 1-4.  If you provide a single list or array to the
 :func:`~matplotlib.pyplot.plot` command, matplotlib assumes it is a
 sequence of y values, and automatically generates the x values for
 you.  Since python ranges start with 0, the default x vector has the
 same length as y but starts with 0.  Hence the x data are
-``[0,1,2]``.
+``[0,1,2,3]``.
 
 :func:`~matplotlib.pyplot.plot` is a versatile command, and will take
 an arbitrary number of arguments.  For example, to plot x versus y,
