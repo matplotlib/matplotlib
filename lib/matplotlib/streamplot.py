@@ -5,7 +5,6 @@ Streamline plotting for 2D vector fields.
 import numpy as np
 import matplotlib
 import matplotlib.patches as patches
-import matplotlib.cbook as cbook
 
 
 __all__ = ['streamplot']
@@ -332,9 +331,11 @@ def get_integrator(u, v, dmap, minlength):
         return -dxi, -dyi
 
     def integrate(x0, y0):
-        """Return x, y coordinates of trajectory based on starting point.
+        """Return x, y grid-coordinates of trajectory based on starting point.
 
-        Integrate both forward and backward in time from starting point.
+        Integrate both forward and backward in time from starting point in
+        grid coordinates.
+
         Integration is terminated when a trajectory reaches a domain boundary
         or when it crosses into an already occupied cell in the StreamMask. The
         resulting trajectory is None if it is shorter than `minlength`.
@@ -446,10 +447,10 @@ def _integrate_rk12(x0, y0, dmap, f):
 
 def _euler_step(xf_traj, yf_traj, dmap, f):
     """Simple Euler integration step."""
-    nx, ny = dmap.grid.shape
+    ny, nx = dmap.grid.shape
     xi = xf_traj[-1]
     yi = yf_traj[-1]
-    cx, cy = f(xi, yi) # ds.cx is in data coordinates, ds in axis coord.
+    cx, cy = f(xi, yi)
     if cx > 0:
         dsx = (nx - 1 - xi) / cx
     else:
