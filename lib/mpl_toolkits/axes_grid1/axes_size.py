@@ -280,8 +280,7 @@ class GetExtentHelper(object):
         try:
             self._get_func = self._get_func_map[direction]
         except KeyError:
-            print "direction must be one of left, right, bottom, top"
-            raise
+            raise KeyError("direction must be one of left, right, bottom, top")
 
     def __call__(self, renderer):
         vl = [self._get_func(ax.get_tightbbox(renderer, False),

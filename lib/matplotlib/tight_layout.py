@@ -10,6 +10,8 @@ will fail for some cases (for example, left or right margin is affected by xlabe
 
 """
 
+import warnings
+
 import matplotlib
 from matplotlib.transforms import TransformedBbox, Bbox
 
@@ -44,7 +46,7 @@ def auto_adjust_subplotpars(fig, renderer,
     information of subplot itself, but uses what is given by
     *nrows_ncols* and *num1num2_list* parameteres. Also, the results could be
     incorrect if some subplots have ``adjustable=datalim``.
-    
+
     Parameters:
 
     nrows_ncols
@@ -80,7 +82,7 @@ def auto_adjust_subplotpars(fig, renderer,
         hpad_inches = w_pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / renderer.dpi
     else:
         hpad_inches = pad_inches
-        
+
 
     if len(subplot_list) == 0:
         raise RuntimeError("")
@@ -96,10 +98,10 @@ def auto_adjust_subplotpars(fig, renderer,
         else: margin_right = None
         if _top: margin_top = 1. - _top
         else: margin_top = None
-        
+
     vspaces = [[] for i in range((rows+1)*cols)]
     hspaces = [[] for i in range(rows*(cols+1))]
-    
+
     union = Bbox.union
 
     if ax_bbox_list is None:
@@ -107,7 +109,7 @@ def auto_adjust_subplotpars(fig, renderer,
         for subplots in subplot_list:
             ax_bbox = union([ax.get_position(original=True) for ax in subplots])
             ax_bbox_list.append(ax_bbox)
-        
+
     for subplots, ax_bbox, (num1, num2) in zip(subplot_list,
                                                ax_bbox_list,
                                                num1num2_list):
@@ -132,7 +134,7 @@ def auto_adjust_subplotpars(fig, renderer,
 
         else:
             row2, col2 = divmod(num2, cols)
-        
+
             for row_i in range(row1, row2+1):
                 # left
                 hspaces[row_i * (cols+1) + col1].append(_get_left(tight_bbox, ax_bbox))
@@ -153,7 +155,7 @@ def auto_adjust_subplotpars(fig, renderer,
     if not margin_left:
         margin_left = max([sum(s) for s in hspaces[::cols+1]] + [0])
         margin_left += pad_inches / fig_width_inch
-    
+
     if not margin_right:
         margin_right =  max([sum(s) for s in hspaces[cols::cols+1]] + [0])
         margin_right += pad_inches / fig_width_inch
@@ -165,7 +167,7 @@ def auto_adjust_subplotpars(fig, renderer,
     if not margin_bottom:
         margin_bottom =  max([sum(s) for s in vspaces[-cols:]] + [0])
         margin_bottom += pad_inches / fig_height_inch
-    
+
 
     kwargs = dict(left=margin_left,
                   right=1-margin_right,
@@ -187,7 +189,7 @@ def auto_adjust_subplotpars(fig, renderer,
         kwargs["hspace"]=vspace/v_axes
 
     return kwargs
-    
+
 
 def get_renderer(fig):
     if fig._cachedRenderer:
@@ -199,7 +201,7 @@ def get_renderer(fig):
             renderer = canvas.get_renderer()
         else:
             # not sure if this can happen
-            print "tight_layout : falling back to Agg renderer"
+            warnings.warn("tight_layout : falling back to Agg renderer")
             from matplotlib.backends.backend_agg import FigureCanvasAgg
             canvas = FigureCanvasAgg(fig)
             renderer = canvas.get_renderer()
