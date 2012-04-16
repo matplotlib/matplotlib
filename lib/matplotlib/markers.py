@@ -198,10 +198,9 @@ that define the shape.
         self._set_custom_marker(self._marker)
 
     def _set_vertices(self):
-        # XXX how can this possibly work?
         verts = self._marker
-        path = Path(verts)
-        self._set_custom_marker(path)
+        marker = Path(verts)
+        self._set_custom_marker(marker)
 
     def _set_tuple_marker(self):
         marker = self._marker
