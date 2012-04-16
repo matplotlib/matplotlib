@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from math import floor
 
 import numpy as np
@@ -6,7 +8,6 @@ import math
 A = np.array
 
 from mpl_toolkits.axisartist.grid_finder import ExtremeFinderSimple
-from __future__ import print_function
 
 def select_step_degree(dv):
 
