@@ -35,7 +35,7 @@ math_tests = [
     r"$\gamma = \frac{x=\frac{6}{8}}{y} \delta$",
     r'$\limsup_{x\to\infty}$',
     r'$\oint^\infty_0$',
-    r"$f^'$",
+    r"$f'$",
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
     r"$\sqrt[5]{\prod^\frac{x}{2\pi^2}_\infty}$",
