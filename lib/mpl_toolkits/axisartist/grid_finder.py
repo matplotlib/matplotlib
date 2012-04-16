@@ -7,6 +7,7 @@ clip_line_to_rect = clip_path.clip_line_to_rect
 import matplotlib.ticker as mticker
 from matplotlib.transforms import Transform
 
+from __future__ import print_function
 
 # extremes finder
 
@@ -345,4 +346,4 @@ if __name__ == "__main__":
 
     fmt = FormatterPrettyPrint()
 
-    print fmt("left", None, locs)
+    print(fmt("left", None, locs))
