@@ -145,7 +145,7 @@ FT2Image::draw_bitmap(FT_Bitmap*  bitmap,
             for (FT_Int j = x1; j < x2; ++j, ++dst) {
                 int x = (j - x1 + x_start);
                 int val = *(src + (x >> 3)) & (1 << (7 - (x & 0x7)));
-                *dst = val ? 255 : 0;
+                *dst = val ? 255 : *dst;
             }
         }
     } else {
