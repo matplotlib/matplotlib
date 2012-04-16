@@ -359,7 +359,7 @@ class TextToPath(object):
                 if enc: charcode = enc.get(glyph, None)
                 else: charcode = glyph
 
-                if charcode:
+                if charcode is not None:
                     glyph0 = font.load_char(charcode, flags=ft2font_flag)
                 else:
                     warnings.warn("The glyph (%d) of font (%s) cannot be converted with the encoding. Glyph may be wrong" % (glyph, font_bunch.filename))
