@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import numpy as np
 import matplotlib.cbook as mcbook
 from matplotlib.transforms import Bbox
@@ -6,8 +8,6 @@ clip_line_to_rect = clip_path.clip_line_to_rect
 
 import matplotlib.ticker as mticker
 from matplotlib.transforms import Transform
-
-from __future__ import print_function
 
 # extremes finder
 
