@@ -138,17 +138,32 @@ def make_external_conversion_command(cmd):
 
    return convert
 
-if matplotlib.checkdep_ghostscript() is not None:
-   # FIXME: make checkdep_ghostscript return the command
-   if sys.platform == 'win32':
-      gs = 'gswin32c'
-   else:
-      gs = 'gs'
-   cmd = lambda old, new: \
-       [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
-        '-sOutputFile=' + new, old]
-   converter['pdf'] = make_external_conversion_command(cmd)
-   converter['eps'] = make_external_conversion_command(cmd)
+try:
+   import ghostscript
+except ImportError:
+   if matplotlib.checkdep_ghostscript() is not None:
+      # FIXME: make checkdep_ghostscript return the command
+      if sys.platform == 'win32':
+         gs = 'gswin32c'
+      else:
+         gs = 'gs'
+      cmd = lambda old, new: \
+        [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH', '-dSAFER',
+         '-sOutputFile=' + new, old]
+      converter['pdf'] = make_external_conversion_command(cmd)
+      converter['eps'] = make_external_conversion_command(cmd)
+else:
+   def ghostscript_lib_converter(old, new):
+      args = [
+          'matplotlib', '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
+          '-dSAFER', '-sOutputFile=' + new, old]
+      try:
+         gs = ghostscript.Ghostscript(*args)
+      finally:
+         gs.exit()
+         ghostscript.cleanup()
+   converter['pdf'] = ghostscript_lib_converter
+   converter['eps'] = ghostscript_lib_converter
 
 if matplotlib.checkdep_inkscape() is not None:
    cmd = lambda old, new: \
