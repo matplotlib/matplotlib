@@ -10,6 +10,7 @@ import matplotlib
 from matplotlib.testing.noseclasses import ImageComparisonFailure
 from matplotlib.testing import image_util
 from matplotlib import _png
+from distutils import version
 import math
 import operator
 import os
@@ -225,20 +226,39 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
 
    # normalize the images
-   expectedImage = image_util.autocontrast( expectedImage, 2 )
-   actualImage = image_util.autocontrast( actualImage, 2 )
+   # expectedImage = image_util.autocontrast( expectedImage, 2 )
+   # actualImage = image_util.autocontrast( actualImage, 2 )
 
    # compare the resulting image histogram functions
-   rms = 0
-   bins = np.arange(257)
-   for i in xrange(0, 3):
-      h1p = expectedImage[:,:,i]
-      h2p = actualImage[:,:,i]
+   expected_version = version.LooseVersion("1.6")
+   found_version = version.LooseVersion(np.__version__)
 
-      h1h = np.histogram(h1p, bins=bins)[0]
-      h2h = np.histogram(h2p, bins=bins)[0]
+   # On Numpy 1.6, we can use bincount with minlength, which is much faster than
+   # using histogram
+   if found_version >= expected_version:
+      rms = 0
 
-      rms += np.sum(np.power((h1h-h2h), 2))
+      for i in xrange(0, 3):
+         h1p = expectedImage[:,:,i]
+         h2p = actualImage[:,:,i]
+
+         h1h = np.bincount(h1p.ravel(), minlength=256)
+         h2h = np.bincount(h2p.ravel(), minlength=256)
+
+         rms += np.sum(np.power((h1h-h2h), 2))
+   else:
+      rms = 0
+      ns = np.arange(257)
+
+      for i in xrange(0, 3):
+         h1p = expectedImage[:,:,i]
+         h2p = actualImage[:,:,i]
+
+         h1h = np.histogram(h1p, bins=bins)[0]
+         h2h = np.histogram(h2p, bins=bins)[0]
+
+         rms += np.sum(np.power((h1h-h2h), 2))
+
    rms = np.sqrt(rms / (256 * 3))
 
    diff_image = make_test_filename(actual, 'failed-diff')
