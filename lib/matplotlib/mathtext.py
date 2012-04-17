@@ -2129,6 +2129,7 @@ class Parser(object):
         # All forward declarations are here
         accent           = Forward()
         ambi_delim       = Forward()
+        apostrophe       = Forward()
         auto_delim       = Forward()
         binom            = Forward()
         bslash           = Forward()
@@ -2197,6 +2198,8 @@ class Parser(object):
         symbol_name   << (Combine(bslash + oneOf(tex2uni.keys())) +
                           FollowedBy(Regex("[^A-Za-z]").leaveWhitespace() | StringEnd()))
         symbol        << (single_symbol | symbol_name).leaveWhitespace()
+
+        apostrophe    << Regex("'+")
 
         c_over_c      << Suppress(bslash) + oneOf(self._char_over_chars.keys())
 
@@ -2289,8 +2292,9 @@ class Parser(object):
         subsuperop    << oneOf(["_", "^"])
 
         subsuper      << Group(
-                             (Optional(placeable) + OneOrMore(subsuperop - placeable))
-                           | placeable
+                             (Optional(placeable) + OneOrMore(subsuperop - placeable) + Optional(apostrophe))
+                           | (placeable + Optional(apostrophe))
+                           | apostrophe
                          )
 
         token         << ( simple
@@ -2451,8 +2455,6 @@ class Parser(object):
     def symbol(self, s, loc, toks):
         # print "symbol", toks
         c = toks[0]
-        if c == "'":
-            c = '\prime'
         try:
             char = Char(c, self.get_state())
         except ValueError:
@@ -2630,23 +2632,39 @@ class Parser(object):
         sub = None
         super = None
 
-        if len(toks[0]) == 1:
-            return toks[0].asList()
-        elif len(toks[0]) == 2:
-            op, next = toks[0]
+        # Pick all of the apostrophe's out
+        napostrophes = 0
+        new_toks = []
+        for tok in toks[0]:
+            if isinstance(tok, str) and tok not in ('^', '_'):
+                napostrophes += len(tok)
+            else:
+                new_toks.append(tok)
+        toks = new_toks
+
+        if len(toks) == 0:
+            assert napostrophes
+            nucleus = Hbox(0.0)
+        elif len(toks) == 1:
+            if not napostrophes:
+                return toks[0] # .asList()
+            else:
+                nucleus = toks[0]
+        elif len(toks) == 2:
+            op, next = toks
             nucleus = Hbox(0.0)
             if op == '_':
                 sub = next
             else:
                 super = next
-        elif len(toks[0]) == 3:
-            nucleus, op, next = toks[0]
+        elif len(toks) == 3:
+            nucleus, op, next = toks
             if op == '_':
                 sub = next
             else:
                 super = next
-        elif len(toks[0]) == 5:
-            nucleus, op1, next1, op2, next2 = toks[0]
+        elif len(toks) == 5:
+            nucleus, op1, next1, op2, next2 = toks
             if op1 == op2:
                 if op1 == '_':
                     raise ParseFatalException("Double subscript")
@@ -2668,6 +2686,12 @@ class Parser(object):
             state.font, state.fontsize, state.dpi)
         xHeight = state.font_output.get_xheight(
             state.font, state.fontsize, state.dpi)
+
+        if napostrophes:
+            if super is None:
+                super = Hlist([])
+            for i in range(napostrophes):
+                super.children.extend(self.symbol(s, loc, ['\prime']))
 
         # Handle over/under symbols, such as sum or integral
         if self.is_overunder(nucleus):

@@ -1,3 +1,9 @@
+2012-04-06 When path clipping changes a LINETO to a MOVETO, it also
+           changes any CLOSEPOLY command to a LINETO to the initial
+           point. This fixes a problem with pdf and svg where the
+           CLOSEPOLY would then draw a line to the latest MOVETO
+           position instead of the intended initial position. - JKS
+
 2012-03-27 Add support to ImageGrid for placing colorbars only at
            one edge of each column/row. - RMM
 
@@ -18,7 +24,7 @@
            (rmax - rmin) gets too small. - MGD
 
 2012-01-08 Add axes.streamplot to plot streamlines of a velocity field.
-		   Adapted from Tom Flannaghan streamplot implementation. -TSY
+                   Adapted from Tom Flannaghan streamplot implementation. -TSY
 
 2011-12-29 ps and pdf markers are now stroked only if the line width
            is nonzero for consistency with agg, fixes issue #621. - JKS

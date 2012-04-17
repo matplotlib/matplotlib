@@ -1007,7 +1007,7 @@ default_test_modules = [
     'matplotlib.tests.test_legend'
     ]
 
-def test(verbosity=0):
+def test(verbosity=1):
     """run the matplotlib test suite"""
     old_backend = rcParams['backend']
     try:

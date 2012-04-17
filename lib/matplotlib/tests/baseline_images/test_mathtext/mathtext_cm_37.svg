@@ -178,17 +178,18 @@ Q41.2188 40.1875 40.9219 40.1875
 Q39.8438 40.4844 38.625 40.4844
 Q34.0781 40.4844 32.9062 39.8906" id="Cmmi10-af"/>
     <path d="
-M7.5 41.0938
-L14.2031 63.2031
-Q14.5938 64.7031 15 65.5469
-Q15.4062 66.4062 16.2969 67.0938
-Q17.2031 67.7969 18.5938 67.7969
-Q19.9062 67.7969 20.6562 66.8438
-Q21.4062 65.9062 21.4062 64.5
-Q21.4062 63.4062 20 60.5938
-L9.40625 40.2031
+M10.2031 23
+Q9.375 23 8.82812 23.625
+Q8.29688 24.2656 8.29688 25
+Q8.29688 25.7344 8.82812 26.3594
+Q9.375 27 10.2031 27
+L67.5781 27
+Q68.3594 27 68.875 26.3594
+Q69.3906 25.7344 69.3906 25
+Q69.3906 24.2656 68.875 23.625
+Q68.3594 23 67.5781 23
 z
-" id="STIXGeneral-Regular-2032"/>
+" id="Cmsy10-a1"/>
     <path d="
 M10.5938 -217.094
 Q13.0938 -219.578 16.7031 -219.578
@@ -517,6 +518,19 @@ Q20.8438 -2.20312 19.8281 -2.20312
 L19 -2.20312
 Q17.8281 -2.20312 17.8281 -1.125" id="Cmmi10-57"/>
     <path d="
+M3.51562 5.42188
+Q2.875 5.60938 2.875 6.39062
+L15.0938 51.8125
+Q15.6719 53.6562 17.0781 54.7812
+Q18.5 55.9062 20.3125 55.9062
+Q22.6562 55.9062 24.4375 54.3594
+Q26.2188 52.8281 26.2188 50.4844
+Q26.2188 49.4688 25.6875 48.1875
+L7.625 4.98438
+Q7.28125 4.29688 6.6875 4.29688
+Q6.15625 4.29688 5 4.78125
+Q3.85938 5.28125 3.51562 5.42188" id="Cmsy10-30"/>
+    <path d="
 M7.51562 23
 Q6.6875 23 6.14062 23.625
 Q5.60938 24.2656 5.60938 25
@@ -544,18 +558,33 @@ L36.9219 23
 z
 " id="Cmr10-2b"/>
     <path d="
-M10.2031 23
-Q9.375 23 8.82812 23.625
-Q8.29688 24.2656 8.29688 25
-Q8.29688 25.7344 8.82812 26.3594
-Q9.375 27 10.2031 27
-L67.5781 27
-Q68.3594 27 68.875 26.3594
-Q69.3906 25.7344 69.3906 25
-Q69.3906 24.2656 68.875 23.625
-Q68.3594 23 67.5781 23
-z
-" id="Cmsy10-a1"/>
+M25 -2.20312
+Q12.75 -2.20312 8.32812 7.875
+Q3.90625 17.9688 3.90625 31.8906
+Q3.90625 40.5781 5.48438 48.2344
+Q7.07812 55.9062 11.7812 61.25
+Q16.5 66.6094 25 66.6094
+Q31.5938 66.6094 35.7812 63.375
+Q39.9844 60.1562 42.1875 55.0469
+Q44.3906 49.9531 45.1875 44.1094
+Q46 38.2812 46 31.8906
+Q46 23.2969 44.4062 15.7969
+Q42.8281 8.29688 38.1875 3.04688
+Q33.5469 -2.20312 25 -2.20312
+M25 0.390625
+Q30.5625 0.390625 33.2969 6.09375
+Q36.0312 11.8125 36.6719 18.75
+Q37.3125 25.6875 37.3125 33.5
+Q37.3125 41.0156 36.6719 47.3594
+Q36.0312 53.7188 33.3125 58.8594
+Q30.6094 64.0156 25 64.0156
+Q19.3438 64.0156 16.6094 58.8281
+Q13.875 53.6562 13.2344 47.3281
+Q12.5938 41.0156 12.5938 33.5
+Q12.5938 27.9375 12.8594 23
+Q13.1406 18.0625 14.3125 12.8125
+Q15.4844 7.5625 18.0938 3.96875
+Q20.7031 0.390625 25 0.390625" id="Cmr10-30"/>
     <path d="
 M17.3906 -1.125
 Q11.0781 -1.125 7.4375 3.64062
@@ -637,34 +666,6 @@ L30.9062 4
 L30.9062 -295.906
 z
 " id="Cmex10-23"/>
-    <path d="
-M25 -2.20312
-Q12.75 -2.20312 8.32812 7.875
-Q3.90625 17.9688 3.90625 31.8906
-Q3.90625 40.5781 5.48438 48.2344
-Q7.07812 55.9062 11.7812 61.25
-Q16.5 66.6094 25 66.6094
-Q31.5938 66.6094 35.7812 63.375
-Q39.9844 60.1562 42.1875 55.0469
-Q44.3906 49.9531 45.1875 44.1094
-Q46 38.2812 46 31.8906
-Q46 23.2969 44.4062 15.7969
-Q42.8281 8.29688 38.1875 3.04688
-Q33.5469 -2.20312 25 -2.20312
-M25 0.390625
-Q30.5625 0.390625 33.2969 6.09375
-Q36.0312 11.8125 36.6719 18.75
-Q37.3125 25.6875 37.3125 33.5
-Q37.3125 41.0156 36.6719 47.3594
-Q36.0312 53.7188 33.3125 58.8594
-Q30.6094 64.0156 25 64.0156
-Q19.3438 64.0156 16.6094 58.8281
-Q13.875 53.6562 13.2344 47.3281
-Q12.5938 41.0156 12.5938 33.5
-Q12.5938 27.9375 12.8594 23
-Q13.1406 18.0625 14.3125 12.8125
-Q15.4844 7.5625 18.0938 3.96875
-Q20.7031 0.390625 25 0.390625" id="Cmr10-30"/>
     <path d="
 M20.0156 -1.51562
 Q16.5469 -1.51562 13.5625 -0.21875
@@ -754,7 +755,7 @@ Q26.2656 63.625 25.6875 61.375
 L16.0156 22.6094
 Q14.7031 17.3281 14.7031 13.9219" id="Cmmi10-55"/>
    </defs>
-   <g transform="translate(84.54 43.32)scale(0.12 -0.12)">
+   <g transform="translate(84.72 43.32)scale(0.12 -0.12)">
     <use transform="translate(0.0 122.135416667)" xlink:href="#Cmmi10-57"/>
     <use transform="translate(109.441765625 172.607291667)scale(0.7)" xlink:href="#Cmr10-33"/>
     <use transform="translate(144.441765625 172.607291667)scale(0.7)" xlink:href="#Cmmi10-af"/>
@@ -784,35 +785,35 @@ Q14.7031 17.3281 14.7031 13.9219" id="Cmmi10-55"/>
     <use transform="translate(937.965820312 0.9934375)scale(0.49)" xlink:href="#Cmr10-32"/>
     <use transform="translate(1029.97144531 122.135416667)" xlink:href="#Cmmi10-64"/>
     <use transform="translate(1081.97339844 122.135416667)" xlink:href="#Cmmi10-ae"/>
-    <use transform="translate(1158.13391406 164.651041667)scale(0.7)" xlink:href="#STIXGeneral-Regular-2032"/>
+    <use transform="translate(1158.13391406 164.651041667)scale(0.7)" xlink:href="#Cmsy10-30"/>
     <use transform="translate(1145.88941406 96.6260416667)scale(0.7)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(1204.04015796 262.139416667)scale(0.77266895905)" xlink:href="#Cmex10-22"/>
-    <use transform="translate(1249.08662097 195.359697917)scale(0.7)" xlink:href="#Cmmi10-55"/>
-    <use transform="translate(1307.37554441 230.690010417)scale(0.49)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(1331.87554441 230.690010417)scale(0.49)" xlink:href="#Cmmi10-af"/>
-    <use transform="translate(1296.83564441 172.135010417)scale(0.49)" xlink:href="#Cmmi10-b1"/>
-    <use transform="translate(1318.58417957 159.635416667)scale(0.343)" xlink:href="#Cmr10-31"/>
-    <use transform="translate(1343.08417957 172.135010417)scale(0.49)" xlink:href="#Cmmi10-bd"/>
-    <use transform="translate(1368.42158191 159.635416667)scale(0.343)" xlink:href="#Cmr10-31"/>
-    <use transform="translate(1392.92158191 195.359697917)scale(0.7)" xlink:href="#Cmsy10-a1"/>
-    <use transform="translate(1447.30146472 195.359697917)scale(0.7)" xlink:href="#Cmmi10-ae"/>
-    <use transform="translate(1500.61382566 225.120635417)scale(0.49)" xlink:href="#STIXGeneral-Regular-2032"/>
-    <use transform="translate(1492.04267566 177.503135417)scale(0.49)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(1532.74819639 195.359697917)scale(0.7)" xlink:href="#Cmmi10-55"/>
-    <use transform="translate(1589.10459482 225.321885417)scale(0.49)" xlink:href="#Cmr10-31"/>
-    <use transform="translate(1613.60459482 225.321885417)scale(0.49)" xlink:href="#Cmmi10-af"/>
-    <use transform="translate(1580.49721982 177.503135417)scale(0.49)" xlink:href="#Cmmi10-bd"/>
-    <use transform="translate(1605.83462217 165.003541667)scale(0.343)" xlink:href="#Cmr10-31"/>
-    <use transform="translate(1630.33462217 177.503135417)scale(0.49)" xlink:href="#Cmmi10-be"/>
-    <use transform="translate(1658.30386045 165.003541667)scale(0.343)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(1391.08662097 63.8705729167)scale(0.7)" xlink:href="#Cmmi10-55"/>
-    <use transform="translate(1447.44301941 93.8327604167)scale(0.49)" xlink:href="#Cmr10-30"/>
-    <use transform="translate(1471.94301941 93.8327604167)scale(0.49)" xlink:href="#Cmmi10-af"/>
-    <use transform="translate(1438.83564441 46.0140104167)scale(0.49)" xlink:href="#Cmmi10-bd"/>
-    <use transform="translate(1464.17304675 33.5144166667)scale(0.343)" xlink:href="#Cmr10-31"/>
-    <use transform="translate(1488.67304675 46.0140104167)scale(0.49)" xlink:href="#Cmmi10-be"/>
-    <use transform="translate(1516.64228503 33.5144166667)scale(0.343)" xlink:href="#Cmr10-32"/>
-    <use transform="translate(1695.30386045 262.139416667)scale(0.77266895905)" xlink:href="#Cmex10-23"/>
+    <use transform="translate(1202.63039844 262.139416667)scale(0.77266895905)" xlink:href="#Cmex10-22"/>
+    <use transform="translate(1247.67686145 195.359697917)scale(0.7)" xlink:href="#Cmmi10-55"/>
+    <use transform="translate(1305.96578489 230.690010417)scale(0.49)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(1330.46578489 230.690010417)scale(0.49)" xlink:href="#Cmmi10-af"/>
+    <use transform="translate(1295.42588489 172.135010417)scale(0.49)" xlink:href="#Cmmi10-b1"/>
+    <use transform="translate(1317.17442004 159.635416667)scale(0.343)" xlink:href="#Cmr10-31"/>
+    <use transform="translate(1341.67442004 172.135010417)scale(0.49)" xlink:href="#Cmmi10-bd"/>
+    <use transform="translate(1367.01182239 159.635416667)scale(0.343)" xlink:href="#Cmr10-31"/>
+    <use transform="translate(1391.51182239 195.359697917)scale(0.7)" xlink:href="#Cmsy10-a1"/>
+    <use transform="translate(1445.8917052 195.359697917)scale(0.7)" xlink:href="#Cmmi10-ae"/>
+    <use transform="translate(1499.20406614 225.120635417)scale(0.49)" xlink:href="#Cmsy10-30"/>
+    <use transform="translate(1490.63291614 177.503135417)scale(0.49)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(1530.3516052 195.359697917)scale(0.7)" xlink:href="#Cmmi10-55"/>
+    <use transform="translate(1586.70800364 225.321885417)scale(0.49)" xlink:href="#Cmr10-31"/>
+    <use transform="translate(1611.20800364 225.321885417)scale(0.49)" xlink:href="#Cmmi10-af"/>
+    <use transform="translate(1578.10062864 177.503135417)scale(0.49)" xlink:href="#Cmmi10-bd"/>
+    <use transform="translate(1603.43803098 165.003541667)scale(0.343)" xlink:href="#Cmr10-31"/>
+    <use transform="translate(1627.93803098 177.503135417)scale(0.49)" xlink:href="#Cmmi10-be"/>
+    <use transform="translate(1655.90726926 165.003541667)scale(0.343)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(1388.67686145 63.8705729167)scale(0.7)" xlink:href="#Cmmi10-55"/>
+    <use transform="translate(1445.03325989 93.8327604167)scale(0.49)" xlink:href="#Cmr10-30"/>
+    <use transform="translate(1469.53325989 93.8327604167)scale(0.49)" xlink:href="#Cmmi10-af"/>
+    <use transform="translate(1436.42588489 46.0140104167)scale(0.49)" xlink:href="#Cmmi10-bd"/>
+    <use transform="translate(1461.76328723 33.5144166667)scale(0.343)" xlink:href="#Cmr10-31"/>
+    <use transform="translate(1486.26328723 46.0140104167)scale(0.49)" xlink:href="#Cmmi10-be"/>
+    <use transform="translate(1514.23252551 33.5144166667)scale(0.343)" xlink:href="#Cmr10-32"/>
+    <use transform="translate(1692.90726926 262.139416667)scale(0.77266895905)" xlink:href="#Cmex10-23"/>
     <path d="
 M715.319 134.635
 L715.319 140.885
@@ -822,11 +823,11 @@ L715.319 134.635
 z
 "/>
     <path d="
-M1249.09 134.635
-L1249.09 140.885
-L1682.8 140.885
-L1682.8 134.635
-L1249.09 134.635
+M1247.68 134.635
+L1247.68 140.885
+L1680.41 140.885
+L1680.41 134.635
+L1247.68 134.635
 z
 "/>
    </g>
