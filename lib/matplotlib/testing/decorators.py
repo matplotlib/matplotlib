@@ -9,7 +9,8 @@ import matplotlib.units
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
 import numpy as np
-from matplotlib.testing.compare import comparable_formats, compare_images
+from matplotlib.testing.compare import comparable_formats, compare_images, \
+     make_test_filename
 import warnings
 
 def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
@@ -114,7 +115,8 @@ class ImageComparisonTest(CleanupTest):
                 orig_expected_fname = os.path.join(baseline_dir, baseline) + '.' + extension
                 if extension == 'eps' and not os.path.exists(orig_expected_fname):
                     orig_expected_fname = os.path.join(baseline_dir, baseline) + '.pdf'
-                expected_fname = os.path.join(result_dir, 'expected-' + os.path.basename(orig_expected_fname))
+                expected_fname = make_test_filename(os.path.join(
+                    result_dir, os.path.basename(orig_expected_fname)), 'expected')
                 actual_fname = os.path.join(result_dir, baseline) + '.' + extension
                 if os.path.exists(orig_expected_fname):
                     shutil.copyfile(orig_expected_fname, expected_fname)
@@ -128,7 +130,8 @@ class ImageComparisonTest(CleanupTest):
                 def do_test():
                     figure.savefig(actual_fname)
 
-                    err = compare_images(expected_fname, actual_fname, self._tol, in_decorator=True)
+                    err = compare_images(expected_fname, actual_fname,
+                                         self._tol, in_decorator=True)
 
                     try:
                         if not os.path.exists(expected_fname):

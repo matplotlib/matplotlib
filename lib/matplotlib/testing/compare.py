@@ -28,6 +28,15 @@ __all__ = [
           ]
 
 #-----------------------------------------------------------------------
+
+def make_test_filename(fname, purpose):
+    """
+    Make a new filename by inserting `purpose` before the file's
+    extension.
+    """
+    base, ext = os.path.splitext(fname)
+    return '%s-%s%s' % (base, purpose, ext)
+
 def compare_float( expected, actual, relTol = None, absTol = None ):
    """Fail if the floating point values are not close enough, with
       the givem message.
@@ -232,8 +241,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
       rms += np.sum(np.power((h1h-h2h), 2))
    rms = np.sqrt(rms / (256 * 3))
 
-   diff_image = os.path.join(os.path.dirname(actual),
-                             'failed-diff-'+os.path.basename(actual))
+   diff_image = make_test_filename(actual, 'failed-diff')
 
    if ( (rms / 10000.0) <= tol ):
       if os.path.exists(diff_image):
