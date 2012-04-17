@@ -120,7 +120,29 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     keyvald = { QtCore.Qt.Key_Control : 'control',
                 QtCore.Qt.Key_Shift : 'shift',
                 QtCore.Qt.Key_Alt : 'alt',
-                QtCore.Qt.Key_Return : 'enter'
+                QtCore.Qt.Key_Return : 'enter',
+                QtCore.Qt.Key_Left : 'left',
+                QtCore.Qt.Key_Right : 'right',
+                QtCore.Qt.Key_Up : 'up',
+                QtCore.Qt.Key_Down : 'down',
+                QtCore.Qt.Key_PageUp : 'pageup',
+                QtCore.Qt.Key_PageDown : 'pagedown',
+                QtCore.Qt.Key_End : 'end',
+                QtCore.Qt.Key_Home : 'home',
+                QtCore.Qt.Key_Backspace : 'backspace',
+                QtCore.Qt.Key_Escape : 'escape',
+                QtCore.Qt.Key_F1 : 'f1',
+                QtCore.Qt.Key_F2 : 'f2',
+                QtCore.Qt.Key_F3 : 'f3',
+                QtCore.Qt.Key_F4 : 'f4',
+                QtCore.Qt.Key_F5 : 'f5',
+                QtCore.Qt.Key_F6 : 'f6',
+                QtCore.Qt.Key_F7 : 'f7',
+                QtCore.Qt.Key_F8 : 'f8',
+                QtCore.Qt.Key_F9 : 'f9',
+                QtCore.Qt.Key_F10 : 'f10',
+                QtCore.Qt.Key_F11 : 'f11',
+                QtCore.Qt.Key_F12 : 'f12',
                }
     # left 1, middle 2, right 3
     buttond = {1:1, 2:3, 4:2}
@@ -187,14 +209,18 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 
     def keyPressEvent( self, event ):
         key = self._get_key( event )
-        if key is None:
+        # None is a valid return value from _get_key, False means the keystroke
+        # should be ignored
+        if key is False:
             return
         FigureCanvasBase.key_press_event( self, key )
         if DEBUG: print 'key press', key
 
     def keyReleaseEvent( self, event ):
         key = self._get_key(event)
-        if key is None:
+        # None is a valid return value from _get_key, False means the keystroke
+        # should be ignored
+        if key is False:
             return
         FigureCanvasBase.key_release_event( self, key )
         if DEBUG: print 'key release', key
@@ -221,7 +247,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 
     def _get_key( self, event ):
         if event.isAutoRepeat():
-            return None
+            return False
         if event.key() < 256:
             key = str(event.text())
         elif event.key() in self.keyvald:
@@ -324,6 +350,10 @@ class FigureManagerQT( FigureManagerBase ):
            if self.toolbar is not None:
                self.toolbar.update()
         self.canvas.figure.add_axobserver( notify_axes_change )
+
+        # Give the keyboard focus to the figure instead of the manager
+        self.canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
+        self.canvas.setFocus()
 
     @QtCore.Slot()
     def _show_message(self,s):
