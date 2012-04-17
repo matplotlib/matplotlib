@@ -650,6 +650,16 @@ def test_marker_edges():
     ax.set_xticks([])
     ax.set_yticks([])
 
+@image_comparison(baseline_images=['hist_log'])
+def test_hist_log():
+    data0 = np.linspace(0,1,200)**3
+    data = np.r_[1-data0, 1+data0]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(data, fill=False, log=True)
+    ax.set_xticks([])
+    ax.set_yticks([])
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
