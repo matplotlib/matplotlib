@@ -381,6 +381,13 @@ The following software is required to run the tests:
 
   - `Inkscape <http://inkscape.org>`_ (to render SVG files)
 
+For additional speed, you may also wish to install:
+
+  - `python-ghostscript <http://pypi.python.org/pypi/ghostscript>` (to
+    use ghostscript as a library from Python)::
+
+      pip install ghostscript
+
 Running the tests
 -----------------
 
