@@ -10,7 +10,9 @@ import matplotlib
 from matplotlib.testing.noseclasses import ImageComparisonFailure
 from matplotlib.testing import image_util
 from matplotlib import _png
+from matplotlib import _get_configdir
 from distutils import version
+import hashlib
 import math
 import operator
 import os
@@ -97,22 +99,43 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
 # A dictionary that maps filename extensions to functions that map
 # parameters old and new to a list that can be passed to Popen to
 # convert files with that extension to png format.
+def get_cache_dir():
+   cache_dir = os.path.join(_get_configdir(), 'test_cache')
+   if not os.path.exists(cache_dir):
+      try:
+         os.makedirs(cache_dir)
+      except IOError:
+         return None
+   if not os.access(cache_dir, os.W_OK):
+      return None
+   return cache_dir
+
+def get_file_hash(path, block_size=2**20):
+   md5 = hashlib.md5()
+   with open(path, 'rb') as fd:
+      while True:
+         data = fd.read(block_size)
+         if not data:
+            break
+         md5.update(data)
+   return md5.hexdigest()
+
 converter = { }
 
 def make_external_conversion_command(cmd):
-   def convert(*args):
-      cmdline = cmd(*args)
-      oldname, newname = args
+   def convert(old, new):
+      cmdline = cmd(old, new)
       pipe = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
       stdout, stderr = pipe.communicate()
       errcode = pipe.wait()
-      if not os.path.exists(newname) or errcode:
+      if not os.path.exists(new) or errcode:
          msg = "Conversion command failed:\n%s\n" % ' '.join(cmdline)
          if stdout:
             msg += "Standard output:\n%s\n" % stdout
          if stderr:
             msg += "Standard error:\n%s\n" % stderr
          raise IOError(msg)
+
    return convert
 
 if matplotlib.checkdep_ghostscript() is not None:
@@ -137,7 +160,7 @@ def comparable_formats():
    on this system.'''
    return ['png'] + converter.keys()
 
-def convert(filename):
+def convert(filename, cache):
    '''
    Convert the named file into a png file.
    Returns the name of the created file.
@@ -148,11 +171,29 @@ def convert(filename):
    newname = base + '_' + extension + '.png'
    if not os.path.exists(filename):
       raise IOError("'%s' does not exist" % filename)
+
    # Only convert the file if the destination doesn't already exist or
    # is out of date.
    if (not os.path.exists(newname) or
        os.stat(newname).st_mtime < os.stat(filename).st_mtime):
+      if cache:
+         cache_dir = get_cache_dir()
+      else:
+         cache_dir = None
+
+      if cache_dir is not None:
+         hash = get_file_hash(filename)
+         new_ext = os.path.splitext(newname)[1]
+         cached_file = os.path.join(cache_dir, hash + new_ext)
+         if os.path.exists(cached_file):
+            shutil.copyfile(cached_file, newname)
+            return newname
+
       converter[extension](filename, newname)
+
+      if cache_dir is not None:
+         shutil.copyfile(newname, cached_file)
+
    return newname
 
 verifiers = { }
@@ -216,8 +257,8 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    # Convert the image to png
    extension = expected.split('.')[-1]
    if extension != 'png':
-      actual = convert(actual)
-      expected = convert(expected)
+      actual = convert(actual, False)
+      expected = convert(expected, True)
 
    # open the image files and remove the alpha channel (if it exists)
    expectedImage = _png.read_png_int( expected )
