@@ -133,6 +133,8 @@ latex_to_bakoma = {
     r'\Psi'                      : ('cmr10',  15),
     r'\Omega'                    : ('cmr10',  12),
 
+    r'\prime'                    : ('cmsy10',  73),
+
     # these are mathml names, I think.  I'm just using them for the
     # tex methods noted
     r'\circumflexaccent'         : ('cmr10',   124), # for \hat
@@ -245,7 +247,7 @@ latex_to_bakoma = {
     r'\spadesuit'                : ('cmsy10',   7),
     r'?'                         : ('cmr10',   50),
     r'!'                         : ('cmr10',   29),
-    r'&'                         : ('cmr10',  109) 
+    r'&'                         : ('cmr10',  109)
 }
 
 latex_to_cmex = {
