@@ -245,6 +245,15 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if self._hatch:
             gc.set_hatch(self._hatch)
 
+        # XXX INVESTIGATE.
+        print('transOffset: ', transOffset)
+        print(transOffset.is_affine, transOffset.get_matrix())
+        mtx = transOffset.get_matrix()
+        import matplotlib.transforms as mtransforms
+        transOffset = mtransforms.Affine2D()
+        transOffset.set_matrix(mtx)
+        # XXX end investigate
+
         renderer.draw_path_collection(
             gc, transform.frozen(), paths, self.get_transforms(),
             offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),

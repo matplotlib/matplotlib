@@ -46,7 +46,7 @@ except NameError:
 import cbook
 from path import Path
 
-DEBUG = False
+DEBUG = True
 if DEBUG:
     import warnings
 
@@ -1315,6 +1315,10 @@ class TransformWrapper(Transform):
         self.invalidate()
         self._invalid = 0
 
+    def _get_is_affine(self):
+        return self._child.is_affine
+    is_affine = property(_get_is_affine)
+
     def _get_is_separable(self):
         return self._child.is_separable
     is_separable = property(_get_is_separable)
@@ -1443,7 +1447,7 @@ class Affine2DBase(AffineBase):
                 warnings.warn(
                     ('A non-numpy array of type %s was passed in for ' +
                      'transformation.  Please correct this.')
-                    % type(values))
+                    % type(points))
             return self._transform(points)
     transform.__doc__ = AffineBase.transform.__doc__
 
@@ -2052,7 +2056,7 @@ def composite_transform_factory(a, b):
         return b
     elif isinstance(b, IdentityTransform):
         return a
-    elif a.is_affine and b.is_affine:
+    elif isinstance(a, Affine2D) and isinstance(b, Affine2D):
         return CompositeAffine2D(a, b)
     return CompositeGenericTransform(a, b)
 
