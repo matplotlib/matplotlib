@@ -1293,11 +1293,11 @@ class TransformWrapper(Transform):
         self.transform_path_non_affine = child.transform_path_non_affine
         self.get_affine                = child.get_affine
         self.inverted                  = child.inverted
-        self.is_affine                 = child.is_affine
         self.get_matrix                = child.get_matrix
 
-    def __eq__(self, other):
-        return self._child == other
+        # note we do not wrap other properties here since the transform's
+        # child can be changed with WrappedTransform.set and so checking
+        # is_affine and other such properties may be dangerous.
 
     def set(self, child):
         """
@@ -2044,9 +2044,13 @@ def composite_transform_factory(a, b):
 
       c = a + b
     """
-    if a == IdentityTransform():
+    # check to see if any of a or b are IdentityTransforms. Note we
+    # do not use equality here since we may have wrapped transforms
+    # which are currently equal to Identity, but since wrapped transforms
+    # are mutable, they may not always be equal.
+    if isinstance(a, IdentityTransform):
         return b
-    elif b == IdentityTransform():
+    elif isinstance(b, IdentityTransform):
         return a
     elif a.is_affine and b.is_affine:
         return CompositeAffine2D(a, b)
