@@ -24,8 +24,9 @@ class MarkerStyle:
 marker                         description
 ============================== ===============================================
 %s
-``'$...$'``                    render the string using mathtext
-*verts*                        a list of (x, y) pairs in range (0, 1)
+``'$...$'``                    render the string using mathtext.
+*verts*                        a list of (x, y) pairs used for Path vertices.
+path                           a :class:`~matplotlib.path.Path` instance.
 (*numsides*, *style*, *angle*) see below
 ============================== ===============================================
 
@@ -150,6 +151,8 @@ that define the shape.
         if (iterable(marker) and len(marker) in (2, 3) and
             marker[1] in (0, 1, 2, 3)):
             self._marker_function = self._set_tuple_marker
+        elif isinstance(marker, np.ndarray):
+            self._marker_function = self._set_vertices
         elif marker in self.markers:
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
@@ -159,10 +162,10 @@ that define the shape.
             self._marker_function = self._set_path_marker
         else:
             try:
-                path = Path(marker)
+                _ = Path(marker)
                 self._marker_function = self._set_vertices
-            except:
-                raise ValueError('Unrecognized marker style %s' % marker)
+            except ValueError:
+                raise ValueError('Unrecognized marker style {}'.format(marker))
 
         self._marker = marker
         self._recache()
@@ -195,8 +198,9 @@ that define the shape.
         self._set_custom_marker(self._marker)
 
     def _set_vertices(self):
-        path = Path(verts)
-        self._set_custom_marker(path)
+        verts = self._marker
+        marker = Path(verts)
+        self._set_custom_marker(marker)
 
     def _set_tuple_marker(self):
         marker = self._marker
@@ -230,7 +234,6 @@ that define the shape.
 
         Submitted by tcb
         """
-        from matplotlib.patches import PathPatch
         from matplotlib.text import TextPath
         from matplotlib.font_manager import FontProperties
 
@@ -437,10 +440,10 @@ that define the shape.
         else:
             verts = polypath.vertices
 
-            top = Path(np.vstack((verts[0:4,:], verts[7:10,:], verts[0])))
-            bottom = Path(np.vstack((verts[3:8,:], verts[3])))
-            left = Path(np.vstack((verts[0:6,:], verts[0])))
-            right = Path(np.vstack((verts[0], verts[5:10,:], verts[0])))
+            top = Path(np.vstack((verts[0:4, :], verts[7:10, :], verts[0])))
+            bottom = Path(np.vstack((verts[3:8, :], verts[3])))
+            left = Path(np.vstack((verts[0:6, :], verts[0])))
+            right = Path(np.vstack((verts[0], verts[5:10, :], verts[0])))
 
             if fs == 'top':
                 mpath, mpath_alt = top, bottom
@@ -470,10 +473,10 @@ that define the shape.
 
             # not drawing inside lines
             x = np.abs(np.cos(5*np.pi/6.))
-            top = Path(np.vstack(([-x,0],verts[(1,0,5),:],[x,0])))
-            bottom = Path(np.vstack(([-x,0],verts[2:5,:],[x,0])))
-            left = Path(verts[(0,1,2,3),:])
-            right = Path(verts[(0,5,4,3),:])
+            top = Path(np.vstack(([-x, 0], verts[(1, 0, 5), :], [x, 0])))
+            bottom = Path(np.vstack(([-x, 0], verts[2:5, :], [x, 0])))
+            left = Path(verts[(0, 1, 2, 3), :])
+            right = Path(verts[(0, 5, 4, 3), :])
 
             if fs == 'top':
                 mpath, mpath_alt = top, bottom
@@ -504,10 +507,10 @@ that define the shape.
 
             # not drawing inside lines
             x, y = np.sqrt(3)/4, 3/4.
-            top = Path(verts[(1,0,5,4,1),:])
-            bottom = Path(verts[(1,2,3,4),:])
-            left = Path(np.vstack(([x,y],verts[(0,1,2),:],[-x,-y],[x,y])))
-            right = Path(np.vstack(([x,y],verts[(5,4,3),:],[-x,-y])))
+            top = Path(verts[(1, 0, 5, 4, 1), :])
+            bottom = Path(verts[(1, 2, 3, 4), :])
+            left = Path(np.vstack(([x, y], verts[(0, 1, 2), :], [-x, -y], [x, y])))
+            right = Path(np.vstack(([x, y], verts[(5, 4, 3), :], [-x, -y])))
 
             if fs == 'top':
                 mpath, mpath_alt = top, bottom

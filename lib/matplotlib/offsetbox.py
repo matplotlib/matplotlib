@@ -95,10 +95,10 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
 
 def _get_aligned_offsets(hd_list, height, align="baseline"):
     """
-    Geiven a list of (height, descent) of each boxes, align the boxes
+    Given a list of (height, descent) of each boxes, align the boxes
     with *align* and calculate the y-offsets of each boxes.
     total width and the offset positions of each items according to
-    *mode*. xdescent is analagous to the usual descent, but along the
+    *mode*. xdescent is analogous to the usual descent, but along the
     x-direction. xdescent values are currently ignored.
 
     *hd_list* : list of (width, xdescent) of boxes to be aligned.
@@ -257,7 +257,7 @@ class PackerBase(OffsetBox):
 
         .. note::
           *pad* and *sep* need to given in points and will be
-          scale with the renderer dpi, while *width* and *hight*
+          scale with the renderer dpi, while *width* and *height*
           need to be in pixels.
         """
         super(PackerBase, self).__init__()
@@ -275,7 +275,7 @@ class PackerBase(OffsetBox):
 class VPacker(PackerBase):
     """
     The VPacker has its children packed vertically. It automatically
-    adjust the relative postisions of children in the drawing time.
+    adjust the relative positions of children in the drawing time.
     """
     def __init__(self, pad=None, sep=None, width=None, height=None,
                  align="baseline", mode="fixed",
@@ -290,7 +290,7 @@ class VPacker(PackerBase):
 
         .. note::
           *pad* and *sep* need to given in points and will be
-          scale with the renderer dpi, while *width* and *hight*
+          scale with the renderer dpi, while *width* and *height*
           need to be in pixels.
         """
         super(VPacker, self).__init__(pad, sep, width, height,
@@ -342,7 +342,7 @@ class VPacker(PackerBase):
 class HPacker(PackerBase):
     """
     The HPacker has its children packed horizontally. It automatically
-    adjust the relative postisions of children in the drawing time.
+    adjust the relative positions of children in the drawing time.
     """
     def __init__(self, pad=None, sep=None, width=None, height=None,
                  align="baseline", mode="fixed",
@@ -357,7 +357,7 @@ class HPacker(PackerBase):
 
         .. note::
           *pad* and *sep* need to given in points and will be
-          scale with the renderer dpi, while *width* and *hight*
+          scale with the renderer dpi, while *width* and *height*
           need to be in pixels.
         """
         super(HPacker, self).__init__(pad, sep, width, height,
@@ -366,7 +366,7 @@ class HPacker(PackerBase):
 
     def get_extent_offsets(self, renderer):
         """
-        update offset of childrens and return the extents of the box
+        update offset of children and return the extents of the box
         """
 
         dpicor = renderer.points_to_pixels(1.)
@@ -414,7 +414,7 @@ class PaddedBox(OffsetBox):
 
         .. note::
           *pad* need to given in points and will be
-          scale with the renderer dpi, while *width* and *hight*
+          scale with the renderer dpi, while *width* and *height*
           need to be in pixels.
         """
 
@@ -770,12 +770,12 @@ class AuxTransformBox(OffsetBox):
     Offset Box with the aux_transform . Its children will be
     transformed with the aux_transform first then will be
     offseted. The absolute coordinate of the aux_transform is meaning
-    as it will be automaticcaly adjust so that the left-lower corner
+    as it will be automatically adjust so that the left-lower corner
     of the bounding box of children will be set to (0,0) before the
-    offset trnasform.
+    offset transform.
 
     It is similar to drawing area, except that the extent of the box
-    is not predetemined but calculated from the window extent of its
+    is not predetermined but calculated from the window extent of its
     children. Furthermore, the extent of the children will be
     calculated in the transformed coordinate.
     """
@@ -820,7 +820,7 @@ class AuxTransformBox(OffsetBox):
         """
         set offset of the container.
 
-        Accept : tuple of x,y cooridnate in disokay units.
+        Accept : tuple of x,y coordinate in disokay units.
         """
         self._offset = xy
 
@@ -882,7 +882,7 @@ class AnchoredOffsetbox(OffsetBox):
     """
     An offset box placed according to the legend location
     loc. AnchoredOffsetbox has a single child. When multiple children
-    is needed, use other OffsetBox class to enlose them.  By default,
+    is needed, use other OffsetBox class to enclose them.  By default,
     the offset box is anchored against its parent axes. You may
     explicitly specify the bbox_to_anchor.
     """
@@ -1197,7 +1197,7 @@ class OffsetImage(OffsetBox):
 #         """
 #         set offset of the container.
 
-#         Accept : tuple of x,y cooridnate in disokay units.
+#         Accept : tuple of x,y coordinate in disokay units.
 #         """
 #         self._offset = xy
 

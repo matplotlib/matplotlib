@@ -33,7 +33,7 @@ class GridSpecBase(object):
                  height_ratios=None, width_ratios=None):
         """
         The number of rows and number of columns of the grid need to
-        be set. Optionally, the ratio of heights and widths of ros and
+        be set. Optionally, the ratio of heights and widths of rows and
         columns can be specified.
         """
         #self.figure = figure
@@ -357,7 +357,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         """
         The number of rows and number of columns of the grid need to
         be set. An instance of SubplotSpec is also needed to be set
-        from which the layout parameters will be inheirted. The wspace
+        from which the layout parameters will be inherited. The wspace
         and hspace of the layout can be optionally specified or the
         default values (from the figure or rcParams) will be used.
         """
