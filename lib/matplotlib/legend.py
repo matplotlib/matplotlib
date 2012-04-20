@@ -535,7 +535,7 @@ in the normalized axes coordinate.
 
         It first checks if the *orig_handle* itself is a key in the
         *legend_hanler_map* and return the associated value.
-        Otherwised, it checks for each of the classes in its
+        Otherwise, it checks for each of the classes in its
         method-resolution-order. If no matching key is found, it
         returns None.
         """
@@ -556,7 +556,7 @@ in the normalized axes coordinate.
 
     def _init_legend_box(self, handles, labels):
         """
-        Initiallize the legend_box. The legend_box is an instance of
+        Initialize the legend_box. The legend_box is an instance of
         the OffsetBox, which is packed with legend handles and
         texts. Once packed, their location is calculated during the
         drawing time.
