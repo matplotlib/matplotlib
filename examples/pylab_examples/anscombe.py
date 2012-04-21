@@ -40,7 +40,7 @@ text(3,12, 'II', fontsize=20)
 subplot(223)
 plot(x,y3,'ks', xfit, fit(xfit), 'r-', lw=2)
 axis([2,20,2,14])
-text(3,12, 'IIII', fontsize=20)
+text(3,12, 'III', fontsize=20)
 setp(gca(), yticks=(4,8,12), xticks=(0,10,20))
 
 subplot(224)
