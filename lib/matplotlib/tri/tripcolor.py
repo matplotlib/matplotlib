@@ -28,12 +28,19 @@ def tripcolor(ax, *args, **kwargs):
     :class:`~matplotlib.tri.Triangulation` for a explanation of these
     possibilities.
 
-    The next argument must be *C*, the array of color values, one per
-    point in the triangulation.
+    The next argument must be *C*, the array of color values, either
+    one per point in the triangulation if color values are defined at
+    points, or one per triangle in the triangulation if color values
+    are defined at triangles. If there are the same number of points
+    and triangles in the triangulation it is assumed that color
+    values are defined at points unless the kwarg *colorpoints* is
+    set to *False*.
 
-    *shading* may be 'flat', 'faceted' or 'gouraud'. If *shading* is
-    'flat' or 'faceted', the colors used for each triangle are from
-    the mean C of the triangle's three points.
+    *shading* may be 'flat' (the default), 'faceted' or 'gouraud'. If
+    *shading* is 'flat' or 'faceted' and C values are defined at
+    points, the color values used for each triangle are from the mean
+    C of the triangle's three points. If *shading* is 'gouraud' then
+    color values must be defined at triangles.
 
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
@@ -50,20 +57,28 @@ def tripcolor(ax, *args, **kwargs):
     vmin = kwargs.pop('vmin', None)
     vmax = kwargs.pop('vmax', None)
     shading = kwargs.pop('shading', 'flat')
+    colorpoints = kwargs.pop('colorpoints', True)
 
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
-    x = tri.x
-    y = tri.y
-    triangles = tri.get_masked_triangles()
-
     C = np.asarray(args[0])
-    if C.shape != x.shape:
-        raise ValueError('C array must have same length as triangulation x and'
-                         ' y arrays')
 
     if shading == 'gouraud':
+        if len(C) != len(tri.x):
+            raise ValueError('For gouraud shading, the length of C '
+                             'array must be the same as the number of '
+                             'triangulation points')
         collection = TriMesh(tri, **kwargs)
     else:
+        if len(C) != len(tri.x) and len(C) != len(tri.triangles):
+            raise ValueError('Length of C array must be the same as either '
+                             'the number of triangulation points or triangles')
+
+        # CAtPoints is True  if C defined at points
+        #           or False if C defined at triangles.
+        CAtPoints = (len(C) == len(tri.x))
+        if len(C) == len(tri.x) and len(C) == len(tri.triangles):
+            CAtPoints = colorpoints
+
         if shading == 'faceted':
             edgecolors = (0,0,0,1),
             linewidths = (0.25,)
@@ -75,10 +90,18 @@ def tripcolor(ax, *args, **kwargs):
         kwargs.setdefault('linewidths', linewidths)
 
         # Vertices of triangles.
-        verts = np.concatenate((x[triangles][...,np.newaxis],
-                                y[triangles][...,np.newaxis]), axis=2)
-        # Color values, one per triangle, mean of the 3 vertex color values.
-        C = C[triangles].mean(axis=1)
+        maskedTris = tri.get_masked_triangles()
+        verts = np.concatenate((tri.x[maskedTris][...,np.newaxis],
+                                tri.y[maskedTris][...,np.newaxis]), axis=2)
+
+        # Color values.
+        if CAtPoints:
+            # One color per triangle, the mean of the 3 vertex color values.
+            C = C[maskedTris].mean(axis=1)
+        elif tri.mask is not None:
+            # Remove color values of masked triangles.
+            C = C.compress(1-tri.mask)
+
         collection = PolyCollection(verts, **kwargs)
 
     collection.set_alpha(alpha)
