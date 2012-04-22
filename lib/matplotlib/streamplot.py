@@ -48,7 +48,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     Returns
     -------
-    *streamlines* : `~matplotlib.collections.LineCollection`
+    *streamlines* : :class:`~matplotlib.collections.LineCollection`
         Line collection with all streamlines as a series of line segments.
         Currently, there is no way to differentiate between line segments
         on different streamlines (other than manually checking that segments
