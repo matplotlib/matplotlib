@@ -596,6 +596,7 @@ class AxisMenu:
             a.set(1)
         self.set_active()
 
+
 class NavigationToolbar(Tk.Frame):
     """
     Public attributes
@@ -626,39 +627,39 @@ class NavigationToolbar(Tk.Frame):
         self.update()  # Make axes menu
 
         self.bLeft = self._Button(
-            text="Left", file="stock_left.ppm",
+            text="Left", file="stock_left",
             command=lambda x=-1: self.panx(x))
 
         self.bRight = self._Button(
-            text="Right", file="stock_right.ppm",
+            text="Right", file="stock_right",
             command=lambda x=1: self.panx(x))
 
         self.bZoomInX = self._Button(
-            text="ZoomInX",file="stock_zoom-in.ppm",
+            text="ZoomInX",file="stock_zoom-in",
             command=lambda x=1: self.zoomx(x))
 
         self.bZoomOutX = self._Button(
-            text="ZoomOutX", file="stock_zoom-out.ppm",
+            text="ZoomOutX", file="stock_zoom-out",
             command=lambda x=-1: self.zoomx(x))
 
         self.bUp = self._Button(
-            text="Up", file="stock_up.ppm",
+            text="Up", file="stock_up",
             command=lambda y=1: self.pany(y))
 
         self.bDown = self._Button(
-            text="Down", file="stock_down.ppm",
+            text="Down", file="stock_down",
             command=lambda y=-1: self.pany(y))
 
         self.bZoomInY = self._Button(
-            text="ZoomInY", file="stock_zoom-in.ppm",
+            text="ZoomInY", file="stock_zoom-in",
             command=lambda y=1: self.zoomy(y))
 
         self.bZoomOutY = self._Button(
-            text="ZoomOutY",file="stock_zoom-out.ppm",
+            text="ZoomOutY",file="stock_zoom-out",
             command=lambda y=-1: self.zoomy(y))
 
         self.bSave = self._Button(
-            text="Save", file="stock_save_as.ppm",
+            text="Save", file="stock_save_as",
             command=self.save_figure)
 
         self.pack(side=Tk.BOTTOM, fill=Tk.X)
@@ -763,9 +764,9 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     def set_cursor(self, cursor):
         self.window.configure(cursor=cursord[cursor])
 
-    def _Button(self, text, file, command):
-        file = os.path.join(rcParams['datapath'], 'images', file)
-        im = Tk.PhotoImage(master=self, file=file)
+    def _Button(self, text, file, command, extension='.ppm'):
+        img_file = os.path.join(rcParams['datapath'], 'images', file + extension)
+        im = Tk.PhotoImage(master=self, file=img_file)
         b = Tk.Button(
             master=self, text=text, padx=2, pady=2, image=im, command=command)
         b._ntimage = im
@@ -781,27 +782,16 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
         self.update()  # Make axes menu
 
-        self.bHome = self._Button( text="Home", file="home.ppm",
-                                   command=self.home)
-
-        self.bBack = self._Button( text="Back", file="back.ppm",
-                                   command = self.back)
-
-        self.bForward = self._Button(text="Forward", file="forward.ppm",
-                                     command = self.forward)
-
-        self.bPan = self._Button( text="Pan", file="move.ppm",
-                                  command = self.pan)
-
-        self.bZoom = self._Button( text="Zoom",
-                                   file="zoom_to_rect.ppm",
-                                   command = self.zoom)
-
-        self.bsubplot = self._Button( text="Configure Subplots", file="subplots.ppm",
-                                   command = self.configure_subplots)
-
-        self.bsave = self._Button( text="Save", file="filesave.ppm",
-                                   command = self.save_figure)
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is None:
+                # spacer, unhandled in Tk 
+                pass
+            else:
+                button = self._Button(text=text, file=image_file,
+                                   command=getattr(self, callback))
+                if tooltip_text is not None:
+                    ToolTip.createToolTip(button, tooltip_text)
+        
         self.message = Tk.StringVar(master=self)
         self._message_label = Tk.Label(master=self, textvariable=self.message)
         self._message_label.pack(side=Tk.RIGHT)
@@ -879,3 +869,54 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
 
 FigureManager = FigureManagerTkAgg
+
+
+class ToolTip(object):
+    """
+    Tooltip recipe from
+    http://www.voidspace.org.uk/python/weblog/arch_d7_2006_07_01.shtml#e387
+    """
+    @staticmethod
+    def createToolTip(widget, text):
+        toolTip = ToolTip(widget)
+        def enter(event):
+            toolTip.showtip(text)
+        def leave(event):
+            toolTip.hidetip()
+        widget.bind('<Enter>', enter)
+        widget.bind('<Leave>', leave)
+        
+    def __init__(self, widget):
+        self.widget = widget
+        self.tipwindow = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self, text):
+        "Display text in tooltip window"
+        self.text = text
+        if self.tipwindow or not self.text:
+            return
+        x, y, _, _ = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() + 27
+        y = y + self.widget.winfo_rooty()
+        self.tipwindow = tw = Tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(1)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        try:
+            # For Mac OS
+            tw.tk.call("::tk::unsupported::MacWindowStyle",
+                       "style", tw._w,
+                       "help", "noActivates")
+        except Tk.TclError:
+            pass
+        label = Tk.Label(tw, text=self.text, justify=Tk.LEFT,
+                      background="#ffffe0", relief=Tk.SOLID, borderwidth=1,
+                      )
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()

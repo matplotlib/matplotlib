@@ -441,22 +441,15 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
     def _init_toolbar(self):
         self.basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
 
-        a = self.addAction(self._icon('home.png'), 'Home', self.home)
-        a.setToolTip('Reset original view')
-        a = self.addAction(self._icon('back.png'), 'Back', self.back)
-        a.setToolTip('Back to previous view')
-        a = self.addAction(self._icon('forward.png'), 'Forward', self.forward)
-        a.setToolTip('Forward to next view')
-        self.addSeparator()
-        a = self.addAction(self._icon('move.png'), 'Pan', self.pan)
-        a.setToolTip('Pan axes with left mouse, zoom with right')
-        a = self.addAction(self._icon('zoom_to_rect.png'), 'Zoom', self.zoom)
-        a.setToolTip('Zoom to rectangle')
-        self.addSeparator()
-        a = self.addAction(self._icon('subplots.png'), 'Subplots',
-                self.configure_subplots)
-        a.setToolTip('Configure subplots')
-
+        # XXX pelson: use NavigationToolbar2.toolitems
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is None:
+                self.addSeparator()
+            else:
+                a = self.addAction(self._icon(image_file + '.png'), text, getattr(self, callback))
+                if tooltip_text is not None:
+                    a.setToolTip(tooltip_text)
+                    
         if figureoptions is not None:
             a = self.addAction(self._icon("qt4_editor_options.png"),
                                'Customize', self.edit_parameters)

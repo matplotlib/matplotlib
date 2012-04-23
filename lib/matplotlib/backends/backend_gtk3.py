@@ -453,19 +453,6 @@ class FigureManagerGTK3(FigureManagerBase):
 
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
-    # list of toolitems to add to the toolbar, format is:
-    # text, tooltip_text, image_file, callback(str)
-    toolitems = (
-        ('Home', 'Reset original view', 'home.png', 'home'),
-        ('Back', 'Back to  previous view','back.png', 'back'),
-        ('Forward', 'Forward to next view','forward.png', 'forward'),
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move.png','pan'),
-        ('Zoom', 'Zoom to rectangle','zoom_to_rect.png', 'zoom'),
-        (None, None, None, None),
-        ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
-        ('Save', 'Save the figure','filesave.png', 'save_figure'),
-        )
-
     def __init__(self, canvas, window):
         self.win = window
         GObject.GObject.__init__(self)
@@ -516,7 +503,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             if text is None:
                 self.insert( Gtk.SeparatorToolItem(), -1 )
                 continue
-            fname = os.path.join(basedir, image_file)
+            fname = os.path.join(basedir, image_file + '.png')
             image = Gtk.Image()
             image.set_from_file(fname)
             tbutton = Gtk.ToolButton()
