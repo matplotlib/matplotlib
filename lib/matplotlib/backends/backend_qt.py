@@ -295,20 +295,6 @@ class FigureManagerQT( FigureManagerBase ):
         self.window.setCaption(title)
 
 class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
-    # list of toolitems to add to the toolbar, format is:
-    # text, tooltip_text, image_file, callback(str)
-    toolitems = (
-        ('Home', 'Reset original view', 'home.ppm', 'home'),
-        ('Back', 'Back to  previous view','back.ppm', 'back'),
-        ('Forward', 'Forward to next view','forward.ppm', 'forward'),
-        (None, None, None, None),
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move.ppm', 'pan'),
-        ('Zoom', 'Zoom to rectangle','zoom_to_rect.ppm', 'zoom'),
-        (None, None, None, None),
-        ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
-        ('Save', 'Save the figure','filesave.ppm', 'save_figure'),
-        )
-
     def __init__( self, canvas, parent ):
         self.canvas = canvas
         self.buttons = {}
@@ -329,8 +315,8 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
                 self.layout.addSpacing( 8 )
                 continue
 
-            fname = os.path.join( basedir, image_file )
-            image = qt.QPixmap()
+            fname = os.path.join(basedir, image_file + '.ppm')
+            image = qt.QPixmap() 
             image.load( fname )
 
             button = qt.QPushButton( qt.QIconSet( image ), "", self )
