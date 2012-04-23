@@ -2274,9 +2274,6 @@ def key_press_handler(event, canvas, toolbar=None):
 
     """
     # these bindings happen whether you are over an axes or not
-    #if event.key == 'q':
-    #    self.destroy() # how cruel to have to destroy oneself!
-    #    return
 
     if event.key is None:
         return
@@ -2289,6 +2286,7 @@ def key_press_handler(event, canvas, toolbar=None):
     pan_keys = rcParams['keymap.pan']
     zoom_keys = rcParams['keymap.zoom']
     save_keys = rcParams['keymap.save']
+    quit_keys = rcParams['keymap.quit']
     grid_keys = rcParams['keymap.grid']
     toggle_yscale_keys = rcParams['keymap.yscale']
     toggle_xscale_keys = rcParams['keymap.xscale']
@@ -2298,6 +2296,10 @@ def key_press_handler(event, canvas, toolbar=None):
     if event.key in fullscreen_keys:
         canvas.manager.full_screen_toggle()
 
+    # quit the figure (defaut key 'q')
+    if event.key in quit_keys:
+        Gcf.destroy_fig(canvas.figure)
+   
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
         if event.key in home_keys:
@@ -2322,7 +2324,8 @@ def key_press_handler(event, canvas, toolbar=None):
     if event.inaxes is None:
         return
 
-    # the mouse has to be over an axes to trigger these
+    # these bindings require the mouse to be over an axes to trigger
+
     # switching on/off a grid in current axes (default key 'g')
     if event.key in grid_keys:
         event.inaxes.grid()
@@ -2387,7 +2390,7 @@ class FigureManagerBase:
     def destroy(self):
         pass
 
-    def full_screen_toggle (self):
+    def full_screen_toggle(self):
         pass
 
     def resize(self, w, h):

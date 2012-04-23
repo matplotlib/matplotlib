@@ -582,6 +582,7 @@ defaultParams = {
     'keymap.pan' : ['p', validate_stringlist],
     'keymap.zoom' : ['o', validate_stringlist],
     'keymap.save' : ['s', validate_stringlist],
+    'keymap.quit' : ['q', validate_stringlist],
     'keymap.grid' : ['g', validate_stringlist],
     'keymap.yscale' : ['l', validate_stringlist],
     'keymap.xscale' : [['k', 'L'], validate_stringlist],

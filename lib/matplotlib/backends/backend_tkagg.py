@@ -457,7 +457,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.window.wm_title("Figure %d" % num)
         self.canvas = canvas
         self._num =  num
-        t1,t2,w,h = canvas.figure.bbox.bounds
+        _, _, w, h = canvas.figure.bbox.bounds
         w, h = int(w), int(h)
         self.window.minsize(int(w*3/4),int(h*3/4))
         if matplotlib.rcParams['toolbar']=='classic':
@@ -476,11 +476,8 @@ class FigureManagerTkAgg(FigureManagerBase):
             if self.toolbar != None: self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
-
-
         # attach a show method to the figure for pylab ease of use
         self.canvas.figure.show = lambda *args: self.show()
-
 
     def resize(self, width, height=None):
         # before 09-12-22, the resize method takes a single *event*
@@ -498,7 +495,6 @@ class FigureManagerTkAgg(FigureManagerBase):
             self.canvas._tkcanvas.master.geometry("%dx%d" % (width, height))
 
         self.toolbar.configure(width=width)
-
 
     def show(self):
         """
@@ -518,7 +514,6 @@ class FigureManagerTkAgg(FigureManagerBase):
             self.canvas.draw_idle()
         self._shown = True
 
-
     def destroy(self, *args):
         if self.window is not None:
             #self.toolbar.destroy()
@@ -532,6 +527,12 @@ class FigureManagerTkAgg(FigureManagerBase):
 
     def set_window_title(self, title):
         self.window.wm_title(title)
+
+    def full_screen_toggle(self):
+        # cross platform way of maximizing a tk window
+        # http://devourer09.blogspot.co.uk/2009/07/maximizing-tkinter-app.html
+        self.window.attributes('-zoomed', '1')
+
 
 class AxisMenu:
     def __init__(self, master, naxes):
@@ -597,7 +598,7 @@ class AxisMenu:
 
 class NavigationToolbar(Tk.Frame):
     """
-    Public attriubutes
+    Public attributes
 
       canvas   - the FigureCanvas  (gtk.DrawingArea)
       win   - the gtk.Window
@@ -722,7 +723,7 @@ class NavigationToolbar(Tk.Frame):
 
 class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
     """
-    Public attriubutes
+    Public attributes
 
       canvas   - the FigureCanvas  (gtk.DrawingArea)
       win   - the gtk.Window
