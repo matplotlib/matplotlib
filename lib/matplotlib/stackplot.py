@@ -12,7 +12,7 @@ import matplotlib
 __all__ = ['stackplot']
 
 
-def stackplot(axes, x, *args):
+def stackplot(axes, x, *args, **kwargs):
     """Draws a stacked area plot.
 
     Parameters
@@ -23,12 +23,14 @@ def stackplot(axes, x, *args):
           calls is legal:
 
           stackplot(x, y)               # where y is MxN
-          staclplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xN
+          staclplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
+    *kwargs* : All keyword arguments are those supported by
+               :func:`~matplotlib.Axes.fill_between`
 
     Returns
     -------
-    *r* : A list of `matplotlib.collections.PolyCollection`, one for each
-          element in the stacked area plot.
+    *r* : A list of :class:`~matplotlib.collections.PolyCollection`, one for
+          each element in the stacked area plot.
     """
 
     if len(args) == 1:
@@ -42,9 +44,9 @@ def stackplot(axes, x, *args):
     r = []
 
     # Color between x = 0 and the first array.
-    r.append(axes.fill_between(x, 0, y_stack[0,:], facecolor=axes._get_lines.color_cycle.next()))
+    r.append(axes.fill_between(x, 0, y_stack[0,:], facecolor=axes._get_lines.color_cycle.next(), **kwargs))
 
     # Color between array i-1 and array i
     for i in xrange(len(y)-1):
-        r.append(axes.fill_between(x, y_stack[i-1,:], y_stack[i,:], facecolor=axes._get_lines.color_cycle.next()))
+        r.append(axes.fill_between(x, y_stack[i-1,:], y_stack[i,:], facecolor=axes._get_lines.color_cycle.next(), **kwargs))
     return r
