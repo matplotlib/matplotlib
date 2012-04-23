@@ -383,6 +383,12 @@ class FigureManagerQT( FigureManagerBase ):
         # Fixes a PySide segfault.
         self.window.statusBar().showMessage(s)
 
+    def full_screen_toggle(self):
+       if self.window.isFullScreen():
+           self.window.showNormal()    
+       else:
+           self.window.showFullScreen()
+
     def _widgetclosed( self ):
         if self.window._destroying: return
         self.window._destroying = True
@@ -393,7 +399,6 @@ class FigureManagerQT( FigureManagerBase ):
             # It seems that when the python session is killed,
             # Gcf can get destroyed before the Gcf.destroy
             # line is run, leading to a useless AttributeError.
-
 
     def _get_toolbar(self, canvas, parent):
         # must be inited after the window, drawingArea and figure

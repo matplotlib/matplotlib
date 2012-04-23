@@ -529,9 +529,8 @@ class FigureManagerTkAgg(FigureManagerBase):
         self.window.wm_title(title)
 
     def full_screen_toggle(self):
-        # cross platform way of maximizing a tk window
-        # http://devourer09.blogspot.co.uk/2009/07/maximizing-tkinter-app.html
-        self.window.attributes('-zoomed', '1')
+        is_fullscreen = bool(self.window.attributes('-fullscreen'))
+        self.window.attributes('-fullscreen', not is_fullscreen)
 
 
 class AxisMenu:
