@@ -48,5 +48,5 @@ def stackplot(axes, x, *args, **kwargs):
 
     # Color between array i-1 and array i
     for i in xrange(len(y)-1):
-        r.append(axes.fill_between(x, y_stack[i-1,:], y_stack[i,:], facecolor=axes._get_lines.color_cycle.next(), **kwargs))
+        r.append(axes.fill_between(x, y_stack[i,:], y_stack[i+1,:], facecolor=axes._get_lines.color_cycle.next(), **kwargs))
     return r
