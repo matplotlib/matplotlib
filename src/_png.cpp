@@ -418,6 +418,7 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
     if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE)
     {
         png_set_palette_to_rgb(png_ptr);
+        bit_depth = 8;
     }
 
     // If there's an alpha channel convert gray to RGB
