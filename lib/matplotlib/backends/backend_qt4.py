@@ -441,7 +441,6 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
     def _init_toolbar(self):
         self.basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
 
-        # XXX pelson: use NavigationToolbar2.toolitems
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.addSeparator()
