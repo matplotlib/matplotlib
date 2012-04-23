@@ -69,7 +69,6 @@ def %(func)s(%(argspec)s):
     return %(ret)s
 """
 
-
 # Used for colormap functions
 CMAP_TEMPLATE = AUTOGEN_MSG + """
 def {name}():
@@ -131,6 +130,7 @@ def boilerplate_gen():
         'semilogy',
         'specgram',
         #'spy',
+        'stackplot',
         'stem',
         'step',
         'streamplot',
