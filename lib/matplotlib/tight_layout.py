@@ -207,3 +207,120 @@ def get_renderer(fig):
             renderer = canvas.get_renderer()
 
     return renderer
+
+
+def get_tight_layout_figure(fig, axes_list, renderer,
+                            pad=1.2, h_pad=None, w_pad=None, rect=None):
+    """
+    return subplot parameters for tigh-layouted- figure with
+    specified padding.
+
+    Parameters:
+
+      *fig* : figure instance
+      *axes_list* : a list of axes
+      *renderer* : renderer instance
+      *pad* : float
+        padding between the figure edge and the edges of subplots,
+        as a fraction of the font-size.
+      *h_pad*, *w_pad* : float
+        padding (height/width) between edges of adjacent subplots.
+        Defaults to `pad_inches`.
+      *rect* : if rect is given, it is interpreted as a rectangle
+        (left, bottom, right, top) in the normalized figure
+        coordinate that the whole subplots area (including
+        labels) will fit into. Default is (0, 0, 1, 1).
+    """
+
+
+    subplotspec_list = []
+    subplot_list = []
+    nrows_list = []
+    ncols_list = []
+    ax_bbox_list = []
+
+    subplot_dict = {} # for axes_grid1, multiple axes can share
+                      # same subplot_interface. Thus we need to
+                      # join them together.
+
+    for ax in axes_list:
+        locator = ax.get_axes_locator()
+        if hasattr(locator, "get_subplotspec"):
+            subplotspec = locator.get_subplotspec().get_topmost_subplotspec()
+        elif hasattr(ax, "get_subplotspec"):
+            subplotspec = ax.get_subplotspec().get_topmost_subplotspec()
+        else:
+            continue
+
+        if (subplotspec is None) or \
+               subplotspec.get_gridspec().locally_modified_subplot_params():
+            continue
+
+        subplots = subplot_dict.setdefault(subplotspec, [])
+
+        if not subplots:
+            myrows, mycols, _, _ = subplotspec.get_geometry()
+            nrows_list.append(myrows)
+            ncols_list.append(mycols)
+            subplotspec_list.append(subplotspec)
+            subplot_list.append(subplots)
+            ax_bbox_list.append(subplotspec.get_position(fig))
+
+        subplots.append(ax)
+
+    max_nrows = max(nrows_list)
+    max_ncols = max(ncols_list)
+
+    num1num2_list = []
+    for subplotspec in subplotspec_list:
+        rows, cols, num1, num2 = subplotspec.get_geometry()
+        div_row, mod_row = divmod(max_nrows, rows)
+        div_col, mod_col = divmod(max_ncols, cols)
+        if (mod_row != 0) or (mod_col != 0):
+            raise RuntimeError("")
+
+        rowNum1, colNum1 =  divmod(num1, cols)
+        if num2 is None:
+            rowNum2, colNum2 =  rowNum1, colNum1
+        else:
+            rowNum2, colNum2 =  divmod(num2, cols)
+
+        num1num2_list.append((rowNum1*div_row*max_ncols + colNum1*div_col,
+                              ((rowNum2+1)*div_row-1)*max_ncols + (colNum2+1)*div_col-1))
+
+
+    kwargs = auto_adjust_subplotpars(fig, renderer,
+                                     nrows_ncols=(max_nrows, max_ncols),
+                                     num1num2_list=num1num2_list,
+                                     subplot_list=subplot_list,
+                                     ax_bbox_list=ax_bbox_list,
+                                     pad=pad, h_pad=h_pad, w_pad=w_pad)
+
+    if rect is not None:
+        # if rect is given, the whole subplots area (including
+        # labels) will fit into the rect instead of the
+        # figure. Note that the rect argument of
+        # *auto_adjust_subplotpars* specify the area that will be
+        # covered by the total area of axes.bbox. Thus we call
+        # auto_adjust_subplotpars twice, where the second run
+        # with adjusted rect parameters.
+
+        left, bottom, right, top = rect
+        if left is not None: left += kwargs["left"]
+        if bottom is not None: bottom += kwargs["bottom"]
+        if right is not None: right -= (1 - kwargs["right"])
+        if top is not None: top -= (1 - kwargs["top"])
+
+        #if h_pad is None: h_pad = pad
+        #if w_pad is None: w_pad = pad
+
+        kwargs = auto_adjust_subplotpars(fig, renderer,
+                                         nrows_ncols=(max_nrows, max_ncols),
+                                         num1num2_list=num1num2_list,
+                                         subplot_list=subplot_list,
+                                         ax_bbox_list=ax_bbox_list,
+                                         pad=pad, h_pad=h_pad, w_pad=w_pad,
+                                         rect=(left, bottom, right, top))
+
+    return kwargs
+

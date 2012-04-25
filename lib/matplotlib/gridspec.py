@@ -275,12 +275,16 @@ class GridSpec(GridSpecBase):
         Adjust subplot parameters to give specified padding.
 
         Parameters:
-        
+
         pad : float
             padding between the figure edge and the edges of subplots, as a fraction of the font-size.
         h_pad, w_pad : float
             padding (height/width) between edges of adjacent subplots.
             Defaults to `pad_inches`.
+        rect : if rect is given, it is interpreted as a rectangle
+            (left, bottom, right, top) in the normalized figure
+            coordinate that the whole subplots area (including
+            labels) will fit into. Default is (0, 0, 1, 1).
         """
 
         from tight_layout import auto_adjust_subplotpars, get_renderer

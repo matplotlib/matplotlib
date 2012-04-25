@@ -1361,8 +1361,7 @@ class Figure(Artist):
 
         return bbox_inches
 
-
-    def tight_layout(self, renderer=None, pad=1.2, h_pad=None, w_pad=None):
+    def tight_layout(self, renderer=None, pad=1.2, h_pad=None, w_pad=None, rect=None):
         """
         Adjust subplot parameters to give specified padding.
 
@@ -1374,75 +1373,20 @@ class Figure(Artist):
           *h_pad*, *w_pad* : float
             padding (height/width) between edges of adjacent subplots.
             Defaults to `pad_inches`.
+          *rect* : if rect is given, it is interpreted as a rectangle
+            (left, bottom, right, top) in the normalized figure
+            coordinate that the whole subplots area (including
+            labels) will fit into. Default is (0, 0, 1, 1).
         """
 
-        from tight_layout import auto_adjust_subplotpars, get_renderer
+        from tight_layout import get_renderer, get_tight_layout_figure
 
         if renderer is None:
             renderer = get_renderer(self)
 
-        subplotspec_list = []
-        subplot_list = []
-        nrows_list = []
-        ncols_list = []
-        ax_bbox_list = []
-
-        subplot_dict = {} # for axes_grid1, multiple axes can share
-                          # same subplot_interface. Thus we need to
-                          # join them together.
-
-        for ax in self.axes:
-            locator = ax.get_axes_locator()
-            if hasattr(locator, "get_subplotspec"):
-                subplotspec = locator.get_subplotspec().get_topmost_subplotspec()
-            elif hasattr(ax, "get_subplotspec"):
-                subplotspec = ax.get_subplotspec().get_topmost_subplotspec()
-            else:
-                continue
-
-            if (subplotspec is None) or \
-                   subplotspec.get_gridspec().locally_modified_subplot_params():
-                continue
-
-            subplots = subplot_dict.setdefault(subplotspec, [])
-
-            if not subplots:
-                myrows, mycols, _, _ = subplotspec.get_geometry()
-                nrows_list.append(myrows)
-                ncols_list.append(mycols)
-                subplotspec_list.append(subplotspec)
-                subplot_list.append(subplots)
-                ax_bbox_list.append(subplotspec.get_position(self))
-
-            subplots.append(ax)
-
-        max_nrows = max(nrows_list)
-        max_ncols = max(ncols_list)
-
-        num1num2_list = []
-        for subplotspec in subplotspec_list:
-            rows, cols, num1, num2 = subplotspec.get_geometry()
-            div_row, mod_row = divmod(max_nrows, rows)
-            div_col, mod_col = divmod(max_ncols, cols)
-            if (mod_row != 0) or (mod_col != 0):
-                raise RuntimeError("")
-
-            rowNum1, colNum1 =  divmod(num1, cols)
-            if num2 is None:
-                rowNum2, colNum2 =  rowNum1, colNum1
-            else:
-                rowNum2, colNum2 =  divmod(num2, cols)
-
-            num1num2_list.append((rowNum1*div_row*max_ncols + colNum1*div_col,
-                                  ((rowNum2+1)*div_row-1)*max_ncols + (colNum2+1)*div_col-1))
-
-
-        kwargs = auto_adjust_subplotpars(self, renderer,
-                                         nrows_ncols=(max_nrows, max_ncols),
-                                         num1num2_list=num1num2_list,
-                                         subplot_list=subplot_list,
-                                         ax_bbox_list=ax_bbox_list,
-                                         pad=pad, h_pad=h_pad, w_pad=w_pad)
+        kwargs = get_tight_layout_figure(self, self.axes, renderer,
+                                         pad=pad, h_pad=h_pad, w_pad=w_pad,
+                                         rect=rect)
 
         self.subplots_adjust(**kwargs)
 
