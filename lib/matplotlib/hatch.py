@@ -43,37 +43,28 @@ class VerticalHatch(HatchPatternBase):
 class NorthEastHatch(HatchPatternBase):
     def __init__(self, hatch, density):
         self.num_lines = (hatch.count('/') + hatch.count('x') + hatch.count('X')) * density
-        self.num_vertices = self.num_lines * 4
+        self.num_vertices = (self.num_lines + 1) * 2
 
     def set_vertices_and_codes(self, vertices, codes):
-        steps = np.linspace(0.0, 1.0, self.num_lines, False)
-        rev_steps = 1.0 - steps
-        vertices[0::4, 0] = 0.0
-        vertices[0::4, 1] = steps
-        vertices[1::4, 0] = rev_steps
-        vertices[1::4, 1] = 1.0
-        vertices[2::4, 0] = rev_steps
-        vertices[2::4, 1] = 0.0
-        vertices[3::4, 0] = 1.0
-        vertices[3::4, 1] = steps
+        steps = np.linspace(-0.5, 0.5, self.num_lines + 1, True)
+        vertices[0::2, 0] = 0.0 + steps
+        vertices[0::2, 1] = 0.0 - steps
+        vertices[1::2, 0] = 1.0 + steps
+        vertices[1::2, 1] = 1.0 - steps
         codes[0::2] = Path.MOVETO
         codes[1::2] = Path.LINETO
 
 class SouthEastHatch(HatchPatternBase):
     def __init__(self, hatch, density):
         self.num_lines = (hatch.count('\\') + hatch.count('x') + hatch.count('X')) * density
-        self.num_vertices = self.num_lines * 4
+        self.num_vertices = (self.num_lines + 1) * 2
 
     def set_vertices_and_codes(self, vertices, codes):
-        steps = np.linspace(0.0, 1.0, self.num_lines, False)
-        vertices[0::4, 0] = 1.0
-        vertices[0::4, 1] = steps
-        vertices[1::4, 0] = steps
-        vertices[1::4, 1] = 1.0
-        vertices[2::4, 0] = steps
-        vertices[2::4, 1] = 0.0
-        vertices[3::4, 0] = 0.0
-        vertices[3::4, 1] = steps
+        steps = np.linspace(-0.5, 0.5, self.num_lines + 1, True)
+        vertices[0::2, 0] = 0.0 + steps
+        vertices[0::2, 1] = 1.0 + steps
+        vertices[1::2, 0] = 1.0 + steps
+        vertices[1::2, 1] = 0.0 + steps
         codes[0::2] = Path.MOVETO
         codes[1::2] = Path.LINETO
 
