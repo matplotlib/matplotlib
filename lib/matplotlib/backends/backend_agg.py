@@ -71,7 +71,7 @@ class RendererAgg(RendererBase):
     # draw at at time and so the font cache is used by only one
     # renderer at a time
 
-    lock = threading.Lock()
+    lock = threading.RLock()
     _fontd = maxdict(50)
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
