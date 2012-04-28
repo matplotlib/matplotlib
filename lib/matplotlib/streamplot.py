@@ -52,8 +52,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Line collection with all streamlines as a series of line segments.
         Currently, there is no way to differentiate between line segments
         on different streamlines (other than manually checking that segments
-        are connected). NOTE: this return value is likely to change since it
-        does not include the arrow patches.
+        are connected).
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
