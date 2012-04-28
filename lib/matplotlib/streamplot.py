@@ -8,6 +8,8 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.patches as patches
+import matplotlib.container as container
+
 
 __all__ = ['streamplot']
 
@@ -46,11 +48,13 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     *minlength* : float
         Minimum length of streamline in axes coordinates.
 
-    Returns *streamlines* : :class:`~matplotlib.collections.LineCollection`
-        Line collection with all streamlines as a series of line segments.
-        Currently, there is no way to differentiate between line segments
-        on different streamlines (other than manually checking that segments
-        are connected).
+    Returns
+    -------
+    *stream_container* : StreamplotContainer
+        Container object with attributes
+            lines : `matplotlib.collections.LineCollection` of streamlines
+            arrows : collection of `matplotlib.patches.FancyArrowPatch` objects
+                repesenting arrows half-way along stream lines.
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
@@ -154,8 +158,20 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     axes.update_datalim(((x.min(), y.min()), (x.max(), y.max())))
     axes.autoscale_view(tight=True)
 
-    arrow_collection = matplotlib.collections.PatchCollection(arrows)
-    return lc, arrow_collection
+    ac = matplotlib.collections.PatchCollection(arrows)
+    stream_container = StreamplotContainer(lc, arrows=ac)
+    return stream_container
+
+
+class StreamplotContainer(container.Container):
+
+    def __new__(cls, *kl, **kwargs):
+        return tuple.__new__(cls)
+
+    def __init__(self, lines, arrows=None, **kwargs):
+        self.lines = lines
+        self.arrows = arrows
+        container.Container.__init__(self, lines, **kwargs)
 
 
 # Coordinate definitions
