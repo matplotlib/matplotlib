@@ -11,7 +11,8 @@ __all__ = ['streamplot']
 
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
-               cmap=None, arrowsize=1, arrowstyle='-|>', minlength=0.1):
+               cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
+               minlength=0.1):
     """Draws streamlines of a vector flow.
 
     Parameters
@@ -31,19 +32,23 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     *color* : matplotlib color code, or 2d array
         Streamline color. When given an array with the same shape as
         velocities, *color* values are converted to colors using *cmap*.
-    *cmap* : Colormap
+    *cmap* : :class:`~matplotlib.colors.Colormap`
         Colormap used to plot streamlines and arrows. Only necessary when using
         an array input for *color*.
+    *norm* : :class:`~matplotlib.colors.Normalize`
+        Normalize object used to scale luminance data to 0, 1. If None, stretch
+        (min, max) to (0, 1). Only necessary when *color* is an array.
     *arrowsize* : float
         Factor scale arrow size.
     *arrowstyle* : str
-        Arrow style specification. See `matplotlib.patches.FancyArrowPatch`.
+        Arrow style specification.
+        See :class:`~matplotlib.patches.FancyArrowPatch`.
     *minlength* : float
         Minimum length of streamline in axes coordinates.
 
     Returns
     -------
-    *streamlines* : `matplotlib.collections.LineCollection`
+    *streamlines* : :class:`~matplotlib.collections.LineCollection`
         Line collection with all streamlines as a series of line segments.
         Currently, there is no way to differentiate between line segments
         on different streamlines (other than manually checking that segments
@@ -62,7 +67,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10*arrowsize)
 
-    if isinstance(color, np.ndarray):
+    use_multicolor_lines = isinstance(color, np.ndarray)
+    if use_multicolor_lines:
         assert color.shape == grid.shape
         line_colors = []
     else:
@@ -95,12 +101,11 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             if t != None:
                 trajectories.append(t)
 
-    # Load up the defaults - needed to get the color right.
-    if isinstance(color, np.ndarray):
-        norm = matplotlib.colors.normalize(color.min(), color.max())
-        if cmap == None: cmap = matplotlib.cm.get_cmap(
-            matplotlib.rcParams['image.cmap'])
-
+    if use_multicolor_lines:
+        if norm is None:
+            norm = matplotlib.colors.normalize(color.min(), color.max())
+        if cmap is None:
+            cmap = matplotlib.cm.get_cmap(matplotlib.rcParams['image.cmap'])
 
     streamlines = []
     for t in trajectories:
@@ -113,7 +118,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         points = np.transpose([tx, ty]).reshape(-1, 1, 2)
         streamlines.extend(np.hstack([points[:-1], points[1:]]))
 
-        ## Add arrows half way along each trajectory.
+        # Add arrows half way along each trajectory.
         s = np.cumsum(np.sqrt(np.diff(tx)**2 + np.diff(ty)**2))
         n = np.searchsorted(s, s[-1] / 2.)
         arrow_tail = (tx[n], ty[n])
@@ -124,7 +129,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             line_kw['linewidth'].extend(line_widths)
             arrow_kw['linewidth'] = line_widths[n]
 
-        if isinstance(color, np.ndarray):
+        if use_multicolor_lines:
             color_values = interpgrid(color, tgx, tgy)[:-1]
             line_colors.extend(color_values)
             arrow_kw['color'] = cmap(norm(color_values[n]))
@@ -133,7 +138,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         axes.add_patch(p)
 
     lc = matplotlib.collections.LineCollection(streamlines, **line_kw)
-    if isinstance(color, np.ndarray):
+    if use_multicolor_lines:
         lc.set_array(np.asarray(line_colors))
         lc.set_cmap(cmap)
         lc.set_norm(norm)
