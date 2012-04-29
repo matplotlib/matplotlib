@@ -8,7 +8,6 @@ import matplotlib.cm as cm
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.patches as patches
-import matplotlib.container as container
 
 
 __all__ = ['streamplot']
@@ -50,7 +49,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     Returns
     -------
-    *stream_container* : StreamplotContainer
+    *stream_container* : StreamplotSet
         Container object with attributes
             lines : `matplotlib.collections.LineCollection` of streamlines
             arrows : collection of `matplotlib.patches.FancyArrowPatch` objects
@@ -159,19 +158,15 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     axes.autoscale_view(tight=True)
 
     ac = matplotlib.collections.PatchCollection(arrows)
-    stream_container = StreamplotContainer(lc, arrows=ac)
+    stream_container = StreamplotSet(lc, ac)
     return stream_container
 
 
-class StreamplotContainer(container.Container):
+class StreamplotSet(object):
 
-    def __new__(cls, *kl, **kwargs):
-        return tuple.__new__(cls)
-
-    def __init__(self, lines, arrows=None, **kwargs):
+    def __init__(self, lines, arrows, **kwargs):
         self.lines = lines
         self.arrows = arrows
-        container.Container.__init__(self, lines, **kwargs)
 
 
 # Coordinate definitions
