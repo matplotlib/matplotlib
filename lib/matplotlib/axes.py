@@ -6389,13 +6389,15 @@ class Axes(martist.Artist):
     quiver.__doc__ = mquiver.Quiver.quiver_doc
 
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
-                   cmap=None, arrowsize=1, arrowstyle='-|>', minlength=0.1):
+                   cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
+                   minlength=0.1):
         if not self._hold: self.cla()
         lines = mstream.streamplot(self, x, y, u, v,
                                    density=density,
                                    linewidth=linewidth,
                                    color=color,
                                    cmap=cmap,
+                                   norm=norm,
                                    arrowsize=arrowsize,
                                    arrowstyle=arrowstyle,
                                    minlength=minlength)
