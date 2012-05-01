@@ -46,7 +46,7 @@ except NameError:
 import cbook
 from path import Path
 
-DEBUG = True
+DEBUG = False
 if DEBUG:
     import warnings
 
@@ -113,11 +113,14 @@ class TransformNode(object):
         Called by :meth:`invalidate` and subsequently ascends the transform
         stack calling each TransformNode's _invalidate_internal method.
         """
-        # determine if this call will be an extension to the invalidation status
-        # if not, then a shortcut means that we needn't invoke an invalidation
-        # up the transform stack
-        # XXX This makes the invalidation sticky, once a transform has been invalidated as NON_AFFINE
-        # too, then it is always NON_AFFINE invalid, even when triggered with a AFFINE_ONLY invalidation.
+        # determine if this call will be an extension to the invalidation
+        # status if not, then a shortcut means that we needn't invoke an
+        # invalidation up the transform stack
+        # N.B This makes the invalidation sticky, once a transform has been
+        # invalidated as NON_AFFINE too, then it is always NON_AFFINE invalid,
+        # even when triggered with a AFFINE_ONLY invalidation. This will not
+        # be experienced, as in most cases the invalidation will by AFFINE_ONLY
+        # anyway.
         status_changed = self._invalid < value
 
         if self.pass_through or status_changed:
@@ -1067,9 +1070,13 @@ class Transform(TransformNode):
 
     def __array__(self, *args, **kwargs):
         """
-        Used by C/C++ -based backends to get at the array matrix data.
+        Array interface to get at this Transform's matrix.
         """
-        raise NotImplementedError
+        # note, this method is also used by C/C++ -based backends
+        if self.is_affine:
+            return self.get_matrix()
+        else:
+            raise ValueError('Cannot convert this transform to an array.')
 
     def transform(self, values):
         """
@@ -1340,6 +1347,7 @@ class AffineBase(Transform):
         self._inverted = None
 
     def __array__(self, *args, **kwargs):
+        # optimises the access of the transform matrix vs the superclass
         return self.get_matrix()
 
     @staticmethod
@@ -1401,9 +1409,6 @@ class Affine2DBase(AffineBase):
         mtx = self.get_matrix()
         return mtx[0, 1] == 0.0 and mtx[1, 0] == 0.0
     is_separable = property(_get_is_separable)
-
-    def __array__(self, *args, **kwargs):
-        return self.get_matrix()
 
     def to_values(self):
         """
@@ -1924,11 +1929,12 @@ class CompositeGenericTransform(Transform):
         # (b) it is the left hand node which has triggered the invalidation
         if value == Transform.INVALID_AFFINE \
             and not self._b.is_affine \
-            and (not self._a.is_affine or invalidating_node is self._a): # note use of is will break when using TransformWrapper
+            and (not self._a.is_affine or invalidating_node is self._a):
 
             value = Transform.INVALID
 
-        Transform._invalidate_internal(self, value=value, invalidating_node=invalidating_node)
+        Transform._invalidate_internal(self, value=value,
+                                       invalidating_node=invalidating_node)
 
     def _get_is_affine(self):
         return self._a.is_affine and self._b.is_affine
@@ -2048,10 +2054,10 @@ def composite_transform_factory(a, b):
 
       c = a + b
     """
-    # check to see if any of a or b are IdentityTransforms. Note we
-    # do not use equality here since we may have wrapped transforms
-    # which are currently equal to Identity, but since wrapped transforms
-    # are mutable, they may not always be equal.
+    # check to see if any of a or b are IdentityTransforms. We use
+    # isinstance here to guarantee that the transforms will *always*
+    # be IdentityTransforms. Since TransformWrappers are mutable,
+    # use of equality here would be wrong.
     if isinstance(a, IdentityTransform):
         return b
     elif isinstance(b, IdentityTransform):
