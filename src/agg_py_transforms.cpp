@@ -9,20 +9,45 @@
 #include "agg_trans_affine.h"
 
 /** A helper function to convert from a Numpy affine transformation matrix
- *  to an agg::trans_affine.
+ *  to an agg::trans_affine. If errors = false then an Identity transform is returned.
  */
 agg::trans_affine
 py_to_agg_transformation_matrix(PyObject* obj, bool errors = true)
 {
     PyArrayObject* matrix = NULL;
 
+    /** If None either raise a TypeError or return an agg identity transform. */
+    if (obj == Py_None)
+    {
+        if (errors)
+        {
+            throw Py::TypeError("Cannot convert None to an affine transform.");
+        }
+
+        return agg::trans_affine();
+    }
+
+    /** Try turning the object into an affine transform matrix. */
     try
     {
-        if (obj == Py_None)
-            throw std::exception();
         matrix = (PyArrayObject*) PyArray_FromObject(obj, PyArray_DOUBLE, 2, 2);
         if (!matrix)
             throw std::exception();
+    }
+    catch (...)
+    {
+        Py_XDECREF(matrix);
+        if (errors)
+        {
+            throw Py::TypeError("Unable to get an affine transform matrix from the given object.");
+        }
+
+        return agg::trans_affine();
+    }
+
+    /** Try turning the matrix into an agg transform. */
+    try
+    {
         if (PyArray_NDIM(matrix) == 2 || PyArray_DIM(matrix, 0) == 3 || PyArray_DIM(matrix, 1) == 3)
         {
             size_t stride0 = PyArray_STRIDE(matrix, 0);
@@ -54,7 +79,7 @@ py_to_agg_transformation_matrix(PyObject* obj, bool errors = true)
         if (errors)
         {
             Py_XDECREF(matrix);
-            throw Py::TypeError("Invalid affine transformation matrix");
+            throw Py::TypeError("Invalid affine transformation matrix.");
         }
     }
 
