@@ -114,13 +114,15 @@ class TransformNode(object):
         stack calling each TransformNode's _invalidate_internal method.
         """
         # determine if this call will be an extension to the invalidation
-        # status if not, then a shortcut means that we needn't invoke an
-        # invalidation up the transform stack
+        # status. If not, then a shortcut means that we needn't invoke an
+        # invalidation up the transform stack as it will already have been
+        # invalidated.
+
         # N.B This makes the invalidation sticky, once a transform has been
-        # invalidated as NON_AFFINE too, then it is always NON_AFFINE invalid,
-        # even when triggered with a AFFINE_ONLY invalidation. This will not
-        # be experienced, as in most cases the invalidation will by AFFINE_ONLY
-        # anyway.
+        # invalidated as NON_AFFINE, then it will always be invalidated as
+        # NON_AFFINE even when triggered with a AFFINE_ONLY invalidation.
+        # In most cases this is not a problem (i.e. for interactive panning and
+        # zooming) and the only side effect will be on performance.
         status_changed = self._invalid < value
 
         if self.pass_through or status_changed:
