@@ -314,10 +314,6 @@ class FigureManagerQT( FigureManagerBase ):
         image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
         self.window.setWindowIcon(QtGui.QIcon( image ))
 
-        # Give the keyboard focus to the figure instead of the manager
-        self.canvas.setFocusPolicy( QtCore.Qt.ClickFocus )
-        self.canvas.setFocus()
-
         QtCore.QObject.connect( self.window, QtCore.SIGNAL( 'destroyed()' ),
                             self._widgetclosed )
         self.window._destroying = False
