@@ -43,7 +43,10 @@ class VerticalHatch(HatchPatternBase):
 class NorthEastHatch(HatchPatternBase):
     def __init__(self, hatch, density):
         self.num_lines = (hatch.count('/') + hatch.count('x') + hatch.count('X')) * density
-        self.num_vertices = (self.num_lines + 1) * 2
+        if self.num_lines:
+            self.num_vertices = (self.num_lines + 1) * 2
+        else:
+            self.num_vertices = 0
 
     def set_vertices_and_codes(self, vertices, codes):
         steps = np.linspace(-0.5, 0.5, self.num_lines + 1, True)
@@ -58,6 +61,10 @@ class SouthEastHatch(HatchPatternBase):
     def __init__(self, hatch, density):
         self.num_lines = (hatch.count('\\') + hatch.count('x') + hatch.count('X')) * density
         self.num_vertices = (self.num_lines + 1) * 2
+        if self.num_lines:
+            self.num_vertices = (self.num_lines + 1) * 2
+        else:
+            self.num_vertices = 0
 
     def set_vertices_and_codes(self, vertices, codes):
         steps = np.linspace(-0.5, 0.5, self.num_lines + 1, True)
