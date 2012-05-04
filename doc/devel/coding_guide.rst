@@ -571,7 +571,3 @@ contributed by private companies.  The final reason behind the
 licensing choice is compatibility with the other python extensions for
 scientific computing: ipython, numpy, scipy, the enthought tool suite
 and python itself are all distributed under BSD compatible licenses.
-The other reason is licensing compatibility with the other python
-extensions for scientific computing: ipython, numpy, scipy, the
-enthought tool suite and python itself are all distributed under BSD
-compatible licenses.
