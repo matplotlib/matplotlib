@@ -946,12 +946,12 @@ def guess_tcl_config(tcl_lib_dir, tk_lib_dir, tk_ver):
 
     return tcl_lib, tcl_inc, 'tcl' + tk_ver, tk_lib, tk_inc, 'tk' + tk_ver
 
-def hardcoded_tcl_config():
+def hardcoded_tcl_config(tk_ver):
     tcl_inc = "/usr/local/include"
     tk_inc = "/usr/local/include"
     tcl_lib = "/usr/local/lib"
     tk_lib = "/usr/local/lib"
-    return tcl_lib, tcl_inc, 'tcl', tk_lib, tk_inc, 'tk'
+    return tcl_lib, tcl_inc, 'tcl'+tk_ver, tk_lib, tk_inc, 'tk'+tk_ver
 
 def add_tk_flags(module):
     'Add the module flags to build extensions which use tk'
@@ -1036,7 +1036,7 @@ def add_tk_flags(module):
             tcl_lib_dir, tk_lib_dir, tk_ver = query_tcltk()
         except:
             tk_ver = ''
-            result = hardcoded_tcl_config()
+            result = hardcoded_tcl_config(tk_ver)
         else:
             result = parse_tcl_config(tcl_lib_dir, tk_lib_dir)
             if result is None:
@@ -1049,7 +1049,7 @@ tclConfig.sh and tkConfig.sh could not be found and/or parsed."""
 Using default library and include directories for Tcl and Tk because a
 Tk window failed to open.  You may need to define DISPLAY for Tk to work
 so that setup can determine where your libraries are located."""
-                    result = hardcoded_tcl_config()
+                    result = hardcoded_tcl_config(tk_ver)
 
         # Add final versions of directories and libraries to module lists
         tcl_lib_dir, tcl_inc_dir, tcl_lib, tk_lib_dir, tk_inc_dir, tk_lib = result
