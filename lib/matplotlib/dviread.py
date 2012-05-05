@@ -391,22 +391,22 @@ class DviFont(object):
     The size is in Adobe points (converted from TeX points).
 
     .. attribute:: texname
-    
+
        Name of the font as used internally by TeX and friends. This
        is usually very different from any external font names, and
        :class:`dviread.PsfontsMap` can be used to find the external
        name of the font.
 
     .. attribute:: size
-    
+
        Size of the font in Adobe points, converted from the slightly
        smaller TeX points.
 
     .. attribute:: widths
-    
+
        Widths of glyphs in glyph-space units, typically 1/1000ths of
        the point size.
-    
+
     """
     __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
 
@@ -459,7 +459,7 @@ class DviFont(object):
             else:
                 result.append(_mul2012(value, self._scale))
         return result
-    
+
 class Vf(Dvi):
     """
     A virtual font (\*.vf file) containing subroutines for dvi files.
@@ -473,11 +473,13 @@ class Vf(Dvi):
 
     def __init__(self, filename):
         Dvi.__init__(self, filename, 0)
-        self._first_font = None
-        self._chars = {}
-        self._packet_ends = None
-        self._read()
-        self.close()
+        try:
+            self._first_font = None
+            self._chars = {}
+            self._packet_ends = None
+            self._read()
+        finally:
+            self.close()
 
     def __getitem__(self, code):
         return self._chars[code]
@@ -586,18 +588,16 @@ class Tfm(object):
     .. attribute:: height
 
        Height of each character.
-    
+
     .. attribute:: depth
-        
+
        Depth of each character.
     """
     __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
 
     def __init__(self, filename):
         matplotlib.verbose.report('opening tfm file ' + filename, 'debug')
-        file = open(filename, 'rb')
-
-        try:
+        with open(filename, 'rb') as file:
             header1 = file.read(24)
             lh, bc, ec, nw, nh, nd = \
                 struct.unpack('!6H', header1[2:14])
@@ -612,8 +612,6 @@ class Tfm(object):
             widths = file.read(4*nw)
             heights = file.read(4*nh)
             depths = file.read(4*nd)
-        finally:
-            file.close()
 
         self.width, self.height, self.depth = {}, {}, {}
         widths, heights, depths = \
@@ -663,11 +661,8 @@ class PsfontsMap(object):
 
     def __init__(self, filename):
         self._font = {}
-        file = open(filename, 'rt')
-        try:
+        with open(filename, 'rt') as file:
             self._parse(file)
-        finally:
-            file.close()
 
     def __getitem__(self, texname):
         result = self._font[texname]
@@ -832,7 +827,7 @@ def find_tex_file(filename, format=None):
     if format is not None:
         cmd += ['--format=' + format]
     cmd += [filename]
-    
+
     matplotlib.verbose.report('find_tex_file(%s): %s' \
                                   % (filename,cmd), 'debug')
     # stderr is unused, but reading it avoids a subprocess optimization

@@ -461,7 +461,14 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer.dpi = self.figure.dpi
         if is_string_like(filename_or_obj):
             filename_or_obj = file(filename_or_obj, 'wb')
-        renderer._renderer.write_rgba(filename_or_obj)
+            close = True
+        else:
+            close = False
+        try:
+            renderer._renderer.write_rgba(filename_or_obj)
+        finally:
+            if close:
+                filename_or_obj.close()
         renderer.dpi = original_dpi
     print_rgba = print_raw
 
@@ -472,9 +479,16 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer.dpi = self.figure.dpi
         if is_string_like(filename_or_obj):
             filename_or_obj = file(filename_or_obj, 'wb')
-        _png.write_png(renderer._renderer.buffer_rgba(0, 0),
-                       renderer.width, renderer.height,
-                       filename_or_obj, self.figure.dpi)
+            close = True
+        else:
+            close = False
+        try:
+            _png.write_png(renderer._renderer.buffer_rgba(0, 0),
+                           renderer.width, renderer.height,
+                           filename_or_obj, self.figure.dpi)
+        finally:
+            if close:
+                filename_or_obj.close()
         renderer.dpi = original_dpi
 
     def print_to_buffer(self):

@@ -481,8 +481,10 @@ def _get_data_server(cache_dir, baseurl):
                 return
 
             f = open(fn, 'rb')
-            cache = cPickle.load(f)
-            f.close()
+            try:
+                cache = cPickle.load(f)
+            finally:
+                f.close()
 
             # Earlier versions did not have the full paths in cache.pck
             for url, (fn, x, y) in cache.items():
@@ -526,8 +528,10 @@ def _get_data_server(cache_dir, baseurl):
             """
             fn = self.in_cache_dir('cache.pck')
             f = open(fn, 'wb')
-            cPickle.dump(self.cache, f, -1)
-            f.close()
+            try:
+                cPickle.dump(self.cache, f, -1)
+            finally:
+                f.close()
 
         def cache_file(self, url, data, headers):
             """
@@ -538,8 +542,10 @@ def _get_data_server(cache_dir, baseurl):
             fullpath = self.in_cache_dir(fn)
 
             f = open(fullpath, 'wb')
-            f.write(data)
-            f.close()
+            try:
+                f.write(data)
+            finally:
+                f.close()
 
             # Update the cache
             self.cache[url] = (fullpath, headers.get('ETag'),
@@ -577,7 +583,10 @@ def _get_data_server(cache_dir, baseurl):
                 'ViewVCCachedServer: reading data file from cache file "%s"'
                 %fn, 'debug')
             file = open(fn, 'rb')
-            handle = urllib2.addinfourl(file, hdrs, url)
+            try:
+                handle = urllib2.addinfourl(file, hdrs, url)
+            except:
+                file.close()
             handle.code = 304
             return handle
 

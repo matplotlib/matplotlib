@@ -58,7 +58,7 @@ class Type1Font(object):
             finally:
                 file.close()
             self.parts = self._split(data)
-            
+
         self._parse()
 
     def _read(self, file):
@@ -221,9 +221,9 @@ class Type1Font(object):
         if not prop.has_key('FamilyName'):
             extras = r'(?i)([ -](regular|plain|italic|oblique|(semi)?bold|(ultra)?light|extra|condensed))+$'
             prop['FamilyName'] = re.sub(extras, '', prop['FullName'])
-                
+
         self.prop = prop
-                        
+
     @classmethod
     def _transformer(cls, tokens, slant, extend):
         def fontname(name):
@@ -272,7 +272,7 @@ class Type1Font(object):
             for x in itertools.takewhile(lambda x: x[1] != 'def', tokens):
                 pass
             yield ''
-        
+
         table = { '/FontName': replace(fontname),
                   '/ItalicAngle': replace(italicangle),
                   '/FontMatrix': replace(fontmatrix),
@@ -285,7 +285,7 @@ class Type1Font(object):
                     yield value
             else:
                 yield value
-                        
+
     def transform(self, effects):
         """
         Transform the font by slanting or extending. *effects* should
@@ -297,13 +297,15 @@ class Type1Font(object):
         """
 
         buffer = cStringIO.StringIO()
-        tokenizer = self._tokens(self.parts[0])
-        for value in self._transformer(tokenizer,
-                                       slant=effects.get('slant', 0.0),
-                                       extend=effects.get('extend', 1.0)):
-            buffer.write(value)
-        result = buffer.getvalue()
-        buffer.close()
+        try:
+            tokenizer = self._tokens(self.parts[0])
+            for value in self._transformer(tokenizer,
+                                           slant=effects.get('slant', 0.0),
+                                           extend=effects.get('extend', 1.0)):
+                buffer.write(value)
+            result = buffer.getvalue()
+        finally:
+            buffer.close()
 
         return Type1Font((result, self.parts[1], self.parts[2]))
-    
+

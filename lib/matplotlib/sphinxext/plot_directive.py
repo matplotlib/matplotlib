@@ -624,9 +624,8 @@ def run(arguments, content, options, state_machine, state, lineno):
         else:
             function_name = None
 
-        fd = open(source_file_name, 'r')
-        code = fd.read()
-        fd.close()
+        with open(source_file_name, 'r') as fd:
+            code = fd.read()
         output_base = os.path.basename(source_file_name)
     else:
         source_file_name = rst_file
@@ -765,12 +764,14 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # copy script (if necessary)
     target_name = os.path.join(dest_dir, output_base + source_ext)
-    f = open(target_name, 'w')
     if source_file_name == rst_file:
         code_escaped = unescape_doctest(code)
     else:
         code_escaped = code
-    f.write(code_escaped)
-    f.close()
+    f = open(target_name, 'w')
+    try:
+        f.write(code_escaped)
+    finally:
+        f.close()
 
     return errors
