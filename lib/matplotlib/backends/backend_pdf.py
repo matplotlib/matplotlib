@@ -2169,7 +2169,7 @@ class PdfPages(object):
             if figureManager is None:
                 raise ValueError("No such figure: " + repr(figure))
             else:
-                figureManager.canvas.figure.savefig(self, format='pdf')
+                figureManager.canvas.figure.savefig(self, format='pdf', **kwargs)
 
 class FigureCanvasPdf(FigureCanvasBase):
     """
