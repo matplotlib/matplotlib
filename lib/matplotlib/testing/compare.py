@@ -8,7 +8,7 @@ from __future__ import division
 
 import matplotlib
 from matplotlib.testing.noseclasses import ImageComparisonFailure
-from matplotlib.testing import image_util
+from matplotlib.testing import image_util, util
 from matplotlib import _png
 from matplotlib import _get_configdir
 from distutils import version
@@ -138,32 +138,29 @@ def make_external_conversion_command(cmd):
 
    return convert
 
-try:
-   import ghostscript
-except ImportError:
-   if matplotlib.checkdep_ghostscript() is not None:
-      # FIXME: make checkdep_ghostscript return the command
-      if sys.platform == 'win32':
-         gs = 'gswin32c'
-      else:
-         gs = 'gs'
-      cmd = lambda old, new: \
-        [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH', '-dSAFER',
-         '-sOutputFile=' + new, old]
-      converter['pdf'] = make_external_conversion_command(cmd)
-      converter['eps'] = make_external_conversion_command(cmd)
-else:
-   def ghostscript_lib_converter(old, new):
-      args = [
-          'matplotlib', '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
-          '-dSAFER', '-sOutputFile=' + new, old]
-      try:
-         gs = ghostscript.Ghostscript(*args)
-      finally:
-         gs.exit()
-         ghostscript.cleanup()
-   converter['pdf'] = ghostscript_lib_converter
-   converter['eps'] = ghostscript_lib_converter
+if matplotlib.checkdep_ghostscript() is not None:
+    def make_ghostscript_conversion_command():
+        # FIXME: make checkdep_ghostscript return the command
+        if sys.platform == 'win32':
+            gs = 'gswin32c'
+        else:
+            gs = 'gs'
+        cmd = [gs, '-q', '-sDEVICE=png16m', '-sOutputFile=-']
+
+        process = util.MiniExpect(cmd)
+
+        def do_convert(old, new):
+            process.expect("GS>")
+            process.sendline("(%s) run" % old)
+            with open(new, 'wb') as fd:
+                process.expect(">>showpage, press <return> to continue<<", fd)
+            process.sendline('')
+
+        return do_convert
+
+    converter['pdf'] = make_ghostscript_conversion_command()
+    converter['eps'] = make_ghostscript_conversion_command()
+
 
 if matplotlib.checkdep_inkscape() is not None:
    cmd = lambda old, new: \
