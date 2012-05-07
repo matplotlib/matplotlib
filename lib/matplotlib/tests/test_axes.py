@@ -62,7 +62,7 @@ def test_formatter_large_small():
     y = [500000001, 500000002]
     ax.plot(x, y)
 
-@image_comparison(baseline_images=["autoscale_tiny_range"])
+@image_comparison(baseline_images=["autoscale_tiny_range"], remove_text=True)
 def test_autoscale_tiny_range():
     # github pull #904
     fig, ax = plt.subplots(2, 2)
@@ -71,7 +71,8 @@ def test_autoscale_tiny_range():
         y1 = 10**(-11 - i)
         ax[i].plot([0, 1], [1, 1 + y1])
 
-@image_comparison(baseline_images=['offset_points'])
+@image_comparison(baseline_images=['offset_points'],
+                  remove_text=True)
 def test_basic_annotate():
     # Setup some data
     t = np.arange( 0.0, 5.0, 0.01 )
@@ -119,7 +120,8 @@ def test_polar_annotations():
                 )
 
    #--------------------------------------------------------------------
-@image_comparison(baseline_images=['polar_coords'])
+@image_comparison(baseline_images=['polar_coords'],
+                  remove_text=True)
 def test_polar_coord_annotations():
     # You can also use polar notation on a catesian axes.  Here the
     # native coordinate system ('data') is cartesian, so you need to
@@ -380,7 +382,8 @@ def test_axhspan_epoch():
     ax.set_ylim( t0 - 5.0*dt, tf + 5.0*dt )
 
 
-@image_comparison(baseline_images=['hexbin_extent'])
+@image_comparison(baseline_images=['hexbin_extent'],
+                  remove_text=True)
 def test_hexbin_extent():
     # this test exposes sf bug 2856228
     fig = plt.figure()
@@ -405,7 +408,8 @@ def test_nonfinite_limits():
     ax = fig.add_subplot(111)
     ax.plot(x, y)
 
-@image_comparison(baseline_images=['imshow'])
+@image_comparison(baseline_images=['imshow'],
+                  remove_text=True)
 def test_imshow():
     #Create a NxN image
     N=100
@@ -446,7 +450,8 @@ def test_imshow_clip():
     #Plot the image clipped by the contour
     ax.imshow(r, clip_path=clip_path)
 
-@image_comparison(baseline_images=['polycollection_joinstyle'])
+@image_comparison(baseline_images=['polycollection_joinstyle'],
+                  remove_text=True)
 def test_polycollection_joinstyle():
     # Bug #2890979 reported by Matthew West
 
@@ -459,10 +464,9 @@ def test_polycollection_joinstyle():
     ax.add_collection(c)
     ax.set_xbound(0, 3)
     ax.set_ybound(0, 3)
-    ax.set_xticks([])
-    ax.set_yticks([])
 
-@image_comparison(baseline_images=['fill_between_interpolate'], tol=1e-2)
+@image_comparison(baseline_images=['fill_between_interpolate'],
+                  tol=1e-2, remove_text=True)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -493,7 +497,8 @@ def test_symlog():
     ax.set_xscale=('linear')
     ax.set_ylim(-1,10000000)
 
-@image_comparison(baseline_images=['symlog2'])
+@image_comparison(baseline_images=['symlog2'],
+                  remove_text=True)
 def test_symlog2():
     # Numbers from -50 to 50, with 0.1 as step
     x = np.arange(-50,50, 0.001)
@@ -530,7 +535,8 @@ def test_symlog2():
     ax.grid(True)
     ax.set_ylim(-0.1, 0.1)
 
-@image_comparison(baseline_images=['pcolormesh'], tol=0.02)
+@image_comparison(baseline_images=['pcolormesh'], tol=0.02,
+                  remove_text=True)
 def test_pcolormesh():
     n = 12
     x = np.linspace(-1.5,1.5,n)
@@ -548,21 +554,12 @@ def test_pcolormesh():
     fig = plt.figure()
     ax = fig.add_subplot(131)
     ax.pcolormesh(Qx,Qz,Z, lw=0.5, edgecolors='k')
-    ax.set_title('lw=0.5')
-    ax.set_xticks([])
-    ax.set_yticks([])
 
     ax = fig.add_subplot(132)
     ax.pcolormesh(Qx,Qz,Z, lw=2, edgecolors=['b', 'w'])
-    ax.set_title('lw=2')
-    ax.set_xticks([])
-    ax.set_yticks([])
 
     ax = fig.add_subplot(133)
     ax.pcolormesh(Qx,Qz,Z, shading="gouraud")
-    ax.set_title('gouraud')
-    ax.set_xticks([])
-    ax.set_yticks([])
 
 
 @image_comparison(baseline_images=['canonical'])
@@ -572,7 +569,7 @@ def test_canonical():
 
 
 @image_comparison(baseline_images=['arc_ellipse'],
-                  freetype_version=('2.4.5', '2.4.9'))
+                  remove_text=True)
 def test_arc_ellipse():
     from matplotlib import patches
     xcenter, ycenter = 0.38, 0.52
@@ -619,7 +616,8 @@ def test_units_strings():
     ax = fig.add_subplot(111)
     ax.plot(Id, pout)
 
-@image_comparison(baseline_images=['markevery'])
+@image_comparison(baseline_images=['markevery'],
+                  remove_text=True)
 def test_markevery():
     x = np.linspace(0, 10, 100)
     y = np.sin(x) * np.sqrt(x/10 + 0.5)
@@ -634,7 +632,7 @@ def test_markevery():
     ax.legend()
 
 @image_comparison(baseline_images=['markevery_line'],
-                  freetype_version=('2.4.5', '2.4.9'))
+                  remove_text=True)
 def test_markevery_line():
     x = np.linspace(0, 10, 100)
     y = np.sin(x) * np.sqrt(x/10 + 0.5)
@@ -648,7 +646,8 @@ def test_markevery_line():
     ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
 
-@image_comparison(baseline_images=['marker_edges'])
+@image_comparison(baseline_images=['marker_edges'],
+                  remove_text=True)
 def test_marker_edges():
     x = np.linspace(0, 1, 10)
     fig = plt.figure()
@@ -656,18 +655,15 @@ def test_marker_edges():
     ax.plot(x, np.sin(x), 'y.', ms=30.0, mew=0, mec='r')
     ax.plot(x+0.1, np.sin(x), 'y.', ms=30.0, mew=1, mec='r')
     ax.plot(x+0.2, np.sin(x), 'y.', ms=30.0, mew=2, mec='b')
-    ax.set_xticks([])
-    ax.set_yticks([])
 
-@image_comparison(baseline_images=['hist_log'])
+@image_comparison(baseline_images=['hist_log'],
+                  remove_text=True)
 def test_hist_log():
     data0 = np.linspace(0,1,200)**3
     data = np.r_[1-data0, 1+data0]
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist(data, fill=False, log=True)
-    ax.set_xticks([])
-    ax.set_yticks([])
 
 @image_comparison(baseline_images=['contour_hatching'])
 def test_contour_hatching():
