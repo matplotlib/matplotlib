@@ -36,7 +36,8 @@ def test_image_interps():
     ax3.imshow(X, interpolation='bicubic')
     ax3.set_ylabel('bicubic')
 
-@image_comparison(baseline_images=['interp_nearest_vs_none'], extensions=['pdf', 'svg'])
+@image_comparison(baseline_images=['interp_nearest_vs_none'],
+                  extensions=['pdf', 'svg'], remove_text=True)
 def test_interp_nearest_vs_none():
     'Test the effect of "nearest" and "none" interpolation'
     # Setting dpi to something really small makes the difference very
@@ -138,7 +139,7 @@ def test_image_clip():
 
     im = ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
 
-@image_comparison(baseline_images=['imshow'], tol=1.5e-3)
+@image_comparison(baseline_images=['imshow'], tol=1.5e-3, remove_text=True)
 def test_imshow():
     import numpy as np
     import matplotlib.pyplot as plt
@@ -149,8 +150,6 @@ def test_imshow():
     ax.imshow(arr, interpolation="bilinear", extent=(1,2,1,2))
     ax.set_xlim(0,3)
     ax.set_ylim(0,3)
-    ax.set_xticks([])
-    ax.set_yticks([])
 
 @image_comparison(baseline_images=['no_interpolation_origin'])
 def test_no_interpolation_origin():
