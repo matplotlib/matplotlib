@@ -42,6 +42,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         * *antialiaseds*: None
         * *offsets*: None
         * *transOffset*: transforms.IdentityTransform()
+        * *offset_position*: 'screen' (default) or 'data'
         * *norm*: None (optional for
           :class:`matplotlib.cm.ScalarMappable`)
         * *cmap*: None (optional for
@@ -49,7 +50,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
         * *hatch*: None
 
     *offsets* and *transOffset* are used to translate the patch after
-    rendering (default no offsets).
+    rendering (default no offsets).  If offset_position is 'screen'
+    (default) the offset is applied after the master transform has
+    been applied, that is, the offsets are in screen coordinates.  If
+    offset_position is 'data', the offset is applied before the master
+    transform, i.e., the offsets are in data coordinates.
 
     If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds*
     are None, they default to their :data:`matplotlib.rcParams` patch
@@ -80,6 +85,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  pickradius = 5.0,
                  hatch=None,
                  urls = None,
+                 offset_position='screen',
                  **kwargs
                  ):
         """
@@ -98,7 +104,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_pickradius(pickradius)
         self.set_urls(urls)
         self.set_hatch(hatch)
-
+        self.set_offset_position(offset_position)
 
         self._uniform_offsets = None
         self._offsets = np.array([], np.float_)
@@ -242,7 +248,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         renderer.draw_path_collection(
             gc, transform.frozen(), paths, self.get_transforms(),
             offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
-            self._linewidths, self._linestyles, self._antialiaseds, self._urls)
+            self._linewidths, self._linestyles, self._antialiaseds, self._urls,
+            self._offset_position)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -358,6 +365,24 @@ class Collection(artist.Artist, cm.ScalarMappable):
             return self._offsets
         else:
             return self._uniform_offsets
+
+    def set_offset_position(self, offset_position):
+        """
+        The how offsets are applied.  If *offset_position* is 'screen'
+        (default) the offset is applied after the master transform has
+        been applied, that is, the offsets are in screen coordinates.
+        If offset_position is 'data', the offset is applied before the
+        master transform, i.e., the offsets are in data coordinates.
+        """
+        if offset_position not in ('screen', 'data'):
+            raise ValueError("offset_position must be 'screen' or 'data'")
+        self._offset_position = offset_position
+
+    def get_offset_position(self):
+        """
+        Returns the offset position of the collection.
+        """
+        return self._offset_position
 
     def set_linewidth(self, lw):
         """

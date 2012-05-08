@@ -60,7 +60,8 @@ class RendererMac(RendererBase):
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offsetTrans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls):
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
         cliprect = gc.get_clip_rectangle()
         clippath, clippath_transform = gc.get_clip_path()
         if all_transforms:

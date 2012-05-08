@@ -186,14 +186,16 @@ class RendererBase:
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offsetTrans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls):
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
         """
         Draws a collection of paths selecting drawing properties from
         the lists *facecolors*, *edgecolors*, *linewidths*,
         *linestyles* and *antialiaseds*. *offsets* is a list of
         offsets to apply to each of the paths.  The offsets in
         *offsets* are first transformed by *offsetTrans* before being
-        applied.
+        applied.  *offset_position* may be either "screen" or "data"
+        depending on the space that the offsets are in.
 
         This provides a fallback implementation of
         :meth:`draw_path_collection` that makes multiple calls to
@@ -213,8 +215,9 @@ class RendererBase:
             path_ids.append((path, transform))
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-            gc, path_ids, offsets, offsetTrans, facecolors, edgecolors,
-            linewidths, linestyles, antialiaseds, urls):
+            gc, master_transform, all_transforms, path_ids, offsets,
+            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+            antialiaseds, urls, offset_position):
             path, transform = path_id
             transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
             self.draw_path(gc0, path, transform, rgbFace)
@@ -240,7 +243,7 @@ class RendererBase:
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
-            edgecolors, linewidths, [], [antialiased], [None])
+            edgecolors, linewidths, [], [antialiased], [None], 'screen')
 
     def draw_gouraud_triangle(self, gc, points, colors, transform):
         """
@@ -302,9 +305,10 @@ class RendererBase:
                 transform = all_transforms[i % Ntransforms]
             yield path, transform + master_transform
 
-    def _iter_collection(self, gc, path_ids, offsets, offsetTrans, facecolors,
-                         edgecolors, linewidths, linestyles, antialiaseds,
-                         urls):
+    def _iter_collection(self, gc, master_transform, all_transforms,
+                         path_ids, offsets, offsetTrans, facecolors,
+                         edgecolors, linewidths, linestyles,
+                         antialiaseds, urls, offset_position):
         """
         This is a helper method (along with
         :meth:`_iter_collection_raw_paths`) to make it easier to write
@@ -330,6 +334,7 @@ class RendererBase:
         *path_ids*; *gc* is a graphics context and *rgbFace* is a color to
         use for filling the path.
         """
+        Ntransforms = len(all_transforms)
         Npaths      = len(path_ids)
         Noffsets    = len(offsets)
         N           = max(Npaths, Noffsets)
@@ -359,6 +364,15 @@ class RendererBase:
             path_id = path_ids[i % Npaths]
             if Noffsets:
                 xo, yo = toffsets[i % Noffsets]
+                if offset_position == 'data':
+                    if Ntransforms:
+                        transform = all_transforms[i % Ntransforms] + master_transform
+                    else:
+                        transform = master_transform
+                    xo, yo = transform.transform_point((xo, yo))
+                    xp, yp = transform.transform_point((0, 0))
+                    xo = -(xp - xo)
+                    yo = -(yp - yo)
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
