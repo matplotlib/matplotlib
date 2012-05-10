@@ -716,6 +716,12 @@ def rc_params(fail_on_error=False):
         warnings.warn(message)
         return ret
 
+    return rc_params_from_file(fname, fail_on_error)
+
+
+def rc_params_from_file(fname, fail_on_error=False):
+    """Load and return params from fname."""
+
     cnt = 0
     rc_temp = {}
     with open(fname) as fd:
@@ -897,6 +903,13 @@ def rcdefaults():
     reloading the default params from the rc file
     """
     rcParams.update(rcParamsDefault)
+
+def rcfile(fname):
+    """
+    Update rc params from file.
+    """
+    rcParams.update(rc_params_from_file(fname))
+
 
 def rc_file_defaults():
     """
