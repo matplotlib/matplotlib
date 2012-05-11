@@ -178,7 +178,6 @@ if not found_version >= expected_version:
             __version__numpy__, numpy.__version__))
 del version
 
-
 def is_string_like(obj):
     if hasattr(obj, 'shape'): return 0
     try: obj + ''
@@ -904,11 +903,23 @@ def rcdefaults():
     """
     rcParams.update(rcParamsDefault)
 
-def rcfile(fname):
+
+def rc_file(fname):
     """
     Update rc params from file.
     """
     rcParams.update(rc_params_from_file(fname))
+
+
+class rc_context(object):
+    def __init__(self, fname=None):
+        self.fname = fname
+    def __enter__(self):
+        self._rcparams = rcParams.copy()
+        if self.fname:
+            rc_file(self.fname)
+    def __exit__(self, type, value, tb):
+        rcParams.update(self._rcparams)
 
 
 def rc_file_defaults():
