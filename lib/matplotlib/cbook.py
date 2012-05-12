@@ -639,7 +639,7 @@ def _get_data_server(cache_dir, baseurl):
             else:
                 data = response.read()
                 self.cache_file(req.get_full_url(), data, response.headers)
-                result = addinfourl(StringIO.StringIO(data),
+                result = addinfourl(data,
                                     response.headers,
                                     req.get_full_url())
                 result.code = response.code
