@@ -348,6 +348,7 @@ class AFM:
             # find the min y
             thismin = b
             if thismin<miny: miny = thismin
+            namelast = name
 
         return totalw, maxy-miny
 
@@ -385,6 +386,7 @@ class AFM:
             # find the min y
             thismin = b
             if thismin<miny: miny = thismin
+            namelast = name
 
         return left, miny, totalw, maxy-miny, -miny
 
