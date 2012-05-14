@@ -37,7 +37,7 @@ else:
     def urllib_quote():
         return urllib2.quote
     def addinfourl(data, headers, url, code=None):
-        return urllib2.addinfourl(io.StringIO(data),
+        return urllib2.addinfourl(io.BytesIO(data),
                                   headers, url, code)
     urllib_HTTPSHandler = urllib2.HTTPSHandler
     urllib_build_opener = urllib2.build_opener
@@ -639,7 +639,7 @@ def _get_data_server(cache_dir, baseurl):
             else:
                 data = response.read()
                 self.cache_file(req.get_full_url(), data, response.headers)
-                result = addinfourl(StringIO.StringIO(data),
+                result = addinfourl(data,
                                     response.headers,
                                     req.get_full_url())
                 result.code = response.code
