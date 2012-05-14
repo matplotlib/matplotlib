@@ -37,7 +37,7 @@ else:
     def urllib_quote():
         return urllib2.quote
     def addinfourl(data, headers, url, code=None):
-        return urllib2.addinfourl(io.StringIO(data),
+        return urllib2.addinfourl(io.BytesIO(data),
                                   headers, url, code)
     urllib_HTTPSHandler = urllib2.HTTPSHandler
     urllib_build_opener = urllib2.build_opener
