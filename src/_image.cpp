@@ -33,7 +33,8 @@
 #include "mplutils.h"
 
 
-typedef agg::pixfmt_rgba32_pre pixfmt;
+typedef agg::pixfmt_rgba32 pixfmt;
+typedef agg::pixfmt_rgba32_pre pixfmt_pre;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::span_interpolator_linear<> interpolator_type;
 typedef agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> rasterizer;
@@ -430,9 +431,9 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs)
     ras.add_path(imageBox);
 
     typedef agg::wrap_mode_reflect reflect_type;
-    typedef agg::image_accessor_wrap<pixfmt, reflect_type, reflect_type> img_accessor_type;
+    typedef agg::image_accessor_wrap<pixfmt_pre, reflect_type, reflect_type> img_accessor_type;
 
-    pixfmt pixfmtin(*rbufIn);
+    pixfmt_pre pixfmtin(*rbufIn);
     img_accessor_type ia(pixfmtin);
     switch (interpolation)
     {
@@ -1989,7 +1990,3 @@ init_image(void)
     return _image->module().ptr();
 #endif
 }
-
-
-
-
