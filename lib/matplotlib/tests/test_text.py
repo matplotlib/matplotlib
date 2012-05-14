@@ -95,3 +95,13 @@ def test_antialiasing():
     # test cleanup will do it for us.  In fact, if we do it here, it
     # will turn antialiasing back off before the images are actually
     # rendered.
+
+
+def test_afm_kerning():
+    from matplotlib.afm import AFM
+    from matplotlib.font_manager import findfont
+
+    fn = findfont("Helvetica", fontext="afm")
+    with open(fn, 'rb') as fh:
+        afm = AFM(fh)
+    assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)
