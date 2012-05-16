@@ -339,11 +339,12 @@ public:
 
             while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop)
             {
-                if (!m_has_init)
+                if (code == agg::path_cmd_move_to)
                 {
                     m_initX = *x;
                     m_initY = *y;
                     m_has_init = true;
+                    m_moveto = true;
                 }
                 if (m_moveto)
                 {
