@@ -220,8 +220,8 @@ def test_clipping_with_nans():
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    plt.plot(x, y)
-    plt.ylim(-0.25, 0.25)
+    ax.plot(x, y)
+    ax.set_ylim(-0.25, 0.25)
 
 
 if __name__=='__main__':
