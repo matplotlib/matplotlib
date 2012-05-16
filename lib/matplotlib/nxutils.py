@@ -16,7 +16,7 @@ def pnpoly(x, y, xyverts):
     .. deprecated:: 1.2.0
         Use :meth:`~matplotlib.path.Path.contains_point` instead.
     """
-    warings.warn(
+    warnings.warn(
         "nxutils is deprecated.  Use matplotlib.path.Path.contains_point"
         " instead.",
         DeprecationWarning)
