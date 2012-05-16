@@ -212,6 +212,18 @@ def test_para_equal_perp():
     ax.plot(x + 1, y + 1)
     ax.plot(x + 1, y + 1, 'ro')
 
+@image_comparison(baseline_images=['clipping_with_nans'])
+def test_clipping_with_nans():
+    x = np.linspace(0, 3.14 * 2, 3000)
+    y = np.sin(x)
+    x[::100] = np.nan
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y)
+    ax.set_ylim(-0.25, 0.25)
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
