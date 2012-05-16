@@ -5005,13 +5005,14 @@ class Axes(martist.Artist):
 
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False,
-            labeldistance=1.1):
+            labeldistance=1.1, radius=None):
         r"""
         Call signature::
 
           pie(x, explode=None, labels=None,
               colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
-              autopct=None, pctdistance=0.6, labeldistance=1.1, shadow=False)
+              autopct=None, pctdistance=0.6, labeldistance=1.1, shadow=False,
+              radius=None)
 
         Make a pie chart of array *x*.  The fractional area of each
         wedge is given by x/sum(x).  If sum(x) <= 1, then the values
@@ -5047,6 +5048,9 @@ class Axes(martist.Artist):
 
           *shadow*: [ *False* | *True* ]
             Draw a shadow beneath the pie.
+
+          *radius*: [ *None* | scalar ]
+          The radius of the pie, if *radius* is *None* it will be set to 1.
 
         The pie chart will probably look best if the figure and axes are
         square.  Eg.::
@@ -5084,7 +5088,7 @@ class Axes(martist.Artist):
 
 
         center = 0,0
-        radius = 1
+        if radius is None: radius = 1
         theta1 = 0
         i = 0
         texts = []
