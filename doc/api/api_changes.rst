@@ -20,6 +20,14 @@ Changes in 1.1.x
   will now always mean that the nearest-neighbor interpolation is performed.
   If you want the no-op interpolation to be performed, choose 'none'.
 
+* In :meth:`~matplotlib.pyplot.pie`, one can now set the radius of the pie;
+  setting the *radius* to 'None' (the default value), will result in a pie
+  with a radius of 1 as before.
+
+* In :meth:`~matplotlib.Axes.pie`, one can now set the radius of the pie;
+  setting the *radius* to 'None' (the default value), will result in a pie
+  with a radius of 1 as before.
+
 * There were errors in how the tri-functions were handling input parameters
   that had to be fixed. If your tri-plots are not working correctly anymore,
   or you were working around apparent mistakes, please see issue #203 in the
