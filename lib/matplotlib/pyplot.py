@@ -1625,12 +1625,12 @@ def colors():
 
     You can also use any legal html name for a color, for example::
 
-      color = 'red',
+      color = 'red'
       color = 'burlywood'
       color = 'chartreuse'
 
     The example below creates a subplot with a dark
-    slate gray background
+    slate gray background::
 
        subplot(111, axisbg=(0.1843, 0.3098, 0.3098))
 
