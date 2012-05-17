@@ -382,7 +382,7 @@ public:
                         return code;
                     }
                 }
-                else if (code == agg::path_cmd_end_poly | agg::path_flags_close
+                else if (code == (agg::path_cmd_end_poly | agg::path_flags_close)
                          && m_broke_path && m_has_init)
                 {
                     *x = m_initX;
