@@ -5011,7 +5011,7 @@ class Axes(martist.Artist):
 
           pie(x, explode=None, labels=None,
               colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
-              autopct=None, pctdistance=0.6, labeldistance=1.1, shadow=False,
+              autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
               radius=None)
 
         Make a pie chart of array *x*.  The fractional area of each
