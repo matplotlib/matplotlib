@@ -317,51 +317,55 @@ class SymmetricalLogScale(ScaleBase):
         output_dims = 1
         is_separable = True
 
-        def __init__(self, base, linthresh):
+        def __init__(self, base, linthresh, linscale):
             Transform.__init__(self)
             self.base = base
             self.linthresh = linthresh
+            self.linscale = linscale
+            self._linscale_adj = (linscale / (1.0 - self.base ** -1))
             self._log_base = np.log(base)
-            self._linadjust = (np.log(linthresh) / self._log_base) / linthresh
 
         def transform(self, a):
             sign = np.sign(a)
             masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
-            log = sign * self.linthresh * (1 + ma.log(np.abs(masked) / self.linthresh))
+            log = sign * self.linthresh * (
+                self._linscale_adj +
+                ma.log(np.abs(masked) / self.linthresh) / self._log_base)
             if masked.mask.any():
-                return ma.where(masked.mask, a, log)
+                return ma.where(masked.mask, a * self._linscale_adj, log)
             else:
                 return log
 
         def inverted(self):
             return SymmetricalLogScale.InvertedSymmetricalLogTransform(
-                self.base, self.linthresh)
+                self.base, self.linthresh, self.linscale)
 
     class InvertedSymmetricalLogTransform(Transform):
         input_dims = 1
         output_dims = 1
         is_separable = True
 
-        def __init__(self, base, linthresh):
+        def __init__(self, base, linthresh, linscale):
             Transform.__init__(self)
             self.base = base
             self.linthresh = linthresh
-            log_base = np.log(base)
-            logb_linthresh = np.log(linthresh) / log_base
-            self._linadjust = 1.0 - logb_linthresh
+            self.linscale = linscale
+            self._linscale_adj = (linscale / (1.0 - self.base ** -1))
 
         def transform(self, a):
             sign = np.sign(a)
             masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
-            exp = sign * self.linthresh * ma.exp(sign * masked / self.linthresh - 1)
+            exp = sign * self.linthresh * (
+                ma.power(self.base, sign * (masked / self.linthresh))
+                - self._linscale_adj)
             if masked.mask.any():
-                return ma.where(masked.mask, a, exp)
+                return ma.where(masked.mask, a / self._linscale_adj, exp)
             else:
                 return exp
 
         def inverted(self):
             return SymmetricalLogScale.SymmetricalLogTransform(
-                self.base, self.linthresh)
+                self.base, self.linthresh, self.linscale)
 
     def __init__(self, axis, **kwargs):
         """
@@ -379,22 +383,36 @@ class SymmetricalLogScale(ScaleBase):
 
            will place 8 logarithmically spaced minor ticks between
            each major tick.
+
+        *linscalex*/*linscaley*:
+           This allows the linear range (-*linthresh* to *linthresh*)
+           to be stretched relative to the logarithmic range.  Its
+           value is the number of decades to use for each half of the
+           linear range.  For example, when *linscale* == 1.0 (the
+           default), the space used for the positive and negative
+           halves of the linear range will be equal to one decade in
+           the logarithmic range.
         """
         if axis.axis_name == 'x':
             base = kwargs.pop('basex', 10.0)
             linthresh = kwargs.pop('linthreshx', 2.0)
             subs = kwargs.pop('subsx', None)
+            linscale = kwargs.pop('linscalex', 1.0)
         else:
             base = kwargs.pop('basey', 10.0)
             linthresh = kwargs.pop('linthreshy', 2.0)
             subs = kwargs.pop('subsy', None)
+            linscale = kwargs.pop('linscaley', 1.0)
 
-        self._transform = self.SymmetricalLogTransform(base, linthresh)
-
-        assert base > 0.0
+        assert base > 1.0
         assert linthresh > 0.0
+        assert linscale >= 1.0
+
+        self._transform = self.SymmetricalLogTransform(base, linthresh, linscale)
+
         self.base = base
         self.linthresh = linthresh
+        self.linscale = linscale
         self.subs = subs
 
     def set_default_locators_and_formatters(self, axis):

@@ -1,3 +1,10 @@
+2012-05-03 symlog scale now obeys the logarithmic base.  Previously, it was
+	   completely ignored and always treated as base e. - MGD
+
+2012-05-03 Allow linscalex/y keyword to symlog scale that allows the size of
+	   the linear portion relative to the logarithmic portion to be
+	   adjusted. - MGD
+
 2012-04-06 When path clipping changes a LINETO to a MOVETO, it also
            changes any CLOSEPOLY command to a LINETO to the initial
            point. This fixes a problem with pdf and svg where the
