@@ -1,3 +1,7 @@
+2012-05-04 Add a new argument to pie charts - startingangle - that
+	   allows one to specify the angle offset to the first wedge
+	   of the chart. - EP
+
 2012-04-06 When path clipping changes a LINETO to a MOVETO, it also
            changes any CLOSEPOLY command to a LINETO to the initial
            point. This fixes a problem with pdf and svg where the
