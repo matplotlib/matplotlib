@@ -11,6 +11,13 @@ help figure out possible sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+Changes in 1.2.x
+================
+
+* In :meth:`~matplotlib.pyplot.pie`, one can now set the radius of the pie;
+  setting the *radius* to 'None' (the default value), will result in a pie
+  with a radius of 1 as before.
+
 Changes in 1.1.x
 ================
 
@@ -19,10 +26,6 @@ Changes in 1.1.x
 * In :meth:`~matplotlib.pyplot.imshow`, setting *interpolation* to 'nearest'
   will now always mean that the nearest-neighbor interpolation is performed.
   If you want the no-op interpolation to be performed, choose 'none'.
-
-* In :meth:`~matplotlib.pyplot.pie`, one can now set the radius of the pie;
-  setting the *radius* to 'None' (the default value), will result in a pie
-  with a radius of 1 as before.
 
 * In :meth:`~matplotlib.Axes.pie`, one can now set the radius of the pie;
   setting the *radius* to 'None' (the default value), will result in a pie
