@@ -24,7 +24,7 @@ locations, in the following order:
    is something like :file:`/usr/lib/python2.5/site-packages` on Linux, and
    maybe :file:`C:\\Python25\\Lib\\site-packages` on Windows. Every time you
    install matplotlib, this file will be overwritten, so if you want your
-   customizations to be saved, please move this file to you :file:`.matplotlib`
+   customizations to be saved, please move this file to your :file:`.matplotlib`
    directory.
 
 To display where the currently active :file:`matplotlibrc` file was
