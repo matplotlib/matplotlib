@@ -399,12 +399,23 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         val = event.keysym_num
         if val in self.keyvald:
             key = self.keyvald[val]
-        elif val<256:
+        elif val < 256:
             key = chr(val)
         else:
             key = None
+        
+        # add modifier keys to the key string. Bit details originate from 
+        # http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
+        # BIT_SHIFT = 0x001; BIT_CAPSLOCK = 0x002; BIT_CONTROL = 0x004; 
+        # BIT_LEFT_ALT = 0x008; BIT_NUMLOCK = 0x010; BIT_RIGHT_ALT = 0x080; 
+        # BIT_MB_1 = 0x100; BIT_MB_2 = 0x200; BIT_MB_3 = 0x400;
+        if key is not None:
+            # note, shift is not added to the keys as this is already accounted for
+            for bitmask, prefix in [(2, 'ctrl'), (3, 'alt')]:
+                if event.state & (1 << bitmask): 
+                    key = '{}+{}'.format(prefix, key)
+                     
         return key
-
 
     def key_press(self, event):
         key = self._get_key(event)
