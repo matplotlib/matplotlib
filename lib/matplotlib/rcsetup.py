@@ -575,14 +575,14 @@ defaultParams = {
                                                     # recommend about 20000 to
                                                     # enable. Experimental.
     # key-mappings
-    'keymap.fullscreen' : ['f', validate_stringlist],
+    'keymap.fullscreen' : [('f', 'ctrl+f'), validate_stringlist],
     'keymap.home' : [['h', 'r', 'home'], validate_stringlist],
     'keymap.back' : [['left', 'c', 'backspace'], validate_stringlist],
     'keymap.forward' : [['right', 'v'], validate_stringlist],
     'keymap.pan' : ['p', validate_stringlist],
     'keymap.zoom' : ['o', validate_stringlist],
-    'keymap.save' : ['s', validate_stringlist],
-    'keymap.quit' : ['q', validate_stringlist],
+    'keymap.save' : [('s', 'ctrl+s'), validate_stringlist],
+    'keymap.quit' : [('ctrl+w', 'escape'), validate_stringlist],
     'keymap.grid' : ['g', validate_stringlist],
     'keymap.yscale' : ['l', validate_stringlist],
     'keymap.xscale' : [['k', 'L'], validate_stringlist],

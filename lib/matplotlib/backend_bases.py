@@ -1400,7 +1400,7 @@ class KeyEvent(LocationEvent):
     attributes, the following attributes are defined:
 
     *key*
-        the key pressed: None, chr(range(255), shift, win, or control
+        the key pressed: None, chr(range(255)), shift, win, or control
 
     This interface may change slightly when better support for
     modifier keys is included.
@@ -2296,10 +2296,10 @@ def key_press_handler(event, canvas, toolbar=None):
     if event.key in fullscreen_keys:
         canvas.manager.full_screen_toggle()
 
-    # quit the figure (defaut key 'q')
+    # quit the figure (defaut key 'ctrl+w')
     if event.key in quit_keys:
         Gcf.destroy_fig(canvas.figure)
-   
+       
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
         if event.key in home_keys:
