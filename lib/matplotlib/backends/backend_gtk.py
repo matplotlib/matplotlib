@@ -322,14 +322,17 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def _get_key(self, event):
         if event.keyval in self.keyvald:
             key = self.keyvald[event.keyval]
-        elif event.keyval <256:
+        elif event.keyval < 256:
             key = chr(event.keyval)
         else:
             key = None
 
-        ctrl  = event.state & gdk.CONTROL_MASK
-        shift = event.state & gdk.SHIFT_MASK
-        return key
+        for key_mask, prefix in ([gdk.CONTROL_MASK, 'ctrl'],
+                                 [gdk.MOD1_MASK, 'alt'], ):
+            if event.state & key_mask:
+                key = '{}+{}'.format(prefix, key)
+        
+	return key
 
 
     def configure_event(self, widget, event):

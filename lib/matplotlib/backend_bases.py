@@ -2767,8 +2767,6 @@ class NavigationToolbar2(object):
 
             self.draw_rubberband(event, x, y, lastx, lasty)
 
-
-
     def release_zoom(self, event):
         'the release mouse button callback in zoom to rect mode'
         for zoom_id in self._ids_zoom:
@@ -2893,8 +2891,6 @@ class NavigationToolbar2(object):
             for loc in locators:
                 loc.refresh()
         self.canvas.draw()
-
-
 
     def _update_view(self):
         '''update the viewlim and position from the view and
