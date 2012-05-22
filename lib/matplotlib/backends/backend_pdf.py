@@ -452,6 +452,8 @@ class PdfFile(object):
         self.markers = {}
         self.multi_byte_charprocs = {}
 
+        self.paths = []
+
         # The PDF spec recommends to include every procset
         procsets = [ Name(x)
                      for x in "PDF Text ImageB ImageC ImageI".split() ]
@@ -505,9 +507,12 @@ class PdfFile(object):
             xobjects[tup[0]] = tup[1]
         for name, value in self.multi_byte_charprocs.iteritems():
             xobjects[name] = value
+        for name, path, trans, ob, join, cap, padding in self.paths:
+            xobjects[name] = ob
         self.writeObject(self.XObjectObject, xobjects)
         self.writeImages()
         self.writeMarkers()
+        self.writePathCollectionTemplates()
         self.writeObject(self.pagesObject,
                          { 'Type': Name('Pages'),
                            'Kids': self.pageList,
@@ -1259,6 +1264,28 @@ end"""
             self.output(Op.paint_path(False, fillp, strokep))
             self.endStream()
 
+    def pathCollectionObject(self, gc, path, trans, padding):
+        name = Name('P%d' % len(self.paths))
+        ob = self.reserveObject('path %d' % len(self.paths))
+        self.paths.append(
+            (name, path, trans, ob, gc.get_joinstyle(), gc.get_capstyle(), padding))
+        return name
+
+    def writePathCollectionTemplates(self):
+        for (name, path, trans, ob, joinstyle, capstyle, padding) in self.paths:
+            pathops = self.pathOperations(path, trans, simplify=False)
+            bbox = path.get_extents(trans)
+            bbox = bbox.padded(padding)
+            self.beginStream(
+                ob.id, None,
+                {'Type': Name('XObject'), 'Subtype': Name('Form'),
+                 'BBox': list(bbox.extents)})
+            self.output(GraphicsContextPdf.joinstyles[joinstyle], Op.setlinejoin)
+            self.output(GraphicsContextPdf.capstyles[capstyle], Op.setlinecap)
+            self.output(*pathops)
+            self.output(Op.paint_path(False, True, True))
+            self.endStream()
+
     @staticmethod
     def pathOperations(path, transform, clip=None, simplify=None):
         cmds = []
@@ -1465,6 +1492,32 @@ class RendererPdf(RendererBase):
             path, transform,
             rgbFace is None and gc.get_hatch_path() is None)
         self.file.output(self.gc.paint())
+
+    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
+
+        padding = np.max(linewidths)
+        path_codes = []
+        for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
+            master_transform, paths, all_transforms)):
+            name = self.file.pathCollectionObject(gc, path, transform, padding)
+            path_codes.append(name)
+
+        output = self.file.output
+        output(Op.gsave)
+        lastx, lasty = 0, 0
+        for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
+            gc, master_transform, all_transforms, path_codes, offsets,
+            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+            antialiaseds, urls, offset_position):
+
+            self.check_gc(gc0, rgbFace)
+            dx, dy = xo - lastx, yo - lasty
+            output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id, Op.use_xobject)
+            lastx, lasty = xo, yo
+        output(Op.grestore)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         # For simple paths or small numbers of markers, don't bother

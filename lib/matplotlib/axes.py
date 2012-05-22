@@ -2729,7 +2729,7 @@ class Axes(martist.Artist):
 
     def get_ymajorticklabels(self):
         """
-        Get the major y tick labels as a list of 
+        Get the major y tick labels as a list of
         :class:`~matplotlib.text.Text` instances.
         """
         return cbook.silent_list('Text yticklabel',
@@ -5207,7 +5207,7 @@ class Axes(martist.Artist):
             only upper/lower limits. In that case a caret symbol is
             used to indicate this. lims-arguments may be of the same
             type as *xerr* and *yerr*.
-            
+
           *errorevery*: positive integer
             subsamples the errorbars. Eg if everyerror=5, errorbars for every
             5-th datapoint will be plotted. The data plot itself still shows
@@ -5361,7 +5361,7 @@ class Axes(martist.Artist):
                     leftlo, ylo = xywhere(left, y, xlolims & everymask)
                     caplines.extend( self.plot(leftlo, ylo, 'k|', **plot_kw) )
                 else:
-                    
+
                     leftlo, ylo = xywhere(left, y, everymask)
                     caplines.extend( self.plot(leftlo, ylo, 'k|', **plot_kw) )
 
@@ -6175,43 +6175,44 @@ class Axes(martist.Artist):
                 lattice1.astype(float).ravel(), lattice2.astype(float).ravel()))
             good_idxs = ~np.isnan(accum)
 
-        px = xmin + sx * np.array([ 0.5, 0.5, 0.0, -0.5, -0.5,  0.0])
-        py = ymin + sy * np.array([-0.5, 0.5, 1.0,  0.5, -0.5, -1.0]) / 3.0
-
-        polygons = np.zeros((6, n, 2), float)
-        polygons[:,:nx1*ny1,0] = np.repeat(np.arange(nx1), ny1)
-        polygons[:,:nx1*ny1,1] = np.tile(np.arange(ny1), nx1)
-        polygons[:,nx1*ny1:,0] = np.repeat(np.arange(nx2) + 0.5, ny2)
-        polygons[:,nx1*ny1:,1] = np.tile(np.arange(ny2), nx2) + 0.5
-
+        offsets = np.zeros((n, 2), float)
+        offsets[:nx1*ny1,0] = np.repeat(np.arange(nx1), ny1)
+        offsets[:nx1*ny1,1] = np.tile(np.arange(ny1), nx1)
+        offsets[nx1*ny1:,0] = np.repeat(np.arange(nx2) + 0.5, ny2)
+        offsets[nx1*ny1:,1] = np.tile(np.arange(ny2), nx2) + 0.5
+        offsets[:,0] *= sx
+        offsets[:,1] *= sy
+        offsets[:,0] += xmin
+        offsets[:,1] += ymin
         # remove accumulation bins with no data
-        polygons = polygons[:,good_idxs,:]
+        offsets = offsets[good_idxs,:]
         accum = accum[good_idxs]
 
-        polygons = np.transpose(polygons, axes=[1,0,2])
-        polygons[:,:,0] *= sx
-        polygons[:,:,1] *= sy
-        polygons[:,:,0] += px
-        polygons[:,:,1] += py
-
         if xscale=='log':
-            polygons[:,:,0] = 10**(polygons[:,:,0])
+            offsets[:,0] = 10**(offsets[:,0])
             xmin = 10**xmin
             xmax = 10**xmax
             self.set_xscale('log')
         if yscale=='log':
-            polygons[:,:,1] = 10**(polygons[:,:,1])
+            offsets[:,1] = 10**(offsets[:,1])
             ymin = 10**ymin
             ymax = 10**ymax
             self.set_yscale('log')
 
+        polygon = np.zeros((6, 2), float)
+        polygon[:,0] = sx * np.array([ 0.5, 0.5, 0.0, -0.5, -0.5,  0.0])
+        polygon[:,1] = sy * np.array([-0.5, 0.5, 1.0,  0.5, -0.5, -1.0]) / 3.0
+
         if edgecolors=='none':
             edgecolors = 'face'
+
         collection = mcoll.PolyCollection(
-            polygons,
+            [polygon],
             edgecolors = edgecolors,
             linewidths = linewidths,
-            transOffset = self.transData,
+            offsets = offsets,
+            transOffset = mtransforms.IdentityTransform(),
+            offset_position = "data"
             )
 
         if isinstance(norm, mcolors.LogNorm):
