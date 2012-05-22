@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import math
 import os
+import signal
 import sys
 
 import matplotlib
@@ -60,8 +61,10 @@ def _create_qApp():
 
 class Show(ShowBase):
     def mainloop(self):
-        QtGui.qApp.exec_()
+        # allow KeyboardInterrupt exceptions to close the plot window.
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+        QtGui.qApp.exec_()
 show = Show()
 
 
@@ -268,12 +271,35 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     def _get_key( self, event ):
         if event.isAutoRepeat():
             return None
+
         if event.key() < 256:
-            key = str(event.text())
+            key = unicode(event.text())
+
+            # if the control key is being pressed, we don't get the correct
+            # characters, so interpret them directly from the event.key(). 
+            # Unfortunately, this means that we cannot handle key's case 
+            # since event.key() is not case sensitve, whereas event.text() is,
+            # Finally, since it is not possible to get the CapsLock state
+            # we cannot accurately compute the case of a pressed key when 
+            # ctrl+shift+p is pressed.
+            if int(event.modifiers()) & QtCore.Qt.ControlModifier and event.key() < 256:
+                # we always get an uppercase charater
+                key = chr(event.key())
+                # if shift is not being pressed, lowercase it (as mentioned, 
+                # this does not take into account the CapsLock state)
+                if not int(event.modifiers()) & QtCore.Qt.ShiftModifier:
+                    key = key.lower()
+
         elif event.key() in self.keyvald:
-            key = self.keyvald[ event.key() ]
+            key = self.keyvald[event.key()]
         else:
             key = None
+
+        if key is not None:
+            for modifier, Qt_key, prefix in [(QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control, 'ctrl'), 
+                                             (QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt, 'alt')]:
+                if event.key() != Qt_key and int(event.modifiers()) & modifier == modifier: 
+                    key = '{}+{}'.format(prefix, key)
 
         return key
 
