@@ -3,9 +3,9 @@
 # This is a sample matplotlib configuration file - you can find a copy
 # of it on your system in
 # site-packages/matplotlib/mpl-data/matplotlibrc.  If you edit it
-# there, please note that it will be overridden in your next install.
+# there, please note that it will be overwritten in your next install.
 # If you want to keep a permanent local copy that will not be
-# over-written, place it in HOME/.matplotlib/matplotlibrc (unix/linux
+# overwritten, place it in HOME/.matplotlib/matplotlibrc (unix/linux
 # like systems) and C:\Documents and Settings\yourname\.matplotlib
 # (win32 systems).
 #
@@ -40,7 +40,7 @@ backend      : %(backend)s
 # "pyqt" and "pyside".  The "pyqt" setting has the side effect of
 # forcing the use of Version 2 API for QString and QVariant.
 
-# if you are runing pyplot inside a GUI and your backend choice
+# if you are running pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try to find a compatible one for
 # you if backend_fallback is True
 #backend_fallback: True
@@ -220,8 +220,8 @@ backend      : %(backend)s
                                    # For example, use ',' as a decimal
                                    # separator in the fr_FR locale.
 #axes.unicode_minus  : True    # use unicode for the minus symbol
-                               # rather than hypen.  See
-                               # http://en.wikipedia.org/wiki/Plus_sign
+                               # rather than hyphen.  See
+                               # http://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
 #axes.color_cycle    : b, g, r, c, m, y, k  # color cycle for plot lines
                                             # as list of string colorspecs:
                                             # single letter, long name, or
@@ -265,7 +265,7 @@ backend      : %(backend)s
 #legend.numpoints     : 2      # the number of points in the legend line
 #legend.fontsize      : large
 #legend.pad           : 0.0    # deprecated; the fractional whitespace inside the legend border
-#legend.borderpad     : 0.5    # border whitspace in fontsize units
+#legend.borderpad     : 0.5    # border whitespace in fontsize units
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
 #legend.labelsep      : 0.010  # deprecated; the vertical space between the legend entries
@@ -288,7 +288,7 @@ backend      : %(backend)s
 #figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
 #figure.edgecolor : white   # figure edgecolor
 
-# The figure subplot parameters.  All dimensions are fraction of the
+# The figure subplot parameters.  All dimensions are a fraction of the
 # figure width or height
 #figure.subplot.left    : 0.125  # the left side of the subplots of the figure
 #figure.subplot.right   : 0.9    # the right side of the subplots of the figure
