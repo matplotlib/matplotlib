@@ -1401,7 +1401,8 @@ RendererAgg::_draw_path_collection_generic
  const Py::Object&              edgecolors_obj,
  const Py::SeqBase<Py::Float>&  linewidths,
  const Py::SeqBase<Py::Object>& linestyles_obj,
- const Py::SeqBase<Py::Int>&    antialiaseds)
+ const Py::SeqBase<Py::Int>&    antialiaseds,
+ const bool                     data_offsets)
 {
     typedef agg::conv_transform<typename PathGenerator::path_iterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t>                         nan_removed_t;
@@ -1515,7 +1516,11 @@ RendererAgg::_draw_path_collection_generic
             double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
             double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
             offset_trans.transform(&xo, &yo);
-            trans *= agg::trans_affine_translation(xo, yo);
+            if (data_offsets) {
+                trans = agg::trans_affine_translation(xo, yo) * trans;
+            } else {
+                trans *= agg::trans_affine_translation(xo, yo);
+            }
         }
 
         // These transformations must be done post-offsets
@@ -1633,7 +1638,7 @@ Py::Object
 RendererAgg::draw_path_collection(const Py::Tuple& args)
 {
     _VERBOSE("RendererAgg::draw_path_collection");
-    args.verify_length(12);
+    args.verify_length(13);
 
     Py::Object gc_obj = args[0];
     GCAgg gc(gc_obj, dpi);
@@ -1650,6 +1655,9 @@ RendererAgg::draw_path_collection(const Py::Tuple& args)
     Py::SeqBase<Py::Int>    antialiaseds     = args[10];
     // We don't actually care about urls for Agg, so just ignore it.
     // Py::SeqBase<Py::Object> urls             = args[11];
+    std::string             offset_position  = Py::String(args[12]);
+
+    bool data_offsets = (offset_position == "data");
 
     try
     {
@@ -1667,7 +1675,8 @@ RendererAgg::draw_path_collection(const Py::Tuple& args)
          edgecolors_obj,
          linewidths,
          linestyles_obj,
-         antialiaseds);
+         antialiaseds,
+         data_offsets);
     }
     catch (const char *e)
     {
@@ -1843,7 +1852,8 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
              edgecolors_obj,
              linewidths,
              linestyles_obj,
-             antialiaseds);
+             antialiaseds,
+             false);
     }
     catch (const char* e)
     {

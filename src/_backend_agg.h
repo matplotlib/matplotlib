@@ -264,7 +264,8 @@ protected:
      const Py::Object&              edgecolors_obj,
      const Py::SeqBase<Py::Float>&  linewidths,
      const Py::SeqBase<Py::Object>& linestyles_obj,
-     const Py::SeqBase<Py::Int>&    antialiaseds);
+     const Py::SeqBase<Py::Int>&    antialiaseds,
+     const bool                     data_offsets);
 
     void
     _draw_gouraud_triangle(
@@ -300,4 +301,3 @@ private:
 
 
 #endif
-

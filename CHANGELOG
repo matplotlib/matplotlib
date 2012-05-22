@@ -1,3 +1,11 @@
+2012-05-22 Collections now have a setting "offset_position" to select whether
+	   the offsets are given in "screen" coordinates (default,
+	   following the old behavior) or "data" coordinates.  This is currently
+	   used internally to improve the performance of hexbin.
+
+	   As a result, the "draw_path_collection" backend methods have grown
+	   a new argument "offset_position". - MGD
+
 2012-05-03 symlog scale now obeys the logarithmic base.  Previously, it was
 	   completely ignored and always treated as base e. - MGD
 
