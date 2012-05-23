@@ -1645,30 +1645,14 @@ def colors():
 
 def colormaps():
     """
-    matplotlib provides the following colormaps.
-
-    * autumn
-    * bone
-    * cool
-    * copper
-    * flag
-    * gray
-    * hot
-    * hsv
-    * jet
-    * pink
-    * prism
-    * spring
-    * summer
-    * winter
-    * spectral
+    matplotlib provides a number of colormaps, a complete list of which can be found in `cm._cmapnames`.
 
     You can set the colormap for an image, pcolor, scatter, etc,
-    either as a keyword argument::
+    using a keyword argument::
 
       imshow(X, cmap=cm.hot)
 
-    or post-hoc using the corresponding pylab interface function::
+    Additionally, for the "base" colormaps below, you can set the colormap post-hoc using the corresponding pylab interface function::
 
       imshow(X)
       hot()
@@ -1676,6 +1660,156 @@ def colormaps():
 
     In interactive mode, this will update the colormap allowing you to
     see which one works best for your data.
+
+    All colormaps can be reversed by appending ``_r``: For instance,
+    ``gray_r`` is the reverse of ``gray``.
+
+    There are 3 common color schemes used in visualization:
+
+    1. Sequential schemes, for unipolar data that progresses from low to high
+    2. Diverging schemes, for bipolar data that emphasizes positive or negative deviations from a central value
+    3. Qualitative schemes, which don't have a relationship to magnitude
+
+    The base colormaps are:
+
+      =========   =======================================================
+      Colormap    Description
+      =========   =======================================================
+      autumn      sequential increasing shades of red-orange-yellow
+      bone        sequential black-white color map with a tinge of blue,
+                  to emulate X-ray film
+      cool        sequential decreasing shades of cyan-magenta
+      copper      sequential increasing shades of black-copper
+      flag        repeating red-white-blue-black pattern
+      gray        simple sequential linearly-increasing black-to-white
+                  grayscale
+      hot         sequential black-red-yellow-white, to emulate blackbody
+                  radiation from an object at increasing temperatures
+      hsv         red-yellow-green-cyan-blue-pink-magenta, formed by
+                  changing the hue component in the HSV color space;
+                  meant to be used in plotting periodic data (that is,
+                  in which the maximum magnitude and the minimum
+                  magnitude are equivalent)
+      jet         blue-cyan-yellow-red, a variant of hsv; based on a
+                  fluid-jet simulation by NCSA [#]_
+      pink        sequential increasing pastel black-pink-white, meant
+                  for sepia tone colorization of photographs
+      prism       repeating red-yellow-green-blue-purple-...-green pattern
+      spring      shades of magenta-yellow
+      summer      shades of green-yellow
+      winter      shades of blue-green
+      spectral    black-purple-blue-green-yellow-red-white spectrum
+      =========   =======================================================
+
+    The next 7 palettes are from the `Yorick scientific visualisation
+    package <http://yorick.sourceforge.net/index.php>`_, an evolution of the GIST package, both by David H. Munro:
+
+      ============  =======================================================
+      Colormap      Description
+      ============  =======================================================
+      gist_earth    mapmaker's colors from dark blue deep ocean to green 
+                    lowlands to brown highlands to white mountains
+      gist_gray     (identical to *gray*)
+      gist_heat     sequential red-orange-yellow-white, to emulate blackbody
+                    radiation from an iron bar as it grows hotter
+      gist_ncar     pseudo-spectral colormap from National Center for Atmospheric Research [#]_
+      gist_rainbow  runs through the colors in spectral order at nearly constant intensity
+      gist_stern    "Stern special" color table from Interactive Data Language software
+      gist_yarg     (identical to *gray_r*)
+      ============  =======================================================
+
+    The following 34 colormaps are based on the `ColorBrewer <http://colorbrewer.org>`_ color specifications and designs developed by Cynthia Brewer:
+
+    Diverging:
+
+    * BrBG
+    * PiYG
+    * PRGn
+    * PuOr
+    * RdBu
+    * RdGy
+    * RdYlBu
+    * RdYlGn
+    * Spectral
+
+    Sequential:
+
+    * Blues
+    * BuGn
+    * BuPu
+    * GnBu
+    * Greens
+    * Greys
+    * Oranges
+    * OrRd
+    * PuBu
+    * PuBuGn
+    * PuRd
+    * Purples
+    * RdPu
+    * Reds
+    * YlGn
+    * YlGnBu
+    * YlOrBr
+    * YlOrRd
+
+    Qualitative:
+
+    * Accent
+    * Dark2
+    * Paired
+    * Pastel1
+    * Pastel2
+    * Set1
+    * Set2
+    * Set3
+
+    Other miscellaneous schemes:
+
+      =========  =======================================================
+      Colormap      Description
+      =========  =======================================================
+      afmhot     sequential black-orange-yellow-white blackbody 
+                 spectrum, commonly used in atomic force microscopy
+      binary     (identical to *gray_r*)
+      brg        blue-red-green 
+      bwr        diverging blue-white-red
+      coolwarm   diverging blue-gray-red, meant to avoid issues with 3D 
+                 shading, color blindness, and ordering of colors [#]_
+      CMRmap     "Default colormaps on color images often reproduce to 
+                 confusing grayscale images. The proposed colormap 
+                 maintains an aesthetically pleasing color image that 
+                 automatically reproduces to a monotonic grayscale with 
+                 discrete, quantifiable saturation levels." [#]_
+      cubehelix  Unlike most other color schemes cubehelix was designed 
+                 by D.A. Green to be monotonically increasing in terms 
+                 of perceived brightness. Also, when printed on a black 
+                 and white postscript printer, the scheme results in a 
+                 greyscale with monotonically increasing brightness. 
+                 This color scheme is named cubehelix because the r,g,b 
+                 values produced can be visualised as a squashed helix 
+                 around the diagonal in the r,g,b color cube.
+      gnuplot    gnuplot's traditional pm3d scheme 
+                 (black-blue-red-yellow)
+      gnuplot2   sequential color printable as gray 
+                 (black-blue-violet-yellow-white)
+      ocean      green-blue-white
+      rainbow    purple-blue-green-yellow-orange-red
+      seismic    diverging blue-white-red
+      terrain    mapmaker's colors, blue-green-yellow-brown-white, 
+                 originally from IGOR Pro
+      =========  =======================================================
+
+    .. rubric:: Footnotes
+
+    .. [#] Rainbow colormaps, `jet` in particular, are considered a poor choice for scientific visualization by many researchers: `Rainbow Color Map (Still) Considered Harmful <http://www.jwave.vt.edu/%7Erkriz/Projects/create_color_table/color_07.pdf>`_
+
+    .. [#] Resembles "BkBlAqGrYeOrReViWh200" from `Color Table Gallery <http://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml>`_
+
+    .. [#] See `Diverging Color Maps for Scientific Visualization <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>`_ by Kenneth Moreland.
+
+    .. [#] See `A Color Map for Effective Black-and-White Rendering of Color-Scale Images <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_ by Carey Rappaport
+        
     """
     pass
 
