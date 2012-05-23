@@ -143,8 +143,13 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
                 QtCore.Qt.Key_PageUp : 'pageup',
                 QtCore.Qt.Key_PageDown : 'pagedown',
                }
-    # left 1, middle 2, right 3
-    buttond = {1:1, 2:3, 4:2}
+    # map Qt button codes to MouseEvent's ones:
+    buttond = {QtCore.Qt.LeftButton  : 1,
+               QtCore.Qt.MidButton   : 2,
+               QtCore.Qt.RightButton : 3,
+               # QtCore.Qt.XButton1 : None,
+               # QtCore.Qt.XButton2 : None,
+               }
     def __init__( self, figure ):
         if DEBUG: print('FigureCanvasQt: ', figure)
         _create_qApp()
