@@ -660,6 +660,21 @@ def test_hist_log():
     ax.set_xticks([])
     ax.set_yticks([])
 
+@image_comparison(baseline_images=['contour_hatching'])
+def test_contour_hatching():
+    x = np.linspace(-3, 5, 150).reshape(1, -1)
+    y = np.linspace(-3, 5, 120).reshape(-1, 1)
+    z = np.cos(x) + np.sin(y)
+
+    # we no longer need x and y to be 2 dimensional, so flatten them.
+    x, y = x.flatten(), y.flatten()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    cs = ax.contourf(x, y, z, hatches=['-', '/', '\\', '//'],
+                      cmap=plt.get_cmap('gray'),
+                      extend='both', alpha=0.5)
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
