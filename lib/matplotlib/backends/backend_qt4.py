@@ -165,9 +165,10 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         x = event.pos().x()
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.pos().y()
-        button = self.buttond[event.button()]
-        FigureCanvasBase.button_press_event( self, x, y, button )
-        if DEBUG: print 'button pressed:', event.button()
+        button = self.buttond.get(event.button())
+        if button is not None: # only three buttons supported by MouseEvent
+            FigureCanvasBase.button_press_event( self, x, y, button )
+        if DEBUG: print('button pressed:', event.button())
 
     def mouseMoveEvent( self, event ):
         x = event.x()
@@ -180,9 +181,10 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         x = event.x()
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y()
-        button = self.buttond[event.button()]
-        FigureCanvasBase.button_release_event( self, x, y, button )
-        if DEBUG: print 'button released'
+        button = self.buttond.get(event.button())
+        if button is not None: # only three buttons supported by MouseEvent
+            FigureCanvasBase.button_release_event( self, x, y, button )
+        if DEBUG: print('button released')
 
     def wheelEvent( self, event ):
         x = event.x()
