@@ -18,7 +18,8 @@ class HorizontalHatch(HatchPatternBase):
         self.num_vertices = self.num_lines * 2
 
     def set_vertices_and_codes(self, vertices, codes):
-        steps = np.linspace(0.0, 1.0, self.num_lines, False)
+        steps, stepsize = np.linspace(0.0, 1.0, self.num_lines, False, retstep=True)
+        steps += stepsize/2.
         vertices[0::2, 0] = 0.0
         vertices[0::2, 1] = steps
         vertices[1::2, 0] = 1.0
@@ -32,7 +33,8 @@ class VerticalHatch(HatchPatternBase):
         self.num_vertices = self.num_lines * 2
 
     def set_vertices_and_codes(self, vertices, codes):
-        steps = np.linspace(0.0, 1.0, self.num_lines, False)
+        steps, stepsize = np.linspace(0.0, 1.0, self.num_lines, False, retstep=True)
+        steps += stepsize/2.
         vertices[0::2, 0] = steps
         vertices[0::2, 1] = 0.0
         vertices[1::2, 0] = steps
