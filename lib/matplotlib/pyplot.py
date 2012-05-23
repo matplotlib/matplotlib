@@ -1645,14 +1645,16 @@ def colors():
 
 def colormaps():
     """
-    matplotlib provides a number of colormaps, a complete list of which can be found in `cm._cmapnames`.
+    matplotlib provides a number of colormaps, a complete list of which can 
+    be found in `cm._cmapnames`.
 
     You can set the colormap for an image, pcolor, scatter, etc,
     using a keyword argument::
 
       imshow(X, cmap=cm.hot)
 
-    Additionally, for the "base" colormaps below, you can set the colormap post-hoc using the corresponding pylab interface function::
+    Additionally, for the "base" colormaps below, you can set the colormap 
+    post-hoc using the corresponding pylab interface function::
 
       imshow(X)
       hot()
@@ -1667,7 +1669,8 @@ def colormaps():
     There are 3 common color schemes used in visualization:
 
     1. Sequential schemes, for unipolar data that progresses from low to high
-    2. Diverging schemes, for bipolar data that emphasizes positive or negative deviations from a central value
+    2. Diverging schemes, for bipolar data that emphasizes positive or negative 
+       deviations from a central value
     3. Qualitative schemes, which don't have a relationship to magnitude
 
     The base colormaps are:
@@ -1702,7 +1705,8 @@ def colormaps():
       =========   =======================================================
 
     The next 7 palettes are from the `Yorick scientific visualisation
-    package <http://yorick.sourceforge.net/index.php>`_, an evolution of the GIST package, both by David H. Munro:
+    package <http://yorick.sourceforge.net/index.php>`_, an evolution of 
+    the GIST package, both by David H. Munro:
 
       ============  =======================================================
       Colormap      Description
@@ -1712,13 +1716,17 @@ def colormaps():
       gist_gray     (identical to *gray*)
       gist_heat     sequential red-orange-yellow-white, to emulate blackbody
                     radiation from an iron bar as it grows hotter
-      gist_ncar     pseudo-spectral colormap from National Center for Atmospheric Research [#]_
-      gist_rainbow  runs through the colors in spectral order at nearly constant intensity
-      gist_stern    "Stern special" color table from Interactive Data Language software
+      gist_ncar     pseudo-spectral colormap from National Center for 
+                    Atmospheric Research [#]_
+      gist_rainbow  runs through the colors in spectral order at nearly 
+                    constant intensity
+      gist_stern    "Stern special" color table from Interactive Data 
+                    Language software
       gist_yarg     (identical to *gray_r*)
       ============  =======================================================
 
-    The following 34 colormaps are based on the `ColorBrewer <http://colorbrewer.org>`_ color specifications and designs developed by Cynthia Brewer:
+    The following 34 colormaps are based on the `ColorBrewer <http://colorbrewer.org>`_ 
+    color specifications and designs developed by Cynthia Brewer:
 
     Diverging:
 
@@ -1802,13 +1810,20 @@ def colormaps():
 
     .. rubric:: Footnotes
 
-    .. [#] Rainbow colormaps, `jet` in particular, are considered a poor choice for scientific visualization by many researchers: `Rainbow Color Map (Still) Considered Harmful <http://www.jwave.vt.edu/%7Erkriz/Projects/create_color_table/color_07.pdf>`_
+    .. [#] Rainbow colormaps, ``jet`` in particular, are considered a poor 
+      choice for scientific visualization by many researchers: `Rainbow Color 
+      Map (Still) Considered Harmful 
+      <http://www.jwave.vt.edu/%7Erkriz/Projects/create_color_table/color_07.pdf>`_
 
-    .. [#] Resembles "BkBlAqGrYeOrReViWh200" from `Color Table Gallery <http://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml>`_
+    .. [#] Resembles "BkBlAqGrYeOrReViWh200" from `Color Table Gallery   
+      <http://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml>`_
 
-    .. [#] See `Diverging Color Maps for Scientific Visualization <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>`_ by Kenneth Moreland.
+    .. [#] See `Diverging Color Maps for Scientific Visualization 
+      <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>`_ by Kenneth Moreland.
 
-    .. [#] See `A Color Map for Effective Black-and-White Rendering of Color-Scale Images <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_ by Carey Rappaport
+    .. [#] See `A Color Map for Effective Black-and-White Rendering of Color-Scale 
+      Images <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_ 
+      by Carey Rappaport
         
     """
     pass
