@@ -1057,6 +1057,9 @@ end"""
         return name
 
     def hatchPattern(self, hatch_style):
+        # The colors may come in as numpy arrays, which aren't hashable
+        hatch_style = (tuple(hatch_style[0]), tuple(hatch_style[1]), hatch_style[2])
+
         pattern = self.hatchPatterns.get(hatch_style, None)
         if pattern is not None:
             return pattern
