@@ -23,8 +23,5 @@ for i in xrange(5):
         z = z + 2
         p.set_data(z)
 
-    print "step", i
+    print("step", i)
     plt.pause(0.5)
-
-
-
