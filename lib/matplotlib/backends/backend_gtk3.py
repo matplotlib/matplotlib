@@ -359,15 +359,17 @@ class FigureManagerGTK3(FigureManagerBase):
 
         self.window = Gtk.Window()
         self.set_window_title("Figure %d" % num)
-        if (window_icon):
-            try:
-                self.window.set_icon_from_file(window_icon)
-            except:
-                # some versions of gtk throw a glib.GError but not
-                # all, so I am not sure how to catch it.  I am unhappy
-                # diong a blanket catch here, but an not sure what a
-                # better way is - JDH
-                verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+        try:
+            self.window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # some versions of gtk throw a glib.GError but not
+            # all, so I am not sure how to catch it.  I am unhappy
+            # doing a blanket catch here, but an not sure what a
+            # better way is - JDH
+            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
 
         self.vbox = Gtk.Box()
         self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
@@ -562,12 +564,15 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
 
         window = Gtk.Window()
-        if (window_icon):
-            try: window.set_icon_from_file(window_icon)
-            except:
-                # we presumably already logged a message on the
-                # failure of the main plot, don't keep reporting
-                pass
+        try: 
+            window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # we presumably already logged a message on the
+            # failure of the main plot, don't keep reporting
+            pass
         window.set_title("Subplot Configuration Tool")
         window.set_default_size(w, h)
         vbox = Gtk.Box()
@@ -963,7 +968,6 @@ class DialogLineprops:
         line = self.lines[ind]
         return line
 
-
     def get_active_linestyle(self):
         'get the active lineinestyle'
         ind = self.cbox_linestyles.get_active()
@@ -996,8 +1000,6 @@ class DialogLineprops:
         line.set_markerfacecolor((r,g,b))
 
         line.figure.canvas.draw()
-
-
 
     def on_combobox_lineprops_changed(self, item):
         'update the widgets from the active line'
@@ -1044,17 +1046,14 @@ class DialogLineprops:
     def on_dialog_lineprops_cancelbutton_clicked(self, button):
         self.dlg.hide()
 
-# set icon used when windows are minimized
-try:
 
-    if sys.platform == 'win32':
-        icon_filename = 'matplotlib.png'
-    else:
-        icon_filename = 'matplotlib.svg'
-    window_icon = os.path.join(rcParams['datapath'], 'images', icon_filename)
-except:
-    window_icon = None
-    verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+# Define the file to use as the GTk icon
+if sys.platform == 'win32':
+    icon_filename = 'matplotlib.png'
+else:
+    icon_filename = 'matplotlib.svg'
+window_icon = os.path.join(matplotlib.rcParams['datapath'], 'images', icon_filename)
+
 
 def error_msg_gtk(msg, parent=None):
     if parent is not None: # find the toplevel Gtk.Window

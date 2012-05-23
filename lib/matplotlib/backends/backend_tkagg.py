@@ -79,13 +79,14 @@ def new_figure_manager(num, *args, **kwargs):
     figure = FigureClass(*args, **kwargs)
     window = Tk.Tk()
  
-    # put a mpl icon on the window rather than the default tk icon. Tkinter
-    # doesn't allow colour icons on linux systems, but tk >=8.5 has a iconphoto
-    # command which we call directly. Source:
-    # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
-    icon_fname = os.path.join(rcParams['datapath'], 'images', 'logo.gif')
-    icon_img = Tk.PhotoImage(file=icon_fname)
-    window.tk.call('wm', 'iconphoto', window._w, icon_img)
+    if Tk.TkVersion >= 8.5:
+        # put a mpl icon on the window rather than the default tk icon. Tkinter
+        # doesn't allow colour icons on linux systems, but tk >=8.5 has a iconphoto
+        # command which we call directly. Source:
+        # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
+        icon_fname = os.path.join(rcParams['datapath'], 'images', 'matplotlib.gif')
+        icon_img = Tk.PhotoImage(file=icon_fname)
+        window.tk.call('wm', 'iconphoto', window._w, icon_img)
 
     canvas = FigureCanvasTkAgg(figure, master=window)
     figManager = FigureManagerTkAgg(canvas, num, window)
