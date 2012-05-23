@@ -1490,6 +1490,7 @@ class Affine2D(Affine2DBase):
           b d f
           0 0 1
 
+        .
         """
         return Affine2D(
             np.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], np.float_)
@@ -1503,6 +1504,7 @@ class Affine2D(Affine2DBase):
           b d f
           0 0 1
 
+        .
         """
         self._invalid = 0
         return self._mtx
@@ -1515,6 +1517,7 @@ class Affine2D(Affine2DBase):
           b d f
           0 0 1
 
+        .
         """
         self._mtx = mtx
         self.invalidate()
@@ -2333,4 +2336,3 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     elif not units == 'inches':
         raise ValueError('units must be dots, points, or inches')
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)
-

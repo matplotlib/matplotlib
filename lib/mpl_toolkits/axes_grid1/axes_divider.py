@@ -153,6 +153,8 @@ class Divider(object):
         :param horizontal: list of sizes
                     (:mod:`~mpl_toolkits.axes_grid.axes_size`)
                     for horizontal division
+
+        .
         """
         self._horizontal = h
 
@@ -166,6 +168,8 @@ class Divider(object):
         :param horizontal: list of sizes
                     (:mod:`~mpl_toolkits.axes_grid.axes_size`)
                     for horizontal division
+
+        .
         """
         self._vertical = v
 
@@ -276,7 +280,7 @@ class Divider(object):
             raise ValueError("the position must be one of left, right, bottom, or top")
 
 
-    def add_auto_adjustable_area(self, 
+    def add_auto_adjustable_area(self,
                                  use_axes, pad=0.1,
                                  adjust_dirs=["left", "right", "bottom", "top"],
                                  ):
@@ -339,7 +343,7 @@ class AxesLocator(object):
             return None
 
 
-            
+
 from matplotlib.gridspec import SubplotSpec, GridSpec
 
 class SubplotDivider(Divider):
@@ -919,10 +923,10 @@ def make_axes_locatable(axes):
 
     return divider
 
-def make_axes_area_auto_adjustable(ax, 
+def make_axes_area_auto_adjustable(ax,
                                    use_axes=None, pad=0.1,
                                    adjust_dirs=["left", "right", "bottom", "top"]):
-    
+
     divider = make_axes_locatable(ax)
 
     if use_axes is None:
@@ -934,5 +938,3 @@ def make_axes_area_auto_adjustable(ax,
 #from matplotlib.axes import Axes
 from mpl_axes import Axes
 LocatableAxes = locatable_axes_factory(Axes)
-
-

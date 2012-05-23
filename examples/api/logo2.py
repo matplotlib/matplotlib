@@ -47,7 +47,7 @@ def add_matplotlib_text(ax):
                ha='right', va='center', alpha=1.0, transform=ax.transAxes)
 
 def add_polar_bar():
-    ax = fig.add_axes([0.025, 0.075, 0.2, 0.85], polar=True, resolution=50)
+    ax = fig.add_axes([0.025, 0.075, 0.2, 0.85], polar=True)
 
 
     ax.axesPatch.set_alpha(axalpha)
@@ -79,5 +79,3 @@ if __name__ == '__main__':
     add_polar_bar()
     add_matplotlib_text(main_axes)
     plt.show()
-
-
