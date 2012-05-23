@@ -977,6 +977,7 @@ def get_split_ind(seq, N):
 
         len(' '.join(seq[:ind])<=N
 
+    .
     """
 
     sLen = 0

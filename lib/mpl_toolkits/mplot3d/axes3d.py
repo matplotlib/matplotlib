@@ -85,7 +85,7 @@ class Axes3D(Axes):
 
         # func used to format z -- fall back on major formatters
         self.fmt_zdata = None
-        
+
         if zscale is not None :
             self.set_zscale(zscale)
 
@@ -609,10 +609,10 @@ class Axes3D(Axes):
         .. versionadded:: 1.1.0
         """
         return self.zaxis.set_ticks(*args, **kwargs)
-        
+
     def get_zticks(self, minor=False):
         """
-        Return the z ticks as a list of locations  
+        Return the z ticks as a list of locations
         See :meth:`matplotlib.axes.Axes.get_yticks` for more details.
 
         .. note::
@@ -634,7 +634,7 @@ class Axes3D(Axes):
     def get_zminorticklabels(self) :
         """
         Get the ztick labels as a list of Text instances
-        
+
         .. note::
             Minor ticks are not supported. This function was added
             only for completeness.
@@ -1045,6 +1045,7 @@ class Axes3D(Axes):
         Set / unset 3D grid.
 
         .. note::
+
             Currently, this function does not behave the same as
             :meth:`matplotlib.axes.Axes.grid`, but it is intended to
             eventually support that behavior.
@@ -1360,7 +1361,7 @@ class Axes3D(Axes):
         # then an exception is automatically thrown.
         X.shape = (rows, cols)
         Y.shape = (rows, cols)
-        
+
         rstride = kwargs.pop('rstride', 10)
         cstride = kwargs.pop('cstride', 10)
 
@@ -1396,7 +1397,7 @@ class Axes3D(Axes):
         #colset contains the data for coloring: either average z or the facecolor
         colset = []
         for rs in xrange(0, rows-1, rstride):
-            for cs in xrange(0, cols-1, cstride):  
+            for cs in xrange(0, cols-1, cstride):
                 ps = []
                 for a in (X, Y, Z) :
                     ztop = a[rs,cs:min(cols, cs+cstride+1)]
@@ -2167,7 +2168,7 @@ def get_test_data(delta=0.05):
 
 
 ########################################################
-# Register Axes3D as a 'projection' object available 
+# Register Axes3D as a 'projection' object available
 # for use just like any other axes
 ########################################################
 import matplotlib.projections as proj

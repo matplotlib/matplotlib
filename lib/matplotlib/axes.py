@@ -7575,11 +7575,13 @@ class Axes(martist.Artist):
               pdf, bins, patches = ax.hist(...)
               print np.sum(pdf * np.diff(bins))
 
-            .. Note:: Until numpy release 1.5, the underlying numpy
-                      histogram function was incorrect with *normed*=*True*
-                      if bin sizes were unequal.  MPL inherited that
-                      error.  It is now corrected within MPL when using
-                      earlier numpy versions
+            .. note::
+
+                Until numpy release 1.5, the underlying numpy
+                histogram function was incorrect with *normed*=*True*
+                if bin sizes were unequal.  MPL inherited that
+                error.  It is now corrected within MPL when using
+                earlier numpy versions
 
           *weights*:
             An array of weights, of the same shape as *x*.  Each value in
