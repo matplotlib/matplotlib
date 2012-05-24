@@ -1645,33 +1645,40 @@ def colors():
 
 def colormaps():
     """
-    matplotlib provides a number of colormaps, a complete list of which can 
-    be found in `cm._cmapnames`.
+    Matplotlib provides a number of colormaps, and others can be added using 
+    :func:`register_cmap`.  This function documents the built-in colormaps, 
+    and will also return a list of all registered colormaps if called.
 
     You can set the colormap for an image, pcolor, scatter, etc,
     using a keyword argument::
 
       imshow(X, cmap=cm.hot)
 
-    Additionally, for the "base" colormaps below, you can set the colormap 
-    post-hoc using the corresponding pylab interface function::
+    or post-hoc using the :func:`set_cmap` function::
+        
+      imshow(X)
+      pyplot.set_cmap('hot')
+      pyplot.set_cmap('jet')
+
+    In interactive mode, this will update the colormap allowing you to
+    see which one works best for your data.  Additionally, for the "base" 
+    colormaps below, you can set the colormap using the corresponding pylab 
+    shortcut interface function::
 
       imshow(X)
       hot()
       jet()
 
-    In interactive mode, this will update the colormap allowing you to
-    see which one works best for your data.
-
-    All colormaps can be reversed by appending ``_r``: For instance,
+    All built-in colormaps can be reversed by appending ``_r``: For instance,
     ``gray_r`` is the reverse of ``gray``.
 
     There are 3 common color schemes used in visualization:
 
     1. Sequential schemes, for unipolar data that progresses from low to high
-    2. Diverging schemes, for bipolar data that emphasizes positive or negative 
-       deviations from a central value
-    3. Qualitative schemes, which don't have a relationship to magnitude
+    2. Diverging schemes, for bipolar data that emphasizes positive or 
+       negative deviations from a central value
+    3. Qualitative schemes, for categorical data where color doesn't have a 
+       relationship to magnitude
 
     The base colormaps are:
 
@@ -1725,8 +1732,9 @@ def colormaps():
       gist_yarg     (identical to *gray_r*)
       ============  =======================================================
 
-    The following 34 colormaps are based on the `ColorBrewer <http://colorbrewer.org>`_ 
-    color specifications and designs developed by Cynthia Brewer:
+    The following 34 colormaps are based on the `ColorBrewer 
+    <http://colorbrewer.org>`_ color specifications and designs developed by 
+    Cynthia Brewer:
 
     Diverging:
 
@@ -1775,7 +1783,7 @@ def colormaps():
     Other miscellaneous schemes:
 
       =========  =======================================================
-      Colormap      Description
+      Colormap   Description
       =========  =======================================================
       afmhot     sequential black-orange-yellow-white blackbody 
                  spectrum, commonly used in atomic force microscopy
@@ -1819,14 +1827,16 @@ def colormaps():
       <http://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml>`_
 
     .. [#] See `Diverging Color Maps for Scientific Visualization 
-      <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>`_ by Kenneth Moreland.
+      <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>`_ by Kenneth 
+      Moreland.
 
-    .. [#] See `A Color Map for Effective Black-and-White Rendering of Color-Scale 
-      Images <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_ 
+    .. [#] See `A Color Map for Effective Black-and-White Rendering of 
+      Color-Scale Images 
+      <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_ 
       by Carey Rappaport
         
     """
-    pass
+    return sorted(cm.cmap_d.keys())
 
 
 ## Plotting part 1: manually generated functions and wrappers ##
