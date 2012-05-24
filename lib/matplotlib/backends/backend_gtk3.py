@@ -367,7 +367,7 @@ class FigureManagerGTK3(FigureManagerBase):
         except:
             # some versions of gtk throw a glib.GError but not
             # all, so I am not sure how to catch it.  I am unhappy
-            # doing a blanket catch here, but an not sure what a
+            # doing a blanket catch here, but am not sure what a
             # better way is - JDH
             verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
 
