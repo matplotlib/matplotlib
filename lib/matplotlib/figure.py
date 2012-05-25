@@ -1014,7 +1014,7 @@ class Figure(Artist):
         """
         Call signature::
 
-          figtext(x, y, s, fontdict=None, **kwargs)
+          text(x, y, s, fontdict=None, **kwargs)
 
         Add text to figure at location *x*, *y* (relative 0-1
         coords). See :func:`~matplotlib.pyplot.text` for the meaning
@@ -1089,7 +1089,7 @@ class Figure(Artist):
 
     def savefig(self, *args, **kwargs):
         """
-        call signature::
+        Call signature::
 
           savefig(fname, dpi=None, facecolor='w', edgecolor='w',
                   orientation='portrait', papertype=None, format=None,
@@ -1223,7 +1223,7 @@ class Figure(Artist):
         """
         Call signature::
 
-          fig.subplots_adjust(left=None, bottom=None, right=None, top=None,
+          subplots_adjust(left=None, bottom=None, right=None, top=None,
                               wspace=None, hspace=None)
 
         Update the :class:`SubplotParams` with *kwargs* (defaulting to rc when
