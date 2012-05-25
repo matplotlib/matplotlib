@@ -20,7 +20,7 @@ from transforms import blended_transform_factory
 class LockDraw:
     """
     Some widgets, like the cursor, draw onto the canvas, and this is not
-    desirable under all circumstaces, like when the toolbar is in
+    desirable under all circumstances, like when the toolbar is in
     zoom-to-rect mode and drawing a rectangle.  The module level "lock"
     allows someone to grab the lock and prevent other widgets from
     drawing.  Use ``matplotlib.widgets.lock(someobj)`` to pr
@@ -71,7 +71,7 @@ class AxesWidget(Widget):
     *ax* : :class:`~matplotlib.axes.Axes`
         The parent axes for the widget
     *canvas* : :class:`~matplotlib.backend_bases.FigureCanvasBase` subclass
-        The parent figure canvs for the widget.
+        The parent figure canvas for the widget.
     *active* : bool
         If False, the widget does not respond to events.
     """
@@ -108,7 +108,7 @@ class Button(AxesWidget):
     """
     A GUI neutral button
 
-    The following attributes are accesible
+    The following attributes are accessible
 
       *ax*
         The :class:`matplotlib.axes.Axes` the button renders into.
@@ -276,7 +276,7 @@ class Slider(AxesWidget):
             Indicate whether the slider interval is closed
 
         *slidermin* and *slidermax*
-            Used to contrain the value of this slider to the values
+            Used to constrain the value of this slider to the values
             of other sliders.
 
         additional kwargs are passed on to ``self.poly`` which is the
