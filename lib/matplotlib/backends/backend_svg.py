@@ -327,7 +327,7 @@ class RendererSVG(RendererBase):
         """
         Create a new hatch pattern
         """
-        dictkey = (gc.get_hatch(), rgbFace, gc.get_rgb())
+        dictkey = (gc.get_hatch(), tuple(rgbFace), tuple(gc.get_rgb()))
         oid = self._hatchd.get(dictkey)
         if oid is None:
             oid = self._make_id(u'h', dictkey)
