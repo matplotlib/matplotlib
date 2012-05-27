@@ -5017,7 +5017,8 @@ class Axes(martist.Artist):
         Make a pie chart of array *x*.  The fractional area of each
         wedge is given by x/sum(x).  If sum(x) <= 1, then the values
         of x give the fractional area directly and the array will not
-        be normalized.
+        be normalized.  The wedges are plotted counterclockwise,
+        by default starting from the x-axis.
 
         Keyword arguments:
 
@@ -5051,7 +5052,7 @@ class Axes(martist.Artist):
 
           *startangle*: [ *None* | Offset angle ]
             If not *None*, rotates the start of the pie chart by *angle*
-            degrees.
+            degrees counterclockwise from the x-axis.
 
         The pie chart will probably look best if the figure and axes are
         square.  Eg.::
@@ -5097,7 +5098,7 @@ class Axes(martist.Artist):
             theta1 = 0
         else:
             theta1 = startangle / 360.0
-            
+
         texts = []
         slices = []
         autotexts = []
@@ -5162,8 +5163,10 @@ class Axes(martist.Artist):
         self.set_xticks([])
         self.set_yticks([])
 
-        if autopct is None: return slices, texts
-        else: return slices, texts, autotexts
+        if autopct is None:
+            return slices, texts
+        else:
+            return slices, texts, autotexts
 
     @docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
