@@ -1,17 +1,21 @@
 2012-05-22 Collections now have a setting "offset_position" to select whether
-	   the offsets are given in "screen" coordinates (default,
-	   following the old behavior) or "data" coordinates.  This is currently
-	   used internally to improve the performance of hexbin.
+           the offsets are given in "screen" coordinates (default,
+           following the old behavior) or "data" coordinates.  This is currently
+           used internally to improve the performance of hexbin.
 
-	   As a result, the "draw_path_collection" backend methods have grown
-	   a new argument "offset_position". - MGD
+           As a result, the "draw_path_collection" backend methods have grown
+           a new argument "offset_position". - MGD
+
+2012-05-04 Add a new argument to pie charts - startingangle - that
+           allows one to specify the angle offset to the first wedge
+           of the chart. - EP
 
 2012-05-03 symlog scale now obeys the logarithmic base.  Previously, it was
-	   completely ignored and always treated as base e. - MGD
+           completely ignored and always treated as base e. - MGD
 
 2012-05-03 Allow linscalex/y keyword to symlog scale that allows the size of
-	   the linear portion relative to the logarithmic portion to be
-	   adjusted. - MGD
+           the linear portion relative to the logarithmic portion to be
+           adjusted. - MGD
 
 2012-04-06 When path clipping changes a LINETO to a MOVETO, it also
            changes any CLOSEPOLY command to a LINETO to the initial
