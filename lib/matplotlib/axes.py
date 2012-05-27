@@ -5600,24 +5600,29 @@ class Axes(martist.Artist):
         col = len(x)
 
         # sanitize user-input medians
+	msg1 = "usermedians must either be a list/tuple or a 1d array"
+	msg2 = "usermedians' length must be compatible with x"
 	if usermedians is not None:
             if hasattr(usermedians, 'shape'):
-                assert len(usermedians.shape) == 1
-                assert usermedians.shape[0] == col
+                assert len(usermedians.shape) == 1, msg1
+                assert usermedians.shape[0] == col, msg2
             else:
-                assert len(usermedians) == col
+                assert len(usermedians) == col, msg2
 
 	#sanitize user-input confidence intervals
+	msg1 = "conf_intervals must either be a list of tuples or a 2d array"
+	msg2 = "conf_intervals' length must be compatible with x"
+	msg3 = "each conf_interval, if specificied, must have two values"
         if conf_intervals is not None:
             if hasattr(conf_intervals, 'shape'):
-                assert len(conf_intervals.shape) == 2
-                assert conf_intervals.shape[0] == col
-                assert conf_intervals.shape[1] == 2
+                assert len(conf_intervals.shape) == 2, msg1
+                assert conf_intervals.shape[0] == col, msg2
+                assert conf_intervals.shape[1] == 2, msg3
             else:
-                assert len(conf_intervals) == col
+                assert len(conf_intervals) == col, msg2
                 for ci in conf_intervals:
                     if ci is not None:
-                       assert len(ci) == 2
+                       assert len(ci) == 2, msg3
 
 
         # get some plot info
