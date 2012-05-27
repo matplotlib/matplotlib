@@ -29,15 +29,32 @@ pie(fracs, labels=labels, autopct='%1.1f%%', shadow=True)
 
 subplot(the_grid[0, 1])
 
-pie(fracs, explode=explode, labels=labels, autopct='%1.1f%%', shadow=True)
+pie(fracs, explode=explode, labels=labels, autopct='%.0f%%', shadow=True)
 
 subplot(the_grid[1, 0])
 
-pie(fracs, labels=labels, autopct='%1.1f%%', shadow=True, radius=0.5)
+patches, texts, autotexts = pie(fracs, labels=labels,
+                                autopct='%.0f%%',
+                                shadow=True, radius=0.5)
+
+# Make the labels on the small plot easier to read.
+for t in texts:
+    t.set_size('smaller')
+for t in autotexts:
+    t.set_size('x-small')
+autotexts[0].set_color('y')
 
 subplot(the_grid[1, 1])
 
-pie(fracs, explode=explode, labels=labels, autopct='%1.1f%%', shadow=True,
-	radius=0.5)
+patches, texts, autotexts = pie(fracs, explode=explode,
+                                labels=labels, autopct='%.0f%%',
+                                shadow=False, radius=0.5)
+                                # Turn off shadow for tiny plot
+                                # with exploded slice.
+for t in texts:
+    t.set_size('smaller')
+for t in autotexts:
+    t.set_size('x-small')
+autotexts[0].set_color('y')
 
 show()
