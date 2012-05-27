@@ -35,7 +35,6 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
-
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
 iterable = cbook.iterable
@@ -5471,12 +5470,13 @@ class Axes(martist.Artist):
 
     def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
-                bootstrap=None):
+                bootstrap=None, usermedians=None, conf_intervals=None):
         """
-        Call signature::
+        call signature::
 
-          boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
-                  positions=None, widths=None, patch_artist=False)
+        boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
+                positions=None, widths=None, patch_artist=False,
+                bootstrap=None, usermedians=None, conf_intervals=None)
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -5484,64 +5484,96 @@ class Axes(martist.Artist):
         The whiskers extend from the box to show the range of the
         data.  Flier points are those past the end of the whiskers.
 
-        Function Arguments:
+        *x* is an array or a sequence of vectors.
 
-          *x* :
-            Array or a sequence of vectors.
+        - *notch* = 0 (default) produces a rectangular box plot.
+        - *notch* = 1 will produce a notched box plot
 
-          *notch* : [ 0 (default) | 1]
-            If 0, produce a rectangular box plot.
-            If 1, produce a notched box plot
+        *sym* (default 'b+') is the default symbol for flier points.
+        Enter an empty string ('') if you don't want to show fliers.
 
-          *sym* :
-            (default 'b+') is the default symbol for flier points.
-            Enter an empty string ('') if you don't want to show fliers.
+        - *vert* = 1 (default) makes the boxes vertical.
+        - *vert* = 0 makes horizontal boxes.  This seems goofy, but
+          that's how MATLAB did it.
 
-          *vert* : [1 (default) | 0]
-            If 1, make the boxes vertical.
-            If 0, make horizontal boxes. (Odd, but kept for compatibility
-            with MATLAB boxplots)
+        *whis* (default 1.5) defines the length of the whiskers as
+        a function of the inner quartile range.  They extend to the
+        most extreme data point within ( ``whis*(75%-25%)`` ) data range.
 
-          *whis* : (default 1.5)
-            Defines the length of the whiskers as
-            a function of the inner quartile range.  They extend to the
-            most extreme data point within ( ``whis*(75%-25%)`` ) data range.
+        *bootstrap* (default None) specifies whether to bootstrap the
+        confidence intervals around the median for notched
+        boxplots. If bootstrap==None, no bootstrapping is performed,
+        and notches are calculated using a Gaussian-based asymptotic
+        approximation (see McGill, R., Tukey, J.W., and Larsen, W.A.,
+        1978, and Kendall and Stuart, 1967). Otherwise, bootstrap
+        specifies the number of times to bootstrap the median to
+        determine it's 95% confidence intervals. Values between 1000
+        and 10000 are recommended.
 
-          *bootstrap* : [ *None* (default) | integer ]
-            Specifies whether to bootstrap the confidence intervals
-            around the median for notched boxplots. If *None*, no
-            bootstrapping is performed, and notches are calculated
-            using a Gaussian-based asymptotic approximation
-            (see McGill, R., Tukey, J.W., and Larsen, W.A.,
-            1978, and Kendall and Stuart, 1967). Otherwise, bootstrap
-            specifies the number of times to bootstrap the median to
-            determine its 95% confidence intervals. Values between 1000
-            and 10000 are recommended.
+        *usermedians* (default None) is an array or sequence whose first
+        dimension (or length) is compatible with *x*. This overrides the
+        medians computed by matplotlib for each element of *usermedians*
+        that is not None. When an element of *usermedians* == None, the
+        median will be computed directly as normal.
 
-          *positions* : (default 1,2,...,n)
-            Sets the horizontal positions of
-            the boxes. The ticks and limits are automatically set to match
-            the positions.
+        *conf_intervals* (default None) is an array or sequence whose first
+        dimension (or length) is compatible with *x* and whose second
+        dimension is 2. When the current element of *conf_intervals* is not
+        None, the notch locations computed by matplotlib are overridden
+        (assuming notch==1). When an element of *conf_intervals* is None,
+        boxplot compute notches the method specified by the other kwargs
+        (e.g. *bootstrap*).
 
-          *widths* : [ scalar | array ]
-            Either a scalar or a vector to set the width of each box.
-            The default is 0.5, or ``0.15*(distance between extreme
-            positions)`` if that is smaller.
+        *positions* (default 1,2,...,n) sets the horizontal positions of
+        the boxes. The ticks and limits are automatically set to match
+        the positions.
 
-          *patch_artist* : boolean
-            If *False* (default), produce boxes with the
-            :class:`~matplotlib.lines.Line2D` artist.
-            If *True*, produce boxes with the
-            :class:`~matplotlib.patches.Patch` artist.
+        *widths* is either a scalar or a vector and sets the width of
+        each box. The default is 0.5, or ``0.15*(distance between extreme
+        positions)`` if that is smaller.
+
+        - *patch_artist* = False (default) produces boxes with the Line2D artist
+        - *patch_artist* = True produces boxes with the Patch artist
 
         Returns a dictionary mapping each component of the boxplot
-        to a list of the :class:`~matplotlib.lines.Line2D`
-        instances created (unless *patch_artist* was *True*. See above.).
+        to a list of the :class:`matplotlib.lines.Line2D`
+        instances created.
 
         **Example:**
 
         .. plot:: pyplots/boxplot_demo.py
         """
+        def bootstrapMedian(data, N=5000):
+	    # determine 95% confidence intervals of the median
+	    M = len(data)
+            percentile = [2.5,97.5]
+	    estimate = np.zeros(N)
+	    for n in range(N):
+	        bsIndex = np.random.random_integers(0,M-1,M)
+	        bsData = data[bsIndex]
+	        estimate[n] = mlab.prctile(bsData, 50)
+	    CI = mlab.prctile(estimate, percentile)
+	    return CI
+
+        def computeConfInterval(data, med, iq, bootstrap):
+	    if bootstrap is not None:
+                # Do a bootstrap estimate of notch locations.
+                # get conf. intervals around median
+                CI = bootstrapMedian(data, N=bootstrap)
+                notch_min = CI[0]
+                notch_max = CI[1]
+            else:
+                # Estimate notch locations using Gaussian-based
+                # asymptotic approximation.
+                #
+                # For discussion: McGill, R., Tukey, J.W.,
+                # and Larsen, W.A. (1978) "Variations of
+                # Boxplots", The American Statistician, 32:12-16.
+		N = len(data)
+                notch_min = med - 1.57*iq/np.sqrt(N)
+                notch_max = med + 1.57*iq/np.sqrt(N)
+            return notch_min, notch_max
+
         if not self._hold: self.cla()
         holdStatus = self._hold
         whiskers, caps, boxes, medians, fliers = [], [], [], [], []
@@ -5567,6 +5599,27 @@ class Axes(martist.Artist):
             x = [x]
         col = len(x)
 
+        # sanitize user-input medians
+	if usermedians is not None:
+            if hasattr(usermedians, 'shape'):
+                assert len(usermedians.shape) == 1
+                assert usermedians.shape[0] == col
+            else:
+                assert len(usermedians) == col
+
+	#sanitize user-input confidence intervals
+        if conf_intervals is not None:
+            if hasattr(conf_intervals, 'shape'):
+                assert len(conf_intervals.shape) == 2
+                assert conf_intervals.shape[0] == col
+                assert conf_intervals.shape[1] == 2
+            else:
+                assert len(conf_intervals) == col
+                for ci in conf_intervals:
+                    if ci is not None:
+                       assert len(ci) == 2
+
+
         # get some plot info
         if positions is None:
             positions = range(1, col + 1)
@@ -5578,14 +5631,21 @@ class Axes(martist.Artist):
 
         # loop through columns, adding each to plot
         self.hold(True)
-        for i,pos in enumerate(positions):
+        for i, pos in enumerate(positions):
             d = np.ravel(x[i])
             row = len(d)
             if row==0:
                 # no data, skip this position
                 continue
-            # get median and quartiles
+
+	    # get median and quartiles
             q1, med, q3 = mlab.prctile(d,[25,50,75])
+
+	    # replace with input medians if available
+	    if usermedians is not None:
+                if usermedians[i] is not None:
+                    med = usermedians[i]
+
             # get high extreme
             iq = q3 - q1
             hi_val = q3 + whis*iq
@@ -5634,33 +5694,16 @@ class Axes(martist.Artist):
                 med_x = [box_x_min, box_x_max]
             # calculate 'notch' plot
             else:
-                if bootstrap is not None:
-                    # Do a bootstrap estimate of notch locations.
-                    def bootstrapMedian(data, N=5000):
-                        # determine 95% confidence intervals of the median
-                        M = len(data)
-                        percentile = [2.5,97.5]
-                        estimate = np.zeros(N)
-                        for n in range(N):
-                            bsIndex = np.random.random_integers(0,M-1,M)
-                            bsData = data[bsIndex]
-                            estimate[n] = mlab.prctile(bsData, 50)
-                        CI = mlab.prctile(estimate, percentile)
-                        return CI
-
-                    # get conf. intervals around median
-                    CI = bootstrapMedian(d, N=bootstrap)
-                    notch_max = CI[1]
-                    notch_min = CI[0]
+                # conf. intervals from user, if available
+		if conf_intervals is not None:
+                    if conf_intervals[i] is not None:
+                        notch_max = np.max(conf_intervals[i])
+                        notch_min = np.min(conf_intervals[i])
+                    else:
+                        notch_min, notch_max = computeConfInterval(d, med, iq, bootstrap)
                 else:
-                    # Estimate notch locations using Gaussian-based
-                    # asymptotic approximation.
-                    #
-                    # For discussion: McGill, R., Tukey, J.W.,
-                    # and Larsen, W.A. (1978) "Variations of
-                    # Boxplots", The American Statistician, 32:12-16.
-                    notch_max = med + 1.57*iq/np.sqrt(row)
-                    notch_min = med - 1.57*iq/np.sqrt(row)
+                    notch_min, notch_max = computeConfInterval(d, med, iq, bootstrap)
+
                 # make our notched box vectors
                 box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max,
                          box_x_max, box_x_min, box_x_min, cap_x_min, box_x_min,
@@ -5719,7 +5762,8 @@ class Axes(martist.Artist):
                 boxes.extend(dopatch(box_x, box_y))
             else:
                 boxes.extend(doplot(box_x, box_y, 'b-'))
-            medians.extend(doplot(med_x, med_y, median_color+'-'))
+
+	    medians.extend(doplot(med_x, med_y, median_color+'-'))
             fliers.extend(doplot(flier_hi_x, flier_hi, sym,
                                  flier_lo_x, flier_lo, sym))
 
