@@ -5005,14 +5005,14 @@ class Axes(martist.Artist):
 
     def pie(self, x, explode=None, labels=None, colors=None,
             autopct=None, pctdistance=0.6, shadow=False,
-            labeldistance=1.1, startangle=None):
+            labeldistance=1.1, startangle=None, radius=None):
         r"""
         Call signature::
 
           pie(x, explode=None, labels=None,
               colors=('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'),
-              autopct=None, pctdistance=0.6, labeldistance=1.1,
-              shadow=False, startangle=None)
+              autopct=None, pctdistance=0.6, shadow=False,
+              labeldistance=1.1, startangle=None, radius=None)
 
         Make a pie chart of array *x*.  The fractional area of each
         wedge is given by x/sum(x).  If sum(x) <= 1, then the values
@@ -5054,6 +5054,9 @@ class Axes(martist.Artist):
             If not *None*, rotates the start of the pie chart by *angle*
             degrees counterclockwise from the x-axis.
 
+          *radius*: [ *None* | scalar ]
+          The radius of the pie, if *radius* is *None* it will be set to 1.
+
         The pie chart will probably look best if the figure and axes are
         square.  Eg.::
 
@@ -5090,8 +5093,8 @@ class Axes(martist.Artist):
 
 
         center = 0,0
-        radius = 1
-        i = 0
+        if radius is None:
+            radius = 1
 
         # Starting theta1 is the start fraction of the circle
         if startangle is None:
@@ -5102,6 +5105,8 @@ class Axes(martist.Artist):
         texts = []
         slices = []
         autotexts = []
+
+        i = 0
         for frac, label, expl in cbook.safezip(x,labels, explode):
             x, y = center
             theta2 = theta1 + frac
