@@ -1077,8 +1077,11 @@ class MultipleLocator(Locator):
 def scale_range(vmin, vmax, n = 1, threshold=100):
     dv = abs(vmax - vmin)
     maxabsv = max(abs(vmin), abs(vmax))
-    if maxabsv == 0 or dv/maxabsv < 1e-12:
+    if dv == 0:     # maxabsv == 0 is a special case of this.
         return 1.0, 0.0
+        # Note: this should never occur because
+        # vmin, vmax should have been checked by nonsingular(),
+        # and spread apart if necessary.
     meanv = 0.5*(vmax+vmin)
     if abs(meanv)/dv < threshold:
         offset = 0
@@ -1201,9 +1204,9 @@ class MaxNLocator(Locator):
 
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
-        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
+        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 1e-13,
+                                                         tiny=1e-14)
         locs = self.bin_boundaries(vmin, vmax)
-        #print 'locs=', locs
         prune = self._prune
         if prune=='lower':
             locs = locs[1:]
@@ -1218,7 +1221,8 @@ class MaxNLocator(Locator):
             maxabs = max(abs(dmin), abs(dmax))
             dmin = -maxabs
             dmax = maxabs
-        dmin, dmax = mtransforms.nonsingular(dmin, dmax, expander = 0.05)
+        dmin, dmax = mtransforms.nonsingular(dmin, dmax, expander = 1e-12,
+                                                        tiny=1.e-13)
         return np.take(self.bin_boundaries(dmin, dmax), [0,-1])
 
 
