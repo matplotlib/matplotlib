@@ -7933,7 +7933,8 @@ class Axes(martist.Artist):
 
 
     @docstring.dedent_interpd
-    def hist2d(self, x, y, bins = 10, range=None, weights=None, cmin=None, cmax=None, **kwargs):
+    def hist2d(self, x, y, bins = 10, range=None, normed=False, weights=None,
+               cmin=None, cmax=None, **kwargs):
         """
         Call signature::
 
@@ -7941,7 +7942,7 @@ class Axes(martist.Artist):
         Make a 2d histogram plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length
 
-        The return value is (counts,xedges,yedges,PolyCollection)
+        The return value is (counts,xedges,yedges,Image)
 
         Optional keyword arguments:
         *bins*: [None | int | [int, int] | array_like | [array, array]]
@@ -7956,6 +7957,10 @@ class Axes(martist.Artist):
              The leftmost and rightmost edges of the bins along each dimension (if not specified 
              explicitly in the bins parameters): [[xmin, xmax], [ymin, ymax]]. All values outside of 
              this range will be considered outliers and not tallied in the histogram.
+
+        *normed*:[True|False]
+             Normalize histogram.
+             The default value is False
 
         *weights*: [*None* | array]
             An array of values w_i weighing each sample (x_i, y_i).
@@ -7978,7 +7983,8 @@ class Axes(martist.Artist):
         # xrange becomes range after 2to3
         bin_range = range
         range = __builtins__["range"]
-        h,xedges,yedges = np.histogram2d(x, y, bins=bins, range=bin_range, normed=False, weights=weights)
+        h,xedges,yedges = np.histogram2d(x, y, bins=bins, range=bin_range,
+                                         normed=normed, weights=weights)
 
         if cmin is not None: h[h<cmin]=None
         if cmax is not None: h[h>cmax]=None
