@@ -17,7 +17,9 @@ import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
 import numpy as np
 
+
 GRIDLINE_INTERPOLATION_STEPS = 180
+
 
 class Tick(artist.Artist):
     """
@@ -159,7 +161,6 @@ class Tick(artist.Artist):
         """
         pass
 
-
     def get_children(self):
         children = [self.tick1line, self.tick2line, self.gridline, self.label1, self.label2]
         return children
@@ -215,7 +216,6 @@ class Tick(artist.Artist):
     def _get_gridline(self):
         'Get the default grid Line2d instance for this tick'
         pass
-
 
     def get_loc(self):
         'Return the tick location (data coords) as a scalar'
@@ -308,7 +308,6 @@ class Tick(artist.Artist):
                 setattr(self, '_'+k, v)
 
 
-
 class XTick(Tick):
     """
     Contains all the Artists needed to make an x tick - the tick line,
@@ -358,7 +357,6 @@ class XTick(Tick):
 
 
     def _get_text2(self):
-
         'Get the default Text 2 instance'
         # x in data coords, y in axes coords
         #t =  mtext.Text(
@@ -479,7 +477,6 @@ class YTick(Tick):
             self._tickmarkers = (mlines.TICKLEFT, mlines.TICKRIGHT)
             self._pad = self._base_pad + self._size
 
-
     # how far from the y axis line the right of the ticklabel are
     def _get_text1(self):
         'Get the default Text instance'
@@ -557,7 +554,6 @@ class YTick(Tick):
         self._set_artist_props(l)
         return l
 
-
     def update_position(self, loc):
         'Set the location of tick in data coords with scalar loc'
         y = loc
@@ -584,7 +580,6 @@ class YTick(Tick):
 
         self._loc = loc
 
-
     def get_view_interval(self):
         'return the Interval instance for this axis view limits'
         return self.axes.viewLim.intervaly
@@ -595,9 +590,7 @@ class Ticker:
     formatter = None
 
 
-
 class Axis(artist.Artist):
-
     """
     Public attributes
 
@@ -632,12 +625,6 @@ class Axis(artist.Artist):
         self.minor = Ticker()
         self.callbacks = cbook.CallbackRegistry()
 
-        #class dummy:
-        #    locator = None
-        #    formatter = None
-        #self.major = dummy()
-        #self.minor = dummy()
-
         self._autolabelpos = True
         self._smart_bounds = False
 
@@ -654,7 +641,6 @@ class Axis(artist.Artist):
 
         self.cla()
         self.set_scale('linear')
-
 
     def set_label_coords(self, x, y, transform=None):
         """
@@ -706,7 +692,7 @@ class Axis(artist.Artist):
         return children
 
     def cla(self):
-        'clear the current axis'
+        """Clear the current axis"""
         self.set_major_locator(mticker.AutoLocator())
         self.set_major_formatter(mticker.ScalarFormatter())
         self.set_minor_locator(mticker.NullLocator())
@@ -773,10 +759,10 @@ class Axis(artist.Artist):
             self.reset_ticks()
         else:
             if which == 'major' or which == 'both':
-                 for tick in self.majorTicks:
+                for tick in self.majorTicks:
                     tick._apply_params(**self._major_tick_kw)
             if which == 'minor' or which == 'both':
-                 for tick in self.minorTicks:
+                for tick in self.minorTicks:
                     tick._apply_params(**self._minor_tick_kw)
 
     @staticmethod
@@ -1018,7 +1004,6 @@ class Axis(artist.Artist):
         self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
         self.offsetText.set_text( self.major.formatter.get_offset() )
 
-
         bb = []
 
         for a in [self.label, self.offsetText]:
@@ -1036,10 +1021,9 @@ class Axis(artist.Artist):
         else:
             return None
 
-
     @allow_rasterization
     def draw(self, renderer, *args, **kwargs):
-        'Draw the axis lines, grid lines, tick lines and labels'
+        """Draw the axis lines, grid lines, tick lines and labels"""
 
         if not self.get_visible(): return
         renderer.open_group(__name__)
@@ -1063,10 +1047,10 @@ class Axis(artist.Artist):
         self.offsetText.set_text( self.major.formatter.get_offset() )
         self.offsetText.draw(renderer)
 
-        if 0: # draw the bounding boxes around the text for debug
-            for tick in majorTicks:
+        if False: # draw the bounding boxes around the text for debug
+            for tick in ticks_to_draw:
                 label = tick.label1
-                mpatches.bbox_artist(label, renderer)
+                mpatches.bbox_artist(label, renderer, fill=False)
             mpatches.bbox_artist(self.label, renderer)
 
         renderer.close_group(__name__)
@@ -1213,7 +1197,6 @@ class Axis(artist.Artist):
 
         return ticks
 
-
     def get_minor_ticks(self, numticks=None):
         'get the minor tick instances; grow as necessary'
         if numticks is None:
@@ -1236,7 +1219,6 @@ class Axis(artist.Artist):
         ticks = self.minorTicks[:numticks]
 
         return ticks
-
 
     def grid(self, b=None, which='major', **kwargs):
         """
@@ -1343,7 +1325,7 @@ class Axis(artist.Artist):
 
     def set_units(self, u):
         """
-        set the units for axis
+        Set the units for axis
 
         ACCEPTS: a units tag
         """
@@ -1366,7 +1348,8 @@ class Axis(artist.Artist):
         return self.units
 
     def set_label_text(self, label, fontdict = None, **kwargs):
-        """  Sets the text value of the axis label
+        """
+        Sets the text value of the axis label
 
         ACCEPTS: A string value for the label
         """
@@ -1385,7 +1368,6 @@ class Axis(artist.Artist):
         self.isDefault_majfmt = False
         self.major.formatter = formatter
         formatter.set_axis(self)
-
 
     def set_minor_formatter(self, formatter):
         """
@@ -1408,7 +1390,6 @@ class Axis(artist.Artist):
         self.major.locator = locator
         locator.set_axis(self)
 
-
     def set_minor_locator(self, locator):
         """
         Set the locator of the minor ticker
@@ -1426,7 +1407,6 @@ class Axis(artist.Artist):
         ACCEPTS: a distance in points
         """
         self.pickradius = pickradius
-
 
     def set_ticklabels(self, ticklabels, *args, **kwargs):
         """
@@ -1511,7 +1491,6 @@ class Axis(artist.Artist):
         "Zoom in/out on axis; if *direction* is >0 zoom in, else zoom out"
         self.major.locator.zoom(direction)
 
-
     def axis_date(self, tz=None):
         """
         Sets up x-axis ticks and labels that treat the x data as dates.
@@ -1526,7 +1505,7 @@ class Axis(artist.Artist):
         if isinstance(tz, (str, unicode)):
             import pytz
             tz = pytz.timezone(tz)
-        self.update_units(datetime.datetime(2009,1,1,0,0,0,0,tz))
+        self.update_units(datetime.datetime(2009, 1, 1, 0, 0, 0, 0, tz))
 
 
 class XAxis(Axis):
@@ -1786,7 +1765,6 @@ class XAxis(Axis):
                 self.axes.viewLim.intervalx = xmin, xmax
 
 
-
 class YAxis(Axis):
     __name__ = 'yaxis'
     axis_name = 'y'
@@ -1817,7 +1795,6 @@ class YAxis(Axis):
         else:
             tick_kw = self._minor_tick_kw
         return YTick(self.axes, 0, '', major=major, **tick_kw)
-
 
     def _get_label(self):
         # x in display coords (updated by _update_label_position)
