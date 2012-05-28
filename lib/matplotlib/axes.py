@@ -7941,15 +7941,13 @@ class Axes(martist.Artist):
         Make a 2d histogram plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length
 
-        The return value is (counts,xedges,yedges,im)
+        The return value is (counts,xedges,yedges,PolyCollection)
 
         Optional keyword arguments:
         *bins*: [None | int | [int, int] | array_like | [array, array]]
             The bin specification:
                  If int, the number of bins for the two dimensions (nx=ny=bins).
                  If [int, int], the number of bins in each dimension (nx, ny = bins).
-                 If array_like, the bin edges for the two dimensions (x_edges=y_edges=bins).
-                 If [array, array], the bin edges in each dimension (x_edges, y_edges = bins).
             The default value is 10.
 
         *range*: [*None* | array_like shape(2,2)]
@@ -7980,14 +7978,12 @@ class Axes(martist.Artist):
         range = __builtins__["range"]
         h,xedges,yedges = np.histogram2d(x, y, bins=bins, range=bin_range, normed=False, weights=weights)
 
-        if 'origin' not in kwargs: kwargs['origin']='lower'
-        if 'extent' not in kwargs: kwargs['extent']=[xedges[0], xedges[-1], yedges[0], yedges[-1]]
-        if 'interpolation' not in kwargs: kwargs['interpolation']='nearest'
-        if 'aspect' not in kwargs: kwargs['aspect']='auto'
         if cmin is not None: h[h<cmin]=None
         if cmax is not None: h[h>cmax]=None
 
-        im = self.imshow(h.T,**kwargs)
+        im = self.pcolorfast(xedges,yedges,h.T,**kwargs)
+        self.set_xlim(xedges[0],xedges[-1])
+        self.set_ylim(yedges[0],yedges[-1])
 
         return h,xedges,yedges,im
 
