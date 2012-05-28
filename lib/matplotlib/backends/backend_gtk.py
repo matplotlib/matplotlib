@@ -40,6 +40,7 @@ from matplotlib import lines
 from matplotlib import markers
 from matplotlib import cbook
 from matplotlib import verbose
+from matplotlib import rcParams
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 
@@ -474,9 +475,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         else:
             raise ValueError("filename must be a path or a file-like object")
 
-    def get_default_filetype(self):
-        return 'png'
-
     def new_timer(self, *args, **kwargs):
         """
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
@@ -606,9 +604,9 @@ class FigureManagerGTK(FigureManagerBase):
     def _get_toolbar(self, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set
-        if matplotlib.rcParams['toolbar'] == 'classic':
+        if rcParams['toolbar'] == 'classic':
             toolbar = NavigationToolbar (canvas, self.window)
-        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
+        elif rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK (canvas, self.window)
         else:
             toolbar = None
@@ -698,7 +696,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
 
     def _init_toolbar2_4(self):
-        basedir = os.path.join(matplotlib.rcParams['datapath'],'images')
+        basedir = os.path.join(rcParams['datapath'],'images')
         if not _new_tooltip_api:
             self.tooltips = gtk.Tooltips()
 
@@ -1257,7 +1255,7 @@ try:
         icon_filename = 'matplotlib.png'
     else:
         icon_filename = 'matplotlib.svg'
-    window_icon = os.path.join(matplotlib.rcParams['datapath'], 'images', icon_filename)
+    window_icon = os.path.join(rcParams['datapath'], 'images', icon_filename)
 except:
     window_icon = None
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])

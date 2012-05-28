@@ -144,8 +144,7 @@ else:
 
 from matplotlib.rcsetup import (defaultParams,
                                 validate_backend,
-                                validate_toolbar,
-                                validate_cairo_format)
+                                validate_toolbar)
 
 major, minor1, minor2, s, tmp = sys.version_info
 _python24 = (major == 2 and minor1 >= 4) or major >= 3
@@ -943,10 +942,7 @@ def use(arg, warn=True):
         be_parts = arg.split('.')
         name = validate_backend(be_parts[0])
         if len(be_parts) > 1:
-            if name == 'cairo':
-                rcParams['cairo.format'] = validate_cairo_format(be_parts[1])
-            else:
-                raise ValueError('Only cairo backend has a format option')
+            raise ValueError('FIXME: Not sure what to do here')
     rcParams['backend'] = name
 
 def get_backend():
