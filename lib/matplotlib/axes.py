@@ -7966,7 +7966,7 @@ class Axes(martist.Artist):
              All bins that has count more than cmax will not be displayed (set to none before passing to imshow)
              and these count values in the return value count histogram will also be set to nan upon return
 
-        Remaining keyword arguments are passed directly to :meth:imshow
+        Remaining keyword arguments are passed directly to :meth:pcolorfast
 
         **Example:**
 
@@ -7981,11 +7981,11 @@ class Axes(martist.Artist):
         if cmin is not None: h[h<cmin]=None
         if cmax is not None: h[h>cmax]=None
 
-        im = self.pcolorfast(xedges,yedges,h.T,**kwargs)
+        pc = self.pcolorfast(xedges,yedges,h.T,**kwargs)
         self.set_xlim(xedges[0],xedges[-1])
         self.set_ylim(yedges[0],yedges[-1])
 
-        return h,xedges,yedges,im
+        return h,xedges,yedges,pc
 
     @docstring.dedent_interpd
     def psd(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
