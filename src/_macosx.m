@@ -5416,6 +5416,7 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     PyObject* result;
     const char* s = [self convertKeyEvent: event];
+    /* TODO: Handle ctrl, alt, super modifiers. qt4 has implemented these. */    
     PyGILState_STATE gstate = PyGILState_Ensure();
     if (s==NULL)
     {
@@ -5437,6 +5438,7 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     PyObject* result;
     const char* s = [self convertKeyEvent: event];
+    /* TODO: Handle ctrl, alt, super modifiers. qt4 has implemented these. */
     PyGILState_STATE gstate = PyGILState_Ensure();
     if (s==NULL)
     {

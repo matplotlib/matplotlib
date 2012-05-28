@@ -282,7 +282,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             # Finally, since it is not possible to get the CapsLock state
             # we cannot accurately compute the case of a pressed key when 
             # ctrl+shift+p is pressed.
-            if int(event.modifiers()) & QtCore.Qt.ControlModifier and event.key() < 256:
+            if int(event.modifiers()) & QtCore.Qt.ControlModifier:
                 # we always get an uppercase charater
                 key = chr(event.key())
                 # if shift is not being pressed, lowercase it (as mentioned, 
@@ -290,14 +290,13 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
                 if not int(event.modifiers()) & QtCore.Qt.ShiftModifier:
                     key = key.lower()
 
-        elif event.key() in self.keyvald:
-            key = self.keyvald[event.key()]
         else:
-            key = None
+            key = self.keyvald.get(event.key())
 
         if key is not None:
-            for modifier, Qt_key, prefix in [(QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control, 'ctrl'), 
-                                             (QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt, 'alt')]:
+            # prepend the ctrl, alt, super keys if appropriate (sorted in that order) 
+            for modifier, Qt_key, prefix in [(QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt, 'alt'),
+                                             (QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control, 'ctrl')]:
                 if event.key() != Qt_key and int(event.modifiers()) & modifier == modifier: 
                     key = '{}+{}'.format(prefix, key)
 

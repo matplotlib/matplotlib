@@ -1190,6 +1190,7 @@ class CloseEvent(Event):
     def __init__(self, name, canvas, guiEvent=None):
         Event.__init__(self, name, canvas, guiEvent)
 
+
 class LocationEvent(Event):
     """
     An event that has a screen location
@@ -1295,9 +1296,6 @@ class LocationEvent(Event):
         LocationEvent.lastevent = self
 
 
-
-
-
 class MouseEvent(LocationEvent):
     """
     A mouse event ('button_press_event', 'button_release_event', 'scroll_event',
@@ -1307,10 +1305,12 @@ class MouseEvent(LocationEvent):
     attributes, the following attributes are defined:
 
     *button*
-        button pressed None, 1, 2, 3, 'up', 'down' (up and down are used for scroll events)
+        button pressed None, 1, 2, 3, 'up', 'down' (up and down are used 
+        for scroll events)
 
     *key*
-        the key pressed: None, chr(range(255), 'shift', 'win', or 'control'
+        the key depressed when the mouse event triggered (see 
+        :class:`KeyEvent`)
 
     *step*
         number of scroll steps (positive for 'up', negative for 'down')
@@ -1319,7 +1319,7 @@ class MouseEvent(LocationEvent):
     Example usage::
 
         def on_press(event):
-            print 'you pressed', event.button, event.xdata, event.ydata
+            print('you pressed', event.button, event.xdata, event.ydata)
 
         cid = fig.canvas.mpl_connect('button_press_event', on_press)
 
@@ -1346,8 +1346,11 @@ class MouseEvent(LocationEvent):
         self.dblclick = dblclick
 
     def __str__(self):
-        return "MPL MouseEvent: xy=(%d,%d) xydata=(%s,%s) button=%d dblclick=%s inaxes=%s"%\
-             (self.x,self.y,str(self.xdata),str(self.ydata),self.button,self.dblclick,self.inaxes)
+        return ("MPL MouseEvent: xy=(%d,%d) xydata=(%s,%s) button=%d dblclick=%s" 
+                "inaxes=%s" % (self.x, self.y, str(self.xdata), str(self.ydata),
+                               self.button, self.dblclick, self.inaxes)
+                )
+
 
 class PickEvent(Event):
     """
@@ -1377,7 +1380,7 @@ class PickEvent(Event):
             thisline = event.artist
             xdata, ydata = thisline.get_data()
             ind = event.ind
-            print 'on pick line:', zip(xdata[ind], ydata[ind])
+            print('on pick line:', zip(xdata[ind], ydata[ind]))
 
         cid = fig.canvas.mpl_connect('pick_event', on_pick)
 
@@ -1400,16 +1403,23 @@ class KeyEvent(LocationEvent):
     attributes, the following attributes are defined:
 
     *key*
-        the key pressed: None, chr(range(255)), shift, win, or control
-
-    This interface may change slightly when better support for
-    modifier keys is included.
-
-
+        the key(s) pressed. Could be **None**, a single case sensitive ascii
+        character ("g", "G", "#", etc.), a special key 
+        ("control", "shift", "f1", "up", etc.) or a 
+        combination of the above (e.g. "ctrl+alt+g", "ctrl+alt+G").
+    
+    .. note::
+     
+        Modifier keys will be prefixed to the pressed key and will be in the
+        order "ctrl", "alt", "super". The exception to this rule is when the
+        pressed key is itself a modifier key, therefore "ctrl+alt" and 
+        "alt+control" can both be valid key values.
+    
+         
     Example usage::
 
         def on_key(event):
-            print 'you pressed', event.key, event.xdata, event.ydata
+            print('you pressed', event.key, event.xdata, event.ydata)
 
         cid = fig.canvas.mpl_connect('key_press_event', on_key)
 
@@ -1417,7 +1427,6 @@ class KeyEvent(LocationEvent):
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
         LocationEvent.__init__(self, name, canvas, x, y, guiEvent=guiEvent)
         self.key = key
-
 
 
 class FigureCanvasBase(object):
@@ -1447,7 +1456,6 @@ class FigureCanvasBase(object):
         'axes_leave_event',
         'close_event'
         ]
-
 
     def __init__(self, figure):
         figure.set_canvas(self)
@@ -1657,7 +1665,8 @@ class FigureCanvasBase(object):
         """
         self._button = button
         s = 'button_press_event'
-        mouseevent = MouseEvent(s, self, x, y, button, self._key, dblclick=dblclick, guiEvent=guiEvent)
+        mouseevent = MouseEvent(s, self, x, y, button, self._key, 
+                                dblclick=dblclick, guiEvent=guiEvent)
         self.callbacks.process(s, mouseevent)
 
     def button_release_event(self, x, y, button, guiEvent=None):
@@ -1743,7 +1752,7 @@ class FigureCanvasBase(object):
         self.callbacks.process('figure_enter_event', event)
 
     def idle_event(self, guiEvent=None):
-        'call when GUI is idle'
+        """Called when GUI is idle."""
         s = 'idle_event'
         event = IdleEvent(s, self, guiEvent=guiEvent)
         self.callbacks.process(s, event)
@@ -1789,7 +1798,7 @@ class FigureCanvasBase(object):
 
     def get_width_height(self):
         """
-        return the figure width and height in points or pixels
+        Return the figure width and height in points or pixels
         (depending on the backend), truncated to integers
         """
         return int(self.figure.bbox.width), int(self.figure.bbox.height)
@@ -1911,7 +1920,6 @@ class FigureCanvasBase(object):
             groupings[name].sort()
         return groupings
 
-
     def _get_print_method(self, format):
         method_name = 'print_%s' % format
 
@@ -1935,7 +1943,6 @@ class FigureCanvasBase(object):
                 '%s.' % (format, ', '.join(formats)))
 
         return getattr(self, method_name)
-
 
     def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', format=None, **kwargs):
@@ -2078,9 +2085,6 @@ class FigureCanvasBase(object):
             #self.figure.canvas.draw() ## seems superfluous
         return result
 
-
-
-
     def get_default_filetype(self):
         """
         Get the default savefig file format as specified in rcParam
@@ -2099,7 +2103,7 @@ class FigureCanvasBase(object):
 
     def switch_backends(self, FigureCanvasClass):
         """
-        instantiate an instance of FigureCanvasClass
+        Instantiate an instance of FigureCanvasClass
 
         This is used for backend switching, eg, to instantiate a
         FigureCanvasPS from a FigureCanvasGTK.  Note, deep copying is
@@ -2148,7 +2152,7 @@ class FigureCanvasBase(object):
         Example usage::
 
             def on_press(event):
-                print 'you pressed', event.button, event.xdata, event.ydata
+                print('you pressed', event.button, event.xdata, event.ydata)
 
             cid = canvas.mpl_connect('button_press_event', on_press)
 
@@ -2158,7 +2162,7 @@ class FigureCanvasBase(object):
 
     def mpl_disconnect(self, cid):
         """
-        disconnect callback id cid
+        Disconnect callback id cid
 
         Example usage::
 
@@ -2394,12 +2398,12 @@ class FigureManagerBase:
         pass
 
     def resize(self, w, h):
-        'For gui backends: resize window in pixels'
+        """"For gui backends, resize the window (in pixels)."""
         pass
 
     def key_press(self, event):
         """
-        implement the default mpl key bindings defined at
+        Implement the default mpl key bindings defined at
         :ref:`key-event-handling`
         """
         key_press_handler(event, self.canvas, self.canvas.toolbar)
@@ -2417,11 +2421,11 @@ class FigureManagerBase:
         """
         pass
 
-# cursors
-class Cursors:  #namespace
+
+class Cursors:
+    # this class is only used as a simple namespace
     HAND, POINTER, SELECT_REGION, MOVE = range(4)
 cursors = Cursors()
-
 
 
 class NavigationToolbar2(object):
@@ -2487,7 +2491,6 @@ class NavigationToolbar2(object):
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
         )
 
-
     def __init__(self, canvas):
         self.canvas = canvas
         canvas.toolbar = self
@@ -2511,11 +2514,11 @@ class NavigationToolbar2(object):
         self.set_history_buttons()
 
     def set_message(self, s):
-        'display a message on toolbar or in status bar'
+        """Display a message on toolbar or in status bar"""
         pass
 
     def back(self, *args):
-        'move back up the view lim stack'
+        """move back up the view lim stack"""
         self._views.back()
         self._positions.back()
         self.set_history_buttons()
@@ -2525,18 +2528,18 @@ class NavigationToolbar2(object):
         pass
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        'draw a rectangle rubberband to indicate zoom limits'
+        """Draw a rectangle rubberband to indicate zoom limits"""
         pass
 
     def forward(self, *args):
-        'move forward in the view lim stack'
+        """Move forward in the view lim stack"""
         self._views.forward()
         self._positions.forward()
         self.set_history_buttons()
         self._update_view()
 
     def home(self, *args):
-        'restore the original view'
+        """Restore the original view"""
         self._views.home()
         self._positions.home()
         self.set_history_buttons()
@@ -2565,8 +2568,6 @@ class NavigationToolbar2(object):
         raise NotImplementedError
 
     def mouse_move(self, event):
-        #print 'mouse_move', event.button
-
         if not event.inaxes or not self._active:
             if self._lastCursor != cursors.POINTER:
                 self.set_cursor(cursors.POINTER)
@@ -2584,9 +2585,10 @@ class NavigationToolbar2(object):
 
         if event.inaxes and event.inaxes.get_navigate():
 
-            try: s = event.inaxes.format_coord(event.xdata, event.ydata)
-            except ValueError: pass
-            except OverflowError: pass
+            try: 
+                s = event.inaxes.format_coord(event.xdata, event.ydata)
+            except (ValueError, OverflowError):
+                pass
             else:
                 if len(self.mode):
                     self.set_message('%s, %s' % (self.mode, s))
@@ -2595,7 +2597,7 @@ class NavigationToolbar2(object):
         else: self.set_message(self.mode)
 
     def pan(self,*args):
-        'Activate the pan/zoom tool. pan with left button, zoom with right'
+        """Activate the pan/zoom tool. pan with left button, zoom with right"""
         # set the pointer icon and button press funcs to the
         # appropriate callbacks
 
@@ -2627,11 +2629,11 @@ class NavigationToolbar2(object):
         self.set_message(self.mode)
 
     def press(self, event):
-        'this will be called whenver a mouse button is pressed'
+        """Called whenver a mouse button is pressed."""
         pass
 
     def press_pan(self, event):
-        'the press mouse button in pan/zoom mode callback'
+        """the press mouse button in pan/zoom mode callback"""
 
         if event.button == 1:
             self._button_pressed=1
@@ -2659,7 +2661,7 @@ class NavigationToolbar2(object):
         self.press(event)
 
     def press_zoom(self, event):
-        'the press mouse button in zoom to rect mode callback'
+        """the press mouse button in zoom to rect mode callback"""
         if event.button == 1:
             self._button_pressed=1
         elif  event.button == 3:
@@ -2681,16 +2683,13 @@ class NavigationToolbar2(object):
                                        a.transData.frozen() ))
 
         id1 = self.canvas.mpl_connect('motion_notify_event', self.drag_zoom)
-
         id2 = self.canvas.mpl_connect('key_press_event',
                                       self._switch_on_zoom_mode)
         id3 = self.canvas.mpl_connect('key_release_event',
                                       self._switch_off_zoom_mode)
 
         self._ids_zoom = id1, id2, id3
-
         self._zoom_mode = event.key
-
 
         self.press(event)
 
@@ -2703,7 +2702,7 @@ class NavigationToolbar2(object):
         self.mouse_move(event)
 
     def push_current(self):
-        'push the current view limits and position onto the stack'
+        """push the current view limits and position onto the stack"""
         lims = []; pos = []
         for a in self.canvas.figure.get_axes():
             xmin, xmax = a.get_xlim()
@@ -2718,11 +2717,11 @@ class NavigationToolbar2(object):
         self.set_history_buttons()
 
     def release(self, event):
-        'this will be called whenever mouse button is released'
+        """this will be called whenever mouse button is released"""
         pass
 
     def release_pan(self, event):
-        'the release mouse button callback in pan/zoom mode'
+        """the release mouse button callback in pan/zoom mode"""
 
         if self._button_pressed is None:
             return
@@ -2738,7 +2737,7 @@ class NavigationToolbar2(object):
         self.draw()
 
     def drag_pan(self, event):
-        'the drag callback in pan/zoom mode'
+        """the drag callback in pan/zoom mode"""
 
         for a, ind in self._xypress:
             #safer to use the recorded button at the press than current button:
@@ -2747,7 +2746,7 @@ class NavigationToolbar2(object):
         self.dynamic_update()
 
     def drag_zoom(self, event):
-        'the drag callback in zoom mode'
+        """the drag callback in zoom mode"""
 
         if self._xypress:
             x, y = event.x, event.y
@@ -2768,7 +2767,7 @@ class NavigationToolbar2(object):
             self.draw_rubberband(event, x, y, lastx, lasty)
 
     def release_zoom(self, event):
-        'the release mouse button callback in zoom to rect mode'
+        """the release mouse button callback in zoom to rect mode"""
         for zoom_id in self._ids_zoom:
             self.canvas.mpl_disconnect(zoom_id)
         self._ids_zoom = []
@@ -2876,7 +2875,7 @@ class NavigationToolbar2(object):
         self.release(event)
 
     def draw(self):
-        'redraw the canvases, update the locators'
+        """Redraw the canvases, update the locators"""
         for a in self.canvas.figure.get_axes():
             xaxis = getattr(a, 'xaxis', None)
             yaxis = getattr(a, 'yaxis', None)
@@ -2893,9 +2892,9 @@ class NavigationToolbar2(object):
         self.canvas.draw()
 
     def _update_view(self):
-        '''update the viewlim and position from the view and
+        """Update the viewlim and position from the view and
         position stack for each axes
-        '''
+        """
 
         lims = self._views()
         if lims is None:  return
@@ -2911,9 +2910,8 @@ class NavigationToolbar2(object):
 
         self.draw()
 
-
     def save_figure(self, *args):
-        'save the current figure'
+        """Save the current figure"""
         raise NotImplementedError
 
     def set_cursor(self, cursor):
@@ -2924,13 +2922,13 @@ class NavigationToolbar2(object):
         pass
 
     def update(self):
-        'reset the axes stack'
+        """Reset the axes stack"""
         self._views.clear()
         self._positions.clear()
         self.set_history_buttons()
 
     def zoom(self, *args):
-        'activate zoom to rect mode'
+        """Activate zoom to rect mode"""
         if self._active == 'ZOOM':
             self._active = None
         else:
@@ -2957,7 +2955,6 @@ class NavigationToolbar2(object):
 
         self.set_message(self.mode)
 
-
     def set_history_buttons(self):
-        'enable or disable back/forward button'
+        """Enable or disable back/forward button"""
         pass
