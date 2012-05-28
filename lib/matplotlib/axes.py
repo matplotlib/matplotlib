@@ -7946,8 +7946,10 @@ class Axes(martist.Artist):
         Optional keyword arguments:
         *bins*: [None | int | [int, int] | array_like | [array, array]]
             The bin specification:
-                 If int, the number of bins for the two dimensions (nx=ny=bins).
-                 If [int, int], the number of bins in each dimension (nx, ny = bins).
+                If int, the number of bins for the two dimensions (nx=ny=bins).
+                If [int, int], the number of bins in each dimension (nx, ny = bins).
+                If array_like, the bin edges for the two dimensions (x_edges=y_edges=bins).
+                If [array, array], the bin edges in each dimension (x_edges, y_edges = bins).
             The default value is 10.
 
         *range*: [*None* | array_like shape(2,2)]
