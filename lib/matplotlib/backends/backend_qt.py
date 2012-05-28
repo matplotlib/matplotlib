@@ -181,6 +181,8 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         else:
             key = None
 
+        # TODO: Handle ctrl, alt, super modifiers. qt4 backend has implemented.
+
         return key
 
     def flush_events(self):

@@ -411,7 +411,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         # BIT_MB_1 = 0x100; BIT_MB_2 = 0x200; BIT_MB_3 = 0x400;
         if key is not None:
             # note, shift is not added to the keys as this is already accounted for
-            for bitmask, prefix in [(2, 'ctrl'), (3, 'alt')]:
+            for bitmask, prefix in [(3, 'alt'), (2, 'ctrl'), ]:
                 if event.state & (1 << bitmask): 
                     key = '{}+{}'.format(prefix, key)
                      

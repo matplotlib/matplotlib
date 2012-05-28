@@ -327,12 +327,12 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         else:
             key = None
 
-        for key_mask, prefix in ([gdk.CONTROL_MASK, 'ctrl'],
-                                 [gdk.MOD1_MASK, 'alt'], ):
+        for key_mask, prefix in ([gdk.MOD1_MASK, 'alt'], 
+                                 [gdk.CONTROL_MASK, 'ctrl'],):
             if event.state & key_mask:
                 key = '{}+{}'.format(prefix, key)
         
-	return key
+        return key
 
 
     def configure_event(self, widget, event):

@@ -20,11 +20,12 @@ from matplotlib.widgets import SubplotTool
 import matplotlib
 from matplotlib.backends import _macosx
 
+
 class Show(ShowBase):
     def mainloop(self):
         _macosx.show()
-
 show = Show()
+
 
 class RendererMac(RendererBase):
     """
@@ -136,7 +137,7 @@ class RendererMac(RendererBase):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         if ismath:
-           self._draw_mathtext(gc, x, y, s, prop, angle)
+            self._draw_mathtext(gc, x, y, s, prop, angle)
         else:
             family =  prop.get_family()
             weight = prop.get_weight()
@@ -173,6 +174,7 @@ class RendererMac(RendererBase):
 
     def option_image_nocomposite(self):
         return True
+
 
 class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
     """
@@ -211,6 +213,7 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
         path = path.get_fully_transformed_path()
         _macosx.GraphicsContext.set_clip_path(self, path)
 
+
 ########################################################################
 #
 # The following functions and classes are for pylab and implement
@@ -245,6 +248,7 @@ def new_figure_manager(num, *args, **kwargs):
     manager = FigureManagerMac(canvas, num)
     return manager
 
+
 class TimerMac(_macosx.Timer, TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses CoreFoundation
@@ -260,7 +264,6 @@ class TimerMac(_macosx.Timer, TimerBase):
         functions add_callback and remove_callback can be used.
     '''
     # completely implemented at the C-level (in _macosx.Timer)
-
 
 
 class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
@@ -346,6 +349,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         """
         return TimerMac(*args, **kwargs)
 
+
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     """
     Wrap everything up into a window for the pylab interface
@@ -376,6 +380,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
 
     def close(self):
         Gcf.destroy(self.num)
+
 
 class NavigationToolbarMac(_macosx.NavigationToolbar):
 
@@ -443,6 +448,7 @@ class NavigationToolbarMac(_macosx.NavigationToolbar):
         if filename is None: # Cancel
             return
         self.canvas.print_figure(filename)
+
 
 class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 

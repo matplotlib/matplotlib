@@ -136,6 +136,8 @@ class FltkCanvas(Fltk.Fl_Widget):
                     self._key=special_key[ikey]
                 except:
                     self._key=None
+            
+            # TODO: Handle ctrl, alt, super modifiers.
             FigureCanvasBase.key_press_event(self._source, self._key)
             return 1
         elif event == Fltk.FL_KEYUP:

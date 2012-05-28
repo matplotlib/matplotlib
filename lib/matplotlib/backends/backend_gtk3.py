@@ -259,15 +259,13 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
     def _get_key(self, event):
         if event.keyval in self.keyvald:
             key = self.keyvald[event.keyval]
-        elif event.keyval <256:
+        elif event.keyval < 256:
             key = chr(event.keyval)
         else:
             key = None
 
-        #ctrl  = event.get_state() & Gdk.EventMask.CONTROL
-        #shift = event.get_state() & Gdk.EventMask.SHIFT
+        # TODO: Handle ctrl, alt, super modifiers. gtk backend has implemented.        
         return key
-
 
     def configure_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
