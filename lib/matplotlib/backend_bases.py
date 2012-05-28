@@ -2078,7 +2078,7 @@ class FigureCanvasBase(object):
 
 
     def get_default_filetype(self):
-        raise NotImplementedError
+        return rcParams['savefig.format']
 
     def set_window_title(self, title):
         """

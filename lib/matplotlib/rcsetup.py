@@ -251,9 +251,9 @@ validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
 
-validate_cairo_format = ValidateInStrings('cairo_format',
-                            ['png', 'ps', 'pdf', 'svg'],
-                            ignorecase=True)
+validate_savefig_format = ValidateInStrings('savefig_format',
+                                            ['png', 'ps', 'pdf', 'svg'],
+                                            ignorecase=True)
 
 validate_ps_papersize = ValidateInStrings('ps_papersize',[
     'auto', 'letter', 'legal', 'ledger',
@@ -547,8 +547,8 @@ defaultParams = {
     'savefig.edgecolor'   : ['w', validate_color],  # edgecolor; white
     'savefig.orientation' : ['portrait', validate_orientation],  # edgecolor; white
     'savefig.extension'   : ['auto', str],          # what to add to extensionless filenames
+    'savefig.format'      : ['png', validate_savefig_format],
 
-    'cairo.format'       : ['png', validate_cairo_format],
     'tk.window_focus'    : [False, validate_bool],  # Maintain shell focus for TkAgg
     'tk.pythoninspect'   : [False, validate_tkpythoninspect],  # obsolete
     'ps.papersize'       : ['letter', validate_ps_papersize], # Set the papersize/type
