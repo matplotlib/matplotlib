@@ -5544,19 +5544,19 @@ class Axes(martist.Artist):
         .. plot:: pyplots/boxplot_demo.py
         """
         def bootstrapMedian(data, N=5000):
-	    # determine 95% confidence intervals of the median
-	    M = len(data)
+            # determine 95% confidence intervals of the median
+            M = len(data)
             percentile = [2.5,97.5]
-	    estimate = np.zeros(N)
-	    for n in range(N):
-	        bsIndex = np.random.random_integers(0,M-1,M)
-	        bsData = data[bsIndex]
-	        estimate[n] = mlab.prctile(bsData, 50)
-	    CI = mlab.prctile(estimate, percentile)
-	    return CI
+            estimate = np.zeros(N)
+            for n in range(N):
+                bsIndex = np.random.random_integers(0,M-1,M)
+                bsData = data[bsIndex]
+                estimate[n] = mlab.prctile(bsData, 50)
+            CI = mlab.prctile(estimate, percentile)
+            return CI
 
         def computeConfInterval(data, med, iq, bootstrap):
-	    if bootstrap is not None:
+            if bootstrap is not None:
                 # Do a bootstrap estimate of notch locations.
                 # get conf. intervals around median
                 CI = bootstrapMedian(data, N=bootstrap)
@@ -5569,7 +5569,7 @@ class Axes(martist.Artist):
                 # For discussion: McGill, R., Tukey, J.W.,
                 # and Larsen, W.A. (1978) "Variations of
                 # Boxplots", The American Statistician, 32:12-16.
-		N = len(data)
+                N = len(data)
                 notch_min = med - 1.57*iq/np.sqrt(N)
                 notch_max = med + 1.57*iq/np.sqrt(N)
             return notch_min, notch_max
@@ -5600,19 +5600,19 @@ class Axes(martist.Artist):
         col = len(x)
 
         # sanitize user-input medians
-	msg1 = "usermedians must either be a list/tuple or a 1d array"
-	msg2 = "usermedians' length must be compatible with x"
-	if usermedians is not None:
+        msg1 = "usermedians must either be a list/tuple or a 1d array"
+        msg2 = "usermedians' length must be compatible with x"
+        if usermedians is not None:
             if hasattr(usermedians, 'shape'):
                 assert len(usermedians.shape) == 1, msg1
                 assert usermedians.shape[0] == col, msg2
             else:
                 assert len(usermedians) == col, msg2
 
-	#sanitize user-input confidence intervals
-	msg1 = "conf_intervals must either be a list of tuples or a 2d array"
-	msg2 = "conf_intervals' length must be compatible with x"
-	msg3 = "each conf_interval, if specificied, must have two values"
+        #sanitize user-input confidence intervals
+        msg1 = "conf_intervals must either be a list of tuples or a 2d array"
+        msg2 = "conf_intervals' length must be compatible with x"
+        msg3 = "each conf_interval, if specificied, must have two values"
         if conf_intervals is not None:
             if hasattr(conf_intervals, 'shape'):
                 assert len(conf_intervals.shape) == 2, msg1
@@ -5643,11 +5643,11 @@ class Axes(martist.Artist):
                 # no data, skip this position
                 continue
 
-	    # get median and quartiles
+            # get median and quartiles
             q1, med, q3 = mlab.prctile(d,[25,50,75])
 
-	    # replace with input medians if available
-	    if usermedians is not None:
+            # replace with input medians if available
+            if usermedians is not None:
                 if usermedians[i] is not None:
                     med = usermedians[i]
 
@@ -5700,7 +5700,7 @@ class Axes(martist.Artist):
             # calculate 'notch' plot
             else:
                 # conf. intervals from user, if available
-		if conf_intervals is not None:
+                if conf_intervals is not None:
                     if conf_intervals[i] is not None:
                         notch_max = np.max(conf_intervals[i])
                         notch_min = np.min(conf_intervals[i])
@@ -5768,7 +5768,7 @@ class Axes(martist.Artist):
             else:
                 boxes.extend(doplot(box_x, box_y, 'b-'))
 
-	    medians.extend(doplot(med_x, med_y, median_color+'-'))
+        medians.extend(doplot(med_x, med_y, median_color+'-'))
             fliers.extend(doplot(flier_hi_x, flier_hi, sym,
                                  flier_lo_x, flier_lo, sym))
 
