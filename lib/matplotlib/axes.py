@@ -5768,7 +5768,7 @@ class Axes(martist.Artist):
             else:
                 boxes.extend(doplot(box_x, box_y, 'b-'))
 
-        medians.extend(doplot(med_x, med_y, median_color+'-'))
+            medians.extend(doplot(med_x, med_y, median_color+'-'))
             fliers.extend(doplot(flier_hi_x, flier_hi, sym,
                                  flier_lo_x, flier_lo, sym))
 
