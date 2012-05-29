@@ -1058,7 +1058,13 @@ end"""
 
     def hatchPattern(self, hatch_style):
         # The colors may come in as numpy arrays, which aren't hashable
-        hatch_style = (tuple(hatch_style[0]), tuple(hatch_style[1]), hatch_style[2])
+        if hatch_style is not None:
+            face, edge, hatch = hatch_style
+            if face is not None:
+                face = tuple(face)
+            if edge is not None:
+                edge = tuple(edge)
+            hatch_style = (face, edge, hatch)
 
         pattern = self.hatchPatterns.get(hatch_style, None)
         if pattern is not None:
