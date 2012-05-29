@@ -507,7 +507,7 @@ class PdfFile(object):
             xobjects[tup[0]] = tup[1]
         for name, value in self.multi_byte_charprocs.iteritems():
             xobjects[name] = value
-        for name, path, trans, ob, join, cap, padding in self.paths:
+        for name, path, trans, ob, join, cap, padding, filled, stroked in self.paths:
             xobjects[name] = ob
         self.writeObject(self.XObjectObject, xobjects)
         self.writeImages()
@@ -1267,15 +1267,17 @@ end"""
             self.output(Op.paint_path(False, fillp, strokep))
             self.endStream()
 
-    def pathCollectionObject(self, gc, path, trans, padding):
+    def pathCollectionObject(self, gc, path, trans, padding, filled, stroked):
         name = Name('P%d' % len(self.paths))
         ob = self.reserveObject('path %d' % len(self.paths))
         self.paths.append(
-            (name, path, trans, ob, gc.get_joinstyle(), gc.get_capstyle(), padding))
+            (name, path, trans, ob, gc.get_joinstyle(), gc.get_capstyle(), padding,
+             filled, stroked))
         return name
 
     def writePathCollectionTemplates(self):
-        for (name, path, trans, ob, joinstyle, capstyle, padding) in self.paths:
+        for (name, path, trans, ob, joinstyle, capstyle, padding, filled,
+             stroked) in self.paths:
             pathops = self.pathOperations(path, trans, simplify=False)
             bbox = path.get_extents(trans)
             if not np.all(np.isfinite(bbox.extents)):
@@ -1290,7 +1292,7 @@ end"""
             self.output(GraphicsContextPdf.joinstyles[joinstyle], Op.setlinejoin)
             self.output(GraphicsContextPdf.capstyles[capstyle], Op.setlinecap)
             self.output(*pathops)
-            self.output(Op.paint_path(False, True, True))
+            self.output(Op.paint_path(False, filled, stroked))
             self.endStream()
 
     @staticmethod
@@ -1504,12 +1506,14 @@ class RendererPdf(RendererBase):
                              offsets, offsetTrans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
-
         padding = np.max(linewidths)
         path_codes = []
+        filled = len(facecolors)
+        stroked = len(edgecolors)
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
             master_transform, paths, all_transforms)):
-            name = self.file.pathCollectionObject(gc, path, transform, padding)
+            name = self.file.pathCollectionObject(
+                gc, path, transform, padding, filled, stroked)
             path_codes.append(name)
 
         output = self.file.output
