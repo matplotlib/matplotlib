@@ -7164,14 +7164,10 @@ class Axes(martist.Artist):
             and max of the color array *C* is used.  If you pass a
             *norm* instance, *vmin* and *vmax* will be ignored.
 
-          *shading*: [ 'flat' | 'faceted' | 'gouraud' ]
-            If 'faceted', a black grid is drawn around each rectangle; if
-            'flat', edges are not drawn. Default is 'flat', contrary to
-            MATLAB.
-
-            This kwarg is deprecated; please use 'edgecolors' instead:
-              * shading='flat' -- edgecolors='None'
-              * shading='faceted  -- edgecolors='k'
+          *shading*: [ 'flat' | 'gouraud' ]
+            'flat' indicates a solid color for each quad.  When
+            'gouraud', each quad will be Gouraud shaded.  When gouraud
+            shading, edgecolors is ignored.
 
           *edgecolors*: [ *None* | ``'None'`` | color | color sequence]
             If *None*, the rc setting is used by default.
@@ -7205,7 +7201,6 @@ class Axes(martist.Artist):
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
         shading = kwargs.pop('shading', 'flat').lower()
-        edgecolors = kwargs.pop('edgecolors', 'None')
         antialiased = kwargs.pop('antialiased', False)
 
         X, Y, C = self._pcolorargs('pcolormesh', *args)
@@ -7224,13 +7219,8 @@ class Axes(martist.Artist):
         coords[:, 0] = X
         coords[:, 1] = Y
 
-        if shading == 'faceted' or edgecolors != 'None':
-            showedges = 1
-        else:
-            showedges = 0
-
         collection = mcoll.QuadMesh(
-            Nx - 1, Ny - 1, coords, showedges,
+            Nx - 1, Ny - 1, coords,
             antialiased=antialiased, shading=shading, **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)

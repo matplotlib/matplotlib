@@ -224,7 +224,7 @@ class RendererBase:
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, showedges):
+                       antialiased, edgecolors):
         """
         This provides a fallback implementation of
         :meth:`draw_quad_mesh` that generates paths and then calls
@@ -234,12 +234,9 @@ class RendererBase:
         paths = QuadMesh.convert_mesh_to_paths(
             meshWidth, meshHeight, coordinates)
 
-        if showedges:
-            edgecolors = np.array([[0.0, 0.0, 0.0, 1.0]], np.float_)
-            linewidths = np.array([gc.get_linewidth()], np.float_)
-        else:
+        if edgecolors is None:
             edgecolors = facecolors
-            linewidths = np.array([gc.get_linewidth()], np.float_)
+        linewidths = np.array([gc.get_linewidth()], np.float_)
 
         return self.draw_path_collection(
             gc, master_transform, paths, [], offsets, offsetTrans, facecolors,
