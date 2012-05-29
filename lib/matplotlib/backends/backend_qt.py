@@ -419,8 +419,10 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         sorted_filetypes = filetypes.items()
         sorted_filetypes.sort()
         default_filetype = self.canvas.get_default_filetype()
+        default_filename = self.canvas.window().windowTitle() or 'image'
+        default_filename.replace(' ', '_')
 
-        start = "image." + default_filetype
+        start = default_filename + '.' + default_filetype
         filters = []
         selectedFilter = None
         for name, exts in sorted_filetypes:
