@@ -481,6 +481,9 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print("destroy figure manager")
         self.window.close()
 
+    def get_window_title(self):
+        return str(self.window.windowTitle())
+
     def set_window_title(self, title):
         self.window.setWindowTitle(title)
 
@@ -614,7 +617,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         sorted_filetypes = filetypes.items()
         sorted_filetypes.sort()
         default_filetype = self.canvas.get_default_filetype()
-        default_filename = str(self.canvas.window().windowTitle()) or 'image'
+        default_filename = self.canvas.get_window_title() or 'image'
         default_filename = default_filename.replace(' ', '_')
 
         start = default_filename + '.' + default_filetype
