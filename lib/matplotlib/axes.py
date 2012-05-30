@@ -5217,7 +5217,7 @@ class Axes(martist.Artist):
 
           *capsize*: scalar
             the size of the error bar caps in points
-P:\GIS\Projects\Miltons\maps\2012-02
+
           *barsabove*: [ *True* | *False* ]
             if *True*, will plot the errorbars above the plot
             symbols. Default is below.
