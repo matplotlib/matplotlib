@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import os.path
 
 @image_comparison(baseline_images=["truetype-conversion"],
-                  extensions=["pdf", "png"])
+                  extensions=["pdf"])
 def test_truetype_conversion():
     fontname = os.path.join(os.path.dirname(__file__), 'mpltest.ttf')
     fontname = os.path.abspath(fontname)
