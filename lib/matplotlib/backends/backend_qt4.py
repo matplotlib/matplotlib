@@ -614,8 +614,8 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         sorted_filetypes = filetypes.items()
         sorted_filetypes.sort()
         default_filetype = self.canvas.get_default_filetype()
-        default_filename = self.canvas.window().windowTitle() or 'image'
-        default_filename.replace(' ', '_')
+        default_filename = str(self.canvas.window().windowTitle()) or 'image'
+        default_filename = default_filename.replace(' ', '_')
 
         start = default_filename + '.' + default_filetype
         filters = []
