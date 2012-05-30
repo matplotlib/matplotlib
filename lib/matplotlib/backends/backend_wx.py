@@ -42,12 +42,14 @@ if sys.version_info[0] >= 3:
         ImportWarning)
 
 missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8"
+missingwxversion = ("Matplotlib backend_wx and backend_wxagg "
+                    "require wxversion, which was not found.")
 
 if not hasattr(sys, 'frozen'): # i.e., not py2exe
     try:
         import wxversion
     except ImportError:
-        raise ImportError(missingwx)
+        raise ImportError(missingwxversion)
 
     # Some early versions of wxversion lack AlreadyImportedError.
     # It was added around 2.8.4?
