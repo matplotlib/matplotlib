@@ -5484,6 +5484,8 @@ class Axes(martist.Artist):
         The whiskers extend from the box to show the range of the
         data.  Flier points are those past the end of the whiskers.
 
+        Function Arguments:
+
           *x* :
             Array or a sequence of vectors.
 
