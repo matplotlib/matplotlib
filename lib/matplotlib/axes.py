@@ -4198,8 +4198,8 @@ class Axes(martist.Artist):
         """
         Call signature::
 
-            def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
-              usevlines=True, maxlags=10, **kwargs):
+            xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
+              usevlines=True, maxlags=10, **kwargs)
 
         Plot the cross correlation between *x* and *y*.  If *normed* =
         *True*, normalize the data by the cross correlation at 0-th
@@ -7547,7 +7547,7 @@ class Axes(martist.Artist):
         """
         Call signature::
 
-          def hist(x, bins=10, range=None, normed=False, weights=None,
+          hist(x, bins=10, range=None, normed=False, weights=None,
                  cumulative=False, bottom=None, histtype='bar', align='mid',
                  orientation='vertical', rwidth=None, log=False,
                  color=None, label=None,
