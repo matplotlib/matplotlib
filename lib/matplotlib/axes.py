@@ -5217,7 +5217,7 @@ class Axes(martist.Artist):
 
           *capsize*: scalar
             the size of the error bar caps in points
-
+P:\GIS\Projects\Miltons\maps\2012-02
           *barsabove*: [ *True* | *False* ]
             if *True*, will plot the errorbars above the plot
             symbols. Default is below.
@@ -5472,11 +5472,11 @@ class Axes(martist.Artist):
                 positions=None, widths=None, patch_artist=False,
                 bootstrap=None, usermedians=None, conf_intervals=None):
         """
-        call signature::
+        Call signature::
 
-        boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
-                positions=None, widths=None, patch_artist=False,
-                bootstrap=None, usermedians=None, conf_intervals=None)
+          boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
+                  positions=None, widths=None, patch_artist=False,
+                  bootstrap=None, usermedians=None, conf_intervals=None)
 
         Make a box and whisker plot for each column of *x* or each
         vector in sequence *x*.  The box extends from the lower to
@@ -5484,56 +5484,56 @@ class Axes(martist.Artist):
         The whiskers extend from the box to show the range of the
         data.  Flier points are those past the end of the whiskers.
 
-        *x* is an array or a sequence of vectors.
+          *x* is an array or a sequence of vectors.
 
-        - *notch* = 0 (default) produces a rectangular box plot.
-        - *notch* = 1 will produce a notched box plot
+          *notch* = 0 (default) produces a rectangular box plot.
+          *notch* = 1 will produce a notched box plot
 
-        *sym* (default 'b+') is the default symbol for flier points.
-        Enter an empty string ('') if you don't want to show fliers.
+          *sym* (default 'b+') is the default symbol for flier points.
+            Enter an empty string ('') if you don't want to show fliers.
 
-        - *vert* = 1 (default) makes the boxes vertical.
-        - *vert* = 0 makes horizontal boxes.  This seems goofy, but
-          that's how MATLAB did it.
+          *vert* = 1 (default) makes the boxes vertical.
+          *vert* = 0 makes horizontal boxes.  This seems goofy, but
+            that's how MATLAB did it.
 
-        *whis* (default 1.5) defines the length of the whiskers as
-        a function of the inner quartile range.  They extend to the
-        most extreme data point within ( ``whis*(75%-25%)`` ) data range.
+          *whis* (default 1.5) defines the length of the whiskers as
+            a function of the inner quartile range.  They extend to the
+            most extreme data point within ( ``whis*(75%-25%)`` ) data range.
 
-        *bootstrap* (default None) specifies whether to bootstrap the
-        confidence intervals around the median for notched
-        boxplots. If bootstrap==None, no bootstrapping is performed,
-        and notches are calculated using a Gaussian-based asymptotic
-        approximation (see McGill, R., Tukey, J.W., and Larsen, W.A.,
-        1978, and Kendall and Stuart, 1967). Otherwise, bootstrap
-        specifies the number of times to bootstrap the median to
-        determine it's 95% confidence intervals. Values between 1000
-        and 10000 are recommended.
+          *bootstrap* (default None) specifies whether to bootstrap the
+            confidence intervals around the median for notched
+            boxplots. If bootstrap==None, no bootstrapping is performed,
+            and notches are calculated using a Gaussian-based asymptotic
+            approximation (see McGill, R., Tukey, J.W., and Larsen, W.A.,
+            1978, and Kendall and Stuart, 1967). Otherwise, bootstrap
+            specifies the number of times to bootstrap the median to
+            determine it's 95% confidence intervals. Values between 1000
+            and 10000 are recommended.
 
-        *usermedians* (default None) is an array or sequence whose first
-        dimension (or length) is compatible with *x*. This overrides the
-        medians computed by matplotlib for each element of *usermedians*
-        that is not None. When an element of *usermedians* == None, the
-        median will be computed directly as normal.
+          *usermedians* (default None) is an array or sequence whose first
+            dimension (or length) is compatible with *x*. This overrides the
+            medians computed by matplotlib for each element of *usermedians*
+            that is not None. When an element of *usermedians* == None, the
+            median will be computed directly as normal.
 
-        *conf_intervals* (default None) is an array or sequence whose first
-        dimension (or length) is compatible with *x* and whose second
-        dimension is 2. When the current element of *conf_intervals* is not
-        None, the notch locations computed by matplotlib are overridden
-        (assuming notch==1). When an element of *conf_intervals* is None,
-        boxplot compute notches the method specified by the other kwargs
-        (e.g. *bootstrap*).
+          *conf_intervals* (default None) is an array or sequence whose first
+            dimension (or length) is compatible with *x* and whose second
+            dimension is 2. When the current element of *conf_intervals* is not
+            None, the notch locations computed by matplotlib are overridden
+            (assuming notch==1). When an element of *conf_intervals* is None,
+            boxplot compute notches the method specified by the other kwargs
+            (e.g. *bootstrap*).
 
-        *positions* (default 1,2,...,n) sets the horizontal positions of
-        the boxes. The ticks and limits are automatically set to match
-        the positions.
+          *positions* (default 1,2,...,n) sets the horizontal positions of
+            the boxes. The ticks and limits are automatically set to match
+            the positions.
 
-        *widths* is either a scalar or a vector and sets the width of
-        each box. The default is 0.5, or ``0.15*(distance between extreme
-        positions)`` if that is smaller.
+          *widths* is either a scalar or a vector and sets the width of
+            each box. The default is 0.5, or ``0.15*(distance between extreme
+            positions)`` if that is smaller.
 
-        - *patch_artist* = False (default) produces boxes with the Line2D artist
-        - *patch_artist* = True produces boxes with the Patch artist
+          *patch_artist* = False (default) produces boxes with the Line2D artist
+          *patch_artist* = True produces boxes with the Patch artist
 
         Returns a dictionary mapping each component of the boxplot
         to a list of the :class:`matplotlib.lines.Line2D`
