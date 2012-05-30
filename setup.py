@@ -112,6 +112,7 @@ if 1:
         return result
     baseline_images = [chop_package(f) for f in baseline_images]
     package_data['matplotlib'].extend(baseline_images)
+    package_data['matplotlib'].append('tests/mpltest.ttf')
 
 if not check_for_numpy(__version__numpy__):
     sys.exit(1)
