@@ -494,7 +494,7 @@ class FigureManagerTkAgg(FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
         self.window = window
         self.window.withdraw()
-        self.window.wm_title("Figure %d" % num)
+        self.set_window_title("Figure %d" % num)
         self.canvas = canvas
         self._num =  num
         _, _, w, h = canvas.figure.bbox.bounds
@@ -564,6 +564,9 @@ class FigureManagerTkAgg(FigureManagerBase):
             if self.window is not None:
                 self.window.quit()
         self.window = None
+
+    def get_window_title(self):
+        return self.window.wm_title()
 
     def set_window_title(self, title):
         self.window.wm_title(title)
@@ -874,7 +877,8 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
             master=self.window,
             title='Save the figure',
             filetypes = tk_filetypes,
-            defaultextension = defaultextension
+            defaultextension = defaultextension,
+            initialfile=self.canvas.get_default_filename(),
             )
 
         if fname == "" or fname == ():

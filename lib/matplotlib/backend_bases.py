@@ -2108,6 +2108,15 @@ class FigureCanvasBase(object):
         if hasattr(self, "manager"):
             self.manager.set_window_title(title)
 
+    def get_default_filename(self):
+        """
+        Return a string, which includes extension, suitable for use as
+        a default filename.
+        """
+        default_filename = self.get_window_title() or 'image'
+        default_filename = default_filename.lower().replace(' ', '_')
+        return default_filename + '.' + self.get_default_filetype()
+
     def switch_backends(self, FigureCanvasClass):
         """
         Instantiate an instance of FigureCanvasClass
