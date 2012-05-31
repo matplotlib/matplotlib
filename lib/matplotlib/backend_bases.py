@@ -2080,9 +2080,10 @@ class FigureCanvasBase(object):
 
     def get_default_filetype(self):
         """
-        Get the default savefig file format as specified in rcParams.
-        If invalid, use .png. Overridden in backends that only support
-        a single file type.
+        Get the default savefig file format as specified in
+        rcParams['savefig.format']. If not supported, return 'png'.
+        Returned string excludes period. Overridden in backends that
+        only support a single file type.
         """
         default = rcParams['savefig.format']
         if default in self.get_supported_filetypes():
