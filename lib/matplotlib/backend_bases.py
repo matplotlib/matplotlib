@@ -111,7 +111,6 @@ class ShowBase(object):
         pass
 
 
-
 class RendererBase:
     """An abstract base class to handle drawing/rendering operations.
 
@@ -518,7 +517,6 @@ class RendererBase:
 
         return path, transform
 
-
     def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
         """
         draw the text by converting them to paths using textpath module.
@@ -541,7 +539,6 @@ class RendererBase:
 
         gc.set_linewidth(0.0)
         self.draw_path(gc, path, transform, rgbFace=color)
-
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
@@ -1132,12 +1129,14 @@ class Event:
         self.canvas = canvas
         self.guiEvent = guiEvent
 
+
 class IdleEvent(Event):
     """
     An event triggered by the GUI backend when it is idle -- useful
     for passive animation
     """
     pass
+
 
 class DrawEvent(Event):
     """
@@ -1152,6 +1151,7 @@ class DrawEvent(Event):
     def __init__(self, name, canvas, renderer):
         Event.__init__(self, name, canvas)
         self.renderer = renderer
+
 
 class ResizeEvent(Event):
     """
@@ -1170,6 +1170,7 @@ class ResizeEvent(Event):
         Event.__init__(self, name, canvas)
         self.width, self.height = canvas.get_width_height()
 
+
 class CloseEvent(Event):
     """
     An event triggered by a figure being closed
@@ -1178,6 +1179,7 @@ class CloseEvent(Event):
     """
     def __init__(self, name, canvas, guiEvent=None):
         Event.__init__(self, name, canvas, guiEvent)
+
 
 class LocationEvent(Event):
     """
@@ -1221,8 +1223,6 @@ class LocationEvent(Event):
         Event.__init__(self, name, canvas,guiEvent=guiEvent)
         self.x = x
         self.y = y
-
-
 
         if x is None or y is None:
             # cannot check if event was in axes if no x,y info
@@ -1284,9 +1284,6 @@ class LocationEvent(Event):
         LocationEvent.lastevent = self
 
 
-
-
-
 class MouseEvent(LocationEvent):
     """
     A mouse event ('button_press_event', 'button_release_event', 'scroll_event',
@@ -1337,6 +1334,7 @@ class MouseEvent(LocationEvent):
     def __str__(self):
         return "MPL MouseEvent: xy=(%d,%d) xydata=(%s,%s) button=%d dblclick=%s inaxes=%s"%\
              (self.x,self.y,str(self.xdata),str(self.ydata),self.button,self.dblclick,self.inaxes)
+
 
 class PickEvent(Event):
     """
@@ -1408,7 +1406,6 @@ class KeyEvent(LocationEvent):
         self.key = key
 
 
-
 class FigureCanvasBase(object):
     """
     The canvas the figure renders into.
@@ -1436,7 +1433,6 @@ class FigureCanvasBase(object):
         'axes_leave_event',
         'close_event'
         ]
-
 
     def __init__(self, figure):
         figure.set_canvas(self)
@@ -1632,7 +1628,6 @@ class FigureCanvasBase(object):
         mouseevent = MouseEvent(s, self, x, y, self._button, self._key,
                                 step=step, guiEvent=guiEvent)
         self.callbacks.process(s, mouseevent)
-
 
     def button_press_event(self, x, y, button, dblclick=False, guiEvent=None):
         """
@@ -1895,7 +1890,6 @@ class FigureCanvasBase(object):
             groupings[name].sort()
         return groupings
 
-
     def _get_print_method(self, format):
         method_name = 'print_%s' % format
 
@@ -1920,7 +1914,6 @@ class FigureCanvasBase(object):
                 '%s.' % (format, ', '.join(formats)))
 
         return getattr(self, method_name)
-
 
     def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
                      orientation='portrait', format=None, **kwargs):
@@ -2062,9 +2055,6 @@ class FigureCanvasBase(object):
             self.figure.set_canvas(self)
             #self.figure.canvas.draw() ## seems superfluous
         return result
-
-
-
 
     def get_default_filetype(self):
         raise NotImplementedError
