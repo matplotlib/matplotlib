@@ -939,10 +939,7 @@ def use(arg, warn=True):
     else:
         # Lowercase only non-module backend names (modules are case-sensitive)
         arg = arg.lower()
-        be_parts = arg.split('.')
-        name = validate_backend(be_parts[0])
-        if len(be_parts) > 1:
-            raise ValueError('FIXME: Not sure what to do here')
+        name = validate_backend(arg)
     rcParams['backend'] = name
 
 def get_backend():
