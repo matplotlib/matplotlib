@@ -523,7 +523,7 @@ class ScalarFormatter(Formatter):
         # transform 1e+004 into 1e4, for example
         if self._useLocale:
             decimal_point = locale.localeconv()['decimal_point']
-            positive = locale.localeconv()['positive_sign']
+            positive_sign = locale.localeconv()['positive_sign']
         else:
             decimal_point = '.'
             positive_sign = '+'
@@ -545,7 +545,7 @@ class ScalarFormatter(Formatter):
             else:
                 s = ('%se%s%s' %(significand, sign, exponent)).rstrip('e')
                 return s
-        except IndexError, msg:
+        except IndexError:
             return s
 
 
@@ -809,8 +809,10 @@ class Locator(TickHelper):
     def raise_if_exceeds(self, locs):
         'raise a RuntimeError if Locator attempts to create more than MAXTICKS locs'
         if len(locs)>=self.MAXTICKS:
-           raise RuntimeError('Locator attempting to generate %d ticks from %s to %s: exceeds Locator.MAXTICKS'%(len(locs), locs[0], locs[-1]))
-
+            msg = ('Locator attempting to generate %d ticks from %s to %s: ' +
+                   'exceeds Locator.MAXTICKS') % (len(locs), locs[0], locs[-1]) 
+            raise RuntimeError(msg) 
+                                
         return locs
 
     def view_limits(self, vmin, vmax):
