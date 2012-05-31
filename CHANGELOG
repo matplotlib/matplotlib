@@ -1,5 +1,8 @@
 2012-06-02 Add new Axes method and pyplot function, hist2d. - PO
 
+2012-05-31 Remove support for 'cairo.<format>' style of backend specification.
+           - Martin Spacek
+
 2012-05-29 pcolormesh now obeys the passed in "edgecolor" kwarg.
            To support this, the "shading" argument to pcolormesh now only
            takes "flat" or "gouraud".  To achieve the old "faceted" behavior,
