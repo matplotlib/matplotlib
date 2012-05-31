@@ -681,6 +681,7 @@ class GraphicsContextBase:
         self._rgb = (0.0, 0.0, 0.0)
         self._hatch = None
         self._url = None
+        self._gid = None
         self._snap = None
 
     def copy_properties(self, gc):
@@ -697,6 +698,7 @@ class GraphicsContextBase:
         self._rgb = gc._rgb
         self._hatch = gc._hatch
         self._url = gc._url
+        self._gid = gc._gid
         self._snap = gc._snap
 
     def restore(self):
@@ -785,6 +787,12 @@ class GraphicsContextBase:
         """
         return self._url
 
+    def get_gid(self):
+        """
+        Return the object identifier if one is set, None otherwise.
+        """
+        return self._gid
+        
     def get_snap(self):
         """
         returns the snap setting which may be:
@@ -922,6 +930,12 @@ class GraphicsContextBase:
         """
         self._url = url
 
+    def set_gid(self, id):
+        """
+        Sets the id.
+        """
+        self._gid = id
+        
     def set_snap(self, snap):
         """
         Sets the snap setting which may be:

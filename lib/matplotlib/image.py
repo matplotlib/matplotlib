@@ -324,7 +324,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
                                     # may be better solution -JJL
 
         im._url = self.get_url()
-
+        im._gid = self.get_gid()
+        
         renderer.draw_image(gc, xmin, ymin, im, dxintv, dyintv,
                             trans_ic_to_canvas)
 
@@ -358,6 +359,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             if im is None:
                 return
             im._url = self.get_url()
+            im._gid = self.get_gid()
             renderer.draw_image(gc, l, b, im)
         gc.restore()
 
