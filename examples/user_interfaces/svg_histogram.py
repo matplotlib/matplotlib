@@ -5,19 +5,38 @@
 Demonstrate how to create an interactive histogram, in which bars
 are hidden or shown by cliking on legend markers. 
 
-The interactivity is encoded in ecmascript and inserted in the SVG code
-in a post-processing step. To render the image, open it in a web
-browser. SVG is supported in most web browsers used by Linux and OSX 
-users. Windows IE9 supports SVG, but earlier versions do not. 
+The interactivity is encoded in ecmascript (javascript) and inserted in 
+the SVG code in a post-processing step. To render the image, open it in 
+a web browser. SVG is supported in most web browsers used by Linux and 
+OSX users. Windows IE9 supports SVG, but earlier versions do not. 
+
+Notes
+-----
+The matplotlib backend lets us assign ids to each object. This is the
+mechanism used here to relate matplotlib objects created in python and 
+the corresponding SVG constructs that are parsed in the second step.
+While flexible, ids are cumbersome to use for large collection of 
+objects. Two mechanisms could be used to simplify things:
+ * systematic grouping of objects into SVG <g> tags,
+ * assingning classes to each SVG object according to its origin.
+ 
+For example, instead of modifying the properties of each individual bar, 
+the bars from the `hist` function could either be grouped in
+a PatchCollection, or be assigned a class="hist_##" attribute. 
+
+CSS could also be used more extensively to replace repetitive markup
+troughout the generated SVG. 
 
 __author__="david.huard@gmail.com"
 
 """
 
+
 import numpy as np
 import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
 from StringIO import StringIO
+import json
 
 plt.rcParams['svg.embed_char_paths'] = 'none'
 
@@ -26,16 +45,7 @@ plt.rcParams['svg.embed_char_paths'] = 'none'
 # space with ns0.
 ET.register_namespace("","http://www.w3.org/2000/svg")
 
-    
-def python2js(d):
-    """Return a string representation of a python dictionary in 
-    ecmascript object syntax."""
-    
-    objs = []
-    for key, value in d.items():
-        objs.append( key + ':' + str(value) )
-        
-    return '{' + ', '.join(objs) + '}'
+
 
 
 # --- Create histogram, legend and title ---
@@ -62,7 +72,11 @@ for ic, c in enumerate(containers):
 # Set ids for the legend patches    
 for i, t in enumerate(leg.get_patches()):
     t.set_gid('leg_patch_%d'%i)
-    
+
+# Set ids for the text patches
+for i, t in enumerate(leg.get_texts()):
+    t.set_gid('leg_text_%d'%i)
+            
 # Save SVG in a fake file object.
 f = StringIO()
 plt.savefig(f, format="svg")
@@ -77,10 +91,15 @@ tree, xmlid = ET.XMLID(f.getvalue())
 for i, t in enumerate(leg.get_patches()):
     el = xmlid['leg_patch_%d'%i]
     el.set('cursor', 'pointer')
-    el.set('opacity', '1.0')
-    el.set('onclick', "toggle_element(evt, 'hist_%d')"%i)
+    el.set('onclick', "toggle_hist(this)")
     
-# Create script defining the function `toggle_element`. 
+# Add attributes to the text objects.    
+for i, t in enumerate(leg.get_texts()):
+    el = xmlid['leg_text_%d'%i]
+    el.set('cursor', 'pointer')
+    el.set('onclick', "toggle_hist(this)")
+        
+# Create script defining the function `toggle_hist`. 
 # We create a global variable `container` that stores the patches id 
 # belonging to each histogram. Then a function "toggle_element" sets the 
 # visibility attribute of all patches of each histogram and the opacity
@@ -91,37 +110,46 @@ script = """
 <![CDATA[
 var container = %s 
 
-function toggle_element(evt, element) {
-
-    var names = container[element]
-    var el, state;
+function toggle(oid, attribute, values) {
+    /* Toggle the style attribute of an object between two values. 
     
-    state = evt.target.getAttribute("opacity") == 1.0 || 
-                evt.target.getAttribute("opacity") == null;
-                
-    if (state) {
-        evt.target.setAttribute("opacity", 0.5);
-        
-        for (var i=0; i < names.length; i++) {
-            el = document.getElementById(names[i]);    
-            el.setAttribute("visibility","hidden");
-            }
-        }
-        
-    else {
-        evt.target.setAttribute("opacity", 1);
-        
-        for (var i=0; i < names.length; i++) {
-            el = document.getElementById(names[i]);    
-            el.setAttribute("visibility","visible");
-            }
-        
-        };
+    Parameters
+    ----------
+    oid : str
+      Object identifier.
+    attribute : str
+      Name of syle attribute.
+    values : [on state, off state]
+      The two values that are switched between.
+    */
+    var obj = document.getElementById(oid);
+    var a = obj.style[attribute];
+    
+    a = (a == values[0] || a == "") ? values[1] : values[0];
+    obj.style[attribute] = a;
+    }
+
+function toggle_hist(obj) {
+    
+    var num = obj.id.slice(-1);
+    
+    toggle('leg_patch_' + num, 'opacity', [1, 0.3]);
+    toggle('leg_text_' + num, 'opacity', [1, 0.5]);
+    
+    var names = container['hist_'+num]
+    
+    for (var i=0; i < names.length; i++) {
+        toggle(names[i], 'opacity', [1,0])
     };
+    }
 ]]>
 </script>
-"""%python2js(hist_patches)
+"""%json.dumps(hist_patches)
 
+# Add a transition effect
+css = tree.getchildren()[0][0]
+css.text = css.text + "g {-webkit-transition:opacity 0.4s ease-out;-moz-transition:opacity 0.4s ease-out;}"
+    
 # Insert the script and save to file.
 tree.insert(0, ET.XML(script))
 
