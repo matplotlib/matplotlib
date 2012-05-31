@@ -1897,6 +1897,7 @@ class FigureCanvasBase(object):
         print_tiff = print_tif
 
     def get_supported_filetypes(self):
+        """Return dict of savefig file formats supported by this backend"""
         return self.filetypes
 
     def get_supported_filetypes_grouped(self):
@@ -2078,7 +2079,16 @@ class FigureCanvasBase(object):
 
 
     def get_default_filetype(self):
-        return rcParams['savefig.format']
+        """
+        Get the default savefig file format as specified in rcParams.
+        If invalid, use .png. Overridden in backends that only support
+        a single file type.
+        """
+        default = rcParams['savefig.format']
+        if default in self.get_supported_filetypes():
+            return default
+        else:
+            return 'png'
 
     def set_window_title(self, title):
         """
