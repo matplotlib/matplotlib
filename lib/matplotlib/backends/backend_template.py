@@ -98,7 +98,7 @@ class RendererTemplate(RendererBase):
     # performance will probably want to implement it
 #     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
 #                        coordinates, offsets, offsetTrans, facecolors,
-#                        antialiased, showedges):
+#                        antialiased, edgecolors):
 #         pass
 
     def draw_image(self, gc, x, y, im):
@@ -253,4 +253,3 @@ class FigureManagerTemplate(FigureManagerBase):
 
 
 FigureManager = FigureManagerTemplate
-

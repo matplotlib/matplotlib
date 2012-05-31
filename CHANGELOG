@@ -1,3 +1,8 @@
+2012-05-29 pcolormesh now obeys the passed in "edgecolor" kwarg.
+	   To support this, the "shading" argument to pcolormesh now only
+	   takes "flat" or "gouraud".  To achieve the old "faceted" behavior,
+	   pass "edgecolors='k'". - MGD
+
 2012-05-22 Added radius kwarg to pie charts. - HH
 
 2012-05-22 Collections now have a setting "offset_position" to select whether
