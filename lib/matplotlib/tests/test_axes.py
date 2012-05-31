@@ -544,8 +544,8 @@ def test_pcolormesh():
     ax.set_yticks([])
 
     ax = fig.add_subplot(132)
-    ax.pcolormesh(Qx,Qz,Z, lw=3, edgecolors='k')
-    ax.set_title('lw=3')
+    ax.pcolormesh(Qx,Qz,Z, lw=2, edgecolors=['b', 'w'])
+    ax.set_title('lw=2')
     ax.set_xticks([])
     ax.set_yticks([])
 
