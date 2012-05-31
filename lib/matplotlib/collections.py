@@ -1301,15 +1301,14 @@ class QuadMesh(Collection):
     at (0, 1), then at (0, 2) .. (0, meshWidth), (1, 0), (1, 1), and
     so on.
 
-    *shading* may be 'flat', 'faceted' or 'gouraud'
+    *shading* may be 'flat', or 'gouraud'
     """
-    def __init__(self, meshWidth, meshHeight, coordinates, showedges,
+    def __init__(self, meshWidth, meshHeight, coordinates,
                  antialiased=True, shading='flat', **kwargs):
         Collection.__init__(self, **kwargs)
         self._meshWidth = meshWidth
         self._meshHeight = meshHeight
         self._coordinates = coordinates
-        self._showedges = showedges
         self._antialiased = antialiased
         self._shading = shading
 
@@ -1449,7 +1448,7 @@ class QuadMesh(Collection):
             renderer.draw_quad_mesh(
                 gc, transform.frozen(), self._meshWidth, self._meshHeight,
                 coordinates, offsets, transOffset, self.get_facecolor(),
-                self._antialiased, self._showedges)
+                self._antialiased, self.get_edgecolors())
         gc.restore()
         renderer.close_group(self.__class__.__name__)
 

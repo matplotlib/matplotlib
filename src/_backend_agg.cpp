@@ -1802,28 +1802,18 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
     agg::trans_affine offset_trans     = py_to_agg_transformation_matrix(args[6].ptr());
     Py::Object        facecolors_obj   = args[7];
     bool              antialiased      = (bool)Py::Boolean(args[8]);
-    bool              showedges        = (bool)Py::Boolean(args[9]);
-    bool              free_edgecolors  = false;
+    Py::Object        edgecolors_obj   = args[9];
 
     QuadMeshGenerator path_generator(mesh_width, mesh_height, coordinates.ptr());
 
     Py::SeqBase<Py::Object> transforms_obj;
-    Py::Object edgecolors_obj;
     Py::Tuple linewidths(1);
     linewidths[0] = Py::Float(gc.linewidth);
     Py::SeqBase<Py::Object> linestyles_obj;
     Py::Tuple antialiaseds(1);
     antialiaseds[0] = Py::Int(antialiased ? 1 : 0);
 
-    if (showedges)
-    {
-        npy_intp dims[] = { 1, 4, 0 };
-        double data[] = { 0, 0, 0, 1 };
-        edgecolors_obj = Py::Object(PyArray_SimpleNewFromData(2, dims, PyArray_DOUBLE,
-                                                              (char*)data), true);
-    }
-    else
-    {
+    if (edgecolors_obj.isNone()) {
         if (antialiased)
         {
             edgecolors_obj = facecolors_obj;
@@ -1832,7 +1822,6 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
         {
             npy_intp dims[] = { 0, 0 };
             edgecolors_obj = PyArray_SimpleNew(1, dims, PyArray_DOUBLE);
-            free_edgecolors = true;
         }
     }
 
