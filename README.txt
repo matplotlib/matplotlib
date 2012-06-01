@@ -13,6 +13,12 @@ for all these packages are available here:
 
   <http://pythonmac.org/packages/py25-fat/index.html>.
 
+*** Setup from source using Pip ***
+
+::
+
+    pip install -e https://github.com/matplotlib/matplotlib.git#egg=Package
+
 *** Back Ends ***
 
 You may use TkAgg or WXAgg back ends; Qt and GTK support is not
@@ -43,4 +49,3 @@ interactive  : False    # see http://matplotlib.sourceforge.net/interactive.html
 
 See also
 <http://matplotlib.sourceforge.net/users/customizing.html>
-
