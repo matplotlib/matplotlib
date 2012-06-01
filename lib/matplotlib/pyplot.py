@@ -884,25 +884,37 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     for i in range(1, nplots):
         axarr[i] = fig.add_subplot(nrows, ncols, i+1, **subplot_kw)
 
-
-
     # returned axis array will be always 2-d, even if nrows=ncols=1
     axarr = axarr.reshape(nrows, ncols)
-
+    
+    # scale # of ticks to be based on how many rows and cols we have
+    nbins_x = max(2, 7 - int(ncols))
+    nbins_y = max(2, 7 - int(nrows))
 
     # turn off redundant tick labeling
     if sharex and nrows>1:
+        # when sharing x-axis, the same locator is reused
+        ax0.locator_params(axis='y', nbins=nbins_y)
         # turn off all but the bottom row
         for ax in axarr[:-1,:].flat:
             for label in ax.get_xticklabels():
                 label.set_visible(False)
-
+    elif nrows > 1:
+        # each y-axis has its own locator
+        for ax in axarr[:,:].flat:
+            ax.locator_params(axis='y', nbins=nbins_y)
 
     if sharey and ncols>1:
+        # when sharing y-axis, the same locator is reused
+        ax0.locator_params(axis='x', nbins=nbins_x)
         # turn off all but the first column
         for ax in axarr[:,1:].flat:
             for label in ax.get_yticklabels():
                 label.set_visible(False)
+    elif ncols > 1:
+        # each y-axis has its own locator
+        for ax in axarr[:,:].flat:
+            ax.locator_params(axis='x', nbins=nbins_x)
 
     if squeeze:
         # Reshape the array to have the final desired dimension (nrow,ncol),

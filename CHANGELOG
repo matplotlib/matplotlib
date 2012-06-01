@@ -38,6 +38,9 @@
            improve settings for these and the ability to pass custom
            options. - RMM
 
+2012-03-03 For plt.subplots, the number of ticks depends on number of 
+           subplots. -PI
+
 2012-02-29 errorevery keyword added to errorbar to enable errorbar
            subsampling. fixes issue #600.
 
