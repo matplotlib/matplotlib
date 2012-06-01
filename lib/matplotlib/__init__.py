@@ -106,6 +106,10 @@ import os, re, shutil, subprocess, sys, warnings
 import distutils.sysconfig
 import distutils.version
 
+# This is to make sure we're using an absolute module path instead of
+# a relative one to load submodules.
+__path__[0] = os.path.abspath(__path__[0])
+
 # Needed for toolkit setuptools support
 if 0:
     try:
