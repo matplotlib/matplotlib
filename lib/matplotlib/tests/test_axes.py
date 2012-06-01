@@ -697,7 +697,6 @@ def test_hist2d():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist2d(x,y,bins=10)
-    fig.savefig('tmp.png')
 
 if __name__=='__main__':
     import nose
