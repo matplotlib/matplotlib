@@ -36,7 +36,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.container import Container, BarContainer, ErrorbarContainer, StemContainer
 
 iterable = cbook.iterable
 is_string_like = cbook.is_string_like
@@ -7882,11 +7882,11 @@ class Axes(martist.Artist):
                     x,y = y,x
 
                 if fill:
-                    patches.append( self.fill(x, y,
-                        closed=False, facecolor=c) )
+                    patches.append( Container(self.fill(x, y,
+                        closed=False, facecolor=c)) )
                 else:
-                    patches.append( self.fill(x, y,
-                        closed=False, edgecolor=c, fill=False) )
+                    patches.append( Container(self.fill(x, y,
+                        closed=False, edgecolor=c, fill=False)) )
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
