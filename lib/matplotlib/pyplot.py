@@ -871,6 +871,17 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 
         # Four polar axes
         plt.subplots(2, 2, subplot_kw=dict(polar=True))
+
+        # Share a X axis with each column of subplots
+        plt.subplots(2, 2, sharex='col')
+
+        # Share a Y axis with each row of subplots
+        plt.subplots(2, 2, sharey='row')
+
+        # Share a X and Y axis with all subplots
+        plt.subplots(2, 2, sharex='all', sharey='all')
+        # same as
+        plt.subplots(2, 2, sharex=True, sharey=True)
     """
     # for backwards compatability
     if isinstance(sharex, bool):
