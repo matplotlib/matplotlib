@@ -1,3 +1,7 @@
+2012-06-01 Change the return value of hist for histype='step' when user
+           request multiple histograms to list of Container of Polygon.
+           #827
+
 2012-03-27 Add support to ImageGrid for placing colorbars only at
            one edge of each column/row. - RMM
 
