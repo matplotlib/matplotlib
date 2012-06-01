@@ -1922,10 +1922,9 @@ class FigureCanvasBase(object):
 
             return _print_method
 
-        if (format not in self.filetypes or
-            not hasattr(self, method_name)):
-            formats = self.filetypes.keys()
-            formats.sort()
+        formats = self.get_supported_filetypes()
+        if (format not in formats or not hasattr(self, method_name)):
+            formats = sorted(formats)
             raise ValueError(
                 'Format "%s" is not supported.\n'
                 'Supported formats: '
@@ -1965,7 +1964,6 @@ class FigureCanvasBase(object):
         *format*
             when set, forcibly set the file format to save to
 
-
         *bbox_inches*
             Bbox in inches. Only the given portion of the figure is
             saved. If 'tight', try to figure out the tight bbox of
@@ -1981,6 +1979,7 @@ class FigureCanvasBase(object):
 
         """
         if format is None:
+            # get format from filename, or from backend's default filetype
             if cbook.is_string_like(filename):
                 format = os.path.splitext(filename)[1][1:]
             if format is None or format == '':
@@ -2080,16 +2079,11 @@ class FigureCanvasBase(object):
 
     def get_default_filetype(self):
         """
-        Get the default savefig file format as specified in
-        rcParams['savefig.format']. If not supported, return 'png'.
-        Returned string excludes period. Overridden in backends that
-        only support a single file type.
+        Get the default savefig file format as specified in rcParam
+        ``savefig.format``. Returned string excludes period. Overridden
+        in backends that only support a single file type.
         """
-        default = rcParams['savefig.format']
-        if default in self.get_supported_filetypes():
-            return default
-        else:
-            return 'png'
+        return rcParams['savefig.format']
 
     def set_window_title(self, title):
         """

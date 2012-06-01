@@ -14,6 +14,10 @@ For new features that were added to matplotlib, please see
 Changes in 1.2.x
 ================
 
+* The new rc parameter ``savefig.format`` replaces ``cairo.format`` and
+  ``savefig.extension``, and sets the default file format used by
+  :meth:`matplotlib.figure.Figure.savefig`.
+
 * In :meth:`~matplotlib.pyplot.pie` and :meth:`~matplotlib.Axes.pie`, one can
   now set the radius of the pie; setting the *radius* to 'None' (the default
   value), will result in a pie with a radius of 1 as before.

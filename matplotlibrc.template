@@ -347,7 +347,6 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #savefig.dpi       : 100      # figure dots per inch
 #savefig.facecolor : white    # figure facecolor when saving
 #savefig.edgecolor : white    # figure edgecolor when saving
-#savefig.extension : auto     # what extension to use for savefig('foo'), or 'auto'
 #savefig.format    : png      # png, ps, pdf, svg
 
 # tk backend params

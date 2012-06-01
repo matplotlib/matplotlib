@@ -251,6 +251,9 @@ validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
 
+def deprecate_savefig_extension(value):
+    warnings.warn("savefig.extension is deprecated.  Use savefig.format instead.")
+
 validate_savefig_format = ValidateInStrings('savefig_format',
                                             ['png', 'ps', 'pdf', 'svg'],
                                             ignorecase=True)
@@ -546,7 +549,7 @@ defaultParams = {
     'savefig.facecolor'   : ['w', validate_color],  # facecolor; white
     'savefig.edgecolor'   : ['w', validate_color],  # edgecolor; white
     'savefig.orientation' : ['portrait', validate_orientation],  # edgecolor; white
-    'savefig.extension'   : ['auto', str],          # what to add to extensionless filenames
+    'savefig.extension'   : ['png', deprecate_savefig_extension], # what to add to extensionless filenames
     'savefig.format'      : ['png', validate_savefig_format],
 
     'tk.window_focus'    : [False, validate_bool],  # Maintain shell focus for TkAgg
