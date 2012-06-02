@@ -62,6 +62,15 @@ def test_formatter_large_small():
     y = [500000001, 500000002]
     ax.plot(x, y)
 
+@image_comparison(baseline_images=["autoscale_tiny_range"])
+def test_autoscale_tiny_range():
+    # github pull #904
+    fig, ax = plt.subplots(2, 2)
+    ax = ax.flatten()
+    for i in xrange(4):
+        y1 = 10**(-11 - i)
+        ax[i].plot([0, 1], [1, 1 + y1])
+
 @image_comparison(baseline_images=['offset_points'])
 def test_basic_annotate():
     # Setup some data
