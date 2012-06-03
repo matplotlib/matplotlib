@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # a polar scatter plot; size increases radially in this example and
 # color increases with angle (just to verify the symbols are being
-# scattered correctlu).  In a real example, this would be wasting
-# dimensionlaity of the plot
+# scattered correctly).  In a real example, this would be wasting
+# dimensionality of the plot
 from pylab import *
 
 N = 150
