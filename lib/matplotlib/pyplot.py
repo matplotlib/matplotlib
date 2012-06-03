@@ -1532,6 +1532,7 @@ def plotting():
     gci             get the current image, or None
     getp            get a graphics property
     hist            make a histogram
+    hist2d          make a 2d histogram
     hold            set the hold state on current axes
     legend          add a legend to the axes
     loglog          a log log plot
@@ -1588,7 +1589,7 @@ def plotting():
 def get_plot_commands(): return ( 'axes', 'axis', 'bar', 'boxplot', 'cla', 'clf',
     'close', 'colorbar', 'cohere', 'csd', 'draw', 'errorbar',
     'figlegend', 'figtext', 'figimage', 'figure', 'fill', 'gca',
-    'gcf', 'gci', 'get', 'gray', 'barh', 'jet', 'hist', 'hold', 'imread', 'imsave',
+    'gcf', 'gci', 'get', 'gray', 'barh', 'jet', 'hist', 'hist2d', 'hold', 'imread', 'imsave',
     'imshow', 'legend', 'loglog', 'quiver', 'rc', 'pcolor', 'pcolormesh', 'plot', 'psd',
     'savefig', 'scatter', 'set', 'semilogx', 'semilogy', 'show',
     'specgram', 'stem', 'subplot', 'table', 'text', 'title', 'xlabel',
@@ -1646,8 +1647,8 @@ def colors():
 
 def colormaps():
     """
-    Matplotlib provides a number of colormaps, and others can be added using 
-    :func:`register_cmap`.  This function documents the built-in colormaps, 
+    Matplotlib provides a number of colormaps, and others can be added using
+    :func:`register_cmap`.  This function documents the built-in colormaps,
     and will also return a list of all registered colormaps if called.
 
     You can set the colormap for an image, pcolor, scatter, etc,
@@ -1656,14 +1657,14 @@ def colormaps():
       imshow(X, cmap=cm.hot)
 
     or using the :func:`set_cmap` function::
-        
+
       imshow(X)
       pyplot.set_cmap('hot')
       pyplot.set_cmap('jet')
 
-    In interactive mode, :func:`set_cmap` will update the colormap post-hoc, 
+    In interactive mode, :func:`set_cmap` will update the colormap post-hoc,
     allowing you to see which one works best for your data.
-    
+
     All built-in colormaps can be reversed by appending ``_r``: For instance,
     ``gray_r`` is the reverse of ``gray``.
 
@@ -1672,39 +1673,39 @@ def colormaps():
     Sequential schemes
       for unipolar data that progresses from low to high
     Diverging schemes
-      for bipolar data that emphasizes positive or negative deviations from a 
+      for bipolar data that emphasizes positive or negative deviations from a
       central value
     Cyclic schemes
-      meant for plotting values that wrap around at the 
+      meant for plotting values that wrap around at the
       endpoints, such as phase angle, wind direction, or time of day
     Qualitative schemes
-      for nominal data that has no inherent ordering, where color is used 
+      for nominal data that has no inherent ordering, where color is used
       only to distinguish categories
 
-    The base colormaps are (with the exception of `spectral`) derived from 
+    The base colormaps are (with the exception of `spectral`) derived from
     those of the same name provided with Matlab:
-    
+
       =========   =======================================================
       Colormap    Description
       =========   =======================================================
       autumn      sequential linearly-increasing shades of red-orange-yellow
-      bone        sequential increasing black-white color map with 
+      bone        sequential increasing black-white color map with
                   a tinge of blue, to emulate X-ray film
       cool        linearly-decreasing shades of cyan-magenta
       copper      sequential increasing shades of black-copper
-      flag        repetitive red-white-blue-black pattern (not cyclic at 
+      flag        repetitive red-white-blue-black pattern (not cyclic at
                   endpoints)
       gray        sequential linearly-increasing black-to-white
                   grayscale
       hot         sequential black-red-yellow-white, to emulate blackbody
                   radiation from an object at increasing temperatures
-      hsv         cyclic red-yellow-green-cyan-blue-magenta-red, formed 
+      hsv         cyclic red-yellow-green-cyan-blue-magenta-red, formed
                   by changing the hue component in the HSV color space
-      jet         a spectral map with dark endpoints, blue-cyan-yellow-red; 
+      jet         a spectral map with dark endpoints, blue-cyan-yellow-red;
                   based on a fluid-jet simulation by NCSA [#]_
       pink        sequential increasing pastel black-pink-white, meant
                   for sepia tone colorization of photographs
-      prism       repetitive red-yellow-green-blue-purple-...-green pattern 
+      prism       repetitive red-yellow-green-blue-purple-...-green pattern
                   (not cyclic at endpoints)
       spring      linearly-increasing shades of magenta-yellow
       summer      sequential linearly-increasing shades of green-yellow
@@ -1712,7 +1713,7 @@ def colormaps():
       spectral    black-purple-blue-green-yellow-red-white spectrum
       =========   =======================================================
 
-    For the above list only, you can also set the colormap using the 
+    For the above list only, you can also set the colormap using the
     corresponding pylab shortcut interface function, similar to Matlab::
 
       imshow(X)
@@ -1720,30 +1721,30 @@ def colormaps():
       jet()
 
     The next set of palettes are from the `Yorick scientific visualisation
-    package <http://yorick.sourceforge.net/index.php>`_, an evolution of 
+    package <http://yorick.sourceforge.net/index.php>`_, an evolution of
     the GIST package, both by David H. Munro:
 
       ============  =======================================================
       Colormap      Description
       ============  =======================================================
-      gist_earth    mapmaker's colors from dark blue deep ocean to green 
+      gist_earth    mapmaker's colors from dark blue deep ocean to green
                     lowlands to brown highlands to white mountains
-      gist_heat     sequential increasing black-red-orange-white, to emulate 
+      gist_heat     sequential increasing black-red-orange-white, to emulate
                     blackbody radiation from an iron bar as it grows hotter
-      gist_ncar     pseudo-spectral black-blue-green-yellow-red-purple-white 
-                    colormap from National Center for Atmospheric 
+      gist_ncar     pseudo-spectral black-blue-green-yellow-red-purple-white
+                    colormap from National Center for Atmospheric
                     Research [#]_
-      gist_rainbow  runs through the colors in spectral order from red to 
+      gist_rainbow  runs through the colors in spectral order from red to
                     violet at full saturation (like *hsv* but not cyclic)
-      gist_stern    "Stern special" color table from Interactive Data 
+      gist_stern    "Stern special" color table from Interactive Data
                     Language software
       ============  =======================================================
 
-    The following colormaps are based on the `ColorBrewer 
-    <http://colorbrewer.org>`_ color specifications and designs developed by 
+    The following colormaps are based on the `ColorBrewer
+    <http://colorbrewer.org>`_ color specifications and designs developed by
     Cynthia Brewer:
 
-    ColorBrewer Diverging (luminance is highest at the midpoint, and 
+    ColorBrewer Diverging (luminance is highest at the midpoint, and
     decreases towards differently-colored endpoints):
 
       ========  ===================================
@@ -1784,13 +1785,13 @@ def colormaps():
       YlOrBr    light yellow, orange, dark brown
       YlOrRd    light yellow, orange, dark red
       ========  ====================================
-      
+
     ColorBrewer Qualitative:
 
-    (For plotting nominal data, :class:`ListedColormap` should be used, 
-    not :class:`LinearSegmentedColormap`.  Different sets of colors are 
-    recommended for different numbers of categories.  These continuous 
-    versions of the qualitative schemes may be removed or converted in the 
+    (For plotting nominal data, :class:`ListedColormap` should be used,
+    not :class:`LinearSegmentedColormap`.  Different sets of colors are
+    recommended for different numbers of categories.  These continuous
+    versions of the qualitative schemes may be removed or converted in the
     future.)
 
     * Accent
@@ -1807,39 +1808,39 @@ def colormaps():
       =========  =======================================================
       Colormap   Description
       =========  =======================================================
-      afmhot     sequential black-orange-yellow-white blackbody 
+      afmhot     sequential black-orange-yellow-white blackbody
                  spectrum, commonly used in atomic force microscopy
-      brg        blue-red-green 
+      brg        blue-red-green
       bwr        diverging blue-white-red
-      coolwarm   diverging blue-gray-red, meant to avoid issues with 3D 
+      coolwarm   diverging blue-gray-red, meant to avoid issues with 3D
                  shading, color blindness, and ordering of colors [#]_
-      CMRmap     "Default colormaps on color images often reproduce to 
-                 confusing grayscale images. The proposed colormap 
-                 maintains an aesthetically pleasing color image that 
-                 automatically reproduces to a monotonic grayscale with 
+      CMRmap     "Default colormaps on color images often reproduce to
+                 confusing grayscale images. The proposed colormap
+                 maintains an aesthetically pleasing color image that
+                 automatically reproduces to a monotonic grayscale with
                  discrete, quantifiable saturation levels." [#]_
-      cubehelix  Unlike most other color schemes cubehelix was designed 
-                 by D.A. Green to be monotonically increasing in terms 
-                 of perceived brightness. Also, when printed on a black 
-                 and white postscript printer, the scheme results in a 
-                 greyscale with monotonically increasing brightness. 
-                 This color scheme is named cubehelix because the r,g,b 
-                 values produced can be visualised as a squashed helix 
+      cubehelix  Unlike most other color schemes cubehelix was designed
+                 by D.A. Green to be monotonically increasing in terms
+                 of perceived brightness. Also, when printed on a black
+                 and white postscript printer, the scheme results in a
+                 greyscale with monotonically increasing brightness.
+                 This color scheme is named cubehelix because the r,g,b
+                 values produced can be visualised as a squashed helix
                  around the diagonal in the r,g,b color cube.
-      gnuplot    gnuplot's traditional pm3d scheme 
+      gnuplot    gnuplot's traditional pm3d scheme
                  (black-blue-red-yellow)
-      gnuplot2   sequential color printable as gray 
+      gnuplot2   sequential color printable as gray
                  (black-blue-violet-yellow-white)
       ocean      green-blue-white
       rainbow    spectral purple-blue-green-yellow-orange-red colormap
                  with diverging luminance
       seismic    diverging blue-white-red
-      terrain    mapmaker's colors, blue-green-yellow-brown-white, 
+      terrain    mapmaker's colors, blue-green-yellow-brown-white,
                  originally from IGOR Pro
       =========  =======================================================
 
-    The following colormaps are redundant and may be removed in future 
-    versions.  It's recommended to use *gray* or *gray_r* instead, which 
+    The following colormaps are redundant and may be removed in future
+    versions.  It's recommended to use *gray* or *gray_r* instead, which
     produce identical output:
 
       =========  =======================================================
@@ -1852,24 +1853,24 @@ def colormaps():
 
     .. rubric:: Footnotes
 
-    .. [#] Rainbow colormaps, ``jet`` in particular, are considered a poor 
-      choice for scientific visualization by many researchers: `Rainbow Color 
-      Map (Still) Considered Harmful 
+    .. [#] Rainbow colormaps, ``jet`` in particular, are considered a poor
+      choice for scientific visualization by many researchers: `Rainbow Color
+      Map (Still) Considered Harmful
       <http://www.jwave.vt.edu/%7Erkriz/Projects/create_color_table/color_07.pdf>`_
 
-    .. [#] Resembles "BkBlAqGrYeOrReViWh200" from NCAR Command 
-      Language. See `Color Table Gallery 
+    .. [#] Resembles "BkBlAqGrYeOrReViWh200" from NCAR Command
+      Language. See `Color Table Gallery
       <http://www.ncl.ucar.edu/Document/Graphics/color_table_gallery.shtml>`_
 
-    .. [#] See `Diverging Color Maps for Scientific Visualization 
-      <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>`_ by Kenneth 
+    .. [#] See `Diverging Color Maps for Scientific Visualization
+      <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>`_ by Kenneth
       Moreland.
 
-    .. [#] See `A Color Map for Effective Black-and-White Rendering of 
-      Color-Scale Images 
-      <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_ 
+    .. [#] See `A Color Map for Effective Black-and-White Rendering of
+      Color-Scale Images
+      <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
       by Carey Rappaport
-        
+
     """
     return sorted(cm.cmap_d.keys())
 
@@ -2133,7 +2134,6 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     draw_if_interactive()
 
-
 def autogen_docstring(base):
     """Autogenerated wrappers will get their docstring from a base function
     with an addendum."""
@@ -2141,9 +2141,9 @@ def autogen_docstring(base):
     addendum = docstring.Appender(msg, '\n\n')
     return lambda func: addendum(docstring.copy_dedent(base)(func))
 
-
 # This function cannot be generated by boilerplate.py because it may
 # return an image or a line.
+
 @autogen_docstring(Axes.spy)
 def spy(Z, precision=0, marker=None, markersize=None, aspect='equal', hold=None, **kwargs):
     ax = gca()
@@ -2160,9 +2160,6 @@ def spy(Z, precision=0, marker=None, markersize=None, aspect='equal', hold=None,
     if isinstance(ret, cm.ScalarMappable):
         sci(ret)
     return ret
-
-
-## Plotting part 2: autogenerated wrappers for axes methods ##
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
@@ -2275,7 +2272,7 @@ def axvspan(xmin, xmax, ymin=0, ymax=1, hold=None, **kwargs):
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 @autogen_docstring(Axes.bar)
-def bar(left, height, width=0.80000000000000004, bottom=None, hold=None, **kwargs):
+def bar(left, height, width=0.8, bottom=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -2293,7 +2290,7 @@ def bar(left, height, width=0.80000000000000004, bottom=None, hold=None, **kwarg
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 @autogen_docstring(Axes.barh)
-def barh(bottom, width, height=0.80000000000000004, left=None, hold=None, **kwargs):
+def barh(bottom, width, height=0.8, left=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -2540,6 +2537,24 @@ def hist(x, bins=10, range=None, normed=False, weights=None, cumulative=False, b
     finally:
         ax.hold(washold)
 
+    return ret
+
+# This function was autogenerated by boilerplate.py.  Do not edit as
+# changes will be lost
+@autogen_docstring(Axes.hist2d)
+def hist2d(x, y, bins=10, range=None, normed=False, weights=None, cmin=None, cmax=None, hold=None, **kwargs):
+    ax = gca()
+    # allow callers to override the hold state by passing hold=True|False
+    washold = ax.ishold()
+
+    if hold is not None:
+        ax.hold(hold)
+    try:
+        ret = ax.hist2d(x, y, bins, range, normed, weights, cmin, cmax, **kwargs)
+        draw_if_interactive()
+    finally:
+        ax.hold(washold)
+    sci(ret[-1])
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as

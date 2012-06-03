@@ -675,6 +675,28 @@ def test_contour_hatching():
                       cmap=plt.get_cmap('gray'),
                       extend='both', alpha=0.5)
 
+@image_comparison(baseline_images=['hist2d'])
+def test_hist2d():
+    np.random.seed(0)
+    #make it not symetric in case we switch x and y axis
+    x=np.random.randn(100)*2+5
+    y = np.random.randn(100)-2
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist2d(x,y,bins=10)
+
+
+@image_comparison(baseline_images=['hist2d_transpose'])
+def test_hist2d_transpose():
+    np.random.seed(0)
+    #make sure the the output from np.histogram is transposed before
+    #passing to pcolorfast
+    x=np.array([5]*100)
+    y = np.random.randn(100)-2
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist2d(x,y,bins=10)
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
