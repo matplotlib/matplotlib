@@ -7945,6 +7945,70 @@ class Axes(martist.Artist):
         else:
             return n, bins, cbook.silent_list('Lists of Patches', patches)
 
+
+    @docstring.dedent_interpd
+    def hist2d(self, x, y, bins = 10, range=None, normed=False, weights=None,
+               cmin=None, cmax=None, **kwargs):
+        """
+        Call signature::
+
+        hist2d(x, y, bins = None, range=None, weights=None, cmin=None, cmax=None **kwargs)
+        Make a 2d histogram plot of *x* versus *y*, where *x*,
+        *y* are 1-D sequences of the same length
+
+        The return value is (counts,xedges,yedges,Image)
+
+        Optional keyword arguments:
+        *bins*: [None | int | [int, int] | array_like | [array, array]]
+            The bin specification:
+                If int, the number of bins for the two dimensions (nx=ny=bins).
+                If [int, int], the number of bins in each dimension (nx, ny = bins).
+                If array_like, the bin edges for the two dimensions (x_edges=y_edges=bins).
+                If [array, array], the bin edges in each dimension (x_edges, y_edges = bins).
+            The default value is 10.
+
+        *range*: [*None* | array_like shape(2,2)]
+             The leftmost and rightmost edges of the bins along each dimension (if not specified 
+             explicitly in the bins parameters): [[xmin, xmax], [ymin, ymax]]. All values outside of 
+             this range will be considered outliers and not tallied in the histogram.
+
+        *normed*:[True|False]
+             Normalize histogram.
+             The default value is False
+
+        *weights*: [*None* | array]
+            An array of values w_i weighing each sample (x_i, y_i).
+
+        *cmin* : [None| scalar]
+             All bins that has count less than cmin will not be displayed 
+             and these count values in the return value count histogram will also be set to nan upon return
+
+        *cmax* : [None| scalar]
+             All bins that has count more than cmax will not be displayed (set to none before passing to imshow)
+             and these count values in the return value count histogram will also be set to nan upon return
+
+        Remaining keyword arguments are passed directly to :meth:pcolorfast
+
+        **Example:**
+
+        .. plot:: mpl_examples/pylab_examples/hist2d_demo.py
+        """
+
+        # xrange becomes range after 2to3
+        bin_range = range
+        range = __builtins__["range"]
+        h,xedges,yedges = np.histogram2d(x, y, bins=bins, range=bin_range,
+                                         normed=normed, weights=weights)
+
+        if cmin is not None: h[h<cmin]=None
+        if cmax is not None: h[h>cmax]=None
+
+        pc = self.pcolorfast(xedges,yedges,h.T,**kwargs)
+        self.set_xlim(xedges[0],xedges[-1])
+        self.set_ylim(yedges[0],yedges[-1])
+
+        return h,xedges,yedges,pc
+
     @docstring.dedent_interpd
     def psd(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
             window=mlab.window_hanning, noverlap=0, pad_to=None,
