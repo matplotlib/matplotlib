@@ -1901,6 +1901,10 @@ class FigureCanvasBase(object):
         return self.filetypes
 
     def get_supported_filetypes_grouped(self):
+        """Return a dict of savefig file formats supported by this backend,
+        where the keys are a file type name, such as 'Joint Photographic
+        Experts Group', and the values are a list of filename extensions used
+        for that filetype, such as ['jpg', 'jpeg']."""
         groupings = {}
         for ext, name in self.filetypes.iteritems():
             groupings.setdefault(name, []).append(ext)
