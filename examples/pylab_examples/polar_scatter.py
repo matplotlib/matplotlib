@@ -11,8 +11,7 @@ theta = 2*pi*rand(N)
 area = 200*r**2*rand(N)
 colors = theta
 ax = subplot(111, polar=True)
-c = scatter(theta, r, c=colors, s=area)
+c = scatter(theta, r, c=colors, s=area, cmap=cm.hsv)
 c.set_alpha(0.75)
-
 
 show()
