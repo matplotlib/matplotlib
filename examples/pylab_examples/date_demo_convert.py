@@ -17,7 +17,7 @@ ax = fig.add_subplot(111)
 ax.plot_date(dates, y*y)
 
 # this is superfluous, since the autoscaler should get it right, but
-# use date2num and num2date to to convert between dates and floats if
+# use date2num and num2date to convert between dates and floats if
 # you want; both date2num and num2date convert an instance or sequence
 ax.set_xlim( dates[0], dates[-1] )
 

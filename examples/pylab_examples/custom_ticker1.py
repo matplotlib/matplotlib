@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-The new ticker code was designed to explicity support user customized
+The new ticker code was designed to explicitly support user customized
 ticking.  The documentation
 http://matplotlib.sourceforge.net/matplotlib.ticker.html details this
 process.  That code defines a lot of preset tickers but was primarily

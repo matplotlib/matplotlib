@@ -14,7 +14,7 @@ l = plt.axhline(y=1)
 # draw a default vline at x=1 that spans the yrange
 l = plt.axvline(x=1)
 
-# draw a thick blue vline at x=0 that spans the the upper quadrant of
+# draw a thick blue vline at x=0 that spans the upper quadrant of
 # the yrange
 l = plt.axvline(x=0, ymin=0.75, linewidth=4, color='b')
 

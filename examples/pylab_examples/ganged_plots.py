@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 To create plots that share a common axes (visually) you can set the
-hspace bewtween the subplots close to zero (do not use zero itself).
+hspace between the subplots close to zero (do not use zero itself).
 Normally you'll want to turn off the tick labels on all but one of the
 axes.
 

@@ -9,7 +9,7 @@
 # PolarAxes) -- other axes plotting functions may work on PolarAxes
 # but haven't been tested and may need tweaking.
 #
-# you can get get a PolarSubplot instance by doing, for example
+# you can get a PolarSubplot instance by doing, for example
 #
 #   subplot(211, polar=True)
 #
