@@ -2433,16 +2433,16 @@ class FigureManagerBase:
     def get_window_title(self):
         """
         Get the title text of the window containing the figure.
-        Return None if there is no window (eg, a PS backend).
+        Return None for non-GUI backends (eg, a PS backend).
         """
-        raise NotImplementedError
+        return 'image'
 
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.  Note that
-        this has no effect if there is no window (eg, a PS backend).
+        this has no effect for non-GUI backends (eg, a PS backend).
         """
-        raise NotImplementedError
+        pass
 
 
 class Cursors:
