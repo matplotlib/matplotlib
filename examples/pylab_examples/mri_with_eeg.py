@@ -22,7 +22,7 @@ if 1:   # load the data
 
 if 1: # plot the MRI in pcolor
     subplot(221)
-    imshow(im, cmap=cm.jet)
+    imshow(im, cmap=cm.gray)
     axis('off')
 
 if 1:  # plot the histogram of MRI intensity
