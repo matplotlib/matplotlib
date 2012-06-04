@@ -80,7 +80,7 @@ for i in range(numBoxes):
       medianY.append(med.get_ydata()[j])
       plt.plot(medianX, medianY, 'k')
       medians[i] = medianY[0]
-  # Finally, overplot the sample averages, with horixzontal alignment
+  # Finally, overplot the sample averages, with horizontal alignment
   # in the center of each box
   plt.plot([np.average(med.get_xdata())], [np.average(data[i])],
            color='w', marker='*', markeredgecolor='k')

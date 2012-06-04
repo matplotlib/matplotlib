@@ -1,10 +1,10 @@
 # sometimes it is nice to have ticklabels centered.  mpl currently
 # associates a label with a tick, and the label can be aligned
-# 'center', 'feft', or 'right' using the horizontal alignment property:
+# 'center', 'left', or 'right' using the horizontal alignment property:
 #
 #
 #   for label in ax.xaxis.get_xticklabels():
-#       label.set_horizntal_alignment('right')
+#       label.set_horizontalalignment('right')
 #
 #
 # but this doesn't help center the label between ticks.  One solution
