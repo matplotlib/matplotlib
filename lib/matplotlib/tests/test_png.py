@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 import matplotlib.cm as cm
 import glob
 import os
+import numpy as np
 
 @image_comparison(baseline_images=['pngsuite'], extensions=['png'])
 def test_pngsuite():
@@ -25,3 +26,12 @@ def test_pngsuite():
 
     plt.gca().get_frame().set_facecolor("#ddffff")
     plt.gca().set_xlim(0, len(files))
+
+
+def test_imread_png_uint16():
+    from matplotlib import _png
+    img = _png.read_png_int(os.path.join(os.path.dirname(__file__),
+                                         'baseline_images/test_png/uint16.png'))
+
+    assert (img.dtype == np.uint16)
+    assert np.sum(img.flatten()) == 134184960
