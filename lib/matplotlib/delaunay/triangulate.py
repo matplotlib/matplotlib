@@ -89,6 +89,7 @@ class Triangulation(object):
         self.circumcenters, self.edge_db, self.triangle_nodes, \
             self.triangle_neighbors = delaunay(self.x, self.y)
 
+        self._map_to_duplicates()
         self.hull = self._compute_convex_hull()
 
     def _collapse_duplicate_points(self):
@@ -103,7 +104,18 @@ class Triangulation(object):
             True,
             (np.diff(self.x[j_sorted]) != 0) | (np.diff(self.y[j_sorted]) != 0),
         ])
+        self._dupes = np.where(mask_unique==False)[0]
         return j_sorted[mask_unique]
+
+    def _map_to_duplicates(self):
+        for k in xrange(len(self._dupes)):
+            r, c = np.where(self.triangle_nodes >= self._dupes[k])
+            for i in xrange(len(r)):
+                self.triangle_nodes[r[i]][c[i]] += 1
+
+            r, c = np.where(self.edge_db >= self._dupes[k])
+            for i in xrange(len(r)):
+                self.edge_db[r[i]][c[i]] += 1
 
     def _compute_convex_hull(self):
         """Extract the convex hull from the triangulation information.
