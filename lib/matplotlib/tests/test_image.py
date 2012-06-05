@@ -76,6 +76,12 @@ def test_image_python_io():
     buffer.seek(0)
     plt.imread(buffer)
 
+def test_imread_pil_uint16():
+    img = plt.imread(os.path.join(os.path.dirname(__file__),
+                     'baseline_images/test_image/uint16.tif'))
+    assert (img.dtype == np.uint16)
+    assert np.sum(img) == 134184960
+
 # def test_image_unicode_io():
 #     fig = plt.figure()
 #     ax = fig.add_subplot(111)
