@@ -63,7 +63,7 @@ def _generate_cmap(name, lutsize):
     if 'red' in spec:
         return colors.LinearSegmentedColormap(name, spec, lutsize)
     else:
-        return colors.LinearSegmentedColormap.from_list(spec, spec, lutsize)
+        return colors.LinearSegmentedColormap.from_list(name, spec, lutsize)
 
 LUTSIZE = mpl.rcParams['image.lut']
 
