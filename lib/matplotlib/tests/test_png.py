@@ -31,7 +31,7 @@ def test_pngsuite():
 def test_imread_png_uint16():
     from matplotlib import _png
     img = _png.read_png_int(os.path.join(os.path.dirname(__file__),
-                                         'baseline_images/test_png/pngtest16rgba.png'))
-    assert (img.dtype == np.uint16)
+                                         'baseline_images/test_png/uint16.png'))
 
-    assert np.sum(img.flatten()) == 104855776
+    assert (img.dtype == np.uint16)
+    assert np.sum(img.flatten()) == 134184960
