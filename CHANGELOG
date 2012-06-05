@@ -1,3 +1,5 @@
+2012-06-05 Images loaded through PIL are now ordered correctly - CG
+
 2012-06-02 Add new Axes method and pyplot function, hist2d. - PO
 
 2012-05-29 pcolormesh now obeys the passed in "edgecolor" kwarg.

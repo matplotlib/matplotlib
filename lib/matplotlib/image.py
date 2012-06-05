@@ -5,6 +5,7 @@ operations.
 """
 from __future__ import division, print_function
 import os, warnings
+import math
 
 import numpy as np
 from numpy import ma
@@ -325,7 +326,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         im._url = self.get_url()
         im._gid = self.get_gid()
-        
+
         renderer.draw_image(gc, xmin, ymin, im, dxintv, dyintv,
                             trans_ic_to_canvas)
 
@@ -1184,6 +1185,9 @@ def imread(fname, format=None):
         if cbook.is_string_like(fname):
             basename, ext = os.path.splitext(fname)
             ext = ext.lower()[1:]
+        elif hasattr(fname, 'name'):
+            basename, ext = os.path.splitext(fname.name)
+            ext = ext.lower()[1:]
         else:
             ext = 'png'
     else:
@@ -1251,14 +1255,14 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
 def pil_to_array( pilImage ):
     """
-    load a PIL image and return it as a numpy array of uint8.  For
-    grayscale images, the return array is MxN.  For RGB images, the
-    return value is MxNx3.  For RGBA images the return value is MxNx4
+    Load a PIL image and return it as a numpy array.  For grayscale
+    images, the return array is MxN.  For RGB images, the return value
+    is MxNx3.  For RGBA images the return value is MxNx4
     """
-    def toarray(im):
-        """Teturn a 1D array of floats."""
-        x_str = im.tostring('raw',im.mode,0,-1)
-        x = np.fromstring(x_str,np.uint8)
+    def toarray(im, dtype=np.uint8):
+        """Teturn a 1D array of dtype."""
+        x_str = im.tostring('raw', im.mode)
+        x = np.fromstring(x_str, dtype)
         return x
 
     if pilImage.mode in ('RGBA', 'RGBX'):
@@ -1275,7 +1279,15 @@ def pil_to_array( pilImage ):
         x = toarray(im)
         x.shape = im.size[1], im.size[0], 3
         return x
-
+    elif pilImage.mode.startswith('I;16'):
+        # return MxN luminance array of uint16
+        im = pilImage
+        if im.mode.endswith('B'):
+            x = toarray(im, '>u2')
+        else:
+            x = toarray(im, '<u2')
+        x.shape = im.size[1], im.size[0]
+        return x.astype('=u2')
     else: # try to convert to an rgba image
         try:
             im = pilImage.convert('RGBA')

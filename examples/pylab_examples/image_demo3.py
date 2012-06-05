@@ -15,7 +15,7 @@ figsize = lena.size[0]/dpi, lena.size[1]/dpi
 figure(figsize=figsize)
 ax = axes([0,0,1,1], frameon=False)
 ax.set_axis_off()
-im = imshow(lena, origin='lower')
+im = imshow(lena)
 
 show()
 
