@@ -2287,7 +2287,7 @@ def key_press_handler(event, canvas, toolbar=None):
 
     # toggle fullscreen mode (default key 'f')
     if event.key in fullscreen_keys:
-        self.full_screen_toggle()
+        canvas.manager.full_screen_toggle()
 
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
