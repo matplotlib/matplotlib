@@ -513,6 +513,7 @@ FT2Font::get_path()
     for (n = 0; n < outline.n_contours; n++)
     {
         int  last;  // index of last point in contour
+        bool starts_with_last;
 
         last  = outline.contours[n];
         limit = outline.points + last;
@@ -531,13 +532,22 @@ FT2Font::get_path()
         {
             throw Py::RuntimeError("A contour cannot start with a cubic control point");
         }
+        else if (tag == FT_CURVE_TAG_CONIC)
+        {
+            starts_with_last = true;
+        } else {
+            starts_with_last = false;
+        }
 
         count++;
 
         while (point < limit)
         {
-            point++;
-            tags++;
+            if (!starts_with_last) {
+                point++;
+                tags++;
+            }
+            starts_with_last = false;
 
             tag = FT_CURVE_TAG(tags[0]);
             switch (tag)
@@ -633,7 +643,8 @@ FT2Font::get_path()
     first = 0;
     for (n = 0; n < outline.n_contours; n++)
     {
-        int  last;  // index of last point in contour
+        int last;  // index of last point in contour
+        bool starts_with_last;
 
         last  = outline.contours[n];
         limit = outline.points + last;
@@ -647,16 +658,29 @@ FT2Font::get_path()
         tags  = outline.tags  + first;
         tag   = FT_CURVE_TAG(tags[0]);
 
-        double x = conv(v_start.x);
-        double y = flip_y ? -conv(v_start.y) : conv(v_start.y);
+        double x, y;
+        if (tag != FT_CURVE_TAG_ON)
+        {
+            x = conv(v_last.x);
+            y = flip_y ? -conv(v_last.y) : conv(v_last.y);
+            starts_with_last = true;
+        } else {
+            x = conv(v_start.x);
+            y = flip_y ? -conv(v_start.y) : conv(v_start.y);
+            starts_with_last = false;
+        }
+
         *(outpoints++) = x;
         *(outpoints++) = y;
         *(outcodes++) = MOVETO;
 
         while (point < limit)
         {
-            point++;
-            tags++;
+            if (!starts_with_last) {
+                point++;
+                tags++;
+            }
+            starts_with_last = false;
 
             tag = FT_CURVE_TAG(tags[0]);
             switch (tag)
