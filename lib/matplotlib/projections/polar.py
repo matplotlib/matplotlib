@@ -231,6 +231,9 @@ class PolarAxes(Axes):
         """
 
         self.resolution = kwargs.pop('resolution', None)
+        self._default_theta_offset = kwargs.pop('theta_offset', 0)
+        self._default_theta_direction = kwargs.pop('theta_direction', 1)
+
         if self.resolution not in (None, 1):
             warnings.warn(
                 """The resolution kwarg to Polar plots is now ignored.
@@ -259,8 +262,8 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         # Why do we need to turn on yaxis tick labels, but
         # xaxis tick labels are already on?
 
-        self.set_theta_offset(0)
-        self.set_theta_direction(1)
+        self.set_theta_offset(self._default_theta_offset)
+        self.set_theta_direction(self._default_theta_direction)
 
     def _init_axis(self):
         "move this out of __init__ because non-separable axes don't use it"
