@@ -111,9 +111,7 @@ def process_projection_requirements(figure, *args, **kwargs):
         projection = 'polar'
 
     # ensure that the resolution keyword is always put into the key
-    # for polar plots [so that the result of
-    # plt.subplot(111, projection='polar') can be found with
-    # plt.gca(projection='polar', resolution=1)]
+    # for polar plots
     if projection == 'polar':
         kwargs.setdefault('resolution', 1)
 
