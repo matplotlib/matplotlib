@@ -264,6 +264,7 @@ def test_const_xy():
     plt.subplot( 313 )
     plt.plot( np.ones( (10,) ), np.ones( (10,) ), 'o' )
 
+
 @image_comparison(baseline_images=['polar_wrap_180',
                                    'polar_wrap_360',
                                    ])
@@ -273,10 +274,11 @@ def test_polar_wrap():
     fig = plt.figure()
 
     plt.subplot(111, polar=True)
+
     plt.polar( [179*D2R, -179*D2R], [0.2, 0.1], "b.-" )
     plt.polar( [179*D2R,  181*D2R], [0.2, 0.1], "g.-" )
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
-
+    assert len(fig.axes) == 1, 'More than one polar axes created.'
     fig = plt.figure()
 
     plt.subplot( 111, polar=True)
@@ -284,6 +286,7 @@ def test_polar_wrap():
     plt.polar( [2*D2R,  358*D2R], [0.2, 0.1], "g.-" )
     plt.polar( [358*D2R,  2*D2R], [0.2, 0.1], "r.-" )
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
+
 
 @image_comparison(baseline_images=['polar_units', 'polar_units_2'],
                   freetype_version=('2.4.5', '2.4.9'))

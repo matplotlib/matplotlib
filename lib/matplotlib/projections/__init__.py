@@ -110,6 +110,13 @@ def process_projection_requirements(figure, *args, **kwargs):
                 projection)
         projection = 'polar'
 
+    # ensure that the resolution keyword is always put into the key
+    # for polar plots [so that the result of
+    # plt.subplot(111, projection='polar') can be found with
+    # plt.gca(projection='polar', resolution=1)]
+    if projection == 'polar':
+        kwargs.setdefault('resolution', 1)
+
     if isinstance(projection, basestring) or projection is None:
         projection_class = get_projection_class(projection)
     elif hasattr(projection, '_as_mpl_axes'):
