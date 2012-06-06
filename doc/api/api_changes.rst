@@ -14,6 +14,10 @@ For new features that were added to matplotlib, please see
 Changes in 1.2.x
 ================
 
+* The new rc parameter ``savefig.format`` replaces ``cairo.format`` and
+  ``savefig.extension``, and sets the default file format used by
+  :meth:`matplotlib.figure.Figure.savefig`.
+
 * In :meth:`~matplotlib.pyplot.pie` and :meth:`~matplotlib.Axes.pie`, one can
   now set the radius of the pie; setting the *radius* to 'None' (the default
   value), will result in a pie with a radius of 1 as before.
@@ -237,7 +241,7 @@ Changes for 0.98.x
         labelsep           labelspacing
         handlelen          handlelength
         handlestextsep     handletextpad
-        axespad	           borderaxespad
+        axespad            borderaxespad
         ================   ================
 
 
@@ -405,51 +409,51 @@ Old method                                                   New method
 ------------------------------------------------------------ ------------------------------------------------------------
 :meth:`Bbox.height`                                          :attr:`transforms.Bbox.height`
 ------------------------------------------------------------ ------------------------------------------------------------
-`Bbox.intervalx().get_bounds()`	                             :attr:`transforms.Bbox.intervalx`
+`Bbox.intervalx().get_bounds()`                              :attr:`transforms.Bbox.intervalx`
 `Bbox.intervalx().set_bounds()`                              [:attr:`Bbox.intervalx` is now a property.]
 ------------------------------------------------------------ ------------------------------------------------------------
-`Bbox.intervaly().get_bounds()` 	                     :attr:`transforms.Bbox.intervaly`
+`Bbox.intervaly().get_bounds()`                              :attr:`transforms.Bbox.intervaly`
 `Bbox.intervaly().set_bounds()`                              [:attr:`Bbox.intervaly` is now a property.]
 ------------------------------------------------------------ ------------------------------------------------------------
-:meth:`Bbox.xmin`		                             :attr:`transforms.Bbox.x0` or
+:meth:`Bbox.xmin`                                            :attr:`transforms.Bbox.x0` or
                                                              :attr:`transforms.Bbox.xmin` [1]_
 ------------------------------------------------------------ ------------------------------------------------------------
-:meth:`Bbox.ymin`		                             :attr:`transforms.Bbox.y0` or
+:meth:`Bbox.ymin`                                            :attr:`transforms.Bbox.y0` or
                                                              :attr:`transforms.Bbox.ymin` [1]_
 ------------------------------------------------------------ ------------------------------------------------------------
-:meth:`Bbox.xmax`		                             :attr:`transforms.Bbox.x1` or
+:meth:`Bbox.xmax`                                            :attr:`transforms.Bbox.x1` or
                                                              :attr:`transforms.Bbox.xmax` [1]_
 ------------------------------------------------------------ ------------------------------------------------------------
-:meth:`Bbox.ymax`		                             :attr:`transforms.Bbox.y1` or
+:meth:`Bbox.ymax`                                            :attr:`transforms.Bbox.y1` or
                                                              :attr:`transforms.Bbox.ymax` [1]_
 ------------------------------------------------------------ ------------------------------------------------------------
-`Bbox.overlaps(bboxes)`		                             `Bbox.count_overlaps(bboxes)`
+`Bbox.overlaps(bboxes)`                                      `Bbox.count_overlaps(bboxes)`
 ------------------------------------------------------------ ------------------------------------------------------------
-`bbox_all(bboxes)`	                                     `Bbox.union(bboxes)`
+`bbox_all(bboxes)`                                           `Bbox.union(bboxes)`
                                                              [:meth:`transforms.Bbox.union` is a staticmethod.]
 ------------------------------------------------------------ ------------------------------------------------------------
-`lbwh_to_bbox(l, b, w, h)`		                     `Bbox.from_bounds(x0, y0, w, h)`
+`lbwh_to_bbox(l, b, w, h)`                                   `Bbox.from_bounds(x0, y0, w, h)`
                                                              [:meth:`transforms.Bbox.from_bounds` is a staticmethod.]
 ------------------------------------------------------------ ------------------------------------------------------------
 `inverse_transform_bbox(trans, bbox)`                        `Bbox.inverse_transformed(trans)`
 ------------------------------------------------------------ ------------------------------------------------------------
-`Interval.contains_open(v)`		                     `interval_contains_open(tuple, v)`
+`Interval.contains_open(v)`                                  `interval_contains_open(tuple, v)`
 ------------------------------------------------------------ ------------------------------------------------------------
-`Interval.contains(v)`		                             `interval_contains(tuple, v)`
+`Interval.contains(v)`                                       `interval_contains(tuple, v)`
 ------------------------------------------------------------ ------------------------------------------------------------
-`identity_transform()`		                             :class:`matplotlib.transforms.IdentityTransform`
+`identity_transform()`                                       :class:`matplotlib.transforms.IdentityTransform`
 ------------------------------------------------------------ ------------------------------------------------------------
 `blend_xy_sep_transform(xtrans, ytrans)`                     `blended_transform_factory(xtrans, ytrans)`
 ------------------------------------------------------------ ------------------------------------------------------------
-`scale_transform(xs, ys)`			             `Affine2D().scale(xs[, ys])`
+`scale_transform(xs, ys)`                                    `Affine2D().scale(xs[, ys])`
 ------------------------------------------------------------ ------------------------------------------------------------
-`get_bbox_transform(boxin, boxout)` 	                     `BboxTransform(boxin, boxout)` or
-      				 		             `BboxTransformFrom(boxin)` or
-						             `BboxTransformTo(boxout)`
+`get_bbox_transform(boxin, boxout)`                          `BboxTransform(boxin, boxout)` or
+                                                             `BboxTransformFrom(boxin)` or
+                                                             `BboxTransformTo(boxout)`
 ------------------------------------------------------------ ------------------------------------------------------------
-`Transform.seq_xy_tup(points)`        		             `Transform.transform(points)`
+`Transform.seq_xy_tup(points)`                               `Transform.transform(points)`
 ------------------------------------------------------------ ------------------------------------------------------------
-`Transform.inverse_xy_tup(points)`		             `Transform.inverted().transform(points)`
+`Transform.inverse_xy_tup(points)`                           `Transform.inverted().transform(points)`
 ============================================================ ============================================================
 
 .. [1] The :class:`~matplotlib.transforms.Bbox` is bound by the points
@@ -492,7 +496,7 @@ The :class:`Polar` class has moved to :mod:`matplotlib.projections.polar`.
 ============================================================ ============================================================
 Old method                                                   New method
 ============================================================ ============================================================
-`Artist.set_clip_path(path)`		                     `Artist.set_clip_path(path, transform)` [5]_
+`Artist.set_clip_path(path)`                                 `Artist.set_clip_path(path, transform)` [5]_
 ============================================================ ============================================================
 
 .. [5] :meth:`matplotlib.artist.Artist.set_clip_path` now accepts a
@@ -519,7 +523,7 @@ Old method                                                   New method
 ============================================================ ============================================================
 Old method                                                   New method
 ============================================================ ============================================================
-`ColorConvertor.to_rgba_list(c)`		             `ColorConvertor.to_rgba_array(c)`
+`ColorConvertor.to_rgba_list(c)`                             `ColorConvertor.to_rgba_array(c)`
                                                              [:meth:`matplotlib.colors.ColorConvertor.to_rgba_array`
                                                              returns an Nx4 Numpy array of RGBA color quadruples.]
 ============================================================ ============================================================
@@ -530,7 +534,7 @@ Old method                                                   New method
 ============================================================ ============================================================
 Old method                                                   New method
 ============================================================ ============================================================
-`Contour._segments`				             :meth:`matplotlib.contour.Contour.get_paths`` [Returns a
+`Contour._segments`                                          :meth:`matplotlib.contour.Contour.get_paths`` [Returns a
                                                              list of :class:`matplotlib.path.Path` instances.]
 ============================================================ ============================================================
 
@@ -540,7 +544,7 @@ Old method                                                   New method
 ============================================================ ============================================================
 Old method                                                   New method
 ============================================================ ============================================================
-`Figure.dpi.get()` / `Figure.dpi.set()`	                     :attr:`matplotlib.figure.Figure.dpi` *(a property)*
+`Figure.dpi.get()` / `Figure.dpi.set()`                      :attr:`matplotlib.figure.Figure.dpi` *(a property)*
 ============================================================ ============================================================
 
 :mod:`matplotlib.patches`

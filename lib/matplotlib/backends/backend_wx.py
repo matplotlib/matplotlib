@@ -1190,9 +1190,6 @@ The current aspect ratio will be kept."""
             self.draw()
         self.Refresh()
 
-    def get_default_filetype(self):
-        return 'png'
-
     def _onPaint(self, evt):
         """
         Called when wxPaintEvt is generated
@@ -1513,9 +1510,9 @@ class FigureFrameWx(wx.Frame):
         bind(self, wx.EVT_CLOSE, self._onClose)
 
     def _get_toolbar(self, statbar):
-        if matplotlib.rcParams['toolbar']=='classic':
+        if rcParams['toolbar']=='classic':
             toolbar = NavigationToolbarWx(self.canvas, True)
-        elif matplotlib.rcParams['toolbar']=='toolbar2':
+        elif rcParams['toolbar']=='toolbar2':
             toolbar = NavigationToolbar2Wx(self.canvas)
             toolbar.set_status_bar(statbar)
         else:

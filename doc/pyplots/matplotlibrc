@@ -59,10 +59,10 @@ backend      : Agg
 # circles.  See
 # http://matplotlib.sourceforge.net/matplotlib.patches.html for more
 # information on patch properties
-#patch.linewidth   	: 1.0     # edge width in points
-#patch.facecolor  	: blue
-#patch.edgecolor  	: black
-#patch.antialiased 	: True    # render patches in antialised (no jaggies)
+#patch.linewidth    : 1.0     # edge width in points
+#patch.facecolor    : blue
+#patch.edgecolor    : black
+#patch.antialiased  : True    # render patches in antialised (no jaggies)
 
 ### FONT
 #
@@ -152,11 +152,11 @@ backend      : Agg
 #text.markup         : 'plain'  # Affects how text, such as titles and labels, are
                                 # interpreted by default.
                                 # 'plain': As plain, unformatted text
-				# 'tex': As TeX-like text.  Text between $'s will be
-				# formatted as a TeX math expression.
-				# This setting has no effect when text.usetex is True.
-				# In that case, all text will be sent to TeX for
-				# processing.
+                                # 'tex': As TeX-like text.  Text between $'s will be
+                                # formatted as a TeX math expression.
+                                # This setting has no effect when text.usetex is True.
+                                # In that case, all text will be sent to TeX for
+                                # processing.
 
 # The following settings allow you to select the fonts in math mode.
 # They map from a TeX font name to a fontconfig font pattern.
@@ -170,8 +170,8 @@ backend      : Agg
 #mathtext.fontset : cm # Should be 'cm' (Computer Modern), 'stix',
                        # 'stixsans' or 'custom'
 #mathtext.fallback_to_cm : True  # When True, use symbols from the Computer Modern
-			         # fonts when a symbol can not be found in one of
-				 # the custom math fonts.
+                                 # fonts when a symbol can not be found in one of
+                                 # the custom math fonts.
 
 ### AXES
 # default face and edge color, default tick sizes,
@@ -266,8 +266,7 @@ figure.figsize   : 6, 4    # figure size in inches
 #savefig.dpi       : 100      # figure dots per inch
 #savefig.facecolor : white    # figure facecolor when saving
 #savefig.edgecolor : white    # figure edgecolor when saving
-
-#cairo.format      : png      # png, ps, pdf, svg
+#savefig.format    : png      # png, ps, pdf, svg
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg

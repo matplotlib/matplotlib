@@ -46,7 +46,6 @@ from matplotlib.mathtext     import MathTextParser
 from matplotlib.path         import Path
 from matplotlib.transforms   import Bbox, Affine2D
 from matplotlib.font_manager import ttfFontProperty
-from matplotlib import rcParams
 
 _debug = False
 #_debug = True
@@ -429,9 +428,6 @@ class FigureCanvasCairo (FigureCanvasBase):
 
     def print_svgz(self, fobj, *args, **kwargs):
         return self._save(fobj, 'svgz', *args, **kwargs)
-
-    def get_default_filetype(self):
-        return rcParams['cairo.format']
 
     def _save (self, fo, format, **kwargs):
         # save PDF/PS/SVG
