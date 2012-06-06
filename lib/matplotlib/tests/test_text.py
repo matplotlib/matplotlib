@@ -140,7 +140,7 @@ def test_contains():
         
         contains, _ = txt.contains(mevent)
         
-        color = {False: 'red', True: 'yellow'}.get(contains)
+        color = 'yellow' if contains else 'red'
         
         # capture the viewLim, plot a point, and reset the viewLim
         vl = ax.viewLim.frozen()
