@@ -41,6 +41,7 @@
 #include "truetype.h"
 #include <algorithm>
 #include <stack>
+#include <list>
 
 class GlyphToType3
 {
@@ -73,7 +74,10 @@ private:
     int nextoutctr(int co);
     int nearout(int ci);
     double intest(int co, int ci);
-    void PSCurveto(TTStreamWriter& stream, FWord x, FWord y, int s, int t);
+    void PSCurveto(TTStreamWriter& stream,
+                   FWord x0, FWord y0,
+                   FWord x1, FWord y1,
+                   FWord x2, FWord y2);
     void PSMoveto(TTStreamWriter& stream, int x, int y);
     void PSLineto(TTStreamWriter& stream, int x, int y);
     void do_composite(TTStreamWriter& stream, struct TTFONT *font, BYTE *glyph);
@@ -81,6 +85,18 @@ private:
 public:
     GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int charindex, bool embedded = false);
     ~GlyphToType3();
+};
+
+// Each point on a TrueType contour is either on the path or off it (a
+// control point); here's a simple representation for building such
+// contours. Added by Jouni Seppänen 2012-05-27.
+enum Flag { ON_PATH, OFF_PATH };
+struct FlaggedPoint
+{
+    enum Flag flag;
+    FWord x;
+    FWord y;
+    FlaggedPoint(Flag flag_, FWord x_, FWord y_): flag(flag_), x(x_), y(y_) {};
 };
 
 double area(FWord *x, FWord *y, int n);
@@ -150,8 +166,7 @@ double area(FWord *x, FWord *y, int n)
 */
 void GlyphToType3::PSConvert(TTStreamWriter& stream)
 {
-    int i,j,k,fst,start_offpt;
-    int end_offpt = 0;
+    int i,j,k;
 
     assert(area_ctr == NULL);
     area_ctr=(double*)calloc(num_ctr, sizeof(double));
@@ -191,56 +206,79 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
     i=j=k=0;
     while ( i < num_ctr )
     {
-        fst = j = (k==0) ? 0 : (epts_ctr[k-1]+1);
+        // A TrueType contour consists of on-path and off-path points.
+        // Two consecutive on-path points are to be joined with a
+        // line; off-path points between on-path points indicate a
+        // quadratic spline, where the off-path point is the control
+        // point. Two consecutive off-path points have an implicit
+        // on-path point midway between them.
+        std::list<FlaggedPoint> points;
 
-        /* Move to the first point on the contour. */
-        stack(stream, 3);
-        PSMoveto(stream,xcoor[j],ycoor[j]);
-
-        start_offpt = 0;                /* No off curve points yet. */
-
-        /* Step thru the remaining points of this contour. */
-        for (j++; j <= epts_ctr[k]; j++)
+        // Represent flags and x/y coordinates as a C++ list
+        for (; j <= epts_ctr[k]; j++)
         {
-            if (!(tt_flags[j]&1))       /* Off curve */
-            {
-                if (!start_offpt)
-                {
-                    start_offpt = end_offpt = j;
-                }
-                else
-                {
-                    end_offpt++;
-                }
-            }
-            else
-            {
-                /* On Curve */
-                if (start_offpt)
-                {
-                    stack(stream, 7);
-                    PSCurveto(stream, xcoor[j],ycoor[j],start_offpt,end_offpt);
-                    start_offpt = 0;
-                }
-                else
-                {
-                    stack(stream, 3);
-                    PSLineto(stream, xcoor[j], ycoor[j]);
-                }
+            if (!(tt_flags[j] & 1)) {
+                points.push_back(FlaggedPoint(OFF_PATH, xcoor[j], ycoor[j]));
+            } else {
+                points.push_back(FlaggedPoint(ON_PATH, xcoor[j], ycoor[j]));
             }
         }
 
-        /* Do the final curve or line */
-        /* of this coutour. */
-        if (start_offpt)
+        // For any two consecutive off-path points, insert the implied
+        // on-path point.
+        FlaggedPoint prev = points.back();
+        for (std::list<FlaggedPoint>::iterator it = points.begin();
+             it != points.end();
+             it++)
         {
-            stack(stream, 7);
-            PSCurveto(stream, xcoor[fst],ycoor[fst],start_offpt,end_offpt);
+            if (prev.flag == OFF_PATH && it->flag == OFF_PATH)
+            {
+                points.insert(it,
+                              FlaggedPoint(ON_PATH,
+                                           (prev.x + it->x) / 2,
+                                           (prev.y + it->y) / 2));
+            }
+            prev = *it;
+        }
+        // Handle the wrap-around: insert a point either at the beginning
+        // or at the end that has the same coordinates as the opposite point.
+        // This also ensures that the initial point is ON_PATH.
+        if (points.front().flag == OFF_PATH)
+        {
+            assert(points.back().flag == ON_PATH);
+            points.insert(points.begin(), points.back());
         }
         else
         {
-            stack(stream, 3);
-            PSLineto(stream, xcoor[fst],ycoor[fst]);
+            assert(points.front().flag == ON_PATH);
+            points.push_back(points.front());
+        }
+
+        // For output, a vector is more convenient than a list.
+        std::vector<FlaggedPoint> points_v(points.begin(), points.end());
+        // The first point
+        stack(stream, 3);
+        PSMoveto(stream, points_v.front().x, points_v.front().y);
+
+        // Step through the remaining points
+        for (size_t p = 1; p < points_v.size(); )
+        {
+            const FlaggedPoint& point = points_v.at(p);
+            if (point.flag == ON_PATH)
+            {
+                stack(stream, 3);
+                PSLineto(stream, point.x, point.y);
+                p++;
+            } else {
+                assert(points_v.at(p-1).flag == ON_PATH);
+                assert(points_v.at(p+1).flag == ON_PATH);
+                stack(stream, 7);
+                PSCurveto(stream,
+                          points_v.at(p-1).x, points_v.at(p-1).y,
+                          point.x, point.y,
+                          points_v.at(p+1).x, points_v.at(p+1).y);
+                p += 2;
+            }
         }
 
         k=nextinctr(i,k);
@@ -392,36 +430,34 @@ void GlyphToType3::PSLineto(TTStreamWriter& stream, int x, int y)
 }
 
 /*
-** Emmit a PostScript "curveto" command.
+** Emit a PostScript "curveto" command, assuming the current point
+** is (x0, y0), the control point of a quadratic spline is (x1, y1),
+** and the endpoint is (x2, y2). Note that this requires a conversion,
+** since PostScript splines are cubic.
 */
-void GlyphToType3::PSCurveto(TTStreamWriter& stream, FWord x, FWord y, int s, int t)
+void GlyphToType3::PSCurveto(TTStreamWriter& stream,
+                             FWord x0, FWord y0,
+                             FWord x1, FWord y1,
+                             FWord x2, FWord y2)
 {
-    int N, i;
-    double sx[3], sy[3], cx[4], cy[4];
+    double sx[3], sy[3], cx[3], cy[3];
 
-    N = t-s+2;
-    for (i=0; i<N-1; i++)
-    {
-        sx[0] = i==0?xcoor[s-1]:(xcoor[i+s]+xcoor[i+s-1])/2;
-        sy[0] = i==0?ycoor[s-1]:(ycoor[i+s]+ycoor[i+s-1])/2;
-        sx[1] = xcoor[s+i];
-        sy[1] = ycoor[s+i];
-        sx[2] = i==N-2?x:(xcoor[s+i]+xcoor[s+i+1])/2;
-        sy[2] = i==N-2?y:(ycoor[s+i]+ycoor[s+i+1])/2;
-        cx[3] = sx[2];
-        cy[3] = sy[2];
-        cx[1] = (2*sx[1]+sx[0])/3;
-        cy[1] = (2*sy[1]+sy[0])/3;
-        cx[2] = (sx[2]+2*sx[1])/3;
-        cy[2] = (sy[2]+2*sy[1])/3;
-
-        stream.printf(pdf_mode ?
-                      "%d %d %d %d %d %d c\n" :
-                      "%d %d %d %d %d %d _c\n",
-                      (int)cx[1], (int)cy[1], (int)cx[2], (int)cy[2],
-                      (int)cx[3], (int)cy[3]);
-    }
-} /* end of PSCurveto() */
+    sx[0] = x0;
+    sy[0] = y0;
+    sx[1] = x1;
+    sy[1] = y1;
+    sx[2] = x2;
+    sy[2] = y2;
+    cx[0] = (2*sx[1]+sx[0])/3;
+    cy[0] = (2*sy[1]+sy[0])/3;
+    cx[1] = (sx[2]+2*sx[1])/3;
+    cy[1] = (sy[2]+2*sy[1])/3;
+    cx[2] = sx[2];
+    cy[2] = sy[2];
+    stream.printf("%d %d %d %d %d %d %s\n",
+                  (int)cx[0], (int)cy[0], (int)cx[1], (int)cy[1],
+                  (int)cx[2], (int)cy[2], pdf_mode ? "c" : "_c");
+}
 
 /*
 ** Deallocate the structures which stored
