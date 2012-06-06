@@ -207,11 +207,10 @@ class Text(Artist):
             return False,{}
 
         l,b,w,h = self.get_window_extent().bounds
-
-        r = l+w
-        t = b+h
+        r, t = l+w, b+h
+        
         x, y = mouseevent.x, mouseevent.y
-        inside = (x >= l and x <= r and y >= t and y <= b)
+        inside = (l <= x <= r and b <= y <= t)
         return inside, {}
 
     def _get_xy_display(self):
@@ -361,7 +360,8 @@ class Text(Artist):
         width  = xmax - xmin
         height = ymax - ymin
 
-        # Now move the box to the targe position offset the display bbox by alignment
+        # Now move the box to the target position offset the display 
+        # bbox by alignment
         halign = self._horizontalalignment
         valign = self._verticalalignment
 
@@ -1805,17 +1805,14 @@ class Annotation(Text, _AnnotationBase):
         else:
             self.arrow_patch = None
 
-
     def contains(self,event):
-        t,tinfo = Text.contains(self,event)
+        contains, tinfo = Text.contains(self,event)
         if self.arrow is not None:
-            a,ainfo=self.arrow.contains(event)
-            t = t or a
-
+            in_arrow, _ = self.arrow.contains(event)
+            contains = contains or in_arrow
         # self.arrow_patch is currently not checked as this can be a line - JJ
 
-        return t,tinfo
-
+        return contains, tinfo
 
     def set_figure(self, fig):
 
