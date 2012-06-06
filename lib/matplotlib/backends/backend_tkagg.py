@@ -185,7 +185,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             master=master, width=w, height=h, borderwidth=4)
         self._tkphoto = Tk.PhotoImage(
             master=self._tkcanvas, width=w, height=h)
-        self._tkcanvas.create_image(w/2, h/2, image=self._tkphoto)
+        self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
         self._resize_callback = resize_callback
         self._tkcanvas.bind("<Configure>", self.resize)
         self._tkcanvas.bind("<Key>", self.key_press)
