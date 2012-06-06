@@ -251,9 +251,8 @@ validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
 
-validate_cairo_format = ValidateInStrings('cairo_format',
-                            ['png', 'ps', 'pdf', 'svg'],
-                            ignorecase=True)
+def deprecate_savefig_extension(value):
+    warnings.warn("savefig.extension is deprecated.  Use savefig.format instead.")
 
 validate_ps_papersize = ValidateInStrings('ps_papersize',[
     'auto', 'letter', 'legal', 'ledger',
@@ -546,9 +545,9 @@ defaultParams = {
     'savefig.facecolor'   : ['w', validate_color],  # facecolor; white
     'savefig.edgecolor'   : ['w', validate_color],  # edgecolor; white
     'savefig.orientation' : ['portrait', validate_orientation],  # edgecolor; white
-    'savefig.extension'   : ['auto', str],          # what to add to extensionless filenames
+    'savefig.extension'   : ['png', deprecate_savefig_extension], # what to add to extensionless filenames
+    'savefig.format'      : ['png', str], # value checked by backend at runtime
 
-    'cairo.format'       : ['png', validate_cairo_format],
     'tk.window_focus'    : [False, validate_bool],  # Maintain shell focus for TkAgg
     'tk.pythoninspect'   : [False, validate_tkpythoninspect],  # obsolete
     'ps.papersize'       : ['letter', validate_ps_papersize], # Set the papersize/type

@@ -463,9 +463,6 @@ class FigureCanvasAgg(FigureCanvasBase):
                                      'debug-annoying')
         return self.renderer.buffer_rgba()
 
-    def get_default_filetype(self):
-        return 'png'
-
     def print_raw(self, filename_or_obj, *args, **kwargs):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()

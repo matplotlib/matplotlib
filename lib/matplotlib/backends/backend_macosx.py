@@ -13,7 +13,7 @@ from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.mathtext import MathTextParser
 from matplotlib.colors import colorConverter
-
+from matplotlib import rcParams
 
 from matplotlib.widgets import SubplotTool
 
@@ -225,7 +225,7 @@ def draw_if_interactive():
     it will be redrawn as soon as the event loop resumes via PyOS_InputHook.
     This function should be called after each draw event, even if
     matplotlib is not running interactively.
-	"""
+    """
     if matplotlib.is_interactive():
         figManager =  Gcf.get_active()
         if figManager is not None:
@@ -330,9 +330,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
     def print_gif(self, filename, *args, **kwargs):
         self._print_bitmap(filename, *args, **kwargs)
 
-    def get_default_filetype(self):
-        return 'png'
-
     def new_timer(self, *args, **kwargs):
         """
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
@@ -357,9 +354,9 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
         title = "Figure %d" % num
         _macosx.FigureManager.__init__(self, canvas, title)
-        if matplotlib.rcParams['toolbar']=='classic':
+        if rcParams['toolbar']=='classic':
             self.toolbar = NavigationToolbarMac(canvas)
-        elif matplotlib.rcParams['toolbar']=='toolbar2':
+        elif rcParams['toolbar']=='toolbar2':
             self.toolbar = NavigationToolbar2Mac(canvas)
         else:
             self.toolbar = None
@@ -384,7 +381,7 @@ class NavigationToolbarMac(_macosx.NavigationToolbar):
 
     def __init__(self, canvas):
         self.canvas = canvas
-        basedir = os.path.join(matplotlib.rcParams['datapath'], "images")
+        basedir = os.path.join(rcParams['datapath'], "images")
         images = {}
         for imagename in ("stock_left",
                           "stock_right",
@@ -453,7 +450,7 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         NavigationToolbar2.__init__(self, canvas)
 
     def _init_toolbar(self):
-        basedir = os.path.join(matplotlib.rcParams['datapath'], "images")
+        basedir = os.path.join(rcParams['datapath'], "images")
         _macosx.NavigationToolbar2.__init__(self, basedir)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
