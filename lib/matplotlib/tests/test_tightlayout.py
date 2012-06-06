@@ -121,7 +121,3 @@ def test_tight_layout6():
                                 None, 1 - (gs2.top-top)],
                      h_pad=0.5)
 
-
-if __name__=='__main__':
-    import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)

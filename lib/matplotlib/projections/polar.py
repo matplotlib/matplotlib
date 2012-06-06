@@ -229,7 +229,6 @@ class PolarAxes(Axes):
             each pair of data points.  Set to 1 to disable
             interpolation.
         """
-        self._rpad = 0.05
         self.resolution = kwargs.pop('resolution', 1)
         self._default_theta_offset = kwargs.pop('theta_offset', 0)
         self._default_theta_direction = kwargs.pop('theta_direction', 1)

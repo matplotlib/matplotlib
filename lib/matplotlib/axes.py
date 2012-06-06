@@ -3514,9 +3514,7 @@ class Axes(martist.Artist):
         * draw a gray rectangle from *y* = 0.25-0.75 that spans the
           horizontal extent of the axes::
 
-            # draw a gray rectangle from *y* = 0.25-0.75 that spans the
-            # horizontal extent of the axes
-            axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
+            >>> axhspan(0.25, 0.75, facecolor='0.5', alpha=0.5)
 
         Valid kwargs are :class:`~matplotlib.patches.Polygon` properties:
 
@@ -3572,9 +3570,7 @@ class Axes(martist.Artist):
         * draw a vertical green translucent rectangle from x=1.25 to 1.55 that
           spans the yrange of the axes::
 
-            # draw a vertical green translucent rectangle from x=1.25 to 1.55
-            # that spans the yrange of the axes
-            axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
+            >>> axvspan(1.25, 1.55, facecolor='g', alpha=0.5)
 
         Valid kwargs are :class:`~matplotlib.patches.Polygon`
         properties:
