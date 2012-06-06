@@ -18,7 +18,10 @@ def test_font_styles():
         return FontProperties(fname=path)
 
     from matplotlib.font_manager import FontProperties, findfont
-    warnings.filterwarnings('ignore','findfont: Font family \[\'Foo\'\] not found. Falling back to .',UserWarning,module='matplotlib.font_manager')
+    warnings.filterwarnings('ignore','findfont: Font family \[\'Foo\'\] '+ \
+                            'not found. Falling back to .',
+                            UserWarning,
+                            module='matplotlib.font_manager')
     fig = plt.figure()
     ax = plt.subplot( 1, 1, 1 )
 
@@ -89,8 +92,10 @@ def test_antialiasing():
     matplotlib.rcParams['text.antialiased'] = True
 
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.75, "antialiased", horizontalalignment='center', verticalalignment='center')
-    fig.text(0.5, 0.25, "$\sqrt{x}$", horizontalalignment='center', verticalalignment='center')
+    fig.text(0.5, 0.75, "antialiased", horizontalalignment='center', 
+             verticalalignment='center')
+    fig.text(0.5, 0.25, "$\sqrt{x}$", horizontalalignment='center', 
+             verticalalignment='center')
     # NOTE: We don't need to restore the rcParams here, because the
     # test cleanup will do it for us.  In fact, if we do it here, it
     # will turn antialiasing back off before the images are actually
@@ -105,3 +110,40 @@ def test_afm_kerning():
     with open(fn, 'rb') as fh:
         afm = AFM(fh)
     assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)
+
+
+@image_comparison(baseline_images=['text_contains'], extensions=['png'])
+def test_contains():
+    import matplotlib.backend_bases as mbackend
+    
+    fig = plt.figure()
+    ax = plt.axes()
+    
+    mevent = mbackend.MouseEvent('button_press_event', fig.canvas, 0.5, 
+                                 0.5, 1, None)
+    
+    xs = np.linspace(0.25, 0.75, 30)
+    ys = np.linspace(0.25, 0.75, 30)
+    xs, ys = np.meshgrid(xs, ys)
+    
+    txt = plt.text(0.48, 0.52, 'hello world', ha='center', fontsize=30, 
+                   rotation=30)
+    # uncomment to draw the text's bounding box
+    # txt.set_bbox(dict(edgecolor='black', facecolor='none'))
+    
+    # draw the text. This is important, as the contains method can only work 
+    # when a renderer exists.
+    plt.draw()
+    
+    for x, y in zip(xs.flat, ys.flat):
+        mevent.x, mevent.y = plt.gca().transAxes.transform_point([x, y])
+        
+        contains, _ = txt.contains(mevent)
+        
+        color = 'yellow' if contains else 'red'
+        
+        # capture the viewLim, plot a point, and reset the viewLim
+        vl = ax.viewLim.frozen()
+        ax.plot(x, y, 'o', color=color)
+        ax.viewLim.set(vl)
+    
