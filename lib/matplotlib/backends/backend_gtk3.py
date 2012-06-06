@@ -22,6 +22,7 @@ from matplotlib.widgets import SubplotTool
 from matplotlib import lines
 from matplotlib import cbook
 from matplotlib import verbose
+from matplotlib import rcParams
 
 backend_version = "%s.%s.%s" % (Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
@@ -303,9 +304,6 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         if self._idle_draw_id == 0:
             self._idle_draw_id = GObject.idle_add(idle_draw)
 
-    def get_default_filetype(self):
-        return 'png'
-
     def new_timer(self, *args, **kwargs):
         """
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
@@ -435,9 +433,9 @@ class FigureManagerGTK3(FigureManagerBase):
     def _get_toolbar(self, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set
-        if matplotlib.rcParams['toolbar'] == 'classic':
+        if rcParams['toolbar'] == 'classic':
             toolbar = NavigationToolbar (canvas, self.window)
-        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
+        elif rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK3 (canvas, self.window)
         else:
             toolbar = None
@@ -512,7 +510,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def _init_toolbar(self):
         self.set_style(Gtk.ToolbarStyle.ICONS)
-        basedir = os.path.join(matplotlib.rcParams['datapath'],'images')
+        basedir = os.path.join(rcParams['datapath'],'images')
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
@@ -1055,7 +1053,7 @@ try:
         icon_filename = 'matplotlib.png'
     else:
         icon_filename = 'matplotlib.svg'
-    window_icon = os.path.join(matplotlib.rcParams['datapath'], 'images', icon_filename)
+    window_icon = os.path.join(rcParams['datapath'], 'images', icon_filename)
 except:
     window_icon = None
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])

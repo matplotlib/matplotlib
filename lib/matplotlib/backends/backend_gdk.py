@@ -28,7 +28,6 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
-
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 _debug = False
 
@@ -465,6 +464,3 @@ class FigureCanvasGDK (FigureCanvasBase):
                                  0, 0, 0, 0, width, height)
 
         pixbuf.save(filename, format)
-
-    def get_default_filetype(self):
-        return 'png'

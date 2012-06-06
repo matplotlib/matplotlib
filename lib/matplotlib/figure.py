@@ -1110,8 +1110,7 @@ class Figure(Artist):
             If *format* is *None* and *fname* is a string, the output
             format is deduced from the extension of the filename. If
             the filename has no extension, the value of the rc parameter
-            ``savefig.extension`` is used. If that value is 'auto',
-            the backend determines the extension.
+            ``savefig.format`` is used.
 
             If *fname* is not a string, remember to specify *format* to
             ensure that the correct backend is used.
@@ -1162,11 +1161,6 @@ class Figure(Artist):
         """
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
-
-        extension = rcParams['savefig.extension']
-        if args and is_string_like(args[0]) and '.' not in os.path.splitext(args[0])[-1] and extension != 'auto':
-            fname = args[0] + '.' + extension
-            args = (fname,) + args[1:]
 
         transparent = kwargs.pop('transparent', False)
         if transparent:
