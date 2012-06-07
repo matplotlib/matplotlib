@@ -242,6 +242,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._set_gc_clip(gc)
         gc.set_snap(self.get_snap())
 
+        if self._hatch:
+            gc.set_hatch(self._hatch)
+
         renderer.draw_path_collection(
             gc, transform.frozen(), paths, self.get_transforms(),
             offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),

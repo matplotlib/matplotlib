@@ -657,9 +657,9 @@ class RendererSVG(RendererBase):
 
         writer.start(u'defs')
         for i in range(3):
-            x1, y1 = points[i]
-            x2, y2 = points[(i + 1) % 3]
-            x3, y3 = points[(i + 2) % 3]
+            x1, y1 = tpoints[i]
+            x2, y2 = tpoints[(i + 1) % 3]
+            x3, y3 = tpoints[(i + 2) % 3]
             c = colors[i][:]
 
             if x2 == x3:
