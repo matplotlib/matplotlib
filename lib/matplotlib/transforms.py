@@ -2275,16 +2275,29 @@ class TransformedPath(TransformNode):
 
 def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     '''
-    Ensure the endpoints of a range are finite and not too close together.
+    Modify the endpoints of a range as needed to avoid singularities.
 
-    "too close" means the interval is smaller than 'tiny' times
-    the maximum absolute value.
+    *vmin*, *vmax*
+        the initial endpoints.
 
-    If they are too close, each will be moved by the 'expander'.
-    If 'increasing' is True and vmin > vmax, they will be swapped,
-    regardless of whether they are too close.
+    *tiny*
+        threshold for the ratio of the interval to the maximum absolute
+        value of its endpoints.  If the interval is smaller than
+        this, it will be expanded.  This value should be around
+        1e-15 or larger; otherwise the interval will be approaching
+        the double precision resolution limit.
 
-    If either is inf or -inf or nan, return - expander, expander.
+    *expander*
+        fractional amount by which *vmin* and *vmax* are expanded if
+        the original interval is too small, based on *tiny*.
+
+    *increasing*: [True | False]
+        If True (default), swap *vmin*, *vmax* if *vmin* > *vmax*
+
+    Returns *vmin*, *vmax*, expanded and/or swapped if necessary.
+
+    If either input is inf or NaN, or if both inputs are 0,
+    returns -*expander*, *expander*.
     '''
     if (not np.isfinite(vmin)) or (not np.isfinite(vmax)):
         return -expander, expander
@@ -2293,7 +2306,7 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
         vmin, vmax = vmax, vmin
         swapped = True
     if vmax - vmin <= max(abs(vmin), abs(vmax)) * tiny:
-        if vmin == 0.0:
+        if vmax == 0 and vmin == 0:
             vmin = -expander
             vmax = expander
         else:
