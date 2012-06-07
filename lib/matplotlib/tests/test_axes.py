@@ -650,7 +650,6 @@ def test_marker_edges():
     ax.set_xticks([])
     ax.set_yticks([])
 
-<<<<<<< HEAD
 @image_comparison(baseline_images=['hist_log'])
 def test_hist_log():
     data0 = np.linspace(0,1,200)**3
