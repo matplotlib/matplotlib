@@ -1031,13 +1031,13 @@ class YAArrow(Patch):
         %(Patch)s
 
         """
-        self.figure = figure
         self.xytip = xytip
         self.xybase = xybase
         self.width = width
         self.frac = frac
         self.headwidth = headwidth
         Patch.__init__(self, **kwargs)
+        self.figure = figure
 
     def get_path(self):
         # Since this is dpi dependent, we need to recompute the path
