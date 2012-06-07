@@ -598,7 +598,7 @@ class ColorbarBase(cm.ScalarMappable):
         nb = len(self._boundaries)
         if self.extend == 'both':
             nb -= 2
-        elif self._extend_lower():
+        elif self.extend in ('min', 'max'):
             nb -= 1
         return nb
 
