@@ -106,14 +106,14 @@ class Triangulation(object):
             self.j_unique = np.delete(np.arange(len(self.x)), duplicates)
             self.x = self.x[self.j_unique]
             self.y = self.y[self.j_unique]
-
-            # Create map of point indices used by delaunay to those used
-            # by client.
-            self._client_point_index_map = np.delete(np.arange(self.old_shape[0]),
-                                                     duplicates)
         else:
             self.j_unique = None
-            self._client_point_index_map = None
+
+        # If there are duplicate points, need a map of point indices used
+        # by delaunay to those used by client.  If there are no duplicate
+        # points then the map is not needed.  Either way, the map is
+        # conveniently the same as j_unique, so share it.
+        self._client_point_index_map = self.j_unique
 
         self.circumcenters, self.edge_db, self.triangle_nodes, \
             self.triangle_neighbors = delaunay(self.x, self.y)
