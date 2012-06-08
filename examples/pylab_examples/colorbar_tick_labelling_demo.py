@@ -5,7 +5,7 @@ Contributed by Scott Sinclair
 
 import matplotlib.pyplot as plt
 import numpy as np
-
+from matplotlib import cm
 from numpy.random import randn
 
 # Make plot with vertical (default) colorbar

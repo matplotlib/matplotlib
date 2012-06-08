@@ -5,7 +5,7 @@ Demonstrate use of a log color scale in contourf
 from matplotlib import pyplot as P
 import numpy as np
 from numpy import ma
-from matplotlib import colors, ticker
+from matplotlib import colors, ticker, cm
 from matplotlib.mlab import bivariate_normal
 
 N = 100
