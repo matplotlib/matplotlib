@@ -1039,8 +1039,7 @@ _image_module::fromarray2(const Py::Tuple& args)
         int rgba = A->dimensions[2] == 4;
         double r, g, b, alpha;
         const size_t N = imo->rowsIn * imo->colsIn;
-        size_t i = 0;
-        while (i < N)
+        for (size_t i = 0; i < N; ++i)
         {
             r = *(double *)(A->data++);
             g = *(double *)(A->data++);
