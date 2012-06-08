@@ -226,6 +226,22 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
 
         // For any two consecutive off-path points, insert the implied
         // on-path point.
+
+        if (points.size() == 0) {
+            k=nextinctr(i,k);
+
+            if (k==NOMOREINCTR)
+            {
+                i=k=nextoutctr(i);
+            }
+
+            if (i==NOMOREOUTCTR)
+            {
+                break;
+            }
+            continue;
+        }
+
         FlaggedPoint prev = points.back();
         for (std::list<FlaggedPoint>::iterator it = points.begin();
              it != points.end();
