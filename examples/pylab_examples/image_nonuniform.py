@@ -7,6 +7,7 @@ generalization of imshow.
 from matplotlib.pyplot import figure, show
 import numpy as np
 from matplotlib.image import NonUniformImage
+from matplotlib import cm
 
 interp='nearest'
 
