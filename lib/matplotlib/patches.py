@@ -1037,6 +1037,7 @@ class YAArrow(Patch):
         self.frac = frac
         self.headwidth = headwidth
         Patch.__init__(self, **kwargs)
+        # Set self.figure after Patch.__init__, since it sets self.figure to None
         self.figure = figure
 
     def get_path(self):
@@ -4240,6 +4241,3 @@ class ConnectionPatch(FancyArrowPatch):
             return
 
         FancyArrowPatch.draw(self, renderer)
-
-
-
