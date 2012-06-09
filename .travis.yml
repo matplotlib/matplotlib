@@ -1,0 +1,11 @@
+language: python
+
+python:
+  - 2.6
+  - 2.7
+
+install:
+  - pip install --use-mirrors nose numpy PIL
+  - pip install .
+
+script: python tests.py
