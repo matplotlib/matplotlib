@@ -1,5 +1,5 @@
-# Editor temporary/working/backup files #
 #########################################
+# Editor temporary/working/backup files #
 .#*
 [#]*#
 *~
@@ -27,6 +27,8 @@ doc/_build
 dist
 # Egg metadata
 *.egg-info
+# tox testing tool
+.tox
 
 # OS generated files #
 ######################
