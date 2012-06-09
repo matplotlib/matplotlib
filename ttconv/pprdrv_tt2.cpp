@@ -260,30 +260,33 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
             points.push_back(points.front());
         }
 
-        // For output, a vector is more convenient than a list.
-        std::vector<FlaggedPoint> points_v(points.begin(), points.end());
         // The first point
         stack(stream, 3);
-        PSMoveto(stream, points_v.front().x, points_v.front().y);
+        PSMoveto(stream, points.front().x, points.front().y);
 
         // Step through the remaining points
-        for (size_t p = 1; p < points_v.size(); )
+        std::list<FlaggedPoint>::const_iterator it = points.begin();
+        for (it++; it != points.end(); /* incremented inside */)
         {
-            const FlaggedPoint& point = points_v.at(p);
+            const FlaggedPoint& point = *it;
             if (point.flag == ON_PATH)
             {
                 stack(stream, 3);
                 PSLineto(stream, point.x, point.y);
-                p++;
+                it++;
             } else {
-                assert(points_v.at(p-1).flag == ON_PATH);
-                assert(points_v.at(p+1).flag == ON_PATH);
+                std::list<FlaggedPoint>::const_iterator prev = it, next = it;
+                prev--;
+                next++;
+                assert(prev->flag == ON_PATH);
+                assert(next->flag == ON_PATH);
                 stack(stream, 7);
                 PSCurveto(stream,
-                          points_v.at(p-1).x, points_v.at(p-1).y,
+                          prev->x, prev->y,
                           point.x, point.y,
-                          points_v.at(p+1).x, points_v.at(p+1).y);
-                p += 2;
+                          next->x, next->y);
+                it++;
+                it++;
             }
         }
     }
