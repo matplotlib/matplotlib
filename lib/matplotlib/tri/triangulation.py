@@ -69,9 +69,11 @@ class Triangulation(object):
         if triangles is None:
             # No triangulation specified, so use matplotlib.delaunay.
             dt = delaunay.Triangulation(self.x, self.y)
-            self.triangles = np.asarray(dt.triangle_nodes, dtype=np.int32)
+            self.triangles = np.asarray(dt.to_client_point_indices(dt.triangle_nodes),
+                                        dtype=np.int32)
             if mask is None:
-                self._edges = np.asarray(dt.edge_db, dtype=np.int32)
+                self._edges = np.asarray(dt.to_client_point_indices(dt.edge_db),
+                                         dtype=np.int32)
                 # Delaunay triangle_neighbors uses different edge indexing,
                 # so convert.
                 neighbors = np.asarray(dt.triangle_neighbors, dtype=np.int32)
