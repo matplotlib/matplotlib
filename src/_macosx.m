@@ -3827,6 +3827,56 @@ FigureManager_destroy(FigureManager* self)
     return Py_None;
 }
 
+static PyObject*
+FigureManager_set_window_title(FigureManager* self,
+                               PyObject *args, PyObject *kwds)
+{
+    char* title;
+    if(!PyArg_ParseTuple(args, "es", "UTF-8", &title))
+        return NULL;
+
+    Window* window = self->window;
+    if(window)
+    {
+        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+        NSString* ns_title = [[NSString alloc]
+                              initWithCString: title
+                              encoding: NSUTF8StringEncoding];
+        [window setTitle: ns_title];
+        [pool release];
+    }
+    PyMem_Free(title);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject*
+FigureManager_get_window_title(FigureManager* self)
+{
+    Window* window = self->window;
+    PyObject* result = NULL;
+    if(window)
+    {
+        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+        NSString* title = [window title];
+        if (title) {
+            const char* cTitle = [title UTF8String];
+#if PY3K || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 6)
+            result = PyUnicode_FromString(cTitle);
+#else
+            result = PyString_FromString(cTitle);
+#endif
+        }
+        [pool release];
+    }
+    if (result) {
+        return result;
+    } else {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+}
+
 static PyMethodDef FigureManager_methods[] = {
     {"show",
      (PyCFunction)FigureManager_show,
@@ -3837,6 +3887,16 @@ static PyMethodDef FigureManager_methods[] = {
      (PyCFunction)FigureManager_destroy,
      METH_NOARGS,
      "Closes the window associated with the figure manager."
+    },
+    {"set_window_title",
+     (PyCFunction)FigureManager_set_window_title,
+     METH_VARARGS,
+     "Sets the title of the window associated with the figure manager."
+    },
+    {"get_window_title",
+     (PyCFunction)FigureManager_get_window_title,
+     METH_NOARGS,
+     "Returns the title of the window associated with the figure manager."
     },
     {NULL}  /* Sentinel */
 };
@@ -4806,11 +4866,19 @@ choose_save_file(PyObject* unused, PyObject* args)
 {
     int result;
     const char* title;
-    if(!PyArg_ParseTuple(args, "s", &title)) return NULL;
+    char* default_filename;
+    if(!PyArg_ParseTuple(args, "ses", &title, "UTF-8", &default_filename))
+        return NULL;
 
     NSSavePanel* panel = [NSSavePanel savePanel];
     [panel setTitle: [NSString stringWithCString: title
                                         encoding: NSASCIIStringEncoding]];
+    NSString* ns_default_filename =
+        [[NSString alloc]
+         initWithCString: default_filename
+         encoding: NSUTF8StringEncoding];
+    PyMem_Free(default_filename);
+    [panel setNameFieldStringValue: ns_default_filename];
     result = [panel runModal];
     if (result == NSOKButton)
     {
