@@ -61,6 +61,29 @@ class Triangulation(object):
 
       hull -- list of point_id's giving the nodes which form the convex hull
         of the point set. This list is sorted in counter-clockwise order.
+
+    Duplicate points.
+      If there are no duplicate points, Triangulation stores the specified
+      x and y arrays and there is no difference between the client's and
+      Triangulation's understanding of point indices used in edge_db,
+      triangle_nodes and hull.
+
+      If there are duplicate points, they are removed from the stored
+      self.x and self.y as the underlying delaunay code cannot deal with
+      duplicates.  len(self.x) is therefore equal to len(x) minus the
+      number of duplicate points.  Triangulation's edge_db, triangle_nodes
+      and hull refer to point indices in self.x and self.y, for internal
+      consistency within Triangulation and the corresponding Interpolator
+      classes.  Client code must take care to deal with this in one of
+      two ways:
+
+      1. Ignore the x,y it specified in Triangulation's constructor and
+         use triangulation.x and triangulation.y instead, as these are
+         consistent with edge_db, triangle_nodes and hull.
+
+      2. If using the x,y the client specified then edge_db,
+         triangle_nodes and hull should be passed through the function
+         to_client_point_indices() first.
     """
     def __init__(self, x, y):
         self.x = np.asarray(x, dtype=np.float64)
@@ -70,38 +93,48 @@ class Triangulation(object):
             raise ValueError("x,y must be equal-length 1-D arrays")
 
         self.old_shape = self.x.shape
-        j_unique = self._collapse_duplicate_points()
+        duplicates = self._get_duplicate_point_indices()
 
-        if j_unique.shape != self.x.shape:
+        if len(duplicates) > 0:
             warnings.warn(
                 "Input data contains duplicate x,y points; some values are ignored.",
                 DuplicatePointWarning,
             )
-            self.j_unique = j_unique
+
+            # self.j_unique is the array of non-duplicate indices, in
+            # increasing order.
+            self.j_unique = np.delete(np.arange(len(self.x)), duplicates)
             self.x = self.x[self.j_unique]
             self.y = self.y[self.j_unique]
         else:
             self.j_unique = None
 
+        # If there are duplicate points, need a map of point indices used
+        # by delaunay to those used by client.  If there are no duplicate
+        # points then the map is not needed.  Either way, the map is
+        # conveniently the same as j_unique, so share it.
+        self._client_point_index_map = self.j_unique
 
         self.circumcenters, self.edge_db, self.triangle_nodes, \
             self.triangle_neighbors = delaunay(self.x, self.y)
 
         self.hull = self._compute_convex_hull()
 
-    def _collapse_duplicate_points(self):
-        """Generate index array that picks out unique x,y points.
-
-        This appears to be required by the underlying delaunay triangulation
-        code.
+    def _get_duplicate_point_indices(self):
+        """Return array of indices of x,y points that are duplicates of
+        previous points. Indices are in no particular order.
         """
-        # Find the indices of the unique entries
+        # Indices of sorted x,y points.
         j_sorted = np.lexsort(keys=(self.x, self.y))
-        mask_unique = np.hstack([
-            True, 
-            (np.diff(self.x[j_sorted]) != 0) | (np.diff(self.y[j_sorted]) != 0),
+
+        # Mask, in j_sorted order, which is True for duplicate points.
+        mask_duplicates = np.hstack([
+            False,
+            (np.diff(self.x[j_sorted]) == 0) & (np.diff(self.y[j_sorted]) == 0),
         ])
-        return j_sorted[mask_unique]
+
+        # Array of duplicate point indices, in no particular order.
+        return j_sorted[mask_duplicates]
 
     def _compute_convex_hull(self):
         """Extract the convex hull from the triangulation information.
@@ -128,6 +161,16 @@ class Triangulation(object):
         hull.pop()
 
         return hull
+
+    def to_client_point_indices(self, array):
+        """Converts any array of point indices used within this class to
+        refer to point indices within the (x,y) arrays specified in the
+        constructor before duplicates were removed.
+        """
+        if self._client_point_index_map is not None:
+            return self._client_point_index_map[array]
+        else:
+            return array
 
     def linear_interpolator(self, z, default_value=np.nan):
         """Get an object which can interpolate within the convex hull by
