@@ -203,8 +203,9 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
     /* Step thru the coutours. */
     /* I believe that a contour is a detatched */
     /* set of curves and lines. */
-    i=j=k=0;
-    while ( i < num_ctr )
+    for(i = j = k = 0;
+        i != NOMOREOUTCTR && i < num_ctr;
+        k = nextinctr(i, k), (k == NOMOREINCTR && (i = k = nextoutctr(i))))
     {
         // A TrueType contour consists of on-path and off-path points.
         // Two consecutive on-path points are to be joined with a
@@ -224,24 +225,13 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
             }
         }
 
-        // For any two consecutive off-path points, insert the implied
-        // on-path point.
-
         if (points.size() == 0) {
-            k=nextinctr(i,k);
-
-            if (k==NOMOREINCTR)
-            {
-                i=k=nextoutctr(i);
-            }
-
-            if (i==NOMOREOUTCTR)
-            {
-                break;
-            }
+            // Don't try to access the last element of an empty list
             continue;
         }
 
+        // For any two consecutive off-path points, insert the implied
+        // on-path point.
         FlaggedPoint prev = points.back();
         for (std::list<FlaggedPoint>::iterator it = points.begin();
              it != points.end();
@@ -270,43 +260,34 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
             points.push_back(points.front());
         }
 
-        // For output, a vector is more convenient than a list.
-        std::vector<FlaggedPoint> points_v(points.begin(), points.end());
         // The first point
         stack(stream, 3);
-        PSMoveto(stream, points_v.front().x, points_v.front().y);
+        PSMoveto(stream, points.front().x, points.front().y);
 
         // Step through the remaining points
-        for (size_t p = 1; p < points_v.size(); )
+        std::list<FlaggedPoint>::const_iterator it = points.begin();
+        for (it++; it != points.end(); /* incremented inside */)
         {
-            const FlaggedPoint& point = points_v.at(p);
+            const FlaggedPoint& point = *it;
             if (point.flag == ON_PATH)
             {
                 stack(stream, 3);
                 PSLineto(stream, point.x, point.y);
-                p++;
+                it++;
             } else {
-                assert(points_v.at(p-1).flag == ON_PATH);
-                assert(points_v.at(p+1).flag == ON_PATH);
+                std::list<FlaggedPoint>::const_iterator prev = it, next = it;
+                prev--;
+                next++;
+                assert(prev->flag == ON_PATH);
+                assert(next->flag == ON_PATH);
                 stack(stream, 7);
                 PSCurveto(stream,
-                          points_v.at(p-1).x, points_v.at(p-1).y,
+                          prev->x, prev->y,
                           point.x, point.y,
-                          points_v.at(p+1).x, points_v.at(p+1).y);
-                p += 2;
+                          next->x, next->y);
+                it++;
+                it++;
             }
-        }
-
-        k=nextinctr(i,k);
-
-        if (k==NOMOREINCTR)
-        {
-            i=k=nextoutctr(i);
-        }
-
-        if (i==NOMOREOUTCTR)
-        {
-            break;
         }
     }
 
