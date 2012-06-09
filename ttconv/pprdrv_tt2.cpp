@@ -271,7 +271,15 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
         }
 
         // For output, a vector is more convenient than a list.
-        std::vector<FlaggedPoint> points_v(points.begin(), points.end());
+        std::vector<FlaggedPoint> points_v;
+        points_v.reserve(points.size());
+        for (std::list<FlaggedPoint>::iterator it = points.begin();
+             it != points.end();
+             it++)
+        {
+            points_v.push_back(*it);
+        }
+
         // The first point
         stack(stream, 3);
         PSMoveto(stream, points_v.front().x, points_v.front().y);
