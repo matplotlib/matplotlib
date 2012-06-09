@@ -203,8 +203,9 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
     /* Step thru the coutours. */
     /* I believe that a contour is a detatched */
     /* set of curves and lines. */
-    i=j=k=0;
-    while ( i < num_ctr )
+    for(i = j = k = 0;
+        i != NOMOREOUTCTR && i < num_ctr;
+        k = nextinctr(i, k), (k == NOMOREINCTR && (i = k = nextoutctr(i))))
     {
         // A TrueType contour consists of on-path and off-path points.
         // Two consecutive on-path points are to be joined with a
@@ -224,24 +225,13 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
             }
         }
 
-        // For any two consecutive off-path points, insert the implied
-        // on-path point.
-
         if (points.size() == 0) {
-            k=nextinctr(i,k);
-
-            if (k==NOMOREINCTR)
-            {
-                i=k=nextoutctr(i);
-            }
-
-            if (i==NOMOREOUTCTR)
-            {
-                break;
-            }
+            // Don't try to access the last element of an empty list
             continue;
         }
 
+        // For any two consecutive off-path points, insert the implied
+        // on-path point.
         FlaggedPoint prev = points.back();
         for (std::list<FlaggedPoint>::iterator it = points.begin();
              it != points.end();
@@ -295,18 +285,6 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
                           points_v.at(p+1).x, points_v.at(p+1).y);
                 p += 2;
             }
-        }
-
-        k=nextinctr(i,k);
-
-        if (k==NOMOREINCTR)
-        {
-            i=k=nextoutctr(i);
-        }
-
-        if (i==NOMOREOUTCTR)
-        {
-            break;
         }
     }
 
