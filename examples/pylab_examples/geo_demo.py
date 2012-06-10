@@ -1,6 +1,3 @@
-import numpy as np
-#np.seterr("raise")
-
 from pylab import *
 
 subplot(221, projection="aitoff")
