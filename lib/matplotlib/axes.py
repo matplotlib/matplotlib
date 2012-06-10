@@ -6372,9 +6372,9 @@ class Axes(martist.Artist):
            arrow(x, y, dx, dy, **kwargs)
 
         Draws arrow on specified axis from (*x*, *y*) to (*x* + *dx*,
-        *y* + *dy*).
+        *y* + *dy*). Uses FancyArrow patch to construct the arrow.
 
-        Optional kwargs control the arrow properties:
+        Optional kwargs control the arrow construction and properties:
 
         %(FancyArrow)s
 
