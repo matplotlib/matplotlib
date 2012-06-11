@@ -920,30 +920,30 @@ class FancyArrow(Polygon):
         head_starts_at_zero=False,**kwargs):
         """
         Constructor arguments
-          width: float (default: 0.001)
+          *width*: float (default: 0.001)
             width of full arrow tail
 
-          length_includes_head: [True | False] (default: False)
+          *length_includes_head*: [True | False] (default: False)
             True if head is to be counted in calculating the length.
 
-          head_width: float or None (default: 3*width)
+          *head_width*: float or None (default: 3*width)
             total width of the full arrow head
 
-          head_length: float or None (default: 1.5 * head_width)
+          *head_length*: float or None (default: 1.5 * head_width)
             length of arrow head
 
-          shape: ['full', 'left', 'right'] (default: 'full')
+          *shape*: ['full', 'left', 'right'] (default: 'full')
             draw the left-half, right-half, or full arrow
 
-          overhang: float (default: 0)
+          *overhang*: float (default: 0)
             fraction that the arrow is swept back (0 overhang means
             triangular shape). Can be negative or greater than one.
 
-          head_starts_at_zero: [True | False] (default: False)
+          *head_starts_at_zero*: [True | False] (default: False)
             if True, the head starts being drawn at coordinate 0
             instead of ending at coordinate 0.
 
-        Other valid kwargs (inherited from Patch) are:
+        Other valid kwargs (inherited from :class:`Patch`) are:
         %(Patch)s
 
         """
