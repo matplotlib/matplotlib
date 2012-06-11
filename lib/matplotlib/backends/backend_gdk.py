@@ -228,6 +228,9 @@ class RendererGDK(RendererBase):
         if x < 0 or y < 0: # window has shrunk and text is off the edge
             return
 
+        if x + w > self.width or y + h > self.height:
+            return
+
         key = (x,y,s,angle,hash(prop))
         imageVert = self.rotated.get(key)
         if imageVert != None:
