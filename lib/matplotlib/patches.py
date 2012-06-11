@@ -1030,13 +1030,14 @@ class YAArrow(Patch):
         %(Patch)s
 
         """
-        self.figure = figure
         self.xytip = xytip
         self.xybase = xybase
         self.width = width
         self.frac = frac
         self.headwidth = headwidth
         Patch.__init__(self, **kwargs)
+        # Set self.figure after Patch.__init__, since it sets self.figure to None
+        self.figure = figure
 
     def get_path(self):
         # Since this is dpi dependent, we need to recompute the path
@@ -4239,6 +4240,3 @@ class ConnectionPatch(FancyArrowPatch):
             return
 
         FancyArrowPatch.draw(self, renderer)
-
-
-
