@@ -1,5 +1,5 @@
 """
-You will need to have freetype, libpng and zlib installed to comile
+You will need to have freetype, libpng and zlib installed to compile
 matplotlib, inlcuding the *-devel versions of these libraries if you
 are using a package manager like RPM or debian.
 
@@ -247,6 +247,7 @@ template = open('lib/matplotlib/mpl-data/matplotlib.conf.template').read()
 template = template.replace("datapath = ", "#datapath = ")
 template = template.replace("    use = 'Agg'", "    use = '%s'"%rc['backend'])
 open('lib/matplotlib/mpl-data/matplotlib.conf', 'w').write(template)
+
 
 try: additional_params # has setupegg.py provided
 except NameError: additional_params = {}
