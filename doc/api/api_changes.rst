@@ -22,16 +22,35 @@ Changes in 1.2.x
   now set the radius of the pie; setting the *radius* to 'None' (the default
   value), will result in a pie with a radius of 1 as before.
 
-* Use of :func:`matplotlib.projections.projection_factory` is now deprecated
+* Use of :func:`~matplotlib.projections.projection_factory` is now deprecated
   in favour of axes class identification using
-  :func:`matplotlib.projections.process_projection_requirements` followed by
-  direct axes class invocation (at the time of writing, this is done by
-  :meth:`matplotlib.figure.Figure.add_axes`,
-  :meth:`matplotlib.figure.Figure.add_subplot` and
-  :meth:`matplotlib.figure.Figure.gca`.
+  :func:`~matplotlib.projections.process_projection_requirements` followed by
+  direct axes class invocation (at the time of writing, functions which do this
+  are: :meth:`~matplotlib.figure.Figure.add_axes`,
+  :meth:`~matplotlib.figure.Figure.add_subplot` and
+  :meth:`~matplotlib.figure.Figure.gca`). Therefore::
+
+
+      key = figure._make_key(*args, **kwargs)
+      ispolar = kwargs.pop('polar', False)
+      projection = kwargs.pop('projection', None)
+      if ispolar:
+          if projection is not None and projection != 'polar':
+              raise ValuError('polar and projection args are inconsistent')
+          projection = 'polar'
+      ax = projection_factory(projection, self, rect, **kwargs)
+      key = self._make_key(*args, **kwargs)
+
+      # is now
+
+      projection_class, kwargs, key = \
+                         process_projection_requirements(self, *args, **kwargs)
+      ax = projection_class(self, rect, **kwargs)
+
   This change means that third party objects can expose themselves as
-  matplotlib axes by providing a ``_as_mpl_axes`` method (see
-  :ref:`adding-new-scales` for more detail).
+  matplotlib axes by providing a ``_as_mpl_axes`` method. See
+  :ref:`adding-new-scales` for more detail.
+
 
 Changes in 1.1.x
 ================
