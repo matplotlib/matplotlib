@@ -21,6 +21,8 @@ import inspect
 import random
 import types
 
+import textwrap
+
 # import the local copy of matplotlib, not the installed one
 #sys.path.insert(0, './lib')
 from matplotlib.axes import Axes
@@ -62,7 +64,7 @@ def %(func)s(%(argspec)s):
 MISC_FN_TEMPLATE = AUTOGEN_MSG + """
 @docstring.copy_dedent(Axes.%(func)s)
 def %(func)s(%(argspec)s):
-    %(ret)s =  gca().%(func)s(%(call)s)
+    %(ret)s = gca().%(func)s(%(call)s)
     draw_if_interactive()
     return %(ret)s
 """
@@ -189,6 +191,8 @@ def boilerplate_gen():
                              'formatvalue') % value)
         return '='+repr(value)
 
+    text_wrapper = textwrap.TextWrapper(break_long_words=False)
+
     for fmt, cmdlist in [(PLOT_TEMPLATE, _plotcommands),
                          (MISC_FN_TEMPLATE, _misccommands)]:
         for func in cmdlist:
@@ -206,12 +210,22 @@ def boilerplate_gen():
                 defaults = ()
 
             # How to call the wrapped function
-            call = list(map(str, args))
+            call = []
+            for i, arg in enumerate(args):
+                if len(defaults) < len(args) - i:
+                    call.append('%s' % arg)
+                else:
+                    call.append('%s=%s' % (arg, arg))
+                  
             if varargs is not None:
                 call.append('*'+varargs)
             if varkw is not None:
                 call.append('**'+varkw)
             call = ', '.join(call)
+
+            text_wrapper.width = 80 - 19 - len(func)
+            join_with = '\n' + ' ' * (18 + len(func))
+            call = join_with.join(text_wrapper.wrap(call))
 
             # Add a hold keyword argument if needed (fmt is PLOT_TEMPLATE) and
             # possible (if *args is used, we can't just add a hold
@@ -228,6 +242,10 @@ def boilerplate_gen():
             argspec = inspect.formatargspec(args, varargs, varkw, defaults,
                                             formatvalue=format_value)
             argspec = argspec[1:-1] # remove parens
+
+            text_wrapper.width = 80 - 5 - len(func)
+            join_with = '\n' + ' ' * (5 + len(func))
+            argspec = join_with.join(text_wrapper.wrap(argspec))
 
             # A gensym-like facility in case some function takes an
             # argument named washold, ax, or ret
