@@ -104,11 +104,11 @@ elements:
 
 Once the projection axes is defined, it can be used in one of two ways:
 
-  - By defining the class attribute ``NAME``, the projection axes can be
+  - By defining the class attribute ``name``, the projection axes can be
     registered with :func:`matplotlib.projections.register_projection`
     and subsequently simply invoked by name::
 
-        plt.axes(projection=NAME)
+        plt.axes(projection='my_proj_name')
 
   - For more complex, parameterisable projections, a generic "projection"
     object may be defined which includes the method ``_as_mpl_axes``.
