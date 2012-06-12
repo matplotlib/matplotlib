@@ -4,6 +4,7 @@ from numpy.testing import assert_almost_equal
 from matplotlib.transforms import Affine2D, BlendedGenericTransform
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
+from matplotlib.testing.decorators import cleanup
 import numpy as np
 
 import matplotlib.transforms as mtrans
@@ -11,7 +12,7 @@ import matplotlib.pyplot as plt
 
 
 
-
+@cleanup
 def test_non_affine_caching():
     class AssertingNonAffineTransform(mtrans.Transform):
         """
