@@ -794,11 +794,17 @@ class RendererSVG(RendererBase):
                 attrib=attrib)
         else:
             flipped = self._make_flip_transform(transform)
+            flipped = np.array(flipped.to_values())
+            y = y+dy
+            if dy > 0.0:
+                flipped[3] *= -1.0
+                y *= -1.0
             attrib[u'transform'] = generate_transform(
-                [(u'matrix', flipped.to_values())])
+                [(u'matrix', flipped)])
             self.writer.element(
                 u'image',
-                x=unicode(x), y=unicode(y+dy), width=unicode(dx), height=unicode(-dy),
+                x=unicode(x), y=unicode(y),
+                width=unicode(dx), height=unicode(abs(dy)),
                 attrib=attrib)
 
         if url is not None:
