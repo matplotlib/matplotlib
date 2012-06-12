@@ -220,7 +220,7 @@ def _parse_kern_pairs(fh):
         vals = line.split()
         if len(vals)!=4 or vals[0]!=b'KPX':
             raise RuntimeError('Bad kern pairs line: %s'%line)
-        c1, c2, val = vals[1], vals[2], _to_float(vals[3])
+        c1, c2, val = _to_str(vals[1]), _to_str(vals[2]), _to_float(vals[3])
         d[(c1,c2)] = val
     raise RuntimeError('Bad kern pairs parse')
 
