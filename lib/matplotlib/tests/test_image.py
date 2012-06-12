@@ -10,6 +10,12 @@ from numpy.testing import assert_array_equal
 import io
 import os
 
+try:
+    from PIL import Image
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
+
 @image_comparison(baseline_images=['image_interps'])
 def test_image_interps():
     'make the basic nearest, bilinear and bicubic interps'
@@ -76,9 +82,10 @@ def test_image_python_io():
     buffer.seek(0)
     plt.imread(buffer)
 
+@knownfailureif(not HAS_PIL)
 def test_imread_pil_uint16():
     img = plt.imread(os.path.join(os.path.dirname(__file__),
-                     'baseline_images/test_image/uint16.tif'))
+                     'baseline_images', 'test_image', 'uint16.tif'))
     assert (img.dtype == np.uint16)
     assert np.sum(img) == 134184960
 
