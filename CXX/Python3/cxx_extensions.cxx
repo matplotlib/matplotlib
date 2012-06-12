@@ -440,10 +440,10 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
     table->tp_version_tag = 0;
 
 #ifdef COUNT_ALLOCS
-    table->tp_alloc = 0;
-    table->tp_free = 0;
+    table->tp_allocs = 0;
+    table->tp_frees = 0;
     table->tp_maxalloc = 0;
-    table->tp_orev = 0;
+    table->tp_prev = 0;
     table->tp_next = 0;
 #endif
 }
