@@ -264,6 +264,7 @@ def test_const_xy():
     plt.subplot( 313 )
     plt.plot( np.ones( (10,) ), np.ones( (10,) ), 'o' )
 
+
 @image_comparison(baseline_images=['polar_wrap_180',
                                    'polar_wrap_360',
                                    ])
@@ -272,20 +273,20 @@ def test_polar_wrap():
 
     fig = plt.figure()
 
-    #NOTE: resolution=1 really should be the default
-    plt.subplot( 111, polar=True, resolution=1 )
+    plt.subplot(111, polar=True)
+
     plt.polar( [179*D2R, -179*D2R], [0.2, 0.1], "b.-" )
     plt.polar( [179*D2R,  181*D2R], [0.2, 0.1], "g.-" )
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
-
+    assert len(fig.axes) == 1, 'More than one polar axes created.'
     fig = plt.figure()
 
-    #NOTE: resolution=1 really should be the default
-    plt.subplot( 111, polar=True, resolution=1 )
+    plt.subplot( 111, polar=True)
     plt.polar( [2*D2R, -2*D2R], [0.2, 0.1], "b.-" )
     plt.polar( [2*D2R,  358*D2R], [0.2, 0.1], "g.-" )
     plt.polar( [358*D2R,  2*D2R], [0.2, 0.1], "r.-" )
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
+
 
 @image_comparison(baseline_images=['polar_units', 'polar_units_2'],
                   freetype_version=('2.4.5', '2.4.9'))
@@ -711,6 +712,55 @@ def test_hist2d_transpose():
 def test_scatter_plot():
     ax = plt.axes()
     ax.scatter([3, 4, 2, 6], [2, 5, 2, 3], c=['r', 'y', 'b', 'lime'], s=[24, 15, 19, 29])
+
+def test_as_mpl_axes_api():
+    # tests the _as_mpl_axes api
+    from matplotlib.projections.polar import PolarAxes
+    import matplotlib.axes as maxes
+
+    class Polar(object):
+        def __init__(self):
+            self.theta_offset = 0
+
+        def _as_mpl_axes(self):
+            # implement the matplotlib axes interface
+            return PolarAxes, {'theta_offset': self.theta_offset}
+    prj = Polar()
+    prj2 = Polar()
+    prj2.theta_offset = np.pi
+    prj3 = Polar()
+
+    # testing axes creation with plt.axes
+    ax = plt.axes([0, 0, 1, 1], projection=prj)
+    assert type(ax) == PolarAxes, \
+           'Expected a PolarAxes, got %s' % type(ax)
+    ax_via_gca = plt.gca(projection=prj)
+    # ideally, ax_via_gca is ax should be true. However, gca isn't
+    # plummed like that. (even with projection='polar').
+    assert ax_via_gca is not ax
+    plt.close()
+
+    # testing axes creation with gca
+    ax = plt.gca(projection=prj)
+    assert type(ax) == maxes._subplot_classes[PolarAxes], \
+           'Expected a PolarAxesSubplot, got %s' % type(ax)
+    ax_via_gca = plt.gca(projection=prj)
+    assert ax_via_gca is ax
+    # try getting the axes given a different polar projection
+    ax_via_gca = plt.gca(projection=prj2)
+    assert ax_via_gca is not ax
+    assert ax.get_theta_offset() == 0, ax.get_theta_offset()
+    assert ax_via_gca.get_theta_offset() == np.pi, ax_via_gca.get_theta_offset()
+    # try getting the axes given an == (not is) polar projection
+    ax_via_gca = plt.gca(projection=prj3)
+    assert ax_via_gca is ax
+    plt.close()
+
+    # testing axes creation with subplot
+    ax = plt.subplot(121, projection=prj)
+    assert type(ax) == maxes._subplot_classes[PolarAxes], \
+           'Expected a PolarAxesSubplot, got %s' % type(ax)
+    plt.close()
 
 
 if __name__=='__main__':
