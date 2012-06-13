@@ -151,18 +151,14 @@ def test_imshow():
     ax.set_xlim(0,3)
     ax.set_ylim(0,3)
 
-@image_comparison(baseline_images=['no_interpolation_origin'])
+@image_comparison(baseline_images=['no_interpolation_origin'], remove_text=True)
 def test_no_interpolation_origin():
     fig = plt.figure()
     ax = fig.add_subplot(211)
     ax.imshow(np.arange(100).reshape((2, 50)), origin="lower", interpolation='none')
-    ax.set_xticks([])
-    ax.set_yticks([])
 
     ax = fig.add_subplot(212)
     ax.imshow(np.arange(100).reshape((2, 50)), interpolation='none')
-    ax.set_xticks([])
-    ax.set_yticks([])
 
 if __name__=='__main__':
     import nose
