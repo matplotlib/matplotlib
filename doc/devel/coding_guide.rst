@@ -509,6 +509,66 @@ Let's say you've added a new module named
 the list of default tests, append its name to ``default_test_modules``
 in :file:`lib/matplotlib/__init__.py`.
 
+Using tox
+---------
+
+`Tox <http://tox.testrun.org/>`_ is a tool for running tests against multiple
+Python environments, including multiple versions of Python (e.g.: 2.6, 2.7,
+3.2, etc.) and even different Python implementations altogether (e.g.: CPython,
+PyPy, Jython, etc.)
+
+It's a good idea to run ``tox`` in your working directory before submitting a
+pull request with your changes. To do so:
+
+.. code-block:: bash
+
+    $ pip install tox
+    $ tox
+
+You can also run tox on a subset of environments:
+
+.. code-block:: bash
+
+    $ tox -e py26,py27
+
+Tox processes everything serially so it can take a long time to test several
+environments. To speed it up, you might try using a new, parallelized version
+of tox called ``detox``. Give this a try:
+
+.. code-block:: bash
+
+    $ pip install -U -i http://pypi.testrun.org detox
+    $ detox
+
+Tox is configured using a file called ``tox.ini``. You may need to edit this
+file if you want to add new environments to test (e.g.: ``py33``) or if you
+want to tweak the dependencies or the way the tests are run. For more info on
+the ``tox.ini`` file, see the `Tox Configuration Specification
+<http://tox.testrun.org/latest/config.html>`_.
+
+Using Travis CI
+---------------
+
+`Travis CI <http://travis-ci.org/>`_ is a hosted CI system "in the cloud".
+
+Travis is configured to receive notifications of new commits to GitHub repos
+(via GitHub "service hooks") and to run builds or tests when it sees these new
+commits. It looks for a YAML file called ``.travis.yml`` in the root of the
+repository to see how to test the project.
+
+Travis CI is already enabled for the `main matplotlib GitHub repository
+<https://github.com/matplotlib/matplotlib/>`_ -- for example, see `its Travis
+page <http://travis-ci.org/#!/matplotlib/matplotlib>`_.
+
+If you want to enable Travis CI for your personal matplotlib GitHub repo,
+simply enable the repo to use Travis CI in either the Travis CI UI or the
+GitHub UI (Admin | Service Hooks). For details, see `the Travis CI Getting
+Started page <http://about.travis-ci.org/docs/user/getting-started/>`_.
+
+Once this is configured, you can see the Travis CI results at
+http://travis-ci.org/#!/your_GitHub_user_name/matplotlib -- here's `an example
+<http://travis-ci.org/#!/msabramo/matplotlib>`_.
+
 .. _license-discussion:
 
 Licenses
