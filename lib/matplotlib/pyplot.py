@@ -2065,7 +2065,7 @@ def polar(*args, **kwargs):
     interpolate between each pair of points.  The default is 1,
     which disables interpolation.
     """
-    resolution = kwargs.pop('resolution', None)
+    resolution = kwargs.pop('resolution', 1)
     ax = gca(polar=True, resolution=resolution)
     ret = ax.plot(*args, **kwargs)
     draw_if_interactive()

@@ -121,4 +121,3 @@ def test_tight_layout6():
                                 None, 1 - (gs2.top-top)],
                      h_pad=0.5)
 
-
