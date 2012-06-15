@@ -1418,7 +1418,7 @@ class Figure(Artist):
                 ax.patch.set_edgecolor(cc[1])
 
     @docstring.dedent_interpd
-    def colorbar(self, mappable, cax=None, ax=None, **kw):
+    def colorbar(self, mappable, cax=None, ax=None, use_gridspec=False, **kw):
         """
         Create a colorbar for a ScalarMappable instance, *mappable*.
 
@@ -1427,7 +1427,7 @@ class Figure(Artist):
         """
         if ax is None:
             ax = self.gca()
-        use_gridspec = kw.pop("use_gridspec", True)
+
         if cax is None:
             if use_gridspec and isinstance(ax, SubplotBase):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
