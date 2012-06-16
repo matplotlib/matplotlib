@@ -5,7 +5,7 @@ Streamline plotting for 2D vector fields.
 import numpy as np
 import matplotlib
 import matplotlib.patches as patches
-
+from matplotlib.cm import get_cmap
 
 __all__ = ['streamplot']
 
@@ -105,7 +105,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         if norm is None:
             norm = matplotlib.colors.normalize(color.min(), color.max())
         if cmap is None:
-            cmap = matplotlib.cm.get_cmap(matplotlib.rcParams['image.cmap'])
+            cmap = get_cmap(matplotlib.rcParams['image.cmap'])
+        else:
+            cmap = get_cmap(cmap)
 
     streamlines = []
     for t in trajectories:
