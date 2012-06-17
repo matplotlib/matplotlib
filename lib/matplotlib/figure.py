@@ -791,6 +791,8 @@ class Figure(Artist):
 
             a = args[0]
             assert(a.get_figure() is self)
+            # make a key for the subplot (which includes the axes object id
+            # in the hash)
             key = self._make_key(*args, **kwargs)
         else:
             projection_class, kwargs, key = \
