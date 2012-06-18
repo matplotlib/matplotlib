@@ -30,7 +30,7 @@ z = ma.masked_where(z<= 0, z)
 
 # Automatic selection of levels works; setting the
 # log locator tells contourf to use a log scale:
-cs = P.contourf(X, Y, z, locator=ticker.LogLocator(), cmap = cm.PuBu_r)
+cs = P.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
 
 # Alternatively, you can manually set the levels
 # and the norm:

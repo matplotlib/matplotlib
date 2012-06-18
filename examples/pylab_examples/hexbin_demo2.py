@@ -39,7 +39,8 @@ ymax = y.max()
 gridsize=30
 
 plt.subplot(211)
-plt.hexbin(x,y, C=z, gridsize=gridsize, marginals=True, cmap=plt.cm.RdBu, vmax=abs(z).max(), vmin=-abs(z).max())
+plt.hexbin(x,y, C=z, gridsize=gridsize, marginals=True, cmap=plt.cm.RdBu, 
+           vmax=abs(z).max(), vmin=-abs(z).max())
 plt.axis([xmin, xmax, ymin, ymax])
 cb = plt.colorbar()
 cb.set_label('mean value')
