@@ -1,6 +1,9 @@
-from matplotlib import rcParams, rcParamsDefault
-from matplotlib.testing.decorators import image_comparison
+import numpy as np
+from numpy import ma
+import matplotlib
+from matplotlib.testing.decorators import image_comparison, knownfailureif
 import matplotlib.pyplot as plt
+from matplotlib import rcParams, rcParamsDefault
 from matplotlib.colors import BoundaryNorm
 from matplotlib.cm import get_cmap
 from matplotlib.colorbar import ColorbarBase
@@ -114,7 +117,75 @@ def test_colorbar_extension_length():
     fig2 = _colorbar_extension_length('proportional')
 
 
-if __name__ == '__main__':
-    import nose
-    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
+@image_comparison(baseline_images=['cbar_with_orientation',
+                                   'cbar_locationing',
+                                   'double_cbar',
+                                   'cbar_sharing',
+                                   ],
+                  extensions=['png', 'pdf']
+                  )
+def test_colorbar_positioning():
+    data = np.arange(1200).reshape(30, 40)
+    levels = [0, 200, 400, 600, 800, 1000, 1200]
 
+    plt.figure()
+    plt.contourf(data, levels=levels)
+    plt.colorbar(orientation='horizontal')
+
+
+    locations = ['left', 'right', 'top', 'bottom']
+    plt.figure()
+    for i, location in enumerate(locations):
+        plt.subplot(2, 2, i+1)
+        plt.contourf(data, levels=levels)
+        plt.colorbar(location=location)
+
+
+    plt.figure()
+    # make some other data (random integers)
+    data_2nd = np.array([[2, 3, 2, 3], [1.5, 2, 2, 3], [2, 3, 3, 4]])
+    # make the random data expand to the shape of the main data
+    data_2nd = np.repeat(np.repeat(data_2nd, 10, axis=1), 10, axis=0)
+
+    color_mappable = plt.contourf(data, levels=levels, extend='both')
+    # test extend frac here
+    hatch_mappable = plt.contourf(data_2nd, levels=[1, 2, 3], colors='none', hatches=['/', 'o', '+'], extend='max')
+    plt.contour(hatch_mappable, colors='black')
+
+    plt.colorbar(color_mappable, location='left', label='variable 1')
+    plt.colorbar(hatch_mappable, location='right', label='variable 2')
+
+
+    plt.figure()
+    ax1 = plt.subplot(211, anchor='NE', aspect='equal')
+    plt.contourf(data, levels=levels)
+    ax2 = plt.subplot(223)
+    plt.contourf(data, levels=levels)
+    ax3 = plt.subplot(224)
+    plt.contourf(data, levels=levels)
+
+    plt.colorbar(ax=[ax2, ax3, ax1], location='right', pad=0.0, shrink=0.5, panchor=False)
+    plt.colorbar(ax=[ax2, ax3, ax1], location='left', shrink=0.5, panchor=False)
+    plt.colorbar(ax=[ax1], location='bottom', panchor=False, anchor=(0.8, 0.5), shrink=0.6)
+
+
+@image_comparison(baseline_images=['cbar_with_subplots_adjust'])
+def test_gridspec_make_colorbar():
+    plt.figure()
+    data = np.arange(1200).reshape(30, 40)
+    levels = [0, 200, 400, 600, 800, 1000, 1200]
+
+    plt.subplot(121)
+    plt.contourf(data, levels=levels)
+    plt.colorbar(use_gridspec=True, orientation='vertical')
+
+    plt.subplot(122)
+    plt.contourf(data, levels=levels)
+    plt.colorbar(use_gridspec=True, orientation='horizontal')
+
+    plt.subplots_adjust(top=0.95, right=0.95, bottom=0.2, hspace=0.25)
+
+
+if __name__=='__main__':
+    import nose
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
