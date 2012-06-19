@@ -1616,6 +1616,7 @@ def plotting():
                     until they have been closed; in interactive mode,
                     show generally has no effect.
     specgram        a spectrogram plot
+    stackplot       make a stacked plot
     stem            make a stem plot
     subplot         make a subplot (numrows, numcols, axesnum)
     table           add a table to the axes
