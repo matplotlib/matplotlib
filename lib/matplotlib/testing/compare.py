@@ -300,6 +300,9 @@ def compare_images( expected, actual, tol, in_decorator=False ):
       actual = convert(actual, False)
       expected = convert(expected, True)
 
+   if not os.path.exists(expected):
+       raise IOError('Baseline image %r does not exist.' % expected)
+
    # open the image files and remove the alpha channel (if it exists)
    expectedImage = _png.read_png_int( expected )
    actualImage = _png.read_png_int( actual )

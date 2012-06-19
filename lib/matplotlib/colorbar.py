@@ -153,7 +153,7 @@ keyword arguments:
   *ax*
     None | parent axes object(s) from which space for a new
     colorbar axes will be stolen. If a list of axes is given
-    they will be resized to make room for the colorbar axes.
+    they will all be resized to make room for the colorbar axes.
   *use_gridspec*
     False | If *cax* is None, a new *cax* is created as an instance of
     Axes. If *ax* is an instance of Subplot and *use_gridspec* is True,
@@ -258,7 +258,7 @@ class ColorbarBase(cm.ScalarMappable):
                  values=None,
                  boundaries=None,
                  orientation='vertical',
-                 location='right',
+                 ticklocation='auto',
                  extend='neither',
                  spacing='uniform',  # uniform or proportional
                  ticks=None,
@@ -282,7 +282,6 @@ class ColorbarBase(cm.ScalarMappable):
         self._inside = self._slice_dict[extend]
         self.spacing = spacing
         self.orientation = orientation
-        self.location = location
         self.drawedges = drawedges
         self.filled = filled
         self.extendfrac = extendfrac
@@ -292,7 +291,12 @@ class ColorbarBase(cm.ScalarMappable):
         self.outline = None
         self.patch = None
         self.dividers = None
-        self.set_label('')
+
+        if ticklocation == 'auto':
+            ticklocation = 'bottom' if orientation == 'horizontal' else 'right'
+        self.ticklocation = ticklocation
+
+        self.set_label(label)
         if cbook.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
@@ -342,14 +346,14 @@ class ColorbarBase(cm.ScalarMappable):
         if self.orientation == 'vertical':
             ax.xaxis.set_ticks([])
             # location is either one of 'bottom' or 'top'
-            ax.yaxis.set_label_position(self.location)
-            ax.yaxis.set_ticks_position(self.location)
+            ax.yaxis.set_label_position(self.ticklocation)
+            ax.yaxis.set_ticks_position(self.ticklocation)
         else:
             ax.yaxis.set_ticks([])
             # location is either one of 'left' or 'right'
-            ax.xaxis.set_label_position(self.location)
+            ax.xaxis.set_label_position(self.ticklocation)
             # XXX This wasn't enabled before...
-            ax.xaxis.set_ticks_position(self.location)
+            ax.xaxis.set_ticks_position(self.ticklocation)
 
         self._set_label()
 
@@ -956,112 +960,91 @@ class Colorbar(ColorbarBase):
 
 
 @docstring.Substitution(make_axes_kw_doc)
-def make_axes_orig(parent, **kw):
-    '''
-    Resize and reposition a parent axes, and return a child
-    axes suitable for a colorbar::
-
-        cax, kw = make_axes(parent, **kw)
-
-    Keyword arguments may include the following (with defaults):
-
-        *orientation*
-            'vertical'  or 'horizontal'
-
-    %s
-
-    All but the first of these are stripped from the input kw set.
-
-    Returns (cax, kw), the child axes and the reduced kw dictionary.
-    '''
-    orientation = kw.setdefault('orientation', 'vertical')
-    fraction = kw.pop('fraction', 0.15)
-    shrink = kw.pop('shrink', 1.0)
-    aspect = kw.pop('aspect', 20)
-    #pb = transforms.PBox(parent.get_position())
-    pb = parent.get_position(original=True).frozen()
-    if orientation == 'vertical':
-        pad = kw.pop('pad', 0.05)
-        x1 = 1.0 - fraction
-        pb1, pbx, pbcb = pb.splitx(x1 - pad, x1)
-        pbcb = pbcb.shrunk(1.0, shrink).anchored('C', pbcb)
-        anchor = kw.pop('anchor', (0.0, 0.5))
-        panchor = kw.pop('panchor', (1.0, 0.5))
-    else:
-        pad = kw.pop('pad', 0.15)
-        pbcb, pbx, pb1 = pb.splity(fraction, fraction + pad)
-        pbcb = pbcb.shrunk(shrink, 1.0).anchored('C', pbcb)
-        aspect = 1.0 / aspect
-        anchor = kw.pop('anchor', (0.5, 1.0))
-        panchor = kw.pop('panchor', (0.5, 0.0))
-    parent.set_position(pb1)
-    parent.set_anchor(panchor)
-    fig = parent.get_figure()
-    cax = fig.add_axes(pbcb)
-    cax.set_aspect(aspect, anchor=anchor, adjustable='box')
-    return cax, kw
-
-
-@docstring.Substitution(make_axes_kw_doc)
-def make_axes(parent, location=None, orientation=None, fraction=0.15, shrink=1.0, aspect=20, **kw):
+def make_axes(parents, location=None, orientation=None, fraction=0.15, shrink=1.0, aspect=20, **kw):
     locations = ["left", "right", "top", "bottom"]
     if orientation is not None and location is not None:
         raise TypeError('position and orientation are mutually exclusive. Consider ' \
-                        'setting the position to any of %s' % ','.join(locations))
+                        'setting the position to any of %s' % ', '.join(locations))
 
-    # must pump out an orientation for colorbar creation
-    if location in ['left', 'right']:
-        kw['orientation'] = 'vertical'
-        kw['location'] = location
-        anchor = kw.pop('anchor', (0.0, 0.5))
-        # define the parent's anchor to be next to the new colorbar axes
-        panchor = kw.pop('panchor', (1.0, 0.5))
-    else:
-        kw['orientation'] = 'horizontal'
-        kw['location'] = location
-        anchor = kw.pop('anchor', (0.5, 1.0))
-        # define the parent's anchor to be next to the new colorbar axes
-        panchor = kw.pop('panchor', (0.5, 0.0))
+    # allow the user to not specify the location by specifying the orientation instead
+    if location is None:
+        location = 'right' if orientation == 'vertical' else 'bottom'
 
-    # define padding between colorbar axes and parent axes in axes coordinates.
-    # For best outcomes, pad is best at 0.15 when location is "bottom"
-    if location == 'bottom':
-        pad = kw.pop('pad', 0.0)
-    else:
-        pad = kw.pop('pad', 0.00)
+    if location not in locations:
+        raise ValueError('Invalid colorbar location. Must be one of %s' % ', '.join(locations))
 
-    if isinstance(parent, list):
-        parents_bbox = mtrans.Bbox.union([ax.get_position(original=True).frozen() \
-                                         for ax in parent])
+    default_location_settings = {'left':   {'anchor': (1.0, 0.5),
+                                            'panchor': (0.0, 0.5),
+                                            'pad': 0.10,
+                                            'orientation': 'vertical'},
+                                 'right':  {'anchor': (0.0, 0.5),
+                                            'panchor': (1.0, 0.5),
+                                            'pad': 0.05,
+                                            'orientation': 'vertical'},
+                                 'top':    {'anchor': (0.5, 0.0),
+                                            'panchor': (0.5, 1.0),
+                                            'pad': 0.05,
+                                            'orientation': 'horizontal'},
+                                 'bottom': {'anchor': (0.5, 1.0),
+                                            'panchor': (0.5, 0.0),
+                                            'pad': 0.15, # backwards compat
+                                            'orientation': 'horizontal'},
+                                 }
+
+    loc_settings = default_location_settings[location]
+
+    # put appropriate values into the kw dict for passing back to
+    # the Colorbar class
+    kw['orientation'] = loc_settings['orientation']
+    kw['ticklocation'] = location
+
+    anchor = kw.pop('anchor', loc_settings['anchor'])
+    parent_anchor = kw.pop('panchor', loc_settings['panchor'])
+    pad = kw.pop('pad', loc_settings['pad'])
+
+
+    # turn parents into a list if it is not already
+    if not isinstance(parents, (list, tuple)):
+        parents = [parents]
+
+    fig = parents[0].get_figure()
+    if not all(fig is ax.get_figure() for ax in parents):
+        raise ValueError('Unable to create a colorbar axes as not all ' + \
+                         'parents share the same figure.')
+
+    # take a bounding box around all of the given axes
+    parents_bbox = mtrans.Bbox.union([ax.get_position(original=True).frozen() \
+                                         for ax in parents])
 
     pb = parents_bbox
     if location in ('left', 'right'):
         if location == 'left':
-            pbcb, _, pb1 = pb.splitx(1 - fraction, fraction + pad)
+            pbcb, _, pb1 = pb.splitx(fraction, fraction + pad)
         else:
             pb1, _, pbcb = pb.splitx(1 - fraction - pad, 1 - fraction)
-        pbcb = pbcb.shrunk(1.0, shrink).anchored('C', pbcb)
-
+        pbcb = pbcb.shrunk(1.0, shrink).anchored(anchor, pbcb)
     else:
-        if location == 'top':
-            pb1, _, pbcb  = pb.splity(1 - fraction - pad, fraction)
-        else:
+        if location == 'bottom':
             pbcb, _, pb1 = pb.splity(fraction, fraction + pad)
-        pbcb = pbcb.shrunk(shrink, 1.0).anchored('C', pbcb)
+        else:
+            pb1, _, pbcb  = pb.splity(1 - fraction - pad, 1 - fraction)
+        pbcb = pbcb.shrunk(shrink, 1.0).anchored(anchor, pbcb)
+
         # define the aspect ratio in terms of y's per x rather than x's per y
         aspect = 1.0/aspect
 
+    # define a transform which takes us from old axes coordinates to
+    # new axes coordinates
     shrinking_trans = mtrans.BboxTransform(parents_bbox, pb1)
 
-    for ax in parent:
+    # transform each of the axes in parents using the new transform
+    for ax in parents:
         new_posn = shrinking_trans.transform(ax.get_position())
         new_posn = mtrans.Bbox(new_posn)
         ax.set_position(new_posn)
-        if panchor is not False:
-            ax.set_anchor(panchor)
+        if parent_anchor is not False:
+            ax.set_anchor(parent_anchor)
 
-    # XXX test all axes must be on the same figure...
-    fig = parent[0].get_figure()
     cax = fig.add_axes(pbcb)
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
@@ -1101,6 +1084,8 @@ def make_axes_gridspec(parent, **kw):
     '''
 
     orientation = kw.setdefault('orientation', 'vertical')
+    kw['ticklocation'] = 'auto'
+
     fraction = kw.pop('fraction', 0.15)
     shrink = kw.pop('shrink', 1.0)
     aspect = kw.pop('aspect', 20)
