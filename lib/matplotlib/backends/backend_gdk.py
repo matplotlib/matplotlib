@@ -228,7 +228,7 @@ class RendererGDK(RendererBase):
         x = int(x-h)
         y = int(y-w)
 
-        if (x < 0 or y < 0 or: # window has shrunk and text is off the edge
+        if (x < 0 or y < 0 or # window has shrunk and text is off the edge
             x + w > self.width or y + h > self.height):
             return
 
