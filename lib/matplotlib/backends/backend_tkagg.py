@@ -86,8 +86,15 @@ def new_figure_manager(num, *args, **kwargs):
         # http://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
         icon_fname = os.path.join(rcParams['datapath'], 'images', 'matplotlib.gif')
         icon_img = Tk.PhotoImage(file=icon_fname)
-        window.tk.call('wm', 'iconphoto', window._w, icon_img)
-
+        try:
+            window.tk.call('wm', 'iconphoto', window._w, icon_img)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # log the failure, but carry on
+            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+            
     canvas = FigureCanvasTkAgg(figure, master=window)
     figManager = FigureManagerTkAgg(canvas, num, window)
     if matplotlib.is_interactive():
