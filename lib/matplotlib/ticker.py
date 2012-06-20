@@ -567,9 +567,8 @@ class LogFormatter(Formatter):
     """
     Format values for log axis;
 
-    if attribute *decadeOnly* is True, only the decades will be labelled.
     """
-    def __init__(self, base=10.0, labelOnlyBase = True):
+    def __init__(self, base=10.0, labelOnlyBase=True):
         """
         *base* is used to locate the decade tick,
         which will be the only one to be labeled if *labelOnlyBase*
@@ -577,16 +576,14 @@ class LogFormatter(Formatter):
         """
         self._base = base+0.0
         self.labelOnlyBase = labelOnlyBase
-        self.decadeOnly = True
-
+        
     def base(self, base):
         'change the *base* for labeling - warning: should always match the base used for :class:`LogLocator`'
         self._base = base
-
+        
     def label_minor(self, labelOnlyBase):
         'switch on/off minor ticks labeling'
         self.labelOnlyBase = labelOnlyBase
-
 
     def __call__(self, x, pos=None):
         'Return the format for tick val *x* at position *pos*'
@@ -650,7 +647,6 @@ class LogFormatterExponent(LogFormatter):
     def __call__(self, x, pos=None):
         'Return the format for tick val *x* at position *pos*'
 
-
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
         d = abs(vmax-vmin)
@@ -690,29 +686,35 @@ class LogFormatterMathtext(LogFormatter):
                 return '$0$'
             else:
                 return '$\mathdefault{0}$'
-        sign = np.sign(x)
-        fx = math.log(abs(x))/math.log(b)
-        isDecade = is_close_to_int(fx)
+        
+        fx = math.log(abs(x)) / math.log(b)
+        is_decade = is_close_to_int(fx)
+        
+        sign_string = '-' if x < 0 else ''
 
-        if sign == -1:
-            sign_string = '-'
+        # use string formatting of the base if it is not an integer
+        if b % 1 == 0.0:
+            base = '%d' % b
         else:
-            sign_string = ''
+            base = '%s' % b             
 
-        if not isDecade and self.labelOnlyBase: s = ''
-        elif not isDecade:
+        if not is_decade and self.labelOnlyBase: 
+            return ''
+        elif not is_decade:
             if usetex:
-                s = r'$%s%d^{%.2f}$'% (sign_string, b, fx)
+                return (r'$%s' + base + r'^{%.2f}$') % \
+                                            (sign_string, fx)
             else:
-                s = '$\mathdefault{%s%d^{%.2f}}$'% (sign_string, b, fx)
+                return ('$\mathdefault{%s' + base + '^{%.2f}}$') % \
+                                            (sign_string, fx)
         else:
             if usetex:
-                s = r'$%s%d^{%d}$'% (sign_string, b, nearest_long(fx))
+                return (r'$%s' + base + r'^{%d}$') % \
+                                            (sign_string, nearest_long(fx))
             else:
-                s = r'$\mathdefault{%s%d^{%d}}$'% (sign_string, b,
-                                                   nearest_long(fx))
+                return (r'$\mathdefault{%s' + base + r'^{%d}}$') % \
+                                            (sign_string, nearest_long(fx))
 
-        return s
 
 class EngFormatter(Formatter):
     """
