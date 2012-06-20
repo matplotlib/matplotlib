@@ -59,13 +59,29 @@ make_axes_kw_doc = '''
 
 colormap_kw_doc = '''
 
-    ===========   ====================================================
+    ============  ====================================================
     Property      Description
-    ===========   ====================================================
+    ============  ====================================================
     *extend*      [ 'neither' | 'both' | 'min' | 'max' ]
                   If not 'neither', make pointed end(s) for out-of-
                   range values.  These are set for a given colormap
                   using the colormap set_under and set_over methods.
+    *extendfrac*  [ *None* | 'auto' | length | lengths ]
+                  If set to *None*, both the minimum and maximum
+                  triangular colorbar extensions with have a length of
+                  5% of the interior colorbar length (this is the
+                  default setting). If set to 'auto', makes the
+                  triangular colorbar extensions the same lengths as
+                  the interior boxes (when *spacing* is set to
+                  'uniform') or the same lengths as the respective
+                  adjacent interior boxes (when *spacing* is set to
+                  'proportional'). If a scalar, indicates the length
+                  of both the minimum and maximum triangular colorbar
+                  extensions as a fraction of the interior colorbar
+                  length. A two-element sequence of fractions may also
+                  be given, indicating the lengths of the minimum and
+                  maximum colorbar extensions respectively as a
+                  fraction of the interior colorbar length.
     *spacing*     [ 'uniform' | 'proportional' ]
                   Uniform spacing gives each discrete color the same
                   space; proportional makes the space proportional to
@@ -82,7 +98,7 @@ colormap_kw_doc = '''
                   given instead.
     *drawedges*   [ False | True ] If true, draw lines at color
                   boundaries.
-    ===========   ====================================================
+    ============  ====================================================
 
     The following will probably be useful only in the context of
     indexed colors (that is, when the mappable has norm=NoNorm()),
@@ -221,6 +237,7 @@ class ColorbarBase(cm.ScalarMappable):
                            format=None,
                            drawedges=False,
                            filled=True,
+                           extendfrac=None,
                            ):
         self.ax = ax
         self._patch_ax()
@@ -236,6 +253,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.orientation = orientation
         self.drawedges = drawedges
         self.filled = filled
+        self.extendfrac = extendfrac
         self.solids = None
         self.lines = None
         self.outline = None
@@ -616,6 +634,35 @@ class ColorbarBase(cm.ScalarMappable):
             N += 1
         return N
 
+    def _get_extension_lengths(self, frac, automin, automax, default=0.05):
+        '''
+        Get the lengths of colorbar extensions.
+
+        A helper method for _uniform_y and _proportional_y.
+        '''
+        # Set the default value.
+        extendlength = np.array([default, default])
+        if isinstance(frac, str):
+            if frac.lower() == 'auto':
+                # Use the provided values when 'auto' is required.
+                extendlength[0] = automin
+                extendlength[1] = automax
+            else:
+                # Any other string is invalid.
+                raise ValueError('invalid value for extendfrac')
+        elif frac is not None:
+            try:
+                # Try to set min and max extension fractions directly.
+                extendlength[:] = frac
+                # If frac is a sequence contaning None then NaN may
+                # be encountered. This is an error.
+                if np.isnan(extendlength).any():
+                    raise ValueError()
+            except (TypeError, ValueError):
+                # Raise an error on encountering an invalid value for frac.
+                raise ValueError('invalid value for extendfrac')
+        return extendlength
+
     def _uniform_y(self, N):
         '''
         Return colorbar data coordinates for *N* uniformly
@@ -624,16 +671,19 @@ class ColorbarBase(cm.ScalarMappable):
         if self.extend == 'neither':
             y = np.linspace(0, 1, N)
         else:
+            automin = automax = 1. / (N - 1.)
+            extendlength = self._get_extension_lengths(self.extendfrac,
+                    automin, automax, default=0.05)
             if self.extend == 'both':
                 y = np.zeros(N + 2, 'd')
-                y[0] = -0.05
-                y[-1] = 1.05
+                y[0] = 0. - extendlength[0]
+                y[-1] = 1. + extendlength[1]
             elif self.extend == 'min':
                 y = np.zeros(N + 1, 'd')
-                y[0] = -0.05
+                y[0] = 0. - extendlength[0]
             else:
                 y = np.zeros(N + 1, 'd')
-                y[-1] = 1.05
+                y[-1] = 1. + extendlength[1]
             y[self._inside] = np.linspace(0, 1, N)
         return y
 
@@ -648,10 +698,27 @@ class ColorbarBase(cm.ScalarMappable):
             y = y / (self._boundaries[-1] - self._boundaries[0])
         else:
             y = self.norm(self._boundaries.copy())
-        if self._extend_lower():
-            y[0] = -0.05
-        if self._extend_upper():
-            y[-1] = 1.05
+        if self.extend == 'min':
+            # Exclude leftmost interval of y.
+            clen = y[-1] - y[1]
+            automin = (y[2] - y[1]) / clen
+            automax = (y[-1] - y[-2]) / clen
+        elif self.extend == 'max':
+            # Exclude rightmost interval in y.
+            clen = y[-2] - y[0]
+            automin = (y[1] - y[0]) / clen
+            automax = (y[-2] - y[-3]) / clen
+        else:
+            # Exclude leftmost and rightmost intervals in y.
+            clen = y[-2] - y[1]
+            automin = (y[2] - y[1]) / clen
+            automax = (y[-2] - y[-3]) / clen
+        extendlength = self._get_extension_lengths(self.extendfrac,
+                automin, automax, default=0.05)
+        if self.extend in ('both', 'min'):
+            y[0] = 0. - extendlength[0]
+        if self.extend in ('both', 'max'):
+            y[-1] = 1. + extendlength[1]
         yi = y[self._inside]
         norm = colors.Normalize(yi[0], yi[-1])
         y[self._inside] = norm(yi)
