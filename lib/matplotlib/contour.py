@@ -766,7 +766,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if self.origin is not None: assert(self.origin in
                                             ['lower', 'upper', 'image'])
         if self.extent is not None: assert(len(self.extent) == 4)
-        if cmap is not None: assert(isinstance(cmap, colors.Colormap))
         if self.colors is not None and cmap is not None:
             raise ValueError('Either colors or cmap must be None')
         if self.origin == 'image': self.origin = mpl.rcParams['image.origin']
