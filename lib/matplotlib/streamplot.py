@@ -4,8 +4,10 @@ Streamline plotting for 2D vector fields.
 """
 import numpy as np
 import matplotlib
+import matplotlib.cm as cm
+import matplotlib.colors as mcolors
+import matplotlib.collections as mcollections
 import matplotlib.patches as patches
-
 
 __all__ = ['streamplot']
 
@@ -103,9 +105,11 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     if use_multicolor_lines:
         if norm is None:
-            norm = matplotlib.colors.normalize(color.min(), color.max())
+            norm = mcolors.normalize(color.min(), color.max())
         if cmap is None:
-            cmap = matplotlib.cm.get_cmap(matplotlib.rcParams['image.cmap'])
+            cmap = cm.get_cmap(matplotlib.rcParams['image.cmap'])
+        else:
+            cmap = cm.get_cmap(cmap)
 
     streamlines = []
     for t in trajectories:
@@ -137,7 +141,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         p = patches.FancyArrowPatch(arrow_tail, arrow_head, **arrow_kw)
         axes.add_patch(p)
 
-    lc = matplotlib.collections.LineCollection(streamlines, **line_kw)
+    lc = mcollections.LineCollection(streamlines, **line_kw)
     if use_multicolor_lines:
         lc.set_array(np.asarray(line_colors))
         lc.set_cmap(cmap)
