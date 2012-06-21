@@ -151,8 +151,8 @@ def get_cmap(name=None, lut=None):
             return cmap_d[name]
         elif name in datad:
             return _generate_cmap(name, lut)
-        else:
-            raise ValueError("Colormap %s is not recognized" % name)
+
+    raise ValueError("Colormap %s is not recognized" % name)
 
 class ScalarMappable:
     """
