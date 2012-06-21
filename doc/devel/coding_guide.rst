@@ -517,8 +517,14 @@ Python environments, including multiple versions of Python (e.g.: 2.6, 2.7,
 3.2, etc.) and even different Python implementations altogether (e.g.: CPython,
 PyPy, Jython, etc.)
 
-It's a good idea to run ``tox`` in your working directory before submitting a
-pull request with your changes. To do so:
+Testing all 4 versions of Python (2.6, 2.7, 3.1, and 3.2) requires having four
+versions of Python installed on your system and on the PATH. Depending on your
+operating system, you may want to use your package manager (such as apt-get,
+yum or MacPorts) to do this, or use `pythonbrew
+<https://github.com/utahta/pythonbrew>`_.
+
+tox makes it easy to determine if your working copy introduced any regressions
+before submitting a pull request. Here's how to use it:
 
 .. code-block:: bash
 
