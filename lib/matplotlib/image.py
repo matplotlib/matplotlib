@@ -1170,6 +1170,9 @@ def imread(fname, format=None):
         if cbook.is_string_like(fname):
             basename, ext = os.path.splitext(fname)
             ext = ext.lower()[1:]
+        elif hasattr(fname, 'name'):
+            basename, ext = os.path.splitext(fname.name)
+            ext = ext.lower()[1:]
         else:
             ext = 'png'
     else:
