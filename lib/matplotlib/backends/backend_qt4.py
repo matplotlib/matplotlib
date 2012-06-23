@@ -123,6 +123,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     keyvald = { QtCore.Qt.Key_Control : 'control',
                 QtCore.Qt.Key_Shift : 'shift',
                 QtCore.Qt.Key_Alt : 'alt',
+                QtCore.Qt.Key_Meta : 'super',
                 QtCore.Qt.Key_Return : 'enter',
                 QtCore.Qt.Key_Left : 'left',
                 QtCore.Qt.Key_Up : 'up',
@@ -146,6 +147,29 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
                 QtCore.Qt.Key_PageUp : 'pageup',
                 QtCore.Qt.Key_PageDown : 'pagedown',
                }
+
+    # define the modifier keys which are to be collected on keyboard events.
+    # format is: [(modifier_flag, modifier_name, equivalent_key)
+    _modifier_keys = [
+                      (QtCore.Qt.MetaModifier, 'super', QtCore.Qt.Key_Meta),
+                      (QtCore.Qt.AltModifier, 'alt', QtCore.Qt.Key_Alt),
+                      (QtCore.Qt.ControlModifier, 'ctrl', QtCore.Qt.Key_Control) 
+                      ]
+    
+    if sys.platform == 'darwin':
+        # in OSX, the control and super (aka cmd/apple) keys are switched, so 
+        # switch them back.
+        keyvald.update({
+                        QtCore.Qt.Key_Control : 'super', # cmd/apple key
+                        QtCore.Qt.Key_Meta : 'control',
+                        })
+        
+        _modifier_keys = [
+                          (QtCore.Qt.ControlModifier, 'super', QtCore.Qt.Key_Control),
+                          (QtCore.Qt.AltModifier, 'alt', QtCore.Qt.Key_Alt),
+                          (QtCore.Qt.MetaModifier, 'ctrl', QtCore.Qt.Key_Meta),
+                         ]
+      
     # map Qt button codes to MouseEvent's ones:
     buttond = {QtCore.Qt.LeftButton  : 1,
                QtCore.Qt.MidButton   : 2,
@@ -153,6 +177,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
                # QtCore.Qt.XButton1 : None,
                # QtCore.Qt.XButton2 : None,
                }
+  
     def __init__( self, figure ):
         if DEBUG: print('FigureCanvasQt: ', figure)
         _create_qApp()
@@ -295,8 +320,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 
         if key is not None:
             # prepend the ctrl, alt, super keys if appropriate (sorted in that order) 
-            for modifier, Qt_key, prefix in [(QtCore.Qt.AltModifier, QtCore.Qt.Key_Alt, 'alt'),
-                                             (QtCore.Qt.ControlModifier, QtCore.Qt.Key_Control, 'ctrl')]:
+            for modifier, prefix, Qt_key in self._modifier_keys:
                 if event.key() != Qt_key and int(event.modifiers()) & modifier == modifier: 
                     key = '{}+{}'.format(prefix, key)
 
@@ -368,6 +392,14 @@ class FigureManagerQT( FigureManagerBase ):
         self.canvas.setFocusPolicy( QtCore.Qt.StrongFocus )
         self.canvas.setFocus()
 
+        if sys.platform == 'darwin':
+            # to make a qt window pop up on top on osx, osascript can be used
+            # this came from http://sourceforge.net/mailarchive/message.php?msg_id=23718545
+            cmd = ("""/usr/bin/osascript -e 'tell app "Finder" to set """ + \
+                    """frontmost of process "%s" to true'""") % \
+                    os.path.basename(sys.executable)
+            os.system(cmd)
+
         QtCore.QObject.connect( self.window, QtCore.SIGNAL( 'destroyed()' ),
                             self._widgetclosed )
         self.window._destroying = False
@@ -398,9 +430,9 @@ class FigureManagerQT( FigureManagerBase ):
         self.canvas.figure.show = lambda *args: self.window.show()
 
         def notify_axes_change( fig ):
-           # This will be called whenever the current axes is changed
-           if self.toolbar is not None:
-               self.toolbar.update()
+            # This will be called whenever the current axes is changed
+            if self.toolbar is not None:
+                self.toolbar.update()
         self.canvas.figure.add_axobserver( notify_axes_change )
 
     @QtCore.Slot()
@@ -409,10 +441,10 @@ class FigureManagerQT( FigureManagerBase ):
         self.window.statusBar().showMessage(s)
 
     def full_screen_toggle(self):
-       if self.window.isFullScreen():
-           self.window.showNormal()    
-       else:
-           self.window.showFullScreen()
+        if self.window.isFullScreen():
+            self.window.showNormal()    
+        else:
+            self.window.showFullScreen()
 
     def _widgetclosed( self ):
         if self.window._destroying: return
