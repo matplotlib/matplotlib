@@ -1,3 +1,5 @@
+2012-06-24 Make use of mathtext in tick labels configurable - DSD
+
 2012-06-05 Images loaded through PIL are now ordered correctly - CG
 
 2012-06-02 Add new Axes method and pyplot function, hist2d. - PO
@@ -63,9 +65,7 @@
 2011-12-29 ps and pdf markers are now stroked only if the line width
            is nonzero for consistency with agg, fixes issue #621. - JKS
 
-
 2011-12-27 Work around an EINTR bug in some versions of subprocess. - JKS
-
 
 2011-10-25 added support for \operatorname to mathtext,
            including the ability to insert spaces, such as
