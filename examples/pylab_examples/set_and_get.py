@@ -21,8 +21,8 @@ set
         >>> setp(line)
 
     set operates on a single instance or a list of instances.  If you are
-    in quey mode introspecting the possible values, only the first
-    instance in the sequnce is used.  When actually setting values, all
+    in query mode introspecting the possible values, only the first
+    instance in the sequence is used.  When actually setting values, all
     the instances will be set.  Eg, suppose you have a list of two lines,
     the following will make both lines thicker and red
 
@@ -52,7 +52,7 @@ get:
         color = b
         ... long listing skipped ...
 
-Alisases:
+Aliases:
 
   To reduce keystrokes in interactive mode, a number of properties
   have short aliases, eg 'lw' for 'linewidth' and 'mec' for

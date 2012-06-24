@@ -22,7 +22,7 @@ class AnchoredSizeBar(AnchoredOffsetbox):
                  pad=0.1, borderpad=0.1, sep=2, prop=None, frameon=True):
         """
         Draw a horizontal bar with the size in data coordinate of the give axes.
-        A label will be drawn underneath (center-alinged).
+        A label will be drawn underneath (center-aligned).
 
         pad, borderpad in fraction of the legend font size (or prop)
         sep in points.

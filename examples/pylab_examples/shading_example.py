@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LightSource
 
 # example showing how to make shaded relief plots 
-# like mathematica
+# like Mathematica
 # (http://reference.wolfram.com/mathematica/ref/ReliefPlot.html)
 # or Generic Mapping Tools
 # (http://gmt.soest.hawaii.edu/gmt/doc/gmt/html/GMT_Docs/node145.html)

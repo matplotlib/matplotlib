@@ -221,7 +221,7 @@ def filtered_text(ax):
 
 
 def drop_shadow_line(ax):
-    # copyed from examples/misc/svg_filter_line.py
+    # copied from examples/misc/svg_filter_line.py
 
     # draw lines
     l1, = ax.plot([0.1, 0.5, 0.9], [0.1, 0.9, 0.5], "bo-",

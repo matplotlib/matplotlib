@@ -15,11 +15,11 @@ X, Y = meshgrid(x, y)
 Z1 = bivariate_normal(X, Y, 0.1, 0.2, 1.0, 1.0) + 0.1*bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 
 subplot(2,1,1)
-pcolor(X, Y, Z1, norm=LogNorm(vmin=Z1.min(), vmax=Z1.max()))
+pcolor(X, Y, Z1, norm=LogNorm(vmin=Z1.min(), vmax=Z1.max()), cmap=cm.PuBu_r)
 colorbar()
 
 subplot(2,1,2)
-pcolor(X, Y, Z1)
+pcolor(X, Y, Z1, cmap=cm.PuBu_r)
 colorbar()
 
 
