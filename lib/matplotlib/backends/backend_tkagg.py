@@ -127,6 +127,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
     keyvald = {65507 : 'control',
                65505 : 'shift',
                65513 : 'alt',
+               65515 : 'super',
                65508 : 'control',
                65506 : 'shift',
                65514 : 'alt',
@@ -184,7 +185,8 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
                        131074: 'shift',
                        131076: 'shift',
                        }
-    """_keycode_lookup is used for badly mapped keys on apple keyboards."""
+    """_keycode_lookup is used for badly mapped (i.e. no event.key_sym set)
+       keys on apple keyboards."""
 
     def __init__(self, figure, master=None, resize_callback=None):
         FigureCanvasAgg.__init__(self, figure)
@@ -434,9 +436,15 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         # In general, the modifier key is excluded from the modifier flag, 
         # however this is not the case on "darwin", so double check that 
         # we aren't adding repeat modifier flags to a modifier key.
-        modifiers = (3, 'alt', 'alt'), (2, 'ctrl', 'control'), 
+        modifiers = [(6, 'super', 'super'), 
+                     (3, 'alt', 'alt'), 
+                     (2, 'ctrl', 'control'),
+                    ]
         if sys.platform == 'darwin':
-            modifiers = (3, 'super', 'super'), (4, 'alt', 'alt'), (2, 'ctrl', 'control'),
+            modifiers = [(3, 'super', 'super'), 
+                         (4, 'alt', 'alt'), 
+                         (2, 'ctrl', 'control'),
+                        ]
         
         if key is not None:
             # note, shift is not added to the keys as this is already accounted for

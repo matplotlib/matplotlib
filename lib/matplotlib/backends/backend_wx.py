@@ -1251,7 +1251,9 @@ The current aspect ratio will be kept."""
         else:
             key = None
 
-        for meth, prefix in ([evt.AltDown, 'alt'], [evt.ControlDown, 'ctrl'], ):
+        for meth, prefix in (
+                             [evt.AltDown, 'alt'], 
+                             [evt.ControlDown, 'ctrl'], ):
             if meth():
                 key = '{}+{}'.format(prefix, key)
 
