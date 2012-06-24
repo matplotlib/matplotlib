@@ -189,6 +189,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                65455 : '/',
                65439 : 'dec',
                65421 : 'enter',
+               65511 : 'super',
+               65512 : 'super',
+               65406 : 'alt',
+               65289 : 'tab',
                }
 
     # Setting this as a static constant prevents
@@ -326,7 +330,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
             key = chr(event.keyval)
         else:
             key = None
-
+            
         for key_mask, prefix in (
                                  [gdk.MOD4_MASK, 'super'],
                                  [gdk.MOD1_MASK, 'alt'], 
@@ -335,7 +339,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                 key = '{}+{}'.format(prefix, key)
         
         return key
-
 
     def configure_event(self, widget, event):
         if _debug: print('FigureCanvasGTK.%s' % fn_name())

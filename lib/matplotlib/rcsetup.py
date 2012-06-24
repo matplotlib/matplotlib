@@ -574,7 +574,7 @@ defaultParams = {
     'agg.path.chunksize' : [0, validate_int],       # 0 to disable chunking;
                                                     # recommend about 20000 to
                                                     # enable. Experimental.
-    # key-mappings
+    # key-mappings (multi-character mappings should be a list/tuple)
     'keymap.fullscreen' : [('f', 'ctrl+f'), validate_stringlist],
     'keymap.home' : [['h', 'r', 'home'], validate_stringlist],
     'keymap.back' : [['left', 'c', 'backspace'], validate_stringlist],
@@ -582,7 +582,7 @@ defaultParams = {
     'keymap.pan' : ['p', validate_stringlist],
     'keymap.zoom' : ['o', validate_stringlist],
     'keymap.save' : [('s', 'ctrl+s'), validate_stringlist],
-    'keymap.quit' : ['ctrl+w', validate_stringlist],
+    'keymap.quit' : [('ctrl+w', ), validate_stringlist],
     'keymap.grid' : ['g', validate_stringlist],
     'keymap.yscale' : ['l', validate_stringlist],
     'keymap.xscale' : [['k', 'L'], validate_stringlist],
