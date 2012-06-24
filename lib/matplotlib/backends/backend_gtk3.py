@@ -264,7 +264,15 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
         else:
             key = None
 
-        # TODO: Handle ctrl, alt, super modifiers. gtk backend has implemented.        
+        modifiers = [
+                     (Gdk.ModifierType.MOD4_MASK, 'super'),
+                     (Gdk.ModifierType.MOD1_MASK, 'alt'),
+                     (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
+                    ]
+        for key_mask, prefix in modifiers:
+            if event.state & key_mask:
+                key = '{}+{}'.format(prefix, key)
+
         return key
 
     def configure_event(self, widget, event):
