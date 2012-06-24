@@ -18,9 +18,10 @@ Z1 = bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 Z2 = bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 Z = Z2 - Z1 # difference of Gaussians
 
-cmap = cm.get_cmap('jet', 10)    # 10 discrete colors
+cmap = cm.get_cmap('PiYG', 11)    # 11 discrete colors
 
-im = imshow(Z, cmap=cmap, interpolation='bilinear')
+im = imshow(Z, cmap=cmap, interpolation='bilinear', 
+            vmax=abs(Z).max(), vmin=-abs(Z).max())
 axis('off')
 colorbar()
 

@@ -26,13 +26,17 @@ Z = (Z1 - Z2) * 10
 levels = arange(-2.0, 1.601, 0.4) # Boost the upper limit to avoid truncation
                                   # errors.
 
+norm = cm.colors.Normalize(vmax=abs(Z).max(), vmin=-abs(Z).max())
+cmap = cm.PRGn
+
 figure()
 
 
 subplot(2,2,1)
 
 cset1 = contourf(X, Y, Z, levels,
-                        cmap=cm.get_cmap('jet', len(levels)-1),
+                        cmap=cm.get_cmap(cmap, len(levels)-1),
+                        norm=norm,
                         )
 # It is not necessary, but for the colormap, we need only the
 # number of levels minus 1.  To avoid discretization error, use
@@ -65,7 +69,7 @@ colorbar(cset1)
 
 subplot(2,2,2)
 
-imshow(Z, extent=extent)
+imshow(Z, extent=extent, cmap=cmap, norm=norm)
 v = axis()
 contour(Z, levels, hold='on', colors = 'k',
         origin='upper', extent=extent)
@@ -74,7 +78,7 @@ title("Image, origin 'upper'")
 
 subplot(2,2,3)
 
-imshow(Z, origin='lower', extent=extent)
+imshow(Z, origin='lower', extent=extent, cmap=cmap, norm=norm)
 v = axis()
 contour(Z, levels, hold='on', colors = 'k',
         origin='lower', extent=extent)
@@ -89,7 +93,7 @@ subplot(2,2,4)
 # This is intentional. The Z values are defined at the center of each
 # image pixel (each color block on the following subplot), so the
 # domain that is contoured does not extend beyond these pixel centers.
-im = imshow(Z, interpolation='nearest', extent=extent)
+im = imshow(Z, interpolation='nearest', extent=extent, cmap=cmap, norm=norm)
 v = axis()
 contour(Z, levels, hold='on', colors = 'k',
         origin='image', extent=extent)

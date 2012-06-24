@@ -22,7 +22,7 @@ ax2.psd(y, NFFT=len(t), pad_to=len(t)*2, Fs=fs)
 ax2.psd(y, NFFT=len(t), pad_to=len(t)*4, Fs=fs)
 plt.title('zero padding')
 
-#Plot the PSD with different block sizes, Zero pad to the length of the orignal
+#Plot the PSD with different block sizes, Zero pad to the length of the original
 #data sequence.
 ax3 = fig.add_subplot(2, 3, 5, sharex=ax2, sharey=ax2)
 ax3.psd(y, NFFT=len(t), pad_to=len(t), Fs=fs)

@@ -11,8 +11,9 @@ Z1 = mlab.bivariate_normal(X, Y, 1.0, 1.0, 0.0, 0.0)
 Z2 = mlab.bivariate_normal(X, Y, 1.5, 0.5, 1, 1)
 Z = Z2-Z1  # difference of Gaussians
 
-im = plt.imshow(Z, interpolation='bilinear', cmap=cm.gray,
-                origin='lower', extent=[-3,3,-3,3])
+im = plt.imshow(Z, interpolation='bilinear', cmap=cm.RdYlGn,
+                origin='lower', extent=[-3,3,-3,3],
+                vmax=abs(Z).max(), vmin=-abs(Z).max())
 
 plt.show()
 

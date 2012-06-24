@@ -9,7 +9,7 @@ ax.plot([1,2,3])
 ax.set_title('a simple figure')
 fig.canvas.draw()
 
-# grab rhe pixel buffer and dumpy it into a numpy array
+# grab the pixel buffer and dump it into a numpy array
 buf = fig.canvas.buffer_rgba()
 l, b, w, h = fig.bbox.bounds
 X = np.frombuffer(buf, np.uint8)

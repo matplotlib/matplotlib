@@ -1,6 +1,6 @@
 
 """
-I'm not trying to make a good liking figure here, but just to show
+I'm not trying to make a good looking figure here, but just to show
 some examples of customizing rc params on the fly
 
 If you like to work interactively, and need to create different sets
@@ -36,7 +36,7 @@ rc('font', weight='bold')
 rc('xtick.major', size=5, pad=7)
 rc('xtick', labelsize=15)
 
-# using aliases for color, linestyle and linewith; gray, solid, thick
+# using aliases for color, linestyle and linewidth; gray, solid, thick
 rc('grid', c='0.5', ls='-', lw=5)
 rc('lines', lw=2, color='g')
 subplot(312)
