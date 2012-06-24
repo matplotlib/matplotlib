@@ -156,6 +156,8 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
                       (QtCore.Qt.ControlModifier, 'ctrl', QtCore.Qt.Key_Control) 
                       ]
     
+    _ctrl_modifier = QtCore.Qt.ControlModifier
+    
     if sys.platform == 'darwin':
         # in OSX, the control and super (aka cmd/apple) keys are switched, so 
         # switch them back.
@@ -169,7 +171,9 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
                           (QtCore.Qt.AltModifier, 'alt', QtCore.Qt.Key_Alt),
                           (QtCore.Qt.MetaModifier, 'ctrl', QtCore.Qt.Key_Meta),
                          ]
-      
+        
+        _ctrl_modifier = QtCore.Qt.MetaModifier
+
     # map Qt button codes to MouseEvent's ones:
     buttond = {QtCore.Qt.LeftButton  : 1,
                QtCore.Qt.MidButton   : 2,
@@ -177,7 +181,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
                # QtCore.Qt.XButton1 : None,
                # QtCore.Qt.XButton2 : None,
                }
-  
+
     def __init__( self, figure ):
         if DEBUG: print('FigureCanvasQt: ', figure)
         _create_qApp()
@@ -299,16 +303,15 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 
         if event.key() < 256:
             key = unicode(event.text())
-
             # if the control key is being pressed, we don't get the correct
             # characters, so interpret them directly from the event.key(). 
             # Unfortunately, this means that we cannot handle key's case 
-            # since event.key() is not case sensitve, whereas event.text() is,
+            # since event.key() is not case sensitive, whereas event.text() is,
             # Finally, since it is not possible to get the CapsLock state
             # we cannot accurately compute the case of a pressed key when 
             # ctrl+shift+p is pressed.
-            if int(event.modifiers()) & QtCore.Qt.ControlModifier:
-                # we always get an uppercase charater
+            if int(event.modifiers()) & self._ctrl_modifier:
+                # we always get an uppercase character
                 key = chr(event.key())
                 # if shift is not being pressed, lowercase it (as mentioned, 
                 # this does not take into account the CapsLock state)
@@ -322,7 +325,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             # prepend the ctrl, alt, super keys if appropriate (sorted in that order) 
             for modifier, prefix, Qt_key in self._modifier_keys:
                 if event.key() != Qt_key and int(event.modifiers()) & modifier == modifier: 
-                    key = '{}+{}'.format(prefix, key)
+                    key = u'{}+{}'.format(prefix, key)
 
         return key
 
