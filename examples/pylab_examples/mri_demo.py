@@ -10,7 +10,7 @@ im = np.fromstring(open(dfile, 'rb').read(), np.uint16).astype(float)
 im.shape = 256, 256
 
 #imshow(im, ColormapJet(256))
-imshow(im, cmap=cm.jet)
+imshow(im, cmap=cm.gray)
 axis('off')
 
 show()

@@ -5,7 +5,7 @@ Demonstrate use of a log color scale in contourf
 from matplotlib import pyplot as P
 import numpy as np
 from numpy import ma
-from matplotlib import colors, ticker
+from matplotlib import colors, ticker, cm
 from matplotlib.mlab import bivariate_normal
 
 N = 100
@@ -30,7 +30,7 @@ z = ma.masked_where(z<= 0, z)
 
 # Automatic selection of levels works; setting the
 # log locator tells contourf to use a log scale:
-cs = P.contourf(X, Y, z, locator=ticker.LogLocator())
+cs = P.contourf(X, Y, z, locator=ticker.LogLocator(), cmap=cm.PuBu_r)
 
 # Alternatively, you can manually set the levels
 # and the norm:

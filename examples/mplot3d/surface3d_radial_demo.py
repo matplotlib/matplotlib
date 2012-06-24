@@ -18,7 +18,7 @@ R,P = np.meshgrid(r,p)
 X,Y = R*np.cos(P),R*np.sin(P)
 
 Z = ((R**2 - 1)**2)
-ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.jet)
+ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.YlGnBu_r)
 ax.set_zlim3d(0, 1)
 ax.set_xlabel(r'$\phi_\mathrm{real}$')
 ax.set_ylabel(r'$\phi_\mathrm{im}$')
