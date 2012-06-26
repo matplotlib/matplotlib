@@ -58,12 +58,6 @@ basedir = {
     'linux3' : ['/usr/local', '/usr'],
     'linux'  : ['/usr/local', '/usr',],
     'cygwin' : ['/usr/local', '/usr',],
-    
-    # darwin is Mac OS X.
-    # The default configuration works for Apple's built-in python, python.org python and Homebrew python
-    # If you use Fink python then prepend '/sw'
-    # If you use MacPorts python then prepend '/opt/local'
-
     'darwin' : ['/usr/local/', '/usr', '/usr/X11'],
     'freebsd4' : ['/usr/local', '/usr'],
     'freebsd5' : ['/usr/local', '/usr'],
