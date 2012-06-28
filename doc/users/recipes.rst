@@ -307,7 +307,7 @@ Transparent, fancy legends
 ==========================
 
 Sometimes you know what your data looks like before you plot it, and
-mak know for instance that there won't be much data in the upper right
+may know for instance that there won't be much data in the upper right
 hand corner.  Then you can safely create a legend that doesn't overlay
 your data::
 
@@ -316,7 +316,7 @@ your data::
 Other times you don't know where your data is, and loc='best' will try
 and place the legend::
 
-  ax.legend(loc='upper right')
+  ax.legend(loc='best')
 
 but still, your legend may overlap your data, and in these cases it's
 nice to make the legend frame transparent.
