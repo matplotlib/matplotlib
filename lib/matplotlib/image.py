@@ -1185,12 +1185,20 @@ def imread(fname, format=None):
     can be used with :func:`~matplotlib.pyplot.imshow`.
     """
 
-    def pilread():
+    def pilread(fname):
         """try to load the image with PIL or return None"""
-        try: from PIL import Image
-        except ImportError: return None
-        image = Image.open( fname )
-        return pil_to_array(image)
+        try:
+            from PIL import Image
+        except ImportError:
+            return None
+        if cbook.is_string_like(fname):
+            # force close the file after reading the image
+            with open(fname, "rb") as fp:
+                image = Image.open(fp)
+                return pil_to_array(image)
+        else:
+            image = Image.open(fname)
+            return pil_to_array(image)
 
     handlers = {'png' :_png.read_png, }
     if format is None:
@@ -1206,7 +1214,7 @@ def imread(fname, format=None):
         ext = format
 
     if ext not in handlers.iterkeys():
-        im = pilread()
+        im = pilread(fname)
         if im is None:
             raise ValueError('Only know how to handle extensions: %s; with PIL installed matplotlib can handle more images' % handlers.keys())
         return im
