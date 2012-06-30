@@ -708,30 +708,47 @@ def gca(**kwargs):
 
 def subplot(*args, **kwargs):
     """
-    Create a subplot command, creating axes with::
+    Return a subplot axes positioned by the given grid definition.
 
-      subplot(numRows, numCols, plotNum)
+    Typical call signature::
 
-    where *plotNum* = 1 is the first plot number and increasing *plotNums*
-    fill rows first.  max(*plotNum*) == *numRows* * *numCols*
+      subplot(nrows, ncols, plot_number)
 
-    You can leave out the commas if *numRows* <= *numCols* <=
-    *plotNum* < 10, as in::
+    Where *nrows* and *ncols* are used to notionally split the figure 
+    into ``nrows * ncols`` sub-axes, and *plot_number* is used to identify
+    the particular subplot that this function is to create within the notional
+    grid. *plot_number* starts at 1, increments across rows first and has a 
+    maximum of ``nrows * ncols``.
 
-      subplot(211)    # 2 rows, 1 column, first (upper) plot
+    In the case when *nrows*, *ncols* and *plot_number* are all less than 10,
+    a convenience exists, such that the a 3 digit number can be given instead,
+    where the hundreds represent *nrows*, the tens represent *ncols* and the
+    units represent *plot_number*. For instance::
 
-    ``subplot(111)`` is the default axis.
+      subplot(211)    
 
-    New subplots that overlap old will delete the old axes.  If you do
-    not want this behavior, use
-    :meth:`~matplotlib.figure.Figure.add_subplot` or the
-    :func:`~matplotlib.pyplot.axes` command.  Eg.::
+    produces a subaxes in a figure which represents the top plot (i.e. the 
+    first) in a 2 row by 1 column notional grid (no grid actually exists, 
+    but conceptually but this is how the returned subplot has been positioned).
 
-      from pylab import *
-      plot([1,2,3])  # implicitly creates subplot(111)
-      subplot(211)   # overlaps, subplot(111) is killed
-      plot(rand(12), rand(12))
-      subplot(212, axisbg='y') # creates 2nd subplot with yellow background
+    .. note::
+
+       Creating a new subplot with a position which is fully consumed by a 
+       pre-existing axes will trigger the larger axes to be deleted::
+
+          from pylab import *
+          # plot a line, implicitly creating a subplot(111)
+          plot([1,2,3])
+          # now create a subplot which represents the top plot of a grid
+          # with 2 rows and 1 column. Since this subplot will overlap the
+          # first, the plot (and its axes) previously created, will be removed
+          subplot(211)
+          plot(rand(12), rand(12))
+          subplot(212, axisbg='y') # creates 2nd subplot with yellow background
+
+       This functionality can be disabled by setting *keep_super_axes* to be 
+       **True**.
+
 
     Keyword arguments:
 
@@ -749,31 +766,36 @@ def subplot(*args, **kwargs):
         for the subplot. This projection must have been previously
         registered. See :mod:`matplotlib.projections`.
 
+      *keep_super_axes*:
+        A boolean flag indication whether the removal of axes which
+        fully overlap the newly created one should take place. 
+        Defaults to **False**.
+
     .. seealso::
 
         :func:`~matplotlib.pyplot.axes`
             For additional information on :func:`axes` and
             :func:`subplot` keyword arguments.
 
-        :file:`examples/pylab_examples/polar_scatter.py`
-            For an example
+        For an example of making subplots with different projections see
+        :doc:`examples/pylab_examples/geo_demo.py <../examples/pylab_examples/geo_demo>`.
 
     **Example:**
 
     .. plot:: mpl_examples/pylab_examples/subplot_demo.py
 
     """
-
-
+    keep_super_axes = kwargs.pop('keep_super_axes', False)
     fig = gcf()
     a = fig.add_subplot(*args, **kwargs)
     bbox = a.bbox
-    byebye = []
-    for other in fig.axes:
-        if other==a: continue
-        if bbox.fully_overlaps(other.bbox):
-            byebye.append(other)
-    for ax in byebye: delaxes(ax)
+    if not keep_super_axes:
+        byebye = []
+        for other in fig.axes:
+            if other==a: continue
+            if bbox.fully_overlaps(other.bbox):
+                byebye.append(other)
+        for ax in byebye: delaxes(ax)
 
     draw_if_interactive()
     return a
@@ -1617,7 +1639,7 @@ def plotting():
                     show generally has no effect.
     specgram        a spectrogram plot
     stem            make a stem plot
-    subplot         make a subplot (numrows, numcols, axesnum)
+    subplot         make a subplot (nrows, ncols, plot_number)
     table           add a table to the axes
     text            add some text at location x,y to the current axes
     title           add a title to the current axes
