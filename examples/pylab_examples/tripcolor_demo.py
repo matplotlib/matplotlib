@@ -97,7 +97,7 @@ triangles = np.asarray([
 plt.figure()
 plt.gca().set_aspect('equal')
 plt.tripcolor(x, y, triangles, z, shading='flat', edgecolors='k', 
-              cmap=cm.summer)
+              cmap='summer')
 plt.colorbar()
 plt.title('tripcolor of user-specified triangulation')
 plt.xlabel('Longitude (degrees)')
