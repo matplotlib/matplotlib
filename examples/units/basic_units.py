@@ -1,4 +1,5 @@
 import math
+
 import numpy as np
 
 import matplotlib.units as units
@@ -32,7 +33,6 @@ class PassThroughProxy(object):
         self.target = obj.proxy_target
 
     def __call__(self, *args):
-        #print 'passthrough', self.target, self.fn_name
         fn = getattr(self.target, self.fn_name)
         ret = fn(*args)
         return ret
@@ -177,7 +177,6 @@ class _TaggedValue(object):
         return TaggedValue(new_value, self.unit)
 
     def convert_to(self, unit):
-        #print 'convert to', unit, self.unit
         if (unit == self.unit or not unit):
             return self
         new_value = self.unit.convert_value_to(self.value, unit)
@@ -246,8 +245,6 @@ class BasicUnit(object):
         return self.conversions[unit]
 
     def convert_value_to(self, value, unit):
-        #print 'convert value to: value ="%s", unit="%s"'%(value, type(unit)),
-        #self.conversions
         conversion_fn = self.conversions[unit]
         ret = conversion_fn(value)
         return ret
@@ -348,7 +345,6 @@ class BasicUnitConverter(units.ConversionInterface):
     def convert(val, unit, axis):
         if units.ConversionInterface.is_numlike(val):
             return val
-        #print 'convert checking iterable'
         if iterable(val):
             return [thisval.convert_to(unit).get_value() for thisval in val]
         else:
