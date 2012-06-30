@@ -1,31 +1,35 @@
 """Demonstrate/test the Sankey class by producing a long chain of connections.
 """
-import numpy as np
-import matplotlib.pyplot as plt
 
-from matplotlib.sankey import Sankey
 from itertools import cycle
 
+import matplotlib.pyplot as plt
+from matplotlib.sankey import Sankey
+
 links_per_side = 6
+
+
 def side(sankey, n=1):
-    """Generate a side chain.
-    """
+    """Generate a side chain."""
     prior = len(sankey.diagrams)
     colors = cycle(['orange', 'b', 'g', 'r', 'c', 'm', 'y'])
     for i in range(0, 2*n, 2):
         sankey.add(flows=[1, -1], orientations=[-1, -1],
-                   patchlabel=str(prior+i), facecolor=colors.next(),
+                   patchlabel=str(prior+i), facecolor=next(colors),
                    prior=prior+i-1, connect=(1, 0), alpha=0.5)
         sankey.add(flows=[1, -1], orientations=[1, 1],
-                   patchlabel=str(prior+i+1), facecolor=colors.next(),
+                   patchlabel=str(prior+i+1), facecolor=next(colors),
                    prior=prior+i, connect=(1, 0), alpha=0.5)
+
+
 def corner(sankey):
-    """Generate a corner link.
-    """
+    """Generate a corner link."""
     prior = len(sankey.diagrams)
     sankey.add(flows=[1, -1], orientations=[0, 1],
                patchlabel=str(prior), facecolor='k',
                prior=prior-1, connect=(1, 0), alpha=0.5)
+
+
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[],
                      title="Why would you want to do this?\n(But you could.)")
