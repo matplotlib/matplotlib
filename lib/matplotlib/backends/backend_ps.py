@@ -960,48 +960,38 @@ class FigureCanvasPS(FigureCanvasBase):
     def get_default_filetype(self):
         return 'ps'
 
-    def print_ps(self, outfile, *args, **kwargs):
-        return self._print_ps(outfile, 'ps', *args, **kwargs)
+    def print_ps(self, outfile, **kwargs):
+        return self._print_ps(outfile, 'ps', **kwargs)
 
-    def print_eps(self, outfile, *args, **kwargs):
-        return self._print_ps(outfile, 'eps', *args, **kwargs)
+    def print_eps(self, outfile, **kwargs):
+        return self._print_ps(outfile, 'eps', **kwargs)
 
-
-
-
-
-
-    def _print_ps(self, outfile, format, *args, **kwargs):
-        papertype = kwargs.pop("papertype", rcParams['ps.papersize'])
-        papertype = papertype.lower()
-        if papertype == 'auto':
-            pass
-        elif papertype not in papersize:
+    def _print_ps(self, outfile, format, orientation='portrait', papertype=None, **kwargs):
+        papertype = (papertype or rcParams['ps.papersize']).lower()
+        
+        if papertype not in papersize:
             raise RuntimeError( '%s is not a valid papertype. Use one \
                     of %s'% (papertype, ', '.join( papersize.iterkeys() )) )
 
-        orientation = kwargs.pop("orientation", "portrait").lower()
+        orientation = orientation.lower()
         if orientation == 'landscape': isLandscape = True
         elif orientation == 'portrait': isLandscape = False
-        else: raise RuntimeError('Orientation must be "portrait" or "landscape"')
+        else: raise ValueError('Orientation must be "portrait" or "landscape"')
 
-        self.figure.set_dpi(72) # Override the dpi kwarg
-        imagedpi = kwargs.pop("dpi", 72)
-        facecolor = kwargs.pop("facecolor", "w")
-        edgecolor = kwargs.pop("edgecolor", "w")
+        imagedpi = self.figure.get_dpi()
 
         if rcParams['text.usetex']:
-            self._print_figure_tex(outfile, format, imagedpi, facecolor, edgecolor,
+            self._print_figure_tex(outfile, format, imagedpi, 
                                    orientation, isLandscape, papertype,
                                    **kwargs)
         else:
-            self._print_figure(outfile, format, imagedpi, facecolor, edgecolor,
+            self._print_figure(outfile, format, imagedpi, 
                                orientation, isLandscape, papertype,
                                **kwargs)
 
-    def _print_figure(self, outfile, format, dpi=72, facecolor='w', edgecolor='w',
+    def _print_figure(self, outfile, format, dpi=72, 
                       orientation='portrait', isLandscape=False, papertype=None,
-                      **kwargs):
+                      dryrun=False, bbox_inches_restore=None):
         """
         Render the figure to hardcopy.  Set the figure patch face and
         edge colors.  This is useful because some of the GUIs have a
@@ -1061,14 +1051,6 @@ class FigureCanvasPS(FigureCanvasBase):
             rotation = 90
         bbox = (llx, lly, urx, ury)
 
-        # generate PostScript code for the figure and store it in a string
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
-
-
-        dryrun = kwargs.get("dryrun", False)
         if dryrun:
             class NullWriter(object):
                 def write(self, *kl, **kwargs):
@@ -1083,20 +1065,16 @@ class FigureCanvasPS(FigureCanvasBase):
 
 
         # mixed mode rendering
-        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
         ps_renderer = self._renderer_class(width, height, self._pswriter,
                                            imagedpi=dpi)
         renderer = MixedModeRenderer(self.figure,
             width, height, dpi, ps_renderer,
-            bbox_inches_restore=_bbox_inches_restore)
+            bbox_inches_restore=bbox_inches_restore)
 
         self.figure.draw(renderer)
 
         if dryrun: # return immediately if dryrun (tightbbox=True)
             return
-
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
 
         fd, tmpfile = mkstemp()
         with io.open(fd, 'wb') as raw_fh:
@@ -1150,7 +1128,9 @@ class FigureCanvasPS(FigureCanvasBase):
                         # STIX fonts).  This will simply turn that off to avoid
                         # errors.
                         if is_opentype_cff_font(font_filename):
-                            raise RuntimeError("OpenType CFF fonts can not be saved using the internal Postscript backend at this time.\nConsider using the Cairo backend.")
+                            raise RuntimeError("OpenType CFF fonts can not be "
+                            "saved using the internal Postscript backend at this "
+                            "time.\nConsider using the Cairo backend.")
                         else:
                             fh.flush()
                             convert_ttf_to_ps(font_filename, raw_fh, fonttype, glyph_ids)
@@ -1188,7 +1168,7 @@ class FigureCanvasPS(FigureCanvasBase):
             shutil.move(tmpfile, outfile)
             os.chmod(outfile, mode)
 
-    def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
+    def _print_figure_tex(self, outfile, format, dpi, 
                           orientation, isLandscape, papertype,
                           **kwargs):
         """
@@ -1210,12 +1190,6 @@ class FigureCanvasPS(FigureCanvasBase):
         urx = llx + w
         ury = lly + h
         bbox = (llx, lly, urx, ury)
-
-        # generate PostScript code for the figure and store it in a string
-        origfacecolor = self.figure.get_facecolor()
-        origedgecolor = self.figure.get_edgecolor()
-        self.figure.set_facecolor(facecolor)
-        self.figure.set_edgecolor(edgecolor)
 
         dryrun = kwargs.get("dryrun", False)
         if dryrun:
@@ -1243,9 +1217,6 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if dryrun: # return immediately if dryrun (tightbbox=True)
             return
-
-        self.figure.set_facecolor(origfacecolor)
-        self.figure.set_edgecolor(origedgecolor)
 
         # write to a temp file, we'll move it to outfile when done
         fd, tmpfile = mkstemp()

@@ -1086,7 +1086,7 @@ class FigureCanvasSVG(FigureCanvasBase):
     filetypes = {'svg': 'Scalable Vector Graphics',
                  'svgz': 'Scalable Vector Graphics'}
 
-    def print_svg(self, filename, *args, **kwargs):
+    def print_svg(self, filename, bbox_inches_restore=None):
         if is_string_like(filename):
             fh_to_close = svgwriter = io.open(filename, 'w', encoding='utf-8')
         elif is_writable_file_like(filename):
@@ -1098,9 +1098,9 @@ class FigureCanvasSVG(FigureCanvasBase):
             fh_to_close = None
         else:
             raise ValueError("filename must be a path or a file-like object")
-        return self._print_svg(filename, svgwriter, fh_to_close, **kwargs)
+        return self._print_svg(filename, svgwriter, fh_to_close, bbox_inches_restore)
 
-    def print_svgz(self, filename, *args, **kwargs):
+    def print_svgz(self, filename, bbox_inches_restore=None):
         if is_string_like(filename):
             fh_to_close = gzipwriter = gzip.GzipFile(filename, 'w')
             svgwriter = io.TextIOWrapper(gzipwriter, 'utf-8')
@@ -1109,9 +1109,9 @@ class FigureCanvasSVG(FigureCanvasBase):
             svgwriter = io.TextIOWrapper(gzipwriter, 'utf-8')
         else:
             raise ValueError("filename must be a path or a file-like object")
-        return self._print_svg(filename, svgwriter, fh_to_close)
+        return self._print_svg(filename, svgwriter, fh_to_close, bbox_inches_restore)
 
-    def _print_svg(self, filename, svgwriter, fh_to_close=None, **kwargs):
+    def _print_svg(self, filename, svgwriter, fh_to_close=None, bbox_inches_restore=None):
         try:
             self.figure.set_dpi(72.0)
             width, height = self.figure.get_size_inches()
@@ -1129,10 +1129,9 @@ class FigureCanvasSVG(FigureCanvasBase):
 
                 #image_dpi = kwargs.pop("dpi", 72)
                 image_dpi = 72
-                _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
                 renderer = MixedModeRenderer(self.figure,
                     width, height, image_dpi, RendererSVG(w, h, svgwriter, filename),
-                    bbox_inches_restore=_bbox_inches_restore)
+                    bbox_inches_restore=bbox_inches_restore)
 
             self.figure.draw(renderer)
             renderer.finalize()

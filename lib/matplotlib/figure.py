@@ -1131,8 +1131,7 @@ class Figure(Artist):
         'whenever the axes state change, ``func(self)`` will be called'
         self._axobservers.append(func)
 
-
-    def savefig(self, *args, **kwargs):
+    def savefig(self, fname, **kwargs):
         """
         Call signature::
 
@@ -1221,7 +1220,7 @@ class Figure(Artist):
             kwargs.setdefault('facecolor', rcParams['savefig.facecolor'])
             kwargs.setdefault('edgecolor', rcParams['savefig.edgecolor'])
 
-        self.canvas.print_figure(*args, **kwargs)
+        self.canvas.print_figure(fname, **kwargs)
 
         if transparent:
             for ax, cc in zip(self.axes, original_axes_colors):
