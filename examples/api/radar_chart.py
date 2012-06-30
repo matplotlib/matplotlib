@@ -46,7 +46,7 @@ def radar_factory(num_vars, frame='circle'):
 
     patch_dict = {'polygon': draw_poly_patch, 'circle': draw_circle_patch}
     if frame not in patch_dict:
-        raise ValueError, 'unknown value for `frame`: %s' % frame
+        raise ValueError('unknown value for `frame`: %s' % frame)
 
     class RadarAxes(PolarAxes):
 
@@ -133,7 +133,8 @@ def example_data():
     #  4)Inclusion of both gas-phase speciesis present...
     data = {
         'column names':
-            ['Sulfate', 'Nitrate', 'EC', 'OC1', 'OC2', 'OC3', 'OP', 'CO', 'O3'],
+            ['Sulfate', 'Nitrate', 'EC', 'OC1', 'OC2', 'OC3', 'OP', 'CO',
+             'O3'],
         'Basecase':
             [[0.88, 0.01, 0.03, 0.03, 0.00, 0.06, 0.01, 0.00, 0.00],
              [0.07, 0.95, 0.04, 0.05, 0.00, 0.02, 0.01, 0.00, 0.00],
@@ -157,8 +158,7 @@ def example_data():
              [0.09, 0.95, 0.02, 0.03, 0.00, 0.01, 0.13, 0.06, 0.00],
              [0.01, 0.02, 0.71, 0.24, 0.13, 0.16, 0.00, 0.50, 0.00],
              [0.01, 0.03, 0.00, 0.28, 0.24, 0.23, 0.00, 0.44, 0.88],
-             [0.02, 0.00, 0.18, 0.45, 0.64, 0.55, 0.86, 0.00, 0.16]]
-    }
+             [0.02, 0.00, 0.18, 0.45, 0.64, 0.55, 0.86, 0.00, 0.16]]}
     return data
 
 
@@ -185,12 +185,11 @@ if __name__ == '__main__':
         ax.set_varlabels(spoke_labels)
 
     # add legend relative to top-left plot
-    plt.subplot(2,2,1)
+    plt.subplot(2, 2, 1)
     labels = ('Factor 1', 'Factor 2', 'Factor 3', 'Factor 4', 'Factor 5')
     legend = plt.legend(labels, loc=(0.9, .95), labelspacing=0.1)
     plt.setp(legend.get_texts(), fontsize='small')
 
-    plt.figtext(0.5, 0.965,  '5-Factor Solution Profiles Across Four Scenarios',
-               ha='center', color='black', weight='bold', size='large')
+    plt.figtext(0.5, 0.965, '5-Factor Solution Profiles Across Four Scenarios',
+                ha='center', color='black', weight='bold', size='large')
     plt.show()
-
