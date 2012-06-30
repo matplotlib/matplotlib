@@ -1193,8 +1193,8 @@ def imread(fname, format=None):
             return None
         if cbook.is_string_like(fname):
             # force close the file after reading the image
-            with open(fname, "rb") as fp:
-                image = Image.open(fp)
+            with open(fname, "rb") as fh:
+                image = Image.open(fh)
                 return pil_to_array(image)
         else:
             image = Image.open(fname)
