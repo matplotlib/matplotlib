@@ -412,6 +412,7 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #keymap.pan : p                      # pan mnemonic
 #keymap.zoom : o                     # zoom mnemonic
 #keymap.save : s                     # saving current figure
+#keymap.quit : ctrl+w                # close the current figure
 #keymap.grid : g                     # switching on/off a grid in current axes
 #keymap.yscale : l                   # toggle scaling of y-axes ('log'/'linear')
 #keymap.xscale : L, k                # toggle scaling of x-axes ('log'/'linear')

@@ -189,6 +189,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                65455 : '/',
                65439 : 'dec',
                65421 : 'enter',
+               65511 : 'super',
+               65512 : 'super',
+               65406 : 'alt',
+               65289 : 'tab',
                }
 
     # Setting this as a static constant prevents
@@ -322,15 +326,19 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def _get_key(self, event):
         if event.keyval in self.keyvald:
             key = self.keyvald[event.keyval]
-        elif event.keyval <256:
+        elif event.keyval < 256:
             key = chr(event.keyval)
         else:
             key = None
-
-        ctrl  = event.state & gdk.CONTROL_MASK
-        shift = event.state & gdk.SHIFT_MASK
+            
+        for key_mask, prefix in (
+                                 [gdk.MOD4_MASK, 'super'],
+                                 [gdk.MOD1_MASK, 'alt'], 
+                                 [gdk.CONTROL_MASK, 'ctrl'],):
+            if event.state & key_mask:
+                key = '{}+{}'.format(prefix, key)
+        
         return key
-
 
     def configure_event(self, widget, event):
         if _debug: print('FigureCanvasGTK.%s' % fn_name())
@@ -592,7 +600,7 @@ class FigureManagerGTK(FigureManagerBase):
         # show the figure window
         self.window.show()
 
-    def full_screen_toggle (self):
+    def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag
         if self._full_screen_flag:
             self.window.fullscreen()
@@ -624,19 +632,6 @@ class FigureManagerGTK(FigureManagerBase):
 
 
 class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
-    # list of toolitems to add to the toolbar, format is:
-    # text, tooltip_text, image_file, callback(str)
-    toolitems = (
-        ('Home', 'Reset original view', 'home.png', 'home'),
-        ('Back', 'Back to  previous view','back.png', 'back'),
-        ('Forward', 'Forward to next view','forward.png', 'forward'),
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move.png','pan'),
-        ('Zoom', 'Zoom to rectangle','zoom_to_rect.png', 'zoom'),
-        (None, None, None, None),
-        ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
-        ('Save', 'Save the figure','filesave.png', 'save_figure'),
-        )
-
     def __init__(self, canvas, window):
         self.win = window
         gtk.Toolbar.__init__(self)
@@ -704,7 +699,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
             if text is None:
                 self.insert( gtk.SeparatorToolItem(), -1 )
                 continue
-            fname = os.path.join(basedir, image_file)
+            fname = os.path.join(basedir, image_file + '.png')
             image = gtk.Image()
             image.set_from_file(fname)
             tbutton = gtk.ToolButton(image, text)

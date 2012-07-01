@@ -259,15 +259,21 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
     def _get_key(self, event):
         if event.keyval in self.keyvald:
             key = self.keyvald[event.keyval]
-        elif event.keyval <256:
+        elif event.keyval < 256:
             key = chr(event.keyval)
         else:
             key = None
 
-        #ctrl  = event.get_state() & Gdk.EventMask.CONTROL
-        #shift = event.get_state() & Gdk.EventMask.SHIFT
-        return key
+        modifiers = [
+                     (Gdk.ModifierType.MOD4_MASK, 'super'),
+                     (Gdk.ModifierType.MOD1_MASK, 'alt'),
+                     (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
+                    ]
+        for key_mask, prefix in modifiers:
+            if event.state & key_mask:
+                key = '{}+{}'.format(prefix, key)
 
+        return key
 
     def configure_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
@@ -453,19 +459,6 @@ class FigureManagerGTK3(FigureManagerBase):
 
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
-    # list of toolitems to add to the toolbar, format is:
-    # text, tooltip_text, image_file, callback(str)
-    toolitems = (
-        ('Home', 'Reset original view', 'home.png', 'home'),
-        ('Back', 'Back to  previous view','back.png', 'back'),
-        ('Forward', 'Forward to next view','forward.png', 'forward'),
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move.png','pan'),
-        ('Zoom', 'Zoom to rectangle','zoom_to_rect.png', 'zoom'),
-        (None, None, None, None),
-        ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
-        ('Save', 'Save the figure','filesave.png', 'save_figure'),
-        )
-
     def __init__(self, canvas, window):
         self.win = window
         GObject.GObject.__init__(self)
@@ -516,7 +509,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             if text is None:
                 self.insert( Gtk.SeparatorToolItem(), -1 )
                 continue
-            fname = os.path.join(basedir, image_file)
+            fname = os.path.join(basedir, image_file + '.png')
             image = Gtk.Image()
             image.set_from_file(fname)
             tbutton = Gtk.ToolButton()
