@@ -1242,13 +1242,20 @@ The current aspect ratio will be kept."""
         keyval = evt.m_keyCode
         if keyval in self.keyvald:
             key = self.keyvald[keyval]
-        elif keyval <256:
+        elif keyval < 256:
             key = chr(keyval)
+            # wx always returns an uppercase, so make it lowercase if the shift
+            # key is not depressed (NOTE: this will not handle Caps Lock)
+            if not evt.ShiftDown():
+                key = key.lower()
         else:
             key = None
 
-        # why is wx upcasing this?
-        if key is not None: key = key.lower()
+        for meth, prefix in (
+                             [evt.AltDown, 'alt'], 
+                             [evt.ControlDown, 'ctrl'], ):
+            if meth():
+                key = '{}+{}'.format(prefix, key)
 
         return key
 
@@ -1476,6 +1483,7 @@ class FigureFrameWx(wx.Frame):
         self.SetStatusBar(statbar)
         self.canvas = self.get_canvas(fig)
         self.canvas.SetInitialSize(wx.Size(fig.bbox.width, fig.bbox.height))
+        self.canvas.SetFocus()
         self.sizer =wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
         # By adding toolbar in sizer, we are able to put it at the bottom
@@ -1742,8 +1750,6 @@ class MenuButtonWx(wx.Button):
         self.SetLabel("Axes: %s" % axis_txt[:-1])
 
 
-
-
 cursord = {
     cursors.MOVE : wx.CURSOR_HAND,
     cursors.HAND : wx.CURSOR_HAND,
@@ -1787,57 +1793,33 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         DEBUG_MSG("_init_toolbar", 1, self)
 
         self._parent = self.canvas.GetParent()
-        _NTB2_HOME    =wx.NewId()
-        self._NTB2_BACK    =wx.NewId()
-        self._NTB2_FORWARD =wx.NewId()
-        self._NTB2_PAN     =wx.NewId()
-        self._NTB2_ZOOM    =wx.NewId()
-        _NTB2_SAVE    = wx.NewId()
-        _NTB2_SUBPLOT    =wx.NewId()
 
-        self.SetToolBitmapSize(wx.Size(24,24))
 
-        self.AddSimpleTool(_NTB2_HOME, _load_bitmap('home.png'),
-                           'Home', 'Reset original view')
-        self.AddSimpleTool(self._NTB2_BACK, _load_bitmap('back.png'),
-                           'Back', 'Back navigation view')
-        self.AddSimpleTool(self._NTB2_FORWARD, _load_bitmap('forward.png'),
-                           'Forward', 'Forward navigation view')
-        # todo: get new bitmap
-        self.AddCheckTool(self._NTB2_PAN, _load_bitmap('move.png'),
-                           shortHelp='Pan',
-                           longHelp='Pan with left, zoom with right')
-        self.AddCheckTool(self._NTB2_ZOOM, _load_bitmap('zoom_to_rect.png'),
-                           shortHelp='Zoom', longHelp='Zoom to rectangle')
-
-        self.AddSeparator()
-        self.AddSimpleTool(_NTB2_SUBPLOT, _load_bitmap('subplots.png'),
-                           'Configure subplots', 'Configure subplot parameters')
-
-        self.AddSimpleTool(_NTB2_SAVE, _load_bitmap('filesave.png'),
-                           'Save', 'Save plot contents to file')
-
-        bind(self, wx.EVT_TOOL, self.home, id=_NTB2_HOME)
-        bind(self, wx.EVT_TOOL, self.forward, id=self._NTB2_FORWARD)
-        bind(self, wx.EVT_TOOL, self.back, id=self._NTB2_BACK)
-        bind(self, wx.EVT_TOOL, self.zoom, id=self._NTB2_ZOOM)
-        bind(self, wx.EVT_TOOL, self.pan, id=self._NTB2_PAN)
-        bind(self, wx.EVT_TOOL, self.configure_subplot, id=_NTB2_SUBPLOT)
-        bind(self, wx.EVT_TOOL, self.save, id=_NTB2_SAVE)
+        self.wx_ids = {}
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is None:
+                self.AddSeparator()
+                continue
+            self.wx_ids[text] = wx.NewId()
+            if text in ['Pan', 'Zoom']:
+               self.AddCheckTool(self.wx_ids[text], _load_bitmap(image_file + '.png'),
+                                 shortHelp=text, longHelp=tooltip_text)
+            else:
+               self.AddSimpleTool(self.wx_ids[text], _load_bitmap(image_file + '.png'),
+                                  text, tooltip_text)
+            bind(self, wx.EVT_TOOL, getattr(self, callback), id=self.wx_ids[text])
 
         self.Realize()
 
-
     def zoom(self, *args):
-        self.ToggleTool(self._NTB2_PAN, False)
+        self.ToggleTool(self.wx_ids['Pan'], False)
         NavigationToolbar2.zoom(self, *args)
 
     def pan(self, *args):
-        self.ToggleTool(self._NTB2_ZOOM, False)
+        self.ToggleTool(self.wx_ids['Zoom'], False)
         NavigationToolbar2.pan(self, *args)
 
-
-    def configure_subplot(self, evt):
+    def configure_subplots(self, evt):
         frame = wx.Frame(None, -1, "Configure subplots")
 
         toolfig = Figure((6,3))
@@ -1855,7 +1837,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         tool = SubplotTool(self.canvas.figure, toolfig)
         frame.Show()
 
-    def save(self, evt):
+    def save_figure(self, *args):
         # Fetch the required filename and file type.
         filetypes, exts, filter_index = self.canvas._get_imagesave_wildcards()
         default_file = "image." + self.canvas.get_default_filetype()
@@ -1881,7 +1863,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                     os.path.join(dirname, filename), format=format)
             except Exception as e:
                 error_msg_wx(str(e))
-
+    
     def set_cursor(self, cursor):
         cursor =wx.StockCursor(cursord[cursor])
         self.canvas.SetCursor( cursor )
@@ -1948,8 +1930,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def set_history_buttons(self):
         can_backward = (self._views._pos > 0)
         can_forward = (self._views._pos < len(self._views._elements) - 1)
-        self.EnableTool(self._NTB2_BACK, can_backward)
-        self.EnableTool(self._NTB2_FORWARD, can_forward)
+        self.EnableTool(self.wx_ids['Back'], can_backward)
+        self.EnableTool(self.wx_ids['Forward'], can_forward)
 
 
 class NavigationToolbarWx(wx.ToolBar):
@@ -2149,11 +2131,10 @@ class NavigationToolbarWx(wx.ToolBar):
             direction = -1
         self.button_fn(direction)
 
-    _onSave = NavigationToolbar2Wx.save
+    _onSave = NavigationToolbar2Wx.save_figure
 
     def _onClose(self, evt):
         self.GetParent().Destroy()
-
 
 
 class StatusBarWx(wx.StatusBar):
