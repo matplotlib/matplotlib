@@ -1,7 +1,15 @@
+from __future__ import print_function
+
 import numpy as np
 
 from matplotlib.widgets import LassoSelector
 from matplotlib.path import Path
+
+try:
+    raw_input
+except NameError:
+    # Python 3
+    raw_input = input
 
 
 class SelectFromCollection(object):
@@ -65,7 +73,7 @@ if __name__ == '__main__':
     plt.ion()
     data = np.random.rand(100, 2)
 
-    subplot_kw = dict(xlim=(0,1), ylim=(0,1), autoscale_on=False)
+    subplot_kw = dict(xlim=(0, 1), ylim=(0, 1), autoscale_on=False)
     fig, ax = plt.subplots(subplot_kw=subplot_kw)
 
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
@@ -73,10 +81,9 @@ if __name__ == '__main__':
 
     plt.draw()
     raw_input('Press any key to accept selected points')
-    print "Selected points:"
-    print selector.xys[selector.ind]
+    print("Selected points:")
+    print(selector.xys[selector.ind])
     selector.disconnect()
 
     # Block end of script so you can check that the lasso is disconnected.
     raw_input('Press any key to quit')
-
