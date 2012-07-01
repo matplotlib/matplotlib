@@ -230,15 +230,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         self._master = master
         self._tkcanvas.focus_set()
-        
-        if sys.platform == 'darwin':
-            # to make a tkagg window pop up on top on osx, osascript can be used
-            # this came from http://sourceforge.net/mailarchive/message.php?msg_id=23718545
-            cmd = ("""/usr/bin/osascript -e 'tell app "Finder" to set """ + \
-                    """frontmost of process "%s" to true'""") % \
-                    os.path.basename(sys.executable)
-            os.system(cmd)
-            
+                    
     def resize(self, event):
         width, height = event.width, event.height
         if self._resize_callback is not None:

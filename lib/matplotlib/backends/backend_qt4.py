@@ -395,14 +395,6 @@ class FigureManagerQT( FigureManagerBase ):
         self.canvas.setFocusPolicy( QtCore.Qt.StrongFocus )
         self.canvas.setFocus()
 
-        if sys.platform == 'darwin':
-            # to make a qt window pop up on top on osx, osascript can be used
-            # this came from http://sourceforge.net/mailarchive/message.php?msg_id=23718545
-            cmd = ("""/usr/bin/osascript -e 'tell app "Finder" to set """ + \
-                    """frontmost of process "%s" to true'""") % \
-                    os.path.basename(sys.executable)
-            os.system(cmd)
-
         QtCore.QObject.connect( self.window, QtCore.SIGNAL( 'destroyed()' ),
                             self._widgetclosed )
         self.window._destroying = False
