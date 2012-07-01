@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import math
 import os
+import signal
 import sys
 
 import matplotlib
@@ -60,8 +61,10 @@ def _create_qApp():
 
 class Show(ShowBase):
     def mainloop(self):
-        QtGui.qApp.exec_()
+        # allow KeyboardInterrupt exceptions to close the plot window.
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
 
+        QtGui.qApp.exec_()
 show = Show()
 
 
@@ -120,6 +123,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     keyvald = { QtCore.Qt.Key_Control : 'control',
                 QtCore.Qt.Key_Shift : 'shift',
                 QtCore.Qt.Key_Alt : 'alt',
+                QtCore.Qt.Key_Meta : 'super',
                 QtCore.Qt.Key_Return : 'enter',
                 QtCore.Qt.Key_Left : 'left',
                 QtCore.Qt.Key_Up : 'up',
@@ -143,6 +147,33 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
                 QtCore.Qt.Key_PageUp : 'pageup',
                 QtCore.Qt.Key_PageDown : 'pagedown',
                }
+
+    # define the modifier keys which are to be collected on keyboard events.
+    # format is: [(modifier_flag, modifier_name, equivalent_key)
+    _modifier_keys = [
+                      (QtCore.Qt.MetaModifier, 'super', QtCore.Qt.Key_Meta),
+                      (QtCore.Qt.AltModifier, 'alt', QtCore.Qt.Key_Alt),
+                      (QtCore.Qt.ControlModifier, 'ctrl', QtCore.Qt.Key_Control) 
+                      ]
+    
+    _ctrl_modifier = QtCore.Qt.ControlModifier
+    
+    if sys.platform == 'darwin':
+        # in OSX, the control and super (aka cmd/apple) keys are switched, so 
+        # switch them back.
+        keyvald.update({
+                        QtCore.Qt.Key_Control : 'super', # cmd/apple key
+                        QtCore.Qt.Key_Meta : 'control',
+                        })
+        
+        _modifier_keys = [
+                          (QtCore.Qt.ControlModifier, 'super', QtCore.Qt.Key_Control),
+                          (QtCore.Qt.AltModifier, 'alt', QtCore.Qt.Key_Alt),
+                          (QtCore.Qt.MetaModifier, 'ctrl', QtCore.Qt.Key_Meta),
+                         ]
+        
+        _ctrl_modifier = QtCore.Qt.MetaModifier
+
     # map Qt button codes to MouseEvent's ones:
     buttond = {QtCore.Qt.LeftButton  : 1,
                QtCore.Qt.MidButton   : 2,
@@ -150,6 +181,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
                # QtCore.Qt.XButton1 : None,
                # QtCore.Qt.XButton2 : None,
                }
+
     def __init__( self, figure ):
         if DEBUG: print('FigureCanvasQt: ', figure)
         _create_qApp()
@@ -268,12 +300,32 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     def _get_key( self, event ):
         if event.isAutoRepeat():
             return None
+
         if event.key() < 256:
-            key = str(event.text())
-        elif event.key() in self.keyvald:
-            key = self.keyvald[ event.key() ]
+            key = unicode(event.text())
+            # if the control key is being pressed, we don't get the correct
+            # characters, so interpret them directly from the event.key(). 
+            # Unfortunately, this means that we cannot handle key's case 
+            # since event.key() is not case sensitive, whereas event.text() is,
+            # Finally, since it is not possible to get the CapsLock state
+            # we cannot accurately compute the case of a pressed key when 
+            # ctrl+shift+p is pressed.
+            if int(event.modifiers()) & self._ctrl_modifier:
+                # we always get an uppercase character
+                key = chr(event.key())
+                # if shift is not being pressed, lowercase it (as mentioned, 
+                # this does not take into account the CapsLock state)
+                if not int(event.modifiers()) & QtCore.Qt.ShiftModifier:
+                    key = key.lower()
+
         else:
-            key = None
+            key = self.keyvald.get(event.key())
+
+        if key is not None:
+            # prepend the ctrl, alt, super keys if appropriate (sorted in that order) 
+            for modifier, prefix, Qt_key in self._modifier_keys:
+                if event.key() != Qt_key and int(event.modifiers()) & modifier == modifier: 
+                    key = u'{}+{}'.format(prefix, key)
 
         return key
 
@@ -373,15 +425,21 @@ class FigureManagerQT( FigureManagerBase ):
         self.canvas.figure.show = lambda *args: self.window.show()
 
         def notify_axes_change( fig ):
-           # This will be called whenever the current axes is changed
-           if self.toolbar is not None:
-               self.toolbar.update()
+            # This will be called whenever the current axes is changed
+            if self.toolbar is not None:
+                self.toolbar.update()
         self.canvas.figure.add_axobserver( notify_axes_change )
 
     @QtCore.Slot()
     def _show_message(self,s):
         # Fixes a PySide segfault.
         self.window.statusBar().showMessage(s)
+
+    def full_screen_toggle(self):
+        if self.window.isFullScreen():
+            self.window.showNormal()    
+        else:
+            self.window.showFullScreen()
 
     def _widgetclosed( self ):
         if self.window._destroying: return
@@ -393,7 +451,6 @@ class FigureManagerQT( FigureManagerBase ):
             # It seems that when the python session is killed,
             # Gcf can get destroyed before the Gcf.destroy
             # line is run, leading to a useless AttributeError.
-
 
     def _get_toolbar(self, canvas, parent):
         # must be inited after the window, drawingArea and figure
@@ -441,22 +498,14 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
     def _init_toolbar(self):
         self.basedir = os.path.join(matplotlib.rcParams[ 'datapath' ],'images')
 
-        a = self.addAction(self._icon('home.png'), 'Home', self.home)
-        a.setToolTip('Reset original view')
-        a = self.addAction(self._icon('back.png'), 'Back', self.back)
-        a.setToolTip('Back to previous view')
-        a = self.addAction(self._icon('forward.png'), 'Forward', self.forward)
-        a.setToolTip('Forward to next view')
-        self.addSeparator()
-        a = self.addAction(self._icon('move.png'), 'Pan', self.pan)
-        a.setToolTip('Pan axes with left mouse, zoom with right')
-        a = self.addAction(self._icon('zoom_to_rect.png'), 'Zoom', self.zoom)
-        a.setToolTip('Zoom to rectangle')
-        self.addSeparator()
-        a = self.addAction(self._icon('subplots.png'), 'Subplots',
-                self.configure_subplots)
-        a.setToolTip('Configure subplots')
-
+        for text, tooltip_text, image_file, callback in self.toolitems:
+            if text is None:
+                self.addSeparator()
+            else:
+                a = self.addAction(self._icon(image_file + '.png'), text, getattr(self, callback))
+                if tooltip_text is not None:
+                    a.setToolTip(tooltip_text)
+                    
         if figureoptions is not None:
             a = self.addAction(self._icon("qt4_editor_options.png"),
                                'Customize', self.edit_parameters)
