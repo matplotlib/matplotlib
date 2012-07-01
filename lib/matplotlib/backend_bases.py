@@ -1883,7 +1883,7 @@ class FigureCanvasBase(object):
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             options = cbook.restrict_dict(kwargs, ['quality', 'optimize',
                                                    'progressive'])
-            return image.save(filename_or_obj, **options)
+            return image.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
 
         filetypes['tif'] = filetypes['tiff'] = 'Tagged Image File Format'
@@ -1893,7 +1893,7 @@ class FigureCanvasBase(object):
             buf, size = agg.print_to_buffer()
             if kwargs.pop("dryrun", False): return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            return image.save(filename_or_obj)
+            return image.save(filename_or_obj, format='tiff')
         print_tiff = print_tif
 
     def get_supported_filetypes(self):
