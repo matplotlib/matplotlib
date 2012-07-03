@@ -47,31 +47,23 @@ import os
 import re
 import subprocess
 from distutils import sysconfig, version
+from collections import defaultdict
 
-basedir = {
+# basedir is a dictionary keyed by sys.platform, and on most platforms it is
+# set to ['/usr/local', '/usr']. Giving this defaultdict a factory that
+# returns this default removes the need to update this code every time a new
+# version of freebsd comes out, for example, provided that the default basedir
+# remains sufficient on that platform
+basedir = defaultdict(lambda: ['/usr/local', '/usr'], {
+    # execptions to the ['/usr/local', '/usr'] defaults
     'win32'  : ['win32_static',],
-    'linux2-alpha' : ['/usr/local', '/usr'],
-    'linux2-hppa' : ['/usr/local', '/usr'],
-    'linux2-mips' : ['/usr/local', '/usr'],
-    'linux2-sparc' : ['/usr/local', '/usr'],
-    'linux2' : ['/usr/local', '/usr'],
-    'linux3' : ['/usr/local', '/usr'],
-    'linux'  : ['/usr/local', '/usr',],
-    'cygwin' : ['/usr/local', '/usr',],
     'darwin' : ['/usr/local/', '/usr', '/usr/X11'],
-    'freebsd4' : ['/usr/local', '/usr'],
-    'freebsd5' : ['/usr/local', '/usr'],
-    'freebsd6' : ['/usr/local', '/usr'],
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
-    'gnukfreebsd5' : ['/usr/local', '/usr'],
-    'gnukfreebsd6' : ['/usr/local', '/usr'],
-    'gnukfreebsd7' : ['/usr/local', '/usr'],
-    'gnukfreebsd8' : ['/usr/local', '/usr'],
     'gnu0' : ['/usr'],
     'aix5' : ['/usr/local'],
-}
+    })
 
-import sys, os, stat
+import sys
 
 from textwrap import fill
 from distutils.core import Extension
