@@ -186,3 +186,10 @@ autoclass_content = 'both'
 rst_epilog = """
 .. |minimum_numpy_version| replace:: %s
 """ % matplotlib.__version__numpy__
+
+texinfo_documents = [
+  ("contents", 'matplotlib', 'Matplotlib Documentation',
+   'Darren Dale@*Michael Droettboom@*Eric Firing@*John Hunter',
+   'Matplotlib', "Python plotting package", 'Programming',
+   1),
+]
