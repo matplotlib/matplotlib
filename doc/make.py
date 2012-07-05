@@ -114,7 +114,7 @@ def copy_if_out_of_date(original, derived):
 
 def check_build():
     build_dirs = ['build', 'build/doctrees', 'build/html', 'build/latex',
-                  '_static', '_templates']
+                  'build/texinfo', '_static', '_templates']
     for d in build_dirs:
         try:
             os.mkdir(d)
