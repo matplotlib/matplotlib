@@ -34,6 +34,9 @@
            the linear portion relative to the logarithmic portion to be
            adjusted. - MGD
 
+2012-04-14 Added new plot style: stackplot. This new feature supports stacked
+           area plots. - Damon McDougall
+
 2012-04-06 When path clipping changes a LINETO to a MOVETO, it also
            changes any CLOSEPOLY command to a LINETO to the initial
            point. This fixes a problem with pdf and svg where the
