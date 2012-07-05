@@ -172,6 +172,13 @@ class _process_plot_var_args:
         self.command = command
         self.set_color_cycle()
 
+    def __getinitargs__(self):
+        # means that the color cycle will be lost.
+        return (self.axes, self.command)
+    
+    def __getstate__(self):
+        return False
+
     def set_color_cycle(self, clist=None):
         if clist is None:
             clist = rcParams['axes.color_cycle']
@@ -332,7 +339,7 @@ class _process_plot_var_args:
             for seg in self._plot_args(remaining[:isplit], kwargs):
                 yield seg
             remaining=remaining[isplit:]
-
+        
 
 class Axes(martist.Artist):
     """
@@ -352,9 +359,10 @@ class Axes(martist.Artist):
 
     _shared_x_axes = cbook.Grouper()
     _shared_y_axes = cbook.Grouper()
-
+    
     def __str__(self):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
+    
     def __init__(self, fig, rect,
                  axisbg = None, # defaults to rc axes.facecolor
                  frameon = True,
@@ -1423,7 +1431,9 @@ class Axes(martist.Artist):
         self.artists.append(a)
         self._set_artist_props(a)
         a.set_clip_path(self.patch)
-        a._remove_method = lambda h: self.artists.remove(h)
+        def remove_fn(artist):
+            self.artists.remove(artist)
+        a._remove_method = remove_fn #lambda h: self.artists.remove(h)
         return a
 
     def add_collection(self, collection, autolim=True):
@@ -1445,7 +1455,11 @@ class Axes(martist.Artist):
             if collection._paths and len(collection._paths):
                 self.update_datalim(collection.get_datalim(self.transData))
 
-        collection._remove_method = lambda h: self.collections.remove(h)
+        # XXX back to start
+        def remove_fn(artist):
+            self.collections.remove(artist)
+
+        collection._remove_method = remove_fn #lambda h: self.collections.remove(h)
         return collection
 
     def add_line(self, line):
@@ -1463,7 +1477,10 @@ class Axes(martist.Artist):
         if not line.get_label():
             line.set_label('_line%d'%len(self.lines))
         self.lines.append(line)
-        line._remove_method = lambda h: self.lines.remove(h)
+#        def remove_fn(artist):
+#            self.lines.remove(artist)
+#        line._remove_method = remove_fn #lambda h: self.lines.remove(h)
+        line._remove_method = self.lines.remove
         return line
 
     def _update_line_limits(self, line):
@@ -1489,7 +1506,9 @@ class Axes(martist.Artist):
             p.set_clip_path(self.patch)
         self._update_patch_limits(p)
         self.patches.append(p)
-        p._remove_method = lambda h: self.patches.remove(h)
+        def remove_fn(artist):
+            self.patches.remove(artist)
+        p._remove_method = remove_fn #lambda h: self.patches.remove(h)
         return p
 
     def _update_patch_limits(self, patch):
@@ -1524,7 +1543,9 @@ class Axes(martist.Artist):
         self._set_artist_props(tab)
         self.tables.append(tab)
         tab.set_clip_path(self.patch)
-        tab._remove_method = lambda h: self.tables.remove(h)
+        def remove_fn(artist):
+            self.tables.remove(artist)
+        tab._remove_method = remove_fn #lambda h: self.tables.remove(h)
         return tab
 
     def add_container(self, container):
@@ -1538,7 +1559,9 @@ class Axes(martist.Artist):
         if not label:
             container.set_label('_container%d'%len(self.containers))
         self.containers.append(container)
-        container.set_remove_method(lambda h: self.containers.remove(container))
+        def remove_fn(artist):
+            self.containers.remove(artist)
+        container.set_remove_method(remove_fn)
         return container
 
 
@@ -1599,13 +1622,13 @@ class Axes(martist.Artist):
         if xdata is not None:
             # we only need to update if there is nothing set yet.
             if not self.xaxis.have_units():
-               self.xaxis.update_units(xdata)
+                self.xaxis.update_units(xdata)
             #print '\tset from xdata', self.xaxis.units
 
         if ydata is not None:
             # we only need to update if there is nothing set yet.
             if not self.yaxis.have_units():
-               self.yaxis.update_units(ydata)
+                self.yaxis.update_units(ydata)
             #print '\tset from ydata', self.yaxis.units
 
         # process kwargs 2nd since these will override default units
@@ -3330,7 +3353,9 @@ class Axes(martist.Artist):
         if fontdict is not None: t.update(fontdict)
         t.update(kwargs)
         self.texts.append(t)
-        t._remove_method = lambda h: self.texts.remove(h)
+        def remove_fn(artist):
+            self.texts.remove(artist)
+        t._remove_method = remove_fn #lambda h: self.texts.remove(h)
 
 
         #if t.get_clip_on():  t.set_clip_box(self.bbox)
@@ -3359,7 +3384,9 @@ class Axes(martist.Artist):
         self._set_artist_props(a)
         if kwargs.has_key('clip_on'):  a.set_clip_path(self.patch)
         self.texts.append(a)
-        a._remove_method = lambda h: self.texts.remove(h)
+        def remove_fn(artist):
+            self.texts.remove(artist)
+        a._remove_method = remove_fn #lambda h: self.texts.remove(h)
         return a
 
     #### Lines and spans
@@ -7022,7 +7049,9 @@ class Axes(martist.Artist):
         im.set_extent(im.get_extent())
 
         self.images.append(im)
-        im._remove_method = lambda h: self.images.remove(h)
+        def remove_fn(artist):
+            self.images.remove(artist)
+        im._remove_method = remove_fn #lambda h: self.images.remove(h)
 
         return im
 
@@ -8770,7 +8799,15 @@ class SubplotBase:
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
 
-
+    def __reduce__(self):
+        # get the first axes class which does not inherit from a subplotbase 
+        axes_class = filter(lambda klass: (issubclass(klass, Axes) and
+                                           not issubclass(klass, SubplotBase)),
+                            self.__class__.mro())[0]
+        r = [_PicklableSubplotClassConstructor(), 
+             (axes_class,), 
+             self.__getstate__()]
+        return tuple(r)
 
     def get_geometry(self):
         """get the subplot geometry, eg 2,2,3"""
@@ -8851,6 +8888,21 @@ def subplot_class_factory(axes_class=None):
 
 # This is provided for backward compatibility
 Subplot = subplot_class_factory()
+
+
+class _PicklableSubplotClassConstructor(object):
+    """
+    This stub class exists to return the appropriate subplot 
+    class when __call__-ed with an axes class. This is purely to 
+    allow Picking of Axes and Subplots.""" 
+    def __call__(self, axes_class):
+        # create a dummy object instance
+        subplot_instance = _PicklableSubplotClassConstructor()
+        subplot_class = subplot_class_factory(axes_class)
+        # update the class to the desired subplot class
+        subplot_instance.__class__ = subplot_class
+        return subplot_instance
+
 
 docstring.interpd.update(Axes=martist.kwdoc(Axes))
 docstring.interpd.update(Subplot=martist.kwdoc(Axes))

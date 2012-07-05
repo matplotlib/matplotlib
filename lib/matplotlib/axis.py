@@ -595,7 +595,6 @@ class Ticker:
     formatter = None
 
 
-
 class Axis(artist.Artist):
 
     """

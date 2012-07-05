@@ -133,33 +133,33 @@ from matplotlib import cbook
 from matplotlib import transforms as mtransforms
 
 
+class _DummyAxis:
+    def __init__(self):
+        self.dataLim = mtransforms.Bbox.unit()
+        self.viewLim = mtransforms.Bbox.unit()
+
+    def get_view_interval(self):
+        return self.viewLim.intervalx
+
+    def set_view_interval(self, vmin, vmax):
+        self.viewLim.intervalx = vmin, vmax
+
+    def get_data_interval(self):
+        return self.dataLim.intervalx
+
+    def set_data_interval(self, vmin, vmax):
+        self.dataLim.intervalx = vmin, vmax
+
 
 class TickHelper:
     axis = None
-    class DummyAxis:
-        def __init__(self):
-            self.dataLim = mtransforms.Bbox.unit()
-            self.viewLim = mtransforms.Bbox.unit()
-
-        def get_view_interval(self):
-            return self.viewLim.intervalx
-
-        def set_view_interval(self, vmin, vmax):
-            self.viewLim.intervalx = vmin, vmax
-
-        def get_data_interval(self):
-            return self.dataLim.intervalx
-
-        def set_data_interval(self, vmin, vmax):
-            self.dataLim.intervalx = vmin, vmax
-
 
     def set_axis(self, axis):
         self.axis = axis
 
     def create_dummy_axis(self):
         if self.axis is None:
-            self.axis = self.DummyAxis()
+            self.axis = _DummyAxis()
 
     def set_view_interval(self, vmin, vmax):
         self.axis.set_view_interval(vmin, vmax)

@@ -33,6 +33,7 @@ from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
+from matplotlib import __version__ as _mpl_version
 
 from operator import itemgetter
 import os.path
@@ -1130,6 +1131,31 @@ class Figure(Artist):
             if im is not None:
                 return im
         return None
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # the axobservers cannot currently be pickled.
+        # Additionally, the canvas cannot currently be pickled, but this has
+        # the benefit of meaning that a figure can be detached from one canvas,
+        # and re-attached to another.
+        for attr_to_pop in ('_axobservers', 'show', 'canvas') :
+            state.pop(attr_to_pop)
+        
+        # add version information to the state
+        state['__mpl_version__'] = _mpl_version
+        
+        return state
+    
+    def __setstate__(self, state):
+        version = state.pop('__mpl_version__')
+        if version != _mpl_version:
+            import warnings
+            warnings.warn("This figure was saved with matplotlib version %s "
+                          "and is unlikely to function correctly." % 
+                          (version, ))
+        self.__dict__ = state
+        self._axobservers = []
+        self.canvas = None
 
     def add_axobserver(self, func):
         'whenever the axes state change, ``func(self)`` will be called'
