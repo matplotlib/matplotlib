@@ -911,16 +911,15 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         # ever occur, but mysterious behavior will result because what was
         # intended to be the subplot index is instead treated as a bool for
         # sharex.
-        if isinstance(sharex, int) :
-            warnings.warn("sharex argument to subplots() was not boolean."
-                          " Did you intend to use subplot()?")
+        if isinstance(sharex, int):
+            warnings.warn("sharex argument to subplots() was an integer."
+                          " Did you intend to use subplot() (without 's')?")
 
         raise ValueError("sharex [%s] must be one of %s" % \
                 (sharex, share_values))
     if sharey not in share_values:
         raise ValueError("sharey [%s] must be one of %s" % \
                 (sharey, share_values))
-
     if subplot_kw is None:
         subplot_kw = {}
 
