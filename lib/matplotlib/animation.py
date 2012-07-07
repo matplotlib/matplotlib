@@ -356,10 +356,12 @@ class FFMpegBase:
 class FFMpegWriter(MovieWriter, FFMpegBase):
     def _args(self):
         # Returns the command line parameters for subprocess to use
-        # ffmpeg to create a movie using a pipe
+        # ffmpeg to create a movie using a pipe.
+        # Logging is quieted because subprocess.PIPE has limited buffer size.
         return [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
-             '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format, 
-             '-r', str(self.fps), '-i', 'pipe:'] + self.output_args
+                '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
+                '-r', str(self.fps), '-loglevel', 'quiet',
+                '-i', 'pipe:'] + self.output_args
 
 
 #Combine FFMpeg options with temp file-based writing
