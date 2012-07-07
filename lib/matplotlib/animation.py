@@ -17,6 +17,7 @@
 # * Movies
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
+import sys
 import itertools
 import contextlib
 import subprocess
@@ -175,10 +176,14 @@ class MovieWriter(object):
         # movie file.  *args* returns the sequence of command line arguments
         # from a few configuration options.
         command = self._args()
+        if verbose.ge('debug'):
+            output = sys.stdout
+        else:
+            output = subprocess.PIPE
         verbose.report('MovieWriter.run: running command: %s'%' '.join(command))
         self._proc = subprocess.Popen(command, shell=False,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE)
+                                      stdout=output, stderr=output,
+                                      stdin=subprocess.PIPE)
 
     def finish(self):
         'Finish any processing for writing the movie.'
@@ -357,11 +362,14 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a pipe.
-        # Logging is quieted because subprocess.PIPE has limited buffer size.
-        return [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
+        args = [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
                 '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
-                '-r', str(self.fps), '-loglevel', 'quiet',
-                '-i', 'pipe:'] + self.output_args
+                '-r', str(self.fps)]
+        # Logging is quieted because subprocess.PIPE has limited buffer size.
+        if not verbose.ge('debug'):
+            args += ['-loglevel', 'quiet']
+        args += ['-i', 'pipe:'] + self.output_args
+        return args
 
 
 #Combine FFMpeg options with temp file-based writing
