@@ -444,7 +444,8 @@ class NavigationToolbarMac(_macosx.NavigationToolbar):
         self.canvas.invalidate()
 
     def save_figure(self, *args):
-        filename = _macosx.choose_save_file('Save the figure')
+        filename = _macosx.choose_save_file('Save the figure',
+                                            self.canvas.get_default_filename())
         if filename is None: # Cancel
             return
         self.canvas.print_figure(filename)
@@ -469,7 +470,8 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         _macosx.set_cursor(cursor)
 
     def save_figure(self, *args):
-        filename = _macosx.choose_save_file('Save the figure')
+        filename = _macosx.choose_save_file('Save the figure',
+                                            self.canvas.get_default_filename())
         if filename is None: # Cancel
             return
         self.canvas.print_figure(filename)
