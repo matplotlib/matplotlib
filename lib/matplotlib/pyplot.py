@@ -851,7 +851,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
       - *fig* is the :class:`matplotlib.figure.Figure` object
 
       - *ax* can be either a single axis object or an array of axis
-        objects if more than one supblot was created.  The dimensions
+        objects if more than one subplot was created.  The dimensions
         of the resulting array can be controlled with the squeeze
         keyword, see above.
 
