@@ -219,7 +219,7 @@ class FigureManagerQT( FigureManagerBase ):
         # Give the keyboard focus to the figure instead of the manager
         self.canvas.setFocusPolicy( qt.QWidget.ClickFocus )
         self.canvas.setFocus()
-        self.window.setCaption( "Figure %d" % num )
+        self.set_window_title( "Figure %d" % num )
 
         self.window._destroying = False
 
@@ -292,6 +292,9 @@ class FigureManagerQT( FigureManagerBase ):
         if self.toolbar: self.toolbar.destroy()
         if DEBUG: print("destroy figure manager")
         self.window.close(True)
+
+    def get_window_title(self):
+        return str(self.window.caption())
 
     def set_window_title(self, title):
         self.window.setCaption(title)
@@ -420,7 +423,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         sorted_filetypes.sort()
         default_filetype = self.canvas.get_default_filetype()
 
-        start = "image." + default_filetype
+        start = self.canvas.get_default_filename()
         filters = []
         selectedFilter = None
         for name, exts in sorted_filetypes:

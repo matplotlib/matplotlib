@@ -358,7 +358,7 @@ class FigureManagerGTK3(FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = Gtk.Window()
-        self.window.set_title("Figure %d" % num)
+        self.set_window_title("Figure %d" % num)
         if (window_icon):
             try:
                 self.window.set_icon_from_file(window_icon)
@@ -447,6 +447,9 @@ class FigureManagerGTK3(FigureManagerBase):
             toolbar = None
         return toolbar
 
+    def get_window_title(self):
+        return self.window.get_title()
+
     def set_window_title(self, title):
         self.window.set_title(title)
 
@@ -532,11 +535,13 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.show_all()
 
     def get_filechooser(self):
-        return FileChooserDialog(
+        fc = FileChooserDialog(
             title='Save the figure',
             parent=self.win,
             filetypes=self.canvas.get_supported_filetypes(),
             default_filetype=self.canvas.get_default_filetype())
+        fc.set_current_name(self.canvas.get_default_filename())
+        return fc
 
     def save_figure(self, *args):
         fname, format = self.get_filechooser().get_filename_from_user()

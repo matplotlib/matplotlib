@@ -2092,6 +2092,14 @@ class FigureCanvasBase(object):
         """
         return rcParams['savefig.format']
 
+    def get_window_title(self):
+        """
+        Get the title text of the window containing the figure.
+        Return None if there is no window (eg, a PS backend).
+        """
+        if hasattr(self, "manager"):
+            return self.manager.get_window_title()
+
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.  Note that
@@ -2099,6 +2107,15 @@ class FigureCanvasBase(object):
         """
         if hasattr(self, "manager"):
             self.manager.set_window_title(title)
+
+    def get_default_filename(self):
+        """
+        Return a string, which includes extension, suitable for use as
+        a default filename.
+        """
+        default_filename = self.get_window_title() or 'image'
+        default_filename = default_filename.lower().replace(' ', '_')
+        return default_filename + '.' + self.get_default_filetype()
 
     def switch_backends(self, FigureCanvasClass):
         """
@@ -2413,10 +2430,17 @@ class FigureManagerBase:
         """
         pass
 
+    def get_window_title(self):
+        """
+        Get the title text of the window containing the figure.
+        Return None for non-GUI backends (eg, a PS backend).
+        """
+        return 'image'
+
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.  Note that
-        this has no effect if there is no window (eg, a PS backend).
+        this has no effect for non-GUI backends (eg, a PS backend).
         """
         pass
 
