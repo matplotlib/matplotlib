@@ -1652,7 +1652,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     PyObject* offset_transform;
     PyObject* facecolors;
     int antialiased;
-    int showedges;
+    PyObject* edgecolors;
 
     CGContextRef cr = self->cr;
 
@@ -1662,7 +1662,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "OOOOiiOOOOii",
+    if(!PyArg_ParseTuple(args, "OOOOiiOOOOiO",
                                &master_transform,
                                &cliprect,
                                &clippath,
@@ -1674,7 +1674,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
                                &offset_transform,
                                &facecolors,
                                &antialiased,
-                               &showedges)) return NULL;
+                               &edgecolors)) return NULL;
 
     int ok = 1;
     CGContextSaveGState(cr);
@@ -1777,7 +1777,9 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 
     size_t Npaths      = meshWidth * meshHeight;
     size_t Nfacecolors = (size_t) PyArray_DIM(facecolors, 0);
-    if ((Nfacecolors == 0 && !showedges) || Npaths == 0)
+    size_t Nedgecolors = (size_t) PyArray_DIM(edgecolors, 0);
+
+    if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0)
     {
         /* Nothing to do here */
         goto exit;
@@ -1797,16 +1799,17 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         const double b = *(double*)PyArray_GETPTR2(facecolors, 0, 2);
         const double a = *(double*)PyArray_GETPTR2(facecolors, 0, 3);
         CGContextSetRGBFillColor(cr, r, g, b, a);
-        if (antialiased && !showedges)
+        if (antialiased && Nedgecolors == 0)
         {
             CGContextSetRGBStrokeColor(cr, r, g, b, a);
         }
     }
 
-    if (showedges)
+    if (Nedgecolors == 0)
     {
-        CGContextSetRGBStrokeColor(cr, 0, 0, 0, 1);
+        edgecolors = facecolors;
     }
+
 
     double x, y;
     for (ih = 0; ih < meshHeight; ih++)
@@ -1854,6 +1857,21 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
             CGContextAddLines(cr, points, 4);
             CGContextClosePath(cr);
 
+            if (Nedgecolors > 0)
+            {
+                npy_intp ei = i % Nedgecolors;
+                const double e_r = *(double*)PyArray_GETPTR2(edgecolors, ei, 0);
+                const double e_g = *(double*)PyArray_GETPTR2(edgecolors, ei, 1);
+                const double e_b = *(double*)PyArray_GETPTR2(edgecolors, ei, 2);
+                const double e_a = *(double*)PyArray_GETPTR2(edgecolors, ei, 3);
+
+                CGContextSetRGBStrokeColor(cr, e_r, e_g, e_b, e_a);
+            }
+            else
+            {
+                CGContextSetRGBStrokeColor(cr, 0, 0, 0, 1);
+            }
+
             if (Nfacecolors > 1)
             {
                 npy_intp fi = i % Nfacecolors;
@@ -1861,8 +1879,8 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
                 const double g = *(double*)PyArray_GETPTR2(facecolors, fi, 1);
                 const double b = *(double*)PyArray_GETPTR2(facecolors, fi, 2);
                 const double a = *(double*)PyArray_GETPTR2(facecolors, fi, 3);
-                CGContextSetRGBFillColor(cr, r, g, b, a);
-                if (showedges)
+
+                if (Nedgecolors > 0)
                 {
                     CGContextDrawPath(cr, kCGPathFillStroke);
                 }
@@ -1878,7 +1896,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
             }
             else if (Nfacecolors==1)
             {
-                if (showedges || antialiased)
+                if (Nedgecolors > 0 || antialiased)
                 {
                     CGContextDrawPath(cr, kCGPathFillStroke);
                 }
@@ -1887,7 +1905,7 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
                     CGContextFillPath(cr);
                 }
             }
-            else if (showedges)
+            else if (Nedgecolors > 0)
             {
                 CGContextStrokePath(cr);
             }
