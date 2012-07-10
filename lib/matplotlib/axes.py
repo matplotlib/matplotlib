@@ -3626,15 +3626,16 @@ class Axes(martist.Artist):
         self.add_collection(coll)
         coll.update(kwargs)
 
-        minx = min(xmin.min(), xmax.min())
-        maxx = max(xmin.max(), xmax.max())
-        miny = y.min()
-        maxy = y.max()
+        if len(x) > 0:
+            minx = min(xmin.min(), xmax.min())
+            maxx = max(xmin.max(), xmax.max())
+            miny = y.min()
+            maxy = y.max()
 
-        corners = (minx, miny), (maxx, maxy)
+            corners = (minx, miny), (maxx, maxy)
 
-        self.update_datalim(corners)
-        self.autoscale_view()
+            self.update_datalim(corners)
+            self.autoscale_view()
 
 
         return coll
