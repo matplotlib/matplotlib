@@ -84,7 +84,7 @@ class RendererMac(RendererBase):
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, showedges):
+                       antialiased, edgecolors):
         cliprect = gc.get_clip_rectangle()
         clippath, clippath_transform = gc.get_clip_path()
         gc.draw_quad_mesh(master_transform,
@@ -98,7 +98,7 @@ class RendererMac(RendererBase):
                           offsetTrans,
                           facecolors,
                           antialiased,
-                          showedges)
+                          edgecolors)
 
     def new_gc(self):
         self.gc.save()
