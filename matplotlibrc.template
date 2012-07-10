@@ -350,6 +350,7 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #savefig.facecolor : white    # figure facecolor when saving
 #savefig.edgecolor : white    # figure edgecolor when saving
 #savefig.format    : png      # png, ps, pdf, svg
+#savefig.bbox      : auto     # tight, auto. When set to 'tight', will set the figure's bounding box to 'tight' and recalculate. When set to 'auto', it will use the automatic bounding box calculation.
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
