@@ -1879,7 +1879,8 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
                 const double g = *(double*)PyArray_GETPTR2(facecolors, fi, 1);
                 const double b = *(double*)PyArray_GETPTR2(facecolors, fi, 2);
                 const double a = *(double*)PyArray_GETPTR2(facecolors, fi, 3);
-
+                CGContextSetRGBFillColor(cr, r, g, b, a);
+                
                 if (Nedgecolors > 0)
                 {
                     CGContextDrawPath(cr, kCGPathFillStroke);
