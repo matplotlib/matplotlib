@@ -3626,7 +3626,7 @@ class Axes(martist.Artist):
         self.add_collection(coll)
         coll.update(kwargs)
 
-        if len(x) > 0:
+        if len(y) > 0:
             minx = min(xmin.min(), xmax.min())
             maxx = max(xmin.max(), xmax.max())
             miny = y.min()
