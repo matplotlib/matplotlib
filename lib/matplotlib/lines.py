@@ -263,14 +263,22 @@ class Line2D(Artist):
         else:
             pixels = self.figure.dpi/72. * self.pickradius
 
-        # Check for collision
-        if self._linestyle in ['None',None]:
-            # If no line, return the nearby point(s)
-            d = (xt-mouseevent.x)**2 + (yt-mouseevent.y)**2
-            ind, = np.nonzero(np.less_equal(d, pixels**2))
-        else:
-            # If line, return the nearby segment(s)
-            ind = segment_hits(mouseevent.x,mouseevent.y,xt,yt,pixels)
+        # the math involved in checking for containment (here and inside of segment_hits) assumes
+        # that it is OK to overflow.  In case the application has set the error flags such that
+        # an exception is raised on overflow, we temporarily set the appropriate error flags here
+        # and set them back when we are finished. 
+        olderrflags = np.seterr(all='ignore')
+        try:
+            # Check for collision
+            if self._linestyle in ['None',None]:
+                # If no line, return the nearby point(s)
+                d = (xt-mouseevent.x)**2 + (yt-mouseevent.y)**2
+                ind, = np.nonzero(np.less_equal(d, pixels**2))
+            else:
+                # If line, return the nearby segment(s)
+                ind = segment_hits(mouseevent.x,mouseevent.y,xt,yt,pixels)
+        finally:
+            np.seterr(**olderrflags)
 
         ind += self.ind_offset
 
