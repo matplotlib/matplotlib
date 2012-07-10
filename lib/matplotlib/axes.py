@@ -7386,7 +7386,7 @@ class Axes(martist.Artist):
             # The QuadMesh class can also be changed to
             # handle relevant superclass kwargs; the initializer
             # should do much more than it does now.
-            collection = mcoll.QuadMesh(nc, nr, coords, 0)
+            collection = mcoll.QuadMesh(nc, nr, coords, 0, edgecolors="None")
             collection.set_alpha(alpha)
             collection.set_array(C)
             collection.set_cmap(cmap)
@@ -7969,8 +7969,8 @@ class Axes(martist.Artist):
             The default value is 10.
 
         *range*: [*None* | array_like shape(2,2)]
-             The leftmost and rightmost edges of the bins along each dimension (if not specified 
-             explicitly in the bins parameters): [[xmin, xmax], [ymin, ymax]]. All values outside of 
+             The leftmost and rightmost edges of the bins along each dimension (if not specified
+             explicitly in the bins parameters): [[xmin, xmax], [ymin, ymax]]. All values outside of
              this range will be considered outliers and not tallied in the histogram.
 
         *normed*:[True|False]
@@ -7981,7 +7981,7 @@ class Axes(martist.Artist):
             An array of values w_i weighing each sample (x_i, y_i).
 
         *cmin* : [None| scalar]
-             All bins that has count less than cmin will not be displayed 
+             All bins that has count less than cmin will not be displayed
              and these count values in the return value count histogram will also be set to nan upon return
 
         *cmax* : [None| scalar]
