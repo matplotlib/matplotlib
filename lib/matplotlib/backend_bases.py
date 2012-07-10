@@ -230,6 +230,7 @@ class RendererBase:
         :meth:`draw_quad_mesh` that generates paths and then calls
         :meth:`draw_path_collection`.
         """
+
         from matplotlib.collections import QuadMesh
         paths = QuadMesh.convert_mesh_to_paths(
             meshWidth, meshHeight, coordinates)
@@ -2003,6 +2004,7 @@ class FigureCanvasBase(object):
         if dpi is None:
             dpi = rcParams['savefig.dpi']
 
+
         origDPI = self.figure.dpi
         origfacecolor = self.figure.get_facecolor()
         origedgecolor = self.figure.get_edgecolor()
@@ -2011,7 +2013,7 @@ class FigureCanvasBase(object):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-        bbox_inches = kwargs.pop("bbox_inches", None)
+        bbox_inches = kwargs.pop("bbox_inches", rcParams['savefig.bbox'])
 
         if bbox_inches:
             # call adjust_bbox to save only the given area

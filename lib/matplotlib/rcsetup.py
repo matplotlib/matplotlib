@@ -325,6 +325,16 @@ validate_movie_writer = ValidateInStrings('animation.writer',
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
 
+def validate_bbox(s):
+    if type(s) is str:
+        s = s.lower()
+    if s in ('tight'):
+        return s
+    if s in ('auto'):
+        return None
+    raise ValueError("bbox_inches should be 'auto' or 'tight'")
+
+
 
 class ValidateInterval:
     """
@@ -549,6 +559,7 @@ defaultParams = {
     'savefig.orientation' : ['portrait', validate_orientation],  # edgecolor; white
     'savefig.extension'   : ['png', deprecate_savefig_extension], # what to add to extensionless filenames
     'savefig.format'      : ['png', str], # value checked by backend at runtime
+    'savefig.bbox'        : [None, validate_bbox], # options are tight or auto. Auto validates to 'None'
 
     'tk.window_focus'    : [False, validate_bool],  # Maintain shell focus for TkAgg
     'tk.pythoninspect'   : [False, validate_tkpythoninspect],  # obsolete
