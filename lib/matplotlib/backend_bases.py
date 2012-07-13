@@ -2014,7 +2014,7 @@ class FigureCanvasBase(object):
         self.figure.set_edgecolor(edgecolor)
 
         bbox_inches = kwargs.pop("bbox_inches", None)
-        if bbox_inches == None:
+        if bbox_inches is None:
             bbox_inches = rcParams['savefig.bbox']
 
 
@@ -2058,7 +2058,7 @@ class FigureCanvasBase(object):
                     bbox_inches = Bbox.union([bbox_inches, bbox_inches1])
 
                 pad = kwargs.pop("pad_inches", None)
-                if pad == None:
+                if pad is None:
                     pad = rcParams['savefig.pad_inches']
 
                 bbox_inches = bbox_inches.padded(pad)
