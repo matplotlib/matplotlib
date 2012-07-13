@@ -350,7 +350,7 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #savefig.facecolor  : white    # figure facecolor when saving
 #savefig.edgecolor  : white    # figure edgecolor when saving
 #savefig.format     : png      # png, ps, pdf, svg
-#savefig.bbox       : default  # 'tight' or 'default'.
+#savefig.bbox       : standard # 'tight' or 'standard'.
 #savefig.pad_inches : 0.1      # Padding to be used when bbox is set to 'tight'
 
 # tk backend params
