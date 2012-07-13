@@ -330,9 +330,9 @@ def validate_bbox(s):
         s = s.lower()
         if s == 'tight':
             return s
-        if s == 'default':
+        if s == 'standard':
             return None
-        raise ValueError("bbox should be 'tight' or 'default'")
+        raise ValueError("bbox should be 'tight' or 'standard'")
 
 
 
@@ -559,7 +559,7 @@ defaultParams = {
     'savefig.orientation' : ['portrait', validate_orientation],  # edgecolor; white
     'savefig.extension'   : ['png', deprecate_savefig_extension], # what to add to extensionless filenames
     'savefig.format'      : ['png', str], # value checked by backend at runtime
-    'savefig.bbox'        : [None, validate_bbox], # options are 'tight', or 'default'. 'default' validates to None.
+    'savefig.bbox'        : [None, validate_bbox], # options are 'tight', or 'standard'. 'standard' validates to None.
     'savefig.pad_inches'  : [0.1, validate_float],
 
     'tk.window_focus'    : [False, validate_bool],  # Maintain shell focus for TkAgg
