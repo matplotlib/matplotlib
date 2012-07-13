@@ -1978,11 +1978,11 @@ class FigureCanvasBase(object):
         *bbox_inches*
             Bbox in inches. Only the given portion of the figure is
             saved. If 'tight', try to figure out the tight bbox of
-            the figure.
+            the figure. If None, use savefig.bbox
 
         *pad_inches*
             Amount of padding around the figure when bbox_inches is
-            'tight'.
+            'tight'. If None, use savefig.pad_inches
 
         *bbox_extra_artists*
             A list of extra artists that will be considered when the
@@ -2013,7 +2013,10 @@ class FigureCanvasBase(object):
         self.figure.set_facecolor(facecolor)
         self.figure.set_edgecolor(edgecolor)
 
-        bbox_inches = kwargs.pop("bbox_inches", rcParams['savefig.bbox'])
+        bbox_inches = kwargs.pop("bbox_inches", None)
+        if bbox_inches == None:
+            bbox_inches = rcParams['savefig.bbox']
+
 
         if bbox_inches:
             # call adjust_bbox to save only the given area
@@ -2054,8 +2057,10 @@ class FigureCanvasBase(object):
 
                     bbox_inches = Bbox.union([bbox_inches, bbox_inches1])
 
+                pad = kwargs.pop("pad_inches", None)
+                if pad == None:
+                    pad = rcParams['savefig.pad_inches']
 
-                pad = kwargs.pop("pad_inches", 0.1)
                 bbox_inches = bbox_inches.padded(pad)
 
             restore_bbox = tight_bbox.adjust_bbox(self.figure, format,
