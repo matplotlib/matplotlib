@@ -3183,21 +3183,21 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     # c3x, c3y = q2x, q2y
     return q0x, q0y, c1x, c1y, c2x, c2y, q2x, q2y
 
-def offset_line(x, xerr):
+def offset_line(y, yerr):
     """
-    Offsets an array *x* by +/- an error and returns a tuple (x - err, x + err).
+    Offsets an array *y* by +/- an error and returns a tuple (y - err, y + err).
 
     The error term can be:
 
     o A scalar. In this case, the returned tuple is obvious.
-    o A vector of the same length as *x*. The quantities x +/- err are computed
+    o A vector of the same length as *y*. The quantities y +/- err are computed
       component-wise.
-    o A tuple of length 2. In this case, xerr[0] is the error below *x* and
-      xerr[1] is error above *x*.
+    o A tuple of length 2. In this case, yerr[0] is the error below *y* and
+      yerr[1] is error above *y*.
     """
-    if np.isscalar(xerr) or len(xerr) == len(x):
-        xmin = x - xerr
-        xmax = x + xerr
-    elif len(xerr) == 2:
-        xmin, xmax = x - xerr[0], x + xerr[1]
-    return xmin, xmax
+    if np.isscalar(yerr) or len(yerr) == len(y):
+        ymin = y - yerr
+        ymax = y + yerr
+    elif len(yerr) == 2:
+        ymin, ymax = y - yerr[0], y + yerr[1]
+    return ymin, ymax
