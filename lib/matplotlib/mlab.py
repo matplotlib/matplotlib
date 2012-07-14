@@ -3200,4 +3200,6 @@ def offset_line(y, yerr):
         ymax = y + yerr
     elif len(yerr) == 2:
         ymin, ymax = y - yerr[0], y + yerr[1]
+    else:
+        raise ValueError("yerr must be scalar, 1xN or 2xN")
     return ymin, ymax
