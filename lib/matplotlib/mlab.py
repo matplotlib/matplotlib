@@ -3195,7 +3195,7 @@ def offset_line(y, yerr):
     o A tuple of length 2. In this case, yerr[0] is the error below *y* and
       yerr[1] is error above *y*.
     """
-    if np.isscalar(yerr) or len(yerr) == len(y):
+    if cbook.is_numlike(yerr) or (cbook.iterable(yerr) and len(yerr) == len(y)):
         ymin = y - yerr
         ymax = y + yerr
     elif len(yerr) == 2:
