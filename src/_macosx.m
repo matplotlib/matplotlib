@@ -27,6 +27,9 @@
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
 #define COMPILING_FOR_10_5
 #endif
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
+#define COMPILING_FOR_10_6
+#endif
 
 static int nwin = 0;   /* The number of open windows */
 
@@ -1175,55 +1178,41 @@ static BOOL _clip(CGContextRef cr, PyObject* object)
     return true;
 }
 
-static BOOL
-_set_offset(CGContextRef cr, PyObject* offsets, int index, PyObject* transform)
+static int _transformation_converter(PyObject* object, void* pointer)
 {
-    CGFloat tx;
-    CGFloat ty;
-    double x = *(double*)PyArray_GETPTR2(offsets, index, 0);
-    double y = *(double*)PyArray_GETPTR2(offsets, index, 1);
-    PyObject* translation = PyObject_CallMethod(transform, "transform_point",
-                                                           "((ff))", x, y);
-    if (!translation)
-    {
-        return false;
-    }
-    if (!PyArray_Check(translation))
-    {
-        Py_DECREF(translation);
-        PyErr_SetString(PyExc_ValueError,
-            "transform_point did not return a NumPy array");
-        return false;
-    }
-    if (PyArray_NDIM(translation)!=1 || PyArray_DIM(translation, 0)!=2)
-    {
-        Py_DECREF(translation);
-        PyErr_SetString(PyExc_ValueError,
-            "transform_point did not return an approriate array");
-        return false;
-    }
-    tx = (CGFloat)(*(double*)PyArray_GETPTR1(translation, 0));
-    ty = (CGFloat)(*(double*)PyArray_GETPTR1(translation, 1));
-    Py_DECREF(translation);
-    CGContextTranslateCTM(cr, tx, ty);
-    return true;
+    CGAffineTransform* matrix = (CGAffineTransform*)pointer;
+    if (!PyArray_Check(object) || PyArray_NDIM(object)!=2
+        || PyArray_DIM(object, 0)!=3 || PyArray_DIM(object, 1)!=3)
+        {
+            PyErr_SetString(PyExc_ValueError,
+                "transformation matrix is not a 3x3 NumPy array");
+            return 0;
+        }
+    const double a =  *(double*)PyArray_GETPTR2(object, 0, 0);
+    const double b =  *(double*)PyArray_GETPTR2(object, 0, 1);
+    const double c =  *(double*)PyArray_GETPTR2(object, 1, 0);
+    const double d =  *(double*)PyArray_GETPTR2(object, 1, 1);
+    const double tx =  *(double*)PyArray_GETPTR2(object, 0, 2);
+    const double ty =  *(double*)PyArray_GETPTR2(object, 1, 2);
+    *matrix = CGAffineTransformMake(a, b, c, d, tx, ty);
+    return 1;
 }
 
 static PyObject*
 GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 {
-    PyObject* cliprect;
-    PyObject* clippath;
-    PyObject* clippath_transform;
-    PyObject* paths;
-    PyObject* transforms;
+    CGAffineTransform master;
+    PyObject* path_ids;
+    PyObject* all_transforms;
     PyObject* offsets;
-    PyObject* offset_transform;
+    CGAffineTransform offset_transform;
     PyObject* facecolors;
     PyObject* edgecolors;
     PyObject* linewidths;
     PyObject* linestyles;
     PyObject* antialiaseds;
+
+    int offset_position = 0;
 
     CGContextRef cr = self->cr;
 
@@ -1233,26 +1222,70 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "OOOOOOOOOOOO", &cliprect,
-                                               &clippath,
-                                               &clippath_transform,
-                                               &paths,
-                                               &transforms,
-                                               &offsets,
-                                               &offset_transform,
-                                               &facecolors,
-                                               &edgecolors,
-                                               &linewidths,
-                                               &linestyles,
-                                               &antialiaseds))
+    if(!PyArg_ParseTuple(args, "O&OOOO&OOOOOi",
+                               _transformation_converter, &master,
+                               &path_ids,
+                               &all_transforms,
+                               &offsets,
+                               _transformation_converter, &offset_transform,
+                               &facecolors,
+                               &edgecolors,
+                               &linewidths,
+                               &linestyles,
+                               &antialiaseds,
+                               &offset_position))
         return NULL;
 
     int ok = 1;
     Py_ssize_t i;
-    Py_ssize_t Np = 0;
-    Py_ssize_t N = 0;
 
     CGMutablePathRef* p = NULL;
+    CGAffineTransform* transforms = NULL;
+    CGPoint *toffsets = NULL;
+    CGPatternRef pattern = NULL;
+    CGColorSpaceRef patternSpace = NULL;
+
+    PyObject* hatchpath;
+    hatchpath = PyObject_CallMethod((PyObject*)self, "get_hatch_path", "");
+    if (!hatchpath)
+    {
+        return NULL;
+    }
+    else if (hatchpath==Py_None)
+    {
+        Py_DECREF(hatchpath);
+    }
+    else
+    {
+        CGColorSpaceRef baseSpace;
+        static const CGPatternCallbacks callbacks = {0,
+                                                     &_draw_hatch,
+                                                     &_release_hatch};
+        baseSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        if (!baseSpace)
+        {
+            Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: CGColorSpaceCreateWithName failed");
+            return NULL;
+        }
+        patternSpace = CGColorSpaceCreatePattern(baseSpace);
+        CGColorSpaceRelease(baseSpace);
+        if (!patternSpace)
+        {
+            Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: CGColorSpaceCreatePattern failed");
+            return NULL;
+        }
+        pattern = CGPatternCreate((void*)hatchpath,
+                                  CGRectMake(0, 0, HATCH_SIZE, HATCH_SIZE),
+                                  CGAffineTransformIdentity,
+                                  HATCH_SIZE, HATCH_SIZE,
+                                  kCGPatternTilingNoDistortion,
+                                  false,
+                                  &callbacks);
+    }
 
     /* --------- Prepare some variables for the path iterator ------------- */
     void* iterator;
@@ -1266,48 +1299,20 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
 
     /* ------------------- Check paths ------------------------------------ */
 
-    if (!PySequence_Check(paths))
+    if (!PySequence_Check(path_ids))
     {
         PyErr_SetString(PyExc_ValueError, "paths must be a sequence object");
         return NULL;
     }
-    const Py_ssize_t Npaths = PySequence_Size(paths);
-
-    /* ------------------- Check transforms ------------------------------- */
-
-    if (!PySequence_Check(transforms))
-    {
-        PyErr_SetString(PyExc_ValueError, "transforms must be a sequence object");
-        return NULL;
-    }
-    const Py_ssize_t Ntransforms = PySequence_Size(transforms);
-    if (Ntransforms==0)
-    {
-        PyErr_SetString(PyExc_ValueError, "transforms should contain at least one item");
-        return NULL;
-    }
-
-    /* ------------------- Read drawing arrays ---------------------------- */
+    const Py_ssize_t Npaths = PySequence_Size(path_ids);
+    
+    /* -------------------------------------------------------------------- */
 
     CGContextSaveGState(cr);
-    offsets = PyArray_FromObject(offsets, NPY_DOUBLE, 0, 2);
-    facecolors = PyArray_FromObject(facecolors, NPY_DOUBLE, 1, 2);
-    edgecolors = PyArray_FromObject(edgecolors, NPY_DOUBLE, 1, 2);
-
-    /* ------------------- Check offsets array ---------------------------- */
-
-    if (!offsets ||
-        (PyArray_NDIM(offsets)==2 && PyArray_DIM(offsets, 1)!=2) ||
-        (PyArray_NDIM(offsets)==1 && PyArray_DIM(offsets, 0)!=0))
-    {
-        PyErr_SetString(PyExc_ValueError, "Offsets array must be Nx2");
-        ok = 0;
-        goto exit;
-    }
-    const Py_ssize_t Noffsets = PyArray_DIM(offsets, 0);
-
+    
     /* ------------------- Check facecolors array ------------------------- */
 
+    facecolors = PyArray_FromObject(facecolors, NPY_DOUBLE, 1, 2);
     if (!facecolors ||
         (PyArray_NDIM(facecolors)==1 && PyArray_DIM(facecolors, 0)!=0) ||
         (PyArray_NDIM(facecolors)==2 && PyArray_DIM(facecolors, 1)!=4))
@@ -1316,9 +1321,11 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         ok = 0;
         goto exit;
     }
+    Py_ssize_t Nfacecolors = PyArray_DIM(facecolors, 0);
 
     /* ------------------- Check edgecolors array ------------------------- */
 
+    edgecolors = PyArray_FromObject(edgecolors, NPY_DOUBLE, 1, 2);
     if (!edgecolors ||
         (PyArray_NDIM(edgecolors)==1 && PyArray_DIM(edgecolors, 0)!=0) ||
         (PyArray_NDIM(edgecolors)==2 && PyArray_DIM(edgecolors, 1)!=4))
@@ -1327,41 +1334,96 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         ok = 0;
         goto exit;
     }
+    Py_ssize_t Nedgecolors = PyArray_DIM(edgecolors, 0);
 
     /* -------------------------------------------------------------------- */
 
-    if (Npaths==0) goto exit; /* Nothing to do */
+    if ((Nfacecolors==0 && Nedgecolors==0) || Npaths==0) /* Nothing to do */
+        goto exit;
+
+    /* ------------------- Check offsets array ---------------------------- */
+
+    offsets = PyArray_FromObject(offsets, NPY_DOUBLE, 0, 2);
+
+    if (!offsets ||
+        (PyArray_NDIM(offsets)==2 && PyArray_DIM(offsets, 1)!=2) ||
+        (PyArray_NDIM(offsets)==1 && PyArray_DIM(offsets, 0)!=0))
+    {
+        Py_XDECREF(offsets);
+        PyErr_SetString(PyExc_ValueError, "Offsets array must be Nx2");
+        ok = 0;
+        goto exit;
+    }
+    const Py_ssize_t Noffsets = PyArray_DIM(offsets, 0);
+    if (Noffsets > 0) {
+        toffsets = malloc(Noffsets*sizeof(CGPoint));
+        if (!toffsets)
+        {
+            Py_DECREF(offsets);
+            ok = 0;
+            goto exit;
+        }
+        CGPoint point;
+        for (i = 0; i < Noffsets; i++)
+        {
+            point.x = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i, 0));
+            point.y = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i, 1));
+            toffsets[i] = CGPointApplyAffineTransform(point, offset_transform);
+        }
+    }
+    Py_DECREF(offsets);
+
+    /* ------------------- Check transforms ------------------------------- */
+
+    if (!PySequence_Check(all_transforms))
+    {
+        PyErr_SetString(PyExc_ValueError, "transforms must be a sequence object");
+        return NULL;
+    }
+    const Py_ssize_t Ntransforms = PySequence_Size(all_transforms);
+    if (Ntransforms > 0)
+    {
+        transforms = malloc(Ntransforms*sizeof(CGAffineTransform));
+        if (!transforms)
+            goto exit;
+        for (i = 0; i < Ntransforms; i++)
+        {
+            PyObject* transform = PySequence_ITEM(all_transforms, i);
+            if (!transform) goto exit;
+            ok = _transformation_converter(transform, &transforms[i]);
+            Py_DECREF(transform);
+            if (!ok) goto exit;
+        }
+    }
 
     /* -------------------------------------------------------------------- */
 
-    Np = Npaths > Ntransforms ? Npaths : Ntransforms;
-    N = Np > Noffsets ? Np : Noffsets;
-
-    p = malloc(Np*sizeof(CGMutablePathRef));
+    p = malloc(Npaths*sizeof(CGMutablePathRef));
     if (!p)
     {
         ok = 0;
         goto exit;
     }
-    for (i = 0; i < Np; i++)
+    for (i = 0; i < Npaths; i++)
     {
         PyObject* path;
         PyObject* transform;
         p[i] = NULL;
-        path = PySequence_ITEM(paths, i % Npaths);
-        if (!path)
+        PyObject* path_id = PySequence_ITEM(path_ids, i);
+        if (!path_id)
         {
             ok = 0;
             goto exit;
         }
-        transform = PySequence_ITEM(transforms, i % Ntransforms);
-        if (!transform)
+        if (!PyTuple_Check(path_id) || PyTuple_Size(path_id)!=2)
         {
-            PyErr_SetString(PyExc_RuntimeError, "failed to obtain transform");
-            Py_DECREF(path);
             ok = 0;
+            PyErr_SetString(PyExc_RuntimeError,
+                            "path_id should be a tuple of two items");
             goto exit;
         }
+        path = PyTuple_GET_ITEM(path_id, 0);
+        transform = PyTuple_GET_ITEM(path_id, 1);
         iterator = get_path_iterator(path,
                                      transform,
                                      1,
@@ -1380,8 +1442,6 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
                                         is probably ok for now.  --
                                         MGD */
                                      0);
-        Py_DECREF(transform);
-        Py_DECREF(path);
         if (!iterator)
         {
             PyErr_SetString(PyExc_RuntimeError,
@@ -1391,42 +1451,13 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         }
         p[i] = _create_path(iterator);
         free_path_iterator(iterator);
+        Py_DECREF(path_id);
         if (!p[i])
         {
             PyErr_SetString(PyExc_RuntimeError, "failed to create path");
             ok = 0;
             goto exit;
         }
-    }
-
-    /* ------------------- Set clipping path ------------------------------ */
-
-    if (!_clip(cr, cliprect))
-    {
-        ok = 0;
-        goto exit;
-    }
-    if (clippath!=Py_None)
-    {
-        int n;
-        iterator  = get_path_iterator(clippath,
-                                      clippath_transform,
-                                      0,
-                                      0,
-                                      rect,
-                                      SNAP_AUTO,
-                                      1.0,
-                                      0);
-        if (!iterator)
-        {
-            PyErr_SetString(PyExc_RuntimeError,
-                "draw_path_collection: failed to obtain path iterator for clipping");
-            ok = 0;
-            goto exit;
-        }
-        n = _draw_path(cr, iterator);
-        free_path_iterator(iterator);
-        if (n > 0) CGContextClip(cr);
     }
 
     /* ------------------- Check the other arguments ---------------------- */
@@ -1450,13 +1481,9 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         goto exit;
     }
 
-    Py_ssize_t Nfacecolors = PyArray_DIM(facecolors, 0);
-    Py_ssize_t Nedgecolors = PyArray_DIM(edgecolors, 0);
     Py_ssize_t Nlinewidths = PySequence_Size(linewidths);
     Py_ssize_t Nlinestyles = PySequence_Size(linestyles);
     Py_ssize_t Naa         = PySequence_Size(antialiaseds);
-    if (N < Nlinestyles) Nlinestyles = N;
-    if ((Nfacecolors == 0 && Nedgecolors == 0) || Np == 0) goto exit;
 
     /* Preset graphics context properties if possible */
     if (Naa==1)
@@ -1476,7 +1503,9 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         if (!ok) goto exit;
     }
 
-    if (Nlinewidths==1)
+    if (Nlinewidths==0 || Nedgecolors==0)
+        CGContextSetLineWidth(cr, 0.0);
+    else if (Nlinewidths==1)
     {
         PyObject* linewidth = PySequence_ITEM(linewidths, 0);
         if (!linewidth)
@@ -1489,8 +1518,6 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         CGContextSetLineWidth(cr, (CGFloat)PyFloat_AsDouble(linewidth));
         Py_DECREF(linewidth);
     }
-    else if (Nlinewidths==0)
-        CGContextSetLineWidth(cr, 0.0);
 
     if (Nlinestyles==1)
     {
@@ -1514,6 +1541,17 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         const double b = *(double*)PyArray_GETPTR2(edgecolors, 0, 2);
         const double a = *(double*)PyArray_GETPTR2(edgecolors, 0, 3);
         CGContextSetRGBStrokeColor(cr, r, g, b, a);
+        self->color[0] = r;
+        self->color[1] = g;
+        self->color[2] = b;
+        self->color[3] = a;
+    }
+    else /* We may need these for hatching */
+    {
+        self->color[0] = 0;
+        self->color[1] = 0;
+        self->color[2] = 0;
+        self->color[3] = 1;
     }
 
     if (Nfacecolors==1)
@@ -1525,19 +1563,29 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         CGContextSetRGBFillColor(cr, r, g, b, a);
     }
 
+    CGPoint translation = CGPointZero;
+
+    const Py_ssize_t N = Npaths > Noffsets ? Npaths : Noffsets;
     for (i = 0; i < N; i++)
     {
-        if (CGPathIsEmpty(p[i % Np])) continue;
+        if (CGPathIsEmpty(p[i % Npaths])) continue;
 
-        CGContextSaveGState(cr);
         if (Noffsets)
         {
-            ok = _set_offset(cr, offsets, i % Noffsets, offset_transform);
-            if (!ok)
+            CGAffineTransform t;
+            CGPoint origin;
+            translation = toffsets[i % Noffsets];
+            if (offset_position)
             {
-                CGContextRestoreGState(cr);
-                goto exit;
+                t = master;
+                if (Ntransforms)
+                    t = CGAffineTransformConcat(transforms[i % Ntransforms], t);
+                translation = CGPointApplyAffineTransform(translation, t);
+                origin = CGPointApplyAffineTransform(CGPointZero, t);
+                translation.x = - (origin.x - translation.x);
+                translation.y = - (origin.y - translation.y);
             }
+            CGContextTranslateCTM(cr, translation.x, translation.y);
         }
 
         if (Naa > 1)
@@ -1596,7 +1644,7 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
             CGContextSetRGBStrokeColor(cr, r, g, b, a);
         }
 
-        CGContextAddPath(cr, p[i % Np]);
+        CGContextAddPath(cr, p[i % Npaths]);
 
         if (Nfacecolors > 1)
         {
@@ -1616,17 +1664,32 @@ GraphicsContext_draw_path_collection (GraphicsContext* self, PyObject* args)
         }
         else /* We checked Nedgecolors != 0 above */
             CGContextStrokePath(cr);
-        CGContextRestoreGState(cr);
+
+        if (pattern)
+        {
+            CGContextSaveGState(cr);
+            CGContextSetFillColorSpace(cr, patternSpace);
+            CGContextSetFillPattern(cr, pattern, self->color);
+            CGContextAddPath(cr, p[i % Npaths]);
+            CGContextFillPath(cr);
+            CGContextRestoreGState(cr);
+        }
+
+        if (Noffsets)
+            CGContextTranslateCTM(cr, -translation.x, -translation.y);
     }
 
 exit:
     CGContextRestoreGState(cr);
-    Py_XDECREF(offsets);
     Py_XDECREF(facecolors);
     Py_XDECREF(edgecolors);
+    if (pattern) CGPatternRelease(pattern);
+    if (patternSpace) CGColorSpaceRelease(patternSpace);
+    if (transforms) free(transforms);
+    if (toffsets) free(toffsets);
     if (p)
     {
-        for (i = 0; i < Np; i++)
+        for (i = 0; i < Npaths; i++)
         {
             if (!p[i]) break;
             CGPathRelease(p[i]);
@@ -1641,18 +1704,17 @@ exit:
 static PyObject*
 GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 {
-    PyObject* master_transform;
-    PyObject* cliprect;
-    PyObject* clippath;
-    PyObject* clippath_transform;
+    CGAffineTransform master;
     int meshWidth;
     int meshHeight;
     PyObject* coordinates;
     PyObject* offsets;
-    PyObject* offset_transform;
+    CGAffineTransform offset_transform;
     PyObject* facecolors;
     int antialiased;
-    int showedges;
+    PyObject* edgecolors;
+
+    CGPoint *toffsets = NULL;
 
     CGContextRef cr = self->cr;
 
@@ -1662,80 +1724,19 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "OOOOiiOOOOii",
-                               &master_transform,
-                               &cliprect,
-                               &clippath,
-                               &clippath_transform,
+    if(!PyArg_ParseTuple(args, "O&iiOOO&OiO",
+                               _transformation_converter, &master,
                                &meshWidth,
                                &meshHeight,
                                &coordinates,
                                &offsets,
-                               &offset_transform,
+                               _transformation_converter, &offset_transform,
                                &facecolors,
                                &antialiased,
-                               &showedges)) return NULL;
+                               &edgecolors)) return NULL;
 
     int ok = 1;
     CGContextSaveGState(cr);
-
-    CGAffineTransform master;
-    double rect[4] = {0.0, 0.0, self->size.width, self->size.height};
-
-    /* ------------------- Set master transform --------------------------- */
-
-    PyObject* values = PyObject_CallMethod(master_transform, "to_values", "");
-    if (!values)
-    {
-        ok = 0;
-        goto exit;
-    }
-    if (PyTuple_Check(values))
-    {
-        double a, b, c, d, tx, ty;
-        /* CGAffineTransform contains CGFloat; cannot use master directly */
-        ok = PyArg_ParseTuple(values, "dddddd", &a, &b, &c, &d, &tx, &ty);
-        master.a = a;
-        master.b = b;
-        master.c = c;
-        master.d = d;
-        master.tx = tx;
-        master.ty = ty;
-    }
-    else
-    {
-        ok = 0;
-    }
-    Py_DECREF(values);
-    if (!ok) goto exit;
-    CGContextConcatCTM(cr, master);
-
-    /* ------------------- Set clipping path ------------------------------ */
-
-    ok = _clip(cr, cliprect);
-    if (!ok) goto exit;
-    if (clippath!=Py_None)
-    {
-        int n;
-        void* iterator  = get_path_iterator(clippath,
-                                            clippath_transform,
-                                            0,
-                                            0,
-                                            rect,
-                                            SNAP_AUTO,
-                                            1.0,
-                                            0);
-        if (iterator)
-        {
-            PyErr_SetString(PyExc_RuntimeError,
-                "draw_quad_mesh: failed to obtain path iterator");
-            ok = 0;
-            goto exit;
-        }
-        n = _draw_path(cr, iterator);
-        free_path_iterator(iterator);
-        if (n > 0) CGContextClip(cr);
-    }
 
     /* ------------------- Check coordinates array ------------------------ */
 
@@ -1751,15 +1752,35 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
     /* ------------------- Check offsets array ---------------------------- */
 
     offsets = PyArray_FromObject(offsets, NPY_DOUBLE, 0, 2);
+
     if (!offsets ||
         (PyArray_NDIM(offsets)==2 && PyArray_DIM(offsets, 1)!=2) ||
         (PyArray_NDIM(offsets)==1 && PyArray_DIM(offsets, 0)!=0))
     {
+        Py_XDECREF(offsets);
         PyErr_SetString(PyExc_ValueError, "Offsets array must be Nx2");
         ok = 0;
         goto exit;
     }
     const Py_ssize_t Noffsets = PyArray_DIM(offsets, 0);
+    if (Noffsets > 0) {
+        int i;
+        toffsets = malloc(Noffsets*sizeof(CGPoint));
+        if (!toffsets)
+        {
+            Py_DECREF(offsets);
+            ok = 0;
+            goto exit;
+        }
+        CGPoint point;
+        for (i = 0; i < Noffsets; i++)
+        {
+            point.x = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i, 0));
+            point.y = (CGFloat) (*(double*)PyArray_GETPTR2(offsets, i, 1));
+            toffsets[i] = CGPointApplyAffineTransform(point, offset_transform);
+        }
+    }
+    Py_DECREF(offsets);
 
     /* ------------------- Check facecolors array ------------------------- */
 
@@ -1768,7 +1789,19 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         (PyArray_NDIM(facecolors)==1 && PyArray_DIM(facecolors, 0)!=0) ||
         (PyArray_NDIM(facecolors)==2 && PyArray_DIM(facecolors, 1)!=4))
     {
-        PyErr_SetString(PyExc_ValueError, "Facecolors must by a Nx4 numpy array or empty");
+        PyErr_SetString(PyExc_ValueError, "facecolors must by a Nx4 numpy array or empty");
+        ok = 0;
+        goto exit;
+    }
+
+    /* ------------------- Check edgecolors array ------------------------- */
+
+    edgecolors = PyArray_FromObject(edgecolors, NPY_DOUBLE, 1, 2);
+    if (!edgecolors ||
+        (PyArray_NDIM(edgecolors)==1 && PyArray_DIM(edgecolors, 0)!=0) ||
+        (PyArray_NDIM(edgecolors)==2 && PyArray_DIM(edgecolors, 1)!=4))
+    {
+        PyErr_SetString(PyExc_ValueError, "edgecolors must by a Nx4 numpy array or empty");
         ok = 0;
         goto exit;
     }
@@ -1777,7 +1810,8 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
 
     size_t Npaths      = meshWidth * meshHeight;
     size_t Nfacecolors = (size_t) PyArray_DIM(facecolors, 0);
-    if ((Nfacecolors == 0 && !showedges) || Npaths == 0)
+    size_t Nedgecolors = (size_t) PyArray_DIM(edgecolors, 0);
+    if ((Nfacecolors == 0 && Nedgecolors == 0) || Npaths == 0)
     {
         /* Nothing to do here */
         goto exit;
@@ -1797,33 +1831,26 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
         const double b = *(double*)PyArray_GETPTR2(facecolors, 0, 2);
         const double a = *(double*)PyArray_GETPTR2(facecolors, 0, 3);
         CGContextSetRGBFillColor(cr, r, g, b, a);
-        if (antialiased && !showedges)
+        if (antialiased && Nedgecolors==0)
         {
             CGContextSetRGBStrokeColor(cr, r, g, b, a);
         }
     }
-
-    if (showedges)
+    if (Nedgecolors==1)
     {
-        CGContextSetRGBStrokeColor(cr, 0, 0, 0, 1);
+        const double r = *(double*)PyArray_GETPTR2(edgecolors, 0, 0);
+        const double g = *(double*)PyArray_GETPTR2(edgecolors, 0, 1);
+        const double b = *(double*)PyArray_GETPTR2(edgecolors, 0, 2);
+        const double a = *(double*)PyArray_GETPTR2(edgecolors, 0, 3);
+        CGContextSetRGBStrokeColor(cr, r, g, b, a);
     }
 
+    CGPoint translation = CGPointZero;
     double x, y;
     for (ih = 0; ih < meshHeight; ih++)
     {
         for (iw = 0; iw < meshWidth; iw++, i++)
         {
-            CGContextSaveGState(cr);
-            if (Noffsets)
-            {
-                ok = _set_offset(cr, offsets, i % Noffsets, offset_transform);
-                if (!ok)
-                {
-                    CGContextRestoreGState(cr);
-                    goto exit;
-                }
-            }
-
             CGPoint points[4];
 
             x = *(double*)PyArray_GETPTR3(coordinates, ih, iw, 0);
@@ -1850,6 +1877,17 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
             points[3].x = (CGFloat)x;
             points[3].y = (CGFloat)y;
 
+            points[0] = CGPointApplyAffineTransform(points[0], master);
+            points[1] = CGPointApplyAffineTransform(points[1], master);
+            points[2] = CGPointApplyAffineTransform(points[2], master);
+            points[3] = CGPointApplyAffineTransform(points[3], master);
+
+            if (Noffsets)
+            {
+                translation = toffsets[i % Noffsets];
+                CGContextTranslateCTM(cr, translation.x, translation.y);
+            }
+
             CGContextMoveToPoint(cr, points[3].x, points[3].y);
             CGContextAddLines(cr, points, 4);
             CGContextClosePath(cr);
@@ -1862,23 +1900,24 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
                 const double b = *(double*)PyArray_GETPTR2(facecolors, fi, 2);
                 const double a = *(double*)PyArray_GETPTR2(facecolors, fi, 3);
                 CGContextSetRGBFillColor(cr, r, g, b, a);
-                if (showedges)
-                {
-                    CGContextDrawPath(cr, kCGPathFillStroke);
-                }
-                else if (antialiased)
+                if (antialiased && Nedgecolors==0)
                 {
                     CGContextSetRGBStrokeColor(cr, r, g, b, a);
-                    CGContextDrawPath(cr, kCGPathFillStroke);
-                }
-                else
-                {
-                    CGContextFillPath(cr);
                 }
             }
-            else if (Nfacecolors==1)
+            if (Nedgecolors > 1)
             {
-                if (showedges || antialiased)
+                npy_intp fi = i % Nedgecolors;
+                const double r = *(double*)PyArray_GETPTR2(edgecolors, fi, 0);
+                const double g = *(double*)PyArray_GETPTR2(edgecolors, fi, 1);
+                const double b = *(double*)PyArray_GETPTR2(edgecolors, fi, 2);
+                const double a = *(double*)PyArray_GETPTR2(edgecolors, fi, 3);
+                CGContextSetRGBStrokeColor(cr, r, g, b, a);
+            }
+	
+            if (Nfacecolors > 0)
+            {
+                if (Nedgecolors > 0 || antialiased)
                 {
                     CGContextDrawPath(cr, kCGPathFillStroke);
                 }
@@ -1887,17 +1926,20 @@ GraphicsContext_draw_quad_mesh (GraphicsContext* self, PyObject* args)
                     CGContextFillPath(cr);
                 }
             }
-            else if (showedges)
+            else if (Nedgecolors > 0)
             {
                 CGContextStrokePath(cr);
             }
-            CGContextRestoreGState(cr);
+            if (Noffsets)
+            {
+                CGContextTranslateCTM(cr, -translation.x, -translation.y);
+            }
         }
     }
 
 exit:
     CGContextRestoreGState(cr);
-    Py_XDECREF(offsets);
+    if (toffsets) free(toffsets);
     Py_XDECREF(facecolors);
     Py_XDECREF(coordinates);
 
@@ -4878,8 +4920,13 @@ choose_save_file(PyObject* unused, PyObject* args)
          initWithCString: default_filename
          encoding: NSUTF8StringEncoding];
     PyMem_Free(default_filename);
+#ifdef COMPILING_FOR_10_6
     [panel setNameFieldStringValue: ns_default_filename];
     result = [panel runModal];
+#else
+    result = [panel runModalForDirectory: nil file: ns_default_filename];
+#endif
+    [ns_default_filename release];
     if (result == NSOKButton)
     {
         NSString* filename = [panel filename];
