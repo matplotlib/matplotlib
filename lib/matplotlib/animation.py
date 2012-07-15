@@ -242,7 +242,7 @@ class MovieWriter(object):
 class FileMovieWriter(MovieWriter):
     '`MovieWriter` subclass that handles writing to a file.'
     def __init__(self, *args, **kwargs):
-        MovieWriter.__init__(self, *args)
+        MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
 
     def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True):
@@ -354,6 +354,11 @@ class FFMpegBase:
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
 class FFMpegWriter(MovieWriter, FFMpegBase):
+    def __init__(self, *args, **kwargs):
+        # FFMpegBase doesn't have an init method so we need to make
+        # sure the MovieWriter gets called with our args and kwargs
+        MovieWriter.__init__(self, *args, **kwargs)
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a pipe
@@ -366,6 +371,11 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
 @writers.register('ffmpeg_file')
 class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp', 'pbm', 'raw', 'rgba']
+    def __init__(self, *args, **kwargs):
+        # FFMpegBase doesn't have an init method so we need to make
+        # sure the FileMovieWriter gets called with our args and kwargs
+        FileMovieWriter.__init__(self, *args, **kwargs)
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
@@ -406,6 +416,11 @@ class MencoderBase:
 # Combine Mencoder options with pipe-based writing
 @writers.register('mencoder')
 class MencoderWriter(MovieWriter, MencoderBase):
+    def __init__(self, *args, **kwargs):
+        # MencoderBase doesn't have an init method so we need to make
+        # sure the MovieWriter gets called with our args and kwargs
+        MovieWriter.__init__(self, *args, **kwargs)
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # mencoder to create a movie
@@ -418,6 +433,11 @@ class MencoderWriter(MovieWriter, MencoderBase):
 @writers.register('mencoder_file')
 class MencoderFileWriter(FileMovieWriter, MencoderBase):
     supported_formats = ['png', 'jpeg', 'tga', 'sgi']
+    def __init__(self, *args, **kwargs):
+        # MencoderBase doesn't have an init method so we need to make
+        # sure the MovieWriter gets called with our args and kwargs
+        MovieWriter.__init__(self, *args, **kwargs)
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # mencoder to create a movie
