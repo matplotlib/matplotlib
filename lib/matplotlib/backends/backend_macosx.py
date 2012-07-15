@@ -63,42 +63,34 @@ class RendererMac(RendererBase):
                              offsets, offsetTrans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
-        cliprect = gc.get_clip_rectangle()
-        clippath, clippath_transform = gc.get_clip_path()
-        if all_transforms:
-            transforms = [numpy.dot(master_transform, t) for t in all_transforms]
+        if offset_position=='data':
+            offset_position = True
         else:
-            transforms = [master_transform]
-        gc.draw_path_collection(cliprect,
-                                clippath,
-                                clippath_transform,
-                                paths,
-                                transforms,
-                                offsets,
-                                offsetTrans,
-                                facecolors,
-                                edgecolors,
-                                linewidths,
-                                linestyles,
-                                antialiaseds)
+            offset_position = False
+        path_ids = []
+        for path, transform in self._iter_collection_raw_paths(
+            master_transform, paths, all_transforms):
+            path_ids.append((path, transform))
+        master_transform = master_transform.get_matrix()
+        all_transforms = [t.get_matrix() for t in all_transforms]
+        offsetTrans = offsetTrans.get_matrix()
+        gc.draw_path_collection(master_transform, path_ids, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds,
+                             offset_position)
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, showedges):
-        cliprect = gc.get_clip_rectangle()
-        clippath, clippath_transform = gc.get_clip_path()
-        gc.draw_quad_mesh(master_transform,
-                          cliprect,
-                          clippath,
-                          clippath_transform,
+                       antialiased, edgecolors):
+        gc.draw_quad_mesh(master_transform.get_matrix(),
                           meshWidth,
                           meshHeight,
                           coordinates,
                           offsets,
-                          offsetTrans,
+                          offsetTrans.get_matrix(),
                           facecolors,
                           antialiased,
-                          showedges)
+                          edgecolors)
 
     def new_gc(self):
         self.gc.save()
