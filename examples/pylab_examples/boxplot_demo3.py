@@ -44,7 +44,6 @@ text_transform= mtransforms.blended_transform_factory(ax.transData,
                                                      ax.transAxes)
 ax.set_xlabel('treatment')
 ax.set_ylabel('response')
-#ax.set_ylim(-0.2, 1.4)
 plt.setp(bp['whiskers'], color='k',  linestyle='-' )
 plt.setp(bp['fliers'], markersize=3.0)
 fig.subplots_adjust(right=0.99,top=0.99)

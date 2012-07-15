@@ -5547,7 +5547,17 @@ class Axes(martist.Artist):
 
         Returns a dictionary mapping each component of the boxplot
         to a list of the :class:`matplotlib.lines.Line2D`
-        instances created.
+        instances created. That disctionary has the following keys
+        (assuming vertical boxplots):
+            boxes: the main body of the boxplot showing the quartiles
+                and the median's confidence intervals if enabled.
+            medians: horizonal lines at the median of each box.
+            whiskers: the vertical lines extending to the most extreme,
+                non-outlier data points.
+            caps: the horizontal lines at the ends of the whiskers.
+            fliers: points representing data that extend beyone the
+                whiskers (outliers).
+
 
         **Example:**
 
@@ -5710,12 +5720,9 @@ class Axes(martist.Artist):
             # calculate 'notch' plot
             else:
                 # conf. intervals from user, if available
-                if conf_intervals is not None:
-                    if conf_intervals[i] is not None:
-                        notch_max = np.max(conf_intervals[i])
-                        notch_min = np.min(conf_intervals[i])
-                    else:
-                        notch_min, notch_max = computeConfInterval(d, med, iq, bootstrap)
+                if conf_intervals is not None and conf_intervals[i] is not None:
+		    notch_max = np.max(conf_intervals[i])
+		    notch_min = np.min(conf_intervals[i])
                 else:
                     notch_min, notch_max = computeConfInterval(d, med, iq, bootstrap)
 
