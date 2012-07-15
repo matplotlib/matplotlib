@@ -37,11 +37,11 @@ conf_intervals = [None, None, CI1, CI2]
 fig = plt.figure()
 ax = fig.add_subplot(111)
 pos = np.array(range(len(treatments)))+1
-bp = ax.boxplot(treatments, sym='k+', patch_artist=True,
-                positions=pos, notch=1, bootstrap=5000,
-                usermedians=medians, conf_intervals=conf_intervals)
-text_transform= mtransforms.blended_transform_factory(ax.transData,
-                                                     ax.transAxes)
+bp = ax.boxplot(treatments, sym='k+', positions=pos,
+                notch=1, bootstrap=5000,
+                usermedians=medians,
+                conf_intervals=conf_intervals)
+
 ax.set_xlabel('treatment')
 ax.set_ylabel('response')
 plt.setp(bp['whiskers'], color='k',  linestyle='-' )
