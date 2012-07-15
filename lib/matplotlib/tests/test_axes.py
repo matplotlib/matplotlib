@@ -765,8 +765,8 @@ def test_as_mpl_axes_api():
 
 @image_comparison(baseline_images=['boxplot'])
 def test_boxplot():
-    x = np.linspace([-7, 7, 140])
-    x = np.hstack(-25, x, 25)
+    x = np.linspace(-7, 7, 140)
+    x = np.hstack([-25, x, 25])
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
