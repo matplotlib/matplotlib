@@ -41,3 +41,13 @@ for add in np.arange(15):
 
 im_ani = animation.ArtistAnimation(fig2, ims, interval=50, repeat_delay=3000)
 im_ani.save('im.mp4', writer=writer)
+
+# Set up formatting for the movie files
+Writer = animation.writers['ffmpeg_file']
+
+# we can force ffmpeg to make webm movies if we use -f webm and no
+# codec.  webm works by default on chrome and firefox; these will
+# display inline in the ipython notebook
+
+#writer = Writer(fps=15, codec='None', extra_args=['-f', 'webm'])
+# im_ani.save('movies/im2.webm', writer=writer)
