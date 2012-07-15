@@ -102,7 +102,7 @@ class MovieWriter(object):
             movie utiltiy. The default is None, which passes the additional
             argurments in the 'animation.extra_args' rcParam.
         metadata: dict of string:string or None
-            A dictionary of keys and values for metadata to include in the 
+            A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
         '''
@@ -135,7 +135,7 @@ class MovieWriter(object):
         width_inches, height_inches = self.fig.get_size_inches()
         return width_inches * self.dpi, height_inches * self.dpi
 
-    def setup(self, fig, outfile, dpi, *args):
+    def setup(self, fig, outfile, dpi, *args, **kwargs):
         '''
         Perform setup for writing the movie file.
 
@@ -159,14 +159,14 @@ class MovieWriter(object):
         self._run()
 
     @contextlib.contextmanager
-    def saving(self, *args):
+    def saving(self, *args, **kwargs):
         '''
         Context manager to facilitate writing the movie file.
 
         *args are any parameters that should be passed to setup()
         '''
         # This particular sequence is what contextlib.contextmanager wants
-        self.setup(*args)
+        self.setup(*args, **kwargs)
         yield
         self.finish()
 
@@ -358,7 +358,7 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a pipe
         return [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
-             '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format, 
+             '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
              '-r', str(self.fps), '-i', 'pipe:'] + self.output_args
 
 
@@ -487,7 +487,8 @@ class Animation(object):
         self.event_source = None
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
-            bitrate=None, extra_args=None, metadata=None, extra_anim=None):
+            bitrate=None, extra_args=None, metadata=None, extra_anim=None,
+             writer_setup_kwargs=None):
         '''
         Saves a movie file by drawing every frame.
 
@@ -528,6 +529,11 @@ class Animation(object):
         `matplotlib.Figure` instance. Also, animation frames will just be
         simply combined, so there should be a 1:1 correspondence between
         the frames from the different animations.
+
+        *writer_setup_kwargs* is a dictionary of keyword args to pass to
+        the writer saving/setup method (writer.saving passes them through
+        to writer.setup)
+
         '''
         # Need to disconnect the first draw callback, since we'll be doing
         # draws. Otherwise, we'll end up starting the animation.
@@ -578,7 +584,10 @@ class Animation(object):
         # TODO: Right now, after closing the figure, saving a movie won't
         # work since GUI widgets are gone. Either need to remove extra code
         # to allow for this non-existant use case or find a way to make it work.
-        with writer.saving(self._fig, filename, dpi):
+
+        if writer_setup_kwargs is None:
+            writer_setup_kwargs = dict()
+        with writer.saving(self._fig, filename, dpi, **writer_setup_kwargs):
             for data in itertools.izip(*[a.new_saved_frame_seq() for a in all_anim]):
                 for anim,d in zip(all_anim, data):
                     #TODO: Need to see if turning off blit is really necessary
@@ -589,6 +598,7 @@ class Animation(object):
         if reconnect_first_draw:
             self._first_draw_id = self._fig.canvas.mpl_connect('draw_event',
                 self._start)
+
 
     def _step(self, *args):
         '''
