@@ -88,9 +88,10 @@ class MovieWriter(object):
         ----------
         fps: int
             Framerate for movie.
-        codec: string or None, optional
-            The codec to use. If None (the default) the setting in the
-            rcParam `animation.codec` is used.
+        codec: string or None, optional The codec to use. If None (the
+            default) the setting in the rcParam `animation.codec` is
+            used.  If codec is the special sentinel string 'None',
+            then no codec argument will be passed through.
         bitrate: int or None, optional
             The bitrate for the saved movie file, which is one way to control
             the output file size and quality. The default value is None,
@@ -340,7 +341,9 @@ class FFMpegBase:
     def output_args(self):
         # The %dk adds 'k' as a suffix so that ffmpeg treats our bitrate as in
         # kbps
-        args = ['-vcodec', self.codec]
+        args = []
+        if self.codec!='None':
+            args.extend(['-vcodec', self.codec])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])
         if self.extra_args:
@@ -403,7 +406,9 @@ class MencoderBase:
     @property
     def output_args(self):
         self._remap_metadata()
-        args = ['-o', self.outfile, '-ovc', 'lavc', 'vcodec=%s' % self.codec]
+        args = ['-o', self.outfile, '-ovc', 'lavc']
+        if self.codec!='None':
+            args.append('vcodec=%s' % self.codec)
         if self.bitrate > 0:
             args.append('vbitrate=%d' % self.bitrate)
         if self.extra_args:
@@ -520,21 +525,27 @@ class Animation(object):
         used.
 
         *fps* is the frames per second in the movie. Defaults to None,
-        which will use the animation's specified interval to set the frames
-        per second.
+        which will use the animation's specified interval to set the
+        frames per second.  This is only respected if *writer* is a
+        string; if using a class instance just set the *fps* in the
+        writer.
 
         *dpi* controls the dots per inch for the movie frames. This combined
         with the figure's size in inches controls the size of the movie.
 
         *codec* is the video codec to be used. Not all codecs are supported
         by a given :class:`MovieWriter`. If none is given, this defaults to the
-        value specified by the rcparam `animation.codec`.
+        value specified by the rcparam `animation.codec`.  This is only
+        respected if *writer* is a string; if using a class instance just set
+        the *codec* in the writer.
 
         *bitrate* specifies the amount of bits used per second in the
         compressed movie, in kilobits per second. A higher number means a
         higher quality movie, but at the cost of increased file size. If no
         value is given, this defaults to the value given by the rcparam
-        `animation.bitrate`.
+        `animation.bitrate`.  This is only respected if *writer* is a
+        string; if using a class instance just set the *bitrate* in the
+        writer.
 
         *extra_args* is a list of extra string arguments to be passed to the
         underlying movie utiltiy. The default is None, which passes the
@@ -618,6 +629,8 @@ class Animation(object):
         if reconnect_first_draw:
             self._first_draw_id = self._fig.canvas.mpl_connect('draw_event',
                 self._start)
+
+
 
 
     def _step(self, *args):
