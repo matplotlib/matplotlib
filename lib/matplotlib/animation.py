@@ -17,6 +17,7 @@
 # * Movies
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
+import os
 import itertools
 import contextlib
 import subprocess
@@ -631,6 +632,26 @@ class Animation(object):
                 self._start)
 
 
+        # if fname is a relative path, return a custom object that
+        # supports the ipython display hook for embedding the video
+        # directly into an ipynb.  The wrapper inherits from string so
+        # for normal users the class will just look like the filename
+        # when returned.  But we define the custom ipython html
+        # display hook to embed HTML5 video for others, but only if
+        # webm is requested because the browsers do not currently
+        # support mp4, etc; the '/files/' prefix is an ipython
+        # notebook convention meaning the root of the notebook tree
+        # (where the nb lives)
+        class EmbedHTML(str):
+
+            def _repr_html_(self):
+                fname = os.path.join('/files/', filename)
+                return '<video controls src="%s" />'%fname
+
+        if os.path.isabs(filename):
+            return filename
+        else:
+            return EmbedHTML(filename)
 
 
     def _step(self, *args):
