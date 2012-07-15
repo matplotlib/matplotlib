@@ -5468,13 +5468,13 @@ class Axes(martist.Artist):
 
         return errorbar_container # (l0, caplines, barcols)
 
-    def boxplot(self, x, notch=0, sym='b+', vert=1, whis=1.5,
+    def boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
                 bootstrap=None, usermedians=None, conf_intervals=None):
         """
         Call signature::
 
-          boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
+          boxplot(x, notch=False, sym='+', vert=True, whis=1.5,
                   positions=None, widths=None, patch_artist=False,
                   bootstrap=None, usermedians=None, conf_intervals=None)
 
@@ -5489,18 +5489,17 @@ class Axes(martist.Artist):
           *x* :
             Array or a sequence of vectors.
 
-          *notch* : [ 0 (default) | 1]
-            If 0 (default) produces a rectangular box plot.
-            If 1 will produce a notched box plot
+          *notch* : [ False (default) | True ]
+            If False (default), produces a rectangular box plot.
+            If True, will produce a notched box plot
 
           *sym* : [ default 'b+' ]
             The default symbol for flier points.
             Enter an empty string ('') if you don't want to show fliers.
 
-          *vert* : [ 0 (default) | 1]
-            If 1 makes the boxes vertical.
-            If 0 makes horizontal boxes. Odd, but kept for compatibility
-            with MATLAB boxplots
+          *vert* : [ False | True (default) ]
+            If True (default), makes the boxes vertical.
+            If False, makes horizontal boxes.
 
           *whis* : [ default 1.5 ]
             Defines the length of the whiskers as a function of the inner
@@ -5528,7 +5527,7 @@ class Axes(martist.Artist):
             Array or sequence whose first dimension (or length) is compatible
             with *x* and whose second dimension is 2. When the current element
             of *conf_intervals* is not None, the notch locations computed by
-            matplotlib are overridden (assuming notch==1). When an element of
+            matplotlib are overridden (assuming notch is True). When an element of
             *conf_intervals* is None, boxplot compute notches the method
             specified by the other kwargs (e.g. *bootstrap*).
 
@@ -5710,21 +5709,16 @@ class Axes(martist.Artist):
             # get y location for median
             med_y = [med, med]
 
-            # calculate 'regular' plot
-            if notch == 0:
-                # make our box vectors
-                box_x = [box_x_min, box_x_max, box_x_max, box_x_min, box_x_min ]
-                box_y = [q1, q1, q3, q3, q1 ]
-                # make our median line vectors
-                med_x = [box_x_min, box_x_max]
             # calculate 'notch' plot
-            else:
+            if notch:
                 # conf. intervals from user, if available
-                if conf_intervals is not None and conf_intervals[i] is not None:
+                if conf_intervals is not None and \
+                   conf_intervals[i] is not None:
 		    notch_max = np.max(conf_intervals[i])
 		    notch_min = np.min(conf_intervals[i])
                 else:
-                    notch_min, notch_max = computeConfInterval(d, med, iq, bootstrap)
+                    notch_min, notch_max = computeConfInterval(d, med,
+                                                         iq, bootstrap)
 
                 # make our notched box vectors
                 box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max,
@@ -5735,6 +5729,13 @@ class Axes(martist.Artist):
                 # make our median line vectors
                 med_x = [cap_x_min, cap_x_max]
                 med_y = [med, med]
+            # calculate 'regular' plot
+            else:
+                # make our box vectors
+                box_x = [box_x_min, box_x_max, box_x_max, box_x_min, box_x_min ]
+                box_y = [q1, q1, q3, q3, q1 ]
+                # make our median line vectors
+                med_x = [box_x_min, box_x_max]
 
             def to_vc(xs,ys):
                 # convert arguments to verts and codes
@@ -5790,7 +5791,7 @@ class Axes(martist.Artist):
                                  flier_lo_x, flier_lo, sym))
 
         # fix our axes/ticks up a little
-        if 1 == vert:
+        if vert:
             setticks, setlim = self.set_xticks, self.set_xlim
         else:
             setticks, setlim = self.set_yticks, self.set_ylim
