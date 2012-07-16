@@ -53,6 +53,46 @@ class _Base(object):
         """
         renderer.draw_path(gc, tpath, affine, rgbFace)
 
+    def draw_path_collection(self, renderer,
+                             gc, master_transform, paths, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
+        """
+        Draws a collection of paths selecting drawing properties from
+        the lists *facecolors*, *edgecolors*, *linewidths*,
+        *linestyles* and *antialiaseds*. *offsets* is a list of
+        offsets to apply to each of the paths.  The offsets in
+        *offsets* are first transformed by *offsetTrans* before being
+        applied.  *offset_position* may be either "screen" or "data"
+        depending on the space that the offsets are in.
+
+        This provides a fallback implementation of
+        :meth:`draw_path_collection` that makes multiple calls to
+        :meth:`draw_path`.  Some backends may want to override this in
+        order to render each set of path data only once, and then
+        reference that path multiple times with the different offsets,
+        colors, styles etc.  The generator methods
+        :meth:`_iter_collection_raw_paths` and
+        :meth:`_iter_collection` are provided to help with (and
+        standardize) the implementation across backends.  It is highly
+        recommended to use those generators, so that changes to the
+        behavior of :meth:`draw_path_collection` can be made globally.
+        """
+        path_ids = []
+        for path, transform in renderer._iter_collection_raw_paths(
+            master_transform, paths, all_transforms):
+            path_ids.append((path, transform))
+
+        for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+            gc, master_transform, all_transforms, path_ids, offsets,
+            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+            antialiaseds, urls, offset_position):
+            path, transform = path_id
+            transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
+            self.draw_path(renderer, gc0, path, transform, rgbFace)
+
+
     def draw_tex(self, renderer, gc, x, y, s, prop, angle, ismath='TeX!'):
         self._draw_text_as_path(renderer, gc, x, y, s, prop, angle, ismath="TeX")
 
@@ -101,21 +141,6 @@ class _Base(object):
                                marker_trans + transforms.Affine2D().translate(x, y),
                                rgbFace)
 
-#     def draw_path_collection(self, renderer,
-#                              gc, master_transform, paths, all_transforms,
-#                              offsets, offsetTrans, facecolors, edgecolors,
-#                              linewidths, linestyles, antialiaseds, urls):
-#         path_ids = []
-#         for path, transform in renderer._iter_collection_raw_paths(
-#             master_transform, paths, all_transforms):
-#             path_ids.append((path, transform))
-
-#         for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-#             gc, path_ids, offsets, offsetTrans, facecolors, edgecolors,
-#             linewidths, linestyles, antialiaseds, urls):
-#             path, transform = path_id
-#             transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
-#             self.draw_path(renderer, gc0, path, transform, rgbFace)
 
 class ProxyRenderer(object):
     def __init__(self, path_effect, renderer):
@@ -137,6 +162,17 @@ class ProxyRenderer(object):
         self._path_effect.draw_markers(self._renderer,
                                        gc, marker_path, marker_trans, path, trans,
                                        rgbFace=rgbFace)
+
+    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
+        pe = self._path_effect
+        pe.draw_path_collection(self._renderer,
+                                gc, master_transform, paths, all_transforms,
+                                offsets, offsetTrans, facecolors, edgecolors,
+                                linewidths, linestyles, antialiaseds, urls,
+                                offset_position)
 
 
 class Normal(_Base):
