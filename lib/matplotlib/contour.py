@@ -870,10 +870,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     lower = str_format(lower)
                     upper = str_format(upper)
 
-                    if i == 0 and self.extend in ('lower', 'both'):
-                        labels.append(r'$%s \leq %s$' % (variable_name, upper, ))
-                    elif i == n_levels-1 and self.extend in ('upper', 'both'):
-                        labels.append(r'$%s > %s$' % (variable_name, lower, ))
+                    if i == 0 and self.extend in ('min', 'both'):
+                        labels.append(r'$%s \leq %s$' % (variable_name, lower, ))
+                    elif i == n_levels-1 and self.extend in ('max', 'both'):
+                        labels.append(r'$%s > %s$' % (variable_name, upper, ))
                     else:
                         labels.append(r'$%s < %s \leq %s$' % (lower, variable_name, upper))
         else:
@@ -1029,24 +1029,25 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise ValueError("Filled contours require at least 2 levels.")
 
     def _process_levels(self):
+        # Color mapping range (norm vmin, vmax) is based on levels.
+        self.vmin = np.amin(self.levels)
+        self.vmax = np.amax(self.levels)
+        # Make a private _levels to include extended regions.
         self._levels = list(self.levels)
         if self.extend in ('both', 'min'):
             self._levels.insert(0, min(self.levels[0],self.zmin) - 1)
         if self.extend in ('both', 'max'):
             self._levels.append(max(self.levels[-1],self.zmax) + 1)
         self._levels = np.asarray(self._levels)
-        self.vmin = np.amin(self.levels)  # alternative would be self.layers
-        self.vmax = np.amax(self.levels)
-        if self.extend in ('both', 'min'):
-            self.vmin = 2 * self.levels[0] - self.levels[1]
-        if self.extend in ('both', 'max'):
-            self.vmax = 2 * self.levels[-1] - self.levels[-2]
         if self.filled:
+            # layer values are mid-way between levels
             self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
+            # ...except that extended layers must be outside the
+            # normed range, so use huge values:
             if self.extend in ('both', 'min'):
-                self.layers[0] = 0.5 * (self.vmin + self._levels[1])
+                self.layers[0] = -1e300
             if self.extend in ('both', 'max'):
-                self.layers[-1] = 0.5 * (self.vmax + self._levels[-2])
+                self.layers[-1] = 1e300
         else:
             self.layers = self.levels # contour: a line is a thin layer
                          #  Use only original levels--no extended levels
@@ -1065,9 +1066,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         self.monochrome = self.cmap.monochrome
         if self.colors is not None:
+            # Generate integers for direct indexing.
             i0, i1 = 0, len(self.levels)
             if self.filled:
                 i1 -= 1
+            # Out of range indices for over and under:
             if self.extend in ('both', 'min'):
                 i0 = -1
             if self.extend in ('both', 'max'):
@@ -1080,7 +1083,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.set_clim(self.vmin, self.vmax)
         if self.extend in ('both', 'max', 'min'):
             self.norm.clip = False
-        self.set_array(self.layers)
+        self.set_array(self.layers) # Required by colorbar, but not
+                                    # actually used.
         # self.tcolors are set by the "changed" method
 
     def _process_linewidths(self):
