@@ -792,7 +792,7 @@ class GraphicsContextBase:
         Return the object identifier if one is set, None otherwise.
         """
         return self._gid
-        
+
     def get_snap(self):
         """
         returns the snap setting which may be:
@@ -935,7 +935,7 @@ class GraphicsContextBase:
         Sets the id.
         """
         self._gid = id
-        
+
     def set_snap(self, snap):
         """
         Sets the snap setting which may be:
@@ -1305,11 +1305,11 @@ class MouseEvent(LocationEvent):
     attributes, the following attributes are defined:
 
     *button*
-        button pressed None, 1, 2, 3, 'up', 'down' (up and down are used 
+        button pressed None, 1, 2, 3, 'up', 'down' (up and down are used
         for scroll events)
 
     *key*
-        the key depressed when the mouse event triggered (see 
+        the key depressed when the mouse event triggered (see
         :class:`KeyEvent`)
 
     *step*
@@ -1347,7 +1347,7 @@ class MouseEvent(LocationEvent):
 
     def __str__(self):
         return ("MPL MouseEvent: xy=(%d,%d) xydata=(%s,%s) button=%d " +
-                "dblclick=%s inaxes=%s") % (self.x, self.y, self.xdata, 
+                "dblclick=%s inaxes=%s") % (self.x, self.y, self.xdata,
                 self.ydata, self.button, self.dblclick, self.inaxes)
 
 
@@ -1403,18 +1403,18 @@ class KeyEvent(LocationEvent):
 
     *key*
         the key(s) pressed. Could be **None**, a single case sensitive ascii
-        character ("g", "G", "#", etc.), a special key 
-        ("control", "shift", "f1", "up", etc.) or a 
+        character ("g", "G", "#", etc.), a special key
+        ("control", "shift", "f1", "up", etc.) or a
         combination of the above (e.g. "ctrl+alt+g", "ctrl+alt+G").
-    
+
     .. note::
-     
+
         Modifier keys will be prefixed to the pressed key and will be in the
         order "ctrl", "alt", "super". The exception to this rule is when the
-        pressed key is itself a modifier key, therefore "ctrl+alt" and 
+        pressed key is itself a modifier key, therefore "ctrl+alt" and
         "alt+control" can both be valid key values.
-    
-         
+
+
     Example usage::
 
         def on_key(event):
@@ -1664,7 +1664,7 @@ class FigureCanvasBase(object):
         """
         self._button = button
         s = 'button_press_event'
-        mouseevent = MouseEvent(s, self, x, y, button, self._key, 
+        mouseevent = MouseEvent(s, self, x, y, button, self._key,
                                 dblclick=dblclick, guiEvent=guiEvent)
         self.callbacks.process(s, mouseevent)
 
@@ -2043,7 +2043,7 @@ class FigureCanvasBase(object):
                     bbox_extra_artists = self.figure.get_default_bbox_extra_artists()
 
                 bb = [a.get_window_extent(renderer) for a in bbox_extra_artists]
-                
+
                 if bb:
                     _bbox = Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
 
@@ -2319,7 +2319,7 @@ def key_press_handler(event, canvas, toolbar=None):
     # quit the figure (defaut key 'ctrl+w')
     if event.key in quit_keys:
         Gcf.destroy_fig(canvas.figure)
-       
+
     if toolbar is not None:
         # home or reset mnemonic  (default key 'h', 'home' and 'r')
         if event.key in home_keys:
@@ -2494,12 +2494,12 @@ class NavigationToolbar2(object):
 
     That's it, we'll do the rest!
     """
-    
+
     # list of toolitems to add to the toolbar, format is:
     # (
     #   text, # the text of the button (often not visible to users)
     #   tooltip_text, # the tooltip shown on hover (where possible)
-    #   image_file, # name of the image for the button (without the extension) 
+    #   image_file, # name of the image for the button (without the extension)
     #   name_of_method, # name of the method in NavigationToolbar2 to call
     # )
     toolitems = (
@@ -2608,7 +2608,7 @@ class NavigationToolbar2(object):
 
         if event.inaxes and event.inaxes.get_navigate():
 
-            try: 
+            try:
                 s = event.inaxes.format_coord(event.xdata, event.ydata)
             except (ValueError, OverflowError):
                 pass
