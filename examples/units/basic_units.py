@@ -1,4 +1,5 @@
 import math
+
 import numpy as np
 
 import matplotlib.units as units
@@ -6,12 +7,15 @@ import matplotlib.ticker as ticker
 from matplotlib.axes import Axes
 from matplotlib.cbook import iterable
 
+
 class ProxyDelegate(object):
     def __init__(self, fn_name, proxy_type):
         self.proxy_type = proxy_type
         self.fn_name = fn_name
+
     def __get__(self, obj, objtype=None):
         return self.proxy_type(self.fn_name, obj)
+
 
 class TaggedValueMeta (type):
     def __init__(cls, name, bases, dict):
@@ -19,22 +23,26 @@ class TaggedValueMeta (type):
             try:
                 dummy = getattr(cls, fn_name)
             except AttributeError:
-                setattr(cls, fn_name, ProxyDelegate(fn_name, cls._proxies[fn_name]))
+                setattr(cls, fn_name,
+                        ProxyDelegate(fn_name, cls._proxies[fn_name]))
+
 
 class PassThroughProxy(object):
     def __init__(self, fn_name, obj):
         self.fn_name = fn_name
         self.target = obj.proxy_target
+
     def __call__(self, *args):
-        #print 'passthrough', self.target, self.fn_name
         fn = getattr(self.target, self.fn_name)
         ret = fn(*args)
         return ret
+
 
 class ConvertArgsProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
         PassThroughProxy.__init__(self, fn_name, obj)
         self.unit = obj.unit
+
     def __call__(self, *args):
         converted_args = []
         for a in args:
@@ -45,15 +53,18 @@ class ConvertArgsProxy(PassThroughProxy):
         converted_args = tuple([c.get_value() for c in converted_args])
         return PassThroughProxy.__call__(self, *converted_args)
 
+
 class ConvertReturnProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
         PassThroughProxy.__init__(self, fn_name, obj)
         self.unit = obj.unit
+
     def __call__(self, *args):
         ret = PassThroughProxy.__call__(self, *args)
         if (type(ret) == type(NotImplemented)):
             return NotImplemented
         return TaggedValue(ret, self.unit)
+
 
 class ConvertAllProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
@@ -91,17 +102,17 @@ class ConvertAllProxy(PassThroughProxy):
             return NotImplemented
         return TaggedValue(ret, ret_unit)
 
-class TaggedValue (object):
 
-    __metaclass__ = TaggedValueMeta
-    _proxies = {'__add__':ConvertAllProxy,
-                '__sub__':ConvertAllProxy,
-                '__mul__':ConvertAllProxy,
-                '__rmul__':ConvertAllProxy,
-                '__cmp__':ConvertAllProxy,
-                '__lt__':ConvertAllProxy,
-                '__gt__':ConvertAllProxy,
-                '__len__':PassThroughProxy}
+class _TaggedValue(object):
+
+    _proxies = {'__add__': ConvertAllProxy,
+                '__sub__': ConvertAllProxy,
+                '__mul__': ConvertAllProxy,
+                '__rmul__': ConvertAllProxy,
+                '__cmp__': ConvertAllProxy,
+                '__lt__': ConvertAllProxy,
+                '__gt__': ConvertAllProxy,
+                '__len__': PassThroughProxy}
 
     def __new__(cls, value, unit):
         # generate a new subclass for value
@@ -120,12 +131,8 @@ class TaggedValue (object):
 
     def __init__(self, value, unit):
         self.value = value
-        self.unit  = unit
+        self.unit = unit
         self.proxy_target = self.value
-
-    def get_compressed_copy(self, mask):
-        compressed_value = np.ma.masked_array(self.value, mask=mask).compressed()
-        return TaggedValue(compressed_value, self.unit)
 
     def  __getattribute__(self, name):
         if (name.startswith('__')):
@@ -135,7 +142,7 @@ class TaggedValue (object):
             return getattr(variable, name)
         return object.__getattribute__(self, name)
 
-    def __array__(self, t = None, context = None):
+    def __array__(self, t=None, context=None):
         if t is not None:
             return np.asarray(self.value).astype(t)
         else:
@@ -158,6 +165,7 @@ class TaggedValue (object):
             def __init__(self, iter, unit):
                 self.iter = iter
                 self.unit = unit
+
             def __next__(self):
                 value = next(self.iter)
                 return TaggedValue(value, self.unit)
@@ -169,7 +177,6 @@ class TaggedValue (object):
         return TaggedValue(new_value, self.unit)
 
     def convert_to(self, unit):
-        #print 'convert to', unit, self.unit
         if (unit == self.unit or not unit):
             return self
         new_value = self.unit.convert_value_to(self.value, unit)
@@ -182,13 +189,16 @@ class TaggedValue (object):
         return self.unit
 
 
+TaggedValue = TaggedValueMeta('TaggedValue', (_TaggedValue, ), {})
+
+
 class BasicUnit(object):
     def __init__(self, name, fullname=None):
         self.name = name
-        if fullname is None: fullname = name
+        if fullname is None:
+            fullname = name
         self.fullname = fullname
         self.conversions = dict()
-
 
     def __repr__(self):
         return 'BasicUnit(%s)'%self.name
@@ -201,11 +211,11 @@ class BasicUnit(object):
 
     def __mul__(self, rhs):
         value = rhs
-        unit  = self
+        unit = self
         if hasattr(rhs, 'get_unit'):
             value = rhs.get_value()
-            unit  = rhs.get_unit()
-            unit  = unit_resolver('__mul__', (self, unit))
+            unit = rhs.get_unit()
+            unit = unit_resolver('__mul__', (self, unit))
         if (unit == NotImplemented):
             return NotImplemented
         return TaggedValue(value, unit)
@@ -235,14 +245,13 @@ class BasicUnit(object):
         return self.conversions[unit]
 
     def convert_value_to(self, value, unit):
-        #print 'convert value to: value ="%s", unit="%s"'%(value, type(unit)), self.conversions
         conversion_fn = self.conversions[unit]
         ret = conversion_fn(value)
         return ret
 
-
     def get_unit(self):
         return self
+
 
 class UnitResolver(object):
     def addition_rule(self, units):
@@ -250,6 +259,7 @@ class UnitResolver(object):
             if (unit_1 != unit_2):
                 return NotImplemented
         return units[0]
+
     def multiplication_rule(self, units):
         non_null = [u for u in units if u]
         if (len(non_null) > 1):
@@ -257,13 +267,12 @@ class UnitResolver(object):
         return non_null[0]
 
     op_dict = {
-        '__mul__':multiplication_rule,
-        '__rmul__':multiplication_rule,
-        '__add__':addition_rule,
-        '__radd__':addition_rule,
-        '__sub__':addition_rule,
-        '__rsub__':addition_rule,
-    }
+        '__mul__': multiplication_rule,
+        '__rmul__': multiplication_rule,
+        '__add__': addition_rule,
+        '__radd__': addition_rule,
+        '__sub__': addition_rule,
+        '__rsub__': addition_rule}
 
     def __call__(self, operation, units):
         if (operation not in self.op_dict):
@@ -271,8 +280,8 @@ class UnitResolver(object):
 
         return self.op_dict[operation](self, units)
 
-unit_resolver = UnitResolver()
 
+unit_resolver = UnitResolver()
 
 cm = BasicUnit('cm', 'centimeters')
 inch = BasicUnit('inch', 'inches')
@@ -288,11 +297,12 @@ secs = BasicUnit('s', 'seconds')
 hertz = BasicUnit('Hz', 'Hertz')
 minutes = BasicUnit('min', 'minutes')
 
-secs.add_conversion_fn(hertz, lambda x:1./x)
+secs.add_conversion_fn(hertz, lambda x: 1./x)
 secs.add_conversion_factor(minutes, 1/60.0)
 
+
 # radians formatting
-def rad_fn(x,pos=None):
+def rad_fn(x, pos=None):
     n = int((x / np.pi) * 2.0 + 0.25)
     if n == 0:
         return '0'
@@ -335,7 +345,6 @@ class BasicUnitConverter(units.ConversionInterface):
     def convert(val, unit, axis):
         if units.ConversionInterface.is_numlike(val):
             return val
-        #print 'convert checking iterable'
         if iterable(val):
             return [thisval.convert_to(unit).get_value() for thisval in val]
         else:
@@ -350,15 +359,12 @@ class BasicUnitConverter(units.ConversionInterface):
         return x.unit
 
 
-
-def cos( x ):
-    if ( iterable(x) ):
-        result = []
-        for val in x:
-            result.append( math.cos( val.convert_to( radians ).get_value() ) )
-        return result
+def cos(x):
+    if iterable(x):
+        return [math.cos(val.convert_to(radians).get_value()) for val in x]
     else:
-        return math.cos( x.convert_to( radians ).get_value() )
+        return math.cos(x.convert_to(radians).get_value())
+
 
 basicConverter = BasicUnitConverter()
 units.registry[BasicUnit] = basicConverter
