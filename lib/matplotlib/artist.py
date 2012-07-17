@@ -107,8 +107,8 @@ class Artist(object):
     def __getstate__(self):
         d = self.__dict__.copy()
         # remove the unpicklable remove method, this will get re-added on load
-        d.pop('_remove_method')
-#        axes_artist_collections = ['lines', 'collections', 'tables', '']
+        # if the artist lives on an axes.
+        d['_remove_method'] = None
         return d
 
     def remove(self):

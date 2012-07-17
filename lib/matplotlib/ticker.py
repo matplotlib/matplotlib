@@ -133,7 +133,7 @@ from matplotlib import cbook
 from matplotlib import transforms as mtransforms
 
 
-class _DummyAxis:
+class _DummyAxis(object):
     def __init__(self):
         self.dataLim = mtransforms.Bbox.unit()
         self.viewLim = mtransforms.Bbox.unit()
@@ -151,7 +151,7 @@ class _DummyAxis:
         self.dataLim.intervalx = vmin, vmax
 
 
-class TickHelper:
+class TickHelper(object):
     axis = None
 
     def set_axis(self, axis):
@@ -176,7 +176,6 @@ class Formatter(TickHelper):
     """
     Convert the tick location to a string
     """
-
     # some classes want to see all the locs to help format
     # individual ones
     locs = []
@@ -214,6 +213,7 @@ class Formatter(TickHelper):
         """
         return s
 
+
 class IndexFormatter(Formatter):
     """
     format the position x to the nearest i-th label where i=int(x+0.5)
@@ -239,6 +239,7 @@ class NullFormatter(Formatter):
         'Return the format for tick val *x* at position *pos*'
         return ''
 
+
 class FixedFormatter(Formatter):
     'Return fixed strings for tick labels'
     def __init__(self, seq):
@@ -259,6 +260,7 @@ class FixedFormatter(Formatter):
 
     def set_offset_string(self, ofs):
         self.offset_string = ofs
+
 
 class FuncFormatter(Formatter):
     """
@@ -282,6 +284,7 @@ class FormatStrFormatter(Formatter):
     def __call__(self, x, pos=None):
         'Return the format for tick val *x* at position *pos*'
         return self.fmt % x
+
 
 class OldScalarFormatter(Formatter):
     """

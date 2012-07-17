@@ -93,6 +93,15 @@ class PolarAxes(Axes):
         def inverted(self):
             return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin)
         inverted.__doc__ = Transform.inverted.__doc__
+        
+        def __reduce__(self):
+            # because we have decided to nest the Transform classes, we need to
+            # add some more information to allow Pickling of polar plots.
+            import matplotlib.cbook as cbook
+            return (cbook._NestedClassGetter(), 
+                    (PolarAxes, self.__class__.__name__), 
+                    self.__getstate__(),
+                    )
 
     class PolarAffine(Affine2DBase):
         """
@@ -123,6 +132,15 @@ class PolarAxes(Axes):
                 self._invalid = 0
             return self._mtx
         get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
+        
+        def __reduce__(self):
+            # because we have decided to nest the Transform classes, we need to
+            # add some more information to allow Pickling of polar plots.
+            import matplotlib.cbook as cbook
+            return (cbook._NestedClassGetter(), 
+                    (PolarAxes, self.__class__.__name__), 
+                    self.__getstate__(),
+                    )
 
     class InvertedPolarTransform(Transform):
         """
@@ -168,6 +186,15 @@ class PolarAxes(Axes):
         def inverted(self):
             return PolarAxes.PolarTransform(self._axis, self._use_rmin)
         inverted.__doc__ = Transform.inverted.__doc__
+        
+        def __reduce__(self):
+            # because we have decided to nest the Transform classes, we need to
+            # add some more information to allow Pickling of polar plots.
+            import matplotlib.cbook as cbook
+            return (cbook._NestedClassGetter(), 
+                    (PolarAxes, self.__class__.__name__), 
+                    self.__getstate__(),
+                    )
 
     class ThetaFormatter(Formatter):
         """
@@ -185,6 +212,15 @@ class PolarAxes(Axes):
                 # will only work correctly with one of the supported
                 # math fonts (Computer Modern and STIX)
                 return u"%0.0f\u00b0" % ((x / np.pi) * 180.0)
+            
+        def __reduce__(self):
+            # because we have decided to nest the ThetaFormatter class, we need
+            # to add some more information to allow Pickling of polar plots.
+            import matplotlib.cbook as cbook
+            return (cbook._NestedClassGetter(), 
+                    (PolarAxes, self.__class__.__name__), 
+                    self.__dict__.copy(),
+                    )
 
     class RadialLocator(Locator):
         """
@@ -217,7 +253,15 @@ class PolarAxes(Axes):
         def view_limits(self, vmin, vmax):
             vmin, vmax = self.base.view_limits(vmin, vmax)
             return 0, vmax
-
+        
+        def __reduce__(self):
+            # because we have decided to nest the RadialLocator class, we need
+            # to add some more information to allow Pickling of polar plots.
+            import matplotlib.cbook as cbook
+            return (cbook._NestedClassGetter(), 
+                    (PolarAxes, self.__class__.__name__), 
+                    self.__dict__.copy(),
+                    )
 
     def __init__(self, *args, **kwargs):
         """

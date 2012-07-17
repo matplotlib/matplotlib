@@ -70,6 +70,16 @@ minimum and maximum colorbar extensions.
     plt.show()
 
 
+Figures are picklable
+---------------------
+
+Philip Elson made figures picklable for quick storage of plots. Pickle files
+are not designed for long term storage, are unsupported when restoring a pickle
+saved in another matplotlib version and are insecure when restoring a pickle
+from an untrusted source. Having said this, they are useful for short term
+storage for later modification inside matplotlib.
+
+
 Set default bounding box in matplotlibrc
 ------------------------------------------
 
