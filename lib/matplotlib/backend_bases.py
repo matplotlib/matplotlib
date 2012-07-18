@@ -1042,7 +1042,7 @@ class TimerBase(object):
         to reset the timer interval first if provided.
         '''
         if interval is not None:
-            self.set_interval(interval)
+            self._set_interval(interval)
         self._timer_start()
 
     def stop(self):
