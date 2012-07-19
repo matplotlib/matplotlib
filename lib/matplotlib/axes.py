@@ -9,6 +9,7 @@ from numpy import ma
 import matplotlib
 rcParams = matplotlib.rcParams
 
+from matplotlib.axesbase import AxesBase
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
 import matplotlib.axis as maxis
@@ -334,7 +335,7 @@ class _process_plot_var_args:
             remaining=remaining[isplit:]
 
 
-class Axes(martist.Artist):
+class Axes(AxesBase):
     """
     The :class:`Axes` contains most of the figure elements:
     :class:`~matplotlib.axis.Axis`, :class:`~matplotlib.axis.Tick`,
@@ -350,16 +351,17 @@ class Axes(martist.Artist):
     """
     name = "rectilinear"
 
-    _shared_x_axes = cbook.Grouper()
-    _shared_y_axes = cbook.Grouper()
+    # TODO: For compatibility purposes
+    _shared_x_axes = AxesBase._shared_axes['x']
+    _shared_y_axes = AxesBase._shared_axes['y']
 
     def __str__(self):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
     def __init__(self, fig, rect,
-                 axisbg = None, # defaults to rc axes.facecolor
-                 frameon = True,
-                 sharex=None, # use Axes instance's xaxis info
-                 sharey=None, # use Axes instance's yaxis info
+                 axisbg=None, # defaults to rc axes.facecolor
+                 frameon=True,
+                 sharex=None, # use axes instance's xaxis info
+                 sharey=None, # use axes instance's yaxis info
                  label='',
                  xscale=None,
                  yscale=None,
@@ -416,35 +418,9 @@ class Axes(martist.Artist):
           *yticks*           sequence of floats
           ================   =========================================
         """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
-        martist.Artist.__init__(self)
-        if isinstance(rect, mtransforms.Bbox):
-            self._position = rect
-        else:
-            self._position = mtransforms.Bbox.from_bounds(*rect)
-        self._originalPosition = self._position.frozen()
-        self.set_axes(self)
-        self.set_aspect('auto')
-        self._adjustable = 'box'
-        self.set_anchor('C')
-        self._sharex = sharex
-        self._sharey = sharey
-        if sharex is not None:
-            self._shared_x_axes.join(self, sharex)
-            if sharex._adjustable == 'box':
-                sharex._adjustable = 'datalim'
-                #warnings.warn(
-                #    'shared axes: "adjustable" is being changed to "datalim"')
-            self._adjustable = 'datalim'
-        if sharey is not None:
-            self._shared_y_axes.join(self, sharey)
-            if sharey._adjustable == 'box':
-                sharey._adjustable = 'datalim'
-                #warnings.warn(
-                #    'shared axes: "adjustable" is being changed to "datalim"')
-            self._adjustable = 'datalim'
-        self.set_label(label)
-        self.set_figure(fig)
-
+        AxesBase.__init__(self, fig, rect, ('x', 'y'), axisbg, frameon, label,
+                                share={'x':sharex, 'y':sharey},
+                                scale={'x':xscale, 'y':yscale})
         self.set_axes_locator(kwargs.get("axes_locator", None))
 
         self.spines = self._gen_axes_spines()
@@ -506,63 +482,6 @@ class Axes(martist.Artist):
         self.spines['right'].register_axis(self.yaxis)
         self._update_transScale()
 
-    def set_figure(self, fig):
-        """
-        Set the class:`~matplotlib.axes.Axes` figure
-
-        accepts a class:`~matplotlib.figure.Figure` instance
-        """
-        martist.Artist.set_figure(self, fig)
-
-        self.bbox = mtransforms.TransformedBbox(self._position, fig.transFigure)
-        #these will be updated later as data is added
-        self.dataLim = mtransforms.Bbox.unit()
-        self.viewLim = mtransforms.Bbox.unit()
-        self.transScale = mtransforms.TransformWrapper(
-            mtransforms.IdentityTransform())
-
-        self._set_lim_and_transforms()
-
-    def _set_lim_and_transforms(self):
-        """
-        set the *dataLim* and *viewLim*
-        :class:`~matplotlib.transforms.Bbox` attributes and the
-        *transScale*, *transData*, *transLimits* and *transAxes*
-        transformations.
-
-        .. note::
-
-            This method is primarily used by rectilinear projections
-            of the :class:`~matplotlib.axes.Axes` class, and is meant
-            to be overridden by new kinds of projection axes that need
-            different transformations and limits. (See
-            :class:`~matplotlib.projections.polar.PolarAxes` for an
-            example.
-
-        """
-        self.transAxes = mtransforms.BboxTransformTo(self.bbox)
-
-        # Transforms the x and y axis separately by a scale factor.
-        # It is assumed that this part will have non-linear components
-        # (e.g. for a log scale).
-        self.transScale = mtransforms.TransformWrapper(
-            mtransforms.IdentityTransform())
-
-        # An affine transformation on the data, generally to limit the
-        # range of the axes
-        self.transLimits = mtransforms.BboxTransformFrom(
-            mtransforms.TransformedBbox(self.viewLim, self.transScale))
-
-        # The parentheses are important for efficiency here -- they
-        # group the last two (which are usually affines) separately
-        # from the first (which, with log-scaling can be non-affine).
-        self.transData = self.transScale + (self.transLimits + self.transAxes)
-
-        self._xaxis_transform = mtransforms.blended_transform_factory(
-                self.transData, self.transAxes)
-        self._yaxis_transform = mtransforms.blended_transform_factory(
-                self.transAxes, self.transData)
-
     def get_xaxis_transform(self,which='grid'):
         """
         Get the transformation used for drawing x-axis labels, ticks
@@ -577,16 +496,9 @@ class Axes(martist.Artist):
             place axis elements in different locations.
 
         """
-        if which=='grid':
-            return self._xaxis_transform
-        elif which=='tick1':
-            # for cartesian projection, this is bottom spine
-            return self.spines['bottom'].get_spine_transform()
-        elif which=='tick2':
-            # for cartesian projection, this is top spine
-            return self.spines['top'].get_spine_transform()
-        else:
-            raise ValueError('unknown value for which')
+        return self._get_axis_transform(which, self._xaxis_transform,
+                                               self.spines['bottom'],
+                                               self.spines['top'])
 
     def get_xaxis_text1_transform(self, pad_points):
         """
@@ -654,16 +566,9 @@ class Axes(martist.Artist):
             place axis elements in different locations.
 
         """
-        if which=='grid':
-            return self._yaxis_transform
-        elif which=='tick1':
-            # for cartesian projection, this is bottom spine
-            return self.spines['left'].get_spine_transform()
-        elif which=='tick2':
-            # for cartesian projection, this is top spine
-            return self.spines['right'].get_spine_transform()
-        else:
-            raise ValueError('unknown value for which')
+        return self._get_axis_transform(which, self._yaxis_transform,
+                                               self.spines['left'],
+                                               self.spines['right'])
 
     def get_yaxis_text1_transform(self, pad_points):
         """
@@ -728,66 +633,6 @@ class Axes(martist.Artist):
                 except AttributeError:
                     pass
 
-    def get_position(self, original=False):
-        'Return the a copy of the axes rectangle as a Bbox'
-        if original:
-            return self._originalPosition.frozen()
-        else:
-            return self._position.frozen()
-
-
-    def set_position(self, pos, which='both'):
-        """
-        Set the axes position with::
-
-          pos = [left, bottom, width, height]
-
-        in relative 0,1 coords, or *pos* can be a
-        :class:`~matplotlib.transforms.Bbox`
-
-        There are two position variables: one which is ultimately
-        used, but which may be modified by :meth:`apply_aspect`, and a
-        second which is the starting point for :meth:`apply_aspect`.
-
-
-        Optional keyword arguments:
-          *which*
-
-            ==========   ====================
-            value        description
-            ==========   ====================
-            'active'     to change the first
-            'original'   to change the second
-            'both'       to change both
-            ==========   ====================
-
-        """
-        if not isinstance(pos, mtransforms.BboxBase):
-            pos = mtransforms.Bbox.from_bounds(*pos)
-        if which in ('both', 'active'):
-            self._position.set(pos)
-        if which in ('both', 'original'):
-            self._originalPosition.set(pos)
-
-    def reset_position(self):
-        """Make the original position the active position"""
-        pos = self.get_position(original=True)
-        self.set_position(pos, which='active')
-
-    def set_axes_locator(self, locator):
-        """
-        set axes_locator
-
-        ACCEPT : a callable object which takes an axes instance and renderer and
-                 returns a bbox.
-        """
-        self._axes_locator = locator
-
-    def get_axes_locator(self):
-        """
-        return axes_locator
-        """
-        return self._axes_locator
 
     def _set_artist_props(self, a):
         """set the boilerplate props for artists added to axes"""
@@ -941,141 +786,7 @@ class Axes(martist.Artist):
         self._get_patches_for_fill.set_color_cycle(clist)
 
 
-    def ishold(self):
-        """return the HOLD status of the axes"""
-        return self._hold
 
-    def hold(self, b=None):
-        """
-        Call signature::
-
-          hold(b=None)
-
-        Set the hold state.  If *hold* is *None* (default), toggle the
-        *hold* state.  Else set the *hold* state to boolean value *b*.
-
-        Examples::
-
-          # toggle hold
-          hold()
-
-          # turn hold on
-          hold(True)
-
-          # turn hold off
-          hold(False)
-
-
-        When hold is *True*, subsequent plot commands will be added to
-        the current axes.  When hold is *False*, the current axes and
-        figure will be cleared on the next plot command
-
-        """
-        if b is None:
-            self._hold = not self._hold
-        else:
-            self._hold = b
-
-    def get_aspect(self):
-        return self._aspect
-
-    def set_aspect(self, aspect, adjustable=None, anchor=None):
-        """
-        *aspect*
-
-          ========   ================================================
-          value      description
-          ========   ================================================
-          'auto'     automatic; fill position rectangle with data
-          'normal'   same as 'auto'; deprecated
-          'equal'    same scaling from data to plot units for x and y
-           num       a circle will be stretched such that the height
-                     is num times the width. aspect=1 is the same as
-                     aspect='equal'.
-          ========   ================================================
-
-        *adjustable*
-
-          ============   =====================================
-          value          description
-          ============   =====================================
-          'box'          change physical size of axes
-          'datalim'      change xlim or ylim
-          'box-forced'   same as 'box', but axes can be shared
-          ============   =====================================
-
-        'box' does not allow axes sharing, as this can cause
-        unintended side effect. For cases when sharing axes is
-        fine, use 'box-forced'.
-
-        *anchor*
-
-          =====   =====================
-          value   description
-          =====   =====================
-          'C'     centered
-          'SW'    lower left corner
-          'S'     middle of bottom edge
-          'SE'    lower right corner
-          etc.
-          =====   =====================
-
-        """
-        if aspect in ('normal', 'auto'):
-            self._aspect = 'auto'
-        elif aspect == 'equal':
-            self._aspect = 'equal'
-        else:
-            self._aspect = float(aspect) # raise ValueError if necessary
-
-        if adjustable is not None:
-            self.set_adjustable(adjustable)
-        if anchor is not None:
-            self.set_anchor(anchor)
-
-    def get_adjustable(self):
-        return self._adjustable
-
-    def set_adjustable(self, adjustable):
-        """
-        ACCEPTS: [ 'box' | 'datalim' | 'box-forced']
-        """
-        if adjustable in ('box', 'datalim', 'box-forced'):
-            if self in self._shared_x_axes or self in self._shared_y_axes:
-                if adjustable == 'box':
-                    raise ValueError(
-                        'adjustable must be "datalim" for shared axes')
-            self._adjustable = adjustable
-        else:
-            raise ValueError('argument must be "box", or "datalim"')
-
-    def get_anchor(self):
-        return self._anchor
-
-    def set_anchor(self, anchor):
-        """
-        *anchor*
-
-          =====  ============
-          value  description
-          =====  ============
-          'C'    Center
-          'SW'   bottom left
-          'S'    bottom
-          'SE'   bottom right
-          'E'    right
-          'NE'   top right
-          'N'    top
-          'NW'   top left
-          'W'    left
-          =====  ============
-
-        """
-        if anchor in mtransforms.Bbox.coefs.keys() or len(anchor) == 2:
-            self._anchor = anchor
-        else:
-            raise ValueError('argument must be among %s' %
-                                ', '.join(mtransforms.BBox.coefs.keys()))
 
     def get_data_ratio(self):
         """
