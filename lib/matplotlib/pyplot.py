@@ -763,7 +763,15 @@ def subplot(*args, **kwargs):
     .. plot:: mpl_examples/pylab_examples/subplot_demo.py
 
     """
-
+    # This check was added because it is very easy to type
+    # subplot(1, 2, False) when subplots(1, 2, False) was intended
+    # (sharex=False, that is). In most cases, no error will
+    # ever occur, but mysterious behavior can result because what was
+    # intended to be the sharex argument is instead treated as a
+    # subplot index for subplot()
+    if len(args) >= 3 and isinstance(args[2], bool) :
+        warnings.warn("The subplot index argument to subplot() appears"
+                      " to be a boolean. Did you intend to use subplots()?")
 
     fig = gcf()
     a = fig.add_subplot(*args, **kwargs)
@@ -898,12 +906,20 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
             sharey = "none"
     share_values = ["all", "row", "col", "none"]
     if sharex not in share_values:
+        # This check was added because it is very easy to type subplots(1, 2, 1)
+        # when subplot(1, 2, 1) was intended. In most cases, no error will
+        # ever occur, but mysterious behavior will result because what was
+        # intended to be the subplot index is instead treated as a bool for
+        # sharex.
+        if isinstance(sharex, int):
+            warnings.warn("sharex argument to subplots() was an integer."
+                          " Did you intend to use subplot() (without 's')?")
+
         raise ValueError("sharex [%s] must be one of %s" % \
                 (sharex, share_values))
     if sharey not in share_values:
         raise ValueError("sharey [%s] must be one of %s" % \
                 (sharey, share_values))
-
     if subplot_kw is None:
         subplot_kw = {}
 
