@@ -153,25 +153,25 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     _modifier_keys = [
                       (QtCore.Qt.MetaModifier, 'super', QtCore.Qt.Key_Meta),
                       (QtCore.Qt.AltModifier, 'alt', QtCore.Qt.Key_Alt),
-                      (QtCore.Qt.ControlModifier, 'ctrl', QtCore.Qt.Key_Control) 
+                      (QtCore.Qt.ControlModifier, 'ctrl', QtCore.Qt.Key_Control)
                       ]
-    
+
     _ctrl_modifier = QtCore.Qt.ControlModifier
-    
+
     if sys.platform == 'darwin':
-        # in OSX, the control and super (aka cmd/apple) keys are switched, so 
+        # in OSX, the control and super (aka cmd/apple) keys are switched, so
         # switch them back.
         keyvald.update({
                         QtCore.Qt.Key_Control : 'super', # cmd/apple key
                         QtCore.Qt.Key_Meta : 'control',
                         })
-        
+
         _modifier_keys = [
                           (QtCore.Qt.ControlModifier, 'super', QtCore.Qt.Key_Control),
                           (QtCore.Qt.AltModifier, 'alt', QtCore.Qt.Key_Alt),
                           (QtCore.Qt.MetaModifier, 'ctrl', QtCore.Qt.Key_Meta),
                          ]
-        
+
         _ctrl_modifier = QtCore.Qt.MetaModifier
 
     # map Qt button codes to MouseEvent's ones:
@@ -242,7 +242,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y()
         FigureCanvasBase.motion_notify_event( self, x, y )
-        #if DEBUG: print 'mouse move'
+        #if DEBUG: print('mouse move')
 
     def mouseReleaseEvent( self, event ):
         x = event.x()
@@ -304,16 +304,16 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         if event.key() < 256:
             key = unicode(event.text())
             # if the control key is being pressed, we don't get the correct
-            # characters, so interpret them directly from the event.key(). 
-            # Unfortunately, this means that we cannot handle key's case 
+            # characters, so interpret them directly from the event.key().
+            # Unfortunately, this means that we cannot handle key's case
             # since event.key() is not case sensitive, whereas event.text() is,
             # Finally, since it is not possible to get the CapsLock state
-            # we cannot accurately compute the case of a pressed key when 
+            # we cannot accurately compute the case of a pressed key when
             # ctrl+shift+p is pressed.
             if int(event.modifiers()) & self._ctrl_modifier:
                 # we always get an uppercase character
                 key = chr(event.key())
-                # if shift is not being pressed, lowercase it (as mentioned, 
+                # if shift is not being pressed, lowercase it (as mentioned,
                 # this does not take into account the CapsLock state)
                 if not int(event.modifiers()) & QtCore.Qt.ShiftModifier:
                     key = key.lower()
@@ -322,9 +322,9 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             key = self.keyvald.get(event.key())
 
         if key is not None:
-            # prepend the ctrl, alt, super keys if appropriate (sorted in that order) 
+            # prepend the ctrl, alt, super keys if appropriate (sorted in that order)
             for modifier, prefix, Qt_key in self._modifier_keys:
-                if event.key() != Qt_key and int(event.modifiers()) & modifier == modifier: 
+                if event.key() != Qt_key and int(event.modifiers()) & modifier == modifier:
                     key = u'{}+{}'.format(prefix, key)
 
         return key
@@ -437,7 +437,7 @@ class FigureManagerQT( FigureManagerBase ):
 
     def full_screen_toggle(self):
         if self.window.isFullScreen():
-            self.window.showNormal()    
+            self.window.showNormal()
         else:
             self.window.showFullScreen()
 
@@ -505,19 +505,15 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
             if text is None:
                 self.addSeparator()
             else:
-                a = self.addAction(self._icon(image_file + '.png'), text, getattr(self, callback))
+                a = self.addAction(self._icon(image_file + '.png'),
+                                         text, getattr(self, callback))
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
-                    
+
         if figureoptions is not None:
             a = self.addAction(self._icon("qt4_editor_options.png"),
                                'Customize', self.edit_parameters)
             a.setToolTip('Edit curves line and axes parameters')
-
-        a = self.addAction(self._icon('filesave.png'), 'Save',
-                self.save_figure)
-        a.setToolTip('Save the figure')
-
 
         self.buttons = {}
 
@@ -628,7 +624,6 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
                 selectedFilter = filter
             filters.append(filter)
         filters = ';;'.join(filters)
-
         fname = _getSaveFileName(self, "Choose a filename to save to",
                                         start, filters, selectedFilter)
         if fname:
