@@ -17,6 +17,7 @@
 # * Movies
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
+import os
 import itertools
 import contextlib
 import subprocess
@@ -88,9 +89,10 @@ class MovieWriter(object):
         ----------
         fps: int
             Framerate for movie.
-        codec: string or None, optional
-            The codec to use. If None (the default) the setting in the
-            rcParam `animation.codec` is used.
+        codec: string or None, optional The codec to use. If None (the
+            default) the setting in the rcParam `animation.codec` is
+            used.  If codec is the special sentinel string 'None',
+            then no codec argument will be passed through.
         bitrate: int or None, optional
             The bitrate for the saved movie file, which is one way to control
             the output file size and quality. The default value is None,
@@ -102,7 +104,7 @@ class MovieWriter(object):
             movie utiltiy. The default is None, which passes the additional
             argurments in the 'animation.extra_args' rcParam.
         metadata: dict of string:string or None
-            A dictionary of keys and values for metadata to include in the 
+            A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
         '''
@@ -135,7 +137,7 @@ class MovieWriter(object):
         width_inches, height_inches = self.fig.get_size_inches()
         return width_inches * self.dpi, height_inches * self.dpi
 
-    def setup(self, fig, outfile, dpi, *args):
+    def setup(self, fig, outfile, dpi, *args, **kwargs):
         '''
         Perform setup for writing the movie file.
 
@@ -159,14 +161,14 @@ class MovieWriter(object):
         self._run()
 
     @contextlib.contextmanager
-    def saving(self, *args):
+    def saving(self, *args, **kwargs):
         '''
         Context manager to facilitate writing the movie file.
 
         *args are any parameters that should be passed to setup()
         '''
         # This particular sequence is what contextlib.contextmanager wants
-        self.setup(*args)
+        self.setup(*args, **kwargs)
         yield
         self.finish()
 
@@ -242,7 +244,7 @@ class MovieWriter(object):
 class FileMovieWriter(MovieWriter):
     '`MovieWriter` subclass that handles writing to a file.'
     def __init__(self, *args, **kwargs):
-        MovieWriter.__init__(self, *args)
+        MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
 
     def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True):
@@ -340,7 +342,9 @@ class FFMpegBase:
     def output_args(self):
         # The %dk adds 'k' as a suffix so that ffmpeg treats our bitrate as in
         # kbps
-        args = ['-vcodec', self.codec]
+        args = []
+        if self.codec!='None':
+            args.extend(['-vcodec', self.codec])
         if self.bitrate > 0:
             args.extend(['-b', '%dk' % self.bitrate])
         if self.extra_args:
@@ -354,11 +358,16 @@ class FFMpegBase:
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
 class FFMpegWriter(MovieWriter, FFMpegBase):
+    def __init__(self, *args, **kwargs):
+        # FFMpegBase doesn't have an init method so we need to make
+        # sure the MovieWriter gets called with our args and kwargs
+        MovieWriter.__init__(self, *args, **kwargs)
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a pipe
         return [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
-             '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format, 
+             '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
              '-r', str(self.fps), '-i', 'pipe:'] + self.output_args
 
 
@@ -366,6 +375,11 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
 @writers.register('ffmpeg_file')
 class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
     supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp', 'pbm', 'raw', 'rgba']
+    def __init__(self, *args, **kwargs):
+        # FFMpegBase doesn't have an init method so we need to make
+        # sure the FileMovieWriter gets called with our args and kwargs
+        FileMovieWriter.__init__(self, *args, **kwargs)
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
@@ -393,7 +407,9 @@ class MencoderBase:
     @property
     def output_args(self):
         self._remap_metadata()
-        args = ['-o', self.outfile, '-ovc', 'lavc', 'vcodec=%s' % self.codec]
+        args = ['-o', self.outfile, '-ovc', 'lavc']
+        if self.codec!='None':
+            args.append('vcodec=%s' % self.codec)
         if self.bitrate > 0:
             args.append('vbitrate=%d' % self.bitrate)
         if self.extra_args:
@@ -406,6 +422,11 @@ class MencoderBase:
 # Combine Mencoder options with pipe-based writing
 @writers.register('mencoder')
 class MencoderWriter(MovieWriter, MencoderBase):
+    def __init__(self, *args, **kwargs):
+        # MencoderBase doesn't have an init method so we need to make
+        # sure the MovieWriter gets called with our args and kwargs
+        MovieWriter.__init__(self, *args, **kwargs)
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # mencoder to create a movie
@@ -418,6 +439,11 @@ class MencoderWriter(MovieWriter, MencoderBase):
 @writers.register('mencoder_file')
 class MencoderFileWriter(FileMovieWriter, MencoderBase):
     supported_formats = ['png', 'jpeg', 'tga', 'sgi']
+    def __init__(self, *args, **kwargs):
+        # MencoderBase doesn't have an init method so we need to make
+        # sure the MovieWriter gets called with our args and kwargs
+        MovieWriter.__init__(self, *args, **kwargs)
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # mencoder to create a movie
@@ -487,7 +513,8 @@ class Animation(object):
         self.event_source = None
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
-            bitrate=None, extra_args=None, metadata=None, extra_anim=None):
+            bitrate=None, extra_args=None, metadata=None, extra_anim=None,
+             writer_setup_kwargs=None):
         '''
         Saves a movie file by drawing every frame.
 
@@ -499,21 +526,27 @@ class Animation(object):
         used.
 
         *fps* is the frames per second in the movie. Defaults to None,
-        which will use the animation's specified interval to set the frames
-        per second.
+        which will use the animation's specified interval to set the
+        frames per second.  This is only respected if *writer* is a
+        string; if using a class instance just set the *fps* in the
+        writer.
 
         *dpi* controls the dots per inch for the movie frames. This combined
         with the figure's size in inches controls the size of the movie.
 
         *codec* is the video codec to be used. Not all codecs are supported
         by a given :class:`MovieWriter`. If none is given, this defaults to the
-        value specified by the rcparam `animation.codec`.
+        value specified by the rcparam `animation.codec`.  This is only
+        respected if *writer* is a string; if using a class instance just set
+        the *codec* in the writer.
 
         *bitrate* specifies the amount of bits used per second in the
         compressed movie, in kilobits per second. A higher number means a
         higher quality movie, but at the cost of increased file size. If no
         value is given, this defaults to the value given by the rcparam
-        `animation.bitrate`.
+        `animation.bitrate`.  This is only respected if *writer* is a
+        string; if using a class instance just set the *bitrate* in the
+        writer.
 
         *extra_args* is a list of extra string arguments to be passed to the
         underlying movie utiltiy. The default is None, which passes the
@@ -528,6 +561,11 @@ class Animation(object):
         `matplotlib.Figure` instance. Also, animation frames will just be
         simply combined, so there should be a 1:1 correspondence between
         the frames from the different animations.
+
+        *writer_setup_kwargs* is a dictionary of keyword args to pass to
+        the writer saving/setup method (writer.saving passes them through
+        to writer.setup)
+
         '''
         # Need to disconnect the first draw callback, since we'll be doing
         # draws. Otherwise, we'll end up starting the animation.
@@ -578,7 +616,10 @@ class Animation(object):
         # TODO: Right now, after closing the figure, saving a movie won't
         # work since GUI widgets are gone. Either need to remove extra code
         # to allow for this non-existant use case or find a way to make it work.
-        with writer.saving(self._fig, filename, dpi):
+
+        if writer_setup_kwargs is None:
+            writer_setup_kwargs = dict()
+        with writer.saving(self._fig, filename, dpi, **writer_setup_kwargs):
             for data in itertools.izip(*[a.new_saved_frame_seq() for a in all_anim]):
                 for anim,d in zip(all_anim, data):
                     #TODO: Need to see if turning off blit is really necessary
@@ -589,6 +630,29 @@ class Animation(object):
         if reconnect_first_draw:
             self._first_draw_id = self._fig.canvas.mpl_connect('draw_event',
                 self._start)
+
+
+        # if fname is a relative path, return a custom object that
+        # supports the ipython display hook for embedding the video
+        # directly into an ipynb.  The wrapper inherits from string so
+        # for normal users the class will just look like the filename
+        # when returned.  But we define the custom ipython html
+        # display hook to embed HTML5 video for others, but only if
+        # webm is requested because the browsers do not currently
+        # support mp4, etc; the '/files/' prefix is an ipython
+        # notebook convention meaning the root of the notebook tree
+        # (where the nb lives)
+        class EmbedHTML(str):
+
+            def _repr_html_(self):
+                fname = os.path.join('/files/', filename)
+                return '<video controls src="%s" />'%fname
+
+        if os.path.isabs(filename):
+            return filename
+        else:
+            return EmbedHTML(filename)
+
 
     def _step(self, *args):
         '''
