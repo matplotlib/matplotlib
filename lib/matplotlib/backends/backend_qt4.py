@@ -99,6 +99,7 @@ class TimerQT(TimerBase):
         self._timer = QtCore.QTimer()
         QtCore.QObject.connect(self._timer, QtCore.SIGNAL('timeout()'),
             self._on_timer)
+        self._timer_set_interval()
 
     def __del__(self):
         # Probably not necessary in practice, but is good behavior to disconnect
