@@ -423,9 +423,9 @@ class XTick(Tick):
         'Set the location of tick in data coords with scalar *loc*'
         x = loc
 
-        nonlinear = (hasattr(self.axes, 'yaxis') and
+        nonlinear = (self.axes.yaxis is not None and
                      self.axes.yaxis.get_scale() != 'linear' or
-                     hasattr(self.axes, 'xaxis') and
+                     self.axes.xaxis is not None and
                      self.axes.xaxis.get_scale() != 'linear')
 
         if self.tick1On:
@@ -562,9 +562,9 @@ class YTick(Tick):
         'Set the location of tick in data coords with scalar loc'
         y = loc
 
-        nonlinear = (hasattr(self.axes, 'yaxis') and
+        nonlinear = (self.axes.yaxis is not None and
                      self.axes.yaxis.get_scale() != 'linear' or
-                     hasattr(self.axes, 'xaxis') and
+                     self.axes.xaxis is not None and
                      self.axes.xaxis.get_scale() != 'linear')
 
         if self.tick1On:

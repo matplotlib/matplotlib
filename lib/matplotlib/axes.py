@@ -43,14 +43,8 @@ iterable = cbook.iterable
 is_string_like = cbook.is_string_like
 is_sequence_of_strings = cbook.is_sequence_of_strings
 
-def _string_to_bool(s):
-    if not is_string_like(s):
-        return s
-    if s == 'on':
-        return True
-    if s == 'off':
-        return False
-    raise ValueError("string argument must be either 'on' or 'off'")
+# for API Maintence
+from matplotlib.axesbase import _string_to_bool
 
 def _process_plot_format(fmt):
     """
@@ -354,6 +348,13 @@ class Axes(AxesBase):
     # TODO: For compatibility purposes
     _shared_x_axes = AxesBase._shared_axes['x']
     _shared_y_axes = AxesBase._shared_axes['y']
+    _axis_classes = dict(AxesBase._axis_classes)
+    _axis_classes['x'] = maxis.XAxis
+    _axis_classes['y'] = maxis.YAxis
+    _axis_locs = dict(AxesBase._axis_locs)
+    _axis_locs['x'] = ('bottom', 'top')
+    _axis_locs['y'] = ('left', 'right')
+
 
     def __str__(self):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
@@ -420,10 +421,9 @@ class Axes(AxesBase):
         """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
         AxesBase.__init__(self, fig, rect, ('x', 'y'), axisbg, frameon, label,
                                 share={'x':sharex, 'y':sharey},
-                                scale={'x':xscale, 'y':yscale})
-        self.set_axes_locator(kwargs.get("axes_locator", None))
-
-        self.spines = self._gen_axes_spines()
+                                scale={'x':xscale, 'y':yscale},
+                                axes_locator=kwargs.get('axes_locator', None),
+                                )
 
         # this call may differ for non-sep axes, eg polar
         self._init_axis()
@@ -472,17 +472,90 @@ class Axes(AxesBase):
         """
         return self.bbox
 
-    def _init_axis(self):
-        "move this out of __init__ because non-separable axes don't use it"
-        self.xaxis = maxis.XAxis(self)
-        self.spines['bottom'].register_axis(self.xaxis)
-        self.spines['top'].register_axis(self.xaxis)
-        self.yaxis = maxis.YAxis(self)
-        self.spines['left'].register_axis(self.yaxis)
-        self.spines['right'].register_axis(self.yaxis)
-        self._update_transScale()
+    # A compatibility shim.  We need to intercept any gets and sets of
+    # xaxis and yaxis, which are the traditional names for the axis objects
+    # Note that this doesn't fully help if someone subclassed axes in such
+    # a way that a completely different name was used, but in such a case,
+    # most likely the user would have over-ridden most of everything else
+    # as well.
+    @property
+    def xaxis(self):
+        """
+        The x-axis object for this Axes.
+        """
+        return self._axis_objs['x']
 
-    def get_xaxis_transform(self,which='grid'):
+    @xaxis.setter
+    def xaxis(self, val):
+        self._axis_objs['x'] = val
+
+    @xaxis.deleter
+    def xaxis(self):
+        del self._axis_objs['x']
+
+    @property
+    def yaxis(self):
+        """
+        The y-axis object for this Axes.
+        """
+        return self._axis_objs['y']
+
+    @yaxis.setter
+    def yaxis(self, val):
+        self._axis_objs['y'] = val
+
+    @yaxis.deleter
+    def yaxis(self):
+        del self._axis_objs['y']
+
+
+    #def _init_axis(self):
+    #    self.xaxis = self._axis_classes['x'](self)
+    #    self.spines['bottom'].register_axis(self.xaxis)
+    #    self.spines['top'].register_axis(self.xaxis)
+    #    self.yaxis = self._axis_classes['y'](self)
+    #    self.spines['left'].register_axis(self.yaxis)
+    #    self.spines['right'].register_axis(self.yaxis)
+
+    #    self._update_transScale()
+
+    def _set_lim_and_transforms(self):
+        """
+        Set the *dataLim* and *viewLim*
+        :class:`~matplotlib.transforms.Bbox` attributes and the
+        *transScale*, *transData*, *transLimits* and *transAxes*
+        transformations.
+
+        """
+        self.transAxes = mtransforms.BboxTransformTo(self.bbox)
+
+        # Transforms the x and y axis separately by a scale factor.
+        # It is assumed that this part will have non-linear components
+        # (e.g. for a log scale).
+        self.transScale = mtransforms.TransformWrapper(
+            mtransforms.IdentityTransform())
+
+        # An affine transformation on the data, generally to limit the
+        # range of the axes
+        self.transLimits = mtransforms.BboxTransformFrom(
+            mtransforms.TransformedBbox(self.viewLim, self.transScale))
+
+        # The parentheses are important for efficiency here -- they
+        # group the last two (which are usually affines) separately
+        # from the first (which, with log-scaling can be non-affine).
+        self.transData = self.transScale + (self.transLimits + self.transAxes)
+
+        self._xaxis_transform = mtransforms.blended_transform_factory(
+                self.transData, self.transAxes)
+        self._yaxis_transform = mtransforms.blended_transform_factory(
+                self.transAxes, self.transData)
+
+        # TODO: Migration shim
+        self._axis_transforms['x'] = self._xaxis_transform
+        self._axis_transforms['y'] = self._yaxis_transform
+
+
+    def get_xaxis_transform(self, which='grid'):
         """
         Get the transformation used for drawing x-axis labels, ticks
         and gridlines.  The x-direction is in data coordinates and the
@@ -496,9 +569,7 @@ class Axes(AxesBase):
             place axis elements in different locations.
 
         """
-        return self._get_axis_transform(which, self._xaxis_transform,
-                                               self.spines['bottom'],
-                                               self.spines['top'])
+        return self._get_axis_transform(which, 'x')
 
     def get_xaxis_text1_transform(self, pad_points):
         """
@@ -552,7 +623,7 @@ class Axes(AxesBase):
                                               self.figure.dpi_scale_trans),
                 "bottom", "center")
 
-    def get_yaxis_transform(self,which='grid'):
+    def get_yaxis_transform(self, which='grid'):
         """
         Get the transformation used for drawing y-axis labels, ticks
         and gridlines.  The x-direction is in axis coordinates and the
@@ -566,9 +637,7 @@ class Axes(AxesBase):
             place axis elements in different locations.
 
         """
-        return self._get_axis_transform(which, self._yaxis_transform,
-                                               self.spines['left'],
-                                               self.spines['right'])
+        return self._get_axis_transform(which, 'y')
 
     def get_yaxis_text1_transform(self, pad_points):
         """
@@ -622,26 +691,6 @@ class Axes(AxesBase):
                                                self.figure.dpi_scale_trans),
                 "center", "left")
 
-    def _update_transScale(self):
-        self.transScale.set(
-            mtransforms.blended_transform_factory(
-                self.xaxis.get_transform(), self.yaxis.get_transform()))
-        if hasattr(self, "lines"):
-            for line in self.lines:
-                try:
-                    line._transformed_path.invalidate()
-                except AttributeError:
-                    pass
-
-
-    def _set_artist_props(self, a):
-        """set the boilerplate props for artists added to axes"""
-        a.set_figure(self.figure)
-        if not a.is_transform_set():
-            a.set_transform(self.transData)
-
-        a.set_axes(self)
-
     def _gen_axes_patch(self):
         """
         Returns the patch used to draw the background of the axes.  It
@@ -659,25 +708,13 @@ class Axes(AxesBase):
         return mpatches.Rectangle((0.0, 0.0), 1.0, 1.0)
 
     def _gen_axes_spines(self, locations=None, offset=0.0, units='inches'):
-        """
-        Returns a dict whose keys are spine names and values are
-        Line2D or Patch instances. Each element is used to draw a
-        spine of the axes.
-
-        In the standard axes, this is a single line segment, but in
-        other projections it may not be.
-
-        .. note::
-
-            Intended to be overridden by new projection types.
-
-        """
         return {
             'left':mspines.Spine.linear_spine(self,'left'),
             'right':mspines.Spine.linear_spine(self,'right'),
             'bottom':mspines.Spine.linear_spine(self,'bottom'),
             'top':mspines.Spine.linear_spine(self,'top'),
             }
+    _gen_axes_spines.__doc__ = AxesBase._gen_axes_spines.__doc__
 
     def cla(self):
         """Clear the current axes"""
@@ -1049,18 +1086,6 @@ class Axes(AxesBase):
         warnings.warn('use ax.patch instead', DeprecationWarning)
         return self.patch
 
-    def get_legend(self):
-        """Return the legend.Legend instance, or None if no legend is defined"""
-        return self.legend_
-
-    def get_images(self):
-        """return a list of Axes images contained by the Axes"""
-        return cbook.silent_list('AxesImage', self.images)
-
-    def get_lines(self):
-        """Return a list of lines contained by the Axes"""
-        return cbook.silent_list('Line2D', self.lines)
-
     def get_xaxis(self):
         """Return the XAxis instance"""
         return self.xaxis
@@ -1087,96 +1112,6 @@ class Axes(AxesBase):
         """Get the ytick lines as a list of Line2D instances"""
         return cbook.silent_list('Line2D ytickline', self.yaxis.get_ticklines())
 
-    #### Adding and tracking artists
-
-    def _sci(self, im):
-        """
-        helper for :func:`~matplotlib.pyplot.sci`;
-        do not use elsewhere.
-        """
-        if isinstance(im, matplotlib.contour.ContourSet):
-            if im.collections[0] not in self.collections:
-                raise ValueError(
-                    "ContourSet must be in current Axes")
-        elif im not in self.images and im not in self.collections:
-            raise ValueError(
-            "Argument must be an image, collection, or ContourSet in this Axes")
-        self._current_image = im
-
-    def _gci(self):
-        """
-        Helper for :func:`~matplotlib.pyplot.gci`;
-        do not use elsewhere.
-        """
-        return self._current_image
-
-    def has_data(self):
-        """
-        Return *True* if any artists have been added to axes.
-
-        This should not be used to determine whether the *dataLim*
-        need to be updated, and may not actually be useful for
-        anything.
-        """
-        return (
-            len(self.collections) +
-            len(self.images) +
-            len(self.lines) +
-            len(self.patches))>0
-
-    def add_artist(self, a):
-        """
-        Add any :class:`~matplotlib.artist.Artist` to the axes.
-
-        Returns the artist.
-        """
-        a.set_axes(self)
-        self.artists.append(a)
-        self._set_artist_props(a)
-        a.set_clip_path(self.patch)
-        a._remove_method = lambda h: self.artists.remove(h)
-        return a
-
-    def add_collection(self, collection, autolim=True):
-        """
-        Add a :class:`~matplotlib.collections.Collection` instance
-        to the axes.
-
-        Returns the collection.
-        """
-        label = collection.get_label()
-        if not label:
-            collection.set_label('_collection%d'%len(self.collections))
-        self.collections.append(collection)
-        self._set_artist_props(collection)
-
-        if collection.get_clip_path() is None:
-            collection.set_clip_path(self.patch)
-        if autolim:
-            if collection._paths and len(collection._paths):
-                self.update_datalim(collection.get_datalim(self.transData))
-
-        collection._remove_method = lambda h: self.collections.remove(h)
-        return collection
-
-    def add_line(self, line):
-        """
-        Add a :class:`~matplotlib.lines.Line2D` to the list of plot
-        lines
-
-        Returns the line.
-        """
-        self._set_artist_props(line)
-        if line.get_clip_path() is None:
-            line.set_clip_path(self.patch)
-
-        self._update_line_limits(line)
-        if not line.get_label():
-            line.set_label('_line%d'%len(self.lines))
-        self.lines.append(line)
-        line._remove_method = lambda h: self.lines.remove(h)
-        return line
-
     def _update_line_limits(self, line):
         p = line.get_path()
         if p.vertices.size > 0:
@@ -1184,24 +1119,6 @@ class Axes(AxesBase):
                                             updatex=line.x_isdata,
                                             updatey=line.y_isdata)
             self.ignore_existing_data_limits = False
-
-    def add_patch(self, p):
-        """
-        Add a :class:`~matplotlib.patches.Patch` *p* to the list of
-        axes patches; the clipbox will be set to the Axes clipping
-        box.  If the transform is not set, it will be set to
-        :attr:`transData`.
-
-        Returns the patch.
-        """
-
-        self._set_artist_props(p)
-        if p.get_clip_path() is None:
-            p.set_clip_path(self.patch)
-        self._update_patch_limits(p)
-        self.patches.append(p)
-        p._remove_method = lambda h: self.patches.remove(h)
-        return p
 
     def _update_patch_limits(self, patch):
         """update the data limits for patch *p*"""
@@ -1223,52 +1140,6 @@ class Axes(AxesBase):
                 xys = transform.transform(xys)
             self.update_datalim(xys, updatex=patch.x_isdata,
                                      updatey=patch.y_isdata)
-
-
-    def add_table(self, tab):
-        """
-        Add a :class:`~matplotlib.tables.Table` instance to the
-        list of axes tables
-
-        Returns the table.
-        """
-        self._set_artist_props(tab)
-        self.tables.append(tab)
-        tab.set_clip_path(self.patch)
-        tab._remove_method = lambda h: self.tables.remove(h)
-        return tab
-
-    def add_container(self, container):
-        """
-        Add a :class:`~matplotlib.container.Container` instance
-        to the axes.
-
-        Returns the collection.
-        """
-        label = container.get_label()
-        if not label:
-            container.set_label('_container%d'%len(self.containers))
-        self.containers.append(container)
-        container.set_remove_method(lambda h: self.containers.remove(container))
-        return container
-
-
-    def relim(self):
-        """
-        Recompute the data limits based on current artists.
-
-        At present, :class:`~matplotlib.collections.Collection`
-        instances are not supported.
-        """
-        # Collections are deliberately not supported (yet); see
-        # the TODO note in artists.py.
-        self.dataLim.ignore(True)
-        self.ignore_existing_data_limits = True
-        for line in self.lines:
-            self._update_line_limits(line)
-
-        for p in self.patches:
-            self._update_patch_limits(p)
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """Update the data lim bbox with seq of xy tups or equiv. 2-D array"""
@@ -1293,13 +1164,6 @@ class Axes(AxesBase):
         if iterable(x) and not len(x): return
         self.dataLim.update_from_data(x, y, self.ignore_existing_data_limits)
         self.ignore_existing_data_limits = False
-
-    def update_datalim_bounds(self, bounds):
-        """
-        Update the datalim to include the given
-        :class:`~matplotlib.transforms.Bbox` *bounds*
-        """
-        self.dataLim.set(mtransforms.Bbox.union([self.dataLim, bounds]))
 
     def _process_unit_info(self, xdata=None, ydata=None, kwargs=None):
         """Look for unit *kwargs* and update the axis instances as necessary"""
@@ -1342,13 +1206,6 @@ class Axes(AxesBase):
                 # we need to update.
                 if ydata is not None:
                     self.yaxis.update_units(ydata)
-
-    def in_axes(self, mouseevent):
-        """
-        Return *True* if the given *mouseevent* (in display coords)
-        is in the Axes
-        """
-        return self.patch.contains(mouseevent)[0]
 
     def get_autoscale_on(self):
         """
@@ -1477,18 +1334,6 @@ class Axes(AxesBase):
 
         self.autoscale_view(tight=tight, scalex=scalex, scaley=scaley)
 
-
-    def set_rasterization_zorder(self, z):
-        """
-        Set zorder value below which artists will be rasterized
-        """
-        self._rasterization_zorder = z
-
-    def get_rasterization_zorder(self):
-        """
-        Get zorder value below which artists will be rasterized
-        """
-        return self._rasterization_zorder
 
     def autoscale(self, enable=True, axis='both', tight=None):
         """
@@ -1711,26 +1556,6 @@ class Axes(AxesBase):
         renderer.close_group('axes')
         self._cachedRenderer = renderer
 
-    def draw_artist(self, a):
-        """
-        This method can only be used after an initial draw which
-        caches the renderer.  It is used to efficiently update Axes
-        data (axis ticks, labels, etc are not updated)
-        """
-        assert self._cachedRenderer is not None
-        a.draw(self._cachedRenderer)
-
-    def redraw_in_frame(self):
-        """
-        This method can only be used after an initial draw which
-        caches the renderer.  It is used to efficiently update Axes
-        data (axis ticks, labels, etc are not updated)
-        """
-        assert self._cachedRenderer is not None
-        self.draw(self._cachedRenderer, inframe=True)
-
-    def get_renderer_cache(self):
-        return self._cachedRenderer
 
     def __draw_animate(self):
         # ignore for now; broken
@@ -1743,161 +1568,6 @@ class Axes(AxesBase):
         for tmp, a in dsu:
             a.draw(renderer)
 
-    #### Axes rectangle characteristics
-
-    def get_frame_on(self):
-        """
-        Get whether the axes rectangle patch is drawn
-        """
-        return self._frameon
-
-    def set_frame_on(self, b):
-        """
-        Set whether the axes rectangle patch is drawn
-
-        ACCEPTS: [ *True* | *False* ]
-        """
-        self._frameon = b
-
-    def get_axisbelow(self):
-        """
-        Get whether axis below is true or not
-        """
-        return self._axisbelow
-
-    def set_axisbelow(self, b):
-        """
-        Set whether the axis ticks and gridlines are above or below most artists
-
-        ACCEPTS: [ *True* | *False* ]
-        """
-        self._axisbelow = b
-
-    @docstring.dedent_interpd
-    def grid(self, b=None, which='major', axis='both', **kwargs):
-        """
-        Call signature::
-
-           grid(self, b=None, which='major', axis='both', **kwargs)
-
-        Set the axes grids on or off; *b* is a boolean.  (For MATLAB
-        compatibility, *b* may also be a string, 'on' or 'off'.)
-
-        If *b* is *None* and ``len(kwargs)==0``, toggle the grid state.  If
-        *kwargs* are supplied, it is assumed that you want a grid and *b*
-        is thus set to *True*.
-
-        *which* can be 'major' (default), 'minor', or 'both' to control
-        whether major tick grids, minor tick grids, or both are affected.
-
-        *axis* can be 'both' (default), 'x', or 'y' to control which
-        set of gridlines are drawn.
-
-        *kwargs* are used to set the grid line properties, eg::
-
-           ax.grid(color='r', linestyle='-', linewidth=2)
-
-        Valid :class:`~matplotlib.lines.Line2D` kwargs are
-
-        %(Line2D)s
-
-        """
-        if len(kwargs):
-            b = True
-        b = _string_to_bool(b)
-
-        if axis == 'x' or  axis == 'both':
-          self.xaxis.grid(b, which=which, **kwargs)
-        if axis == 'y' or  axis == 'both':
-          self.yaxis.grid(b, which=which, **kwargs)
-
-    def ticklabel_format(self, **kwargs):
-        """
-        Convenience method for manipulating the ScalarFormatter
-        used by default for linear axes.
-
-        Optional keyword arguments:
-
-          ============   =========================================
-          Keyword        Description
-          ============   =========================================
-          *style*        [ 'sci' (or 'scientific') | 'plain' ]
-                         plain turns off scientific notation
-          *scilimits*    (m, n), pair of integers; if *style*
-                         is 'sci', scientific notation will
-                         be used for numbers outside the range
-                         10`-m`:sup: to 10`n`:sup:.
-                         Use (0,0) to include all numbers.
-          *useOffset*    [True | False | offset]; if True,
-                         the offset will be calculated as needed;
-                         if False, no offset will be used; if a
-                         numeric offset is specified, it will be
-                         used.
-          *axis*         [ 'x' | 'y' | 'both' ]
-          *useLocale*    If True, format the number according to
-                         the current locale.  This affects things
-                         such as the character used for the
-                         decimal separator.  If False, use
-                         C-style (English) formatting.  The
-                         default setting is controlled by the
-                         axes.formatter.use_locale rcparam.
-          ============   =========================================
-
-        Only the major ticks are affected.
-        If the method is called when the
-        :class:`~matplotlib.ticker.ScalarFormatter` is not the
-        :class:`~matplotlib.ticker.Formatter` being used, an
-        :exc:`AttributeError` will be raised.
-
-        """
-        style = kwargs.pop('style', '').lower()
-        scilimits = kwargs.pop('scilimits', None)
-        useOffset = kwargs.pop('useOffset', None)
-        useLocale = kwargs.pop('useLocale', None)
-        axis = kwargs.pop('axis', 'both').lower()
-        if scilimits is not None:
-            try:
-                m, n = scilimits
-                m+n+1  # check that both are numbers
-            except (ValueError, TypeError):
-                raise ValueError("scilimits must be a sequence of 2 integers")
-        if style[:3] == 'sci':
-            sb = True
-        elif style in ['plain', 'comma']:
-            sb = False
-            if style == 'plain':
-                cb = False
-            else:
-                cb = True
-                raise NotImplementedError, "comma style remains to be added"
-        elif style == '':
-            sb = None
-        else:
-            raise ValueError, "%s is not a valid style value"
-        try:
-            if sb is not None:
-                if axis == 'both' or axis == 'x':
-                    self.xaxis.major.formatter.set_scientific(sb)
-                if axis == 'both' or axis == 'y':
-                    self.yaxis.major.formatter.set_scientific(sb)
-            if scilimits is not None:
-                if axis == 'both' or axis == 'x':
-                    self.xaxis.major.formatter.set_powerlimits(scilimits)
-                if axis == 'both' or axis == 'y':
-                    self.yaxis.major.formatter.set_powerlimits(scilimits)
-            if useOffset is not None:
-                if axis == 'both' or axis == 'x':
-                    self.xaxis.major.formatter.set_useOffset(useOffset)
-                if axis == 'both' or axis == 'y':
-                    self.yaxis.major.formatter.set_useOffset(useOffset)
-            if useLocale is not None:
-                if axis == 'both' or axis == 'x':
-                    self.xaxis.major.formatter.set_useLocale(useLocale)
-                if axis == 'both' or axis == 'y':
-                    self.yaxis.major.formatter.set_useLocale(useLocale)
-        except AttributeError:
-            raise AttributeError(
-                "This method only works with the ScalarFormatter.")
 
     def locator_params(self, axis='both', tight=None, **kwargs):
         """
@@ -2014,29 +1684,6 @@ class Axes(AxesBase):
             ykw.pop('labeltop', None)
             ykw.pop('labelbottom', None)
             self.yaxis.set_tick_params(**ykw)
-
-    def set_axis_off(self):
-        """turn off the axis"""
-        self.axison = False
-
-    def set_axis_on(self):
-        """turn on the axis"""
-        self.axison = True
-
-    def get_axis_bgcolor(self):
-        """Return the axis background color"""
-        return self._axisbg
-
-    def set_axis_bgcolor(self, color):
-        """
-        set the axes background color
-
-        ACCEPTS: any matplotlib color - see
-        :func:`~matplotlib.pyplot.colors`
-        """
-
-        self._axisbg = color
-        self.patch.set_facecolor(color)
 
     ### data limits, ticks, tick labels, and formatting
 
@@ -2537,87 +2184,6 @@ class Axes(AxesBase):
             ys = self.format_ydata(y)
         return  'x=%s y=%s'%(xs,ys)
 
-    #### Interactive manipulation
-
-    def can_zoom(self):
-        """
-        Return *True* if this axes supports the zoom box button functionality.
-        """
-        return True
-
-    def can_pan(self) :
-        """
-        Return *True* if this axes supports any pan/zoom button functionality.
-        """
-        return True
-
-    def get_navigate(self):
-        """
-        Get whether the axes responds to navigation commands
-        """
-        return self._navigate
-
-    def set_navigate(self, b):
-        """
-        Set whether the axes responds to navigation toolbar commands
-
-        ACCEPTS: [ *True* | *False* ]
-        """
-        self._navigate = b
-
-    def get_navigate_mode(self):
-        """
-        Get the navigation toolbar button status: 'PAN', 'ZOOM', or None
-        """
-        return self._navigate_mode
-
-    def set_navigate_mode(self, b):
-        """
-        Set the navigation toolbar button status;
-
-        .. warning::
-            this is not a user-API function.
-
-        """
-        self._navigate_mode = b
-
-    def start_pan(self, x, y, button):
-        """
-        Called when a pan operation has started.
-
-        *x*, *y* are the mouse coordinates in display coords.
-        button is the mouse button number:
-
-        * 1: LEFT
-        * 2: MIDDLE
-        * 3: RIGHT
-
-        .. note::
-
-            Intended to be overridden by new projection types.
-
-        """
-        self._pan_start = cbook.Bunch(
-            lim           = self.viewLim.frozen(),
-            trans         = self.transData.frozen(),
-            trans_inverse = self.transData.inverted().frozen(),
-            bbox          = self.bbox.frozen(),
-            x             = x,
-            y             = y
-            )
-
-    def end_pan(self):
-        """
-        Called when a pan operation completes (when the mouse button
-        is up.)
-
-        .. note::
-
-            Intended to be overridden by new projection types.
-
-        """
-        del self._pan_start
-
     def drag_pan(self, button, key, x, y):
         """
         Called when the mouse moves during a pan operation.
@@ -2689,35 +2255,6 @@ class Axes(AxesBase):
         self.set_xlim(*result.intervalx)
         self.set_ylim(*result.intervaly)
 
-    def get_cursor_props(self):
-        """
-        Return the cursor propertiess as a (*linewidth*, *color*)
-        tuple, where *linewidth* is a float and *color* is an RGBA
-        tuple
-        """
-        return self._cursorProps
-
-    def set_cursor_props(self, *args):
-        """
-        Set the cursor property as::
-
-          ax.set_cursor_props(linewidth, color)
-
-        or::
-
-          ax.set_cursor_props((linewidth, color))
-
-        ACCEPTS: a (*float*, *color*) tuple
-        """
-        if len(args)==1:
-            lw, c = args[0]
-        elif len(args)==2:
-            lw, c = args
-        else:
-            raise ValueError('args must be a (linewidth, color) tuple')
-        c =mcolors.colorConverter.to_rgba(c)
-        self._cursorProps = lw, c
-
     def connect(self, s, func):
         """
         Register observers to be notified when certain events occur.  Register
@@ -2741,44 +2278,6 @@ class Axes(AxesBase):
         """disconnect from the Axes event."""
         raise DeprecationWarning('use the callbacks CallbackRegistry instance '
                                  'instead')
-
-    def get_children(self):
-        """return a list of child artists"""
-        children = []
-        children.append(self.xaxis)
-        children.append(self.yaxis)
-        children.extend(self.lines)
-        children.extend(self.patches)
-        children.extend(self.texts)
-        children.extend(self.tables)
-        children.extend(self.artists)
-        children.extend(self.images)
-        if self.legend_ is not None:
-            children.append(self.legend_)
-        children.extend(self.collections)
-        children.append(self.title)
-        children.append(self.patch)
-        children.extend(self.spines.itervalues())
-        return children
-
-    def contains(self,mouseevent):
-        """
-        Test whether the mouse event occured in the axes.
-
-        Returns *True* / *False*, {}
-        """
-        if callable(self._contains): return self._contains(self,mouseevent)
-
-        return self.patch.contains(mouseevent)
-
-    def contains_point(self, point):
-        """
-        Returns *True* if the point (tuple of x,y) is inside the axes
-        (the area defined by the its patch). A pixel coordinate is
-        required.
-
-        """
-        return self.patch.contains_point(point, radius=1.0)
 
     def pick(self, *args):
         """
@@ -2860,45 +2359,6 @@ class Axes(AxesBase):
         ds = [ (dist(a),a) for a in artists]
         ds.sort()
         return ds[0][1]
-
-    #### Labelling
-
-    def get_title(self):
-        """
-        Get the title text string.
-        """
-        return self.title.get_text()
-
-    @docstring.dedent_interpd
-    def set_title(self, label, fontdict=None, **kwargs):
-        """
-        Call signature::
-
-          set_title(label, fontdict=None, **kwargs):
-
-        Set the title for the axes.
-
-        kwargs are Text properties:
-        %(Text)s
-
-        ACCEPTS: str
-
-        .. seealso::
-
-            :meth:`text`
-                for information on how override and the optional args work
-        """
-        default = {
-            'fontsize':rcParams['axes.titlesize'],
-            'verticalalignment' : 'baseline',
-            'horizontalalignment' : 'center'
-            }
-
-        self.title.set_text(label)
-        self.title.update(default)
-        if fontdict is not None: self.title.update(fontdict)
-        self.title.update(kwargs)
-        return self.title
 
     def get_xlabel(self):
         """
@@ -3991,52 +3451,6 @@ class Axes(AxesBase):
             b = None
         return lags, c, a, b
 
-
-    def _get_legend_handles(self, legend_handler_map=None):
-        "return artists that will be used as handles for legend"
-        handles_original = self.lines + self.patches + \
-                           self.collections + self.containers
-
-        # collections
-        handler_map = mlegend.Legend.get_default_handler_map()
-
-        if legend_handler_map is not None:
-            handler_map = handler_map.copy()
-            handler_map.update(legend_handler_map)
-
-        handles = []
-        for h in handles_original:
-            if h.get_label() == "_nolegend_": #.startswith('_'):
-                continue
-            if mlegend.Legend.get_legend_handler(handler_map, h):
-                handles.append(h)
-
-        return handles
-
-
-    def get_legend_handles_labels(self, legend_handler_map=None):
-        """
-        Return handles and labels for legend
-
-        ``ax.legend()`` is equivalent to ::
-
-          h, l = ax.get_legend_handles_labels()
-          ax.legend(h, l)
-
-        """
-
-        handles = []
-        labels = []
-        for handle in self._get_legend_handles(legend_handler_map):
-            label = handle.get_label()
-            #if (label is not None and label != '' and not label.startswith('_')):
-            if label and not label.startswith('_'):
-                handles.append(handle)
-                labels.append(label)
-
-        return handles, labels
-
-
     def legend(self, *args, **kwargs):
         """
         Call signature::
@@ -4176,16 +3590,16 @@ class Axes(AxesBase):
         implies a handlelength of 50 points.  Values from rcParams
         will be used if None.
 
-        ================   ==================================================================
+        ==============     ==================================================
         Keyword            Description
-        ================   ==================================================================
+        ==============     ==================================================
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
         handlelength       the length of the legend handles
         handletextpad      the pad between the legend handle and text
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
-        ================   ==================================================================
+        ==============     ==================================================
 
         .. Note:: Not all kinds of artist are supported by the legend command.
                   See LINK (FIXME) for details.
@@ -4200,20 +3614,20 @@ class Axes(AxesBase):
 
         """
 
-        if len(args)==0:
+        if len(args) == 0:
             handles, labels = self.get_legend_handles_labels()
             if len(handles) == 0:
                 warnings.warn("No labeled objects found. "
                               "Use label='...' kwarg on individual plots.")
                 return None
 
-        elif len(args)==1:
+        elif len(args) == 1:
             # LABELS
             labels = args[0]
             handles = [h for h, label in zip(self._get_legend_handles(),
                                              labels)]
 
-        elif len(args)==2:
+        elif len(args) == 2:
             if is_string_like(args[1]) or isinstance(args[1], int):
                 # LABELS, LOC
                 labels, loc = args
@@ -4224,17 +3638,12 @@ class Axes(AxesBase):
                 # LINES, LABELS
                 handles, labels = args
 
-        elif len(args)==3:
+        elif len(args) == 3:
             # LINES, LABELS, LOC
             handles, labels, loc = args
             kwargs['loc'] = loc
         else:
             raise TypeError('Invalid arguments to legend')
-
-
-        # Why do we need to call "flatten" here? -JJL
-        # handles = cbook.flatten(handles)
-
 
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         return self.legend_
@@ -4423,7 +3832,7 @@ class Axes(AxesBase):
             if len(height) == 1:
                 height *= nbars
         else:
-            raise ValueError, 'invalid orientation: %s' % orientation
+            raise ValueError('invalid orientation: %s' % orientation)
 
         if len(linewidth) < nbars:
             linewidth *= nbars
@@ -4446,16 +3855,18 @@ class Axes(AxesBase):
             if len(edgecolor) < nbars:
                 edgecolor *= nbars
 
-        # FIXME: convert the following to proper input validation
-        # raising ValueError; don't use assert for this.
-        assert len(left)==nbars, "incompatible sizes: argument 'left' must be length %d or scalar" % nbars
-        assert len(height)==nbars, ("incompatible sizes: argument 'height' must be length %d or scalar" %
-                                    nbars)
-        assert len(width)==nbars, ("incompatible sizes: argument 'width' must be length %d or scalar" %
-                                   nbars)
-        assert len(bottom)==nbars, ("incompatible sizes: argument 'bottom' must be length %d or scalar" %
-                                    nbars)
-
+        if len(left) != nbars:
+            raise ValueError("incompatible sizes: argument 'left' must be"
+                             " length %d or scalar" % nbars)
+        if len(height) != nbars:
+            raise ValueError("incompatible sizes: argument 'height' must be"
+                             " length %d or scalar" % nbars)
+        if len(width) != nbars:
+            raise ValueError("incompatible sizes: argument 'width' must be"
+                             " length %d or scalar" % nbars)
+        if len(bottom) != nbars:
+            raise ValueError("incompatible sizes: argument 'bottom' must be"
+                             " length %d or scalar" % nbars)
         patches = []
 
         # lets do some conversions now since some types cannot be
@@ -4790,6 +4201,7 @@ class Axes(AxesBase):
           above, and *autotexts* is a list of
           :class:`~matplotlib.text.Text` instances for the numeric
           labels.
+
         """
         self.set_frame_on(False)
 
@@ -5172,7 +4584,8 @@ class Axes(AxesBase):
         self.autoscale_view()
         self._hold = holdstate
 
-        errorbar_container = ErrorbarContainer((l0, tuple(caplines), tuple(barcols)),
+        errorbar_container = ErrorbarContainer((l0, tuple(caplines),
+                                                tuple(barcols)),
                                                has_xerr=(xerr is not None),
                                                has_yerr=(yerr is not None),
                                                label=label)
@@ -5252,6 +4665,7 @@ class Axes(AxesBase):
         **Example:**
 
         .. plot:: pyplots/boxplot_demo.py
+
         """
         if not self._hold: self.cla()
         holdStatus = self._hold
@@ -5456,7 +4870,7 @@ class Axes(AxesBase):
                     faceted=True, verts=None,
                     **kwargs):
         """
-        Call signatures::
+        Call signature::
 
           scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
                   vmin=None, vmax=None, alpha=None, linewidths=None,
@@ -5537,6 +4951,7 @@ class Axes(AxesBase):
 
         A :class:`~matplotlib.collections.Collection` instance is
         returned.
+
         """
 
         if not self._hold: self.cla()
@@ -5959,9 +5374,9 @@ class Axes(AxesBase):
                 norm.autoscale(accum)
 
         # Transform accum if needed
-        if bins=='log':
+        if bins == 'log':
             accum = np.log10(accum+1)
-        elif bins!=None:
+        elif bins is not None:
             if not iterable(bins):
                 minimum, maximum = min(accum), max(accum)
                 bins-=1 # one less edge than bins
@@ -6016,13 +5431,13 @@ class Axes(AxesBase):
 
             if not valid[i]: continue
 
-            verts.append([(thismin, 0), (thismin, 0.05), (thismax, 0.05), (thismax, 0)])
+            verts.append([(thismin, 0), (thismin, 0.05),
+                          (thismax, 0.05), (thismax, 0)])
             values.append(val)
 
         values = np.array(values)
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
-
 
         hbar = mcoll.PolyCollection(verts, transform=trans, edgecolors='face')
 
@@ -6043,8 +5458,10 @@ class Axes(AxesBase):
                 thismax = coarse[i+1]
             else:
                 thismax = thismin + np.diff(coarse)[-1]
-            if not valid[i]: continue
-            verts.append([(0, thismin), (0.0, thismax), (0.05, thismax), (0.05, thismin)])
+            if not valid[i]:
+                continue
+            verts.append([(0, thismin), (0.0, thismax),
+                          (0.05, thismax), (0.05, thismin)])
             values.append(val)
 
         values = np.array(values)
@@ -6060,8 +5477,6 @@ class Axes(AxesBase):
         vbar.set_alpha(alpha)
         vbar.update(kwargs)
         self.add_collection(vbar)
-
-
 
         collection.hbar = hbar
         collection.vbar = vbar
@@ -6094,6 +5509,7 @@ class Axes(AxesBase):
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/arrow_demo.py
+
         """
         # Strip away units for the underlying patch since units
         # do not make sense to most patch-like code
@@ -6145,6 +5561,7 @@ class Axes(AxesBase):
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/barb_demo.py
+
         """
         if not self._hold: self.cla()
         b = mquiver.Barbs(self, *args, **kw)
@@ -6415,7 +5832,7 @@ class Axes(AxesBase):
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
 
-            if not len(yslice):
+            if len(yslice) == 0:
                 continue
 
             N = len(yslice)
@@ -6586,6 +6003,7 @@ class Axes(AxesBase):
         # to tightly fit the image, regardless of dataLim.
         im.set_extent(im.get_extent())
 
+        # TODO: We need an "add_image" method...
         self.images.append(im)
         im._remove_method = lambda h: self.images.remove(h)
 
@@ -6593,11 +6011,11 @@ class Axes(AxesBase):
 
 
     def _pcolorargs(self, funcname, *args):
-        if len(args)==1:
+        if len(args) == 1:
             C = args[0]
             numRows, numCols = C.shape
             X, Y = np.meshgrid(np.arange(numCols+1), np.arange(numRows+1) )
-        elif len(args)==3:
+        elif len(args) == 3:
             X, Y, C = args
         else:
             raise TypeError(
@@ -6605,16 +6023,16 @@ class Axes(AxesBase):
 
         Nx = X.shape[-1]
         Ny = Y.shape[0]
-        if len(X.shape) <> 2 or X.shape[0] == 1:
+        if len(X.shape) != 2 or X.shape[0] == 1:
             x = X.reshape(1,Nx)
             X = x.repeat(Ny, axis=0)
-        if len(Y.shape) <> 2 or Y.shape[1] == 1:
+        if len(Y.shape) != 2 or Y.shape[1] == 1:
             y = Y.reshape(Ny, 1)
             Y = y.repeat(Nx, axis=1)
         if X.shape != Y.shape:
             raise TypeError(
-                'Incompatible X, Y inputs to %s; see help(%s)' % (
-                funcname, funcname))
+                'Incompatible X, Y inputs to %s; see help(%s)' %
+                (funcname, funcname))
         return X, Y, C
 
     @docstring.dedent_interpd
@@ -6922,8 +6340,8 @@ class Axes(AxesBase):
 
         # convert to one dimensional arrays
         if shading != 'gouraud':
-            C = ma.ravel(C[0:Ny-1, 0:Nx-1]) # data point in each cell is value at
-                                            # lower left corner
+            C = ma.ravel(C[0:Ny-1, 0:Nx-1]) # data point in each cell is value
+                                            # at lower left corner
         else:
             C = C.ravel()
         X = X.ravel()
@@ -7390,12 +6808,9 @@ class Axes(AxesBase):
         """
         if not self._hold: self.cla()
 
-        # xrange becomes range after 2to3
+        # NOTE: the range keyword overwrites the built-in func range !!!
         bin_range = range
         range = __builtins__["range"]
-
-        # NOTE: the range keyword overwrites the built-in func range !!!
-        #       needs to be fixed in numpy                           !!!
 
         # Validate string inputs here so we don't have to clutter
         # subsequent code.
@@ -7627,7 +7042,8 @@ class Axes(AxesBase):
         elif is_sequence_of_strings(label):
             labels = list(label)
         else:
-            raise ValueError('invalid label: must be string or sequence of strings')
+            raise ValueError('invalid label: must be string or'
+                             ' sequence of strings')
 
         if len(labels) < nx:
             labels += [None] * (nx - len(labels))
@@ -7666,51 +7082,61 @@ class Axes(AxesBase):
         """
         Call signature::
 
-        hist2d(x, y, bins = None, range=None, weights=None, cmin=None, cmax=None **kwargs)
+            hist2d(x, y, bins = None, range=None, weights=None,
+                   cmin=None, cmax=None **kwargs)
+
         Make a 2d histogram plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length
 
         The return value is (counts,xedges,yedges,Image)
 
         Optional keyword arguments:
-        *bins*: [None | int | [int, int] | array_like | [array, array]]
+        *bins*: [ *None* | int | [int, int] | array_like | [array, array] ]
             The bin specification:
-                If int, the number of bins for the two dimensions (nx=ny=bins).
-                If [int, int], the number of bins in each dimension (nx, ny = bins).
-                If array_like, the bin edges for the two dimensions (x_edges=y_edges=bins).
-                If [array, array], the bin edges in each dimension (x_edges, y_edges = bins).
+                If int, the number of bins for the two dimensions
+                (nx=ny=bins).
+                If [int, int], the number of bins in each dimension
+                (nx, ny=bins).
+                If array_like, the bin edges for the two dimensions
+                (x_edges=y_edges=bins).
+                If [array, array], the bin edges in each dimension
+                (x_edges, y_edges=bins).
             The default value is 10.
 
-        *range*: [*None* | array_like shape(2,2)]
-             The leftmost and rightmost edges of the bins along each dimension (if not specified
-             explicitly in the bins parameters): [[xmin, xmax], [ymin, ymax]]. All values outside of
-             this range will be considered outliers and not tallied in the histogram.
+        *range*: [ *None* | array_like shape(2,2) ]
+             The leftmost and rightmost edges of the bins along each dimension
+             (if not specified explicitly in the bins parameters):
+             [[xmin, xmax], [ymin, ymax]]. All values outside of this range
+             will be considered outliers and not tallied in the histogram.
 
-        *normed*:[True|False]
+        *normed*: [ True | False ]
              Normalize histogram.
              The default value is False
 
-        *weights*: [*None* | array]
+        *weights*: [ *None* | array ]
             An array of values w_i weighing each sample (x_i, y_i).
 
-        *cmin* : [None| scalar]
+        *cmin* : [ *None* | scalar ]
              All bins that has count less than cmin will not be displayed
-             and these count values in the return value count histogram will also be set to nan upon return
+             and these count values in the return value count histogram
+             will also be set to nan upon return
 
-        *cmax* : [None| scalar]
-             All bins that has count more than cmax will not be displayed (set to none before passing to imshow)
-             and these count values in the return value count histogram will also be set to nan upon return
+        *cmax* : [ *None* | scalar ]
+             All bins that has count more than cmax will not be displayed
+             (set to *None* before passing to imshow) and these count values
+             in the returned histogram will also be set to *NaN* upon return.
 
-        Remaining keyword arguments are passed directly to :meth:pcolorfast
+        Remaining keyword arguments are passed directly to :meth:`pcolorfast`
 
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/hist2d_demo.py
+
         """
 
-        # xrange becomes range after 2to3
         bin_range = range
         range = __builtins__["range"]
+
         h,xedges,yedges = np.histogram2d(x, y, bins=bins, range=bin_range,
                                          normed=normed, weights=weights)
 
@@ -7787,7 +7213,8 @@ class Axes(AxesBase):
         vmin, vmax = self.viewLim.intervaly
         intv = vmax-vmin
         logi = int(np.log10(intv))
-        if logi==0: logi=.1
+        if logi == 0:
+            logi=.1
         step = 10*logi
         #print vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1
         ticks = np.arange(math.floor(vmin), math.ceil(vmax)+1, step)
@@ -7842,6 +7269,7 @@ class Axes(AxesBase):
 
             :meth:`psd`
                 For a description of the optional parameters.
+
         """
         if not self._hold: self.cla()
         pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap,
@@ -8156,12 +7584,6 @@ class Axes(AxesBase):
                                                  integer=True))
         return im
 
-    def get_default_bbox_extra_artists(self):
-        bbox_extra_artists = [t for t in self.texts if t.get_visible()]
-        if self.legend_:
-            bbox_extra_artists.append(self.legend_)
-        return bbox_extra_artists
-
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
         """
@@ -8173,6 +7595,7 @@ class Axes(AxesBase):
         bounding box. ``call_axes_locator==False`` can be used if the
         caller is only intereted in the relative size of the tightbbox
         compared to the axes bbox.
+
         """
 
         artists = []
@@ -8199,23 +7622,10 @@ class Axes(AxesBase):
         bb_yaxis = self.yaxis.get_tightbbox(renderer)
         if bb_yaxis: bb.append(bb_yaxis)
 
-        _bbox = mtransforms.Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
+        _bbox = mtransforms.Bbox.union([b for b in bb if
+                                        b.width!=0 or b.height!=0])
 
         return _bbox
-
-    def minorticks_on(self):
-        'Add autoscaling minor ticks to the axes.'
-        for ax in (self.xaxis, self.yaxis):
-            if ax.get_scale() == 'log':
-                s = ax._scale
-                ax.set_minor_locator(mticker.LogLocator(s.base, s.subs))
-            else:
-                ax.set_minor_locator(mticker.AutoMinorLocator())
-
-    def minorticks_off(self):
-        """Remove minor ticks from the axes."""
-        self.xaxis.set_minor_locator(mticker.NullLocator())
-        self.yaxis.set_minor_locator(mticker.NullLocator())
 
     def tricontour(self, *args, **kwargs):
         return mtri.tricontour(self, *args, **kwargs)
