@@ -102,9 +102,13 @@ class TimerQT(TimerBase):
 
     def __del__(self):
         # Probably not necessary in practice, but is good behavior to disconnect
-        TimerBase.__del__(self)
-        QtCore.QObject.disconnect(self._timer , QtCore.SIGNAL('timeout()'),
-            self._on_timer)
+        try:
+            TimerBase.__del__(self)
+            QtCore.QObject.disconnect(self._timer,
+                    QtCore.SIGNAL('timeout()'), self._on_timer)
+        except RuntimeError:
+            # Timer C++ object already deleted
+            pass
 
     def _timer_set_single_shot(self):
         self._timer.setSingleShot(self._single)
