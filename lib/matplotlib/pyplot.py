@@ -2528,7 +2528,8 @@ def csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
 @autogen_docstring(Axes.errorbar)
 def errorbar(x, y, yerr=None, xerr=None, fmt='-', ecolor=None, elinewidth=None,
              capsize=3, barsabove=False, lolims=False, uplims=False,
-             xlolims=False, xuplims=False, errorevery=1, hold=None, **kwargs):
+             xlolims=False, xuplims=False, errorevery=1, capthick=None,
+             hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -2540,7 +2541,7 @@ def errorbar(x, y, yerr=None, xerr=None, fmt='-', ecolor=None, elinewidth=None,
                           elinewidth=elinewidth, capsize=capsize,
                           barsabove=barsabove, lolims=lolims, uplims=uplims,
                           xlolims=xlolims, xuplims=xuplims,
-                          errorevery=errorevery, **kwargs)
+                          errorevery=errorevery, capthick=capthick, **kwargs)
         draw_if_interactive()
     finally:
         ax.hold(washold)

@@ -5179,14 +5179,16 @@ class Axes(martist.Artist):
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='-', ecolor=None, elinewidth=None, capsize=3,
                  barsabove=False, lolims=False, uplims=False,
-                 xlolims=False, xuplims=False, errorevery=1, **kwargs):
+                 xlolims=False, xuplims=False, errorevery=1, capthick=None,
+                 **kwargs):
         """
         Call signature::
 
           errorbar(x, y, yerr=None, xerr=None,
                    fmt='-', ecolor=None, elinewidth=None, capsize=3,
                    barsabove=False, lolims=False, uplims=False,
-                   xlolims=False, xuplims=False)
+                   xlolims=False, xuplims=False, errorevery=1,
+                   capthick=None)
 
         Plot *x* versus *y* with error deltas in *yerr* and *xerr*.
         Vertical errorbars are plotted if *yerr* is not *None*.
@@ -5210,14 +5212,22 @@ class Axes(martist.Artist):
             errorbars to a bar plot, for example.
 
           *ecolor*: [ *None* | mpl color ]
-            a matplotlib color arg which gives the color the errorbar lines;
+            A matplotlib color arg which gives the color the errorbar lines;
             if *None*, use the marker color.
 
           *elinewidth*: scalar
-            the linewidth of the errorbar lines. If *None*, use the linewidth.
+            The linewidth of the errorbar lines. If *None*, use the linewidth.
 
           *capsize*: scalar
-            the size of the error bar caps in points
+            The size of the error bar caps in points
+
+          *capthick*: scalar
+            An alias kwarg to *markeredgewidth* (a.k.a. - *mew*). This
+            setting is a more sensible name for the property that
+            controls the thickness of the error bar cap in points. For
+            backwards compatibility, if *mew* or *markeredgewidth* are given,
+            then they will over-ride *capthick*.  This may change in future
+            releases.
 
           *barsabove*: [ *True* | *False* ]
             if *True*, will plot the errorbars above the plot
@@ -5268,7 +5278,7 @@ class Axes(martist.Artist):
         """
 
         if errorevery < 1:
-            raise ValueError('errorevery has to be a strictly positive integer ')
+            raise ValueError('errorevery has to be a strictly positive integer')
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         if not self._hold: self.cla()
@@ -5344,6 +5354,15 @@ class Axes(martist.Artist):
             plot_kw = {
                 'ms':2*capsize,
                 'label':'_nolegend_'}
+            if capthick is not None:
+                # 'mew' has higher priority, I believe,
+                # if both 'mew' and 'markeredgewidth' exists.
+                # So, save capthick to markeredgewidth so that
+                # explicitly setting mew or markeredgewidth will
+                # over-write capthick.
+                plot_kw['markeredgewidth'] = capthick
+            # For backwards-compat, allow explicit setting of
+            # 'mew' or 'markeredgewidth' to over-ride capthick.
             if 'markeredgewidth' in kwargs:
                 plot_kw['markeredgewidth']=kwargs['markeredgewidth']
             if 'mew' in kwargs:
