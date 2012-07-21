@@ -1043,11 +1043,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             # layer values are mid-way between levels
             self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
             # ...except that extended layers must be outside the
-            # normed range, so use huge values:
+            # normed range:
             if self.extend in ('both', 'min'):
-                self.layers[0] = -1e300
+                self.layers[0] = -np.inf
             if self.extend in ('both', 'max'):
-                self.layers[-1] = 1e300
+                self.layers[-1] = np.inf
         else:
             self.layers = self.levels # contour: a line is a thin layer
                          #  Use only original levels--no extended levels
