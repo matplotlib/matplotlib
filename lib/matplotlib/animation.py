@@ -322,6 +322,13 @@ class FileMovieWriter(MovieWriter):
         self._run()
         MovieWriter.finish(self) # Will call clean-up
 
+        # Check error code for creating file here, since we just run
+        # the process here, rather than having an open pipe.
+        if self._proc.returncode:
+            raise RuntimeError('Error creating movie, return code: '
+                    + str(self._proc.returncode)
+                    + ' Try running with --verbose-debug')
+
     def cleanup(self):
         MovieWriter.cleanup(self)
 
