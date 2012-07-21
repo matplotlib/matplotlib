@@ -5623,10 +5623,12 @@ class Axes(martist.Artist):
         msg2 = "usermedians' length must be compatible with x"
         if usermedians is not None:
             if hasattr(usermedians, 'shape'):
-                assert len(usermedians.shape) == 1, msg1
-                assert usermedians.shape[0] == col, msg2
-            else:
-                assert len(usermedians) == col, msg2
+                if len(usermedians.shape) != 1:
+                    raise ValueError(msg1)
+                elif usermedians.shape[0] != col:
+                    raise ValueError(msg2)
+            elif len(usermedians) != col:
+                raise ValueError(msg2)
 
         #sanitize user-input confidence intervals
         msg1 = "conf_intervals must either be a list of tuples or a 2d array"
@@ -5634,14 +5636,18 @@ class Axes(martist.Artist):
         msg3 = "each conf_interval, if specificied, must have two values"
         if conf_intervals is not None:
             if hasattr(conf_intervals, 'shape'):
-                assert len(conf_intervals.shape) == 2, msg1
-                assert conf_intervals.shape[0] == col, msg2
-                assert conf_intervals.shape[1] == 2, msg3
+                if len(conf_intervals.shape) != 2:
+                    raise ValueError(msg1)
+                elif conf_intervals.shape[0] != col:
+                    raise ValueError(msg2)
+                elif conf_intervals.shape[1] == 2:
+                    raise ValueError(msg3)
             else:
-                assert len(conf_intervals) == col, msg2
+                if len(conf_intervals) != col:
+                    raise ValueError(msg2)
                 for ci in conf_intervals:
-                    if ci is not None:
-                       assert len(ci) == 2, msg3
+                    if ci is not None and len(ci) != 2:
+                        raise ValueError(msg3)
 
 
         # get some plot info
