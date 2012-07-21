@@ -905,11 +905,15 @@ matplotlib.use() must be called *before* pylab, matplotlib.pyplot,
 or matplotlib.backends is imported for the first time.
 """
 
-def use(arg, warn=True):
+def use(arg, warn=True, force=False):
     """
     Set the matplotlib backend to one of the known backends.
 
-    The argument is case-insensitive.
+    The argument is case-insensitive. *warn* specifies whether a
+    warning should be issued if a backend has already been set up.
+    *force* is an **experimental** flag that tells matplotlib to
+    attempt to initialize a new backend by reloading the backend
+    module.
 
     .. note::
 
@@ -918,24 +922,40 @@ def use(arg, warn=True):
         before importing matplotlib.backends.  If warn is True, a warning
         is issued if you try and call this after pylab or pyplot have been
         loaded.  In certain black magic use cases, e.g.
-        :func:`pyplot.switch_backends`, we are doing the reloading necessary to
+        :func:`pyplot.switch_backend`, we are doing the reloading necessary to
         make the backend switch work (in some cases, e.g. pure image
-        backends) so one can set warn=False to supporess the warnings.
+        backends) so one can set warn=False to suppress the warnings.
 
     To find out which backend is currently set, see
     :func:`matplotlib.get_backend`.
 
     """
+    # Check if we've already set up a backend
     if 'matplotlib.backends' in sys.modules:
-        if warn: warnings.warn(_use_error_msg)
-        return
+        if warn:
+            warnings.warn(_use_error_msg)
+
+        # Unless we've been told to force it, just return
+        if not force:
+            return
+        need_reload = True
+    else:
+        need_reload = False
+
+    # Set-up the proper backend name
     if arg.startswith('module://'):
         name = arg
     else:
         # Lowercase only non-module backend names (modules are case-sensitive)
         arg = arg.lower()
         name = validate_backend(arg)
+
     rcParams['backend'] = name
+
+    # If needed we reload here because a lot of setup code is triggered on
+    # module import. See backends/__init__.py for more detail.
+    if need_reload:
+        reload(sys.modules['matplotlib.backends'])
 
 def get_backend():
     "Returns the current backend."
