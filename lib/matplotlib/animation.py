@@ -379,8 +379,9 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
-        return [self.bin_path(), '-r', str(self.fps), '-i',
-            self._base_temp_name()] + self.output_args
+        return [self.bin_path(), '-vframes', str(self._frame_counter),
+                '-r', str(self.fps), '-i',
+                self._base_temp_name()] + self.output_args
 
 
 # Base class of mencoder information. Contains configuration key information
@@ -435,7 +436,8 @@ class MencoderFileWriter(FileMovieWriter, MencoderBase):
         # Returns the command line parameters for subprocess to use
         # mencoder to create a movie
         return [self.bin_path(),
-            'mf://%s*.%s' % (self.temp_prefix, self.frame_format), '-mf',
+            'mf://%s*.%s' % (self.temp_prefix, self.frame_format),
+            '-frames', str(self._frame_counter), '-mf',
             'type=%s:fps=%d' % (self.frame_format, self.fps)] + self.output_args
 
 
