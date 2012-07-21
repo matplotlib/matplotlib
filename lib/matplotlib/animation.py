@@ -403,13 +403,16 @@ class MencoderBase:
     @property
     def output_args(self):
         self._remap_metadata()
-        args = ['-o', self.outfile, '-ovc', 'lavc', 'vcodec=%s' % self.codec]
+        args = ['-o', self.outfile, '-ovc', 'lavc', '-lavcopts',
+                'vcodec=%s' % self.codec]
         if self.bitrate > 0:
             args.append('vbitrate=%d' % self.bitrate)
         if self.extra_args:
             args.extend(self.extra_args)
-        args.extend(['-info', ':'.join('%s=%s' % (k,v)
-            for k,v in self.metadata.items() if k in self.allowed_metadata)])
+        if self.metadata:
+            args.extend(['-info', ':'.join('%s=%s' % (k,v)
+                for k,v in self.metadata.items()
+                if k in self.allowed_metadata)])
         return args
 
 
