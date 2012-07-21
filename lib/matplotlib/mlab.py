@@ -3195,7 +3195,7 @@ def offset_line(y, yerr):
     o A tuple of length 2. In this case, yerr[0] is the error below *y* and
       yerr[1] is error above *y*.
 
-    .. For example::
+    Example::
 
         from pylab import *
         x = linspace(0, 2*pi, num=100, endpoint=True)
@@ -3204,6 +3204,7 @@ def offset_line(y, yerr):
         plot(x, y)
         fill_between(x, ym, y2=yp)
         show()
+
     """
     if cbook.is_numlike(yerr) or (cbook.iterable(yerr) and len(yerr) == len(y)):
         ymin = y - yerr
