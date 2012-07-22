@@ -3193,9 +3193,7 @@ def offset_line(y, yerr):
     o A vector of the same length as *y*. The quantities y +/- err are computed
       component-wise.
     o A tuple of length 2. In this case, yerr[0] is the error below *y* and
-      yerr[1] is error above *y*.
-
-    Example::
+      yerr[1] is error above *y*. For example::
 
         from pylab import *
         x = linspace(0, 2*pi, num=100, endpoint=True)
