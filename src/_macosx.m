@@ -21,6 +21,9 @@
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1050
 #define COMPILING_FOR_10_5
 #endif
+#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
+#define COMPILING_FOR_10_6
+#endif
 
 static int nwin = 0;   /* The number of open windows */
 
@@ -346,7 +349,11 @@ static void _release_hatch(void* info)
 - (void)close;
 @end
 
+#ifdef COMPILING_FOR_10_6
+@interface View : NSView <NSWindowDelegate>
+#else
 @interface View : NSView
+#endif
 {   PyObject* canvas;
     NSRect rubberband;
     BOOL inside;
@@ -4113,14 +4120,22 @@ NavigationToolbar_init(NavigationToolbar *self, PyObject *args, PyObject *kwds)
     self->handler = [self->handler initWithToolbar: (PyObject*)self];
     for (i = 0; i < 9; i++)
     {
-        ScrollableButton* button;
+        NSButton* button;
         SEL scrollWheelUpAction = scroll_actions[i][0];
         SEL scrollWheelDownAction = scroll_actions[i][1];
-        if (scrollWheelUpAction || scrollWheelDownAction)
-            button = [ScrollableButton alloc];
+        if (scrollWheelUpAction && scrollWheelDownAction)
+        {
+            ScrollableButton* scrollable_button = [ScrollableButton alloc];
+            [scrollable_button initWithFrame: rect];
+            [scrollable_button setScrollWheelUpAction: scrollWheelUpAction];
+            [scrollable_button setScrollWheelDownAction: scrollWheelDownAction];
+            button = (NSButton*)scrollable_button;
+        }
         else
+        {
             button = [NSButton alloc];
-        [button initWithFrame: rect];
+            [button initWithFrame: rect];
+        }
         PyObject* imagedata = PyDict_GetItemString(images, imagenames[i]);
         NSImage* image = _read_ppm_image(imagedata);
         [button setBezelStyle: NSShadowlessSquareBezelStyle];
@@ -4133,10 +4148,6 @@ NavigationToolbar_init(NavigationToolbar *self, PyObject *args, PyObject *kwds)
         [button setToolTip: tooltips[i]];
         [button setTarget: self->handler];
         [button setAction: actions[i]];
-        if (scrollWheelUpAction)
-            [button setScrollWheelUpAction: scrollWheelUpAction];
-        if (scrollWheelDownAction)
-            [button setScrollWheelDownAction: scrollWheelDownAction];
         [[window contentView] addSubview: button];
         [button release];
         rect.origin.x += rect.size.width + smallgap;
@@ -4778,7 +4789,16 @@ choose_save_file(PyObject* unused, PyObject* args)
     result = [panel runModal];
     if (result == NSOKButton)
     {
+#ifdef COMPILING_FOR_10_6
+        NSURL* url = [panel URL];
+        NSString* filename = [url path];
+        if (!filename) {
+            PyErr_SetString(PyExc_RuntimeError, "Failed to obtain filename");
+            return 0;
+        }
+#else
         NSString* filename = [panel filename];
+#endif
         unsigned int n = [filename length];
         unichar* buffer = malloc(n*sizeof(unichar));
         [filename getCharacters: buffer];
