@@ -57,6 +57,16 @@ minimum and maximum colorbar extensions.
 
     plt.show()
 
+New Boxplot Functionality
+-------------------------
+
+Users can now incorporate their own methods for computing the median and its
+confidence intervals into the boxplot method. For every column of data passed
+to boxplot, the user can specify an accompanying median and confidence
+interval.
+:meth: `matplotlib.axes.boxplot`
+.. plot:: examples/pylab_examples/boxplot_demo3.py
+
 .. _whats-new-1-1:
 
 new in matplotlib-1.1
