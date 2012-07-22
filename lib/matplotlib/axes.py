@@ -5718,13 +5718,12 @@ class Axes(martist.Artist):
             # calculate 'notch' plot
             if notch:
                 # conf. intervals from user, if available
-                if conf_intervals is not None and \
-                   conf_intervals[i] is not None:
-		    notch_max = np.max(conf_intervals[i])
-		    notch_min = np.min(conf_intervals[i])
+                if conf_intervals is not None and conf_intervals[i] is not None:
+                    notch_max = np.max(conf_intervals[i])
+                    notch_min = np.min(conf_intervals[i])
                 else:
-                    notch_min, notch_max = computeConfInterval(d, med,
-                                                         iq, bootstrap)
+                    notch_min, notch_max = computeConfInterval(d, med, iq,
+                                                               bootstrap)
 
                 # make our notched box vectors
                 box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max,
