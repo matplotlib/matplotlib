@@ -59,6 +59,13 @@ minimum and maximum colorbar extensions.
 
 .. _whats-new-1-1:
 
+Set default bounding box in matplotlibrc
+------------------------------------------
+
+Two new defaults are available in the matplotlibrc configuration file.
+These are savefig.bbox, which can be set to 'standard' or 'tight,' and 
+savefig.pad_inches, which controls the bounding box padding.
+
 new in matplotlib-1.1
 =====================
 
