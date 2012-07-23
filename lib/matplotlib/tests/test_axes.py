@@ -670,6 +670,7 @@ def test_hist_log():
     ax.set_xticks([])
     ax.set_yticks([])
 
+<<<<<<< HEAD
 @image_comparison(baseline_images=['contour_hatching'])
 def test_contour_hatching():
     x = np.linspace(-3, 5, 150).reshape(1, -1)
@@ -762,6 +763,17 @@ def test_as_mpl_axes_api():
            'Expected a PolarAxesSubplot, got %s' % type(ax)
     plt.close()
 
+@image_comparison(baseline_images=['boxplot'])
+def test_boxplot():
+    x = np.linspace(-7, 7, 140)
+    x = np.hstack([-25, x, 25])
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    # show 1 boxplot with mpl medians/conf. interfals, 1 with manual values
+    ax.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
+               conf_intervals=[None, (-1.0, 3.5)], notch=1)
+    ax.set_ylim((-30, 30))
 
 if __name__=='__main__':
     import nose
