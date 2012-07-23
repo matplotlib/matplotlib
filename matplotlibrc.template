@@ -346,10 +346,12 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 # the default savefig params can be different from the display params
 # Eg, you may want a higher resolution, or to make the figure
 # background white
-#savefig.dpi       : 100      # figure dots per inch
-#savefig.facecolor : white    # figure facecolor when saving
-#savefig.edgecolor : white    # figure edgecolor when saving
-#savefig.format    : png      # png, ps, pdf, svg
+#savefig.dpi        : 100      # figure dots per inch
+#savefig.facecolor  : white    # figure facecolor when saving
+#savefig.edgecolor  : white    # figure edgecolor when saving
+#savefig.format     : png      # png, ps, pdf, svg
+#savefig.bbox       : standard # 'tight' or 'standard'.
+#savefig.pad_inches : 0.1      # Padding to be used when bbox is set to 'tight'
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
