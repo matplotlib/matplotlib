@@ -27,11 +27,6 @@ from matplotlib import rcParams
 backend_version = "%s.%s.%s" % (Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
 _debug = False
-#_debug = True
-
-# the true dots per inch on the screen; should be display dependent
-# see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
-PIXELS_PER_INCH = 96
 
 cursord = {
     cursors.MOVE          : Gdk.Cursor.new(Gdk.CursorType.FLEUR),
@@ -343,6 +338,208 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
 
 FigureCanvas = FigureCanvasGTK3
 
+class SubplotToolGTK3(SubplotTool, Gtk.Window):
+    def __init__(self, targetfig, toolfig):
+        Gtk.Window.__init__(self, title="Subplot Configuration Tool")
+
+        if _debug: print 'SubplotToolGTK3.%s' % fn_name()
+
+        self.targetfig = targetfig
+        self.set_border_width(10)
+
+        # main vertical box
+        vbox = Gtk.Box()
+        vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
+        self.add(vbox)
+
+        # cache current configuration
+        self.stored_left = targetfig.subplotpars.left
+        self.stored_bottom = targetfig.subplotpars.bottom
+        self.stored_right = targetfig.subplotpars.right
+        self.stored_top = targetfig.subplotpars.top
+        self.stored_hspace = targetfig.subplotpars.hspace
+        self.stored_wspace = targetfig.subplotpars.wspace
+
+        # left slider
+        hbox = Gtk.Box()
+        hbox.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        label = Gtk.Label()
+        label.set_size_request(100, 10)
+        label.set_text("Left")
+        hbox.pack_start(label, False, False, 0)
+        self.adj_left = Gtk.Adjustment(targetfig.subplotpars.left, 0.0, 1.0, 0.01, 0.1, 0)
+        self.adj_left.connect("value-changed", self.on_adj_value_changed)
+        self.slider_left = Gtk.Scale() 
+        self.slider_left.set_adjustment(self.adj_left)
+        self.slider_left.set_digits(2)
+        self.slider_left.set_value_pos(Gtk.PositionType.RIGHT)
+        hbox.pack_start(self.slider_left, True, True, 5)
+        vbox.pack_start(hbox, False, False, 5)
+
+        # bottom slider
+        hbox = Gtk.Box()
+        hbox.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        label = Gtk.Label()
+        label.set_size_request(100, 10)
+        label.set_text("Bottom")
+        hbox.pack_start(label, False, False, 0)
+        self.adj_bottom = Gtk.Adjustment(targetfig.subplotpars.bottom, 0.0, 1.0, 0.01, 0.1, 0)
+        self.adj_bottom.connect("value-changed", self.on_adj_value_changed)
+        self.slider_bottom = Gtk.Scale() 
+        self.slider_bottom.set_adjustment(self.adj_bottom)
+        self.slider_bottom.set_digits(2)
+        self.slider_bottom.set_value_pos(Gtk.PositionType.RIGHT)
+        hbox.pack_start(self.slider_bottom, True, True, 5)
+        vbox.pack_start(hbox, False, False, 5)
+
+        # right slider
+        hbox = Gtk.Box()
+        hbox.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        label = Gtk.Label()
+        label.set_size_request(100, 10)
+        label.set_text("Right")
+        hbox.pack_start(label, False, False, 0)
+        self.adj_right = Gtk.Adjustment(targetfig.subplotpars.right, 0.0, 1.0, 0.01, 0.1, 0)
+        self.adj_right.connect("value-changed", self.on_adj_value_changed)
+        self.slider_right = Gtk.Scale() 
+        self.slider_right.set_adjustment(self.adj_right)
+        self.slider_right.set_digits(2)
+        self.slider_right.set_value_pos(Gtk.PositionType.RIGHT)
+        hbox.pack_start(self.slider_right, True, True, 5)
+        vbox.pack_start(hbox, False, False, 5)
+
+        # top slider
+        hbox = Gtk.Box()
+        hbox.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        label = Gtk.Label()
+        label.set_size_request(100, 10)
+        label.set_text("Top")
+        hbox.pack_start(label, False, False, 0)
+        self.adj_top = Gtk.Adjustment(targetfig.subplotpars.top, 0.0, 1.0, 0.01, 0.1, 0)
+        self.adj_top.connect("value-changed", self.on_adj_value_changed)
+        self.slider_top = Gtk.Scale() 
+        self.slider_top.set_adjustment(self.adj_top)
+        self.slider_top.set_digits(2)
+        self.slider_top.set_value_pos(Gtk.PositionType.RIGHT)
+        hbox.pack_start(self.slider_top, True, True, 5)
+        vbox.pack_start(hbox, False, False, 5)
+
+        # wspace slider
+        hbox = Gtk.Box()
+        hbox.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        label = Gtk.Label()
+        label.set_size_request(100, 10)
+        label.set_text("wspace")
+        hbox.pack_start(label, False, False, 0)
+        self.adj_wspace = Gtk.Adjustment(targetfig.subplotpars.wspace, 0.0, 1.0, 0.01, 0.1, 0)
+        self.adj_wspace.connect("value-changed", self.on_adj_value_changed)
+        self.slider_wspace = Gtk.Scale() 
+        self.slider_wspace.set_adjustment(self.adj_wspace)
+        self.slider_wspace.set_digits(2)
+        self.slider_wspace.set_value_pos(Gtk.PositionType.RIGHT)
+        hbox.pack_start(self.slider_wspace, True, True, 5)
+        vbox.pack_start(hbox, False, False, 5)
+
+        # hspace slider
+        hbox = Gtk.Box()
+        hbox.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        label = Gtk.Label()
+        label.set_size_request(100, 10)
+        label.set_text("hspace")
+        hbox.pack_start(label, False, False, 0)
+        self.adj_hspace = Gtk.Adjustment(targetfig.subplotpars.hspace, 0.0, 1.0, 0.01, 0.1, 0)
+        self.adj_hspace.connect("value-changed", self.on_adj_value_changed)
+        self.slider_hspace = Gtk.Scale() 
+        self.slider_hspace.set_adjustment(self.adj_hspace)
+        self.slider_hspace.set_digits(2)
+        self.slider_hspace.set_value_pos(Gtk.PositionType.RIGHT)
+        hbox.pack_start(self.slider_hspace, True, True, 5)
+        vbox.pack_start(hbox, False, False, 5)
+
+        # reset and close buttons
+        hbox = Gtk.Box()
+        hbox.set_property("orientation", Gtk.Orientation.HORIZONTAL)
+        button = Gtk.Button(" Close ")
+        button.connect("clicked", self.on_close_clicked)
+        hbox.pack_end(button, False, False, 5)
+        button = Gtk.Button(" Reset ")
+        button.connect("clicked", self.on_reset_clicked)
+        hbox.pack_end(button, False, False, 5)
+        vbox.pack_start(hbox, False, False, 5)
+
+        self.set_default_size(500, 200)
+        self.show_all()
+
+    def on_adj_value_changed(self, adj):
+
+        val = float(adj.get_value())
+
+        if adj == self.adj_left:
+
+            val_right = float(self.adj_right.get_value())
+            
+            if val < val_right:      
+                self.targetfig.subplots_adjust(left=val)
+                if self.drawon: self.targetfig.canvas.draw()
+            else:
+                self.adj_left.set_value(val_right)
+
+        elif adj == self.adj_bottom:
+
+            val_top = float(self.adj_top.get_value())
+            
+            if val < val_top:      
+                self.targetfig.subplots_adjust(bottom=val)
+                if self.drawon: self.targetfig.canvas.draw()
+            else:
+                self.adj_bottom.set_value(val_top)
+
+        elif adj == self.adj_right:
+
+            val_left = float(self.adj_left.get_value())
+            
+            if val > val_left:      
+                self.targetfig.subplots_adjust(right=val)
+                if self.drawon: self.targetfig.canvas.draw()
+            else:
+                self.adj_right.set_value(val_left)
+
+        elif adj == self.adj_top:
+
+            val_bottom = float(self.adj_bottom.get_value())
+            
+            if val > val_bottom:      
+                self.targetfig.subplots_adjust(top=val)
+                if self.drawon: self.targetfig.canvas.draw()
+            else:
+                self.adj_top.set_value(val_bottom)
+
+        elif adj == self.adj_wspace:
+            self.targetfig.subplots_adjust(wspace=val)
+            if self.drawon: self.targetfig.canvas.draw()
+
+        elif adj == self.adj_hspace:
+            self.targetfig.subplots_adjust(hspace=val)
+            if self.drawon: self.targetfig.canvas.draw()
+
+
+    def on_reset_clicked(self, widget):
+
+        self.drawon = False
+        self.adj_left.set_value(self.stored_left)
+        self.adj_bottom.set_value(self.stored_bottom)
+        self.adj_right.set_value(self.stored_right)
+        self.adj_top.set_value(self.stored_top)
+        self.adj_wspace.set_value(self.stored_wspace)
+        self.adj_hspace.set_value(self.stored_hspace)
+        self.drawon = True
+        self.targetfig.canvas.draw()
+
+    def on_close_clicked(self, widget):
+        self.destroy()
+
+SubplotTool = SubplotToolGTK3
+
 class FigureManagerGTK3(FigureManagerBase):
     """
     Public attributes
@@ -552,32 +749,8 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
                 error_msg_gtk(str(e), parent=self)
 
     def configure_subplots(self, button):
-        toolfig = Figure(figsize=(6,3))
-        canvas = self._get_canvas(toolfig)
-        toolfig.subplots_adjust(top=0.9)
-        tool =  SubplotTool(self.canvas.figure, toolfig)
 
-        w = int (toolfig.bbox.width)
-        h = int (toolfig.bbox.height)
-
-
-        window = Gtk.Window()
-        if (window_icon):
-            try: window.set_icon_from_file(window_icon)
-            except:
-                # we presumably already logged a message on the
-                # failure of the main plot, don't keep reporting
-                pass
-        window.set_title("Subplot Configuration Tool")
-        window.set_default_size(w, h)
-        vbox = Gtk.Box()
-        vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
-        window.add(vbox)
-        vbox.show()
-
-        canvas.show()
-        vbox.pack_start(canvas, True, True, 0)
-        window.show()
+        tool =  SubplotToolGTK3(self.canvas.figure, None)
 
     def _get_canvas(self, fig):
         return self.canvas.__class__(fig)
