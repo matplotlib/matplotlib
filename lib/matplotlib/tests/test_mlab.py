@@ -30,11 +30,14 @@ def test_recarray_csv_roundtrip():
 
 @raises(ValueError)
 def test_rec2csv_bad_shape():
-    bad = np.recarray((99,4),[('x',np.float),('y',np.float)])
-    fd = tempfile.TemporaryFile(suffix='csv')
-
-    # the bad recarray should trigger a ValueError for having ndim > 1.
-    mlab.rec2csv(bad,fd)
+    try:
+        bad = np.recarray((99,4),[('x',np.float),('y',np.float)])
+        fd = tempfile.TemporaryFile(suffix='csv')
+    
+        # the bad recarray should trigger a ValueError for having ndim > 1.
+        mlab.rec2csv(bad,fd)
+    finally:
+        fd.close()
 
 def test_prctile():
     # test odd lengths
