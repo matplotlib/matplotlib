@@ -141,7 +141,7 @@ class RendererGDK(RendererBase):
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         x, y = int(x), int(y)
 
-        if x <0 or y <0: # window has shrunk and text is off the edge
+        if x < 0 or y < 0: # window has shrunk and text is off the edge
             return
 
         if angle not in (0,90):
@@ -156,6 +156,9 @@ class RendererGDK(RendererBase):
         else:
             layout, inkRect, logicalRect = self._get_pango_layout(s, prop)
             l, b, w, h = inkRect
+            if (x + w > self.width or y + h > self.height):
+                return
+
             self.gdkDrawable.draw_layout(gc.gdkGC, x, y-h-b, layout)
 
 
@@ -224,7 +227,8 @@ class RendererGDK(RendererBase):
         x = int(x-h)
         y = int(y-w)
 
-        if x < 0 or y < 0: # window has shrunk and text is off the edge
+        if (x < 0 or y < 0 or # window has shrunk and text is off the edge
+            x + w > self.width or y + h > self.height):
             return
 
         key = (x,y,s,angle,hash(prop))
