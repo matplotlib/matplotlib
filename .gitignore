@@ -5,6 +5,8 @@
 *~
 *$
 *.bak
+.project
+.pydevproject
 
 # Compiled source #
 ###################
