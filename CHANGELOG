@@ -1,3 +1,10 @@
+2012-07-24 Contourf handles the extend kwarg by mapping the extended
+           ranges outside the normed 0-1 range so that they are
+           handled by colormap colors determined by the set_under
+           and set_over methods.  Previously the extended ranges
+           were mapped to 0 or 1 so that the "under" and "over"
+           colormap colors were ignored. - EF
+
 2012-06-24 Make use of mathtext in tick labels configurable - DSD
 
 2012-06-05 Images loaded through PIL are now ordered correctly - CG
