@@ -14,6 +14,16 @@ For new features that were added to matplotlib, please see
 Changes in 1.2.x
 ================
 
+* In :meth:`~matplotlib.axes.Axes.contourf`, the handling of the *extend*
+  kwarg has changed.  Formerly, the extended ranges were mapped
+  after to 0, 1 after being normed, so that they always corresponded
+  to the extreme values of the colormap.  Now they are mapped
+  outside this range so that they correspond to the special
+  colormap values determined by the
+  :meth:`~matplotlib.colors.Colormap.set_under` and
+  :meth:`~matplotlib.colors.Colormap.set_over` methods, which
+  default to the colormap end points.
+
 * The new rc parameter ``savefig.format`` replaces ``cairo.format`` and
   ``savefig.extension``, and sets the default file format used by
   :meth:`matplotlib.figure.Figure.savefig`.
