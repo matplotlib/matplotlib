@@ -1362,8 +1362,8 @@ class Axes3D(Axes):
         X.shape = (rows, cols)
         Y.shape = (rows, cols)
 
-        rstride = kwargs.pop('rstride', 10)
-        cstride = kwargs.pop('cstride', 10)
+        rstride = kwargs.pop('rstride', max(1, rows/100))
+        cstride = kwargs.pop('cstride', max(1, cols/100))
 
         if 'facecolors' in kwargs:
             fcolors = kwargs.pop('facecolors')
@@ -1520,9 +1520,6 @@ class Axes3D(Axes):
         Returns a :class:`~mpl_toolkits.mplot3d.art3d.Line3DCollection`
         '''
 
-        rstride = kwargs.pop("rstride", 1)
-        cstride = kwargs.pop("cstride", 1)
-
         had_data = self.has_data()
         Z = np.atleast_2d(Z)
         # FIXME: Support masked arrays
@@ -1534,6 +1531,9 @@ class Axes3D(Axes):
         # then an exception is automatically thrown.
         X.shape = (rows, cols)
         Y.shape = (rows, cols)
+
+        rstride = kwargs.pop("rstride", max(1, rows/100))
+        cstride = kwargs.pop("cstride", max(1, cols/100))
 
         # We want two sets of lines, one running along the "rows" of
         # Z and another set of lines running along the "columns" of Z.
