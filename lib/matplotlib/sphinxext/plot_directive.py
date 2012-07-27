@@ -466,7 +466,16 @@ def run_code(code, code_path, ns=None, function_name=None):
     pwd = os.getcwd()
     old_sys_path = list(sys.path)
     if setup.config.plot_working_directory is not None:
-        os.chdir(setup.config.plot_working_directory)
+        try:
+            os.chdir(setup.config.plot_working_directory)
+        except OSError as err:
+            raise OSError(str(err) + '\n`plot_working_directory` option in'
+                          'Sphinx configuration file must be a valid '
+                          'directory path')
+        except TypeError as err:
+            raise TypeError(str(err) + '\n`plot_working_directory` option in '
+                            'Sphinx configuration file must be a string or '
+                            'None')
         sys.path.insert(0, setup.config.plot_working_directory)
     elif code_path is not None:
         dirname = os.path.abspath(os.path.dirname(code_path))
