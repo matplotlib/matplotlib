@@ -105,6 +105,23 @@ The plot directive has the following configuration options:
         A dictionary containing any non-standard rcParams that should
         be applied before each plot.
 
+    plot_apply_rcparams
+        By default, rcParams are applied when `context` option is not used in 
+        a plot  directive.  This configuration option overrides this behaviour 
+        and applies rcParams before each plot.
+
+    plot_working_directory
+        By default, the working directory will be changed to the directory of 
+        the example, so the code can get at its data files, if any.  Also its 
+        path will be added to `sys.path` so it can import any helper modules 
+        sitting beside it.  This configuration option can be used to specify 
+        a central directory (also added to `sys.path`) where data files and 
+        helper modules for all code are located. 
+
+    plot_template
+        Provide a customized template for preparing resturctured text.
+        
+
 """
 from __future__ import print_function
 
@@ -284,6 +301,9 @@ def setup(app):
     app.add_config_value('plot_basedir', None, True)
     app.add_config_value('plot_html_show_formats', True, True)
     app.add_config_value('plot_rcparams', {}, True)
+    app.add_config_value('plot_apply_rcparams', False, True)
+    app.add_config_value('plot_working_directory', None, True)
+    app.add_config_value('plot_template', None, True)
 
     app.connect('doctree-read', mark_plot_labels)
 
@@ -445,7 +465,19 @@ def run_code(code, code_path, ns=None, function_name=None):
 
     pwd = os.getcwd()
     old_sys_path = list(sys.path)
-    if code_path is not None:
+    if setup.config.plot_working_directory is not None:
+        try:
+            os.chdir(setup.config.plot_working_directory)
+        except OSError as err:
+            raise OSError(str(err) + '\n`plot_working_directory` option in'
+                          'Sphinx configuration file must be a valid '
+                          'directory path')
+        except TypeError as err:
+            raise TypeError(str(err) + '\n`plot_working_directory` option in '
+                            'Sphinx configuration file must be a string or '
+                            'None')
+        sys.path.insert(0, setup.config.plot_working_directory)
+    elif code_path is not None:
         dirname = os.path.abspath(os.path.dirname(code_path))
         os.chdir(dirname)
         sys.path.insert(0, dirname)
@@ -564,7 +596,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
         ns = {}
 
     for i, code_piece in enumerate(code_pieces):
-        if not context:
+        if not context or config.plot_apply_rcparams:
             clear_state(config.plot_rcparams)
         run_code(code_piece, code_path, ns, function_name)
 
@@ -588,7 +620,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
         results.append((code_piece, images))
 
-    if not context:
+    if not context or config.plot_apply_rcparams:
         clear_state(config.plot_rcparams)
 
     return results
@@ -733,7 +765,7 @@ def run(arguments, content, options, state_machine, state, lineno):
             src_link = None
 
         result = format_template(
-            TEMPLATE,
+            config.plot_template or TEMPLATE,
             dest_dir=dest_dir_link,
             build_dir=build_dir_link,
             source_link=src_link,
