@@ -106,15 +106,17 @@ The plot directive has the following configuration options:
         be applied before each plot.
 
     plot_apply_rcparams
-        Apply rcParams before each plot.  When context is used, rcParams are
-        not applied, and this configuration option overrides this behavior.
+        By default, rcParams are applied when `context` option is not used in 
+        a plot  directive.  This configuration option overrides this behaviour 
+        and applies rcParams before each plot.
 
     plot_working_directory
         By default, the working directory will be changed to the directory of 
         the example, so the code can get at its data files, if any.  Also its 
-        path to sys.path so it can import any helper modules sitting beside it.
-        This configuration option can be used to specify a central directory
-        where data files for all code are located. 
+        path will be added to `sys.path` so it can import any helper modules 
+        sitting beside it.  This configuration option can be used to specify 
+        a central directory (also added to `sys.path`) where data files and 
+        helper modules for all code are located. 
 
     plot_template
         Provide a customized template for preparing resturctured text.
@@ -463,8 +465,9 @@ def run_code(code, code_path, ns=None, function_name=None):
 
     pwd = os.getcwd()
     old_sys_path = list(sys.path)
-    if setup.config.plot_working_directory:
+    if setup.config.plot_working_directory is not None:
         os.chdir(setup.config.plot_working_directory)
+        sys.path.insert(0, setup.config.plot_working_directory)
     elif code_path is not None:
         dirname = os.path.abspath(os.path.dirname(code_path))
         os.chdir(dirname)
