@@ -5743,8 +5743,8 @@ show(PyObject* self)
     if(nwin > 0)
     {
         [NSApp activateIgnoringOtherApps: YES];
-        for (NSWindow *aWindow in [NSApp windows]) {
-            [aWindow orderFront:nil];
+        for (NSWindow *window in [NSApp windows]) {
+            [window orderFront:nil];
         }
         [NSApp run];
     }
