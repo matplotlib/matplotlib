@@ -696,24 +696,24 @@ class LogFormatterMathtext(LogFormatter):
         if b % 1 == 0.0:
             base = '%d' % b
         else:
-            base = '%s' % b             
+            base = '%s' % b
 
         if not is_decade and self.labelOnlyBase: 
             return ''
         elif not is_decade:
             if usetex:
-                return (r'$%s' + base + r'^{%.2f}$') % \
-                                            (sign_string, fx)
+                return (r'$%s%s^{%.2f}$') % \
+                                            (sign_string, base, fx)
             else:
-                return ('$\mathdefault{%s' + base + '^{%.2f}}$') % \
-                                            (sign_string, fx)
+                return ('$\mathdefault{%s%s^{%.2f}}$') % \
+                                            (sign_string, base, fx)
         else:
             if usetex:
-                return (r'$%s' + base + r'^{%d}$') % \
-                                            (sign_string, nearest_long(fx))
+                return (r'$%s%s^{%d}$') % \
+                                            (sign_string, base, nearest_long(fx))
             else:
-                return (r'$\mathdefault{%s' + base + r'^{%d}}$') % \
-                                            (sign_string, nearest_long(fx))
+                return (r'$\mathdefault{%s%s^{%d}}$') % \
+                                            (sign_string, base, nearest_long(fx))
 
 
 class EngFormatter(Formatter):
