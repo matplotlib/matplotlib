@@ -5219,7 +5219,7 @@ class Axes(martist.Artist):
             The linewidth of the errorbar lines. If *None*, use the linewidth.
 
           *capsize*: scalar
-            The size of the error bar caps in points
+            The length of the error bar caps in points
 
           *capthick*: scalar
             An alias kwarg to *markeredgewidth* (a.k.a. - *mew*). This
