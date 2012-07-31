@@ -18,7 +18,7 @@ class CanvasFrame(wx.Frame):
         wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
 
-        self.SetBackgroundColour(wx.NamedColor("WHITE"))
+        self.SetBackgroundColour(wx.NamedColour("WHITE"))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
