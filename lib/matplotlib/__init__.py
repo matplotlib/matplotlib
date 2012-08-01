@@ -106,6 +106,12 @@ import os, re, shutil, subprocess, sys, warnings
 import distutils.sysconfig
 import distutils.version
 
+try:
+    reload
+except NameError:
+    # Python 3
+    from imp import reload
+
 # Needed for toolkit setuptools support
 if 0:
     try:
