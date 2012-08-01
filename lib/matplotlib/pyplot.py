@@ -55,12 +55,6 @@ from ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            LinearLocator, LogLocator, AutoLocator, MultipleLocator,\
            MaxNLocator
 
-try:
-    reload
-except NameError:
-    # Python 3
-    from imp import reload
-
 ## Backend detection ##
 def _backend_selection():
     """ If rcParams['backend_fallback'] is true, check to see if the
