@@ -1,8 +1,5 @@
 from __future__ import division, print_function
 """
-
- backend_wx.py
-
  A wxPython backend for matplotlib, based (very heavily) on
  backend_template.py and backend_gtk.py
 
@@ -18,12 +15,15 @@ from __future__ import division, print_function
 
 """
 
-cvs_id = '$Id$'
+import sys
+import os
+import os.path
+import math
+import StringIO
+import weakref
+import warnings
 
-
-import sys, os, os.path, math, StringIO, weakref, warnings
 import numpy as np
-
 
 
 # Debugging settings here...
@@ -188,7 +188,6 @@ class TimerWx(TimerBase):
 
      # Unbinding causes Wx to stop for some reason. Disabling for now.
 #    def __del__(self):
-#        import wx
 #        TimerBase.__del__(self)
 #        self.parent.Bind(wx.EVT_TIMER, None, self._timer)
 
@@ -410,7 +409,6 @@ class RendererWx(RendererBase):
         assert self.gc != None, "gc must be defined"
         return self.gc
 
-
     def get_wx_font(self, s, prop):
         """
         Return a wx font.  Cache instances in a font dictionary for
@@ -448,13 +446,13 @@ class RendererWx(RendererBase):
 
         return font
 
-
     def points_to_pixels(self, points):
         """
         convert point measures to pixes using dpi and the pixels per
         inch of the display
         """
         return points*(PIXELS_PER_INCH/72.0*self.dpi/72.0)
+
 
 class GraphicsContextWx(GraphicsContextBase):
     """
@@ -626,6 +624,7 @@ class GraphicsContextWx(GraphicsContextBase):
             b *= 255
             a *= 255
             return wx.Colour(red=int(r), green=int(g), blue=int(b), alpha=int(a))
+
 
 class FigureCanvasWx(FigureCanvasBase, wx.Panel):
     """
@@ -1421,7 +1420,7 @@ def _create_wx_app():
         # retain a reference to the app object so it does not get garbage
         # collected and cause segmentation faults
         _create_wx_app.theWxApp = wxapp
-
+        
 
 def draw_if_interactive():
     """
@@ -1512,6 +1511,15 @@ class FigureFrameWx(wx.Frame):
         self.Fit()
 
         self.canvas.SetMinSize((2, 2))
+        
+        # give the window a matplotlib icon rather than the stock one.
+        # This is not currently working on Linux and is untested elsewhere.
+        #icon_path = os.path.join(matplotlib.rcParams['datapath'],
+        #                         'images', 'matplotlib.png')
+        #icon = wx.IconFromBitmap(wx.Bitmap(icon_path))
+        # for xpm type icons try:
+        #icon = wx.Icon(icon_path, wx.BITMAP_TYPE_XPM)
+        #self.SetIcon(icon)
 
         self.figmgr = FigureManagerWx(self.canvas, num, self)
 
@@ -1559,14 +1567,13 @@ class FigureFrameWx(wx.Frame):
             wxapp.Yield()
         return True
 
+
 class FigureManagerWx(FigureManagerBase):
     """
     This class contains the FigureCanvas and GUI frame
 
     It is instantiated by GcfWx whenever a new figure is created. GcfWx is
     responsible for managing multiple instances of FigureManagerWx.
-
-    NB: FigureManagerBase is found in _pylab_helpers
 
     public attrs
 
@@ -1599,7 +1606,6 @@ class FigureManagerWx(FigureManagerBase):
         DEBUG_MSG("destroy()", 1, self)
         self.frame.Destroy()
         #if self.tb is not None: self.tb.Destroy()
-        import wx
         #wx.GetApp().ProcessIdle()
         wx.WakeUpIdle()
 
@@ -1939,11 +1945,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
 class NavigationToolbarWx(wx.ToolBar):
     def __init__(self, canvas, can_kill=False):
-        """
-        figure is the Figure instance that the toolboar controls
-
-        win, if not None, is the wxWindow the Figure is embedded in
-        """
         wx.ToolBar.__init__(self, canvas.GetParent(), -1)
         DEBUG_MSG("__init__()", 1, self)
         self.canvas = canvas
