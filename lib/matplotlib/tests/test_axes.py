@@ -762,6 +762,14 @@ def test_as_mpl_axes_api():
            'Expected a PolarAxesSubplot, got %s' % type(ax)
     plt.close()
 
+@image_comparison(baseline_images=['log_scales'])
+def test_log_scales():
+    fig = plt.figure()
+    ax = plt.gca()
+    plt.plot(np.log(np.linspace(0.1, 100)))
+    ax.set_yscale('log', basey=5.5)
+    ax.set_xscale('log', basex=9.0)
+    
 
 @image_comparison(baseline_images=['stackplot_test_image'])
 def test_stackplot():
