@@ -6,10 +6,12 @@ import nose
 import matplotlib
 import matplotlib.tests
 import matplotlib.units
+from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
 import numpy as np
-from matplotlib.testing.compare import comparable_formats, compare_images
+from matplotlib.testing.compare import comparable_formats, compare_images, \
+     make_test_filename
 import warnings
 
 def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
@@ -98,6 +100,16 @@ class ImageComparisonTest(CleanupTest):
 
         cls._func()
 
+    @staticmethod
+    def remove_text(figure):
+        figure.suptitle("")
+        for ax in figure.get_axes():
+            ax.set_title("")
+            ax.xaxis.set_major_formatter(ticker.NullFormatter())
+            ax.xaxis.set_minor_formatter(ticker.NullFormatter())
+            ax.yaxis.set_major_formatter(ticker.NullFormatter())
+            ax.yaxis.set_minor_formatter(ticker.NullFormatter())
+
     def test(self):
         baseline_dir, result_dir = _image_directories(self._func)
 
@@ -114,7 +126,8 @@ class ImageComparisonTest(CleanupTest):
                 orig_expected_fname = os.path.join(baseline_dir, baseline) + '.' + extension
                 if extension == 'eps' and not os.path.exists(orig_expected_fname):
                     orig_expected_fname = os.path.join(baseline_dir, baseline) + '.pdf'
-                expected_fname = os.path.join(result_dir, 'expected-' + os.path.basename(orig_expected_fname))
+                expected_fname = make_test_filename(os.path.join(
+                    result_dir, os.path.basename(orig_expected_fname)), 'expected')
                 actual_fname = os.path.join(result_dir, baseline) + '.' + extension
                 if os.path.exists(orig_expected_fname):
                     shutil.copyfile(orig_expected_fname, expected_fname)
@@ -126,9 +139,13 @@ class ImageComparisonTest(CleanupTest):
                     will_fail, fail_msg,
                     known_exception_class=ImageComparisonFailure)
                 def do_test():
+                    if self._remove_text:
+                        self.remove_text(figure)
+
                     figure.savefig(actual_fname)
 
-                    err = compare_images(expected_fname, actual_fname, self._tol, in_decorator=True)
+                    err = compare_images(expected_fname, actual_fname,
+                                         self._tol, in_decorator=True)
 
                     try:
                         if not os.path.exists(expected_fname):
@@ -148,7 +165,8 @@ class ImageComparisonTest(CleanupTest):
 
                 yield (do_test,)
 
-def image_comparison(baseline_images=None, extensions=None, tol=1e-3, freetype_version=None):
+def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
+                     freetype_version=None, remove_text=False):
     """
     call signature::
 
@@ -176,6 +194,11 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3, freetype_v
       *freetype_version*: str or tuple
         The expected freetype version or range of versions for this
         test to pass.
+
+      *remove_text*: bool
+        Remove the title and tick text from the figure before
+        comparison.  This does not remove other, more deliberate,
+        text, such as legends and annotations.
     """
 
     if baseline_images is None:
@@ -207,7 +230,8 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3, freetype_v
              '_baseline_images': baseline_images,
              '_extensions': extensions,
              '_tol': tol,
-             '_freetype_version': freetype_version})
+             '_freetype_version': freetype_version,
+             '_remove_text': remove_text})
 
         return new_class
     return compare_images_decorator
@@ -239,4 +263,3 @@ def _image_directories(func):
         os.makedirs(result_dir)
 
     return baseline_dir, result_dir
-
