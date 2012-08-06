@@ -174,8 +174,13 @@ def comparable_formats():
 
 def convert(filename, cache):
    '''
-   Convert the named file into a png file.
-   Returns the name of the created file.
+   Convert the named file into a png file.  Returns the name of the
+   created file.
+
+   If *cache* is True, the result of the conversion is cached in
+   `~/.matplotlib/test_cache/`.  The caching is based on a hash of the
+   exact contents of the input file.  The is no limit on the size of
+   the cache, so it may need to be manually cleared periodically.
    '''
    base, extension = filename.rsplit('.', 1)
    if extension not in converter:
