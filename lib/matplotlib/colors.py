@@ -510,11 +510,10 @@ class Colormap:
             xa = np.array([X])
         else:
             vtype = 'array'
-            xma = ma.array(X, copy=False)
-            mask_bad = xma.mask
-            xa = xma.data.copy()   # Copy here to avoid side effects.
+            xma = ma.array(X, copy=True)  # Copy here to avoid side effects.
+            mask_bad = xma.mask           # Mask will be used below.
+            xa = xma.filled()             # Fill to avoid infs, etc.
             del xma
-            # masked values are substituted below; no need to fill them here
 
         if xa.dtype.char in np.typecodes['Float']:
             # Treat 1.0 as slightly less than 1.
