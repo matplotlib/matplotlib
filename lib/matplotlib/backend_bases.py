@@ -2518,7 +2518,9 @@ class NavigationToolbar2(object):
         ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
         (None, None, None, None),
         ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
+        ('Tight', 'Tighten the layout', 'subplots', 'tight_layout'),
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
+
         )
 
     def __init__(self, canvas):
@@ -2574,6 +2576,11 @@ class NavigationToolbar2(object):
         self._positions.home()
         self.set_history_buttons()
         self._update_view()
+
+    def tight_layout(self, *args):
+        """Trigger a tight_layout operation."""
+        self.canvas.figure.tight_layout(self.canvas.get_renderer())
+        self.draw()
 
     def _init_toolbar(self):
         """
