@@ -742,6 +742,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         cmap = kwargs.get('cmap', None)
         self.colors = kwargs.get('colors', None)
         norm = kwargs.get('norm', None)
+        vmin = kwargs.get('vmin', None)
+        vmax = kwargs.get('vmax', None)
         self.extend = kwargs.get('extend', 'neither')
         self.antialiased = kwargs.get('antialiased', None)
         if self.antialiased is None and self.filled:
@@ -789,7 +791,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         kw = {'cmap': cmap}
         if norm is not None:
             kw['norm'] = norm
-        cm.ScalarMappable.__init__(self, **kw) # sets self.cmap;
+        cm.ScalarMappable.__init__(self, **kw) # sets self.cmap, norm if needed;
+        if vmin is not None:
+            self.norm.vmin = vmin
+        if vmax is not None:
+            self.norm.vmax = vmax
         self._process_colors()
 
         self.allsegs, self.allkinds = self._get_allsegs_and_allkinds()
@@ -1487,6 +1493,12 @@ class QuadContourSet(ContourSet):
             A :class:`matplotlib.colors.Normalize` instance for
             scaling data values to colors. If *norm* is *None* and
             *colors* is *None*, the default linear scaling is used.
+
+          *vmin*/*vmax*: [ *None* | scalar ]
+            If not *None*, either or both of these values will be
+            supplied to the :class:`matplotlib.colors.Normalize`
+            instance, overriding the default color scaling based on
+            *levels*.
 
           *levels*: [level0, level1, ..., leveln]
             A list of floating point numbers indicating the level

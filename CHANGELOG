@@ -1,9 +1,17 @@
+2012-08-05 When a norm is passed to contourf, either or both of the
+           vmin, vmax attributes of that norm are now respected.
+           Formerly they were respected only if both were
+           specified. In addition, vmin and/or vmax can now
+           be passed to contourf directly as kwargs. - EF
+
 2012-07-24 Contourf handles the extend kwarg by mapping the extended
            ranges outside the normed 0-1 range so that they are
            handled by colormap colors determined by the set_under
            and set_over methods.  Previously the extended ranges
            were mapped to 0 or 1 so that the "under" and "over"
-           colormap colors were ignored. - EF
+           colormap colors were ignored. This change also increases
+           slightly the color contrast for a given set of contour
+           levels. - EF
 
 2012-06-24 Make use of mathtext in tick labels configurable - DSD
 
