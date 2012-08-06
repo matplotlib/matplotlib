@@ -283,10 +283,6 @@ def compare_images( expected, actual, tol, in_decorator=False ):
 
    actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
 
-   # normalize the images
-   # expectedImage = image_util.autocontrast( expectedImage, 2 )
-   # actualImage = image_util.autocontrast( actualImage, 2 )
-
    # compare the resulting image histogram functions
    expected_version = version.LooseVersion("1.6")
    found_version = version.LooseVersion(np.__version__)
