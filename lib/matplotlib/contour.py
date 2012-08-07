@@ -1091,7 +1091,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         line contours, when added to filled contours, take on
         colors that are consistent with those of the filled regions;
         for example, a contour line on the boundary between two
-        regions will have a color intermediate between the those
+        regions will have a color intermediate between those
         of the regions.
 
         """
