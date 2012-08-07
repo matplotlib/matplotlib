@@ -1494,7 +1494,7 @@ class QuadContourSet(ContourSet):
             scaling data values to colors. If *norm* is *None* and
             *colors* is *None*, the default linear scaling is used.
 
-          *vmin*/*vmax*: [ *None* | scalar ]
+          *vmin*, *vmax*: [ *None* | scalar ]
             If not *None*, either or both of these values will be
             supplied to the :class:`matplotlib.colors.Normalize`
             instance, overriding the default color scaling based on
@@ -1561,17 +1561,15 @@ class QuadContourSet(ContourSet):
             linewidths in the order specified
 
           *linestyles*: [ *None* | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
-            If *linestyles* is *None*, the 'solid' is used.
+            If *linestyles* is *None*, the default is 'solid' unless
+            the lines are monochrome.  In that case, negative
+            contours will take their linestyle from the ``matplotlibrc``
+            ``contour.negative_linestyle`` setting.
 
             *linestyles* can also be an iterable of the above strings
             specifying a set of linestyles to be used. If this
             iterable is shorter than the number of contour levels
             it will be repeated as necessary.
-
-            If contour is using a monochrome colormap and the contour
-            level is less than 0, then the linestyle specified
-            in ``contour.negative_linestyle`` in ``matplotlibrc``
-            will be used.
 
         contourf-only keyword arguments:
 

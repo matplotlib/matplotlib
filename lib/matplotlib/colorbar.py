@@ -255,7 +255,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.filled = filled
         self.extendfrac = extendfrac
         self.solids = None
-        self.lines = None
+        self.lines = list()
         self.outline = None
         self.patch = None
         self.dividers = None
@@ -467,14 +467,18 @@ class ColorbarBase(cm.ScalarMappable):
                               )
             self.ax.add_collection(self.dividers)
 
-    def add_lines(self, levels, colors, linewidths):
+    def add_lines(self, levels, colors, linewidths, erase=True):
         '''
         Draw lines on the colorbar.
 
         *colors* and *linewidths* must be scalars or
         sequences the same length as *levels*.
+
+        Set *erase* to False to add lines without first
+        removing any previously added lines.
         '''
         y = self._locate(levels)
+        nlevs = len(levels)
         igood = (y < 1.001) & (y > -0.001)
         y = y[igood]
         if cbook.iterable(colors):
@@ -490,9 +494,10 @@ class ColorbarBase(cm.ScalarMappable):
             xy = [zip(Y[i], X[i]) for i in xrange(N)]
         col = collections.LineCollection(xy, linewidths=linewidths)
 
-        if self.lines:
-            self.lines.remove()
-        self.lines = col
+        if erase and self.lines:
+            for lc in self.lines.pop():
+                lc.remove()
+        self.lines.append(col)
         col.set_color(colors)
         self.ax.add_collection(col)
 
@@ -843,10 +848,13 @@ class Colorbar(ColorbarBase):
         self.set_clim(mappable.get_clim())
         self.update_normal(mappable)
 
-    def add_lines(self, CS):
+    def add_lines(self, CS, erase=True):
         '''
         Add the lines from a non-filled
         :class:`~matplotlib.contour.ContourSet` to the colorbar.
+
+        Set *erase* to False if these lines should be added to
+        any pre-existing lines.
         '''
         if not isinstance(CS, contour.ContourSet) or CS.filled:
             raise ValueError('add_lines is only for a ContourSet of lines')
@@ -860,7 +868,8 @@ class Colorbar(ColorbarBase):
         #tcolors = [col.get_colors()[0] for col in CS.collections]
         #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
         #print 'tlinewidths:', tlinewidths
-        ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
+        ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths,
+                                erase=erase)
 
     def update_normal(self, mappable):
         '''
@@ -893,7 +902,7 @@ class Colorbar(ColorbarBase):
         self.outline = None
         self.patch = None
         self.solids = None
-        self.lines = None
+        self.lines = list()
         self.dividers = None
         self.set_alpha(mappable.get_alpha())
         self.cmap = mappable.cmap
