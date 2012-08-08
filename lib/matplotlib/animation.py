@@ -278,7 +278,7 @@ class FileMovieWriter(MovieWriter):
         self.temp_prefix = frame_prefix
         self._frame_counter = 0 # used for generating sequential file names
         self._temp_names = list()
-        self.fname_format_str = '%s%%04d.%s'
+        self.fname_format_str = '%s%%07d.%s'
 
     @property
     def frame_format(self):
