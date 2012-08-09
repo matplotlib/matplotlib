@@ -839,8 +839,9 @@ class Locator(TickHelper):
 
     def __call__(self):
         """Return the locations of the ticks"""
-        vmin, vmax = self.axis.get_view_interval()
-        self.tick_values(vmin, vmax)
+        # note: some locators return data limits, other return view limits,
+        # hence there is no *one* interface to call self.tick_values.
+        raise NotImplementedError('Derived must override')
 
     def raise_if_exceeds(self, locs):
         """raise a RuntimeError if Locator attempts to create more than MAXTICKS locs"""
@@ -879,7 +880,6 @@ class Locator(TickHelper):
         vmin += step
         vmax += step
         self.axis.set_view_interval(vmin, vmax, ignore=True)
-
 
     def zoom(self, direction):
         "Zoom in/out on axis; if direction is >0 zoom in, else zoom out"
@@ -937,7 +937,7 @@ class FixedLocator(Locator):
     def __call__(self):
         return self.tick_values(None, None)
 
-    def tick_values(self, dmin, dmax):
+    def tick_values(self, vmin, vmax):
         """"
         Return the locations of the ticks.
 
@@ -965,7 +965,7 @@ class NullLocator(Locator):
     def __call__(self):
         return self.tick_values(None, None)
 
-    def tick_values(self, dmin, dmax):
+    def tick_values(self, vmin, vmax):
         """"
         Return the locations of the ticks.
 
@@ -1250,7 +1250,6 @@ class MaxNLocator(Locator):
             nbins -= extra_bins
         return (np.arange(nbins+1) * step + best_vmin + offset)
 
-
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
         return self.tick_values(vmin, vmax)
@@ -1285,6 +1284,7 @@ def decade_down(x, base=10):
     lx = np.floor(np.log(x)/np.log(base))
     return base**lx
 
+
 def decade_up(x, base=10):
     'ceil x to the nearest higher decade'
     if x == 0.0:
@@ -1292,10 +1292,12 @@ def decade_up(x, base=10):
     lx = np.ceil(np.log(x)/np.log(base))
     return base**lx
 
+
 def nearest_long(x):
     if x == 0: return 0L
     elif x > 0: return long(x+0.5)
     else: return long(x-0.5)
+
 
 def is_decade(x, base=10):
     if not np.isfinite(x):
@@ -1305,10 +1307,12 @@ def is_decade(x, base=10):
     lx = np.log(np.abs(x))/np.log(base)
     return is_close_to_int(lx)
 
+
 def is_close_to_int(x):
     if not np.isfinite(x):
         return False
     return abs(x - nearest_long(x)) < 1e-10
+
 
 class LogLocator(Locator):
     """
@@ -1424,6 +1428,7 @@ class LogLocator(Locator):
             vmax = decade_up(vmax,self._base)
         result = mtransforms.nonsingular(vmin, vmax)
         return result
+
 
 class SymmetricalLogLocator(Locator):
     """
@@ -1576,9 +1581,11 @@ class SymmetricalLogLocator(Locator):
         result = mtransforms.nonsingular(vmin, vmax)
         return result
 
+
 class AutoLocator(MaxNLocator):
     def __init__(self):
         MaxNLocator.__init__(self, nbins=9, steps=[1, 2, 5, 10])
+
 
 class AutoMinorLocator(Locator):
     """
@@ -1701,7 +1708,6 @@ class OldAutoLocator(Locator):
 
 
         return locator
-
 
 
 __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
