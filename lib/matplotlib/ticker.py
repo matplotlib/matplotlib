@@ -819,12 +819,31 @@ class Locator(TickHelper):
     # This parameter is set to cause locators to raise an error if too
     # many ticks are generated
     MAXTICKS = 1000
-    def __call__(self):
-        'Return the locations of the ticks'
+
+    def tick_values(self, vmin, vmax):
+        """
+        Return the values of the located ticks given **vmin** and **vmax**.
+
+        .. note::
+            To get tick locations with the vmin and vmax values defined
+            automatically for the associated :attr:`axis` simply call
+            the Locator instance::
+
+                >>> print(type(loc))
+                <type 'Locator'>
+                >>> print(loc())
+                [1, 2, 3, 4]
+
+        """
         raise NotImplementedError('Derived must override')
 
+    def __call__(self):
+        """Return the locations of the ticks"""
+        vmin, vmax = self.axis.get_view_interval()
+        self.tick_values(vmin, vmax)
+
     def raise_if_exceeds(self, locs):
-        'raise a RuntimeError if Locator attempts to create more than MAXTICKS locs'
+        """raise a RuntimeError if Locator attempts to create more than MAXTICKS locs"""
         if len(locs)>=self.MAXTICKS:
             msg = ('Locator attempting to generate %d ticks from %s to %s: ' +
                    'exceeds Locator.MAXTICKS') % (len(locs), locs[0], locs[-1]) 
@@ -841,11 +860,11 @@ class Locator(TickHelper):
         return mtransforms.nonsingular(vmin, vmax)
 
     def autoscale(self):
-        'autoscale the view limits'
+        """autoscale the view limits"""
         return self.view_limits(*self.axis.get_view_interval())
 
     def pan(self, numsteps):
-        'Pan numticks (can be positive or negative)'
+        """Pan numticks (can be positive or negative)"""
         ticks = self()
         numticks = len(ticks)
 
@@ -872,7 +891,7 @@ class Locator(TickHelper):
         self.axis.set_view_interval(vmin + step, vmax - step, ignore=True)
 
     def refresh(self):
-        'refresh internal information based on current lim'
+        """refresh internal information based on current lim"""
         pass
 
 
@@ -889,8 +908,11 @@ class IndexLocator(Locator):
         self.offset = offset
 
     def __call__(self):
-        'Return the locations of the ticks'
+        """Return the locations of the ticks"""
         dmin, dmax = self.axis.get_data_interval()
+        return self.tick_values(dmin, dmax)
+
+    def tick_values(self, dmin, dmax):
         return self.raise_if_exceeds(
             np.arange(dmin + self.offset, dmax+1, self._base))
 
@@ -913,7 +935,17 @@ class FixedLocator(Locator):
             self.nbins = max(self.nbins, 2)
 
     def __call__(self):
-        'Return the locations of the ticks'
+        return self.tick_values(None, None)
+
+    def tick_values(self, dmin, dmax):
+        """"
+        Return the locations of the ticks.
+
+        .. note::
+
+            Because the values are fixed, dmin and dmax are not used in this method.
+
+        """
         if self.nbins is None:
             return self.locs
         step = max(int(0.99 + len(self.locs) / float(self.nbins)), 1)
@@ -925,16 +957,25 @@ class FixedLocator(Locator):
         return self.raise_if_exceeds(ticks)
 
 
-
-
 class NullLocator(Locator):
     """
     No ticks
     """
 
     def __call__(self):
-        'Return the locations of the ticks'
+        return self.tick_values(None, None)
+
+    def tick_values(self, dmin, dmax):
+        """"
+        Return the locations of the ticks.
+
+        .. note::
+
+            Because the values are Null, dmin and dmax are not used in this method.
+
+        """
         return []
+
 
 class LinearLocator(Locator):
     """
@@ -944,9 +985,8 @@ class LinearLocator(Locator):
     number of ticks to make a nice tick partitioning.  Thereafter the
     number of ticks will be fixed so that interactive navigation will
     be nice
+
     """
-
-
     def __init__(self, numticks = None, presets=None):
         """
         Use presets to set locs based on lom.  A dict mapping vmin, vmax->locs
@@ -959,8 +999,10 @@ class LinearLocator(Locator):
 
     def __call__(self):
         'Return the locations of the ticks'
-
         vmin, vmax = self.axis.get_view_interval()
+        return self.tick_values(vmin, vmax)
+
+    def tick_values(self, vmin, vmax):
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 0.05)
         if vmax<vmin:
             vmin, vmax = vmax, vmin
@@ -971,13 +1013,10 @@ class LinearLocator(Locator):
         if self.numticks is None:
             self._set_numticks()
 
-
-
         if self.numticks==0: return []
         ticklocs = np.linspace(vmin, vmax, self.numticks)
 
         return self.raise_if_exceeds(ticklocs)
-
 
     def _set_numticks(self):
         self.numticks = 11  # todo; be smart here; this is just for dev
@@ -1006,6 +1045,7 @@ class LinearLocator(Locator):
 def closeto(x,y):
     if abs(x-y)<1e-10: return True
     else: return False
+
 
 class Base:
     'this solution has some hacks to deal with floating point inaccuracies'
@@ -1046,6 +1086,7 @@ class Base:
     def get_base(self):
         return self._base
 
+
 class MultipleLocator(Locator):
     """
     Set a tick on every integer that is multiple of base in the
@@ -1058,6 +1099,9 @@ class MultipleLocator(Locator):
     def __call__(self):
         'Return the locations of the ticks'
         vmin, vmax = self.axis.get_view_interval()
+        return self.tick_values(vmin, vmax)
+
+    def tick_values(self, vmin, vmax):
         if vmax<vmin:
             vmin, vmax = vmax, vmin
         vmin = self._base.ge(vmin)
@@ -1209,6 +1253,9 @@ class MaxNLocator(Locator):
 
     def __call__(self):
         vmin, vmax = self.axis.get_view_interval()
+        return self.tick_values(vmin, vmax)
+
+    def tick_values(self, vmin, vmax):
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander = 1e-13,
                                                          tiny=1e-14)
         locs = self.bin_boundaries(vmin, vmax)
@@ -1294,10 +1341,11 @@ class LogLocator(Locator):
 
     def __call__(self):
         'Return the locations of the ticks'
-        b=self._base
-
         vmin, vmax = self.axis.get_view_interval()
+        return self.tick_values(vmin, vmax)
 
+    def tick_values(self, vmin, vmax):
+        b=self._base
         # dummy axis has no axes attribute
         if hasattr(self.axis, 'axes') and self.axis.axes.name == 'polar':
             vmax = math.ceil(math.log(vmax) / math.log(b))
@@ -1395,11 +1443,14 @@ class SymmetricalLogLocator(Locator):
 
     def __call__(self):
         'Return the locations of the ticks'
+        # Note, these are untransformed coordinates
+        vmin, vmax = self.axis.get_view_interval()
+        return self.tick_values(vmin, vmax)
+
+    def tick_values(self, vmin, vmax):
         b = self._transform.base
         t = self._transform.linthresh
 
-        # Note, these are untransformed coordinates
-        vmin, vmax = self.axis.get_view_interval()
         if vmax < vmin:
             vmin, vmax = vmax, vmin
 
@@ -1588,6 +1639,10 @@ class AutoMinorLocator(Locator):
 
         return self.raise_if_exceeds(np.array(locs))
 
+    def tick_values(self, vmin, vmax):
+        raise NotImplementedError('Cannot get tick locations for a '
+                                  '%s type.' % type(self))
+
 
 class OldAutoLocator(Locator):
     """
@@ -1602,6 +1657,10 @@ class OldAutoLocator(Locator):
         'Return the locations of the ticks'
         self.refresh()
         return self.raise_if_exceeds(self._locator())
+
+    def tick_values(self, vmin, vmax):
+        raise NotImplementedError('Cannot get tick locations for a '
+                                  '%s type.' % type(self))
 
     def refresh(self):
         'refresh internal information based on current lim'
