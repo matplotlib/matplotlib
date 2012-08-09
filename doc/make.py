@@ -182,7 +182,7 @@ def texinfo():
                 'sphinx-build -b texinfo -d build/doctrees . build/texinfo'):
             raise SystemExit("Building Texinfo failed.")
 
-        # Produce pdf.
+        # Produce info file.
         os.chdir('build/texinfo')
 
         # Call the makefile produced by sphinx...
