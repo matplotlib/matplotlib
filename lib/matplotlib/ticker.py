@@ -182,7 +182,7 @@ class Formatter(TickHelper):
     locs = []
     def __call__(self, x, pos=None):
         'Return the format for tick val x at position pos; pos=None indicated unspecified'
-        raise NotImplementedError('Derived must overide')
+        raise NotImplementedError('Derived must override')
 
     def format_data(self,value):
         return self.__call__(value)
