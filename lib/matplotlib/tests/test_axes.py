@@ -672,6 +672,75 @@ def contour_dat():
     z = np.cos(x) + np.sin(y[:, np.newaxis])
     return x, y, z
 
+@image_comparison(baseline_images=['hist_step'])
+def test_hist_step():
+    np.random.seed(0)
+    ndata = 1000
+    d= np.random.randn(ndata)+500
+    w= np.random.randn(ndata)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(d,bins=40,histtype='stepfilled')
+
+
+@image_comparison(baseline_images=['hist_step_log'])
+def test_hist_step_log():
+    np.random.seed(0)
+    ndata = 1000
+    d= np.random.randn(ndata)+500
+    w= np.random.randn(ndata)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(d,bins=40,histtype='stepfilled',log=True)
+
+
+@image_comparison(baseline_images=['hist_step_nw'])
+def test_hist_step_nw():
+    #test with negative weight
+    np.random.seed(0)
+    ndata = 1000
+    d= np.random.randn(ndata)+500
+    w= np.random.randn(ndata)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(d,bins=40,weights=w,histtype='stepfilled')
+
+
+@image_comparison(baseline_images=['hist_step_nw_log'])
+def test_hist_step_nw_log():
+    #test with negative weight
+    np.random.seed(0)
+    ndata = 1000
+    d= np.random.randn(ndata)+500
+    w= np.random.randn(ndata)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(d,bins=40,weights=w,histtype='stepfilled',log=True)
+
+
+@image_comparison(baseline_images=['hist2d'])
+def test_hist2d():
+    np.random.seed(0)
+    #make it not symetric in case we switch x and y axis
+    x=np.random.randn(100)*2+5
+    y = np.random.randn(100)-2
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist2d(x,y,bins=10)
+
+
+@image_comparison(baseline_images=['hist2d_transpose'])
+def test_hist2d_transpose():
+    np.random.seed(0)
+    #make sure the the output from np.histogram is transposed before
+    #passing to pcolorfast
+    x=np.array([5]*100)
+    y = np.random.randn(100)-2
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist2d(x,y,bins=10)
+
+
 @image_comparison(baseline_images=['contour_hatching'])
 def test_contour_hatching():
     x, y, z = contour_dat()
