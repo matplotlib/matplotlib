@@ -30,6 +30,7 @@ import matplotlib.spines as mspines
 import matplotlib.quiver as mquiver
 import matplotlib.scale as mscale
 import matplotlib.stackplot as mstack
+import matplotlib.stairs as mstairs
 import matplotlib.streamplot as mstream
 import matplotlib.table as mtable
 import matplotlib.text as mtext
@@ -6414,6 +6415,10 @@ class Axes(martist.Artist):
     def stackplot(self, x, *args, **kwargs):
         return mstack.stackplot(self, x, *args, **kwargs)
     stackplot.__doc__ = mstack.stackplot.__doc__
+
+    def stairs(self, *args, **kwargs):
+        return mstairs.stairs(self, *args, **kwargs)
+    stairs.__doc__ = mstairs.stairs.__doc__
 
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
