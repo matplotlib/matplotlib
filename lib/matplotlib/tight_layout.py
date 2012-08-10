@@ -71,15 +71,15 @@ def auto_adjust_subplotpars(fig, renderer,
 
     rows, cols = nrows_ncols
 
-    pad_inches = pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / renderer.dpi
+    pad_inches = pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / 72.
 
     if h_pad is not None:
-        vpad_inches = h_pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / renderer.dpi
+        vpad_inches = h_pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / 72.
     else:
         vpad_inches = pad_inches
 
     if w_pad is not None:
-        hpad_inches = w_pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / renderer.dpi
+        hpad_inches = w_pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / 72.
     else:
         hpad_inches = pad_inches
 
