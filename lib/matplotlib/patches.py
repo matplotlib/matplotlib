@@ -770,8 +770,6 @@ class Polygon(Patch):
         xy = np.asarray(xy, np.float_)
         self._path = Path(xy)
         self._closed = closed
-        if closed and len(xy):
-            xy = np.concatenate([xy, [xy[0]]])
         self._set_xy(xy)
 
     def get_path(self):
@@ -796,6 +794,8 @@ class Polygon(Patch):
     def get_xy(self):
         return self._path.vertices
     def set_xy(self, vertices):
+        if self._closed and len(vertices):
+            vertices = np.concatenate([vertices, [vertices[0]]])
         self._path = Path(vertices, closed=self._closed)
     _get_xy = get_xy
     _set_xy = set_xy
