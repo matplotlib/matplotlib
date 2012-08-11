@@ -666,20 +666,44 @@ def test_hist_log():
     ax = fig.add_subplot(111)
     ax.hist(data, fill=False, log=True)
 
+def contour_dat():
+    x = np.linspace(-3, 5, 150)
+    y = np.linspace(-3, 5, 120)
+    z = np.cos(x) + np.sin(y[:, np.newaxis])
+    return x, y, z
+
 @image_comparison(baseline_images=['contour_hatching'])
 def test_contour_hatching():
-    x = np.linspace(-3, 5, 150).reshape(1, -1)
-    y = np.linspace(-3, 5, 120).reshape(-1, 1)
-    z = np.cos(x) + np.sin(y)
-
-    # we no longer need x and y to be 2 dimensional, so flatten them.
-    x, y = x.flatten(), y.flatten()
+    x, y, z = contour_dat()
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
     cs = ax.contourf(x, y, z, hatches=['-', '/', '\\', '//'],
                       cmap=plt.get_cmap('gray'),
                       extend='both', alpha=0.5)
+
+@image_comparison(baseline_images=['contour_colorbar'])
+def test_contour_colorbar():
+    x, y, z = contour_dat()
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    cs = ax.contourf(x, y, z, levels=np.arange(-1.8, 1.801, 0.2),
+                      cmap=plt.get_cmap('RdBu'),
+                      vmin=-0.6,
+                      vmax=0.6,
+                      extend='both')
+    cs1 = ax.contour(x, y, z, levels=np.arange(-2.2, -0.599, 0.2),
+                              colors=['y'],
+                              linestyles='solid',
+                              linewidths=2)
+    cs2 = ax.contour(x, y, z, levels=np.arange(0.6, 2.2, 0.2),
+                              colors=['c'],
+                              linewidths=2)
+    cbar = fig.colorbar(cs, ax=ax)
+    cbar.add_lines(cs1)
+    cbar.add_lines(cs2, erase=False)
+
 
 @image_comparison(baseline_images=['hist2d'])
 def test_hist2d():
@@ -765,7 +789,7 @@ def test_log_scales():
     plt.plot(np.log(np.linspace(0.1, 100)))
     ax.set_yscale('log', basey=5.5)
     ax.set_xscale('log', basex=9.0)
-    
+
 
 @image_comparison(baseline_images=['stackplot_test_image'])
 def test_stackplot():
