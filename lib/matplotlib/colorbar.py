@@ -255,7 +255,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.filled = filled
         self.extendfrac = extendfrac
         self.solids = None
-        self.lines = None
+        self.lines = list()
         self.outline = None
         self.patch = None
         self.dividers = None
@@ -467,14 +467,25 @@ class ColorbarBase(cm.ScalarMappable):
                               )
             self.ax.add_collection(self.dividers)
 
-    def add_lines(self, levels, colors, linewidths):
+    def add_lines(self, levels, colors, linewidths, erase=True):
         '''
         Draw lines on the colorbar.
+
+        *colors* and *linewidths* must be scalars or
+        sequences the same length as *levels*.
+
+        Set *erase* to False to add lines without first
+        removing any previously added lines.
         '''
-        N = len(levels)
-        dummy, y = self._locate(levels)
-        if len(y) != N:
-            raise ValueError("levels are outside colorbar range")
+        y = self._locate(levels)
+        nlevs = len(levels)
+        igood = (y < 1.001) & (y > -0.001)
+        y = y[igood]
+        if cbook.iterable(colors):
+            colors = np.asarray(colors)[igood]
+        if cbook.iterable(linewidths):
+            linewidths = np.asarray(linewidths)[igood]
+        N = len(y)
         x = np.array([0.0, 1.0])
         X, Y = np.meshgrid(x,y)
         if self.orientation == 'vertical':
@@ -483,9 +494,10 @@ class ColorbarBase(cm.ScalarMappable):
             xy = [zip(Y[i], X[i]) for i in xrange(N)]
         col = collections.LineCollection(xy, linewidths=linewidths)
 
-        if self.lines:
-            self.lines.remove()
-        self.lines = col
+        if erase and self.lines:
+            for lc in self.lines.pop():
+                lc.remove()
+        self.lines.append(col)
         col.set_color(colors)
         self.ax.add_collection(col)
 
@@ -528,7 +540,10 @@ class ColorbarBase(cm.ScalarMappable):
         locator.axis.get_minpos = lambda : intv[0]
         formatter.axis.get_minpos = lambda : intv[0]
         b = np.array(locator())
-        b, ticks = self._locate(b)
+        ticks = self._locate(b)
+        inrange = (ticks > -0.001) & (ticks < 1.001)
+        ticks = ticks[inrange]
+        b = b[inrange]
         formatter.set_locs(b)
         ticklabels = [formatter(t, i) for i, t in enumerate(b)]
         offset_string = formatter.get_offset()
@@ -746,37 +761,36 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _locate(self, x):
         '''
-        Given a possible set of color data values, return the ones
-        within range, together with their corresponding colorbar
-        data coordinates.
+        Given a set of color data values, return their
+        corresponding colorbar data coordinates.
         '''
         if isinstance(self.norm, (colors.NoNorm, colors.BoundaryNorm)):
             b = self._boundaries
             xn = x
-            xout = x
         else:
             # Do calculations using normalized coordinates so
             # as to make the interpolation more accurate.
             b = self.norm(self._boundaries, clip=False).filled()
-            # We do our own clipping so that we can allow a tiny
-            # bit of slop in the end point ticks to allow for
-            # floating point errors.
             xn = self.norm(x, clip=False).filled()
-            in_cond = (xn > -0.001) & (xn < 1.001)
-            xn = np.compress(in_cond, xn)
-            xout = np.compress(in_cond, x)
-        # The rest is linear interpolation with clipping.
+        # The rest is linear interpolation with extrapolation at ends.
         y = self._y
         N = len(b)
-        ii = np.minimum(np.searchsorted(b, xn), N-1)
-        i0 = np.maximum(ii - 1, 0)
+        ii = np.searchsorted(b, xn)
+        i0 = ii - 1
+        itop = (ii == N)
+        ibot = (ii == 0)
+        i0[itop] -= 1
+        ii[itop] -= 1
+        i0[ibot] += 1
+        ii[ibot] += 1
+
         #db = b[ii] - b[i0]
         db = np.take(b, ii) - np.take(b, i0)
-        db = np.where(i0==ii, 1.0, db)
         #dy = y[ii] - y[i0]
         dy = np.take(y, ii) - np.take(y, i0)
         z = np.take(y, i0) + (xn-np.take(b,i0))*dy/db
-        return xout, z
+
+        return z
 
     def set_alpha(self, alpha):
         self.alpha = alpha
@@ -834,10 +848,13 @@ class Colorbar(ColorbarBase):
         self.set_clim(mappable.get_clim())
         self.update_normal(mappable)
 
-    def add_lines(self, CS):
+    def add_lines(self, CS, erase=True):
         '''
         Add the lines from a non-filled
         :class:`~matplotlib.contour.ContourSet` to the colorbar.
+
+        Set *erase* to False if these lines should be added to
+        any pre-existing lines.
         '''
         if not isinstance(CS, contour.ContourSet) or CS.filled:
             raise ValueError('add_lines is only for a ContourSet of lines')
@@ -851,7 +868,8 @@ class Colorbar(ColorbarBase):
         #tcolors = [col.get_colors()[0] for col in CS.collections]
         #tlinewidths = [col.get_linewidth()[0] for lw in CS.collections]
         #print 'tlinewidths:', tlinewidths
-        ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths)
+        ColorbarBase.add_lines(self, CS.levels, tcolors, tlinewidths,
+                                erase=erase)
 
     def update_normal(self, mappable):
         '''
@@ -884,7 +902,7 @@ class Colorbar(ColorbarBase):
         self.outline = None
         self.patch = None
         self.solids = None
-        self.lines = None
+        self.lines = list()
         self.dividers = None
         self.set_alpha(mappable.get_alpha())
         self.cmap = mappable.cmap
