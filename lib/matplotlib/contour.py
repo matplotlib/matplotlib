@@ -682,7 +682,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
       layers:
         same as levels for line contours; half-way between
-        levels for filled contours.  See _process_colors method.
+        levels for filled contours.  See :meth:`_process_colors`.
     """
     def __init__(self, ax, *args, **kwargs):
         """
@@ -742,6 +742,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         cmap = kwargs.get('cmap', None)
         self.colors = kwargs.get('colors', None)
         norm = kwargs.get('norm', None)
+        vmin = kwargs.get('vmin', None)
+        vmax = kwargs.get('vmax', None)
         self.extend = kwargs.get('extend', 'neither')
         self.antialiased = kwargs.get('antialiased', None)
         if self.antialiased is None and self.filled:
@@ -789,7 +791,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         kw = {'cmap': cmap}
         if norm is not None:
             kw['norm'] = norm
-        cm.ScalarMappable.__init__(self, **kw) # sets self.cmap;
+        cm.ScalarMappable.__init__(self, **kw) # sets self.cmap, norm if needed;
+        if vmin is not None:
+            self.norm.vmin = vmin
+        if vmax is not None:
+            self.norm.vmax = vmax
         self._process_colors()
 
         self.allsegs, self.allkinds = self._get_allsegs_and_allkinds()
@@ -1029,40 +1035,65 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise ValueError("Filled contours require at least 2 levels.")
 
     def _process_levels(self):
-        # Color mapping range (norm vmin, vmax) is based on levels.
+        """
+        Assign values to :attr:`layers` based on :attr:`levels`,
+        adding extended layers as needed if contours are filled.
+
+        For line contours, layers simply coincide with levels;
+        a line is a thin layer.  No extended levels are needed
+        with line contours.
+        """
+        # The following attributes are no longer needed, and
+        # should be deprecated and removed to reduce confusion.
         self.vmin = np.amin(self.levels)
         self.vmax = np.amax(self.levels)
-        # Make a private _levels to include extended regions.
+
+        # Make a private _levels to include extended regions; we
+        # want to leave the original levels attribute unchanged.
+        # (Colorbar needs this even for line contours.)
         self._levels = list(self.levels)
+
+        if not self.filled:
+            self.layers = self.levels
+            return
+
         if self.extend in ('both', 'min'):
             self._levels.insert(0, min(self.levels[0],self.zmin) - 1)
         if self.extend in ('both', 'max'):
             self._levels.append(max(self.levels[-1],self.zmax) + 1)
         self._levels = np.asarray(self._levels)
-        if self.filled:
-            # layer values are mid-way between levels
-            self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
-            # ...except that extended layers must be outside the
-            # normed range:
-            if self.extend in ('both', 'min'):
-                self.layers[0] = -np.inf
-            if self.extend in ('both', 'max'):
-                self.layers[-1] = np.inf
-        else:
-            self.layers = self.levels # contour: a line is a thin layer
-                         #  Use only original levels--no extended levels
+
+        # layer values are mid-way between levels
+        self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
+        # ...except that extended layers must be outside the
+        # normed range:
+        if self.extend in ('both', 'min'):
+            self.layers[0] = -np.inf
+        if self.extend in ('both', 'max'):
+            self.layers[-1] = np.inf
 
     def _process_colors(self):
         """
         Color argument processing for contouring.
 
-        Note that we base the color mapping on the contour levels,
-        not on the actual range of the Z values.  This means we
-        don't have to worry about bad values in Z, and we always have
-        the full dynamic range available for the selected levels.
+        Note that we base the color mapping on the contour levels
+        and layers, not on the actual range of the Z values.  This
+        means we don't have to worry about bad values in Z, and we
+        always have the full dynamic range available for the selected
+        levels.
 
         The color is based on the midpoint of the layer, except for
-        an extended end layers.
+        extended end layers.  By default, the norm vmin and vmax
+        are the extreme values of the non-extended levels.  Hence,
+        the layer color extremes are not the extreme values of
+        the colormap itself, but approach those values as the number
+        of levels increases.  An advantage of this scheme is that
+        line contours, when added to filled contours, take on
+        colors that are consistent with those of the filled regions;
+        for example, a contour line on the boundary between two
+        regions will have a color intermediate between those
+        of the regions.
+
         """
         self.monochrome = self.cmap.monochrome
         if self.colors is not None:
@@ -1079,12 +1110,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.set_norm(colors.NoNorm())
         else:
             self.cvalues = self.layers
-        if not self.norm.scaled():
-            self.set_clim(self.vmin, self.vmax)
+        self.set_array(self.levels)
+        self.autoscale_None()
         if self.extend in ('both', 'max', 'min'):
             self.norm.clip = False
-        self.set_array(self.layers) # Required by colorbar, but not
-                                    # actually used.
+
         # self.tcolors are set by the "changed" method
 
     def _process_linewidths(self):
@@ -1464,6 +1494,12 @@ class QuadContourSet(ContourSet):
             scaling data values to colors. If *norm* is *None* and
             *colors* is *None*, the default linear scaling is used.
 
+          *vmin*, *vmax*: [ *None* | scalar ]
+            If not *None*, either or both of these values will be
+            supplied to the :class:`matplotlib.colors.Normalize`
+            instance, overriding the default color scaling based on
+            *levels*.
+
           *levels*: [level0, level1, ..., leveln]
             A list of floating point numbers indicating the level
             curves to draw; eg to draw just the zero contour pass
@@ -1525,17 +1561,15 @@ class QuadContourSet(ContourSet):
             linewidths in the order specified
 
           *linestyles*: [ *None* | 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
-            If *linestyles* is *None*, the 'solid' is used.
+            If *linestyles* is *None*, the default is 'solid' unless
+            the lines are monochrome.  In that case, negative
+            contours will take their linestyle from the ``matplotlibrc``
+            ``contour.negative_linestyle`` setting.
 
             *linestyles* can also be an iterable of the above strings
             specifying a set of linestyles to be used. If this
             iterable is shorter than the number of contour levels
             it will be repeated as necessary.
-
-            If contour is using a monochrome colormap and the contour
-            level is less than 0, then the linestyle specified
-            in ``contour.negative_linestyle`` in ``matplotlibrc``
-            will be used.
 
         contourf-only keyword arguments:
 

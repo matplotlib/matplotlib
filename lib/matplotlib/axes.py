@@ -3754,7 +3754,7 @@ class Axes(martist.Artist):
                                     linestyles=linestyles, label=label)
         self.add_collection(coll)
         coll.update(kwargs)
-      
+
         if len(x) > 0:
             minx = min( x )
             maxx = max( x )
@@ -6955,16 +6955,18 @@ class Axes(martist.Artist):
             A :class:`matplotlib.colors.Colormap` instance. If *None*, use
             rc settings.
 
-          norm: [ *None* | Normalize ]
+          *norm*: [ *None* | Normalize ]
             An :class:`matplotlib.colors.Normalize` instance is used
             to scale luminance data to 0,1. If *None*, defaults to
             :func:`normalize`.
 
           *vmin*/*vmax*: [ *None* | scalar ]
             *vmin* and *vmax* are used in conjunction with *norm* to
-            normalize luminance data.  If either are *None*, the min
-            and max of the color array *C* is used.  If you pass a
-            *norm* instance, *vmin* and *vmax* will be ignored.
+            normalize luminance data.  If either is *None*, it
+            is autoscaled to the respective min or max
+            of the color array *C*.  If not *None*, *vmin* or
+            *vmax* passed in here override any pre-existing values
+            supplied in the *norm* instance.
 
           *shading*: [ 'flat' | 'faceted' ]
             If 'faceted', a black grid is drawn around each rectangle; if
@@ -7121,10 +7123,8 @@ class Axes(martist.Artist):
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-        if vmin is not None or vmax is not None:
-            collection.set_clim(vmin, vmax)
-        else:
-            collection.autoscale_None()
+        collection.set_clim(vmin, vmax)
+        collection.autoscale_None()
         self.grid(False)
 
         x = X.compressed()
@@ -7167,9 +7167,11 @@ class Axes(martist.Artist):
 
           *vmin*/*vmax*: [ *None* | scalar ]
             *vmin* and *vmax* are used in conjunction with *norm* to
-            normalize luminance data.  If either are *None*, the min
-            and max of the color array *C* is used.  If you pass a
-            *norm* instance, *vmin* and *vmax* will be ignored.
+            normalize luminance data.  If either is *None*, it
+            is autoscaled to the respective min or max
+            of the color array *C*.  If not *None*, *vmin* or
+            *vmax* passed in here override any pre-existing values
+            supplied in the *norm* instance.
 
           *shading*: [ 'flat' | 'gouraud' ]
             'flat' indicates a solid color for each quad.  When
@@ -7235,10 +7237,8 @@ class Axes(martist.Artist):
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
-        if vmin is not None or vmax is not None:
-            collection.set_clim(vmin, vmax)
-        else:
-            collection.autoscale_None()
+        collection.set_clim(vmin, vmax)
+        collection.autoscale_None()
 
         self.grid(False)
 
