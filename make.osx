@@ -1,13 +1,13 @@
 # -*- makefile -*-
 # build mpl into a local install dir with
-# make -f make.osx PREFIX=/Users/jdhunter/dev PYVERSION=2.6 fetch deps mpl_install
+# make -f make.osx PREFIX=/Users/jdhunter/dev PYVERSION=2.7 fetch deps mpl_install
 # (see README.osx for more details)
 
 MPLVERSION=1.1.0
-PYVERSION=2.6
+PYVERSION=2.7
 PYTHON=python${PYVERSION}
-MACOSX_DEPLOYMENT_TARGET=10.6
-OSX_SDK_VER=10.6
+MACOSX_DEPLOYMENT_TARGET=10.7
+OSX_SDK_VER=10.7
 ARCH_FLAGS?=-arch i386 -arch x86_64
 
 # Dependency versions and URLs
@@ -25,17 +25,17 @@ ZLIBURL=http://sourceforge.net/projects/libpng/files/zlib/${ZLIBVERSION}/${ZLIBF
 
 PNGFILE=libpng-${PNGVERSION}.tar.gz
 PNGDIR=$(basename $(basename ${PNGFILE}))
-PNGURL=http://sourceforge.net/projects/libpng/files/libpng15/older-releases/${PNGVERSION}/${PNGFILE}/download
+PNGURL=http://sourceforge.net/projects/libpng/files/libpng15/${PNGVERSION}/${PNGFILE}/download
 
 FREETYPEFILE=freetype-${FREETYPEVERSION}.tar.bz2
 FREETYPEDIR=$(basename $(basename ${FREETYPEFILE}))
-FREETYPEURL=http://download.savannah.gnu.org/releases/freetype/${FREETYPEFILE}
+FREETYPEURL=http://sourceforge.net/projects/freetype/files/freetype2/${FREETYPEVERSION}/${FREETYPEFILE}/download
 
 ## You shouldn't need to configure past this point
 
 export PKG_CONFIG_PATH=${PREFIX}/lib/pkgconfig
-export CFLAGS=${ARCH_FLAGS} -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk
-export LDFLAGS=${ARCH_FLAGS} -L${PREFIX}/lib -syslibroot,/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk
+export CFLAGS=${ARCH_FLAGS} -I${PREFIX}/include -I${PREFIX}/include/freetype2 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk
+export LDFLAGS=${ARCH_FLAGS} -L${PREFIX}/lib -syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX${OSX_SDK_VER}.sdk
 export MACOSX_DEPLOYMENT_TARGET
 
 help:
