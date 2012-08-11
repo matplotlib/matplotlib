@@ -801,6 +801,17 @@ def test_stackplot():
     ax = fig.add_subplot(1, 1, 1)
     ax.stackplot(x, y1, y2, y3)
 
+@image_comparison(baseline_images=['boxplot'])
+def test_boxplot():
+    x = np.linspace(-7, 7, 140)
+    x = np.hstack([-25, x, 25])
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    # show 1 boxplot with mpl medians/conf. interfals, 1 with manual values
+    ax.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
+               conf_intervals=[None, (-1.0, 3.5)], notch=1)
+    ax.set_ylim((-30, 30))
 
 if __name__=='__main__':
     import nose
