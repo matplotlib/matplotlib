@@ -1,0 +1,128 @@
+.. _pgf-tutorial:
+
+*********************************
+Typesetting With XeLaTeX/LuaLaTeX
+*********************************
+
+Using the ``pgf`` backend, matplotlib can export figures as pgf drawing commands
+that can be processed with pdflatex, xelatex or lualatex. XeLaTeX and LuaLaTeX
+have full unicode support and can use any fonts installed in the operating
+system, making use of advanced typographic features of OpenType, AAT and
+Graphite. Pgf pictures created by ``plt.savefig('figure.pgf')`` can be
+embedded as raw commands in LaTeX documents. Figures can also be directly
+compiled and saved to PDF with ``plt.savefig('figure.pdf')``.
+
+Matplotlib's pgf support requires a working LaTeX_ installation (such as
+TeXLive_), preferably including XeLaTeX or LuaLaTeX. If pdftocairo or
+ghostscript is installed, figures can optionally be saved to PNG images.
+The executables for all applications must be located on your :envvar:`PATH`.
+
+Rc parameters that control the behavior of the pgf backend:
+
+    =================  =====================================================
+    Parameter          Documentation
+    =================  =====================================================
+    pgf.preamble       Lines to be included in the LaTeX preamble
+    pgf.rcfonts        Setup fonts from rc params using the fontspec package
+    pgf.texsystem      Either "xelatex", "lualatex" or "pdflatex"
+    =================  =====================================================
+
+.. note::
+
+   TeX defines a set of secial characters, such as::
+
+     # $ % & ~ _ ^ \ { }
+
+   Generally, these characters must be escaped correctly. For convenience,
+   some characters (_,^,%) are automatically escaped outside of math
+   environments.
+
+.. _pgf-rcfonts:
+
+Font specification
+==================
+
+The fonts used for obtaining the size of text elements or when compiling
+figures to PDF are usually defined in the matplotlib rc parameters. You can
+also use the LaTeX default Computer Modern fonts by clearing the lists for
+``font.serif``, ``font.sans-serif`` or ``font.monospace``. Please note that
+the glyph coverage of these fonts is very limited. For extended unicode support
+the `Computer Modern Unicode <http://sourceforge.net/projects/cm-unicode/>`_
+fonts "CMU Serif", "CMU Sans Serif" are recommended.
+
+.. literalinclude:: plotting/examples/pgf_fonts.py
+   :end-before: plt.savefig
+
+.. image:: plotting/examples/pgf_fonts.*
+
+
+.. _pgf-preamble:
+
+Custom preamble
+===============
+
+Full customization is possible by adding your own commands to the preamble.
+Use the ``pgf.preamble`` parameter if you want to configure the math fonts or
+for loading additional packages. Also, if you want to do the font configuration
+yourself instead of using the fonts specified in the rc parameters, make sure
+to disable ``pgf.rcfonts``.
+
+.. htmlonly::
+
+    .. literalinclude:: plotting/examples/pgf_preamble.py
+        :end-before: plt.savefig
+
+.. latexonly::
+
+    .. literalinclude:: plotting/examples/pgf_preamble.py
+        :end-before: import matplotlib.pyplot as plt
+
+.. image:: plotting/examples/pgf_preamble.*
+
+
+.. _pgf-texsystem:
+
+Choosing the TeX system
+=======================
+
+The TeX system to be used by matplotlib is chosen by the ``pgf.texsystem``
+parameter. Possible values are ``'xelatex'`` (default), ``'lualatex'`` and
+``'pdflatex'``. Please note that when selecting pdflatex the fonts and
+unicode handling must be configured in the preamble.
+
+.. literalinclude:: plotting/examples/pgf_texsystem.py
+   :end-before: plt.savefig
+
+.. image:: plotting/examples/pgf_texsystem.*
+
+.. _pgf-hangups:
+
+Possible hangups
+================
+
+* On Windows, the :envvar:`PATH` environment variable may need to be modified
+  to include the directories containing the latex, dvipng and ghostscript
+  executables. See :ref:`environment-variables` and
+  :ref:`setting-windows-environment-variables` for details.
+
+* Sometimes the font rendering in figures that are saved to png images is
+  very bad. This happens when the pdftocairo tool is not available and
+  ghostscript is used for the pdf to png conversion.
+
+.. _pgf-troubleshooting:
+
+Troubleshooting
+===============
+
+* Make sure what you are trying to do is possible in a LaTeX document,
+  that your LaTeX syntax is valid and that you are using raw strings
+  if necessary to avoid unintended escape sequences.
+
+* The ``pgf.preamble`` rc setting provides lots of flexibility, and lots of
+  ways to cause problems. When experiencing problems, try to minimalize or
+  disable the custom preamble before reporting problems.
+
+* If you still need help, please see :ref:`reporting-problems`
+
+.. _LaTeX: http://www.tug.org
+.. _TeXLive: http://www.tug.org/texlive/
