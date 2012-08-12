@@ -7947,7 +7947,7 @@ class Axes(martist.Artist):
 
             if log:
                 #in the case of log scale there are three cases to consider for the y axis limit
-                #1) has zero or negative bin. we want positive minimum*0.1 to be the minimum
+                #1) has zero or negative bin but other bins may be 0<n<1 due to weighting. we want positive minimum*0.1 to be the minimum
                 #2) has zero bin but the rest are greater than 1. this one we want minimum at 0.1
                 #3) all zero/negative bin .... no idea how to display this anyway so put minimum at 0.1
                 ndata = np.array(n)
@@ -7955,7 +7955,7 @@ class Axes(martist.Artist):
                     warnings.warn('Some of histogram bins has zero or negative count.')
                 
                 if np.any(ndata>0):
-                    if np.all(ndata>=1):
+                    if np.all(ndata[ndata!=0]>=1):
                         minimum = 0.1 # case 2)
                     else:
                         minimum = np.min(ndata[ndata>0])*0.1 #case 1)
