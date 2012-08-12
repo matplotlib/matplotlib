@@ -1020,6 +1020,7 @@ default_test_modules = [
     'matplotlib.tests.test_delaunay',
     'matplotlib.tests.test_legend',
     'matplotlib.tests.test_colorbar',
+    'matplotlib.tests.test_patches',
     ]
 
 def test(verbosity=1):
