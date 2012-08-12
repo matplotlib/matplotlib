@@ -786,7 +786,7 @@ class Polygon(Patch):
         return self._path.vertices
 
     def set_xy(self, xy):
-        xy = np.asarray(xy, np.float_)
+        xy = np.asarray(xy)
         if self._closed:
             if len(xy) and (xy[0] != xy[-1]).any():
                 xy = np.concatenate([xy, [xy[0]]])
