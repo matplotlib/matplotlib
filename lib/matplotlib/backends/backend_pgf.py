@@ -8,8 +8,6 @@ import shutil
 import tempfile
 import codecs
 import subprocess
-import warnings
-warnings.formatwarning = lambda *args: str(args[0])
 
 import matplotlib as mpl
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -22,51 +20,48 @@ from matplotlib import font_manager
 from matplotlib.ft2font import FT2Font
 
 ###############################################################################
-# settings read from rc
 
-# debug switch
-debug = bool(rcParams.get("pgf.debug", False))
-
-# which TeX system is to be used
-texsystem_options = ["xelatex", "lualatex", "pdflatex"]
-texsystem = rcParams.get("pgf.texsystem", "xelatex")
-texsystem = texsystem if texsystem in texsystem_options else "xelatex"
-
-# font configuration based on texsystem
+# create a list of system fonts, all of these should work with xe/lua-latex
 system_fonts = []
-latex_fontspec = []
-if texsystem is not "pdflatex":
-    rcfonts = rcParams.get("pgf.rcfonts", True)
-    latex_fontspec.append(r"\usepackage{fontspec}")
-    # create a list of system fonts, all of these should work with xe/lua-latex
-    for f in font_manager.findSystemFonts():
-        try:
-            system_fonts.append(FT2Font(f).family_name)
-        except RuntimeError:
-            pass
-else:
-    rcfonts = False
+for f in font_manager.findSystemFonts():
+    try:
+        system_fonts.append(FT2Font(f).family_name)
+    except RuntimeError:
+        pass
 
-# font configuration via matplotlib rc
-if rcfonts:
-    # try to find fonts from rc parameters
-    families = ["serif", "sans-serif", "monospace"]
-    fontspecs = [r"\setmainfont{%s}", r"\setsansfont{%s}", r"\setmonofont{%s}"]
-    for family, fontspec in zip(families, fontspecs):
-        matches = [f for f in rcParams["font."+family] if f in system_fonts]
-        if matches:
-            latex_fontspec.append(fontspec % matches[0])
-        else:
-            warnings.warn("No fonts found in font.%s, using LaTeX default.\n" % family)
-    if debug:
-        print "font specification:", latex_fontspec
+# get chosen TeX system from rc
+def get_texcommand():
+    texsystem_options = ["xelatex", "lualatex", "pdflatex"]
+    texsystem = rcParams.get("pgf.texsystem", "xelatex")
+    return texsystem if texsystem in texsystem_options else "xelatex"
 
-latex_fontspec = "\n".join(latex_fontspec)
+# build fontspec preamble from rc
+def get_fontspec():
+    latex_fontspec = []
+    texcommand = get_texcommand()
 
-# LaTeX preamble
-latex_preamble = rcParams.get("pgf.preamble", "")
-if type(latex_preamble) == list:
-    latex_preamble = "\n".join(latex_preamble)
+    if texcommand is not "pdflatex":
+        latex_fontspec.append(r"\usepackage{fontspec}")
+
+    if texcommand is not "pdflatex" and rcParams.get("pgf.rcfonts", True):
+        # try to find fonts from rc parameters
+        families = ["serif", "sans-serif", "monospace"]
+        fontspecs = [r"\setmainfont{%s}", r"\setsansfont{%s}", r"\setmonofont{%s}"]
+        for family, fontspec in zip(families, fontspecs):
+            matches = [f for f in rcParams["font."+family] if f in system_fonts]
+            if matches:
+                latex_fontspec.append(fontspec % matches[0])
+            else:
+                pass # no fonts found, fallback to LaTeX defaule
+
+    return "\n".join(latex_fontspec)
+
+# get LaTeX preamble from rc
+def get_preamble():
+    latex_preamble = rcParams.get("pgf.preamble", "")
+    if type(latex_preamble) == list:
+        latex_preamble = "\n".join(latex_preamble)
+    return latex_preamble
 
 ###############################################################################
 
@@ -126,7 +121,7 @@ def _font_properties_str(prop):
     family = prop.get_family()[0]
     if family in families:
         commands.append(families[family])
-    elif family in system_fonts:
+    elif family in system_fonts and get_texcommand() is not "pdflatex":
         commands.append(r"\setmainfont{%s}\rmfamily" % family)
     else:
         pass # print warning?
@@ -188,6 +183,27 @@ class LatexError(Exception):
         Exception.__init__(self, message)
         self.latex_output = latex_output
 
+class LatexManagerFactory:
+    previous_instance = None
+
+    @staticmethod
+    def get_latex_manager():
+        texcommand = get_texcommand()
+        latex_header = LatexManager._build_latex_header()
+        prev = LatexManagerFactory.previous_instance
+
+        # check if the previous instance of LatexManager can be reused
+        if prev and prev.latex_header == latex_header and prev.texcommand == texcommand:
+            if rcParams.get("pgf.debug", False):
+                print "reusing LatexManager"
+            return prev
+        else:
+            if rcParams.get("pgf.debug", False):
+                print "creating LatexManager"
+            new_inst = LatexManager()
+            LatexManagerFactory.previous_instance = new_inst
+            return new_inst
+
 class LatexManager:
     """
     The LatexManager opens an instance of the LaTeX application for
@@ -195,7 +211,10 @@ class LatexManager:
     modified by setting fonts and/or a custem preamble in the rc parameters.
     """
 
-    def __init__(self):
+    @staticmethod
+    def _build_latex_header():
+        latex_preamble = get_preamble()
+        latex_fontspec = get_fontspec()
         # Create LaTeX header with some content, else LaTeX will load some
         # math fonts later when we don't expect the additional output on stdout.
         # TODO: is this sufficient?
@@ -207,26 +226,28 @@ text $math \mu$ %% force latex to load fonts now
 \\typeout{pgf_backend_query_start}
 """ % (latex_preamble, latex_fontspec)
 
-        latex_end = """
-\\makeatletter
-\\@@end
-"""
+        return latex_header
+
+    def __init__(self):
+        self.texcommand = get_texcommand()
+        self.latex_header = LatexManager._build_latex_header()
+        latex_end = "\n\\makeatletter\n\\@@end\n"
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
-        latex = subprocess.Popen([texsystem, "-halt-on-error"],
+        latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
                                   stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE,
                                   universal_newlines=True)
-        stdout, stderr = latex.communicate(latex_header + latex_end)
+        stdout, stderr = latex.communicate(self.latex_header + latex_end)
         if latex.returncode != 0:
             raise LatexError("LaTeX returned an error, probably missing font or error in preamble:\n%s" % stdout)
 
         # open LaTeX process
-        latex = subprocess.Popen([texsystem, "-halt-on-error"],
+        latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
                                   stdin=subprocess.PIPE,
                                   stdout=subprocess.PIPE,
                                   universal_newlines=True)
-        latex.stdin.write(latex_header)
+        latex.stdin.write(self.latex_header)
         latex.stdin.flush()
         # read all lines until our 'pgf_backend_query_start' token appears
         while not latex.stdout.readline().startswith("*pgf_backend_query_start"):
@@ -241,6 +262,8 @@ text $math \mu$ %% force latex to load fonts now
         self.str_cache = {}
 
     def __del__(self):
+        if rcParams.get("pgf.debug", False):
+            print "deleting LatexManager"
         try:
             self.latex.terminate()
             self.latex.wait()
@@ -270,7 +293,6 @@ text $math \mu$ %% force latex to load fonts now
         Get the width, total height and descent for a text typesetted by the
         current LaTeX environment.
         """
-        if debug: print "obtain metrics for: %s" % text
 
         # apply font properties and define textbox
         prop_cmds = _font_properties_str(prop)
@@ -315,8 +337,6 @@ text $math \mu$ %% force latex to load fonts now
 
 class RendererPgf(RendererBase):
 
-    latexManager = None
-
     def __init__(self, figure, fh, draw_texts=True):
         """
         Creates a new Pgf renderer that translates any drawing instruction
@@ -332,9 +352,8 @@ class RendererPgf(RendererBase):
         self.draw_texts = draw_texts
         self.image_counter = 0
 
-        # create a shared LatexManager
-        if self.latexManager is None:
-            RendererPgf.latexManager = LatexManager()
+        # get LatexManager instance
+        self.latexManager = LatexManagerFactory.get_latex_manager()
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         writeln(self.fh, r"\begin{pgfscope}")
@@ -632,12 +651,6 @@ class FigureCanvasPgf(FigureCanvasBase):
         writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w,h))
         writeln(fh, r"\pgfusepath{use as bounding box}")
 
-        # TODO: Matplotlib does not send Text instances to the renderer as documented.
-        # This means that we cannot anchor the text elements correctly so that
-        # they stay aligned when changing the font size later.
-        # Manually iterating through all text instances of a figure has proven
-        # to be too much work since matplotlib behaves really weird sometimes.
-        # -> _render_texts_pgf
         renderer = RendererPgf(self.figure, fh, draw_texts=True)
         self.figure.draw(renderer)
 
@@ -653,12 +666,15 @@ class FigureCanvasPgf(FigureCanvasBase):
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
         target = os.path.abspath(filename)
-        tmpdir = tempfile.mkdtemp()
-        cwd = os.getcwd()
+
         try:
+            tmpdir = tempfile.mkdtemp()
+            cwd = os.getcwd()
             os.chdir(tmpdir)
             self.print_pgf("figure.pgf")
 
+            latex_preamble = get_preamble()
+            latex_fontspec = get_fontspec()
             latexcode = r"""
 \documentclass[12pt]{minimal}
 \usepackage[paperwidth=%fin, paperheight=%fin, margin=0in]{geometry}
@@ -673,11 +689,12 @@ class FigureCanvasPgf(FigureCanvasBase):
             with codecs.open("figure.tex", "wt", "utf-8") as fh:
                 fh.write(latexcode)
 
-            cmd = '%s -interaction=nonstopmode "%s" > figure.stdout' % (texsystem, "figure.tex")
-            exit_status = os.system(cmd)
-            if exit_status:
-                shutil.copyfile("figure.stdout", target+".err")
-                raise RuntimeError("LaTeX was not able to process your file.\nLaTeX stdout saved to %s" % (target+".err"))
+            texcommand = get_texcommand()
+            cmdargs = [texcommand, "-interaction=nonstopmode", "-halt-on-error", "figure.tex"]
+            try:
+                stdout = subprocess.check_output(cmdargs, universal_newlines=True, stderr=subprocess.STDOUT)
+            except:
+                raise RuntimeError("%s was not able to process your file.\n\nFull log:\n%s" % (texcommand, stdout))
             shutil.copyfile("figure.pdf", target)
         finally:
             os.chdir(cwd)
