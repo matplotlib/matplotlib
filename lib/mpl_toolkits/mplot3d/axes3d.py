@@ -1352,15 +1352,9 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         Z = np.atleast_2d(Z)
-        rows, cols = Z.shape
         # TODO: Support masked arrays
-        X = np.asarray(X)
-        Y = np.asarray(Y)
-        # Force X and Y to take the same shape.
-        # If they can not be fitted to that shape,
-        # then an exception is automatically thrown.
-        X.shape = (rows, cols)
-        Y.shape = (rows, cols)
+        X, Y, Z = np.broadcast_arrays(X, Y, Z)
+        rows, cols = Z.shape
 
         rstride = kwargs.pop('rstride', 10)
         cstride = kwargs.pop('cstride', 10)
@@ -1526,14 +1520,8 @@ class Axes3D(Axes):
         had_data = self.has_data()
         Z = np.atleast_2d(Z)
         # FIXME: Support masked arrays
-        X = np.asarray(X)
-        Y = np.asarray(Y)
+        X, Y, Z = np.broadcast_arrays(X, Y, Z)
         rows, cols = Z.shape
-        # Force X and Y to take the same shape.
-        # If they can not be fitted to that shape,
-        # then an exception is automatically thrown.
-        X.shape = (rows, cols)
-        Y.shape = (rows, cols)
 
         # We want two sets of lines, one running along the "rows" of
         # Z and another set of lines running along the "columns" of Z.

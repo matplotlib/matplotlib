@@ -7,6 +7,8 @@ import os, glob
 import os
 import re
 import sys
+import token
+import tokenize
 fileList = []
 
 def out_of_date(original, derived):
@@ -23,6 +25,34 @@ def out_of_date(original, derived):
 
 noplot_regex = re.compile(r"#\s*-\*-\s*noplot\s*-\*-")
 
+def extract_docstring(lines):
+    """ Extract a module-level docstring, if any
+    """
+    start_row = 0
+    if lines[0].startswith('#!'):
+        lines.pop(0)
+        start_row = 1
+
+    docstring = ''
+    first_par = ''
+    tokens = tokenize.generate_tokens(lines.__iter__().next)
+    for tok_type, tok_content, _, (erow, _), _ in tokens:
+        tok_type = token.tok_name[tok_type]
+        if tok_type in ('NEWLINE', 'COMMENT', 'NL', 'INDENT', 'DEDENT'):
+            continue
+        elif tok_type == 'STRING':
+            docstring = eval(tok_content)
+            # If the docstring is formatted with several paragraphs, extract
+            # the first one:
+            paragraphs = '\n'.join(line.rstrip()
+                              for line in docstring.split('\n')).split('\n\n')
+            if len(paragraphs) > 0:
+                first_par = paragraphs[0]
+        break
+    return docstring, first_par, erow + 1 + start_row
+
+
+
 def generate_example_rst(app):
     rootdir = os.path.join(app.builder.srcdir, 'mpl_examples')
     exampledir = os.path.join(app.builder.srcdir, 'examples')
@@ -37,7 +67,7 @@ def generate_example_rst(app):
                 continue
 
             fullpath = os.path.join(root,fname)
-            contents = file(fullpath).read()
+            contents = file(fullpath).readlines()
             # indent
             relpath = os.path.split(root)[-1]
             datad.setdefault(relpath, []).append((fullpath, fname, contents))
@@ -120,14 +150,16 @@ Matplotlib Examples
                                   'mplot3d',
                                   'axes_grid',
                                   ) and
-                       not noplot_regex.search(contents))
+                       not noplot_regex.search('\n'.join(contents)))
             if not do_plot:
                 fhstatic = file(outputfile, 'w')
-                fhstatic.write(contents)
+                fhstatic.write('\n'.join(contents))
                 fhstatic.close()
 
             if not out_of_date(fullpath, outrstfile):
                 continue
+
+            docstring, short_desc, end_row = extract_docstring(contents)
 
             fh = file(outrstfile, 'w')
             fh.write('.. _%s-%s:\n\n'%(subdir, basename))
@@ -136,6 +168,7 @@ Matplotlib Examples
 
             fh.write(title + '\n')
             fh.write('='*len(title) + '\n\n')
+            fh.write(docstring + '\n')
 
             if do_plot:
                 fh.write("\n\n.. plot:: %s\n\n::\n\n" % fullpath)
@@ -143,7 +176,9 @@ Matplotlib Examples
                 fh.write("[`source code <%s>`_]\n\n::\n\n" % fname)
 
             # indent the contents
-            contents = '\n'.join(['    %s'%row.rstrip() for row in contents.split('\n')])
+            # Strip out the docstring and short_desc portions
+            contents = '\n'.join(['    %s'%row.rstrip() for
+                                  row in contents[end_row:]])
             fh.write(contents)
 
             fh.write('\n\nKeywords: python, matplotlib, pylab, example, codex (see :ref:`how-to-search-examples`)')
