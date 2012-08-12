@@ -7920,7 +7920,7 @@ class Axes(martist.Artist):
                 _barfunc = self.barh
             else:  # orientation == 'vertical'
                 _barfunc = self.bar
-
+            
             for m, c in zip(n, color):
                 patch = _barfunc(bins[:-1]+boffset, m, width, bottom,
                                   align='center', log=log,
@@ -7969,7 +7969,7 @@ class Axes(martist.Artist):
                         closed=False, edgecolor=c, fill=False) )
 
             # adopted from adjust_x/ylim part of the bar method
-            if orientation == 'horizontal':
+            if orientation == 'vertical':
                 xmin0 = max(_saved_bounds[0]*0.9, minimum)
                 xmax = self.dataLim.intervalx[1]
                 for m in n:
@@ -7977,7 +7977,7 @@ class Axes(martist.Artist):
                 xmin = max(xmin*0.9, minimum)
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
-            elif orientation == 'vertical':
+            elif orientation == 'horizontal':
                 ymin0 = max(_saved_bounds[1]*0.9, minimum)
                 ymax = self.dataLim.intervaly[1]
                 for m in n:
