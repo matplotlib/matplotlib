@@ -1,3 +1,8 @@
+2012-08-11 Fix path-closing bug in patches.Polygon, so that regardless
+           of whether the path is the initial one or was subsequently
+           set by set_xy(), get_xy() will return a closed path if and
+           only if get_closed() is True.  Thanks to Jacob Vanderplas. - EF
+
 2012-08-05 When a norm is passed to contourf, either or both of the
            vmin, vmax attributes of that norm are now respected.
            Formerly they were respected only if both were

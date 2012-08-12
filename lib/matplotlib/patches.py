@@ -767,12 +767,8 @@ class Polygon(Patch):
 
         """
         Patch.__init__(self, **kwargs)
-        xy = np.asarray(xy, np.float_)
-        self._path = Path(xy)
         self._closed = closed
-        if closed and len(xy):
-            xy = np.concatenate([xy, [xy[0]]])
-        self._set_xy(xy)
+        self.set_xy(xy)
 
     def get_path(self):
         return self._path
@@ -783,20 +779,22 @@ class Polygon(Patch):
     def set_closed(self, closed):
         if self._closed == bool(closed):
             return
-        self._closed = closed
-        xy = self._get_xy()
-        if closed:
+        self._closed = bool(closed)
+        self.set_xy(self.get_xy())
+
+    def get_xy(self):
+        return self._path.vertices
+
+    def set_xy(self, xy):
+        xy = np.asarray(xy)
+        if self._closed:
             if len(xy) and (xy[0] != xy[-1]).any():
                 xy = np.concatenate([xy, [xy[0]]])
         else:
             if len(xy)>2 and (xy[0]==xy[-1]).all():
-                xy = xy[0:-1]
-        self._set_xy(xy)
+                xy = xy[:-1]
+        self._path = Path(xy, closed=self._closed)
 
-    def get_xy(self):
-        return self._path.vertices
-    def set_xy(self, vertices):
-        self._path = Path(vertices, closed=self._closed)
     _get_xy = get_xy
     _set_xy = set_xy
     xy = property(
