@@ -4,8 +4,8 @@ import matplotlib as mpl
 mpl.rc('text', usetex=False)
 mpl.rc('lines', linewidth=22)
 
-fname = os.path.abspath(os.path.dirname(__file__)) + os.sep + 'mpl.rc'
-
+fname = os.path.join(os.path.dirname(__file__), 'test_rcparams.rc')
+  
 def test_rcparams():
 
     usetex = mpl.rcParams['text.usetex']
@@ -27,8 +27,11 @@ def test_rcparams():
     assert mpl.rcParams['lines.linewidth'] == linewidth
 
     # test rc_file
-    mpl.rc_file(fname)
-    assert mpl.rcParams['lines.linewidth'] == 33
+    try:
+        mpl.rc_file(fname)
+        assert mpl.rcParams['lines.linewidth'] == 33
+    finally:
+        mpl.rcParams['lines.linewidth'] = linewidth
     
 
 if __name__ == '__main__':
