@@ -320,6 +320,11 @@ plotting is done with interactive mode either on or off.
 Interactive mode may also be turned on via :func:`matplotlib.pyplot.ion`,
 and turned off via :func:`matplotlib.pyplot.ioff`.
 
+.. note::
+   Interactive mode works with suitable backends in ipython and in
+   the ordinary python shell, but it does *not* work in the IDLE IDE.
+
+
 Interactive example
 --------------------
 
