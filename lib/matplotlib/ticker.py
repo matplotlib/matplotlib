@@ -912,9 +912,9 @@ class IndexLocator(Locator):
         dmin, dmax = self.axis.get_data_interval()
         return self.tick_values(dmin, dmax)
 
-    def tick_values(self, dmin, dmax):
+    def tick_values(self, vmin, vmax):
         return self.raise_if_exceeds(
-            np.arange(dmin + self.offset, dmax+1, self._base))
+            np.arange(vmin + self.offset, vmax+1, self._base))
 
 
 class FixedLocator(Locator):
@@ -943,7 +943,7 @@ class FixedLocator(Locator):
 
         .. note::
 
-            Because the values are fixed, dmin and dmax are not used in this method.
+            Because the values are fixed, vmin and vmax are not used in this method.
 
         """
         if self.nbins is None:
@@ -971,7 +971,7 @@ class NullLocator(Locator):
 
         .. note::
 
-            Because the values are Null, dmin and dmax are not used in this method.
+            Because the values are Null, vmin and vmax are not used in this method.
 
         """
         return []
