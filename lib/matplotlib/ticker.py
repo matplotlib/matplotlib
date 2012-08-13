@@ -1319,13 +1319,13 @@ class LogLocator(Locator):
     Determine the tick locations for log axes
     """
 
-    def __init__(self, base=10.0, subs=[1.0], numdecs=4):
+    def __init__(self, base=10.0, subs=[1.0], numdecs=4, numticks=15):
         """
         place ticks on the location= base**i*subs[j]
         """
         self.base(base)
         self.subs(subs)
-        self.numticks = 15
+        self.numticks = numticks
         self.numdecs = numdecs
 
     def base(self,base):
@@ -1359,7 +1359,9 @@ class LogLocator(Locator):
             return ticklocs
 
         if vmin <= 0.0:
-            vmin = self.axis.get_minpos()
+            if self.axis is not None:
+                vmin = self.axis.get_minpos()
+
             if vmin <= 0.0 or not np.isfinite(vmin):
                 raise ValueError(
                     "Data has no positive values, and therefore can not be log-scaled.")
