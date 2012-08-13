@@ -66,15 +66,15 @@ Other python interpreters
 =========================
 
 If you can't use ipython, and still want to use matplotlib/pylab from
-an interactive python shell, eg the plain-ole standard python
-interactive interpreter, or the interpreter in your favorite IDE, you
+an interactive python shell, e.g. the plain-ole standard python
+interactive interpreter, you
 are going to need to understand what a matplotlib backend is
 :ref:`what-is-a-backend`.
 
 
 
-With the TkAgg backend, that uses the Tkinter user interface toolkit,
-you can use matplotlib from an arbitrary python shell.  Just set your
+With the TkAgg backend, which uses the Tkinter user interface toolkit,
+you can use matplotlib from an arbitrary non-gui python shell.  Just set your
 ``backend : TkAgg`` and ``interactive : True`` in your
 :file:`matplotlibrc` file (see :ref:`customizing-matplotlib`) and fire
 up python.  Then::
@@ -83,18 +83,22 @@ up python.  Then::
   >>> plot([1,2,3])
   >>> xlabel('hi mom')
 
-should work out of the box.  Note, in batch mode, ie when making
+should work out of the box.  This is also likely to work with recent
+versions of the qt4agg and gtkagg backends, and with the macosx backend
+on the Macintosh. Note, in batch mode,
+i.e. when making
 figures from scripts, interactive mode can be slow since it redraws
 the figure with each command.  So you may want to think carefully
-before making this the default behavior.
+before making this the default behavior via the :file:`matplotlibrc`
+file instead of using the functions listed in the next section.
 
-For other user interface toolkits and their corresponding matplotlib
-backends, the situation is complicated by the GUI mainloop which takes
-over the entire process.  The solution is to run the GUI in a separate
-thread, and this is the tricky part that ipython solves for all the
-major toolkits that matplotlib supports.  There are reports that
-upcoming versions of pygtk will place nicely with the standard python
-shell, so stay tuned.
+Gui shells are at best problematic, because they have to run a
+mainloop, but interactive plotting also involves a mainloop.  Ipython
+has sorted all this out for the primary matplotlib backends. There
+may be other shells and IDEs that also work with matplotlib in interactive
+mode, but one obvious candidate does not:
+the python IDLE IDE is a Tkinter gui app that does
+not support pylab interactive mode, regardless of backend.
 
 .. _controlling-interactive:
 
