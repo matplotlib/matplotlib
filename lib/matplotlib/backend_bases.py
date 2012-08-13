@@ -2049,11 +2049,12 @@ class FigureCanvasBase(object):
 
                 bb = [a.get_window_extent(renderer) for a in bbox_extra_artists]
 
-                if bb:
-                    _bbox = Bbox.union([b for b in bb if b.width!=0 or b.height!=0])
+                bbox_filtered = [b for b in bb if b.width!=0 or b.height!=0]
+                if bbox_filtered:
+                    _bbox = Bbox.union(bbox_filtered)
 
                     bbox_inches1 = TransformedBbox(_bbox,
-                                                  Affine2D().scale(1./self.figure.dpi))
+                                                   Affine2D().scale(1./self.figure.dpi))
 
                     bbox_inches = Bbox.union([bbox_inches, bbox_inches1])
 
