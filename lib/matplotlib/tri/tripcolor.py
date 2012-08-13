@@ -36,11 +36,12 @@ def tripcolor(ax, *args, **kwargs):
     values are defined at points unless the kwarg *colorpoints* is
     set to *False*.
 
-    *shading* may be 'flat' (the default), 'faceted' or 'gouraud'. If
-    *shading* is 'flat' or 'faceted' and C values are defined at
-    points, the color values used for each triangle are from the mean
-    C of the triangle's three points. If *shading* is 'gouraud' then
-    color values must be defined at triangles.
+    *shading* may be 'flat' (the default) or 'gouraud'. If *shading*
+    is 'flat' and C values are defined at points, the color values
+    used for each triangle are from the mean C of the triangle's
+    three points. If *shading* is 'gouraud' then color values must be
+    defined at triangles.  *shading* of 'faceted' is deprecated;
+    please use *edgecolors* instead.
 
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
@@ -62,6 +63,28 @@ def tripcolor(ax, *args, **kwargs):
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
     C = np.asarray(args[0])
 
+
+    # Handling of linewidths, shading, edgecolors and antialiased as
+    # in Axes.pcolor
+    linewidths = (0.25,)
+    if 'linewidth' in kwargs:
+        kwargs['linewidths'] = kwargs.pop('linewidth')
+    kwargs.setdefault('linewidths', linewidths)
+
+    if shading == 'faceted':   # Deprecated.
+        edgecolors = 'k',
+    else:
+        edgecolors = 'none'
+    if 'edgecolor' in kwargs:
+        kwargs['edgecolors'] = kwargs.pop('edgecolor')
+    ec = kwargs.setdefault('edgecolors', edgecolors)
+
+    if 'antialiased' in kwargs:
+        kwargs['antialiaseds'] = kwargs.pop('antialiased')
+    if 'antialiaseds' not in kwargs and ec.lower() == "none":
+        kwargs['antialiaseds'] = False
+
+
     if shading == 'gouraud':
         if len(C) != len(tri.x):
             raise ValueError('For gouraud shading, the length of C '
@@ -78,16 +101,6 @@ def tripcolor(ax, *args, **kwargs):
         CAtPoints = (len(C) == len(tri.x))
         if len(C) == len(tri.x) and len(C) == len(tri.triangles):
             CAtPoints = colorpoints
-
-        if shading == 'faceted':
-            edgecolors = (0,0,0,1),
-            linewidths = (0.25,)
-        else:
-            edgecolors = 'face'
-            linewidths = (1.0,)
-        kwargs.setdefault('edgecolors', edgecolors)
-        kwargs.setdefault('antialiaseds', (0,))
-        kwargs.setdefault('linewidths', linewidths)
 
         # Vertices of triangles.
         maskedTris = tri.get_masked_triangles()
