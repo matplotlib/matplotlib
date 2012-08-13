@@ -960,11 +960,38 @@ class Colorbar(ColorbarBase):
 
 
 @docstring.Substitution(make_axes_kw_doc)
-def make_axes(parents, location=None, orientation=None, fraction=0.15, shrink=1.0, aspect=20, **kw):
+def make_axes(parents, location=None, orientation=None, fraction=0.15,
+              shrink=1.0, aspect=20, **kw):
+    '''
+    Resize and reposition parent axes, and return a child
+    axes suitable for a colorbar::
+
+        cax, kw = make_axes(parent, **kw)
+
+    Keyword arguments may include the following (with defaults):
+
+        *location*: [**None**|'left'|'right'|'top'|'bottom']
+            The position, relative to **parents**, where the colorbar axes
+            should be created. If None, the value will either come from the
+            given **orientation**, else it will default to 'right'.
+
+        *orientation*:  [**None**|'vertical'|'horizontal']
+            The orientation of the colorbar. Typically, this keyword shouldn't
+            be used, as it can be derived from the **location** keyword.
+
+    %s
+
+    Returns (cax, kw), the child axes and the reduced kw dictionary to be
+    passed when creating the colorbar instance.
+    '''
     locations = ["left", "right", "top", "bottom"]
     if orientation is not None and location is not None:
         raise TypeError('position and orientation are mutually exclusive. Consider ' \
                         'setting the position to any of %s' % ', '.join(locations))
+
+    # provide a default location
+    if location is None and orientation is None:
+        location = 'right'
 
     # allow the user to not specify the location by specifying the orientation instead
     if location is None:
@@ -1057,6 +1084,9 @@ def make_axes_gridspec(parent, **kw):
     suitable for a colorbar. This function is similar to
     make_axes. Prmary differences are
 
+     * *make_axes_gridspec* only handles the *orientation* keyword
+       and cannot handle the "location" keyword.
+
      * *make_axes_gridspec* should only be used with a subplot parent.
 
      * *make_axes* creates an instance of Axes. *make_axes_gridspec*
@@ -1080,7 +1110,8 @@ def make_axes_gridspec(parent, **kw):
 
     All but the first of these are stripped from the input kw set.
 
-    Returns (cax, kw), the child axes and the reduced kw dictionary.
+    Returns (cax, kw), the child axes and the reduced kw dictionary to be
+    passed when creating the colorbar instance.
     '''
 
     orientation = kw.setdefault('orientation', 'vertical')
