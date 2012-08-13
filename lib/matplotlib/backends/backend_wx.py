@@ -361,11 +361,7 @@ class RendererWx(RendererBase):
         gc.gfx_ctx.DrawBitmap(bitmap,int(l),int(self.height-b),int(w),int(-h))
         gc.unselect()
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
-        """
-        Render the matplotlib.text.Text instance
-        None)
-        """
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         if ismath: s = self.strip_math(s)
         DEBUG_MSG("draw_text()", 1, self)
         gc.select()

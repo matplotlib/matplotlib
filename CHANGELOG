@@ -1,3 +1,8 @@
+2012-11-27 Added the *mtext* parameter for supplying matplotlib.text.Text
+           instances to RendererBase.draw_tex and RendererBase.draw_text.
+           This allows backends to utilize additional text attributes, like
+           the alignment of text elements. - pwuertz
+
 2012-11-16 plt.set_cmap no longer throws errors if there is not already
            an active colorable artist, such as an image, and just sets
            up the colormap to use from that point forward. - PI
