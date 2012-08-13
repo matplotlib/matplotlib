@@ -585,10 +585,11 @@ class Text(Artist):
                 if self.get_path_effects():
                     for path_effect in self.get_path_effects():
                         path_effect.draw_tex(renderer, gc, x, y, clean_line,
-                                             self._fontproperties, angle)
+                                             self._fontproperties, angle,
+                                             mtext=self)
                 else:
                     renderer.draw_tex(gc, x, y, clean_line,
-                                      self._fontproperties, angle)
+                                      self._fontproperties, angle, mtext=self)
         else:
             for line, wh, x, y in info:
                 if not np.isfinite(x) or not np.isfinite(y):
@@ -604,11 +605,11 @@ class Text(Artist):
                     for path_effect in self.get_path_effects():
                         path_effect.draw_text(renderer, gc, x, y, clean_line,
                                               self._fontproperties, angle,
-                                              ismath=ismath)
+                                              ismath=ismath, mtext=self)
                 else:
                     renderer.draw_text(gc, x, y, clean_line,
                                        self._fontproperties, angle,
-                                       ismath=ismath)
+                                       ismath=ismath, mtext=self)
 
         gc.restore()
         renderer.close_group('text')

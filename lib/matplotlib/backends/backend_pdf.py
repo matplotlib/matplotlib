@@ -1671,7 +1671,7 @@ class RendererPdf(RendererBase):
         # Pop off the global transformation
         self.file.output(Op.grestore)
 
-    def draw_tex(self, gc, x, y, s, prop, angle):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
         dvifile = texmanager.make_dvi(s, fontsize)
@@ -1763,7 +1763,7 @@ class RendererPdf(RendererBase):
             return s.encode('cp1252', 'replace')
         return s.encode('utf-16be', 'replace')
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # TODO: combine consecutive texts into one BT/ET delimited section
 
         # This function is rather complex, since there is no way to

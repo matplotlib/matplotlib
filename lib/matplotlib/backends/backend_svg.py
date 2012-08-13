@@ -1053,10 +1053,10 @@ class RendererSVG(RendererBase):
 
             writer.end(u'g')
 
-    def draw_tex(self, gc, x, y, s, prop, angle):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         clipid = self._get_clip(gc)
         if clipid is not None:
             # Cannot apply clip-path directly to the text, because
