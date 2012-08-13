@@ -7221,6 +7221,16 @@ class Axes(martist.Artist):
           pcolormesh(X, Y, C)
           pcolormesh(C, **kwargs)
 
+        Create a pseudocolor plot of a 2-D array.
+
+        pcolormesh is similar to :func:`~matplotlib.pyplot.pcolor`,
+        but uses a different mechanism and returns a different
+        object; pcolor returns a
+        :class:`~matplotlib.collections.PolyCollection` but pcolormesh
+        returns a
+        :class:`~matplotlib.collections.QuadMesh`.  It is much faster,
+        so it is almost always preferred for large arrays.
+
         *C* may be a masked array, but *X* and *Y* may not.  Masked
         array support is implemented via *cmap* and *norm*; in
         contrast, :func:`~matplotlib.pyplot.pcolor` simply does not
