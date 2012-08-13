@@ -101,8 +101,6 @@ class Artist(object):
         self._remove_method = None
         self._url = None
         self._gid = None
-        self.x_isdata = True  # False to avoid updating Axes.dataLim with x
-        self.y_isdata = True  #                                      with y
         self._snap = None
 
     def remove(self):

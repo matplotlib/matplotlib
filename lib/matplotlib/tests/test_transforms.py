@@ -2,7 +2,8 @@ from __future__ import print_function
 import unittest
 
 from nose.tools import assert_equal
-import numpy.testing as np_test, assert_almost_equal
+import numpy.testing as np_test 
+from numpy.testing import assert_almost_equal
 from matplotlib.transforms import Affine2D, BlendedGenericTransform
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
@@ -213,6 +214,11 @@ class BasicTransformTests(unittest.TestCase):
 #        self.stack1.write_graphviz(file('stack1.dot', 'w'))
 #        self.stack2.write_graphviz(file('stack2.dot', 'w'))
 #        self.stack2_subset.write_graphviz(file('stack2_subset.dot', 'w'))
+    
+    def test_transform_depth(self):
+        assert_equal(self.stack1.depth, 4)
+        assert_equal(self.stack2.depth, 4)
+        assert_equal(self.stack2_subset.depth, 3)
 
     def test_left_to_right_iteration(self):
         stack3 = (self.ta1 + (self.tn1 + (self.ta2 + self.tn2))) + self.ta3
@@ -224,7 +230,7 @@ class BasicTransformTests(unittest.TestCase):
                              self.tn2 + self.ta3,
                              self.ta3,
                              ]
-        r = [rh for lh, rh in stack3._iter_break_from_left_to_right()]
+        r = [rh for _, rh in stack3._iter_break_from_left_to_right()]
         self.assertEqual(len(r), len(target_transforms))
 
         for target_stack, stack in zip(target_transforms, r):
@@ -236,8 +242,11 @@ class BasicTransformTests(unittest.TestCase):
 
         # check that we cannot find a chain from the subset back to the superset
         # (since the inverse of the Transform is not defined.)
-        self.assertRaises(ValueError, self.stack2_subset.__sub__, self.stack2)
-        self.assertRaises(ValueError, self.stack1.__sub__, self.stack2)
+        with self.assertRaises(ValueError):
+            self.stack2_subset - self.stack2
+
+        with self.assertRaises(ValueError):
+            self.stack1 - self.stack2
 
         aff1 = self.ta1 + (self.ta2 + self.ta3)
         aff2 = self.ta2 + self.ta3
@@ -312,6 +321,42 @@ class BasicTransformTests(unittest.TestCase):
 class TestTransformPlotInterface(unittest.TestCase):
     def tearDown(self):
         plt.close()
+        
+    def test_line_extent_axes_coords(self):
+        # a simple line in axes coordinates
+        ax = plt.axes()
+        ax.plot([0.1, 1.2, 0.8], [0.9, 0.5, 0.8], transform=ax.transAxes)
+        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[0, 0], [1, 1]]))
+
+    def test_line_extent_data_coords(self):
+        # a simple line in data coordinates
+        ax = plt.axes()
+        ax.plot([0.1, 1.2, 0.8], [0.9, 0.5, 0.8], transform=ax.transData)
+        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[ 0.1,  0.5], [ 1.2,  0.9]]))
+
+    def test_line_extent_compound_coords1(self):
+        # a simple line in data coordinates in the y component, and in axes coordinates in the x
+        ax = plt.axes()
+        trans = mtrans.blended_transform_factory(ax.transAxes, ax.transData)
+        ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
+        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[  0.,  -5.], [  1.,  35.]]))
+        plt.close()
+
+    def test_line_extent_predata_transform_coords(self):
+        # a simple line in (offset + data) coordinates
+        ax = plt.axes()
+        trans = mtrans.Affine2D().scale(10) + ax.transData
+        ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
+        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[1., -50.], [12., 350.]]))
+        plt.close()
+
+    def test_line_extent_compound_coords2(self):
+        # a simple line in (offset + data) coordinates in the y component, and in axes coordinates in the x
+        ax = plt.axes()
+        trans = mtrans.blended_transform_factory(ax.transAxes, mtrans.Affine2D().scale(10) + ax.transData)
+        ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
+        np.testing.assert_array_equal(ax.dataLim.get_points(), np.array([[  0.,  -50.], [  1.,  350.]]))
+        plt.close()
 
     def test_line_extents_affine(self):
         ax = plt.axes()
@@ -362,7 +407,7 @@ class TestTransformPlotInterface(unittest.TestCase):
         # before a transData transformation, hence the data limits
         # are not what is being shown on the actual plot.
         expeted_data_lim = np.array([[0., 0.], [9.,  9.]]) + [0, 10]
-        np.testing.assert_array_almost_equal(ax.dataLim.get_points(),
+        np.testing.assert_array_almost_equal(ax.dataLim.get_points(), 
                                              expeted_data_lim)
 
 

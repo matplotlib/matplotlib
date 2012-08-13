@@ -72,6 +72,10 @@ Changes in 1.2.x
   original keyword arguments will override any value provided by
   *capthick*.
 
+* Aritsts no longer have ``x_isdata`` or ``y_isdata`` attributes. Instead
+  any artist's transform can be interrogated with
+  ``artist_instance.get_transform().is_data(ax.transData)``
+
 Changes in 1.1.x
 ================
 

@@ -1066,11 +1066,6 @@ class Transform(TransformNode):
     is_separable = False
     """True if this transform is separable in the x- and y- dimensions."""
 
-    #* Redundant: Removed for performance
-    #
-    # def __init__(self):
-    #     TransformNode.__init__(self)
-
     def __add__(self, other):
         """
         Composes two transforms together such that *self* is followed
@@ -1110,6 +1105,20 @@ class Transform(TransformNode):
         """
         yield IdentityTransform(), self
     
+    @property
+    def depth(self):
+        """
+        Returns the number of transforms which have been chained
+        together to form this Transform instance.
+
+        .. note::
+
+            For the special case of a Composite transform, the maximum depth
+            of the two is returned.
+
+        """
+        return 1
+
     def contains_branch(self, other):
         """
         Return whether the given transform is a sub-tree of this transform.
@@ -1121,12 +1130,33 @@ class Transform(TransformNode):
         of this transform, returns True.
 
         """
+        if self.depth < other.depth:
+            return False
+
         # check that a subtree is equal to other (starting from self)
         for _, sub_tree in self._iter_break_from_left_to_right():
             if sub_tree == other:
                 return True
-        return False 
-     
+        return False
+
+    def contains_branch_seperately(self, other_transform):
+        """
+        Returns whether the given branch is a sub-tree of this transform on
+        each seperate dimension.
+
+        A common use for this method is to identify if a transform is a blended
+        transform containing an axes' data transform. e.g.::
+
+            x_isdata, y_isdata = trans.contains_branch_seperately(ax.transData)
+
+        """
+        if self.output_dims != 2:
+            raise ValueError('contains_branch_seperately only supports '
+                             'transforms with 2 output dimensions')
+        # for a non-blended transform each seperate dimension is the same, so just
+        # return the appropriate shape.
+        return [self.contains_branch(other_transform)] * 2
+
     def __sub__(self, other):
         """
         Returns a transform stack which goes all the way down self's transform
@@ -1171,9 +1201,9 @@ class Transform(TransformNode):
 
     def __array__(self, *args, **kwargs):
         """
-        Array interface to get at this Transform's matrix.
+        Array interface to get at this Transform's affine matrix.
         """
-        raise NotImplementedError()
+        return self.get_affine().get_matrix()
 
     def transform(self, values):
         """
@@ -1379,7 +1409,7 @@ class TransformWrapper(Transform):
         self._invalid = 0
 
     def __eq__(self, other):
-        return self._child == other
+        return self._child.__eq__(other)
 
     if DEBUG:
         def __str__(self):
@@ -1513,8 +1543,8 @@ class Affine2DBase(AffineBase):
     Subclasses of this class will generally only need to override a
     constructor and :meth:`get_matrix` that generates a custom 3x3 matrix.
     """
-    has_inverse = True # there are some Affine transformations
-                       # which don't have inverses...
+    has_inverse = True
+
     input_dims = 2
     output_dims = 2
 
@@ -1790,7 +1820,6 @@ class IdentityTransform(Affine2DBase):
 
     def __repr__(self):
         return "IdentityTransform()"
-    __str__ = __repr__
 
     def get_matrix(self):
         return self._mtx
@@ -1856,9 +1885,34 @@ class BlendedGenericTransform(Transform):
         self.set_children(x_transform, y_transform)
         self._affine = None
 
+    def __eq__(self, other):
+        # Note, this is an exact copy of BlendedAffine2D.__eq__
+        if isinstance(other, (BlendedAffine2D, BlendedGenericTransform)):
+            return (self._x == other._x) and (self._y == other._y)
+        elif self._x == self._y:
+            return self._x == other
+        else:
+            return NotImplemented
+
+    def contains_branch_seperately(self, transform):
+        # Note, this is an exact copy of BlendedAffine2D.contains_branch_seperately
+        return self._x.contains_branch(transform), self._y.contains_branch(transform)
+
+    @property
+    def depth(self):
+        return max([self._x.depth, self._y.depth])
+
+    def contains_branch(self, other):
+        # a blended transform cannot possibly contain a branch from two different transforms.
+        return False
+
     def _get_is_affine(self):
         return self._x.is_affine and self._y.is_affine
     is_affine = property(_get_is_affine)
+
+    def _get_has_inverse(self):
+        return self._x.has_inverse and self._y.has_inverse
+    has_inverse = property(_get_has_inverse)
 
     def frozen(self):
         return blended_transform_factory(self._x.frozen(), self._y.frozen())
@@ -1866,7 +1920,6 @@ class BlendedGenericTransform(Transform):
 
     def __repr__(self):
         return "BlendedGenericTransform(%s,%s)" % (self._x, self._y)
-    __str__ = __repr__
 
     def transform_non_affine(self, points):
         if self._x.is_affine and self._y.is_affine:
@@ -1956,9 +2009,21 @@ class BlendedAffine2D(Affine2DBase):
         Affine2DBase.__init__(self)
         self._mtx = None
 
+    def __eq__(self, other):
+        # Note, this is an exact copy of BlendedGenericTransform.__eq__
+        if isinstance(other, (BlendedAffine2D, BlendedGenericTransform)):
+            return (self._x == other._x) and (self._y == other._y)
+        elif self._x == self._y:
+            return self._x == other
+        else:
+            return NotImplemented
+
+    def contains_branch_seperately(self, transform):
+        # Note, this is an exact copy of BlendedTransform.contains_branch_seperately
+        return self._x.contains_branch(transform), self._y.contains_branch(transform)
+
     def __repr__(self):
         return "BlendedAffine2D(%s,%s)" % (self._x, self._y)
-    __str__ = __repr__
 
     def get_matrix(self):
         if self._invalid:
@@ -2046,7 +2111,7 @@ class CompositeGenericTransform(Transform):
                                        invalidating_node=invalidating_node)
 
     def __eq__(self, other):
-        if isinstance(other, CompositeGenericTransform):
+        if isinstance(other, (CompositeGenericTransform, CompositeAffine2D)):
             return self is other or (self._a == other._a and self._b == other._b)
         else:
             return False
@@ -2056,6 +2121,10 @@ class CompositeGenericTransform(Transform):
             yield lh_compliment, rh_compliment + self._b
         for lh_compliment, rh_compliment in self._b._iter_break_from_left_to_right():
             yield self._a + lh_compliment, rh_compliment
+
+    @property
+    def depth(self):
+        return self._a.depth + self._b.depth
 
     def _get_is_affine(self):
         return self._a.is_affine and self._b.is_affine
@@ -2108,6 +2177,10 @@ class CompositeGenericTransform(Transform):
         return CompositeGenericTransform(self._b.inverted(), self._a.inverted())
     inverted.__doc__ = Transform.inverted.__doc__
 
+    def _get_has_inverse(self):
+        return self._a.has_inverse and self._b.has_inverse
+    has_inverse = property(_get_has_inverse)
+
 
 class CompositeAffine2D(Affine2DBase):
     """
@@ -2143,6 +2216,10 @@ class CompositeAffine2D(Affine2DBase):
     if DEBUG:
         def __str__(self):
             return '(%s, %s)' % (self._a, self._b)
+    
+    @property
+    def depth(self):
+        return self._a.depth + self._b.depth
 
     def _iter_break_from_left_to_right(self):
         for lh_compliment, rh_compliment in self._a._iter_break_from_left_to_right():
