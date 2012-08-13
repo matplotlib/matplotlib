@@ -1477,7 +1477,7 @@ class Axes(martist.Artist):
         if line_trans == self.transData:
             data_path = path
 
-        elif line_trans.contains_branch(self.transData):
+        elif any(line_trans.contains_branch_seperately(self.transData)):
             # identify the transform to go from line's coordinates
             # to data coordinates
             trans_to_data = line_trans - self.transData
@@ -1491,7 +1491,7 @@ class Axes(martist.Artist):
                 data_path = trans_to_data.transform_path_affine(na_path)
             else:
                 data_path = trans_to_data.transform_path(path)
-        else:               
+        else:
             # for backwards compatibility we update the dataLim with the 
             # coordinate range of the given path, even though the coordinate 
             # systems are completely different. This may occur in situations
@@ -1500,10 +1500,13 @@ class Axes(martist.Artist):
             data_path = path
 
         if data_path.vertices.size > 0:
-            self.dataLim.update_from_path(data_path,
+            updatex, updatey = line_trans.contains_branch_seperately(
+                                                               self.transData
+                                                                    )
+            self.dataLim.update_from_path(data_path, 
                                           self.ignore_existing_data_limits,
-                                          updatex=line.x_isdata,
-                                          updatey=line.y_isdata)
+                                          updatex=updatex,
+                                          updatey=updatey)
             self.ignore_existing_data_limits = False
 
     def add_patch(self, p):
@@ -1539,11 +1542,14 @@ class Axes(martist.Artist):
         if vertices.size > 0:
             xys = patch.get_patch_transform().transform(vertices)
             if patch.get_data_transform() != self.transData:
-                transform = (patch.get_data_transform() +
-                                    self.transData.inverted())
-                xys = transform.transform(xys)
-            self.update_datalim(xys, updatex=patch.x_isdata,
-                                     updatey=patch.y_isdata)
+                patch_to_data = (patch.get_data_transform() -
+                                    self.transData)
+                xys = patch_to_data.transform(xys)
+
+            updatex, updatey = patch.get_transform().\
+                                    contains_branch_seperately(self.transData)
+            self.update_datalim(xys, updatex=updatex,
+                                     updatey=updatey)
 
 
     def add_table(self, tab):
@@ -1631,13 +1637,13 @@ class Axes(martist.Artist):
         if xdata is not None:
             # we only need to update if there is nothing set yet.
             if not self.xaxis.have_units():
-               self.xaxis.update_units(xdata)
+                self.xaxis.update_units(xdata)
             #print '\tset from xdata', self.xaxis.units
 
         if ydata is not None:
             # we only need to update if there is nothing set yet.
             if not self.yaxis.have_units():
-               self.yaxis.update_units(ydata)
+                self.yaxis.update_units(ydata)
             #print '\tset from ydata', self.yaxis.units
 
         # process kwargs 2nd since these will override default units
@@ -3456,7 +3462,6 @@ class Axes(martist.Artist):
         trans = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
         l = mlines.Line2D([xmin,xmax], [y,y], transform=trans, **kwargs)
-        l.x_isdata = False
         self.add_line(l)
         self.autoscale_view(scalex=False, scaley=scaley)
         return l
@@ -3521,7 +3526,6 @@ class Axes(martist.Artist):
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
         l = mlines.Line2D([x,x], [ymin,ymax] , transform=trans, **kwargs)
-        l.y_isdata = False
         self.add_line(l)
         self.autoscale_view(scalex=scalex, scaley=False)
         return l
@@ -3578,7 +3582,6 @@ class Axes(martist.Artist):
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
-        p.x_isdata = False
         self.add_patch(p)
         self.autoscale_view(scalex=False)
         return p
@@ -3635,7 +3638,6 @@ class Axes(martist.Artist):
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
-        p.y_isdata = False
         self.add_patch(p)
         self.autoscale_view(scaley=False)
         return p

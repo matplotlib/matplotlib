@@ -167,9 +167,15 @@ class Patch(artist.Artist):
         return self.get_patch_transform() + artist.Artist.get_transform(self)
 
     def get_data_transform(self):
+        """
+        Return the :class:`~matplotlib.transforms.Transform` ... I'm not sure
+        """
         return artist.Artist.get_transform(self)
 
     def get_patch_transform(self):
+        """
+        Return the :class:`~matplotlib.transforms.Transform` ... I'm not sure
+        """
         return transforms.IdentityTransform()
 
     def get_antialiased(self):

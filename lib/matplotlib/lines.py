@@ -6,6 +6,8 @@ variety of line styles, markers and colors.
 # TODO: expose cap and join style attrs
 from __future__ import division, print_function
 
+import warnings
+
 import numpy as np
 from numpy import ma
 from matplotlib import verbose
@@ -256,8 +258,8 @@ class Line2D(Artist):
         yt = xy[:, 1]
 
         # Convert pick radius from points to pixels
-        if self.figure == None:
-            warning.warn('no figure set when check if mouse is on line')
+        if self.figure is None:
+            warnings.warn('no figure set when check if mouse is on line')
             pixels = self.pickradius
         else:
             pixels = self.figure.dpi/72. * self.pickradius
