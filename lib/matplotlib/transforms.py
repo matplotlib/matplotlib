@@ -36,19 +36,16 @@ from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
     update_path_extents)
 from numpy.linalg import inv
 
-from weakref import WeakKeyDictionary
+from weakref import WeakValueDictionary
 import warnings
 try:
     set
 except NameError:
     from sets import Set as set
 
-import cbook
 from path import Path
 
 DEBUG = False
-if DEBUG:
-    import warnings
 
 MaskedArray = ma.MaskedArray
 
@@ -92,7 +89,7 @@ class TransformNode(object):
         # Parents are stored in a WeakKeyDictionary, so that if the
         # parents are deleted, references from the children won't keep
         # them alive.
-        self._parents = WeakKeyDictionary()
+        self._parents = WeakValueDictionary()
 
         # TransformNodes start out as invalid until their values are
         # computed for the first time.
@@ -141,7 +138,7 @@ class TransformNode(object):
         if self.pass_through or status_changed:
             self._invalid = value
 
-            for parent in self._parents.iterkeys():
+            for parent in self._parents.itervalues():
                 parent._invalidate_internal(value=value, invalidating_node=self)
 
     def set_children(self, *children):
@@ -152,7 +149,7 @@ class TransformNode(object):
         depend on other transforms.
         """
         for child in children:
-            child._parents[self] = None
+            child._parents[id(self)] = self
 
     if DEBUG:
         _set_children = set_children
@@ -1410,7 +1407,7 @@ class TransformWrapper(Transform):
 
     def __eq__(self, other):
         return self._child.__eq__(other)
-
+    
     if DEBUG:
         def __str__(self):
             return str(self._child)
@@ -1496,7 +1493,7 @@ class AffineBase(Transform):
         if other.is_affine:
             return np.all(self.get_matrix() == other.get_matrix())
         return NotImplemented
-
+    
     def transform(self, values):
         return self.transform_affine(values)
     transform.__doc__ = Transform.transform.__doc__
@@ -1642,12 +1639,12 @@ class Affine2D(Affine2DBase):
     def __repr__(self):
         return "Affine2D(%s)" % repr(self._mtx)
 
-    def __cmp__(self, other):
-        # XXX redundant. this only tells us eq.
-        if (isinstance(other, Affine2D) and
-            (self.get_matrix() == other.get_matrix()).all()):
-            return 0
-        return -1
+#    def __cmp__(self, other):
+#        # XXX redundant. this only tells us eq.
+#        if (isinstance(other, Affine2D) and
+#            (self.get_matrix() == other.get_matrix()).all()):
+#            return 0
+#        return -1
 
     @staticmethod
     def from_values(a, b, c, d, e, f):
@@ -1893,7 +1890,7 @@ class BlendedGenericTransform(Transform):
             return self._x == other
         else:
             return NotImplemented
-
+        
     def contains_branch_seperately(self, transform):
         # Note, this is an exact copy of BlendedAffine2D.contains_branch_seperately
         return self._x.contains_branch(transform), self._y.contains_branch(transform)

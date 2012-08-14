@@ -1,7 +1,7 @@
 from __future__ import print_function
 import unittest
 
-from nose.tools import assert_equal
+from nose.tools import assert_equal, assert_raises
 import numpy.testing as np_test 
 from numpy.testing import assert_almost_equal
 from matplotlib.transforms import Affine2D, BlendedGenericTransform
@@ -242,11 +242,8 @@ class BasicTransformTests(unittest.TestCase):
 
         # check that we cannot find a chain from the subset back to the superset
         # (since the inverse of the Transform is not defined.)
-        with self.assertRaises(ValueError):
-            self.stack2_subset - self.stack2
-
-        with self.assertRaises(ValueError):
-            self.stack1 - self.stack2
+        assert_raises(ValueError, self.stack2_subset.__sub__, self.stack2)
+        assert_raises(ValueError, self.stack1.__sub__, self.stack2)
 
         aff1 = self.ta1 + (self.ta2 + self.ta3)
         aff2 = self.ta2 + self.ta3
