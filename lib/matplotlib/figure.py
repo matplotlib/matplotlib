@@ -1361,7 +1361,7 @@ class Figure(Artist):
 
         return bbox_inches
 
-    def tight_layout(self, renderer=None, pad=1.2, h_pad=None, w_pad=None, rect=None):
+    def tight_layout(self, renderer=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
         """
         Adjust subplot parameters to give specified padding.
 
