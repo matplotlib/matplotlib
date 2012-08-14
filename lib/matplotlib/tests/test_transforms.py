@@ -240,9 +240,11 @@ class BasicTransformTests(unittest.TestCase):
         self.assertEqual(self.stack1 - self.stack2_subset, self.ta1)
         self.assertEqual(self.stack2 - self.stack2_subset, self.ta1)
 
-        # check that we cannot find a chain from the subset back to the superset
-        # (since the inverse of the Transform is not defined.)
-        assert_raises(ValueError, self.stack2_subset.__sub__, self.stack2)
+        assert_equal((self.stack2_subset - self.stack2), 
+                                   self.ta1.inverted(),
+                                   )
+        assert_equal((self.stack2_subset - self.stack2).depth, 1)
+
         assert_raises(ValueError, self.stack1.__sub__, self.stack2)
 
         aff1 = self.ta1 + (self.ta2 + self.ta3)
