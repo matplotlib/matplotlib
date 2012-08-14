@@ -7946,13 +7946,20 @@ class Axes(martist.Artist):
                 x += 0.5*(bins[1]-bins[0])
 
             if log:
-                #in the case of log scale there are three cases to consider for the y axis limit
-                #1) has zero or negative bin but other bins may be 0<n<1 due to weighting. we want positive minimum*0.1 to be the minimum
-                #2) has zero bin but the rest are greater than 1. this one we want minimum at 0.1
-                #3) all zero/negative bin .... no idea how to display this anyway so put minimum at 0.1
+                #in the case of log scale there are three cases 
+                #to consider for the y axis limit
+                #1) has zero or negative bin but other bins may be 0<n<1 
+                #   due to weighting or normalization. We want 
+                #   (positive minimum)*0.1 to be the minimum
+                #2) has zero/negative bin but the rest are greater than 1. 
+                #   this one we want minimum at 0.1 (normal cases)
+                #3) all zero/negative bin .... no idea how to display this
+                #   anyway so put minimum at 0.1
                 ndata = np.array(n)
-                if np.all(ndata<=0):
-                    warnings.warn('Some of histogram bins has zero or negative count.')
+                if np.any(ndata<=0):
+                    warnings.warn(
+                        'Histogram bins with zero or negative count '+
+                        'are not displayed in log scale.')
                 
                 if np.any(ndata>0):
                     if np.all(ndata[ndata!=0]>=1):
@@ -7962,7 +7969,6 @@ class Axes(martist.Artist):
                 else: 
                     minimum = 0.1 #case 3)
 
-                y[0],y[-1] = minimum, minimum
                 if orientation == 'horizontal':
                     self.set_xscale('log')
                 else:  # orientation == 'vertical'
@@ -7973,7 +7979,11 @@ class Axes(martist.Artist):
             for m, c in zip(n, color):
                 y[1:-1:2], y[2::2] = m, m
                 if log:
-                    y[y<minimum]=minimum 
+                    tiniest = np.finfo(np.float).tiny
+                    #make sure they don't show up in display
+                    y[y<minimum]= tiniest
+                    #making sure it is filled all the way down the axis
+                    y[0],y[-1] = tiniest, tiniest
                 if orientation == 'horizontal':
                     x,y = y,x
 
