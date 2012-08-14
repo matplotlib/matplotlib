@@ -319,6 +319,9 @@ def validate_hinting(s):
         return s.lower()
     raise ValueError("hinting should be 'auto', 'native', 'either' or 'none'")
 
+validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
+                                           ['xelatex', 'lualatex', 'pdflatex'])
+
 validate_movie_writer = ValidateInStrings('animation.writer',
     ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file'])
 
@@ -576,7 +579,7 @@ defaultParams = {
     'pdf.fonttype'      : [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
 
     'pgf.debug'         : [False, validate_bool],  # output debug information
-    'pgf.texsystem'     : ['xelatex', str],        # choose latex application for creating pdf files (xelatex/lualatex)
+    'pgf.texsystem'     : ['xelatex', validate_pgf_texsystem], # choose latex application for creating pdf files (xelatex/lualatex)
     'pgf.rcfonts'       : [True, validate_bool],   # use matplotlib rc settings for font configuration
     'pgf.preamble'      : [[''], validate_stringlist], # provide a custom preamble for the latex process
 
