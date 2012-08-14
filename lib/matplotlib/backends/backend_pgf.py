@@ -337,19 +337,19 @@ text $math \mu$ %% force latex to load fonts now
 
 class RendererPgf(RendererBase):
 
-    def __init__(self, figure, fh, draw_texts=True):
+    def __init__(self, figure, fh):
         """
-        Creates a new Pgf renderer that translates any drawing instruction
-        into commands to be interpreted in a latex pgfpicture environment.
+        Creates a new PGF renderer that translates any drawing instruction
+        into text commands to be interpreted in a latex pgfpicture environment.
 
-        If `draw_texts` is False, the draw_text calls are ignored and the
-        text elements must be rendered in a different way.
+        Attributes:
+        * figure: Matplotlib figure to initialize height, width and dpi from.
+        * fh: File handle for the output of the drawing commands.
         """
         RendererBase.__init__(self)
         self.dpi = figure.dpi
         self.fh = fh
         self.figure = figure
-        self.draw_texts = draw_texts
         self.image_counter = 0
 
         # get LatexManager instance
@@ -542,8 +542,6 @@ class RendererPgf(RendererBase):
         self.draw_text(gc, x, y, s, prop, angle, ismath)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
-        if not self.draw_texts: return
-
         s = common_texification(s)
 
         # apply font properties
@@ -631,27 +629,47 @@ class FigureCanvasPgf(FigureCanvasBase):
         rendered in latex documents.
         """
 
-        header_text = r"""%% Pgf figure exported from matplotlib.
+        header_text = r"""%% Creator: Matplotlib, PGF backend
 %%
-%% To include the image in your LaTeX document, write
+%% To include the figure in your LaTeX document, write
 %%   \input{<filename>.pgf}
 %%
-%% Make sure to load the required packages in your main document
+%% Make sure the required packages are loaded in your preamble
 %%   \usepackage{pgf}
-%"""
-        # figure size in units of in
+%%
+%% Figures using additional raster images can only be included by \input if
+%% they are in the same directory as the main LaTeX file. For loading figures
+%% from other directories you can use the `import` package
+%%   \usepackage{import}
+%% and then include the figures with
+%%   \import{<path to file>}{<filename>.pgf}
+%%
+"""
+
+        # append the preamble used by the backend as a comment for debugging
+        header_info_preamble = ["%% Matplotlib used the following preamble"]
+        for line in get_preamble().splitlines():
+            header_info_preamble.append("%%   " + line)
+        for line in get_fontspec().splitlines():
+            header_info_preamble.append("%%   " + line)
+        header_info_preamble.append("%%")
+        header_info_preamble = "\n".join(header_info_preamble)
+
+        # get figure size in inch
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
         # start a pgfpicture environment and set a bounding box
         fh = codecs.open(filename, "wt", encoding="utf-8")
-        writeln(fh, header_text)
+        fh.write(header_text)
+        fh.write(header_info_preamble)
+        fh.write("\n")
         writeln(fh, r"\begingroup")
         writeln(fh, r"\makeatletter")
         writeln(fh, r"\begin{pgfpicture}")
         writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w,h))
         writeln(fh, r"\pgfusepath{use as bounding box}")
 
-        renderer = RendererPgf(self.figure, fh, draw_texts=True)
+        renderer = RendererPgf(self.figure, fh)
         self.figure.draw(renderer)
 
         # end the pgfpicture environment
@@ -766,7 +784,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             writeln(fh, ur"\pgftext[%s,x=%fin,y=%fin,rotate=%f]{%s}" % (align,x,y,angle,s))
 
     def get_renderer(self):
-        return RendererPgf(self.figure, None, draw_texts=False)
+        return RendererPgf(self.figure, None)
 
 class FigureManagerPgf(FigureManagerBase):
     def __init__(self, *args):
