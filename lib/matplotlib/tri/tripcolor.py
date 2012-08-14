@@ -33,8 +33,8 @@ def tripcolor(ax, *args, **kwargs):
     points, or one per triangle in the triangulation if color values
     are defined at triangles. If there are the same number of points
     and triangles in the triangulation it is assumed that color
-    values are defined at points unless the kwarg *colorpoints* is
-    set to *False*.
+    values are defined at points; to force the use of color values at
+    triangles use the kwarg *facecolors*=C instead of just *C*.
 
     *shading* may be 'flat' (the default) or 'gouraud'. If *shading*
     is 'flat' and C values are defined at points, the color values
@@ -58,10 +58,32 @@ def tripcolor(ax, *args, **kwargs):
     vmin = kwargs.pop('vmin', None)
     vmax = kwargs.pop('vmax', None)
     shading = kwargs.pop('shading', 'flat')
-    colorpoints = kwargs.pop('colorpoints', True)
+    facecolors = kwargs.pop('facecolors', None)
 
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
-    C = np.asarray(args[0])
+
+    # C is the colors array, defined at either points or faces (i.e. triangles).
+    # If facecolors is None, C are defined at points.
+    # If facecolors is not None, C are defined at faces.
+    if facecolors is not None:
+        C = facecolors
+    else:
+        C = np.asarray(args[0])
+
+    # If there are a different number of points and triangles in the
+    # triangulation, can omit facecolors kwarg as it is obvious from
+    # length of C whether it refers to points or faces.
+    # Do not do this for gouraud shading.
+    if facecolors is None and len(C) == len(tri.triangles) and \
+           len(C) != len(tri.x) and shading != 'gouraud':
+        facecolors = C
+
+    # Check length of C is OK.
+    if (facecolors is None and len(C) != len(tri.x)) or \
+           (facecolors is not None and len(C) != len(tri.triangles)):
+        raise ValueError('Length of color values array must be the same '
+                         'as either the number of triangulation points '
+                         'or triangles')
 
 
     # Handling of linewidths, shading, edgecolors and antialiased as
@@ -86,29 +108,22 @@ def tripcolor(ax, *args, **kwargs):
 
 
     if shading == 'gouraud':
+        if facecolors is not None:
+            raise ValueError('Gouraud shading does not support the use '
+                             'of facecolors kwarg')
         if len(C) != len(tri.x):
-            raise ValueError('For gouraud shading, the length of C '
-                             'array must be the same as the number of '
-                             'triangulation points')
+            raise ValueError('For gouraud shading, the length of color '
+                             'values array must be the same as the '
+                             'number of triangulation points')
         collection = TriMesh(tri, **kwargs)
     else:
-        if len(C) != len(tri.x) and len(C) != len(tri.triangles):
-            raise ValueError('Length of C array must be the same as either '
-                             'the number of triangulation points or triangles')
-
-        # CAtPoints is True  if C defined at points
-        #           or False if C defined at triangles.
-        CAtPoints = (len(C) == len(tri.x))
-        if len(C) == len(tri.x) and len(C) == len(tri.triangles):
-            CAtPoints = colorpoints
-
         # Vertices of triangles.
         maskedTris = tri.get_masked_triangles()
         verts = np.concatenate((tri.x[maskedTris][...,np.newaxis],
                                 tri.y[maskedTris][...,np.newaxis]), axis=2)
 
         # Color values.
-        if CAtPoints:
+        if facecolors is None:
             # One color per triangle, the mean of the 3 vertex color values.
             C = C[maskedTris].mean(axis=1)
         elif tri.mask is not None:
