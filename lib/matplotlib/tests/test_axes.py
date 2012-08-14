@@ -675,7 +675,7 @@ def contour_dat():
 @image_comparison(baseline_images=['hist_step'])
 def test_hist_step():
     np.random.seed(0)
-    ndata = 1000
+    ndata = 10000
     d= np.random.randn(ndata)+500
     w= np.random.randn(ndata)
     fig = plt.figure()
@@ -686,7 +686,7 @@ def test_hist_step():
 @image_comparison(baseline_images=['hist_step_log'])
 def test_hist_step_log():
     np.random.seed(0)
-    ndata = 1000
+    ndata = 10000
     d= np.random.randn(ndata)+500
     w= np.random.randn(ndata)
     fig = plt.figure()
@@ -698,7 +698,7 @@ def test_hist_step_log():
 def test_hist_step_nw():
     #test with negative weight
     np.random.seed(0)
-    ndata = 1000
+    ndata = 10000
     d= np.random.randn(ndata)+500
     w= np.random.randn(ndata)
     fig = plt.figure()
@@ -710,7 +710,7 @@ def test_hist_step_nw():
 def test_hist_step_nw_log():
     #test with negative weight
     np.random.seed(0)
-    ndata = 1000
+    ndata = 10000
     d= np.random.randn(ndata)+500
     w= np.random.randn(ndata)
     fig = plt.figure()
