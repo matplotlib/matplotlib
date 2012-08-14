@@ -1181,8 +1181,8 @@ class Transform(TransformNode):
             if sub_tree == other:
                 return remainder
 
-        for remainder, sub_tree in self._iter_break_from_left_to_right():
-            if sub_tree == other:
+        for remainder, sub_tree in other._iter_break_from_left_to_right():
+            if sub_tree == self:
                 if not remainder.has_inverse:
                     raise ValueError("The shortcut cannot be computed since "
                      "other's transform includes a non-invertable component.")
