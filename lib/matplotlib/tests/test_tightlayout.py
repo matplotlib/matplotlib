@@ -110,7 +110,7 @@ def test_tight_layout6():
 
     ax.set_xlabel("x-label", fontsize=12)
 
-    gs2.tight_layout(fig, rect=[0.5, 0, 1, 1], h_pad=0.5)
+    gs2.tight_layout(fig, rect=[0.5, 0, 1, 1], h_pad=0.45)
 
     top = min(gs1.top, gs2.top)
     bottom = max(gs1.bottom, gs2.bottom)
@@ -119,5 +119,5 @@ def test_tight_layout6():
                                 0.5, 1 - (gs1.top-top)])
     gs2.tight_layout(fig, rect=[0.5, 0 + (bottom-gs2.bottom),
                                 None, 1 - (gs2.top-top)],
-                     h_pad=0.5)
+                     h_pad=0.45)
 

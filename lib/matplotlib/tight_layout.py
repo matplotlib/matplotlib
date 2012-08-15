@@ -38,7 +38,7 @@ def auto_adjust_subplotpars(fig, renderer,
                             num1num2_list,
                             subplot_list,
                             ax_bbox_list=None,
-                            pad=1.2, h_pad=None, w_pad=None,
+                            pad=1.08, h_pad=None, w_pad=None,
                             rect=None):
     """
     Return a dictionary of subplot parameters so that spacing between
@@ -71,15 +71,15 @@ def auto_adjust_subplotpars(fig, renderer,
 
     rows, cols = nrows_ncols
 
-    pad_inches = pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / renderer.dpi
+    pad_inches = pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / 72.
 
     if h_pad is not None:
-        vpad_inches = h_pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / renderer.dpi
+        vpad_inches = h_pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / 72.
     else:
         vpad_inches = pad_inches
 
     if w_pad is not None:
-        hpad_inches = w_pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / renderer.dpi
+        hpad_inches = w_pad * FontProperties(size=rcParams["font.size"]).get_size_in_points() / 72.
     else:
         hpad_inches = pad_inches
 
@@ -210,7 +210,7 @@ def get_renderer(fig):
 
 
 def get_tight_layout_figure(fig, axes_list, renderer,
-                            pad=1.2, h_pad=None, w_pad=None, rect=None):
+                            pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
     return subplot parameters for tigh-layouted- figure with
     specified padding.
