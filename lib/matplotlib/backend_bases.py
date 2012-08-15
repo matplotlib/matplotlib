@@ -2413,7 +2413,17 @@ class FigureManagerBase:
         canvas.manager = self  # store a pointer to parent
         self.num = num
 
-        self.canvas.mpl_connect('key_press_event', self.key_press)
+        self.key_press_handler_id = self.canvas.mpl_connect('key_press_event',
+                                                            self.key_press)
+        """
+        The returned id from connecting the default key handler via :meth:`FigureCanvasBase.mpl_connnect`.
+        
+        To disable default key press handling::
+        
+            manager, canvas = figure.canvas.manager, figure.canvas
+            canvas.mpl_disconnect(manager.key_press_handler_id)
+            
+        """
 
     def destroy(self):
         pass
