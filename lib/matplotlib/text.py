@@ -206,12 +206,18 @@ class Text(Artist):
         if not self.get_visible() or self._renderer is None:
             return False,{}
 
+        if self._bbox_patch:
+            patch_inside, patch_cattr =  self._bbox_patch.contains(mouseevent)
+        else:
+            patch_inside, patch_cattr = False,{}
+
+
         l,b,w,h = self.get_window_extent().bounds
         r, t = l+w, b+h
         
         x, y = mouseevent.x, mouseevent.y
         inside = (l <= x <= r and b <= y <= t)
-        return inside, {}
+        return (inside or patch_inside), {}
 
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x, y in display coords'
