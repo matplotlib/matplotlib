@@ -25,9 +25,11 @@ from matplotlib.ft2font import FT2Font
 system_fonts = []
 for f in font_manager.findSystemFonts():
     try:
-        system_fonts.append(FT2Font(f).family_name)
+        system_fonts.append(FT2Font(str(f).family_name))
     except RuntimeError:
-        pass
+        pass # some fonts on osx are known to fail, print?
+    except:
+        pass # unknown error, skip this font
 
 # get chosen TeX system from rc
 def get_texcommand():
@@ -659,23 +661,23 @@ class FigureCanvasPgf(FigureCanvasBase):
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
         # start a pgfpicture environment and set a bounding box
-        fh = codecs.open(filename, "wt", encoding="utf-8")
-        fh.write(header_text)
-        fh.write(header_info_preamble)
-        fh.write("\n")
-        writeln(fh, r"\begingroup")
-        writeln(fh, r"\makeatletter")
-        writeln(fh, r"\begin{pgfpicture}")
-        writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w,h))
-        writeln(fh, r"\pgfusepath{use as bounding box}")
+        with codecs.open(filename, "w", encoding="utf-8") as fh:
+            fh.write(header_text)
+            fh.write(header_info_preamble)
+            fh.write("\n")
+            writeln(fh, r"\begingroup")
+            writeln(fh, r"\makeatletter")
+            writeln(fh, r"\begin{pgfpicture}")
+            writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w,h))
+            writeln(fh, r"\pgfusepath{use as bounding box}")
 
-        renderer = RendererPgf(self.figure, fh)
-        self.figure.draw(renderer)
+            renderer = RendererPgf(self.figure, fh)
+            self.figure.draw(renderer)
 
-        # end the pgfpicture environment
-        writeln(fh, r"\end{pgfpicture}")
-        writeln(fh, r"\makeatother")
-        writeln(fh, r"\endgroup")
+            # end the pgfpicture environment
+            writeln(fh, r"\end{pgfpicture}")
+            writeln(fh, r"\makeatother")
+            writeln(fh, r"\endgroup")
 
     def print_pdf(self, filename, *args, **kwargs):
         """
@@ -704,7 +706,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 \centering
 \input{figure.pgf}
 \end{document}""" % (w, h, latex_preamble, latex_fontspec)
-            with codecs.open("figure.tex", "wt", "utf-8") as fh:
+            with codecs.open("figure.tex", "w", "utf-8") as fh:
                 fh.write(latexcode)
 
             texcommand = get_texcommand()
@@ -716,7 +718,10 @@ class FigureCanvasPgf(FigureCanvasBase):
             shutil.copyfile("figure.pdf", target)
         finally:
             os.chdir(cwd)
-            shutil.rmtree(tmpdir)
+            try:
+                shutil.rmtree(tmpdir)
+            except:
+                sys.stderr.write("could not delete tmp directory %s\n" % tmpdir)
 
     def print_png(self, filename, *args, **kwargs):
         """
@@ -735,7 +740,10 @@ class FigureCanvasPgf(FigureCanvasBase):
             shutil.copyfile("figure.png", target)
         finally:
             os.chdir(cwd)
-            shutil.rmtree(tmpdir)
+            try:
+                shutil.rmtree(tmpdir)
+            except:
+                sys.stderr.write("could not delete tmp directory %s\n" % tmpdir)
 
     def _render_texts_pgf(self, fh):
         # TODO: currently unused code path
