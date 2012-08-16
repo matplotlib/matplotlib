@@ -18,7 +18,7 @@ def test_colormap_endian():
     # Test under, over, and invalid along with values 0 and 1.
     a = [-0.5, 0, 0.5, 1, 1.5, np.nan]
     for dt in ["f2", "f4", "f8"]:
-        anative = np.array(a, dtype=dt)
+        anative = np.ma.masked_invalid(np.array(a, dtype=dt))
         aforeign = anative.byteswap().newbyteorder()
         #print(anative.dtype.isnative, aforeign.dtype.isnative)
         assert_array_equal(cmap(anative), cmap(aforeign))
