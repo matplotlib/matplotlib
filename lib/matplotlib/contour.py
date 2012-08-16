@@ -999,11 +999,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.locator = ticker.LogLocator()
             else:
                 self.locator = ticker.MaxNLocator(N+1)
-        self.locator.create_dummy_axis()
         zmax = self.zmax
         zmin = self.zmin
-        self.locator.set_bounds(zmin, zmax)
-        lev = self.locator()
+        lev = self.locator.tick_values(zmin, zmax)
         self._auto = True
         if self.filled:
             return lev

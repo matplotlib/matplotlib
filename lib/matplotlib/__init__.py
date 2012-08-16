@@ -1003,26 +1003,28 @@ for s in sys.argv[1:]:
 
 default_test_modules = [
     'matplotlib.tests.test_agg',
+    'matplotlib.tests.test_axes',
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_cbook',
-    'matplotlib.tests.test_mlab',
-    'matplotlib.tests.test_transforms',
-    'matplotlib.tests.test_axes',
-    'matplotlib.tests.test_figure',
-    'matplotlib.tests.test_dates',
-    'matplotlib.tests.test_spines',
-    'matplotlib.tests.test_image',
-    'matplotlib.tests.test_simplification',
-    'matplotlib.tests.test_mathtext',
-    'matplotlib.tests.test_text',
-    'matplotlib.tests.test_tightlayout',
-    'matplotlib.tests.test_delaunay',
-    'matplotlib.tests.test_legend',
     'matplotlib.tests.test_colorbar',
+    'matplotlib.tests.test_dates',
+    'matplotlib.tests.test_delaunay',
+    'matplotlib.tests.test_figure',
+    'matplotlib.tests.test_image',
+    'matplotlib.tests.test_legend',
+    'matplotlib.tests.test_mathtext',
+    'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_patches',
+    'matplotlib.tests.test_simplification',
+    'matplotlib.tests.test_spines',
+    'matplotlib.tests.test_text',
+    'matplotlib.tests.test_ticker',
+    'matplotlib.tests.test_tightlayout',
     'matplotlib.tests.test_triangulation'
+    'matplotlib.tests.test_transforms',
     ]
+
 
 def test(verbosity=1):
     """run the matplotlib test suite"""
