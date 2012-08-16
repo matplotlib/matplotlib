@@ -17,6 +17,18 @@ This page just covers the highlights -- for the full story, see the
 new in matplotlib-1.2
 =====================
 
+Locator interface
+-----------------
+
+Philip Elson exposed the intelligence behind the tick Locator classes with a
+simple interface. For instance, to get no more than 5 sensible steps which
+span the values 10 and 19.5::
+
+    >>> import matplotlib.ticker as mticker
+    >>> locator = mticker.MaxNLocator(nbins=5)
+    >>> print(locator.tick_values(10, 19.5))
+    [ 10.  12.  14.  16.  18.  20.]
+
 Tri-Surface Plots
 -----------------
 
