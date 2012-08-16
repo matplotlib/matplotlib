@@ -10,4 +10,4 @@ pyplot
    :members:
    :undoc-members:
    :show-inheritance:
-   :exclude-members: plotting colormaps
+   :exclude-members: plotting, colormaps
