@@ -6,19 +6,22 @@ Credits
 
 
 matplotlib was written by John Hunter and is now developed and
-maintained by a number of
-`active <http://www.ohloh.net/projects/matplotlib/contributors>`_
-developers.
+maintained by a number of `active
+<http://www.ohloh.net/projects/matplotlib/contributors>`_ developers.
+The current lead developer of matplotlib is Michael Droettboom.
 
-Special thanks to those who have made valuable contributions
-(roughly in order of first contribution by date)
+Special thanks to those who have made valuable contributions (roughly
+in order of first contribution by date).  Any list like this is bound
+to be incomplete and can't capture the thousands and thousands of
+contributions over the years from these and others:
 
 Jeremy O'Donoghue
   wrote the wx backend
 
-Andrew Straw provided much of the log scaling architecture, the fill
-  command, PIL support for imshow, and provided many examples.  He
-  also wrote the support for dropped axis spines and the `buildbot
+Andrew Straw
+  Provided much of the log scaling architecture, the fill command, PIL
+  support for imshow, and provided many examples.  He also wrote the
+  support for dropped axis spines and the `buildbot
   <http://mpl-buildbot.code.astraw.com/>`_ unit testing infrastructure
   which triggers the JPL/James Evans platform specific builds and
   regression test image comparisons from svn matplotlib across
@@ -177,7 +180,32 @@ John Porter, Jonathon Taylor and Reinier Heeres
   matplotlib, and Jonathon Taylor and Reinier Heeres ported it to the
   refactored transform trunk.
 
-Jae-Joon Lee implemented fancy arrows and boxes, rewrote the legend
+Jae-Joon Lee
+  Implemented fancy arrows and boxes, rewrote the legend
   support to handle multiple columns and fancy text boxes, wrote the
   axes grid toolkit, and has made numerous contributions to the code
   and documentation
+
+Paul Ivanov
+  Has worked on getting matplotlib integrated better with other tools,
+  such as Sage and IPython, and getting the test infrastructure
+  faster, lighter and meaner.  Listen to his podcast.
+
+Tony Yu
+  Has been involved in matplotlib since the early days, and recently
+  has contributed stream plotting among many other improvements.  He
+  is the author of mpltools.
+
+Benjamin Root
+  Has significantly improved the capabilities of the 3D plotting.  He
+  has improved matplotlib's documentation and code quality throughout,
+  and does invaluable triaging of pull requests and bugs.
+
+Phil Elson
+  Fixed some deep-seated bugs in the transforms framework, and has
+  been laser-focused on improving polish throughout matplotlib,
+  tackling things that have been considered to large and daunting for
+  a long time.
+
+Damon McDougall
+  Added triangulated 3D surfaces and stack plots to matplotlib.
