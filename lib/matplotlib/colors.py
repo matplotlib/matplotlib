@@ -515,10 +515,17 @@ class Colormap:
             xa = xma.filled()             # Fill to avoid infs, etc.
             del xma
 
-        if xa.dtype.char in np.typecodes['Float']:
+        # Calculations with native byteorder are faster, and avoid a
+        # bug that otherwise can occur with putmask when the last
+        # argument is a numpy scalar.
+        if not xa.dtype.isnative:
+            xa = xa.byteswap().newbyteorder()
+
+        if xa.dtype.kind == "f":
             # Treat 1.0 as slightly less than 1.
-            cbook._putmask(xa, xa==1.0, np.nextafter(xa.dtype.type(1),
-                                                     xa.dtype.type(0)))
+            vals = np.array([1, 0], dtype=xa.dtype)
+            almost_one = np.nextafter(*vals)
+            cbook._putmask(xa, xa==1.0, almost_one)
             # The following clip is fast, and prevents possible
             # conversion of large positive values to negative integers.
 
