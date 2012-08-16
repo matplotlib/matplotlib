@@ -74,13 +74,13 @@ def tripcolor(ax, *args, **kwargs):
     # triangulation, can omit facecolors kwarg as it is obvious from
     # length of C whether it refers to points or faces.
     # Do not do this for gouraud shading.
-    if facecolors is None and len(C) == len(tri.triangles) and \
-           len(C) != len(tri.x) and shading != 'gouraud':
+    if (facecolors is None and len(C) == len(tri.triangles) and
+           len(C) != len(tri.x) and shading != 'gouraud'):
         facecolors = C
 
     # Check length of C is OK.
-    if (facecolors is None and len(C) != len(tri.x)) or \
-           (facecolors is not None and len(C) != len(tri.triangles)):
+    if ( (facecolors is None and len(C) != len(tri.x)) or
+           (facecolors is not None and len(C) != len(tri.triangles)) ):
         raise ValueError('Length of color values array must be the same '
                          'as either the number of triangulation points '
                          'or triangles')
