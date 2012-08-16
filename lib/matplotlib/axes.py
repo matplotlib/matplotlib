@@ -834,7 +834,7 @@ class Axes(martist.Artist):
             }
 
     def cla(self):
-        """Clear the current axes"""
+        """Clear the current axes."""
         # Note: this is called by Axes.__init__()
         self.xaxis.cla()
         self.yaxis.cla()
@@ -1710,7 +1710,7 @@ class Axes(martist.Artist):
 
     def margins(self, *args, **kw):
         """
-        Convenience method to set or retrieve autoscaling margins.
+        Set or retrieve autoscaling margins.
 
         signatures::
 
@@ -1780,6 +1780,8 @@ class Axes(martist.Artist):
 
     def autoscale(self, enable=True, axis='both', tight=None):
         """
+        Autoscale the axis view to the data (toggle).
+
         Convenience method for simple axis view autoscaling.
         It turns autoscaling on or off, and then,
         if autoscaling for either axis is on, it performs
@@ -2064,6 +2066,8 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def grid(self, b=None, which='major', axis='both', **kwargs):
         """
+        Turn the axes grids on or off.
+
         Call signature::
 
            grid(self, b=None, which='major', axis='both', **kwargs)
@@ -2101,8 +2105,8 @@ class Axes(martist.Artist):
 
     def ticklabel_format(self, **kwargs):
         """
-        Convenience method for manipulating the ScalarFormatter
-        used by default for linear axes.
+        Change the `~matplotlib.ticker.ScalarFormatter` used by
+        default for linear axes.
 
         Optional keyword arguments:
 
@@ -2189,7 +2193,7 @@ class Axes(martist.Artist):
 
     def locator_params(self, axis='both', tight=None, **kwargs):
         """
-        Convenience method for controlling tick locators.
+        Control behavior of tick locators.
 
         Keyword arguments:
 
@@ -2228,8 +2232,7 @@ class Axes(martist.Artist):
 
     def tick_params(self, axis='both', **kwargs):
         """
-        Convenience method for changing the appearance of ticks and
-        tick labels.
+        Change the appearance of ticks and tick labels.
 
         Keyword arguments:
 
@@ -3254,6 +3257,8 @@ class Axes(martist.Artist):
     def text(self, x, y, s, fontdict=None,
              withdash=False, **kwargs):
         """
+        Add text to the axes.
+
         Call signature::
 
           text(x, y, s, fontdict=None, **kwargs)
@@ -3334,6 +3339,9 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def annotate(self, *args, **kwargs):
         """
+        Create an annotation: a piece of text referring to a data
+        point.
+
         Call signature::
 
           annotate(s, xy, xytext=None, xycoords='data',
@@ -3358,11 +3366,11 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
+        Add a horizontal line across the axis.
+
         Call signature::
 
           axhline(y=0, xmin=0, xmax=1, **kwargs)
-
-        Axis Horizontal Line
 
         Draw a horizontal line at *y* from *xmin* to *xmax*.  With the
         default values of *xmin* = 0 and *xmax* = 1, this line will
@@ -3423,11 +3431,11 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
         """
+        Add a vertical line across the axes.
+
         Call signature::
 
           axvline(x=0, ymin=0, ymax=1, **kwargs)
-
-        Axis Vertical Line
 
         Draw a vertical line at *x* from *ymin* to *ymax*.  With the
         default values of *ymin* = 0 and *ymax* = 1, this line will
@@ -3488,11 +3496,11 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
+        Add a horizontal span (rectangle) across the axis.
+
         Call signature::
 
           axhspan(ymin, ymax, xmin=0, xmax=1, **kwargs)
-
-        Axis Horizontal Span.
 
         *y* coords are in data units and *x* coords are in axes (relative
         0-1) units.
@@ -3545,11 +3553,11 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
+        Add a vertical span (rectangle) across the axes.
+
         Call signature::
 
           axvspan(xmin, xmax, ymin=0, ymax=1, **kwargs)
-
-        Axis Vertical Span.
 
         *x* coords are in data units and *y* coords are in axes (relative
         0-1) units.
@@ -3604,6 +3612,8 @@ class Axes(martist.Artist):
     def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
                      label='', **kwargs):
         """
+        Plot horizontal lines.
+
         call signature::
 
           hlines(y, xmin, xmax, colors='k', linestyles='solid', **kwargs)
@@ -3690,6 +3700,8 @@ class Axes(martist.Artist):
     def vlines(self, x, ymin, ymax, colors='k', linestyles='solid',
                      label='', **kwargs):
         """
+        Plot vertical lines.
+
         Call signature::
 
           vlines(x, ymin, ymax, color='k', linestyles='solid')
@@ -3902,6 +3914,8 @@ class Axes(martist.Artist):
     def plot_date(self, x, y, fmt='bo', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
+        Plot with data with dates.
+
         Call signature::
 
            plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, **kwargs)
@@ -3971,11 +3985,11 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def loglog(self, *args, **kwargs):
         """
+        Make a plot with log scaling on both the *x* and *y* axis.
+
         Call signature::
 
           loglog(*args, **kwargs)
-
-        Make a plot with log scaling on the *x* and *y* axis.
 
         :func:`~matplotlib.pyplot.loglog` supports all the keyword
         arguments of :func:`~matplotlib.pyplot.plot` and
@@ -4031,11 +4045,11 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def semilogx(self, *args, **kwargs):
         """
+        Make a plot with log scaling on the *x* axis.
+
         Call signature::
 
           semilogx(*args, **kwargs)
-
-        Make a plot with log scaling on the *x* axis.
 
         :func:`semilogx` supports all the keyword arguments of
         :func:`~matplotlib.pyplot.plot` and
@@ -4082,11 +4096,11 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
         """
+        Make a plot with log scaling on the *y* axis.
+
         call signature::
 
           semilogy(*args, **kwargs)
-
-        Make a plot with log scaling on the *y* axis.
 
         :func:`semilogy` supports all the keyword arguments of
         :func:`~matplotlib.pylab.plot` and
@@ -4133,14 +4147,16 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def acorr(self, x, **kwargs):
         """
+        Plot the autocorrelation of *x*.
+
         Call signature::
 
             acorr(x, normed=True, detrend=mlab.detrend_none, usevlines=True,
                   maxlags=10, **kwargs)
 
-        Plot the autocorrelation of *x*.  If *normed* = *True*,
-        normalize the data by the autocorrelation at 0-th lag.  *x* is
-        detrended by the *detrend* callable (default no normalization).
+        If *normed* = *True*, normalize the data by the autocorrelation at
+        0-th lag.  *x* is detrended by the *detrend* callable (default no
+        normalization).
 
         Data are plotted as ``plot(lags, c, **kwargs)``
 
@@ -4195,15 +4211,17 @@ class Axes(martist.Artist):
     def xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
               usevlines=True, maxlags=10, **kwargs):
         """
+        Plot the cross correlation between *x* and *y*.
+
         Call signature::
 
             xcorr(self, x, y, normed=True, detrend=mlab.detrend_none,
               usevlines=True, maxlags=10, **kwargs)
 
-        Plot the cross correlation between *x* and *y*.  If *normed* =
-        *True*, normalize the data by the cross correlation at 0-th
-        lag.  *x* and y are detrended by the *detrend* callable
-        (default no normalization).  *x* and *y* must be equal length.
+        If *normed* = *True*, normalize the data by the cross
+        correlation at 0-th lag.  *x* and y are detrended by the
+        *detrend* callable (default no normalization).  *x* and *y*
+        must be equal length.
 
         Data are plotted as ``plot(lags, c, **kwargs)``
 
@@ -4325,13 +4343,15 @@ class Axes(martist.Artist):
 
     def legend(self, *args, **kwargs):
         """
+        Place a legend on the current axes.
+
         Call signature::
 
           legend(*args, **kwargs)
 
-        Place a legend on the current axes at location *loc*.  Labels are a
-        sequence of strings and *loc* can be a string or an integer specifying
-        the legend location.
+        Places legend at location *loc*.  Labels are a sequence of
+        strings and *loc* can be a string or an integer specifying the
+        legend location.
 
         To make a legend with existing lines::
 
@@ -4523,12 +4543,14 @@ class Axes(martist.Artist):
 
     def step(self, x, y, *args, **kwargs):
         """
+        Make a step plot.
+
         Call signature::
 
           step(x, y, *args, **kwargs)
 
-        Make a step plot. Additional keyword args to :func:`step` are the same
-        as those for :func:`~matplotlib.pyplot.plot`.
+        Additional keyword args to :func:`step` are the same as those
+        for :func:`~matplotlib.pyplot.plot`.
 
         *x* and *y* must be 1-D sequences, and it is assumed, but not checked,
         that *x* is uniformly increasing.
@@ -4556,6 +4578,8 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def bar(self, left, height, width=0.8, bottom=None, **kwargs):
         """
+        Make a bar plot.
+
         Call signature::
 
           bar(left, height, width=0.8, bottom=0, **kwargs)
@@ -4834,6 +4858,8 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def barh(self, bottom, width, height=0.8, left=None, **kwargs):
         """
+        Make a horizontal bar plot.
+
         Call signature::
 
           barh(bottom, width, height=0.8, left=0, **kwargs)
@@ -4905,6 +4931,8 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def broken_barh(self, xranges, yrange, **kwargs):
         """
+        Plot horizontal bars.
+
         Call signature::
 
           broken_barh(self, xranges, yrange, **kwargs)
@@ -4948,6 +4976,8 @@ class Axes(martist.Artist):
     def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-',
              bottom=None, label=None):
         """
+        Create a stem plot.
+
         Call signature::
 
           stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
@@ -5000,6 +5030,8 @@ class Axes(martist.Artist):
             autopct=None, pctdistance=0.6, shadow=False,
             labeldistance=1.1):
         r"""
+        Plot a pie chart.
+
         Call signature::
 
           pie(x, explode=None, labels=None,
@@ -5153,6 +5185,8 @@ class Axes(martist.Artist):
                  barsabove=False, lolims=False, uplims=False,
                  xlolims=False, xuplims=False, **kwargs):
         """
+        Plot an errorbar graph.
+
         Call signature::
 
           errorbar(x, y, yerr=None, xerr=None,
@@ -5426,6 +5460,8 @@ class Axes(martist.Artist):
                 positions=None, widths=None, patch_artist=False,
                 bootstrap=None):
         """
+        Make a box and whisker plot.
+
         Call signature::
 
           boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
@@ -5698,6 +5734,8 @@ class Axes(martist.Artist):
                     faceted=True, verts=None,
                     **kwargs):
         """
+        Make a scatter plot.
+
         Call signatures::
 
           scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
@@ -5886,6 +5924,8 @@ class Axes(martist.Artist):
                     reduce_C_function = np.mean, mincnt=None, marginals=False,
                     **kwargs):
         """
+        Make a hexagonal binning plot.
+
         Call signature::
 
            hexbin(x, y, C = None, gridsize = 100, bins = None,
@@ -6321,6 +6361,8 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def arrow(self, x, y, dx, dy, **kwargs):
         """
+        Add an arrow to the axes.
+
         Call signature::
 
            arrow(x, y, dx, dy, **kwargs)
@@ -6381,15 +6423,17 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def fill(self, *args, **kwargs):
         """
+        Plot filled polygons.
+
         Call signature::
 
           fill(*args, **kwargs)
 
-        Plot filled polygons.  *args* is a variable length argument,
-        allowing for multiple *x*, *y* pairs with an optional color
-        format string; see :func:`~matplotlib.pyplot.plot` for details
-        on the argument parsing.  For example, to plot a polygon with
-        vertices at *x*, *y* in blue.::
+        *args* is a variable length argument, allowing for multiple
+        *x*, *y* pairs with an optional color format string; see
+        :func:`~matplotlib.pyplot.plot` for details on the argument
+        parsing.  For example, to plot a polygon with vertices at *x*,
+        *y* in blue.::
 
           ax.fill(x,y, 'b' )
 
@@ -6430,6 +6474,8 @@ class Axes(martist.Artist):
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
                      **kwargs):
         """
+        Make filled polygons between two curves.
+
         Call signature::
 
           fill_between(x, y1, y2=0, where=None, **kwargs)
@@ -6568,6 +6614,8 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def fill_betweenx(self, y, x1, x2=0, where=None, **kwargs):
         """
+        Make filled polygons between two horizontal curves.
+
         Call signature::
 
           fill_between(y, x1, x2=0, where=None, **kwargs)
@@ -6681,6 +6729,8 @@ class Axes(martist.Artist):
                origin=None, extent=None, shape=None, filternorm=1,
                filterrad=4.0, imlim=None, resample=None, url=None, **kwargs):
         """
+        Display an image on the axes.
+
         Call signature::
 
           imshow(X, cmap=None, norm=None, aspect=None, interpolation=None,
@@ -6845,12 +6895,12 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def pcolor(self, *args, **kwargs):
         """
+        Create a pseudocolor plot of a 2-D array.
+
         Call signatures::
 
           pcolor(C, **kwargs)
           pcolor(X, Y, C, **kwargs)
-
-        Create a pseudocolor plot of a 2-D array.
 
         *C* is the array of color values.
 
@@ -7074,6 +7124,8 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def pcolormesh(self, *args, **kwargs):
         """
+        Plot a quadrilateral mesh.
+
         Call signatures::
 
           pcolormesh(C)
@@ -7394,6 +7446,8 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def table(self, **kwargs):
         """
+        Add a table to the current axes.
+
         Call signature::
 
           table(cellText=None, cellColours=None,
@@ -7402,11 +7456,10 @@ class Axes(martist.Artist):
                 colLabels=None, colColours=None, colLoc='center',
                 loc='bottom', bbox=None):
 
-        Add a table to the current axes.  Returns a
-        :class:`matplotlib.table.Table` instance.  For finer grained
-        control over tables, use the :class:`~matplotlib.table.Table`
-        class and add it to the axes with
-        :meth:`~matplotlib.axes.Axes.add_table`.
+        Returns a :class:`matplotlib.table.Table` instance.  For finer
+        grained control over tables, use the
+        :class:`~matplotlib.table.Table` class and add it to the axes
+        with :meth:`~matplotlib.axes.Axes.add_table`.
 
         Thanks to John Gill for providing the class and table.
 
@@ -7483,6 +7536,8 @@ class Axes(martist.Artist):
              color=None, label=None,
              **kwargs):
         """
+        Plot a histogram.
+
         Call signature::
 
           hist(x, bins=10, range=None, normed=False, weights=None,
@@ -7894,6 +7949,8 @@ class Axes(martist.Artist):
             window=mlab.window_hanning, noverlap=0, pad_to=None,
             sides='default', scale_by_freq=None, **kwargs):
         """
+        Plot the power spectral density.
+
         Call signature::
 
           psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
@@ -7966,6 +8023,8 @@ class Axes(martist.Artist):
             window=mlab.window_hanning, noverlap=0, pad_to=None,
             sides='default', scale_by_freq=None, **kwargs):
         """
+        Plot cross-spectral density.
+
         Call signature::
 
           csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
@@ -8035,14 +8094,16 @@ class Axes(martist.Artist):
                window=mlab.window_hanning, noverlap=0, pad_to=None,
                sides='default', scale_by_freq=None, **kwargs):
         """
+        Plot the coherence between *x* and *y*.
+
         Call signature::
 
           cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend = mlab.detrend_none,
                  window = mlab.window_hanning, noverlap=0, pad_to=None,
                  sides='default', scale_by_freq=None, **kwargs)
 
-        :meth:`cohere` the coherence between *x* and *y*.  Coherence
-        is the normalized cross spectral density:
+        Plot the coherence between *x* and *y*.  Coherence is the
+        normalized cross spectral density:
 
         .. math::
 
@@ -8093,6 +8154,8 @@ class Axes(martist.Artist):
                  cmap=None, xextent=None, pad_to=None, sides='default',
                  scale_by_freq=None, **kwargs):
         """
+        Plot a spectrogram.
+
         Call signature::
 
           specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
@@ -8164,6 +8227,8 @@ class Axes(martist.Artist):
     def spy(self, Z, precision=0, marker=None, markersize=None,
             aspect='equal',  **kwargs):
         """
+        Plot the sparsity pattern on a 2-D array.
+
         Call signature::
 
           spy(Z, precision=0, marker=None, markersize=None,
