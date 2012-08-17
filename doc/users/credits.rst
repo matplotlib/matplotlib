@@ -196,6 +196,13 @@ Tony Yu
   has contributed stream plotting among many other improvements.  He
   is the author of mpltools.
 
+Michiel de Hoon
+  Wrote and maintains the macosx backend.
+
+Ian Thomas
+  Contributed, among other things, the triangulation (tricolor and
+  tripcontour) methods.
+
 Benjamin Root
   Has significantly improved the capabilities of the 3D plotting.  He
   has improved matplotlib's documentation and code quality throughout,
