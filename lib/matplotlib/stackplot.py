@@ -15,26 +15,25 @@ __all__ = ['stackplot']
 def stackplot(axes, x, *args, **kwargs):
     """Draws a stacked area plot.
 
-    Parameters
-    ----------
     *x* : 1d array of dimension N
+
     *y* : 2d array of dimension MxN, OR any number 1d arrays each of dimension
           1xN. The data is assumed to be unstacked. Each of the following
-          calls is legal:
+          calls is legal::
 
           stackplot(x, y)               # where y is MxN
           staclplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
 
     Keyword arguments:
+
     *colors* : A list or tuple of colors. These will be cycled through and
                used to colour the stacked areas.
                All other keyword arguments are passed to
                :func:`~matplotlib.Axes.fill_between`
 
-    Returns
-    -------
-    *r* : A list of :class:`~matplotlib.collections.PolyCollection`, one for
-          each element in the stacked area plot.
+    Returns *r* : A list of
+    :class:`~matplotlib.collections.PolyCollection`, one for each
+    element in the stacked area plot.
     """
 
     if len(args) == 1:

@@ -68,7 +68,7 @@ Surface plots
 
 Tri-Surface plots
 =================
-.. automethod:: Axes3D.plot_trisurface
+.. automethod:: Axes3D.plot_trisurf
 
 .. plot:: mpl_examples/mplot3d/trisurf3d_demo.py
 
