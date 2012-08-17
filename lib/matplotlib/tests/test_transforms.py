@@ -66,7 +66,8 @@ def test_external_transform_api():
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 100)
     # assert that the top transform of the line is the scale transform.
-    np.testing.assert_allclose(line.get_transform()._a.get_matrix(), mtrans.Affine2D().scale(10).get_matrix())
+    np.testing.assert_allclose(line.get_transform()._a.get_matrix(), 
+                               mtrans.Affine2D().scale(10).get_matrix())
     
 
 @image_comparison(baseline_images=['pre_transform_data'])
@@ -78,10 +79,13 @@ def test_pre_transform_plotting():
     
     ax.contourf(np.arange(48).reshape(6, 8), transform=times10 + ax.transData)
     
-    ax.pcolormesh(np.linspace(0, 4, 7), np.linspace(5.5, 8, 9), np.arange(48).reshape(6, 8),
+    ax.pcolormesh(np.linspace(0, 4, 7), 
+                  np.linspace(5.5, 8, 9), 
+                  np.arange(48).reshape(6, 8),
                   transform=times10 + ax.transData)
     
-    ax.scatter(np.linspace(0, 10), np.linspace(10, 0), transform=times10 + ax.transData)
+    ax.scatter(np.linspace(0, 10), np.linspace(10, 0), 
+               transform=times10 + ax.transData)
     
     
     x = np.linspace(8, 10, 20)
