@@ -1599,11 +1599,13 @@ class FigureCanvasBase(object):
         try:
             event = CloseEvent(s, self, guiEvent=guiEvent)
             self.callbacks.process(s, event)
-        except TypeError:
+        except (TypeError, AttributeError):
             pass
             # Suppress the TypeError when the python session is being killed.
             # It may be that a better solution would be a mechanism to
             # disconnect all callbacks upon shutdown.
+            # AttributeError occurs on OSX with qt4agg upon exiting
+            # with an open window; 'callbacks' attribute no longer exists.
 
     def key_press_event(self, key, guiEvent=None):
         """
@@ -2417,12 +2419,12 @@ class FigureManagerBase:
                                                             self.key_press)
         """
         The returned id from connecting the default key handler via :meth:`FigureCanvasBase.mpl_connnect`.
-        
+
         To disable default key press handling::
-        
+
             manager, canvas = figure.canvas.manager, figure.canvas
             canvas.mpl_disconnect(manager.key_press_handler_id)
-            
+
         """
 
     def destroy(self):
