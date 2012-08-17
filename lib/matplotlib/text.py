@@ -218,7 +218,7 @@ class Text(Artist):
         if self._bbox_patch:
             patch_inside, patch_cattr =  self._bbox_patch.contains(mouseevent)
             inside = inside or patch_inside
-            cattr.update(patch_cattr) 
+            cattr["bbox_patch"] = patch_cattr
 
         return inside, cattr 
 
