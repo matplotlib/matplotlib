@@ -638,13 +638,15 @@ class BboxBase(TransformNode):
         a = np.array([[-deltaw, -deltah], [deltaw, deltah]])
         return Bbox(self._points + a)
 
-    def padded(self, p):
+    def padded(self, p, pady=None):
         """
         Return a new :class:`Bbox` that is padded on all four sides by
         the given value.
         """
+        if pady is None:
+            pady = p
         points = self.get_points()
-        return Bbox(points + [[-p, -p], [p, p]])
+        return Bbox(points + [[-p, -pady], [p, pady]])
 
     def translated(self, tx, ty):
         """

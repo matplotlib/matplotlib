@@ -791,7 +791,7 @@ def make_axes(parent, **kw):
     return cax, kw
 
 
-def colorbar(mappable, cax=None, ax=None, **kw):
+def axesgrid1_colorbar(mappable, cax=None, ax=None, **kw):
     """
     Create a colorbar for a ScalarMappable instance.
 
@@ -799,6 +799,7 @@ def colorbar(mappable, cax=None, ax=None, **kw):
     %(colorbar_doc)s
     """
     import matplotlib.pyplot as plt
+    from matplotlib.colorbar import Colorbar
     if ax is None:
         ax = plt.gca()
     if cax is None:
@@ -815,3 +816,331 @@ def colorbar(mappable, cax=None, ax=None, **kw):
     mappable.set_colorbar(cb, cax)
     ax.figure.sca(ax)
     return cb
+
+
+def mpl_colorbar(mappable, cax=None, ax=None, **kw):
+    """
+    Create a colorbar for a ScalarMappable instance.
+
+    Documentation for the pylab thin wrapper:
+    %(colorbar_doc)s
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.colorbar import Colorbar
+    if ax is None:
+        ax = plt.gca()
+    if cax is None:
+        cax, kw = make_axes(ax, **kw)
+    cax.hold(True)
+    cb = Colorbar(cax, mappable, **kw)
+
+    def on_changed(m):
+        cb.set_cmap(m.get_cmap())
+        cb.set_clim(m.get_clim())
+        cb.update_bruteforce(m)
+
+    cbid = mappable.callbacksSM.connect('changed', on_changed)
+    mappable.set_colorbar(cb, cax)
+    ax.figure.sca(ax)
+    return cb
+
+
+colorbar = mpl_colorbar
+
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+
+
+def _get_colorbar_params(loc, orientation, length, thickness):
+    if orientation is None:
+        if loc in [8, 9]:
+            orientation="horizontal"
+        else:
+            orientation="vertical"
+            
+
+    if orientation == "vertical":
+        height = length
+        width = thickness
+    elif orientation == "horizontal":
+        height = thickness
+        width = length
+    else:
+        raise ValueError("Unknown orientation value : %s" % orientation)
+
+    if orientation == "vertical":
+        if loc in [1, 4, 5, 7]:
+            tickdir = "left"
+        elif loc in [2, 3, 6, 8, 9, 10]:
+            tickdir = "right"
+            
+    elif orientation == "horizontal":
+        if loc in [3, 4, 8]:
+            tickdir = "top"
+        elif loc in [1, 2, 5, 6, 7, 9, 10]:
+            tickdir = "bottom"
+
+    return loc, orientation, height, width, tickdir
+
+
+@docstring.Substitution(colormap_kw_doc)
+def inner_colorbar(ax, mappable, loc,
+                   orientation=None,
+                   length="45%", thickness="5%",
+                   pad=None,
+                   **kw):
+    """
+    Create a colorbar at the inner side of the Axes of the given
+    location. The size and location of the original axes is not
+    changed. For example::
+
+      inner_colorbar(ax, mappable, loc=2, **kwargs)
+
+    required arguments are:
+
+      *ax*
+        parent axes object a new
+        colorbar axes will be attached
+
+      *mappable*
+        the :class:`~matplotlib.image.Image`,
+        :class:`~matplotlib.contour.ContourSet`, etc. to
+        which the colorbar applies; this argument is mandatory for the
+        :meth:`~matplotlib.figure.Figure.colorbar` method but optional for the
+        :func:`~matplotlib.pyplot.colorbar` function, which sets the
+        default to the current image.
+
+      *loc*
+        location code as in Legend
+
+    Keyword arguments are:
+
+    ============= ====================================================
+    Property      Description
+    ============= ====================================================
+    *orientation* None, vertical or horizontal
+    *length*      length of the colorbar.
+    *thickness*   thickness of the colorbar.
+    *pad*         pad bewtween original axes and colorbar in inches
+    ============= ====================================================
+
+    For *thickness* and *length*, if a float is given, it is
+    considered as a size in inches. If a string in the form of
+    '50%%' is given, the value is considered as a fraction of the
+    original axes.
+
+    Additional keyword arguments are:
+
+    %s
+
+    returns:
+     :class:`~matplotlib.colorbar.Colorbar` instance; see also its base class,
+     :class:`~matplotlib.colorbar.ColorbarBase`.  Call the
+     :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
+     to label the colorbar.
+
+    """
+
+    if pad is None:
+        pad = mpl.rcParams['legend.borderaxespad']
+
+    loc, orientation, height, width, tickdir = \
+         _get_colorbar_params(loc, orientation, length, thickness)
+
+    cax = inset_axes(ax,
+                     width=width,
+                     height=height,
+                     loc=loc,
+                     bbox_to_anchor=(0, 0, 1, 1),
+                     bbox_transform=ax.transAxes,
+                     borderpad=pad)
+
+    cb = colorbar(mappable, cax=cax, ax=ax,
+                  orientation=orientation, **kw)
+
+    if tickdir == "left":
+        cax.yaxis.tick_left()
+    elif tickdir == "right":
+        cax.yaxis.tick_right()
+    elif tickdir == "top":
+        cax.xaxis.tick_top()
+    else:
+        cax.xaxis.tick_bottom()
+
+    return cb
+
+
+@docstring.Substitution(colormap_kw_doc)
+def outer_colorbar(ax, mappable, loc,
+                   orientation=None,
+                   length="100%", thickness="5%",
+                   pad=None,
+                   **kw):
+
+    """
+    Create a colorbar at the outer side of the Axes of the given
+    location. The size and location of the original axes is not
+    changed. For example::
+
+      outer_colorbar(ax, mappable, loc=2, **kwargs)
+
+    required arguments are:
+
+      *ax*
+        parent axes object a new
+        colorbar axes will be attached
+
+      *mappable*
+        the :class:`~matplotlib.image.Image`,
+        :class:`~matplotlib.contour.ContourSet`, etc. to
+        which the colorbar applies; this argument is mandatory for the
+        :meth:`~matplotlib.figure.Figure.colorbar` method but optional for the
+        :func:`~matplotlib.pyplot.colorbar` function, which sets the
+        default to the current image.
+
+      *loc*
+        location code as in Legend
+
+    Keyword arguments are:
+
+    ============= ====================================================
+    Property      Description
+    ============= ====================================================
+    *orientation* None, vertical or horizontal
+    *length*      length of the colorbar.
+    *thickness*   thickness of the colorbar.
+    *pad*         pad bewtween original axes and colorbar in inches
+    ============= ====================================================
+
+    For *thickness* and *length*, if a float is given, it is
+    considered as a size in inches. If a string in the form of
+    '50%%' is given, the value is considered as a fraction of the
+    original axes.
+
+    Additional keyword arguments are:
+
+    %s
+
+    returns:
+     :class:`~matplotlib.colorbar.Colorbar` instance; see also its base class,
+     :class:`~matplotlib.colorbar.ColorbarBase`.  Call the
+     :meth:`~matplotlib.colorbar.ColorbarBase.set_label` method
+     to label the colorbar.
+
+    """
+
+    if pad is None:
+        pad = mpl.rcParams['legend.borderaxespad']
+
+    loc, orientation, height, width, tickdir = \
+         _get_colorbar_params(loc, orientation, length, thickness)
+
+    if loc in [5, 7]:
+        bbox_to_anchor = [1, 0, 1, 1]
+    elif loc in [6]:
+        bbox_to_anchor = [-1, 0, 1, 1]
+    elif loc in [8]:
+        bbox_to_anchor = [0, -1, 1, 1]
+    elif loc in [9]:
+        bbox_to_anchor = [0, 1, 1, 1]
+    elif loc in [1, 2, 3, 4]:
+        if orientation == "vertical":
+            if loc in [1, 4]:
+                bbox_to_anchor = [1, 0, 1, 1]
+            elif loc in [2, 3]:
+                bbox_to_anchor = [-1, 0, 1, 1]
+        else: # horizontal
+            if loc in [1, 2]:
+                bbox_to_anchor = [0, 1, 1, 1]
+            elif loc in [3, 4]:
+                bbox_to_anchor = [0, -1, 1, 1]
+    else:
+        bbox_to_anchor = [0, 0, 1, 1]
+
+    try:
+        padx, pady = pad
+    except TypeError:
+        if orientation == "vertical":
+            if loc in [8, 9]:
+                padx, pady = pad, pad
+            else:
+                padx, pady = pad, 0
+        else:
+            if loc in [5, 6, 7]:
+                padx, pady = pad, pad
+            else:
+                padx, pady = 0, pad
+
+    loc_map_h = {1:4,
+                 2:3,
+                 3:2,
+                 4:1,
+                 5:6,
+                 6:7,
+                 7:6,
+                 8:9,
+                 9:8,
+                 10:10}
+    loc_map_v = {1:2,
+                 2:1,
+                 3:4,
+                 4:3,
+                 5:6,
+                 6:7,
+                 7:6,
+                 8:9,
+                 9:8,
+                 10:10}
+
+    if orientation == "horizontal":
+        loc = loc_map_h[loc]
+    else:
+        loc = loc_map_v[loc]
+    tickdir_map = {"left":"right",
+                   "right":"left",
+                   "top":"bottom",
+                   "bottom":"top"}
+    tickdir = tickdir_map[tickdir]
+    cax = inset_axes(ax,
+                     width=width,
+                     height=height,
+                     loc=loc,
+                     bbox_to_anchor=bbox_to_anchor,
+                     bbox_transform=ax.transAxes,
+                     borderpad=(padx, pady))
+
+    cb = colorbar(mappable, cax=cax, ax=ax,
+                  orientation=orientation, **kw)
+
+    if tickdir == "left":
+        cax.yaxis.tick_left()
+    elif tickdir == "right":
+        cax.yaxis.tick_right()
+    elif tickdir == "top":
+        cax.xaxis.tick_top()
+    else:
+        cax.xaxis.tick_bottom()
+
+    return cb
+
+
+if __name__ == '__main__':
+    import matplotlib.gridspec as gridspec
+    gs = gridspec.GridSpec(3,3)
+
+    locs = [1, 2, 3, 4, 6, 7, 8, 9, 10][:]
+    arr = np.arange(100).reshape((10,10))
+    for i, ss in zip(locs, gs):
+        ax = subplot(ss)
+        im = ax.imshow(arr, interpolation="none")
+        cb = outer_colorbar(ax, mappable=im, loc=i,
+                            orientation=None,
+                            #orientation="vertical",
+                            #orientation="horizontal",
+                            length="100%", thickness="5%",
+                            #pad=0.1,
+                            )
+
+
+# ax.inner_colorbar(mappable=im, loc=4,
+#                   orientation='vertical',
+#                   lenght="45%", thickness="8%")
