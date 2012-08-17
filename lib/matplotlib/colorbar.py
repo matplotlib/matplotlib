@@ -212,7 +212,8 @@ class ColorbarBase(cm.ScalarMappable):
             the Axes instance in which the colorbar is drawn
 
         :attr:`lines`
-            a LineCollection if lines were drawn, otherwise None
+            a list of LineCollection if lines were drawn, otherwise
+            an empty list
 
         :attr:`dividers`
             a LineCollection if *drawedges* is True, otherwise None
@@ -495,8 +496,9 @@ class ColorbarBase(cm.ScalarMappable):
         col = collections.LineCollection(xy, linewidths=linewidths)
 
         if erase and self.lines:
-            for lc in self.lines.pop():
+            for lc in self.lines:
                 lc.remove()
+            self.lines = []
         self.lines.append(col)
         col.set_color(colors)
         self.ax.add_collection(col)
