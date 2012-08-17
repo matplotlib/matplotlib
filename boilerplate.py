@@ -42,7 +42,7 @@ AUTOGEN_MSG = """
 
 
 PLOT_TEMPLATE = AUTOGEN_MSG + """
-@autogen_docstring(Axes.%(func)s)
+@_autogen_docstring(Axes.%(func)s)
 def %(func)s(%(argspec)s):
     %(ax)s = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -216,7 +216,7 @@ def boilerplate_gen():
                     call.append('%s' % arg)
                 else:
                     call.append('%s=%s' % (arg, arg))
-                  
+
             if varargs is not None:
                 call.append('*'+varargs)
             if varkw is not None:
@@ -286,6 +286,8 @@ def boilerplate_gen():
     for name in cmaps:
         yield CMAP_TEMPLATE.format(name=name)
 
+    yield ''
+    yield '_setup_pyplot_info_docstrings()'
 
 def build_pyplot():
     pyplot_path = os.path.join(os.path.dirname(__file__), 'lib',

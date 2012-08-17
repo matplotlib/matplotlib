@@ -16,7 +16,7 @@ template = """\
 import os, glob, re, sys, warnings
 import matplotlib.image as image
 
-multiimage = re.compile('(.*)_\d\d')
+multiimage = re.compile('(.*?)(_\d\d){1,2}')
 
 def make_thumbnail(args):
     image.thumbnail(args[0], args[1], 0.3)
@@ -68,11 +68,8 @@ def gen_gallery(app, doctree):
                 thumbnails[orig_path] = thumb_path
 
             m = multiimage.match(basename)
-            if m is None:
-                pyfile = '%s.py'%basename
-            else:
+            if m is not None:
                 basename = m.group(1)
-                pyfile = '%s.py'%basename
 
             data.append((subdir, basename,
                          os.path.join(rootdir, subdir, 'thumbnails', filename)))

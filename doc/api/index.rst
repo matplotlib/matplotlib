@@ -12,6 +12,7 @@
 .. toctree::
    :maxdepth: 1
 
+   pyplot_summary.rst
    api_changes.rst
    matplotlib_configuration_api.rst
    afm_api.rst

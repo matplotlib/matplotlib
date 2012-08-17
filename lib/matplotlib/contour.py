@@ -52,11 +52,13 @@ class ContourLabeler:
 
     def clabel(self, *args, **kwargs):
         """
+        Label a contour plot.
+
         Call signature::
 
           clabel(cs, **kwargs)
 
-        adds labels to line contours in *cs*, where *cs* is a
+        Adds labels to line contours in *cs*, where *cs* is a
         :class:`~matplotlib.contour.ContourSet` object returned by
         contour.
 
@@ -1409,6 +1411,8 @@ class QuadContourSet(ContourSet):
         return np.meshgrid(x,y)
 
     contour_doc = """
+        Plot contours.
+
         :func:`~matplotlib.pyplot.contour` and
         :func:`~matplotlib.pyplot.contourf` draw contour lines and
         filled contours, respectively.  Except as noted, function
