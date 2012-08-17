@@ -138,10 +138,15 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             line_colors.extend(color_values)
             arrow_kw['color'] = cmap(norm(color_values[n]))
 
-        p = patches.FancyArrowPatch(arrow_tail, arrow_head, transform=transform, **arrow_kw)
+        p = patches.FancyArrowPatch(arrow_tail, 
+                                    arrow_head, 
+                                    transform=transform, 
+                                    **arrow_kw)
         axes.add_patch(p)
 
-    lc = mcollections.LineCollection(streamlines, transform=transform, **line_kw)
+    lc = mcollections.LineCollection(streamlines, 
+                                     transform=transform, 
+                                     **line_kw)
     if use_multicolor_lines:
         lc.set_array(np.asarray(line_colors))
         lc.set_cmap(cmap)
