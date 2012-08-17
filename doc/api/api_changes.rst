@@ -65,6 +65,13 @@ Changes in 1.2.x
   :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the size of
   the triangular minimum and maximum extensions on colorbars.
 
+* A new keyword *capthick* in :meth:`~matplotlib.pyplot.errorbar` has been
+  added as an intuitive alias to the *markeredgewidth* and *mew* keyword
+  arguments, which indirectly controlled the thickness of the caps on
+  the errorbars.  For backwards compatibility, specifying either of the
+  original keyword arguments will override any value provided by
+  *capthick*.
+
 Changes in 1.1.x
 ================
 

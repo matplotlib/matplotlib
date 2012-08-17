@@ -39,7 +39,7 @@ ylower = np.maximum(1e-2, y - yerr)
 yerr_lower = y - ylower
 
 ax.errorbar(x, y, yerr=[yerr_lower, 2*yerr], xerr=xerr,
-                            fmt='o', ecolor='g')
+            fmt='o', ecolor='g', capthick=2)
 ax.set_title('Mixed sym., log y')
 
 fig.suptitle('Variable errorbars')
