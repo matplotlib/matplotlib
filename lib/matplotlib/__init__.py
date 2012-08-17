@@ -892,7 +892,7 @@ def rc(group, **kwargs):
 
 def rcdefaults():
     """
-    Restore the default rc params - these are not the params loaded by
+    Restore the default rc params.  These are not the params loaded by
     the rc file, but mpl's internal params.  See rc_file_defaults for
     reloading the default params from the rc file
     """

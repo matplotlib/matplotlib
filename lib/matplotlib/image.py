@@ -1042,7 +1042,7 @@ class BboxImage(_AxesImageBase):
 
         interp_at_native is a flag that determines whether or not interpolation should
         still be applied when the image is displayed at its native resolution.  A common
-        use case for this is when displaying an image for annotational purposes; it is 
+        use case for this is when displaying an image for annotational purposes; it is
         treated similarly to Photoshop (interpolation is only used when displaying the
         image at non-native resolutions).
 
@@ -1167,9 +1167,10 @@ class BboxImage(_AxesImageBase):
 
 def imread(fname, format=None):
     """
-    Return image file in *fname* as :class:`numpy.array`.  *fname* may
-    be a string path or a Python file-like object.  If using a file
-    object, it must be opened in binary mode.
+    Read an image from a file into an array.
+
+    *fname* may be a string path or a Python file-like object.  If
+    using a file object, it must be opened in binary mode.
 
     If *format* is provided, will try to read file of that type,
     otherwise the format is deduced from the filename.  If nothing can
@@ -1234,7 +1235,8 @@ def imread(fname, format=None):
 def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
            origin=None, dpi=100):
     """
-    Saves a 2D :class:`numpy.array` as an image with one pixel per element.
+    Save an array as in image file.
+
     The output formats available depend on the backend being used.
 
     Arguments:
