@@ -730,6 +730,8 @@ class Artist(object):
 
     def findobj(self, match=None, include_self=True):
         """
+        Find artist objects.
+
         pyplot signature:
           findobj(o=gcf(), match=None, include_self=True)
 
@@ -1135,6 +1137,8 @@ get = getp
 
 def setp(obj, *args, **kwargs):
     """
+    Set a property on an artist object.
+
     matplotlib supports the use of :func:`setp` ("set property") and
     :func:`getp` to set and get object properties, as well as to do
     introspection on the object.  For example, to set the linestyle of a

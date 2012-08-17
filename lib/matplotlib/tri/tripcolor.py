@@ -5,8 +5,7 @@ import numpy as np
 
 def tripcolor(ax, *args, **kwargs):
     """
-    Create a pseudocolor plot of an unstructured triangular grid to
-    the :class:`~matplotlib.axes.Axes`.
+    Create a pseudocolor plot of an unstructured triangular grid.
 
     The triangulation can be specified in one of two ways; either::
 
