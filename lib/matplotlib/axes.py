@@ -8114,9 +8114,12 @@ class Axes(martist.Artist):
     def hist2d(self, x, y, bins = 10, range=None, normed=False, weights=None,
                cmin=None, cmax=None, **kwargs):
         """
+        Make a 2D histogram plot.
+
         Call signature::
 
-        hist2d(x, y, bins = None, range=None, weights=None, cmin=None, cmax=None **kwargs)
+          hist2d(x, y, bins = None, range=None, weights=None, cmin=None, cmax=None **kwargs)
+
         Make a 2d histogram plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length
 
