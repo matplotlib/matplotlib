@@ -1,6 +1,6 @@
 import matplotlib
-from nose.tools import assert_equal
-from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
+from nose.tools import assert_equal, assert_is, assert_is_not
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 
 
@@ -38,3 +38,30 @@ def test_figure():
     # Return to the original; make sure the red line is not there.
     plt.figure('today')
     plt.close('tomorrow')
+    
+    
+#@cleanup
+def test_gca():
+    fig = plt.figure()
+
+    ax1 = fig.add_axes([0, 0, 1, 1])
+    assert_is(fig.gca(projection='rectilinear'), ax1)
+    assert_is(fig.gca(), ax1)
+    
+    ax2 = fig.add_subplot(121, projection='polar')
+    assert_is(fig.gca(), ax2)
+    assert_is(fig.gca(polar=True), ax2)
+    
+    ax3 = fig.add_subplot(122)
+    assert_is(fig.gca(), ax3)
+
+    # the final request for a polar axes will end up creating one
+    # with a spec of 111.
+    assert_is_not(fig.gca(polar=True), ax3)
+    assert_is_not(fig.gca(polar=True), ax2)
+    assert_equal(fig.gca().get_geometry(), (1, 1, 1))
+    
+    fig.sca(ax1)
+    assert_is(fig.gca(projection='rectilinear'), ax1)
+    assert_is(fig.gca(), ax1)
+    
