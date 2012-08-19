@@ -675,10 +675,8 @@ class Artist(object):
 
         ACCEPTS: any string
         """
-        self._label = s
+        self._label = '%s' % (s, )
         self.pchanged()
-
-
 
     def get_zorder(self):
         """

@@ -401,7 +401,7 @@ class ColorbarBase(cm.ScalarMappable):
         '''
         Label the long axis of the colorbar
         '''
-        self._label = label
+        self._label = '%s' % (label, )
         self._labelkw = kw
         self._set_label()
 

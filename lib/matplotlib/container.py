@@ -43,7 +43,7 @@ class Container(tuple):
 
         ACCEPTS: any string
         """
-        self._label = s
+        self._label = '%s' % (s, )
         self.pchanged()
 
     def add_callback(self, func):
