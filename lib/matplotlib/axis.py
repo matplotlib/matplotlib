@@ -1528,6 +1528,40 @@ class Axis(artist.Artist):
             tz = pytz.timezone(tz)
         self.update_units(datetime.datetime(2009,1,1,0,0,0,0,tz))
 
+    def optimize_ticker_nbin(self, max_label_fraction, renderer):
+        """
+        update the _nbin attribute of the major ticker so it is the maximum integer
+        that the occupy fraction of labels are less than the *max_label_fraction*.
+        """
+
+        if not self.get_visible(): return
+
+        if not 0. <= max_label_fraction <= 1.:
+            raise ValueError()
+
+        min_nbin = self.major.locator._nbins
+
+        while self._get_label_occupy_fraction(renderer) < max_label_fraction:
+            self.major.locator._nbins *= 2
+        else:
+            max_nbin = self.major.locator._nbins
+
+        if min_nbin == max_nbin:
+            min_nbin=1
+
+        while True:
+            if max_nbin - min_nbin <= 1:
+                break
+            new_nbin = int(0.5*(min_nbin+max_nbin))
+            self.major.locator._nbins = new_nbin
+            if self._get_label_occupy_fraction(renderer) < max_label_fraction:
+                min_nbin = new_nbin
+            else:
+                max_nbin = new_nbin
+
+        self.major.locator._nbins = min_nbin
+
+
 
 class XAxis(Axis):
     __name__ = 'xaxis'
@@ -1785,6 +1819,22 @@ class XAxis(Axis):
             if not viewMutated:
                 self.axes.viewLim.intervalx = xmin, xmax
 
+
+    def _get_label_occupy_fraction(self, renderer):
+        """
+        Return label_total_length / axis_length
+        """
+        ticks_to_draw = self._update_ticks(renderer)
+        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw, renderer)
+
+        if not ticklabelBoxes:
+            ticklabelBoxes = ticklabelBoxes2
+
+        label_total_length = sum([bb.width for bb in ticklabelBoxes])
+
+        axis_length = self.axes.bbox.width
+
+        return label_total_length / axis_length
 
 
 class YAxis(Axis):
@@ -2049,3 +2099,20 @@ class YAxis(Axis):
                 self.axes.dataLim.intervaly = ymin, ymax
             if not viewMutated:
                 self.axes.viewLim.intervaly = ymin, ymax
+
+
+    def _get_label_occupy_fraction(self, renderer):
+        """
+        Return label_total_length / axis_length
+        """
+        ticks_to_draw = self._update_ticks(renderer)
+        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw, renderer)
+
+        if not ticklabelBoxes:
+            ticklabelBoxes = ticklabelBoxes2
+
+        label_total_length = sum([bb.height for bb in ticklabelBoxes])
+
+        axis_length = self.axes.bbox.height
+
+        return label_total_length / axis_length

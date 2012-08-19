@@ -8696,6 +8696,14 @@ class Axes(martist.Artist):
         mtri.triplot(self, *args, **kwargs)
     triplot.__doc__ = mtri.triplot.__doc__
 
+    def optimize_ticker_nbin(self,
+                             max_label_fraction_x, max_label_fraction_y,
+                             renderer):
+        if max_label_fraction_x:
+            self.xaxis.optimize_ticker_nbin(max_label_fraction_x, renderer)
+        if max_label_fraction_y:
+            self.yaxis.optimize_ticker_nbin(max_label_fraction_y, renderer)
+
 
 from matplotlib.gridspec import GridSpec, SubplotSpec
 
