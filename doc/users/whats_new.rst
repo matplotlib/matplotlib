@@ -89,6 +89,21 @@ interval.
 .. plot:: examples/pylab_examples/boxplot_demo3.py
 
 
+New RC parameter functionality
+------------------------------
+
+Matthew Emmett added a function and a context manager to help manage
+RC parameters: :func:`~matplotlib.rc_file` and
+:class:`~matplotlib.rc_context`.  To load RC paramters from a file::
+
+  >>> mpl.rc_file('mpl.rc')
+
+To temporarily use RC parameters::
+
+  >>> with mpl.rc_context(fname='mpl.rc', rc={'text.usetex': True}):
+  >>>     ...
+
+
 .. _whats-new-1-1:
 
 new in matplotlib-1.1
