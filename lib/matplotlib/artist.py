@@ -673,7 +673,7 @@ class Artist(object):
         """
         Set the label to *s* for auto legend.
 
-        ACCEPTS: any string
+        ACCEPTS: string or anything printable with '%s' conversion.
         """
         self._label = '%s' % (s, )
         self.pchanged()
