@@ -178,7 +178,6 @@ if not found_version >= expected_version:
             __version__numpy__, numpy.__version__))
 del version
 
-
 def is_string_like(obj):
     if hasattr(obj, 'shape'): return 0
     try: obj + ''
@@ -716,6 +715,12 @@ def rc_params(fail_on_error=False):
         warnings.warn(message)
         return ret
 
+    return rc_params_from_file(fname, fail_on_error)
+
+
+def rc_params_from_file(fname, fail_on_error=False):
+    """Load and return params from fname."""
+
     cnt = 0
     rc_temp = {}
     with open(fname) as fd:
@@ -898,6 +903,52 @@ def rcdefaults():
     """
     rcParams.update(rcParamsDefault)
 
+
+def rc_file(fname):
+    """
+    Update rc params from file.
+    """
+    rcParams.update(rc_params_from_file(fname))
+
+
+class rc_context(object):
+    """
+    Return a context manager for managing rc settings.
+
+    This allows one to do::
+
+    >>> with mpl.rc_context(fname='screen.rc'):
+    >>>     plt.plot(x, a)
+    >>>     with mpl.rc_context(fname='print.rc'):
+    >>>         plt.plot(x, b)
+    >>>     plt.plot(x, c)
+    
+    The 'a' vs 'x' and 'c' vs 'x' plots would have settings from
+    'screen.rc', while the 'b' vs 'x' plot would have settings from
+    'print.rc'.
+
+    A dictionary can also be passed to the context manager::
+
+    >>> with mpl.rc_context(rc={'text.usetex': True}, fname='screen.rc'):
+    >>>     plt.plot(x, a)
+
+    The 'rc' dictionary takes precedence over the settings loaded from
+    'fname'.  Passing a dictionary only is also valid.
+    """
+
+    def __init__(self, rc=None, fname=None):
+        self.rcdict = rc
+        self.fname = fname
+    def __enter__(self):
+        self._rcparams = rcParams.copy()
+        if self.fname:
+            rc_file(self.fname)
+        if self.rcdict:
+            rcParams.update(self.rcdict)
+    def __exit__(self, type, value, tb):
+        rcParams.update(self._rcparams)
+
+
 def rc_file_defaults():
     """
     Restore the default rc params from the original matplotlib rc that
@@ -1017,6 +1068,7 @@ default_test_modules = [
     'matplotlib.tests.test_mathtext',
     'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_patches',
+    'matplotlib.tests.test_rcparams',
     'matplotlib.tests.test_simplification',
     'matplotlib.tests.test_spines',
     'matplotlib.tests.test_text',
