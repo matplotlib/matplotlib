@@ -1,7 +1,7 @@
 ******
 pyplot
 ******
- 
+
 
 :mod:`matplotlib.pyplot`
 ========================
@@ -10,3 +10,4 @@ pyplot
    :members:
    :undoc-members:
    :show-inheritance:
+   :exclude-members: plotting, colormaps

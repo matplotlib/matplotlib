@@ -464,6 +464,8 @@ class Figure(Artist):
                  origin=None,
                  **kwargs):
         """
+        Adds a non-resampled image to the figure.
+
         call signatures::
 
           figimage(X, **kwargs)
@@ -1041,6 +1043,8 @@ class Figure(Artist):
     @docstring.dedent_interpd
     def text(self, x, y, s, *args, **kwargs):
         """
+        Add text to figure.
+
         Call signature::
 
           text(x, y, s, fontdict=None, **kwargs)
@@ -1134,13 +1138,13 @@ class Figure(Artist):
 
     def savefig(self, *args, **kwargs):
         """
+        Save the current figure.
+
         Call signature::
 
           savefig(fname, dpi=None, facecolor='w', edgecolor='w',
                   orientation='portrait', papertype=None, format=None,
                   transparent=False, bbox_inches=None, pad_inches=0.1)
-
-        Save the current figure.
 
         The output formats available depend on the backend being used.
 

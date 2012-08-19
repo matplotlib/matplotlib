@@ -104,13 +104,13 @@ def findobj(o=None, match=None):
 
 def switch_backend(newbackend):
     """
-    Switch the default backend to newbackend.  This feature is
-    **experimental**, and is only expected to work switching to an
-    image backend.  Eg, if you have a bunch of PostScript scripts that
-    you want to run from an interactive ipython session, you may want
-    to switch to the PS backend before running them to avoid having a
-    bunch of GUI windows popup.  If you try to interactively switch
-    from one GUI backend to another, you will explode.
+    Switch the default backend.  This feature is **experimental**, and
+    is only expected to work switching to an image backend.  Eg, if
+    you have a bunch of PostScript scripts that you want to run from
+    an interactive ipython session, you may want to switch to the PS
+    backend before running them to avoid having a bunch of GUI windows
+    popup.  If you try to interactively switch from one GUI backend to
+    another, you will explode.
 
     Calling this command will close all open windows.
     """
@@ -123,6 +123,8 @@ def switch_backend(newbackend):
 
 def show(*args, **kw):
     """
+    Display a figure.
+
     When running in ipython with its pylab mode, display all
     figures and return to the ipython prompt.
 
@@ -142,7 +144,7 @@ def show(*args, **kw):
 
 def isinteractive():
     """
-    Return *True* if matplotlib is in interactive mode, *False* otherwise.
+    Return status of interactive mode.
     """
     return matplotlib.is_interactive()
 
@@ -202,25 +204,25 @@ def rcdefaults():
 
 def gci():
     """
-    Get the current :class:`~matplotlib.cm.ScalarMappable` instance
-    (image or patch collection), or *None* if no images or patch
-    collections have been defined.  The commands
-    :func:`~matplotlib.pyplot.imshow` and
-    :func:`~matplotlib.pyplot.figimage` create
+    Get the current colorable artist.  Specifically, returns the
+    current :class:`~matplotlib.cm.ScalarMappable` instance (image or
+    patch collection), or *None* if no images or patch collections
+    have been defined.  The commands :func:`~matplotlib.pyplot.imshow`
+    and :func:`~matplotlib.pyplot.figimage` create
     :class:`~matplotlib.image.Image` instances, and the commands
     :func:`~matplotlib.pyplot.pcolor` and
     :func:`~matplotlib.pyplot.scatter` create
-    :class:`~matplotlib.collections.Collection` instances.
-    The current image is an attribute of the current axes, or the
-    nearest earlier axes in the current figure that contains an
-    image.
+    :class:`~matplotlib.collections.Collection` instances.  The
+    current image is an attribute of the current axes, or the nearest
+    earlier axes in the current figure that contains an image.
     """
     return gcf()._gci()
 
 def sci(im):
     """
-    Set the current image (target of colormap commands like
-    :func:`~matplotlib.pyplot.jet`, :func:`~matplotlib.pyplot.hot` or
+    Set the current image.  This image will be the target of colormap
+    commands like :func:`~matplotlib.pyplot.jet`,
+    :func:`~matplotlib.pyplot.hot` or
     :func:`~matplotlib.pyplot.clim`).  The current image is an
     attribute of the current axes.
     """
@@ -254,10 +256,11 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
            **kwargs
            ):
     """
+    Create a new figure.
+
     call signature::
 
       figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
-
 
     Create a new figure and return a :class:`matplotlib.figure.Figure`
     instance.  If *num* = *None*, the figure number will be incremented and
@@ -400,7 +403,7 @@ def disconnect(cid):
 
 def close(*args):
     """
-    Close a figure window
+    Close a figure window.
 
     ``close()`` by itself closes the current figure
 
@@ -439,7 +442,7 @@ def close(*args):
 
 def clf():
     """
-    Clear the current figure
+    Clear the current figure.
     """
     gcf().clf()
     draw_if_interactive()
@@ -586,13 +589,15 @@ def hold(b=None):
 
 def ishold():
     """
-    Return the hold status of the current axes
+    Return the hold status of the current axes.
     """
     return gca().ishold()
 
 def over(func, *args, **kwargs):
     """
-    over calls::
+    Call a function with hold(True).
+
+    Calls::
 
       func(*args, **kwargs)
 
@@ -609,7 +614,9 @@ def over(func, *args, **kwargs):
 
 def axes(*args, **kwargs):
     """
-    Add an axes at position rect specified by:
+    Add an axes to the figure.
+
+    The axes is added at position *rect* specified by:
 
     - ``axes()`` by itself creates a default full ``subplot(111)`` window axis.
 
@@ -654,7 +661,7 @@ def axes(*args, **kwargs):
 
 def delaxes(*args):
     """
-    ``delaxes(ax)``: remove *ax* from the current figure.  If *ax*
+    Remove an axes from the current figure.  If *ax*
     doesn't exist, an error will be raised.
 
     ``delaxes()``: delete the current axes
@@ -669,8 +676,9 @@ def delaxes(*args):
 
 def sca(ax):
     """
-    Set the current Axes instance to *ax*.  The current Figure
-    is updated to the parent of *ax*.
+    Set the current Axes instance to *ax*.
+
+    The current Figure is updated to the parent of *ax*.
     """
     managers = _pylab_helpers.Gcf.get_all_fig_managers()
     for m in managers:
@@ -706,7 +714,9 @@ def gca(**kwargs):
 
 def subplot(*args, **kwargs):
     """
-    Create a subplot command, creating axes with::
+    Create a new axes (subplot).
+
+    Creating axes with::
 
       subplot(numRows, numCols, plotNum)
 
@@ -997,10 +1007,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
 from gridspec import GridSpec
 def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
     """
-
-    It creates a subplot in a grid of *shape*, at location of *loc*,
-    spanning *rowspan*, *colspan* cells in each direction.
-    The index for loc is 0-based. ::
+    Create a subplot in a grid.  The grid is specified by *shape*, at
+    location of *loc*, spanning *rowspan*, *colspan* cells in each
+    direction.  The index for loc is 0-based. ::
 
       subplot2grid(shape, loc, rowspan=1, colspan=1)
 
@@ -1009,8 +1018,6 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
       gridspec=GridSpec(shape[0], shape[2])
       subplotspec=gridspec.new_subplotspec(loc, rowspan, colspan)
       subplot(subplotspec)
-
-
     """
 
     fig = gcf()
@@ -1033,9 +1040,10 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
 
 def twinx(ax=None):
     """
-    Make a second axes overlay *ax* (or the current axes if *ax* is
-    *None*) sharing the xaxis.  The ticks for *ax2* will be placed on
-    the right, and the *ax2* instance is returned.
+    Make a second axes that shares the *x*-axis.  The new axes will
+    overlay *ax* (or the current axes if *ax* is *None*).  The ticks
+    for *ax2* will be placed on the right, and the *ax2* instance is
+    returned.
 
     .. seealso::
 
@@ -1051,9 +1059,10 @@ def twinx(ax=None):
 
 def twiny(ax=None):
     """
-    Make a second axes overlay *ax* (or the current axes if *ax* is
-    *None*) sharing the yaxis.  The ticks for *ax2* will be placed on
-    the top, and the *ax2* instance is returned.
+    Make a second axes that shares the *y*-axis.  The new axis will
+    overlay *ax* (or the current axes if *ax* is *None*).  The ticks
+    for *ax2* will be placed on the top, and the *ax2* instance is
+    returned.
     """
     if ax is None:
         ax=gca()
@@ -1065,14 +1074,14 @@ def twiny(ax=None):
 
 def subplots_adjust(*args, **kwargs):
     """
+    Tune the subplot layout.
+
     call signature::
 
       subplots_adjust(left=None, bottom=None, right=None, top=None,
                       wspace=None, hspace=None)
 
-    Tune the subplot layout via the
-    :class:`matplotlib.figure.SubplotParams` mechanism.  The parameter
-    meanings (and suggested defaults) are::
+    The parameter meanings (and suggested defaults) are::
 
       left  = 0.125  # the left side of the subplots of the figure
       right = 0.9    # the right side of the subplots of the figure
@@ -1090,7 +1099,7 @@ def subplots_adjust(*args, **kwargs):
 
 def subplot_tool(targetfig=None):
     """
-    Launch a subplot tool window for *targetfig* (default gcf).
+    Launch a subplot tool window for a figure.
 
     A :class:`matplotlib.widgets.SubplotTool` instance is returned.
     """
@@ -1116,7 +1125,7 @@ def subplot_tool(targetfig=None):
 
 def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
-    Adjust subplot parameters to give specified padding.
+    Automatically adjust subplot parameters to give specified padding.
 
     Parameters:
 
@@ -1139,8 +1148,8 @@ def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
 
 def box(on=None):
     """
-    Turn the axes box on or off according to *on*.
-    *on* may be a boolean or a string, 'on' or 'off'.
+    Turn the axes box on or off.  *on* may be a boolean or a string,
+    'on' or 'off'.
 
     If *on* is *None*, toggle state.
     """
@@ -1153,7 +1162,7 @@ def box(on=None):
 
 def title(s, *args, **kwargs):
     """
-    Set the title of the current axis to *s*.
+    Set the title of the current axis.
 
     Default font override is::
 
@@ -1177,7 +1186,7 @@ def title(s, *args, **kwargs):
 
 def axis(*v, **kwargs):
     """
-    Set/Get the axis properties:
+    Set or get the axis properties.
 
       >>> axis()
 
@@ -1240,7 +1249,7 @@ def axis(*v, **kwargs):
 
 def xlabel(s, *args, **kwargs):
     """
-    Set the *x* axis label of the current axis to *s*
+    Set the *x* axis label of the current axis.
 
     Default override is::
 
@@ -1261,7 +1270,7 @@ def xlabel(s, *args, **kwargs):
 
 def ylabel(s, *args, **kwargs):
     """
-    Set the *y* axis label of the current axis to *s*.
+    Set the *y* axis label of the current axis.
 
     Defaults override is::
 
@@ -1287,7 +1296,9 @@ def ylabel(s, *args, **kwargs):
 
 def xlim(*args, **kwargs):
     """
-    Set/Get the xlimits of the current axes::
+    Get or set the *x* limits of the current axes.
+
+    ::
 
       xmin, xmax = xlim()   # return the current xlim
       xlim( (xmin, xmax) )  # set the xlim to xmin, xmax
@@ -1314,7 +1325,9 @@ def xlim(*args, **kwargs):
 
 def ylim(*args, **kwargs):
     """
-    Set/Get the ylimits of the current axes::
+    Get or set the *y*-limits of the current axes.
+
+    ::
 
       ymin, ymax = ylim()   # return the current ylim
       ylim( (ymin, ymax) )  # set the ylim to ymin, ymax
@@ -1341,11 +1354,13 @@ def ylim(*args, **kwargs):
 @docstring.dedent_interpd
 def xscale(*args, **kwargs):
     """
+    Set the scaling of the *x*-axis.
+
     call signature::
 
       xscale(scale, **kwargs)
 
-    Set the scaling for the x-axis: %(scale)s
+    The available scales are: %(scale)s
 
     Different keywords may be accepted, depending on the scale:
 
@@ -1358,11 +1373,13 @@ def xscale(*args, **kwargs):
 @docstring.dedent_interpd
 def yscale(*args, **kwargs):
     """
+    Set the scaling of the *y*-axis.
+
     call signature::
 
       yscale(scale, **kwargs)
 
-    Set the scaling for the y-axis: %(scale)s
+    The available scales are: %(scale)s
 
     Different keywords may be accepted, depending on the scale:
 
@@ -1374,7 +1391,9 @@ def yscale(*args, **kwargs):
 
 def xticks(*args, **kwargs):
     """
-    Set/Get the xlimits of the current ticklocs and labels::
+    Get or set the *x*-limits of the current tick locations and labels.
+
+    ::
 
       # return locs, labels where locs is an array of tick locations and
       # labels is an array of tick labels.
@@ -1412,7 +1431,9 @@ def xticks(*args, **kwargs):
 
 def yticks(*args, **kwargs):
     """
-    Set/Get the ylimits of the current ticklocs and labels::
+    Get or set the *y*-limits of the current tick locations and labels.
+
+    ::
 
       # return locs, labels where locs is an array of tick locations and
       # labels is an array of tick labels.
@@ -1470,8 +1491,7 @@ def minorticks_off():
 
 def rgrids(*args, **kwargs):
     """
-    Set/Get the radial locations of the gridlines and ticklabels on a
-    polar plot.
+    Get or set the radial gridlines on a polar plot.
 
     call signatures::
 
@@ -1515,7 +1535,7 @@ def rgrids(*args, **kwargs):
 
 def thetagrids(*args, **kwargs):
     """
-    Set/Get the theta locations of the gridlines and ticklabels.
+    Get or set the theta locations of the gridlines in a polar plot.
 
     If no arguments are passed, return a tuple (*lines*, *labels*)
     where *lines* is an array of radial gridlines
@@ -1578,102 +1598,36 @@ def thetagrids(*args, **kwargs):
 ## Plotting Info ##
 
 def plotting():
-    """
-    Plotting commands
-
-    =============== =========================================================
-    Command         Description
-    =============== =========================================================
-    axes            Create a new axes
-    axis            Set or return the current axis limits
-    bar             make a bar chart
-    boxplot         make a box and whiskers chart
-    cla             clear current axes
-    clabel          label a contour plot
-    clf             clear a figure window
-    close           close a figure window
-    colorbar        add a colorbar to the current figure
-    cohere          make a plot of coherence
-    contour         make a contour plot
-    contourf        make a filled contour plot
-    csd             make a plot of cross spectral density
-    draw            force a redraw of the current figure
-    errorbar        make an errorbar graph
-    figlegend       add a legend to the figure
-    figimage        add an image to the figure, w/o resampling
-    figtext         add text in figure coords
-    figure          create or change active figure
-    fill            make filled polygons
-    fill_between    make filled polygons between two sets of y-values
-    fill_betweenx   make filled polygons between two sets of x-values
-    gca             return the current axes
-    gcf             return the current figure
-    gci             get the current image, or None
-    getp            get a graphics property
-    hist            make a histogram
-    hist2d          make a 2d histogram
-    hold            set the hold state on current axes
-    legend          add a legend to the axes
-    loglog          a log log plot
-    imread          load image file into array
-    imsave          save array as an image file
-    imshow          plot image data
-    matshow         display a matrix in a new figure preserving aspect
-    pcolor          make a pseudocolor plot
-    plot            make a line plot
-    plotfile        plot data from a flat file
-    psd             make a plot of power spectral density
-    quiver          make a direction field (arrows) plot
-    rc              control the default params
-    savefig         save the current figure
-    scatter         make a scatter plot
-    setp            set a graphics property
-    semilogx        log x axis
-    semilogy        log y axis
-    show            in non-interactive mode, display all figures and block
-                    until they have been closed; in interactive mode,
-                    show generally has no effect.
-    specgram        a spectrogram plot
-    stackplot       make a stacked plot
-    stem            make a stem plot
-    subplot         make a subplot (numrows, numcols, axesnum)
-    table           add a table to the axes
-    text            add some text at location x,y to the current axes
-    title           add a title to the current axes
-    xlabel          add an xlabel to the current axes
-    ylabel          add a ylabel to the current axes
-    =============== =========================================================
-
-    The following commands will set the default colormap accordingly:
-
-    * autumn
-    * bone
-    * cool
-    * copper
-    * flag
-    * gray
-    * hot
-    * hsv
-    * jet
-    * pink
-    * prism
-    * spring
-    * summer
-    * winter
-    * spectral
-
-    """
     pass
 
 
-def get_plot_commands(): return ( 'axes', 'axis', 'bar', 'boxplot', 'cla', 'clf',
-    'close', 'colorbar', 'cohere', 'csd', 'draw', 'errorbar',
-    'figlegend', 'figtext', 'figimage', 'figure', 'fill', 'gca',
-    'gcf', 'gci', 'get', 'gray', 'barh', 'jet', 'hist', 'hist2d', 'hold', 'imread', 'imsave',
-    'imshow', 'legend', 'loglog', 'quiver', 'rc', 'pcolor', 'pcolormesh', 'plot', 'psd',
-    'savefig', 'scatter', 'set', 'semilogx', 'semilogy', 'show',
-    'specgram', 'stem', 'subplot', 'table', 'text', 'title', 'xlabel',
-    'ylabel', 'pie', 'polar')
+def get_plot_commands():
+    """
+    Get a sorted list of all of the plotting commands.
+    """
+    # This works by searching for all functions in this module and
+    # removing a few hard-coded exclusions, as well as all of the
+    # colormap-setting functions, and anything marked as private with
+    # a preceding underscore.
+
+    import inspect
+
+    exclude = set(['colormaps', 'colors', 'connect', 'disconnect',
+                   'get_plot_commands', 'get_current_fig_manager',
+                   'ginput', 'plotting', 'waitforbuttonpress'])
+    exclude |= set(colormaps())
+    this_module = inspect.getmodule(get_plot_commands)
+
+    commands = set()
+    for name, obj in globals().items():
+        if name.startswith('_') or name in exclude:
+            continue
+        if inspect.isfunction(obj) and inspect.getmodule(obj) is this_module:
+            commands.add(name)
+
+    commands = list(commands)
+    commands.sort()
+    return commands
 
 def colors():
     """
@@ -1955,6 +1909,57 @@ def colormaps():
     return sorted(cm.cmap_d.keys())
 
 
+def _setup_pyplot_info_docstrings():
+    """
+    Generates the plotting and docstring.
+
+    These must be done after the entire module is imported, so it is
+    called from the end of this module, which is generated by
+    boilerplate.py.
+    """
+    # Generate the plotting docstring
+    import re
+
+    def pad(s, l):
+        """Pad string *s* to length *l*."""
+        if l < len(s):
+            return s[:l]
+        return s + ' ' * (l - len(s))
+
+    commands = get_plot_commands()
+
+    first_sentence = re.compile("(?:\s*).+?\.(?:\s+|$)", flags=re.DOTALL)
+
+    # Collect the first sentence of the docstring for all of the
+    # plotting commands.
+    rows = []
+    max_name = 0
+    max_summary = 0
+    for name in commands:
+        doc = globals()[name].__doc__
+        summary = ''
+        if doc is not None:
+            match = first_sentence.match(doc)
+            if match is not None:
+                summary = match.group(0).strip().replace('\n', ' ')
+        name = '`%s`' % name
+        rows.append([name, summary])
+        max_name = max(max_name, len(name))
+        max_summary = max(max_summary, len(summary))
+
+    lines = []
+    sep = '=' * max_name + ' ' + '=' * max_summary
+    lines.append(sep)
+    lines.append(' '.join([pad("Function", max_name),
+                           pad("Description", max_summary)]))
+    lines.append(sep)
+    for name, summary in rows:
+        lines.append(' '.join([pad(name, max_name),
+                               pad(summary, max_summary)]))
+    lines.append(sep)
+
+    plotting.__doc__ = '\n'.join(lines)
+
 ## Plotting part 1: manually generated functions and wrappers ##
 
 import matplotlib.colorbar
@@ -1976,7 +1981,7 @@ colorbar.__doc__ = matplotlib.colorbar.colorbar_doc
 
 def clim(vmin=None, vmax=None):
     """
-    Set the color limits of the current image
+    Set the color limits of the current image.
 
     To apply clim to all axes images do::
 
@@ -2001,7 +2006,7 @@ def clim(vmin=None, vmax=None):
 
 def set_cmap(cmap):
     '''
-    set the default colormap to *cmap* and apply to current image if any.
+    Set the default colormap.  Applies to the current image if any.
     See help(colormaps) for more information.
 
     *cmap* must be a :class:`colors.Colormap` instance, or
@@ -2073,12 +2078,14 @@ def matshow(A, fignum=None, **kw):
 
 def polar(*args, **kwargs):
     """
+    Make a polar plot.
+
     call signature::
 
       polar(theta, r, **kwargs)
 
-    Make a polar plot.  Multiple *theta*, *r* arguments are supported,
-    with format strings, as in :func:`~matplotlib.pyplot.plot`.
+    Multiple *theta*, *r* arguments are supported, with format
+    strings, as in :func:`~matplotlib.pyplot.plot`.
 
     An optional kwarg *resolution* sets the number of vertices to
     interpolate between each pair of points.  The default is 1,
@@ -2095,7 +2102,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
              subplots=True, newfig=True,
              **kwargs):
     """
-    Plot the data in *fname*
+    Plot the data in in a file.
 
     *cols* is a sequence of column identifiers to plot.  An identifier
     is either an int or a string.  If it is an int, it indicates the
@@ -2214,7 +2221,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
 
     draw_if_interactive()
 
-def autogen_docstring(base):
+def _autogen_docstring(base):
     """Autogenerated wrappers will get their docstring from a base function
     with an addendum."""
     msg = "\n\nAdditional kwargs: hold = [True|False] overrides default hold state"
@@ -2223,8 +2230,7 @@ def autogen_docstring(base):
 
 # This function cannot be generated by boilerplate.py because it may
 # return an image or a line.
-
-@autogen_docstring(Axes.spy)
+@_autogen_docstring(Axes.spy)
 def spy(Z, precision=0, marker=None, markersize=None, aspect='equal', hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2247,12 +2253,12 @@ def spy(Z, precision=0, marker=None, markersize=None, aspect='equal', hold=None,
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.acorr)
+@_autogen_docstring(Axes.acorr)
 def acorr(x, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2260,17 +2266,17 @@ def acorr(x, hold=None, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.arrow)
+@_autogen_docstring(Axes.arrow)
 def arrow(x, y, dx, dy, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2278,17 +2284,17 @@ def arrow(x, y, dx, dy, hold=None, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.axhline)
+@_autogen_docstring(Axes.axhline)
 def axhline(y=0, xmin=0, xmax=1, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2296,17 +2302,17 @@ def axhline(y=0, xmin=0, xmax=1, hold=None, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.axhspan)
+@_autogen_docstring(Axes.axhspan)
 def axhspan(ymin, ymax, xmin=0, xmax=1, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2314,17 +2320,17 @@ def axhspan(ymin, ymax, xmin=0, xmax=1, hold=None, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.axvline)
+@_autogen_docstring(Axes.axvline)
 def axvline(x=0, ymin=0, ymax=1, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2332,17 +2338,17 @@ def axvline(x=0, ymin=0, ymax=1, hold=None, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.axvspan)
+@_autogen_docstring(Axes.axvspan)
 def axvspan(xmin, xmax, ymin=0, ymax=1, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2350,17 +2356,17 @@ def axvspan(xmin, xmax, ymin=0, ymax=1, hold=None, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.bar)
+@_autogen_docstring(Axes.bar)
 def bar(left, height, width=0.8, bottom=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2368,17 +2374,17 @@ def bar(left, height, width=0.8, bottom=None, hold=None, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.barh)
+@_autogen_docstring(Axes.barh)
 def barh(bottom, width, height=0.8, left=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2386,17 +2392,17 @@ def barh(bottom, width, height=0.8, left=None, hold=None, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.broken_barh)
+@_autogen_docstring(Axes.broken_barh)
 def broken_barh(xranges, yrange, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2404,19 +2410,19 @@ def broken_barh(xranges, yrange, hold=None, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.boxplot)
+@_autogen_docstring(Axes.boxplot)
 def boxplot(x, notch=False, sym='b+', vert=True, whis=1.5, positions=None,
             widths=None, patch_artist=False, bootstrap=None, usermedians=None,
             conf_intervals=None, hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2427,19 +2433,19 @@ def boxplot(x, notch=False, sym='b+', vert=True, whis=1.5, positions=None,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.cohere)
+@_autogen_docstring(Axes.cohere)
 def cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
            window=mlab.window_hanning, noverlap=0, pad_to=None, sides='default',
            scale_by_freq=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2449,12 +2455,12 @@ def cohere(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.clabel)
+@_autogen_docstring(Axes.clabel)
 def clabel(CS, *args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2467,12 +2473,12 @@ def clabel(CS, *args, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.contour)
+@_autogen_docstring(Axes.contour)
 def contour(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2490,7 +2496,7 @@ def contour(*args, **kwargs):
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.contourf)
+@_autogen_docstring(Axes.contourf)
 def contourf(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2508,14 +2514,14 @@ def contourf(*args, **kwargs):
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.csd)
+@_autogen_docstring(Axes.csd)
 def csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
         window=mlab.window_hanning, noverlap=0, pad_to=None, sides='default',
         scale_by_freq=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2525,12 +2531,12 @@ def csd(x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.errorbar)
+@_autogen_docstring(Axes.errorbar)
 def errorbar(x, y, yerr=None, xerr=None, fmt='-', ecolor=None, elinewidth=None,
              capsize=3, barsabove=False, lolims=False, uplims=False,
              xlolims=False, xuplims=False, errorevery=1, capthick=None,
@@ -2538,7 +2544,7 @@ def errorbar(x, y, yerr=None, xerr=None, fmt='-', ecolor=None, elinewidth=None,
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2550,12 +2556,12 @@ def errorbar(x, y, yerr=None, xerr=None, fmt='-', ecolor=None, elinewidth=None,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.fill)
+@_autogen_docstring(Axes.fill)
 def fill(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2568,17 +2574,17 @@ def fill(*args, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.fill_between)
+@_autogen_docstring(Axes.fill_between)
 def fill_between(x, y1, y2=0, where=None, interpolate=False, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2587,17 +2593,17 @@ def fill_between(x, y1, y2=0, where=None, interpolate=False, hold=None, **kwargs
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.fill_betweenx)
+@_autogen_docstring(Axes.fill_betweenx)
 def fill_betweenx(y, x1, x2=0, where=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2605,12 +2611,12 @@ def fill_betweenx(y, x1, x2=0, where=None, hold=None, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.hexbin)
+@_autogen_docstring(Axes.hexbin)
 def hexbin(x, y, C=None, gridsize=100, bins=None, xscale='linear',
            yscale='linear', extent=None, cmap=None, norm=None, vmin=None,
            vmax=None, alpha=None, linewidths=None, edgecolors='none',
@@ -2619,7 +2625,7 @@ def hexbin(x, y, C=None, gridsize=100, bins=None, xscale='linear',
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2637,14 +2643,14 @@ def hexbin(x, y, C=None, gridsize=100, bins=None, xscale='linear',
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.hist)
+@_autogen_docstring(Axes.hist)
 def hist(x, bins=10, range=None, normed=False, weights=None, cumulative=False,
          bottom=None, histtype='bar', align='mid', orientation='vertical',
          rwidth=None, log=False, color=None, label=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2656,18 +2662,18 @@ def hist(x, bins=10, range=None, normed=False, weights=None, cumulative=False,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.hist2d)
+@_autogen_docstring(Axes.hist2d)
 def hist2d(x, y, bins=10, range=None, normed=False, weights=None, cmin=None,
            cmax=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2681,13 +2687,13 @@ def hist2d(x, y, bins=10, range=None, normed=False, weights=None, cmin=None,
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.hlines)
+@_autogen_docstring(Axes.hlines)
 def hlines(y, xmin, xmax, colors='k', linestyles='solid', label='', hold=None,
            **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2696,12 +2702,12 @@ def hlines(y, xmin, xmax, colors='k', linestyles='solid', label='', hold=None,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.imshow)
+@_autogen_docstring(Axes.imshow)
 def imshow(X, cmap=None, norm=None, aspect=None, interpolation=None, alpha=None,
            vmin=None, vmax=None, origin=None, extent=None, shape=None,
            filternorm=1, filterrad=4.0, imlim=None, resample=None, url=None,
@@ -2709,7 +2715,7 @@ def imshow(X, cmap=None, norm=None, aspect=None, interpolation=None, alpha=None,
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2726,7 +2732,7 @@ def imshow(X, cmap=None, norm=None, aspect=None, interpolation=None, alpha=None,
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.loglog)
+@_autogen_docstring(Axes.loglog)
 def loglog(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2739,12 +2745,12 @@ def loglog(*args, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.pcolor)
+@_autogen_docstring(Axes.pcolor)
 def pcolor(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2762,7 +2768,7 @@ def pcolor(*args, **kwargs):
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.pcolormesh)
+@_autogen_docstring(Axes.pcolormesh)
 def pcolormesh(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2780,14 +2786,14 @@ def pcolormesh(*args, **kwargs):
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.pie)
+@_autogen_docstring(Axes.pie)
 def pie(x, explode=None, labels=None, colors=None, autopct=None,
         pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=None,
         radius=None, hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2798,12 +2804,12 @@ def pie(x, explode=None, labels=None, colors=None, autopct=None,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.plot)
+@_autogen_docstring(Axes.plot)
 def plot(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2816,18 +2822,18 @@ def plot(*args, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.plot_date)
+@_autogen_docstring(Axes.plot_date)
 def plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, hold=None,
               **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2836,19 +2842,19 @@ def plot_date(x, y, fmt='bo', tz=None, xdate=True, ydate=False, hold=None,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.psd)
+@_autogen_docstring(Axes.psd)
 def psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
         window=mlab.window_hanning, noverlap=0, pad_to=None, sides='default',
         scale_by_freq=None, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2858,12 +2864,12 @@ def psd(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.quiver)
+@_autogen_docstring(Axes.quiver)
 def quiver(*args, **kw):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2881,7 +2887,7 @@ def quiver(*args, **kw):
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.quiverkey)
+@_autogen_docstring(Axes.quiverkey)
 def quiverkey(*args, **kw):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2894,19 +2900,19 @@ def quiverkey(*args, **kw):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.scatter)
+@_autogen_docstring(Axes.scatter)
 def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None,
             vmax=None, alpha=None, linewidths=None, faceted=True, verts=None,
             hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2922,7 +2928,7 @@ def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None,
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.semilogx)
+@_autogen_docstring(Axes.semilogx)
 def semilogx(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2935,12 +2941,12 @@ def semilogx(*args, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.semilogy)
+@_autogen_docstring(Axes.semilogy)
 def semilogy(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -2953,12 +2959,12 @@ def semilogy(*args, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.specgram)
+@_autogen_docstring(Axes.specgram)
 def specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
              window=mlab.window_hanning, noverlap=128, cmap=None, xextent=None,
              pad_to=None, sides='default', scale_by_freq=None, hold=None,
@@ -2966,7 +2972,7 @@ def specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -2982,7 +2988,7 @@ def specgram(x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.stackplot)
+@_autogen_docstring(Axes.stackplot)
 def stackplot(x, *args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -3000,13 +3006,13 @@ def stackplot(x, *args, **kwargs):
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.stem)
+@_autogen_docstring(Axes.stem)
 def stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-', bottom=None,
          label=None, hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -3015,12 +3021,12 @@ def stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-', bottom=None,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.step)
+@_autogen_docstring(Axes.step)
 def step(x, y, *args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -3033,19 +3039,19 @@ def step(x, y, *args, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.streamplot)
+@_autogen_docstring(Axes.streamplot)
 def streamplot(x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
                norm=None, arrowsize=1, arrowstyle='-|>', minlength=0.1,
                hold=None):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -3061,7 +3067,7 @@ def streamplot(x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.tricontour)
+@_autogen_docstring(Axes.tricontour)
 def tricontour(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -3079,7 +3085,7 @@ def tricontour(*args, **kwargs):
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.tricontourf)
+@_autogen_docstring(Axes.tricontourf)
 def tricontourf(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -3097,7 +3103,7 @@ def tricontourf(*args, **kwargs):
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.tripcolor)
+@_autogen_docstring(Axes.tripcolor)
 def tripcolor(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -3115,7 +3121,7 @@ def tripcolor(*args, **kwargs):
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.triplot)
+@_autogen_docstring(Axes.triplot)
 def triplot(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -3128,18 +3134,18 @@ def triplot(*args, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.vlines)
+@_autogen_docstring(Axes.vlines)
 def vlines(x, ymin, ymax, colors='k', linestyles='solid', label='', hold=None,
            **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -3148,18 +3154,18 @@ def vlines(x, ymin, ymax, colors='k', linestyles='solid', label='', hold=None,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.xcorr)
+@_autogen_docstring(Axes.xcorr)
 def xcorr(x, y, normed=True, detrend=mlab.detrend_none, usevlines=True,
           maxlags=10, hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-    
+
     if hold is not None:
         ax.hold(hold)
     try:
@@ -3168,12 +3174,12 @@ def xcorr(x, y, normed=True, detrend=mlab.detrend_none, usevlines=True,
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
-@autogen_docstring(Axes.barbs)
+@_autogen_docstring(Axes.barbs)
 def barbs(*args, **kw):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
@@ -3186,7 +3192,7 @@ def barbs(*args, **kw):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
@@ -3501,3 +3507,4 @@ def spectral():
         im.set_cmap(cm.spectral)
     draw_if_interactive()
 
+_setup_pyplot_info_docstrings()
