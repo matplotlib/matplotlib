@@ -21,8 +21,8 @@ def stackplot(axes, x, *args, **kwargs):
           1xN. The data is assumed to be unstacked. Each of the following
           calls is legal::
 
-          stackplot(x, y)               # where y is MxN
-          staclplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
+            stackplot(x, y)               # where y is MxN
+            stackplot(x, y1, y2, y3, y4)  # where y1, y2, y3, y4, are all 1xNm
 
     Keyword arguments:
 
