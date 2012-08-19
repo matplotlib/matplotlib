@@ -77,7 +77,7 @@ def projection_factory(projection, figure, rect, **kwargs):
     Any other kwargs are passed along to the specific projection
     constructor being used.
 
-    .. deprecated::
+    .. deprecated:: 1.3
 
         This routine is deprecated in favour of getting the projection
         class directly with :func:`get_projection_class` and initialising it
