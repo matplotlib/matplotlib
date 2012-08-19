@@ -17,7 +17,7 @@ import numpy as np
 import artist
 from artist import Artist, allow_rasterization
 from axes import Axes, SubplotBase, subplot_class_factory
-from cbook import flatten, allequal, Stack, iterable, is_string_like
+from cbook import allequal, Stack, iterable
 from matplotlib import _image
 import colorbar as cbar
 from image import FigureImage
@@ -27,15 +27,14 @@ from text import Text, _process_text_args
 
 from legend import Legend
 from transforms import Affine2D, Bbox, BboxTransformTo, TransformedBbox
-from projections import get_projection_names, get_projection_class, \
-        process_projection_requirements
+from projections import get_projection_names, process_projection_requirements
 from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
 
 from operator import itemgetter
-import os.path
+
 
 docstring.interpd.update(projection_names = get_projection_names())
 
@@ -110,7 +109,8 @@ class AxesStack(Stack):
         a_existing = self.get(key)
         if a_existing is not None:
             Stack.remove(self, (key, a_existing))
-            warnings.Warn(
+            import warnings
+            warnings.warn(
                     "key %s already existed; Axes is being replaced" % key)
             # I don't think the above should ever happen.
 
@@ -137,6 +137,7 @@ class AxesStack(Stack):
 
     def __contains__(self, a):
         return a in self.as_list()
+
 
 class SubplotParams:
     """
@@ -212,8 +213,6 @@ class SubplotParams:
                 reset()
                 raise ValueError('bottom cannot be >= top')
 
-
-
     def _update_this(self, s, val):
         if val is None:
             val = getattr(self, s, None)
@@ -222,6 +221,7 @@ class SubplotParams:
                 val = rcParams[key]
 
         setattr(self, s, val)
+
 
 class Figure(Artist):
 
@@ -1077,12 +1077,8 @@ class Figure(Artist):
         The following kwargs are supported for ensuring the returned axes
         adheres to the given projection etc., and for axes creation if
         the active axes does not exist:
+        
         %(Axes)s
-
-        .. note::
-            When specifying kwargs to ``gca`` to find the pre-created active
-            axes, they should be equivalent in every way to the kwargs which
-            were used in its creation.
 
         """
         ckey, cax = self._axstack.current_key_axes()
@@ -1103,12 +1099,18 @@ class Figure(Artist):
                 kwargs_copy = kwargs.copy()
                 projection_class, _, key = \
                         process_projection_requirements(self, **kwargs_copy)
+                
+                # let the returned axes have any gridspec by removing it from the key
+                ckey = ckey[1:]
+                key = key[1:]
+
                 # if the cax matches this key then return the axes, otherwise
                 # continue and a new axes will be created
                 if key == ckey and isinstance(cax, projection_class):
                     return cax
-
-        return self.add_subplot(111, **kwargs)
+                
+        # no axes found, so create one which spans the figure
+        return self.add_subplot(1, 1, 1, **kwargs)
 
     def sca(self, a):
         'Set the current axes to be a and return a'
@@ -1389,7 +1391,6 @@ class Figure(Artist):
                                          rect=rect)
 
         self.subplots_adjust(**kwargs)
-
 
 
 def figaspect(arg):
