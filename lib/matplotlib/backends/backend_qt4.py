@@ -425,9 +425,10 @@ class FigureManagerQT( FigureManagerBase ):
 
         if matplotlib.is_interactive():
             self.window.show()
+            self.window.raise_()
 
         # attach a show method to the figure for pylab ease of use
-        self.canvas.figure.show = lambda *args: self.window.show()
+        self.canvas.figure.show = lambda *args: self.window.show() and self.window.raise_()
 
         def notify_axes_change( fig ):
             # This will be called whenever the current axes is changed
@@ -474,6 +475,7 @@ class FigureManagerQT( FigureManagerBase ):
 
     def show(self):
         self.window.show()
+        self.window.raise_()
 
     def destroy( self, *args ):
         # check for qApp first, as PySide deletes it in its atexit handler
