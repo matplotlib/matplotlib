@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
@@ -33,5 +35,6 @@ def test_various_labels():
     ax = fig.add_subplot(121)
     x = np.arange(100)
     ax.plot(range(4), 'o', label=1)
+    ax.plot(np.linspace(4, 4.1), 'o', label=u'Développés')
     ax.plot(range(4, 1, -1), 'o', label='__nolegend__')
     ax.legend(numpoints=1)
