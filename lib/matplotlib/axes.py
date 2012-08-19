@@ -4432,7 +4432,8 @@ class Axes(martist.Artist):
             instance. If *prop* is a dictionary, a new instance will be
             created with *prop*. If *None*, use rc settings.
 
-          *fontsize*: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
+          *fontsize*: [ size in points | 'xx-small' | 'x-small' |
+          'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
             Set the font size.  May be either a size string, relative to
             the default font size, or an absolute font size in points. This
             argument is only used if prop is not specified.
@@ -8124,7 +8125,7 @@ class Axes(martist.Artist):
         Make a 2d histogram plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length.
 
-        The return value is `(counts, xedges, yedges, Image)`.
+        The return value is ``(counts, xedges, yedges, Image)``.
 
         Optional keyword arguments:
         *bins*: [None | int | [int, int] | array_like | [array, array]]
