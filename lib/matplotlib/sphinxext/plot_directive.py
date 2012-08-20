@@ -414,6 +414,16 @@ TEMPLATE = """
    .. image:: {{ build_dir }}/{{ img.basename }}.pdf
    {% endfor %}
 
+{{ only_texinfo }}
+
+   {% for img in images %}
+   .. image:: {{ build_dir }}/{{ img.basename }}.png
+      {%- for option in options %}
+      {{ option }}
+      {% endfor %}
+
+   {% endfor %}
+
 """
 
 exception_template = """
@@ -758,6 +768,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
         only_html = ".. only:: html"
         only_latex = ".. only:: latex"
+        only_texinfo = ".. only:: texinfo"
 
         if j == 0:
             src_link = source_link
@@ -772,6 +783,7 @@ def run(arguments, content, options, state_machine, state, lineno):
             multi_image=len(images) > 1,
             only_html=only_html,
             only_latex=only_latex,
+            only_texinfo=only_texinfo,
             options=opts,
             images=images,
             source_code=source_code,
