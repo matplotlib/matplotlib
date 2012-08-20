@@ -245,9 +245,9 @@ class Sankey:
         #return path
 
     @docstring.dedent_interpd
-    def add(self, patchlabel='', flows=np.array([1.0, -1.0]),
-            orientations=[0, 0], labels='', trunklength=1.0, pathlengths=0.25,
-            prior=None, connect=(0, 0), rotation=0, **kwargs):
+    def add(self, patchlabel='', flows=None, orientations=[0, 0], labels='',
+            trunklength=1.0, pathlengths=0.25, prior=None, connect=(0, 0),
+            rotation=0, **kwargs):
         """
         Add a simple Sankey diagram with flows at the same hierarchical level.
 
@@ -328,7 +328,10 @@ class Sankey:
             :meth:`finish`
         """
         # Check and preprocess the arguments.
-        flows = np.array(flows)
+        if flows is None:
+            flows = np.array([1.0, -1.0])
+        else:
+            flows = np.array(flows)
         n = flows.shape[0]  # Number of flows
         if rotation == None:
             rotation = 0
