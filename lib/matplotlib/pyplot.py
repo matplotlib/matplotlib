@@ -1744,7 +1744,6 @@ def colormaps():
       spring      linearly-increasing shades of magenta-yellow
       summer      sequential linearly-increasing shades of green-yellow
       winter      linearly-increasing shades of blue-green
-      spectral    black-purple-blue-green-yellow-red-white spectrum
       =========   =======================================================
 
     For the above list only, you can also set the colormap using the
@@ -1869,6 +1868,7 @@ def colormaps():
       rainbow    spectral purple-blue-green-yellow-orange-red colormap
                  with diverging luminance
       seismic    diverging blue-white-red
+      nipy_spectral    black-purple-blue-green-yellow-red-white spectrum, originally from the Neuroimaging in Python project
       terrain    mapmaker's colors, blue-green-yellow-brown-white,
                  originally from IGOR Pro
       =========  =======================================================
@@ -1883,6 +1883,7 @@ def colormaps():
       gist_gray  identical to *gray*
       gist_yarg  identical to *gray_r*
       binary     identical to *gray_r*
+      spectral   identical to *nipy_spectral*, which was changed to differentiate from ColorBrewer's Spectral map
       =========  =======================================================
 
     .. rubric:: Footnotes
