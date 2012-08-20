@@ -24,7 +24,7 @@ drawing commands for LaTeX that can be processed by PdfLaTeX, XeLaTeX or
 LuaLaTeX using the PGF/TikZ package. Usage examples and documentation are
 found in :ref:`pgf-tutorial`.
 
-.. image:: plotting/examples/pgf_preamble.*
+.. image:: /_static/pgf_preamble.*
 
 Locator interface
 -----------------

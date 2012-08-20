@@ -53,7 +53,7 @@ fonts "CMU Serif", "CMU Sans Serif" are recommended.
 .. literalinclude:: plotting/examples/pgf_fonts.py
    :end-before: plt.savefig
 
-.. image:: plotting/examples/pgf_fonts.*
+.. image:: /_static/pgf_fonts.*
 
 
 .. _pgf-preamble:
@@ -77,7 +77,7 @@ to disable ``pgf.rcfonts``.
     .. literalinclude:: plotting/examples/pgf_preamble.py
         :end-before: import matplotlib.pyplot as plt
 
-.. image:: plotting/examples/pgf_preamble.*
+.. image:: /_static/pgf_preamble.*
 
 
 .. _pgf-texsystem:
@@ -93,7 +93,7 @@ unicode handling must be configured in the preamble.
 .. literalinclude:: plotting/examples/pgf_texsystem.py
    :end-before: plt.savefig
 
-.. image:: plotting/examples/pgf_texsystem.*
+.. image:: /_static/pgf_texsystem.*
 
 .. _pgf-hangups:
 
