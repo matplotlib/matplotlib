@@ -4,7 +4,7 @@ from numpy.testing import assert_almost_equal
 from matplotlib.transforms import Affine2D, BlendedGenericTransform
 from matplotlib.path import Path
 from matplotlib.scale import LogScale
-from matplotlib.testing.decorators import cleanup
+from matplotlib.testing.decorators import cleanup, image_comparison
 import numpy as np
 
 import matplotlib.transforms as mtrans
@@ -52,6 +52,59 @@ def test_non_affine_caching():
     plt.draw()
 
 
+@cleanup
+def test_external_transform_api():
+    class ScaledBy(object):
+        def __init__(self, scale_factor):
+            self._scale_factor = scale_factor
+            
+        def _as_mpl_transform(self, axes):
+            return mtrans.Affine2D().scale(self._scale_factor) + axes.transData
+
+    ax = plt.axes()
+    line, = plt.plot(range(10), transform=ScaledBy(10))
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 100)
+    # assert that the top transform of the line is the scale transform.
+    np.testing.assert_allclose(line.get_transform()._a.get_matrix(), 
+                               mtrans.Affine2D().scale(10).get_matrix())
+    
+
+@image_comparison(baseline_images=['pre_transform_data'])
+def test_pre_transform_plotting():
+    # a catch-all for as many as possible plot layouts which handle pre-transforming the data
+    # NOTE: The axis range is important in this plot. It should be x10 what the data suggests it should be 
+    ax = plt.axes()
+    times10 = mtrans.Affine2D().scale(10)
+    
+    ax.contourf(np.arange(48).reshape(6, 8), transform=times10 + ax.transData)
+    
+    ax.pcolormesh(np.linspace(0, 4, 7), 
+                  np.linspace(5.5, 8, 9), 
+                  np.arange(48).reshape(6, 8),
+                  transform=times10 + ax.transData)
+    
+    ax.scatter(np.linspace(0, 10), np.linspace(10, 0), 
+               transform=times10 + ax.transData)
+    
+    
+    x = np.linspace(8, 10, 20)
+    y = np.linspace(1, 5, 20)
+    u = 2*np.sin(x) + np.cos(y[:, np.newaxis])
+    v = np.sin(x) - np.cos(y[:, np.newaxis])
+
+    ax.streamplot(x, y, u, v, transform=times10 + ax.transData,
+                  density=(1, 1), linewidth=u**2 + v**2)
+    
+    # reduce the vector data down a bit for barb and quiver plotting
+    x, y = x[::3], y[::3]
+    u, v = u[::3, ::3], v[::3, ::3]
+    
+    ax.quiver(x, y + 5, u, v, transform=times10 + ax.transData)
+    
+    ax.barbs(x - 3, y + 5, u**2, v**2, transform=times10 + ax.transData)
+    
+
 def test_Affine2D_from_values():
     points = [ [0,0],
                [10,20],
@@ -88,6 +141,7 @@ def test_Affine2D_from_values():
     expected = np.array( [[0,6],[0,6],[0,6]] )
     assert_almost_equal(actual,expected)
 
+
 def test_clipping_of_log():
     # issue 804
     M,L,C = Path.MOVETO, Path.LINETO, Path.CLOSEPOLY
@@ -109,3 +163,8 @@ def test_clipping_of_log():
     # operation must be replaced by a move to the first point.
     assert np.allclose(tcodes, [ M, M, L, L, L ])
     assert np.allclose(tpoints[-1], tpoints[0])
+
+
+if __name__=='__main__':
+    import nose
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
