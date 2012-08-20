@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 
 class MiniExpect:
@@ -33,10 +34,11 @@ class MiniExpect:
         """
         Send a line to the process.
         """
+        line = line.encode('ascii')
         self.check_alive()
         stdin = self._process.stdin
         stdin.write(line)
-        stdin.write('\n')
+        stdin.write(b'\n')
         stdin.flush()
 
     def expect(self, s, output=None):
@@ -46,15 +48,22 @@ class MiniExpect:
         *output* (optional) is a writable file object where all of the
         content preceding *s* will be written.
         """
-        self.check_alive()
+        s = s.encode('ascii')
         read = self._process.stdout.read
         pos = 0
-        buf = ''
+        buf = b''
         while True:
+            self.check_alive()
             char = read(1)
             if not char:
                 raise IOError("Unexpected end-of-file")
-            elif char == s[pos]:
+
+            if sys.version_info[0] >= 3:
+                match = (ord(char) == s[pos])
+            else:
+                match = (char == s[pos])
+
+            if match:
                 buf += char
                 pos += 1
                 if pos == len(s):
@@ -63,5 +72,5 @@ class MiniExpect:
                 if output is not None:
                     output.write(buf)
                     output.write(char)
-                buf = ''
+                buf = b''
                 pos = 0
