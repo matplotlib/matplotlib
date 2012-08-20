@@ -332,10 +332,6 @@ docstring.interpd.update(PSD=cbook.dedent("""
           argument, it must take a data segment as an argument and
           return the windowed version of the segment.
 
-      *noverlap*: integer
-          The number of points of overlap between blocks.  The default value
-          is 0 (no overlap).
-
       *pad_to*: integer
           The number of points to which the data segment is padded when
           performing the FFT.  This can be different from *NFFT*, which
@@ -377,6 +373,10 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     %(PSD)s
 
+      *noverlap*: integer
+          The number of points of overlap between blocks.  The default value
+          is 0 (no overlap).
+
     Returns the tuple (*Pxx*, *freqs*).
 
     Refs:
@@ -409,6 +409,10 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     %(PSD)s
 
+      *noverlap*: integer
+          The number of points of overlap between blocks.  The default value
+          is 0 (no overlap).
+
     Returns the tuple (*Pxy*, *freqs*).
 
     Refs:
@@ -436,6 +440,10 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     spectrum is returned.
 
     %(PSD)s
+
+      *noverlap*: integer
+          The number of points of overlap between blocks.  The default value
+          is 128.
 
     Returns a tuple (*Pxx*, *freqs*, *t*):
 
@@ -481,6 +489,10 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         Array or sequence containing the data
 
     %(PSD)s
+
+      *noverlap*: integer
+          The number of points of overlap between blocks.  The default value
+          is 0 (no overlap).
 
     The return value is the tuple (*Cxy*, *f*), where *f* are the
     frequencies of the coherence vector. For cohere, scaling the
