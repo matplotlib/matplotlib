@@ -2423,13 +2423,19 @@ class FigureManagerBase:
                                                             self.key_press)
         """
         The returned id from connecting the default key handler via :meth:`FigureCanvasBase.mpl_connnect`.
-        
+
         To disable default key press handling::
-        
+
             manager, canvas = figure.canvas.manager, figure.canvas
             canvas.mpl_disconnect(manager.key_press_handler_id)
-            
+
         """
+
+    def show(self):
+        """
+        For GUI backends, show the figure window and redraw.
+        """
+        pass
 
     def destroy(self):
         pass

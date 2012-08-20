@@ -328,6 +328,20 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
+    def show(self):
+        """
+        If using a GUI backend, display the figure window.
+
+        For non-GUI backends, this does nothing.
+        """
+        manager = getattr(self.canvas, 'manager')
+        if manager is not None:
+            manager.show()
+        import warnings
+        warnings.warn(
+            "matplotlib is currently using a non-GUI backend, "
+            "so can not show the figure")
+
     def _get_axes(self):
         return self._axstack.as_list()
 
