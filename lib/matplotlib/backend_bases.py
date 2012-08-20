@@ -1807,6 +1807,7 @@ class FigureCanvasBase(object):
         'emf': 'Enhanced Metafile',
         'eps': 'Encapsulated Postscript',
         'pdf': 'Portable Document Format',
+        'pgf': 'LaTeX PGF Figure',
         'png': 'Portable Network Graphics',
         'ps' : 'Postscript',
         'raw': 'Raw RGBA bitmap',
@@ -1840,6 +1841,11 @@ class FigureCanvasBase(object):
         from backends.backend_pdf import FigureCanvasPdf # lazy import
         pdf = self.switch_backends(FigureCanvasPdf)
         return pdf.print_pdf(*args, **kwargs)
+
+    def print_pgf(self, *args, **kwargs):
+        from backends.backend_pgf import FigureCanvasPgf # lazy import
+        pgf = self.switch_backends(FigureCanvasPgf)
+        return pgf.print_pgf(*args, **kwargs)
 
     def print_png(self, *args, **kwargs):
         from backends.backend_agg import FigureCanvasAgg # lazy import

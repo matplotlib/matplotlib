@@ -30,7 +30,7 @@ interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX',
 
 
 non_interactive_bk = ['agg', 'cairo', 'emf', 'gdk',
-                      'pdf', 'ps', 'svg', 'template']
+                      'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
 
 
@@ -319,6 +319,9 @@ def validate_hinting(s):
         return s.lower()
     raise ValueError("hinting should be 'auto', 'native', 'either' or 'none'")
 
+validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
+                                           ['xelatex', 'lualatex', 'pdflatex'])
+
 validate_movie_writer = ValidateInStrings('animation.writer',
     ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file'])
 
@@ -574,6 +577,12 @@ defaultParams = {
     'pdf.use14corefonts' : [False, validate_bool],  # use only the 14 PDF core fonts
                                                     # embedded in every PDF viewing application
     'pdf.fonttype'      : [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
+
+    'pgf.debug'         : [False, validate_bool],  # output debug information
+    'pgf.texsystem'     : ['xelatex', validate_pgf_texsystem], # choose latex application for creating pdf files (xelatex/lualatex)
+    'pgf.rcfonts'       : [True, validate_bool],   # use matplotlib rc settings for font configuration
+    'pgf.preamble'      : [[''], validate_stringlist], # provide a custom preamble for the latex process
+
     'svg.image_inline'  : [True, validate_bool],    # write raster image data directly into the svg file
     'svg.image_noscale' : [False, validate_bool],  # suppress scaling of raster data embedded in SVG
     'svg.embed_char_paths' : [True, deprecate_svg_embed_char_paths],  # True to save all characters as paths in the SVG
