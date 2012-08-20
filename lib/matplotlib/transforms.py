@@ -1058,7 +1058,7 @@ class Transform(TransformNode):
     """
 
     has_inverse = False
-    """True if this transform as a corresponding inverse transform."""
+    """True if this transform has a corresponding inverse transform."""
 
     is_separable = False
     """True if this transform is separable in the x- and y- dimensions."""
@@ -2223,7 +2223,6 @@ class CompositeAffine2D(Affine2DBase):
             yield lh_compliment, rh_compliment + self._b
         for lh_compliment, rh_compliment in self._b._iter_break_from_left_to_right():
             yield self._a + lh_compliment, rh_compliment
-        
 
     def __repr__(self):
         return "CompositeAffine2D(%r, %r)" % (self._a, self._b)

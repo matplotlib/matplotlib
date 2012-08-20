@@ -116,7 +116,7 @@ Changes in 1.2.x
       >>> print(data2ax.depth)
       2
       
-  for versions before 2.0 this could only be achieved in a sub-optimal way, using 
+  for versions before 1.2 this could only be achieved in a sub-optimal way, using 
   ``ax.transData + ax.transAxes.inverted()`` (depth is a new concept, but had it existed 
   it would return 4 for this example).      
 
