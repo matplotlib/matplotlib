@@ -338,6 +338,20 @@ class Figure(Artist):
         backend_mod = mbackends.pylab_setup()[0]
         return backend_mod.FigureCanvas(self)
 
+    def show(self):
+        """
+        If using a GUI backend, display the figure window.
+
+        For non-GUI backends, this does nothing.
+        """
+        manager = getattr(self.canvas, 'manager')
+        if manager is not None:
+            manager.show()
+        import warnings
+        warnings.warn(
+            "matplotlib is currently using a non-GUI backend, "
+            "so can not show the figure")
+
     def _get_axes(self):
         return self._axstack.as_list()
 
@@ -1188,10 +1202,10 @@ class Figure(Artist):
         # and re-attached to another.
         for attr_to_pop in ('_axobservers', 'show', 'canvas', '_cachedRenderer') :
             state.pop(attr_to_pop, None)
-        
+
         # add version information to the state
         state['__mpl_version__'] = _mpl_version
-        
+
         # check to see if the figure has a manager and whether it is registered
         # with pyplot
         if getattr(self.canvas, 'manager', None) is not None:
