@@ -267,6 +267,8 @@ class CallbackRegistry:
         self._func_cid_map = {}
 
     def __getstate__(self):
+        # We cannot currently pickle the callables in the registry, so 
+        # return an empty dictionary. 
         return {}
     
     def __setstate__(self, state):

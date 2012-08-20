@@ -73,7 +73,8 @@ minimum and maximum colorbar extensions.
 Figures are picklable
 ---------------------
 
-Philip Elson made figures picklable for quick storage of plots. Pickle files
+Philip Elson added an experimental feature to make figures picklable
+for quick and easy short-term storage of plots. Pickle files
 are not designed for long term storage, are unsupported when restoring a pickle
 saved in another matplotlib version and are insecure when restoring a pickle
 from an untrusted source. Having said this, they are useful for short term

@@ -152,8 +152,6 @@ class _DummyAxis(object):
 
 
 class TickHelper(object):
-    axis = None
-
     def set_axis(self, axis):
         self.axis = axis
 

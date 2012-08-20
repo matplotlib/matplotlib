@@ -18,6 +18,204 @@ from matplotlib.transforms import Affine2D, Affine2DBase, Bbox, \
     ScaledTranslation, blended_transform_factory, BboxTransformToMaxOnly
 import matplotlib.spines as mspines
 
+
+class PolarTransform(Transform):
+    """
+    The base polar transform.  This handles projection *theta* and
+    *r* into Cartesian coordinate space *x* and *y*, but does not
+    perform the ultimate affine transformation into the correct
+    position.
+    """
+    input_dims = 2
+    output_dims = 2
+    is_separable = False
+
+    def __init__(self, axis=None, use_rmin=True):
+        Transform.__init__(self)
+        self._axis = axis
+        self._use_rmin = use_rmin
+
+    def transform(self, tr):
+        xy = np.empty(tr.shape, np.float_)
+        if self._axis is not None:
+            if self._use_rmin:
+                rmin = self._axis.viewLim.ymin
+            else:
+                rmin = 0
+            theta_offset = self._axis.get_theta_offset()
+            theta_direction = self._axis.get_theta_direction()
+        else:
+            rmin = 0
+            theta_offset = 0
+            theta_direction = 1
+
+        t = tr[:, 0:1]
+        r = tr[:, 1:2]
+        x = xy[:, 0:1]
+        y = xy[:, 1:2]
+
+        t *= theta_direction
+        t += theta_offset
+
+        if rmin != 0:
+            r = r - rmin
+            mask = r < 0
+            x[:] = np.where(mask, np.nan, r * np.cos(t))
+            y[:] = np.where(mask, np.nan, r * np.sin(t))
+        else:
+            x[:] = r * np.cos(t)
+            y[:] = r * np.sin(t)
+
+        return xy
+    transform.__doc__ = Transform.transform.__doc__
+
+    transform_non_affine = transform
+    transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+
+    def transform_path(self, path):
+        vertices = path.vertices
+        if len(vertices) == 2 and vertices[0, 0] == vertices[1, 0]:
+            return Path(self.transform(vertices), path.codes)
+        ipath = path.interpolated(path._interpolation_steps)
+        return Path(self.transform(ipath.vertices), ipath.codes)
+    transform_path.__doc__ = Transform.transform_path.__doc__
+
+    transform_path_non_affine = transform_path
+    transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
+
+    def inverted(self):
+        return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin)
+    inverted.__doc__ = Transform.inverted.__doc__
+
+
+class PolarAffine(Affine2DBase):
+    """
+    The affine part of the polar projection.  Scales the output so
+    that maximum radius rests on the edge of the axes circle.
+    """
+    def __init__(self, scale_transform, limits):
+        """
+        *limits* is the view limit of the data.  The only part of
+        its bounds that is used is ymax (for the radius maximum).
+        The theta range is always fixed to (0, 2pi).
+        """
+        Affine2DBase.__init__(self)
+        self._scale_transform = scale_transform
+        self._limits = limits
+        self.set_children(scale_transform, limits)
+        self._mtx = None
+
+    def get_matrix(self):
+        if self._invalid:
+            limits_scaled = self._limits.transformed(self._scale_transform)
+            yscale = limits_scaled.ymax - limits_scaled.ymin
+            affine = Affine2D() \
+                .scale(0.5 / yscale) \
+                .translate(0.5, 0.5)
+            self._mtx = affine.get_matrix()
+            self._inverted = None
+            self._invalid = 0
+        return self._mtx
+    get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
+    
+
+class InvertedPolarTransform(Transform):
+    """
+    The inverse of the polar transform, mapping Cartesian
+    coordinate space *x* and *y* back to *theta* and *r*.
+    """
+    input_dims = 2
+    output_dims = 2
+    is_separable = False
+
+    def __init__(self, axis=None, use_rmin=True):
+        Transform.__init__(self)
+        self._axis = axis
+        self._use_rmin = use_rmin
+
+    def transform(self, xy):
+        if self._axis is not None:
+            if self._use_rmin:
+                rmin = self._axis.viewLim.ymin
+            else:
+                rmin = 0
+            theta_offset = self._axis.get_theta_offset()
+            theta_direction = self._axis.get_theta_direction()
+        else:
+            rmin = 0
+            theta_offset = 0
+            theta_direction = 1
+
+        x = xy[:, 0:1]
+        y = xy[:, 1:]
+        r = np.sqrt(x*x + y*y)
+        theta = np.arccos(x / r)
+        theta = np.where(y < 0, 2 * np.pi - theta, theta)
+
+        theta -= theta_offset
+        theta *= theta_direction
+
+        r += rmin
+
+        return np.concatenate((theta, r), 1)
+    transform.__doc__ = Transform.transform.__doc__
+
+    def inverted(self):
+        return PolarAxes.PolarTransform(self._axis, self._use_rmin)
+    inverted.__doc__ = Transform.inverted.__doc__
+
+
+class ThetaFormatter(Formatter):
+    """
+    Used to format the *theta* tick labels.  Converts the native
+    unit of radians into degrees and adds a degree symbol.
+    """
+    def __call__(self, x, pos=None):
+        # \u00b0 : degree symbol
+        if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
+            return r"$%0.0f^\circ$" % ((x / np.pi) * 180.0)
+        else:
+            # we use unicode, rather than mathtext with \circ, so
+            # that it will work correctly with any arbitrary font
+            # (assuming it has a degree sign), whereas $5\circ$
+            # will only work correctly with one of the supported
+            # math fonts (Computer Modern and STIX)
+            return u"%0.0f\u00b0" % ((x / np.pi) * 180.0)
+
+
+class RadialLocator(Locator):
+    """
+    Used to locate radius ticks.
+
+    Ensures that all ticks are strictly positive.  For all other
+    tasks, it delegates to the base
+    :class:`~matplotlib.ticker.Locator` (which may be different
+    depending on the scale of the *r*-axis.
+    """
+    def __init__(self, base):
+        self.base = base
+
+    def __call__(self):
+        ticks = self.base()
+        return [x for x in ticks if x > 0]
+
+    def autoscale(self):
+        return self.base.autoscale()
+
+    def pan(self, numsteps):
+        return self.base.pan(numsteps)
+
+    def zoom(self, direction):
+        return self.base.zoom(direction)
+
+    def refresh(self):
+        return self.base.refresh()
+
+    def view_limits(self, vmin, vmax):
+        vmin, vmax = self.base.view_limits(vmin, vmax)
+        return 0, vmax
+            
+
 class PolarAxes(Axes):
     """
     A polar graph projection, where the input dimensions are *theta*, *r*.
@@ -25,243 +223,6 @@ class PolarAxes(Axes):
     Theta starts pointing east and goes anti-clockwise.
     """
     name = 'polar'
-
-    class PolarTransform(Transform):
-        """
-        The base polar transform.  This handles projection *theta* and
-        *r* into Cartesian coordinate space *x* and *y*, but does not
-        perform the ultimate affine transformation into the correct
-        position.
-        """
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
-
-        def __init__(self, axis=None, use_rmin=True):
-            Transform.__init__(self)
-            self._axis = axis
-            self._use_rmin = use_rmin
-
-        def transform(self, tr):
-            xy = np.empty(tr.shape, np.float_)
-            if self._axis is not None:
-                if self._use_rmin:
-                    rmin = self._axis.viewLim.ymin
-                else:
-                    rmin = 0
-                theta_offset = self._axis.get_theta_offset()
-                theta_direction = self._axis.get_theta_direction()
-            else:
-                rmin = 0
-                theta_offset = 0
-                theta_direction = 1
-
-            t = tr[:, 0:1]
-            r = tr[:, 1:2]
-            x = xy[:, 0:1]
-            y = xy[:, 1:2]
-
-            t *= theta_direction
-            t += theta_offset
-
-            if rmin != 0:
-                r = r - rmin
-                mask = r < 0
-                x[:] = np.where(mask, np.nan, r * np.cos(t))
-                y[:] = np.where(mask, np.nan, r * np.sin(t))
-            else:
-                x[:] = r * np.cos(t)
-                y[:] = r * np.sin(t)
-
-            return xy
-        transform.__doc__ = Transform.transform.__doc__
-
-        transform_non_affine = transform
-        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
-
-        def transform_path(self, path):
-            vertices = path.vertices
-            if len(vertices) == 2 and vertices[0, 0] == vertices[1, 0]:
-                return Path(self.transform(vertices), path.codes)
-            ipath = path.interpolated(path._interpolation_steps)
-            return Path(self.transform(ipath.vertices), ipath.codes)
-        transform_path.__doc__ = Transform.transform_path.__doc__
-
-        transform_path_non_affine = transform_path
-        transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
-
-        def inverted(self):
-            return PolarAxes.InvertedPolarTransform(self._axis, self._use_rmin)
-        inverted.__doc__ = Transform.inverted.__doc__
-        
-        def __reduce__(self):
-            # because we have decided to nest the Transform classes, we need to
-            # add some more information to allow Pickling of polar plots.
-            import matplotlib.cbook as cbook
-            return (cbook._NestedClassGetter(), 
-                    (PolarAxes, self.__class__.__name__), 
-                    self.__getstate__(),
-                    )
-
-    class PolarAffine(Affine2DBase):
-        """
-        The affine part of the polar projection.  Scales the output so
-        that maximum radius rests on the edge of the axes circle.
-        """
-        def __init__(self, scale_transform, limits):
-            """
-            *limits* is the view limit of the data.  The only part of
-            its bounds that is used is ymax (for the radius maximum).
-            The theta range is always fixed to (0, 2pi).
-            """
-            Affine2DBase.__init__(self)
-            self._scale_transform = scale_transform
-            self._limits = limits
-            self.set_children(scale_transform, limits)
-            self._mtx = None
-
-        def get_matrix(self):
-            if self._invalid:
-                limits_scaled = self._limits.transformed(self._scale_transform)
-                yscale = limits_scaled.ymax - limits_scaled.ymin
-                affine = Affine2D() \
-                    .scale(0.5 / yscale) \
-                    .translate(0.5, 0.5)
-                self._mtx = affine.get_matrix()
-                self._inverted = None
-                self._invalid = 0
-            return self._mtx
-        get_matrix.__doc__ = Affine2DBase.get_matrix.__doc__
-        
-        def __reduce__(self):
-            # because we have decided to nest the Transform classes, we need to
-            # add some more information to allow Pickling of polar plots.
-            import matplotlib.cbook as cbook
-            return (cbook._NestedClassGetter(), 
-                    (PolarAxes, self.__class__.__name__), 
-                    self.__getstate__(),
-                    )
-
-    class InvertedPolarTransform(Transform):
-        """
-        The inverse of the polar transform, mapping Cartesian
-        coordinate space *x* and *y* back to *theta* and *r*.
-        """
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
-
-        def __init__(self, axis=None, use_rmin=True):
-            Transform.__init__(self)
-            self._axis = axis
-            self._use_rmin = use_rmin
-
-        def transform(self, xy):
-            if self._axis is not None:
-                if self._use_rmin:
-                    rmin = self._axis.viewLim.ymin
-                else:
-                    rmin = 0
-                theta_offset = self._axis.get_theta_offset()
-                theta_direction = self._axis.get_theta_direction()
-            else:
-                rmin = 0
-                theta_offset = 0
-                theta_direction = 1
-
-            x = xy[:, 0:1]
-            y = xy[:, 1:]
-            r = np.sqrt(x*x + y*y)
-            theta = np.arccos(x / r)
-            theta = np.where(y < 0, 2 * np.pi - theta, theta)
-
-            theta -= theta_offset
-            theta *= theta_direction
-
-            r += rmin
-
-            return np.concatenate((theta, r), 1)
-        transform.__doc__ = Transform.transform.__doc__
-
-        def inverted(self):
-            return PolarAxes.PolarTransform(self._axis, self._use_rmin)
-        inverted.__doc__ = Transform.inverted.__doc__
-        
-        def __reduce__(self):
-            # because we have decided to nest the Transform classes, we need to
-            # add some more information to allow Pickling of polar plots.
-            import matplotlib.cbook as cbook
-            return (cbook._NestedClassGetter(), 
-                    (PolarAxes, self.__class__.__name__), 
-                    self.__getstate__(),
-                    )
-
-    class ThetaFormatter(Formatter):
-        """
-        Used to format the *theta* tick labels.  Converts the native
-        unit of radians into degrees and adds a degree symbol.
-        """
-        def __call__(self, x, pos=None):
-            # \u00b0 : degree symbol
-            if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
-                return r"$%0.0f^\circ$" % ((x / np.pi) * 180.0)
-            else:
-                # we use unicode, rather than mathtext with \circ, so
-                # that it will work correctly with any arbitrary font
-                # (assuming it has a degree sign), whereas $5\circ$
-                # will only work correctly with one of the supported
-                # math fonts (Computer Modern and STIX)
-                return u"%0.0f\u00b0" % ((x / np.pi) * 180.0)
-            
-        def __reduce__(self):
-            # because we have decided to nest the ThetaFormatter class, we need
-            # to add some more information to allow Pickling of polar plots.
-            import matplotlib.cbook as cbook
-            return (cbook._NestedClassGetter(), 
-                    (PolarAxes, self.__class__.__name__), 
-                    self.__dict__.copy(),
-                    )
-
-    class RadialLocator(Locator):
-        """
-        Used to locate radius ticks.
-
-        Ensures that all ticks are strictly positive.  For all other
-        tasks, it delegates to the base
-        :class:`~matplotlib.ticker.Locator` (which may be different
-        depending on the scale of the *r*-axis.
-        """
-        def __init__(self, base):
-            self.base = base
-
-        def __call__(self):
-            ticks = self.base()
-            return [x for x in ticks if x > 0]
-
-        def autoscale(self):
-            return self.base.autoscale()
-
-        def pan(self, numsteps):
-            return self.base.pan(numsteps)
-
-        def zoom(self, direction):
-            return self.base.zoom(direction)
-
-        def refresh(self):
-            return self.base.refresh()
-
-        def view_limits(self, vmin, vmax):
-            vmin, vmax = self.base.view_limits(vmin, vmax)
-            return 0, vmax
-        
-        def __reduce__(self):
-            # because we have decided to nest the RadialLocator class, we need
-            # to add some more information to allow Pickling of polar plots.
-            import matplotlib.cbook as cbook
-            return (cbook._NestedClassGetter(), 
-                    (PolarAxes, self.__class__.__name__), 
-                    self.__dict__.copy(),
-                    )
 
     def __init__(self, *args, **kwargs):
         """
@@ -696,6 +657,17 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
             # Deal with r
             scale = r / startr
             self.set_rmax(p.rmax / scale)
+
+
+# to keep things all self contained, we can put aliases to the Polar classes
+# defined above. This isn't strictly necessary, but it makes some of the
+# code more readable (and provides a backwards compatible Polar API)
+PolarAxes.PolarTransform = PolarTransform
+PolarAxes.PolarAffine = PolarAffine
+PolarAxes.InvertedPolarTransform = InvertedPolarTransform
+PolarAxes.ThetaFormatter = ThetaFormatter
+PolarAxes.RadialLocator = RadialLocator
+
 
 # These are a couple of aborted attempts to project a polar plot using
 # cubic bezier curves.
