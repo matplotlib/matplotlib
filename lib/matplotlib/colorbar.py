@@ -185,6 +185,12 @@ returns:
 docstring.interpd.update(colorbar_doc=colorbar_doc)
 
 
+def _set_ticks_on_axis_warn(*args, **kw):
+    # a top level function which gets put in at the axes' 
+    # set_xticks set_yticks by _patch_ax
+    warnings.warn("Use the colorbar set_ticks() method instead.")
+
+
 class ColorbarBase(cm.ScalarMappable):
     '''
     Draw a colorbar in an existing axes.
@@ -277,7 +283,7 @@ class ColorbarBase(cm.ScalarMappable):
         # The rest is in a method so we can recalculate when clim changes.
         self.config_axis()
         self.draw_all()
-
+    
     def _extend_lower(self):
         """Returns whether the lower limit is open ended."""
         return self.extend in ('both', 'min')
@@ -285,13 +291,12 @@ class ColorbarBase(cm.ScalarMappable):
     def _extend_upper(self):
         """Returns whether the uper limit is open ended."""
         return self.extend in ('both', 'max')
-
+            
     def _patch_ax(self):
-        def _warn(*args, **kw):
-            warnings.warn("Use the colorbar set_ticks() method instead.")
-
-        self.ax.set_xticks = _warn
-        self.ax.set_yticks = _warn
+        # bind some methods to the axes to warn users 
+        # against using those methods.
+        self.ax.set_xticks = _set_ticks_on_axis_warn
+        self.ax.set_yticks = _set_ticks_on_axis_warn
 
     def draw_all(self):
         '''

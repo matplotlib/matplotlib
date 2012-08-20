@@ -154,9 +154,8 @@ def set_default_color_cycle(clist):
                                                     DeprecationWarning)
 
 
-class _process_plot_var_args:
+class _process_plot_var_args(object):
     """
-
     Process variable length arguments to the plot command, so that
     plot commands like the following are supported::
 
@@ -172,14 +171,13 @@ class _process_plot_var_args:
         self.command = command
         self.set_color_cycle()
 
-    def __getinitargs__(self):
-        # note: __getinitargs__ only works for old-style classes
-        # means that the color cycle will be lost.
-        return (self.axes, self.command)
-    
     def __getstate__(self):
-        # We don't need any state as we have the init args
-        return False
+        # note: it is not possible to pickle a itertools.cycle instance
+        return {'axes': self.axes, 'command': self.command}
+    
+    def __setstate__(self, state):
+        self.__dict__ = state.copy()
+        self.set_color_cycle()
 
     def set_color_cycle(self, clist=None):
         if clist is None:

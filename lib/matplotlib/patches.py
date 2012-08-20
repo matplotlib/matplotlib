@@ -1617,7 +1617,6 @@ class _Style(object):
         """
         return _pprint_styles(klass._style_list)
 
-
     @classmethod
     def register(klass, name, style):
         """
@@ -1687,9 +1686,6 @@ class BoxStyle(_Style):
             """
             super(BoxStyle._Base, self).__init__()
 
-
-
-
         def transmute(self, x0, y0, width, height, mutation_size):
             """
             The transmute method is a very core of the
@@ -1700,8 +1696,6 @@ class BoxStyle(_Style):
             :class:`~matplotlib.path.Path` instance.
             """
             raise NotImplementedError('Derived must override')
-
-
 
         def __call__(self, x0, y0, width, height, mutation_size,
                      aspect_ratio=1.):
@@ -1728,7 +1722,15 @@ class BoxStyle(_Style):
             else:
                 return self.transmute(x0, y0, width, height, mutation_size)
 
-
+        def __reduce__(self):
+            # because we have decided to nest thes classes, we need to
+            # add some more information to allow instance pickling.
+            import matplotlib.cbook as cbook
+            return (cbook._NestedClassGetter(), 
+                    (BoxStyle, self.__class__.__name__),
+                    self.__dict__
+                    )
+            
 
     class Square(_Base):
         """
@@ -2296,9 +2298,6 @@ class FancyBboxPatch(Patch):
         return transforms.Bbox.from_bounds(self._x, self._y, self._width, self._height)
 
 
-
-
-
 from matplotlib.bezier import split_bezier_intersecting_with_closedpath
 from matplotlib.bezier import get_intersection, inside_circle, get_parallels
 from matplotlib.bezier import make_wedged_bezier2
@@ -2359,7 +2358,7 @@ class ConnectionStyle(_Style):
         points. This base class defines a __call__ method, and few
         helper methods.
         """
-
+        
         class SimpleEvent:
             def __init__(self, xy):
                 self.x, self.y = xy
@@ -2401,7 +2400,6 @@ class ConnectionStyle(_Style):
 
             return path
 
-
         def _shrink(self, path, shrinkA, shrinkB):
             """
             Shrink the path by fixed size (in points) with shrinkA and shrinkB
@@ -2441,6 +2439,15 @@ class ConnectionStyle(_Style):
             shrinked_path = self._shrink(clipped_path, shrinkA, shrinkB)
 
             return shrinked_path
+        
+        def __reduce__(self):
+            # because we have decided to nest thes classes, we need to
+            # add some more information to allow instance pickling.
+            import matplotlib.cbook as cbook
+            return (cbook._NestedClassGetter(), 
+                    (ConnectionStyle, self.__class__.__name__),
+                    self.__dict__
+                    )
 
 
     class Arc3(_Base):
@@ -2771,7 +2778,6 @@ class ConnectionStyle(_Style):
                {"AvailableConnectorstyles": _pprint_styles(_style_list)}
 
 
-
 class ArrowStyle(_Style):
     """
     :class:`ArrowStyle` is a container class which defines several
@@ -2867,8 +2873,6 @@ class ArrowStyle(_Style):
 
             raise NotImplementedError('Derived must override')
 
-
-
         def __call__(self, path, mutation_size, linewidth,
                      aspect_ratio=1.):
             """
@@ -2901,7 +2905,15 @@ class ArrowStyle(_Style):
                     return path_mutated, fillable
             else:
                 return self.transmute(path, mutation_size, linewidth)
-
+            
+        def __reduce__(self):
+            # because we have decided to nest thes classes, we need to
+            # add some more information to allow instance pickling.
+            import matplotlib.cbook as cbook
+            return (cbook._NestedClassGetter(), 
+                    (ArrowStyle, self.__class__.__name__),
+                    self.__dict__
+                    )
 
 
     class _Curve(_Base):
@@ -3048,7 +3060,6 @@ class ArrowStyle(_Style):
     _style_list["-"] = Curve
 
 
-
     class CurveA(_Curve):
         """
         An arrow with a head at its begin point.
@@ -3087,7 +3098,6 @@ class ArrowStyle(_Style):
                 beginarrow=False, endarrow=True,
                 head_length=head_length, head_width=head_width )
 
-    #_style_list["->"] = CurveB
     _style_list["->"] = CurveB
 
 
@@ -3109,9 +3119,7 @@ class ArrowStyle(_Style):
                 beginarrow=True, endarrow=True,
                 head_length=head_length, head_width=head_width )
 
-    #_style_list["<->"] = CurveAB
     _style_list["<->"] = CurveAB
-
 
 
     class CurveFilledA(_Curve):
