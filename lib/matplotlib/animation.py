@@ -75,8 +75,6 @@ class MovieWriter(object):
     The use of the context manager ensures that setup and cleanup are
     performed as necessary.
 
-    Attributes
-    ----------
     frame_format: string
         The format used in writing frame data, defaults to 'rgba'
     '''
@@ -85,8 +83,6 @@ class MovieWriter(object):
         '''
         Construct a new MovieWriter object.
 
-        Parameters
-        ----------
         fps: int
             Framerate for movie.
         codec: string or None, optional
@@ -103,7 +99,7 @@ class MovieWriter(object):
             movie utiltiy. The default is None, which passes the additional
             argurments in the 'animation.extra_args' rcParam.
         metadata: dict of string:string or None
-            A dictionary of keys and values for metadata to include in the 
+            A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
         '''
@@ -140,9 +136,6 @@ class MovieWriter(object):
         '''
         Perform setup for writing the movie file.
 
-        Parameters
-        ----------
-
         fig: `matplotlib.Figure` instance
             The figure object that contains the information for frames
         outfile: string
@@ -164,7 +157,7 @@ class MovieWriter(object):
         '''
         Context manager to facilitate writing the movie file.
 
-        *args are any parameters that should be passed to setup()
+        ``*args`` are any parameters that should be passed to `setup`.
         '''
         # This particular sequence is what contextlib.contextmanager wants
         self.setup(*args)
@@ -253,9 +246,6 @@ class FileMovieWriter(MovieWriter):
     def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True):
         '''
         Perform setup for writing the movie file.
-
-        Parameters
-        ----------
 
         fig: `matplotlib.Figure` instance
             The figure object that contains the information for frames

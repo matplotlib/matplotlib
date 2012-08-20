@@ -17,8 +17,6 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                minlength=0.1):
     """Draws streamlines of a vector flow.
 
-    Parameters
-    ----------
     *x*, *y* : 1d arrays
         an *evenly spaced* grid.
     *u*, *v* : 2d arrays
@@ -48,9 +46,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     *minlength* : float
         Minimum length of streamline in axes coordinates.
 
-    Returns
-    -------
-    *streamlines* : :class:`~matplotlib.collections.LineCollection`
+    Returns *streamlines* : :class:`~matplotlib.collections.LineCollection`
         Line collection with all streamlines as a series of line segments.
         Currently, there is no way to differentiate between line segments
         on different streamlines (other than manually checking that segments
@@ -552,4 +548,3 @@ def _gen_starting_points(shape):
             if y <= yfirst:
                 yfirst +=1
                 direction = 'right'
-
