@@ -408,10 +408,11 @@ class Quiver(collections.PolyCollection):
         self.width = kw.pop('width', None)
         self.color = kw.pop('color', 'k')
         self.pivot = kw.pop('pivot', 'tail')
+        self.transform = kw.pop('transform', ax.transData)
         kw.setdefault('facecolors', self.color)
         kw.setdefault('linewidths', (0,))
         collections.PolyCollection.__init__(self, [], offsets=self.XY,
-                                            transOffset=ax.transData,
+                                            transOffset=self.transform,
                                             closed=False,
                                             **kw)
         self.polykw = kw
@@ -529,8 +530,6 @@ class Quiver(collections.PolyCollection):
         lengths = np.absolute(dxy[:,0] + dxy[:,1]*1j) / eps
         return angles, lengths
 
-
-
     def _make_verts(self, U, V):
         uv = (U+V*1j)
         if self.angles == 'xy' and self.scale_units == 'xy':
@@ -591,7 +590,6 @@ class Quiver(collections.PolyCollection):
             # that nans will end up in the paths anyway.
 
         return XY
-
 
     def _h_arrows(self, length):
         """ length is in arrow width units """
@@ -824,6 +822,7 @@ class Barbs(collections.PolyCollection):
         self.barb_increments = kw.pop('barb_increments', dict())
         self.rounding = kw.pop('rounding', True)
         self.flip = kw.pop('flip_barb', False)
+        transform = kw.pop('transform', ax.transData)
 
         #Flagcolor and and barbcolor provide convenience parameters for setting
         #the facecolor and edgecolor, respectively, of the barb polygon.  We
@@ -851,7 +850,7 @@ class Barbs(collections.PolyCollection):
         #Make a collection
         barb_size = self._length**2 / 4 #Empirically determined
         collections.PolyCollection.__init__(self, [], (barb_size,), offsets=xy,
-            transOffset=ax.transData, **kw)
+            transOffset=transform, **kw)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)

@@ -6022,7 +6022,7 @@ class Axes(martist.Artist):
                 edgecolors = edgecolors,
                 linewidths = linewidths,
                 offsets = zip(x,y),
-                transOffset = self.transData,
+                transOffset = kwargs.pop('transform', self.transData),
                 )
         collection.set_transform(mtransforms.IdentityTransform())
         collection.set_alpha(alpha)
@@ -6550,7 +6550,7 @@ class Axes(martist.Artist):
 
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-                   minlength=0.1):
+                   minlength=0.1, transform=None):
         if not self._hold: self.cla()
         lines = mstream.streamplot(self, x, y, u, v,
                                    density=density,
@@ -6560,7 +6560,8 @@ class Axes(martist.Artist):
                                    norm=norm,
                                    arrowsize=arrowsize,
                                    arrowstyle=arrowstyle,
-                                   minlength=minlength)
+                                   minlength=minlength,
+                                   transform=transform)
         return lines
     streamplot.__doc__ = mstream.streamplot.__doc__
 
