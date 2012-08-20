@@ -2433,6 +2433,12 @@ class FigureManagerBase:
 
         """
 
+    def show(self):
+        """
+        For GUI backends, show the figure window and redraw.
+        """
+        pass
+
     def destroy(self):
         pass
 
