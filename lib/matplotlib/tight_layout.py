@@ -212,20 +212,25 @@ def get_renderer(fig):
 def get_tight_layout_figure(fig, axes_list, renderer,
                             pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
-    return subplot parameters for tigh-layouted- figure with
-    specified padding.
+    Return subplot parameters for tight-layouted-figure with specified
+    padding.
 
     Parameters:
 
       *fig* : figure instance
+
       *axes_list* : a list of axes
+
       *renderer* : renderer instance
+
       *pad* : float
         padding between the figure edge and the edges of subplots,
         as a fraction of the font-size.
+
       *h_pad*, *w_pad* : float
         padding (height/width) between edges of adjacent subplots.
         Defaults to `pad_inches`.
+
       *rect* : if rect is given, it is interpreted as a rectangle
         (left, bottom, right, top) in the normalized figure
         coordinate that the whole subplots area (including
@@ -323,4 +328,3 @@ def get_tight_layout_figure(fig, axes_list, renderer,
                                          rect=(left, bottom, right, top))
 
     return kwargs
-

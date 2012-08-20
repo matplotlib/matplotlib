@@ -1518,8 +1518,8 @@ class Lasso(AxesWidget):
     """Selection curve of an arbitrary shape.
 
     The selected path can be used in conjunction with
-    :function:`~matplotlib.path.Path.contains_point` to select
-    data points from an image.
+    :func:`~matplotlib.path.Path.contains_point` to select data points
+    from an image.
 
     Unlike :class:`LassoSelector`, this must be initialized with a starting
     point `xy`, and the `Lasso` events are destroyed upon release.
@@ -1578,4 +1578,3 @@ class Lasso(AxesWidget):
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
-
