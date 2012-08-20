@@ -211,7 +211,16 @@ class Text(Artist):
         
         x, y = mouseevent.x, mouseevent.y
         inside = (l <= x <= r and b <= y <= t)
-        return inside, {}
+        cattr = {}
+
+        # if the text has a surrounding patch, also check containment for it,
+        # and merge the results with the results for the text.
+        if self._bbox_patch:
+            patch_inside, patch_cattr =  self._bbox_patch.contains(mouseevent)
+            inside = inside or patch_inside
+            cattr["bbox_patch"] = patch_cattr
+
+        return inside, cattr 
 
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x, y in display coords'
