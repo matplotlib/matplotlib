@@ -40,7 +40,7 @@ master_doc = 'contents'
 
 # General substitutions.
 project = 'Matplotlib'
-copyright = '2008, John Hunter, Darren Dale, Michael Droettboom'
+copyright = '2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the matplotlib development team'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -157,7 +157,9 @@ latex_font_size = '11pt'
 # (source start file, target name, title, author, document class [howto/manual]).
 
 latex_documents = [
-  ('contents', 'Matplotlib.tex', 'Matplotlib', 'Darren Dale, Michael Droettboom, Eric Firing, John Hunter', 'manual'),
+  ('contents', 'Matplotlib.tex', 'Matplotlib',
+   'John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the '
+   'matplotlib development team', 'manual'),
 ]
 
 
@@ -191,7 +193,8 @@ rst_epilog = """
 
 texinfo_documents = [
   ("contents", 'matplotlib', 'Matplotlib Documentation',
-   'Darren Dale@*Michael Droettboom@*Eric Firing@*John Hunter',
+   'John Hunter@*Darren Dale@*Eric Firing@*Michael Droettboom@*'
+   'The matplotlib development team',
    'Matplotlib', "Python plotting package", 'Programming',
    1),
 ]
