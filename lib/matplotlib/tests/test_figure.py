@@ -40,7 +40,7 @@ def test_figure():
     plt.close('tomorrow')
     
     
-#@cleanup
+@cleanup
 def test_gca():
     fig = plt.figure()
 
