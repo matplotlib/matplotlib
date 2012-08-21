@@ -12,28 +12,33 @@ contains all the plot elements.  The following classes are defined
 
 """
 from __future__ import print_function
+import warnings
+from operator import itemgetter
+
 import numpy as np
 
-import artist
-from artist import Artist, allow_rasterization
-from axes import Axes, SubplotBase, subplot_class_factory
-from cbook import allequal, Stack, iterable
-from matplotlib import _image
-import colorbar as cbar
-from image import FigureImage
-from matplotlib import rcParams
-from patches import Rectangle
-from text import Text, _process_text_args
+from matplotlib import rcParams, docstring
 
-from legend import Legend
-from transforms import Affine2D, Bbox, BboxTransformTo, TransformedBbox
-from projections import get_projection_names, process_projection_requirements
-from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
+import matplotlib.artist as martist
+from matplotlib.artist import Artist, allow_rasterization
 
 import matplotlib.cbook as cbook
-from matplotlib import docstring
+from matplotlib.cbook import Stack, iterable
 
-from operator import itemgetter
+from matplotlib import _image
+from matplotlib.image import FigureImage
+
+import matplotlib.colorbar as cbar
+
+from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
+from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
+from matplotlib.legend import Legend
+from matplotlib.patches import Rectangle
+from matplotlib.projections import (get_projection_names,
+                                    process_projection_requirements)
+from matplotlib.text import Text, _process_text_args
+from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
+                                    TransformedBbox)
 
 
 docstring.interpd.update(projection_names = get_projection_names())
@@ -918,7 +923,7 @@ class Figure(Artist):
             not_composite = self.suppressComposite
 
         if len(self.images)<=1 or not_composite or \
-                not allequal([im.origin for im in self.images]):
+                not cbook.allequal([im.origin for im in self.images]):
             for a in self.images:
                 dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
         else:
@@ -1113,7 +1118,7 @@ class Figure(Artist):
         The following kwargs are supported for ensuring the returned axes
         adheres to the given projection etc., and for axes creation if
         the active axes does not exist:
-        
+
         %(Axes)s
 
         """
@@ -1135,7 +1140,7 @@ class Figure(Artist):
                 kwargs_copy = kwargs.copy()
                 projection_class, _, key = \
                         process_projection_requirements(self, **kwargs_copy)
-                
+
                 # let the returned axes have any gridspec by removing it from the key
                 ckey = ckey[1:]
                 key = key[1:]
@@ -1144,7 +1149,7 @@ class Figure(Artist):
                 # continue and a new axes will be created
                 if key == ckey and isinstance(cax, projection_class):
                     return cax
-                
+
         # no axes found, so create one which spans the figure
         return self.add_subplot(1, 1, 1, **kwargs)
 
@@ -1497,4 +1502,4 @@ def figaspect(arg):
     newsize = np.clip(newsize,figsize_min,figsize_max)
     return newsize
 
-docstring.interpd.update(Figure=artist.kwdoc(Figure))
+docstring.interpd.update(Figure=martist.kwdoc(Figure))
