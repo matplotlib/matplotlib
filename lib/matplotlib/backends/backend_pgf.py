@@ -18,6 +18,7 @@ from matplotlib.path import Path
 from matplotlib import _png, rcParams
 from matplotlib import font_manager
 from matplotlib.ft2font import FT2Font
+from matplotlib.cbook import is_string_like, is_writable_file_like
 
 ###############################################################################
 
@@ -623,12 +624,7 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    def print_pgf(self, filename, *args, **kwargs):
-        """
-        Output pgf commands for drawing the figure so it can be included and
-        rendered in latex documents.
-        """
-
+    def _print_pgf_to_fh(self, fh):
         header_text = r"""%% Creator: Matplotlib, PGF backend
 %%
 %% To include the figure in your LaTeX document, write
@@ -658,37 +654,50 @@ class FigureCanvasPgf(FigureCanvasBase):
         # get figure size in inch
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
-        # start a pgfpicture environment and set a bounding box
-        with codecs.open(filename, "w", encoding="utf-8") as fh:
-            fh.write(header_text)
-            fh.write(header_info_preamble)
-            fh.write("\n")
-            writeln(fh, r"\begingroup")
-            writeln(fh, r"\makeatletter")
-            writeln(fh, r"\begin{pgfpicture}")
-            writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w,h))
-            writeln(fh, r"\pgfusepath{use as bounding box}")
+        # create pgfpicture environment and write the pgf code
+        fh.write(header_text)
+        fh.write(header_info_preamble)
+        fh.write("\n")
+        writeln(fh, r"\begingroup")
+        writeln(fh, r"\makeatletter")
+        writeln(fh, r"\begin{pgfpicture}")
+        writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w,h))
+        writeln(fh, r"\pgfusepath{use as bounding box}")
+        renderer = RendererPgf(self.figure, fh)
+        self.figure.draw(renderer)
 
-            renderer = RendererPgf(self.figure, fh)
-            self.figure.draw(renderer)
+        # end the pgfpicture environment
+        writeln(fh, r"\end{pgfpicture}")
+        writeln(fh, r"\makeatother")
+        writeln(fh, r"\endgroup")
 
-            # end the pgfpicture environment
-            writeln(fh, r"\end{pgfpicture}")
-            writeln(fh, r"\makeatother")
-            writeln(fh, r"\endgroup")
-
-    def print_pdf(self, filename, *args, **kwargs):
+    def print_pgf(self, fname_or_fh, *args, **kwargs):
         """
-        Use LaTeX to compile a Pgf generated figure to PDF.
+        Output pgf commands for drawing the figure so it can be included and
+        rendered in latex documents.
         """
+        if kwargs.get("dryrun", False): return
+
+        # figure out where the pgf is to be written to
+        if is_string_like(fname_or_fh):
+            with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
+                self._print_pgf_to_fh(fh)
+        elif is_writable_file_like(fname_or_fh):
+            raise ValueError("saving pgf to a stream is not supported, " + \
+            "consider using the pdf option of the pgf-backend")
+        else:
+            raise ValueError("filename must be a path")
+
+    def _print_pdf_to_fh(self, fh):
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
-        target = os.path.abspath(filename)
-
         try:
+            # create and switch to temporary directory
             tmpdir = tempfile.mkdtemp()
             cwd = os.getcwd()
             os.chdir(tmpdir)
+
+            # print figure to pgf and compile it with latex
             self.print_pgf("figure.pgf")
 
             latex_preamble = get_preamble()
@@ -704,16 +713,19 @@ class FigureCanvasPgf(FigureCanvasBase):
 \centering
 \input{figure.pgf}
 \end{document}""" % (w, h, latex_preamble, latex_fontspec)
-            with codecs.open("figure.tex", "w", "utf-8") as fh:
-                fh.write(latexcode)
+            with codecs.open("figure.tex", "w", "utf-8") as fh_tex:
+                fh_tex.write(latexcode)
 
             texcommand = get_texcommand()
             cmdargs = [texcommand, "-interaction=nonstopmode", "-halt-on-error", "figure.tex"]
             try:
-                stdout = subprocess.check_output(cmdargs, stderr=subprocess.STDOUT)
+                subprocess.check_output(cmdargs, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError as e:
                 raise RuntimeError("%s was not able to process your file.\n\nFull log:\n%s" % (texcommand, e.output))
-            shutil.copyfile("figure.pdf", target)
+
+            # copy file contents to target
+            with open("figure.pdf", "rb") as fh_src:
+                shutil.copyfileobj(fh_src, fh)
         finally:
             os.chdir(cwd)
             try:
@@ -721,27 +733,51 @@ class FigureCanvasPgf(FigureCanvasBase):
             except:
                 sys.stderr.write("could not delete tmp directory %s\n" % tmpdir)
 
-    def print_png(self, filename, *args, **kwargs):
+    def print_pdf(self, fname_or_fh, *args, **kwargs):
         """
-        Use LaTeX to compile a pgf figure to pdf and convert it to png.
+        Use LaTeX to compile a Pgf generated figure to PDF.
         """
+        # figure out where the pdf is to be written to
+        if is_string_like(fname_or_fh):
+            with open(fname_or_fh, "wb") as fh:
+                self._print_pdf_to_fh(fh)
+        elif is_writable_file_like(fname_or_fh):
+            self._print_pdf_to_fh(fname_or_fh)
+        else:
+            raise ValueError("filename must be a path or a file-like object")
 
+    def _print_png_to_fh(self, fh):
         converter = make_pdf_to_png_converter()
 
-        target = os.path.abspath(filename)
         try:
+            # create and switch to temporary directory
             tmpdir = tempfile.mkdtemp()
             cwd = os.getcwd()
             os.chdir(tmpdir)
+            # create pdf and try to convert it to png
             self.print_pdf("figure.pdf")
             converter("figure.pdf", "figure.png", dpi=self.figure.dpi)
-            shutil.copyfile("figure.png", target)
+            # copy file contents to target
+            with open("figure.png", "rb") as fh_src:
+                shutil.copyfileobj(fh_src, fh)
         finally:
             os.chdir(cwd)
             try:
                 shutil.rmtree(tmpdir)
             except:
                 sys.stderr.write("could not delete tmp directory %s\n" % tmpdir)
+
+    def print_png(self, fname_or_fh, *args, **kwargs):
+        """
+        Use LaTeX to compile a pgf figure to pdf and convert it to png.
+        """
+        if is_string_like(fname_or_fh):
+            with open(fname_or_fh, "wb") as fh:
+                self._print_png_to_fh(fh)
+        elif is_writable_file_like(fname_or_fh):
+            self._print_png_to_fh(fname_or_fh)
+        else:
+            raise ValueError("filename must be a path or a file-like object")
 
     def _render_texts_pgf(self, fh):
         # TODO: currently unused code path
