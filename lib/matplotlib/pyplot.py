@@ -1909,7 +1909,7 @@ def colormaps():
       
     .. [#] Changed to distinguish from ColorBrewer's *Spectral* map.
       :func:`spectral` still works, but 
-      `set_cmap('nipy_spectral')` is recommended for clarity.
+      ``set_cmap('nipy_spectral')`` is recommended for clarity.
                  
 
     """
