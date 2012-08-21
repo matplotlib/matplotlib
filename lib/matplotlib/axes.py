@@ -8218,6 +8218,10 @@ class Axes(martist.Artist):
 
         %(PSD)s
 
+          *noverlap*: integer
+            The number of points of overlap between blocks.  The default value
+            is 0 (no overlap).
+
           *Fc*: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
@@ -8295,6 +8299,10 @@ class Axes(martist.Artist):
 
         %(PSD)s
 
+          *noverlap*: integer
+            The number of points of overlap between blocks.  The
+            default value is 0 (no overlap).
+
           *Fc*: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
@@ -8361,6 +8369,10 @@ class Axes(martist.Artist):
 
         %(PSD)s
 
+          *noverlap*: integer
+            The number of points of overlap between blocks.  The
+            default value is 0 (no overlap).
+
           *Fc*: integer
             The center frequency of *x* (defaults to 0), which offsets
             the x extents of the plot to reflect the frequency range used
@@ -8421,6 +8433,10 @@ class Axes(martist.Artist):
 
         %(PSD)s
 
+          *noverlap*: integer
+            The number of points of overlap between blocks.  The
+            default value is 128.
+
           *Fc*: integer
             The center frequency of *x* (defaults to 0), which offsets
             the y extents of the plot to reflect the frequency range used
@@ -8445,7 +8461,7 @@ class Axes(martist.Artist):
 
           - *bins* are the time points the spectrogram is calculated over
           - *freqs* is an array of frequencies
-          - *Pxx* is a len(times) x len(freqs) array of power
+          - *Pxx* is an array of shape `(len(times), len(freqs))` of power
           - *im* is a :class:`~matplotlib.image.AxesImage` instance
 
         Note: If *x* is real (i.e. non-complex), only the positive
