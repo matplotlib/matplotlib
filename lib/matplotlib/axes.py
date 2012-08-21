@@ -1461,17 +1461,52 @@ class Axes(martist.Artist):
 
         self._update_line_limits(line)
         if not line.get_label():
-            line.set_label('_line%d'%len(self.lines))
+            line.set_label('_line%d' % len(self.lines))
         self.lines.append(line)
         line._remove_method = lambda h: self.lines.remove(h)
         return line
 
     def _update_line_limits(self, line):
-        p = line.get_path()
-        if p.vertices.size > 0:
-            self.dataLim.update_from_path(p, self.ignore_existing_data_limits,
-                                            updatex=line.x_isdata,
-                                            updatey=line.y_isdata)
+        """Figures out the data limit of the given line, updating self.dataLim."""
+        path = line.get_path()
+        if path.vertices.size == 0:
+            return
+
+        line_trans = line.get_transform()
+        
+        if line_trans == self.transData:
+            data_path = path
+
+        elif any(line_trans.contains_branch_seperately(self.transData)):
+            # identify the transform to go from line's coordinates
+            # to data coordinates
+            trans_to_data = line_trans - self.transData
+
+            # if transData is affine we can use the cached non-affine component
+            # of line's path. (since the non-affine part of line_trans is
+            # entirely encapsulated in trans_to_data).
+            if self.transData.is_affine:
+                line_trans_path = line._get_transformed_path()
+                na_path, _ = line_trans_path.get_transformed_path_and_affine()
+                data_path = trans_to_data.transform_path_affine(na_path)
+            else:
+                data_path = trans_to_data.transform_path(path)
+        else:
+            # for backwards compatibility we update the dataLim with the 
+            # coordinate range of the given path, even though the coordinate 
+            # systems are completely different. This may occur in situations
+            # such as when ax.transAxes is passed through for absolute
+            # positioning.
+            data_path = path
+
+        if data_path.vertices.size > 0:
+            updatex, updatey = line_trans.contains_branch_seperately(
+                                                               self.transData
+                                                                    )
+            self.dataLim.update_from_path(data_path, 
+                                          self.ignore_existing_data_limits,
+                                          updatex=updatex,
+                                          updatey=updatey)
             self.ignore_existing_data_limits = False
 
     def add_patch(self, p):
@@ -1507,11 +1542,14 @@ class Axes(martist.Artist):
         if vertices.size > 0:
             xys = patch.get_patch_transform().transform(vertices)
             if patch.get_data_transform() != self.transData:
-                transform = (patch.get_data_transform() +
-                                    self.transData.inverted())
-                xys = transform.transform(xys)
-            self.update_datalim(xys, updatex=patch.x_isdata,
-                                     updatey=patch.y_isdata)
+                patch_to_data = (patch.get_data_transform() -
+                                    self.transData)
+                xys = patch_to_data.transform(xys)
+
+            updatex, updatey = patch.get_transform().\
+                                    contains_branch_seperately(self.transData)
+            self.update_datalim(xys, updatex=updatex,
+                                     updatey=updatey)
 
 
     def add_table(self, tab):
@@ -1599,13 +1637,13 @@ class Axes(martist.Artist):
         if xdata is not None:
             # we only need to update if there is nothing set yet.
             if not self.xaxis.have_units():
-               self.xaxis.update_units(xdata)
+                self.xaxis.update_units(xdata)
             #print '\tset from xdata', self.xaxis.units
 
         if ydata is not None:
             # we only need to update if there is nothing set yet.
             if not self.yaxis.have_units():
-               self.yaxis.update_units(ydata)
+                self.yaxis.update_units(ydata)
             #print '\tset from ydata', self.yaxis.units
 
         # process kwargs 2nd since these will override default units
@@ -3424,7 +3462,6 @@ class Axes(martist.Artist):
         trans = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
         l = mlines.Line2D([xmin,xmax], [y,y], transform=trans, **kwargs)
-        l.x_isdata = False
         self.add_line(l)
         self.autoscale_view(scalex=False, scaley=scaley)
         return l
@@ -3489,7 +3526,6 @@ class Axes(martist.Artist):
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
         l = mlines.Line2D([x,x], [ymin,ymax] , transform=trans, **kwargs)
-        l.y_isdata = False
         self.add_line(l)
         self.autoscale_view(scalex=scalex, scaley=False)
         return l
@@ -3546,7 +3582,6 @@ class Axes(martist.Artist):
         verts = (xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
-        p.x_isdata = False
         self.add_patch(p)
         self.autoscale_view(scalex=False)
         return p
@@ -3603,7 +3638,6 @@ class Axes(martist.Artist):
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(trans)
-        p.y_isdata = False
         self.add_patch(p)
         self.autoscale_view(scaley=False)
         return p
@@ -3908,7 +3942,6 @@ class Axes(martist.Artist):
         for line in self._get_lines(*args, **kwargs):
             self.add_line(line)
             lines.append(line)
-
 
         self.autoscale_view(scalex=scalex, scaley=scaley)
         return lines

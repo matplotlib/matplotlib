@@ -42,7 +42,7 @@ class PolarAxes(Axes):
             self._axis = axis
             self._use_rmin = use_rmin
 
-        def transform(self, tr):
+        def transform_non_affine(self, tr):
             xy = np.empty(tr.shape, np.float_)
             if self._axis is not None:
                 if self._use_rmin:
@@ -74,20 +74,14 @@ class PolarAxes(Axes):
                 y[:] = r * np.sin(t)
 
             return xy
-        transform.__doc__ = Transform.transform.__doc__
-
-        transform_non_affine = transform
         transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
-        def transform_path(self, path):
+        def transform_path_non_affine(self, path):
             vertices = path.vertices
             if len(vertices) == 2 and vertices[0, 0] == vertices[1, 0]:
                 return Path(self.transform(vertices), path.codes)
             ipath = path.interpolated(path._interpolation_steps)
             return Path(self.transform(ipath.vertices), ipath.codes)
-        transform_path.__doc__ = Transform.transform_path.__doc__
-
-        transform_path_non_affine = transform_path
         transform_path_non_affine.__doc__ = Transform.transform_path_non_affine.__doc__
 
         def inverted(self):
@@ -138,7 +132,7 @@ class PolarAxes(Axes):
             self._axis = axis
             self._use_rmin = use_rmin
 
-        def transform(self, xy):
+        def transform_non_affine(self, xy):
             if self._axis is not None:
                 if self._use_rmin:
                     rmin = self._axis.viewLim.ymin
@@ -163,7 +157,7 @@ class PolarAxes(Axes):
             r += rmin
 
             return np.concatenate((theta, r), 1)
-        transform.__doc__ = Transform.transform.__doc__
+        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def inverted(self):
             return PolarAxes.PolarTransform(self._axis, self._use_rmin)
