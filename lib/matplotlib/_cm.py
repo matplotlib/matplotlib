@@ -2,6 +2,7 @@
 Nothing here but dictionaries for generating LinearSegmentedColormaps,
 and a dictionary of these dictionaries.
 
+Documentation for each is in pyplot.colormaps()
 """
 
 from __future__ import print_function
@@ -342,7 +343,7 @@ _winter_data = {'red':   ((0., 0., 0.),(1.0, 0.0, 0.0)),
                 'green': ((0., 0., 0.),(1.0, 1.0, 1.0)),
                 'blue':  ((0., 1., 1.),(1.0, 0.5, 0.5))}
 
-_spectral_data = {'red': [(0.0, 0.0, 0.0), (0.05, 0.4667, 0.4667),
+_nipy_spectral_data = {'red': [(0.0, 0.0, 0.0), (0.05, 0.4667, 0.4667),
                           (0.10, 0.5333, 0.5333), (0.15, 0.0, 0.0),
                           (0.20, 0.0, 0.0), (0.25, 0.0, 0.0),
                           (0.30, 0.0, 0.0), (0.35, 0.0, 0.0),
@@ -1790,7 +1791,8 @@ datad = {
     'summer': _summer_data,
     'terrain': _terrain_data,
     'winter': _winter_data,
-    'spectral': _spectral_data
+    'nipy_spectral': _nipy_spectral_data,
+    'spectral': _nipy_spectral_data, # alias for backward compatibility
     }
 
 
