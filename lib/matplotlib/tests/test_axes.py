@@ -1,7 +1,7 @@
 import numpy as np
 from numpy import ma
 import matplotlib
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 
 
@@ -733,6 +733,7 @@ def test_scatter_plot():
     ax = plt.axes()
     ax.scatter([3, 4, 2, 6], [2, 5, 2, 3], c=['r', 'y', 'b', 'lime'], s=[24, 15, 19, 29])
 
+@cleanup
 def test_as_mpl_axes_api():
     # tests the _as_mpl_axes api
     from matplotlib.projections.polar import PolarAxes
@@ -755,9 +756,7 @@ def test_as_mpl_axes_api():
     assert type(ax) == PolarAxes, \
            'Expected a PolarAxes, got %s' % type(ax)
     ax_via_gca = plt.gca(projection=prj)
-    # ideally, ax_via_gca is ax should be true. However, gca isn't
-    # plummed like that. (even with projection='polar').
-    assert ax_via_gca is not ax
+    assert ax_via_gca is ax
     plt.close()
 
     # testing axes creation with gca
