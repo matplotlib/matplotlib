@@ -711,8 +711,8 @@ class FigureCanvasPgf(FigureCanvasBase):
             cmdargs = [texcommand, "-interaction=nonstopmode", "-halt-on-error", "figure.tex"]
             try:
                 stdout = subprocess.check_output(cmdargs, stderr=subprocess.STDOUT)
-            except:
-                raise RuntimeError("%s was not able to process your file.\n\nFull log:\n%s" % (texcommand, stdout))
+            except subprocess.CalledProcessError as e:
+                raise RuntimeError("%s was not able to process your file.\n\nFull log:\n%s" % (texcommand, e.output))
             shutil.copyfile("figure.pdf", target)
         finally:
             os.chdir(cwd)
