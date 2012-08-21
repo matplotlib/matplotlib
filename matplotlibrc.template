@@ -301,6 +301,8 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #figure.dpi       : 80      # figure dots per inch
 #figure.facecolor : 0.75    # figure facecolor; 0.75 is scalar gray
 #figure.edgecolor : white   # figure edgecolor
+#figure.autolayout : False  # When True, automatically adjust subplot
+                            # parameters to make the plot fit the figure
 
 # The figure subplot parameters.  All dimensions are a fraction of the
 # figure width or height

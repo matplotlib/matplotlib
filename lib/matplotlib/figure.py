@@ -240,7 +240,7 @@ class Figure(Artist):
        For multiple figure images, the figure will make composite
        images depending on the renderer option_image_nocomposite
        function.  If suppressComposite is True|False, this will
-       override the renderer
+       override the renderer.
     """
 
     def __str__(self):
@@ -254,6 +254,7 @@ class Figure(Artist):
                  linewidth = 0.0,   # the default linewidth of the frame
                  frameon = True,    # whether or not to draw the figure frame
                  subplotpars = None, # default to rc
+                 tight_layout = None, # default to rc figure.autolayout
                  ):
         """
         *figsize*
@@ -276,6 +277,11 @@ class Figure(Artist):
 
         *subplotpars*
             A :class:`SubplotParams` instance, defaults to rc
+
+        *tight_layout*
+            If *False* use *subplotpars*; if *True* adjust subplot
+            parameters using :meth:`tight_layout`.  Defaults to
+            rc ``figure.autolayout``.
         """
         Artist.__init__(self)
 
@@ -311,6 +317,7 @@ class Figure(Artist):
             subplotpars = SubplotParams()
 
         self.subplotpars = subplotpars
+        self.set_tight_layout(tight_layout)
 
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
@@ -328,6 +335,24 @@ class Figure(Artist):
         self.dpi_scale_trans.clear().scale(dpi, dpi)
         self.callbacks.process('dpi_changed', self)
     dpi = property(_get_dpi, _set_dpi)
+
+    def get_tight_layout(self):
+        """
+        Return the Boolean flag, True to use :meth`tight_layout` when drawing.
+        """
+        return self._tight
+
+    def set_tight_layout(self, tight):
+        """
+        Set whether :meth:`tight_layout` is used upon drawing.
+        If None, the rcParams['figure.autolayout'] value will be set.
+
+        ACCEPTS: [True | False | None]
+        """
+        if tight is None:
+            tight = rcParams['figure.autolayout']
+        tight = bool(tight)
+        self._tight = tight
 
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
         """
@@ -865,6 +890,13 @@ class Figure(Artist):
         if not self.get_visible(): return
         renderer.open_group('figure')
 
+        if self.get_tight_layout() and self.axes:
+            try:
+                self.tight_layout(renderer)
+            except ValueError:
+                pass
+                # ValueError can occur when resizing a window.
+
         if self.frameon: self.patch.draw(renderer)
 
         # a list of (zorder, func_to_call, list_of_args)
@@ -1244,7 +1276,7 @@ class Figure(Artist):
         """
         if ax is None:
             ax = self.gca()
-        use_gridspec = kw.pop("use_gridspec", False)
+        use_gridspec = kw.pop("use_gridspec", True)
         if cax is None:
             if use_gridspec and isinstance(ax, SubplotBase):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
@@ -1386,6 +1418,12 @@ class Figure(Artist):
         """
 
         from tight_layout import get_renderer, get_tight_layout_figure
+
+        no_go = [ax for ax in self.axes if not isinstance(ax, SubplotBase)]
+        if no_go:
+            warnings.Warn("Cannot use tight_layout;"
+                          " all Axes must descend from SubplotBase")
+            return
 
         if renderer is None:
             renderer = get_renderer(self)
