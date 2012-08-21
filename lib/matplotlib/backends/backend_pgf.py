@@ -220,15 +220,33 @@ class LatexManager:
         # Create LaTeX header with some content, else LaTeX will load some
         # math fonts later when we don't expect the additional output on stdout.
         # TODO: is this sufficient?
-        latex_header = u"""\\documentclass{minimal}
-%s
-%s
-\\begin{document}
-text $math \mu$ %% force latex to load fonts now
-\\typeout{pgf_backend_query_start}
-""" % (latex_preamble, latex_fontspec)
+        latex_header = [r"\documentclass{minimal}",
+                        latex_preamble,
+                        latex_fontspec,
+                        r"\begin{document}",
+                        r"text $math \mu$", # force latex to load fonts now
+                        r"\typeout{pgf_backend_query_start}"]
+        return "\n".join(latex_header)
 
-        return latex_header
+    def _stdin_writeln(self, s):
+        self.latex_stdin_utf8.write(s)
+        self.latex_stdin_utf8.write("\n")
+        self.latex_stdin_utf8.flush()
+
+    def _expect(self, s):
+        exp = s.encode("utf8")
+        buf = bytearray()
+        while True:
+            b = self.latex.stdout.read(1)
+            buf += b
+            if buf[-len(exp):] == exp:
+                break
+            if not len(b):
+                raise LatexError("LaTeX process halted", buf.decode("utf8"))
+        return buf.decode("utf8")
+
+    def _expect_prompt(self):
+        return self._expect("\n*")
 
     def __init__(self):
         self.texcommand = get_texcommand()
@@ -238,27 +256,23 @@ text $math \mu$ %% force latex to load fonts now
         # test the LaTeX setup to ensure a clean startup of the subprocess
         latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
                                   stdin=subprocess.PIPE,
-                                  stdout=subprocess.PIPE,
-                                  universal_newlines=True)
-        stdout, stderr = latex.communicate(self.latex_header + latex_end)
+                                  stdout=subprocess.PIPE)
+        test_input = self.latex_header + latex_end
+        stdout, stderr = latex.communicate(test_input.encode("utf-8"))
         if latex.returncode != 0:
             raise LatexError("LaTeX returned an error, probably missing font or error in preamble:\n%s" % stdout)
 
-        # open LaTeX process
+        # open LaTeX process for real work
         latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
                                   stdin=subprocess.PIPE,
-                                  stdout=subprocess.PIPE,
-                                  universal_newlines=True)
-        latex.stdin.write(self.latex_header)
-        latex.stdin.flush()
-        # read all lines until our 'pgf_backend_query_start' token appears
-        while not latex.stdout.readline().startswith("*pgf_backend_query_start"):
-            pass
-        while latex.stdout.read(1) != '*':
-            pass
+                                  stdout=subprocess.PIPE)
         self.latex = latex
-        self.latex_stdin = codecs.getwriter("utf-8")(latex.stdin)
-        self.latex_stdout = codecs.getreader("utf-8")(latex.stdout)
+        self.latex_stdin_utf8 = codecs.getwriter("utf8")(self.latex.stdin)
+        # write header with 'pgf_backend_query_start' token
+        self._stdin_writeln(self._build_latex_header())
+        # read all lines until our 'pgf_backend_query_start' token appears
+        self._expect("*pgf_backend_query_start")
+        self._expect_prompt()
 
         # cache for strings already processed
         self.str_cache = {}
@@ -277,19 +291,6 @@ text $math \mu$ %% force latex to load fonts now
         except:
             pass
 
-    def _wait_for_prompt(self):
-        """
-        Read all bytes from LaTeX stdout until a new line starts with a *.
-        """
-        buf = [""]
-        while True:
-            buf.append(self.latex_stdout.read(1))
-            if buf[-1] == "*" and buf[-2] == "\n":
-                break
-            if buf[-1] == "":
-                raise LatexError("LaTeX process halted", u"".join(buf))
-        return "".join(buf)
-
     def get_width_height_descent(self, text, prop):
         """
         Get the width, total height and descent for a text typesetted by the
@@ -298,30 +299,27 @@ text $math \mu$ %% force latex to load fonts now
 
         # apply font properties and define textbox
         prop_cmds = _font_properties_str(prop)
-        textbox = u"\\sbox0{%s %s}\n" % (prop_cmds, text)
+        textbox = "\\sbox0{%s %s}" % (prop_cmds, text)
 
         # check cache
         if textbox in self.str_cache:
             return self.str_cache[textbox]
 
         # send textbox to LaTeX and wait for prompt
-        self.latex_stdin.write(unicode(textbox))
-        self.latex_stdin.flush()
+        self._stdin_writeln(textbox)
         try:
-            self._wait_for_prompt()
+            self._expect_prompt()
         except LatexError as e:
-            msg = u"Error processing '%s'\nLaTeX Output:\n%s" % (text, e.latex_output)
+            msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, e.latex_output)
             raise ValueError(msg)
 
         # typeout width, height and text offset of the last textbox
-        query = "\\typeout{\\the\\wd0,\\the\\ht0,\\the\\dp0}\n"
-        self.latex_stdin.write(query)
-        self.latex_stdin.flush()
+        self._stdin_writeln(r"\typeout{\the\wd0,\the\ht0,\the\dp0}")
         # read answer from latex and advance to the next prompt
         try:
-            answer = self._wait_for_prompt()
+            answer = self._expect_prompt()
         except LatexError as e:
-            msg = u"Error processing '%s'\nLaTeX Output:\n%s" % (text, e.latex_output)
+            msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, e.latex_output)
             raise ValueError(msg)
 
         # parse metrics from the answer string
@@ -712,7 +710,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             texcommand = get_texcommand()
             cmdargs = [texcommand, "-interaction=nonstopmode", "-halt-on-error", "figure.tex"]
             try:
-                stdout = subprocess.check_output(cmdargs, universal_newlines=True, stderr=subprocess.STDOUT)
+                stdout = subprocess.check_output(cmdargs, stderr=subprocess.STDOUT)
             except:
                 raise RuntimeError("%s was not able to process your file.\n\nFull log:\n%s" % (texcommand, stdout))
             shutil.copyfile("figure.pdf", target)
