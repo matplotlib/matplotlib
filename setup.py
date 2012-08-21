@@ -103,7 +103,6 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'mpl-data/images/*.ppm',
                               'mpl-data/example/*.npy',
                               'mpl-data/matplotlibrc',
-                              'mpl-data/matplotlib.conf',
                               'mpl-data/*.glade',
                               'backends/Matplotlib.nib/*',
                               ]}
@@ -243,13 +242,6 @@ print_line()
 if options['backend']: rc['backend'] = options['backend']
 template = open('matplotlibrc.template').read()
 open('lib/matplotlib/mpl-data/matplotlibrc', 'w').write(template%rc)
-
-# Write the default matplotlib.conf file
-template = open('lib/matplotlib/mpl-data/matplotlib.conf.template').read()
-template = template.replace("datapath = ", "#datapath = ")
-template = template.replace("    use = 'Agg'", "    use = '%s'"%rc['backend'])
-open('lib/matplotlib/mpl-data/matplotlib.conf', 'w').write(template)
-
 
 try: additional_params # has setupegg.py provided
 except NameError: additional_params = {}
