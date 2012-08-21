@@ -113,6 +113,21 @@ To temporarily use RC parameters::
   >>>     ...
 
 
+Streamplot
+----------
+
+Tom Flannaghan and Tony Yu have added a new
+:meth:`~matplotlib.pyplot.streamplot` function to plot the streamlines of
+a vector field. This has been a long-requested feature and complements the
+existing :meth:`~matplotlib.pyplot.quiver` function for plotting vector fields.
+In addition to simply plotting the streamlines of the vector field,
+:meth:`~matplotlib.pyplot.streamplot` allows users to map the colors and/or
+line widths of the streamlines to a separate parameter, such as the speed or
+local intensity of the vector field.
+
+.. plot:: mpl_examples/pylab_examples/streamplot_demo.py
+
+
 .. _whats-new-1-1:
 
 new in matplotlib-1.1
