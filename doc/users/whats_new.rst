@@ -82,28 +82,28 @@ minimum and maximum colorbar extensions.
 Set default bounding box in matplotlibrc
 ------------------------------------------
 
-Two new defaults are available in the matplotlibrc configuration file.
-These are savefig.bbox, which can be set to 'standard' or 'tight,' and 
-savefig.pad_inches, which controls the bounding box padding.
+Two new defaults are available in the matplotlibrc configuration file:
+``savefig.bbox``, which can be set to 'standard' or 'tight', and
+``savefig.pad_inches``, which controls the bounding box padding.
 
 
 New Boxplot Functionality
 -------------------------
 
 Users can now incorporate their own methods for computing the median and its
-confidence intervals into the boxplot method. For every column of data passed
-to boxplot, the user can specify an accompanying median and confidence
-interval.
-:meth: `matplotlib.axes.boxplot`
-.. plot:: examples/pylab_examples/boxplot_demo3.py
+confidence intervals into the :meth:`~matplotlib.axes.boxplot` method. For
+every column of data passed to boxplot, the user can specify an accompanying
+median and confidence interval.
+
+.. plot:: mpl_examples/pylab_examples/boxplot_demo3.py
 
 
 New RC parameter functionality
 ------------------------------
 
-Matthew Emmett added a function and a context manager to help manage
-RC parameters: :func:`~matplotlib.rc_file` and
-:class:`~matplotlib.rc_context`.  To load RC paramters from a file::
+Matthew Emmett added a function and a context manager to help manage RC
+parameters: :func:`~matplotlib.rc_file` and :class:`~matplotlib.rc_context`.
+To load RC parameters from a file::
 
   >>> mpl.rc_file('mpl.rc')
 
@@ -111,6 +111,21 @@ To temporarily use RC parameters::
 
   >>> with mpl.rc_context(fname='mpl.rc', rc={'text.usetex': True}):
   >>>     ...
+
+
+Streamplot
+----------
+
+Tom Flannaghan and Tony Yu have added a new
+:meth:`~matplotlib.pyplot.streamplot` function to plot the streamlines of
+a vector field. This has been a long-requested feature and complements the
+existing :meth:`~matplotlib.pyplot.quiver` function for plotting vector fields.
+In addition to simply plotting the streamlines of the vector field,
+:meth:`~matplotlib.pyplot.streamplot` allows users to map the colors and/or
+line widths of the streamlines to a separate parameter, such as the speed or
+local intensity of the vector field.
+
+.. plot:: mpl_examples/pylab_examples/streamplot_demo.py
 
 
 .. _whats-new-1-1:
