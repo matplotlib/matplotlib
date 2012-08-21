@@ -245,7 +245,7 @@ class Sankey:
         #return path
 
     @docstring.dedent_interpd
-    def add(self, patchlabel='', flows=None, orientations=[0, 0], labels='',
+    def add(self, patchlabel='', flows=None, orientations=None, labels='',
             trunklength=1.0, pathlengths=0.25, prior=None, connect=(0, 0),
             rotation=0, **kwargs):
         """
@@ -338,6 +338,8 @@ class Sankey:
         else:
             # In the code below, angles are expressed in deg/90
             rotation /= 90.0
+        if orientations is None:
+            orientations = [0, 0]
         assert len(orientations) == n, (
             "orientations and flows must have the same length.\n"
             "orientations has length %d, but flows has length %d."
