@@ -167,9 +167,21 @@ class Patch(artist.Artist):
         return self.get_patch_transform() + artist.Artist.get_transform(self)
 
     def get_data_transform(self):
+        """
+        Return the :class:`~matplotlib.transforms.Transform` instance which
+        maps data coordinates to physical coordinates.
+        """
         return artist.Artist.get_transform(self)
 
     def get_patch_transform(self):
+        """
+        Return the :class:`~matplotlib.transforms.Transform` instance which
+        takes patch coordinates to data coordinates.
+        
+        For example, one may define a patch of a circle which represents a
+        radius of 5 by providing coordinates for a unit circle, and a
+        transform which scales the coordinates (the patch coordinate) by 5.
+        """
         return transforms.IdentityTransform()
 
     def get_antialiased(self):

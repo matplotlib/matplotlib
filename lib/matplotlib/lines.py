@@ -6,6 +6,8 @@ variety of line styles, markers and colors.
 # TODO: expose cap and join style attrs
 from __future__ import division, print_function
 
+import warnings
+
 import numpy as np
 from numpy import ma
 from matplotlib import verbose
@@ -249,17 +251,15 @@ class Line2D(Artist):
         if len(self._xy)==0: return False,{}
 
         # Convert points to pixels
-        if self._transformed_path is None:
-            self._transform_path()
-        path, affine = self._transformed_path.get_transformed_path_and_affine()
+        path, affine = self._get_transformed_path().get_transformed_path_and_affine()
         path = affine.transform_path(path)
         xy = path.vertices
         xt = xy[:, 0]
         yt = xy[:, 1]
 
         # Convert pick radius from points to pixels
-        if self.figure == None:
-            warning.warn('no figure set when check if mouse is on line')
+        if self.figure is None:
+            warnings.warn('no figure set when check if mouse is on line')
             pixels = self.pickradius
         else:
             pixels = self.figure.dpi/72. * self.pickradius
@@ -446,6 +446,11 @@ class Line2D(Artist):
         self._invalidy = False
 
     def _transform_path(self, subslice=None):
+        """
+        Puts a TransformedPath instance at self._transformed_path,
+        all invalidation of the transform is then handled by the 
+        TransformedPath instance.
+        """
         # Masked arrays are now handled by the Path class itself
         if subslice is not None:
             _path = Path(self._xy[subslice,:])
@@ -453,6 +458,14 @@ class Line2D(Artist):
             _path = self._path
         self._transformed_path = TransformedPath(_path, self.get_transform())
 
+    def _get_transformed_path(self):
+        """
+        Return the :class:`~matplotlib.transforms.TransformedPath` instance
+        of this line.
+        """
+        if self._transformed_path is None:
+            self._transform_path()
+        return self._transformed_path
 
     def set_transform(self, t):
         """
@@ -482,8 +495,8 @@ class Line2D(Artist):
             subslice = slice(max(i0-1, 0), i1+1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
-        if self._transformed_path is None:
-            self._transform_path()
+
+        transformed_path = self._get_transformed_path()
 
         if not self.get_visible(): return
 
@@ -507,7 +520,7 @@ class Line2D(Artist):
 
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         if funcname != '_draw_nothing':
-            tpath, affine = self._transformed_path.get_transformed_path_and_affine()
+            tpath, affine = transformed_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
                 self._lineFunc = getattr(self, funcname)
                 funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
@@ -528,7 +541,7 @@ class Line2D(Artist):
                 gc.set_linewidth(self._markeredgewidth)
             gc.set_alpha(self._alpha)
             marker = self._marker
-            tpath, affine = self._transformed_path.get_transformed_points_and_affine()
+            tpath, affine = transformed_path.get_transformed_points_and_affine()
             if len(tpath.vertices):
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
