@@ -1716,8 +1716,8 @@ def colormaps():
       for nominal data that has no inherent ordering, where color is used
       only to distinguish categories
 
-    The base colormaps are (with the exception of `spectral`) derived from
-    those of the same name provided with Matlab:
+    The base colormaps are derived from those of the same name provided 
+    with Matlab:
 
       =========   =======================================================
       Colormap    Description
@@ -1838,44 +1838,45 @@ def colormaps():
 
     Other miscellaneous schemes:
 
-      =========  =======================================================
-      Colormap   Description
-      =========  =======================================================
-      afmhot     sequential black-orange-yellow-white blackbody
-                 spectrum, commonly used in atomic force microscopy
-      brg        blue-red-green
-      bwr        diverging blue-white-red
-      coolwarm   diverging blue-gray-red, meant to avoid issues with 3D
-                 shading, color blindness, and ordering of colors [#]_
-      CMRmap     "Default colormaps on color images often reproduce to
-                 confusing grayscale images. The proposed colormap
-                 maintains an aesthetically pleasing color image that
-                 automatically reproduces to a monotonic grayscale with
-                 discrete, quantifiable saturation levels." [#]_
-      cubehelix  Unlike most other color schemes cubehelix was designed
-                 by D.A. Green to be monotonically increasing in terms
-                 of perceived brightness. Also, when printed on a black
-                 and white postscript printer, the scheme results in a
-                 greyscale with monotonically increasing brightness.
-                 This color scheme is named cubehelix because the r,g,b
-                 values produced can be visualised as a squashed helix
-                 around the diagonal in the r,g,b color cube.
-      gnuplot    gnuplot's traditional pm3d scheme
-                 (black-blue-red-yellow)
-      gnuplot2   sequential color printable as gray
-                 (black-blue-violet-yellow-white)
-      ocean      green-blue-white
-      rainbow    spectral purple-blue-green-yellow-orange-red colormap
-                 with diverging luminance
-      seismic    diverging blue-white-red
-      nipy_spectral    black-purple-blue-green-yellow-red-white spectrum, originally from the Neuroimaging in Python project
-      terrain    mapmaker's colors, blue-green-yellow-brown-white,
-                 originally from IGOR Pro
-      =========  =======================================================
+      ============= =======================================================
+      Colormap      Description
+      ============= =======================================================
+      afmhot        sequential black-orange-yellow-white blackbody
+                    spectrum, commonly used in atomic force microscopy
+      brg           blue-red-green
+      bwr           diverging blue-white-red
+      coolwarm      diverging blue-gray-red, meant to avoid issues with 3D
+                    shading, color blindness, and ordering of colors [#]_
+      CMRmap        "Default colormaps on color images often reproduce to
+                    confusing grayscale images. The proposed colormap
+                    maintains an aesthetically pleasing color image that
+                    automatically reproduces to a monotonic grayscale with
+                    discrete, quantifiable saturation levels." [#]_
+      cubehelix     Unlike most other color schemes cubehelix was designed
+                    by D.A. Green to be monotonically increasing in terms
+                    of perceived brightness. Also, when printed on a black
+                    and white postscript printer, the scheme results in a
+                    greyscale with monotonically increasing brightness.
+                    This color scheme is named cubehelix because the r,g,b
+                    values produced can be visualised as a squashed helix
+                    around the diagonal in the r,g,b color cube.
+      gnuplot       gnuplot's traditional pm3d scheme
+                    (black-blue-red-yellow)
+      gnuplot2      sequential color printable as gray
+                    (black-blue-violet-yellow-white)
+      ocean         green-blue-white
+      rainbow       spectral purple-blue-green-yellow-orange-red colormap
+                    with diverging luminance
+      seismic       diverging blue-white-red
+      nipy_spectral black-purple-blue-green-yellow-red-white spectrum, 
+                    originally from the Neuroimaging in Python project
+      terrain       mapmaker's colors, blue-green-yellow-brown-white,
+                    originally from IGOR Pro
+      ============= =======================================================
 
     The following colormaps are redundant and may be removed in future
-    versions.  It's recommended to use *gray* or *gray_r* instead, which
-    produce identical output:
+    versions.  It's recommended to use the names in the descriptions 
+    instead, which produce identical output:
 
       =========  =======================================================
       Colormap   Description
@@ -1883,7 +1884,7 @@ def colormaps():
       gist_gray  identical to *gray*
       gist_yarg  identical to *gray_r*
       binary     identical to *gray_r*
-      spectral   identical to *nipy_spectral*, which was changed to differentiate from ColorBrewer's Spectral map
+      spectral   identical to *nipy_spectral* [#]_
       =========  =======================================================
 
     .. rubric:: Footnotes
@@ -1905,6 +1906,11 @@ def colormaps():
       Color-Scale Images
       <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
       by Carey Rappaport
+      
+    .. [#] Changed to distinguish from ColorBrewer's *Spectral* map.
+      :func:`spectral` still works, but 
+      `set_cmap('nipy_spectral')` is recommended for clarity.
+                 
 
     """
     return sorted(cm.cmap_d.keys())
