@@ -11,12 +11,21 @@ from matplotlib.testing.decorators import _image_directories, knownfailureif
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
-def run(*args):
-    try:
-        subprocess.check_output(args)
-        return True
-    except:
-        return False
+def check_for(texsystem):
+    header = r"""
+    \documentclass{minimal}
+    \usepackage{pgf}
+    \begin{document}
+    \typeout{pgfversion=\pgfversion}
+    \makeatletter
+    \@@end
+    """
+    latex = subprocess.Popen(["xelatex", "-halt-on-error"],
+                             stdin=subprocess.PIPE,
+                             stdout=subprocess.PIPE)
+    stdout, stderr = latex.communicate(header.encode("utf8"))
+
+    return latex.returncode == 0
 
 def switch_backend(backend):
     import nose
@@ -58,7 +67,7 @@ def create_figure():
 
 
 # test compiling a figure to pdf with xelatex
-@knownfailureif(not run('xelatex', '-v'), msg="xelatex is required for this test")
+@knownfailureif(not check_for('xelatex'), msg='xelatex + pgf is required')
 @switch_backend('pgf')
 def test_xelatex():
     rc_xelatex = {'font.family': 'serif',
@@ -69,7 +78,7 @@ def test_xelatex():
 
 
 # test compiling a figure to pdf with pdflatex
-@knownfailureif(not run('pdflatex', '-v'), msg="pdflatex is required for this test")
+@knownfailureif(not check_for('pdflatex'), msg='pdflatex + pgf is required')
 @switch_backend('pgf')
 def test_pdflatex():
     rc_pdflatex = {'font.family': 'serif',
@@ -83,8 +92,8 @@ def test_pdflatex():
 
 
 # test updating the rc parameters for each figure
-@knownfailureif(not run('pdflatex', '-v') or not run('xelatex', '-v'),
-                msg="xelatex and pdflatex are required for this test")
+@knownfailureif(not check_for('xelatex') or not check_for('pdflatex'),
+                msg="xelatex and pdflatex + pgf required")
 @switch_backend('pgf')
 def test_rcupdate():
     rc_sets = []
