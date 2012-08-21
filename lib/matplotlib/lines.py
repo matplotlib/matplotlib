@@ -448,7 +448,8 @@ class Line2D(Artist):
     def _transform_path(self, subslice=None):
         """
         Puts a TransformedPath instance at self._transformed_path,
-        all invalidation of the transform is then handled by the TransformedPath instance.
+        all invalidation of the transform is then handled by the 
+        TransformedPath instance.
         """
         # Masked arrays are now handled by the Path class itself
         if subslice is not None:
