@@ -105,6 +105,13 @@ class Artist(object):
         self.y_isdata = True  #                                      with y
         self._snap = None
 
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        # remove the unpicklable remove method, this will get re-added on load
+        # (by the axes) if the artist lives on an axes.
+        d['_remove_method'] = None
+        return d
+
     def remove(self):
         """
         Remove the artist from the figure if possible.  The effect
@@ -124,7 +131,7 @@ class Artist(object):
         # the _remove_method attribute directly.  This would be a protected
         # attribute if Python supported that sort of thing.  The callback
         # has one parameter, which is the child to be removed.
-        if self._remove_method != None:
+        if self._remove_method is not None:
             self._remove_method(self)
         else:
             raise NotImplementedError('cannot remove artist')

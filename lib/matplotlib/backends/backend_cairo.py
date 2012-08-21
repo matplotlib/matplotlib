@@ -397,10 +397,17 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
     """
     Create a new figure manager instance
     """
-    if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+    if _debug: print('%s.%s()' % (_fn_name()))
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas  = FigureCanvasCairo(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+    
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas  = FigureCanvasCairo(figure)
     manager = FigureManagerBase(canvas, num)
     return manager
 

@@ -91,6 +91,17 @@ class TransformNode(object):
         # computed for the first time.
         self._invalid = 1
 
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        # turn the weakkey dictionary into a normal dictionary
+        d['_parents'] = dict(self._parents.iteritems())
+        return d
+    
+    def __setstate__(self, data_dict):
+        self.__dict__ = data_dict
+        # turn the normal dictionary back into a WeakKeyDict
+        self._parents = WeakKeyDictionary(self._parents)
+            
     def __copy__(self, *args):
         raise NotImplementedError(
             "TransformNode instances can not be copied. " +
@@ -1275,12 +1286,19 @@ class TransformWrapper(Transform):
         be replaced with :meth:`set`.
         """
         assert isinstance(child, Transform)
-
         Transform.__init__(self)
         self.input_dims = child.input_dims
         self.output_dims = child.output_dims
         self._set(child)
         self._invalid = 0
+    
+    def __getstate__(self):
+        # only store the child
+        return {'child': self._child}
+
+    def __setstate__(self, state):
+        # re-initialise the TransformWrapper with the state's child
+        self.__init__(state['child'])
 
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child

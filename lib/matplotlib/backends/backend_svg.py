@@ -1151,9 +1151,17 @@ FigureManager = FigureManagerSVG
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas  = FigureCanvasSVG(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+    
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas  = FigureCanvasSVG(figure)
     manager = FigureManagerSVG(canvas, num)
     return manager
+
 
 svgProlog = u"""\
 <?xml version="1.0" encoding="utf-8" standalone="no"?>

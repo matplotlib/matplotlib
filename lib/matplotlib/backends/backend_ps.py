@@ -944,7 +944,14 @@ class GraphicsContextPS(GraphicsContextBase):
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasPS(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+    
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasPS(figure)
     manager = FigureManagerPS(canvas, num)
     return manager
 

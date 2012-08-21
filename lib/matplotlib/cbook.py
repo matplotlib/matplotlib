@@ -266,6 +266,15 @@ class CallbackRegistry:
         self._cid = 0
         self._func_cid_map = {}
 
+    def __getstate__(self):
+        # We cannot currently pickle the callables in the registry, so 
+        # return an empty dictionary. 
+        return {}
+    
+    def __setstate__(self, state):
+        # re-initialise an empty callback registry
+        self.__init__()
+
     def connect(self, s, func):
         """
         register *func* to be called when a signal *s* is generated
@@ -375,7 +384,7 @@ class silent_list(list):
     """
     override repr when returning a list of matplotlib artists to
     prevent long, meaningless output.  This is meant to be used for a
-    homogeneous list of a give type
+    homogeneous list of a given type
     """
     def __init__(self, type, seq=None):
         self.type = type
@@ -385,7 +394,15 @@ class silent_list(list):
         return '<a list of %d %s objects>' % (len(self), self.type)
 
     def __str__(self):
-        return '<a list of %d %s objects>' % (len(self), self.type)
+        return repr(self)
+
+    def __getstate__(self):
+        # store a dictionary of this SilentList's state
+        return {'type': self.type, 'seq': self[:]}
+    
+    def __setstate__(self, state):
+        self.type = state['type']
+        self.extend(state['seq'])
 
 def strip_math(s):
     'remove latex formatting from mathtext'
@@ -1878,6 +1895,27 @@ def is_math_text(s):
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
 
     return even_dollars
+
+
+class _NestedClassGetter(object):
+    # recipe from http://stackoverflow.com/a/11493777/741316
+    """
+    When called with the containing class as the first argument, 
+    and the name of the nested class as the second argument,
+    returns an instance of the nested class.
+    """
+    def __call__(self, containing_class, class_name):
+        nested_class = getattr(containing_class, class_name)
+
+        # make an instance of a simple object (this one will do), for which we 
+        # can change the __class__ later on.
+        nested_instance = _NestedClassGetter()
+
+        # set the class of the instance, the __init__ will never be called on
+        # the class but the original state will be set later on by pickle.
+        nested_instance.__class__ = nested_class
+        return nested_instance
+
 
 # Numpy > 1.6.x deprecates putmask in favor of the new copyto.
 # So long as we support versions 1.6.x and less, we need the
