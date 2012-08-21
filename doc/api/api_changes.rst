@@ -72,6 +72,54 @@ Changes in 1.2.x
   original keyword arguments will override any value provided by
   *capthick*.
 
+* Transform subclassing behaviour is now subtly changed. If your transform
+  implements a non-affine transformation, then it should override the 
+  ``transform_non_affine`` method, rather than the generic ``transform`` method.
+  Previously transforms would define ``transform`` and then copy the
+  method into ``transform_non_affine``:
+  
+     class MyTransform(mtrans.Transform):
+         def transform(self, xy):
+             ...
+         transform_non_affine = transform
+         
+  This approach will no longer function correctly and should be changed to:
+  
+     class MyTransform(mtrans.Transform):
+         def transform_non_affine(self, xy):
+             ...
+  
+* Artists no longer have ``x_isdata`` or ``y_isdata`` attributes; instead
+  any artist's transform can be interrogated with
+  ``artist_instance.get_transform().contains_branch(ax.transData)``
+  
+* Lines added to an axes now take into account their transform when updating the
+  data and view limits. This means transforms can now be used as a pre-transform.
+  For instance:
+  
+      >>> import matplotlib.pyplot as plt
+      >>> import matplotlib.transforms as mtrans
+      >>> ax = plt.axes()
+      >>> ax.plot(range(10), transform=mtrans.Affine2D().scale(10) + ax.transData)
+      >>> print(ax.viewLim)
+      Bbox('array([[  0.,   0.],\n       [ 90.,  90.]])')
+  
+* One can now easily get a transform which goes from one transform's coordinate system
+  to another, in an optimized way, using the new subtract method on a transform. For instance,
+  to go from data coordinates to axes coordinates::
+  
+      >>> import matplotlib.pyplot as plt
+      >>> ax = plt.axes()
+      >>> data2ax = ax.transData - ax.transAxes
+      >>> print(ax.transData.depth, ax.transAxes.depth)
+      3, 1
+      >>> print(data2ax.depth)
+      2
+      
+  for versions before 1.2 this could only be achieved in a sub-optimal way, using 
+  ``ax.transData + ax.transAxes.inverted()`` (depth is a new concept, but had it existed 
+  it would return 4 for this example).      
+
 Changes in 1.1.x
 ================
 
