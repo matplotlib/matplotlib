@@ -431,24 +431,14 @@ def check_for_cairo():
         print_status("Cairo", cairo.version)
         return True
 
-def check_for_datetime():
-    try:
-        import datetime
-    except ImportError:
-        print_status("datetime", "no")
-        return False
-    else:
-        print_status("datetime", "present, version unknown")
-        return True
-
-def check_provide_pytz(hasdatetime=True):
-    if hasdatetime and (options['provide_pytz'] is True):
+def check_provide_pytz():
+    if options['provide_pytz'] is True:
         print_status("pytz", "matplotlib will provide")
         return True
     try:
         import pytz
     except ImportError:
-        if hasdatetime and options['provide_pytz']:
+        if options['provide_pytz']:
             print_status("pytz", "matplotlib will provide")
             return True
         else:
@@ -462,14 +452,14 @@ def check_provide_pytz(hasdatetime=True):
             print_status("pytz", pytz.__version__)
             return False
 
-def check_provide_dateutil(hasdatetime=True):
-    if hasdatetime and (options['provide_dateutil'] is True):
+def check_provide_dateutil():
+    if options['provide_dateutil'] is True:
         print_status("dateutil", "matplotlib will provide")
         return True
     try:
         import dateutil
     except ImportError:
-        if hasdatetime and options['provide_dateutil']:
+        if options['provide_dateutil']:
             print_status("dateutil", "matplotlib will provide")
             return True
         else:
