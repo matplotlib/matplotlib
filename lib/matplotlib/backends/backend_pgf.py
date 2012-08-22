@@ -282,8 +282,8 @@ class LatexManager:
         if rcParams.get("pgf.debug", False):
             print "deleting LatexManager"
         try:
-            self.latex.terminate()
-            self.latex.wait()
+            self.latex_stdin_utf8.close()
+            self.latex.communicate()
         except:
             pass
         try:
