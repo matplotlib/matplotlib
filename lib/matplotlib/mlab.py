@@ -2504,7 +2504,8 @@ def csvformat_factory(format):
         format.fmt = '%r'
     return format
 
-def rec2txt(r, header=None, padding=3, precision=3, specifier='f', fields=None):
+def rec2txt(r, header=None, padding=3, precision=3, fields=None, 
+            specifier='f'):
     """
     Returns a textual representation of a record array.
 
@@ -2519,18 +2520,18 @@ def rec2txt(r, header=None, padding=3, precision=3, specifier='f', fields=None):
         list of integers to apply precision individually.
         Precision for non-floats is simply ignored.
 
+    *fields* : if not None, a list of field names to print.  fields
+        can be a list of strings like ['field1', 'field2'] or a single
+        comma separated string like 'field1,field2'
+
     *specifier*: format specifier to use for floats. 
         One of 'e', 'E', 'f', 'F', 'g', 'G', 'n', or '%' or 
         a list of these to apply specifier on individual columns.
         Specifier for non-floats is simply ignored.
 
-    *fields* : if not None, a list of field names to print.  fields
-        can be a list of strings like ['field1', 'field2'] or a single
-        comma separated string like 'field1,field2'
-
     Example::
 
-      precision=[0,2,3]
+      precision=[0, 2, 3]
 
     Output::
 
@@ -2543,27 +2544,29 @@ def rec2txt(r, header=None, padding=3, precision=3, specifier='f', fields=None):
         r = rec_keep_fields(r, fields)
 
     if cbook.is_numlike(precision):
-        precision = [precision]*len(r.dtype)
+        precision = [precision] * len(r.dtype)
 
     if isinstance(specifier, str):
-        specifier = [specifier]*len(r.dtype)
+        specifier = [specifier] * len(r.dtype)
 
-    def get_type(item,atype=int):
-        tdict = {None:int, int:float, float:str}
+    def get_type(item, atype=int):
+        tdict = {None: int, int: float, float: str}
         try: atype(str(item))
-        except: return get_type(item,tdict[atype])
+        except: return get_type(item, tdict[atype])
         return atype
 
     def get_justify(colname, column, precision, specifier):
         ntype = type(column[0])
 
-        if ntype==np.str or ntype==np.str_ or ntype==np.string0 or ntype==np.string_:
-            length = max(len(colname),column.itemsize)
-            return 0, length+padding, "%s" # left justify
+        if (ntype == np.str or ntype==np.str_ or ntype==np.string0 or 
+            ntype == np.string_):
+            length = max(len(colname), column.itemsize)
+            return 0, length + padding, "%s" # left justify
 
-        if ntype==np.int or ntype==np.int16 or ntype==np.int32 or ntype==np.int64 or ntype==np.int8 or ntype==np.int_:
-            length = max(len(colname),np.max(map(len,map(str,column))))
-            return 1, length+padding, "%d" # right justify
+        if (ntype == np.int or ntype==np.int16 or ntype==np.int32 or 
+            ntype == np.int64 or ntype==np.int8 or ntype==np.int_):
+            length = max(len(colname), np.max(map(len, map(str, column))))
+            return 1, length + padding, "%d" # right justify
 
         # JDH: my powerbook does not have np.float96 using np 1.3.0
         """
@@ -2577,48 +2580,56 @@ def rec2txt(r, header=None, padding=3, precision=3, specifier='f', fields=None):
         ---------------------------------------------------------------------------
         AttributeError                            Traceback (most recent call la
         """
-        if ntype==np.float or ntype==np.float32 or ntype==np.float64 or (hasattr(np, 'float96') and (ntype==np.float96)) or ntype==np.float_:
+        if (ntype == np.float or ntype == np.float32 or ntype == np.float64 or 
+            (hasattr(np, 'float96') and (ntype==np.float96)) or 
+            ntype==np.float_):
             fmt = "%." + str(precision) + specifier
-            length = max(len(colname),np.max(map(len,map(lambda x:fmt%x,column))))
-            return 1, length+padding, fmt   # right justify
+            length = max(len(colname), 
+                         np.max(map(len, map(lambda x: fmt % x, column))))
+            return 1, length + padding, fmt   # right justify
 
-        return 0, max(len(colname),np.max(map(len,map(str,column))))+padding, "%s"
+        return (0, max(len(colname), 
+                       np.max(map(len, map(str, column)))) + padding, "%s")
 
     if header is None:
         header = r.dtype.names
 
-    justify_pad_prec = [get_justify(header[i],r.__getitem__(colname),precision[i],specifier[i]) for i, colname in enumerate(r.dtype.names)]
+    justify_pad_prec = [get_justify(header[i], r.__getitem__(colname), 
+                                    precision[i], specifier[i]) 
+                        for i, colname in enumerate(r.dtype.names)]
 
     justify_pad_prec_spacer = []
     for i in range(len(justify_pad_prec)):
-        just,pad,prec = justify_pad_prec[i]
+        just, pad, prec = justify_pad_prec[i]
         if i == 0:
-            justify_pad_prec_spacer.append((just,pad,prec,0))
+            justify_pad_prec_spacer.append((just, pad, prec, 0))
         else:
-            pjust,ppad,pprec = justify_pad_prec[i-1]
+            pjust, ppad, pprec = justify_pad_prec[i - 1]
             if pjust == 0 and just == 1:
-                justify_pad_prec_spacer.append((just,pad-padding,prec,0))
+                justify_pad_prec_spacer.append((just, pad-padding, prec, 0))
             elif pjust == 1 and just == 0:
-                justify_pad_prec_spacer.append((just,pad,prec,padding))
+                justify_pad_prec_spacer.append((just, pad, prec, padding))
             else:
-                justify_pad_prec_spacer.append((just,pad,prec,0))
+                justify_pad_prec_spacer.append((just, pad, prec, 0))
 
     def format(item, just_pad_prec_spacer):
         just, pad, prec, spacer = just_pad_prec_spacer
         if just == 0:
-            return spacer*' ' + str(item).ljust(pad)
+            return spacer * ' ' + str(item).ljust(pad)
         else:
             if get_type(item) == float:
-                item = (prec%float(item))
+                item = (prec % float(item))
             elif get_type(item) == int:
-                item = (prec%int(item))
+                item = (prec % int(item))
 
             return item.rjust(pad)
 
     textl = []
-    textl.append(''.join([format(colitem,justify_pad_prec_spacer[j]) for j, colitem in enumerate(header)]))
+    textl.append(''.join([format(colitem, justify_pad_prec_spacer[j]) 
+                          for j, colitem in enumerate(header)]))
     for i, row in enumerate(r):
-        textl.append(''.join([format(colitem,justify_pad_prec_spacer[j]) for j, colitem in enumerate(row)]))
+        textl.append(''.join([format(colitem,justify_pad_prec_spacer[j]) 
+                              for j, colitem in enumerate(row)]))
         if i==0:
             textl[0] = textl[0].rstrip()
 
