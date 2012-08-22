@@ -2504,7 +2504,7 @@ def csvformat_factory(format):
         format.fmt = '%r'
     return format
 
-def rec2txt(r, header=None, padding=3, precision=3, fields=None):
+def rec2txt(r, header=None, padding=3, precision=3, specifier='f', fields=None):
     """
     Returns a textual representation of a record array.
 
@@ -2519,9 +2519,14 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
         list of integers to apply precision individually.
         Precision for non-floats is simply ignored.
 
+    *specifier*: format specifier to use for floats. 
+        One of 'e', 'E', 'f', 'F', 'g', 'G', 'n', or '%' or 
+        a list of these to apply specifier on individual columns.
+        Specifier for non-floats is simply ignored.
+
     *fields* : if not None, a list of field names to print.  fields
-    can be a list of strings like ['field1', 'field2'] or a single
-    comma separated string like 'field1,field2'
+        can be a list of strings like ['field1', 'field2'] or a single
+        comma separated string like 'field1,field2'
 
     Example::
 
@@ -2546,7 +2551,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
         except: return get_type(item,tdict[atype])
         return atype
 
-    def get_justify(colname, column, precision):
+    def get_justify(colname, column, precision, specifier):
         ntype = type(column[0])
 
         if ntype==np.str or ntype==np.str_ or ntype==np.string0 or ntype==np.string_:
@@ -2570,7 +2575,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
         AttributeError                            Traceback (most recent call la
         """
         if ntype==np.float or ntype==np.float32 or ntype==np.float64 or (hasattr(np, 'float96') and (ntype==np.float96)) or ntype==np.float_:
-            fmt = "%." + str(precision) + "f"
+            fmt = "%." + str(precision) + specifier
             length = max(len(colname),np.max(map(len,map(lambda x:fmt%x,column))))
             return 1, length+padding, fmt   # right justify
 
@@ -2579,7 +2584,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
     if header is None:
         header = r.dtype.names
 
-    justify_pad_prec = [get_justify(header[i],r.__getitem__(colname),precision[i]) for i, colname in enumerate(r.dtype.names)]
+    justify_pad_prec = [get_justify(header[i],r.__getitem__(colname),precision[i],specifier[i]) for i, colname in enumerate(r.dtype.names)]
 
     justify_pad_prec_spacer = []
     for i in range(len(justify_pad_prec)):
