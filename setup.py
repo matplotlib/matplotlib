@@ -48,7 +48,7 @@ from setupext import build_agg, build_gtkagg, build_tkagg,\
      check_for_qt, check_for_qt4, check_for_pyside, check_for_cairo, \
      check_provide_pytz, check_provide_dateutil,\
      check_for_dvipng, check_for_ghostscript, check_for_latex, \
-     check_for_pdftops, check_for_datetime, options, build_png, build_tri
+     check_for_pdftops, options, build_png, build_tri
 
 # jdh
 packages = [
@@ -106,6 +106,8 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'mpl-data/*.glade',
                               'backends/Matplotlib.nib/*',
                               ]}
+
+package_dir = {'': 'lib'}
 
 if 1:
     # TODO: exclude these when making release?
@@ -186,46 +188,46 @@ check_for_cairo()
 print_raw("")
 print_raw("OPTIONAL DATE/TIMEZONE DEPENDENCIES")
 
-hasdatetime = check_for_datetime()
-provide_dateutil = check_provide_dateutil(hasdatetime)
-provide_pytz = check_provide_pytz(hasdatetime)
+provide_dateutil = check_provide_dateutil()
+provide_pytz = check_provide_pytz()
 
-if hasdatetime: # dates require python23 datetime
-    # only install pytz and dateutil if the user hasn't got them
+def add_pytz():
+    packages.append('pytz')
 
-    def add_pytz():
-        packages.append('pytz')
+    resources = ['zone.tab', 'locales/pytz.pot']
+    for dirpath, dirnames, filenames in os.walk(
+        os.path.join('lib', 'pytz', 'zoneinfo')
+        ):
 
-        resources = ['zone.tab', 'locales/pytz.pot']
-        for dirpath, dirnames, filenames in os.walk(
-            os.path.join('lib', 'pytz', 'zoneinfo')
-            ):
+        # remove the 'pytz' part of the path
+        basepath = os.path.join(*dirpath.split(os.path.sep)[2:])
+        #print dirpath, basepath
+        resources.extend([os.path.join(basepath, filename)
+                          for filename in filenames])
+    package_data['pytz'] = resources
+    #print resources
+    assert len(resources) > 10, 'zoneinfo files not found!'
 
-            # remove the 'pytz' part of the path
-            basepath = os.path.join(*dirpath.split(os.path.sep)[2:])
-            #print dirpath, basepath
-            resources.extend([os.path.join(basepath, filename)
-                              for filename in filenames])
-        package_data['pytz'] = resources
-        #print resources
-        assert len(resources) > 10, 'zoneinfo files not found!'
-
-
-    def add_dateutil():
-        packages.append('dateutil')
-        packages.append('dateutil.zoneinfo')
-        package_data['dateutil'] = ['zoneinfo/zoneinfo*.tar.*']
-
-    if sys.platform=='win32':
-        # always add these to the win32 installer
-        add_pytz()
-        add_dateutil()
+def add_dateutil():
+    packages.append('dateutil')
+    packages.append('dateutil.zoneinfo')
+    package_data['dateutil'] = ['zoneinfo/zoneinfo*.tar.*']
+    if sys.version_info[0] >= 3:
+        package_dir['dateutil'] = 'lib/dateutil_py3'
     else:
-        # only add them if we need them
-        if provide_pytz:
-            add_pytz()
-            print_raw("adding pytz")
-        if provide_dateutil: add_dateutil()
+        package_dir['dateutil'] = 'lib/dateutil_py2'
+
+if sys.platform=='win32':
+    # always add these to the win32 installer
+    add_pytz()
+    add_dateutil()
+else:
+    # only add them if we need them
+    if provide_pytz:
+        add_pytz()
+        print_raw("adding pytz")
+    if provide_dateutil:
+        add_dateutil()
 
 print_raw("")
 print_raw("OPTIONAL USETEX DEPENDENCIES")
@@ -251,8 +253,15 @@ for mod in ext_modules:
         mod.extra_compile_args.append('-DVERBOSE')
 
 if sys.version_info[0] >= 3:
+    def should_2to3(file, root):
+        file = os.path.abspath(file)[len(os.path.abspath(root)):]
+        if ('py3' in file or
+            file.startswith('pytz') or
+            file.startswith('dateutil')):
+            return False
+        return True
+
     import multiprocessing
-    from distutils import util
     def refactor(x):
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
         class DistutilsRefactoringTool(RefactoringTool):
@@ -268,7 +277,7 @@ if sys.version_info[0] >= 3:
         def run_2to3(self, files):
             # We need to skip certain files that have already been
             # converted to Python 3.x
-            filtered = [x for x in files if 'py3' not in x]
+            filtered = [x for x in files if should_2to3(x, self.build_lib)]
             if sys.platform.startswith('win'):
                 # doing this in parallel on windows may crash your computer
                 [refactor(f) for f in filtered]
@@ -298,7 +307,7 @@ distrib = setup(name="matplotlib",
       platforms='any',
       py_modules = py_modules,
       ext_modules = ext_modules,
-      package_dir = {'': 'lib'},
+      package_dir = package_dir,
       package_data = package_data,
       cmdclass = {'build_py': build_py},
       **additional_params
