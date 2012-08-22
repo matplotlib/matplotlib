@@ -4,10 +4,12 @@ import os
 import shutil
 import subprocess
 import numpy as np
+import nose
+from nose.plugins.skip import SkipTest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.testing.decorators import _image_directories, knownfailureif
+from matplotlib.testing.decorators import _image_directories
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
@@ -28,7 +30,6 @@ def check_for(texsystem):
     return latex.returncode == 0
 
 def switch_backend(backend):
-    import nose
 
     def switch_backend_decorator(func):
         def backend_switcher(*args, **kwargs):
@@ -50,7 +51,7 @@ def compare_figure(fname):
 
     expected = os.path.join(result_dir, "expected_%s" % fname)
     shutil.copyfile(os.path.join(baseline_dir, fname), expected)
-    err = compare_images(expected, actual, tol=1e-4)
+    err = compare_images(expected, actual, tol=5e-3)
     if err:
         raise ImageComparisonFailure('images not close: %s vs. %s' % (actual, expected))
 
@@ -67,9 +68,11 @@ def create_figure():
 
 
 # test compiling a figure to pdf with xelatex
-@knownfailureif(not check_for('xelatex'), msg='xelatex + pgf is required')
 @switch_backend('pgf')
 def test_xelatex():
+    if not check_for('xelatex'):
+        raise SkipTest('xelatex + pgf is required')
+
     rc_xelatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,}
     mpl.rcParams.update(rc_xelatex)
@@ -78,9 +81,11 @@ def test_xelatex():
 
 
 # test compiling a figure to pdf with pdflatex
-@knownfailureif(not check_for('pdflatex'), msg='pdflatex + pgf is required')
 @switch_backend('pgf')
 def test_pdflatex():
+    if not check_for('pdflatex'):
+        raise SkipTest('pdflatex + pgf is required')
+
     rc_pdflatex = {'font.family': 'serif',
                    'pgf.rcfonts': False,
                    'pgf.texsystem': 'pdflatex',
@@ -92,10 +97,11 @@ def test_pdflatex():
 
 
 # test updating the rc parameters for each figure
-@knownfailureif(not check_for('xelatex') or not check_for('pdflatex'),
-                msg="xelatex and pdflatex + pgf required")
 @switch_backend('pgf')
 def test_rcupdate():
+    if not check_for('xelatex') or not check_for('pdflatex'):
+        raise SkipTest('xelatex and pdflatex + pgf required')
+
     rc_sets = []
     rc_sets.append({'font.family': 'sans-serif',
                     'font.size': 30,
