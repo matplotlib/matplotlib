@@ -18,6 +18,7 @@ from matplotlib.path import Path
 from matplotlib import _png, rcParams
 from matplotlib import font_manager
 from matplotlib.ft2font import FT2Font
+from matplotlib.cbook import is_string_like, is_writable_file_like
 
 ###############################################################################
 
@@ -220,15 +221,33 @@ class LatexManager:
         # Create LaTeX header with some content, else LaTeX will load some
         # math fonts later when we don't expect the additional output on stdout.
         # TODO: is this sufficient?
-        latex_header = u"""\\documentclass{minimal}
-%s
-%s
-\\begin{document}
-text $math \mu$ %% force latex to load fonts now
-\\typeout{pgf_backend_query_start}
-""" % (latex_preamble, latex_fontspec)
+        latex_header = [r"\documentclass{minimal}",
+                        latex_preamble,
+                        latex_fontspec,
+                        r"\begin{document}",
+                        r"text $math \mu$", # force latex to load fonts now
+                        r"\typeout{pgf_backend_query_start}"]
+        return "\n".join(latex_header)
 
-        return latex_header
+    def _stdin_writeln(self, s):
+        self.latex_stdin_utf8.write(s)
+        self.latex_stdin_utf8.write("\n")
+        self.latex_stdin_utf8.flush()
+
+    def _expect(self, s):
+        exp = s.encode("utf8")
+        buf = bytearray()
+        while True:
+            b = self.latex.stdout.read(1)
+            buf += b
+            if buf[-len(exp):] == exp:
+                break
+            if not len(b):
+                raise LatexError("LaTeX process halted", buf.decode("utf8"))
+        return buf.decode("utf8")
+
+    def _expect_prompt(self):
+        return self._expect("\n*")
 
     def __init__(self):
         self.texcommand = get_texcommand()
@@ -238,27 +257,23 @@ text $math \mu$ %% force latex to load fonts now
         # test the LaTeX setup to ensure a clean startup of the subprocess
         latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
                                   stdin=subprocess.PIPE,
-                                  stdout=subprocess.PIPE,
-                                  universal_newlines=True)
-        stdout, stderr = latex.communicate(self.latex_header + latex_end)
+                                  stdout=subprocess.PIPE)
+        test_input = self.latex_header + latex_end
+        stdout, stderr = latex.communicate(test_input.encode("utf-8"))
         if latex.returncode != 0:
             raise LatexError("LaTeX returned an error, probably missing font or error in preamble:\n%s" % stdout)
 
-        # open LaTeX process
+        # open LaTeX process for real work
         latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
                                   stdin=subprocess.PIPE,
-                                  stdout=subprocess.PIPE,
-                                  universal_newlines=True)
-        latex.stdin.write(self.latex_header)
-        latex.stdin.flush()
-        # read all lines until our 'pgf_backend_query_start' token appears
-        while not latex.stdout.readline().startswith("*pgf_backend_query_start"):
-            pass
-        while latex.stdout.read(1) != '*':
-            pass
+                                  stdout=subprocess.PIPE)
         self.latex = latex
-        self.latex_stdin = codecs.getwriter("utf-8")(latex.stdin)
-        self.latex_stdout = codecs.getreader("utf-8")(latex.stdout)
+        self.latex_stdin_utf8 = codecs.getwriter("utf8")(self.latex.stdin)
+        # write header with 'pgf_backend_query_start' token
+        self._stdin_writeln(self._build_latex_header())
+        # read all lines until our 'pgf_backend_query_start' token appears
+        self._expect("*pgf_backend_query_start")
+        self._expect_prompt()
 
         # cache for strings already processed
         self.str_cache = {}
@@ -267,8 +282,8 @@ text $math \mu$ %% force latex to load fonts now
         if rcParams.get("pgf.debug", False):
             print "deleting LatexManager"
         try:
-            self.latex.terminate()
-            self.latex.wait()
+            self.latex_stdin_utf8.close()
+            self.latex.communicate()
         except:
             pass
         try:
@@ -276,19 +291,6 @@ text $math \mu$ %% force latex to load fonts now
             os.remove("texput.aux")
         except:
             pass
-
-    def _wait_for_prompt(self):
-        """
-        Read all bytes from LaTeX stdout until a new line starts with a *.
-        """
-        buf = [""]
-        while True:
-            buf.append(self.latex_stdout.read(1))
-            if buf[-1] == "*" and buf[-2] == "\n":
-                break
-            if buf[-1] == "":
-                raise LatexError("LaTeX process halted", u"".join(buf))
-        return "".join(buf)
 
     def get_width_height_descent(self, text, prop):
         """
@@ -298,30 +300,27 @@ text $math \mu$ %% force latex to load fonts now
 
         # apply font properties and define textbox
         prop_cmds = _font_properties_str(prop)
-        textbox = u"\\sbox0{%s %s}\n" % (prop_cmds, text)
+        textbox = "\\sbox0{%s %s}" % (prop_cmds, text)
 
         # check cache
         if textbox in self.str_cache:
             return self.str_cache[textbox]
 
         # send textbox to LaTeX and wait for prompt
-        self.latex_stdin.write(unicode(textbox))
-        self.latex_stdin.flush()
+        self._stdin_writeln(textbox)
         try:
-            self._wait_for_prompt()
+            self._expect_prompt()
         except LatexError as e:
-            msg = u"Error processing '%s'\nLaTeX Output:\n%s" % (text, e.latex_output)
+            msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, e.latex_output)
             raise ValueError(msg)
 
         # typeout width, height and text offset of the last textbox
-        query = "\\typeout{\\the\\wd0,\\the\\ht0,\\the\\dp0}\n"
-        self.latex_stdin.write(query)
-        self.latex_stdin.flush()
+        self._stdin_writeln(r"\typeout{\the\wd0,\the\ht0,\the\dp0}")
         # read answer from latex and advance to the next prompt
         try:
-            answer = self._wait_for_prompt()
+            answer = self._expect_prompt()
         except LatexError as e:
-            msg = u"Error processing '%s'\nLaTeX Output:\n%s" % (text, e.latex_output)
+            msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, e.latex_output)
             raise ValueError(msg)
 
         # parse metrics from the answer string
@@ -625,12 +624,7 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    def print_pgf(self, filename, *args, **kwargs):
-        """
-        Output pgf commands for drawing the figure so it can be included and
-        rendered in latex documents.
-        """
-
+    def _print_pgf_to_fh(self, fh):
         header_text = r"""%% Creator: Matplotlib, PGF backend
 %%
 %% To include the figure in your LaTeX document, write
@@ -660,37 +654,50 @@ class FigureCanvasPgf(FigureCanvasBase):
         # get figure size in inch
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
-        # start a pgfpicture environment and set a bounding box
-        with codecs.open(filename, "w", encoding="utf-8") as fh:
-            fh.write(header_text)
-            fh.write(header_info_preamble)
-            fh.write("\n")
-            writeln(fh, r"\begingroup")
-            writeln(fh, r"\makeatletter")
-            writeln(fh, r"\begin{pgfpicture}")
-            writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w,h))
-            writeln(fh, r"\pgfusepath{use as bounding box}")
+        # create pgfpicture environment and write the pgf code
+        fh.write(header_text)
+        fh.write(header_info_preamble)
+        fh.write("\n")
+        writeln(fh, r"\begingroup")
+        writeln(fh, r"\makeatletter")
+        writeln(fh, r"\begin{pgfpicture}")
+        writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w,h))
+        writeln(fh, r"\pgfusepath{use as bounding box}")
+        renderer = RendererPgf(self.figure, fh)
+        self.figure.draw(renderer)
 
-            renderer = RendererPgf(self.figure, fh)
-            self.figure.draw(renderer)
+        # end the pgfpicture environment
+        writeln(fh, r"\end{pgfpicture}")
+        writeln(fh, r"\makeatother")
+        writeln(fh, r"\endgroup")
 
-            # end the pgfpicture environment
-            writeln(fh, r"\end{pgfpicture}")
-            writeln(fh, r"\makeatother")
-            writeln(fh, r"\endgroup")
-
-    def print_pdf(self, filename, *args, **kwargs):
+    def print_pgf(self, fname_or_fh, *args, **kwargs):
         """
-        Use LaTeX to compile a Pgf generated figure to PDF.
+        Output pgf commands for drawing the figure so it can be included and
+        rendered in latex documents.
         """
+        if kwargs.get("dryrun", False): return
+
+        # figure out where the pgf is to be written to
+        if is_string_like(fname_or_fh):
+            with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
+                self._print_pgf_to_fh(fh)
+        elif is_writable_file_like(fname_or_fh):
+            raise ValueError("saving pgf to a stream is not supported, " + \
+            "consider using the pdf option of the pgf-backend")
+        else:
+            raise ValueError("filename must be a path")
+
+    def _print_pdf_to_fh(self, fh):
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
-        target = os.path.abspath(filename)
-
         try:
+            # create and switch to temporary directory
             tmpdir = tempfile.mkdtemp()
             cwd = os.getcwd()
             os.chdir(tmpdir)
+
+            # print figure to pgf and compile it with latex
             self.print_pgf("figure.pgf")
 
             latex_preamble = get_preamble()
@@ -706,16 +713,19 @@ class FigureCanvasPgf(FigureCanvasBase):
 \centering
 \input{figure.pgf}
 \end{document}""" % (w, h, latex_preamble, latex_fontspec)
-            with codecs.open("figure.tex", "w", "utf-8") as fh:
-                fh.write(latexcode)
+            with codecs.open("figure.tex", "w", "utf-8") as fh_tex:
+                fh_tex.write(latexcode)
 
             texcommand = get_texcommand()
             cmdargs = [texcommand, "-interaction=nonstopmode", "-halt-on-error", "figure.tex"]
             try:
-                stdout = subprocess.check_output(cmdargs, universal_newlines=True, stderr=subprocess.STDOUT)
-            except:
-                raise RuntimeError("%s was not able to process your file.\n\nFull log:\n%s" % (texcommand, stdout))
-            shutil.copyfile("figure.pdf", target)
+                subprocess.check_output(cmdargs, stderr=subprocess.STDOUT)
+            except subprocess.CalledProcessError as e:
+                raise RuntimeError("%s was not able to process your file.\n\nFull log:\n%s" % (texcommand, e.output))
+
+            # copy file contents to target
+            with open("figure.pdf", "rb") as fh_src:
+                shutil.copyfileobj(fh_src, fh)
         finally:
             os.chdir(cwd)
             try:
@@ -723,27 +733,51 @@ class FigureCanvasPgf(FigureCanvasBase):
             except:
                 sys.stderr.write("could not delete tmp directory %s\n" % tmpdir)
 
-    def print_png(self, filename, *args, **kwargs):
+    def print_pdf(self, fname_or_fh, *args, **kwargs):
         """
-        Use LaTeX to compile a pgf figure to pdf and convert it to png.
+        Use LaTeX to compile a Pgf generated figure to PDF.
         """
+        # figure out where the pdf is to be written to
+        if is_string_like(fname_or_fh):
+            with open(fname_or_fh, "wb") as fh:
+                self._print_pdf_to_fh(fh)
+        elif is_writable_file_like(fname_or_fh):
+            self._print_pdf_to_fh(fname_or_fh)
+        else:
+            raise ValueError("filename must be a path or a file-like object")
 
+    def _print_png_to_fh(self, fh):
         converter = make_pdf_to_png_converter()
 
-        target = os.path.abspath(filename)
         try:
+            # create and switch to temporary directory
             tmpdir = tempfile.mkdtemp()
             cwd = os.getcwd()
             os.chdir(tmpdir)
+            # create pdf and try to convert it to png
             self.print_pdf("figure.pdf")
             converter("figure.pdf", "figure.png", dpi=self.figure.dpi)
-            shutil.copyfile("figure.png", target)
+            # copy file contents to target
+            with open("figure.png", "rb") as fh_src:
+                shutil.copyfileobj(fh_src, fh)
         finally:
             os.chdir(cwd)
             try:
                 shutil.rmtree(tmpdir)
             except:
                 sys.stderr.write("could not delete tmp directory %s\n" % tmpdir)
+
+    def print_png(self, fname_or_fh, *args, **kwargs):
+        """
+        Use LaTeX to compile a pgf figure to pdf and convert it to png.
+        """
+        if is_string_like(fname_or_fh):
+            with open(fname_or_fh, "wb") as fh:
+                self._print_png_to_fh(fh)
+        elif is_writable_file_like(fname_or_fh):
+            self._print_png_to_fh(fname_or_fh)
+        else:
+            raise ValueError("filename must be a path or a file-like object")
 
     def _render_texts_pgf(self, fh):
         # TODO: currently unused code path
