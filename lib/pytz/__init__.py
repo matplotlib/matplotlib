@@ -9,7 +9,7 @@ on how to use these modules.
 '''
 
 # The Olson database is updated several times a year.
-OLSON_VERSION = '2011k'
+OLSON_VERSION = '2012d'
 VERSION = OLSON_VERSION
 # Version format for a patch release - only one so far.
 #VERSION = OLSON_VERSION + '.2'
@@ -199,18 +199,19 @@ HOUR = datetime.timedelta(hours=1)
 class UTC(datetime.tzinfo):
     """UTC
 
-    Identical to the reference UTC implementation given in Python docs except
-    that it unpickles using the single module global instance defined beneath
-    this class declaration.
-
-    Also contains extra attributes and methods to match other pytz tzinfo
-    instances.
+    Optimized UTC implementation. It unpickles using the single module global
+    instance defined beneath this class declaration.
     """
     zone = "UTC"
 
     _utcoffset = ZERO
     _dst = ZERO
     _tzname = zone
+
+    def fromutc(self, dt):
+        if dt.tzinfo is None:
+            return self.localize(dt)
+        return super(utc.__class__, self).fromutc(dt)
 
     def utcoffset(self, dt):
         return ZERO
@@ -232,9 +233,11 @@ class UTC(datetime.tzinfo):
 
     def normalize(self, dt, is_dst=False):
         '''Correct the timezone information on the given datetime'''
+        if dt.tzinfo is self:
+            return dt
         if dt.tzinfo is None:
             raise ValueError('Naive time - no tzinfo set')
-        return dt.replace(tzinfo=self)
+        return dt.astimezone(self)
 
     def __repr__(self):
         return "<UTC>"
@@ -616,6 +619,7 @@ all_timezones = \
  'America/Coral_Harbour',
  'America/Cordoba',
  'America/Costa_Rica',
+ 'America/Creston',
  'America/Cuiaba',
  'America/Curacao',
  'America/Danmarkshavn',
@@ -1187,6 +1191,7 @@ common_timezones = \
  'America/Chicago',
  'America/Chihuahua',
  'America/Costa_Rica',
+ 'America/Creston',
  'America/Cuiaba',
  'America/Curacao',
  'America/Danmarkshavn',

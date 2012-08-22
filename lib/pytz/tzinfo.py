@@ -74,6 +74,8 @@ class StaticTzInfo(BaseTzInfo):
     '''
     def fromutc(self, dt):
         '''See datetime.tzinfo.fromutc'''
+        if dt.tzinfo is not None and dt.tzinfo is not self:
+            raise ValueError('fromutc: dt.tzinfo is not self')
         return (dt + self._utcoffset).replace(tzinfo=self)
 
     def utcoffset(self, dt, is_dst=None):
@@ -176,6 +178,9 @@ class DstTzInfo(BaseTzInfo):
 
     def fromutc(self, dt):
         '''See datetime.tzinfo.fromutc'''
+        if (dt.tzinfo is not None
+            and getattr(dt.tzinfo, '_tzinfos', None) is not self._tzinfos):
+            raise ValueError('fromutc: dt.tzinfo is not self')
         dt = dt.replace(tzinfo=None)
         idx = max(0, bisect_right(self._utc_transition_times, dt) - 1)
         inf = self._transition_info[idx]

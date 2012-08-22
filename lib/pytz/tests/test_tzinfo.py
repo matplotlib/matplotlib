@@ -17,11 +17,11 @@ if __name__ == '__main__':
 import pytz
 from pytz import reference
 from pytz.tzfile import _byte_string
-from pytz.tzinfo import StaticTzInfo
+from pytz.tzinfo import DstTzInfo, StaticTzInfo
 
 # I test for expected version to ensure the correct version of pytz is
 # actually being tested.
-EXPECTED_VERSION='2011k'
+EXPECTED_VERSION='2012d'
 
 fmt = '%Y-%m-%d %H:%M:%S %Z%z'
 
@@ -533,6 +533,24 @@ class TahitiTestCase(USEasternDSTStartTestCase):
         }
 
 
+class SamoaInternationalDateLineChange(USEasternDSTStartTestCase):
+    # At the end of 2011, Samoa will switch from being east of the
+    # international dateline to the west. There will be no Dec 30th
+    # 2011 and it will switch from UTC-10 to UTC+14.
+    tzinfo = pytz.timezone('Pacific/Apia')
+    transition_time = datetime(2011, 12, 30, 10, 0, 0, tzinfo=UTC)
+    before = {
+        'tzname': 'WSDT',
+        'utcoffset': timedelta(hours=-10),
+        'dst': timedelta(hours=1),
+        }
+    after = {
+        'tzname': 'WSDT',
+        'utcoffset': timedelta(hours=14),
+        'dst': timedelta(hours=1),
+        }
+
+
 class ReferenceUSEasternDSTStartTestCase(USEasternDSTStartTestCase):
     tzinfo = reference.Eastern
     def test_arithmetic(self):
@@ -699,6 +717,85 @@ class CommonTimezonesTestCase(unittest.TestCase):
         self.assertTrue('Europe/Belfast' in pytz.all_timezones_set)
         self.assertFalse('Europe/Belfast' in pytz.common_timezones)
         self.assertFalse('Europe/Belfast' in pytz.common_timezones_set)
+
+
+class BaseTzInfoTestCase:
+    '''Ensure UTC, StaticTzInfo and DstTzInfo work consistently.
+
+    These tests are run for each type of tzinfo.
+    '''
+    tz = None  # override
+    tz_class = None  # override
+
+    def test_expectedclass(self):
+        self.assertTrue(isinstance(self.tz, self.tz_class))
+
+    def test_fromutc(self):
+        # naive datetime.
+        dt1 = datetime(2011, 10, 31)
+
+        # localized datetime, same timezone.
+        dt2 = self.tz.localize(dt1)
+
+        # Both should give the same results. Note that the standard
+        # Python tzinfo.fromutc() only supports the second.
+        for dt in [dt1, dt2]:
+            loc_dt = self.tz.fromutc(dt)
+            loc_dt2 = pytz.utc.localize(dt1).astimezone(self.tz)
+            self.assertEqual(loc_dt, loc_dt2)
+
+        # localized datetime, different timezone.
+        new_tz = pytz.timezone('Europe/Paris')
+        self.assertTrue(self.tz is not new_tz)
+        dt3 = new_tz.localize(dt1)
+        self.assertRaises(ValueError, self.tz.fromutc, dt3)
+
+    def test_normalize(self):
+        other_tz = pytz.timezone('Europe/Paris')
+        self.assertTrue(self.tz is not other_tz)
+
+        dt = datetime(2012, 3, 26, 12, 0)
+        other_dt = other_tz.localize(dt)
+
+        local_dt = self.tz.normalize(other_dt)
+
+        self.assertTrue(local_dt.tzinfo is not other_dt.tzinfo)
+        self.assertNotEqual(
+            local_dt.replace(tzinfo=None), other_dt.replace(tzinfo=None))
+
+    def test_astimezone(self):
+        other_tz = pytz.timezone('Europe/Paris')
+        self.assertTrue(self.tz is not other_tz)
+
+        dt = datetime(2012, 3, 26, 12, 0)
+        other_dt = other_tz.localize(dt)
+
+        local_dt = other_dt.astimezone(self.tz)
+
+        self.assertTrue(local_dt.tzinfo is not other_dt.tzinfo)
+        self.assertNotEqual(
+            local_dt.replace(tzinfo=None), other_dt.replace(tzinfo=None))
+
+
+class OptimizedUTCTestCase(unittest.TestCase, BaseTzInfoTestCase):
+    tz = pytz.utc
+    tz_class = tz.__class__
+
+
+class LegacyUTCTestCase(unittest.TestCase, BaseTzInfoTestCase):
+    # Deprecated timezone, but useful for comparison tests.
+    tz = pytz.timezone('Etc/UTC')
+    tz_class = StaticTzInfo
+
+
+class StaticTzInfoTestCase(unittest.TestCase, BaseTzInfoTestCase):
+    tz = pytz.timezone('GMT')
+    tz_class = StaticTzInfo
+
+
+class DstTzInfoTestCase(unittest.TestCase, BaseTzInfoTestCase):
+    tz = pytz.timezone('Australia/Melbourne')
+    tz_class = DstTzInfo
 
 
 def test_suite():

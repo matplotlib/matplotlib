@@ -127,6 +127,16 @@ local intensity of the vector field.
 
 .. plot:: mpl_examples/pylab_examples/streamplot_demo.py
 
+Updated shipped dependencies
+----------------------------
+
+The following dependencies that ship with matplotlib and are
+optionally installed alongside it have been updated:
+
+  - `pytz <http://pytz.sf.net/>` 2012d
+
+  - `dateutil <http://labix.org/python-dateutil>` 1.5 on Python 2.x,
+    and 2.1 on Python 3.x
 
 .. _whats-new-1-1:
 
