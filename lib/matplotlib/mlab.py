@@ -2545,6 +2545,9 @@ def rec2txt(r, header=None, padding=3, precision=3, specifier='f', fields=None):
     if cbook.is_numlike(precision):
         precision = [precision]*len(r.dtype)
 
+    if isinstance(specifier, str):
+        specifier = [specifier]*len(r.dtype)
+
     def get_type(item,atype=int):
         tdict = {None:int, int:float, float:str}
         try: atype(str(item))
