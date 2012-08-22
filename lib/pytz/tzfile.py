@@ -97,7 +97,9 @@ def build_tzinfo(zone, fp):
                         break
                 dst = inf[0] - prev_inf[0] # dst offset
 
-                if dst <= 0: # Bad dst? Look further.
+                # Bad dst? Look further. DST > 24 hours happens when
+                # a timzone has moved across the international dateline.
+                if dst <= 0 or dst > 3600*3:
                     for j in range(i+1, len(transitions)):
                         stdinf = ttinfo[lindexes[j]]
                         if not stdinf[1]:
