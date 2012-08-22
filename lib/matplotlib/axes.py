@@ -5074,19 +5074,21 @@ class Axes(martist.Artist):
 
         return col
 
-    def stem(self, x, y, linefmt='b-', markerfmt='bo', basefmt='r-',
-             bottom=None, label=None):
+    def stem(self, *args, **kwargs):
         """
         Create a stem plot.
 
-        Call signature::
+        Call signatures::
 
+          stem(y, linefmt='b-', markerfmt='bo', basefmt='r-')
           stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-')
 
         A stem plot plots vertical lines (using *linefmt*) at each *x*
         location from the baseline to *y*, and places a marker there
         using *markerfmt*.  A horizontal line at 0 is is plotted using
         *basefmt*.
+
+        If no *x* values are provided, the default is (0, 1, ..., len(y) - 1)
 
         Return value is a tuple (*markerline*, *stemlines*,
         *baseline*).
@@ -5103,6 +5105,25 @@ class Axes(martist.Artist):
         remember_hold=self._hold
         if not self._hold: self.cla()
         self.hold(True)
+
+        # Assume there's at least one data array
+        y = np.asarray(args[0], dtype=np.float)
+
+        # Try a second one
+        try:
+            second = np.asarray(args[1], dtype=np.float)
+            x, y = y, second
+        except:
+            # The second array doesn't make sense, or it doesn't exist
+            second = np.arange(len(y))
+            x = second
+
+        # Popping some defaults
+        linefmt = kwargs.pop('linefmt', 'b-')
+        markerfmt = kwargs.pop('markerfmt', 'bo')
+        basefmt = kwargs.pop('basefmt', 'r-')
+        bottom = kwargs.pop('bottom', None)
+        label = kwargs.pop('label', None)
 
         markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
 
