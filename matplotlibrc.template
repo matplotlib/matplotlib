@@ -271,6 +271,7 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #grid.color       :   black   # grid color
 #grid.linestyle   :   :       # dotted
 #grid.linewidth   :   0.5     # in points
+#grid.alpha       :   1.0     # transparency, between 0.0 and 1.0
 
 ### Legend
 #legend.fancybox      : False  # if True, use a rounded box for the
