@@ -6736,8 +6736,8 @@ class Axes(martist.Artist):
         if not (x.shape == y1.shape == y2.shape == where.shape):
             raise ValueError("Argument dimensions are incompatible")
 
-        mask = reduce(ma.mask_or,
-                        [ma.getmask(x), ma.getmask(y1), ma.getmask(y2)])
+        mask = reduce(ma.mask_or, [f(a) for f in (ma.getmask, np.isnan)
+                                        for a in (x, y1, y2)])
         if mask is not ma.nomask:
             where &= ~mask
 
@@ -6870,8 +6870,8 @@ class Axes(martist.Artist):
         if not (y.shape == x1.shape == x2.shape == where.shape):
             raise ValueError("Argument dimensions are incompatible")
 
-        mask = reduce(ma.mask_or,
-                        [ma.getmask(y), ma.getmask(x1), ma.getmask(x2)])
+        mask = reduce(ma.mask_or, [f(a) for f in (ma.getmask, np.isnan)
+                                        for a in (y, x1, x2)])
         if mask is not ma.nomask:
             where &= ~mask
 
