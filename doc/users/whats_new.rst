@@ -17,6 +17,25 @@ This page just covers the highlights -- for the full story, see the
 new in matplotlib-1.2
 =====================
 
+Python 3.x support
+------------------
+
+Matplotlib 1.2 is the first version to support Python 3.x,
+specifically Python 3.1 and 3.2.  To make this happen in a reasonable
+way, we also had to drop support for Python versions earlier than 2.6.
+
+This work was done by Michael Droettboom, the Cape Town Python Users'
+Group, many others and supported financially in part by the SAGE
+project.
+
+The following GUI backends work under Python 3.x: Gtk3Agg, Gtk3Cairo,
+Qt4Agg, TkAgg and MacOSX.  The other backends do not yet have workable
+bindings for Python 3.x, but continue to work on Python 2.6 and 2.7.
+
+Features that depend on the Python Imaging Library, such as JPEG
+handling, do not work, since the version of PIL for Python 3.x is not
+sufficiently mature.
+
 PGF/TikZ backend
 ----------------
 Peter Würtz wrote a backend that allows matplotlib to export figures as
