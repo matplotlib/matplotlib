@@ -138,6 +138,17 @@ optionally installed alongside it have been updated:
   - `dateutil <http://labix.org/python-dateutil>` 1.5 on Python 2.x,
     and 2.1 on Python 3.x
 
+
+Face-centred colors in tripcolor plots
+--------------------------------------
+
+Ian Thomas extended :meth:`~matplotlib.pyplot.tripcolor` to allow one color
+value to be specified for each triangular face rather than for each point in
+a triangulation.
+
+.. plot:: mpl_examples/pylab_examples/tripcolor_demo.py
+
+
 .. _whats-new-1-1:
 
 new in matplotlib-1.1
