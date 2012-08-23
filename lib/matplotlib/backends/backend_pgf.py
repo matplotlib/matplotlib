@@ -26,7 +26,7 @@ from matplotlib.cbook import is_string_like, is_writable_file_like
 system_fonts = []
 for f in font_manager.findSystemFonts():
     try:
-        system_fonts.append(FT2Font(str(f).family_name))
+        system_fonts.append(FT2Font(str(f)).family_name)
     except RuntimeError:
         pass # some fonts on osx are known to fail, print?
     except:
