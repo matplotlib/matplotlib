@@ -412,6 +412,7 @@ class XTick(Tick):
                    color=rcParams['grid.color'],
                    linestyle=rcParams['grid.linestyle'],
                    linewidth=rcParams['grid.linewidth'],
+                   alpha=rcParams['grid.alpha'],
                    )
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
@@ -550,6 +551,7 @@ class YTick(Tick):
                     color=rcParams['grid.color'],
                     linestyle=rcParams['grid.linestyle'],
                     linewidth=rcParams['grid.linewidth'],
+                    alpha=rcParams['grid.alpha'],
                     )
 
         l.set_transform(self.axes.get_yaxis_transform(which='grid'))

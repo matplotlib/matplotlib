@@ -539,6 +539,7 @@ defaultParams = {
     'grid.color'       : ['k', validate_color],       # grid color
     'grid.linestyle'   : [':', str],       # dotted
     'grid.linewidth'   : [0.5, validate_float],     # in points
+    'grid.alpha'       : [1.0, validate_float],
 
 
     # figure props
