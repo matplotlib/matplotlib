@@ -16,7 +16,6 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates as mdates
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
 import matplotlib.image as mimage
@@ -6743,7 +6742,6 @@ class Axes(martist.Artist):
 
         polys = []
         for ind0, ind1 in mlab.contiguous_regions(where):
-            theseverts = []
             xslice = x[ind0:ind1]
             y1slice = y1[ind0:ind1]
             y2slice = y2[ind0:ind1]
@@ -6877,7 +6875,6 @@ class Axes(martist.Artist):
 
         polys = []
         for ind0, ind1 in mlab.contiguous_regions(where):
-            theseverts = []
             yslice = y[ind0:ind1]
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
