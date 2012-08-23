@@ -469,7 +469,7 @@ def _get_home():
 def _create_tmp_config_dir():
     """
     If the config directory can not be created, create a temporary
-    directory that is destroyed atexit.
+    directory.
     """
     import tempfile
 
