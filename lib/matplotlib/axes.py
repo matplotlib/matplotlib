@@ -7728,7 +7728,7 @@ class Axes(martist.Artist):
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None,
+             color=None, label=None, stacked=False,
              **kwargs):
         """
         Plot a histogram.
@@ -7738,7 +7738,7 @@ class Axes(martist.Artist):
           hist(x, bins=10, range=None, normed=False, weights=None,
                  cumulative=False, bottom=None, histtype='bar', align='mid',
                  orientation='vertical', rwidth=None, log=False,
-                 color=None, label=None,
+                 color=None, label=None, stacked=False,
                  **kwargs)
 
         Compute and draw the histogram of *x*. The return value is a
@@ -7862,6 +7862,11 @@ class Axes(martist.Artist):
                 ax.hist(12+3*np.random.randn(1000), label='women', alpha=0.5)
                 ax.legend()
 
+          *stacked*:
+            If *True*, multiple data are stacked on top of each other
+            If *False* multiple data are aranged side by side if
+            histtype is 'bar' or on top of each other if histtype is 'step'
+
             .
 
         kwargs are used to update the properties of the
@@ -7901,6 +7906,9 @@ class Axes(martist.Artist):
                 'hist now uses the rwidth to give relative width '
                 'and not absolute width')
 
+        if histtype == 'barstacked' and not stacked:
+            stacked=True
+
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
         if isinstance(x, np.ndarray) or not iterable(x[0]):
@@ -7918,6 +7926,8 @@ class Axes(martist.Artist):
         else:
             # multiple hist with data of different length
             x = [np.asarray(xi) for xi in x]
+
+        x = x[::-1] # reverse datasets for caculating stacked hist
 
         nx = len(x) # number of datasets
 
@@ -7941,6 +7951,8 @@ class Axes(martist.Artist):
                     raise ValueError("weights must be 1D or 2D")
             else:
                 w = [np.asarray(wi) for wi in weights]
+
+            w = w[::-1] # reverse weights to match datasets
 
             if len(w) != nx:
                 raise ValueError('weights should have the same shape as x')
@@ -7986,13 +7998,19 @@ class Axes(martist.Artist):
             hist_kwargs['new'] = True
 
         n = []
+        mlast = bottom
         for i in xrange(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
+            if mlast == None :
+                mlast = np.zeros(len(bins)-1, np.int)
             if normed:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
+            if stacked :
+                m += mlast
+                mlast[:] = m
             n.append(m)
 
         if cumulative:
@@ -8004,6 +8022,9 @@ class Axes(martist.Artist):
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
+
+        if stacked :
+            n.reverse() # put them back in the right order
 
         patches = []
 
@@ -8017,7 +8038,7 @@ class Axes(martist.Artist):
             else:
                 dr = 1.0
 
-            if histtype=='bar':
+            if histtype=='bar' and not stacked:
                 width = dr*totwidth/nx
                 dw = width
 
@@ -8026,10 +8047,9 @@ class Axes(martist.Artist):
                 else:
                     boffset = 0.0
                 stacked = False
-            elif histtype=='barstacked':
+            elif histtype=='barstacked' or stacked:
                 width = dr*totwidth
                 boffset, dw = 0.0, 0.0
-                stacked = True
 
             if align == 'mid' or align == 'edge':
                 boffset += 0.5*totwidth
@@ -8042,14 +8062,10 @@ class Axes(martist.Artist):
                 _barfunc = self.bar
 
             for m, c in zip(n, color):
-                patch = _barfunc(bins[:-1]+boffset, m, width, bottom,
+                patch = _barfunc(bins[:-1]+boffset, m, width,
                                   align='center', log=log,
                                   color=c)
                 patches.append(patch)
-                if stacked:
-                    if bottom is None:
-                        bottom = 0.0
-                    bottom += m
                 boffset += dw
 
         elif histtype.startswith('step'):
@@ -8072,6 +8088,8 @@ class Axes(martist.Artist):
                 else:  # orientation == 'vertical'
                     self.set_yscale('log')
 
+            # If fill kwarg is set, it will be passed to the patch collection,
+            # overriding this
             fill = (histtype == 'stepfilled')
 
             for m, c in zip(n, color):
