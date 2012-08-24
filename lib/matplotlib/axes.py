@@ -8003,12 +8003,12 @@ class Axes(martist.Artist):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
-            if mlast == None :
+            if mlast is None:
                 mlast = np.zeros(len(bins)-1, np.int)
             if normed:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
-            if stacked :
+            if stacked:
                 m += mlast
                 mlast[:] = m
             n.append(m)
@@ -8023,7 +8023,7 @@ class Axes(martist.Artist):
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
 
-        if stacked :
+        if stacked:
             n.reverse() # put them back in the right order
 
         patches = []
