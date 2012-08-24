@@ -856,6 +856,15 @@ def test_errorbar():
 
     fig.suptitle('Variable errorbars')
 
+@image_comparison(baseline_images=['hist_stacked'])
+def test_hist_stacked():
+    # make some data
+    d1 = np.linspace(0, 10, 50)
+    d2 = np.linspace(1, 3, 20)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="stepfilled", stacked=True)
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
