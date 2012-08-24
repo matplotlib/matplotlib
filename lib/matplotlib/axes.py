@@ -7927,8 +7927,6 @@ class Axes(martist.Artist):
             # multiple hist with data of different length
             x = [np.asarray(xi) for xi in x]
 
-        x = x[::-1] # reverse datasets for caculating stacked hist
-
         nx = len(x) # number of datasets
 
         if color is None:
@@ -7951,8 +7949,6 @@ class Axes(martist.Artist):
                     raise ValueError("weights must be 1D or 2D")
             else:
                 w = [np.asarray(wi) for wi in weights]
-
-            w = w[::-1] # reverse weights to match datasets
 
             if len(w) != nx:
                 raise ValueError('weights should have the same shape as x')
@@ -7999,7 +7995,9 @@ class Axes(martist.Artist):
 
         n = []
         mlast = bottom
-        for i in xrange(nx):
+        # reversed order is necessary so when stacking histogram, first dataset is on top
+        # if histogram isn't stacked, this doesn't make any difference
+        for i in reversed(xrange(nx)):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
@@ -8023,8 +8021,7 @@ class Axes(martist.Artist):
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
 
-        if stacked:
-            n.reverse() # put them back in the right order
+        n.reverse() # put them back in the right order
 
         patches = []
 
