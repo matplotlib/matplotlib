@@ -16,7 +16,6 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates as mdates
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
 import matplotlib.image as mimage
@@ -6719,9 +6718,9 @@ class Axes(martist.Artist):
         self._process_unit_info(ydata=y2)
 
         # Convert the arrays so we can work with them
-        x = np.asanyarray(self.convert_xunits(x))
-        y1 = np.asanyarray(self.convert_yunits(y1))
-        y2 = np.asanyarray(self.convert_yunits(y2))
+        x = ma.masked_invalid(self.convert_xunits(x))
+        y1 = ma.masked_invalid(self.convert_yunits(y1))
+        y2 = ma.masked_invalid(self.convert_yunits(y2))
 
         if y1.ndim == 0:
             y1 = np.ones_like(x)*y1
@@ -6736,14 +6735,12 @@ class Axes(martist.Artist):
         if not (x.shape == y1.shape == y2.shape == where.shape):
             raise ValueError("Argument dimensions are incompatible")
 
-        mask = reduce(ma.mask_or,
-                        [ma.getmask(x), ma.getmask(y1), ma.getmask(y2)])
+        mask = reduce(ma.mask_or, [ma.getmask(a) for a in (x, y1, y2)])
         if mask is not ma.nomask:
             where &= ~mask
 
         polys = []
         for ind0, ind1 in mlab.contiguous_regions(where):
-            theseverts = []
             xslice = x[ind0:ind1]
             y1slice = y1[ind0:ind1]
             y2slice = y2[ind0:ind1]
@@ -6853,9 +6850,9 @@ class Axes(martist.Artist):
         self._process_unit_info(xdata=x2)
 
         # Convert the arrays so we can work with them
-        y = np.asanyarray(self.convert_yunits(y))
-        x1 = np.asanyarray(self.convert_xunits(x1))
-        x2 = np.asanyarray(self.convert_xunits(x2))
+        y = ma.masked_invalid(self.convert_yunits(y))
+        x1 = ma.masked_invalid(self.convert_xunits(x1))
+        x2 = ma.masked_invalid(self.convert_xunits(x2))
 
         if x1.ndim == 0:
             x1 = np.ones_like(y)*x1
@@ -6870,14 +6867,12 @@ class Axes(martist.Artist):
         if not (y.shape == x1.shape == x2.shape == where.shape):
             raise ValueError("Argument dimensions are incompatible")
 
-        mask = reduce(ma.mask_or,
-                        [ma.getmask(y), ma.getmask(x1), ma.getmask(x2)])
+        mask = reduce(ma.mask_or, [ma.getmask(a) for a in (y, x1, x2)])
         if mask is not ma.nomask:
             where &= ~mask
 
         polys = []
         for ind0, ind1 in mlab.contiguous_regions(where):
-            theseverts = []
             yslice = y[ind0:ind1]
             x1slice = x1[ind0:ind1]
             x2slice = x2[ind0:ind1]
