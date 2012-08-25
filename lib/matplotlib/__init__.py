@@ -483,10 +483,14 @@ get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
 
 def _get_configdir():
     """
-    Return the string representing the configuration dir.
+    Return the string representing the configuration directory.
 
-    default is HOME/.matplotlib.  you can override this with the
-    MPLCONFIGDIR environment variable
+    Default is HOME/.matplotlib.  You can override this with the
+    MPLCONFIGDIR environment variable.  If the default is not
+    writable, and MPLCONFIGDIR is not set, then
+    tempfile.gettempdir() is used to provide a directory in
+    which a matplotlib subdirectory is created as the configuration
+    directory.
     """
 
     configdir = os.environ.get('MPLCONFIGDIR')
