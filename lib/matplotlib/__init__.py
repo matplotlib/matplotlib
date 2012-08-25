@@ -466,6 +466,18 @@ def _get_home():
         raise RuntimeError('please define environment variable $HOME')
 
 
+def _create_tmp_config_dir():
+    """
+    If the config directory can not be created, create a temporary
+    directory.
+    """
+    import tempfile
+
+    tempdir = os.path.join(tempfile.gettempdir(), 'matplotlib')
+    os.environ['MPLCONFIGDIR'] = tempdir
+
+    return tempdir
+
 
 get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
 
@@ -482,7 +494,7 @@ def _get_configdir():
         if not os.path.exists(configdir):
             os.makedirs(configdir)
         if not _is_writable_dir(configdir):
-            raise RuntimeError('Could not write to MPLCONFIGDIR="%s"'%configdir)
+            return _create_tmp_config_dir()
         return configdir
 
     h = get_home()
@@ -490,10 +502,10 @@ def _get_configdir():
 
     if os.path.exists(p):
         if not _is_writable_dir(p):
-            raise RuntimeError("'%s' is not a writable dir; you must set %s/.matplotlib to be a writable dir.  You can also set environment variable MPLCONFIGDIR to any writable directory where you want matplotlib data stored "% (h, h))
+            return _create_tmp_config_dir()
     else:
         if not _is_writable_dir(h):
-            raise RuntimeError("Failed to create %s/.matplotlib; consider setting MPLCONFIGDIR to a writable directory for matplotlib configuration data"%h)
+            return _create_tmp_config_dir()
         from matplotlib.cbook import mkdirs
         mkdirs(p)
 
@@ -922,7 +934,7 @@ class rc_context(object):
     >>>     with mpl.rc_context(fname='print.rc'):
     >>>         plt.plot(x, b)
     >>>     plt.plot(x, c)
-    
+
     The 'a' vs 'x' and 'c' vs 'x' plots would have settings from
     'screen.rc', while the 'b' vs 'x' plot would have settings from
     'print.rc'.
