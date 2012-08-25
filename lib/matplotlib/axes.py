@@ -852,7 +852,15 @@ class Axes(martist.Artist):
             self.xaxis.minor = self._sharex.xaxis.minor
             x0, x1 = self._sharex.get_xlim()
             self.set_xlim(x0, x1, emit=False, auto=None)
+
+            # Save the current formatter so we don't lose it
+            frmt = self._sharex.xaxis.get_major_formatter()
+
+            # This overwrites the current formatter
             self.xaxis.set_scale(self._sharex.xaxis.get_scale())
+
+            # Reset the formatter
+            self.xaxis.set_major_formatter(frmt)
         else:
             self.xaxis.set_scale('linear')
 
@@ -861,7 +869,15 @@ class Axes(martist.Artist):
             self.yaxis.minor = self._sharey.yaxis.minor
             y0, y1 = self._sharey.get_ylim()
             self.set_ylim(y0, y1, emit=False, auto=None)
+
+            # Save the current formatter so we don't lose it
+            frmt = self._sharey.yaxis.get_major_formatter()
+
+            # This overwrites the current formatter
             self.yaxis.set_scale(self._sharey.yaxis.get_scale())
+
+            # Reset the formatter
+            self.yaxis.set_major_formatter(frmt)
         else:
             self.yaxis.set_scale('linear')
 
