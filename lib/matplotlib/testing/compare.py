@@ -308,8 +308,8 @@ def compare_images( expected, actual, tol, in_decorator=False ):
          h1p = expectedImage[:,:,i]
          h2p = actualImage[:,:,i]
 
-         h1h = np.histogram(h1p, bins=bins)[0]
-         h2h = np.histogram(h2p, bins=bins)[0]
+         h1h = np.histogram(h1p, bins=ns)[0]
+         h2h = np.histogram(h2p, bins=ns)[0]
 
          rms += np.sum(np.power((h1h-h2h), 2))
 

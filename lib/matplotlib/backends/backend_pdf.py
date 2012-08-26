@@ -139,7 +139,7 @@ def pdfRepr(obj):
     # Floats. PDF does not have exponential notation (1.0e-10) so we
     # need to use %f with some precision.  Perhaps the precision
     # should adapt to the magnitude of the number?
-    elif isinstance(obj, float):
+    elif isinstance(obj, (float, np.float32)):
         if not np.isfinite(obj):
             raise ValueError("Can only output finite numbers in PDF")
         r = ("%.10f" % obj).encode('ascii')
