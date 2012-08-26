@@ -394,11 +394,19 @@ class PdfFile(object):
         self.nextObject = 1     # next free object id
         self.xrefTable = [ [0, 65535, 'the zero object'] ]
         self.passed_in_file_object = False
+        self.original_file_like = None
+        self.tell_base = 0
         if is_string_like(filename):
             fh = open(filename, 'wb')
         elif is_writable_file_like(filename):
-            fh = filename
-            self.passed_in_file_object = True
+            try:
+                self.tell_base = filename.tell()
+            except IOError:
+                fh = BytesIO()
+                self.original_file_like = filename
+            else:
+                fh = filename
+                self.passed_in_file_object = True
         else:
             raise ValueError("filename must be a path or a file-like object")
 
@@ -524,6 +532,9 @@ class PdfFile(object):
         self.writeTrailer()
         if self.passed_in_file_object:
             self.fh.flush()
+        elif self.original_file_like is not None:
+            self.original_file_like.write(self.fh.getvalue())
+            self.fh.close()
         else:
             self.fh.close()
 
@@ -1351,7 +1362,7 @@ end"""
         return Reference(id)
 
     def recordXref(self, id):
-        self.xrefTable[id][0] = self.fh.tell()
+        self.xrefTable[id][0] = self.fh.tell() - self.tell_base
 
     def writeObject(self, object, contents):
         self.recordXref(object.id)
@@ -1360,7 +1371,7 @@ end"""
     def writeXref(self):
         """Write out the xref table."""
 
-        self.startxref = self.fh.tell()
+        self.startxref = self.fh.tell() - self.tell_base
         self.write(("xref\n0 %d\n" % self.nextObject).encode('ascii'))
         i = 0
         borken = False
