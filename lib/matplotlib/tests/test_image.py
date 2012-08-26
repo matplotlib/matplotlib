@@ -160,6 +160,33 @@ def test_no_interpolation_origin():
     ax = fig.add_subplot(212)
     ax.imshow(np.arange(100).reshape((2, 50)), interpolation='none')
 
+
+@image_comparison(baseline_images=['rasterize_10dpi'], extensions=['pdf','svg'], tol=1.5e-3, remove_text=True)
+def test_rasterize_dpi():
+    # This test should check rasterized rendering with high output resolution.
+    # It plots a rasterized line and a normal image with implot. So it will catch
+    # when images end up in the wrong place in case of non-standard dpi setting.
+    # Instead of high-res rasterization i use low-res.  Therefor the fact that the 
+    # resolution is non-standard is is easily checked by image_comparison.
+    import numpy as np
+    import matplotlib.pyplot as plt
+    
+    img = np.asarray([[1, 2], [3, 4]])
+
+    fig, axes = plt.subplots(1, 3, figsize = (3, 1))
+    
+    axes[0].imshow(img)
+    
+    axes[1].plot([0,1],[0,1], linewidth=20., rasterized=True)
+    axes[1].set(xlim = (0,1), ylim = (-1, 2))
+    
+    axes[2].plot([0,1],[0,1], linewidth=20.)
+    axes[2].set(xlim = (0,1), ylim = (-1, 2))
+    
+    rcParams['savefig.dpi'] = 10
+
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
