@@ -57,7 +57,7 @@ def adjust_bbox(fig, format, bbox_inches):
         return None
 
 
-def adjust_bbox_png(fig, bbox_inches):
+def _adjust_bbox(fig, bbox_inches):
     """
     adjust_bbox for png (Agg) format
     """
@@ -73,31 +73,6 @@ def adjust_bbox_png(fig, bbox_inches):
 
     x0, y0 = _bbox.x0, _bbox.y0
     w1, h1 = fig.bbox.width, fig.bbox.height
-    fig.transFigure._boxout = Bbox.from_bounds(-x0, -y0,
-                                                       w1, h1)
-    fig.transFigure.invalidate()
-
-    fig.bbox = TransformedBbox(fig.bbox_inches, tr)
-
-    fig.patch.set_bounds(x0/w1, y0/h1,
-                         fig.bbox.width/w1, fig.bbox.height/h1)
-
-
-def adjust_bbox_pdf(fig, bbox_inches):
-    """
-    adjust_bbox for pdf & eps format
-    """
-
-    tr = Affine2D().scale(72)
-
-    _bbox = TransformedBbox(bbox_inches, tr)
-
-    fig.bbox_inches = Bbox.from_bounds(0, 0,
-                                       bbox_inches.width,
-                                       bbox_inches.height)
-    x0, y0 = _bbox.x0, _bbox.y0
-    f = 72. / fig.dpi
-    w1, h1 = fig.bbox.width*f, fig.bbox.height*f
     fig.transFigure._boxout = Bbox.from_bounds(-x0, -y0,
                                                        w1, h1)
     fig.transFigure.invalidate()
@@ -126,7 +101,6 @@ def process_figure_for_rasterizing(figure,
 
 
 _adjust_bbox_handler_d = {}
-for format in ["png", "raw", "rgba", "jpg", "jpeg", "tiff"]:
-    _adjust_bbox_handler_d[format] = adjust_bbox_png
-for format in ["pdf", "eps", "svg", "svgz"]:
-    _adjust_bbox_handler_d[format] = adjust_bbox_pdf
+for format in ["png", "raw", "rgba", "jpg", "jpeg", "tiff",
+               "pdf", "eps", "svg", "svgz"]:
+    _adjust_bbox_handler_d[format] = _adjust_bbox
