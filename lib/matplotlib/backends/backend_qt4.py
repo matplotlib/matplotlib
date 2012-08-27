@@ -497,6 +497,9 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         """ coordinates: should we show the coordinates on the right? """
         self.canvas = canvas
         self.coordinates = coordinates
+        self._actions = {}
+        """A mapping of toolitem method names to their QActions"""
+
         QtGui.QToolBar.__init__( self, parent )
         NavigationToolbar2.__init__( self, canvas )
 
@@ -512,6 +515,9 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
             else:
                 a = self.addAction(self._icon(image_file + '.png'),
                                          text, getattr(self, callback))
+                self._actions[callback] = a
+                if callback in ['zoom', 'pan']:
+                    a.setCheckable(True)
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
 
@@ -570,6 +576,18 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
 
             figureoptions.figure_edit(axes, self)
 
+    def _update_buttons_checked(self):
+        #sync button checkstates to match active mode
+        self._actions['pan'].setChecked(self._active == 'PAN')
+        self._actions['zoom'].setChecked(self._active == 'ZOOM')
+
+    def pan(self, *args):
+        super(NavigationToolbar2QT, self).pan(*args)
+        self._update_buttons_checked()
+
+    def zoom(self, *args):
+        super(NavigationToolbar2QT, self).zoom(*args)
+        self._update_buttons_checked()
 
     def dynamic_update( self ):
         self.canvas.draw()
