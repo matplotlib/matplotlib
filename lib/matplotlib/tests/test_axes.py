@@ -501,7 +501,7 @@ def test_imshow():
 
     ax.imshow(r)
 
-@image_comparison(baseline_images=['imshow_clip'], tol=1e-2)
+@image_comparison(baseline_images=['imshow_clip'], tol=100)
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
 
@@ -543,7 +543,7 @@ def test_polycollection_joinstyle():
     ax.set_ybound(0, 3)
 
 @image_comparison(baseline_images=['fill_between_interpolate'],
-                  tol=1e-2, remove_text=True)
+                  tol=100, remove_text=True)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -612,7 +612,7 @@ def test_symlog2():
     ax.grid(True)
     ax.set_ylim(-0.1, 0.1)
 
-@image_comparison(baseline_images=['pcolormesh'], tol=0.02,
+@image_comparison(baseline_images=['pcolormesh'], tol=200,
                   remove_text=True)
 def test_pcolormesh():
     n = 12

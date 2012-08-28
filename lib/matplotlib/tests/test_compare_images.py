@@ -41,7 +41,7 @@ def test_image_compare_basic():
     # a small RMS.
     im1 = 'cosine_peak-nn-img.png'
     im2 = 'cosine_peak-nn-img-minorchange.png'
-    image_comparison_expect_rms(im1, im2, tol=1e-3, expect_rms=None)
+    image_comparison_expect_rms(im1, im2, tol=10, expect_rms=None)
 
     # Now test with no tolerance.
     image_comparison_expect_rms(im1, im2, tol=0, expect_rms=2.99949)

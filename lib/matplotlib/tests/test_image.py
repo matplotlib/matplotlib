@@ -56,7 +56,7 @@ def test_interp_nearest_vs_none():
     ax2.set_title('interpolation nearest')
 
 
-@image_comparison(baseline_images=['figimage-0', 'figimage-1'], extensions=['png'], tol=1.5e-3)
+@image_comparison(baseline_images=['figimage-0', 'figimage-1'], extensions=['png'], tol=15)
 def test_figimage():
     'test the figimage method'
 
@@ -159,7 +159,7 @@ def test_image_clip():
 
     im = ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
 
-@image_comparison(baseline_images=['imshow'], tol=1.5e-3, remove_text=True)
+@image_comparison(baseline_images=['imshow'], tol=15, remove_text=True)
 def test_imshow():
     import numpy as np
     import matplotlib.pyplot as plt
