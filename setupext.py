@@ -107,6 +107,7 @@ options = {'display_status': True,
            'verbose': False,
            'provide_pytz': 'auto',
            'provide_dateutil': 'auto',
+           'provide_six': 'auto',
            'build_agg': True,
            'build_gtk': 'auto',
            'build_gtkagg': 'auto',
@@ -142,6 +143,10 @@ if os.path.exists(setup_cfg):
     try: options['provide_dateutil'] = config.getboolean("provide_packages",
                                                          "dateutil")
     except: options['provide_dateutil'] = 'auto'
+
+    try: options['provide_six'] = config.getboolean("provide_packages",
+                                                    "six")
+    except: options['provide_six'] = 'auto'
 
     try: options['build_gtk'] = config.getboolean("gui_support", "gtk")
     except: options['build_gtk'] = 'auto'
@@ -476,6 +481,36 @@ def check_provide_dateutil():
         except AttributeError:
             print_status("dateutil", "present, version unknown")
             return False
+
+def check_provide_six():
+    # We don't need six on Python 2.x
+    if sys.version_info[0] < 3:
+        return
+
+    if options['provide_six'] is True:
+        print_status("six", "matplotlib will provide")
+        return True
+    try:
+        import six
+    except ImportError:
+        if options['provide_six']:
+            print_status("six", "matplotlib will provide")
+            return True
+        else:
+            print_status("six", "no")
+            return False
+    else:
+        try:
+            if six.__version__.endswith('mpl'):
+                print_status("six", "matplotlib will provide")
+                return True
+            else:
+                print_status("six", six.__version__)
+                return False
+        except AttributeError:
+            print_status("six", "present, version unknown")
+            return False
+
 
 def check_for_dvipng():
     try:

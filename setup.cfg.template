@@ -28,6 +28,7 @@
 ## Date/timezone support:
 #pytz = False
 #dateutil = False
+#six = False
 
 [gui_support]
 # Matplotlib supports multiple GUI toolkits, including Cocoa,
