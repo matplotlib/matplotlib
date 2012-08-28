@@ -7,4 +7,4 @@ datetime module.
 """
 __author__ = "Tomi Pieviläinen <tomi.pievilainen@iki.fi>"
 __license__ = "Simplified BSD"
-__version__ = "2.1"
+__version__ = "2.1-mpl"
