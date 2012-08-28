@@ -88,7 +88,12 @@ def adjust_bbox_pdf(fig, bbox_inches):
     adjust_bbox for pdf & eps format
     """
 
-    tr = Affine2D().scale(72)
+    if fig._cachedRenderer.__class__.__name__ == "RendererPgf":
+        tr = Affine2D().scale(fig.dpi)
+        f = 1.
+    else:
+        tr = Affine2D().scale(72)
+        f = 72. / fig.dpi
 
     _bbox = TransformedBbox(bbox_inches, tr)
 
@@ -96,7 +101,6 @@ def adjust_bbox_pdf(fig, bbox_inches):
                                        bbox_inches.width,
                                        bbox_inches.height)
     x0, y0 = _bbox.x0, _bbox.y0
-    f = 72. / fig.dpi
     w1, h1 = fig.bbox.width*f, fig.bbox.height*f
     fig.transFigure._boxout = Bbox.from_bounds(-x0, -y0,
                                                        w1, h1)
