@@ -1,5 +1,5 @@
 from __future__ import print_function
-from nose.tools import assert_equal, assert_raises
+from nose.tools import assert_raises
 from numpy.testing import assert_almost_equal
 import numpy as np
 
@@ -8,10 +8,10 @@ import matplotlib.ticker as mticker
 
 def test_MaxNLocator():
     loc = mticker.MaxNLocator(nbins=5)
-    test_value = np.array([  20.,   40.,   60.,   80.,  100.])
+    test_value = np.array([20., 40., 60., 80., 100.])
     assert_almost_equal(loc.tick_values(20, 100), test_value)
 
-    test_value = np.array([ 0., 0.0002, 0.0004, 0.0006, 0.0008, 0.001])
+    test_value = np.array([0., 0.0002, 0.0004, 0.0006, 0.0008, 0.001])
     assert_almost_equal(loc.tick_values(0.001, 0.0001), test_value)
 
     test_value = np.array([-1.0e+15, -5.0e+14, 0e+00, 5e+14, 1.0e+15])
@@ -33,9 +33,7 @@ def test_MultipleLocator():
 def test_LogLocator():
     loc = mticker.LogLocator(numticks=5)
 
-    # make sure the 0 case is covered with an exception
-    with assert_raises(ValueError):
-        loc.tick_values(0, 1000)
+    assert_raises(ValueError, loc.tick_values, 0, 1000)
 
     test_value = np.array([1.00000000e-03, 1.00000000e-01, 1.00000000e+01,
                            1.00000000e+03, 1.00000000e+05, 1.00000000e+07])
@@ -46,6 +44,6 @@ def test_LogLocator():
     assert_almost_equal(loc.tick_values(1, 100), test_value)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

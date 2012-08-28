@@ -96,9 +96,8 @@ def test_shared():
 
 def test_exceptions():
     # TODO should this test more options?
-    with assert_raises(ValueError):
-        plt.subplots(2, 2, sharex='blah')
-        plt.subplots(2, 2, sharey='blah')
+    assert_raises(ValueError, plt.subplots, 2, 2, sharex='blah')
+    assert_raises(ValueError, plt.subplots, 2, 2, sharey='blah')
 
 
 def test_subplots():
@@ -108,3 +107,8 @@ def test_subplots():
     test_shared()
     # - are exceptions thrown correctly
     test_exceptions()
+
+
+if __name__ == "__main__":
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
