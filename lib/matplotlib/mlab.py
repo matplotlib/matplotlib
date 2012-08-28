@@ -3197,7 +3197,7 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
 
 def rotate_patch(p, ax, theta, pivot=None):
     """
-    Rotates a simple closed polygon *p* of type :class:`Patch` *rad* radians
+    Rotates a simple closed polygon *p* of type :class:`Patch` *theta* radians
     about the point *pivot*. If pivot is *None* then rotate about the
     polygon's centre of mass.
 
