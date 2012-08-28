@@ -1,4 +1,3 @@
-import matplotlib
 from nose.tools import assert_equal, assert_is, assert_is_not
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
