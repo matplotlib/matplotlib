@@ -10,12 +10,28 @@ have full unicode support and can use any fonts installed in the operating
 system, making use of advanced typographic features of OpenType, AAT and
 Graphite. Pgf pictures created by ``plt.savefig('figure.pgf')`` can be
 embedded as raw commands in LaTeX documents. Figures can also be directly
-compiled and saved to PDF with ``plt.savefig('figure.pdf')``.
+compiled and saved to PDF with ``plt.savefig('figure.pdf')`` by either
+switching to the backend
 
-Matplotlib's pgf support requires a working LaTeX_ installation (such as
-TeXLive_), preferably including XeLaTeX or LuaLaTeX. If pdftocairo or
-ghostscript is installed, figures can optionally be saved to PNG images.
-The executables for all applications must be located on your :envvar:`PATH`.
+.. code-block:: python
+
+    matplotlib.use('pgf')
+
+or registering it for handling pdf output
+
+.. code-block:: python
+
+    from matplotlib.backends.backend_pgf import FigureCanvasPgf
+    matplotlib.backend_bases.register_backend('pdf', FigureCanvasPgf)
+
+The second method allows you to keep using regular interactive backends and to
+save PDF files from the graphical user interface.
+
+Matplotlib's pgf support requires a recent LaTeX_ installation that includes
+the TikZ/PGF packages (such as TeXLive_), preferably with XeLaTeX or LuaLaTeX
+installed. If either pdftocairo or ghostscript is present on your system,
+figures can optionally be saved to PNG images as well. The executables
+for all applications must be located on your :envvar:`PATH`.
 
 Rc parameters that control the behavior of the pgf backend:
 
@@ -46,9 +62,10 @@ The fonts used for obtaining the size of text elements or when compiling
 figures to PDF are usually defined in the matplotlib rc parameters. You can
 also use the LaTeX default Computer Modern fonts by clearing the lists for
 ``font.serif``, ``font.sans-serif`` or ``font.monospace``. Please note that
-the glyph coverage of these fonts is very limited. For extended unicode support
-the `Computer Modern Unicode <http://sourceforge.net/projects/cm-unicode/>`_
-fonts "CMU Serif", "CMU Sans Serif" are recommended.
+the glyph coverage of these fonts is very limited. If you want to keep the
+Computer Modern font face but require extended unicode support, consider
+installing the `Computer Modern Unicode <http://sourceforge.net/projects/cm-unicode/>`_
+fonts *CMU Serif*, *CMU Sans Serif*, etc.
 
 .. literalinclude:: plotting/examples/pgf_fonts.py
    :end-before: plt.savefig
@@ -99,6 +116,11 @@ unicode handling must be configured in the preamble.
 
 Possible hangups
 ================
+
+* Please note that the TeX packages found in some Linux distributions and
+  MiKTeX installations are dramatically outdated. Make sure to update your
+  package catalog and upgrade or install a recent TeX distribution before
+  reporting problems.
 
 * On Windows, the :envvar:`PATH` environment variable may need to be modified
   to include the directories containing the latex, dvipng and ghostscript
