@@ -316,6 +316,8 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    # open the image files and remove the alpha channel (if it exists)
    expectedImage = _png.read_png_int( expected )
    actualImage = _png.read_png_int( actual )
+   expectedImage = expectedImage[:,:,:3]
+   actualImage = actualImage[:,:,:3]
 
    actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
 
