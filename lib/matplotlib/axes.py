@@ -940,6 +940,18 @@ class Axes(martist.Artist):
         self._get_patches_for_fill.set_color_cycle(clist)
 
     def set_artists_color(self, color):
+        """
+        Set the colour of several artists to *color* in one move. The argument
+        *color* is any mpl colour.
+
+        The default artists to colour are:
+
+        Tick labels
+        Tick marks
+        Axes grid lines (if they are on)
+        The axes frame
+        """
+
         self.tick_params(colors=color)
         [lx.set_color(color) for lx in self.get_xgridlines()]
         [ly.set_color(color) for ly in self.get_ygridlines()]
