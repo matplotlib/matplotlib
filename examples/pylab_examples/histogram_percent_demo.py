@@ -1,3 +1,4 @@
+import matplotlib
 from numpy.random import randn
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
@@ -5,7 +6,13 @@ from matplotlib.ticker import FuncFormatter
 def to_percent(y, position):
     # Ignore the passed in position. This has the effect of scaling the default
     # tick locations.
-    return str(100 * y)
+    s = str(100 * y)
+
+    # The percent symbol needs escaping in latex
+    if matplotlib.rcParams['text.usetex'] == True:
+        return s + r'$\%$'
+    else:
+        return s + '%'
 
 x = randn(5000)
 
