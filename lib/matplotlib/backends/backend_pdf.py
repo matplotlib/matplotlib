@@ -208,8 +208,15 @@ def pdfRepr(obj):
         return fill([pdfRepr(val) for val in obj.bounds])
 
     else:
-        raise TypeError("Don't know a PDF representation for %s objects." \
-            % type(obj))
+        # Handle float-like objects
+        try:
+            f = float(obj)
+        except:
+            raise TypeError("Don't know a PDF representation for %s objects." \
+                            % type(obj))
+        else:
+            return pdfRepr(f)
+
 
 class Reference(object):
     """PDF reference object.
