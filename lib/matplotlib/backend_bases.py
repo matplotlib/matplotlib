@@ -39,6 +39,7 @@ import matplotlib.widgets as widgets
 from matplotlib import rcParams
 from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
+from matplotlib import _warn_non_gui_show
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 import cStringIO
@@ -2435,7 +2436,7 @@ class FigureManagerBase:
         """
         For GUI backends, show the figure window and redraw.
         """
-        pass
+        _warn_non_gui_show()
 
     def destroy(self):
         pass

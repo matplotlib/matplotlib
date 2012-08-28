@@ -39,6 +39,7 @@ from matplotlib.projections import (get_projection_names,
 from matplotlib.text import Text, _process_text_args
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                     TransformedBbox)
+from matplotlib import _warn_non_gui_show
 
 
 docstring.interpd.update(projection_names = get_projection_names())
@@ -334,13 +335,12 @@ class Figure(Artist):
 
         For non-GUI backends, this does nothing.
         """
-        manager = getattr(self.canvas, 'manager')
-        if manager is not None:
-            manager.show()
-        import warnings
-        warnings.warn(
-            "matplotlib is currently using a non-GUI backend, "
-            "so can not show the figure")
+        if hasattr(self, 'canvas'):
+            manager = getattr(self.canvas, 'manager', None)
+            if manager is not None:
+                manager.show()
+                return
+        _warn_non_gui_show()
 
     def _get_axes(self):
         return self._axstack.as_list()
