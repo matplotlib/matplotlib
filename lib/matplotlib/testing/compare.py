@@ -302,7 +302,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
          rms += np.sum(np.power((h1h-h2h), 2))
    else:
       rms = 0
-      ns = np.arange(257)
+      bins = np.arange(257)
 
       for i in xrange(0, 3):
          h1p = expectedImage[:,:,i]
