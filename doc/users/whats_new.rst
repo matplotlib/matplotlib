@@ -169,6 +169,14 @@ a triangulation.
 
 .. plot:: mpl_examples/pylab_examples/tripcolor_demo.py
 
+Hatching patterns in filled contour plots, with legends
+-------------------------------------------------------
+
+Phil Elson added support for hatching to
+:func:`~matplotlib.pyplot.contourf`, together with the ability
+to use a legend to identify contoured ranges.
+
+.. plot:: mpl_examples/pylab_examples/contourf_hatching.py
 
 .. _whats-new-1-1:
 
