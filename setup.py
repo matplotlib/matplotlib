@@ -50,7 +50,7 @@ from setupext import build_agg, build_gtkagg, build_tkagg,\
      check_for_dvipng, check_for_ghostscript, check_for_latex, \
      check_for_pdftops, options, build_png, build_tri, check_provide_six
 
-# jdh
+
 packages = [
     'matplotlib',
     'matplotlib.backends',
