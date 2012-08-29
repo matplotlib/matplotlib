@@ -1424,16 +1424,15 @@ class Figure(Artist):
 
         from tight_layout import get_renderer, get_tight_layout_figure
 
-        no_go = [ax for ax in self.axes if not isinstance(ax, SubplotBase)]
-        if no_go:
-            warnings.Warn("Cannot use tight_layout;"
-                          " all Axes must descend from SubplotBase")
-            return
+        subplot_axes = [ax for ax in self.axes if isinstance(ax, SubplotBase)]
+        if len(subplot_axes) < len(self.axes):
+            warnings.warn("tight_layout can only process Axes that descend "
+                          "from SubplotBase; results might be incorrect.")
 
         if renderer is None:
             renderer = get_renderer(self)
 
-        kwargs = get_tight_layout_figure(self, self.axes, renderer,
+        kwargs = get_tight_layout_figure(self, subplot_axes, renderer,
                                          pad=pad, h_pad=h_pad, w_pad=w_pad,
                                          rect=rect)
 
