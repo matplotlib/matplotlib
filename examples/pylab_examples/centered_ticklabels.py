@@ -21,7 +21,7 @@ import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 
 # load some financial data; apple's stock price
-fh = cbook.get_sample_data('aapl.npy')
+fh = cbook.get_sample_data('aapl.npy.gz')
 r = np.load(fh); fh.close()
 r = r[-250:]  # get the last 250 days
 

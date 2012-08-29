@@ -612,10 +612,6 @@ defaultParams = {
     'keymap.xscale' : [['k', 'L'], validate_stringlist],
     'keymap.all_axes' : ['a', validate_stringlist],
 
-    # sample data
-    'examples.download' : [True, validate_bool],
-    'examples.directory' : ['', str],
-
     # Animation settings
     'animation.writer' : ['ffmpeg', validate_movie_writer],
     'animation.codec' : ['mpeg4', str],

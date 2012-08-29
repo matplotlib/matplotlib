@@ -4,44 +4,22 @@ from the Python Cookbook -- hence the name cbook
 """
 from __future__ import print_function
 
-import re, os, errno, sys, io, traceback, locale, threading, types
+import re, os, errno, sys, io, traceback, locale, threading
+import gzip
 import time, datetime
 import warnings
 import numpy as np
 import numpy.ma as ma
 from weakref import ref, WeakKeyDictionary
-import cPickle
 import os.path
-import random
 from functools import reduce
-
-import matplotlib
 
 major, minor1, minor2, s, tmp = sys.version_info
 
-# Handle the transition from urllib2 in Python 2 to urllib in Python 3
 if major >= 3:
     import types
-    import urllib.request, urllib.error, urllib.parse
-    def urllib_quote():
-        return urllib.parse.quote
-    def addinfourl(data, headers, url, code=None):
-        return urllib.request.addinfourl(io.BytesIO(data),
-                                         headers, url, code)
-    urllib_HTTPSHandler = urllib.request.HTTPSHandler
-    urllib_build_opener = urllib.request.build_opener
-    urllib_URLError = urllib.error.URLError
 else:
     import new
-    import urllib2
-    def urllib_quote():
-        return urllib2.quote
-    def addinfourl(data, headers, url, code=None):
-        return urllib2.addinfourl(io.BytesIO(data),
-                                  headers, url, code)
-    urllib_HTTPSHandler = urllib2.HTTPSHandler
-    urllib_build_opener = urllib2.build_opener
-    urllib_URLError = urllib2.URLError
 
 # On some systems, locale.getpreferredencoding returns None,
 # which can break unicode; and the sage project reports that
@@ -497,249 +475,32 @@ def to_filehandle(fname, flag='rU', return_opened=False):
 def is_scalar_or_string(val):
     return is_string_like(val) or not iterable(val)
 
-def _get_data_server(cache_dir, baseurl):
-    class ViewVCCachedServer(urllib_HTTPSHandler):
-        """
-        Urllib handler that takes care of caching files.
-        The file cache.pck holds the directory of files that have been cached.
-        """
-        def __init__(self, cache_dir, baseurl):
-            urllib_HTTPSHandler.__init__(self)
-            self.cache_dir = cache_dir
-            self.baseurl = baseurl
-            self.read_cache()
-            self.remove_stale_files()
-            self.opener = urllib_build_opener(self)
-
-        def in_cache_dir(self, fn):
-            # make sure the datadir exists
-            reldir, filename = os.path.split(fn)
-            datadir = os.path.join(self.cache_dir, reldir)
-            if not os.path.exists(datadir):
-                os.makedirs(datadir)
-
-            return os.path.join(datadir, filename)
-
-        def read_cache(self):
-            """
-            Read the cache file from the cache directory.
-            """
-            fn = self.in_cache_dir('cache.pck')
-            if not os.path.exists(fn):
-                self.cache = {}
-                return
-
-            with open(fn, 'rb') as f:
-                cache = cPickle.load(f)
-
-            # Earlier versions did not have the full paths in cache.pck
-            for url, (fn, x, y) in cache.items():
-                if not os.path.isabs(fn):
-                    cache[url] = (self.in_cache_dir(fn), x, y)
-
-            # If any files are deleted, drop them from the cache
-            for url, (fn, _, _) in cache.items():
-                if not os.path.exists(fn):
-                    del cache[url]
-
-            self.cache = cache
-
-        def remove_stale_files(self):
-            """
-            Remove files from the cache directory that are not listed in
-            cache.pck.
-            """
-            # TODO: remove empty subdirectories
-            listed = set(fn for (_, (fn, _, _)) in self.cache.items())
-            existing = reduce(set.union,
-                (set(os.path.join(dirpath, fn) for fn in filenames)
-                    for (dirpath, _, filenames) in os.walk(self.cache_dir)))
-            matplotlib.verbose.report(
-                'ViewVCCachedServer: files listed in cache.pck: %s' % listed,
-                'debug')
-            matplotlib.verbose.report(
-                'ViewVCCachedServer: files in cache directory: %s' % existing,
-                'debug')
-
-            for path in existing - listed - \
-                    set([self.in_cache_dir('cache.pck')]):
-                matplotlib.verbose.report(
-                    'ViewVCCachedServer:remove_stale_files: removing %s'%path,
-                    level='debug')
-                os.remove(path)
-
-        def write_cache(self):
-            """
-            Write the cache data structure into the cache directory.
-            """
-            fn = self.in_cache_dir('cache.pck')
-            with open(fn, 'wb') as f:
-                cPickle.dump(self.cache, f, -1)
-
-        def cache_file(self, url, data, headers):
-            """
-            Store a received file in the cache directory.
-            """
-            # Pick a filename
-            fn = url[len(self.baseurl):]
-            fullpath = self.in_cache_dir(fn)
-
-            with open(fullpath, 'wb') as f:
-                f.write(data)
-
-            # Update the cache
-            self.cache[url] = (fullpath, headers.get('ETag'),
-                               headers.get('Last-Modified'))
-            self.write_cache()
-
-        # These urllib entry points are used:
-        # http_request for preprocessing requests
-        # http_error_304 for handling 304 Not Modified responses
-        # http_response for postprocessing requests
-
-        def https_request(self, req):
-            """
-            Make the request conditional if we have a cached file.
-            """
-            url = req.get_full_url()
-            if url in self.cache:
-                _, etag, lastmod = self.cache[url]
-                if etag is not None:
-                    req.add_header("If-None-Match", etag)
-                if lastmod is not None:
-                    req.add_header("If-Modified-Since", lastmod)
-            matplotlib.verbose.report(
-                "ViewVCCachedServer: request headers %s" % req.header_items(),
-                "debug")
-            return req
-
-        def https_error_304(self, req, fp, code, msg, hdrs):
-            """
-            Read the file from the cache since the server has no newer version.
-            """
-            url = req.get_full_url()
-            fn, _, _ = self.cache[url]
-            matplotlib.verbose.report(
-                'ViewVCCachedServer: reading data file from cache file "%s"'
-                %fn, 'debug')
-            with open(fn, 'rb') as file:
-                handle = addinfourl(file, hdrs, url)
-            handle.code = 304
-            return handle
-
-        def https_response(self, req, response):
-            """
-            Update the cache with the returned file.
-            """
-            matplotlib.verbose.report(
-                'ViewVCCachedServer: received response %d: %s'
-                % (response.code, response.msg), 'debug')
-            if response.code != 200:
-                return response
-            else:
-                data = response.read()
-                self.cache_file(req.get_full_url(), data, response.headers)
-                result = addinfourl(data,
-                                    response.headers,
-                                    req.get_full_url())
-                result.code = response.code
-                result.msg = response.msg
-                return result
-
-        def get_sample_data(self, fname, asfileobj=True):
-            """
-            Check the cachedirectory for a sample_data file.  If it does
-            not exist, fetch it with urllib from the git repo and
-            store it in the cachedir.
-
-            If asfileobj is True, a file object will be returned.  Else the
-            path to the file as a string will be returned.
-            """
-            # TODO: time out if the connection takes forever
-            # (may not be possible with urllib only - spawn a helper process?)
-
-            quote = urllib_quote()
-
-            # retrieve the URL for the side effect of refreshing the cache
-            url = self.baseurl + quote(fname)
-            error = 'unknown error'
-            matplotlib.verbose.report('ViewVCCachedServer: retrieving %s'
-                                      % url, 'debug')
-            try:
-                response = self.opener.open(url)
-            except urllib_URLError as e:
-                # could be a missing network connection
-                error = str(e)
-
-            cached = self.cache.get(url)
-            if cached is None:
-                msg = 'file %s not in cache; received %s when trying to '\
-                      'retrieve' % (fname, error)
-                raise KeyError(msg)
-
-            fname = cached[0]
-
-            if asfileobj:
-                if (os.path.splitext(fname)[-1].lower() in
-                       ('.csv', '.xrc', '.txt')):
-                    mode = 'r'
-                else:
-                    mode = 'rb'
-                return open(fname, mode)
-            else:
-                return fname
-
-    return ViewVCCachedServer(cache_dir, baseurl)
-
 
 def get_sample_data(fname, asfileobj=True):
     """
-    Check the cachedirectory ~/.matplotlib/sample_data for a sample_data
-    file.  If it does not exist, fetch it with urllib from the mpl git repo
+    Return a sample data file.  *fname* is a path relative to the
+    `mpl-data/sample_data` directory.  If *asfileobj* is `True`
+    return a file object, otherwise just a file path.
 
-      https://raw.github.com/matplotlib/sample_data/master
-
-    and store it in the cachedir.
-
-    If asfileobj is True, a file object will be returned.  Else the
-    path to the file as a string will be returned
-
-    To add a datafile to this directory, you need to check out
-    sample_data from matplotlib git::
-
-      git clone git@github.com:matplotlib/sample_data
-
-    and git add the data file you want to support.  This is primarily
-    intended for use in mpl examples that need custom data.
-
-    To bypass all downloading, set the rc parameter examples.download to False
-    and examples.directory to the directory where we should look.
+    If the filename ends in .gz, the file is implicitly ungzipped.
     """
+    root = os.path.join(os.path.dirname(__file__), "mpl-data", "sample_data")
+    path = os.path.join(root, fname)
 
-    if not matplotlib.rcParams['examples.download']:
-        directory = matplotlib.rcParams['examples.directory']
-        f = os.path.join(directory, fname)
-        if asfileobj:
-            return open(f, 'rb')
+    if asfileobj:
+        if (os.path.splitext(fname)[-1].lower() in
+               ('.csv', '.xrc', '.txt')):
+            mode = 'r'
         else:
-            return f
+            mode = 'rb'
 
-    myserver = get_sample_data.myserver
-    if myserver is None:
-        configdir = matplotlib.get_configdir()
-        cachedir = os.path.join(configdir, 'sample_data')
-        baseurl = 'https://raw.github.com/matplotlib/sample_data/master/'
-        try:
-            myserver = _get_data_server(cachedir, baseurl)
-            get_sample_data.myserver = myserver
-        except ImportError:
-            raise ImportError(
-                'Python must be built with SSL support to fetch sample data '
-                'from the matplotlib repository')
-
-    return myserver.get_sample_data(fname, asfileobj=asfileobj)
-
-get_sample_data.myserver = None
+        base, ext = os.path.splitext(fname)
+        if ext == '.gz':
+            return gzip.open(path, mode)
+        else:
+            return open(path, mode)
+    else:
+        return path
 
 def flatten(seq, scalarp=is_scalar_or_string):
     """
