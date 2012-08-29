@@ -39,6 +39,7 @@ from matplotlib.projections import (get_projection_names,
 from matplotlib.text import Text, _process_text_args
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                     TransformedBbox)
+from matplotlib import _warn_non_gui_show
 
 
 docstring.interpd.update(projection_names = get_projection_names())
@@ -327,6 +328,19 @@ class Figure(Artist):
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
+
+    def show(self):
+        """
+        If using a GUI backend, display the figure window.
+
+        For non-GUI backends, this does nothing.
+        """
+        if hasattr(self, 'canvas'):
+            manager = getattr(self.canvas, 'manager', None)
+            if manager is not None:
+                manager.show()
+                return
+        _warn_non_gui_show()
 
     def _get_axes(self):
         return self._axstack.as_list()

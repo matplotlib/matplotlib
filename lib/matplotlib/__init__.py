@@ -1034,6 +1034,24 @@ def get_backend():
     "Returns the current backend."
     return rcParams['backend']
 
+
+class NonGUIBackendWarning(Warning):
+    pass
+
+
+def _warn_non_gui_show():
+    warnings.warn(
+        "matplotlib is currently using a non-GUI backend, "
+        "so the figure can not be shown.  Call "
+        "matplotlib.hide_show_warnings() to suppress "
+        "these warnings.",
+        NonGUIBackendWarning)
+
+
+def hide_show_warnings():
+    warnings.simplefilter('ignore', NonGUIBackendWarning)
+
+
 def interactive(b):
     """
     Set interactive mode to boolean b.

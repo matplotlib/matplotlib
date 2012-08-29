@@ -39,6 +39,7 @@ import matplotlib.widgets as widgets
 from matplotlib import rcParams
 from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
+from matplotlib import _warn_non_gui_show
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 import cStringIO
@@ -2423,13 +2424,19 @@ class FigureManagerBase:
                                                             self.key_press)
         """
         The returned id from connecting the default key handler via :meth:`FigureCanvasBase.mpl_connnect`.
-        
+
         To disable default key press handling::
-        
+
             manager, canvas = figure.canvas.manager, figure.canvas
             canvas.mpl_disconnect(manager.key_press_handler_id)
-            
+
         """
+
+    def show(self):
+        """
+        For GUI backends, show the figure window and redraw.
+        """
+        _warn_non_gui_show()
 
     def destroy(self):
         pass
