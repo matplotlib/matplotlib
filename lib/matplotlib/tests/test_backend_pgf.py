@@ -22,10 +22,13 @@ def check_for(texsystem):
     \makeatletter
     \@@end
     """
-    latex = subprocess.Popen(["xelatex", "-halt-on-error"],
-                             stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE)
-    stdout, stderr = latex.communicate(header.encode("utf8"))
+    try:
+        latex = subprocess.Popen(["xelatex", "-halt-on-error"],
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE)
+        stdout, stderr = latex.communicate(header.encode("utf8"))
+    except OSError:
+        return False
 
     return latex.returncode == 0
 
