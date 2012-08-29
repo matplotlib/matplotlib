@@ -209,6 +209,33 @@ def get_renderer(fig):
     return renderer
 
 
+def get_subplotspec_list(axes_list):
+    """
+    Return a list of subplotspec from the given list of axes.  For an
+    instance of axes that does not support subplotspec, None is
+    inserted in the list.
+
+    """
+    subplotspec_list = []
+    for ax in axes_list:
+        locator = ax.get_axes_locator()
+        if hasattr(locator, "get_subplotspec"):
+            subplotspec = locator.get_subplotspec().get_topmost_subplotspec()
+        elif hasattr(ax, "get_subplotspec"):
+            subplotspec = ax.get_subplotspec().get_topmost_subplotspec()
+        else:
+            subplotspec = None
+
+        if subplotspec is not None and \
+               subplotspec.get_gridspec().locally_modified_subplot_params():
+
+            subplotspec = None
+
+        subplotspec_list.append(subplotspec)
+
+    return subplotspec_list
+
+
 def get_tight_layout_figure(fig, axes_list, renderer,
                             pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
@@ -244,21 +271,13 @@ def get_tight_layout_figure(fig, axes_list, renderer,
     ncols_list = []
     ax_bbox_list = []
 
-    subplot_dict = {} # for axes_grid1, multiple axes can share
-                      # same subplot_interface. Thus we need to
-                      # join them together.
+    subplot_dict = {} # multiple axes can share
+                      # same subplot_interface (e.g, axes_grid1). Thus
+                      # we need to join them together.
 
-    for ax in axes_list:
-        locator = ax.get_axes_locator()
-        if hasattr(locator, "get_subplotspec"):
-            subplotspec = locator.get_subplotspec().get_topmost_subplotspec()
-        elif hasattr(ax, "get_subplotspec"):
-            subplotspec = ax.get_subplotspec().get_topmost_subplotspec()
-        else:
-            continue
-
-        if (subplotspec is None) or \
-               subplotspec.get_gridspec().locally_modified_subplot_params():
+    for ax, subplotspec in zip(axes_list,
+                               get_subplotspec_list(axes_list)):
+        if subplotspec is None:
             continue
 
         subplots = subplot_dict.setdefault(subplotspec, [])
