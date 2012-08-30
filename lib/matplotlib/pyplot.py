@@ -470,9 +470,9 @@ def draw():
     get_current_fig_manager().canvas.draw()
 
 @docstring.copy_dedent(Figure.savefig)
-def savefig(*args, **kwargs):
+def savefig(fname, **kwargs):
     fig = gcf()
-    return fig.savefig(*args, **kwargs)
+    return fig.savefig(fname, **kwargs)
 
 @docstring.copy_dedent(Figure.ginput)
 def ginput(*args, **kwargs):

@@ -294,18 +294,17 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         height /= dpi
         self.figure.set_size_inches(width, height)
 
-    def _print_bitmap(self, filename, *args, **kwargs):
-        # In backend_bases.py, print_figure changes the dpi of the figure.
-        # But since we are essentially redrawing the picture, we need the
+    def _print_bitmap(self, filename, bbox_inches_restore=None):
+        # In backend_bases.py, print_figure changes the dpi of the figure,
+        # but since we are essentially redrawing the picture, we need the
         # original dpi. Pick it up from the renderer.
-        dpi = kwargs['dpi']
-        old_dpi = self.figure.dpi
+        dpi = self.figure.dpi
         self.figure.dpi = self.renderer.dpi
         width, height = self.figure.get_size_inches()
-        width, height = width*dpi, height*dpi
+        width, height = width * dpi, height * dpi
         filename = unicode(filename)
         self.write_bitmap(filename, width, height)
-        self.figure.dpi = old_dpi
+        self.figure.dpi = dpi
 
     def print_bmp(self, filename, *args, **kwargs):
         self._print_bitmap(filename, *args, **kwargs)

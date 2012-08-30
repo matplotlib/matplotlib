@@ -226,11 +226,14 @@ class FigureCanvasTemplate(FigureCanvasBase):
     filetypes = FigureCanvasBase.filetypes.copy()
     filetypes['foo'] = 'My magic Foo format'
 
-    def print_foo(self, filename, *args, **kwargs):
+    def print_foo(self, filename, bbox_inches_restore=None, **kwargs):
         """
         Write out format foo.  The dpi, facecolor and edgecolor are restored
         to their original values after this call, so you don't need to
         save and restore them.
+        
+        The kwargs should be specified in order to make error handling of bad
+        keywords consistent across backends.
         """
         pass
 

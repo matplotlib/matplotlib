@@ -1132,27 +1132,27 @@ The current aspect ratio will be kept."""
         if self._isDrawn:
             self.draw()
 
-    def print_bmp(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_BMP, *args, **kwargs)
+    def print_bmp(self, filename, bbox_inches_restore=None):
+        return self._print_image(filename, wx.BITMAP_TYPE_BMP)
 
-    def print_jpeg(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_JPEG, *args, **kwargs)
+    def print_jpeg(self, filename, bbox_inches_restore=None):
+        return self._print_image(filename, wx.BITMAP_TYPE_JPEG)
     print_jpg = print_jpeg
 
-    def print_pcx(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_PCX, *args, **kwargs)
+    def print_pcx(self, filename, bbox_inches_restore=None):
+        return self._print_image(filename, wx.BITMAP_TYPE_PCX)
 
-    def print_png(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_PNG, *args, **kwargs)
+    def print_png(self, filename, bbox_inches_restore=None):
+        return self._print_image(filename, wx.BITMAP_TYPE_PNG)
 
-    def print_tiff(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_TIF, *args, **kwargs)
+    def print_tiff(self, filename, bbox_inches_restore=None):
+        return self._print_image(filename, wx.BITMAP_TYPE_TIF)
     print_tif = print_tiff
 
-    def print_xpm(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_XPM, *args, **kwargs)
+    def print_xpm(self, filename, bbox_inches_restore=None):
+        return self._print_image(filename, wx.BITMAP_TYPE_XPM)
 
-    def _print_image(self, filename, filetype, *args, **kwargs):
+    def _print_image(self, filename, filetype):
         origBitmap   = self.bitmap
 
         l,b,width,height = self.figure.bbox.bounds

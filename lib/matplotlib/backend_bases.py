@@ -1877,7 +1877,7 @@ class FigureCanvasBase(object):
 
     if _has_pil:
         filetypes['jpg'] = filetypes['jpeg'] = 'Joint Photographic Experts Group'
-        def print_jpg(self, filename_or_obj, *args, **kwargs):
+        def print_jpg(self, filename_or_obj, dryrun=False, bbox_inches_restore=None, **kwargs):
             """
             Supported kwargs:
 
@@ -1896,19 +1896,22 @@ class FigureCanvasBase(object):
             from backends.backend_agg import FigureCanvasAgg # lazy import
             agg = self.switch_backends(FigureCanvasAgg)
             buf, size = agg.print_to_buffer()
-            if kwargs.pop("dryrun", False): return
+            if dryrun: return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            options = cbook.restrict_dict(kwargs, ['quality', 'optimize',
-                                                   'progressive'])
-            return image.save(filename_or_obj, format='jpeg', **options)
+            allowed_kwargs = ['quality', 'optimize', 'progressive']
+            for key in kwargs.keys():
+                if key not in allowed_kwargs:
+                    raise TypeError('The keyword %s is not allowed to the jpg '
+                                    'figure saver.' % key)
+            return image.save(filename_or_obj, format='jpeg', **kwargs)
         print_jpeg = print_jpg
 
         filetypes['tif'] = filetypes['tiff'] = 'Tagged Image File Format'
-        def print_tif(self, filename_or_obj, *args, **kwargs):
+        def print_tif(self, filename_or_obj, dryrun=False, bbox_inches_restore=None):
             from backends.backend_agg import FigureCanvasAgg # lazy import
             agg = self.switch_backends(FigureCanvasAgg)
             buf, size = agg.print_to_buffer()
-            if kwargs.pop("dryrun", False): return
+            if dryrun: return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             return image.save(filename_or_obj, format='tiff')
         print_tiff = print_tif
@@ -1953,7 +1956,7 @@ class FigureCanvasBase(object):
         return getattr(self, method_name)
 
     def print_figure(self, filename, dpi=None, facecolor='w', edgecolor='w',
-                     orientation='portrait', format=None, **kwargs):
+                     format=None, **kwargs):
         """
         Render the figure to hardcopy. Set the figure patch face and edge
         colors.  This is useful because some of the GUIs have a gray figure
@@ -1965,9 +1968,6 @@ class FigureCanvasBase(object):
         *filename*
             can also be a file object on image backends
 
-        *orientation*
-            only currently applies to PostScript printing.
-
         *dpi*
             the dots per inch to save the figure in; if None, use savefig.dpi
 
@@ -1976,9 +1976,6 @@ class FigureCanvasBase(object):
 
         *edgecolor*
             the edgecolor of the figure
-
-        *orientation*
-            landscape' | 'portrait' (not supported on all backends)
 
         *format*
             when set, forcibly set the file format to save to
@@ -2042,10 +2039,6 @@ class FigureCanvasBase(object):
                 #result = getattr(self, method_name)
                 result = print_method(
                     io.BytesIO(),
-                    dpi=dpi,
-                    facecolor=facecolor,
-                    edgecolor=edgecolor,
-                    orientation=orientation,
                     dryrun=True,
                     **kwargs)
                 renderer = self.figure._cachedRenderer
@@ -2083,10 +2076,6 @@ class FigureCanvasBase(object):
             #result = getattr(self, method_name)(
             result = print_method(
                 filename,
-                dpi=dpi,
-                facecolor=facecolor,
-                edgecolor=edgecolor,
-                orientation=orientation,
                 bbox_inches_restore=_bbox_inches_restore,
                 **kwargs)
         finally:

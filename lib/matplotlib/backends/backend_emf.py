@@ -711,9 +711,9 @@ class FigureCanvasEMF(FigureCanvasBase):
 
     filetypes = {'emf': 'Enhanced Metafile'}
 
-    def print_emf(self, filename, dpi=300, **kwargs):
+    def print_emf(self, filename, bbox_inches_restore=None):
         width, height = self.figure.get_size_inches()
-        renderer = RendererEMF(filename,width,height,dpi)
+        renderer = RendererEMF(filename, width, height, self.figure.dpi)
         self.figure.draw(renderer)
         renderer.save()
 

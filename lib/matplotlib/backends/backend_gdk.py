@@ -448,16 +448,16 @@ class FigureCanvasGDK (FigureCanvasBase):
     filetypes['jpg'] = 'JPEG'
     filetypes['jpeg'] = 'JPEG'
 
-    def print_jpeg(self, filename, *args, **kwargs):
+    def print_jpeg(self, filename, bbox_inches_restore=None):
         return self._print_image(filename, 'jpeg')
     print_jpg = print_jpeg
 
-    def print_png(self, filename, *args, **kwargs):
+    def print_png(self, filename, bbox_inches_restore=None):
         return self._print_image(filename, 'png')
 
-    def _print_image(self, filename, format, *args, **kwargs):
+    def _print_image(self, filename, format, bbox_inches_restore=None):
         width, height = self.get_width_height()
-        pixmap = gtk.gdk.Pixmap (None, width, height, depth=24)
+        pixmap = gtk.gdk.Pixmap(None, width, height, depth=24)
         self._render_figure(pixmap, width, height)
 
         # jpg colors don't match the display very well, png colors match

@@ -1174,16 +1174,15 @@ class Figure(Artist):
         'whenever the axes state change, ``func(self)`` will be called'
         self._axobservers.append(func)
 
-
-    def savefig(self, *args, **kwargs):
+    def savefig(self, fname, dpi=None, facecolor=None, edgecolor=None,
+                      format=None, transparent=False, **kwargs):
         """
         Save the current figure.
 
         Call signature::
 
           savefig(fname, dpi=None, facecolor='w', edgecolor='w',
-                  orientation='portrait', papertype=None, format=None,
-                  transparent=False, bbox_inches=None, pad_inches=0.1)
+                  format=None, transparent=False, bbox_inches=None, pad_inches=0.1)
 
         The output formats available depend on the backend being used.
 
@@ -1246,13 +1245,12 @@ class Figure(Artist):
             tight bbox is calculated.
 
         """
+        if dpi is None:
+            dpi = rcParams['savefig.dpi']
 
-        kwargs.setdefault('dpi', rcParams['savefig.dpi'])
-
-        transparent = kwargs.pop('transparent', False)
         if transparent:
-            kwargs.setdefault('facecolor', 'none')
-            kwargs.setdefault('edgecolor', 'none')
+            if edgecolor is not None or facecolor is not None:
+                raise ValueError('facecolor and edgecolor have no effect when transparent is True.')
             original_axes_colors = []
             for ax in self.axes:
                 patch = ax.patch
@@ -1261,10 +1259,10 @@ class Figure(Artist):
                 patch.set_facecolor('none')
                 patch.set_edgecolor('none')
         else:
-            kwargs.setdefault('facecolor', rcParams['savefig.facecolor'])
-            kwargs.setdefault('edgecolor', rcParams['savefig.edgecolor'])
+            facecolor = facecolor or rcParams['savefig.facecolor']
+            edgecolor = edgecolor or rcParams['savefig.edgecolor']
 
-        self.canvas.print_figure(*args, **kwargs)
+        self.canvas.print_figure(fname, dpi=dpi, format=format, **kwargs)
 
         if transparent:
             for ax, cc in zip(self.axes, original_axes_colors):

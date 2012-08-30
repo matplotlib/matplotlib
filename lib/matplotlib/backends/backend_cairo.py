@@ -429,10 +429,9 @@ class FigureCanvasCairo (FigureCanvasBase):
     def print_svgz(self, fobj, *args, **kwargs):
         return self._save(fobj, 'svgz', *args, **kwargs)
 
-    def _save (self, fo, format, **kwargs):
+    def _save(self, fo, format, orientation='portrait', bbox_inches_restore=None):
         # save PDF/PS/SVG
-        orientation = kwargs.get('orientation', 'portrait')
-
+        
         dpi = 72
         self.figure.dpi = dpi
         w_in, h_in = self.figure.get_size_inches()
@@ -470,8 +469,8 @@ class FigureCanvasCairo (FigureCanvasBase):
                         fo.close()
             surface = cairo.SVGSurface (fo, width_in_points, height_in_points)
         else:
-           warnings.warn ("unknown format: %s" % format)
-           return
+            warnings.warn ("unknown format: %s" % format)
+            return
 
         # surface.set_dpi() can be used
         renderer = RendererCairo (self.figure.dpi)

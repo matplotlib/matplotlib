@@ -434,8 +434,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         finally:
             RendererAgg.lock.release()
 
-
-
     def get_renderer(self):
         l, b, w, h = self.figure.bbox.bounds
         key = w, h, self.figure.dpi
@@ -463,7 +461,7 @@ class FigureCanvasAgg(FigureCanvasBase):
                                      'debug-annoying')
         return self.renderer.buffer_rgba()
 
-    def print_raw(self, filename_or_obj, *args, **kwargs):
+    def print_raw(self, filename_or_obj, bbox_inches_restore=None):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
         original_dpi = renderer.dpi
@@ -481,7 +479,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         renderer.dpi = original_dpi
     print_rgba = print_raw
 
-    def print_png(self, filename_or_obj, *args, **kwargs):
+    def print_png(self, filename_or_obj, bbox_inches_restore=None):
         FigureCanvasAgg.draw(self)
         renderer = self.get_renderer()
         original_dpi = renderer.dpi
