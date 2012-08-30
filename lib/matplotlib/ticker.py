@@ -133,33 +133,37 @@ from matplotlib import cbook
 from matplotlib import transforms as mtransforms
 
 
+class _DummyAxis(object):
+    def __init__(self, minpos=0):
+        self.dataLim = mtransforms.Bbox.unit()
+        self.viewLim = mtransforms.Bbox.unit()
+        self._minpos = minpos
+        
+    def get_view_interval(self):
+        return self.viewLim.intervalx
 
-class TickHelper:
+    def set_view_interval(self, vmin, vmax):
+        self.viewLim.intervalx = vmin, vmax
+
+    def get_minpos(self):
+        return self._minpos
+
+    def get_data_interval(self):
+        return self.dataLim.intervalx
+
+    def set_data_interval(self, vmin, vmax):
+        self.dataLim.intervalx = vmin, vmax
+
+
+class TickHelper(object):
     axis = None
-    class DummyAxis:
-        def __init__(self):
-            self.dataLim = mtransforms.Bbox.unit()
-            self.viewLim = mtransforms.Bbox.unit()
-
-        def get_view_interval(self):
-            return self.viewLim.intervalx
-
-        def set_view_interval(self, vmin, vmax):
-            self.viewLim.intervalx = vmin, vmax
-
-        def get_data_interval(self):
-            return self.dataLim.intervalx
-
-        def set_data_interval(self, vmin, vmax):
-            self.dataLim.intervalx = vmin, vmax
-
-
+    
     def set_axis(self, axis):
         self.axis = axis
 
-    def create_dummy_axis(self):
+    def create_dummy_axis(self, **kwargs):
         if self.axis is None:
-            self.axis = self.DummyAxis()
+            self.axis = _DummyAxis(**kwargs)
 
     def set_view_interval(self, vmin, vmax):
         self.axis.set_view_interval(vmin, vmax)
@@ -176,7 +180,6 @@ class Formatter(TickHelper):
     """
     Convert the tick location to a string
     """
-
     # some classes want to see all the locs to help format
     # individual ones
     locs = []
@@ -214,6 +217,7 @@ class Formatter(TickHelper):
         """
         return s
 
+
 class IndexFormatter(Formatter):
     """
     format the position x to the nearest i-th label where i=int(x+0.5)
@@ -239,6 +243,7 @@ class NullFormatter(Formatter):
         'Return the format for tick val *x* at position *pos*'
         return ''
 
+
 class FixedFormatter(Formatter):
     'Return fixed strings for tick labels'
     def __init__(self, seq):
@@ -259,6 +264,7 @@ class FixedFormatter(Formatter):
 
     def set_offset_string(self, ofs):
         self.offset_string = ofs
+
 
 class FuncFormatter(Formatter):
     """
@@ -282,6 +288,7 @@ class FormatStrFormatter(Formatter):
     def __call__(self, x, pos=None):
         'Return the format for tick val *x* at position *pos*'
         return self.fmt % x
+
 
 class OldScalarFormatter(Formatter):
     """

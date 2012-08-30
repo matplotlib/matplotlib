@@ -153,9 +153,8 @@ def set_default_color_cycle(clist):
                                                     DeprecationWarning)
 
 
-class _process_plot_var_args:
+class _process_plot_var_args(object):
     """
-
     Process variable length arguments to the plot command, so that
     plot commands like the following are supported::
 
@@ -169,6 +168,14 @@ class _process_plot_var_args:
     def __init__(self, axes, command='plot'):
         self.axes = axes
         self.command = command
+        self.set_color_cycle()
+
+    def __getstate__(self):
+        # note: it is not possible to pickle a itertools.cycle instance
+        return {'axes': self.axes, 'command': self.command}
+
+    def __setstate__(self, state):
+        self.__dict__ = state.copy()
         self.set_color_cycle()
 
     def set_color_cycle(self, clist=None):
@@ -354,6 +361,7 @@ class Axes(martist.Artist):
 
     def __str__(self):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
+
     def __init__(self, fig, rect,
                  axisbg = None, # defaults to rc axes.facecolor
                  frameon = True,
@@ -487,6 +495,15 @@ class Axes(martist.Artist):
         if self.yaxis is not None:
             self._ycid = self.yaxis.callbacks.connect('units finalize',
                                                       self.relim)
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        # put the _remove_method back on all artists contained within the axes
+        for container_name in ['lines', 'collections', 'tables', 'patches',
+                               'texts', 'images']:
+            container = getattr(self, container_name)
+            for artist in container:
+                artist._remove_method = container.remove
 
     def get_window_extent(self, *args, **kwargs):
         """
@@ -8815,7 +8832,15 @@ class SubplotBase:
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
 
-
+    def __reduce__(self):
+        # get the first axes class which does not inherit from a subplotbase
+        axes_class = filter(lambda klass: (issubclass(klass, Axes) and
+                                           not issubclass(klass, SubplotBase)),
+                            self.__class__.mro())[0]
+        r = [_PicklableSubplotClassConstructor(),
+             (axes_class,),
+             self.__getstate__()]
+        return tuple(r)
 
     def get_geometry(self):
         """get the subplot geometry, eg 2,2,3"""
@@ -8896,6 +8921,22 @@ def subplot_class_factory(axes_class=None):
 
 # This is provided for backward compatibility
 Subplot = subplot_class_factory()
+
+
+class _PicklableSubplotClassConstructor(object):
+    """
+    This stub class exists to return the appropriate subplot 
+    class when __call__-ed with an axes class. This is purely to 
+    allow Pickling of Axes and Subplots.
+    """
+    def __call__(self, axes_class):
+        # create a dummy object instance
+        subplot_instance = _PicklableSubplotClassConstructor()
+        subplot_class = subplot_class_factory(axes_class)
+        # update the class to the desired subplot class
+        subplot_instance.__class__ = subplot_class
+        return subplot_instance
+
 
 docstring.interpd.update(Axes=martist.kwdoc(Axes))
 docstring.interpd.update(Subplot=martist.kwdoc(Axes))

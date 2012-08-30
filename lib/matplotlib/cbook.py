@@ -152,6 +152,90 @@ class toint(converter):
         if self.is_missing(s): return self.missingval
         return int(s)
 
+
+class _BoundMethodProxy(object):
+    '''
+    Our own proxy object which enables weak references to bound and unbound
+    methods and arbitrary callables. Pulls information about the function,
+    class, and instance out of a bound method. Stores a weak reference to the
+    instance to support garbage collection.
+
+    @organization: IBM Corporation
+    @copyright: Copyright (c) 2005, 2006 IBM Corporation
+    @license: The BSD License
+
+    Minor bugfixes by Michael Droettboom
+    '''
+    def __init__(self, cb):
+        try:
+            try:
+                self.inst = ref(cb.im_self)
+            except TypeError:
+                self.inst = None
+            self.func = cb.im_func
+            self.klass = cb.im_class
+        except AttributeError:
+            self.inst = None
+            self.func = cb
+            self.klass = None
+
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        # de-weak reference inst
+        inst = d['inst']
+        if inst is not None:
+            d['inst'] = inst()
+        return d
+
+    def __setstate__(self, statedict):
+        self.__dict__ = statedict
+        inst = statedict['inst']
+        # turn inst back into a weakref
+        if inst is not None:
+            self.inst = ref(inst)
+
+    def __call__(self, *args, **kwargs):
+        '''
+        Proxy for a call to the weak referenced object. Take
+        arbitrary params to pass to the callable.
+
+        Raises `ReferenceError`: When the weak reference refers to
+        a dead object
+        '''
+        if self.inst is not None and self.inst() is None:
+            raise ReferenceError
+        elif self.inst is not None:
+            # build a new instance method with a strong reference to the instance
+            if sys.version_info[0] >= 3:
+                mtd = types.MethodType(self.func, self.inst())
+            else:
+                mtd = new.instancemethod(self.func, self.inst(), self.klass)
+        else:
+            # not a bound method, just return the func
+            mtd = self.func
+        # invoke the callable and return the result
+        return mtd(*args, **kwargs)
+
+    def __eq__(self, other):
+        '''
+        Compare the held function and instance with that held by
+        another proxy.
+        '''
+        try:
+            if self.inst is None:
+                return self.func == other.func and other.inst is None
+            else:
+                return self.func == other.func and self.inst() == other.inst()
+        except Exception:
+            return False
+
+    def __ne__(self, other):
+        '''
+        Inverse of __eq__.
+        '''
+        return not self.__eq__(other)
+
+
 class CallbackRegistry:
     """
     Handle registering and disconnecting for a set of signals and
@@ -190,73 +274,6 @@ class CallbackRegistry:
     `"Mindtrove" blog
     <http://mindtrove.info/articles/python-weak-references/>`_.
     """
-    class BoundMethodProxy(object):
-        '''
-        Our own proxy object which enables weak references to bound and unbound
-        methods and arbitrary callables. Pulls information about the function,
-        class, and instance out of a bound method. Stores a weak reference to the
-        instance to support garbage collection.
-
-        @organization: IBM Corporation
-        @copyright: Copyright (c) 2005, 2006 IBM Corporation
-        @license: The BSD License
-
-        Minor bugfixes by Michael Droettboom
-        '''
-        def __init__(self, cb):
-            try:
-                try:
-                    self.inst = ref(cb.im_self)
-                except TypeError:
-                    self.inst = None
-                self.func = cb.im_func
-                self.klass = cb.im_class
-            except AttributeError:
-                self.inst = None
-                self.func = cb
-                self.klass = None
-
-        def __call__(self, *args, **kwargs):
-            '''
-            Proxy for a call to the weak referenced object. Take
-            arbitrary params to pass to the callable.
-
-            Raises `ReferenceError`: When the weak reference refers to
-            a dead object
-            '''
-            if self.inst is not None and self.inst() is None:
-                raise ReferenceError
-            elif self.inst is not None:
-                # build a new instance method with a strong reference to the instance
-                if sys.version_info[0] >= 3:
-                    mtd = types.MethodType(self.func, self.inst())
-                else:
-                    mtd = new.instancemethod(self.func, self.inst(), self.klass)
-            else:
-                # not a bound method, just return the func
-                mtd = self.func
-            # invoke the callable and return the result
-            return mtd(*args, **kwargs)
-
-        def __eq__(self, other):
-            '''
-            Compare the held function and instance with that held by
-            another proxy.
-            '''
-            try:
-                if self.inst is None:
-                    return self.func == other.func and other.inst is None
-                else:
-                    return self.func == other.func and self.inst() == other.inst()
-            except Exception:
-                return False
-
-        def __ne__(self, other):
-            '''
-            Inverse of __eq__.
-            '''
-            return not self.__eq__(other)
-
     def __init__(self, *args):
         if len(args):
             warnings.warn(
@@ -265,6 +282,15 @@ class CallbackRegistry:
         self.callbacks = dict()
         self._cid = 0
         self._func_cid_map = {}
+
+    def __getstate__(self):
+        # We cannot currently pickle the callables in the registry, so
+        # return an empty dictionary.
+        return {}
+    
+    def __setstate__(self, state):
+        # re-initialise an empty callback registry
+        self.__init__()
 
     def connect(self, s, func):
         """
@@ -279,7 +305,7 @@ class CallbackRegistry:
         cid = self._cid
         self._func_cid_map[s][func] = cid
         self.callbacks.setdefault(s, dict())
-        proxy = self.BoundMethodProxy(func)
+        proxy = _BoundMethodProxy(func)
         self.callbacks[s][cid] = proxy
         return cid
 
@@ -375,7 +401,7 @@ class silent_list(list):
     """
     override repr when returning a list of matplotlib artists to
     prevent long, meaningless output.  This is meant to be used for a
-    homogeneous list of a give type
+    homogeneous list of a given type
     """
     def __init__(self, type, seq=None):
         self.type = type
@@ -385,7 +411,15 @@ class silent_list(list):
         return '<a list of %d %s objects>' % (len(self), self.type)
 
     def __str__(self):
-        return '<a list of %d %s objects>' % (len(self), self.type)
+        return repr(self)
+
+    def __getstate__(self):
+        # store a dictionary of this SilentList's state
+        return {'type': self.type, 'seq': self[:]}
+
+    def __setstate__(self, state):
+        self.type = state['type']
+        self.extend(state['seq'])
 
 def strip_math(s):
     'remove latex formatting from mathtext'
@@ -1878,6 +1912,41 @@ def is_math_text(s):
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
 
     return even_dollars
+
+
+class _NestedClassGetter(object):
+    # recipe from http://stackoverflow.com/a/11493777/741316
+    """
+    When called with the containing class as the first argument,
+    and the name of the nested class as the second argument,
+    returns an instance of the nested class.
+    """
+    def __call__(self, containing_class, class_name):
+        nested_class = getattr(containing_class, class_name)
+
+        # make an instance of a simple object (this one will do), for which we
+        # can change the __class__ later on.
+        nested_instance = _NestedClassGetter()
+
+        # set the class of the instance, the __init__ will never be called on
+        # the class but the original state will be set later on by pickle.
+        nested_instance.__class__ = nested_class
+        return nested_instance
+
+
+class _InstanceMethodPickler(object):
+    """
+    Pickle cannot handle instancemethod saving. _InstanceMethodPickler
+    provides a solution to this.
+    """
+    def __init__(self, instancemethod):
+        """Takes an instancemethod as its only argument."""
+        self.parent_obj = instancemethod.im_self
+        self.instancemethod_name = instancemethod.im_func.__name__
+    
+    def get_instancemethod(self):
+        return getattr(self.parent_obj, self.instancemethod_name)
+
 
 # Numpy > 1.6.x deprecates putmask in favor of the new copyto.
 # So long as we support versions 1.6.x and less, we need the

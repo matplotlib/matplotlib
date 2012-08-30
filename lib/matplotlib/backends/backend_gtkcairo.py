@@ -26,7 +26,14 @@ def new_figure_manager(num, *args, **kwargs):
     if _debug: print('backend_gtkcairo.%s()' % fn_name())
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasGTKCairo(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasGTKCairo(figure)
     return FigureManagerGTK(canvas, num)
 
 
