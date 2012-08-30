@@ -598,6 +598,7 @@ class GraphicsContextPgf(GraphicsContextBase):
 def draw_if_interactive():
     pass
 
+
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -608,7 +609,14 @@ def new_figure_manager(num, *args, **kwargs):
     # main-level app (egg backend_gtk, backend_gtkagg) for pylab
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasPgf(thisFig)
+    return new_figure_manager_given_figure(thisFig)
+    
+    
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasPgf(figure)
     manager = FigureManagerPgf(canvas, num)
     return manager
 
