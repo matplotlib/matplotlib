@@ -19,6 +19,7 @@ from matplotlib import _png, rcParams
 from matplotlib import font_manager
 from matplotlib.ft2font import FT2Font
 from matplotlib.cbook import is_string_like, is_writable_file_like
+from matplotlib.utils.extprocess import check_output
 
 ###############################################################################
 
@@ -150,14 +151,14 @@ def make_pdf_to_png_converter():
     tools_available = []
     # check for pdftocairo
     try:
-        subprocess.check_output(["pdftocairo", "-v"], stderr=subprocess.STDOUT)
+        check_output(["pdftocairo", "-v"], stderr=subprocess.STDOUT)
         tools_available.append("pdftocairo")
     except:
         pass
     # check for ghostscript
     try:
         gs = "gs" if sys.platform is not "win32" else "gswin32c"
-        subprocess.check_output([gs, "-v"], stderr=subprocess.STDOUT)
+        check_output([gs, "-v"], stderr=subprocess.STDOUT)
         tools_available.append("gs")
     except:
         pass
@@ -168,7 +169,7 @@ def make_pdf_to_png_converter():
             cmd = ["pdftocairo", "-singlefile", "-png",
                    "-r %d" % dpi, pdffile, os.path.splitext(pngfile)[0]]
             # for some reason this doesn't work without shell
-            subprocess.check_output(" ".join(cmd), shell=True, stderr=subprocess.STDOUT)
+            check_output(" ".join(cmd), shell=True, stderr=subprocess.STDOUT)
         return cairo_convert
     elif "gs" in tools_available:
         def gs_convert(pdffile, pngfile, dpi):
@@ -176,7 +177,7 @@ def make_pdf_to_png_converter():
                    '-sDEVICE=png16m', '-dUseCIEColor', '-dTextAlphaBits=4',
                    '-dGraphicsAlphaBits=4', '-dDOINTERPOLATE', '-sOutputFile=%s' % pngfile,
                    '-r%d' % dpi, pdffile]
-            subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+            check_output(cmd, stderr=subprocess.STDOUT)
         return gs_convert
     else:
         raise RuntimeError("No suitable pdf to png renderer found.")
@@ -719,7 +720,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             texcommand = get_texcommand()
             cmdargs = [texcommand, "-interaction=nonstopmode", "-halt-on-error", "figure.tex"]
             try:
-                subprocess.check_output(cmdargs, stderr=subprocess.STDOUT)
+                check_output(cmdargs, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError as e:
                 raise RuntimeError("%s was not able to process your file.\n\nFull log:\n%s" % (texcommand, e.output))
 
