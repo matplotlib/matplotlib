@@ -1422,17 +1422,20 @@ class Figure(Artist):
             labels) will fit into. Default is (0, 0, 1, 1).
         """
 
-        from tight_layout import get_renderer, get_tight_layout_figure, \
-             get_subplotspec_list
+        from tight_layout import (get_renderer, get_tight_layout_figure,
+                                  get_subplotspec_list)
 
-        if None in get_subplotspec_list(self.axes):
-            warnings.warn("tight_layout can only process Axes that descend "
-                          "from SubplotBase; results might be incorrect.")
+        subplotspec_list = get_subplotspec_list(self.axes)
+        if None in subplotspec_list:
+            warnings.warn("This figure includes Axes that are not "
+                          "compatible with tight_layout, so its "
+                          "results might be incorrect.")
 
         if renderer is None:
             renderer = get_renderer(self)
 
-        kwargs = get_tight_layout_figure(self, self.axes, renderer,
+        kwargs = get_tight_layout_figure(self, self.axes, subplotspec_list,
+                                         renderer,
                                          pad=pad, h_pad=h_pad, w_pad=w_pad,
                                          rect=rect)
 
