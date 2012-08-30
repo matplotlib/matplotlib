@@ -74,9 +74,16 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    _focus = windowing.FocusManager()
     FigureClass = kwargs.pop('FigureClass', Figure)
     figure = FigureClass(*args, **kwargs)
+    return new_figure_manager_given_figure(num, figure)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    _focus = windowing.FocusManager()
     window = Tk.Tk()
  
     if Tk.TkVersion >= 8.5:

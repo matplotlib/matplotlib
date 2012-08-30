@@ -851,6 +851,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 self.collections.append(col)
         self.changed() # set the colors
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        # the C object Cntr cannot currently be pickled. This isn't a big issue
+        # as it is not actually used once the contour has been calculated
+        state['Cntr'] = None
+        return state
+
     def legend_elements(self, variable_name='x', str_format=str):
         """
         Return a list of artist and labels suitable for passing through
