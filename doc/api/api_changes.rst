@@ -14,6 +14,10 @@ For new features that were added to matplotlib, please see
 Changes in 1.2.x
 ================
 
+* Using :meth:`~matplotlib.axes.Axes.twinx` or
+  :meth:`~matplotlib.axes.Axes.twiny` no longer overrides the current locaters
+  and formatters on the axes.
+
 * In :meth:`~matplotlib.axes.Axes.contourf`, the handling of the *extend*
   kwarg has changed.  Formerly, the extended ranges were mapped
   after to 0, 1 after being normed, so that they always corresponded
