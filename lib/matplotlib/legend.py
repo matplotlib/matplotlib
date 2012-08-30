@@ -622,6 +622,7 @@ in the normalized axes coordinate.
                              #xdescent, ydescent, width, height,
                              fontsize,
                              handlebox)
+
             handle_list.append(handle)
 
             handleboxes.append(handlebox)
@@ -629,7 +630,7 @@ in the normalized axes coordinate.
         if len(handleboxes) > 0:
 
             # We calculate number of rows in each column. The first
-            # (num_largecol) columns will have (nrows+1) rows, and remaing
+            # (num_largecol) columns will have (nrows+1) rows, and remaining
             # (num_smallcol) columns will have (nrows) rows.
             ncol = min(self._ncol, len(handleboxes))
             nrows, num_largecol = divmod(len(handleboxes), ncol)
@@ -684,7 +685,6 @@ in the normalized axes coordinate.
 
         self.texts = text_list
         self.legendHandles = handle_list
-
 
     def _auto_legend_data(self):
         """
@@ -785,7 +785,6 @@ in the normalized axes coordinate.
         'return a extent of the the legend'
         return self.legendPatch.get_window_extent(*args, **kwargs)
 
-
     def get_frame_on(self):
         """
         Get whether the legend box patch is drawn
@@ -808,7 +807,6 @@ in the normalized axes coordinate.
             return self.parent.bbox
         else:
             return self._bbox_to_anchor
-
 
     def set_bbox_to_anchor(self, bbox, transform=None):
         """
@@ -840,8 +838,6 @@ in the normalized axes coordinate.
 
         self._bbox_to_anchor = TransformedBbox(self._bbox_to_anchor,
                                                transform)
-
-
 
     def _get_anchored_bbox(self, loc, bbox, parentbbox, renderer):
         """
