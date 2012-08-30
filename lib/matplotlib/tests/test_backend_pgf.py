@@ -13,6 +13,7 @@ from matplotlib.testing.decorators import _image_directories
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
+
 def check_for(texsystem):
     header = r"""
     \documentclass{minimal}
@@ -32,6 +33,7 @@ def check_for(texsystem):
 
     return latex.returncode == 0
 
+
 def switch_backend(backend):
 
     def switch_backend_decorator(func):
@@ -47,6 +49,7 @@ def switch_backend(backend):
 
         return nose.tools.make_decorator(func)(backend_switcher)
     return switch_backend_decorator
+
 
 def compare_figure(fname):
     actual = os.path.join(result_dir, fname)
@@ -126,3 +129,7 @@ def test_rcupdate():
         mpl.rcParams.update(rc_set)
         create_figure()
         compare_figure('pgf_rcupdate%d.pdf' % (i+1))
+
+if __name__ == '__main__':
+    import nose
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
