@@ -1075,10 +1075,10 @@ class BboxImage(_AxesImageBase):
         else:
             raise ValueError("unknown type of bbox")
 
-
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image."""
-        if callable(self._contains): return self._contains(self,mouseevent)
+        if callable(self._contains): 
+            return self._contains(self, mouseevent)
 
         if not self.get_visible():# or self.get_figure()._renderer is None:
             return False,{}
@@ -1137,7 +1137,7 @@ class BboxImage(_AxesImageBase):
         numrows, numcols = self._A.shape[:2]
 
         if not self.interp_at_native and widthDisplay==numcols and heightDisplay==numrows:
-           im.set_interpolation(0)
+            im.set_interpolation(0)
 
         # resize viewport to display
         rx = widthDisplay / numcols

@@ -121,12 +121,18 @@ def new_figure_manager(num, *args, **kwargs):
 
     FigureClass = kwargs.pop('FigureClass', Figure)
     fig = FigureClass(*args, **kwargs)
-    frame = FigureFrameWxAgg(num, fig)
+
+    return new_figure_manager_given_figure(num, fig)
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    frame = FigureFrameWxAgg(num, figure)
     figmgr = frame.get_figure_manager()
     if matplotlib.is_interactive():
         figmgr.frame.Show()
     return figmgr
-
 
 
 #

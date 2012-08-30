@@ -23,8 +23,16 @@ def new_figure_manager( num, *args, **kwargs ):
     if DEBUG: print('backend_qtagg.new_figure_manager')
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass( *args, **kwargs )
-    canvas = FigureCanvasQTAgg( thisFig )
-    return FigureManagerQTAgg( canvas, num )
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasQTAgg(figure)
+    return FigureManagerQTAgg(canvas, num)
+
 
 class NavigationToolbar2QTAgg(NavigationToolbar2QT):
     def _get_canvas(self, fig):

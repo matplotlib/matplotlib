@@ -14,7 +14,7 @@ def error_msg(msg):
 
 class Gcf(object):
     """
-    Manage a set of integer-numbered figures.
+    Singleton to manage a set of integer-numbered figures.
 
     This class is never instantiated; it consists of two class
     attributes (a list and a dictionary), and a set of static
@@ -131,6 +131,7 @@ class Gcf(object):
             if m != manager: Gcf._activeQue.append(m)
         Gcf._activeQue.append(manager)
         Gcf.figs[manager.num] = manager
+
 
 atexit.register(Gcf.destroy_all)
 
