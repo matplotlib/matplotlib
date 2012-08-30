@@ -251,10 +251,22 @@ def _image_directories(func):
         subdir = os.path.splitext(os.path.split(script_name)[1])[0]
     else:
         mods = module_name.split('.')
-        assert mods.pop(0) == 'matplotlib'
+        mods.pop(0) # <- will be the name of the package being tested (in 
+                    # most cases "matplotlib")
         assert mods.pop(0) == 'tests'
         subdir = os.path.join(*mods)
-        basedir = os.path.dirname(matplotlib.tests.__file__)
+        
+        import imp
+        def find_dotted_module(module_name, path=None):
+            """A version of imp which can handle dots in the module name"""
+            res = None
+            for sub_mod in module_name.split('.'):
+                res = _, path, _ = imp.find_module(sub_mod, path)
+                path = [path]
+            return res
+        
+        mod_file = find_dotted_module(func.__module__)[1]
+        basedir = os.path.dirname(mod_file)
 
     baseline_dir = os.path.join(basedir, 'baseline_images', subdir)
     result_dir = os.path.abspath(os.path.join('result_images', subdir))
