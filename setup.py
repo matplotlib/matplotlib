@@ -59,7 +59,6 @@ packages = [
     'matplotlib.testing',
     'matplotlib.testing.jpl_units',
     'matplotlib.tests',
-    'matplotlib.utils',
     'mpl_toolkits',
     'mpl_toolkits.mplot3d',
     'mpl_toolkits.axes_grid',
