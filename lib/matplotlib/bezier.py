@@ -4,8 +4,6 @@ A module providing some utility functions regarding bezier path manipulation.
 
 from __future__ import print_function
 import numpy as np
-from math import sqrt
-
 from matplotlib.path import Path
 
 from operator import xor
@@ -16,6 +14,7 @@ class NonIntersectingPathException(ValueError):
     pass
 
 # some functions
+
 
 def get_intersection(cx1, cy1, cos_t1, sin_t1,
                      cx2, cy2, cos_t2, sin_t2):
@@ -48,7 +47,6 @@ def get_intersection(cx1, cy1, cos_t1, sin_t1,
     return x, y
 
 
-
 def get_normal_points(cx, cy, cos_t, sin_t, length):
     """
     For a line passing through (*cx*, *cy*) and having a angle *t*,
@@ -67,20 +65,16 @@ def get_normal_points(cx, cy, cos_t, sin_t, length):
     return x1, y1, x2, y2
 
 
-
-
 ## BEZIER routines
-
-
-
-
 
 # subdividing bezier curve
 # http://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/Bezier/bezier-sub.html
 
+
 def _de_casteljau1(beta, t):
     next_beta = beta[:-1] * (1-t) + beta[1:] * t
     return next_beta
+
 
 def split_de_casteljau(beta, t):
     """split a bezier segment defined by its controlpoints *beta*
@@ -98,11 +92,6 @@ def split_de_casteljau(beta, t):
     right_beta = [beta[-1] for beta in reversed(beta_list)]
 
     return left_beta, right_beta
-
-
-
-
-
 
 
 def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t, inside_closedpath,
@@ -150,9 +139,6 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t, inside_closedp
             t0 = middle_t
             start = middle
             start_inside = middle_inside
-
-
-
 
 
 class BezierSegment:
@@ -215,7 +201,6 @@ def split_bezier_intersecting_with_closedpath(bezier,
     return _left, _right
 
 
-
 def find_r_to_boundary_of_closedpath(inside_closedpath, xy,
                                      cos_t, sin_t,
                                      rmin=0., rmax=1., tolerence=0.01):
@@ -236,9 +221,8 @@ def find_r_to_boundary_of_closedpath(inside_closedpath, xy,
     find_bezier_t_intersecting_with_closedpath(_f, inside_closedpath,
                                                t0=rmin, t1=rmax, tolerence=tolerence)
 
-
-
 ## matplotlib specific
+
 
 def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
     """ divide a path into two segment at the point where inside(x, y)
@@ -308,9 +292,6 @@ def split_path_inout(path, inside, tolerence=0.01, reorder_inout=False):
     return path_in, path_out
 
 
-
-
-
 def inside_circle(cx, cy, r):
     r2 = r**2
     def _f(xy):
@@ -319,13 +300,13 @@ def inside_circle(cx, cy, r):
     return _f
 
 
-
 # quadratic bezier lines
 
 def get_cos_sin(x0, y0, x1, y1):
     dx, dy = x1-x0, y1-y0
     d = (dx*dx + dy*dy)**.5
     return dx/d, dy/d
+
 
 def check_if_parallel(dx1, dy1, dx2, dy2, tolerence=1.e-5):
     """ returns
@@ -407,40 +388,6 @@ def get_parallels(bezier2, width):
     return path_left, path_right
 
 
-
-def make_wedged_bezier2(bezier2, length, shrink_factor=0.5):
-    """
-    Being similar to get_parallels, returns
-    control points of two quadrativ bezier lines having a width roughly parralel to given
-    one separated by *width*.
-    """
-
-    xx1, yy1 = bezier2[2]
-    xx2, yy2 = bezier2[1]
-    xx3, yy3 = bezier2[0]
-
-    cx, cy = xx3, yy3
-    x0, y0 = xx2, yy2
-
-    dist = sqrt((x0-cx)**2 + (y0-cy)**2)
-    cos_t, sin_t = (x0-cx)/dist, (y0-cy)/dist,
-
-    x1, y1, x2, y2 = get_normal_points(cx, cy, cos_t, sin_t, length)
-
-    xx12, yy12 = (xx1+xx2)/2., (yy1+yy2)/2.,
-    xx23, yy23 = (xx2+xx3)/2., (yy2+yy3)/2.,
-
-    dist = sqrt((xx12-xx23)**2 + (yy12-yy23)**2)
-    cos_t, sin_t = (xx12-xx23)/dist, (yy12-yy23)/dist,
-
-    xm1, ym1, xm2, ym2 = get_normal_points(xx2, yy2, cos_t, sin_t, length*shrink_factor)
-
-    l_plus = [(x1, y1), (xm1, ym1), (xx1, yy1)]
-    l_minus = [(x2, y2), (xm2, ym2), (xx1, yy1)]
-
-    return l_plus, l_minus
-
-
 def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
     """ Find control points of the bezier line throught c1, mm, c2. We
     simply assume that c1, mm, c2 which have parameteric value 0, 0.5, and 1.
@@ -504,8 +451,6 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
     return path_left, path_right
 
 
-
-
 def make_path_regular(p):
     """
     fill in the codes if None.
@@ -519,6 +464,7 @@ def make_path_regular(p):
         return Path(p.vertices, c)
     else:
         return p
+
 
 def concatenate_paths(paths):
     """
@@ -535,15 +481,3 @@ def concatenate_paths(paths):
     _path = Path(np.concatenate(vertices),
                  np.concatenate(codes))
     return _path
-
-
-
-if 0:
-    path = Path([(0, 0), (1, 0), (2, 2)],
-                [Path.MOVETO, Path.CURVE3, Path.CURVE3])
-    left, right = divide_path_inout(path, inside)
-    clf()
-    ax = gca()
-
-
-
