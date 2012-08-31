@@ -7360,10 +7360,12 @@ class Axes(martist.Artist):
             'gouraud', each quad will be Gouraud shaded.  When gouraud
             shading, edgecolors is ignored.
 
-          *edgecolors*: [ *None* | ``'None'`` | color | color sequence]
+          *edgecolors*: [ *None* | ``'None'`` | ``'face'`` | color | color sequence]
             If *None*, the rc setting is used by default.
 
-            If ``'None'``, edges will not be visible.
+            If ``'None'``, edges will not be visible. 
+
+            If ``'face'``, edges will have the same color as the faces. 
 
             An mpl color or sequence of colors will set the edge color
 
@@ -7393,7 +7395,7 @@ class Axes(martist.Artist):
         vmax = kwargs.pop('vmax', None)
         shading = kwargs.pop('shading', 'flat').lower()
         antialiased = kwargs.pop('antialiased', False)
-        kwargs.setdefault('edgecolors', 'None')
+        kwargs.setdefault('edgecolors', 'face')
 
         X, Y, C = self._pcolorargs('pcolormesh', *args)
         Ny, Nx = X.shape

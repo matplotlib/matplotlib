@@ -445,7 +445,7 @@ class ColorbarBase(cm.ScalarMappable):
         kw = dict(cmap=self.cmap,
                   norm=self.norm,
                   alpha=self.alpha,
-                  edgecolors='None')
+                  edgecolors='face')
         # Save, set, and restore hold state to keep pcolor from
         # clearing the axes. Ordinarily this will not be needed,
         # since the axes object should already have hold set.
