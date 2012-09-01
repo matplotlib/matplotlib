@@ -853,14 +853,20 @@ class Axes(martist.Artist):
             x0, x1 = self._sharex.get_xlim()
             self.set_xlim(x0, x1, emit=False, auto=None)
 
-            # Save the current formatter so we don't lose it
-            frmt = self._sharex.xaxis.get_major_formatter()
+            # Save the current formatter/locator so we don't lose it
+            majf = self._sharex.xaxis.get_major_formatter()
+            minf = self._sharex.xaxis.get_minor_formatter()
+            majl = self._sharex.xaxis.get_major_locator()
+            minl = self._sharex.xaxis.get_minor_locator()
 
-            # This overwrites the current formatter
+            # This overwrites the current formatter/locator
             self.xaxis.set_scale(self._sharex.xaxis.get_scale())
 
-            # Reset the formatter
-            self.xaxis.set_major_formatter(frmt)
+            # Reset the formatter/locator
+            self.xaxis.set_major_formatter(majf)
+            self.xaxis.set_minor_formatter(minf)
+            self.xaxis.set_major_locator(majl)
+            self.xaxis.set_minor_locator(minl)
         else:
             self.xaxis.set_scale('linear')
 
@@ -870,14 +876,20 @@ class Axes(martist.Artist):
             y0, y1 = self._sharey.get_ylim()
             self.set_ylim(y0, y1, emit=False, auto=None)
 
-            # Save the current formatter so we don't lose it
-            frmt = self._sharey.yaxis.get_major_formatter()
+            # Save the current formatter/locator so we don't lose it
+            majf = self._sharey.yaxis.get_major_formatter()
+            minf = self._sharey.yaxis.get_minor_formatter()
+            majl = self._sharey.yaxis.get_major_locator()
+            minl = self._sharey.yaxis.get_minor_locator()
 
-            # This overwrites the current formatter
+            # This overwrites the current formatter/locator
             self.yaxis.set_scale(self._sharey.yaxis.get_scale())
 
-            # Reset the formatter
-            self.yaxis.set_major_formatter(frmt)
+            # Reset the formatter/locator
+            self.yaxis.set_major_formatter(majf)
+            self.yaxis.set_minor_formatter(minf)
+            self.yaxis.set_major_locator(majl)
+            self.yaxis.set_minor_locator(minl)
         else:
             self.yaxis.set_scale('linear')
 
