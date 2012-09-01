@@ -122,7 +122,7 @@ def find_bezier_t_intersecting_with_closedpath(bezier_point_at_t,
 
     if not xor(start_inside, end_inside):
         raise NonIntersectingPathException(
-                "the segment does not seemed to intersect with the path")
+                "the segment does not seem to intersect with the path")
 
     while 1:
 
@@ -336,12 +336,12 @@ def check_if_parallel(dx1, dy1, dx2, dy2, tolerence=1.e-5):
 
 def get_parallels(bezier2, width):
     """
-    Given the quadraitc bezier control points *bezier2*, returns
-    control points of quadrativ bezier lines roughly parralel to given
+    Given the quadratic bezier control points *bezier2*, returns
+    control points of quadratic bezier lines roughly parallel to given
     one separated by *width*.
     """
 
-    # The parallel bezier lines constructed by following ways.
+    # The parallel bezier lines are constructed by following ways.
     #  c1 and  c2 are contol points representing the begin and end of the
     #  bezier line.
     #  cm is the middle point
@@ -360,7 +360,7 @@ def get_parallels(bezier2, width):
         cos_t1, sin_t1 = get_cos_sin(c1x, c1y, c2x, c2y)
         cos_t2, sin_t2 = cos_t1, sin_t1
     else:
-        # t1 and t2 is the anlge between c1 and cm, cm, c2.  They are
+        # t1 and t2 is the angle between c1 and cm, cm, c2.  They are
         # also a angle of the tangential line of the path at c1 and c2
         cos_t1, sin_t1 = get_cos_sin(c1x, c1y, cmx, cmy)
         cos_t2, sin_t2 = get_cos_sin(cmx, cmy, c2x, c2y)
@@ -407,7 +407,7 @@ def get_parallels(bezier2, width):
 
 def find_control_points(c1x, c1y, mmx, mmy, c2x, c2y):
     """ Find control points of the bezier line throught c1, mm, c2. We
-    simply assume that c1, mm, c2 which have parameteric value 0, 0.5, and 1.
+    simply assume that c1, mm, c2 which have parametric value 0, 0.5, and 1.
     """
 
     cmx = .5 * (4 * mmx - (c1x + c2x))
