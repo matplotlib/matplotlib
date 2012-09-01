@@ -185,6 +185,12 @@ returns:
 docstring.interpd.update(colorbar_doc=colorbar_doc)
 
 
+def _set_ticks_on_axis_warn(*args, **kw):
+    # a top level function which gets put in at the axes'
+    # set_xticks set_yticks by _patch_ax
+    warnings.warn("Use the colorbar set_ticks() method instead.")
+
+
 class ColorbarBase(cm.ScalarMappable):
     '''
     Draw a colorbar in an existing axes.
@@ -287,11 +293,10 @@ class ColorbarBase(cm.ScalarMappable):
         return self.extend in ('both', 'max')
 
     def _patch_ax(self):
-        def _warn(*args, **kw):
-            warnings.warn("Use the colorbar set_ticks() method instead.")
-
-        self.ax.set_xticks = _warn
-        self.ax.set_yticks = _warn
+        # bind some methods to the axes to warn users
+        # against using those methods.
+        self.ax.set_xticks = _set_ticks_on_axis_warn
+        self.ax.set_yticks = _set_ticks_on_axis_warn
 
     def draw_all(self):
         '''
@@ -531,16 +536,13 @@ class ColorbarBase(cm.ScalarMappable):
             intv = self._values[0], self._values[-1]
         else:
             intv = self.vmin, self.vmax
-        locator.create_dummy_axis()
-        formatter.create_dummy_axis()
+        locator.create_dummy_axis(minpos=intv[0])
+        formatter.create_dummy_axis(minpos=intv[0])
         locator.set_view_interval(*intv)
         locator.set_data_interval(*intv)
         formatter.set_view_interval(*intv)
         formatter.set_data_interval(*intv)
 
-        # the dummy axis is expecting a minpos
-        locator.axis.get_minpos = lambda : intv[0]
-        formatter.axis.get_minpos = lambda : intv[0]
         b = np.array(locator())
         ticks = self._locate(b)
         inrange = (ticks > -0.001) & (ticks < 1.001)

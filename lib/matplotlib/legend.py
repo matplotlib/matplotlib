@@ -236,7 +236,6 @@ in the normalized axes coordinate.
         self.legendHandles = []
         self._legend_title_box = None
 
-
         self._handler_map = handler_map
 
         localdict = locals()
@@ -386,7 +385,6 @@ in the normalized axes coordinate.
             a.set_axes(self.axes)
         a.set_transform(self.get_transform())
 
-
     def _set_loc(self, loc):
         # find_offset function will be provided to _legend_box and
         # _legend_box will draw itself at the location of the return
@@ -415,7 +413,7 @@ in the normalized axes coordinate.
         return ox+xdescent, oy+ydescent
 
     def _findoffset_loc(self, width, height, xdescent, ydescent, renderer):
-        "Heper function to locate the legend using the location code"
+        "Helper function to locate the legend using the location code"
 
         if iterable(self._loc) and len(self._loc)==2:
             # when loc is a tuple of axes(or figure) coordinates.
@@ -433,9 +431,7 @@ in the normalized axes coordinate.
         "Draw everything that belongs to the legend"
         if not self.get_visible(): return
 
-
         renderer.open_group('legend')
-
 
         fontsize = renderer.points_to_pixels(self._fontsize)
 
@@ -462,7 +458,6 @@ in the normalized axes coordinate.
         self._legend_box.draw(renderer)
 
         renderer.close_group('legend')
-
 
     def _approx_text_height(self, renderer=None):
         """
@@ -577,7 +572,6 @@ in the normalized axes coordinate.
         # is an instance of offsetbox.TextArea which contains legend
         # text.
 
-
         text_list = []  # the list of text instances
         handle_list = []  # the list of text instances
 
@@ -589,21 +583,19 @@ in the normalized axes coordinate.
         labelboxes = []
         handleboxes = []
 
-
         # The approximate height and descent of text. These values are
         # only used for plotting the legend handle.
         descent = 0.35*self._approx_text_height()*(self.handleheight - 0.7)
         # 0.35 and 0.7 are just heuristic numbers. this may need to be improbed
         height = self._approx_text_height() * self.handleheight - descent
         # each handle needs to be drawn inside a box of (x, y, w, h) =
-        # (0, -descent, width, height).  And their corrdinates should
+        # (0, -descent, width, height).  And their coordinates should
         # be given in the display coordinates.
 
         # The transformation of each handle will be automatically set
         # to self.get_trasnform(). If the artist does not uses its
         # default trasnform (eg, Collections), you need to
         # manually set their transform to the self.get_transform().
-
 
         legend_handler_map = self.get_legend_handler_map()
 
@@ -632,11 +624,7 @@ in the normalized axes coordinate.
                              handlebox)
             handle_list.append(handle)
 
-
-
-
             handleboxes.append(handlebox)
-
 
         if len(handleboxes) > 0:
 

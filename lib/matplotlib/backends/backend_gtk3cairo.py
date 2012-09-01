@@ -45,7 +45,14 @@ def new_figure_manager(num, *args, **kwargs):
     """
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasGTK3Cairo(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasGTK3Cairo(figure)
     manager = FigureManagerGTK3Cairo(canvas, num)
     return manager
 

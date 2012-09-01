@@ -113,6 +113,16 @@ that define the shape.
         self.set_marker(marker)
         self.set_fillstyle(fillstyle)
 
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        d.pop('_marker_function')
+        return d
+
+    def __setstate__(self, statedict):
+        self.__dict__ = statedict
+        self.set_marker(self._marker)
+        self._recache()
+
     def _recache(self):
         self._path = Path(np.empty((0,2)))
         self._transform = IdentityTransform()

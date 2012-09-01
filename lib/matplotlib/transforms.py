@@ -86,7 +86,7 @@ class TransformNode(object):
                              other than to improve the readability of
                              ``str(transform)`` when DEBUG=True.
         """
-        # Parents are stored in a WeakKeyDictionary, so that if the
+        # Parents are stored in a WeakValueDictionary, so that if the
         # parents are deleted, references from the children won't keep
         # them alive.
         self._parents = WeakValueDictionary()
@@ -100,6 +100,17 @@ class TransformNode(object):
         def __str__(self):
             # either just return the name of this TransformNode, or it's repr
             return self._shorthand_name or repr(self)
+
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        # turn the weakkey dictionary into a normal dictionary
+        d['_parents'] = dict(self._parents.iteritems())
+        return d
+
+    def __setstate__(self, data_dict):
+        self.__dict__ = data_dict
+        # turn the normal dictionary back into a WeakValueDictionary
+        self._parents = WeakValueDictionary(self._parents)
 
     def __copy__(self, *args):
         raise NotImplementedError(
@@ -1398,7 +1409,6 @@ class TransformWrapper(Transform):
         be replaced with :meth:`set`.
         """
         assert isinstance(child, Transform)
-
         Transform.__init__(self)
         self.input_dims = child.input_dims
         self.output_dims = child.output_dims
@@ -1411,6 +1421,14 @@ class TransformWrapper(Transform):
     if DEBUG:
         def __str__(self):
             return str(self._child)
+
+    def __getstate__(self):
+        # only store the child
+        return {'child': self._child}
+
+    def __setstate__(self, state):
+        # re-initialise the TransformWrapper with the state's child
+        self.__init__(state['child'])
 
     def __repr__(self):
         return "TransformWrapper(%r)" % self._child

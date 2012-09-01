@@ -153,9 +153,8 @@ def set_default_color_cycle(clist):
                                                     DeprecationWarning)
 
 
-class _process_plot_var_args:
+class _process_plot_var_args(object):
     """
-
     Process variable length arguments to the plot command, so that
     plot commands like the following are supported::
 
@@ -169,6 +168,14 @@ class _process_plot_var_args:
     def __init__(self, axes, command='plot'):
         self.axes = axes
         self.command = command
+        self.set_color_cycle()
+
+    def __getstate__(self):
+        # note: it is not possible to pickle a itertools.cycle instance
+        return {'axes': self.axes, 'command': self.command}
+
+    def __setstate__(self, state):
+        self.__dict__ = state.copy()
         self.set_color_cycle()
 
     def set_color_cycle(self, clist=None):
@@ -281,7 +288,7 @@ class _process_plot_var_args:
             linestyle, marker, color = _process_plot_format(tup[-1])
             tup = tup[:-1]
         elif len(tup) == 3:
-            raise ValueError, 'third arg must be a format string'
+            raise ValueError('third arg must be a format string')
         else:
             linestyle, marker, color = None, None, None
         kw = {}
@@ -354,6 +361,7 @@ class Axes(martist.Artist):
 
     def __str__(self):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
+
     def __init__(self, fig, rect,
                  axisbg = None, # defaults to rc axes.facecolor
                  frameon = True,
@@ -487,6 +495,15 @@ class Axes(martist.Artist):
         if self.yaxis is not None:
             self._ycid = self.yaxis.callbacks.connect('units finalize',
                                                       self.relim)
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        # put the _remove_method back on all artists contained within the axes
+        for container_name in ['lines', 'collections', 'tables', 'patches',
+                               'texts', 'images']:
+            container = getattr(self, container_name)
+            for artist in container:
+                artist._remove_method = container.remove
 
     def get_window_extent(self, *args, **kwargs):
         """
@@ -1472,7 +1489,7 @@ class Axes(martist.Artist):
             return
 
         line_trans = line.get_transform()
-        
+
         if line_trans == self.transData:
             data_path = path
 
@@ -1491,8 +1508,8 @@ class Axes(martist.Artist):
             else:
                 data_path = trans_to_data.transform_path(path)
         else:
-            # for backwards compatibility we update the dataLim with the 
-            # coordinate range of the given path, even though the coordinate 
+            # for backwards compatibility we update the dataLim with the
+            # coordinate range of the given path, even though the coordinate
             # systems are completely different. This may occur in situations
             # such as when ax.transAxes is passed through for absolute
             # positioning.
@@ -1502,7 +1519,7 @@ class Axes(martist.Artist):
             updatex, updatey = line_trans.contains_branch_seperately(
                                                                self.transData
                                                                     )
-            self.dataLim.update_from_path(data_path, 
+            self.dataLim.update_from_path(data_path,
                                           self.ignore_existing_data_limits,
                                           updatex=updatex,
                                           updatey=updatey)
@@ -2199,11 +2216,11 @@ class Axes(martist.Artist):
                 cb = False
             else:
                 cb = True
-                raise NotImplementedError, "comma style remains to be added"
+                raise NotImplementedError("comma style remains to be added")
         elif style == '':
             sb = None
         else:
-            raise ValueError, "%s is not a valid style value"
+            raise ValueError("%s is not a valid style value")
         try:
             if sb is not None:
                 if axis == 'both' or axis == 'x':
@@ -3706,9 +3723,9 @@ class Axes(martist.Artist):
             xmax = np.resize( xmax, y.shape )
 
         if len(xmin)!=len(y):
-            raise ValueError, 'xmin and y are unequal sized sequences'
+            raise ValueError('xmin and y are unequal sized sequences')
         if len(xmax)!=len(y):
-            raise ValueError, 'xmax and y are unequal sized sequences'
+            raise ValueError('xmax and y are unequal sized sequences')
 
         verts = [ ((thisxmin, thisy), (thisxmax, thisy))
                             for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
@@ -3785,9 +3802,9 @@ class Axes(martist.Artist):
             ymax = np.resize( ymax, x.shape )
 
         if len(ymin)!=len(x):
-            raise ValueError, 'ymin and x are unequal sized sequences'
+            raise ValueError('ymin and x are unequal sized sequences')
         if len(ymax)!=len(x):
-            raise ValueError, 'ymax and x are unequal sized sequences'
+            raise ValueError('ymax and x are unequal sized sequences')
 
         Y = np.array([ymin, ymax]).T
 
@@ -4768,7 +4785,7 @@ class Axes(martist.Artist):
             if len(height) == 1:
                 height *= nbars
         else:
-            raise ValueError, 'invalid orientation: %s' % orientation
+            raise ValueError('invalid orientation: %s' % orientation)
 
         if len(linewidth) < nbars:
             linewidth *= nbars
@@ -4826,7 +4843,7 @@ class Axes(martist.Artist):
                 bottom = [bottom[i] - height[i]/2. for i in xrange(len(bottom))]
 
         else:
-            raise ValueError, 'invalid alignment: %s' % align
+            raise ValueError('invalid alignment: %s' % align)
 
         args = zip(left, bottom, width, height, color, edgecolor, linewidth)
         for l, b, w, h, c, e, lw in args:
@@ -5701,7 +5718,7 @@ class Axes(martist.Artist):
                 else:
                     x = [x[:,i] for i in xrange(nc)]
             else:
-                raise ValueError, "input x can have no more than 2 dimensions"
+                raise ValueError("input x can have no more than 2 dimensions")
         if not hasattr(x[0], '__len__'):
             x = [x]
         col = len(x)
@@ -7069,10 +7086,10 @@ class Axes(martist.Artist):
 
         Nx = X.shape[-1]
         Ny = Y.shape[0]
-        if len(X.shape) <> 2 or X.shape[0] == 1:
+        if len(X.shape) != 2 or X.shape[0] == 1:
             x = X.reshape(1,Nx)
             X = x.repeat(Ny, axis=0)
-        if len(Y.shape) <> 2 or Y.shape[1] == 1:
+        if len(Y.shape) != 2 or Y.shape[1] == 1:
             y = Y.reshape(Ny, 1)
             Y = y.repeat(Nx, axis=1)
         if X.shape != Y.shape:
@@ -8815,7 +8832,15 @@ class SubplotBase:
         # _axes_class is set in the subplot_class_factory
         self._axes_class.__init__(self, fig, self.figbox, **kwargs)
 
-
+    def __reduce__(self):
+        # get the first axes class which does not inherit from a subplotbase
+        not_subplotbase = lambda c: issubclass(c, Axes) and \
+                                    not issubclass(c, SubplotBase)
+        axes_class = [c for c in self.__class__.mro() if not_subplotbase(c)][0]
+        r = [_PicklableSubplotClassConstructor(),
+             (axes_class,),
+             self.__getstate__()]
+        return tuple(r)
 
     def get_geometry(self):
         """get the subplot geometry, eg 2,2,3"""
@@ -8896,6 +8921,22 @@ def subplot_class_factory(axes_class=None):
 
 # This is provided for backward compatibility
 Subplot = subplot_class_factory()
+
+
+class _PicklableSubplotClassConstructor(object):
+    """
+    This stub class exists to return the appropriate subplot
+    class when __call__-ed with an axes class. This is purely to
+    allow Pickling of Axes and Subplots.
+    """
+    def __call__(self, axes_class):
+        # create a dummy object instance
+        subplot_instance = _PicklableSubplotClassConstructor()
+        subplot_class = subplot_class_factory(axes_class)
+        # update the class to the desired subplot class
+        subplot_instance.__class__ = subplot_class
+        return subplot_instance
+
 
 docstring.interpd.update(Axes=martist.kwdoc(Axes))
 docstring.interpd.update(Subplot=martist.kwdoc(Axes))
