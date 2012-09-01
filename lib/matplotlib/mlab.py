@@ -699,16 +699,15 @@ def entropy(y, bins):
       x = mu + sigma * randn(200000)
       Sanalytic = 0.5 * ( 1.0 + log(2*pi*sigma**2.0) )
     """
-    n,bins = np.histogram(y, bins)
+    n, bins = np.histogram(y, bins)
     n = n.astype(np.float_)
 
     n = np.take(n, np.nonzero(n)[0])         # get the positive
 
     p = np.divide(n, len(y))
 
-    delta = bins[1]-bins[0]
-    S = -1.0*np.sum(p*log(p)) + log(delta)
-    #S = -1.0*np.sum(p*log(p))
+    delta = bins[1] - bins[0]
+    S = -1.0 * np.sum(p * np.log(p)) + np.log(delta)
     return S
 
 def normpdf(x, *args):
@@ -722,22 +721,20 @@ def levypdf(x, gamma, alpha):
 
     N = len(x)
 
-    if N%2 != 0:
+    if N % 2 != 0:
         raise ValueError('x must be an event length array; try\n' + \
               'x = np.linspace(minx, maxx, N), where N is even')
 
+    dx = x[1] - x[0]
 
-    dx = x[1]-x[0]
+    f = 1/(N*dx)*np.arange(-N / 2, N / 2, np.float_)
 
+    ind = np.concatenate([np.arange(N / 2, N, int),
+                          np.arange(0, N / 2, int)])
+    df = f[1] - f[0]
+    cfl = np.exp(-gamma * np.absolute(2 * np.pi * f) ** alpha)
 
-    f = 1/(N*dx)*np.arange(-N/2, N/2, np.float_)
-
-    ind = np.concatenate([np.arange(N/2, N, int),
-                           np.arange(0, N/2, int)])
-    df = f[1]-f[0]
-    cfl = exp(-gamma*np.absolute(2*pi*f)**alpha)
-
-    px = np.fft.fft(np.take(cfl,ind)*df).astype(np.float_)
+    px = np.fft.fft(np.take(cfl, ind) * df).astype(np.float_)
     return np.take(px, ind)
 
 
@@ -1458,7 +1455,6 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         else:
             row = [converterseq[j](val)
                       for j,val in enumerate(splitfunc(line))]
-        thisLen = len(row)
         X.append(row)
 
     X = np.array(X, dtype)
@@ -1511,7 +1507,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 
-import operator
 import math
 
 
@@ -1533,7 +1528,7 @@ def exp_safe(x):
     """
 
     if type(x) is np.ndarray:
-        return exp(np.clip(x,exp_safe_MIN,exp_safe_MAX))
+        return np.exp(np.clip(x,exp_safe_MIN,exp_safe_MAX))
     else:
         return math.exp(x)
 
@@ -1817,7 +1812,6 @@ def rec_drop_fields(rec, names):
     """
 
     names = set(names)
-    Nr = len(rec)
 
     newdtype = np.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
                        if name not in names])
@@ -2146,8 +2140,6 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     import dateutil.parser
     import datetime
-    parsedate = dateutil.parser.parse
-
 
     fh = cbook.to_filehandle(fname)
 
@@ -2938,7 +2930,6 @@ def stineman_interp(xi,x,y,yp=None):
     x=np.asarray(x, np.float_)
     y=np.asarray(y, np.float_)
     assert x.shape == y.shape
-    N=len(y)
 
     if yp is None:
         yp = slopes(x,y)
