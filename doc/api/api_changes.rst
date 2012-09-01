@@ -120,6 +120,10 @@ Changes in 1.2.x
   ``ax.transData + ax.transAxes.inverted()`` (depth is a new concept, but had it existed 
   it would return 4 for this example).      
 
+* ``twinx`` and ``twiny`` now returns an instance of SubplotBase if
+  parent axes is an instance of SubplotBase.
+  
+
 Changes in 1.1.x
 ================
 
