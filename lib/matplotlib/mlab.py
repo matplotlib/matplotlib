@@ -2772,8 +2772,6 @@ def griddata(x,y,z,xi,yi,interp='nn'):
         if xi.ndim == 1:
             xi,yi = np.meshgrid(xi,yi)
         # triangulate data
-        # FIXME delaunay is not imported here, and depends on the
-        # scipy.spatial packages; Scipy is not a dependency of matplotlib.
         tri = delaunay.Triangulation(x,y)
         # interpolate data
         if interp == 'nn':
