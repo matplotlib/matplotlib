@@ -6,9 +6,8 @@ import matplotlib.cbook as cbook
 
 w, h = 512, 512
 
-datafile = cbook.get_sample_data('ct.raw', asfileobj=False)
-print ('loading %s' % datafile)
-s = open(datafile, 'rb').read()
+datafile = cbook.get_sample_data('ct.raw.gz', asfileobj=True)
+s = datafile.read()
 A = fromstring(s, uint16).astype(float)
 A *= 1.0/max(A)
 A.shape = w, h
@@ -35,4 +34,3 @@ if 0:
     setp(gca(), 'xticklabels', [])
 
 show()
-
