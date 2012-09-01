@@ -11,13 +11,13 @@ def get_two_stock_data():
     """
     ticker1, ticker2 = 'INTC', 'AAPL'
 
-    file1 = cbook.get_sample_data('INTC.dat', asfileobj=False)
-    file2 = cbook.get_sample_data('AAPL.dat', asfileobj=False)
-    M1 = fromstring( open(file1, 'rb').read(), '<d')
+    file1 = cbook.get_sample_data('INTC.dat.gz')
+    file2 = cbook.get_sample_data('AAPL.dat.gz')
+    M1 = fromstring( file1.read(), '<d')
 
     M1 = resize(M1, (M1.shape[0]/2,2) )
 
-    M2 = fromstring( open(file2, 'rb').read(), '<d')
+    M2 = fromstring( file2.read(), '<d')
     M2 = resize(M2, (M2.shape[0]/2,2) )
 
     d1, p1 = M1[:,0], M1[:,1]

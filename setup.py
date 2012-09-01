@@ -104,6 +104,8 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'mpl-data/example/*.npy',
                               'mpl-data/matplotlibrc',
                               'mpl-data/*.glade',
+                              'mpl-data/sample_data/*.*',
+                              'mpl-data/sample_data/axes_grid/*.*',
                               'backends/Matplotlib.nib/*',
                               ]}
 
