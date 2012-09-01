@@ -7395,7 +7395,7 @@ class Axes(martist.Artist):
         vmax = kwargs.pop('vmax', None)
         shading = kwargs.pop('shading', 'flat').lower()
         antialiased = kwargs.pop('antialiased', False)
-        kwargs.setdefault('edgecolors', 'face')
+        kwargs.setdefault('edgecolors', 'none')
 
         X, Y, C = self._pcolorargs('pcolormesh', *args)
         Ny, Nx = X.shape
