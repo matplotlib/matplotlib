@@ -26,15 +26,15 @@ import numpy as np
 def _fn_name(): return sys._getframe(1).f_code.co_name
 
 try:
-   import cairo
+    import cairo
 except ImportError:
-   raise ImportError("Cairo backend requires that pycairo is installed.")
+    raise ImportError("Cairo backend requires that pycairo is installed.")
 
 _version_required = (1,2,0)
 if cairo.version_info < _version_required:
-   raise ImportError ("Pycairo %d.%d.%d is installed\n"
-                     "Pycairo %d.%d.%d or later is required"
-                     % (cairo.version_info + _version_required))
+    raise ImportError ("Pycairo %d.%d.%d is installed\n"
+                       "Pycairo %d.%d.%d or later is required"
+                        % (cairo.version_info + _version_required))
 backend_version = cairo.version
 del _version_required
 
@@ -183,27 +183,27 @@ class RendererCairo(RendererBase):
         if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
 
         if ismath:
-           self._draw_mathtext(gc, x, y, s, prop, angle)
+            self._draw_mathtext(gc, x, y, s, prop, angle)
 
         else:
-           ctx = gc.ctx
-           ctx.new_path()
-           ctx.move_to (x, y)
-           ctx.select_font_face (prop.get_name(),
-                                 self.fontangles [prop.get_style()],
-                                 self.fontweights[prop.get_weight()])
-
-           size = prop.get_size_in_points() * self.dpi / 72.0
-
-           ctx.save()
-           if angle:
-              ctx.rotate (-angle * np.pi / 180)
-           ctx.set_font_size (size)
-           if sys.version_info[0] < 3:
-              ctx.show_text (s.encode("utf-8"))
-           else:
-              ctx.show_text (s)
-           ctx.restore()
+            ctx = gc.ctx
+            ctx.new_path()
+            ctx.move_to (x, y)
+            ctx.select_font_face (prop.get_name(),
+                                  self.fontangles [prop.get_style()],
+                                  self.fontweights[prop.get_weight()])
+            
+            size = prop.get_size_in_points() * self.dpi / 72.0
+            
+            ctx.save()
+            if angle:
+                ctx.rotate (-angle * np.pi / 180)
+            ctx.set_font_size (size)
+            if sys.version_info[0] < 3:
+                ctx.show_text (s.encode("utf-8"))
+            else:
+                ctx.show_text (s)
+            ctx.restore()
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
         if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
@@ -215,28 +215,28 @@ class RendererCairo(RendererBase):
         ctx.save()
         ctx.translate(x, y)
         if angle:
-           ctx.rotate (-angle * np.pi / 180)
+            ctx.rotate (-angle * np.pi / 180)
 
         for font, fontsize, s, ox, oy in glyphs:
-           ctx.new_path()
-           ctx.move_to(ox, oy)
-
-           fontProp = ttfFontProperty(font)
-           ctx.save()
-           ctx.select_font_face (fontProp.name,
-                                 self.fontangles [fontProp.style],
-                                 self.fontweights[fontProp.weight])
-
-           size = fontsize * self.dpi / 72.0
-           ctx.set_font_size(size)
-           ctx.show_text(s.encode("utf-8"))
-           ctx.restore()
+            ctx.new_path()
+            ctx.move_to(ox, oy)
+            
+            fontProp = ttfFontProperty(font)
+            ctx.save()
+            ctx.select_font_face (fontProp.name,
+                                  self.fontangles [fontProp.style],
+                                  self.fontweights[fontProp.weight])
+            
+            size = fontsize * self.dpi / 72.0
+            ctx.set_font_size(size)
+            ctx.show_text(s.encode("utf-8"))
+            ctx.restore()
 
         for ox, oy, w, h in rects:
-           ctx.new_path()
-           ctx.rectangle (ox, oy, w, h)
-           ctx.set_source_rgb (0, 0, 0)
-           ctx.fill_preserve()
+            ctx.new_path()
+            ctx.rectangle (ox, oy, w, h)
+            ctx.set_source_rgb (0, 0, 0)
+            ctx.fill_preserve()
 
         ctx.restore()
 
@@ -397,10 +397,17 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
     """
     Create a new figure manager instance
     """
-    if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+    if _debug: print('%s()' % (_fn_name()))
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas  = FigureCanvasCairo(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas  = FigureCanvasCairo(figure)
     manager = FigureManagerBase(canvas, num)
     return manager
 

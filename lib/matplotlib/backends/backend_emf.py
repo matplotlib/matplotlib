@@ -688,7 +688,14 @@ def new_figure_manager(num, *args, **kwargs):
     # main-level app (egg backend_gtk, backend_gtkagg) for pylab
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasEMF(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasEMF(figure)
     manager = FigureManagerEMF(canvas, num)
     return manager
 

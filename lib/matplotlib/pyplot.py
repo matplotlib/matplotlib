@@ -94,13 +94,14 @@ _backend_selection()
 ## Global ##
 
 from matplotlib.backends import pylab_setup
-new_figure_manager, draw_if_interactive, _show = pylab_setup()
+_backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 @docstring.copy_dedent(Artist.findobj)
 def findobj(o=None, match=None):
     if o is None:
         o = gcf()
     return o.findobj(match)
+
 
 def switch_backend(newbackend):
     """
@@ -115,10 +116,10 @@ def switch_backend(newbackend):
     Calling this command will close all open windows.
     """
     close('all')
-    global new_figure_manager, draw_if_interactive, _show
+    global _backend_mod, new_figure_manager, draw_if_interactive, _show
     matplotlib.use(newbackend, warn=False, force=True)
     from matplotlib.backends import pylab_setup
-    new_figure_manager, draw_if_interactive, _show = pylab_setup()
+    _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 
 def show(*args, **kw):
@@ -312,22 +313,17 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     if edgecolor is None : edgecolor = rcParams['figure.edgecolor']
 
     allnums = get_fignums()
+    next_num = max(allnums) + 1 if allnums else 1
     figLabel = ''
     if num is None:
-        if allnums:
-            num = max(allnums) + 1
-        else:
-            num = 1
+        num = next_num
     elif is_string_like(num):
         figLabel = num
         allLabels = get_figlabels()
         if figLabel not in allLabels:
             if figLabel == 'all':
                 warnings.warn("close('all') closes all existing figures")
-            if len(allLabels):
-                num = max(allnums) + 1
-            else:
-                num = 1
+            num = next_num
         else:
             inum = allLabels.index(figLabel)
             num = allnums[inum]
@@ -362,6 +358,7 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
 
     draw_if_interactive()
     return figManager.canvas.figure
+
 
 def gcf():
     "Return a reference to the current figure."

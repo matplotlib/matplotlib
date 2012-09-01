@@ -154,10 +154,9 @@ class HandlerNpoints(HandlerBase):
         return xdata, xdata_marker
 
 
-
 class HandlerNpointsYoffsets(HandlerNpoints):
     def __init__(self, numpoints=None, yoffsets=None, **kw):
-        HandlerNpoints.__init__(self,numpoints=numpoints, **kw)
+        HandlerNpoints.__init__(self, numpoints=numpoints, **kw)
         self._yoffsets = yoffsets
 
     def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
@@ -169,16 +168,12 @@ class HandlerNpointsYoffsets(HandlerNpoints):
         return ydata
 
 
-
-
-
 class HandlerLine2D(HandlerNpoints):
     """
     Handler for Line2D instances
     """
     def __init__(self, marker_pad=0.3, numpoints=None, **kw):
         HandlerNpoints.__init__(self, marker_pad=marker_pad, numpoints=numpoints, **kw)
-
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
@@ -198,7 +193,6 @@ class HandlerLine2D(HandlerNpoints):
         legline.set_drawstyle('default')
         legline.set_marker("")
 
-
         legline_marker = Line2D(xdata_marker, ydata[:len(xdata_marker)])
         self.update_prop(legline_marker, orig_handle, legend)
         #legline_marker.update_from(orig_handle)
@@ -215,7 +209,6 @@ class HandlerLine2D(HandlerNpoints):
         legline._legmarker = legline_marker
 
         return [legline, legline_marker]
-
 
 
 class HandlerPatch(HandlerBase):
@@ -250,7 +243,6 @@ class HandlerPatch(HandlerBase):
         return [p]
 
 
-
 class HandlerLineCollection(HandlerLine2D):
     """
     Handler for LineCollections
@@ -283,7 +275,6 @@ class HandlerLineCollection(HandlerLine2D):
         self.update_prop(legline, orig_handle, legend)
 
         return [legline]
-
 
 
 class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
@@ -340,10 +331,8 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
                        xdescent, ydescent, width, height, fontsize,
                        trans):
 
-
         xdata, xdata_marker = self.get_xdata(legend, xdescent, ydescent,
                                              width, height, fontsize)
-
 
         ydata = self.get_ydata(legend, xdescent, ydescent,
                                width, height, fontsize)
@@ -361,6 +350,7 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
         p.set_transform(None)
 
         return [p]
+
 
 class HandlerPathCollection(HandlerRegularPolyCollection):
     """
@@ -410,8 +400,6 @@ class HandlerErrorbar(HandlerLine2D):
 
         return xerr_size, yerr_size
 
-
-
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
                        trans):
@@ -430,7 +418,6 @@ class HandlerErrorbar(HandlerLine2D):
 
         xerr_size, yerr_size = self.get_err_size(legend, xdescent, ydescent,
                                                  width, height, fontsize)
-
 
         legline_marker = Line2D(xdata_marker, ydata_marker)
 
@@ -451,7 +438,6 @@ class HandlerErrorbar(HandlerLine2D):
             if legend.markerscale !=1:
                 newsz = legline_marker.get_markersize()*legend.markerscale
                 legline_marker.set_markersize(newsz)
-
 
         handle_barlinecols = []
         handle_caplines = []
@@ -501,7 +487,6 @@ class HandlerErrorbar(HandlerLine2D):
         return artists
 
 
-
 class HandlerStem(HandlerNpointsYoffsets):
     """
     Handler for Errorbars
@@ -516,7 +501,6 @@ class HandlerStem(HandlerNpointsYoffsets):
 
         self._bottom = bottom
 
-
     def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
         if self._yoffsets is None:
             ydata = height*(0.5*legend._scatteryoffsets + 0.5)
@@ -524,7 +508,6 @@ class HandlerStem(HandlerNpointsYoffsets):
             ydata = height*np.asarray(self._yoffsets)
 
         return ydata
-
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
