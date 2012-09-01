@@ -3854,6 +3854,11 @@ class Axes(martist.Artist):
 
         Return value is a list of lines that were added.
 
+        By default, each line is assigned a different color specified by a
+        'color cycle'.  To change this behavior, you can edit the
+        axes.color_cycle rcParam. Alternatively, you can use
+        :meth:`~matplotlib.axes.Axes.set_default_color_cycle`.
+
         The following format string characters are accepted to control
         the line style or marker:
 
