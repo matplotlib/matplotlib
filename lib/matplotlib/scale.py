@@ -347,17 +347,19 @@ class SymmetricalLogScale(ScaleBase):
 
         def __init__(self, base, linthresh, linscale):
             Transform.__init__(self)
+            symlog = SymmetricalLogScale.SymmetricalLogTransform(base, linthresh, linscale)
             self.base = base
             self.linthresh = linthresh
+            self.invlinthresh = symlog.transform(linthresh)
             self.linscale = linscale
             self._linscale_adj = (linscale / (1.0 - self.base ** -1))
 
         def transform(self, a):
             sign = np.sign(a)
-            masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
+            masked = ma.masked_inside(a, -self.invlinthresh, self.invlinthresh, copy=False)
             exp = sign * self.linthresh * (
-                ma.power(self.base, sign * (masked / self.linthresh))
-                - self._linscale_adj)
+                ma.power(self.base, (sign * (masked / self.linthresh))
+                - self._linscale_adj))
             if masked.mask.any():
                 return ma.where(masked.mask, a / self._linscale_adj, exp)
             else:
