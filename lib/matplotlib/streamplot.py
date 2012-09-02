@@ -9,6 +9,7 @@ import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.patches as patches
 
+
 __all__ = ['streamplot']
 
 
@@ -46,11 +47,16 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     *minlength* : float
         Minimum length of streamline in axes coordinates.
 
-    Returns *streamlines* : :class:`~matplotlib.collections.LineCollection`
-        Line collection with all streamlines as a series of line segments.
-        Currently, there is no way to differentiate between line segments
-        on different streamlines (other than manually checking that segments
-        are connected).
+    Returns
+    -------
+    *stream_container* : StreamplotSet
+        Container object with attributes
+            lines : `matplotlib.collections.LineCollection` of streamlines
+            arrows : collection of `matplotlib.patches.FancyArrowPatch` objects
+                repesenting arrows half-way along stream lines.
+        This container will probably change in the future to allow changes to
+        the colormap, alpha, etc. for both lines and arrows, but these changes
+        should be backward compatible.
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
@@ -108,6 +114,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             cmap = cm.get_cmap(cmap)
 
     streamlines = []
+    arrows = []
     for t in trajectories:
         tgx = np.array(t[0])
         tgy = np.array(t[1])
@@ -139,6 +146,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                                     transform=transform, 
                                     **arrow_kw)
         axes.add_patch(p)
+        arrows.append(p)
 
     lc = mcollections.LineCollection(streamlines, 
                                      transform=transform, 
@@ -151,7 +159,17 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     axes.update_datalim(((x.min(), y.min()), (x.max(), y.max())))
     axes.autoscale_view(tight=True)
-    return lc
+
+    ac = matplotlib.collections.PatchCollection(arrows)
+    stream_container = StreamplotSet(lc, ac)
+    return stream_container
+
+
+class StreamplotSet(object):
+
+    def __init__(self, lines, arrows, **kwargs):
+        self.lines = lines
+        self.arrows = arrows
 
 
 # Coordinate definitions
