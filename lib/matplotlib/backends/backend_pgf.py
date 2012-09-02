@@ -838,6 +838,8 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_renderer(self):
         return RendererPgf(self.figure, None)
 
+FigureCanvas = FigureCanvasPgf
+
 class FigureManagerPgf(FigureManagerBase):
     def __init__(self, *args):
         FigureManagerBase.__init__(self, *args)

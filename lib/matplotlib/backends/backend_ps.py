@@ -1357,6 +1357,8 @@ class FigureCanvasPS(FigureCanvasBase):
             shutil.move(tmpfile, outfile)
             os.chmod(outfile, mode)
 
+FigureCanvas = FigureCanvasPS
+
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                     paperWidth, paperHeight, orientation):
     """

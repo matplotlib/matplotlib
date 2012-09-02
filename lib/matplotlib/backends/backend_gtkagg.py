@@ -33,6 +33,7 @@ class FigureManagerGTKAgg(FigureManagerGTK):
             toolbar = None
         return toolbar
 
+FigureCanvas = FigureManagerGTKAgg
 
 def new_figure_manager(num, *args, **kwargs):
     """
