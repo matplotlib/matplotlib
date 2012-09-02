@@ -2403,6 +2403,8 @@ def key_press_handler(event, canvas, toolbar=None):
                 else:
                     a.set_navigate(i==n)
 
+class NonGuiException(Exception):
+    pass
 
 class FigureManagerBase:
     """
@@ -2436,8 +2438,11 @@ class FigureManagerBase:
     def show(self):
         """
         For GUI backends, show the figure window and redraw.
+        For non-GUI backends, raise an exception to be caught
+        by :meth:`~matplotlib.figure.Figure.show`, for an
+        optional warning.
         """
-        pass
+        raise NonGuiException()
 
     def destroy(self):
         pass
