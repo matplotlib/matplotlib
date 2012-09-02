@@ -7677,6 +7677,14 @@ class Axes(martist.Artist):
         """
         return mtable.table(self, **kwargs)
 
+    def _make_twin_axes(self, *kl, **kwargs):
+        """
+        make a twinx axes of self. This is used for twinx and twiny.
+        """
+        ax2 = self.figure.add_axes(self.get_position(True), *kl, **kwargs)
+        return ax2
+
+
     def twinx(self):
         """
         Call signature::
@@ -7693,8 +7701,7 @@ class Axes(martist.Artist):
             events are only called for the artists in the top-most axes.
         """
 
-        ax2 = self.figure.add_axes(self.get_position(True), sharex=self,
-            frameon=False)
+        ax2 = self._make_twin_axes(sharex=self, frameon=False)
         ax2.yaxis.tick_right()
         ax2.yaxis.set_label_position('right')
         ax2.yaxis.set_offset_position('right')
@@ -7718,8 +7725,7 @@ class Axes(martist.Artist):
             events are only called for the artists in the top-most axes.
         """
 
-        ax2 = self.figure.add_axes(self.get_position(True), sharey=self,
-            frameon=False)
+        ax2 = self._make_twin_axes(sharey=self, frameon=False)
         ax2.xaxis.tick_top()
         ax2.xaxis.set_label_position('top')
         self.xaxis.tick_bottom()
@@ -8898,6 +8904,13 @@ class SubplotBase:
         for label in self.get_yticklabels():
             label.set_visible(firstcol)
 
+
+    def _make_twin_axes(self, *kl, **kwargs):
+        """
+        make a twinx axes of self. This is used for twinx and twiny.
+        """
+        ax2 = self.figure.add_subplot(self.get_subplotspec(), *kl, **kwargs)
+        return ax2
 
 
 _subplot_classes = {}
