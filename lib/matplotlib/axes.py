@@ -6601,17 +6601,17 @@ class Axes(martist.Artist):
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                    minlength=0.1, transform=None):
         if not self._hold: self.cla()
-        lines = mstream.streamplot(self, x, y, u, v,
-                                   density=density,
-                                   linewidth=linewidth,
-                                   color=color,
-                                   cmap=cmap,
-                                   norm=norm,
-                                   arrowsize=arrowsize,
-                                   arrowstyle=arrowstyle,
-                                   minlength=minlength,
-                                   transform=transform)
-        return lines
+        stream_container = mstream.streamplot(self, x, y, u, v,
+                                              density=density,
+                                              linewidth=linewidth,
+                                              color=color,
+                                              cmap=cmap,
+                                              norm=norm,
+                                              arrowsize=arrowsize,
+                                              arrowstyle=arrowstyle,
+                                              minlength=minlength,
+                                              transform=transform)
+        return stream_container
     streamplot.__doc__ = mstream.streamplot.__doc__
 
     @docstring.dedent_interpd
