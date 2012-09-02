@@ -11,7 +11,7 @@ from nose.tools import assert_equal, assert_not_equal
 import cPickle as pickle
 #import pickle
 
-from cStringIO import StringIO
+from io import BytesIO
 
 
 def depth_getter(obj, 
@@ -87,7 +87,7 @@ def recursive_pickle(top_obj):
     for _, obj, location in objs:
 #        print('trying %s' % location)
         try:
-            pickle.dump(obj, StringIO(), pickle.HIGHEST_PROTOCOL)
+            pickle.dump(obj, BytesIO(), pickle.HIGHEST_PROTOCOL)
         except Exception, err:
             print(obj)
             print('Failed to pickle %s. \n Type: %s. Traceback follows:' % (location, type(obj)))
@@ -99,21 +99,21 @@ def test_simple():
     fig = plt.figure()
     # un-comment to debug
 #    recursive_pickle(fig)
-    pickle.dump(fig, StringIO(), pickle.HIGHEST_PROTOCOL)
+    pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     ax = plt.subplot(121)
-    pickle.dump(ax, StringIO(), pickle.HIGHEST_PROTOCOL)
+    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     ax = plt.axes(projection='polar')
     plt.plot(range(10), label='foobar')
     plt.legend()
 
 #    recursive_pickle(fig)
-    pickle.dump(ax, StringIO(), pickle.HIGHEST_PROTOCOL)
+    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
     
 #    ax = plt.subplot(121, projection='hammer')
 #    recursive_pickle(ax, 'figure')
-#    pickle.dump(ax, StringIO(), pickle.HIGHEST_PROTOCOL)
+#    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
 @image_comparison(baseline_images=['multi_pickle'], 
@@ -163,7 +163,7 @@ def test_complete():
     # Uncomment to debug any unpicklable objects. This is slow (~200 seconds).
 #    recursive_pickle(fig)
     
-    result_fh = StringIO()
+    result_fh = BytesIO()
     pickle.dump(fig, result_fh, pickle.HIGHEST_PROTOCOL)
     
     plt.close('all')
@@ -196,4 +196,4 @@ def test_no_pyplot():
     # Uncomment to debug any unpicklable objects. This is slow so is not 
     # uncommented by default.
 #    recursive_pickle(fig)
-    pickle.dump(fig, StringIO(), pickle.HIGHEST_PROTOCOL)
+    pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
