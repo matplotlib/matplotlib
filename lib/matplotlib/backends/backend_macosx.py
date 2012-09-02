@@ -268,7 +268,6 @@ class TimerMac(_macosx.Timer, TimerBase):
     '''
     # completely implemented at the C-level (in _macosx.Timer)
 
-
 class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
     """
     The canvas the figure renders into.  Calls the draw and print fig
@@ -352,6 +351,8 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         """
         return TimerMac(*args, **kwargs)
 
+
+FigureCanvas = FigureCanvasMac
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     """

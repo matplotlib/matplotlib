@@ -318,7 +318,7 @@ class Figure(Artist):
         self.patch.set_aa(False)
 
         self._hold = rcParams['axes.hold']
-        self.canvas = self._current_figure_canvas()
+        self.canvas = self._setup_canvas()
 
         if subplotpars is None:
             subplotpars = SubplotParams()
@@ -330,47 +330,11 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
-    def _current_figure_canvas(self):
-        b = rcParams['backend'].lower()
-        if b == 'agg':
-            from backends.backend_agg import FigureCanvasAgg as FigureCanvas
-        elif b == 'cairo':
-            from backends.backend_cairo import FigureCanvasCairo as FigureCanvas
-        elif b == 'cocoaag':
-            from backends.backend_cocoaagg import FigureCanvasCocoaAgg as FigureCanvas
-        elif b == 'fltkagg':
-            from backends.backend_fltkagg import FigureCanvasFltkAgg as FigureCanvas
-        elif b == 'gdk':
-            from backends.backend_gdk import FigureCanvasGDK as FigureCanvas
-        elif b == 'gtk':
-            from backends.backend_gtk import FigureCanvasGTK as FigureCanvas
-        elif b == 'gtkagg':
-            from backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
-        elif b == 'gtkcairo':
-            from backends.backend_gtkcairo import FigureCanvasGTKCairo as FigureCanvas
-        elif b == 'macosx':
-            from backends.backend_macosx import FigureCanvasMac as FigureCanvas
-        elif b == 'pdf':
-            from backends.backend_pdf import FigureCanvasPdf as FigureCanvas
-        elif b == 'ps':
-            from backends.backend_ps import FigureCanvasPS as FigureCanvas
-        elif b == 'qtagg':
-            from backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-        elif b == 'qt4agg':
-            from backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-        elif b == 'svg':
-            from backends.backend_svg import FigureCanvasSVG as FigureCanvas
-        elif b == 'template':
-            from backends.backend_template import FigureCanvasTemplate as FigureCanvas
-        elif b == 'tkagg':
-            from backends.backend_tkagg import FigureCanvasTkAgg as FigureCanvas
-        elif b == 'wx':
-            from backends.backend_wx import FigureCanvasWx as FigureCanvas
-        elif b == 'wxagg':
-            from backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-        else:
-            return None
-        return FigureCanvas(self)
+    def _setup_canvas(self):
+        # TODO: docstring
+        import matplotlib.backends as mbackends
+        backend_mod = mbackends.pylab_setup()[0]
+        return backend_mod.FigureCanvas(self)
 
     def _get_axes(self):
         return self._axstack.as_list()
