@@ -611,7 +611,7 @@ def new_figure_manager(num, *args, **kwargs):
     # main-level app (egg backend_gtk, backend_gtkagg) for pylab
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
     
     
 def new_figure_manager_given_figure(num, figure):
