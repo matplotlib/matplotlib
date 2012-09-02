@@ -325,7 +325,7 @@ def get_integrator(u, v, dmap, minlength):
     # speed (path length) will be in axes-coordinates
     u_ax = u / dmap.grid.nx
     v_ax = v / dmap.grid.ny
-    speed = np.sqrt(u_ax**2 + v_ax**2)
+    speed = np.ma.sqrt(u_ax**2 + v_ax**2)
 
     def forward_time(xi, yi):
         ds_dt = interpgrid(speed, xi, yi)
@@ -450,25 +450,32 @@ def _integrate_rk12(x0, y0, dmap, f):
             stotal += ds
 
         # recalculate stepsize based on step error
-        ds = min(maxds, 0.85 * ds * (maxerror/error)**0.5)
+        if error == 0:
+            ds = maxds
+        else:
+            ds = min(maxds, 0.85 * ds * (maxerror/error)**0.5)
 
     return stotal, xf_traj, yf_traj
 
 
 def _euler_step(xf_traj, yf_traj, dmap, f):
-    """Simple Euler integration step."""
+    """Simple Euler integration step that extends streamline to boundary."""
     ny, nx = dmap.grid.shape
     xi = xf_traj[-1]
     yi = yf_traj[-1]
     cx, cy = f(xi, yi)
-    if cx > 0:
-        dsx = (nx - 1 - xi) / cx
-    else:
+    if cx == 0:
+        dsx = np.inf
+    elif cx < 0:
         dsx = xi / -cx
-    if cy > 0:
-        dsy = (ny - 1 - yi) / cy
     else:
+        dsx = (nx - 1 - xi) / cx
+    if cy == 0:
+        dsy = np.inf
+    elif cy < 0:
         dsy = yi / -cy
+    else:
+        dsy = (ny - 1 - yi) / cy
     ds = min(dsx, dsy)
     xf_traj.append(xi + cx*ds)
     yf_traj.append(yi + cy*ds)
