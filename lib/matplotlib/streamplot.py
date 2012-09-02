@@ -54,6 +54,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             lines : `matplotlib.collections.LineCollection` of streamlines
             arrows : collection of `matplotlib.patches.FancyArrowPatch` objects
                 repesenting arrows half-way along stream lines.
+        This container will probably change in the future to allow changes to
+        the colormap, alpha, etc. for both lines and arrows, but these changes
+        should be backward compatible.
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
