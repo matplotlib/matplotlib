@@ -450,7 +450,10 @@ def _integrate_rk12(x0, y0, dmap, f):
             stotal += ds
 
         # recalculate stepsize based on step error
-        ds = min(maxds, 0.85 * ds * (maxerror/error)**0.5)
+        if error == 0:
+            ds = maxds
+        else:
+            ds = min(maxds, 0.85 * ds * (maxerror/error)**0.5)
 
     return stotal, xf_traj, yf_traj
 
