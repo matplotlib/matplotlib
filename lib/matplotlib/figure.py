@@ -331,8 +331,10 @@ class Figure(Artist):
         self._cachedRenderer = None
 
     def _setup_canvas(self):
-        # TODO: docstring
-        import matplotlib.backends as mbackends
+        """
+        Return the FigureCanvas instance defined by the currently loaded backend.
+        """
+        import matplotlib.backends as mbackends  # lazy import
         backend_mod = mbackends.pylab_setup()[0]
         return backend_mod.FigureCanvas(self)
 
