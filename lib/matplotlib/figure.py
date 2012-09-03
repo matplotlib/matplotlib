@@ -1189,7 +1189,7 @@ class Figure(Artist):
         if getattr(self.canvas, 'manager', None) is not None:
             manager = self.canvas.manager
             import matplotlib._pylab_helpers
-            if manager in matplotlib._pylab_helpers.Gcf.figs.viewvalues():
+            if manager in matplotlib._pylab_helpers.Gcf.figs.values():
                 state['_restore_to_pylab'] = True
 
         return state
