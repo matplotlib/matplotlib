@@ -2,6 +2,7 @@
 Streamline plotting for 2D vector fields.
 
 """
+from __future__ import division
 import numpy as np
 import matplotlib
 import matplotlib.cm as cm
