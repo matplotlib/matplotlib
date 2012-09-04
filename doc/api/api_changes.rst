@@ -18,6 +18,10 @@ Changes in 1.2.x
   when specifying a marker using a tuple, the angle is now specified
   in degrees, not radians.
 
+* Using :meth:`~matplotlib.axes.Axes.twinx` or
+  :meth:`~matplotlib.axes.Axes.twiny` no longer overrides the current locaters
+  and formatters on the axes.
+
 * In :meth:`~matplotlib.axes.Axes.contourf`, the handling of the *extend*
   kwarg has changed.  Formerly, the extended ranges were mapped
   after to 0, 1 after being normed, so that they always corresponded
