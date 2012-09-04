@@ -33,7 +33,6 @@ class FigureManagerGTKAgg(FigureManagerGTK):
             toolbar = None
         return toolbar
 
-FigureCanvas = FigureManagerGTKAgg
 
 def new_figure_manager(num, *args, **kwargs):
     """
@@ -111,6 +110,8 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         # Do this so we can save the resolution of figure in the PNG file
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_png(filename, *args, **kwargs)
+
+FigureCanvas = FigureCanvasGTKAgg
 
 """\
 Traceback (most recent call last):
