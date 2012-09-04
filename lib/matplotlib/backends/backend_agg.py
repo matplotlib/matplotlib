@@ -515,3 +515,5 @@ class FigureCanvasAgg(FigureCanvasBase):
                   (int(renderer.width), int(renderer.height)))
         renderer.dpi = original_dpi
         return result
+
+FigureCanvas = FigureCanvasAgg

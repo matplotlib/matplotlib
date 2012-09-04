@@ -38,6 +38,17 @@ Features that depend on the Python Imaging Library, such as JPEG
 handling, do not work, since the version of PIL for Python 3.x is not
 sufficiently mature.
 
+Object-oriented interface
+-------------------------
+
+Damon McDougall has reduced some of the boilerplate code needed to interact
+with the object-oriented interface. Now a figure canvas is set up by default::
+
+    >>> from matplotlib.figure import Figure
+    >>> fig = Figure()
+    >>> ax = fig.add_subplot(1, 1, 1)
+    >>> fig.savefig('figure.pdf')
+
 PGF/TikZ backend
 ----------------
 Peter Würtz wrote a backend that allows matplotlib to export figures as
