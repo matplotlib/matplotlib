@@ -377,6 +377,8 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             self._idle = True
         if d: QtCore.QTimer.singleShot(0, idle_draw)
 
+FigureCanvas = FigureCanvasQT
+
 class FigureManagerQT( FigureManagerBase ):
     """
     Public attributes

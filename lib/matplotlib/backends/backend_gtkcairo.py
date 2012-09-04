@@ -55,6 +55,7 @@ class FigureCanvasGTKCairo(backend_cairo.FigureCanvasCairo, FigureCanvasGTK):
         if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
         self._renderer = RendererGTKCairo (self.figure.dpi)
 
+FigureCanvas = FigureCanvasGTKCairo
 
 class FigureManagerGTKCairo(FigureManagerGTK):
     def _get_toolbar(self, canvas):
