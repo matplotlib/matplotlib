@@ -62,6 +62,29 @@ def test_formatter_large_small():
     y = [500000001, 500000002]
     ax.plot(x, y)
 
+@image_comparison(baseline_images=["twin_axis_locaters_formatters"])
+def test_twin_axis_locaters_formatters():
+    vals = np.linspace(0, 1, num=5, endpoint=True)
+    locs = np.sin(np.pi * vals / 2.0)
+
+    majl = plt.FixedLocator(locs)
+    minl = plt.FixedLocator([0.1, 0.2, 0.3])
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(1, 1, 1)
+    ax1.plot([0.1, 100], [0, 1])
+    ax1.yaxis.set_major_locator(majl)
+    ax1.yaxis.set_minor_locator(minl)
+    ax1.yaxis.set_major_formatter(plt.FormatStrFormatter('%08.2lf'))
+    ax1.yaxis.set_minor_formatter(plt.FixedFormatter(['tricks', 'mind', 'jedi']))
+
+    ax1.xaxis.set_major_locator(plt.LinearLocator())
+    ax1.xaxis.set_minor_locator(plt.FixedLocator([15, 35, 55, 75]))
+    ax1.xaxis.set_major_formatter(plt.FormatStrFormatter('%05.2lf'))
+    ax1.xaxis.set_minor_formatter(plt.FixedFormatter(['c', '3', 'p', 'o']))
+    ax2 = ax1.twiny()
+    ax3 = ax1.twinx()
+
 @image_comparison(baseline_images=["autoscale_tiny_range"], remove_text=True)
 def test_autoscale_tiny_range():
     # github pull #904
