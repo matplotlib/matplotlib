@@ -203,6 +203,8 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
+FigureCanvas = FigureCanvasQT
+
 class FigureManagerQT( FigureManagerBase ):
     """
     Public attributes

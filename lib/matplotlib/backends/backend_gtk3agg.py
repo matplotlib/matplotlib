@@ -67,6 +67,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         agg = self.switch_backends(backend_agg.FigureCanvasAgg)
         return agg.print_png(filename, *args, **kwargs)
 
+FigureCanvas = FigureCanvasGTK3Agg
 
 class FigureManagerGTK3Agg(backend_gtk3.FigureManagerGTK3):
     pass

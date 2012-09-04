@@ -1400,6 +1400,7 @@ The current aspect ratio will be kept."""
         """Mouse has entered the window."""
         FigureCanvasBase.enter_notify_event(self, guiEvent = evt)
 
+FigureCanvas = FigureCanvasWx
 
 ########################################################################
 #

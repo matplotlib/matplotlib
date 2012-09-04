@@ -231,6 +231,8 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
+FigureCanvas = FigureCanvasFltkAgg
+
 def destroy_figure(ptr, figman):
     figman.window.hide()
     Fltk.Fl.wait(0)         # This is needed to make the last figure vanish.
