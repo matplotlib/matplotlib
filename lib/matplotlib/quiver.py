@@ -15,7 +15,7 @@ the Quiver code.
 """
 
 
-from __future__ import print_function
+from __future__ import print_function, division
 import numpy as np
 from numpy import ma
 import matplotlib.collections as collections
