@@ -49,7 +49,7 @@ will create a custom, regular symbol.
       =====   =============================================
 
     *angle*:
-      the angle of rotation of the symbol
+      the angle of rotation of the symbol, in degrees
 
 For backward compatibility, the form (*verts*, 0) is also accepted,
 but it is equivalent to just *verts* for giving a raw set of vertices
