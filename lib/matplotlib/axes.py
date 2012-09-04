@@ -8223,7 +8223,11 @@ class Axes(martist.Artist):
              these count values in the return value count histogram
              will also be set to nan upon return
 
-        Remaining keyword arguments are passed directly to :meth:pcolorfast
+        Remaining keyword arguments are passed directly to :meth:`pcolorfast`.
+
+        Rendering the histogram with a logarithmic color scale is
+        accomplished by passing a :class:`colors.LogNorm` instance to
+        the *norm* keyword argument.
 
         **Example:**
 
