@@ -376,9 +376,6 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             if self.toolbar != None: self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
-        # This is ugly, but this is what tkagg and gtk are doing.
-        # It is needed to get ginput() working.
-        self.canvas.figure.show = lambda *args: self.show()
         if matplotlib.is_interactive():
             self.show()
 
