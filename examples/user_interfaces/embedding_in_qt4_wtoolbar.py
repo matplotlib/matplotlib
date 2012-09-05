@@ -53,7 +53,7 @@ class AppForm(QMainWindow):
     def on_key_press(self, event):
         print('you pressed', event.key)
         # implement the default mpl key press events described at
-        # http://matplotlib.sourceforge.net/users/navigation_toolbar.html#navigation-keyboard-shortcuts
+        # http://matplotlib.org/users/navigation_toolbar.html#navigation-keyboard-shortcuts
         key_press_handler(event, self.canvas, self.mpl_toolbar)
 
 

@@ -93,61 +93,13 @@ Packaging
 
 .. _release-candidate-testing:
 
-Release candidate testing:
-============================
+Release candidate testing
+=========================
 
-Post the release candidates to
-http://matplotlib.sf.net/release-candidates and post a message to
-matplotlib-users and devel requesting testing.  To post to the server,
-you can do::
-
-    > scp somefile.tgz jdh2358,matplotlib@shell.sf.net:/home/groups/m/ma/matplotlib/htdocs/release-candidates/
-
-replacing 'jdh2358' with your sourceforge login.
-
-
-Any changes to fix bugs in the release candidate should be fixed in
-the release branch and merged into the trunk.
-
-
-.. _release-uploading:
-
-Uploading
-=========
-
-* Post the win32 and OS-X binaries for testing and make a request on
-  matplotlib-devel for testing.  Pester us if we don't respond
-
-
-* ftp the source and binaries to the anonymous FTP site::
-
-    mpl> git clean
-    mpl> python setup.py sdist
-    mpl> cd dist/
-    dist> sftp jdh2358@frs.sourceforge.net
-    Connecting to frs.sourceforge.net...
-    sftp> cd uploads
-    sftp> ls
-    sftp> lls
-    matplotlib-0.98.2.tar.gz
-    sftp> put matplotlib-0.98.2.tar.gz
-    Uploading matplotlib-0.98.2.tar.gz to /incoming/j/jd/jdh2358/uploads/matplotlib-0.98.2.tar.gz
-
-* go https://sourceforge.net/project/admin/explorer.php?group_id=80706 and do a
-  file release.  Click on the "Admin" tab to log in as an admin, and
-  then the "File Releases" tab.  Go to the bottom and click "add
-  release" and enter the package name but not the version number in
-  the "Package Name" box.  You will then be prompted for the "New
-  release name" at which point you can add the version number, eg
-  somepackage-0.1 and click "Create this release".
-
-  You will then be taken to a fairly self explanatory page where you
-  can enter the Change notes, the release notes, and select which
-  packages from the incoming ftp archive you want to include in this
-  release.  For each binary, you will need to select the platform and
-  file type, and when you are done you click on the "notify users who
-  are monitoring this package link"
-
+Post the release candidates tarballs to the `matplotlib download page
+<https://github.com/matplotlib/matplotlib/downloads>`_.  If you have
+developer rights, you should see an "Upload a new file" section
+there.
 
 .. _release-announcing:
 
