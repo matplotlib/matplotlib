@@ -42,7 +42,7 @@ from matplotlib.projections import (get_projection_names,
 from matplotlib.text import Text, _process_text_args
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                     TransformedBbox)
-
+from matplotlib.backend_bases import NonGuiException
 
 docstring.interpd.update(projection_names = get_projection_names())
 
@@ -337,6 +337,26 @@ class Figure(Artist):
         import matplotlib.backends as mbackends  # lazy import
         backend_mod = mbackends.pylab_setup()[0]
         return backend_mod.FigureCanvas(self)
+
+    def show(self, warn=True):
+        """
+        If using a GUI backend, display the figure window.
+
+        For non-GUI backends, this does nothing, in which case
+        a warning will be issued if *warn* is True.
+        """
+        manager = getattr(self.canvas, 'manager')
+        if manager is not None:
+            try:
+                manager.show()
+                return
+            except NonGuiException:
+                pass
+        if warn:
+            import warnings
+            warnings.warn(
+                "matplotlib is currently using a non-GUI backend, "
+                "so cannot show the figure")
 
     def _get_axes(self):
         return self._axstack.as_list()
@@ -1188,10 +1208,10 @@ class Figure(Artist):
         # and re-attached to another.
         for attr_to_pop in ('_axobservers', 'show', 'canvas', '_cachedRenderer') :
             state.pop(attr_to_pop, None)
-        
+
         # add version information to the state
         state['__mpl_version__'] = _mpl_version
-        
+
         # check to see if the figure has a manager and whether it is registered
         # with pyplot
         if getattr(self.canvas, 'manager', None) is not None:
