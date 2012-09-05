@@ -48,7 +48,7 @@ are in the range [0,1].
 Finally, legal html names for colors, like 'red', 'burlywood' and
 'chartreuse' are supported.
 """
-from __future__ import print_function
+from __future__ import print_function, division
 import re
 import numpy as np
 from numpy import ma
@@ -219,7 +219,7 @@ def is_color_like(c):
 
 def rgb2hex(rgb):
     'Given an rgb or rgba sequence of 0-1 floats, return the hex string'
-    return '#%02x%02x%02x' % tuple([round(val*255) for val in rgb[:3]])
+    return '#%02x%02x%02x' % tuple([np.round(val*255) for val in rgb[:3]])
 
 hexColorPattern = re.compile("\A#[a-fA-F0-9]{6}\Z")
 

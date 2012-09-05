@@ -4,7 +4,7 @@ and a dictionary of these dictionaries.
 
 """
 
-from __future__ import print_function
+from __future__ import print_function, division
 import numpy as np
 
 _binary_data = {
@@ -1625,7 +1625,7 @@ _gist_yarg_data = {
 }
 
 # This bipolar color map was generated from CoolWarmFloat33.csv of
-# "Diverging Color Maps for Scientific Visualization" by Kenneth Moreland. 
+# "Diverging Color Maps for Scientific Visualization" by Kenneth Moreland.
 # <http://www.cs.unm.edu/~kmorel/documents/ColorMaps/>
 _coolwarm_data = {
     'red': [

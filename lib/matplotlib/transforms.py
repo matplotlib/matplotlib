@@ -29,7 +29,7 @@ The backends are not expected to handle non-affine transformations
 themselves.
 """
 
-from __future__ import print_function
+from __future__ import print_function, division
 import numpy as np
 from numpy import ma
 from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
@@ -1109,10 +1109,10 @@ class Transform(TransformNode):
 
         This is equivalent to flattening the stack then yielding
         ``flat_stack[:i], flat_stack[i:]`` where i=0..(n-1).
-        
+
         """
         yield IdentityTransform(), self
-    
+
     @property
     def depth(self):
         """
@@ -1177,10 +1177,10 @@ class Transform(TransformNode):
             # to the base of A (via B), instead we can just stop at B.
 
             (A + B) - (B)^-1 == A
-            
+
             # similarly, when B contains tree A, we can avoid decending A at all, basically:
             A - (A + B) == ((B + A) - A).inverted() or B^-1
-        
+
         For clarity, the result of ``(A + B) - B + B == (A + B)``.
 
         """
@@ -1417,7 +1417,7 @@ class TransformWrapper(Transform):
 
     def __eq__(self, other):
         return self._child.__eq__(other)
-    
+
     if DEBUG:
         def __str__(self):
             return str(self._child)
@@ -1511,7 +1511,7 @@ class AffineBase(Transform):
         if other.is_affine:
             return np.all(self.get_matrix() == other.get_matrix())
         return NotImplemented
-    
+
     def transform(self, values):
         return self.transform_affine(values)
     transform.__doc__ = Transform.transform.__doc__
@@ -1908,7 +1908,7 @@ class BlendedGenericTransform(Transform):
             return self._x == other
         else:
             return NotImplemented
-        
+
     def contains_branch_seperately(self, transform):
         # Note, this is an exact copy of BlendedAffine2D.contains_branch_seperately
         return self._x.contains_branch(transform), self._y.contains_branch(transform)
@@ -2231,7 +2231,7 @@ class CompositeAffine2D(Affine2DBase):
     if DEBUG:
         def __str__(self):
             return '(%s, %s)' % (self._a, self._b)
-    
+
     @property
     def depth(self):
         return self._a.depth + self._b.depth
