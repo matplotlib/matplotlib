@@ -1,17 +1,17 @@
 """
 Show examples of matplotlib artists
-http://matplotlib.sourceforge.net/api/artist_api.html
+http://matplotlib.org/api/artist_api.html
 
 Several examples of standard matplotlib graphics primitives (artists)
 are drawn using matplotlib API. Full list of artists and the
 documentation is available at
-http://matplotlib.sourceforge.net/api/artist_api.html
+http://matplotlib.org/api/artist_api.html
 
 Copyright (c) 2010, Bartosz Telenczuk
 
 License: This work is licensed under the BSD. A copy should be
 included with this source code, and is also available at
-http://www.opensource.org/licenses/bsd-license.php 
+http://www.opensource.org/licenses/bsd-license.php
 """
 
 
@@ -69,7 +69,7 @@ patches.append(arrow)
 plt.text(pos[0,5], pos[1,5]-0.15, "Arrow", ha="center",
         family=font, size=14)
 
-# add a path patch 
+# add a path patch
 Path = mpath.Path
 verts = np.array([
      (0.158, -0.257),
@@ -83,7 +83,7 @@ verts = np.array([
      (0.158, -0.257),
     ])
 verts = verts-verts.mean(0)
-codes = [Path.MOVETO, 
+codes = [Path.MOVETO,
          Path.CURVE4, Path.CURVE4, Path.CURVE4, Path.LINETO,
          Path.CURVE4, Path.CURVE4, Path.CURVE4, Path.CLOSEPOLY]
 
@@ -95,7 +95,7 @@ plt.text(pos[0,6], pos[1,6]-0.15, "PathPatch", ha="center",
 
 # add a fancy box
 fancybox = mpatches.FancyBboxPatch(
-        pos[:,7]-np.array([0.025, 0.05]), 0.05, 0.1, 
+        pos[:,7]-np.array([0.025, 0.05]), 0.05, 0.1,
         boxstyle=mpatches.BoxStyle("Round", pad=0.02))
 patches.append(fancybox)
 plt.text(pos[0,7], pos[1,7]-0.15, "FancyBoxPatch", ha="center",

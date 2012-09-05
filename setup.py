@@ -303,9 +303,9 @@ print_raw("packages %s" % packages)
 distrib = setup(name="matplotlib",
       version= __version__,
       description = "Python plotting package",
-      author = "John D. Hunter",
-      author_email="jdh2358@gmail.com",
-      url = "http://matplotlib.sourceforge.net",
+      author = "John D. Hunter, Michael Droettboom",
+      author_email="mdroe@stsci.edu",
+      url = "http://matplotlib.org",
       long_description = """
       matplotlib strives to produce publication quality 2D graphics
       for interactive graphing, scientific publishing, user interface

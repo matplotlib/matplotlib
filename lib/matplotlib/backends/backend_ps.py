@@ -1117,7 +1117,7 @@ class FigureCanvasPS(FigureCanvasBase):
             else: print("%!PS-Adobe-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
             print(("%%Creator: matplotlib version "
-                         +__version__+", http://matplotlib.sourceforge.net/"), file=fh)
+                         +__version__+", http://matplotlib.org/"), file=fh)
             print("%%CreationDate: "+time.ctime(time.time()), file=fh)
             print("%%Orientation: " + orientation, file=fh)
             if not isEPSF: print("%%DocumentPaperSizes: "+papertype, file=fh)
@@ -1265,7 +1265,7 @@ class FigureCanvasPS(FigureCanvasBase):
             print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
             print(("%%Creator: matplotlib version "
-                         +__version__+", http://matplotlib.sourceforge.net/"), file=fh)
+                         +__version__+", http://matplotlib.org/"), file=fh)
             print("%%CreationDate: "+time.ctime(time.time()), file=fh)
             print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
             print("%%EndComments", file=fh)

@@ -123,7 +123,7 @@ Multicolumn Legend
 By specifying the keyword argument *ncol*, you can have a multi-column
 legend. Also, mode="expand" horizontally expand the legend to fill the
 axes area. See `legend_demo3.py
-<http://matplotlib.sourceforge.net/examples/pylab_examples/legend_demo3.html>`_
+<http://matplotlib.org/examples/pylab_examples/legend_demo3.html>`_
 for example.
 
 
