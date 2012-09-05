@@ -209,15 +209,15 @@ Installer.app, or a binary OSX egg, which you can install via
 setuptools' easy_install.
 
 The mkpg installer will have a "zip" extension, and will have a name
-like :file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5_mpkg.zip`.
+like :file:`matplotlib-1.2.0-py2.7-macosx10.5_mpkg.zip`.
 The name of the installer depends on which versions of python, matplotlib,
 and OSX it was built for.  You need to unzip this file using either the
 "unzip" command, or simply double clicking on the it. Then when you
 double-click on the resulting mpkd, which will have a name like
-:file:`matplotlib-0.99.0.rc1-py2.5-macosx10.5.mpkg`, it will run the
+:file:`matplotlib-1.2.0-py2.7-macosx10.5.mpkg`, it will run the
 Installer.app, prompt you for a password if you need system-wide
 installation privileges, and install to a directory like
-:file:`/Library/Python/2.5/site-packages/` (exact path depends on your
+:file:`/Library/Python/2.7/site-packages/` (exact path depends on your
 python version).  This directory may not be in your python 'path' variable,
 so you should test your installation with::
 
@@ -231,7 +231,7 @@ If you get an error like::
 
 then you will need to set your PYTHONPATH, eg::
 
-    export PYTHONPATH=/Library/Python/2.5/site-packages:$PYTHONPATH
+    export PYTHONPATH=/Library/Python/2.7/site-packages:$PYTHONPATH
 
 See also ref:`environment-variables`.
 
@@ -248,40 +248,14 @@ can try::
 
     > easy_install matplotlib
 
-which should grab the latest egg from the sourceforge site, but sometimes
-the naming conventions for OSX eggs can be broken (see below).
-Therefore, there is no guarantee the right egg will be found. We recommend
-you download the latest egg from our `download site
-<http://sourceforge.net/projects/matplotlib/files/>`_ directly to your
+which should grab the latest egg from github, but sometimes the naming
+conventions for OSX eggs can be broken (see below).  Therefore, there
+is no guarantee the right egg will be found. We recommend you download
+the latest egg from our `download site
+<https://github.com/matplotlib/matplotlib/downloads>`_ directly to your
 harddrive, and manually install it, eg::
 
-    > easy_install --install-dir=~/dev/lib/python2.5/site-packages/  matplotlib-0.99.0.rc1-py2.5-macosx-10.5-i386.egg
-
-Naming convention issues
-^^^^^^^^^^^^^^^^^^^^^^^^
-.. note::
-   This should no longer be an issue. If it is, please
-   report it to the mailing list.
-
-Some users have reported problems with the egg for 0.98 from the
-matplotlib download site, with ``easy_install``, getting an error::
-
-    > easy_install ./matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg
-    Processing matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg
-    removing '/Library/Python/2.5/site-packages/matplotlib-0.98.0-py2.5-
-    ...snip...
-    Reading http://matplotlib.sourceforge.net
-    Reading http://cheeseshop.python.org/pypi/matplotlib/0.91.3
-    No local packages or download links found for matplotlib==0.98.0
-    error: Could not find suitable distribution for
-    Requirement.parse('matplotlib==0.98.0')
-
-If you rename ``matplotlib-0.98.0-py2.5-macosx-10.3-fat.egg`` to
-``matplotlib-0.98.0-py2.5.egg``, ``easy_install`` will install it from
-the disk.  Many Mac OS X eggs have cruft at the end of the filename,
-which prevents their installation through easy_install.  Renaming is
-all it takes to install them; still, it's annoying.
-
+    > easy_install --install-dir=~/path/to/site-packages/  matplotlib-1.2.0-py2.7-macosx-10.5-i386.egg
 
 .. _install_from_source_on_osx_epd:
 
@@ -349,13 +323,11 @@ Binary installers for Windows
 
 If you have already installed python, you can use one of the
 matplotlib binary installers for windows -- you can get these from the
-`sourceforge download
-<http://sourceforge.net/project/platformdownload.php?group_id=80706>`_
-site.  Choose the files that match your version of python (eg
-``py2.5`` if you installed Python 2.5) which have the ``exe``
-extension.  If you haven't already installed python, you can get the
-official version from the `python web site
-<http://python.org/download/>`_.
+`download <https://github.com/matplotlib/matplotlib/downloads>`_ site.
+Choose the files that match your version of python (eg ``py2.7`` if
+you installed Python 2.7) which have the ``exe`` extension.  If you
+haven't already installed python, you can get the official version
+from the `python web site <http://python.org/download/>`_.
 
 There are also two packaged distributions of python that come
 preloaded with matplotlib and many other tools like ipython, numpy,

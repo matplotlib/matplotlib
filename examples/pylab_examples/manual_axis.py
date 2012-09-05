@@ -1,7 +1,7 @@
 """
 The techniques here are no longer required with the new support for
 spines in matplotlib -- see
-http://matplotlib.sourceforge.net/examples/pylab_examples/spine_placement_demo.html.
+http://matplotlib.org/examples/pylab_examples/spine_placement_demo.html.
 
 This example should be considered deprecated and is left just for demo
 purposes for folks wanting to make a pseudo-axis
@@ -55,4 +55,3 @@ make_xaxis(ax, 0, offset=0.1, **props)
 make_yaxis(ax, 0, offset=5, **props)
 
 show()
-
