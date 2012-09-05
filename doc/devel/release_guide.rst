@@ -94,10 +94,11 @@ Packaging
 .. _release-candidate-testing:
 
 Release candidate testing
+=========================
 
 Post the release candidates tarballs to the `matplotlib download page
 <https://github.com/matplotlib/matplotlib/downloads>`_.  If you have
-developer rights, you should see and "Upload a new file" section
+developer rights, you should see an "Upload a new file" section
 there.
 
 .. _release-announcing:
