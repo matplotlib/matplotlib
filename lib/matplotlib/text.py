@@ -384,7 +384,12 @@ class Text(Artist):
 
             if valign=='center': offsety = (ymin + height/2.0)
             elif valign=='top': offsety  = (ymin + height)
-            elif valign=='baseline': offsety = (ymin + height) - baseline
+            elif valign=='baseline':
+                if self.get_rotation() == 0:
+                    offsety = (ymin + height) - baseline
+                else:
+                    # if rotation is not 0, use va=bottom for baseline
+                    offsety  = ymin
             else: offsety = ymin
         else:
             xmin1, ymin1 = cornersHoriz[0]
