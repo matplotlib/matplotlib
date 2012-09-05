@@ -160,6 +160,21 @@ def test_no_interpolation_origin():
     ax = fig.add_subplot(212)
     ax.imshow(np.arange(100).reshape((2, 50)), interpolation='none')
 
+@image_comparison(baseline_images=['image_shift'], remove_text=True,
+                  extensions=['pdf', 'svg'])
+def test_image_shift():
+    from matplotlib.colors import LogNorm
+
+    imgData = [[1.0/(x) + 1.0/(y) for x in range(1,100)] for y in range(1,100)]
+    tMin=734717.945208
+    tMax=734717.946366
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.imshow(imgData, norm=LogNorm(), interpolation='none',
+              extent=(tMin, tMax, 1, 100))
+    ax.set_aspect('auto')
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
