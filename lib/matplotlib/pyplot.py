@@ -2092,7 +2092,7 @@ def polar(*args, **kwargs):
 
 def plotfile(fname, cols=(0,), plotfuncs=None,
              comments='#', skiprows=0, checkrows=5, delimiter=',', names=None,
-             subplots=True, newfig=True,
+             subplots=True, newfig=True, gridon=True,
              **kwargs):
     """
     Plot the data in in a file.
@@ -2129,6 +2129,8 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     If *newfig* is *True*, the plot always will be made in a new figure;
     if *False*, it will be made in the current figure if one exists,
     else in a new figure.
+
+    *gridon* turn the axes grids on or off.
 
     kwargs are passed on to plotting functions.
 
@@ -2189,7 +2191,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
             elif i==1:
                 ax = fig.add_subplot(1,1,1)
 
-            ax.grid(True)
+            ax.grid(gridon)
 
 
             yname, y = getname_val(cols[i])
