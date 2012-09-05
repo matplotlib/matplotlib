@@ -131,11 +131,12 @@ local intensity of the vector field.
 New hist functionality
 ----------------------
 
-Nic Eggert added a new `stack kwarg to :meth:`~matplotlib.pyplot.hist` that
+Nic Eggert added a new `stacked` kwarg to :meth:`~matplotlib.pyplot.hist` that
 allows creation of stacked histograms using any of the histogram types.
 Previously, this functionality was only available by using the `barstacked`
 histogram type. Now, when `stacked=True` is passed to the function, any of the
-histogram types can be stacked.
+histogram types can be stacked. The `barstacked` histogram type retains its
+previous functionality for backwards compatibility.
 
 Updated shipped dependencies
 ----------------------------
