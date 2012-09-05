@@ -5,7 +5,7 @@ What's new in matplotlib
 ************************
 
 This page just covers the highlights -- for the full story, see the
-`CHANGELOG <http://matplotlib.sourceforge.net/_static/CHANGELOG>`_
+`CHANGELOG <http://matplotlib.org/_static/CHANGELOG>`_
 
 .. note::
    Matplotlib version 1.1 is the last major release compatible with Python

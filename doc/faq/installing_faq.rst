@@ -248,11 +248,11 @@ can try::
 
     > easy_install matplotlib
 
-which should grab the latest egg from the sourceforge site, but sometimes
-the naming conventions for OSX eggs can be broken (see below).
-Therefore, there is no guarantee the right egg will be found. We recommend
-you download the latest egg from our `download site
-<http://sourceforge.net/projects/matplotlib/files/>`_ directly to your
+which should grab the latest egg from github, but sometimes the naming
+conventions for OSX eggs can be broken (see below).  Therefore, there
+is no guarantee the right egg will be found. We recommend you download
+the latest egg from our `download site
+<https://github.com/matplotlib/matplotlib/downloads>`_ directly to your
 harddrive, and manually install it, eg::
 
     > easy_install --install-dir=~/dev/lib/python2.5/site-packages/  matplotlib-0.99.0.rc1-py2.5-macosx-10.5-i386.egg
@@ -349,13 +349,11 @@ Binary installers for Windows
 
 If you have already installed python, you can use one of the
 matplotlib binary installers for windows -- you can get these from the
-`sourceforge download
-<http://sourceforge.net/project/platformdownload.php?group_id=80706>`_
-site.  Choose the files that match your version of python (eg
-``py2.5`` if you installed Python 2.5) which have the ``exe``
-extension.  If you haven't already installed python, you can get the
-official version from the `python web site
-<http://python.org/download/>`_.
+`download <https://github.com/matplotlib/matplotlib/downloads>`_ site.
+Choose the files that match your version of python (eg ``py2.5`` if
+you installed Python 2.5) which have the ``exe`` extension.  If you
+haven't already installed python, you can get the official version
+from the `python web site <http://python.org/download/>`_.
 
 There are also two packaged distributions of python that come
 preloaded with matplotlib and many other tools like ipython, numpy,
