@@ -42,6 +42,7 @@ class RendererMac(RendererBase):
         self.width = width
         self.height = height
         self.gc = GraphicsContextMac()
+        self.gc.set_dpi(self.dpi)
         self.mathtext_parser = MathTextParser('MacOSX')
 
     def set_width_height (self, width, height):
