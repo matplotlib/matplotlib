@@ -471,9 +471,11 @@ def _create_tmp_config_dir():
     If the config directory can not be created, create a temporary
     directory.
     """
+    import getpass
     import tempfile
 
-    tempdir = os.path.join(tempfile.gettempdir(), 'matplotlib')
+    tempdir = os.path.join(
+        tempfile.gettempdir(), 'matplotlib-%s' % getpass.getuser())
     os.environ['MPLCONFIGDIR'] = tempdir
 
     return tempdir
