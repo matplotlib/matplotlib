@@ -336,7 +336,12 @@ class Figure(Artist):
         """
         import matplotlib.backends as mbackends  # lazy import
         backend_mod = mbackends.pylab_setup()[0]
-        return backend_mod.FigureCanvas(self)
+        if hasattr(backend_mod, 'FigureCanvas'):
+            return backend_mod.FigureCanvas(self)
+        else:
+            # Some backends (ipython inline backend) don't have a
+            # FigureCanvas object, so return None to prevent an error
+            return None
 
     def show(self, warn=True):
         """
