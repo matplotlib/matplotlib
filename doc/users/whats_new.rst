@@ -7,6 +7,9 @@ What's new in matplotlib
 This page just covers the highlights -- for the full story, see the
 `CHANGELOG <http://matplotlib.org/_static/CHANGELOG>`_
 
+For a list of all of the issues and pull requests since the last
+revision, see the :ref:`github-stats`.
+
 .. note::
    Matplotlib version 1.1 is the last major release compatible with Python
    versions 2.4 to 2.7.  matplotlib 1.2 and later require
