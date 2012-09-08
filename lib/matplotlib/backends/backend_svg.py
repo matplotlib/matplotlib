@@ -1143,8 +1143,6 @@ class FigureCanvasSVG(FigureCanvasBase):
     def get_default_filetype(self):
         return 'svg'
 
-FigureCanvas = FigureCanvasSVG
-
 class FigureManagerSVG(FigureManagerBase):
     pass
 
