@@ -245,8 +245,6 @@ class FigureCanvasTemplate(FigureCanvasBase):
     def get_default_filetype(self):
         return 'foo'
 
-FigureCanvas = FigureCanvasTemplate
-
 class FigureManagerTemplate(FigureManagerBase):
     """
     Wrap everything up into a window for the pylab interface

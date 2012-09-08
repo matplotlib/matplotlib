@@ -105,8 +105,6 @@ class FigureCanvasWxAgg(FigureCanvasAgg, FigureCanvasWx):
         if self._isDrawn:
             self.draw()
 
-FigureCanvas = FigureCanvasWxAgg
-
 class NavigationToolbar2WxAgg(NavigationToolbar2Wx):
     def get_canvas(self, frame, fig):
         return FigureCanvasWxAgg(frame, -1, fig)

@@ -34,7 +34,6 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
 
         return False  # finish event propagation?
 
-FigureCanvas = FigureCanvasGTK3Cairo
 
 class FigureManagerGTK3Cairo(backend_gtk3.FigureManagerGTK3):
     pass

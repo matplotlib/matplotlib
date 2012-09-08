@@ -318,7 +318,7 @@ class Figure(Artist):
         self.patch.set_aa(False)
 
         self._hold = rcParams['axes.hold']
-        self.canvas = self._setup_canvas()
+        self.canvas = None
 
         if subplotpars is None:
             subplotpars = SubplotParams()
@@ -329,14 +329,6 @@ class Figure(Artist):
         self._axstack = AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
-
-    def _setup_canvas(self):
-        """
-        Return the FigureCanvas instance defined by the currently loaded backend.
-        """
-        import matplotlib.backends as mbackends  # lazy import
-        backend_mod = mbackends.pylab_setup()[0]
-        return backend_mod.FigureCanvas(self)
 
     def show(self, warn=True):
         """
