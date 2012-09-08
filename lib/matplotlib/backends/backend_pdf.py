@@ -2299,8 +2299,6 @@ class FigureCanvasPdf(FigureCanvasBase):
             else:            # we opened the file above; now finish it off
                 file.close()
 
-FigureCanvas = FigureCanvasPdf
-
 class FigureManagerPdf(FigureManagerBase):
     pass
 

@@ -352,7 +352,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         """
         return TimerMac(*args, **kwargs)
 
-FigureCanvas = FigureCanvasMac
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     """

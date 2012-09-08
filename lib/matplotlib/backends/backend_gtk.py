@@ -144,7 +144,7 @@ class TimerGTK(TimerBase):
             return False
 
 
-class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
+class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     keyvald = {65507 : 'control',
                65505 : 'shift',
                65513 : 'alt',
@@ -518,8 +518,6 @@ class FigureCanvasGTK(gtk.DrawingArea, FigureCanvasBase):
     def stop_event_loop(self):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
-
-FigureCanvas = FigureCanvasGTK
 
 class FigureManagerGTK(FigureManagerBase):
     """

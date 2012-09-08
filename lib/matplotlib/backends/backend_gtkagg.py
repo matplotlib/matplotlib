@@ -111,7 +111,6 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_png(filename, *args, **kwargs)
 
-FigureCanvas = FigureCanvasGTKAgg
 
 """\
 Traceback (most recent call last):
