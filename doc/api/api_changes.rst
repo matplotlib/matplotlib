@@ -131,6 +131,9 @@ Changes in 1.2.x
 * ``twinx`` and ``twiny`` now returns an instance of SubplotBase if
   parent axes is an instance of SubplotBase.
 
+* :class:`~matplotlib.colors.ColorConverter`,
+  :class:`~matplotlib.colors.Colormap` and
+  :class:`~matplotlib.colors.Normalize` now subclasses ``object``
 
 Changes in 1.1.x
 ================
