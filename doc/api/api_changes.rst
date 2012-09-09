@@ -131,6 +131,11 @@ Changes in 1.2.x
 * ``twinx`` and ``twiny`` now returns an instance of SubplotBase if
   parent axes is an instance of SubplotBase.
 
+* All Qt3-based backends are now deprecated due to the lack of py3k bindings.
+  Qt and QtAgg backends will continue to work in v1.2.x for py2.6
+  and py2.7. It is anticipated that the Qt3 support will be completely
+  removed for the next release.
+
 
 Changes in 1.1.x
 ================
