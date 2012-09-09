@@ -2,6 +2,11 @@ from __future__ import division, print_function
 import math
 import os
 import sys
+import warnings
+
+warnings.warn("QT3-based backends are deprecated and will be removed after"
+              " the v1.2.x release. Use the equivalent QT4 backend instead.",
+              DeprecationWarning)
 
 import matplotlib
 from matplotlib import verbose
@@ -18,7 +23,9 @@ from matplotlib.widgets import SubplotTool
 try:
     import qt
 except ImportError:
-    raise ImportError("Qt backend requires pyqt to be installed.")
+    raise ImportError("Qt backend requires pyqt to be installed."
+                      " NOTE: QT3-based backends will not work in"
+                      " Python 3.")
 
 backend_version = "0.9.1"
 def fn_name(): return sys._getframe(1).f_code.co_name
