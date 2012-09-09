@@ -58,9 +58,6 @@ private:
     int num_pts, num_ctr;               /* number of points, number of coutours */
     FWord *xcoor, *ycoor;               /* arrays of x and y coordinates */
     BYTE *tt_flags;                     /* array of TrueType flags */
-    double *area_ctr;
-    char *check_ctr;
-    int *ctrset;                /* in contour index followed by out contour index */
 
     int stack_depth;            /* A book-keeping variable for keeping track of the depth of the PS stack */
 
@@ -70,10 +67,6 @@ private:
     void stack(TTStreamWriter& stream, int new_elem);
     void stack_end(TTStreamWriter& stream);
     void PSConvert(TTStreamWriter& stream);
-    int nextinctr(int co, int ci);
-    int nextoutctr(int co);
-    int nearout(int ci);
-    double intest(int co, int ci);
     void PSCurveto(TTStreamWriter& stream,
                    FWord x0, FWord y0,
                    FWord x1, FWord y1,
@@ -148,64 +141,17 @@ void GlyphToType3::stack_end(TTStreamWriter& stream)                    /* calle
 } /* end of stack_end() */
 
 /*
-** Find the area of a contour?
-*/
-double area(FWord *x, FWord *y, int n)
-{
-    int i;
-    double sum;
-
-    sum=x[n-1]*y[0]-y[n-1]*x[0];
-    for (i=0; i<=n-2; i++) sum += x[i]*y[i+1] - y[i]*x[i+1];
-    return sum;
-}
-
-/*
 ** We call this routine to emmit the PostScript code
 ** for the character we have loaded with load_char().
 */
 void GlyphToType3::PSConvert(TTStreamWriter& stream)
 {
-    int i,j,k;
+    int j, k;
 
-    assert(area_ctr == NULL);
-    area_ctr=(double*)calloc(num_ctr, sizeof(double));
-    memset(area_ctr, 0, (num_ctr*sizeof(double)));
-    assert(check_ctr == NULL);
-    check_ctr=(char*)calloc(num_ctr, sizeof(char));
-    memset(check_ctr, 0, (num_ctr*sizeof(char)));
-    assert(ctrset == NULL);
-    ctrset=(int*)calloc(num_ctr, 2*sizeof(int));
-    memset(ctrset, 0, (num_ctr*2*sizeof(int)));
-
-    check_ctr[0]=1;
-    area_ctr[0]=area(xcoor, ycoor, epts_ctr[0]+1);
-
-    for (i=1; i<num_ctr; i++)
-    {
-        area_ctr[i]=area(xcoor+epts_ctr[i-1]+1, ycoor+epts_ctr[i-1]+1, epts_ctr[i]-epts_ctr[i-1]);
-    }
-
-    for (i=0; i<num_ctr; i++)
-    {
-        if (area_ctr[i]>0)
-        {
-            ctrset[2*i]=i;
-            ctrset[2*i+1]=nearout(i);
-        }
-        else
-        {
-            ctrset[2*i]=-1;
-            ctrset[2*i+1]=-1;
-        }
-    }
-
-    /* Step thru the coutours. */
-    /* I believe that a contour is a detatched */
-    /* set of curves and lines. */
-    for(i = j = k = 0;
-        i != NOMOREOUTCTR && i < num_ctr;
-        k = nextinctr(i, k), (k == NOMOREINCTR && (i = k = nextoutctr(i))))
+    /* Step thru the contours.
+     * j = index to xcoor, ycoor, tt_flags (point data)
+     * k = index to epts_ctr (which points belong to the same contour) */
+    for(j = k = 0; k < num_ctr; k++)
     {
         // A TrueType contour consists of on-path and off-path points.
         // Two consecutive on-path points are to be joined with a
@@ -294,125 +240,7 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
     /* Now, we can fill the whole thing. */
     stack(stream, 1);
     stream.puts( pdf_mode ? "f" : "_cl" );
-
-    /* Free our work arrays. */
-    free(area_ctr);
-    free(check_ctr);
-    free(ctrset);
-    area_ctr = NULL;
-    check_ctr = NULL;
-    ctrset = NULL;
 } /* end of PSConvert() */
-
-int GlyphToType3::nextoutctr(int co)
-{
-    int j;
-
-    for (j=0; j<num_ctr; j++)
-    {
-        if (check_ctr[j]==0 && area_ctr[j] < 0)
-        {
-            check_ctr[j]=1;
-            return j;
-        }
-    }
-
-    return NOMOREOUTCTR;
-} /* end of nextoutctr() */
-
-int GlyphToType3::nextinctr(int co, int ci)
-{
-    int j;
-
-    for (j=0; j<num_ctr; j++)
-    {
-        if (ctrset[2*j+1]==co)
-            if (check_ctr[ctrset[2*j]]==0)
-            {
-                check_ctr[ctrset[2*j]]=1;
-                return ctrset[2*j];
-            }
-    }
-
-    return NOMOREINCTR;
-}
-
-/*
-** find the nearest out contour to a specified in contour.
-*/
-int GlyphToType3::nearout(int ci)
-{
-    int k = 0;                  /* !!! is this right? */
-    int co;
-    double a, a1=0;
-
-    for (co=0; co < num_ctr; co++)
-    {
-        if (area_ctr[co] < 0)
-        {
-            a=intest(co,ci);
-            if (a<0 && a1==0)
-            {
-                k=co;
-                a1=a;
-            }
-            if (a<0 && a1!=0 && a>a1)
-            {
-                k=co;
-                a1=a;
-            }
-        }
-    }
-
-    return k;
-} /* end of nearout() */
-
-double GlyphToType3::intest(int co, int ci)
-{
-    int i, j, start, end;
-    double r1, r2, a;
-    FWord xi[3], yi[3];
-
-    j=start=(co==0)?0:(epts_ctr[co-1]+1);
-    end=epts_ctr[co];
-    i=(ci==0)?0:(epts_ctr[ci-1]+1);
-    xi[0] = xcoor[i];
-    yi[0] = ycoor[i];
-    r1=sqr(xcoor[start] - xi[0]) + sqr(ycoor[start] - yi[0]);
-
-    for (i=start; i<=end; i++)
-    {
-        r2 = sqr(xcoor[i] - xi[0])+sqr(ycoor[i] - yi[0]);
-        if (r2 < r1)
-        {
-            r1=r2;
-            j=i;
-        }
-    }
-    if (j==start)
-    {
-        xi[1]=xcoor[end];
-        yi[1]=ycoor[end];
-    }
-    else
-    {
-        xi[1]=xcoor[j-1];
-        yi[1]=ycoor[j-1];
-    }
-    if (j==end)
-    {
-        xi[2]=xcoor[start];
-        yi[2]=ycoor[start];
-    }
-    else
-    {
-        xi[2]=xcoor[j+1];
-        yi[2]=ycoor[j+1];
-    }
-    a=area(xi, yi, 3);
-
-    return a;
-} /* end of intest() */
 
 void GlyphToType3::PSMoveto(TTStreamWriter& stream, int x, int y)
 {
@@ -466,11 +294,6 @@ GlyphToType3::~GlyphToType3()
     free(xcoor);               /* The X coordinates */
     free(ycoor);               /* The Y coordinates */
     free(epts_ctr);            /* The array of contour endpoints */
-    // These last three should be NULL.  Just
-    // free'ing them for safety.
-    free(area_ctr);
-    free(check_ctr);
-    free(ctrset);
 }
 
 /*
@@ -754,9 +577,6 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
     xcoor = NULL;
     ycoor = NULL;
     epts_ctr = NULL;
-    area_ctr = NULL;
-    check_ctr = NULL;
-    ctrset = NULL;
     stack_depth = 0;
     pdf_mode = font->target_type < 0;
 
