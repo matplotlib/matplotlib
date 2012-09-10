@@ -82,7 +82,19 @@ P.legend()
 #
 P.figure()
 
-n, bins, patches = P.hist(x, 10, normed=1, histtype='barstacked')
+n, bins, patches = P.hist(x, 10, normed=1, histtype='bar', stacked=True)
+
+P.show()
+
+#
+# we can also stack using the step histtype
+#
+
+P.figure()
+
+n, bins, patches = P.hist(x, 10, histtype='step', stacked=True, fill=True)
+
+P.show()
 
 #
 # finally: make a multiple-histogram of data-sets with different length
