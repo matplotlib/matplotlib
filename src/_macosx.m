@@ -425,6 +425,7 @@ typedef struct {
     NSSize size;
     int level;
     CGFloat color[4];
+    float dpi;
 } GraphicsContext;
 
 static CGMutablePathRef _create_path(void* iterator)
@@ -850,6 +851,15 @@ GraphicsContext_set_graylevel(GraphicsContext* self, PyObject* args)
 }
 
 static PyObject*
+GraphicsContext_set_dpi (GraphicsContext* self, PyObject* args)
+{
+  if (!PyArg_ParseTuple(args, "f", &(self->dpi))) return NULL;
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+static PyObject*
 GraphicsContext_set_linewidth (GraphicsContext* self, PyObject* args)
 {
     float width;
@@ -862,6 +872,8 @@ GraphicsContext_set_linewidth (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
+    // Convert points to pixels
+    width *= self->dpi / 72.0;
     CGContextSetLineWidth(cr, width);
 
     Py_INCREF(Py_None);
@@ -3201,6 +3213,11 @@ static PyMethodDef GraphicsContext_methods[] = {
      (PyCFunction)GraphicsContext_set_graylevel,
      METH_VARARGS,
      "Sets the current stroke and fill color to a value in the DeviceGray color space."
+    },
+    {"set_dpi",
+     (PyCFunction)GraphicsContext_set_dpi,
+     METH_VARARGS,
+     "Sets the dpi for a graphics context."
     },
     {"set_linewidth",
      (PyCFunction)GraphicsContext_set_linewidth,
