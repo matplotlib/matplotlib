@@ -136,6 +136,9 @@ Changes in 1.2.x
   and py2.7. It is anticipated that the Qt3 support will be completely
   removed for the next release.
 
+* :class:`~matplotlib.colors.ColorConverter`,
+  :class:`~matplotlib.colors.Colormap` and
+  :class:`~matplotlib.colors.Normalize` now subclasses ``object``
 
 Changes in 1.1.x
 ================
