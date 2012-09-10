@@ -2639,7 +2639,8 @@ def hexbin(x, y, C=None, gridsize=100, bins=None, xscale='linear',
 @_autogen_docstring(Axes.hist)
 def hist(x, bins=10, range=None, normed=False, weights=None, cumulative=False,
          bottom=None, histtype='bar', align='mid', orientation='vertical',
-         rwidth=None, log=False, color=None, label=None, hold=None, **kwargs):
+         rwidth=None, log=False, color=None, label=None, stacked=False,
+         hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
