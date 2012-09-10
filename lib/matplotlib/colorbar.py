@@ -82,6 +82,10 @@ colormap_kw_doc = '''
                   be given, indicating the lengths of the minimum and
                   maximum colorbar extensions respectively as a
                   fraction of the interior colorbar length.
+    *extendrect*  [ *False* | *True* ]
+                  If *False* the minimum and maximum colorbar extensions
+                  will be triangular (the default). If *True* the
+                  extensions will be rectangular.
     *spacing*     [ 'uniform' | 'proportional' ]
                   Uniform spacing gives each discrete color the same
                   space; proportional makes the space proportional to
@@ -258,6 +262,7 @@ class ColorbarBase(cm.ScalarMappable):
                  drawedges=False,
                  filled=True,
                  extendfrac=None,
+                 extendrect=False,
                  ):
         self.ax = ax
         self._patch_ax()
@@ -276,6 +281,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.drawedges = drawedges
         self.filled = filled
         self.extendfrac = extendfrac
+        self.extendrect = extendrect
         self.solids = None
         self.lines = list()
         self.outline = None
@@ -773,9 +779,9 @@ class ColorbarBase(cm.ScalarMappable):
             y = self._proportional_y()
         self._y = y
         X, Y = np.meshgrid(x, y)
-        if self._extend_lower():
+        if self._extend_lower() and not self.extendrect:
             X[0, :] = 0.5
-        if self._extend_upper():
+        if self._extend_upper() and not self.extendrect:
             X[-1, :] = 0.5
         return X, Y
 
