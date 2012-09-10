@@ -1910,7 +1910,9 @@ class FigureCanvasBase(object):
             buf, size = agg.print_to_buffer()
             if kwargs.pop("dryrun", False): return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            return image.save(filename_or_obj, format='tiff')
+            dpi = (self.figure.dpi, self.figure.dpi)
+            return image.save(filename_or_obj, format='tiff',
+                              dpi=dpi)
         print_tiff = print_tif
 
     def get_supported_filetypes(self):
