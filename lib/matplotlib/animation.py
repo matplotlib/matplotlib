@@ -26,10 +26,12 @@ from matplotlib import verbose
 from matplotlib import rcParams
 
 # Other potential writing methods:
-# * ImageMagick convert: convert -set delay 3 -colorspace GRAY -colors 16 -dispose 1 -loop 0 -scale 50% *.png Output.gif
+# * ImageMagick convert: convert -set delay 3 -colorspace GRAY -colors 16
+#   -dispose 1 -loop 0 -scale 50% *.png Output.gif
 # * http://pymedia.org/
 # * libmng (produces swf) python wrappers: https://github.com/libming/libming
-# * Wrap x264 API: http://stackoverflow.com/questions/2940671/how-to-encode-series-of-images-into-h264-using-x264-api-c-c
+# * Wrap x264 API:
+# http://stackoverflow.com/questions/2940671/how-to-encode-series-of-images-into-h264-using-x264-api-c-c
 
 
 # A registry for available MovieWriter classes
@@ -59,6 +61,7 @@ class MovieWriterRegistry(object):
         return self.avail[name]
 
 writers = MovieWriterRegistry()
+
 
 class MovieWriter(object):
     '''
@@ -173,7 +176,8 @@ class MovieWriter(object):
             output = sys.stdout
         else:
             output = subprocess.PIPE
-        verbose.report('MovieWriter.run: running command: %s'%' '.join(command))
+        verbose.report('MovieWriter.run: running command: %s' %
+                       ' '.join(command))
         self._proc = subprocess.Popen(command, shell=False,
                                       stdout=output, stderr=output,
                                       stdin=subprocess.PIPE)
@@ -186,7 +190,8 @@ class MovieWriter(object):
         '''
         Grab the image information from the figure and save as a movie frame.
         '''
-        verbose.report('MovieWriter.grab_frame: Grabbing frame.', level='debug')
+        verbose.report('MovieWriter.grab_frame: Grabbing frame.',
+                       level='debug')
         try:
             # Tell the figure to save its data to the sink, using the
             # frame format and dpi.
@@ -208,7 +213,7 @@ class MovieWriter(object):
 
     def cleanup(self):
         'Clean-up and collect the process used to write the movie file.'
-        out,err = self._proc.communicate()
+        out, err = self._proc.communicate()
         verbose.report('MovieWriter -- Command stdout:\n%s' % out,
             level='debug')
         verbose.report('MovieWriter -- Command stderr:\n%s' % err,
@@ -266,7 +271,7 @@ class FileMovieWriter(MovieWriter):
         self.dpi = dpi
         self.clear_temp = clear_temp
         self.temp_prefix = frame_prefix
-        self._frame_counter = 0 # used for generating sequential file names
+        self._frame_counter = 0  # used for generating sequential file names
         self._temp_names = list()
         self.fname_format_str = '%s%%07d.%s'
 
@@ -298,9 +303,10 @@ class FileMovieWriter(MovieWriter):
         # Save the filename so we can delete it later if necessary
         self._temp_names.append(fname)
         verbose.report(
-            'FileMovieWriter.frame_sink: saving frame %d to fname=%s' % (self._frame_counter, fname),
+            'FileMovieWriter.frame_sink: saving frame %d to fname=%s' %
+                (self._frame_counter, fname),
             level='debug')
-        self._frame_counter += 1 # Ensures each created name is 'unique'
+        self._frame_counter += 1  # Ensures each created name is 'unique'
 
         # This file returned here will be closed once it's used by savefig()
         # because it will no longer be referenced and will be gc-ed.
@@ -310,7 +316,7 @@ class FileMovieWriter(MovieWriter):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
         self._run()
-        MovieWriter.finish(self) # Will call clean-up
+        MovieWriter.finish(self)  # Will call clean-up
 
         # Check error code for creating file here, since we just run
         # the process here, rather than having an open pipe.
@@ -326,7 +332,8 @@ class FileMovieWriter(MovieWriter):
         if self.clear_temp:
             import os
             verbose.report(
-                'MovieWriter: clearing temporary fnames=%s' % str(self._temp_names),
+                'MovieWriter: clearing temporary fnames=%s' %
+                str(self._temp_names),
                 level='debug')
             for fname in self._temp_names:
                 os.remove(fname)
@@ -347,8 +354,8 @@ class FFMpegBase:
             args.extend(['-b', '%dk' % self.bitrate])
         if self.extra_args:
             args.extend(self.extra_args)
-        for k,v in self.metadata.items():
-            args.extend(['-metadata', '%s=%s' % (k,v)])
+        for k, v in self.metadata.items():
+            args.extend(['-metadata', '%s=%s' % (k, v)])
 
         return args + ['-y', self.outfile]
 
@@ -372,7 +379,9 @@ class FFMpegWriter(MovieWriter, FFMpegBase):
 #Combine FFMpeg options with temp file-based writing
 @writers.register('ffmpeg_file')
 class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
-    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp', 'pbm', 'raw', 'rgba']
+    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
+                         'pbm', 'raw', 'rgba']
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
@@ -408,8 +417,8 @@ class MencoderBase:
         if self.extra_args:
             args.extend(self.extra_args)
         if self.metadata:
-            args.extend(['-info', ':'.join('%s=%s' % (k,v)
-                for k,v in self.metadata.items()
+            args.extend(['-info', ':'.join('%s=%s' % (k, v)
+                for k, v in self.metadata.items()
                 if k in self.allowed_metadata)])
         return args
 
@@ -422,20 +431,23 @@ class MencoderWriter(MovieWriter, MencoderBase):
         # mencoder to create a movie
         return [self.bin_path(), '-', '-demuxer', 'rawvideo', '-rawvideo',
             ('w=%i:h=%i:' % self.frame_size +
-            'fps=%i:format=%s' % (self.fps, self.frame_format))] + self.output_args
+            'fps=%i:format=%s' % (self.fps,
+                                  self.frame_format))] + self.output_args
 
 
 # Combine Mencoder options with temp file-based writing
 @writers.register('mencoder_file')
 class MencoderFileWriter(FileMovieWriter, MencoderBase):
     supported_formats = ['png', 'jpeg', 'tga', 'sgi']
+
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # mencoder to create a movie
         return [self.bin_path(),
             'mf://%s*.%s' % (self.temp_prefix, self.frame_format),
             '-frames', str(self._frame_counter), '-mf',
-            'type=%s:fps=%d' % (self.frame_format, self.fps)] + self.output_args
+            'type=%s:fps=%d' % (self.frame_format,
+                                self.fps)] + self.output_args
 
 
 class Animation(object):
@@ -473,7 +485,8 @@ class Animation(object):
 
         # Connect to the figure's close_event so that we don't continue to
         # fire events and try to draw to a deleted figure.
-        self._close_id = self._fig.canvas.mpl_connect('close_event', self._stop)
+        self._close_id = self._fig.canvas.mpl_connect('close_event',
+                                                      self._stop)
         if blit:
             self._setup_blit()
 
@@ -488,7 +501,7 @@ class Animation(object):
         self.event_source.add_callback(self._step)
         self.event_source.start()
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
-        self._first_draw_id = None # So we can check on save
+        self._first_draw_id = None  # So we can check on save
 
     def _stop(self, *args):
         # On stop we disconnect all of our events.
@@ -570,7 +583,9 @@ class Animation(object):
 
         all_anim = [self]
         if not extra_anim is None:
-            all_anim.extend(anim for anim in extra_anim if anim._fig is self._fig)
+            all_anim.extend(anim
+                            for anim
+                            in extra_anim if anim._fig is self._fig)
 
         # If we have the name of a writer, instantiate an instance of the
         # registered class.
@@ -583,16 +598,18 @@ class Animation(object):
                 warnings.warn("MovieWriter %s unavailable" % writer)
                 writer = writers.list()[0]
 
-        verbose.report('Animation.save using %s' % type(writer), level='helpful')
+        verbose.report('Animation.save using %s' % type(writer),
+                       level='helpful')
         # Create a new sequence of frames for saved data. This is different
         # from new_frame_seq() to give the ability to save 'live' generated
         # frame information to be saved later.
-        # TODO: Right now, after closing the figure, saving a movie won't
-        # work since GUI widgets are gone. Either need to remove extra code
-        # to allow for this non-existant use case or find a way to make it work.
+        # TODO: Right now, after closing the figure, saving a movie won't work
+        # since GUI widgets are gone. Either need to remove extra code to
+        # allow for this non-existant use case or find a way to make it work.
         with writer.saving(self._fig, filename, dpi):
-            for data in itertools.izip(*[a.new_saved_frame_seq() for a in all_anim]):
-                for anim,d in zip(all_anim, data):
+            for data in itertools.izip(*[a.new_saved_frame_seq()
+                                         for a in all_anim]):
+                for anim, d in zip(all_anim, data):
                     #TODO: Need to see if turning off blit is really necessary
                     anim._draw_next_frame(d, blit=False)
                 writer.grab_frame()
@@ -703,7 +720,8 @@ class Animation(object):
         self.event_source.stop()
         self._blit_cache.clear()
         self._init_draw()
-        self._resize_id = self._fig.canvas.mpl_connect('draw_event', self._end_redraw)
+        self._resize_id = self._fig.canvas.mpl_connect('draw_event',
+                                                       self._end_redraw)
 
     def _end_redraw(self, evt):
         # Now that the redraw has happened, do the post draw flushing and
@@ -739,17 +757,19 @@ class TimedAnimation(Animation):
             event_source = fig.canvas.new_timer()
             event_source.interval = self._interval
 
-        Animation.__init__(self, fig, event_source=event_source, *args, **kwargs)
+        Animation.__init__(self, fig, event_source=event_source,
+                           *args, **kwargs)
 
     def _step(self, *args):
         '''
         Handler for getting events.
         '''
         # Extends the _step() method for the Animation class.  If
-        # Animation._step signals that it reached the end and we want to repeat,
-        # we refresh the frame sequence and return True. If _repeat_delay is
-        # set, change the event_source's interval to our loop delay and set the
-        # callback to one which will then set the interval back.
+        # Animation._step signals that it reached the end and we want to
+        # repeat, we refresh the frame sequence and return True. If
+        # _repeat_delay is set, change the event_source's interval to our loop
+        # delay and set the callback to one which will then set the interval
+        # back.
         still_going = Animation._step(self, *args)
         if not still_going and self.repeat:
             self.frame_seq = self.new_frame_seq()
@@ -831,6 +851,7 @@ class ArtistAnimation(TimedAnimation):
         for artist in artists:
             artist.set_visible(True)
 
+
 class FuncAnimation(TimedAnimation):
     '''
     Makes an animation by repeatedly calling a function *func*, passing in
@@ -842,7 +863,7 @@ class FuncAnimation(TimedAnimation):
     results of drawing from the first item in the frames sequence will be
     used.
     '''
-    def __init__(self, fig, func, frames=None ,init_func=None, fargs=None,
+    def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
             save_count=None, **kwargs):
         if fargs:
             self._args = fargs
@@ -913,7 +934,8 @@ class FuncAnimation(TimedAnimation):
         # Save the data for potential saving of movies.
         self._save_seq.append(framedata)
 
-        # Make sure to respect save_count (keep only the last save_count around)
+        # Make sure to respect save_count (keep only the last save_count
+        # around)
         self._save_seq = self._save_seq[-self.save_count:]
 
         # Call the func with framedata and args. If blitting is desired,
