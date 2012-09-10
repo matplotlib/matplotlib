@@ -204,6 +204,13 @@ to use a legend to identify contoured ranges.
 
 .. plot:: mpl_examples/pylab_examples/contourf_hatching.py
 
+Known issues in the matplotlib-1.2 release
+------------------------------------------
+
+- When using the Qt4Agg backend with IPython 0.11 or later, the save
+  dialog will not display.  This should be fixed in a future version
+  of IPython.
+
 .. _whats-new-1-1:
 
 new in matplotlib-1.1
