@@ -31,12 +31,12 @@ This work was done by Michael Droettboom, the Cape Town Python Users'
 Group, many others and supported financially in part by the SAGE
 project.
 
-The following GUI backends work under Python 3.x: Gtk3Agg, Gtk3Cairo,
-Qt4Agg, TkAgg and MacOSX.  The other GUI backends do not yet have
-adequate bindings for Python 3.x, but continue to work on Python 2.6
-and 2.7, particularly the Qt and QtAgg backends (which have been
-deprecated). The non-GUI backends, such as PDF, PS and SVG, work on both
-Python 2.x and 3.x.
+The following GUI backends work under Python 3.x: Gtk3Cairo, Qt4Agg,
+TkAgg and MacOSX.  The other GUI backends do not yet have adequate
+bindings for Python 3.x, but continue to work on Python 2.6 and 2.7,
+particularly the Qt and QtAgg backends (which have been
+deprecated). The non-GUI backends, such as PDF, PS and SVG, work on
+both Python 2.x and 3.x.
 
 Features that depend on the Python Imaging Library, such as JPEG
 handling, do not work, since the version of PIL for Python 3.x is not
