@@ -625,24 +625,24 @@ class Colormap(object):
         return rgba
 
     def set_bad(self, color='k', alpha=None):
-        '''Set color to be used for masked values.
-        '''
+        """Set color to be used for masked values.
+        """
         self._rgba_bad = colorConverter.to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
     def set_under(self, color='k', alpha=None):
-        '''Set color to be used for low out-of-range values.
+        """Set color to be used for low out-of-range values.
            Requires norm.clip = False
-        '''
+        """
         self._rgba_under = colorConverter.to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
 
     def set_over(self, color='k', alpha=None):
-        '''Set color to be used for high out-of-range values.
+        """Set color to be used for high out-of-range values.
            Requires norm.clip = False
-        '''
+        """
         self._rgba_over = colorConverter.to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -659,7 +659,7 @@ class Colormap(object):
         self._lut[self._i_bad] = self._rgba_bad
 
     def _init(self):
-        '''Generate the lookup table, self._lut'''
+        """Generate the lookup table, self._lut"""
         raise NotImplementedError("Abstract class only")
 
     def is_gray(self):
@@ -945,9 +945,9 @@ class Normalize(object):
             return vmin + value * (vmax - vmin)
 
     def autoscale(self, A):
-        '''
+        """
         Set *vmin*, *vmax* to min, max of *A*.
-        '''
+        """
         self.vmin = ma.min(A)
         self.vmax = ma.max(A)
 
@@ -1016,9 +1016,9 @@ class LogNorm(Normalize):
             return vmin * pow((vmax / vmin), value)
 
     def autoscale(self, A):
-        '''
+        """
         Set *vmin*, *vmax* to min, max of *A*.
-        '''
+        """
         A = ma.masked_less_equal(A, 0, copy=False)
         self.vmin = ma.min(A)
         self.vmax = ma.max(A)
@@ -1149,7 +1149,7 @@ class SymLogNorm(Normalize):
 
 
 class BoundaryNorm(Normalize):
-    '''
+    """
     Generate a colormap index based on discrete intervals.
 
     Unlike :class:`Normalize` or :class:`LogNorm`,
@@ -1160,9 +1160,9 @@ class BoundaryNorm(Normalize):
     piece-wise linear interpolation, but using integers seems
     simpler, and reduces the number of conversions back and forth
     between integer and floating point.
-    '''
+    """
     def __init__(self, boundaries, ncolors, clip=False):
-        '''
+        """
         *boundaries*
             a monotonically increasing sequence
         *ncolors*
@@ -1179,7 +1179,7 @@ class BoundaryNorm(Normalize):
         Out-of-range values are mapped to -1 if low and ncolors
         if high; these are converted to valid indices by
         :meth:`Colormap.__call__` .
-        '''
+        """
         self.clip = clip
         self.vmin = boundaries[0]
         self.vmax = boundaries[-1]
@@ -1217,11 +1217,11 @@ class BoundaryNorm(Normalize):
 
 
 class NoNorm(Normalize):
-    '''
+    """
     Dummy replacement for Normalize, for the case where we
     want to use indices directly in a
     :class:`~matplotlib.cm.ScalarMappable` .
-    '''
+    """
     def __call__(self, value, clip=None):
         return value
 
