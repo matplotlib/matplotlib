@@ -3549,6 +3549,8 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
     [image drawInRect:NSMakeRect(0, 0, width, height) fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
     [resizedImage unlockFocus];
     data = [resizedImage TIFFRepresentation];
+    [image release];
+    [resizedImage release];
 
     NSBitmapImageRep* rep = [NSBitmapImageRep imageRepWithData:data];
 
