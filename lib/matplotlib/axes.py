@@ -3970,8 +3970,9 @@ class Axes(martist.Artist):
         marker, linestyle, and markercolor with::
 
             plot(x, y, color='green', linestyle='dashed', marker='o',
-                 markerfacecolor='blue', markersize=12).  See
-                 :class:`~matplotlib.lines.Line2D` for details.
+                 markerfacecolor='blue', markersize=12).
+                 
+        See :class:`~matplotlib.lines.Line2D` for details.
 
         The kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
