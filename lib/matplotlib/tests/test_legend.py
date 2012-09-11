@@ -41,8 +41,8 @@ def test_various_labels():
 def test_fancy():
     # using subplot triggers some offsetbox functionality untested elsewhere
     plt.subplot(121)
-    plt.scatter(range(10), range(10, 0, -1), label='multi\nline')
-    plt.plot([5] * 10, 'o--', label='how\nmany\npoints?')
-    plt.errorbar(range(10), range(10), xerr=0.5, yerr=0.5, label='errorbars $x^2$')
+    plt.scatter(range(10), range(10, 0, -1), label='XX\nXX')
+    plt.plot([5] * 10, 'o--', label='XX')
+    plt.errorbar(range(10), range(10), xerr=0.5, yerr=0.5, label='XX')
     plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                ncol=2, shadow=True, title="My legend", numpoints=1)
