@@ -316,7 +316,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         width, height = self.figure.get_size_inches()
         width, height = width*dpi, height*dpi
         filename = unicode(filename)
-        self.write_bitmap(filename, width, height)
+        self.write_bitmap(filename, width, height, dpi)
         self.figure.dpi = old_dpi
 
     def print_bmp(self, filename, *args, **kwargs):
