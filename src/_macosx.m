@@ -3559,28 +3559,26 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
 
     [rep setSize:newSize];
 
-    if (! [extension isEqualToString: @"tiff"] &&
-        ! [extension isEqualToString: @"tif"])
-    {
-        NSBitmapImageFileType filetype;
-        if ([extension isEqualToString: @"bmp"])
-            filetype = NSBMPFileType;
-        else if ([extension isEqualToString: @"gif"])
-            filetype = NSGIFFileType;
-        else if ([extension isEqualToString: @"jpg"] ||
-                 [extension isEqualToString: @"jpeg"])
-            filetype = NSJPEGFileType;
-        else if ([extension isEqualToString: @"png"])
-            filetype = NSPNGFileType;
-        else
-        {   PyErr_SetString(PyExc_ValueError, "Unknown file type");
-            return NULL;
-        }
-
-        data = [rep representationUsingType:filetype properties:nil];
+    NSBitmapImageFileType filetype;
+    if ([extension isEqualToString: @"bmp"])
+        filetype = NSBMPFileType;
+    else if ([extension isEqualToString: @"gif"])
+        filetype = NSGIFFileType;
+    else if ([extension isEqualToString: @"jpg"] ||
+             [extension isEqualToString: @"jpeg"])
+        filetype = NSJPEGFileType;
+    else if ([extension isEqualToString: @"png"])
+        filetype = NSPNGFileType;
+    else if ([extension isEqualToString: @"tiff"] ||
+             [extension isEqualToString: @"tif"])
+        filetype = NSTIFFFileType;
+    else
+    {   PyErr_SetString(PyExc_ValueError, "Unknown file type");
+        return NULL;
     }
 
-    data = [rep representationUsingType:NSTIFFFileType properties:nil];
+    data = [rep representationUsingType:filetype properties:nil];
+
     [data writeToFile: filename atomically: YES];
     [pool release];
 
