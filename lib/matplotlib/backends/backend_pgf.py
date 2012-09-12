@@ -340,13 +340,11 @@ class LatexManager:
 
         # parse metrics from the answer string
         try:
-            width, height, offset = answer.split("\n")[0].split(",")
+            width, height, offset = answer.splitlines()[0].split(",")
         except:
             msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, answer)
             raise ValueError(msg)
-        w = float(width.strip()[:-2])
-        h = float(height.strip()[:-2])
-        o = float(offset.strip()[:-2])
+        w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
 
         # the height returned from LaTeX goes from base to top.
         # the height matplotlib expects goes from bottom to top.
