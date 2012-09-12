@@ -152,7 +152,7 @@ if __name__ == '__main__':
     xs = r*np.cos(theta)
     ys = r*np.sin(theta)
 
-    poly = Polygon(zip(xs, ys,), animated=True)
+    poly = Polygon(list(zip(xs, ys)), animated=True)
 
     ax = plt.subplot(111)
     ax.add_patch(poly)
