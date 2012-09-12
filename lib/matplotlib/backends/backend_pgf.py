@@ -340,7 +340,7 @@ class LatexManager:
 
         # parse metrics from the answer string
         try:
-            width, height, offset = answer.split("\n")[0].split(",")
+            width, height, offset = answer.splitlines()[0].split(",")
         except:
             msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, answer)
             raise ValueError(msg)
