@@ -344,7 +344,9 @@ class LatexManager:
         except:
             msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, answer)
             raise ValueError(msg)
-        w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
+        w = float(width.strip()[:-2])
+        h = float(height.strip()[:-2])
+        o = float(offset.strip()[:-2])
 
         # the height returned from LaTeX goes from base to top.
         # the height matplotlib expects goes from bottom to top.
