@@ -4433,7 +4433,7 @@ class Axes(martist.Artist):
 
         Call signature::
 
-          legend(*args, **kwargs)
+           legend(*args, **kwargs)
 
         Places legend at location *loc*.  Labels are a sequence of
         strings and *loc* can be a string or an integer specifying the
@@ -4441,36 +4441,36 @@ class Axes(martist.Artist):
 
         To make a legend with existing lines::
 
-          legend()
+           legend()
 
         :meth:`legend` by itself will try and build a legend using the label
         property of the lines/patches/collections.  You can set the label of
         a line by doing::
 
-          plot(x, y, label='my data')
+           plot(x, y, label='my data')
 
         or::
 
-          line.set_label('my data').
+           line.set_label('my data').
 
         If label is set to '_nolegend_', the item will not be shown in
         legend.
 
         To automatically generate the legend from labels::
 
-          legend( ('label1', 'label2', 'label3') )
+           legend( ('label1', 'label2', 'label3') )
 
         To make a legend for a list of lines and labels::
 
-          legend( (line1, line2, line3), ('label1', 'label2', 'label3') )
+           legend( (line1, line2, line3), ('label1', 'label2', 'label3') )
 
         To make a legend at a given location, using a location argument::
 
-          legend( ('label1', 'label2', 'label3'), loc='upper left')
+           legend( ('label1', 'label2', 'label3'), loc='upper left')
 
         or::
 
-          legend( (line1, line2, line3),  ('label1', 'label2', 'label3'), loc=2)
+           legend( (line1, line2, line3),  ('label1', 'label2', 'label3'), loc=2)
 
         The location codes are
 
@@ -4496,7 +4496,7 @@ class Axes(martist.Artist):
         of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
         For example,
 
-          loc = 'upper right', bbox_to_anchor = (0.5, 0.5)
+           loc = 'upper right', bbox_to_anchor = (0.5, 0.5)
 
         will place the legend so that the upper right corner of the legend at
         the center of the axes.
@@ -7072,6 +7072,7 @@ class Axes(martist.Artist):
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/image_demo.py
+        
         """
 
         if not self._hold: self.cla()

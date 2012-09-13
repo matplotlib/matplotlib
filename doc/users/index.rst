@@ -31,6 +31,7 @@ User's Guide
     recipes.rst
     screenshots.rst
     whats_new.rst
+    github_stats.rst
     license.rst
     credits.rst
 

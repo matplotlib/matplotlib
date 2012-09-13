@@ -1,5 +1,12 @@
 .. _toolkits-index:
 
+.. toctree::
+   :hidden:
+
+   axes_grid/index.rst
+   mplot3d/index.rst
+   
+
 ########
 Toolkits
 ########

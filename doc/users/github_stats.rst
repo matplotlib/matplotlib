@@ -120,7 +120,7 @@ Pull Requests (123):
 * :ghpull:`1164`: doc: note contourf hatching in whats_new.rst
 * :ghpull:`1153`: PEP8 on artist
 * :ghpull:`1163`: tight_layout: fix regression for figures with non SubplotBase Axes
-* :ghpull:`1159`: FIX assert_raises cannot be called with ``with\\
+* :ghpull:`1159`: FIX assert_raises cannot be called with ``with``
 * :ghpull:`1160`: backend_pgf: clarifications and fixes in documentation
 * :ghpull:`1154`: six inclusion for dateutil on py3 doesn't work
 * :ghpull:`1149`: Add Phil Elson's percentage histogram example
@@ -268,7 +268,7 @@ Issues (226):
 * :ghissue:`1153`: PEP8 on artist
 * :ghissue:`1163`: tight_layout: fix regression for figures with non SubplotBase Axes
 * :ghissue:`1117`: ERROR: matplotlib.tests.test_axes.test_contour_colorbar.test fails on Python 3
-* :ghissue:`1159`: FIX assert_raises cannot be called with ``with\\
+* :ghissue:`1159`: FIX assert_raises cannot be called with ``with``
 * :ghissue:`206`: hist normed=True problem?
 * :ghissue:`1160`: backend_pgf: clarifications and fixes in documentation
 * :ghissue:`1154`: six inclusion for dateutil on py3 doesn't work

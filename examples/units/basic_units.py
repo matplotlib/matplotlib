@@ -17,14 +17,14 @@ class ProxyDelegate(object):
         return self.proxy_type(self.fn_name, obj)
 
 
-class TaggedValueMeta (type):
-    def __init__(cls, name, bases, dict):
-        for fn_name in cls._proxies.keys():
+class TaggedValueMeta(type):
+    def __init__(self, name, bases):
+        for fn_name in self._proxies.keys():
             try:
-                dummy = getattr(cls, fn_name)
+                dummy = getattr(self, fn_name)
             except AttributeError:
-                setattr(cls, fn_name,
-                        ProxyDelegate(fn_name, cls._proxies[fn_name]))
+                setattr(self, fn_name,
+                        ProxyDelegate(fn_name, self._proxies[fn_name]))
 
 
 class PassThroughProxy(object):
@@ -189,7 +189,7 @@ class _TaggedValue(object):
         return self.unit
 
 
-TaggedValue = TaggedValueMeta('TaggedValue', (_TaggedValue, ), {})
+TaggedValue = TaggedValueMeta('TaggedValue', (_TaggedValue, ))
 
 
 class BasicUnit(object):
