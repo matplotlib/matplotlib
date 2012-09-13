@@ -3192,10 +3192,10 @@ def offset_line(y, yerr):
 
     The error term can be:
 
-    o A scalar. In this case, the returned tuple is obvious.
-    o A vector of the same length as *y*. The quantities y +/- err are computed
+    * A scalar. In this case, the returned tuple is obvious.
+    * A vector of the same length as *y*. The quantities y +/- err are computed
       component-wise.
-    o A tuple of length 2. In this case, yerr[0] is the error below *y* and
+    * A tuple of length 2. In this case, yerr[0] is the error below *y* and
       yerr[1] is error above *y*. For example::
 
         from pylab import *

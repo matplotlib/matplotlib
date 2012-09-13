@@ -130,8 +130,11 @@ def sfpdf():
     'push a copy to the sf site'
     os.system('cd build/latex; scp Matplotlib.pdf jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/')
 
-def figs():
-    os.system('cd users/figures/ && python make.py')
+def doctest():
+    os.system('sphinx-build -b doctest -d build/doctrees . build/doctest')
+
+def linkcheck():
+    os.system('sphinx-build -b linkcheck -d build/doctrees . build/linkcheck')
 
 def html():
     check_build()
@@ -215,7 +218,6 @@ def all():
 
 
 funcd = {
-    'figs'     : figs,
     'html'     : html,
     'latex'    : latex,
     'texinfo'  : texinfo,
@@ -223,6 +225,8 @@ funcd = {
     'sf'       : sf,
     'sfpdf'    : sfpdf,
     'all'      : all,
+    'doctest'  : doctest,
+    'linkcheck': linkcheck,
     }
 
 
