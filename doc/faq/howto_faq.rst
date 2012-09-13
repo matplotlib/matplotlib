@@ -756,8 +756,10 @@ Cite Matplotlib
 ===============
 
 If you want to refer to matplotlib in a publication, you can use
-"Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing in Science &
-Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `citeulike <http://www.citeulike.org/user/jabl/article/2878517>`_)::
+"Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
+in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `IEEE
+Xplore
+<http://ieeexplore.ieee.org/xpl/login.jsp?tp=&arnumber=4160265&url=http%3A%2F%2Fieeexplore.ieee.org%2Fxpls%2Fabs_all.jsp%3Farnumber%3D4160265>`_)::
 
   @article{Hunter:2007,
 	  Address = {10662 LOS VAQUEROS CIRCLE, PO BOX 3014, LOS ALAMITOS, CA 90720-1314 USA},
