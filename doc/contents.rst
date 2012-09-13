@@ -8,7 +8,7 @@ Overview
     :Release: |version|
     :Date: |today|
 
-    Download `PDF <http://matplotlib.sf.net/Matplotlib.pdf>`_
+    Download `PDF <Matplotlib.pdf>`_
 
 
 .. toctree::
