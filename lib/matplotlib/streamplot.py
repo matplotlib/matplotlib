@@ -48,16 +48,17 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     *minlength* : float
         Minimum length of streamline in axes coordinates.
 
-    Returns
-    -------
-    *stream_container* : StreamplotSet
-        Container object with attributes
-            lines : `matplotlib.collections.LineCollection` of streamlines
-            arrows : collection of `matplotlib.patches.FancyArrowPatch` objects
-                repesenting arrows half-way along stream lines.
-        This container will probably change in the future to allow changes to
-        the colormap, alpha, etc. for both lines and arrows, but these changes
-        should be backward compatible.
+    Returns:
+    
+        *stream_container* : StreamplotSet
+            Container object with attributes
+                lines : `matplotlib.collections.LineCollection` of streamlines
+                arrows : collection of `matplotlib.patches.FancyArrowPatch` objects
+                    repesenting arrows half-way along stream lines.
+            This container will probably change in the future to allow changes to
+            the colormap, alpha, etc. for both lines and arrows, but these changes
+            should be backward compatible.
+    
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
