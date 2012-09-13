@@ -71,7 +71,7 @@ class ContourLabeler:
         Optional keyword arguments:
 
           *fontsize*:
-            See http://matplotlib.sf.net/fonts.html
+            size in points or relative size eg 'smaller', 'x-large'
 
           *colors*:
             - if *None*, the color of each label matches the color of
