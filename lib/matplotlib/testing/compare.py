@@ -151,7 +151,7 @@ if matplotlib.checkdep_ghostscript() is not None:
 
         def do_convert(old, new):
             process.expect("GS>")
-            process.sendline("(%s) run" % old)
+            process.sendline("(%s) run" % old.replace('\\', '/'))
             with open(new, 'wb') as fd:
                 process.expect(">>showpage, press <return> to continue<<", fd)
             process.sendline('')
