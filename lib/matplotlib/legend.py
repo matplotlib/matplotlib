@@ -107,8 +107,6 @@ class Legend(Artist):
     respect its parent.
 
     """
-
-
     codes = {'best'         : 0, # only implemented for axis legends
              'upper right'  : 1,
              'upper left'   : 2,
@@ -121,7 +119,6 @@ class Legend(Artist):
              'upper center' : 9,
              'center'       : 10,
              }
-
 
     zorder = 5
     def __str__(self):
@@ -195,20 +192,20 @@ class Legend(Artist):
         bbox_to_anchor     the bbox that the legend will be anchored.
         bbox_transform     the transform for the bbox. transAxes if None.
         ================   ==================================================================
-
-
-The pad and spacing parameters are measured in font-size units.  E.g.,
-a fontsize of 10 points and a handlelength=5 implies a handlelength of
-50 points.  Values from rcParams will be used if None.
-
-Users can specify any arbitrary location for the legend using the
-*bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
-of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
-See :meth:`set_bbox_to_anchor` for more detail.
-
-The legend location can be specified by setting *loc* with a tuple of
-2 floats, which is interpreted as the lower-left corner of the legend
-in the normalized axes coordinate.
+    
+    
+        The pad and spacing parameters are measured in font-size units.  E.g.,
+        a fontsize of 10 points and a handlelength=5 implies a handlelength of
+        50 points.  Values from rcParams will be used if None.
+        
+        Users can specify any arbitrary location for the legend using the
+        *bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
+        of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
+        See :meth:`set_bbox_to_anchor` for more detail.
+        
+        The legend location can be specified by setting *loc* with a tuple of
+        2 floats, which is interpreted as the lower-left corner of the legend
+        in the normalized axes coordinate.
         """
         from matplotlib.axes import Axes     # local import only to avoid circularity
         from matplotlib.figure import Figure # local import only to avoid circularity
@@ -916,7 +913,7 @@ in the normalized axes coordinate.
         for candidate in candidates:
             if candidate[0] < minCandidate[0]:
                 minCandidate = candidate
-
+        
         ox, oy = minCandidate[1]
 
         return ox, oy

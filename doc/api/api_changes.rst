@@ -84,18 +84,20 @@ Changes in 1.2.x
   implements a non-affine transformation, then it should override the
   ``transform_non_affine`` method, rather than the generic ``transform`` method.
   Previously transforms would define ``transform`` and then copy the
-  method into ``transform_non_affine``:
+  method into ``transform_non_affine``::
 
      class MyTransform(mtrans.Transform):
          def transform(self, xy):
              ...
          transform_non_affine = transform
-
-  This approach will no longer function correctly and should be changed to:
+  
+  
+  This approach will no longer function correctly and should be changed to::
 
      class MyTransform(mtrans.Transform):
          def transform_non_affine(self, xy):
              ...
+  
 
 * Artists no longer have ``x_isdata`` or ``y_isdata`` attributes; instead
   any artist's transform can be interrogated with
@@ -103,7 +105,7 @@ Changes in 1.2.x
 
 * Lines added to an axes now take into account their transform when updating the
   data and view limits. This means transforms can now be used as a pre-transform.
-  For instance:
+  For instance::
 
       >>> import matplotlib.pyplot as plt
       >>> import matplotlib.transforms as mtrans
