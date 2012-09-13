@@ -1246,7 +1246,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         If *format* is *None* and *fname* is a string, the output
         format is deduced from the extension of the filename.
       *arr*:
-        A 2D array.
+        An MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA) array.
     Keyword arguments:
       *vmin*/*vmax*: [ None | scalar ]
         *vmin* and *vmax* set the color scaling for the image by fixing the
@@ -1269,7 +1269,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from matplotlib.figure import Figure
 
-    figsize = [x / float(dpi) for x in arr.shape[::-1]]
+    figsize = [x / float(dpi) for x in (arr.shape[1], arr.shape[0])]
     fig = Figure(figsize=figsize, dpi=dpi, frameon=False)
     canvas = FigureCanvas(fig)
     im = fig.figimage(arr, cmap=cmap, vmin=vmin, vmax=vmax, origin=origin)
