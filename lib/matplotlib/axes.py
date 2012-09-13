@@ -5615,7 +5615,8 @@ class Axes(martist.Artist):
 
     def boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
-                bootstrap=None, usermedians=None, conf_intervals=None):
+                bootstrap=None, usermedians=None, conf_intervals=None,
+                cifxn=None):
         """
         Make a box and whisker plot.
 
@@ -5768,7 +5769,7 @@ class Axes(martist.Artist):
         # sanitize user-input medians
         msg1 = "usermedians must either be a list/tuple or a 1d array"
         msg2 = "usermedians' length must be compatible with x"
-        if usermedians is not None:
+        if usermedians is not None and cifxn is None:
             if hasattr(usermedians, 'shape'):
                 if len(usermedians.shape) != 1:
                     raise ValueError(msg1)
@@ -5781,7 +5782,7 @@ class Axes(martist.Artist):
         msg1 = "conf_intervals must either be a list of tuples or a 2d array"
         msg2 = "conf_intervals' length must be compatible with x"
         msg3 = "each conf_interval, if specificied, must have two values"
-        if conf_intervals is not None:
+        if conf_intervals is not None and cifxn is None:
             if hasattr(conf_intervals, 'shape'):
                 if len(conf_intervals.shape) != 2:
                     raise ValueError(msg1)
@@ -5818,9 +5819,11 @@ class Axes(martist.Artist):
             q1, med, q3 = mlab.prctile(d,[25,50,75])
 
             # replace with input medians if available
-            if usermedians is not None:
+            if usermedians is not None and cifxn is None:
                 if usermedians[i] is not None:
                     med = usermedians[i]
+            elif cifxn is not None:
+                med, CIs = cifxn(d)
 
             # get high extreme
             iq = q3 - q1
@@ -5867,6 +5870,9 @@ class Axes(martist.Artist):
                 if conf_intervals is not None and conf_intervals[i] is not None:
                     notch_max = np.max(conf_intervals[i])
                     notch_min = np.min(conf_intervals[i])
+                elif cifxn is not None:
+                    notch_min = np.min(CIs)
+                    notch_max = np.max(CIs)
                 else:
                     notch_min, notch_max = computeConfInterval(d, med, iq,
                                                                bootstrap)
