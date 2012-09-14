@@ -1075,6 +1075,7 @@ default_test_modules = [
     'matplotlib.tests.test_patches',
     'matplotlib.tests.test_pickle',
     'matplotlib.tests.test_rcparams',
+    'matplotlib.tests.test_scale',
     'matplotlib.tests.test_simplification',
     'matplotlib.tests.test_spines',
     'matplotlib.tests.test_text',

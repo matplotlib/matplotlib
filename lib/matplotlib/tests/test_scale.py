@@ -5,9 +5,8 @@ import matplotlib.pyplot as plt
 
 
 @image_comparison(baseline_images=['log_scales'])
-def test_complete():
+def test_log_scales():
     ax = plt.subplot(122, yscale='log', xscale='symlog')
     
     ax.axvline(24.1)
     ax.axhline(24.1)
-    plt.show()
