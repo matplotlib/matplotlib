@@ -115,6 +115,7 @@ class LogScale(ScaleBase):
         input_dims = 1
         output_dims = 1
         is_separable = True
+        has_inverse = True
 
         def __init__(self, nonpos):
             Transform.__init__(self)
@@ -316,6 +317,7 @@ class SymmetricalLogScale(ScaleBase):
         input_dims = 1
         output_dims = 1
         is_separable = True
+        has_inverse = True
 
         def __init__(self, base, linthresh, linscale):
             Transform.__init__(self)
