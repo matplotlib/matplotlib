@@ -43,7 +43,8 @@ def run():
             "\nThe following is a base64-encoded tar.bz2 file containing the\n"
             "failed images from the test run.  Use the\n"
             "get_travis_results.py script to download it from Travis and\n"
-            "extract it.\n")
+            "extract it.\n\n"
+            ">>>>>>>>TARBALL>>>>>>>>\n")
 
         print(base64.b64encode(output.getvalue()))
 
