@@ -88,8 +88,7 @@ Packaging
 
 * We have a Makefile for the win32 mingw builds in the mpl source dir
   :file:`release/win32` which you can use this to prepare the windows
-  releases, but this is currently broken for python2.6 as described at
-  http://www.nabble.com/binary-installers-for-python2.6--libpng-segfault%2C-MSVCR90.DLL-and-%09mingw-td23971661.html
+  releases.
 
 .. _release-candidate-testing:
 
