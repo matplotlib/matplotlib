@@ -497,18 +497,16 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % gc.get_alpha())
 
         # line style
+        dash_offset, dash_list = gc.get_dashes()
         ls = gc.get_linestyle(None)
         if ls == "solid":
             writeln(self.fh, r"\pgfsetdash{}{0pt}")
-        elif ls == "dashed":
-            dashargs = (2.5 * lw, 2.5 * lw)
-            writeln(self.fh, r"\pgfsetdash{{%fpt}{%fpt}}{0pt}" % dashargs)
-        elif ls == "dashdot":
-            dashargs = (3 * lw, 3 * lw, 1 * lw, 3 * lw)
-            writeln(self.fh, r"\pgfsetdash{{%fpt}{%fpt}{%fpt}{%fpt}}{0pt}" % dashargs)
-        elif "dotted":
-            dashargs = (lw, 3 * lw)
-            writeln(self.fh, r"\pgfsetdash{{%fpt}{%fpt}}{0pt}" % dashargs)
+        elif (ls == "dashed" or ls == "dashdot" or ls == "dotted"):
+            dash_str = r"\pgfsetdash{"
+            for dash in dash_list:
+                dash_str += r"{%fpt}" % dash
+            dash_str += r"}{%fpt}" % dash_offset
+            writeln(self.fh, dash_str)
 
     def _print_pgf_path(self, path, transform):
         f = 1. / self.dpi
