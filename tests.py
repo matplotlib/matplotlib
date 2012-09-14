@@ -30,14 +30,15 @@ def run():
         import tarfile
         output = io.BytesIO()
 
-        with tarfile.open(fileobj=output, mode="w|bz2") as tar:
-            for root, dirs, files in os.walk('.'):
-                for file in files:
-                    if os.path.splitext(file)[0].endswith('-failed-diff'):
-                        path = os.path.join(root, file)
-                        tar.add(path)
-                        path = path.replace('-failed-diff', '')
-                        tar.add(path)
+        tar = tarfile.open(fileobj=output, mode="w|bz2")
+        for root, dirs, files in os.walk('.'):
+            for file in files:
+                if os.path.splitext(file)[0].endswith('-failed-diff'):
+                    path = os.path.join(root, file)
+                    tar.add(path)
+                    path = path.replace('-failed-diff', '')
+                    tar.add(path)
+        tar.close()
 
         print(
             "\nThe following is a base64-encoded tar.bz2 file containing the\n"
