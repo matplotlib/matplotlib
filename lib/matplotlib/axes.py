@@ -5716,7 +5716,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: pyplots/boxplot_demo.py
+        .. plot:: mpl_examples/pylab_examples/boxplot_demo3.py
         """
         def bootstrapMedian(data, N=5000):
             # determine 95% confidence intervals of the median
