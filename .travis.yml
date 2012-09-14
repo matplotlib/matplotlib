@@ -15,3 +15,4 @@ script:
   - mkdir ../foo
   - cd ../foo
   - python ../matplotlib/tests.py
+  - tar cj `find . -name *-diff.*` | base64
