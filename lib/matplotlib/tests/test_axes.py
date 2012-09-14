@@ -827,15 +827,32 @@ def test_stackplot():
 
 @image_comparison(baseline_images=['boxplot'])
 def test_boxplot():
+    def fakeBootStrapper(data):
+        '''
+        This is just a placeholder for the user's method of
+        bootstrapping the median and its confidence intervals.
+
+        Returns an arbitrary median and confidence intervals
+        packed into a tuple
+        '''
+        med, q25, q75 = np.percentile(data, [50,25,75])
+        ci_lo = med - (med-q25)/2.0
+        ci_hi = med + (q75-med)/3.0
+        return med, (ci_lo, ci_hi)
+
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig = plt.figure()
-    ax = fig.add_subplot(111)
+    ax1 = fig.add_subplot(211)
+    ax2 = fig.add_subplot(212)
 
     # show 1 boxplot with mpl medians/conf. interfals, 1 with manual values
-    ax.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
+    ax1.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
                conf_intervals=[None, (-1.0, 3.5)], notch=1)
-    ax.set_ylim((-30, 30))
+    ax1.set_ylim((-30, 30))
+
+    ax2.boxplot([x, x], bootstrap=10000, ci_func=fakeBootStrapper, notch=1)
+    ax2.set_ylim((-30, 30))
 
 @image_comparison(baseline_images=['errorbar_basic',
                                    'errorbar_mixed'])
