@@ -14,4 +14,4 @@ install:
 script:
   - mkdir ../foo
   - cd ../foo
-  - python ../matplotlib/tests.py ; tar cj `find . -name *-diff.*` |  base64
+  - if python ../matplotlib/tests.py ; then echo 'Success'; else tar cj `find . -name *-failed-diff.* | sed 's/-failed-diff//'` |  base64; fi;
