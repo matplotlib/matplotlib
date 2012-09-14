@@ -141,7 +141,8 @@ New Boxplot Functionality
 Users can now incorporate their own methods for computing the median and its
 confidence intervals into the :meth:`~matplotlib.axes.boxplot` method. For
 every column of data passed to boxplot, the user can specify an accompanying
-median and confidence interval.
+median and confidence interval. Similarly, a custom function that computes the
+median and confidence interval can now be passed to `boxplot`.
 
 .. plot:: mpl_examples/pylab_examples/boxplot_demo3.py
 
