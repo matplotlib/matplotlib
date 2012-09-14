@@ -86,7 +86,7 @@ Here are all the date tickers:
       :class:`matplotlib.dates.rrulewrapper`.  The
       :class:`rrulewrapper` is a simple wrapper around a
       :class:`dateutils.rrule` (`dateutil
-      <https://moin.conectiva.com.br/DateUtil>`_) which allow almost
+      <http://labix.org/python-dateutil>`_) which allow almost
       arbitrary date tick specifications.  See `rrule example
       <../examples/pylab_examples/date_demo_rrule.html>`_.
 
@@ -302,13 +302,13 @@ def drange(dstart, dend, delta):
             delta.microseconds/MUSECONDS_PER_DAY)
     f1 = _to_ordinalf(dstart)
     f2 = _to_ordinalf(dend)
-    
+
     num = int(np.ceil((f2-f1)/step))        #calculate the difference between dend and dstart in times of delta
     dinterval_end = dstart + num*delta      #calculate end of the interval which will be generated
     if dinterval_end >= dend:               #ensure, that an half open interval will be generated [dstart, dend)
         dinterval_end -= delta              #if the endpoint is greated than dend, just subtract one delta
         num -= 1
-        
+
     f2 = _to_ordinalf(dinterval_end) #new float-endpoint
     return np.linspace(f1, f2, num+1)
 
