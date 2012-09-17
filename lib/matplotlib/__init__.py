@@ -1,5 +1,5 @@
 """
-This is an object-orient plotting library.
+This is an object-oriented plotting library.
 
 A procedural interface is provided by the companion pyplot module,
 which may be imported directly, e.g::
@@ -99,7 +99,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import print_function
 
-__version__  = '1.2.0rc1'
+__version__  = '1.3.x'
 __version__numpy__ = '1.4' # minimum required numpy version
 
 import os, re, shutil, subprocess, sys, warnings
