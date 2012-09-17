@@ -23,4 +23,17 @@ def test_colormap_endian():
         #print(anative.dtype.isnative, aforeign.dtype.isnative)
         assert_array_equal(cmap(anative), cmap(aforeign))
 
+def test_BoundaryNorm():
+    """
+    Github issue #1258: interpolation was failing with numpy
+    1.7 pre-release.
+    """
+    # TODO: expand this into a more general test of BoundaryNorm.
+    boundaries = [0, 1.1, 2.2]
+    vals = [-1, 0, 2, 2.2, 4]
+    expected = [-1, 0, 2, 3, 3]
+    # ncolors != len(boundaries) - 1 triggers interpolation
+    ncolors = len(boundaries)
+    bn = mcolors.BoundaryNorm(boundaries, ncolors)
+    assert_array_equal(bn(vals), expected)
 
