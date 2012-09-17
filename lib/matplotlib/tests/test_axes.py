@@ -822,6 +822,8 @@ def test_stackplot():
     y3 = 3.0 * x + 2
     ax = fig.add_subplot(1, 1, 1)
     ax.stackplot(x, y1, y2, y3)
+    ax.set_xlim((0, 10))
+    ax.set_ylim((0, 70))
 
 @image_comparison(baseline_images=['boxplot'])
 def test_boxplot():
