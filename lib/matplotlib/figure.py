@@ -319,6 +319,7 @@ class Figure(Artist):
 
         self._hold = rcParams['axes.hold']
         self.canvas = None
+        self._suptitle = None
 
         if subplotpars is None:
             subplotpars = SubplotParams()
@@ -483,16 +484,19 @@ class Figure(Artist):
 
           fig.suptitle('this is the figure title', fontsize=12)
         """
-        x = kwargs.pop('x', 0.5)
-        y = kwargs.pop('y', 0.98)
-        if ('horizontalalignment' not in kwargs) and ('ha' not in kwargs):
-            kwargs['horizontalalignment'] = 'center'
+        if self._suptitle is not None:
+            self._suptitle.set_text(t)
+        else:
+            x = kwargs.pop('x', 0.5)
+            y = kwargs.pop('y', 0.98)
+            if ('horizontalalignment' not in kwargs) and ('ha' not in kwargs):
+                kwargs['horizontalalignment'] = 'center'
 
-        if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
-            kwargs['verticalalignment'] = 'top'
+            if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
+                kwargs['verticalalignment'] = 'top'
 
-        t = self.text(x, y, t, **kwargs)
-        return t
+            self._suptitle = self.text(x, y, t, **kwargs)
+        return self._suptitle
 
     def set_canvas(self, canvas):
         """
