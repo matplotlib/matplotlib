@@ -319,6 +319,7 @@ class Figure(Artist):
 
         self._hold = rcParams['axes.hold']
         self.canvas = None
+        self._suptitle = None
 
         if subplotpars is None:
             subplotpars = SubplotParams()
@@ -491,8 +492,14 @@ class Figure(Artist):
         if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
             kwargs['verticalalignment'] = 'top'
 
-        t = self.text(x, y, t, **kwargs)
-        return t
+        sup = self.text(x, y, t, **kwargs)
+        if self._suptitle is not None:
+            self._suptitle.set_text(t)
+            self._suptitle.set_position((x, y))
+            self._suptitle.update_from(sup)
+        else:
+            self._suptitle = sup
+        return self._suptitle
 
     def set_canvas(self, canvas):
         """
