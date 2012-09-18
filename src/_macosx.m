@@ -3509,7 +3509,7 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
     int n;
     const unichar* characters;
     NSSize size;
-    double width, height;
+    double width, height, dpi;
 
     if(!view)
     {
@@ -3517,8 +3517,8 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
         return NULL;
     }
     /* NSSize contains CGFloat; cannot use size directly */
-    if(!PyArg_ParseTuple(args, "u#dd",
-                                &characters, &n, &width, &height)) return NULL;
+    if(!PyArg_ParseTuple(args, "u#ddd",
+                                &characters, &n, &width, &height, &dpi)) return NULL;
     size.width = width;
     size.height = height;
 
@@ -3543,32 +3543,41 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
     if (invalid) [view setNeedsDisplay: YES];
 
     NSImage* image = [[NSImage alloc] initWithData: data];
-    [image setScalesWhenResized: YES];
-    [image setSize: size];
-    data = [image TIFFRepresentation];
+    NSImage *resizedImage = [[NSImage alloc] initWithSize:size];
+
+    [resizedImage lockFocus];
+    [image drawInRect:NSMakeRect(0, 0, width, height) fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+    [resizedImage unlockFocus];
+    data = [resizedImage TIFFRepresentation];
     [image release];
+    [resizedImage release];
 
-    if (! [extension isEqualToString: @"tiff"] &&
-        ! [extension isEqualToString: @"tif"])
-    {
-        NSBitmapImageFileType filetype;
-        NSBitmapImageRep* bitmapRep = [NSBitmapImageRep imageRepWithData: data];
-        if ([extension isEqualToString: @"bmp"])
-            filetype = NSBMPFileType;
-        else if ([extension isEqualToString: @"gif"])
-            filetype = NSGIFFileType;
-        else if ([extension isEqualToString: @"jpg"] ||
-                 [extension isEqualToString: @"jpeg"])
-            filetype = NSJPEGFileType;
-        else if ([extension isEqualToString: @"png"])
-            filetype = NSPNGFileType;
-        else
-        {   PyErr_SetString(PyExc_ValueError, "Unknown file type");
-            return NULL;
-        }
+    NSBitmapImageRep* rep = [NSBitmapImageRep imageRepWithData:data];
 
-        data = [bitmapRep representationUsingType:filetype properties:nil];
+    NSSize pxlSize = NSMakeSize(rep.pixelsWide, rep.pixelsHigh);
+    NSSize newSize = NSMakeSize(72.0 * pxlSize.width / dpi, 72.0 * pxlSize.height / dpi);
+
+    [rep setSize:newSize];
+
+    NSBitmapImageFileType filetype;
+    if ([extension isEqualToString: @"bmp"])
+        filetype = NSBMPFileType;
+    else if ([extension isEqualToString: @"gif"])
+        filetype = NSGIFFileType;
+    else if ([extension isEqualToString: @"jpg"] ||
+             [extension isEqualToString: @"jpeg"])
+        filetype = NSJPEGFileType;
+    else if ([extension isEqualToString: @"png"])
+        filetype = NSPNGFileType;
+    else if ([extension isEqualToString: @"tiff"] ||
+             [extension isEqualToString: @"tif"])
+        filetype = NSTIFFFileType;
+    else
+    {   PyErr_SetString(PyExc_ValueError, "Unknown file type");
+        return NULL;
     }
+
+    data = [rep representationUsingType:filetype properties:nil];
 
     [data writeToFile: filename atomically: YES];
     [pool release];
