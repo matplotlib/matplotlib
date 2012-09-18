@@ -1943,18 +1943,18 @@ class BlendedGenericTransform(Transform):
         y = self._y
 
         if x == y and x.input_dims == 2:
-            return x.transform(points)
+            return x.transform_non_affine(points)
 
         if x.input_dims == 2:
-            x_points = x.transform(points)[:, 0:1]
+            x_points = x.transform_non_affine(points)[:, 0:1]
         else:
-            x_points = x.transform(points[:, 0])
+            x_points = x.transform_non_affine(points[:, 0])
             x_points = x_points.reshape((len(x_points), 1))
 
         if y.input_dims == 2:
-            y_points = y.transform(points)[:, 1:]
+            y_points = y.transform_non_affine(points)[:, 1:]
         else:
-            y_points = y.transform(points[:, 1])
+            y_points = y.transform_non_affine(points[:, 1])
             y_points = y_points.reshape((len(y_points), 1))
 
         if isinstance(x_points, MaskedArray) or isinstance(y_points, MaskedArray):
@@ -1969,19 +1969,16 @@ class BlendedGenericTransform(Transform):
 
     def get_affine(self):
         if self._invalid or self._affine is None:
-            if self._x.is_affine and self._y.is_affine:
-                if self._x == self._y:
-                    self._affine = self._x.get_affine()
-                else:
-                    x_mtx = self._x.get_affine().get_matrix()
-                    y_mtx = self._y.get_affine().get_matrix()
-                    # This works because we already know the transforms are
-                    # separable, though normally one would want to set b and
-                    # c to zero.
-                    mtx = np.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
-                    self._affine = Affine2D(mtx)
+            if self._x == self._y:
+                self._affine = self._x.get_affine()
             else:
-                self._affine = IdentityTransform()
+                x_mtx = self._x.get_affine().get_matrix()
+                y_mtx = self._y.get_affine().get_matrix()
+                # This works because we already know the transforms are
+                # separable, though normally one would want to set b and
+                # c to zero.
+                mtx = np.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
+                self._affine = Affine2D(mtx)
             self._invalid = 0
         return self._affine
     get_affine.__doc__ = Transform.get_affine.__doc__
