@@ -5760,11 +5760,12 @@ show(PyObject* self)
     if(nwin > 0)
     {
         [NSApp activateIgnoringOtherApps: YES];
-        NSArray *windowsArray = [[NSApp windows] retain];
-        for (int i = 0; i < [windowsArray count]; i++) {
-            [[windowsArray objectAtIndex:i] orderFront:nil];
+        NSArray *windowsArray = [NSApp windows];
+        NSEnumerator *enumerator = [windowsArray objectEnumerator];
+        NSWindow *window;
+        while ((window = [enumerator nextObject])) {
+            [window orderFront:nil];
         }
-        [windowsArray release];
         [NSApp run];
     }
     Py_INCREF(Py_None);
