@@ -5769,7 +5769,10 @@ show(PyObject* self)
     if(nwin > 0)
     {
         [NSApp activateIgnoringOtherApps: YES];
-        for (NSWindow *window in [NSApp windows]) {
+        NSArray *windowsArray = [NSApp windows];
+        NSEnumerator *enumerator = [windowsArray objectEnumerator];
+        NSWindow *window;
+        while ((window = [enumerator nextObject])) {
             [window orderFront:nil];
         }
         [NSApp run];
