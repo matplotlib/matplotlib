@@ -250,6 +250,42 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
       actual_image = actual_image[int(aw/2-ew/2):int(aw/2+ew/2),int(ah/2-eh/2):int(ah/2+eh/2)]
    return actual_image, expected_image
 
+def calculate_rms(expectedImage, actualImage):
+   # compare the resulting image histogram functions
+   expected_version = version.LooseVersion("1.6")
+   found_version = version.LooseVersion(np.__version__)
+
+   # On Numpy 1.6, we can use bincount with minlength, which is much faster than
+   # using histogram
+   if found_version >= expected_version:
+      rms = 0
+
+      for i in xrange(0, 3):
+         h1p = expectedImage[:,:,i]
+         h2p = actualImage[:,:,i]
+
+         h1h = np.bincount(h1p.ravel(), minlength=256)
+         h2h = np.bincount(h2p.ravel(), minlength=256)
+
+         rms += np.sum(np.power((h1h-h2h), 2))
+   else:
+      rms = 0
+      bins = np.arange(257)
+
+      for i in xrange(0, 3):
+         h1p = expectedImage[:,:,i]
+         h2p = actualImage[:,:,i]
+
+         h1h = np.histogram(h1p, bins=bins)[0]
+         h2h = np.histogram(h2p, bins=bins)[0]
+
+         rms += np.sum(np.power((h1h-h2h), 2))
+
+   rms = np.sqrt(rms / (256 * 3))
+
+   return rms
+
+
 def compare_images( expected, actual, tol, in_decorator=False ):
    '''Compare two image files - not the greatest, but fast and good enough.
 
@@ -287,33 +323,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    expected_version = version.LooseVersion("1.6")
    found_version = version.LooseVersion(np.__version__)
 
-   # On Numpy 1.6, we can use bincount with minlength, which is much faster than
-   # using histogram
-   if found_version >= expected_version:
-      rms = 0
-
-      for i in xrange(0, 3):
-         h1p = expectedImage[:,:,i]
-         h2p = actualImage[:,:,i]
-
-         h1h = np.bincount(h1p.ravel(), minlength=256)
-         h2h = np.bincount(h2p.ravel(), minlength=256)
-
-         rms += np.sum(np.power((h1h-h2h), 2))
-   else:
-      rms = 0
-      bins = np.arange(257)
-
-      for i in xrange(0, 3):
-         h1p = expectedImage[:,:,i]
-         h2p = actualImage[:,:,i]
-
-         h1h = np.histogram(h1p, bins=bins)[0]
-         h2h = np.histogram(h2p, bins=bins)[0]
-
-         rms += np.sum(np.power((h1h-h2h), 2))
-
-   rms = np.sqrt(rms / (256 * 3))
+   rms = calculate_rms(expectedImage, actualImage)
 
    diff_image = make_test_filename(actual, 'failed-diff')
 
@@ -321,6 +331,21 @@ def compare_images( expected, actual, tol, in_decorator=False ):
       if os.path.exists(diff_image):
          os.unlink(diff_image)
       return None
+
+   # For Agg-rendered images, we can retry by ignoring pixels with
+   # differences of only 1
+   if extension == 'png':
+       # Remove differences of only 1
+       diffImage = np.abs(np.asarray(actualImage, dtype=np.int) -
+                          np.asarray(expectedImage, dtype=np.int))
+       actualImage = np.where(diffImage <= 1, expectedImage, actualImage)
+
+       rms = calculate_rms(expectedImage, actualImage)
+
+       if ( (rms / 10000.0) <= tol ):
+           if os.path.exists(diff_image):
+               os.unlink(diff_image)
+           return None
 
    save_diff_image( expected, actual, diff_image )
 
