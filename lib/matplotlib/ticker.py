@@ -1237,8 +1237,8 @@ class MaxNLocator(Locator):
         scale, offset = scale_range(vmin, vmax, nbins)
         if self._integer:
             scale = max(1, scale)
-        vmin -= offset
-        vmax -= offset
+        vmin = vmin - offset
+        vmax = vmax - offset
         raw_step = (vmax-vmin)/nbins
         scaled_raw_step = raw_step/scale
         best_vmax = vmax
