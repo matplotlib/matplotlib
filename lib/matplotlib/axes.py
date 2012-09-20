@@ -5668,24 +5668,23 @@ class Axes(martist.Artist):
             A user-specified function that Computes the median and its
             confidence intervals. This function should return the median and
             the confidence intervals stored in an iterable of shape=(2,). Use
-            of this kwarg will override the default computation of the median
-            and will supercede any values supplied in the *usermedians* or
-            *conf_intervals* kwargs.
+            of this kwarg will override the default computation of the median.
 
           *usermedians* : [ default None ]
             An array or sequence whose first dimension (or length) is
             compatible with *x*. This overrides the medians computed by
             matplotlib for each element of *usermedians* that is not None.
-            When an element of *usermedians* == None, the median will be
-            computed directly as normal.
+            When an element of *usermedians* is None, boxplot computes notches
+            per the method specified by the other kwargs (e.g. *bootstrap*,
+            *ci_func*).
 
           *conf_intervals* : [ default None ]
             Array or sequence whose first dimension (or length) is compatible
             with *x* and whose second dimension is 2. When the current element
             of *conf_intervals* is not None, the notch locations computed by
             matplotlib are overridden (assuming notch is True). When an element
-            of *conf_intervals* is None, boxplot compute notches the method
-            specified by the other kwargs (e.g. *bootstrap*).
+            of *conf_intervals* is None, boxplot computes notches per the
+            method specified by the other kwargs (e.g. *bootstrap*, *ci_func*).
 
           *positions* : [ default 1,2,...,n ]
             Sets the horizontal positions of the boxes. The ticks and limits
