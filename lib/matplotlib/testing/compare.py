@@ -283,8 +283,9 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    = INPUT VARIABLES
    - expected  The filename of the expected image.
    - actual    The filename of the actual image.
-   - tol       The tolerance (a unitless float).  This is used to
-               determine the 'fuzziness' to use when comparing images.
+   - tol       The tolerance (a colour value difference, where 255 is the
+               maximal difference).  The test fails if the average pixel
+               difference is greater than this value.
    - in_decorator If called from image_comparison decorator, this should be
                True. (default=False)
    '''
