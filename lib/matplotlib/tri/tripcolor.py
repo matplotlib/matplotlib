@@ -93,7 +93,7 @@ def tripcolor(ax, *args, **kwargs):
     kwargs.setdefault('linewidths', linewidths)
 
     if shading == 'faceted':   # Deprecated.
-        edgecolors = 'k',
+        edgecolors = 'k'
     else:
         edgecolors = 'none'
     if 'edgecolor' in kwargs:
