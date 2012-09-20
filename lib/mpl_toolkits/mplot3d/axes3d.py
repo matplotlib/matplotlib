@@ -1020,9 +1020,6 @@ class Axes3D(Axes):
         #self.disable_mouse_rotation()
         self.zaxis.cla()
 
-        # TODO: Support sharez
-        #self._sharez = None
-
         if self._sharez is not None:
             self.zaxis.major = self._sharez.zaxis.major
             self.zaxis.minor = self._sharez.zaxis.minor
