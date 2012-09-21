@@ -37,10 +37,9 @@ are available for download `here <http://www.python.org/download>`_,
 but OS X users please read :ref:`which-python-for-osx`.
 
 Once you have python up and running, you will need to install `numpy
-<http://sourceforge.net/project/showfiles.php?group_id=1369&package_id=175103>`_.
-numpy provides high-performance array data structures and mathematical
-functions, and is a requirement for matplotlib.  You can test your
-progress::
+<http://www.numpy.org/>`_.  numpy provides high-performance array data
+structures and mathematical functions, and is a requirement for
+matplotlib.  You can test your progress::
 
     >>> import numpy
     >>> print numpy.__version__
@@ -52,7 +51,7 @@ interactive shell for python that is matplotlib-aware.
 
 Next, we need to get matplotlib installed.  We provide prebuilt
 binaries for OS X and Windows on the matplotlib `download
-<http://sourceforge.net/projects/matplotlib/files/>`_ page.  Click on
+<https://github.com/matplotlib/matplotlib/downloads/>`_ page.  Click on
 the latest release of the "matplotlib" package, choose your python
 version (2.6, 2.7 or 3.2) and your platform (macosx or win32).  If you
 have any problems, please check the :ref:`installing-faq`, search
@@ -119,13 +118,13 @@ subdirectory.
 Installing from source
 ======================
 
-If you are interested in contributing to matplotlib
-development, running the latest source code, or just like to
-build everything yourself, it is not difficult to build matplotlib
-from source.  Grab the latest *tar.gz* release file from `sourceforge
-<http://sourceforge.net/project/showfiles.php?group_id=80706>`_, or if
-you want to develop matplotlib or just need the latest bugfixed
-version, grab the latest git version :ref:`install-from-git`.
+If you are interested in contributing to matplotlib development,
+running the latest source code, or just like to build everything
+yourself, it is not difficult to build matplotlib from source.  Grab
+the latest *tar.gz* release file from `the download page
+<https://github.com/matplotlib/matplotlib/downloads>`_, or if you want
+to develop matplotlib or just need the latest bugfixed version, grab
+the latest git version :ref:`install-from-git`.
 
 Once you have satisfied the requirements detailed below (mainly
 python, numpy, libpng and freetype), you can build matplotlib::
@@ -157,11 +156,12 @@ Build requirements
 These are external packages which you will need to install before
 installing matplotlib. Windows users only need the first two (python
 and numpy) since the others are built into the matplotlib Windows
-installers available for download at the sourceforge site.  If you are
+installers available for download at `the download page
+<https://github.com/matplotlib/matplotlib/downloads>_`.  If you are
 building on OSX, see :ref:`build_osx`. If you are installing
-dependencies with a package manager on Linux, you may need to install the
-development packages (look for a "-dev" postfix) in addition to the
-libraries themselves.
+dependencies with a package manager on Linux, you may need to install
+the development packages (look for a "-dev" postfix) in addition to
+the libraries themselves.
 
 .. note::
 
@@ -179,12 +179,11 @@ libraries themselves.
     This does not build matplotlib, but it does get the install the
     build dependencies, which will make building from source easier.
 
-:term:`python` 2.6 (or later but not python3)
-    matplotlib requires python 2.6 or later (`download <http://www.python.org/download/>`__)
+:term:`python` 2.6, 2.7, 3.1 or 3.2
+    `Download python <http://www.python.org/download/>`_.
 
 :term:`numpy` |minimum_numpy_version| (or later)
-    array support for python (`download
-    <http://sourceforge.net/project/showfiles.php?group_id=1369&package_id=175103>`__)
+    array support for python (`download <http://numpy.org>`_)
 
 libpng 1.2 (or later)
     library for loading and saving :term:`PNG` files (`download

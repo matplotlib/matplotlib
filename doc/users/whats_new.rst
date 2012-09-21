@@ -5,7 +5,10 @@ What's new in matplotlib
 ************************
 
 This page just covers the highlights -- for the full story, see the
-`CHANGELOG <http://matplotlib.sourceforge.net/_static/CHANGELOG>`_
+`CHANGELOG <http://matplotlib.org/_static/CHANGELOG>`_
+
+For a list of all of the issues and pull requests since the last
+revision, see the :ref:`github-stats`.
 
 .. note::
    Matplotlib version 1.1 is the last major release compatible with Python
@@ -28,26 +31,16 @@ This work was done by Michael Droettboom, the Cape Town Python Users'
 Group, many others and supported financially in part by the SAGE
 project.
 
-The following GUI backends work under Python 3.x: Gtk3Agg, Gtk3Cairo,
-Qt4Agg, TkAgg and MacOSX.  The other GUI backends do not yet have
-adequate bindings for Python 3.x, but continue to work on Python 2.6
-and 2.7.  The non-GUI backends, such as PDF, PS and SVG, work on both
-Python 2.x and 3.x.
+The following GUI backends work under Python 3.x: Gtk3Cairo, Qt4Agg,
+TkAgg and MacOSX.  The other GUI backends do not yet have adequate
+bindings for Python 3.x, but continue to work on Python 2.6 and 2.7,
+particularly the Qt and QtAgg backends (which have been
+deprecated). The non-GUI backends, such as PDF, PS and SVG, work on
+both Python 2.x and 3.x.
 
 Features that depend on the Python Imaging Library, such as JPEG
 handling, do not work, since the version of PIL for Python 3.x is not
 sufficiently mature.
-
-Object-oriented interface
--------------------------
-
-Damon McDougall has reduced some of the boilerplate code needed to interact
-with the object-oriented interface. Now a figure canvas is set up by default::
-
-    >>> from matplotlib.figure import Figure
-    >>> fig = Figure()
-    >>> ax = fig.add_subplot(1, 1, 1)
-    >>> fig.savefig('figure.pdf')
 
 PGF/TikZ backend
 ----------------
@@ -170,6 +163,17 @@ local intensity of the vector field.
 
 .. plot:: mpl_examples/pylab_examples/streamplot_demo.py
 
+
+New hist functionality
+----------------------
+
+Nic Eggert added a new `stacked` kwarg to :meth:`~matplotlib.pyplot.hist` that
+allows creation of stacked histograms using any of the histogram types.
+Previously, this functionality was only available by using the `barstacked`
+histogram type. Now, when `stacked=True` is passed to the function, any of the
+histogram types can be stacked. The `barstacked` histogram type retains its
+previous functionality for backwards compatibility.
+
 Updated shipped dependencies
 ----------------------------
 
@@ -199,6 +203,13 @@ Phil Elson added support for hatching to
 to use a legend to identify contoured ranges.
 
 .. plot:: mpl_examples/pylab_examples/contourf_hatching.py
+
+Known issues in the matplotlib-1.2 release
+------------------------------------------
+
+- When using the Qt4Agg backend with IPython 0.11 or later, the save
+  dialog will not display.  This should be fixed in a future version
+  of IPython.
 
 .. _whats-new-1-1:
 

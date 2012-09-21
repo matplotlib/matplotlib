@@ -16,7 +16,6 @@ import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 
 
-
 @cleanup
 def test_non_affine_caching():
     class AssertingNonAffineTransform(mtrans.Transform):
@@ -108,6 +107,17 @@ def test_pre_transform_plotting():
     ax.quiver(x, y + 5, u, v, transform=times10 + ax.transData)
     
     ax.barbs(x - 3, y + 5, u**2, v**2, transform=times10 + ax.transData)
+
+
+@cleanup
+def test_contour_pre_transform_limits():
+    ax = plt.axes()
+    xs, ys = np.meshgrid(np.linspace(15, 20, 15), np.linspace(12.4, 12.5, 20))
+    ax.contourf(xs, ys, np.log(xs * ys), transform=mtrans.Affine2D().scale(0.1) + ax.transData)
+    
+    expected = np.array([[ 1.5 ,  1.24],
+                         [ 2.  ,  1.25]])
+    assert_almost_equal(expected, ax.dataLim.get_points())
     
 
 def test_Affine2D_from_values():

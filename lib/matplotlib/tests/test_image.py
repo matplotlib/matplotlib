@@ -128,6 +128,26 @@ def test_imsave():
 
     assert_array_equal(arr_dpi1, arr_dpi100)
 
+def test_imsave_color_alpha():
+    # The goal is to test that imsave will accept arrays with ndim=3 where
+    # the third dimension is color and alpha without raising any exceptions
+    from numpy import random
+    random.seed(1)
+    data = random.rand(256, 128, 4)
+
+    buff = io.BytesIO()
+    plt.imsave(buff, data)
+
+    buff.seek(0)
+    arr_buf = plt.imread(buff)
+
+    assert arr_buf.shape == data.shape
+
+    # Unfortunately, the AGG process "flattens" the RGBA data
+    # into an equivalent RGB data with no transparency. So we
+    # Can't directly compare the arrays like we could in some
+    # other imsave tests.
+
 @image_comparison(baseline_images=['image_clip'])
 def test_image_clip():
     from math import pi
@@ -159,6 +179,21 @@ def test_no_interpolation_origin():
 
     ax = fig.add_subplot(212)
     ax.imshow(np.arange(100).reshape((2, 50)), interpolation='none')
+
+@image_comparison(baseline_images=['image_shift'], remove_text=True,
+                  extensions=['pdf', 'svg'])
+def test_image_shift():
+    from matplotlib.colors import LogNorm
+
+    imgData = [[1.0/(x) + 1.0/(y) for x in range(1,100)] for y in range(1,100)]
+    tMin=734717.945208
+    tMax=734717.946366
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.imshow(imgData, norm=LogNorm(), interpolation='none',
+              extent=(tMin, tMax, 1, 100))
+    ax.set_aspect('auto')
 
 if __name__=='__main__':
     import nose

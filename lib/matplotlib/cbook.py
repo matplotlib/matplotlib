@@ -4,20 +4,29 @@ from the Python Cookbook -- hence the name cbook
 """
 from __future__ import print_function
 
-import re, os, errno, sys, io, traceback, locale, threading
+import datetime
+import errno
+from functools import reduce
+import glob
 import gzip
-import time, datetime
+import io
+import locale
+import os
+import re
+import subprocess
+import sys
+import threading
+import time
+import traceback
 import warnings
+from weakref import ref, WeakKeyDictionary
+
+
 import numpy as np
 import numpy.ma as ma
-from weakref import ref, WeakKeyDictionary
-import os.path
-from functools import reduce
-import subprocess
 
-major, minor1, minor2, s, tmp = sys.version_info
 
-if major >= 3:
+if sys.version_info[0] >= 3:
     import types
 else:
     import new
@@ -82,10 +91,12 @@ class converter:
     def is_missing(self, s):
         return not s.strip() or s==self.missing
 
+
 class tostr(converter):
     'convert to string or None'
     def __init__(self, missing='Null', missingval=''):
         converter.__init__(self, missing=missing, missingval=missingval)
+
 
 class todatetime(converter):
     'convert to a datetime or None'
@@ -100,7 +111,6 @@ class todatetime(converter):
         return datetime.datetime(*tup[:6])
 
 
-
 class todate(converter):
     'convert to a date or None'
     def __init__(self, fmt='%Y-%m-%d', missing='Null', missingval=None):
@@ -111,6 +121,7 @@ class todate(converter):
         if self.is_missing(s): return self.missingval
         tup = time.strptime(s, self.fmt)
         return datetime.date(*tup[:3])
+
 
 class tofloat(converter):
     'convert to a float or None'
@@ -218,26 +229,26 @@ class _BoundMethodProxy(object):
 class CallbackRegistry:
     """
     Handle registering and disconnecting for a set of signals and
-    callbacks::
+    callbacks:
 
-       def oneat(x):
-           print 'eat', x
+        >>> def oneat(x):
+        ...    print 'eat', x
+        >>> def ondrink(x):
+        ...    print 'drink', x
 
-       def ondrink(x):
-           print 'drink', x
+        >>> from matplotlib.cbook import CallbackRegistry 
+        >>> callbacks = CallbackRegistry()
 
-       callbacks = CallbackRegistry()
-
-       ideat = callbacks.connect('eat', oneat)
-       iddrink = callbacks.connect('drink', ondrink)
-
-       #tmp = callbacks.connect('drunk', ondrink) # this will raise a ValueError
-
-       callbacks.process('drink', 123)    # will call oneat
-       callbacks.process('eat', 456)      # will call ondrink
-       callbacks.process('be merry', 456) # nothing will be called
-       callbacks.disconnect(ideat)        # disconnect oneat
-       callbacks.process('eat', 456)      # nothing will be called
+        >>> id_eat = callbacks.connect('eat', oneat)
+        >>> id_drink = callbacks.connect('drink', ondrink)        
+        
+        >>> callbacks.process('drink', 123)
+        drink 123
+        >>> callbacks.process('eat', 456)
+        eat 456
+        >>> callbacks.process('be merry', 456) # nothing will be called
+        >>> callbacks.disconnect(id_eat)
+        >>> callbacks.process('eat', 456)      # nothing will be called
 
     In practice, one should always disconnect all callbacks when they
     are no longer needed to avoid dangling references (and thus memory
@@ -256,7 +267,8 @@ class CallbackRegistry:
     def __init__(self, *args):
         if len(args):
             warnings.warn(
-                'CallbackRegistry no longer requires a list of callback types.  Ignoring arguments',
+                'CallbackRegistry no longer requires a list of callback types.' 
+                ' Ignoring arguments',
                 DeprecationWarning)
         self.callbacks = dict()
         self._cid = 0
@@ -412,7 +424,7 @@ class Bunch:
     Often we want to just collect a bunch of stuff together, naming each
     item of the bunch; a dictionary's OK for that, but a small do- nothing
     class is even handier, and prettier to use.  Whenever you want to
-    group a few variables:
+    group a few variables::
 
       >>> point = Bunch(datum=2, squared=4, coord=12)
       >>> point.datum
@@ -507,7 +519,9 @@ def to_filehandle(fname, flag='rU', return_opened=False):
         return fh, opened
     return fh
 
+
 def is_scalar_or_string(val):
+    """Return whether the given object is a scalar or string like."""
     return is_string_like(val) or not iterable(val)
 
 
@@ -537,32 +551,32 @@ def get_sample_data(fname, asfileobj=True):
     else:
         return path
 
+
 def flatten(seq, scalarp=is_scalar_or_string):
     """
-    this generator flattens nested containers such as
-
-    >>> l=( ('John', 'Hunter'), (1,23), [[[[42,(5,23)]]]])
-
-    so that
-
-    >>> for i in flatten(l): print i,
-    John Hunter 1 23 42 5 23
+    Returns a generator of flattened nested containers
+    
+    For example:
+    
+        >>> from matplotlib.cbook import flatten
+        >>> l = (('John', ['Hunter']), (1, 23), [[([42, (5, 23)], )]])
+        >>> print list(flatten(l)) 
+        ['John', 'Hunter', 1, 23, 42, 5, 23]
 
     By: Composite of Holger Krekel and Luther Blissett
     From: http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/121294
     and Recipe 1.12 in cookbook
     """
     for item in seq:
-        if scalarp(item): yield item
+        if scalarp(item):
+            yield item
         else:
             for subitem in flatten(item, scalarp):
                 yield subitem
 
 
-
 class Sorter:
     """
-
     Sort by attribute or item
 
     Example usage::
@@ -1276,25 +1290,27 @@ class Grouper(object):
 
     For example:
 
-    >>> class Foo:
-    ...     def __init__(self, s):
-    ...             self.s = s
-    ...     def __repr__(self):
-    ...             return self.s
-    ...
-    >>> a, b, c, d, e, f = [Foo(x) for x in 'abcdef']
-    >>> g = Grouper()
-    >>> g.join(a, b)
-    >>> g.join(b, c)
-    >>> g.join(d, e)
-    >>> list(g)
-    [[d, e], [a, b, c]]
-    >>> g.joined(a, b)
-    True
-    >>> g.joined(a, c)
-    True
-    >>> g.joined(a, d)
-    False
+        >>> from matplotlib.cbook import Grouper
+        >>> class Foo(object):
+        ...     def __init__(self, s):
+        ...         self.s = s
+        ...     def __repr__(self):
+        ...         return self.s
+        ...
+        >>> a, b, c, d, e, f = [Foo(x) for x in 'abcdef']
+        >>> grp = Grouper()
+        >>> grp.join(a, b)
+        >>> grp.join(b, c)
+        >>> grp.join(d, e)
+        >>> sorted(map(tuple, grp))
+        [(d, e), (a, b, c)]
+        >>> grp.joined(a, b)
+        True
+        >>> grp.joined(a, c)
+        True
+        >>> grp.joined(a, d)
+        False
+    
     """
     def __init__(self, init=[]):
         mapping = self._mapping = {}
@@ -1622,9 +1638,9 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
 def align_iterators(func, *iterables):
     """
     This generator takes a bunch of iterables that are ordered by func
-    It sends out ordered tuples:
+    It sends out ordered tuples::
 
-      (func(row), [rows from all iterators matching func(row)])
+       (func(row), [rows from all iterators matching func(row)])
 
     It is used by :func:`matplotlib.mlab.recs_join` to join record arrays
     """
@@ -1737,13 +1753,13 @@ def _check_output(*popenargs, **kwargs):
     returncode
     attribute and output in the output attribute.
 
-    The arguments are the same as for the Popen constructor.  Example:
+    The arguments are the same as for the Popen constructor.  Example::
 
     >>> check_output(["ls", "-l", "/dev/null"])
     'crw-rw-rw- 1 root root 1, 3 Oct 18  2007 /dev/null\n'
 
     The stdout argument is not allowed as it is used internally.
-    To capture standard error in the result, use stderr=STDOUT.
+    To capture standard error in the result, use stderr=STDOUT.::
 
     >>> check_output(["/bin/sh", "-c",
     ...               "ls -l non_existent_file ; exit 0"],

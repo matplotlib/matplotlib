@@ -71,7 +71,7 @@ class ContourLabeler:
         Optional keyword arguments:
 
           *fontsize*:
-            See http://matplotlib.sf.net/fonts.html
+            size in points or relative size eg 'smaller', 'x-large'
 
           *colors*:
             - if *None*, the color of each label matches the color of
@@ -946,6 +946,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     min = seg.min(axis=0)
                     max = seg.max(axis=0)
                     havelimits = True
+        
         if havelimits:
             self.ax.update_datalim([min, max])
             self.ax.autoscale_view(tight=True)
@@ -1291,17 +1292,31 @@ class QuadContourSet(ContourSet):
             self.zmax = args[0].zmax
         else:
             x, y, z = self._contour_args(args, kwargs)
-
+            
+            _mask = ma.getmask(z)
+            if _mask is ma.nomask:
+                _mask = None
+            C = _cntr.Cntr(x, y, z.filled(), _mask)
+            
+            t = self.ax.transData if self.transform is None else self.transform
+            
+            # if the transform is not trans data, and some part of it
+            # contains transData, transform the xs and ys to data coordinates
+            if (t != self.ax.transData and
+                        any(t.contains_branch_seperately(self.ax.transData))):
+                trans_to_data = self.transform - self.ax.transData
+                pts = (np.vstack([x.flat, y.flat]).T)
+                transformed_pts = trans_to_data.transform(pts)
+                x = transformed_pts[..., 0]
+                y = transformed_pts[..., 1]
+            
             x0 = ma.minimum(x)
             x1 = ma.maximum(x)
             y0 = ma.minimum(y)
             y1 = ma.maximum(y)
             self.ax.update_datalim([(x0,y0), (x1,y1)])
             self.ax.autoscale_view(tight=True)
-            _mask = ma.getmask(z)
-            if _mask is ma.nomask:
-                _mask = None
-            C = _cntr.Cntr(x, y, z.filled(), _mask)
+
         self.Cntr = C
 
     def _get_allsegs_and_allkinds(self):

@@ -209,11 +209,14 @@ def get_renderer(fig):
     return renderer
 
 
-def get_subplotspec_list(axes_list):
+def get_subplotspec_list(axes_list, grid_spec=None):
     """
     Return a list of subplotspec from the given list of axes.  For an
     instance of axes that does not support subplotspec, None is
     inserted in the list.
+
+    If grid_spec is given, None is inserted for those not from
+    the given grid_spec.
 
     """
     subplotspec_list = []
@@ -225,10 +228,15 @@ def get_subplotspec_list(axes_list):
         if hasattr(axes_or_locator, "get_subplotspec"):
             subplotspec = axes_or_locator.get_subplotspec()
             subplotspec = subplotspec.get_topmost_subplotspec()
-            if subplotspec.get_gridspec().locally_modified_subplot_params():
+            gs = subplotspec.get_gridspec()
+            if grid_spec is not None:
+                if gs != grid_spec:
+                    subplotspec = None
+            elif gs.locally_modified_subplot_params():
                 subplotspec = None
         else:
             subplotspec = None
+
 
         subplotspec_list.append(subplotspec)
 

@@ -98,7 +98,7 @@ class TimerGTK3(TimerBase):
             self._timer = None
             return False
 
-class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
+class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
     keyvald = {65507 : 'control',
                65505 : 'shift',
                65513 : 'alt',
@@ -378,9 +378,6 @@ class FigureManagerGTK3(FigureManagerBase):
 
         self.canvas.show()
 
-        # attach a show method to the figure  for pylab ease of use
-        self.canvas.figure.show = lambda *args: self.window.show()
-
         self.vbox.pack_start(self.canvas, True, True, 0)
 
         self.toolbar = self._get_toolbar(canvas)
@@ -564,7 +561,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
 
         window = Gtk.Window()
-        try: 
+        try:
             window.set_icon_from_file(window_icon)
         except (SystemExit, KeyboardInterrupt):
             # re-raise exit type Exceptions

@@ -1910,7 +1910,9 @@ class FigureCanvasBase(object):
             buf, size = agg.print_to_buffer()
             if kwargs.pop("dryrun", False): return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            return image.save(filename_or_obj, format='tiff')
+            dpi = (self.figure.dpi, self.figure.dpi)
+            return image.save(filename_or_obj, format='tiff',
+                              dpi=dpi)
         print_tiff = print_tif
 
     def get_supported_filetypes(self):
@@ -2403,6 +2405,8 @@ def key_press_handler(event, canvas, toolbar=None):
                 else:
                     a.set_navigate(i==n)
 
+class NonGuiException(Exception):
+    pass
 
 class FigureManagerBase:
     """
@@ -2432,6 +2436,15 @@ class FigureManagerBase:
             canvas.mpl_disconnect(manager.key_press_handler_id)
 
         """
+
+    def show(self):
+        """
+        For GUI backends, show the figure window and redraw.
+        For non-GUI backends, raise an exception to be caught
+        by :meth:`~matplotlib.figure.Figure.show`, for an
+        optional warning.
+        """
+        raise NonGuiException()
 
     def destroy(self):
         pass

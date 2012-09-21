@@ -11,7 +11,7 @@ import subprocess
 
 import matplotlib as mpl
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
-     FigureManagerBase, FigureCanvasBase
+    FigureManagerBase, FigureCanvasBase
 from matplotlib.figure import Figure
 from matplotlib.text import Text
 from matplotlib.path import Path
@@ -30,18 +30,20 @@ for f in font_manager.findSystemFonts():
     try:
         system_fonts.append(FT2Font(str(f)).family_name)
     except RuntimeError:
-        pass # some fonts on osx are known to fail, print?
+        pass  # some fonts on osx are known to fail, print?
     except:
-        pass # unknown error, skip this font
+        pass  # unknown error, skip this font
 
-# get chosen TeX system from rc
+
 def get_texcommand():
+    """Get chosen TeX system from rc."""
     texsystem_options = ["xelatex", "lualatex", "pdflatex"]
     texsystem = rcParams.get("pgf.texsystem", "xelatex")
     return texsystem if texsystem in texsystem_options else "xelatex"
 
-# build fontspec preamble from rc
+
 def get_fontspec():
+    """Build fontspec preamble from rc."""
     latex_fontspec = []
     texcommand = get_texcommand()
 
@@ -51,18 +53,21 @@ def get_fontspec():
     if texcommand is not "pdflatex" and rcParams.get("pgf.rcfonts", True):
         # try to find fonts from rc parameters
         families = ["serif", "sans-serif", "monospace"]
-        fontspecs = [r"\setmainfont{%s}", r"\setsansfont{%s}", r"\setmonofont{%s}"]
+        fontspecs = [r"\setmainfont{%s}", r"\setsansfont{%s}",
+                     r"\setmonofont{%s}"]
         for family, fontspec in zip(families, fontspecs):
-            matches = [f for f in rcParams["font."+family] if f in system_fonts]
+            matches = [f for f in rcParams["font." + family]
+                       if f in system_fonts]
             if matches:
                 latex_fontspec.append(fontspec % matches[0])
             else:
-                pass # no fonts found, fallback to LaTeX defaule
+                pass  # no fonts found, fallback to LaTeX defaule
 
     return "\n".join(latex_fontspec)
 
-# get LaTeX preamble from rc
+
 def get_preamble():
+    """Get LaTeX preamble from rc."""
     latex_preamble = rcParams.get("pgf.preamble", "")
     if type(latex_preamble) == list:
         latex_preamble = "\n".join(latex_preamble)
@@ -73,10 +78,10 @@ def get_preamble():
 # This almost made me cry!!!
 # In the end, it's better to use only one unit for all coordinates, since the
 # arithmetic in latex seems to produce inaccurate conversions.
-latex_pt_to_in = 1./72.27
-latex_in_to_pt = 1./latex_pt_to_in
-mpl_pt_to_in = 1./72.
-mpl_in_to_pt = 1./mpl_pt_to_in
+latex_pt_to_in = 1. / 72.27
+latex_in_to_pt = 1. / latex_pt_to_in
+mpl_pt_to_in = 1. / 72.
+mpl_in_to_pt = 1. / mpl_pt_to_in
 
 ###############################################################################
 # helper functions
@@ -87,6 +92,7 @@ re_escapetext = re.compile(NO_ESCAPE + "([_^$%])")
 repl_escapetext = lambda m: "\\" + m.group(1)
 re_mathdefault = re.compile(NO_ESCAPE + r"(\\mathdefault)")
 repl_mathdefault = lambda m: m.group(0)[:-len(m.group(1))]
+
 
 def common_texification(text):
     """
@@ -101,7 +107,7 @@ def common_texification(text):
     # split text into normaltext and inline math parts
     parts = re_mathsep.split(text)
     for i, s in enumerate(parts):
-        if not i%2:
+        if not i % 2:
             # textmode replacements
             s = re_escapetext.sub(repl_escapetext, s)
         else:
@@ -111,11 +117,13 @@ def common_texification(text):
 
     return "".join(parts)
 
+
 def writeln(fh, line):
     # every line of a file included with \input must be terminated with %
     # if not, latex will create additional vertical spaces for some reason
     fh.write(line)
     fh.write("%\n")
+
 
 def _font_properties_str(prop):
     # translate font properties to latex commands, return as string
@@ -129,20 +137,22 @@ def _font_properties_str(prop):
     elif family in system_fonts and get_texcommand() is not "pdflatex":
         commands.append(r"\setmainfont{%s}\rmfamily" % family)
     else:
-        pass # print warning?
+        pass  # print warning?
 
     size = prop.get_size_in_points()
-    commands.append(r"\fontsize{%f}{%f}" % (size, size*1.2))
+    commands.append(r"\fontsize{%f}{%f}" % (size, size * 1.2))
 
     styles = {"normal": r"", "italic": r"\itshape", "oblique": r"\slshape"}
     commands.append(styles[prop.get_style()])
 
     boldstyles = ["semibold", "demibold", "demi", "bold", "heavy",
                   "extra bold", "black"]
-    if prop.get_weight() in boldstyles: commands.append(r"\bfseries")
+    if prop.get_weight() in boldstyles:
+        commands.append(r"\bfseries")
 
     commands.append(r"\selectfont")
     return "".join(commands)
+
 
 def make_pdf_to_png_converter():
     """
@@ -183,10 +193,12 @@ def make_pdf_to_png_converter():
     else:
         raise RuntimeError("No suitable pdf to png renderer found.")
 
+
 class LatexError(Exception):
-    def __init__(self, message, latex_output = ""):
+    def __init__(self, message, latex_output=""):
         Exception.__init__(self, message)
         self.latex_output = latex_output
+
 
 class LatexManagerFactory:
     previous_instance = None
@@ -209,6 +221,7 @@ class LatexManagerFactory:
             LatexManagerFactory.previous_instance = new_inst
             return new_inst
 
+
 class LatexManager:
     """
     The LatexManager opens an instance of the LaTeX application for
@@ -227,7 +240,7 @@ class LatexManager:
                         latex_preamble,
                         latex_fontspec,
                         r"\begin{document}",
-                        r"text $math \mu$", # force latex to load fonts now
+                        r"text $math \mu$",  # force latex to load fonts now
                         r"\typeout{pgf_backend_query_start}"]
         return "\n".join(latex_header)
 
@@ -258,8 +271,8 @@ class LatexManager:
 
         # test the LaTeX setup to ensure a clean startup of the subprocess
         latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
-                                  stdin=subprocess.PIPE,
-                                  stdout=subprocess.PIPE)
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE)
         test_input = self.latex_header + latex_end
         stdout, stderr = latex.communicate(test_input.encode("utf-8"))
         if latex.returncode != 0:
@@ -267,8 +280,8 @@ class LatexManager:
 
         # open LaTeX process for real work
         latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
-                                  stdin=subprocess.PIPE,
-                                  stdout=subprocess.PIPE)
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE)
         self.latex = latex
         self.latex_stdin_utf8 = codecs.getwriter("utf8")(self.latex.stdin)
         # write header with 'pgf_backend_query_start' token
@@ -313,8 +326,8 @@ class LatexManager:
         try:
             self._expect_prompt()
         except LatexError as e:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, e.latex_output)
-            raise ValueError(msg)
+            msg = "Error processing '%s'\nLaTeX Output:\n%s"
+            raise ValueError(msg % (text, e.latex_output))
 
         # typeout width, height and text offset of the last textbox
         self._stdin_writeln(r"\typeout{\the\wd0,\the\ht0,\the\dp0}")
@@ -322,12 +335,12 @@ class LatexManager:
         try:
             answer = self._expect_prompt()
         except LatexError as e:
-            msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, e.latex_output)
-            raise ValueError(msg)
+            msg = "Error processing '%s'\nLaTeX Output:\n%s"
+            raise ValueError(msg % (text, e.latex_output))
 
         # parse metrics from the answer string
         try:
-            width, height, offset = answer.split("\n")[0].split(",")
+            width, height, offset = answer.splitlines()[0].split(",")
         except:
             msg = "Error processing '%s'\nLaTeX Output:\n%s" % (text, answer)
             raise ValueError(msg)
@@ -335,8 +348,9 @@ class LatexManager:
 
         # the height returned from LaTeX goes from base to top.
         # the height matplotlib expects goes from bottom to top.
-        self.str_cache[textbox] = (w, h+o, o)
-        return w, h+o, o
+        self.str_cache[textbox] = (w, h + o, o)
+        return w, h + o, o
+
 
 class RendererPgf(RendererBase):
 
@@ -362,7 +376,7 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\begin{pgfscope}")
 
         # convert from display units to in
-        f = 1./self.dpi
+        f = 1. / self.dpi
 
         # set style and clip
         self._print_pgf_clip(gc)
@@ -370,7 +384,7 @@ class RendererPgf(RendererBase):
 
         # build marker definition
         bl, tr = marker_path.get_extents(marker_trans).get_points()
-        coords = bl[0]*f, bl[1]*f, tr[0]*f, tr[1]*f
+        coords = bl[0] * f, bl[1] * f, tr[0] * f, tr[1] * f
         writeln(self.fh, r"\pgfsys@defobject{currentmarker}{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{" % coords)
         self._print_pgf_path(marker_path, marker_trans)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
@@ -379,9 +393,9 @@ class RendererPgf(RendererBase):
 
         # draw marker for each vertex
         for point, code in path.iter_segments(trans, simplify=False):
-            x, y = tuple(point)
+            x, y = point[0] * f, point[1] * f
             writeln(self.fh, r"\begin{pgfscope}")
-            writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (x*f,y*f))
+            writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (x, y))
             writeln(self.fh, r"\pgfsys@useobject{currentmarker}{}")
             writeln(self.fh, r"\end{pgfscope}")
 
@@ -396,7 +410,6 @@ class RendererPgf(RendererBase):
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
         writeln(self.fh, r"\end{pgfscope}")
-
 
         # if present, draw pattern on top
         if gc.get_hatch():
@@ -418,9 +431,10 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\end{pgfscope}")
             writeln(self.fh, r"}")
             # repeat pattern, filling the bounding rect of the path
-            f = 1./self.dpi
+            f = 1. / self.dpi
             (xmin, ymin), (xmax, ymax) = path.get_extents(transform).get_points()
-            xmin, ymin, xmax, ymax = f*xmin, f*ymin, f*xmax, f*ymax
+            xmin, xmax = f * xmin, f * xmax
+            ymin, ymax = f * ymin, f * ymax
             repx, repy = int(math.ceil(xmax-xmin)), int(math.ceil(ymax-ymin))
             writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
             for iy in range(repy):
@@ -433,13 +447,13 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\end{pgfscope}")
 
     def _print_pgf_clip(self, gc):
-        f = 1./self.dpi
+        f = 1. / self.dpi
         # check for clip box
         bbox = gc.get_clip_rectangle()
         if bbox:
             p1, p2 = bbox.get_points()
-            w, h = p2-p1
-            coords = p1[0]*f, p1[1]*f, w*f, h*f
+            w, h = p2 - p1
+            coords = p1[0] * f, p1[1] * f, w * f, h * f
             writeln(self.fh, r"\pgfpathrectangle{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}} " % coords)
             writeln(self.fh, r"\pgfusepath{clip}")
 
@@ -483,41 +497,46 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % gc.get_alpha())
 
         # line style
+        dash_offset, dash_list = gc.get_dashes()
         ls = gc.get_linestyle(None)
         if ls == "solid":
             writeln(self.fh, r"\pgfsetdash{}{0pt}")
-        elif ls == "dashed":
-            writeln(self.fh, r"\pgfsetdash{{%fpt}{%fpt}}{0pt}" % (2.5*lw, 2.5*lw))
-        elif ls == "dashdot":
-            writeln(self.fh, r"\pgfsetdash{{%fpt}{%fpt}{%fpt}{%fpt}}{0pt}" % (3*lw, 3*lw, 1*lw, 3*lw))
-        elif "dotted":
-            writeln(self.fh, r"\pgfsetdash{{%fpt}{%fpt}}{0pt}" % (lw, 3*lw))
+        elif (ls == "dashed" or ls == "dashdot" or ls == "dotted"):
+            dash_str = r"\pgfsetdash{"
+            for dash in dash_list:
+                dash_str += r"{%fpt}" % dash
+            dash_str += r"}{%fpt}" % dash_offset
+            writeln(self.fh, dash_str)
 
     def _print_pgf_path(self, path, transform):
-        f = 1./self.dpi
+        f = 1. / self.dpi
         # build path
         for points, code in path.iter_segments(transform):
             if code == Path.MOVETO:
                 x, y = tuple(points)
-                writeln(self.fh, r"\pgfpathmoveto{\pgfqpoint{%fin}{%fin}}" % (f*x,f*y))
+                writeln(self.fh, r"\pgfpathmoveto{\pgfqpoint{%fin}{%fin}}" %
+                        (f * x, f * y))
             elif code == Path.CLOSEPOLY:
                 writeln(self.fh, r"\pgfpathclose")
             elif code == Path.LINETO:
                 x, y = tuple(points)
-                writeln(self.fh, r"\pgfpathlineto{\pgfqpoint{%fin}{%fin}}" % (f*x,f*y))
+                writeln(self.fh, r"\pgfpathlineto{\pgfqpoint{%fin}{%fin}}" %
+                        (f * x, f * y))
             elif code == Path.CURVE3:
                 cx, cy, px, py = tuple(points)
-                coords = cx*f, cy*f, px*f, py*f
+                coords = cx * f, cy * f, px * f, py * f
                 writeln(self.fh, r"\pgfpathquadraticcurveto{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}" % coords)
             elif code == Path.CURVE4:
                 c1x, c1y, c2x, c2y, px, py = tuple(points)
-                coords = c1x*f, c1y*f, c2x*f, c2y*f, px*f, py*f
+                coords = c1x * f, c1y * f, c2x * f, c2y * f, px * f, py * f
                 writeln(self.fh, r"\pgfpathcurveto{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}" % coords)
 
     def _pgf_path_draw(self, stroke=True, fill=False):
         actions = []
-        if stroke: actions.append("stroke")
-        if fill: actions.append("fill")
+        if stroke:
+            actions.append("stroke")
+        if fill:
+            actions.append("fill")
         writeln(self.fh, r"\pgfusepath{%s}" % ",".join(actions))
 
     def draw_image(self, gc, x, y, im):
@@ -537,8 +556,8 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\begin{pgfscope}")
         self._print_pgf_clip(gc)
         h, w = im.get_size_out()
-        f = 1./self.dpi # from display coords to inch
-        writeln(self.fh, r"\pgftext[at=\pgfqpoint{%fin}{%fin},left,bottom]{\pgfimage[interpolate=true,width=%fin,height=%fin]{%s}}" % (x*f, y*f, w*f, h*f, fname_img))
+        f = 1. / self.dpi  # from display coords to inch
+        writeln(self.fh, r"\pgftext[at=\pgfqpoint{%fin}{%fin},left,bottom]{\pgfimage[interpolate=true,width=%fin,height=%fin]{%s}}" % (x * f, y * f, w * f, h * f, fname_img))
         writeln(self.fh, r"\end{pgfscope}")
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!"):
@@ -552,8 +571,8 @@ class RendererPgf(RendererBase):
         s = ur"{%s %s}" % (prop_cmds, s)
 
         # draw text at given coordinates
-        x = x * 1./self.dpi
-        y = y * 1./self.dpi
+        x = x * 1. / self.dpi
+        y = y * 1. / self.dpi
         writeln(self.fh, r"\begin{pgfscope}")
         alpha = gc.get_alpha()
         if alpha != 1.0:
@@ -564,7 +583,7 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % stroke_rgb)
             writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
             writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
-        writeln(self.fh, "\\pgftext[left,bottom,x=%fin,y=%fin,rotate=%f]{%s}\n" % (x,y,angle,s))
+        writeln(self.fh, "\\pgftext[left,bottom,x=%fin,y=%fin,rotate=%f]{%s}\n" % (x, y, angle, s))
         writeln(self.fh, r"\end{pgfscope}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
@@ -577,7 +596,7 @@ class RendererPgf(RendererBase):
         # but having a little bit more space around the text looks better,
         # plus the bounding box reported by LaTeX is VERY narrow
         f = mpl_pt_to_in * self.dpi
-        return w*f, h*f, d*f
+        return w * f, h * f, d * f
 
     def flipy(self):
         return False
@@ -597,6 +616,7 @@ class GraphicsContextPgf(GraphicsContextBase):
 
 ########################################################################
 
+
 def draw_if_interactive():
     pass
 
@@ -612,8 +632,8 @@ def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, thisFig)
-    
-    
+
+
 def new_figure_manager_given_figure(num, figure):
     """
     Create a new figure manager instance for the given figure.
@@ -626,7 +646,7 @@ def new_figure_manager_given_figure(num, figure):
 class FigureCanvasPgf(FigureCanvasBase):
     filetypes = {"pgf": "LaTeX PGF picture",
                  "pdf": "LaTeX compiled PGF picture",
-                 "png": "Portable Network Graphics",}
+                 "png": "Portable Network Graphics", }
 
     def __init__(self, *args):
         FigureCanvasBase.__init__(self, *args)
@@ -671,7 +691,7 @@ class FigureCanvasPgf(FigureCanvasBase):
         writeln(fh, r"\begingroup")
         writeln(fh, r"\makeatletter")
         writeln(fh, r"\begin{pgfpicture}")
-        writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w,h))
+        writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w, h))
         writeln(fh, r"\pgfusepath{use as bounding box}")
         renderer = RendererPgf(self.figure, fh)
         self.figure.draw(renderer)
@@ -686,15 +706,16 @@ class FigureCanvasPgf(FigureCanvasBase):
         Output pgf commands for drawing the figure so it can be included and
         rendered in latex documents.
         """
-        if kwargs.get("dryrun", False): return
+        if kwargs.get("dryrun", False):
+            return
 
         # figure out where the pgf is to be written to
         if is_string_like(fname_or_fh):
             with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
                 self._print_pgf_to_fh(fh)
         elif is_writable_file_like(fname_or_fh):
-            raise ValueError("saving pgf to a stream is not supported, " + \
-            "consider using the pdf option of the pgf-backend")
+            raise ValueError("saving pgf to a stream is not supported, " +
+                             "consider using the pdf option of the pgf-backend")
         else:
             raise ValueError("filename must be a path")
 
@@ -727,7 +748,8 @@ class FigureCanvasPgf(FigureCanvasBase):
                 fh_tex.write(latexcode)
 
             texcommand = get_texcommand()
-            cmdargs = [texcommand, "-interaction=nonstopmode", "-halt-on-error", "figure.tex"]
+            cmdargs = [texcommand, "-interaction=nonstopmode",
+                       "-halt-on-error", "figure.tex"]
             try:
                 check_output(cmdargs, stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError as e:
@@ -815,7 +837,8 @@ class FigureCanvasPgf(FigureCanvasBase):
         # draw text elements
         for text in texts:
             s = text.get_text()
-            if not s or not text.get_visible(): continue
+            if not s or not text.get_visible():
+                continue
 
             s = common_texification(s)
 
@@ -838,7 +861,6 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_renderer(self):
         return RendererPgf(self.figure, None)
 
-FigureCanvas = FigureCanvasPgf
 
 class FigureManagerPgf(FigureManagerBase):
     def __init__(self, *args):

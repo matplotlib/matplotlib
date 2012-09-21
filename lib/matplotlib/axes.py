@@ -16,6 +16,7 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
+import matplotlib.dates as _ # <-registers a date unit converter 
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
 import matplotlib.image as mimage
@@ -3882,6 +3883,11 @@ class Axes(martist.Artist):
 
         Return value is a list of lines that were added.
 
+        By default, each line is assigned a different color specified by a
+        'color cycle'.  To change this behavior, you can edit the
+        axes.color_cycle rcParam. Alternatively, you can use
+        :meth:`~matplotlib.axes.Axes.set_default_color_cycle`.
+
         The following format string characters are accepted to control
         the line style or marker:
 
@@ -3965,8 +3971,9 @@ class Axes(martist.Artist):
         marker, linestyle, and markercolor with::
 
             plot(x, y, color='green', linestyle='dashed', marker='o',
-                 markerfacecolor='blue', markersize=12).  See
-                 :class:`~matplotlib.lines.Line2D` for details.
+                 markerfacecolor='blue', markersize=12).
+                 
+        See :class:`~matplotlib.lines.Line2D` for details.
 
         The kwargs are :class:`~matplotlib.lines.Line2D` properties:
 
@@ -4427,7 +4434,7 @@ class Axes(martist.Artist):
 
         Call signature::
 
-          legend(*args, **kwargs)
+           legend(*args, **kwargs)
 
         Places legend at location *loc*.  Labels are a sequence of
         strings and *loc* can be a string or an integer specifying the
@@ -4435,36 +4442,36 @@ class Axes(martist.Artist):
 
         To make a legend with existing lines::
 
-          legend()
+           legend()
 
         :meth:`legend` by itself will try and build a legend using the label
         property of the lines/patches/collections.  You can set the label of
         a line by doing::
 
-          plot(x, y, label='my data')
+           plot(x, y, label='my data')
 
         or::
 
-          line.set_label('my data').
+           line.set_label('my data').
 
         If label is set to '_nolegend_', the item will not be shown in
         legend.
 
         To automatically generate the legend from labels::
 
-          legend( ('label1', 'label2', 'label3') )
+           legend( ('label1', 'label2', 'label3') )
 
         To make a legend for a list of lines and labels::
 
-          legend( (line1, line2, line3), ('label1', 'label2', 'label3') )
+           legend( (line1, line2, line3), ('label1', 'label2', 'label3') )
 
         To make a legend at a given location, using a location argument::
 
-          legend( ('label1', 'label2', 'label3'), loc='upper left')
+           legend( ('label1', 'label2', 'label3'), loc='upper left')
 
         or::
 
-          legend( (line1, line2, line3),  ('label1', 'label2', 'label3'), loc=2)
+           legend( (line1, line2, line3),  ('label1', 'label2', 'label3'), loc=2)
 
         The location codes are
 
@@ -4490,7 +4497,7 @@ class Axes(martist.Artist):
         of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
         For example,
 
-          loc = 'upper right', bbox_to_anchor = (0.5, 0.5)
+           loc = 'upper right', bbox_to_anchor = (0.5, 0.5)
 
         will place the legend so that the upper right corner of the legend at
         the center of the axes.
@@ -7066,6 +7073,7 @@ class Axes(martist.Artist):
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/image_demo.py
+        
         """
 
         if not self._hold: self.cla()
@@ -7774,7 +7782,7 @@ class Axes(martist.Artist):
     def hist(self, x, bins=10, range=None, normed=False, weights=None,
              cumulative=False, bottom=None, histtype='bar', align='mid',
              orientation='vertical', rwidth=None, log=False,
-             color=None, label=None,
+             color=None, label=None, stacked=False,
              **kwargs):
         """
         Plot a histogram.
@@ -7784,7 +7792,7 @@ class Axes(martist.Artist):
           hist(x, bins=10, range=None, normed=False, weights=None,
                  cumulative=False, bottom=None, histtype='bar', align='mid',
                  orientation='vertical', rwidth=None, log=False,
-                 color=None, label=None,
+                 color=None, label=None, stacked=False,
                  **kwargs)
 
         Compute and draw the histogram of *x*. The return value is a
@@ -7908,6 +7916,11 @@ class Axes(martist.Artist):
                 ax.hist(12+3*np.random.randn(1000), label='women', alpha=0.5)
                 ax.legend()
 
+          *stacked*:
+            If *True*, multiple data are stacked on top of each other
+            If *False* multiple data are aranged side by side if
+            histtype is 'bar' or on top of each other if histtype is 'step'
+
             .
 
         kwargs are used to update the properties of the
@@ -7946,6 +7959,9 @@ class Axes(martist.Artist):
             raise DeprecationWarning(
                 'hist now uses the rwidth to give relative width '
                 'and not absolute width')
+
+        if histtype == 'barstacked' and not stacked:
+            stacked=True
 
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
@@ -8032,13 +8048,21 @@ class Axes(martist.Artist):
             hist_kwargs['new'] = True
 
         n = []
-        for i in xrange(nx):
+        mlast = bottom
+        # reversed order is necessary so when stacking histogram, first dataset is on top
+        # if histogram isn't stacked, this doesn't make any difference
+        for i in reversed(xrange(nx)):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
+            if mlast is None:
+                mlast = np.zeros(len(bins)-1, np.int)
             if normed:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
+            if stacked:
+                m += mlast
+                mlast[:] = m
             n.append(m)
 
         if cumulative:
@@ -8050,6 +8074,8 @@ class Axes(martist.Artist):
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
+
+        n.reverse() # put them back in the right order
 
         patches = []
 
@@ -8063,7 +8089,7 @@ class Axes(martist.Artist):
             else:
                 dr = 1.0
 
-            if histtype=='bar':
+            if histtype=='bar' and not stacked:
                 width = dr*totwidth/nx
                 dw = width
 
@@ -8072,10 +8098,9 @@ class Axes(martist.Artist):
                 else:
                     boffset = 0.0
                 stacked = False
-            elif histtype=='barstacked':
+            elif histtype=='barstacked' or stacked:
                 width = dr*totwidth
                 boffset, dw = 0.0, 0.0
-                stacked = True
 
             if align == 'mid' or align == 'edge':
                 boffset += 0.5*totwidth
@@ -8088,14 +8113,10 @@ class Axes(martist.Artist):
                 _barfunc = self.bar
 
             for m, c in zip(n, color):
-                patch = _barfunc(bins[:-1]+boffset, m, width, bottom,
+                patch = _barfunc(bins[:-1]+boffset, m, width,
                                   align='center', log=log,
                                   color=c)
                 patches.append(patch)
-                if stacked:
-                    if bottom is None:
-                        bottom = 0.0
-                    bottom += m
                 boffset += dw
 
         elif histtype.startswith('step'):
@@ -8118,6 +8139,8 @@ class Axes(martist.Artist):
                 else:  # orientation == 'vertical'
                     self.set_yscale('log')
 
+            # If fill kwarg is set, it will be passed to the patch collection,
+            # overriding this
             fill = (histtype == 'stepfilled')
 
             for m, c in zip(n, color):

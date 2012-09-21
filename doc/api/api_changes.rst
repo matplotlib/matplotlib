@@ -84,18 +84,20 @@ Changes in 1.2.x
   implements a non-affine transformation, then it should override the
   ``transform_non_affine`` method, rather than the generic ``transform`` method.
   Previously transforms would define ``transform`` and then copy the
-  method into ``transform_non_affine``:
+  method into ``transform_non_affine``::
 
      class MyTransform(mtrans.Transform):
          def transform(self, xy):
              ...
          transform_non_affine = transform
-
-  This approach will no longer function correctly and should be changed to:
+  
+  
+  This approach will no longer function correctly and should be changed to::
 
      class MyTransform(mtrans.Transform):
          def transform_non_affine(self, xy):
              ...
+  
 
 * Artists no longer have ``x_isdata`` or ``y_isdata`` attributes; instead
   any artist's transform can be interrogated with
@@ -103,7 +105,7 @@ Changes in 1.2.x
 
 * Lines added to an axes now take into account their transform when updating the
   data and view limits. This means transforms can now be used as a pre-transform.
-  For instance:
+  For instance::
 
       >>> import matplotlib.pyplot as plt
       >>> import matplotlib.transforms as mtrans
@@ -131,6 +133,14 @@ Changes in 1.2.x
 * ``twinx`` and ``twiny`` now returns an instance of SubplotBase if
   parent axes is an instance of SubplotBase.
 
+* All Qt3-based backends are now deprecated due to the lack of py3k bindings.
+  Qt and QtAgg backends will continue to work in v1.2.x for py2.6
+  and py2.7. It is anticipated that the Qt3 support will be completely
+  removed for the next release.
+
+* :class:`~matplotlib.colors.ColorConverter`,
+  :class:`~matplotlib.colors.Colormap` and
+  :class:`~matplotlib.colors.Normalize` now subclasses ``object``
 
 Changes in 1.1.x
 ================

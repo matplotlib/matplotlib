@@ -25,7 +25,7 @@ import matplotlib._png as _png
 # the image namespace:
 from matplotlib._image import *
 
-from matplotlib.transforms import BboxBase, Bbox
+from matplotlib.transforms import BboxBase, Bbox, IdentityTransform
 import matplotlib.transforms as mtransforms
 
 
@@ -270,8 +270,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         # firs, convert the image extent to the ic
         x_llc, x_trc, y_llc, y_trc = self.get_extent()
 
-        xy = trans.transform_non_affine(np.array([(x_llc, y_llc),
-                                                  (x_trc, y_trc)]))
+        xy = trans.transform(np.array([(x_llc, y_llc),
+                                       (x_trc, y_trc)]))
 
         _xx1, _yy1 = xy[0]
         _xx2, _yy2 = xy[1]
@@ -283,15 +283,16 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         if self._image_skew_coordinate:
             # skew the image when required.
             x_lrc, y_lrc = self._image_skew_coordinate
-            xy2 = trans.transform_non_affine(np.array([(x_lrc, y_lrc)]))
+            xy2 = trans.transform(np.array([(x_lrc, y_lrc)]))
             _xx3, _yy3 = xy2[0]
 
             tr_rotate_skew = self._get_rotate_and_skew_transform(_xx1, _yy1,
                                                                  _xx2, _yy2,
                                                                  _xx3, _yy3)
-            trans_ic_to_canvas = tr_rotate_skew+trans.get_affine()
+            trans_ic_to_canvas = tr_rotate_skew
         else:
-            trans_ic_to_canvas = trans.get_affine()
+            trans_ic_to_canvas = IdentityTransform()
+
 
         # Now, viewLim in the ic.  It can be rotated and can be
         # skewed. Make it big enough.
@@ -1245,7 +1246,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         If *format* is *None* and *fname* is a string, the output
         format is deduced from the extension of the filename.
       *arr*:
-        A 2D array.
+        An MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA) array.
     Keyword arguments:
       *vmin*/*vmax*: [ None | scalar ]
         *vmin* and *vmax* set the color scaling for the image by fixing the
@@ -1268,7 +1269,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
     from matplotlib.figure import Figure
 
-    figsize = [x / float(dpi) for x in arr.shape[::-1]]
+    figsize = [x / float(dpi) for x in (arr.shape[1], arr.shape[0])]
     fig = Figure(figsize=figsize, dpi=dpi, frameon=False)
     canvas = FigureCanvas(fig)
     im = fig.figimage(arr, cmap=cmap, vmin=vmin, vmax=vmax, origin=origin)

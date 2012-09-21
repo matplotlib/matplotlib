@@ -1183,45 +1183,45 @@ def title(s, *args, **kwargs):
 
 def axis(*v, **kwargs):
     """
-    Set or get the axis properties.
+    Set or get the axis properties.::
 
       >>> axis()
 
-    returns the current axes limits ``[xmin, xmax, ymin, ymax]``.
+    returns the current axes limits ``[xmin, xmax, ymin, ymax]``.::
 
       >>> axis(v)
 
     sets the min and max of the x and y axes, with
-    ``v = [xmin, xmax, ymin, ymax]``.
+    ``v = [xmin, xmax, ymin, ymax]``.::
 
       >>> axis('off')
 
-    turns off the axis lines and labels.
+    turns off the axis lines and labels.::
 
       >>> axis('equal')
 
     changes limits of *x* or *y* axis so that equal increments of *x*
-    and *y* have the same length; a circle is circular.
+    and *y* have the same length; a circle is circular.::
 
       >>> axis('scaled')
 
     achieves the same result by changing the dimensions of the plot box instead
-    of the axis data limits.
+    of the axis data limits.::
 
       >>> axis('tight')
 
     changes *x* and *y* axis limits such that all data is shown. If
     all data is already shown, it will move it to the center of the
     figure without modifying (*xmax* - *xmin*) or (*ymax* -
-    *ymin*). Note this is slightly different than in MATLAB.
+    *ymin*). Note this is slightly different than in MATLAB.::
 
       >>> axis('image')
 
-    is 'scaled' with the axis limits equal to the data limits.
+    is 'scaled' with the axis limits equal to the data limits.::
 
       >>> axis('auto')
 
-    and
+    and::
 
       >>> axis('normal')
 
@@ -2636,7 +2636,8 @@ def hexbin(x, y, C=None, gridsize=100, bins=None, xscale='linear',
 @_autogen_docstring(Axes.hist)
 def hist(x, bins=10, range=None, normed=False, weights=None, cumulative=False,
          bottom=None, histtype='bar', align='mid', orientation='vertical',
-         rwidth=None, log=False, color=None, label=None, hold=None, **kwargs):
+         rwidth=None, log=False, color=None, label=None, stacked=False,
+         hold=None, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()

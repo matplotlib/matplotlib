@@ -822,6 +822,8 @@ def test_stackplot():
     y3 = 3.0 * x + 2
     ax = fig.add_subplot(1, 1, 1)
     ax.stackplot(x, y1, y2, y3)
+    ax.set_xlim((0, 10))
+    ax.set_ylim((0, 70))
 
 @image_comparison(baseline_images=['boxplot'])
 def test_boxplot():
@@ -878,6 +880,15 @@ def test_errorbar():
     ax.set_title('Mixed sym., log y')
 
     fig.suptitle('Variable errorbars')
+
+@image_comparison(baseline_images=['hist_stacked'])
+def test_hist_stacked():
+    # make some data
+    d1 = np.linspace(0, 10, 50)
+    d2 = np.linspace(1, 3, 20)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="stepfilled", stacked=True)
 
 if __name__=='__main__':
     import nose

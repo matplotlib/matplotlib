@@ -425,6 +425,7 @@ typedef struct {
     NSSize size;
     int level;
     CGFloat color[4];
+    float dpi;
 } GraphicsContext;
 
 static CGMutablePathRef _create_path(void* iterator)
@@ -850,6 +851,15 @@ GraphicsContext_set_graylevel(GraphicsContext* self, PyObject* args)
 }
 
 static PyObject*
+GraphicsContext_set_dpi (GraphicsContext* self, PyObject* args)
+{
+  if (!PyArg_ParseTuple(args, "f", &(self->dpi))) return NULL;
+
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+
+static PyObject*
 GraphicsContext_set_linewidth (GraphicsContext* self, PyObject* args)
 {
     float width;
@@ -862,6 +872,8 @@ GraphicsContext_set_linewidth (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
+    // Convert points to pixels
+    width *= self->dpi / 72.0;
     CGContextSetLineWidth(cr, width);
 
     Py_INCREF(Py_None);
@@ -3202,6 +3214,11 @@ static PyMethodDef GraphicsContext_methods[] = {
      METH_VARARGS,
      "Sets the current stroke and fill color to a value in the DeviceGray color space."
     },
+    {"set_dpi",
+     (PyCFunction)GraphicsContext_set_dpi,
+     METH_VARARGS,
+     "Sets the dpi for a graphics context."
+    },
     {"set_linewidth",
      (PyCFunction)GraphicsContext_set_linewidth,
      METH_VARARGS,
@@ -3492,7 +3509,7 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
     int n;
     const unichar* characters;
     NSSize size;
-    double width, height;
+    double width, height, dpi;
 
     if(!view)
     {
@@ -3500,8 +3517,8 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
         return NULL;
     }
     /* NSSize contains CGFloat; cannot use size directly */
-    if(!PyArg_ParseTuple(args, "u#dd",
-                                &characters, &n, &width, &height)) return NULL;
+    if(!PyArg_ParseTuple(args, "u#ddd",
+                                &characters, &n, &width, &height, &dpi)) return NULL;
     size.width = width;
     size.height = height;
 
@@ -3526,32 +3543,41 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
     if (invalid) [view setNeedsDisplay: YES];
 
     NSImage* image = [[NSImage alloc] initWithData: data];
-    [image setScalesWhenResized: YES];
-    [image setSize: size];
-    data = [image TIFFRepresentation];
+    NSImage *resizedImage = [[NSImage alloc] initWithSize:size];
+
+    [resizedImage lockFocus];
+    [image drawInRect:NSMakeRect(0, 0, width, height) fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
+    [resizedImage unlockFocus];
+    data = [resizedImage TIFFRepresentation];
     [image release];
+    [resizedImage release];
 
-    if (! [extension isEqualToString: @"tiff"] &&
-        ! [extension isEqualToString: @"tif"])
-    {
-        NSBitmapImageFileType filetype;
-        NSBitmapImageRep* bitmapRep = [NSBitmapImageRep imageRepWithData: data];
-        if ([extension isEqualToString: @"bmp"])
-            filetype = NSBMPFileType;
-        else if ([extension isEqualToString: @"gif"])
-            filetype = NSGIFFileType;
-        else if ([extension isEqualToString: @"jpg"] ||
-                 [extension isEqualToString: @"jpeg"])
-            filetype = NSJPEGFileType;
-        else if ([extension isEqualToString: @"png"])
-            filetype = NSPNGFileType;
-        else
-        {   PyErr_SetString(PyExc_ValueError, "Unknown file type");
-            return NULL;
-        }
+    NSBitmapImageRep* rep = [NSBitmapImageRep imageRepWithData:data];
 
-        data = [bitmapRep representationUsingType:filetype properties:nil];
+    NSSize pxlSize = NSMakeSize(rep.pixelsWide, rep.pixelsHigh);
+    NSSize newSize = NSMakeSize(72.0 * pxlSize.width / dpi, 72.0 * pxlSize.height / dpi);
+
+    [rep setSize:newSize];
+
+    NSBitmapImageFileType filetype;
+    if ([extension isEqualToString: @"bmp"])
+        filetype = NSBMPFileType;
+    else if ([extension isEqualToString: @"gif"])
+        filetype = NSGIFFileType;
+    else if ([extension isEqualToString: @"jpg"] ||
+             [extension isEqualToString: @"jpeg"])
+        filetype = NSJPEGFileType;
+    else if ([extension isEqualToString: @"png"])
+        filetype = NSPNGFileType;
+    else if ([extension isEqualToString: @"tiff"] ||
+             [extension isEqualToString: @"tif"])
+        filetype = NSTIFFFileType;
+    else
+    {   PyErr_SetString(PyExc_ValueError, "Unknown file type");
+        return NULL;
     }
+
+    data = [rep representationUsingType:filetype properties:nil];
 
     [data writeToFile: filename atomically: YES];
     [pool release];
@@ -5743,7 +5769,10 @@ show(PyObject* self)
     if(nwin > 0)
     {
         [NSApp activateIgnoringOtherApps: YES];
-        for (NSWindow *window in [NSApp windows]) {
+        NSArray *windowsArray = [NSApp windows];
+        NSEnumerator *enumerator = [windowsArray objectEnumerator];
+        NSWindow *window;
+        while ((window = [enumerator nextObject])) {
             [window orderFront:nil];
         }
         [NSApp run];

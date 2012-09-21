@@ -25,9 +25,10 @@ sys.path.append(os.path.abspath('sphinxext'))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['matplotlib.sphinxext.mathmpl', 'math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
+              'sphinx.ext.doctest',
               'matplotlib.sphinxext.plot_directive', 'sphinx.ext.inheritance_diagram',
               'gen_gallery', 'gen_rst',
-              'matplotlib.sphinxext.ipython_console_highlighting']
+              'matplotlib.sphinxext.ipython_console_highlighting', 'github']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -80,6 +81,10 @@ default_role = 'obj'
 # ----------------------------
 
 plot_formats = [('png', 80), ('hires.png', 200), ('pdf', 50)]
+
+# Github extension
+
+github_project_url = "http://github.com/matplotlib/matplotlib/"
 
 # Options for HTML output
 # -----------------------

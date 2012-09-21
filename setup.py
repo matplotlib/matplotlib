@@ -214,7 +214,7 @@ def add_pytz():
 def add_dateutil():
     packages.append('dateutil')
     packages.append('dateutil.zoneinfo')
-    package_data['dateutil'] = ['zoneinfo/zoneinfo*.tar.*']
+    package_data['dateutil'] = ['zoneinfo/*.tar.gz']
     if sys.version_info[0] >= 3:
         package_dir['dateutil'] = 'lib/dateutil_py3'
     else:
@@ -263,7 +263,7 @@ for mod in ext_modules:
 
 if sys.version_info[0] >= 3:
     def should_2to3(file, root):
-        file = os.path.abspath(file)[len(os.path.abspath(root)):]
+        file = os.path.abspath(file)[len(os.path.abspath(root))+1:]
         if ('py3' in file or
             file.startswith('pytz') or
             file.startswith('dateutil') or
@@ -303,9 +303,9 @@ print_raw("packages %s" % packages)
 distrib = setup(name="matplotlib",
       version= __version__,
       description = "Python plotting package",
-      author = "John D. Hunter",
-      author_email="jdh2358@gmail.com",
-      url = "http://matplotlib.sourceforge.net",
+      author = "John D. Hunter, Michael Droettboom",
+      author_email="mdroe@stsci.edu",
+      url = "http://matplotlib.org",
       long_description = """
       matplotlib strives to produce publication quality 2D graphics
       for interactive graphing, scientific publishing, user interface

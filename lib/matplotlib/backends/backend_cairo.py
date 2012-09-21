@@ -512,5 +512,3 @@ class FigureCanvasCairo (FigureCanvasBase):
 
         ctx.show_page()
         surface.finish()
-
-FigureCanvas = FigureCanvasCairo

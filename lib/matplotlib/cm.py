@@ -4,7 +4,7 @@ registering new colormaps and for getting a colormap by name,
 and a mixin class for adding color mapping functionality.
 
 """
-from __future__ import print_function
+from __future__ import print_function, division
 
 import os
 
