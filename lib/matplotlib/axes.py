@@ -1621,7 +1621,7 @@ class Axes(martist.Artist):
         if not label:
             container.set_label('_container%d'%len(self.containers))
         self.containers.append(container)
-        container.set_remove_method(lambda h: self.containers.remove(container))
+        container.set_remove_method(lambda h: self.containers.remove(h))
         return container
 
 
