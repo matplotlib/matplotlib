@@ -1937,8 +1937,11 @@ class Axes3D(Axes):
         zs = np.ma.ravel(zs)
         if xs.size != ys.size:
             raise ValueError("x and y must be the same size")
-        if xs.size != zs.size and zs.size == 1:
-            zs = np.array(zs[0] * xs.size)
+        if xs.size != zs.size:
+            if zs.size == 1:
+                zs = np.array(zs[0] * xs.size)
+            else:
+                raise ValueError("z must be either of same size as x and y or of size 1")
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
