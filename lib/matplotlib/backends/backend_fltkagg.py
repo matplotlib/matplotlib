@@ -143,7 +143,7 @@ class FltkCanvas(Fltk.Fl_Widget):
                     self._key=special_key[ikey]
                 except:
                     self._key=None
-            
+
             # TODO: Handle ctrl, alt, super modifiers.
             FigureCanvasBase.key_press_event(self._source, self._key)
             return 1
@@ -230,8 +230,6 @@ class FigureCanvasFltkAgg(FigureCanvasAgg):
     def stop_event_loop(self):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
-
-FigureCanvas = FigureCanvasFltkAgg
 
 def destroy_figure(ptr, figman):
     figman.window.hide()

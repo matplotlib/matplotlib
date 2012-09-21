@@ -778,8 +778,8 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         "copy bitmap of canvas to system clipboard"
         bmp_obj = wx.BitmapDataObject()
         bmp_obj.SetBitmap(self.bitmap)
-        
-        if not wx.TheClipboard.IsOpened(): 
+
+        if not wx.TheClipboard.IsOpened():
            open_success = wx.TheClipboard.Open()
            if open_success:
               wx.TheClipboard.SetData(bmp_obj)
@@ -1251,7 +1251,7 @@ The current aspect ratio will be kept."""
             key = None
 
         for meth, prefix in (
-                             [evt.AltDown, 'alt'], 
+                             [evt.AltDown, 'alt'],
                              [evt.ControlDown, 'ctrl'], ):
             if meth():
                 key = '{}+{}'.format(prefix, key)
@@ -1400,7 +1400,6 @@ The current aspect ratio will be kept."""
         """Mouse has entered the window."""
         FigureCanvasBase.enter_notify_event(self, guiEvent = evt)
 
-FigureCanvas = FigureCanvasWx
 
 ########################################################################
 #
@@ -1421,7 +1420,7 @@ def _create_wx_app():
         # retain a reference to the app object so it does not get garbage
         # collected and cause segmentation faults
         _create_wx_app.theWxApp = wxapp
-        
+
 
 def draw_if_interactive():
     """
@@ -1521,7 +1520,7 @@ class FigureFrameWx(wx.Frame):
         self.Fit()
 
         self.canvas.SetMinSize((2, 2))
-        
+
         # give the window a matplotlib icon rather than the stock one.
         # This is not currently working on Linux and is untested elsewhere.
         #icon_path = os.path.join(matplotlib.rcParams['datapath'],
@@ -1602,12 +1601,6 @@ class FigureManagerWx(FigureManagerBase):
             'this will be called whenever the current axes is changed'
             if self.tb != None: self.tb.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
-
-        def showfig(*args):
-            frame.Show()
-
-        # attach a show method to the figure
-        self.canvas.figure.show = showfig
 
     def show(self):
         self.frame.Show()
@@ -1882,7 +1875,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                     os.path.join(dirname, filename), format=format)
             except Exception as e:
                 error_msg_wx(str(e))
-    
+
     def set_cursor(self, cursor):
         cursor =wx.StockCursor(cursord[cursor])
         self.canvas.SetCursor( cursor )

@@ -1,4 +1,7 @@
 from __future__ import print_function
+
+import sys
+
 import numpy as np
 import matplotlib.mlab as mlab
 import tempfile
@@ -19,7 +22,10 @@ def test_recarray_csv_roundtrip():
     expected['x'][:] = np.linspace(-1e9, -1, 99)
     expected['y'][:] = np.linspace(1, 1e9, 99)
     expected['t'][:] = np.linspace(0, 0.01, 99)
-    fd = tempfile.TemporaryFile(suffix='csv', mode="w+")
+    if sys.version_info[0] == 2:
+        fd = tempfile.TemporaryFile(suffix='csv', mode="wb+")
+    else:
+        fd = tempfile.TemporaryFile(suffix='csv', mode="w+", newline='')
     mlab.rec2csv(expected,fd)
     fd.seek(0)
     actual = mlab.csv2rec(fd)

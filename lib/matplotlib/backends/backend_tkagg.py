@@ -85,7 +85,7 @@ def new_figure_manager_given_figure(num, figure):
     """
     _focus = windowing.FocusManager()
     window = Tk.Tk()
- 
+
     if Tk.TkVersion >= 8.5:
         # put a mpl icon on the window rather than the default tk icon. Tkinter
         # doesn't allow colour icons on linux systems, but tk >=8.5 has a iconphoto
@@ -101,7 +101,7 @@ def new_figure_manager_given_figure(num, figure):
         except:
             # log the failure, but carry on
             verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
-            
+
     canvas = FigureCanvasTkAgg(figure, master=window)
     figManager = FigureManagerTkAgg(canvas, num, window)
     if matplotlib.is_interactive():
@@ -199,7 +199,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
                65439 : 'dec',
                65421 : 'enter',
                }
-    
+
     _keycode_lookup = {
                        262145: 'control',
                        524320: 'alt',
@@ -254,7 +254,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         self._master = master
         self._tkcanvas.focus_set()
-                    
+
     def resize(self, event):
         width, height = event.width, event.height
         if self._resize_callback is not None:
@@ -443,31 +443,31 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             key = chr(val)
         else:
             key = None
-            
-        # add modifier keys to the key string. Bit details originate from 
+
+        # add modifier keys to the key string. Bit details originate from
         # http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
-        # BIT_SHIFT = 0x001; BIT_CAPSLOCK = 0x002; BIT_CONTROL = 0x004; 
-        # BIT_LEFT_ALT = 0x008; BIT_NUMLOCK = 0x010; BIT_RIGHT_ALT = 0x080; 
+        # BIT_SHIFT = 0x001; BIT_CAPSLOCK = 0x002; BIT_CONTROL = 0x004;
+        # BIT_LEFT_ALT = 0x008; BIT_NUMLOCK = 0x010; BIT_RIGHT_ALT = 0x080;
         # BIT_MB_1 = 0x100; BIT_MB_2 = 0x200; BIT_MB_3 = 0x400;
-        # In general, the modifier key is excluded from the modifier flag, 
-        # however this is not the case on "darwin", so double check that 
+        # In general, the modifier key is excluded from the modifier flag,
+        # however this is not the case on "darwin", so double check that
         # we aren't adding repeat modifier flags to a modifier key.
-        modifiers = [(6, 'super', 'super'), 
-                     (3, 'alt', 'alt'), 
+        modifiers = [(6, 'super', 'super'),
+                     (3, 'alt', 'alt'),
                      (2, 'ctrl', 'control'),
                     ]
         if sys.platform == 'darwin':
-            modifiers = [(3, 'super', 'super'), 
-                         (4, 'alt', 'alt'), 
+            modifiers = [(3, 'super', 'super'),
+                         (4, 'alt', 'alt'),
                          (2, 'ctrl', 'control'),
                         ]
-        
+
         if key is not None:
             # note, shift is not added to the keys as this is already accounted for
             for bitmask, prefix, key_name in modifiers:
-                if event.state & (1 << bitmask) and key_name not in key: 
+                if event.state & (1 << bitmask) and key_name not in key:
                     key = '{}+{}'.format(prefix, key)
-                     
+
         return key
 
     def key_press(self, event):
@@ -505,8 +505,6 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
-FigureCanvas = FigureCanvasTkAgg
-
 class FigureManagerTkAgg(FigureManagerBase):
     """
     Public attributes
@@ -541,9 +539,6 @@ class FigureManagerTkAgg(FigureManagerBase):
             'this will be called whenever the current axes is changed'
             if self.toolbar != None: self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
-
-        # attach a show method to the figure for pylab ease of use
-        self.canvas.figure.show = lambda *args: self.show()
 
     def resize(self, width, height=None):
         # before 09-12-22, the resize method takes a single *event*
@@ -852,14 +847,14 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
-                # spacer, unhandled in Tk 
+                # spacer, unhandled in Tk
                 pass
             else:
                 button = self._Button(text=text, file=image_file,
                                    command=getattr(self, callback))
                 if tooltip_text is not None:
                     ToolTip.createToolTip(button, tooltip_text)
-        
+
         self.message = Tk.StringVar(master=self)
         self._message_label = Tk.Label(master=self, textvariable=self.message)
         self._message_label.pack(side=Tk.RIGHT)
@@ -954,7 +949,7 @@ class ToolTip(object):
             toolTip.hidetip()
         widget.bind('<Enter>', enter)
         widget.bind('<Leave>', leave)
-        
+
     def __init__(self, widget):
         self.widget = widget
         self.tipwindow = None

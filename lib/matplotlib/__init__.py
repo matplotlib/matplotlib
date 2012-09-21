@@ -1,5 +1,5 @@
 """
-This is an object-orient plotting library.
+This is an object-oriented plotting library.
 
 A procedural interface is provided by the companion pyplot module,
 which may be imported directly, e.g::
@@ -99,7 +99,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import print_function
 
-__version__  = '1.2.x'
+__version__  = '1.3.x'
 __version__numpy__ = '1.4' # minimum required numpy version
 
 import os, re, shutil, subprocess, sys, warnings
@@ -471,9 +471,11 @@ def _create_tmp_config_dir():
     If the config directory can not be created, create a temporary
     directory.
     """
+    import getpass
     import tempfile
 
-    tempdir = os.path.join(tempfile.gettempdir(), 'matplotlib')
+    tempdir = os.path.join(
+        tempfile.gettempdir(), 'matplotlib-%s' % getpass.getuser())
     os.environ['MPLCONFIGDIR'] = tempdir
 
     return tempdir
@@ -1073,6 +1075,7 @@ default_test_modules = [
     'matplotlib.tests.test_patches',
     'matplotlib.tests.test_pickle',
     'matplotlib.tests.test_rcparams',
+    'matplotlib.tests.test_scale',
     'matplotlib.tests.test_simplification',
     'matplotlib.tests.test_spines',
     'matplotlib.tests.test_text',

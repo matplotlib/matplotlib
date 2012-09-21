@@ -434,7 +434,7 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
-class FigureCanvasGDK(FigureCanvasBase):
+class FigureCanvasGDK (FigureCanvasBase):
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
 
@@ -472,5 +472,3 @@ class FigureCanvasGDK(FigureCanvasBase):
                                  0, 0, 0, 0, width, height)
 
         pixbuf.save(filename, format)
-
-FigureCanvas = FigureCanvasGDK

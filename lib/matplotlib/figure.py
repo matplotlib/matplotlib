@@ -42,7 +42,7 @@ from matplotlib.projections import (get_projection_names,
 from matplotlib.text import Text, _process_text_args
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                     TransformedBbox)
-
+from matplotlib.backend_bases import NonGuiException
 
 docstring.interpd.update(projection_names = get_projection_names())
 
@@ -318,7 +318,7 @@ class Figure(Artist):
         self.patch.set_aa(False)
 
         self._hold = rcParams['axes.hold']
-        self.canvas = self._setup_canvas()
+        self.canvas = None
 
         if subplotpars is None:
             subplotpars = SubplotParams()
@@ -330,13 +330,36 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
-    def _setup_canvas(self):
+    def show(self, warn=True):
         """
-        Return the FigureCanvas instance defined by the currently loaded backend.
+        If using a GUI backend with pyplot, display the figure window.
+
+        If the figure was not created using
+        :func:`~matplotlib.pyplot.figure`, it will lack a
+        :class:`~matplotlib.backend_bases.FigureManagerBase`, and
+        will raise an AttributeError.
+
+        For non-GUI backends, this does nothing, in which case
+        a warning will be issued if *warn* is True (default).
         """
-        import matplotlib.backends as mbackends  # lazy import
-        backend_mod = mbackends.pylab_setup()[0]
-        return backend_mod.FigureCanvas(self)
+        try:
+            manager = getattr(self.canvas, 'manager')
+        except AttributeError as err:
+            raise AttributeError("%s\n    Figure.show works only "
+                        "for figures managed by pyplot,\n    normally "
+                        "created by pyplot.figure()." % err)
+
+        if manager is not None:
+            try:
+                manager.show()
+                return
+            except NonGuiException:
+                pass
+        if warn:
+            import warnings
+            warnings.warn(
+                "matplotlib is currently using a non-GUI backend, "
+                "so cannot show the figure")
 
     def _get_axes(self):
         return self._axstack.as_list()
@@ -1188,10 +1211,10 @@ class Figure(Artist):
         # and re-attached to another.
         for attr_to_pop in ('_axobservers', 'show', 'canvas', '_cachedRenderer') :
             state.pop(attr_to_pop, None)
-        
+
         # add version information to the state
         state['__mpl_version__'] = _mpl_version
-        
+
         # check to see if the figure has a manager and whether it is registered
         # with pyplot
         if getattr(self.canvas, 'manager', None) is not None:

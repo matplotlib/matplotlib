@@ -8,7 +8,7 @@ __license__ = "BSD"
 __version__ = "2011/09/16"
 # Original version by Yannick Copin (ycopin@ipnl.in2p3.fr) 10/2/2010, available
 # at:
-#     http://matplotlib.sourceforge.net/examples/api/sankey_demo_old.html
+#     http://matplotlib.org/examples/api/sankey_demo_old.html
 # Modifications by Kevin Davies (kld@alumni.carnegiemellon.edu) 6/3/2011:
 #   --Used arcs for the curves (so that the widths of the paths are uniform)
 #   --Converted the function to a class and created methods to join

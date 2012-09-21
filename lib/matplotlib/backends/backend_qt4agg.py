@@ -145,5 +145,3 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
     def print_figure(self, *args, **kwargs):
         FigureCanvasAgg.print_figure(self, *args, **kwargs)
         self.draw()
-
-FigureCanvas = FigureCanvasQTAgg

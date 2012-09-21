@@ -29,7 +29,7 @@ The backends are not expected to handle non-affine transformations
 themselves.
 """
 
-from __future__ import print_function
+from __future__ import print_function, division
 import numpy as np
 from numpy import ma
 from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
@@ -1109,10 +1109,10 @@ class Transform(TransformNode):
 
         This is equivalent to flattening the stack then yielding
         ``flat_stack[:i], flat_stack[i:]`` where i=0..(n-1).
-        
+
         """
         yield IdentityTransform(), self
-    
+
     @property
     def depth(self):
         """
@@ -1177,10 +1177,10 @@ class Transform(TransformNode):
             # to the base of A (via B), instead we can just stop at B.
 
             (A + B) - (B)^-1 == A
-            
+
             # similarly, when B contains tree A, we can avoid decending A at all, basically:
             A - (A + B) == ((B + A) - A).inverted() or B^-1
-        
+
         For clarity, the result of ``(A + B) - B + B == (A + B)``.
 
         """
@@ -1417,7 +1417,7 @@ class TransformWrapper(Transform):
 
     def __eq__(self, other):
         return self._child.__eq__(other)
-    
+
     if DEBUG:
         def __str__(self):
             return str(self._child)
@@ -1511,7 +1511,7 @@ class AffineBase(Transform):
         if other.is_affine:
             return np.all(self.get_matrix() == other.get_matrix())
         return NotImplemented
-    
+
     def transform(self, values):
         return self.transform_affine(values)
     transform.__doc__ = Transform.transform.__doc__
@@ -1908,7 +1908,7 @@ class BlendedGenericTransform(Transform):
             return self._x == other
         else:
             return NotImplemented
-        
+
     def contains_branch_seperately(self, transform):
         # Note, this is an exact copy of BlendedAffine2D.contains_branch_seperately
         return self._x.contains_branch(transform), self._y.contains_branch(transform)
@@ -1943,18 +1943,18 @@ class BlendedGenericTransform(Transform):
         y = self._y
 
         if x == y and x.input_dims == 2:
-            return x.transform(points)
+            return x.transform_non_affine(points)
 
         if x.input_dims == 2:
-            x_points = x.transform(points)[:, 0:1]
+            x_points = x.transform_non_affine(points)[:, 0:1]
         else:
-            x_points = x.transform(points[:, 0])
+            x_points = x.transform_non_affine(points[:, 0])
             x_points = x_points.reshape((len(x_points), 1))
 
         if y.input_dims == 2:
-            y_points = y.transform(points)[:, 1:]
+            y_points = y.transform_non_affine(points)[:, 1:]
         else:
-            y_points = y.transform(points[:, 1])
+            y_points = y.transform_non_affine(points[:, 1])
             y_points = y_points.reshape((len(y_points), 1))
 
         if isinstance(x_points, MaskedArray) or isinstance(y_points, MaskedArray):
@@ -1969,19 +1969,16 @@ class BlendedGenericTransform(Transform):
 
     def get_affine(self):
         if self._invalid or self._affine is None:
-            if self._x.is_affine and self._y.is_affine:
-                if self._x == self._y:
-                    self._affine = self._x.get_affine()
-                else:
-                    x_mtx = self._x.get_affine().get_matrix()
-                    y_mtx = self._y.get_affine().get_matrix()
-                    # This works because we already know the transforms are
-                    # separable, though normally one would want to set b and
-                    # c to zero.
-                    mtx = np.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
-                    self._affine = Affine2D(mtx)
+            if self._x == self._y:
+                self._affine = self._x.get_affine()
             else:
-                self._affine = IdentityTransform()
+                x_mtx = self._x.get_affine().get_matrix()
+                y_mtx = self._y.get_affine().get_matrix()
+                # This works because we already know the transforms are
+                # separable, though normally one would want to set b and
+                # c to zero.
+                mtx = np.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
+                self._affine = Affine2D(mtx)
             self._invalid = 0
         return self._affine
     get_affine.__doc__ = Transform.get_affine.__doc__
@@ -2231,7 +2228,7 @@ class CompositeAffine2D(Affine2DBase):
     if DEBUG:
         def __str__(self):
             return '(%s, %s)' % (self._a, self._b)
-    
+
     @property
     def depth(self):
         return self._a.depth + self._b.depth

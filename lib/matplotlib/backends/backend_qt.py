@@ -2,6 +2,11 @@ from __future__ import division, print_function
 import math
 import os
 import sys
+import warnings
+
+warnings.warn("QT3-based backends are deprecated and will be removed after"
+              " the v1.2.x release. Use the equivalent QT4 backend instead.",
+              DeprecationWarning)
 
 import matplotlib
 from matplotlib import verbose
@@ -18,7 +23,9 @@ from matplotlib.widgets import SubplotTool
 try:
     import qt
 except ImportError:
-    raise ImportError("Qt backend requires pyqt to be installed.")
+    raise ImportError("Qt backend requires pyqt to be installed."
+                      " NOTE: QT3-based backends will not work in"
+                      " Python 3.")
 
 backend_version = "0.9.1"
 def fn_name(): return sys._getframe(1).f_code.co_name
@@ -203,8 +210,6 @@ class FigureCanvasQT( qt.QWidget, FigureCanvasBase ):
         FigureCanvasBase.stop_event_loop_default(self)
     stop_event_loop.__doc__=FigureCanvasBase.stop_event_loop_default.__doc__
 
-FigureCanvas = FigureCanvasQT
-
 class FigureManagerQT( FigureManagerBase ):
     """
     Public attributes
@@ -259,9 +264,6 @@ class FigureManagerQT( FigureManagerBase ):
 
         if matplotlib.is_interactive():
             self.window.show()
-
-        # attach a show method to the figure for pylab ease of use
-        self.canvas.figure.show = lambda *args: self.window.show()
 
         def notify_axes_change( fig ):
            # This will be called whenever the current axes is changed
@@ -330,7 +332,7 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
                 continue
 
             fname = os.path.join(basedir, image_file + '.ppm')
-            image = qt.QPixmap() 
+            image = qt.QPixmap()
             image.load( fname )
 
             button = qt.QPushButton( qt.QIconSet( image ), "", self )
