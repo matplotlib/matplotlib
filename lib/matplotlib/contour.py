@@ -775,7 +775,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             raise ValueError('Either colors or cmap must be None')
         if self.origin == 'image': self.origin = mpl.rcParams['image.origin']
 
-        self.transform = kwargs.get('transform', None)
+        self._transform = kwargs.get('transform', None)
 
         self._process_args(*args, **kwargs)
         self._process_levels()
@@ -857,12 +857,12 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Return the :class:`~matplotlib.transforms.Transform`
         instance used by this ContourSet.
         """
-        if self.transform is None:
-            self.transform = self.ax.transData
-        elif (not isinstance(self.transform, mtrans.Transform)
-              and hasattr(self.transform, '_as_mpl_transform')):
-            self.transform = self.transform._as_mpl_transform(self.ax)
-        return self.transform
+        if self._transform is None:
+            self._transform = self.ax.transData
+        elif (not isinstance(self._transform, mtrans.Transform)
+              and hasattr(self._transform, '_as_mpl_transform')):
+            self._transform = self._transform._as_mpl_transform(self.ax)
+        return self._transform
 
     def __getstate__(self):
         state = self.__dict__.copy()
