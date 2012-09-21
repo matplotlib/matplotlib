@@ -20,6 +20,7 @@ import matplotlib.mlab as mlab
 import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
 import matplotlib.texmanager as texmanager
+import matplotlib.transforms as mtrans
 
 # Import needed for adding manual selection capability to clabel
 from matplotlib.blocking_input import BlockingContourLabeler
@@ -824,7 +825,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                                      antialiaseds = (self.antialiased,),
                                      edgecolors= 'none',
                                      alpha=self.alpha,
-                                     transform=self.transform,
+                                     transform=self.get_transform(),
                                      zorder=zorder)
                 self.ax.add_collection(col)
                 self.collections.append(col)
@@ -844,12 +845,24 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                                      linewidths = width,
                                      linestyle = lstyle,
                                      alpha=self.alpha,
-                                     transform=self.transform,
+                                     transform=self.get_transform(),
                                      zorder=zorder)
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, False)
                 self.collections.append(col)
         self.changed() # set the colors
+    
+    def get_transform(self):
+        """
+        Return the :class:`~matplotlib.transforms.Transform`
+        instance used by this ContourSet.
+        """
+        if self.transform is None:
+            self.transform = self.ax.transData
+        elif (not isinstance(self.transform, mtrans.Transform)
+              and hasattr(self.transform, '_as_mpl_transform')):
+            self.transform = self.transform._as_mpl_transform(self.ax)
+        return self.transform
 
     def __getstate__(self):
         state = self.__dict__.copy()
@@ -1298,13 +1311,13 @@ class QuadContourSet(ContourSet):
                 _mask = None
             C = _cntr.Cntr(x, y, z.filled(), _mask)
             
-            t = self.ax.transData if self.transform is None else self.transform
+            t = self.get_transform()
             
             # if the transform is not trans data, and some part of it
             # contains transData, transform the xs and ys to data coordinates
             if (t != self.ax.transData and
                         any(t.contains_branch_seperately(self.ax.transData))):
-                trans_to_data = self.transform - self.ax.transData
+                trans_to_data = t - self.ax.transData
                 pts = (np.vstack([x.flat, y.flat]).T)
                 transformed_pts = trans_to_data.transform(pts)
                 x = transformed_pts[..., 0]
