@@ -29,7 +29,7 @@ class Container(tuple):
             c.remove()
 
         if self._remove_method:
-            self._remove_method()
+            self._remove_method(self)
 
     def get_label(self):
         """
