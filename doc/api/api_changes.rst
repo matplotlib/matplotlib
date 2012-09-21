@@ -114,9 +114,9 @@ Changes in 1.2.x
       >>> print(ax.viewLim)
       Bbox('array([[  0.,   0.],\n       [ 90.,  90.]])')
 
-* One can now easily get a transform which goes from one transform's coordinate system
-  to another, in an optimized way, using the new subtract method on a transform. For instance,
-  to go from data coordinates to axes coordinates::
+* One can now easily get a transform which goes from one transform's coordinate
+  system to another, in an optimized way, using the new subtract method on a 
+  transform. For instance, to go from data coordinates to axes coordinates::
 
       >>> import matplotlib.pyplot as plt
       >>> ax = plt.axes()
@@ -126,9 +126,9 @@ Changes in 1.2.x
       >>> print(data2ax.depth)
       2
 
-  for versions before 1.2 this could only be achieved in a sub-optimal way, using
-  ``ax.transData + ax.transAxes.inverted()`` (depth is a new concept, but had it existed
-  it would return 4 for this example).
+  for versions before 1.2 this could only be achieved in a sub-optimal way, 
+  using ``ax.transData + ax.transAxes.inverted()`` (depth is a new concept, 
+  but had it existed it would return 4 for this example).
 
 * ``twinx`` and ``twiny`` now returns an instance of SubplotBase if
   parent axes is an instance of SubplotBase.
@@ -141,6 +141,9 @@ Changes in 1.2.x
 * :class:`~matplotlib.colors.ColorConverter`,
   :class:`~matplotlib.colors.Colormap` and
   :class:`~matplotlib.colors.Normalize` now subclasses ``object``
+  
+* ContourSet instances no longer have a ``transform`` attribute. Instead, 
+  access the transform with the ``get_transform`` method.
 
 Changes in 1.1.x
 ================
