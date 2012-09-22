@@ -1576,8 +1576,36 @@ class Axes3D(Axes):
         *shade*       Whether to shade the facecolors
         ============= ================================================
 
+        The (optional) triangulation can be specified in one of two ways;
+        either::
+
+          plot_trisurf(triangulation, ...)
+
+        where triangulation is a :class:`~matplotlib.tri.Triangulation`
+        object, or::
+
+          plot_trisurf(X, Y, ...)
+          plot_trisurf(X, Y, triangles, ...)
+          plot_trisurf(X, Y, triangles=triangles, ...)
+
+        in which case a Triangulation object will be created.  See
+        :class:`~matplotlib.tri.Triangulation` for a explanation of
+        these possibilities.
+
+        The remaining arguments are::
+
+          plot_trisurf(..., Z)
+
+        where *Z* is the array of values to contour, one per point
+        in the triangulation.
+
         Other arguments are passed on to
         :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+
+        **Examples:**
+
+        .. plot:: mpl_examples/mplot3d/trisurf3d_demo.py
+        .. plot:: mpl_examples/mplot3d/trisurf3d_demo2.py
 
         .. versionadded:: 1.2.0
             This plotting function was added for the v1.2.0 release.
