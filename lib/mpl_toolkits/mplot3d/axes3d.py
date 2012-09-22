@@ -1562,7 +1562,7 @@ class Axes3D(Axes):
 
         return linec
 
-    def plot_trisurf(self, X, Y, Z, *args, **kwargs):
+    def plot_trisurf(self, *args, **kwargs):
         """
         ============= ================================================
         Argument      Description
@@ -1596,15 +1596,14 @@ class Axes3D(Axes):
         shade = kwargs.pop('shade', cmap is None)
         lightsource = kwargs.pop('lightsource', None)
 
-        # TODO: Support masked triangulations
-        tri = Triangulation(X, Y)
-        x = tri.x
-        y = tri.y
-        triangles = tri.triangles
+        tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
+        z = np.asarray(args[0])
 
-        xt = x[triangles][...,np.newaxis]
-        yt = y[triangles][...,np.newaxis]
-        zt = np.array(Z)[triangles][...,np.newaxis]
+        # TODO: Support masked triangulations
+        triangles = tri.triangles
+        xt = tri.x[triangles][...,np.newaxis]
+        yt = tri.y[triangles][...,np.newaxis]
+        zt = np.array(z)[triangles][...,np.newaxis]
 
         verts = np.concatenate((xt, yt, zt), axis=2)
 
@@ -1649,7 +1648,7 @@ class Axes3D(Axes):
             polyc.set_facecolors(colset)
 
         self.add_collection(polyc)
-        self.auto_scale_xyz(X, Y, Z, had_data)
+        self.auto_scale_xyz(tri.x, tri.y, z, had_data)
 
         return polyc
 
