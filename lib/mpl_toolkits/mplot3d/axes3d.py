@@ -1980,8 +1980,8 @@ class Axes3D(Axes):
 
     contour3D = contour
 
-    def tricontour(self, X, Y, Z, *args, **kwargs):
-        '''
+    def tricontour(self, *args, **kwargs):
+        """
         Create a 3D contour plot.
 
         ==========  ================================================
@@ -2001,8 +2001,9 @@ class Axes3D(Axes):
 
         Returns a :class:`~matplotlib.axes.Axes.contour`
 
-        .. versionadded:: 1.1.0
-        '''
+        .. versionchanged:: 1.3.0
+            Added support for custom triangulations
+        """
 
         extend3d = kwargs.pop('extend3d', False)
         stride = kwargs.pop('stride', 5)
@@ -2011,8 +2012,19 @@ class Axes3D(Axes):
 
         had_data = self.has_data()
 
+        tri, args, kwargs = Triangulation.get_from_args_and_kwargs(
+                *args, **kwargs)
+        X = tri.x
+        Y = tri.y
+        Z = args[0]
+
+        # We do this so Z doesn't get passed as an arg to Axes.tricontour
+        args = args[1:]
+
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
-        cset = Axes.tricontour(self, jX, jY, jZ, *args, **kwargs)
+        tri = Triangulation(jX, jY, tri.triangles, tri.mask)
+
+        cset = Axes.tricontour(self, tri, jZ, *args, **kwargs)
         self.add_contour_set(cset, extend3d, stride, zdir, offset)
 
         self.auto_scale_xyz(X, Y, Z, had_data)
