@@ -518,7 +518,7 @@ class ColorbarBase(cm.ScalarMappable):
 
     def _add_solids(self, X, Y, C):
         '''
-        Draw the colors using :meth:`~matplotlib.axes.Axes.pcolor`;
+        Draw the colors using :meth:`~matplotlib.axes.Axes.pcolormesh`;
         optionally add separators.
         '''
         ## Change to pcolorfast after fixing bugs in some backends...
@@ -537,9 +537,10 @@ class ColorbarBase(cm.ScalarMappable):
             args = (X, Y, C)
         else:
             args = (np.transpose(Y), np.transpose(X), np.transpose(C))
-        kw = {'cmap':self.cmap, 'norm':self.norm,
-              'shading':'flat', 'alpha':self.alpha,
-              }
+        kw = dict(cmap=self.cmap,
+                  norm=self.norm,
+                  alpha=self.alpha,
+                  edgecolors='face')
 
         del self.solids
         del self.dividers
