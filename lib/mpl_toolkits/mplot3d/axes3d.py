@@ -1939,7 +1939,7 @@ class Axes3D(Axes):
             raise ValueError("Arguments 'xs' and 'ys' must be of same size.")
         if xs.size != zs.size:
             if zs.size == 1:
-                zs = np.array(zs[0] * xs.size)
+                zs = np.tile(zs[0], xs.size)
             else:
                 raise ValueError(("Argument 'zs' must be of same size as 'xs' "
                     "and 'ys' or of size 1."))
