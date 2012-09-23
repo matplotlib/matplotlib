@@ -7413,10 +7413,12 @@ class Axes(martist.Artist):
             'gouraud', each quad will be Gouraud shaded.  When gouraud
             shading, edgecolors is ignored.
 
-          *edgecolors*: [ *None* | ``'None'`` | color | color sequence]
+          *edgecolors*: [ *None* | ``'None'`` | ``'face'`` | color | color sequence]
             If *None*, the rc setting is used by default.
 
             If ``'None'``, edges will not be visible.
+
+            If ``'face'``, edges will have the same color as the faces. 
 
             An mpl color or sequence of colors will set the edge color
 
