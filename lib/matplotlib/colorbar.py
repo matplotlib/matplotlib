@@ -97,7 +97,13 @@ colormap_kw_doc = '''
                   :class:`~matplotlib.ticker.Formatter` object may be
                   given instead.
     *drawedges*   [ False | True ] If true, draw lines at color
-                  boundaries.
+                  boundaries
+    *drawfcedges* [ False | True ] If true, draw face-colored edges around
+                  color segments. This helps with viewers that render
+                  white lines between faces in the colorbar, however it
+                  has negative consequences when ploting with alpha < 1
+                  or colorbar extensions and is thus not enabled by default.
+                  See github issue #1178 and #1188. 
     ============  ====================================================
 
     The following will probably be useful only in the context of
@@ -243,6 +249,7 @@ class ColorbarBase(cm.ScalarMappable):
                            ticks=None,
                            format=None,
                            drawedges=False,
+                           drawfcedges=False,
                            filled=True,
                            extendfrac=None,
                            ):
@@ -259,6 +266,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.spacing = spacing
         self.orientation = orientation
         self.drawedges = drawedges
+        self.drawfcedges = drawfcedges
         self.filled = filled
         self.extendfrac = extendfrac
         self.solids = None
@@ -447,10 +455,14 @@ class ColorbarBase(cm.ScalarMappable):
             args = (X, Y, C)
         else:
             args = (np.transpose(Y), np.transpose(X), np.transpose(C))
+        if self.drawfcedges == True:
+            edgecolors = 'face'
+        else:
+            edgecolors = 'None'
         kw = dict(cmap=self.cmap,
                   norm=self.norm,
                   alpha=self.alpha,
-                  edgecolors='None')
+                  edgecolors=edgecolors)
         # Save, set, and restore hold state to keep pcolor from
         # clearing the axes. Ordinarily this will not be needed,
         # since the axes object should already have hold set.
