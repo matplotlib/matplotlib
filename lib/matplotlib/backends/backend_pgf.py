@@ -678,6 +678,22 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
+class TmpDirCleaner:
+    remaining_tmpdirs = set()
+
+    @staticmethod
+    def add(tmpdir):
+        TmpDirCleaner.remaining_tmpdirs.add(tmpdir)
+
+    @staticmethod
+    def cleanup_remaining_tmpdirs():
+        for tmpdir in TmpDirCleaner.remaining_tmpdirs:
+            try:
+                shutil.rmtree(tmpdir)
+            except:
+                sys.stderr.write("error deleting tmp directory %s\n" % tmpdir)
+
+
 class FigureCanvasPgf(FigureCanvasBase):
     filetypes = {"pgf": "LaTeX PGF picture",
                  "pdf": "LaTeX compiled PGF picture",
@@ -798,7 +814,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             try:
                 shutil.rmtree(tmpdir)
             except:
-                sys.stderr.write("error deleting tmp directory %s\n" % tmpdir)
+                TmpDirCleaner.add(tmpdir)
 
     def print_pdf(self, fname_or_fh, *args, **kwargs):
         """
@@ -831,7 +847,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             try:
                 shutil.rmtree(tmpdir)
             except:
-                sys.stderr.write("error deleting tmp directory %s\n" % tmpdir)
+                TmpDirCleaner.add(tmpdir)
 
     def print_png(self, fname_or_fh, *args, **kwargs):
         """
@@ -904,4 +920,8 @@ class FigureManagerPgf(FigureManagerBase):
 
 FigureManager = FigureManagerPgf
 
-atexit.register(LatexManager._cleanup_remaining_instances)
+def _cleanup_all():
+    LatexManager._cleanup_remaining_instances()
+    TmpDirCleaner.cleanup_remaining_tmpdirs()
+
+atexit.register(_cleanup_all)
