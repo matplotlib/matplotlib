@@ -5606,136 +5606,75 @@ class Axes(martist.Artist):
 
         return errorbar_container # (l0, caplines, barcols)
 
-    def boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
-                positions=None, widths=None, patch_artist=False,
-                bootstrap=None, usermedians=None, conf_intervals=None):
+    def boxplot(self, x, notch=0, sym='+', vert=1, whis=1.5,
+                positions=None, widths=None, means=0, fill=0,
+                linestyle='-', monochrome=0, limits=None,
+                notchsize=None):
         """
-        Make a box and whisker plot.
+        boxplot(x, notch=0, sym='+', vert=1, whis=1.5,
+                positions=None, widths=None, means=0, fill=0,
+                linestyle='-', monochrome=0, limits=None,
+                notchsize=None)
 
-        Call signature::
+        Make a box and whisker plot for each column of x or
+        each vector in sequence x.
+        The box extends from the lower to upper quartile values
+        of the data, with a line at the median.  The whiskers
+        extend from the box to show the range of the data.  Flier
+        points are those past the end of the whiskers.
 
-          boxplot(x, notch=False, sym='+', vert=True, whis=1.5,
-                  positions=None, widths=None, patch_artist=False,
-                  bootstrap=None, usermedians=None, conf_intervals=None)
+        notch = 0 (default) produces a rectangular box plot.
+        notch = 1 will produce a notched box plot.
+        notch = 2 will additionally keep the notch size constant,
+        replacing the box altogether with a notch if the box
+        becomes smaller than the box limits.
 
-        Make a box and whisker plot for each column of *x* or each
-        vector in sequence *x*.  The box extends from the lower to
-        upper quartile values of the data, with a line at the median.
-        The whiskers extend from the box to show the range of the
-        data.  Flier points are those past the end of the whiskers.
+        sym (default '+') is the default symbol for flier points.
+        Enter an empty string ('') if you don't want to show fliers.
 
-        Function Arguments:
+        vert = 1 (default) makes the boxes vertical.
+        vert = 0 makes horizontal boxes.  This seems goofy, but
+        that's how Matlab did it.
 
-          *x* :
-            Array or a sequence of vectors.
+        whis (default 1.5) defines the length of the whiskers as
+        a function of the inner quartile range.  They extend to the
+        most extreme data point within ( whis*(75%-25%) ) data range.
 
-          *notch* : [ False (default) | True ]
-            If False (default), produces a rectangular box plot.
-            If True, will produce a notched box plot
+        positions (default 1,2,...,n) sets the horizontal positions of
+        the boxes. The ticks and limits are automatically set to match
+        the positions.
 
-          *sym* : [ default 'b+' ]
-            The default symbol for flier points.
-            Enter an empty string ('') if you don't want to show fliers.
+        widths is either a scalar or a vector and sets the width of
+        each box. The default is 0.5, or 0.15*(distance between extreme
+        positions) if that is smaller.
 
-          *vert* : [ False | True (default) ]
-            If True (default), makes the boxes vertical.
-            If False, makes horizontal boxes.
+        means = 0 (default) does not indicate the mean of the data.
+        means = 1 plots a dashed black line in the box indicating
+        the mean of the data.
 
-          *whis* : [ default 1.5 ]
-            Defines the length of the whiskers as a function of the inner
-            quartile range.  They extend to the most extreme data point
-            within ( ``whis*(75%-25%)`` ) data range.
+        fill = 1 fills the box in white
+        fill = 0 (default) leaves the box open
 
-          *bootstrap* : [ *None* (default) | integer ]
-            Specifies whether to bootstrap the confidence intervals
-            around the median for notched boxplots. If bootstrap==None,
-            no bootstrapping is performed, and notches are calculated
-            using a Gaussian-based asymptotic approximation  (see McGill, R.,
-            Tukey, J.W., and Larsen, W.A., 1978, and Kendall and Stuart,
-            1967). Otherwise, bootstrap specifies the number of times to
-            bootstrap the median to determine it's 95% confidence intervals.
-            Values between 1000 and 10000 are recommended.
+        linestyle sets the line style of the whiskers.
 
-          *usermedians* : [ default None ]
-            An array or sequence whose first dimension (or length) is
-            compatible with *x*. This overrides the medians computed by
-            matplotlib for each element of *usermedians* that is not None.
-            When an element of *usermedians* == None, the median will be
-            computed directly as normal.
+        monochrome = 0 (default) uses color in the plot.
+        monochrome = 1 uses a monochrome color scheme.
 
-          *conf_intervals* : [ default None ]
-            Array or sequence whose first dimension (or length) is compatible
-            with *x* and whose second dimension is 2. When the current element
-            of *conf_intervals* is not None, the notch locations computed by
-            matplotlib are overridden (assuming notch is True). When an element of
-            *conf_intervals* is None, boxplot compute notches the method
-            specified by the other kwargs (e.g. *bootstrap*).
+        limits sets the axis limits for the plot (default = None for
+        automatic setting)
 
-          *positions* : [ default 1,2,...,n ]
-            Sets the horizontal positions of the boxes. The ticks and limits
-            are automatically set to match the positions.
+        notchsize = None (default) -- unused unless notch == 2
+        notchsize fixes a notch to be a constant size when notch == 2
 
-          *widths* : [ default 0.5 ]
-            Either a scalar or a vector and sets the width of each box. The
-            default is 0.5, or ``0.15*(distance between extreme positions)``
-            if that is smaller.
+        x is an array or a sequence of vectors.
 
-          *patch_artist* : [ False (default) | True ]
-            If False produces boxes with the Line2D artist
-            If True produces boxes with the Patch artist
+        Returns a dict of the lines added, keyed by 'boxes', 'caps',
+        'whiskers', 'medians', 'fliers', and 'means'.
 
-        Returns a dictionary mapping each component of the boxplot
-        to a list of the :class:`matplotlib.lines.Line2D`
-        instances created. That dictionary has the following keys
-        (assuming vertical boxplots):
-
-            - boxes: the main body of the boxplot showing the quartiles
-              and the median's confidence intervals if enabled.
-            - medians: horizonal lines at the median of each box.
-            - whiskers: the vertical lines extending to the most extreme,
-              n-outlier data points.
-            - caps: the horizontal lines at the ends of the whiskers.
-            - fliers: points representing data that extend beyone the
-              whiskers (outliers).
-
-        **Example:**
-
-        .. plot:: pyplots/boxplot_demo.py
         """
-        def bootstrapMedian(data, N=5000):
-            # determine 95% confidence intervals of the median
-            M = len(data)
-            percentile = [2.5,97.5]
-            estimate = np.zeros(N)
-            for n in range(N):
-                bsIndex = np.random.random_integers(0,M-1,M)
-                bsData = data[bsIndex]
-                estimate[n] = mlab.prctile(bsData, 50)
-            CI = mlab.prctile(estimate, percentile)
-            return CI
-
-        def computeConfInterval(data, med, iq, bootstrap):
-            if bootstrap is not None:
-                # Do a bootstrap estimate of notch locations.
-                # get conf. intervals around median
-                CI = bootstrapMedian(data, N=bootstrap)
-                notch_min = CI[0]
-                notch_max = CI[1]
-            else:
-                # Estimate notch locations using Gaussian-based
-                # asymptotic approximation.
-                #
-                # For discussion: McGill, R., Tukey, J.W.,
-                # and Larsen, W.A. (1978) "Variations of
-                # Boxplots", The American Statistician, 32:12-16.
-                N = len(data)
-                notch_min = med - 1.57*iq/np.sqrt(N)
-                notch_max = med + 1.57*iq/np.sqrt(N)
-            return notch_min, notch_max
-
         if not self._hold: self.cla()
         holdStatus = self._hold
-        whiskers, caps, boxes, medians, fliers = [], [], [], [], []
+        whiskers, caps, boxes, medians, fliers, means = [], [], [], [], [], []
 
         # convert x to a list of vectors
         if hasattr(x, 'shape'):
@@ -5749,46 +5688,14 @@ class Axes(martist.Artist):
                 if nr == 1:
                     x = [x]
                 elif nc == 1:
-                    x = [x.ravel()]
+                    x = [ravel(x)]
                 else:
-                    x = [x[:,i] for i in xrange(nc)]
+                    x = [x[:,i] for i in range(nc)]
             else:
                 raise ValueError("input x can have no more than 2 dimensions")
         if not hasattr(x[0], '__len__'):
             x = [x]
         col = len(x)
-
-        # sanitize user-input medians
-        msg1 = "usermedians must either be a list/tuple or a 1d array"
-        msg2 = "usermedians' length must be compatible with x"
-        if usermedians is not None:
-            if hasattr(usermedians, 'shape'):
-                if len(usermedians.shape) != 1:
-                    raise ValueError(msg1)
-                elif usermedians.shape[0] != col:
-                    raise ValueError(msg2)
-            elif len(usermedians) != col:
-                raise ValueError(msg2)
-
-        #sanitize user-input confidence intervals
-        msg1 = "conf_intervals must either be a list of tuples or a 2d array"
-        msg2 = "conf_intervals' length must be compatible with x"
-        msg3 = "each conf_interval, if specificied, must have two values"
-        if conf_intervals is not None:
-            if hasattr(conf_intervals, 'shape'):
-                if len(conf_intervals.shape) != 2:
-                    raise ValueError(msg1)
-                elif conf_intervals.shape[0] != col:
-                    raise ValueError(msg2)
-                elif conf_intervals.shape[1] == 2:
-                    raise ValueError(msg3)
-            else:
-                if len(conf_intervals) != col:
-                    raise ValueError(msg2)
-                for ci in conf_intervals:
-                    if ci is not None and len(ci) != 2:
-                        raise ValueError(msg3)
-
 
         # get some plot info
         if positions is None:
@@ -5797,36 +5704,28 @@ class Axes(martist.Artist):
             distance = max(positions) - min(positions)
             widths = min(0.15*max(distance,1.0), 0.5)
         if isinstance(widths, float) or isinstance(widths, int):
-            widths = np.ones((col,), float) * widths
+            widths = ones((col,), 'd') * widths
 
         # loop through columns, adding each to plot
         self.hold(True)
-        for i, pos in enumerate(positions):
-            d = np.ravel(x[i])
+        for i,pos in enumerate(positions):
+            d = ravel(x[i])
             row = len(d)
-            if row==0:
-                # no data, skip this position
-                continue
-
+            # get mean
+            mean = sum(d)/len(d)
             # get median and quartiles
-            q1, med, q3 = mlab.prctile(d,[25,50,75])
-
-            # replace with input medians if available
-            if usermedians is not None:
-                if usermedians[i] is not None:
-                    med = usermedians[i]
-
+            q1, med, q3 = prctile(d,[25,50,75])
             # get high extreme
             iq = q3 - q1
             hi_val = q3 + whis*iq
-            wisk_hi = np.compress( d <= hi_val , d )
+            wisk_hi = compress( d <= hi_val , d )
             if len(wisk_hi) == 0:
                 wisk_hi = q3
             else:
                 wisk_hi = max(wisk_hi)
             # get low extreme
             lo_val = q1 - whis*iq
-            wisk_lo = np.compress( d >= lo_val, d )
+            wisk_lo = compress( d >= lo_val, d )
             if len(wisk_lo) == 0:
                 wisk_lo = q1
             else:
@@ -5837,119 +5736,121 @@ class Axes(martist.Artist):
             flier_hi_x = []
             flier_lo_x = []
             if len(sym) != 0:
-                flier_hi = np.compress( d > wisk_hi, d )
-                flier_lo = np.compress( d < wisk_lo, d )
-                flier_hi_x = np.ones(flier_hi.shape[0]) * pos
-                flier_lo_x = np.ones(flier_lo.shape[0]) * pos
+                flier_hi = compress( d > wisk_hi, d )
+                flier_lo = compress( d < wisk_lo, d )
+                flier_hi_x = ones(flier_hi.shape[0]) * pos
+                flier_lo_x = ones(flier_lo.shape[0]) * pos
 
             # get x locations for fliers, whisker, whisker cap and box sides
             box_x_min = pos - widths[i] * 0.5
             box_x_max = pos + widths[i] * 0.5
 
-            wisk_x = np.ones(2) * pos
+            wisk_x = ones(2) * pos
 
             cap_x_min = pos - widths[i] * 0.25
             cap_x_max = pos + widths[i] * 0.25
             cap_x = [cap_x_min, cap_x_max]
 
-            # get y location for median
+            # get y location for median, mean
             med_y = [med, med]
+            mean_y = [mean, mean]
 
+            # calculate 'regular' plot
+            no_box = False
+            if notch == 0:
+                # make our box vectors
+                box_x = [box_x_min, box_x_max, box_x_max, box_x_min, box_x_min]
+                box_y = [q1, q1, q3, q3, q1 ]
+                # make our median, mean line vectors
+                med_x = [box_x_min, box_x_max]
+                mean_x = [box_x_min, box_x_max]
             # calculate 'notch' plot
-            if notch:
-                # conf. intervals from user, if available
-                if conf_intervals is not None and conf_intervals[i] is not None:
-                    notch_max = np.max(conf_intervals[i])
-                    notch_min = np.min(conf_intervals[i])
+            else:
+                if notch == 1:
+                    notch_max = med + 1.57*iq/sqrt(row)
+                    notch_min = med - 1.57*iq/sqrt(row)
+                    if notch_max > q3:
+                        notch_max = q3
+                    if notch_min < q1:
+                        notch_min = q1
                 else:
-                    notch_min, notch_max = computeConfInterval(d, med, iq,
-                                                               bootstrap)
+                    if notchsize is None:
+                        raise ValueError("Must supply notchsize when notch==2")
+                    notch_max = med + notchsize
+                    notch_min = med - notchsize
+                    # force 'no box' if notch size outside of box limits
+                    if notch_max > q3 or notch_min < q1:
+                        no_box = True
 
                 # make our notched box vectors
-                box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max,
-                         box_x_max, box_x_min, box_x_min, cap_x_min, box_x_min,
-                         box_x_min ]
-                box_y = [q1, q1, notch_min, med, notch_max, q3, q3, notch_max,
-                         med, notch_min, q1]
-                # make our median line vectors
+                if no_box:
+                    box_x = [box_x_max, cap_x_max, box_x_max]
+                    notch2_x = [box_x_min, cap_x_min, box_x_min]
+                    box_y = [notch_min, med, notch_max]
+                    notch2_y = [notch_max, med, notch_min]
+                else:
+                    box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max, box_x_max, box_x_min, box_x_min, cap_x_min, box_x_min, box_x_min]
+                    box_y = [q1, q1, notch_min, med, notch_max, q3, q3, notch_max, med, notch_min, q1]
+                # make our median, mean line vectors
                 med_x = [cap_x_min, cap_x_max]
-                med_y = [med, med]
-            # calculate 'regular' plot
+                mean_x = [box_x_min, box_x_max]   # doesn't take into account notch shape
+
+            if monochrome:
+                wiskcol = capcol = boxcol = medcol = symcol = 'k'
             else:
-                # make our box vectors
-                box_x = [box_x_min, box_x_max, box_x_max, box_x_min, box_x_min ]
-                box_y = [q1, q1, q3, q3, q1 ]
-                # make our median line vectors
-                med_x = [box_x_min, box_x_max]
+                wiskcol, capcol, boxcol, medcol, symcol = 'b', 'k', 'b', 'r', 'b'
 
-            def to_vc(xs,ys):
-                # convert arguments to verts and codes
-                verts = []
-                #codes = []
-                for xi,yi in zip(xs,ys):
-                    verts.append( (xi,yi) )
-                verts.append( (0,0) ) # ignored
-                codes = [mpath.Path.MOVETO] + \
-                        [mpath.Path.LINETO]*(len(verts)-2) + \
-                        [mpath.Path.CLOSEPOLY]
-                return verts,codes
-
-            def patch_list(xs,ys):
-                verts,codes = to_vc(xs,ys)
-                path = mpath.Path( verts, codes )
-                patch = mpatches.PathPatch(path)
-                self.add_artist(patch)
-                return [patch]
+            if fill and not no_box:
+                self.fill(box_x, box_y, facecolor='w')
 
             # vertical or horizontal plot?
             if vert:
                 def doplot(*args):
                     return self.plot(*args)
-                def dopatch(xs,ys):
-                    return patch_list(xs,ys)
             else:
                 def doplot(*args):
                     shuffled = []
-                    for i in xrange(0, len(args), 3):
+                    for i in range(0, len(args), 3):
                         shuffled.extend([args[i+1], args[i], args[i+2]])
                     return self.plot(*shuffled)
-                def dopatch(xs,ys):
-                    xs,ys = ys,xs # flip X, Y
-                    return patch_list(xs,ys)
 
-            if patch_artist:
-                median_color = 'k'
-            else:
-                median_color = 'r'
-
-            whiskers.extend(doplot(wisk_x, [q1, wisk_lo], 'b--',
-                                   wisk_x, [q3, wisk_hi], 'b--'))
-            caps.extend(doplot(cap_x, [wisk_hi, wisk_hi], 'k-',
-                               cap_x, [wisk_lo, wisk_lo], 'k-'))
-            if patch_artist:
-                boxes.extend(dopatch(box_x, box_y))
-            else:
-                boxes.extend(doplot(box_x, box_y, 'b-'))
-
-            medians.extend(doplot(med_x, med_y, median_color+'-'))
-            fliers.extend(doplot(flier_hi_x, flier_hi, sym,
-                                 flier_lo_x, flier_lo, sym))
+            whiskers.extend(doplot(wisk_x, [q1, wisk_lo], wiskcol+linestyle,
+                                   wisk_x, [q3, wisk_hi], wiskcol+linestyle))
+            caps.extend(doplot(cap_x, [wisk_hi, wisk_hi], capcol+'-',
+                               cap_x, [wisk_lo, wisk_lo], capcol+'-'))
+            boxes.extend(doplot(box_x, box_y, boxcol+'-'))
+            medians.extend(doplot(med_x, med_y, medcol+'-'))
+            fliers.extend(doplot(flier_hi_x, flier_hi, symcol+sym,
+                                 flier_lo_x, flier_lo, symcol+sym))
+            if means:
+                if notch > 0:
+                    nstyle = 'k-'
+                else:
+                    nstyle = 'k:'
+                means.extend(doplot(mean_x, mean_y, nstyle))
+            if notch == 2 and no_box:
+                boxes.extend(doplot(notch2_x, notch2_y, boxcol+'-'))
 
         # fix our axes/ticks up a little
-        if vert:
+        if 1 == vert:
             setticks, setlim = self.set_xticks, self.set_xlim
         else:
             setticks, setlim = self.set_yticks, self.set_ylim
 
-        newlimits = min(positions)-0.5, max(positions)+0.5
-        setlim(newlimits)
-        setticks(positions)
+        # use explicit axis limits if provided
+        if limits is None:
+            newlimits = min(positions)-0.5, max(positions)+0.5
+            setlim(newlimits)
+            setticks(positions)
+        elif limits != ():
+            setlim(limits)
+            setticks([])
 
         # reset hold status
         self.hold(holdStatus)
 
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
-                    medians=medians, fliers=fliers)
+                    medians=medians, fliers=fliers, means=means)
 
     @docstring.dedent_interpd
     def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
