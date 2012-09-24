@@ -46,6 +46,19 @@ def test_image_compare_basic():
     # Now test with no tolerance.
     image_comparison_expect_rms(im1, im2, tol=0, expect_rms=2.99949)
 
+def test_image_compare_1px_offset():
+    """Test comparison with an image that is shifted by 1px in the X axis."""
+    im1 = 'cosine_peak-nn-img.png'
+    im2 = 'cosine_peak-nn-img-1px-offset.png'
+    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=22.04263)
+
+def test_image_compare_title_1px_offset():
+    """Test comparison with an image with the title shifted by 1px in the X
+    axis."""
+    im1 = 'cosine_peak-nn-img.png'
+    im2 = 'cosine_peak-nn-img-title-1px-offset.png'
+    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=13.77513)
+
 def test_image_compare_scrambled():
     """Test comparison of an image and the same image scrambled."""
     # This expects the images to compare completely different, with a very large
