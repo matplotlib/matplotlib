@@ -1628,7 +1628,7 @@ class Axes3D(Axes):
         z = np.asarray(args[0])
 
         # TODO: Support masked triangulations
-        triangles = tri.triangles
+        triangles = tri.get_masked_triangles()
         xt = tri.x[triangles][...,np.newaxis]
         yt = tri.y[triangles][...,np.newaxis]
         zt = np.array(z)[triangles][...,np.newaxis]
