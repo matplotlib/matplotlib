@@ -252,19 +252,19 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
 def calculate_rms(expectedImage, actualImage):
    # calculate the per-pixel errors, then compute the root mean square error
    num_values = np.prod(expectedImage.shape)
-   absDiffImage = abs(expectedImage - actualImage)
+   abs_diff_image = abs(expectedImage - actualImage)
 
    # On Numpy 1.6, we can use bincount with minlength, which is much faster than
    # using histogram
    expected_version = version.LooseVersion("1.6")
    found_version = version.LooseVersion(np.__version__)
    if found_version >= expected_version:
-      histogram = np.bincount(absDiffImage.ravel(), minlength=256)
+      histogram = np.bincount(abs_diff_image.ravel(), minlength=256)
    else:
-      histogram = np.histogram(absDiffImage, bins=np.arange(257))[0]
+      histogram = np.histogram(abs_diff_image, bins=np.arange(257))[0]
 
-   sumOfSquares = np.sum(histogram * np.arange(len(histogram))**2)
-   rms = np.sqrt(float(sumOfSquares) / num_values)
+   sum_of_squares = np.sum(histogram * np.arange(len(histogram))**2)
+   rms = np.sqrt(float(sum_of_squares) / num_values)
 
    return rms
 
