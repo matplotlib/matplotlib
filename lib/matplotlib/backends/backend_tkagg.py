@@ -85,6 +85,7 @@ def new_figure_manager_given_figure(num, figure):
     """
     _focus = windowing.FocusManager()
     window = Tk.Tk()
+    window.withdraw()
 
     if Tk.TkVersion >= 8.5:
         # put a mpl icon on the window rather than the default tk icon. Tkinter
