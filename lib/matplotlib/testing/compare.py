@@ -263,7 +263,7 @@ def calculate_rms(expectedImage, actualImage):
    else:
       histogram = np.histogram(absDiffImage, bins=np.arange(257))[0]
 
-   sumOfSquares = sum(count*(i**2) for i, count in enumerate(histogram))
+   sumOfSquares = np.sum(histogram * np.arange(len(histogram))**2)
    rms = np.sqrt(float(sumOfSquares) / num_values)
 
    return rms
