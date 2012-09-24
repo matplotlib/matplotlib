@@ -14,7 +14,6 @@ from matplotlib import _get_configdir
 from distutils import version
 import hashlib
 import math
-import operator
 import os
 import numpy as np
 import shutil
@@ -252,7 +251,7 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
 
 def calculate_rms(expectedImage, actualImage):
    # calculate the per-pixel errors, then compute the root mean square error
-   num_values = reduce(operator.mul, expectedImage.shape)
+   num_values = np.prod(expectedImage.shape)
    absDiffImage = abs(expectedImage - actualImage)
 
    # On Numpy 1.6, we can use bincount with minlength, which is much faster than
