@@ -14,6 +14,12 @@ For new features that were added to matplotlib, please see
 Changes in 1.2.x
 ================
 
+* The `rasterization_zorder` property on `~matplotlib.axes.Axes` a
+  zorder below which artists are rasterized.  This has defaulted to
+  -30000.0, but it now defaults to `None`, meaning no artists will be
+  rasterized.  In order to rasterize artists below a given zorder
+  value, `set_rasterization_zorder` must be explicitly called.
+
 * In :meth:`~matplotlib.axes.Axes.scatter`, and `~pyplot.scatter`,
   when specifying a marker using a tuple, the angle is now specified
   in degrees, not radians.
@@ -90,14 +96,14 @@ Changes in 1.2.x
          def transform(self, xy):
              ...
          transform_non_affine = transform
-  
-  
+
+
   This approach will no longer function correctly and should be changed to::
 
      class MyTransform(mtrans.Transform):
          def transform_non_affine(self, xy):
              ...
-  
+
 
 * Artists no longer have ``x_isdata`` or ``y_isdata`` attributes; instead
   any artist's transform can be interrogated with
@@ -115,7 +121,7 @@ Changes in 1.2.x
       Bbox('array([[  0.,   0.],\n       [ 90.,  90.]])')
 
 * One can now easily get a transform which goes from one transform's coordinate
-  system to another, in an optimized way, using the new subtract method on a 
+  system to another, in an optimized way, using the new subtract method on a
   transform. For instance, to go from data coordinates to axes coordinates::
 
       >>> import matplotlib.pyplot as plt
@@ -126,8 +132,8 @@ Changes in 1.2.x
       >>> print(data2ax.depth)
       2
 
-  for versions before 1.2 this could only be achieved in a sub-optimal way, 
-  using ``ax.transData + ax.transAxes.inverted()`` (depth is a new concept, 
+  for versions before 1.2 this could only be achieved in a sub-optimal way,
+  using ``ax.transData + ax.transAxes.inverted()`` (depth is a new concept,
   but had it existed it would return 4 for this example).
 
 * ``twinx`` and ``twiny`` now returns an instance of SubplotBase if
@@ -141,8 +147,8 @@ Changes in 1.2.x
 * :class:`~matplotlib.colors.ColorConverter`,
   :class:`~matplotlib.colors.Colormap` and
   :class:`~matplotlib.colors.Normalize` now subclasses ``object``
-  
-* ContourSet instances no longer have a ``transform`` attribute. Instead, 
+
+* ContourSet instances no longer have a ``transform`` attribute. Instead,
   access the transform with the ``get_transform`` method.
 
 Changes in 1.1.x
