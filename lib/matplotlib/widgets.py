@@ -841,6 +841,8 @@ class Cursor(AxesWidget):
         'on mouse motion draw the cursor if visible'
         if self.ignore(event):
             return
+        if not self.canvas.widgetlock.available(self):
+            return
         if event.inaxes != self.ax:
             self.linev.set_visible(False)
             self.lineh.set_visible(False)
@@ -907,7 +909,8 @@ class MultiCursor(Widget):
         if useblit:
             lineprops['animated'] = True
 
-        self.lines = [ax.axvline(xmid, visible=False, **lineprops) for ax in axes]
+        self.lines = [ax.axvline(xmid, visible=False, **lineprops)
+                                                    for ax in axes]
 
         self.visible = True
         self.useblit = useblit
@@ -921,15 +924,20 @@ class MultiCursor(Widget):
     def clear(self, event):
         'clear the cursor'
         if self.useblit:
-            self.background = self.canvas.copy_from_bbox(self.canvas.figure.bbox)
-        for line in self.lines: line.set_visible(False)
+            self.background = self.canvas.copy_from_bbox(
+                                            self.canvas.figure.bbox)
+        for line in self.lines:
+            line.set_visible(False)
 
 
     def onmove(self, event):
-        if event.inaxes is None: return
-        if not self.canvas.widgetlock.available(self): return
+        if event.inaxes is None:
+            return
+        if not self.canvas.widgetlock.available(self):
+            return
         self.needclear = True
-        if not self.visible: return
+        if not self.visible:
+            return
 
         for line in self.lines:
             line.set_xdata((event.xdata, event.xdata))
