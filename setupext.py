@@ -57,7 +57,7 @@ from collections import defaultdict
 basedir = defaultdict(lambda: ['/usr/local', '/usr'], {
     # execptions to the ['/usr/local', '/usr'] defaults
     'win32'  : ['win32_static',],
-    'darwin' : ['/usr/local/', '/usr', '/usr/X11'],
+    'darwin' : ['/usr/local/', '/usr', '/usr/X11', '/opt/local'],
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
     'gnu0' : ['/usr'],
     'aix5' : ['/usr/local'],
