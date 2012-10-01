@@ -16,7 +16,7 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates as _ # <-registers a date unit converter 
+import matplotlib.dates as _ # <-registers a date unit converter
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
 import matplotlib.image as mimage
@@ -465,7 +465,7 @@ class Axes(martist.Artist):
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
 
-        self._rasterization_zorder = -30000
+        self._rasterization_zorder = None
 
         self._hold = rcParams['axes.hold']
         self._connected = {} # a dict from events to (id, func)
@@ -1852,7 +1852,9 @@ class Axes(martist.Artist):
 
     def set_rasterization_zorder(self, z):
         """
-        Set zorder value below which artists will be rasterized
+        Set zorder value below which artists will be rasterized.  Set
+        to `None` to disable rasterizing of artists below a particular
+        zorder.
         """
         self._rasterization_zorder = z
 
@@ -2029,7 +2031,8 @@ class Axes(martist.Artist):
         # rasterize artists with negative zorder
         # if the minimum zorder is negative, start rasterization
         rasterization_zorder = self._rasterization_zorder
-        if len(dsu) > 0 and dsu[0][0] < rasterization_zorder:
+        if (rasterization_zorder is not None and
+            len(dsu) > 0 and dsu[0][0] < rasterization_zorder):
             renderer.start_rasterizing()
             dsu_rasterized = [l for l in dsu if l[0] < rasterization_zorder]
             dsu = [l for l in dsu if l[0] >= rasterization_zorder]
@@ -3972,7 +3975,7 @@ class Axes(martist.Artist):
 
             plot(x, y, color='green', linestyle='dashed', marker='o',
                  markerfacecolor='blue', markersize=12).
-                 
+
         See :class:`~matplotlib.lines.Line2D` for details.
 
         The kwargs are :class:`~matplotlib.lines.Line2D` properties:
@@ -7073,7 +7076,7 @@ class Axes(martist.Artist):
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/image_demo.py
-        
+
         """
 
         if not self._hold: self.cla()
@@ -7418,7 +7421,7 @@ class Axes(martist.Artist):
 
             If ``'None'``, edges will not be visible.
 
-            If ``'face'``, edges will have the same color as the faces. 
+            If ``'face'``, edges will have the same color as the faces.
 
             An mpl color or sequence of colors will set the edge color
 
