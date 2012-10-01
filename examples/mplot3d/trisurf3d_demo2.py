@@ -19,7 +19,7 @@ tri = mtri.Triangulation(u, v)
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1, projection='3d')
 
-# The triangles in parameter space determnine which x, y, z points are
+# The triangles in parameter space determine which x, y, z points are
 # connected by an edge
 ax.plot_trisurf(x, y, z, triangles=tri.triangles, cmap=plt.cm.Spectral)
 
