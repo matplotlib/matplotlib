@@ -1627,7 +1627,6 @@ class Axes3D(Axes):
         tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
         z = np.asarray(args[0])
 
-        # TODO: Support masked triangulations
         triangles = tri.get_masked_triangles()
         xt = tri.x[triangles][...,np.newaxis]
         yt = tri.y[triangles][...,np.newaxis]
