@@ -263,7 +263,7 @@ def set_pkgconfig_path():
     if pkgconfig_path is None:
         return
 
-    pkgconfig_path += '/pkgconfig'
+    pkgconfig_path = os.path.join(pkgconfig_path, 'pkgconfig')
     if not os.path.isdir(pkgconfig_path):
         return
 
