@@ -112,29 +112,29 @@ unicode handling must be configured in the preamble.
 
 .. image:: /_static/pgf_texsystem.*
 
-.. _pgf-hangups:
 
-Possible hangups
-================
+.. _pgf-troubleshooting:
+
+Troubleshooting
+===============
 
 * Please note that the TeX packages found in some Linux distributions and
   MiKTeX installations are dramatically outdated. Make sure to update your
-  package catalog and upgrade or install a recent TeX distribution before
-  reporting problems.
+  package catalog and upgrade or install a recent TeX distribution.
 
 * On Windows, the :envvar:`PATH` environment variable may need to be modified
   to include the directories containing the latex, dvipng and ghostscript
   executables. See :ref:`environment-variables` and
   :ref:`setting-windows-environment-variables` for details.
 
+* A limitation on Windows causes the backend to keep file handles that have
+  been opened by your application open. As a result, it may not be possible
+  to delete the corresponding files until the application closes (see
+  `#1324 <https://github.com/matplotlib/matplotlib/issues/1324>`_).
+
 * Sometimes the font rendering in figures that are saved to png images is
   very bad. This happens when the pdftocairo tool is not available and
   ghostscript is used for the pdf to png conversion.
-
-.. _pgf-troubleshooting:
-
-Troubleshooting
-===============
 
 * Make sure what you are trying to do is possible in a LaTeX document,
   that your LaTeX syntax is valid and that you are using raw strings
@@ -142,7 +142,7 @@ Troubleshooting
 
 * The ``pgf.preamble`` rc setting provides lots of flexibility, and lots of
   ways to cause problems. When experiencing problems, try to minimalize or
-  disable the custom preamble before reporting problems.
+  disable the custom preamble.
 
 * If you still need help, please see :ref:`reporting-problems`
 
