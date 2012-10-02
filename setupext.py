@@ -258,6 +258,20 @@ if sys.platform == 'win32' and win32_compiler == 'msvc':
 else:
     std_libs = ['stdc++', 'm']
 
+def set_pkgconfig_path():
+    pkgconfig_path = sysconfig.get_config_var('LIBDIR')
+    if pkgconfig_path is None:
+        return
+
+    pkgconfig_path += '/pkgconfig'
+    if not os.path.isdir(pkgconfig_path):
+        return
+
+    try:
+        os.environ['PKG_CONFIG_PATH'] += ':' + pkgconfig_path
+    except KeyError:
+        os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
+
 def has_pkgconfig():
     if has_pkgconfig.cache is not None:
         return has_pkgconfig.cache
@@ -267,6 +281,10 @@ def has_pkgconfig():
         #print 'environ',  os.environ['PKG_CONFIG_PATH']
         status, output = getstatusoutput("pkg-config --help")
         has_pkgconfig.cache = (status == 0)
+
+        # Set the PKG_CONFIG_PATH environment variable
+        if has_pkgconfig.cache:
+            set_pkgconfig_path()
     return has_pkgconfig.cache
 has_pkgconfig.cache = None
 
