@@ -8,6 +8,8 @@ import shutil
 import tempfile
 import codecs
 import subprocess
+import atexit
+import weakref
 
 import matplotlib as mpl
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
@@ -221,6 +223,23 @@ class LatexManagerFactory:
             LatexManagerFactory.previous_instance = new_inst
             return new_inst
 
+class WeakSet:
+    # TODO: Poor man's weakref.WeakSet.
+    #       Remove this once python 2.6 support is dropped from matplotlib.
+
+    def __init__(self):
+        self.weak_key_dict = weakref.WeakKeyDictionary()
+
+    def add(self, item):
+        self.weak_key_dict[item] = None
+
+    def discard(self, item):
+        if item in self.weak_key_dict:
+            del self.weak_key_dict[item]
+
+    def __iter__(self):
+        return  self.weak_key_dict.iterkeys()
+
 
 class LatexManager:
     """
@@ -228,6 +247,7 @@ class LatexManager:
     determining the metrics of text elements. The LaTeX environment can be
     modified by setting fonts and/or a custem preamble in the rc parameters.
     """
+    _unclean_instances = WeakSet()
 
     @staticmethod
     def _build_latex_header():
@@ -243,6 +263,12 @@ class LatexManager:
                         r"text $math \mu$",  # force latex to load fonts now
                         r"\typeout{pgf_backend_query_start}"]
         return "\n".join(latex_header)
+
+    @staticmethod
+    def _cleanup_remaining_instances():
+        unclean_instances = list(LatexManager._unclean_instances)
+        for latex_manager in unclean_instances:
+            latex_manager._cleanup()
 
     def _stdin_writeln(self, s):
         self.latex_stdin_utf8.write(s)
@@ -265,14 +291,17 @@ class LatexManager:
         return self._expect("\n*")
 
     def __init__(self):
+        # create a tmp directory for running latex, remember to cleanup
+        self.tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_lm_")
+        LatexManager._unclean_instances.add(self)
+
+        # test the LaTeX setup to ensure a clean startup of the subprocess
         self.texcommand = get_texcommand()
         self.latex_header = LatexManager._build_latex_header()
         latex_end = "\n\\makeatletter\n\\@@end\n"
-
-        # test the LaTeX setup to ensure a clean startup of the subprocess
         latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE)
+                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                 cwd=self.tmpdir)
         test_input = self.latex_header + latex_end
         stdout, stderr = latex.communicate(test_input.encode("utf-8"))
         if latex.returncode != 0:
@@ -280,8 +309,8 @@ class LatexManager:
 
         # open LaTeX process for real work
         latex = subprocess.Popen([self.texcommand, "-halt-on-error"],
-                                 stdin=subprocess.PIPE,
-                                 stdout=subprocess.PIPE)
+                                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                 cwd=self.tmpdir)
         self.latex = latex
         self.latex_stdin_utf8 = codecs.getwriter("utf8")(self.latex.stdin)
         # write header with 'pgf_backend_query_start' token
@@ -293,19 +322,25 @@ class LatexManager:
         # cache for strings already processed
         self.str_cache = {}
 
-    def __del__(self):
-        if rcParams.get("pgf.debug", False):
-            print "deleting LatexManager"
+    def _cleanup(self):
+        if not os.path.isdir(self.tmpdir):
+            return
         try:
             self.latex_stdin_utf8.close()
             self.latex.communicate()
+            self.latex.wait()
         except:
             pass
         try:
-            os.remove("texput.log")
-            os.remove("texput.aux")
+            shutil.rmtree(self.tmpdir)
+            LatexManager._unclean_instances.discard(self)
         except:
-            pass
+            sys.stderr.write("error deleting tmp directory %s\n" % self.tmpdir)
+
+    def __del__(self):
+        if rcParams.get("pgf.debug", False):
+            print "deleting LatexManager"
+        self._cleanup()
 
     def get_width_height_descent(self, text, prop):
         """
@@ -643,6 +678,22 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
+class TmpDirCleaner:
+    remaining_tmpdirs = set()
+
+    @staticmethod
+    def add(tmpdir):
+        TmpDirCleaner.remaining_tmpdirs.add(tmpdir)
+
+    @staticmethod
+    def cleanup_remaining_tmpdirs():
+        for tmpdir in TmpDirCleaner.remaining_tmpdirs:
+            try:
+                shutil.rmtree(tmpdir)
+            except:
+                sys.stderr.write("error deleting tmp directory %s\n" % tmpdir)
+
+
 class FigureCanvasPgf(FigureCanvasBase):
     filetypes = {"pgf": "LaTeX PGF picture",
                  "pdf": "LaTeX compiled PGF picture",
@@ -723,13 +774,14 @@ class FigureCanvasPgf(FigureCanvasBase):
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
         try:
-            # create and switch to temporary directory
-            tmpdir = tempfile.mkdtemp()
-            cwd = os.getcwd()
-            os.chdir(tmpdir)
+            # create temporary directory for compiling the figure
+            tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_")
+            fname_pgf = os.path.join(tmpdir, "figure.pgf")
+            fname_tex = os.path.join(tmpdir, "figure.tex")
+            fname_pdf = os.path.join(tmpdir, "figure.pdf")
 
             # print figure to pgf and compile it with latex
-            self.print_pgf("figure.pgf")
+            self.print_pgf(fname_pgf)
 
             latex_preamble = get_preamble()
             latex_fontspec = get_fontspec()
@@ -744,26 +796,25 @@ class FigureCanvasPgf(FigureCanvasBase):
 \centering
 \input{figure.pgf}
 \end{document}""" % (w, h, latex_preamble, latex_fontspec)
-            with codecs.open("figure.tex", "w", "utf-8") as fh_tex:
+            with codecs.open(fname_tex, "w", "utf-8") as fh_tex:
                 fh_tex.write(latexcode)
 
             texcommand = get_texcommand()
             cmdargs = [texcommand, "-interaction=nonstopmode",
                        "-halt-on-error", "figure.tex"]
             try:
-                check_output(cmdargs, stderr=subprocess.STDOUT)
+                check_output(cmdargs, stderr=subprocess.STDOUT, cwd=tmpdir)
             except subprocess.CalledProcessError as e:
                 raise RuntimeError("%s was not able to process your file.\n\nFull log:\n%s" % (texcommand, e.output))
 
             # copy file contents to target
-            with open("figure.pdf", "rb") as fh_src:
+            with open(fname_pdf, "rb") as fh_src:
                 shutil.copyfileobj(fh_src, fh)
         finally:
-            os.chdir(cwd)
             try:
                 shutil.rmtree(tmpdir)
             except:
-                sys.stderr.write("could not delete tmp directory %s\n" % tmpdir)
+                TmpDirCleaner.add(tmpdir)
 
     def print_pdf(self, fname_or_fh, *args, **kwargs):
         """
@@ -782,22 +833,21 @@ class FigureCanvasPgf(FigureCanvasBase):
         converter = make_pdf_to_png_converter()
 
         try:
-            # create and switch to temporary directory
-            tmpdir = tempfile.mkdtemp()
-            cwd = os.getcwd()
-            os.chdir(tmpdir)
+            # create temporary directory for pdf creation and png conversion
+            tmpdir = tempfile.mkdtemp(prefix="mpl_pgf_")
+            fname_pdf = os.path.join(tmpdir, "figure.pdf")
+            fname_png = os.path.join(tmpdir, "figure.png")
             # create pdf and try to convert it to png
-            self.print_pdf("figure.pdf")
-            converter("figure.pdf", "figure.png", dpi=self.figure.dpi)
+            self.print_pdf(fname_pdf)
+            converter(fname_pdf, fname_png, dpi=self.figure.dpi)
             # copy file contents to target
-            with open("figure.png", "rb") as fh_src:
+            with open(fname_png, "rb") as fh_src:
                 shutil.copyfileobj(fh_src, fh)
         finally:
-            os.chdir(cwd)
             try:
                 shutil.rmtree(tmpdir)
             except:
-                sys.stderr.write("could not delete tmp directory %s\n" % tmpdir)
+                TmpDirCleaner.add(tmpdir)
 
     def print_png(self, fname_or_fh, *args, **kwargs):
         """
@@ -869,3 +919,9 @@ class FigureManagerPgf(FigureManagerBase):
 ########################################################################
 
 FigureManager = FigureManagerPgf
+
+def _cleanup_all():
+    LatexManager._cleanup_remaining_instances()
+    TmpDirCleaner.cleanup_remaining_tmpdirs()
+
+atexit.register(_cleanup_all)
