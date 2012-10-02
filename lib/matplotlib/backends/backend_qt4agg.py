@@ -114,9 +114,12 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
                 p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
             p.end()
 
+            # This works around a bug in PySide 1.1.2 on Python 3.x,
+            # where the reference count of stringBuffer is incremented
+            # but never decremented by QImage.
+            # TODO: revert PR #1323 once the issue is fixed in PySide.
             del qImage
             if refcnt != sys.getrefcount(stringBuffer):
-                # Fix a huge memory leak in PySide on Python 3
                 _decref(stringBuffer)
         else:
             bbox = self.blitbox
