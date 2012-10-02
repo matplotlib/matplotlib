@@ -24,7 +24,6 @@ ax = fig.add_subplot(1, 1, 1, projection='3d')
 ax.plot_trisurf(x, y, z, triangles=tri.triangles, cmap=plt.cm.Spectral)
 
 ax.set_zlim(-1, 1)
-plt.show()
 
 # First create the x and y coordinates of the points.
 n_angles = 36
