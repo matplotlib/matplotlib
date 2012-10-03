@@ -748,10 +748,8 @@ class RendererSVG(RendererBase):
     def option_scale_image(self):
         return True
 
-
     def get_image_magnification(self):
-        return self.image_dpi/72.0
-        
+        return self.image_dpi / 72.0
 
     def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
         attrib = {}
