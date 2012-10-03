@@ -244,10 +244,11 @@ class RendererSVG(RendererBase):
     FONT_SCALE = 100.0
     fontd = maxdict(50)
 
-    def __init__(self, width, height, svgwriter, basename=None):
+    def __init__(self, width, height, image_dpi, svgwriter, basename=None):
         self.width = width
         self.height = height
         self.writer = XMLWriter(svgwriter)
+        self.image_dpi = image_dpi # the actual dpi we want to rasterize stuff with
 
         self._groupd = {}
         if not rcParams['svg.image_inline']:
@@ -733,6 +734,9 @@ class RendererSVG(RendererBase):
     def option_scale_image(self):
         return True
 
+    def get_image_magnification(self):
+        return self.image_dpi/72.0
+        
     def draw_image(self, gc, x, y, im, dx=None, dy=None, transform=None):
         attrib = {}
         clipid = self._get_clip(gc)
@@ -755,6 +759,17 @@ class RendererSVG(RendererBase):
             im.resize(numcols, numrows)
 
         h,w = im.get_size_out()
+
+        if dx is None:
+            w = 72.0*w/self.image_dpi
+        else:
+            w = dx
+
+        if dy is None:
+            h = 72.0*h/self.image_dpi
+        else:
+            h = dy
+
         oid = getattr(im, '_gid', None)
         url = getattr(im, '_url', None)
         if url is not None:
@@ -1113,25 +1128,17 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     def _print_svg(self, filename, svgwriter, fh_to_close=None, **kwargs):
         try:
+            image_dpi = kwargs.pop("dpi", 72)
             self.figure.set_dpi(72.0)
             width, height = self.figure.get_size_inches()
             w, h = width*72, height*72
 
             if rcParams['svg.image_noscale']:
-                renderer = RendererSVG(w, h, svgwriter, filename)
+                renderer = RendererSVG(w, h, image_dpi, svgwriter, filename)
             else:
-                # setting mixed renderer dpi other than 72 results in
-                # incorrect size of the rasterized image. It seems that the
-                # svg internally uses fixed dpi of 72 and seems to cause
-                # the problem. I hope someone who knows the svg backends
-                # take a look at this problem. Meanwhile, the dpi
-                # parameter is ignored and image_dpi is fixed at 72. - JJL
-
-                #image_dpi = kwargs.pop("dpi", 72)
-                image_dpi = 72
                 _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
                 renderer = MixedModeRenderer(self.figure,
-                    width, height, image_dpi, RendererSVG(w, h, svgwriter, filename),
+                    width, height, image_dpi, RendererSVG(w, h, image_dpi, svgwriter, filename),
                     bbox_inches_restore=_bbox_inches_restore)
 
             self.figure.draw(renderer)
