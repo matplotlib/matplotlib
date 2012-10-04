@@ -228,10 +228,11 @@ class Artist(object):
         Set the :class:`~matplotlib.transforms.Transform` instance
         used by this artist.
 
-        ACCEPTS: :class:`~matplotlib.transforms.Transform` instance
+        ACCEPTS: :class:`~matplotlib.transforms.Transform` instance, or None
+                 set_transform(None) is equivalent to set_transform(IdentityTransform())
         """
         self._transform = t
-        self._transformSet = t is not None
+        self._transformSet = True
         self.pchanged()
 
     def get_transform(self):

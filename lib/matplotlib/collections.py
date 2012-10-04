@@ -23,7 +23,7 @@ from matplotlib.artist import allow_rasterization
 import matplotlib.backend_bases as backend_bases
 import matplotlib.path as mpath
 import matplotlib.mlab as mlab
-
+from matplotlib.transforms import IdentityTransform
 
 class Collection(artist.Artist, cm.ScalarMappable):
     """
@@ -81,7 +81,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  linestyles='solid',
                  antialiaseds=None,
                  offsets=None,
-                 transOffset=None,
+                 transOffset=False, # disginguish from None(=IdentityTransform)
                  norm=None,  # optional for ScalarMappable
                  cmap=None,  # ditto
                  pickradius=5.0,
@@ -115,7 +115,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if offsets is not None:
             offsets = np.asanyarray(offsets)
             offsets.shape = (-1, 2)             # Make it Nx2
-            if transOffset is not None:
+            if transOffset is not False:
                 self._offsets = offsets
                 self._transOffset = transOffset
             else:
@@ -159,7 +159,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._transforms
 
     def get_offset_transform(self):
-        t = self._transOffset
+        t = self._transOffset or IdentityTransform()
         if (not isinstance(t, transforms.Transform)
                 and hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
