@@ -978,6 +978,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         for ax in axarr[:-1, :].flat:
             for label in ax.get_xticklabels():
                 label.set_visible(False)
+            ax.xaxis.offsetText.set_visible(False)
 
     if sharey in ["row", "all"] and ncols > 1:
     #if sharey and ncols>1:
@@ -985,6 +986,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         for ax in axarr[:, 1:].flat:
             for label in ax.get_yticklabels():
                 label.set_visible(False)
+            ax.yaxis.offsetText.set_visible(False)
 
     if squeeze:
         # Reshape the array to have the final desired dimension (nrow,ncol),
