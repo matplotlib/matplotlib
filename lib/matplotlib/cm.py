@@ -228,7 +228,7 @@ class ScalarMappable:
                     if x.dtype == np.uint8:
                         alpha = np.uint8(alpha * 255)
                     m, n = x.shape[:2]
-                    xx = np.empty(shape=(m, n, 4), dtype = x.dtype)
+                    xx = np.empty(shape=(m, n, 4), dtype=x.dtype)
                     xx[:, :, :3] = x
                     xx[:, :, 3] = alpha
                 elif x.shape[2] == 4:
