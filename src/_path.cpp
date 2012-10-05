@@ -1499,7 +1499,7 @@ _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
 
     transformed_path_t tpath(path, trans);
     nan_removal_t      nan_removed(tpath, remove_nans, path.has_curves());
-    clipped_t          clipped(nan_removed, false, rect);
+    clipped_t          clipped(nan_removed, do_clip, rect);
     snapped_t          snapped(clipped, snap_mode, path.total_vertices(), stroke_width);
     simplify_t         simplified(snapped, do_simplify, path.simplify_threshold());
 
