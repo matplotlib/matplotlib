@@ -17,7 +17,6 @@ windows:
     Note: Subclass of BlockingInput.  Used by ginput
 
 :class:`BlockingContourLabeler`
-
     creates a callable object to retrieve mouse clicks in a blocking way that
     will then be used to place labels on a ContourSet
     Note: Subclass of BlockingMouseInput.  Used by clabel
