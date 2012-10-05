@@ -701,6 +701,7 @@ class GraphicsContextBase:
         self._url = None
         self._gid = None
         self._snap = None
+        self._sketch = None
 
     def copy_properties(self, gc):
         'Copy properties from gc to self'
@@ -1002,6 +1003,42 @@ class GraphicsContextBase:
         if self._hatch is None:
             return None
         return Path.hatch(self._hatch, density)
+
+    def get_sketch_params(self):
+        """
+        Returns the sketch parameters, which is a tuple with three elements:
+
+          * *scale*: The amplitude of the wiggle perpendicular to the
+            source line.
+
+          * *length*: The length of the wiggle along the line.
+
+          * *randomness*: The scale factor by which the length is
+            shrunken or expanded.
+
+        May return `None` if no sketch parameters were set.
+        """
+        return self._sketch
+
+    def set_sketch_params(self, scale=None, length=None, randomness=None):
+        """
+        Sets the the sketch parameters:
+
+          * *scale*: The amplitude of the wiggle perpendicular to the
+            source line.
+
+          * *length*: The length of the wiggle along the line, in
+             pixels.
+
+          * *randomness*: The scale factor by which the length is
+            shrunken or expanded, in pixels.
+
+        If *scale* is None, no wiggling will be set.
+        """
+        if scale is None:
+            self._sketch = None
+        else:
+            self._sketch = (scale, length or 128.0, randomness or 16.0)
 
 
 class TimerBase(object):

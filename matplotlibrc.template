@@ -358,6 +358,13 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #path.snap : True # When True, rectilinear axis-aligned paths will be snapped to
                   # the nearest pixel when certain criteria are met.  When False,
                   # paths will never be snapped.
+#path.sketch : None # May be none, or a 3-tuple of the form (scale, length,
+                    # randomness).
+                    # *scale* is the amplitude of the wiggle
+                    # perpendicular to the line (in pixels).  *length*
+                    # is the length of the wiggle along the line (in
+                    # pixels).  *randomness* is the factor by which
+                    # the length is randomly scaled.
 
 # the default savefig params can be different from the display params
 # e.g., you may want a higher resolution, or to make the figure
