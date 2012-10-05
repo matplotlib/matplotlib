@@ -101,6 +101,7 @@ class Artist(object):
         self._url = None
         self._gid = None
         self._snap = None
+        self._sketch = rcParams['path.sketch']
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -455,6 +456,42 @@ class Artist(object):
         Only supported by the Agg and MacOSX backends.
         """
         self._snap = snap
+
+    def get_sketch_params(self):
+        """
+        Returns the sketch parameters, which is a tuple with three elements:
+
+          * *scale*: The amplitude of the wiggle perpendicular to the
+            source line.
+
+          * *length*: The length of the wiggle along the line.
+
+          * *randomness*: The scale factor by which the length is
+            shrunken or expanded.
+
+        May return `None` if no sketch parameters were set.
+        """
+        return self._sketch
+
+    def set_sketch_params(self, scale=None, length=None, randomness=None):
+        """
+        Sets the the sketch parameters:
+
+          * *scale*: The amplitude of the wiggle perpendicular to the
+            source line, in pixels.
+
+          * *length*: The length of the wiggle along the line, in
+             pixels (default 128.0)
+
+          * *randomness*: The scale factor by which the length is
+            shrunken or expanded (default 16.0)
+
+        If *scale* is None, no wiggling will be set.
+        """
+        if scale is None:
+            self._sketch = None
+        else:
+            self._sketch = (scale, length or 128.0, randomness or 16.0)
 
     def get_figure(self):
         """

@@ -260,6 +260,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if self._hatch:
             gc.set_hatch(self._hatch)
 
+        if self.get_sketch_params() is not None:
+            gc.set_sketch_params(*self.get_sketch_params())
+
         if self.get_path_effects():
             #from patheffects import PathEffectsRenderer
             for pe in self.get_path_effects():

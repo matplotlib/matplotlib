@@ -3,12 +3,14 @@
 #ifndef __PATH_CONVERTERS_H__
 #define __PATH_CONVERTERS_H__
 
+#include <stdlib.h>
 #include "CXX/Objects.hxx"
 #include "numpy/arrayobject.h"
 #include "agg_path_storage.h"
 #include "agg_clip_liang_barsky.h"
 #include "MPL_isnan.h"
 #include "mplutils.h"
+#include "agg_conv_segmentator.h"
 
 /*
  This file contains a number of vertex converters that modify
@@ -822,6 +824,92 @@ private:
 
         m_clipped = false;
     }
+};
+
+template<class VertexSource>
+class Sketch
+{
+public:
+    /*
+       scale: the scale of the wiggle perpendicular to the original
+       line (in pixels)
+
+       length: the base wavelength of the wiggle along the
+       original line (in pixels)
+
+       randomness: the factor that the sketch length will randomly
+       shrink and expand.
+    */
+    Sketch(VertexSource& source, double scale, double length, double randomness) :
+        m_source(&source), m_scale(scale), m_length(length),
+        m_randomness(randomness), m_segmented(source), m_last_x(0.0),
+        m_last_y(0.0), m_has_last(false), m_p(0.0)
+    {
+        rewind(0);
+    }
+
+    unsigned
+    vertex(double* x, double* y)
+    {
+        if (m_scale == 0.0)
+        {
+            return m_source->vertex(x, y);
+        }
+
+        unsigned code = m_segmented.vertex(x, y);
+
+        if (code == agg::path_cmd_move_to) {
+            m_has_last = false;
+            m_p = 0.0;
+        }
+
+        if (m_has_last) {
+            // We want the "cursor" along the sine wave to move at a
+            // random rate.
+            m_p += pow(m_randomness, drand48() * 2.0 - 1.0);
+            double r = sin(m_p / (m_length / (M_PI * 2.0))) * m_scale;
+            double den = m_last_x - *x;
+            double num = m_last_y - *y;
+            double len = num*num + den*den;
+            m_last_x = *x;
+            m_last_y = *y;
+            if (len != 0) {
+                len = sqrt(len);
+                *x += r * num / len;
+                *y += r * -den / len;
+            }
+        } else {
+            m_last_x = *x;
+            m_last_y = *y;
+        }
+
+        m_has_last = true;
+
+        return code;
+    }
+
+    inline void
+    rewind(unsigned path_id)
+    {
+        m_has_last = false;
+        m_p = 0.0;
+        if (m_scale != 0.0) {
+            m_segmented.rewind(path_id);
+        } else {
+            m_source->rewind(path_id);
+        }
+    }
+
+private:
+    VertexSource*                       m_source;
+    double                              m_scale;
+    double                              m_length;
+    double                              m_randomness;
+    agg::conv_segmentator<VertexSource> m_segmented;
+    double                              m_last_x;
+    double                              m_last_y;
+    bool                                m_has_last;
+    double                              m_p;
 };
 
 #endif // __PATH_CONVERTERS_H__

@@ -426,6 +426,9 @@ class Patch(artist.Artist):
         if self._hatch:
             gc.set_hatch(self._hatch)
 
+        if self.get_sketch_params() is not None:
+            gc.set_sketch_params(*self.get_sketch_params())
+
         path = self.get_path()
         transform = self.get_transform()
         tpath = transform.transform_path_non_affine(path)
@@ -4013,6 +4016,9 @@ class FancyArrowPatch(Patch):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
+
+        if self.get_sketch_params() is not None:
+            gc.set_sketch_params(*self.get_sketch_params())
 
         # FIXME : dpi_cor is for the dpi-dependecy of the
         # linewidth. There could be room for improvement.

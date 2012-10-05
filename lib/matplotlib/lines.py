@@ -545,6 +545,8 @@ class Line2D(Artist):
         gc.set_joinstyle(join)
         gc.set_capstyle(cap)
         gc.set_snap(self.get_snap())
+        if self.get_sketch_params() is not None:
+            gc.set_sketch_params(*self.get_sketch_params())
 
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         if funcname != '_draw_nothing':

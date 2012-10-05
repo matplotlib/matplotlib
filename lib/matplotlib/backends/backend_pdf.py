@@ -1313,11 +1313,12 @@ end"""
             self.endStream()
 
     @staticmethod
-    def pathOperations(path, transform, clip=None, simplify=None):
+    def pathOperations(path, transform, clip=None, simplify=None, sketch=None):
         cmds = []
         last_points = None
         for points, code in path.iter_segments(transform, clip=clip,
-                                               simplify=simplify):
+                                               simplify=simplify,
+                                               sketch=sketch):
             if code == Path.MOVETO:
                 # This is allowed anywhere in the path
                 cmds.extend(points)
@@ -1340,14 +1341,15 @@ end"""
             last_points = points
         return cmds
 
-    def writePath(self, path, transform, clip=False):
+    def writePath(self, path, transform, clip=False, sketch=None):
         if clip:
             clip = (0.0, 0.0, self.width * 72, self.height * 72)
             simplify = path.should_simplify
         else:
             clip = None
             simplify = False
-        cmds = self.pathOperations(path, transform, clip, simplify=simplify)
+        cmds = self.pathOperations(path, transform, clip, simplify=simplify,
+                                   sketch=sketch)
         self.output(*cmds)
 
     def reserveObject(self, name=''):
@@ -1526,7 +1528,8 @@ class RendererPdf(RendererBase):
         self.check_gc(gc, rgbFace)
         self.file.writePath(
             path, transform,
-            rgbFace is None and gc.get_hatch_path() is None)
+            rgbFace is None and gc.get_hatch_path() is None,
+            gc.get_sketch_params())
         self.file.output(self.gc.paint())
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
