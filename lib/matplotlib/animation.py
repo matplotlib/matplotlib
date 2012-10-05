@@ -450,6 +450,26 @@ class MencoderFileWriter(FileMovieWriter, MencoderBase):
                                 self.fps)] + self.output_args
 
 
+# Base class for animated GIFs with convert utility
+class ImageMagickBase:
+    exec_key = 'animation.convert_path'
+    args_key = 'animation.convert_args'
+
+    @property
+    def output_args(self):
+        return [self.outfile]
+
+
+@writers.register('imagemagick_file')
+class ImageMagickFileWriter(FileMovieWriter, ImageMagickBase):
+    supported_formats = ['png']
+
+    def _args(self):
+        delay = 100. / self.fps
+        return [self.bin_path(), '-delay', str(delay), '-loop', '0',
+                '%s*.%s' % (self.temp_prefix, self.frame_format)] + self.output_args
+
+
 class Animation(object):
     '''
     This class wraps the creation of an animation using matplotlib. It is
@@ -512,7 +532,7 @@ class Animation(object):
         self.event_source = None
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
-            bitrate=None, extra_args=None, metadata=None, extra_anim=None):
+             bitrate=None, extra_args=None, metadata=None, extra_anim=None):
         '''
         Saves a movie file by drawing every frame.
 
