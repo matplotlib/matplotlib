@@ -323,7 +323,8 @@ validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
                                            ['xelatex', 'lualatex', 'pdflatex'])
 
 validate_movie_writer = ValidateInStrings('animation.writer',
-    ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file', 'imagemagick_file'])
+    ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file',
+     'imagemagick', 'imagemagick_file'])
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
