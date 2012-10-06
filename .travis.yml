@@ -7,8 +7,10 @@ python:
   - 3.2
 
 install:
-  - pip install --use-mirrors nose numpy
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.'* ]]; then pip install --use-mirrors PIL; fi
+  - pip install -q --use-mirrors nose numpy
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.'* ]]; then
+        pip install -q --use-mirrors PIL;
+    fi
   - python setup.py install
 
 script:
