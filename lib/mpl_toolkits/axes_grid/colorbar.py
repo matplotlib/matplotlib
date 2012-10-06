@@ -144,6 +144,19 @@ For more precise control, you can manually specify the positions of
 the axes objects in which the mappable and the colorbar are drawn.  In
 this case, do not use any of the axes properties kwargs.
 
+It is known that some vector graphics viewer (svg and pdf) renders white gaps
+between segments of the colorbar. This is due to bugs in the viewers not
+matplotlib. As a workaround the colorbar can be rendered with overlapping
+segments::
+
+    cbar = colorbar()
+    cbar.solids.set_edgecolor("face")
+    draw()
+
+However this has negative consequences in other circumstances. Particularly with
+semi transparent images (alpha < 1) and colorbar extensions and is not enabled
+by default see (issue #1188).
+
 returns:
     :class:`~matplotlib.colorbar.Colorbar` instance; see also its base class,
     :class:`~matplotlib.colorbar.ColorbarBase`.  Call the

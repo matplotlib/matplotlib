@@ -1621,7 +1621,7 @@ class Axes(martist.Artist):
         if not label:
             container.set_label('_container%d'%len(self.containers))
         self.containers.append(container)
-        container.set_remove_method(lambda h: self.containers.remove(container))
+        container.set_remove_method(lambda h: self.containers.remove(h))
         return container
 
 
@@ -7413,10 +7413,12 @@ class Axes(martist.Artist):
             'gouraud', each quad will be Gouraud shaded.  When gouraud
             shading, edgecolors is ignored.
 
-          *edgecolors*: [ *None* | ``'None'`` | color | color sequence]
+          *edgecolors*: [ *None* | ``'None'`` | ``'face'`` | color | color sequence]
             If *None*, the rc setting is used by default.
 
             If ``'None'``, edges will not be visible.
+
+            If ``'face'``, edges will have the same color as the faces. 
 
             An mpl color or sequence of colors will set the edge color
 
