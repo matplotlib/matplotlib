@@ -456,18 +456,33 @@ class ImageMagickBase:
     args_key = 'animation.convert_args'
 
     @property
+    def delay(self):
+        return 100. / self.fps
+
+    @property
     def output_args(self):
         return [self.outfile]
 
 
+@writers.register('imagemagick')
+class ImageMagickWriter(MovieWriter, ImageMagickBase):
+    def _args(self):
+        return ([self.bin_path(),
+                 '-size', '%ix%i' % self.frame_size, '-depth', '8',
+                 '-delay', str(self.delay), '-loop', '0',
+                 '%s:-' % self.frame_format]
+                + self.output_args)
+
+
 @writers.register('imagemagick_file')
 class ImageMagickFileWriter(FileMovieWriter, ImageMagickBase):
-    supported_formats = ['png']
+    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
+                         'pbm', 'raw', 'rgba']
 
     def _args(self):
-        delay = 100. / self.fps
-        return [self.bin_path(), '-delay', str(delay), '-loop', '0',
-                '%s*.%s' % (self.temp_prefix, self.frame_format)] + self.output_args
+        return ([self.bin_path(), '-delay', str(self.delay), '-loop', '0',
+                 '%s*.%s' % (self.temp_prefix, self.frame_format)]
+                + self.output_args)
 
 
 class Animation(object):
