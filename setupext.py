@@ -106,6 +106,7 @@ numpy_inc_dirs = []
 options = {'display_status': True,
            'verbose': False,
            'provide_pytz': 'auto',
+           'provide_pyparsing': 'auto',
            'provide_dateutil': 'auto',
            'provide_six': 'auto',
            'build_agg': True,
@@ -139,6 +140,10 @@ if os.path.exists(setup_cfg):
 
     try: options['provide_pytz'] = config.getboolean("provide_packages", "pytz")
     except: options['provide_pytz'] = 'auto'
+
+    try: options['provide_pyparsing'] = config.getboolean("provide_packages",
+                                                          "pyparsing")
+    except: options['provide_pyparsing'] = 'auto'
 
     try: options['provide_dateutil'] = config.getboolean("provide_packages",
                                                          "dateutil")
@@ -455,6 +460,31 @@ def check_provide_pytz():
             return True
         else:
             print_status("pytz", pytz.__version__)
+            return False
+
+def check_provide_pyparsing():
+    if options['provide_pyparsing'] is True:
+        print_status("pyparsing", "matplotlib will provide")
+        return True
+    try:
+        import pyparsing
+    except ImportError:
+        if options['provide_pyparsing']:
+            print_status("pyparsing", "matplotlib will provide")
+            return True
+        else:
+            print_status("pyparsing", "no")
+            return False
+    else:
+        try:
+            if pyparsing.__version__.endswith('mpl'):
+                print_status("pyparsing", "matplotlib will provide")
+                return True
+            else:
+                print_status("pyparsing", pyparsing.__version__)
+                return False
+        except AttributeError:
+            print_status("pyparsing", "present, version unknown")
             return False
 
 def check_provide_dateutil():

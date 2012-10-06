@@ -192,6 +192,7 @@ print_raw("OPTIONAL DATE/TIMEZONE DEPENDENCIES")
 
 provide_dateutil = check_provide_dateutil()
 provide_pytz = check_provide_pytz()
+provide_pyparsing = check_provide_pyparsing()
 provide_six = check_provide_six()
 
 def add_pytz():
@@ -220,6 +221,13 @@ def add_dateutil():
     else:
         package_dir['dateutil'] = 'lib/dateutil_py2'
 
+def add_pyparsing():
+    packages.append('pyparsing')
+    if sys.version_info[0] >= 3:
+        package_dir['pyparsing'] = 'lib/pyparsing_py3'
+    else:
+        package_dir['pyparsing'] = 'lib/pyparsing_py2'
+
 def add_six():
     py_modules.append('six')
 
@@ -227,6 +235,7 @@ if sys.platform=='win32':
     # always add these to the win32 installer
     add_pytz()
     add_dateutil()
+    add_pyparsing()
     add_six()
 else:
     # only add them if we need them
@@ -235,6 +244,8 @@ else:
         print_raw("adding pytz")
     if provide_dateutil:
         add_dateutil()
+    if provide_pyparsing:
+        add_pyparsing()
     if provide_six:
         add_six()
 
@@ -267,6 +278,7 @@ if sys.version_info[0] >= 3:
         if ('py3' in file or
             file.startswith('pytz') or
             file.startswith('dateutil') or
+            file.startswith('pyparsing') or
             file.startswith('six')):
             return False
         return True
