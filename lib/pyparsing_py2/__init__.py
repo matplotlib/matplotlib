@@ -82,4 +82,4 @@ __all__ = [
 'indentedBlock', 'originalTextFor',
 ]
 
-from pyparsing import *
+from .pyparsing import *
