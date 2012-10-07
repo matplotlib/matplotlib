@@ -1083,6 +1083,7 @@ default_test_modules = [
     'matplotlib.tests.test_tightlayout',
     'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_transforms',
+    'matplotlib.tests.test_arrow_patches',
     ]
 
 
