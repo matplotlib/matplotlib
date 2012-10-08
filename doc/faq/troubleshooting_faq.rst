@@ -65,9 +65,11 @@ environment variable -- see
 Report a problem
 ================
 
-If you are having a problem with matplotlib, search the mailing
-lists first: there's a good chance someone else has already run into
-your problem.
+If you are having a problem with matplotlib, search the `mailing lists
+<http://sourceforge.net/search/?group_id=80706&type_of_search=mlists>`_
+and `github issues <https://github.com/matplotlib/matplotlib/issues>`_
+first: there's a good chance someone else has already run into your
+problem.
 
 If not, please provide the following information in your e-mail to the
 `mailing list
