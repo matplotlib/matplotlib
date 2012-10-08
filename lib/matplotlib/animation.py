@@ -26,8 +26,6 @@ from matplotlib import verbose
 from matplotlib import rcParams
 
 # Other potential writing methods:
-# * ImageMagick convert: convert -set delay 3 -colorspace GRAY -colors 16
-#   -dispose 1 -loop 0 -scale 50% *.png Output.gif
 # * http://pymedia.org/
 # * libmng (produces swf) python wrappers: https://github.com/libming/libming
 # * Wrap x264 API:
