@@ -944,10 +944,10 @@ class rc_context(object):
     This allows one to do::
 
     >>> with mpl.rc_context(fname='screen.rc'):
-    >>>     plt.plot(x, a)
-    >>>     with mpl.rc_context(fname='print.rc'):
-    >>>         plt.plot(x, b)
-    >>>     plt.plot(x, c)
+    ...     plt.plot(x, a)
+    ...     with mpl.rc_context(fname='print.rc'):
+    ...         plt.plot(x, b)
+    ...     plt.plot(x, c)
 
     The 'a' vs 'x' and 'c' vs 'x' plots would have settings from
     'screen.rc', while the 'b' vs 'x' plot would have settings from
@@ -956,7 +956,7 @@ class rc_context(object):
     A dictionary can also be passed to the context manager::
 
     >>> with mpl.rc_context(rc={'text.usetex': True}, fname='screen.rc'):
-    >>>     plt.plot(x, a)
+    ...     plt.plot(x, a)
 
     The 'rc' dictionary takes precedence over the settings loaded from
     'fname'.  Passing a dictionary only is also valid.

@@ -1197,7 +1197,7 @@ def setp(obj, *args, **kwargs):
     with python kwargs.  For example, the following are equivalent::
 
       >>> setp(lines, 'linewidth', 2, 'color', r')  # MATLAB style
-
+          ...
       >>> setp(lines, linewidth=2, color='r')       # python style
     """
 

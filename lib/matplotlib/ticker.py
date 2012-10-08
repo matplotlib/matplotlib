@@ -808,13 +808,13 @@ class EngFormatter(Formatter):
         """ Formats a number in engineering notation, appending a letter
         representing the power of 1000 of the original number. Some examples:
 
-        >>> format_eng(0)       for self.places = 0
+        >>> format_eng(0)       # for self.places = 0
         '0'
 
-        >>> format_eng(1000000) for self.places = 1
+        >>> format_eng(1000000) # for self.places = 1
         '1.0 M'
 
-        >>> format_eng("-1e-6") for self.places = 2
+        >>> format_eng("-1e-6") # for self.places = 2
         u'-1.00 \u03bc'
 
         @param num: the value to represent
