@@ -16,6 +16,15 @@
 # Uncomment to insert lots of diagnostic prints in extension code
 #verbose = True
 
+[packages]
+# There are a number of subpackages of matplotlib that are considered
+# optional.  They are all installed by default, but they may be turned
+# off here.
+#
+#tests = False
+#sample_data = False
+#toolkits = False
+
 [provide_packages]
 # By default, matplotlib checks for a few dependencies and
 # installs them if missing. This feature can be turned off
@@ -59,6 +68,7 @@
 #gtkagg = False
 #tkagg = False
 #macosx = False
+#windowing = False
 
 [rc_options]
 # User-configurable options

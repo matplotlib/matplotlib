@@ -6,6 +6,7 @@
 /* Python API mandates Python.h is included *first* */
 #include "Python.h"
 
+/* TODO: Remove this dependency */
 #include "ft2font.h"
 #include "_image.h"
 #include "_backend_agg.h"
