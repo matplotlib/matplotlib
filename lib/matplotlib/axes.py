@@ -6852,6 +6852,11 @@ class Axes(martist.Artist):
                                          updatex=False, updatey=True)
         self.add_collection(collection)
         self.autoscale_view()
+
+        # Add proxy artist for label support
+        proxy = mpatches.Rectangle((0,0),0,0, **kwargs)
+        self.add_patch(proxy)
+        
         return collection
 
     @docstring.dedent_interpd
@@ -6960,6 +6965,11 @@ class Axes(martist.Artist):
                                          updatex=False, updatey=True)
         self.add_collection(collection)
         self.autoscale_view()
+
+        # Add proxy artist for label support
+        proxy = mpatches.Rectangle((0,0),0,0, **kwargs)
+        self.add_patch(proxy)        
+
         return collection
 
     #### plotting z(x,y): imshow, pcolor and relatives, contour
