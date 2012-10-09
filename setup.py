@@ -148,7 +148,7 @@ for package in good_packages:
     data = package.get_package_data()
     for key, val in data.items():
         package_data.setdefault(key, [])
-        package_data[key].extend(val)
+        package_data[key] = list(set(val + package_data[key]))
 
 # Write the default matplotlibrc file
 if default_backend is None:

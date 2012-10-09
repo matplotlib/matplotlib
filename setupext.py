@@ -24,7 +24,47 @@ else:
     import configparser
 
 
+# matplotlib build options, which can be altered using setup.cfg
+options = {
+    'display_status': True,
+    'verbose': False,
+    'backend': None,
+    'basedirlist': None
+    }
+
+
+setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
+if os.path.exists(setup_cfg):
+    config = configparser.SafeConfigParser()
+    config.read(setup_cfg)
+
+    try:
+        options['display_status'] = not config.getboolean("status", "suppress")
+    except:
+        pass
+
+    try:
+        options['verbose'] = not config.getboolean("status", "verbose")
+    except:
+        pass
+
+    try:
+        options['backend'] = config.get("rc_options", "backend")
+    except:
+        pass
+
+    try:
+        options['basedirlist'] = config.get("directories", "basedirlist")
+    except:
+        pass
+else:
+    config = None
+
+
 def get_win32_compiler():
+    """
+    Determine the compiler being used on win32.
+    """
     # Used to determine mingw32 or msvc
     # This is pretty bad logic, someone know a better way?
     for v in sys.argv:
@@ -107,42 +147,7 @@ def is_min_version(found, minversion):
     return found_version >= expected_version
 
 
-# matplotlib build options, which can be altered using setup.cfg
-options = {
-    'display_status': True,
-    'verbose': False,
-    'backend': None,
-    'basedirlist': None
-    }
-
-setup_cfg = os.environ.get('MPLSETUPCFG', 'setup.cfg')
-if os.path.exists(setup_cfg):
-    config = configparser.SafeConfigParser()
-    config.read(setup_cfg)
-
-    try:
-        options['display_status'] = not config.getboolean("status", "suppress")
-    except:
-        pass
-
-    try:
-        options['verbose'] = not config.getboolean("status", "verbose")
-    except:
-        pass
-
-    try:
-        options['backend'] = config.get("rc_options", "backend")
-    except:
-        pass
-
-    try:
-        options['basedirlist'] = config.get("directories", "basedirlist")
-    except:
-        pass
-else:
-    config = None
-
-
+# Define the display functions only if display_status is True.
 if options['display_status']:
     def print_line(char='='):
         print(char * 76)
@@ -189,7 +194,7 @@ def make_extension(name, files, *args, **kwargs):
 
     `name` is the name of the extension.
 
-    `files` is a list of source files
+    `files` is a list of source files.
 
     Any additional arguments are passed to the
     `distutils.core.Extension` constructor.
@@ -213,6 +218,9 @@ class PkgConfig(object):
     This is a class for communicating with pkg-config.
     """
     def __init__(self):
+        """
+        Determines whether pkg-config exists on this machine.
+        """
         if sys.platform == 'win32':
             self.has_pkgconfig = False
         else:
@@ -236,6 +244,9 @@ class PkgConfig(object):
 
     def setup_extension(self, ext, package, default_include_dirs=[],
                         default_library_dirs=[], default_libraries=[]):
+        """
+        Add parameters to the given `ext` for the given `package`.
+        """
         flag_map = {
             '-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
         command = "pkg-config --libs --cflags {0}".format(package)
@@ -271,6 +282,9 @@ class PkgConfig(object):
         return False
 
     def get_version(self, package):
+        """
+        Get the version of the package from pkg-config.
+        """
         if not self.has_pkgconfig:
             return None
 
@@ -437,9 +451,6 @@ class Python(SetupPackage):
 
 
 class Matplotlib(SetupPackage):
-    """
-    This package handles the base requirements of matplotlib.
-    """
     name = "matplotlib"
 
     def check(self):
@@ -472,15 +483,13 @@ class Matplotlib(SetupPackage):
                 'mpl-data/fonts/ttf/COPYRIGHT.TXT',
                 'mpl-data/fonts/ttf/README.TXT',
                 'mpl-data/fonts/ttf/RELEASENOTES.TXT',
-                'mpl-data/images/*.xpm',  # TODO: Only with GUIs
+                'mpl-data/images/*.xpm',
                 'mpl-data/images/*.svg',
                 'mpl-data/images/*.gif',
                 'mpl-data/images/*.png',
                 'mpl-data/images/*.ppm',
                 'mpl-data/example/*.npy',
                 'mpl-data/matplotlibrc',
-                'mpl-data/*.glade',  # TODO: Only with gtk backend
-                'backends/Matplotlib.nib/*',  # TODO: Only with macosx backend
                 'backends/web_backend/*.*',
                 'backends/web_backend/jquery/js/*',
                 'backends/web_backend/jquery/css/themes/base/*.*',
@@ -506,10 +515,6 @@ class SampleData(OptionalPackage):
 
 
 class Toolkits(OptionalPackage):
-    """
-    This package handles the optional toolkits that ship with
-    matplotlib.
-    """
     name = "toolkits"
 
     def get_packages(self):
@@ -523,9 +528,6 @@ class Toolkits(OptionalPackage):
 
 
 class Tests(OptionalPackage):
-    """
-    This package contains the regression tests and data.
-    """
     name = "tests"
 
     def check(self):
@@ -565,10 +567,6 @@ class Tests(OptionalPackage):
 
 
 class Numpy(SetupPackage):
-    """
-    Checks for the existence of Numpy.
-    """
-
     name = "numpy"
 
     def check(self):
@@ -603,13 +601,7 @@ class Numpy(SetupPackage):
 
 
 class CXX(SetupPackage):
-    """
-    This package handles PyCXX.
-    """
     name = 'pycxx'
-
-    # TODO: Investigate what patches need to be added to PyCXX to get
-    # a minimum version
 
     def check(self):
         try:
@@ -664,9 +656,6 @@ class LibAgg(SetupPackage):
 
 
 class FreeType(SetupPackage):
-    """
-    Handles the Freetype dependency.
-    """
     name = "freetype"
 
     def check(self):
@@ -692,9 +681,6 @@ class FreeType(SetupPackage):
 
 
 class FT2Font(SetupPackage):
-    """
-    Handles the ft2font extension.
-    """
     name = 'ft2font'
 
     def get_extension(self):
@@ -710,16 +696,12 @@ class FT2Font(SetupPackage):
 
 
 class Png(SetupPackage):
-    """
-    Handles the png extension.
-    """
     name = "png"
 
     def check(self):
         return self._check_for_pkg_config(
             'libpng', 'png.h',
-            # TODO: Determine minimum version
-            min_version='1.4')
+            min_version='1.2')
 
     def get_extension(self):
         sources = [
@@ -734,9 +716,6 @@ class Png(SetupPackage):
 
 
 class TTConv(SetupPackage):
-    """
-    Builds the ttconv extension.
-    """
     name = "ttconv"
 
     def get_extension(self):
@@ -753,9 +732,6 @@ class TTConv(SetupPackage):
 
 
 class Path(SetupPackage):
-    """
-    Builds the Path extension.
-    """
     name = "path"
 
     def get_extension(self):
@@ -773,9 +749,6 @@ class Path(SetupPackage):
 
 
 class Image(SetupPackage):
-    """
-    Builds the Image extension.
-    """
     name = "image"
 
     def get_extension(self):
@@ -790,9 +763,6 @@ class Image(SetupPackage):
 
 
 class Contour(SetupPackage):
-    """
-    Builds the contour extension.
-    """
     name = "contour"
 
     def get_extension(self):
@@ -805,9 +775,6 @@ class Contour(SetupPackage):
 
 
 class Delaunay(SetupPackage):
-    """
-    Builds the delaunay extension.
-    """
     name = "delaunay"
 
     def get_packages(self):
@@ -823,9 +790,6 @@ class Delaunay(SetupPackage):
 
 
 class Tri(SetupPackage):
-    """
-    Builds the tri extension.
-    """
     name = "tri"
 
     def get_extension(self):
@@ -840,9 +804,6 @@ class Tri(SetupPackage):
 
 
 class BackendAgg(OptionalBackendPackage):
-    """
-    Builds the Agg backend.
-    """
     name = "agg"
     force = False
 
@@ -1161,9 +1122,6 @@ class BackendTkAgg(OptionalBackendPackage):
 
 
 class BackendGtk(OptionalBackendPackage):
-    """
-    Handles the Gtk (regular Gdk) backend.
-    """
     name = "gtk"
 
     def check(self):
@@ -1195,6 +1153,9 @@ class BackendGtk(OptionalBackendPackage):
         return 'Gtk: %s pygtk: %s' % (
             ".".join(str(x) for x in gtk.gtk_version),
             ".".join(str(x) for x in gtk.pygtk_version))
+
+    def get_package_data(self):
+        return {'matplotlib': ['mpl-data/*.glade']}
 
     def get_extension(self):
         sources = [
@@ -1267,9 +1228,6 @@ class BackendGtk(OptionalBackendPackage):
 
 
 class BackendGtkAgg(BackendGtk):
-    """
-    Builds the GtkAgg extension.
-    """
     name = "gtkagg"
 
     def check(self):
@@ -1279,6 +1237,9 @@ class BackendGtkAgg(BackendGtk):
             raise
         else:
             BackendAgg.force = True
+
+    def get_package_data(self):
+        return {'matplotlib': ['mpl-data/*.glade']}
 
     def get_extension(self):
         sources = [
@@ -1308,9 +1269,6 @@ def backend_gtk3agg_internal_check(x):
 
 
 class BackendGtk3Agg(OptionalBackendPackage):
-    """
-    Builds the Gtk3Agg extension.
-    """
     name = "gtk3agg"
 
     def check(self):
@@ -1327,6 +1285,9 @@ class BackendGtk3Agg(OptionalBackendPackage):
             return msg
         else:
             raise CheckFailed(msg)
+
+    def get_package_data(self):
+        return {'matplotlib': ['mpl-data/*.glade']}
 
 
 def backend_gtk3cairo_internal_check(x):
@@ -1347,9 +1308,6 @@ def backend_gtk3cairo_internal_check(x):
 
 
 class BackendGtk3Cairo(OptionalBackendPackage):
-    """
-    Builds the Gtk3Cairo extension.
-    """
     name = "gtk3cairo"
 
     def check(self):
@@ -1367,11 +1325,11 @@ class BackendGtk3Cairo(OptionalBackendPackage):
         else:
             raise CheckFailed(msg)
 
+    def get_package_data(self):
+        return {'matplotlib': ['mpl-data/*.glade']}
+
 
 class BackendWxAgg(OptionalBackendPackage):
-    """
-    Builds the WxAgg extension.
-    """
     name = "wxagg"
 
     def check(self):
@@ -1410,9 +1368,6 @@ class BackendWxAgg(OptionalBackendPackage):
 
 
 class BackendMacOSX(OptionalBackendPackage):
-    """
-    Builds the OSX backend
-    """
     name = 'macosx'
 
     def check(self):
@@ -1421,6 +1376,9 @@ class BackendMacOSX(OptionalBackendPackage):
 
         if sys.platform != 'darwin':
             raise CheckFailed("Mac OS-X only")
+
+    def get_package_data(self):
+        return {'matplotlib': ['backends/Matplotlib.nib/*']}
 
     def get_extension(self):
         sources = [
@@ -1463,9 +1421,6 @@ class Windowing(OptionalBackendPackage):
 
 
 class BackendQt(OptionalBackendPackage):
-    """
-    Provides information about the installed PyQt.
-    """
     name = "qtagg"
 
     def convert_qt_version(self, version):
@@ -1496,9 +1451,6 @@ class BackendQt(OptionalBackendPackage):
 
 
 class BackendQt4(OptionalBackendPackage):
-    """
-    Provides information about the installed PyQt4.
-    """
     name = "qt4agg"
 
     def convert_qt_version(self, version):
@@ -1525,9 +1477,6 @@ class BackendQt4(OptionalBackendPackage):
 
 
 class BackendPySide(OptionalBackendPackage):
-    """
-    Provides information about the installed PySide.
-    """
     name = "pyside"
 
     def check(self):
@@ -1544,9 +1493,6 @@ class BackendPySide(OptionalBackendPackage):
 
 
 class BackendCairo(OptionalBackendPackage):
-    """
-    Provides information about the installed pycairo.
-    """
     name = "cairo"
 
     def check(self):
@@ -1559,10 +1505,8 @@ class BackendCairo(OptionalBackendPackage):
 
 
 class DviPng(SetupPackage):
-    """
-    A simple check for the presence of dvipng.
-    """
     name = "dvipng"
+    optional = True
 
     def check(self):
         try:
@@ -1573,10 +1517,8 @@ class DviPng(SetupPackage):
 
 
 class Ghostscript(SetupPackage):
-    """
-    A simple check for the presence of Ghostscript.
-    """
     name = "ghostscript"
+    optional = True
 
     def check(self):
         try:
@@ -1591,10 +1533,8 @@ class Ghostscript(SetupPackage):
 
 
 class LaTeX(SetupPackage):
-    """
-    A simple check for the presence of LaTeX.
-    """
     name = "latex"
+    optional = True
 
     def check(self):
         try:
@@ -1608,10 +1548,8 @@ class LaTeX(SetupPackage):
 
 
 class PdfToPs(SetupPackage):
-    """
-    A simple check for the presence of pdftops.
-    """
     name = "pdftops"
+    optional = True
 
     def check(self):
         try:
