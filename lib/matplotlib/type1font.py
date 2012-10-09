@@ -149,8 +149,8 @@ class Type1Font(object):
         """
         pos = 0
         while pos < len(text):
-            match = cls._comment.match(text[pos:]) or \
-                    cls._whitespace.match(text[pos:])
+            match = (cls._comment.match(text[pos:]) or
+                     cls._whitespace.match(text[pos:]))
             if match:
                 yield ('whitespace', match.group())
                 pos += match.end()
