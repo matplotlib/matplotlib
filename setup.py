@@ -203,6 +203,9 @@ distrib = setup(name="matplotlib",
       package_data=package_data,
       classifiers=classifiers,
 
+      # List third-party Python packages that we require
+      install_requires=['dateutils', 'pyparsing'],
+
       # Automatically 2to3 source on Python 3.x
       use_2to3=True,
 

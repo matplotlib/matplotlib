@@ -21,12 +21,8 @@ information.
 
 from __future__ import print_function
 import re, sys
-if sys.version_info[0] >= 3:
-    from matplotlib.pyparsing_py3 import Literal, ZeroOrMore, \
-         Optional, Regex, StringEnd, ParseException, Suppress
-else:
-    from matplotlib.pyparsing_py2 import Literal, ZeroOrMore, \
-         Optional, Regex, StringEnd, ParseException, Suppress
+from pyparsing import Literal, ZeroOrMore, \
+     Optional, Regex, StringEnd, ParseException, Suppress
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub

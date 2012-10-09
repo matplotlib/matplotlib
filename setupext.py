@@ -618,7 +618,7 @@ class CXX(SetupPackage):
         except CheckFailed as e:
             self.__class__.found_external = False
             return str(e) + ' Using local copy.'
-        finally:
+        else:
             self.__class__.found_external = True
 
     def add_flags(self, ext):
@@ -723,13 +723,14 @@ class Png(SetupPackage):
 
     def get_extension(self):
         sources = [
-            'src/_png.cpp'
+            'src/_png.cpp', 'src/mplutils.cpp'
             ]
         ext = make_extension('matplotlib._png', sources)
         pkg_config.setup_extension(
             ext, 'libpng', default_libraries=['png', 'z'])
         Numpy().add_flags(ext)
         CXX().add_flags(ext)
+        return ext
 
 
 class TTConv(SetupPackage):
