@@ -14,6 +14,9 @@ For new features that were added to matplotlib, please see
 Changes in 1.2.x
 ================
 
+* The :meth:`~matplotlib.cbook.isvector` method has been removed since it
+  is no longer functional.
+
 * The `rasterization_zorder` property on `~matplotlib.axes.Axes` a
   zorder below which artists are rasterized.  This has defaulted to
   -30000.0, but it now defaults to `None`, meaning no artists will be
