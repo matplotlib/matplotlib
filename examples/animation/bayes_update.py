@@ -44,3 +44,4 @@ ax = fig.add_subplot(1, 1, 1)
 ud = UpdateDist(ax, prob=0.7)
 anim = FuncAnimation(fig, ud, frames=np.arange(100), init_func=ud.init,
         interval=100, blit=True)
+plt.show()
