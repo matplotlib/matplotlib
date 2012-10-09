@@ -205,7 +205,8 @@ class _BoundMethodProxy(object):
         if self.inst is not None and self.inst() is None:
             raise ReferenceError
         elif self.inst is not None:
-            # build a new instance method with a strong reference to the instance
+            # build a new instance method with a strong reference to the
+            # instance
             if sys.version_info[0] >= 3:
                 mtd = types.MethodType(self.func, self.inst())
             else:
@@ -458,7 +459,9 @@ class Bunch:
 
     def __repr__(self):
         keys = self.__dict__.iterkeys()
-        return 'Bunch(%s)' % ', '.join(['%s=%s' % (k, self.__dict__[k]) for k in keys])
+        return 'Bunch(%s)' % ', '.join(['%s=%s' % (k, self.__dict__[k])
+                                        for k
+                                        in keys])
 
 
 def unique(x):
@@ -1507,7 +1510,8 @@ def simple_linear_interpolation(a, steps):
 
 def recursive_remove(path):
     if os.path.isdir(path):
-        for fname in glob.glob(os.path.join(path, '*')) + glob.glob(os.path.join(path, '.*')):
+        for fname in glob.glob(os.path.join(path, '*')) + \
+                     glob.glob(os.path.join(path, '.*')):
             if os.path.isdir(fname):
                 recursive_remove(fname)
                 os.removedirs(fname)
@@ -1661,7 +1665,9 @@ def less_simple_linear_interpolation(x, y, xi, extrap=False):
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('less_simple_linear_interpolation has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('less_simple_linear_interpolation has been moved to '
+                  'matplotlib.mlab -- please import it from there',
+                  DeprecationWarning)
     import matplotlib.mlab as mlab
     return mlab.less_simple_linear_interpolation(x, y, xi, extrap=extrap)
 
@@ -1672,20 +1678,22 @@ def isvector(X):
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('isvector has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('isvector has been moved to matplotlib.mlab -- please '
+                  'import it from there', DeprecationWarning)
     import matplotlib.mlab as mlab
     return mlab.isvector(x, y, xi, extrap=extrap)
 
 
-def vector_lengths(X, P=2., axis=None):
+def vector_lengths(X, P=2.0, axis=None):
     """
     This function has been moved to matplotlib.mlab -- please import
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('vector_lengths has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('vector_lengths has been moved to matplotlib.mlab -- '
+                  'please import it from there', DeprecationWarning)
     import matplotlib.mlab as mlab
-    return mlab.vector_lengths(X, P=2., axis=axis)
+    return mlab.vector_lengths(X, P=2.0, axis=axis)
 
 
 def distances_along_curve(X):
@@ -1694,7 +1702,8 @@ def distances_along_curve(X):
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('distances_along_curve has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('distances_along_curve has been moved to matplotlib.mlab '
+                  '-- please import it from there', DeprecationWarning)
     import matplotlib.mlab as mlab
     return mlab.distances_along_curve(X)
 
@@ -1705,7 +1714,8 @@ def path_length(X):
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('path_length has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('path_length has been moved to matplotlib.mlab '
+                  '-- please import it from there', DeprecationWarning)
     import matplotlib.mlab as mlab
     return mlab.path_length(X)
 
@@ -1716,7 +1726,8 @@ def is_closed_polygon(X):
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('is_closed_polygon has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('is_closed_polygon has been moved to matplotlib.mlab '
+                  '-- please import it from there', DeprecationWarning)
     import matplotlib.mlab as mlab
     return mlab.is_closed_polygon(X)
 
@@ -1727,7 +1738,8 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('quad2cubic has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('quad2cubic has been moved to matplotlib.mlab -- please '
+                  'import it from there', DeprecationWarning)
     import matplotlib.mlab as mlab
     return mlab.quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y)
 
@@ -1763,7 +1775,8 @@ def align_iterators(func, *iterables):
                 raise ValueError("Iterator has been left behind")
             return retval
 
-    # This can be made more efficient by not computing the minimum key for each iteration
+    # This can be made more efficient by not computing the minimum key for each
+    # iteration
     iters = [myiter(it) for it in iterables]
     minvals = minkey = True
     while 1:
@@ -1782,7 +1795,8 @@ def is_math_text(s):
         s = unicode(s)
     except UnicodeDecodeError:
         raise ValueError(
-            "matplotlib display text must have all code points < 128 or use Unicode strings")
+            "matplotlib display text must have all code points < 128 or use "
+            "Unicode strings")
 
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
