@@ -953,7 +953,7 @@ class LogNorm(Normalize):
         else:
             if clip:
                 mask = ma.getmask(result)
-                val = ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                 mask=mask)
             # in-place equivalent of above can be much faster
             resdat = result.data
