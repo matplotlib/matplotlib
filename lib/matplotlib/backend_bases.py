@@ -224,7 +224,7 @@ class RendererBase:
                 antialiaseds, urls, offset_position):
             path, transform = path_id
             transform = transforms.Affine2D(
-                transform.get_matrix()).translate(xo, yo)
+                            transform.get_matrix()).translate(xo, yo)
             self.draw_path(gc0, path, transform, rgbFace)
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
@@ -369,8 +369,8 @@ class RendererBase:
                 xo, yo = toffsets[i % Noffsets]
                 if offset_position == 'data':
                     if Ntransforms:
-                        transform = all_transforms[
-                            i % Ntransforms] + master_transform
+                        transform = (all_transforms[i % Ntransforms] +
+                                     master_transform)
                     else:
                         transform = master_transform
                     xo, yo = transform.transform_point((xo, yo))
@@ -505,11 +505,11 @@ class RendererBase:
         fontsize = self.points_to_pixels(prop.get_size_in_points())
 
         if ismath == "TeX":
-            verts, codes = text2path.get_text_path(
-                prop, s, ismath=False, usetex=True)
+            verts, codes = text2path.get_text_path(prop, s, ismath=False,
+                                                   usetex=True)
         else:
-            verts, codes = text2path.get_text_path(
-                prop, s, ismath=ismath, usetex=False)
+            verts, codes = text2path.get_text_path(prop, s, ismath=ismath,
+                                                   usetex=False)
 
         path = Path(verts, codes)
         angle = angle / 180. * 3.141592
@@ -1274,8 +1274,8 @@ class LocationEvent(Event):
             self.inaxes = axes_list[0]
 
         try:
-            xdata, ydata = self.inaxes.transData.inverted().transform_point(
-                                                                        (x, y))
+            trans = self.inaxes.transData.inverted()
+            xdata, ydata = trans.transform_point((x, y))
         except ValueError:
             self.xdata = None
             self.ydata = None
@@ -3065,10 +3065,10 @@ class NavigationToolbar2(object):
             self.mode = ''
 
         if self._active:
-            self._idPress = self.canvas.mpl_connect(
-                'button_press_event', self.press_zoom)
-            self._idRelease = self.canvas.mpl_connect(
-                'button_release_event', self.release_zoom)
+            self._idPress = self.canvas.mpl_connect('button_press_event',
+                                                    self.press_zoom)
+            self._idRelease = self.canvas.mpl_connect('button_release_event',
+                                                      self.release_zoom)
             self.mode = 'zoom rect'
             self.canvas.widgetlock(self)
         else:
