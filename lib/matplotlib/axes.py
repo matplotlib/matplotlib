@@ -7142,6 +7142,10 @@ class Axes(martist.Artist):
         """
         Create a pseudocolor plot of a 2-D array.
 
+        Note: pcolor can be very slow for large arrays; consider
+        using the similar but much faster
+        :func:`~matplotlib.pyplot.pcolormesh` instead.
+
         Call signatures::
 
           pcolor(C, **kwargs)
@@ -7272,6 +7276,11 @@ class Axes(martist.Artist):
         Stroking the edges may be preferred if *alpha* is 1, but
         will cause artifacts otherwise.
 
+        .. seealso::
+
+            :func:`~matplotlib.pyplot.pcolormesh`
+                For an explanation of the differences between
+                pcolor and pcolormesh.
         """
 
         if not self._hold: self.cla()
@@ -7498,23 +7507,25 @@ class Axes(martist.Artist):
         """
         pseudocolor plot of a 2-D array
 
-        Experimental; this is a version of pcolor that
-        does not draw lines, that provides the fastest
-        possible rendering with the Agg backend, and that
-        can handle any quadrilateral grid.
+        Experimental; this is a pcolor-type method that
+        provides the fastest possible rendering with the Agg
+        backend, and that can handle any quadrilateral grid.
+        It supports only flat shading (no outlines), it lacks
+        support for log scaling of the axes, and it does not
+        have a pyplot wrapper.
 
         Call signatures::
 
-          pcolor(C, **kwargs)
-          pcolor(xr, yr, C, **kwargs)
-          pcolor(x, y, C, **kwargs)
-          pcolor(X, Y, C, **kwargs)
+          ax.pcolorfast(C, **kwargs)
+          ax.pcolorfast(xr, yr, C, **kwargs)
+          ax.pcolorfast(x, y, C, **kwargs)
+          ax.pcolorfast(X, Y, C, **kwargs)
 
         C is the 2D array of color values corresponding to quadrilateral
         cells. Let (nr, nc) be its shape.  C may be a masked array.
 
-        ``pcolor(C, **kwargs)`` is equivalent to
-        ``pcolor([0,nc], [0,nr], C, **kwargs)``
+        ``ax.pcolorfast(C, **kwargs)`` is equivalent to
+        ``ax.pcolorfast([0,nc], [0,nr], C, **kwargs)``
 
         *xr*, *yr* specify the ranges of *x* and *y* corresponding to the
         rectangular region bounding *C*.  If::
