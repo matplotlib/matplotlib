@@ -699,7 +699,7 @@ class NonUniformImage(AxesImage):
             if A.dtype != np.uint8:
                 A = (255*A).astype(np.uint8)
             if A.shape[2] == 3:
-                B = zeros(tuple(list(A.shape[0:2]) + [4]), np.uint8)
+                B = np.zeros(tuple(list(A.shape[0:2]) + [4]), np.uint8)
                 B[:,:,0:3] = A
                 B[:,:,3] = 255
                 A = B
@@ -1347,7 +1347,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         backend) will be used which will cause a figure to be raised
         if :func:`~matplotlib.pyplot.show` is called.  If it is False,
         a pure image backend will be used depending on the extension,
-        'png'->FigureCanvasAgg, 'pdf'->FigureCanvasPDF,
+        'png'->FigureCanvasAgg, 'pdf'->FigureCanvasPdf,
         'svg'->FigureCanvasSVG
 
 
@@ -1383,7 +1383,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         if extension=='.png':
             from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
         elif extension=='.pdf':
-            from matplotlib.backends.backend_pdf import FigureCanvasPDF as FigureCanvas
+            from matplotlib.backends.backend_pdf import FigureCanvasPdf as FigureCanvas
         elif extension=='.svg':
             from matplotlib.backends.backend_svg import FigureCanvasSVG as FigureCanvas
         else:
