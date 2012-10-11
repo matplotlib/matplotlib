@@ -1672,18 +1672,6 @@ def less_simple_linear_interpolation(x, y, xi, extrap=False):
     return mlab.less_simple_linear_interpolation(x, y, xi, extrap=extrap)
 
 
-def isvector(X):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('isvector has been moved to matplotlib.mlab -- please '
-                  'import it from there', DeprecationWarning)
-    import matplotlib.mlab as mlab
-    return mlab.isvector(x, y, xi, extrap=extrap)
-
-
 def vector_lengths(X, P=2.0, axis=None):
     """
     This function has been moved to matplotlib.mlab -- please import

@@ -1,5 +1,6 @@
 import numpy
 import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import image_comparison
 
 from nose.tools import assert_raises
 
@@ -98,6 +99,17 @@ def test_exceptions():
     # TODO should this test more options?
     assert_raises(ValueError, plt.subplots, 2, 2, sharex='blah')
     assert_raises(ValueError, plt.subplots, 2, 2, sharey='blah')
+
+
+@image_comparison(baseline_images=['subplots_offset_text'], remove_text=False)
+def test_subplots_offsettext():
+    x = numpy.arange(0,1e10,1e9)
+    y = numpy.arange(0,100,10)+1e4
+    fig,axes = plt.subplots(2,2, sharex = 'col', sharey = 'all')
+    axes[0,0].plot(x,x)
+    axes[1,0].plot(x,x)
+    axes[0,1].plot(y,x)
+    axes[1,1].plot(y,x)
 
 
 def test_subplots():
