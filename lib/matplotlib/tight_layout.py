@@ -134,16 +134,17 @@ def auto_adjust_subplotpars(fig, renderer,
 
         if num2 is None:
             # left
-            hspaces[row1 * (cols + 1) + col1].append(_get_left(tight_bbox,
-                                                               ax_bbox))
+            hspaces[row1 * (cols + 1) + col1].append(
+                                        _get_left(tight_bbox, ax_bbox))
             # right
             hspaces[row1 * (cols + 1) + (col1 + 1)].append(
                                         _get_right(tight_bbox, ax_bbox))
             # top
-            vspaces[row1 * cols + col1].append(_get_top(tight_bbox, ax_bbox))
+            vspaces[row1 * cols + col1].append(
+                                        _get_top(tight_bbox, ax_bbox))
             # bottom
-            vspaces[(row1 + 1) * cols + col1].append(_get_bottom(tight_bbox,
-                                                                 ax_bbox))
+            vspaces[(row1 + 1) * cols + col1].append(
+                                        _get_bottom(tight_bbox, ax_bbox))
 
         else:
             row2, col2 = divmod(num2, cols)
@@ -151,14 +152,14 @@ def auto_adjust_subplotpars(fig, renderer,
             for row_i in range(row1, row2 + 1):
                 # left
                 hspaces[row_i * (cols + 1) + col1].append(
-                                            _get_left(tight_bbox, ax_bbox))
+                                    _get_left(tight_bbox, ax_bbox))
                 # right
                 hspaces[row_i * (cols + 1) + (col2 + 1)].append(
                                     _get_right(tight_bbox, ax_bbox))
             for col_i in range(col1, col2 + 1):
                 # top
-                vspaces[row1 * cols + col_i].append(_get_top(tight_bbox,
-                                                             ax_bbox))
+                vspaces[row1 * cols + col_i].append(
+                                    _get_top(tight_bbox, ax_bbox))
                 # bottom
                 vspaces[(row2 + 1) * cols + col_i].append(
                                     _get_bottom(tight_bbox, ax_bbox))
@@ -190,10 +191,8 @@ def auto_adjust_subplotpars(fig, renderer,
                   top=1 - margin_top)
 
     if cols > 1:
-        hspace = max([sum(s)
-                      for i in range(rows)
-                      for s
-                      in hspaces[i * (cols + 1) + 1:(i + 1) * (cols + 1) - 1]])
+        hspace_strip = hspaces[i * (cols + 1) + 1:(i + 1) * (cols + 1) - 1]
+        hspace = max([sum(s) for i in range(rows) for s in hspace_strip])
         hspace += hpad_inches / fig_width_inch
         h_axes = ((1 - margin_right - margin_left) -
                    hspace * (cols - 1)) / cols
