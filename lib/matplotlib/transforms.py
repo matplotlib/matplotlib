@@ -474,10 +474,9 @@ class BboxBase(TransformNode):
         :attr:`y1`.
         """
         y0, y1 = self.intervaly
-        # FIXME x is not define. This method probably doesn't work.
         return ((y0 < y1
-                 and (x > y0 and x < y1))
-                or (x > y1 and x < y0))
+                 and (y > y0 and y < y1))
+                or (y > y1 and y < y0))
 
     def fully_contains(self, x, y):
         """
