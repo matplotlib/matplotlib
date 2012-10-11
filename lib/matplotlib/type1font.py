@@ -35,6 +35,7 @@ if sys.version_info[0] >= 3:
     def ord(x):
         return x
 
+
 class Type1Font(object):
     """
     A class representing a Type-1 font, for use by backends.
@@ -75,13 +76,13 @@ class Type1Font(object):
         data = b''
         while len(rawdata) > 0:
             if not rawdata.startswith(b'\x80'):
-                raise RuntimeError('Broken pfb file (expected byte 128, got %d)' % \
-                    ord(rawdata[0]))
+                raise RuntimeError('Broken pfb file (expected byte 128, '
+                                   'got %d)' % ord(rawdata[0]))
             type = ord(rawdata[1])
-            if type in (1,2):
+            if type in (1, 2):
                 length, = struct.unpack('<i', rawdata[2:6])
-                segment = rawdata[6:6+length]
-                rawdata = rawdata[6+length:]
+                segment = rawdata[6:6 + length]
+                rawdata = rawdata[6 + length:]
 
             if type == 1:       # ASCII text: include verbatim
                 data += segment
@@ -91,7 +92,8 @@ class Type1Font(object):
             elif type == 3:     # end of file
                 break
             else:
-                raise RuntimeError('Unknown segment type %d in pfb file' % type)
+                raise RuntimeError('Unknown segment type %d in pfb file' %
+                                   type)
 
         return data
 
@@ -129,7 +131,7 @@ class Type1Font(object):
         # but if we read a pfa file, this part is already in hex, and
         # I am not quite sure if even the pfb format guarantees that
         # it will be in binary).
-        binary = b''.join([unichr(int(data[i:i+2], 16)).encode('latin-1')
+        binary = b''.join([unichr(int(data[i:i + 2], 16)).encode('latin-1')
                            for i in range(len1, idx, 2)])
 
         return data[:len1], binary, data[idx:]
@@ -138,6 +140,7 @@ class Type1Font(object):
     _token = re.compile(br'/{0,2}[^]\0\t\r\v\n ()<>{}/%[]+')
     _comment = re.compile(br'%[^\r\n\v]*')
     _instring = re.compile(br'[()\\]')
+
     @classmethod
     def _tokens(cls, text):
         """
@@ -146,7 +149,8 @@ class Type1Font(object):
         """
         pos = 0
         while pos < len(text):
-            match = cls._comment.match(text[pos:]) or cls._whitespace.match(text[pos:])
+            match = (cls._comment.match(text[pos:]) or
+                     cls._whitespace.match(text[pos:]))
             if match:
                 yield ('whitespace', match.group())
                 pos += match.end()
@@ -156,17 +160,18 @@ class Type1Font(object):
                 depth = 1
                 while depth:
                     match = cls._instring.search(text[pos:])
-                    if match is None: return
+                    if match is None:
+                        return
                     pos += match.end()
                     if match.group() == '(':
                         depth += 1
                     elif match.group() == ')':
                         depth -= 1
-                    else: # a backslash - skip the next character
+                    else:  # a backslash - skip the next character
                         pos += 1
                 yield ('string', text[start:pos])
-            elif text[pos:pos+2] in ('<<', '>>'):
-                yield ('delimiter', text[pos:pos+2])
+            elif text[pos:pos + 2] in ('<<', '>>'):
+                yield ('delimiter', text[pos:pos + 2])
                 pos += 2
             elif text[pos] == '<':
                 start = pos
@@ -192,8 +197,8 @@ class Type1Font(object):
         Compatibility" of the Type-1 spec.
         """
         # Start with reasonable defaults
-        prop = { 'weight': 'Regular', 'ItalicAngle': 0.0, 'isFixedPitch': False,
-                 'UnderlinePosition': -100, 'UnderlineThickness': 50 }
+        prop = {'weight': 'Regular', 'ItalicAngle': 0.0, 'isFixedPitch': False,
+                'UnderlinePosition': -100, 'UnderlineThickness': 50}
         tokenizer = self._tokens(self.parts[0])
         filtered = itertools.ifilter(lambda x: x[0] != 'whitespace', tokenizer)
         for token, value in filtered:
@@ -208,16 +213,20 @@ class Type1Font(object):
                 elif token == b'string':
                     value = value.lstrip(b'(').rstrip(b')')
                 elif token == b'number':
-                    if b'.' in value: value = float(value)
-                    else: value = int(value)
-                else: # more complicated value such as an array
+                    if b'.' in value:
+                        value = float(value)
+                    else:
+                        value = int(value)
+                else:  # more complicated value such as an array
                     value = None
                 if key != b'FontInfo' and value is not None:
                     prop[key] = value
 
         # Fill in the various *Name properties
         if 'FontName' not in prop:
-            prop['FontName'] = prop.get('FullName') or prop.get('FamilyName') or 'Unknown'
+            prop['FontName'] = (prop.get('FullName') or
+                                prop.get('FamilyName') or
+                                'Unknown')
         if 'FullName' not in prop:
             prop['FullName'] = prop['FontName']
         if 'FamilyName' not in prop:
@@ -230,25 +239,27 @@ class Type1Font(object):
     def _transformer(cls, tokens, slant, extend):
         def fontname(name):
             result = name
-            if slant: result += '_Slant_' + str(int(1000*slant))
-            if extend != 1.0: result += '_Extend_' + str(int(1000*extend))
+            if slant:
+                result += '_Slant_' + str(int(1000 * slant))
+            if extend != 1.0:
+                result += '_Extend_' + str(int(1000 * extend))
             return result
 
         def italicangle(angle):
-            return str(float(angle) - np.arctan(slant)/np.pi*180)
+            return str(float(angle) - np.arctan(slant) / np.pi * 180)
 
         def fontmatrix(array):
             array = array.lstrip('[').rstrip(']').strip().split()
-            array = [ float(x) for x in array ]
-            oldmatrix = np.eye(3,3)
-            oldmatrix[0:3,0] = array[::2]
-            oldmatrix[0:3,1] = array[1::2]
+            array = [float(x) for x in array]
+            oldmatrix = np.eye(3, 3)
+            oldmatrix[0:3, 0] = array[::2]
+            oldmatrix[0:3, 1] = array[1::2]
             modifier = np.array([[extend, 0, 0],
                                  [slant, 1, 0],
                                  [0, 0, 1]])
             newmatrix = np.dot(modifier, oldmatrix)
-            array[::2] = newmatrix[0:3,0]
-            array[1::2] = newmatrix[0:3,1]
+            array[::2] = newmatrix[0:3, 0]
+            array[1::2] = newmatrix[0:3, 1]
             return '[' + ' '.join(str(x) for x in array) + ']'
 
         def replace(fun):
@@ -275,15 +286,16 @@ class Type1Font(object):
                 pass
             yield ''
 
-        table = { '/FontName': replace(fontname),
-                  '/ItalicAngle': replace(italicangle),
-                  '/FontMatrix': replace(fontmatrix),
-                  '/UniqueID': suppress }
+        table = {'/FontName': replace(fontname),
+                 '/ItalicAngle': replace(italicangle),
+                 '/FontMatrix': replace(fontmatrix),
+                 '/UniqueID': suppress}
 
         while True:
             token, value = next(tokens)
             if token == 'name' and value in table:
-                for value in table[value](itertools.chain([(token, value)], tokens)):
+                for value in table[value](itertools.chain([(token, value)],
+                                                          tokens)):
                     yield value
             else:
                 yield value
@@ -311,4 +323,3 @@ class Type1Font(object):
             buffer.close()
 
         return Type1Font((result, self.parts[1], self.parts[2]))
-
