@@ -7,7 +7,6 @@ import warnings
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 
 
-
 def adjust_bbox(fig, format, bbox_inches):
     """
     Temporarily adjust the figure so that only the specified area
@@ -30,11 +29,10 @@ def adjust_bbox(fig, format, bbox_inches):
         locator_list.append(ax.get_axes_locator())
         asp_list.append(ax.get_aspect())
 
-        def _l(a, r, pos=pos): return pos
+        def _l(a, r, pos=pos):
+            return pos
         ax.set_axes_locator(_l)
         ax.set_aspect("auto")
-
-
 
     def restore_bbox():
 
@@ -53,7 +51,8 @@ def adjust_bbox(fig, format, bbox_inches):
         adjust_bbox_handler(fig, bbox_inches)
         return restore_bbox
     else:
-        warnings.warn("bbox_inches option for %s backend is not implemented yet." % (format))
+        warnings.warn("bbox_inches option for %s backend is not "
+                      "implemented yet." % (format))
         return None
 
 
@@ -79,8 +78,8 @@ def adjust_bbox_png(fig, bbox_inches):
 
     fig.bbox = TransformedBbox(fig.bbox_inches, tr)
 
-    fig.patch.set_bounds(x0/w1, y0/h1,
-                         fig.bbox.width/w1, fig.bbox.height/h1)
+    fig.patch.set_bounds(x0 / w1, y0 / h1,
+                         fig.bbox.width / w1, fig.bbox.height / h1)
 
 
 def adjust_bbox_pdf(fig, bbox_inches):
@@ -101,15 +100,15 @@ def adjust_bbox_pdf(fig, bbox_inches):
                                        bbox_inches.width,
                                        bbox_inches.height)
     x0, y0 = _bbox.x0, _bbox.y0
-    w1, h1 = fig.bbox.width*f, fig.bbox.height*f
+    w1, h1 = fig.bbox.width * f, fig.bbox.height * f
     fig.transFigure._boxout = Bbox.from_bounds(-x0, -y0,
                                                        w1, h1)
     fig.transFigure.invalidate()
 
     fig.bbox = TransformedBbox(fig.bbox_inches, tr)
 
-    fig.patch.set_bounds(x0/w1, y0/h1,
-                         fig.bbox.width/w1, fig.bbox.height/h1)
+    fig.patch.set_bounds(x0 / w1, y0 / h1,
+                         fig.bbox.width / w1, fig.bbox.height / h1)
 
 
 def process_figure_for_rasterizing(figure,
