@@ -191,8 +191,10 @@ def auto_adjust_subplotpars(fig, renderer,
                   top=1 - margin_top)
 
     if cols > 1:
-        hspace_strip = hspaces[i * (cols + 1) + 1:(i + 1) * (cols + 1) - 1]
-        hspace = max([sum(s) for i in range(rows) for s in hspace_strip])
+        hspace = max([sum(s)
+                      for i in range(rows)
+                      for s
+                      in hspaces[i * (cols + 1) + 1:(i + 1) * (cols + 1) - 1]])
         hspace += hpad_inches / fig_width_inch
         h_axes = ((1 - margin_right - margin_left) -
                    hspace * (cols - 1)) / cols
