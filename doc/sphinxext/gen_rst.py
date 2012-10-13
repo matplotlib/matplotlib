@@ -2,6 +2,7 @@
 generate the rst files for the examples by iterating over the pylab examples
 """
 from __future__ import print_function
+import io
 import os, glob
 
 import os
@@ -37,15 +38,15 @@ def generate_example_rst(app):
                 continue
 
             fullpath = os.path.join(root,fname)
-            contents = file(fullpath).read()
+            contents = io.open(fullpath, encoding='utf8').read()
             # indent
             relpath = os.path.split(root)[-1]
             datad.setdefault(relpath, []).append((fullpath, fname, contents))
 
-    subdirs = datad.keys()
+    subdirs = list(datad.keys())
     subdirs.sort()
 
-    fhindex = file(os.path.join(exampledir, 'index.rst'), 'w')
+    fhindex = open(os.path.join(exampledir, 'index.rst'), 'w')
     fhindex.write("""\
 .. _examples-index:
 
@@ -77,7 +78,7 @@ Matplotlib Examples
             os.makedirs(outputdir)
 
         subdirIndexFile = os.path.join(rstdir, 'index.rst')
-        fhsubdirIndex = file(subdirIndexFile, 'w')
+        fhsubdirIndex = open(subdirIndexFile, 'w')
         fhindex.write('    %s/index.rst\n\n'%subdir)
 
         fhsubdirIndex.write("""\
@@ -122,14 +123,14 @@ Matplotlib Examples
                                   ) and
                        not noplot_regex.search(contents))
             if not do_plot:
-                fhstatic = file(outputfile, 'w')
+                fhstatic = open(outputfile, 'w')
                 fhstatic.write(contents)
                 fhstatic.close()
 
             if not out_of_date(fullpath, outrstfile):
                 continue
 
-            fh = file(outrstfile, 'w')
+            fh = io.open(outrstfile, 'w', encoding='utf8')
             fh.write('.. _%s-%s:\n\n'%(subdir, basename))
             title = '%s example code: %s'%(subdir, fname)
             #title = '<img src=%s> %s example code: %s'%(thumbfile, subdir, fname)
