@@ -174,10 +174,10 @@ latex_logo = None
 
 # Additional stuff for the LaTeX preamble.
 latex_preamble = """
-   \usepackage{amsmath}
-   \usepackage{amsfonts}
-   \usepackage{amssymb}
-   \usepackage{txfonts}
+   \\usepackage{amsmath}
+   \\usepackage{amsfonts}
+   \\usepackage{amssymb}
+   \\usepackage{txfonts}
 """
 
 # Documents to append as an appendix to all manuals.
