@@ -110,9 +110,17 @@ def validate_backend(s):
 
 validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
 
-validate_toolbar = ValidateInStrings('toolbar',[
-    'None','classic','toolbar2',
-    ], ignorecase=True)
+def validate_toolbar(s):
+    validator = ValidateInStrings(
+                'toolbar',
+                ['None','classic','toolbar2'],
+                ignorecase=True)
+    s = validator(s)
+    if s.lower == 'classic':
+        warnings.warn("'classic' Navigation Toolbar "
+                      "is deprecated in v1.2.x and will be "
+                      "removed in v1.3")
+    return s
 
 def validate_autolayout(v):
     if v:
