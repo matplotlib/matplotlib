@@ -1,8 +1,6 @@
 from __future__ import division, print_function
 import math
-import sys
 import warnings
-import datetime
 from operator import itemgetter
 import itertools
 
@@ -428,7 +426,8 @@ class Axes(martist.Artist):
           *yticklabels*      sequence of strings
           *yticks*           sequence of floats
           ================   =========================================
-        """ % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
+        """ % {'scale': ' | '.join([repr(x)
+                                    for x in mscale.get_scale_names()])}
         martist.Artist.__init__(self)
         if isinstance(rect, mtransforms.Bbox):
             self._position = rect
@@ -519,7 +518,7 @@ class Axes(martist.Artist):
         return self.bbox
 
     def _init_axis(self):
-        "move this out of __init__ because non-separable axes don't use it"
+        """move this out of __init__ because non-separable axes don't use it"""
         self.xaxis = maxis.XAxis(self)
         self.spines['bottom'].register_axis(self.xaxis)
         self.spines['top'].register_axis(self.xaxis)
@@ -752,7 +751,7 @@ class Axes(martist.Artist):
                     pass
 
     def get_position(self, original=False):
-        'Return the a copy of the axes rectangle as a Bbox'
+        """Return the a copy of the axes rectangle as a Bbox"""
         if original:
             return self._originalPosition.frozen()
         else:
@@ -800,8 +799,8 @@ class Axes(martist.Artist):
         """
         set axes_locator
 
-        ACCEPT : a callable object which takes an axes instance and renderer and
-                 returns a bbox.
+        ACCEPT : a callable object which takes an axes instance and renderer
+                 and returns a bbox.
         """
         self._axes_locator = locator
 
@@ -971,10 +970,6 @@ class Axes(martist.Artist):
 
         self._shared_x_axes.clean()
         self._shared_y_axes.clean()
-
-    def get_frame(self):
-        raise AttributeError('Axes.frame was removed in favor of Axes.spines')
-    frame = property(get_frame)
 
     def clear(self):
         """clear the axes"""
@@ -1190,7 +1185,7 @@ class Axes(martist.Artist):
         else:
             A = aspect
 
-        #Ensure at drawing time that any Axes involved in axis-sharing
+        # Ensure at drawing time that any Axes involved in axis-sharing
         # does not have its position changed.
         if self in self._shared_x_axes or self in self._shared_y_axes:
             if self._adjustable == 'box':
@@ -1252,7 +1247,8 @@ class Axes(martist.Artist):
         Xsize = ysize / data_ratio
         Xmarg = Xsize - xr
         Ymarg = Ysize - yr
-        xm = 0  # Setting these targets to, e.g., 0.05*xr does not seem to help.
+        xm = 0  # Setting these targets to, e.g., 0.05*xr does not seem
+                # to help.
         ym = 0
         #print 'xmin, xmax, ymin, ymax', xmin, xmax, ymin, ymax
         #print 'xsize, Xsize, ysize, Ysize', xsize, Xsize, ysize, Ysize
@@ -1383,8 +1379,11 @@ class Axes(martist.Artist):
         warnings.warn('use ax.patch instead', DeprecationWarning)
         return self.patch
 
+    frame = property(get_frame)
+
     def get_legend(self):
-        """Return the legend.Legend instance, or None if no legend is defined"""
+        """Return the legend.Legend instance, or None if no legend is defined.
+        """
         return self.legend_
 
     def get_images(self):
@@ -1413,11 +1412,13 @@ class Axes(martist.Artist):
 
     def get_ygridlines(self):
         """Get the y grid lines as a list of Line2D instances"""
-        return cbook.silent_list('Line2D ygridline', self.yaxis.get_gridlines())
+        return cbook.silent_list('Line2D ygridline',
+                                 self.yaxis.get_gridlines())
 
     def get_yticklines(self):
         """Get the ytick lines as a list of Line2D instances"""
-        return cbook.silent_list('Line2D ytickline', self.yaxis.get_ticklines())
+        return cbook.silent_list('Line2D ytickline',
+                                 self.yaxis.get_ticklines())
 
     #### Adding and tracking artists
 
@@ -1510,7 +1511,10 @@ class Axes(martist.Artist):
         return line
 
     def _update_line_limits(self, line):
-        """Figures out the data limit of the given line, updating self.dataLim."""
+        """
+        Figures out the data limit of the given line, updating
+        self.dataLim.
+        """
         path = line.get_path()
         if path.vertices.size == 0:
             return
@@ -2139,7 +2143,8 @@ class Axes(martist.Artist):
 
     def set_axisbelow(self, b):
         """
-        Set whether the axis ticks and gridlines are above or below most artists
+        Set whether the axis ticks and gridlines are above or below most
+        artists
 
         ACCEPTS: [ *True* | *False* ]
         """
@@ -2158,14 +2163,14 @@ class Axes(martist.Artist):
         compatibility, *b* may also be a string, 'on' or 'off'.)
 
         If *b* is *None* and ``len(kwargs)==0``, toggle the grid state.  If
-        *kwargs* are supplied, it is assumed that you want a grid and *b*
-        is thus set to *True*.
+        *kwargs* are supplied, it is assumed that you want a grid and *b* is
+        thus set to *True*.
 
         *which* can be 'major' (default), 'minor', or 'both' to control
         whether major tick grids, minor tick grids, or both are affected.
 
-        *axis* can be 'both' (default), 'x', or 'y' to control which
-        set of gridlines are drawn.
+        *axis* can be 'both' (default), 'x', or 'y' to control which set of
+        gridlines are drawn.
 
         *kwargs* are used to set the grid line properties, eg::
 
@@ -3020,6 +3025,7 @@ class Axes(martist.Artist):
             Intended to be overridden by new projection types.
 
         """
+
         def format_deltas(key, dx, dy):
             if key == 'control':
                 if(abs(dx) > abs(dy)):
@@ -3429,7 +3435,7 @@ class Axes(martist.Artist):
         self.texts.append(t)
         t._remove_method = lambda h: self.texts.remove(h)
 
-        #if t.get_clip_on():  t.set_clip_box(self.bbox)
+        # if t.get_clip_on():  t.set_clip_box(self.bbox)
         if 'clip_on' in kwargs:
             t.set_clip_box(self.bbox)
         return t
@@ -4025,7 +4031,6 @@ class Axes(martist.Artist):
         Plot with data with dates.
 
         Call signature::
-
            plot_date(
                x, y, fmt='bo', tz=None, xdate=True, ydate=False, **kwargs)
 
@@ -4409,7 +4414,7 @@ class Axes(martist.Artist):
         return lags, c, a, b
 
     def _get_legend_handles(self, legend_handler_map=None):
-        "return artists that will be used as handles for legend"
+        """return artists that will be used as handles for legend"""
         handles_original = self.lines + self.patches + \
             self.collections + self.containers
 
@@ -4444,7 +4449,8 @@ class Axes(martist.Artist):
         labels = []
         for handle in self._get_legend_handles(legend_handler_map):
             label = handle.get_label()
-            #if (label is not None and label != '' and not label.startswith('_')):
+            #if (label is not None and label != '' and not
+            # label.startswith('_')):
             if label and not label.startswith('_'):
                 handles.append(handle)
                 labels.append(label)
@@ -4578,8 +4584,8 @@ class Axes(martist.Artist):
             if mode is "expand", the legend will be horizontally expanded
             to fill the axes area (or *bbox_to_anchor*)
 
-          *bbox_to_anchor* : an instance of BboxBase or a tuple of 2 or 4 floats
-            the bbox that the legend will be anchored.
+          *bbox_to_anchor* : an instance of BboxBase or a tuple of 2 or 4
+            floats the bbox that the legend will be anchored.
 
           *bbox_transform* : [ an instance of Transform | *None* ]
             the transform for the bbox. transAxes if *None*.
@@ -4593,16 +4599,16 @@ class Axes(martist.Artist):
         implies a handlelength of 50 points.  Values from rcParams
         will be used if None.
 
-        ================   ==================================================================
+        ================   ===================================================
         Keyword            Description
-        ================   ==================================================================
+        ================   ===================================================
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
         handlelength       the length of the legend handles
         handletextpad      the pad between the legend handle and text
         borderaxespad      the pad between the axes and legend border
         columnspacing      the spacing between columns
-        ================   ==================================================================
+        ================   ===================================================
 
         .. Note:: Not all kinds of artist are supported by the legend command.
                   See LINK (FIXME) for details.
@@ -4897,8 +4903,8 @@ class Axes(martist.Artist):
             if orientation == 'vertical':
                 left = [left[i] - width[i] / 2. for i in xrange(len(left))]
             elif orientation == 'horizontal':
-                bottom = [bottom[i] - height[i] /
-                          2. for i in xrange(len(bottom))]
+                bottom = [bottom[i] - height[i] / 2.
+                          for i in xrange(len(bottom))]
 
         else:
             raise ValueError('invalid alignment: %s' % align)
@@ -5040,9 +5046,8 @@ class Axes(martist.Artist):
         %(Rectangle)s
         """
 
-        patches = self.bar(
-            left=left, height=height, width=width, bottom=bottom,
-            orientation='horizontal', **kwargs)
+        patches = self.bar(left=left, height=height, width=width,
+                           bottom=bottom, orientation='horizontal', **kwargs)
         return patches
 
     @docstring.dedent_interpd
@@ -5108,8 +5113,10 @@ class Axes(martist.Artist):
         *baseline*).
 
         .. seealso::
-            This `document <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
-            for details.
+
+            This `document
+            <http://www.mathworks.com/help/techdoc/ref/stem.html>`_ for
+            details.
 
 
         **Example:**
@@ -5176,9 +5183,9 @@ class Axes(martist.Artist):
             A sequence of strings providing the labels for each wedge
 
           *autopct*: [ *None* | format string | format function ]
-            If not *None*, is a string or function used to label the
-            wedges with their numeric value.  The label will be placed inside
-            the wedge.  If it is a format string, the label will be ``fmt%pct``.
+            If not *None*, is a string or function used to label the wedges
+            with their numeric value.  The label will be placed inside the
+            wedge.  If it is a format string, the label will be ``fmt%pct``.
             If it is a function, it will be called.
 
           *pctdistance*: scalar
@@ -5232,6 +5239,8 @@ class Axes(martist.Artist):
             labels = [''] * len(x)
         if explode is None:
             explode = [0] * len(x)
+
+        # FIXME don't use assert but raise ValueError
         assert(len(x) == len(labels))
         assert(len(x) == len(explode))
         if colors is None:
@@ -5701,9 +5710,9 @@ class Axes(martist.Artist):
             Array or sequence whose first dimension (or length) is compatible
             with *x* and whose second dimension is 2. When the current element
             of *conf_intervals* is not None, the notch locations computed by
-            matplotlib are overridden (assuming notch is True). When an element of
-            *conf_intervals* is None, boxplot compute notches the method
-            specified by the other kwargs (e.g. *bootstrap*).
+            matplotlib are overridden (assuming notch is True). When an
+            element of *conf_intervals* is None, boxplot compute notches the
+            method specified by the other kwargs (e.g. *bootstrap*).
 
           *positions* : [ default 1,2,...,n ]
             Sets the horizontal positions of the boxes. The ticks and limits
@@ -5805,7 +5814,7 @@ class Axes(martist.Artist):
             elif len(usermedians) != col:
                 raise ValueError(msg2)
 
-        #sanitize user-input confidence intervals
+        # sanitize user-input confidence intervals
         msg1 = "conf_intervals must either be a list of tuples or a 2d array"
         msg2 = "conf_intervals' length must be compatible with x"
         msg3 = "each conf_interval, if specificied, must have two values"
@@ -5892,7 +5901,8 @@ class Axes(martist.Artist):
             # calculate 'notch' plot
             if notch:
                 # conf. intervals from user, if available
-                if conf_intervals is not None and conf_intervals[i] is not None:
+                if (conf_intervals is not None and
+                    conf_intervals[i] is not None):
                     notch_max = np.max(conf_intervals[i])
                     notch_min = np.min(conf_intervals[i])
                 else:
@@ -5938,12 +5948,14 @@ class Axes(martist.Artist):
 
             # vertical or horizontal plot?
             if vert:
+
                 def doplot(*args):
                     return self.plot(*args)
 
                 def dopatch(xs, ys):
                     return patch_list(xs, ys)
             else:
+
                 def doplot(*args):
                     shuffled = []
                     for i in xrange(0, len(args), 3):
@@ -6121,7 +6133,7 @@ class Axes(martist.Artist):
             edgecolors = 'none'
             warnings.warn(
                 '''replace "faceted=False" with "edgecolors='none'"''',
-                DeprecationWarning)  # 2008/04/18
+                DeprecationWarning)   # 2008/04/18
 
         sym = None
         symstyle = 0
@@ -6402,7 +6414,8 @@ class Axes(martist.Artist):
                         if lattice2[i, j] < mincnt:
                             lattice2[i, j] = np.nan
             accum = np.hstack((
-                lattice1.astype(float).ravel(), lattice2.astype(float).ravel()))
+                lattice1.astype(float).ravel(),
+                                lattice2.astype(float).ravel()))
             good_idxs = ~np.isnan(accum)
 
         else:
@@ -6444,8 +6457,9 @@ class Axes(martist.Artist):
                     else:
                         lattice2[i, j] = np.nan
 
-            accum = np.hstack((
-                lattice1.astype(float).ravel(), lattice2.astype(float).ravel()))
+            accum = np.hstack(
+                        (lattice1.astype(float).ravel(),
+                                         lattice2.astype(float).ravel()))
             good_idxs = ~np.isnan(accum)
 
         offsets = np.zeros((n, 2), float)
@@ -6558,8 +6572,8 @@ class Axes(martist.Artist):
             if not valid[i]:
                 continue
 
-            verts.append([(
-                thismin, 0), (thismin, 0.05), (thismax, 0.05), (thismax, 0)])
+            verts.append([(thismin, 0), (thismin, 0.05),
+                          (thismax, 0.05), (thismax, 0)])
             values.append(val)
 
         values = np.array(values)
@@ -6587,8 +6601,8 @@ class Axes(martist.Artist):
                 thismax = thismin + np.diff(coarse)[-1]
             if not valid[i]:
                 continue
-            verts.append([(0, thismin), (0.0, thismax), (0.05,
-                         thismax), (0.05, thismin)])
+            verts.append([(0, thismin), (0.0, thismax),
+                          (0.05, thismax), (0.05, thismin)])
             values.append(val)
 
         values = np.array(values)
@@ -7339,8 +7353,8 @@ class Axes(martist.Artist):
         X = ma.asarray(X)
         Y = ma.asarray(Y)
         mask = ma.getmaskarray(X) + ma.getmaskarray(Y)
-        xymask = mask[0:-1, 0:-1] + mask[1:, 1:] + mask[0:-1, 1:] + \
-            mask[1:, 0:-1]
+        xymask = (mask[0:-1, 0:-1] + mask[1:, 1:] + mask[0:-1, 1:] +
+                  mask[1:, 0:-1])
         # don't plot if C or any of the surrounding vertices are masked.
         mask = ma.getmaskarray(C)[0:Ny - 1, 0:Nx - 1] + xymask
 
@@ -7476,12 +7490,13 @@ class Axes(martist.Artist):
             *vmax* passed in here override any pre-existing values
             supplied in the *norm* instance.
 
-          *shading*: [ 'flat' | 'gouraud' ]
+          *shading*: ['flat' | 'gouraud']
             'flat' indicates a solid color for each quad.  When
             'gouraud', each quad will be Gouraud shaded.  When gouraud
             shading, edgecolors is ignored.
 
-          *edgecolors*: [ *None* | ``'None'`` | ``'face'`` | color | color sequence]
+          *edgecolors*: [*None* | ``'None'`` | ``'face'`` | color |
+                         color sequence]
             If *None*, the rc setting is used by default.
 
             If ``'None'``, edges will not be visible.
@@ -7524,9 +7539,8 @@ class Axes(martist.Artist):
 
         # convert to one dimensional arrays
         if shading != 'gouraud':
-            C = ma.ravel(
-                C[0:Ny - 1, 0:Nx - 1])  # data point in each cell is value at
-                                            # lower left corner
+            C = ma.ravel(C[0:Ny - 1, 0:Nx - 1])  # data point in each cell is
+                                                 # value at lower left corner
         else:
             C = C.ravel()
         X = X.ravel()
@@ -7702,7 +7716,7 @@ class Axes(martist.Artist):
             # convert to one dimensional arrays
             # This should also be moved to the QuadMesh class
             C = ma.ravel(C)  # data point in each cell is value
-                            # at lower left corner
+                             # at lower left corner
             X = x.ravel()
             Y = y.ravel()
             Nx = nc + 1
@@ -8066,8 +8080,9 @@ class Axes(martist.Artist):
             else:
                 raise ValueError("x must be 1D or 2D")
             if x.shape[1] < x.shape[0]:
-                warnings.warn('2D hist input should be nsamples x nvariables;\n '
-                    'this looks transposed (shape is %d x %d)' % x.shape[::-1])
+                warnings.warn('2D hist input should be nsamples x '
+                              'nvariables;\n this looks transposed '
+                              '(shape is %d x %d)' % x.shape[::-1])
         else:
             # multiple hist with data of different length
             x = [np.asarray(xi) for xi in x]
@@ -8139,8 +8154,9 @@ class Axes(martist.Artist):
 
         n = []
         mlast = bottom
-        # reversed order is necessary so when stacking histogram, first dataset is on top
-        # if histogram isn't stacked, this doesn't make any difference
+        # reversed order is necessary so when stacking histogram, first
+        # dataset is on top if histogram isn't stacked, this doesn't make any
+        # difference
         for i in reversed(xrange(nx)):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
@@ -8272,8 +8288,8 @@ class Axes(martist.Artist):
         elif is_sequence_of_strings(label):
             labels = list(label)
         else:
-            raise ValueError(
-                'invalid label: must be string or sequence of strings')
+            raise ValueError('invalid label: must be string or sequence of '
+                             'strings')
 
         if len(labels) < nx:
             labels += [None] * (nx - len(labels))
@@ -8293,11 +8309,11 @@ class Axes(martist.Artist):
 
         if binsgiven:
             if orientation == 'vertical':
-                self.update_datalim(
-                    [(bins[0], 0), (bins[-1], 0)], updatey=False)
+                self.update_datalim([(bins[0], 0), (bins[-1], 0)],
+                                    updatey=False)
             else:
-                self.update_datalim(
-                    [(0, bins[0]), (0, bins[-1])], updatex=False)
+                self.update_datalim([(0, bins[0]), (0, bins[-1])],
+                                    updatex=False)
 
         self.set_autoscalex_on(_saved_autoscalex)
         self.set_autoscaley_on(_saved_autoscaley)
@@ -8316,8 +8332,8 @@ class Axes(martist.Artist):
 
         Call signature::
 
-          hist2d(x, y, bins = None, range=None, weights=None,
-                 cmin=None, cmax=None **kwargs)
+          hist2d(x, y, bins = None, range=None, weights=None, cmin=None,
+                 cmax=None **kwargs)
 
         Make a 2d histogram plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length.
@@ -8910,8 +8926,8 @@ class Axes(martist.Artist):
         if bb_yaxis:
             bb.append(bb_yaxis)
 
-        _bbox = mtransforms.Bbox.union(
-            [b for b in bb if b.width != 0 or b.height != 0])
+        _bbox = mtransforms.Bbox.union([b for b in bb
+                                        if b.width != 0 or b.height != 0])
 
         return _bbox
 
@@ -8944,7 +8960,6 @@ class Axes(martist.Artist):
     def triplot(self, *args, **kwargs):
         mtri.triplot(self, *args, **kwargs)
     triplot.__doc__ = mtri.triplot.__doc__
-
 
 from matplotlib.gridspec import GridSpec, SubplotSpec
 
@@ -9074,7 +9089,6 @@ class SubplotBase:
         ax2 = self.figure.add_subplot(self.get_subplotspec(), *kl, **kwargs)
         return ax2
 
-
 _subplot_classes = {}
 
 
@@ -9106,6 +9120,7 @@ class _PicklableSubplotClassConstructor(object):
     class when __call__-ed with an axes class. This is purely to
     allow Pickling of Axes and Subplots.
     """
+
     def __call__(self, axes_class):
         # create a dummy object instance
         subplot_instance = _PicklableSubplotClassConstructor()
