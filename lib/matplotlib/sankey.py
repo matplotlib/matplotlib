@@ -230,13 +230,13 @@ class Sankey:
         #path[2] = path[2][::-1]
         #return path
 
-    def add(self, patchlabel='', flows=np.array([1.0,-1.0]), orientations=[0,0],
+    def add(self, patchlabel='', flows=np.array([1.0,-1.0]), orients=[0,0],
             labels='', trunklength=1.0, pathlengths=0.25, prior=None,
             connect=(0,0), rotation=0, **kwargs):
         """
         call signature::
 
-          add(patchlabel='', flows=np.array([1.0,-1.0]), orientations=[0,0],
+          add(patchlabel='', flows=np.array([1.0,-1.0]), orients=[0,0],
               labels='', trunklength=1.0, pathlengths=0.25, prior=None,
               connect=(0,0), rotation=0, **kwargs)
 
@@ -256,10 +256,10 @@ class Sankey:
           *flows*           array of flow values
                             By convention, inputs are positive and outputs are
                             negative.
-          *orientations*    list of orientations of the paths
+          *orients*         list of orientations of the paths
                             Valid values are 1 (from/to the top), 0 (from/to the
                             left or right), or -1 (from/to the bottom).  If
-                            *orientations* == 0, inputs will break in from the
+                            *orients* == 0, inputs will break in from the
                             left and outputs will break away to the right.
           *labels*          list of specifications of the labels for the flows
                             Each value may be None (no labels), '' (just label
@@ -289,9 +289,9 @@ class Sankey:
           *rotation*        angle of rotation of the diagram [deg]
                             *rotation* is ignored if this diagram is connected
                             to an existing one (using *prior* and *connect*).
-                            The interpretation of the *orientations* argument
+                            The interpretation of the *orients* argument
                             will be rotated accordingly (e.g., if *rotation*
-                            == 90, an *orientations* entry of 1 means to/from
+                            == 90, an *orients* entry of 1 means to/from
                             the left).
           ===============   ==========================================
 
@@ -322,16 +322,15 @@ class Sankey:
             rotation = 0
         else:
             rotation /= 90.0 # In the code below, angles are expressed in deg/90
-        assert len(orientations) == n, ("orientations and flows must have the "
-                                        "same length.\norientations has length "
-                                        "%d, but flows has length %d."
-                                        % len(orientations), n)
+        assert len(orients) == n, ("orients and flows must have the same "
+                                   "length.\norients has length %d, but flows "
+                                   "has length %d."% (len(orients), n))
         if getattr(labels, '__iter__', False):
         # iterable() isn't used because it would give True if labels is a string
             assert len(labels) == n, ("If labels is a list, then labels and "
                                       "flows must have the same length.\n"
                                       "labels has length %d, but flows has "
-                                      "length %d." % len(labels), n)
+                                      "length %d." % (len(labels), n))
         else:
             labels = [labels]*n
         assert trunklength >= 0, ("trunklength is negative.\nThis isn't "
@@ -361,24 +360,24 @@ class Sankey:
             assert prior < len(self.diagrams), ("The index of the prior "
                                                 "diagram is %d, but there are "
                                                 "only %d other diagrams.\nThe "
-                                                "index is zero-based." % prior,
-                                                len(self.diagrams))
+                                                "index is zero-based." % (prior,
+                                                len(self.diagrams)))
             assert connect[0] < len(self.diagrams[prior].flows), \
                    ("The connection index to the source diagram is %d, but "
                     "that diagram has only %d flows.\nThe index is zero-based."
-                    % connect[0], len(self.diagrams[prior].flows))
+                    % (connect[0], len(self.diagrams[prior].flows)))
             assert connect[1] < n, ("The connection index to this diagram is "
                                     "%d, but this diagram has only %d flows.\n"
-                                    "The index is zero-based." % connect[1], n)
+                                    "The index is zero-based." % (connect[1], n))
             assert self.diagrams[prior].angles[connect[0]] is not None, \
                    ("The connection cannot be made.  Check that the magnitude "
                     "of flow %d of diagram %d is greater than or equal to the "
-                    "specified tolerance." % connect[0], prior)
+                    "specified tolerance." % (connect[0], prior))
             flow_error = self.diagrams[prior].flows[connect[0]] \
                          + flows[connect[1]]
             assert abs(flow_error) < self.tolerance, \
                   ("The scaled sum of the connected flows is %f, which is not "
-                   "within the tolerance (%f)." % flow_error, self.tolerance)
+                   "within the tolerance (%f)." % (flow_error, self.tolerance))
 
         # Determine if the flows are inputs.
         are_inputs = [None]*n
@@ -395,7 +394,7 @@ class Sankey:
 
         # Determine the angles of the arrows (before rotation).
         angles = [None]*n
-        for i, (orient, is_input) in enumerate(zip(orientations, are_inputs)):
+        for i, (orient, is_input) in enumerate(zip(orients, are_inputs)):
             if orient == 1:
                 if is_input:
                     angles[i] = DOWN
@@ -405,7 +404,7 @@ class Sankey:
                 if is_input is not None:
                     angles[i] = RIGHT
             else:
-                assert orient == -1, ("The value of orientations[%d] is %d, "
+                assert orient == -1, ("The value of orients[%d] is %d, "
                                       "but it must be -1, 0, or 1." % i, orient)
                 if is_input:
                     angles[i] = UP
@@ -702,7 +701,7 @@ class Sankey:
         self.ax.set_aspect('equal', adjustable='datalim')
         return self.diagrams
 
-    def __init__(self, ax=None, scale=1.0, unit='', format='%G', gap=0.25,
+    def __init__(self, ax=None, scale=1.0, unit='', format='%G ', gap=0.25,
                  radius=0.1, shoulder=0.03, offset=0.15, head_angle=100,
                  margin=0.4, tolerance=1e-6, **kwargs):
         """
@@ -819,5 +818,6 @@ class Sankey:
         self.extent = np.array((np.inf, -np.inf, np.inf, -np.inf))
 
         # If there are any kwargs, create the first subdiagram.
+        print kwargs
         if len(kwargs):
             self.add(**kwargs)
