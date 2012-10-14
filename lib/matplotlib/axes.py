@@ -8141,7 +8141,7 @@ class Axes(martist.Artist):
 
             x[0::2], x[1::2] = bins, bins
 
-            minimum = min(bins)
+            minimum = np.min( n )
 
             if align == 'left' or align == 'center':
                 x -= 0.5*(bins[1]-bins[0])
