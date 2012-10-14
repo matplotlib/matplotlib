@@ -815,6 +815,5 @@ class Sankey:
         self.extent = np.array((np.inf, -np.inf, np.inf, -np.inf))
 
         # If there are any kwargs, create the first subdiagram.
-        print kwargs
         if len(kwargs):
             self.add(**kwargs)
