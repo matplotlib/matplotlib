@@ -376,7 +376,7 @@ class Patch(artist.Artist):
         Hatching is supported in the PostScript, PDF, SVG and Agg
         backends only.
 
-        ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
+        ACCEPTS: ['/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*']
         """
         self._hatch = hatch
 
@@ -872,7 +872,6 @@ class Wedge(Patch):
         self.theta1, self.theta2 = theta1, theta2
 
         # Inner and outer rings are connected unless the annulus is complete
-        delta = theta2 - theta1
         if abs((theta2 - theta1) - 360) <= 1e-12:
             theta1, theta2 = 0, 360
             connector = Path.MOVETO
@@ -956,8 +955,8 @@ class FancyArrow(Polygon):
         return "FancyArrow()"
 
     @docstring.dedent_interpd
-    def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False, \
-        head_width=None, head_length=None, shape='full', overhang=0, \
+    def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False,
+        head_width=None, head_length=None, shape='full', overhang=0,
         head_starts_at_zero=False, **kwargs):
         """
         Constructor arguments
@@ -1493,7 +1492,7 @@ class Arc(Ellipse):
         path_original = self._path
         for theta in thetas:
             if inside:
-                _path = Path.arc(last_theta, theta, 8)
+                Path.arc(last_theta, theta, 8)
                 Patch.draw(self, renderer)
                 inside = False
             else:
@@ -1600,6 +1599,7 @@ def _pprint_styles(_styles, leadingspace=2):
     (stylename : styleclass), return a formatted string listing all the
     styles. Used to update the documentation.
     """
+    # FIXME pad isn't used, which means leadingspace is not use.
     if leadingspace:
         pad = ' ' * leadingspace
     else:
@@ -2143,7 +2143,7 @@ class BoxStyle(_Style):
                                                        width, height,
                                                        mutation_size)
 
-            cp = [Path.MOVETO] + ([Path.CURVE3, Path.CURVE3] \
+            cp = [Path.MOVETO] + ([Path.CURVE3, Path.CURVE3]
                                   * ((len(saw_vertices) - 1) // 2))
             path = Path(saw_vertices, cp)
 
@@ -2244,7 +2244,7 @@ class FancyBboxPatch(Patch):
         ACCEPTS: %(AvailableBoxstyles)s
 
         """
-        if boxstyle == None:
+        if boxstyle is None:
             return BoxStyle.pprint_styles()
 
         if isinstance(boxstyle, BoxStyle._Base):
@@ -2847,8 +2847,8 @@ def _point_along_a_line(x0, y0, x1, y1, d):
     distance from (x0, y0) is d.
     """
     dx, dy = x0 - x1, y0 - y1
-    ff = d/(dx*dx+dy*dy)**.5
-    x2, y2 = x0 - ff*dx, y0 - ff*dy
+    ff = d / (dx * dx + dy * dy) ** .5
+    x2, y2 = x0 - ff * dx, y0 - ff * dy
 
     return x2, y2
 
@@ -3122,7 +3122,7 @@ class ArrowStyle(_Style):
         """
 
         def __init__(self):
-            super(ArrowStyle.Curve, self).__init__( \
+            super(ArrowStyle.Curve, self).__init__(
                 beginarrow=False, endarrow=False)
 
     _style_list["-"] = Curve
@@ -3181,7 +3181,7 @@ class ArrowStyle(_Style):
               width of the arrow head
             """
 
-            super(ArrowStyle.CurveAB, self).__init__( \
+            super(ArrowStyle.CurveAB, self).__init__(
                 beginarrow=True, endarrow=True,
                 head_length=head_length, head_width=head_width)
 
@@ -3201,7 +3201,7 @@ class ArrowStyle(_Style):
               width of the arrow head
             """
 
-            super(ArrowStyle.CurveFilledA, self).__init__( \
+            super(ArrowStyle.CurveFilledA, self).__init__(
                 beginarrow=True, endarrow=False,
                 fillbegin=True, fillend=False,
                 head_length=head_length, head_width=head_width)
@@ -3222,7 +3222,7 @@ class ArrowStyle(_Style):
               width of the arrow head
             """
 
-            super(ArrowStyle.CurveFilledB, self).__init__( \
+            super(ArrowStyle.CurveFilledB, self).__init__(
                 beginarrow=False, endarrow=True,
                 fillbegin=False, fillend=True,
                 head_length=head_length, head_width=head_width)
@@ -3244,7 +3244,7 @@ class ArrowStyle(_Style):
               width of the arrow head
             """
 
-            super(ArrowStyle.CurveFilledAB, self).__init__( \
+            super(ArrowStyle.CurveFilledAB, self).__init__(
                 beginarrow=True, endarrow=True,
                 fillbegin=True, fillend=True,
                 head_length=head_length, head_width=head_width)
@@ -3358,9 +3358,10 @@ class ArrowStyle(_Style):
               angle between the bracket and the line
             """
 
-            super(ArrowStyle.BracketAB, self).__init__(True, True, \
-                        widthA=widthA, lengthA=lengthA, angleA=angleA,
-                        widthB=widthB, lengthB=lengthB, angleB=angleB)
+            super(ArrowStyle.BracketAB, self).__init__(
+                        True, True, widthA=widthA, lengthA=lengthA,
+                        angleA=angleA, widthB=widthB, lengthB=lengthB,
+                        angleB=angleB)
 
     _style_list["]-["] = BracketAB
 
@@ -3436,8 +3437,8 @@ class ArrowStyle(_Style):
               angle between the bracket and the line
             """
 
-            super(ArrowStyle.BarAB, self).__init__(True, True, \
-                        widthA=widthA, lengthA=0, angleA=angleA,
+            super(ArrowStyle.BarAB, self).__init__(
+                        True, True, widthA=widthA, lengthA=0, angleA=angleA,
                         widthB=widthB, lengthB=0, angleB=angleB)
 
     _style_list["|-|"] = BarAB
@@ -3481,23 +3482,24 @@ class ArrowStyle(_Style):
                                                                 in_f,
                                                                 tolerence=0.01)
             except NonIntersectingPathException:
-                # if this happens, make a straight line of the head_length long.
+                # if this happens, make a straight line of the head_length
+                # long.
                 x0, y0 = _point_along_a_line(x2, y2, x1, y1, head_length)
-                x1n, y1n = 0.5*(x0+x2), 0.5*(y0+y2)
+                x1n, y1n = 0.5 * (x0 + x2), 0.5 * (y0 + y2)
                 arrow_in = [(x0, y0), (x1n, y1n), (x2, y2)]
                 arrow_out = None
 
             # head
             head_width = self.head_width * mutation_size
             head_left, head_right = \
-                       make_wedged_bezier2(arrow_in, head_width/2.,
+                       make_wedged_bezier2(arrow_in, head_width / 2.,
                                            wm=.5)
-
 
             # tail
             if arrow_out is not None:
                 tail_width = self.tail_width * mutation_size
-                tail_left, tail_right = get_parallels(arrow_out, tail_width/2.)
+                tail_left, tail_right = get_parallels(arrow_out,
+                                                      tail_width / 2.)
 
                 #head_right, head_left = head_r, head_l
                 patch_path = [(Path.MOVETO, tail_right[0]),
@@ -3570,9 +3572,10 @@ class ArrowStyle(_Style):
                                 in_f,
                                 tolerence=0.01)
             except NonIntersectingPathException:
-                # if this happens, make a straight line of the head_length long.
+                # if this happens, make a straight line of the head_length
+                # long.
                 x0, y0 = _point_along_a_line(x2, y2, x1, y1, head_length)
-                x1n, y1n = 0.5*(x0+x2), 0.5*(y0+y2)
+                x1n, y1n = 0.5 * (x0 + x2), 0.5 * (y0 + y2)
                 arrow_path = [(x0, y0), (x1n, y1n), (x2, y2)]
                 path_head = arrow_path
             else:
@@ -3836,7 +3839,7 @@ class FancyArrowPatch(Patch):
         available styles as a list of strings.
         """
 
-        if connectionstyle == None:
+        if connectionstyle is None:
             return ConnectionStyle.pprint_styles()
 
         if isinstance(connectionstyle, ConnectionStyle._Base):
@@ -3870,7 +3873,7 @@ class FancyArrowPatch(Patch):
         available box styles as a list of strings.
         """
 
-        if arrowstyle == None:
+        if arrowstyle is None:
             return ArrowStyle.pprint_styles()
 
         if isinstance(arrowstyle, ConnectionStyle._Base):
