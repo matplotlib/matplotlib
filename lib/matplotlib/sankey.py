@@ -613,20 +613,17 @@ class Sankey:
         self.ax.add_patch(patch)
 
         # Add the path labels.
-        for i, (number, angle) in enumerate(zip(flows, angles)):
-            if labels[i] is None or angle is None:
-                labels[i] = ''
+        texts = []
+        for i, (number, angle, label, location) in enumerate(zip(flows, angles, labels, label_locations)):
+            if label is None or angle is None:
+                label = ''
             elif self.unit is not None:
                 quantity = self.format % abs(number) + self.unit
-                if labels[i] != '':
-                    labels[i] += "\n"
-                labels[i] += quantity
-        texts = []
-        for i, (label, location) in enumerate(zip(labels, label_locations)):
-            if label: s = label
-            else: s = ''
+                if label != '':
+                    label += "\n"
+                label += quantity
             texts.append(self.ax.text(x=location[0], y=location[1],
-                                      s=s,
+                                      s=label,
                                       ha='center', va='center'))
         # Text objects are placed even they are empty (as long as the magnitude
         # of the corresponding flow is larger than the tolerance) in case the
@@ -740,7 +737,7 @@ class Sankey:
           *gap*             space between paths that break in/break away to/from
                             the top or bottom
           *radius*          inner radius of the vertical paths
-          *shoulder*        size of the shoulders of output arrowS
+          *shoulder*        size of the shoulders of output arrows
           *offset*          text offset (from the dip or tip of the arrow)
           *head_angle*      angle of the arrow heads (and negative of the angle
                             of the tails) [deg]
