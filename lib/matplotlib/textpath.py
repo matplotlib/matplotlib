@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-
+import warnings
 import urllib
-from matplotlib.path import Path
-import matplotlib.font_manager as font_manager
-
-from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING, LOAD_TARGET_LIGHT
-
-from matplotlib.mathtext import MathTextParser
-
-import matplotlib.dviread as dviread
 
 import numpy as np
 
-import warnings
+from matplotlib.path import Path
+from matplotlib import rcParams
+import matplotlib.font_manager as font_manager
+from matplotlib.ft2font import FT2Font, KERNING_DEFAULT, LOAD_NO_HINTING
+from matplotlib.ft2font import LOAD_TARGET_LIGHT
+from matplotlib.mathtext import MathTextParser
+import matplotlib.dviread as dviread
+from matplotlib.font_manager import FontProperties
+from matplotlib.transforms import Affine2D
+
 
 class TextToPath(object):
     """
@@ -38,7 +39,6 @@ class TextToPath(object):
 
         self._adobe_standard_encoding = None
 
-
     def _get_adobe_standard_encoding(self):
         enc_name = dviread.find_tex_file('8a.enc')
         enc = dviread.Encoding(enc_name)
@@ -61,7 +61,7 @@ class TextToPath(object):
         """
         Return a unique id for the given font and character-code set.
         """
-        ps_name = font.get_sfnt()[(1,0,0,6)]
+        ps_name = font.get_sfnt()[(1, 0, 0, 6)]
         char_id = urllib.quote('%s-%x' % (ps_name, ccode))
         return char_id
 
@@ -73,14 +73,13 @@ class TextToPath(object):
         char_id = urllib.quote('%s-%d' % (ps_name, ccode))
         return char_id
 
-
     def glyph_to_path(self, font, currx=0.):
         """
         convert the ft2font glyph to vertices and codes.
         """
         verts, codes = font.get_path()
         if currx != 0.0:
-            verts[:,0] += currx
+            verts[:, 0] += currx
         return verts, codes
 
     def get_text_width_height_descent(self, s, prop, ismath):
@@ -113,7 +112,8 @@ class TextToPath(object):
 
     def get_text_path(self, prop, s, ismath=False, usetex=False):
         """
-        convert text *s* to path (a tuple of vertices and codes for matplotlib.math.Path).
+        convert text *s* to path (a tuple of vertices and codes for
+        matplotlib.path.Path).
 
         *prop*
           font property
@@ -129,12 +129,14 @@ class TextToPath(object):
 
 
         """
-        if usetex==False:
-            if ismath == False:
+        if not usetex:
+            if not ismath:
                 font = self._get_font(prop)
-                glyph_info, glyph_map, rects = self.get_glyphs_with_font(font, s)
+                glyph_info, glyph_map, rects = self.get_glyphs_with_font(
+                                                    font, s)
             else:
-                glyph_info, glyph_map, rects = self.get_glyphs_mathtext(prop, s)
+                glyph_info, glyph_map, rects = self.get_glyphs_mathtext(
+                                                    prop, s)
         else:
             glyph_info, glyph_map, rects = self.get_glyphs_tex(prop, s)
 
@@ -143,7 +145,7 @@ class TextToPath(object):
         for glyph_id, xposition, yposition, scale in glyph_info:
             verts1, codes1 = glyph_map[glyph_id]
             if len(verts1):
-                verts1 = np.array(verts1)*scale + [xposition, yposition]
+                verts1 = np.array(verts1) * scale + [xposition, yposition]
                 verts.extend(verts1)
                 codes.extend(codes1)
 
@@ -152,7 +154,6 @@ class TextToPath(object):
             codes.extend(codes1)
 
         return verts, codes
-
 
     def get_glyphs_with_font(self, font, s, glyph_map=None,
                              return_new_glyphs_only=False):
@@ -213,12 +214,14 @@ class TextToPath(object):
 
         rects = []
 
-        return zip(glyph_ids, xpositions, ypositions, sizes), glyph_map_new, rects
+        return (zip(glyph_ids, xpositions, ypositions, sizes),
+                glyph_map_new, rects)
 
     def get_glyphs_mathtext(self, prop, s, glyph_map=None,
                             return_new_glyphs_only=False):
         """
-        convert the string *s* to vertices and codes by parsing it with mathtext.
+        convert the string *s* to vertices and codes by parsing it with
+        mathtext.
         """
 
         prop = prop.copy()
@@ -227,8 +230,7 @@ class TextToPath(object):
         width, height, descent, glyphs, rects = self.mathtext_parser.parse(
             s, self.DPI, prop)
 
-
-        if glyph_map is None:
+        if not glyph_map:
             glyph_map = dict()
 
         if return_new_glyphs_only:
@@ -258,14 +260,15 @@ class TextToPath(object):
 
         myrects = []
         for ox, oy, w, h in rects:
-            vert1=[(ox, oy), (ox, oy+h), (ox+w, oy+h), (ox+w, oy), (ox, oy), (0,0)]
+            vert1 = [(ox, oy), (ox, oy + h), (ox + w, oy + h),
+                     (ox + w, oy), (ox, oy), (0, 0)]
             code1 = [Path.MOVETO,
                      Path.LINETO, Path.LINETO, Path.LINETO, Path.LINETO,
                      Path.CLOSEPOLY]
             myrects.append((vert1, code1))
 
-
-        return zip(glyph_ids, xpositions, ypositions, sizes), glyph_map_new, myrects
+        return (zip(glyph_ids, xpositions, ypositions, sizes),
+                glyph_map_new, myrects)
 
     def get_texmanager(self):
         """
@@ -279,7 +282,8 @@ class TextToPath(object):
     def get_glyphs_tex(self, prop, s, glyph_map=None,
                        return_new_glyphs_only=False):
         """
-        convert the string *s* to vertices and codes using matplotlib's usetex mode.
+        convert the string *s* to vertices and codes using matplotlib's usetex
+        mode.
         """
 
         # codes are modstly borrowed from pdf backend.
@@ -287,13 +291,14 @@ class TextToPath(object):
         texmanager = self.get_texmanager()
 
         if self.tex_font_map is None:
-            self.tex_font_map = dviread.PsfontsMap(dviread.find_tex_file('pdftex.map'))
+            self.tex_font_map = dviread.PsfontsMap(
+                                    dviread.find_tex_file('pdftex.map'))
 
         if self._adobe_standard_encoding is None:
             self._adobe_standard_encoding = self._get_adobe_standard_encoding()
 
         fontsize = prop.get_size_in_points()
-        if hasattr(texmanager, "get_dvi"): #
+        if hasattr(texmanager, "get_dvi"):
             dvifilelike = texmanager.get_dvi(s, self.FONT_SCALE)
             dvi = dviread.DviFromFileLike(dvifilelike, self.DPI)
         else:
@@ -304,7 +309,6 @@ class TextToPath(object):
         finally:
             dvi.close()
 
-
         if glyph_map is None:
             glyph_map = dict()
 
@@ -313,21 +317,22 @@ class TextToPath(object):
         else:
             glyph_map_new = glyph_map
 
-
         glyph_ids, xpositions, ypositions, sizes = [], [], [], []
 
         # Gather font information and do some setup for combining
         # characters into strings.
-        #oldfont, seq = None, []
+        # oldfont, seq = None, []
         for x1, y1, dvifont, glyph, width in page.text:
             font_and_encoding = self._ps_fontd.get(dvifont.texname)
-            font_bunch =  self.tex_font_map[dvifont.texname]
+            font_bunch = self.tex_font_map[dvifont.texname]
 
             if font_and_encoding is None:
                 font = FT2Font(str(font_bunch.filename))
 
-                for charmap_name, charmap_code in [("ADOBE_CUSTOM", 1094992451),
-                                                   ("ADOBE_STANDARD", 1094995778)]:
+                for charmap_name, charmap_code in [("ADOBE_CUSTOM",
+                                                    1094992451),
+                                                   ("ADOBE_STANDARD",
+                                                    1094995778)]:
                     try:
                         font.select_charmap(charmap_code)
                     except ValueError:
@@ -336,12 +341,13 @@ class TextToPath(object):
                         break
                 else:
                     charmap_name = ""
-                    warnings.warn("No supported encoding in font (%s)." % font_bunch.filename)
+                    warnings.warn("No supported encoding in font (%s)." %
+                                  font_bunch.filename)
 
                 if charmap_name == "ADOBE_STANDARD" and font_bunch.encoding:
                     enc0 = dviread.Encoding(font_bunch.encoding)
-                    enc = dict([(i, self._adobe_standard_encoding.get(c, None)) \
-                           for i, c in enumerate(enc0.encoding)])
+                    enc = dict([(i, self._adobe_standard_encoding.get(c, None))
+                                for i, c in enumerate(enc0.encoding)])
                 else:
                     enc = dict()
                 self._ps_fontd[dvifont.texname] = font, enc
@@ -356,47 +362,43 @@ class TextToPath(object):
             if not char_id in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
-                if enc: charcode = enc.get(glyph, None)
-                else: charcode = glyph
+                if enc:
+                    charcode = enc.get(glyph, None)
+                else:
+                    charcode = glyph
 
                 if charcode is not None:
                     glyph0 = font.load_char(charcode, flags=ft2font_flag)
                 else:
-                    warnings.warn("The glyph (%d) of font (%s) cannot be converted with the encoding. Glyph may be wrong" % (glyph, font_bunch.filename))
+                    warnings.warn("The glyph (%d) of font (%s) cannot be "
+                                  "converted with the encoding. Glyph may "
+                                  "be wrong" % (glyph, font_bunch.filename))
 
                     glyph0 = font.load_char(glyph, flags=ft2font_flag)
 
                 glyph_map_new[char_id] = self.glyph_to_path(font)
 
-
             glyph_ids.append(char_id)
             xpositions.append(x1)
             ypositions.append(y1)
-            sizes.append(dvifont.size/self.FONT_SCALE)
+            sizes.append(dvifont.size / self.FONT_SCALE)
 
         myrects = []
 
         for ox, oy, h, w in page.boxes:
-            vert1=[(ox, oy), (ox+w, oy), (ox+w, oy+h), (ox, oy+h), (ox, oy), (0,0)]
+            vert1 = [(ox, oy), (ox + w, oy), (ox + w, oy + h),
+                     (ox, oy + h), (ox, oy), (0, 0)]
             code1 = [Path.MOVETO,
                      Path.LINETO, Path.LINETO, Path.LINETO, Path.LINETO,
                      Path.CLOSEPOLY]
             myrects.append((vert1, code1))
 
+        return (zip(glyph_ids, xpositions, ypositions, sizes),
+                glyph_map_new, myrects)
 
-        return zip(glyph_ids, xpositions, ypositions, sizes), \
-               glyph_map_new, myrects
-
-
-
-
-
-
-from matplotlib.font_manager import FontProperties
-from matplotlib import rcParams
-from matplotlib.transforms import Affine2D
 
 text_to_path = TextToPath()
+
 
 class TextPath(Path):
     """
@@ -418,26 +420,25 @@ class TextPath(Path):
         prop : font property
         """
 
-
         if prop is None:
             prop = FontProperties()
 
         if size is None:
             size = prop.get_size_in_points()
 
-
         self._xy = xy
         self.set_size(size)
 
         self._cached_vertices = None
 
-        self._vertices, self._codes = self.text_get_vertices_codes(prop, s, usetex=usetex)
+        self._vertices, self._codes = self.text_get_vertices_codes(
+                                            prop, s,
+                                            usetex=usetex)
 
         self.should_simplify = False
         self.simplify_threshold = rcParams['path.simplify_threshold']
         self.has_nonfinite = False
         self._interpolation_steps = _interpolation_steps
-
 
     def set_size(self, size):
         """
@@ -477,13 +478,13 @@ class TextPath(Path):
         necessary.
 
         """
-        if self._invalid or \
-               (self._cached_vertices is None):
-            tr = Affine2D().scale(self._size/text_to_path.FONT_SCALE,
-                                  self._size/text_to_path.FONT_SCALE).translate(*self._xy)
+        if (self._invalid or
+            (self._cached_vertices is None)):
+            tr = Affine2D().scale(
+                    self._size / text_to_path.FONT_SCALE,
+                    self._size / text_to_path.FONT_SCALE).translate(*self._xy)
             self._cached_vertices = tr.transform(self._vertices)
             self._invalid = False
-
 
     def is_math_text(self, s):
         """
@@ -515,10 +516,7 @@ class TextPath(Path):
             verts, codes = text_to_path.get_text_path(prop, s, usetex=True)
         else:
             clean_line, ismath = self.is_math_text(s)
-            verts, codes = text_to_path.get_text_path(prop, clean_line, ismath=ismath)
+            verts, codes = text_to_path.get_text_path(prop, clean_line,
+                                                      ismath=ismath)
 
         return verts, codes
-
-
-
-
