@@ -8072,7 +8072,7 @@ class Axes(martist.Artist):
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
             if mlast is None:
-                mlast = np.zeros(len(bins)-1, np.float)
+                mlast = np.zeros(len(bins)-1, m.dtype)
             if normed:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
