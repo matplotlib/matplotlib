@@ -114,10 +114,6 @@ validate_toolbar = ValidateInStrings('toolbar',[
     'None','classic','toolbar2',
     ], ignorecase=True)
 
-def validate_autolayout(v):
-    if v:
-        warnings.warn("figure.autolayout is not currently supported")
-
 def validate_maskedarray(v):
     # 2008/12/12: start warning; later, remove all traces of maskedarray
     try:
