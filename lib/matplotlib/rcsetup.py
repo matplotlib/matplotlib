@@ -20,13 +20,13 @@ from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
 #interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'fltkagg', 'qtagg', 'qt4agg',
-#                  'tkagg', 'wx', 'wxagg', 'cocoaagg']
+#                  'tkagg', 'wx', 'wxagg', 'cocoaagg', 'web']
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
 
 interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX',
                   'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
-                  'GTK3Cairo', 'GTK3Agg']
+                  'GTK3Cairo', 'GTK3Agg', 'WebAgg']
 
 
 non_interactive_bk = ['agg', 'cairo', 'emf', 'gdk',
@@ -387,6 +387,8 @@ defaultParams = {
     'backend'           : ['Agg', validate_backend], # agg is certainly present
     'backend_fallback'  : [True, validate_bool], # agg is certainly present
     'backend.qt4'       : ['PyQt4', validate_qt4],
+    'webagg.port'       : [8888, validate_int],
+    'webagg.open_in_browser' : [True, validate_bool],
     'toolbar'           : ['toolbar2', validate_toolbar],
     'datapath'          : [None, validate_path_exists],   # handled by _get_data_path_cached
     'interactive'       : [False, validate_bool],

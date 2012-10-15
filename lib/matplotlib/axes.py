@@ -2116,17 +2116,6 @@ class Axes(martist.Artist):
     def get_renderer_cache(self):
         return self._cachedRenderer
 
-    def __draw_animate(self):
-        # ignore for now; broken
-        if self._lastRenderer is None:
-            raise RuntimeError('You must first call ax.draw()')
-        dsu = [(a.zorder, a) for a in self.animated.keys()]
-        dsu.sort(key=lambda x: x[0])
-        renderer = self._lastRenderer
-        renderer.blit()
-        for tmp, a in dsu:
-            a.draw(renderer)
-
     #### Axes rectangle characteristics
 
     def get_frame_on(self):

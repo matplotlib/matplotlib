@@ -846,9 +846,9 @@ class Cursor(AxesWidget):
         self.visible = True
         self.horizOn = True
         self.vertOn = True
-        self.useblit = useblit
+        self.useblit = useblit and self.canvas.supports_blit
 
-        if useblit:
+        if self.useblit:
             lineprops['animated'] = True
         self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
         self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
@@ -935,16 +935,16 @@ class MultiCursor(Widget):
         self.axes = axes
         xmin, xmax = axes[-1].get_xlim()
         xmid = 0.5 * (xmin + xmax)
-        if useblit:
-            lineprops['animated'] = True
-
-        self.lines = [ax.axvline(xmid, visible=False, **lineprops)
-                      for ax in axes]
 
         self.visible = True
-        self.useblit = useblit
+        self.useblit = useblit and self.canvas.supports_blit
         self.background = None
         self.needclear = False
+
+        if useblit:
+            lineprops['animated'] = True
+        self.lines = [ax.axvline(xmid, visible=False, **lineprops)
+                      for ax in axes]
 
         self.canvas.mpl_connect('motion_notify_event', self.onmove)
         self.canvas.mpl_connect('draw_event', self.clear)
@@ -1039,7 +1039,6 @@ class SpanSelector(AxesWidget):
         self.rectprops = rectprops
         self.onselect = onselect
         self.onmove_callback = onmove_callback
-        self.useblit = useblit
         self.minspan = minspan
 
         # Needed when dragging out of axes
@@ -1049,6 +1048,7 @@ class SpanSelector(AxesWidget):
         # Reset canvas so that `new_axes` connects events.
         self.canvas = None
         self.new_axes(ax)
+        self.useblit = useblit and self.canvas.supports_blit
 
     def new_axes(self, ax):
         self.ax = ax
@@ -1301,7 +1301,7 @@ class RectangleSelector(AxesWidget):
             self.ax.add_line(self.to_draw)
 
         self.onselect = onselect
-        self.useblit = useblit
+        self.useblit = useblit and self.canvas.supports_blit
         self.minspanx = minspanx
         self.minspany = minspany
 
@@ -1502,7 +1502,7 @@ class LassoSelector(AxesWidget):
     def __init__(self, ax, onselect=None, useblit=True, lineprops=None):
         AxesWidget.__init__(self, ax)
 
-        self.useblit = useblit
+        self.useblit = useblit and self.canvas.supports_blit
         self.onselect = onselect
         self.verts = None
 
@@ -1590,8 +1590,8 @@ class Lasso(AxesWidget):
     def __init__(self, ax, xy, callback=None, useblit=True):
         AxesWidget.__init__(self, ax)
 
-        self.useblit = useblit
-        if useblit:
+        self.useblit = useblit and self.canvas.supports_blit
+        if self.useblit:
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
 
         x, y = xy

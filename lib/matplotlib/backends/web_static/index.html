@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <script src="/static/mpl.js"></script>
+    <link href="/static/mpl.css" rel="stylesheet" type="text/css">
+  </head>
+  <body
+     onkeydown="key_event(event, 'key_press')"
+     onkeyup="key_event(event, 'key_release')">
+    <div id="mpl-div">
+      <canvas id="mpl-canvas" width="800" height="600"
+              onmousedown="mouse_event(event, 'button_press')"
+              onmouseup="mouse_event(event, 'button_release')"
+              onmousemove="mouse_event(event, 'motion_notify')">
+      </canvas>
+
+      <div id="toolbar">
+        {% for name, tooltip, image, method in toolitems %}
+          {% if name is None %}
+            <span class="mpl-toolbar-spacer"></span>
+          {% else %}
+            <button id="{{ name }}"
+                    class="mpl-toolbar-button"
+                    role="button">
+              <img src="/images/{{ image }}.png" width="24" height="24"
+                   onclick="toolbar_button_onclick('{{ method }}');"
+                   onmouseover="toolbar_button_onmouseover('{{ tooltip }}');"
+                   alt="{{ tooltip }}"/>
+            </button>
+          {% end %}
+        {% end %}
+        <select id="mpl-format" class="mpl-toolbar-option">
+          {% for filetype, extensions in sorted(canvas.get_supported_filetypes_grouped().items()) %}
+             <option value="{{ extensions[0] }}"
+             {% if extensions[0] == canvas.get_default_filetype() %}
+                selected
+             {% end %}
+             >{{filetype}} ({{", ".join(extensions)}})</option>
+          {% end %}
+        </select>
+        <span id="mpl-message" class="mpl-message"/>
+      </div>
+    </div>
+  </body>
+</html>

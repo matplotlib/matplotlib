@@ -117,6 +117,7 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'mpl-data/sample_data/*.*',
                               'mpl-data/sample_data/axes_grid/*.*',
                               'backends/Matplotlib.nib/*',
+                              'backends/web_static/*'
                               ]}
 
 package_dir = {'': 'lib'}
