@@ -152,7 +152,7 @@ from matplotlib import verbose
 import matplotlib.cbook as cbook
 from matplotlib import docstring
 from matplotlib.path import Path
-
+from matplotlib.transforms import Affine2D
 
 def logspace(xmin,xmax,N):
     return np.exp(np.linspace(np.log(xmin), np.log(xmax), N))
@@ -3185,6 +3185,41 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     c2x, c2y = c1x + 1./3. * (q2x - q0x), c1y + 1./3. * (q2y - q0y)
     # c3x, c3y = q2x, q2y
     return q0x, q0y, c1x, c1y, c2x, c2y, q2x, q2y
+
+def rotate_patch(p, ax, theta, pivot=None):
+    """
+    Rotates a simple closed polygon *p* of type :class:`Patch` *theta* radians
+    about the point *pivot*. If pivot is *None* then rotate about the
+    polygon's centre of mass.
+
+    The argument *ax* is the :class:`Axes` object to which *p* will be added.
+    """
+    verts = p.get_verts()
+    
+    if pivot is None:
+        area = 0
+        cx = 0
+        cy = 0
+        for i in range(len(verts) - 1):
+            factor = verts[i,0] * verts[i+1,1] - verts[i+1,0] * verts[i,1]
+            area += factor
+            cx += factor * (verts[i,0] + verts[i+1,0])
+            cy += factor * (verts[i,1] + verts[i+1,1])
+
+        # Do last and first vertex
+        factor = verts[-1,0] * verts[0,1] - verts[0,0] * verts[-1,1]
+        area += factor
+        cx += factor * (verts[-1,0] + verts[0,0])
+        cy += factor * (verts[-1,1] + verts[0,1])
+
+        area /= 2.0
+        cx /= 6.0 * area
+        cy /= 6.0 * area
+    else:
+        cx = pivot[0]
+        cy = pivot[1]
+    t = Affine2D().rotate_around(cx, cy, theta) + ax.transData
+    p.set_transform(t)
 
 def offset_line(y, yerr):
     """
