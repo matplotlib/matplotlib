@@ -214,8 +214,14 @@ class Verbose:
     _commandLineVerbose = None
 
     for arg in sys.argv[1:]:
-        if not arg.startswith('--verbose-'): continue
-        _commandLineVerbose = arg[10:]
+        if not arg.startswith('--verbose-'):
+            continue
+        level_str = arg[10:]
+        # If it doesn't match one of ours, then don't even
+        # bother noting it, we are just a 3rd-party library
+        # to somebody else's script.
+        if level_str in levels:
+            _commandLineVerbose = level_str
 
     def __init__(self):
         self.set_level('silent')
@@ -227,8 +233,10 @@ class Verbose:
         if self._commandLineVerbose is not None:
             level = self._commandLineVerbose
         if level not in self.levels:
-            raise ValueError('Illegal verbose string "%s".  Legal values are %s'%(level, self.levels))
-        self.level = level
+            warnings.warn('matplotlib: unrecognized --verbose-* string "%s".'
+                          ' Legal values are %s' % (level, self.levels))
+        else:
+            self.level = level
 
     def set_fileo(self, fname):
         std = {
