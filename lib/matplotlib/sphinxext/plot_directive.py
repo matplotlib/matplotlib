@@ -125,8 +125,8 @@ The plot directive has the following configuration options:
 """
 from __future__ import print_function
 
-import sys, os, glob, shutil, imp, warnings, cStringIO, re, textwrap, \
-       traceback, exceptions
+import sys, os, glob, shutil, imp, warnings, cStringIO, re, textwrap
+import traceback
 
 from docutils.parsers.rst import directives
 from docutils import nodes
