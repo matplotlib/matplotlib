@@ -11,6 +11,14 @@ help figure out possible sources of the changes you are experiencing.
 For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
+
+Changes in 1.3.x
+================
+
+* A new keyword *extendrect* in :meth:`~matplotlib.pyplot.colorbar` and
+  :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the shape
+  of colorbar extensions.
+
 Changes in 1.2.x
 ================
 
