@@ -2654,7 +2654,7 @@ def hist(x, bins=10, range=None, normed=False, weights=None, cumulative=False,
                       weights=weights, cumulative=cumulative, bottom=bottom,
                       histtype=histtype, align=align, orientation=orientation,
                       rwidth=rwidth, log=log, color=color, label=label,
-                      **kwargs)
+                      stacked=stacked, **kwargs)
         draw_if_interactive()
     finally:
         ax.hold(washold)
