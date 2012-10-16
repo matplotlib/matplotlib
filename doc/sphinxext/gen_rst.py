@@ -38,7 +38,10 @@ def generate_example_rst(app):
                 continue
 
             fullpath = os.path.join(root,fname)
-            contents = io.open(fullpath, encoding='utf8').read()
+            if sys.version_info[0] >= 3:
+                contents = io.open(fullpath, encoding='utf8').read()
+            else:
+                contents = io.open(fullpath).read()
             # indent
             relpath = os.path.split(root)[-1]
             datad.setdefault(relpath, []).append((fullpath, fname, contents))
@@ -130,7 +133,10 @@ Matplotlib Examples
             if not out_of_date(fullpath, outrstfile):
                 continue
 
-            fh = io.open(outrstfile, 'w', encoding='utf8')
+            if sys.version_info[0] >= 3:
+                fh = io.open(outrstfile, 'w', encoding='utf8')
+            else:
+                fh = io.open(outrstfile, 'w')
             fh.write('.. _%s-%s:\n\n'%(subdir, basename))
             title = '%s example code: %s'%(subdir, fname)
             #title = '<img src=%s> %s example code: %s'%(thumbfile, subdir, fname)
