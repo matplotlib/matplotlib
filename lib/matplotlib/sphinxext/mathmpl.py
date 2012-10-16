@@ -65,7 +65,7 @@ def latex2png(latex, filename, fontset='cm'):
 def latex2html(node, source):
     inline = isinstance(node.parent, nodes.TextElement)
     latex = node['latex']
-    name = 'math-%s' % md5(latex).hexdigest()[-10:]
+    name = 'math-%s' % md5(latex.encode()).hexdigest()[-10:]
 
     destdir = os.path.join(setup.app.builder.outdir, '_images', 'mathmpl')
     if not os.path.exists(destdir):
