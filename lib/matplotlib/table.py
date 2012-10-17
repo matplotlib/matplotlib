@@ -267,8 +267,7 @@ class Table(Artist):
             boxes = [self._cells[pos].get_window_extent(self._cachedRenderer)
                  for pos in self._cells.iterkeys()
                  if pos[0] >= 0 and pos[1] >= 0]
-            # FIXME bbox_all is not defined.
-            bbox = bbox_all(boxes)
+            bbox = Bbox.union(boxes)
             return bbox.contains(mouseevent.x, mouseevent.y), {}
         else:
             return False, {}
@@ -281,8 +280,7 @@ class Table(Artist):
     def get_window_extent(self, renderer):
         'Return the bounding box of the table in window coords'
         boxes = [c.get_window_extent(renderer) for c in self._cells]
-        # FIXME bbox_all is not defined
-        return bbox_all(boxes)
+        return Bbox.union(boxes)
 
     def _do_cell_alignment(self):
         """ Calculate row heights and column widths.
