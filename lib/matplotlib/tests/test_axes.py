@@ -901,6 +901,15 @@ def test_hist_stacked_weighted():
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), weights=(w1,w2), histtype="stepfilled", stacked=True)
 
+@image_comparison(baseline_images=['transparent_markers'], remove_text=True)
+def test_transparent_markers():
+    np.random.seed(0)
+    data = np.random.random(50)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(data, 'D', mfc='none', markersize=100)
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
