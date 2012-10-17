@@ -6,9 +6,12 @@ import nose
 import matplotlib
 import matplotlib.tests
 import matplotlib.units
+from matplotlib import ticker
 from matplotlib import pyplot as plt
+from matplotlib import ft2font
 import numpy as np
-from matplotlib.testing.compare import comparable_formats, compare_images
+from matplotlib.testing.compare import comparable_formats, compare_images, \
+     make_test_filename
 import warnings
 
 def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
@@ -64,7 +67,7 @@ class CleanupTest(object):
         matplotlib.units.registry.clear()
         matplotlib.units.registry.update(cls.original_units_registry)
         warnings.resetwarnings() #reset any warning filters set in tests
-        
+
     def test(self):
         self._func()
 
@@ -78,12 +81,34 @@ def cleanup(func):
         {'_func': func})
     return new_class
 
+def check_freetype_version(ver):
+    if ver is None:
+        return True
+
+    from distutils import version
+    if isinstance(ver, str):
+        ver = (ver, ver)
+    ver = [version.StrictVersion(x) for x in ver]
+    found = version.StrictVersion(ft2font.__freetype_version__)
+
+    return found >= ver[0] and found <= ver[1]
+
 class ImageComparisonTest(CleanupTest):
     @classmethod
     def setup_class(cls):
         CleanupTest.setup_class()
 
         cls._func()
+
+    @staticmethod
+    def remove_text(figure):
+        figure.suptitle("")
+        for ax in figure.get_axes():
+            ax.set_title("")
+            ax.xaxis.set_major_formatter(ticker.NullFormatter())
+            ax.xaxis.set_minor_formatter(ticker.NullFormatter())
+            ax.yaxis.set_major_formatter(ticker.NullFormatter())
+            ax.yaxis.set_minor_formatter(ticker.NullFormatter())
 
     def test(self):
         baseline_dir, result_dir = _image_directories(self._func)
@@ -101,7 +126,8 @@ class ImageComparisonTest(CleanupTest):
                 orig_expected_fname = os.path.join(baseline_dir, baseline) + '.' + extension
                 if extension == 'eps' and not os.path.exists(orig_expected_fname):
                     orig_expected_fname = os.path.join(baseline_dir, baseline) + '.pdf'
-                expected_fname = os.path.join(result_dir, 'expected-' + os.path.basename(orig_expected_fname))
+                expected_fname = make_test_filename(os.path.join(
+                    result_dir, os.path.basename(orig_expected_fname)), 'expected')
                 actual_fname = os.path.join(result_dir, baseline) + '.' + extension
                 if os.path.exists(orig_expected_fname):
                     shutil.copyfile(orig_expected_fname, expected_fname)
@@ -113,22 +139,34 @@ class ImageComparisonTest(CleanupTest):
                     will_fail, fail_msg,
                     known_exception_class=ImageComparisonFailure)
                 def do_test():
+                    if self._remove_text:
+                        self.remove_text(figure)
+
                     figure.savefig(actual_fname)
 
-                    err = compare_images(expected_fname, actual_fname, self._tol, in_decorator=True)
+                    err = compare_images(expected_fname, actual_fname,
+                                         self._tol, in_decorator=True)
 
-                    if not os.path.exists(expected_fname):
-                        raise ImageComparisonFailure(
-                            'image does not exist: %s' % expected_fname)
+                    try:
+                        if not os.path.exists(expected_fname):
+                            raise ImageComparisonFailure(
+                                'image does not exist: %s' % expected_fname)
 
-                    if err:
-                        raise ImageComparisonFailure(
-                            'images not close: %(actual)s vs. %(expected)s '
-                            '(RMS %(rms).3f)'%err)
+                        if err:
+                            raise ImageComparisonFailure(
+                                'images not close: %(actual)s vs. %(expected)s '
+                                '(RMS %(rms).3f)'%err)
+                    except ImageComparisonFailure:
+                        if not check_freetype_version(self._freetype_version):
+                            raise KnownFailureTest(
+                                "Mismatched version of freetype.  Test requires '%s', you have '%s'" %
+                                (self._freetype_version, ft2font.__freetype_version__))
+                        raise
 
                 yield (do_test,)
 
-def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
+def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
+                     freetype_version=None, remove_text=False):
     """
     call signature::
 
@@ -149,6 +187,18 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
         If *None*, default to all supported extensions.
 
         Otherwise, a list of extensions to test. For example ['png','pdf'].
+
+      *tol*: (default 1e-3)
+        The RMS threshold above which the test is considered failed.
+
+      *freetype_version*: str or tuple
+        The expected freetype version or range of versions for this
+        test to pass.
+
+      *remove_text*: bool
+        Remove the title and tick text from the figure before
+        comparison.  This does not remove other, more deliberate,
+        text, such as legends and annotations.
     """
 
     if baseline_images is None:
@@ -179,7 +229,10 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
             {'_func': func,
              '_baseline_images': baseline_images,
              '_extensions': extensions,
-             '_tol': tol})
+             '_tol': tol,
+             '_freetype_version': freetype_version,
+             '_remove_text': remove_text})
+
         return new_class
     return compare_images_decorator
 
@@ -191,17 +244,28 @@ def _image_directories(func):
     module_name = func.__module__
     if module_name == '__main__':
         # FIXME: this won't work for nested packages in matplotlib.tests
-        import warnings
         warnings.warn('test module run as script. guessing baseline image locations')
         script_name = sys.argv[0]
         basedir = os.path.abspath(os.path.dirname(script_name))
         subdir = os.path.splitext(os.path.split(script_name)[1])[0]
     else:
         mods = module_name.split('.')
-        assert mods.pop(0) == 'matplotlib'
+        mods.pop(0) # <- will be the name of the package being tested (in 
+                    # most cases "matplotlib")
         assert mods.pop(0) == 'tests'
         subdir = os.path.join(*mods)
-        basedir = os.path.dirname(matplotlib.tests.__file__)
+        
+        import imp
+        def find_dotted_module(module_name, path=None):
+            """A version of imp which can handle dots in the module name"""
+            res = None
+            for sub_mod in module_name.split('.'):
+                res = _, path, _ = imp.find_module(sub_mod, path)
+                path = [path]
+            return res
+        
+        mod_file = find_dotted_module(func.__module__)[1]
+        basedir = os.path.dirname(mod_file)
 
     baseline_dir = os.path.join(basedir, 'baseline_images', subdir)
     result_dir = os.path.abspath(os.path.join('result_images', subdir))
@@ -210,4 +274,3 @@ def _image_directories(func):
         os.makedirs(result_dir)
 
     return baseline_dir, result_dir
-

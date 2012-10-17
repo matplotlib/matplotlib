@@ -10,6 +10,12 @@ from numpy.testing import assert_array_equal
 import io
 import os
 
+try:
+    from PIL import Image
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
+
 @image_comparison(baseline_images=['image_interps'])
 def test_image_interps():
     'make the basic nearest, bilinear and bicubic interps'
@@ -30,7 +36,8 @@ def test_image_interps():
     ax3.imshow(X, interpolation='bicubic')
     ax3.set_ylabel('bicubic')
 
-@image_comparison(baseline_images=['interp_nearest_vs_none'], extensions=['pdf', 'svg'])
+@image_comparison(baseline_images=['interp_nearest_vs_none'],
+                  extensions=['pdf', 'svg'], remove_text=True)
 def test_interp_nearest_vs_none():
     'Test the effect of "nearest" and "none" interpolation'
     # Setting dpi to something really small makes the difference very
@@ -76,6 +83,13 @@ def test_image_python_io():
     buffer.seek(0)
     plt.imread(buffer)
 
+@knownfailureif(not HAS_PIL)
+def test_imread_pil_uint16():
+    img = plt.imread(os.path.join(os.path.dirname(__file__),
+                     'baseline_images', 'test_image', 'uint16.tif'))
+    assert (img.dtype == np.uint16)
+    assert np.sum(img) == 134184960
+
 # def test_image_unicode_io():
 #     fig = plt.figure()
 #     ax = fig.add_subplot(111)
@@ -114,6 +128,26 @@ def test_imsave():
 
     assert_array_equal(arr_dpi1, arr_dpi100)
 
+def test_imsave_color_alpha():
+    # The goal is to test that imsave will accept arrays with ndim=3 where
+    # the third dimension is color and alpha without raising any exceptions
+    from numpy import random
+    random.seed(1)
+    data = random.rand(256, 128, 4)
+
+    buff = io.BytesIO()
+    plt.imsave(buff, data)
+
+    buff.seek(0)
+    arr_buf = plt.imread(buff)
+
+    assert arr_buf.shape == data.shape
+
+    # Unfortunately, the AGG process "flattens" the RGBA data
+    # into an equivalent RGB data with no transparency. So we
+    # Can't directly compare the arrays like we could in some
+    # other imsave tests.
+
 @image_comparison(baseline_images=['image_clip'])
 def test_image_clip():
     from math import pi
@@ -125,7 +159,7 @@ def test_image_clip():
 
     im = ax.imshow(d, extent=(-pi,pi,-pi/2,pi/2))
 
-@image_comparison(baseline_images=['imshow'], tol=1.5e-3)
+@image_comparison(baseline_images=['imshow'], tol=1.5e-3, remove_text=True)
 def test_imshow():
     import numpy as np
     import matplotlib.pyplot as plt
@@ -136,8 +170,30 @@ def test_imshow():
     ax.imshow(arr, interpolation="bilinear", extent=(1,2,1,2))
     ax.set_xlim(0,3)
     ax.set_ylim(0,3)
-    ax.set_xticks([])
-    ax.set_yticks([])
+
+@image_comparison(baseline_images=['no_interpolation_origin'], remove_text=True)
+def test_no_interpolation_origin():
+    fig = plt.figure()
+    ax = fig.add_subplot(211)
+    ax.imshow(np.arange(100).reshape((2, 50)), origin="lower", interpolation='none')
+
+    ax = fig.add_subplot(212)
+    ax.imshow(np.arange(100).reshape((2, 50)), interpolation='none')
+
+@image_comparison(baseline_images=['image_shift'], remove_text=True,
+                  extensions=['pdf', 'svg'])
+def test_image_shift():
+    from matplotlib.colors import LogNorm
+
+    imgData = [[1.0/(x) + 1.0/(y) for x in range(1,100)] for y in range(1,100)]
+    tMin=734717.945208
+    tMax=734717.946366
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.imshow(imgData, norm=LogNorm(), interpolation='none',
+              extent=(tMin, tMax, 1, 100))
+    ax.set_aspect('auto')
 
 if __name__=='__main__':
     import nose

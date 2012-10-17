@@ -224,6 +224,8 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
             for j in range(_winreg.QueryInfoKey(local)[1]):
                 try:
                     key, direc, any = _winreg.EnumValue( local, j)
+                    if not is_string_like(direc):
+                        continue
                     if not os.path.dirname(direc):
                         direc = os.path.join(directory, direc)
                     direc = os.path.abspath(direc).lower()

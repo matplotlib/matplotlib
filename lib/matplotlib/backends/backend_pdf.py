@@ -139,7 +139,7 @@ def pdfRepr(obj):
     # Floats. PDF does not have exponential notation (1.0e-10) so we
     # need to use %f with some precision.  Perhaps the precision
     # should adapt to the magnitude of the number?
-    elif isinstance(obj, float):
+    elif isinstance(obj, (float, np.floating)):
         if not np.isfinite(obj):
             raise ValueError("Can only output finite numbers in PDF")
         r = ("%.10f" % obj).encode('ascii')
@@ -151,7 +151,7 @@ def pdfRepr(obj):
         return [b'false', b'true'][obj]
 
     # Integers are written as such.
-    elif isinstance(obj, (int, long)):
+    elif isinstance(obj, (int, long, np.integer)):
         return ("%d" % obj).encode('ascii')
 
     # Unicode strings are encoded in UTF-16BE with byte-order mark.
@@ -394,11 +394,19 @@ class PdfFile(object):
         self.nextObject = 1     # next free object id
         self.xrefTable = [ [0, 65535, 'the zero object'] ]
         self.passed_in_file_object = False
+        self.original_file_like = None
+        self.tell_base = 0
         if is_string_like(filename):
             fh = open(filename, 'wb')
         elif is_writable_file_like(filename):
-            fh = filename
-            self.passed_in_file_object = True
+            try:
+                self.tell_base = filename.tell()
+            except IOError:
+                fh = BytesIO()
+                self.original_file_like = filename
+            else:
+                fh = filename
+                self.passed_in_file_object = True
         else:
             raise ValueError("filename must be a path or a file-like object")
 
@@ -452,6 +460,8 @@ class PdfFile(object):
         self.markers = {}
         self.multi_byte_charprocs = {}
 
+        self.paths = []
+
         # The PDF spec recommends to include every procset
         procsets = [ Name(x)
                      for x in "PDF Text ImageB ImageC ImageI".split() ]
@@ -476,7 +486,11 @@ class PdfFile(object):
                     'Parent': self.pagesObject,
                     'Resources': self.resourceObject,
                     'MediaBox': [ 0, 0, 72*width, 72*height ],
-                    'Contents': contentObject }
+                    'Contents': contentObject,
+                    'Group': {'Type': Name('Group'),
+                              'S': Name('Transparency'),
+                              'CS': Name('DeviceRGB')}
+                    }
         pageObject = self.reserveObject('page')
         self.writeObject(pageObject, thePage)
         self.pageList.append(pageObject)
@@ -501,9 +515,12 @@ class PdfFile(object):
             xobjects[tup[0]] = tup[1]
         for name, value in self.multi_byte_charprocs.iteritems():
             xobjects[name] = value
+        for name, path, trans, ob, join, cap, padding, filled, stroked in self.paths:
+            xobjects[name] = ob
         self.writeObject(self.XObjectObject, xobjects)
         self.writeImages()
         self.writeMarkers()
+        self.writePathCollectionTemplates()
         self.writeObject(self.pagesObject,
                          { 'Type': Name('Pages'),
                            'Kids': self.pageList,
@@ -515,6 +532,9 @@ class PdfFile(object):
         self.writeTrailer()
         if self.passed_in_file_object:
             self.fh.flush()
+        elif self.original_file_like is not None:
+            self.original_file_like.write(self.fh.getvalue())
+            self.fh.close()
         else:
             self.fh.close()
 
@@ -1048,6 +1068,15 @@ end"""
         return name
 
     def hatchPattern(self, hatch_style):
+        # The colors may come in as numpy arrays, which aren't hashable
+        if hatch_style is not None:
+            face, edge, hatch = hatch_style
+            if face is not None:
+                face = tuple(face)
+            if edge is not None:
+                edge = tuple(edge)
+            hatch_style = (face, edge, hatch)
+
         pattern = self.hatchPatterns.get(hatch_style, None)
         if pattern is not None:
             return pattern
@@ -1213,7 +1242,7 @@ end"""
 
             img.flipud_out()
 
-    def markerObject(self, path, trans, fillp, strokep, lw):
+    def markerObject(self, path, trans, fillp, strokep, lw, joinstyle, capstyle):
         """Return name of a marker XObject representing the given path."""
         # self.markers used by markerObject, writeMarkers, close:
         # mapping from (path operations, fill?, stroke?) to
@@ -1228,7 +1257,7 @@ end"""
         # first two components of each value in self.markers to be the
         # name and object reference.
         pathops = self.pathOperations(path, trans, simplify=False)
-        key = (tuple(pathops), bool(fillp), bool(strokep))
+        key = (tuple(pathops), bool(fillp), bool(strokep), joinstyle, capstyle)
         result = self.markers.get(key)
         if result is None:
             name = Name('M%d' % len(self.markers))
@@ -1242,15 +1271,45 @@ end"""
         return name
 
     def writeMarkers(self):
-        for ((pathops, fillp, strokep),
+        for ((pathops, fillp, strokep, joinstyle, capstyle),
              (name, ob, bbox, lw)) in self.markers.iteritems():
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 ob.id, None,
                 {'Type': Name('XObject'), 'Subtype': Name('Form'),
                  'BBox': list(bbox.extents) })
+            self.output(GraphicsContextPdf.joinstyles[joinstyle], Op.setlinejoin)
+            self.output(GraphicsContextPdf.capstyles[capstyle], Op.setlinecap)
             self.output(*pathops)
             self.output(Op.paint_path(False, fillp, strokep))
+            self.endStream()
+
+    def pathCollectionObject(self, gc, path, trans, padding, filled, stroked):
+        name = Name('P%d' % len(self.paths))
+        ob = self.reserveObject('path %d' % len(self.paths))
+        self.paths.append(
+            (name, path, trans, ob, gc.get_joinstyle(), gc.get_capstyle(), padding,
+             filled, stroked))
+        return name
+
+    def writePathCollectionTemplates(self):
+        for (name, path, trans, ob, joinstyle, capstyle, padding, filled,
+             stroked) in self.paths:
+            pathops = self.pathOperations(path, trans, simplify=False)
+            bbox = path.get_extents(trans)
+            if not np.all(np.isfinite(bbox.extents)):
+                extents = [0, 0, 0, 0]
+            else:
+                bbox = bbox.padded(padding)
+                extents = list(bbox.extents)
+            self.beginStream(
+                ob.id, None,
+                {'Type': Name('XObject'), 'Subtype': Name('Form'),
+                 'BBox': extents})
+            self.output(GraphicsContextPdf.joinstyles[joinstyle], Op.setlinejoin)
+            self.output(GraphicsContextPdf.capstyles[capstyle], Op.setlinecap)
+            self.output(*pathops)
+            self.output(Op.paint_path(False, filled, stroked))
             self.endStream()
 
     @staticmethod
@@ -1263,6 +1322,8 @@ end"""
                 # This is allowed anywhere in the path
                 cmds.extend(points)
                 cmds.append(Op.moveto)
+            elif code == Path.CLOSEPOLY:
+                cmds.append(Op.closepath)
             elif last_points is None:
                 # The other operations require a previous point
                 raise ValueError('Path lacks initial MOVETO')
@@ -1276,8 +1337,6 @@ end"""
             elif code == Path.CURVE4:
                 cmds.extend(points)
                 cmds.append(Op.curveto)
-            elif code == Path.CLOSEPOLY:
-                cmds.append(Op.closepath)
             last_points = points
         return cmds
 
@@ -1303,7 +1362,7 @@ end"""
         return Reference(id)
 
     def recordXref(self, id):
-        self.xrefTable[id][0] = self.fh.tell()
+        self.xrefTable[id][0] = self.fh.tell() - self.tell_base
 
     def writeObject(self, object, contents):
         self.recordXref(object.id)
@@ -1312,7 +1371,7 @@ end"""
     def writeXref(self):
         """Write out the xref table."""
 
-        self.startxref = self.fh.tell()
+        self.startxref = self.fh.tell() - self.tell_base
         self.write(("xref\n0 %d\n" % self.nextObject).encode('ascii'))
         i = 0
         borken = False
@@ -1460,6 +1519,34 @@ class RendererPdf(RendererBase):
             rgbFace is None and gc.get_hatch_path() is None)
         self.file.output(self.gc.paint())
 
+    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
+        padding = np.max(linewidths)
+        path_codes = []
+        filled = len(facecolors)
+        stroked = len(edgecolors)
+        for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
+            master_transform, paths, all_transforms)):
+            name = self.file.pathCollectionObject(
+                gc, path, transform, padding, filled, stroked)
+            path_codes.append(name)
+
+        output = self.file.output
+        output(Op.gsave)
+        lastx, lasty = 0, 0
+        for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
+            gc, master_transform, all_transforms, path_codes, offsets,
+            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+            antialiaseds, urls, offset_position):
+
+            self.check_gc(gc0, rgbFace)
+            dx, dy = xo - lastx, yo - lasty
+            output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id, Op.use_xobject)
+            lastx, lasty = xo, yo
+        output(Op.grestore)
+
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         # For simple paths or small numbers of markers, don't bother
         # making an XObject
@@ -1474,7 +1561,8 @@ class RendererPdf(RendererBase):
 
         output = self.file.output
         marker = self.file.markerObject(
-            marker_path, marker_trans, fillp, strokep, self.gc._linewidth)
+            marker_path, marker_trans, fillp, strokep, self.gc._linewidth,
+            gc.get_joinstyle(), gc.get_capstyle())
 
         output(Op.gsave)
         lastx, lasty = 0, 0
@@ -2094,7 +2182,14 @@ def new_figure_manager(num, *args, **kwargs):
     # main-level app (egg backend_gtk, backend_gtkagg) for pylab
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasPdf(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasPdf(figure)
     manager = FigureManagerPdf(canvas, num)
     return manager
 
@@ -2162,7 +2257,7 @@ class PdfPages(object):
             if figureManager is None:
                 raise ValueError("No such figure: " + repr(figure))
             else:
-                figureManager.canvas.figure.savefig(self, format='pdf')
+                figureManager.canvas.figure.savefig(self, format='pdf', **kwargs)
 
 class FigureCanvasPdf(FigureCanvasBase):
     """

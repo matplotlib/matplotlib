@@ -41,6 +41,7 @@
 #include "truetype.h"
 #include <algorithm>
 #include <stack>
+#include <list>
 
 class GlyphToType3
 {
@@ -57,9 +58,6 @@ private:
     int num_pts, num_ctr;               /* number of points, number of coutours */
     FWord *xcoor, *ycoor;               /* arrays of x and y coordinates */
     BYTE *tt_flags;                     /* array of TrueType flags */
-    double *area_ctr;
-    char *check_ctr;
-    int *ctrset;                /* in contour index followed by out contour index */
 
     int stack_depth;            /* A book-keeping variable for keeping track of the depth of the PS stack */
 
@@ -69,11 +67,10 @@ private:
     void stack(TTStreamWriter& stream, int new_elem);
     void stack_end(TTStreamWriter& stream);
     void PSConvert(TTStreamWriter& stream);
-    int nextinctr(int co, int ci);
-    int nextoutctr(int co);
-    int nearout(int ci);
-    double intest(int co, int ci);
-    void PSCurveto(TTStreamWriter& stream, FWord x, FWord y, int s, int t);
+    void PSCurveto(TTStreamWriter& stream,
+                   FWord x0, FWord y0,
+                   FWord x1, FWord y1,
+                   FWord x2, FWord y2);
     void PSMoveto(TTStreamWriter& stream, int x, int y);
     void PSLineto(TTStreamWriter& stream, int x, int y);
     void do_composite(TTStreamWriter& stream, struct TTFONT *font, BYTE *glyph);
@@ -81,6 +78,18 @@ private:
 public:
     GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int charindex, bool embedded = false);
     ~GlyphToType3();
+};
+
+// Each point on a TrueType contour is either on the path or off it (a
+// control point); here's a simple representation for building such
+// contours. Added by Jouni Seppänen 2012-05-27.
+enum Flag { ON_PATH, OFF_PATH };
+struct FlaggedPoint
+{
+    enum Flag flag;
+    FWord x;
+    FWord y;
+    FlaggedPoint(Flag flag_, FWord x_, FWord y_): flag(flag_), x(x_), y(y_) {};
 };
 
 double area(FWord *x, FWord *y, int n);
@@ -132,252 +141,106 @@ void GlyphToType3::stack_end(TTStreamWriter& stream)                    /* calle
 } /* end of stack_end() */
 
 /*
-** Find the area of a contour?
-*/
-double area(FWord *x, FWord *y, int n)
-{
-    int i;
-    double sum;
-
-    sum=x[n-1]*y[0]-y[n-1]*x[0];
-    for (i=0; i<=n-2; i++) sum += x[i]*y[i+1] - y[i]*x[i+1];
-    return sum;
-}
-
-/*
 ** We call this routine to emmit the PostScript code
 ** for the character we have loaded with load_char().
 */
 void GlyphToType3::PSConvert(TTStreamWriter& stream)
 {
-    int i,j,k,fst,start_offpt;
-    int end_offpt = 0;
+    int j, k;
 
-    assert(area_ctr == NULL);
-    area_ctr=(double*)calloc(num_ctr, sizeof(double));
-    memset(area_ctr, 0, (num_ctr*sizeof(double)));
-    assert(check_ctr == NULL);
-    check_ctr=(char*)calloc(num_ctr, sizeof(char));
-    memset(check_ctr, 0, (num_ctr*sizeof(char)));
-    assert(ctrset == NULL);
-    ctrset=(int*)calloc(num_ctr, 2*sizeof(int));
-    memset(ctrset, 0, (num_ctr*2*sizeof(int)));
-
-    check_ctr[0]=1;
-    area_ctr[0]=area(xcoor, ycoor, epts_ctr[0]+1);
-
-    for (i=1; i<num_ctr; i++)
+    /* Step thru the contours.
+     * j = index to xcoor, ycoor, tt_flags (point data)
+     * k = index to epts_ctr (which points belong to the same contour) */
+    for(j = k = 0; k < num_ctr; k++)
     {
-        area_ctr[i]=area(xcoor+epts_ctr[i-1]+1, ycoor+epts_ctr[i-1]+1, epts_ctr[i]-epts_ctr[i-1]);
-    }
+        // A TrueType contour consists of on-path and off-path points.
+        // Two consecutive on-path points are to be joined with a
+        // line; off-path points between on-path points indicate a
+        // quadratic spline, where the off-path point is the control
+        // point. Two consecutive off-path points have an implicit
+        // on-path point midway between them.
+        std::list<FlaggedPoint> points;
 
-    for (i=0; i<num_ctr; i++)
-    {
-        if (area_ctr[i]>0)
+        // Represent flags and x/y coordinates as a C++ list
+        for (; j <= epts_ctr[k]; j++)
         {
-            ctrset[2*i]=i;
-            ctrset[2*i+1]=nearout(i);
+            if (!(tt_flags[j] & 1)) {
+                points.push_back(FlaggedPoint(OFF_PATH, xcoor[j], ycoor[j]));
+            } else {
+                points.push_back(FlaggedPoint(ON_PATH, xcoor[j], ycoor[j]));
+            }
+        }
+
+        if (points.size() == 0) {
+            // Don't try to access the last element of an empty list
+            continue;
+        }
+
+        // For any two consecutive off-path points, insert the implied
+        // on-path point.
+        FlaggedPoint prev = points.back();
+        for (std::list<FlaggedPoint>::iterator it = points.begin();
+             it != points.end();
+             it++)
+        {
+            if (prev.flag == OFF_PATH && it->flag == OFF_PATH)
+            {
+                points.insert(it,
+                              FlaggedPoint(ON_PATH,
+                                           (prev.x + it->x) / 2,
+                                           (prev.y + it->y) / 2));
+            }
+            prev = *it;
+        }
+        // Handle the wrap-around: insert a point either at the beginning
+        // or at the end that has the same coordinates as the opposite point.
+        // This also ensures that the initial point is ON_PATH.
+        if (points.front().flag == OFF_PATH)
+        {
+            assert(points.back().flag == ON_PATH);
+            points.insert(points.begin(), points.back());
         }
         else
         {
-            ctrset[2*i]=-1;
-            ctrset[2*i+1]=-1;
+            assert(points.front().flag == ON_PATH);
+            points.push_back(points.front());
         }
-    }
 
-    /* Step thru the coutours. */
-    /* I believe that a contour is a detatched */
-    /* set of curves and lines. */
-    i=j=k=0;
-    while ( i < num_ctr )
-    {
-        fst = j = (k==0) ? 0 : (epts_ctr[k-1]+1);
-
-        /* Move to the first point on the contour. */
+        // The first point
         stack(stream, 3);
-        PSMoveto(stream,xcoor[j],ycoor[j]);
+        PSMoveto(stream, points.front().x, points.front().y);
 
-        start_offpt = 0;                /* No off curve points yet. */
-
-        /* Step thru the remaining points of this contour. */
-        for (j++; j <= epts_ctr[k]; j++)
+        // Step through the remaining points
+        std::list<FlaggedPoint>::const_iterator it = points.begin();
+        for (it++; it != points.end(); /* incremented inside */)
         {
-            if (!(tt_flags[j]&1))       /* Off curve */
+            const FlaggedPoint& point = *it;
+            if (point.flag == ON_PATH)
             {
-                if (!start_offpt)
-                {
-                    start_offpt = end_offpt = j;
-                }
-                else
-                {
-                    end_offpt++;
-                }
+                stack(stream, 3);
+                PSLineto(stream, point.x, point.y);
+                it++;
+            } else {
+                std::list<FlaggedPoint>::const_iterator prev = it, next = it;
+                prev--;
+                next++;
+                assert(prev->flag == ON_PATH);
+                assert(next->flag == ON_PATH);
+                stack(stream, 7);
+                PSCurveto(stream,
+                          prev->x, prev->y,
+                          point.x, point.y,
+                          next->x, next->y);
+                it++;
+                it++;
             }
-            else
-            {
-                /* On Curve */
-                if (start_offpt)
-                {
-                    stack(stream, 7);
-                    PSCurveto(stream, xcoor[j],ycoor[j],start_offpt,end_offpt);
-                    start_offpt = 0;
-                }
-                else
-                {
-                    stack(stream, 3);
-                    PSLineto(stream, xcoor[j], ycoor[j]);
-                }
-            }
-        }
-
-        /* Do the final curve or line */
-        /* of this coutour. */
-        if (start_offpt)
-        {
-            stack(stream, 7);
-            PSCurveto(stream, xcoor[fst],ycoor[fst],start_offpt,end_offpt);
-        }
-        else
-        {
-            stack(stream, 3);
-            PSLineto(stream, xcoor[fst],ycoor[fst]);
-        }
-
-        k=nextinctr(i,k);
-
-        if (k==NOMOREINCTR)
-        {
-            i=k=nextoutctr(i);
-        }
-
-        if (i==NOMOREOUTCTR)
-        {
-            break;
         }
     }
 
     /* Now, we can fill the whole thing. */
     stack(stream, 1);
     stream.puts( pdf_mode ? "f" : "_cl" );
-
-    /* Free our work arrays. */
-    free(area_ctr);
-    free(check_ctr);
-    free(ctrset);
-    area_ctr = NULL;
-    check_ctr = NULL;
-    ctrset = NULL;
 } /* end of PSConvert() */
-
-int GlyphToType3::nextoutctr(int co)
-{
-    int j;
-
-    for (j=0; j<num_ctr; j++)
-    {
-        if (check_ctr[j]==0 && area_ctr[j] < 0)
-        {
-            check_ctr[j]=1;
-            return j;
-        }
-    }
-
-    return NOMOREOUTCTR;
-} /* end of nextoutctr() */
-
-int GlyphToType3::nextinctr(int co, int ci)
-{
-    int j;
-
-    for (j=0; j<num_ctr; j++)
-    {
-        if (ctrset[2*j+1]==co)
-            if (check_ctr[ctrset[2*j]]==0)
-            {
-                check_ctr[ctrset[2*j]]=1;
-                return ctrset[2*j];
-            }
-    }
-
-    return NOMOREINCTR;
-}
-
-/*
-** find the nearest out contour to a specified in contour.
-*/
-int GlyphToType3::nearout(int ci)
-{
-    int k = 0;                  /* !!! is this right? */
-    int co;
-    double a, a1=0;
-
-    for (co=0; co < num_ctr; co++)
-    {
-        if (area_ctr[co] < 0)
-        {
-            a=intest(co,ci);
-            if (a<0 && a1==0)
-            {
-                k=co;
-                a1=a;
-            }
-            if (a<0 && a1!=0 && a>a1)
-            {
-                k=co;
-                a1=a;
-            }
-        }
-    }
-
-    return k;
-} /* end of nearout() */
-
-double GlyphToType3::intest(int co, int ci)
-{
-    int i, j, start, end;
-    double r1, r2, a;
-    FWord xi[3], yi[3];
-
-    j=start=(co==0)?0:(epts_ctr[co-1]+1);
-    end=epts_ctr[co];
-    i=(ci==0)?0:(epts_ctr[ci-1]+1);
-    xi[0] = xcoor[i];
-    yi[0] = ycoor[i];
-    r1=sqr(xcoor[start] - xi[0]) + sqr(ycoor[start] - yi[0]);
-
-    for (i=start; i<=end; i++)
-    {
-        r2 = sqr(xcoor[i] - xi[0])+sqr(ycoor[i] - yi[0]);
-        if (r2 < r1)
-        {
-            r1=r2;
-            j=i;
-        }
-    }
-    if (j==start)
-    {
-        xi[1]=xcoor[end];
-        yi[1]=ycoor[end];
-    }
-    else
-    {
-        xi[1]=xcoor[j-1];
-        yi[1]=ycoor[j-1];
-    }
-    if (j==end)
-    {
-        xi[2]=xcoor[start];
-        yi[2]=ycoor[start];
-    }
-    else
-    {
-        xi[2]=xcoor[j+1];
-        yi[2]=ycoor[j+1];
-    }
-    a=area(xi, yi, 3);
-
-    return a;
-} /* end of intest() */
 
 void GlyphToType3::PSMoveto(TTStreamWriter& stream, int x, int y)
 {
@@ -392,36 +255,34 @@ void GlyphToType3::PSLineto(TTStreamWriter& stream, int x, int y)
 }
 
 /*
-** Emmit a PostScript "curveto" command.
+** Emit a PostScript "curveto" command, assuming the current point
+** is (x0, y0), the control point of a quadratic spline is (x1, y1),
+** and the endpoint is (x2, y2). Note that this requires a conversion,
+** since PostScript splines are cubic.
 */
-void GlyphToType3::PSCurveto(TTStreamWriter& stream, FWord x, FWord y, int s, int t)
+void GlyphToType3::PSCurveto(TTStreamWriter& stream,
+                             FWord x0, FWord y0,
+                             FWord x1, FWord y1,
+                             FWord x2, FWord y2)
 {
-    int N, i;
-    double sx[3], sy[3], cx[4], cy[4];
+    double sx[3], sy[3], cx[3], cy[3];
 
-    N = t-s+2;
-    for (i=0; i<N-1; i++)
-    {
-        sx[0] = i==0?xcoor[s-1]:(xcoor[i+s]+xcoor[i+s-1])/2;
-        sy[0] = i==0?ycoor[s-1]:(ycoor[i+s]+ycoor[i+s-1])/2;
-        sx[1] = xcoor[s+i];
-        sy[1] = ycoor[s+i];
-        sx[2] = i==N-2?x:(xcoor[s+i]+xcoor[s+i+1])/2;
-        sy[2] = i==N-2?y:(ycoor[s+i]+ycoor[s+i+1])/2;
-        cx[3] = sx[2];
-        cy[3] = sy[2];
-        cx[1] = (2*sx[1]+sx[0])/3;
-        cy[1] = (2*sy[1]+sy[0])/3;
-        cx[2] = (sx[2]+2*sx[1])/3;
-        cy[2] = (sy[2]+2*sy[1])/3;
-
-        stream.printf(pdf_mode ?
-                      "%d %d %d %d %d %d c\n" :
-                      "%d %d %d %d %d %d _c\n",
-                      (int)cx[1], (int)cy[1], (int)cx[2], (int)cy[2],
-                      (int)cx[3], (int)cy[3]);
-    }
-} /* end of PSCurveto() */
+    sx[0] = x0;
+    sy[0] = y0;
+    sx[1] = x1;
+    sy[1] = y1;
+    sx[2] = x2;
+    sy[2] = y2;
+    cx[0] = (2*sx[1]+sx[0])/3;
+    cy[0] = (2*sy[1]+sy[0])/3;
+    cx[1] = (sx[2]+2*sx[1])/3;
+    cy[1] = (sy[2]+2*sy[1])/3;
+    cx[2] = sx[2];
+    cy[2] = sy[2];
+    stream.printf("%d %d %d %d %d %d %s\n",
+                  (int)cx[0], (int)cy[0], (int)cx[1], (int)cy[1],
+                  (int)cx[2], (int)cy[2], pdf_mode ? "c" : "_c");
+}
 
 /*
 ** Deallocate the structures which stored
@@ -433,11 +294,6 @@ GlyphToType3::~GlyphToType3()
     free(xcoor);               /* The X coordinates */
     free(ycoor);               /* The Y coordinates */
     free(epts_ctr);            /* The array of contour endpoints */
-    // These last three should be NULL.  Just
-    // free'ing them for safety.
-    free(area_ctr);
-    free(check_ctr);
-    free(ctrset);
 }
 
 /*
@@ -721,9 +577,6 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
     xcoor = NULL;
     ycoor = NULL;
     epts_ctr = NULL;
-    area_ctr = NULL;
-    check_ctr = NULL;
-    ctrset = NULL;
     stack_depth = 0;
     pdf_mode = font->target_type < 0;
 

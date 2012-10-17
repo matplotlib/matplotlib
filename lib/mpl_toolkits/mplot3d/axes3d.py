@@ -19,6 +19,7 @@ from matplotlib.transforms import Bbox
 import matplotlib.collections as mcoll
 from matplotlib import docstring
 import matplotlib.scale as mscale
+from matplotlib.tri.triangulation import Triangulation
 import numpy as np
 from matplotlib.colors import Normalize, colorConverter, LightSource
 
@@ -84,7 +85,7 @@ class Axes3D(Axes):
 
         # func used to format z -- fall back on major formatters
         self.fmt_zdata = None
-        
+
         if zscale is not None :
             self.set_zscale(zscale)
 
@@ -608,10 +609,10 @@ class Axes3D(Axes):
         .. versionadded:: 1.1.0
         """
         return self.zaxis.set_ticks(*args, **kwargs)
-        
-    def get_zticks(self, *args, **kwargs):
+
+    def get_zticks(self, minor=False):
         """
-        Get the z-axis tick objects.
+        Return the z ticks as a list of locations
         See :meth:`matplotlib.axes.Axes.get_yticks` for more details.
 
         .. note::
@@ -619,7 +620,7 @@ class Axes3D(Axes):
 
         .. versionadded:: 1.1.0
         """
-        return self.zaxis.get_ticks(*args, **kwargs)
+        return self.zaxis.get_ticklocs(minor=minor)
 
     def get_zmajorticklabels(self) :
         """
@@ -633,7 +634,7 @@ class Axes3D(Axes):
     def get_zminorticklabels(self) :
         """
         Get the ztick labels as a list of Text instances
-        
+
         .. note::
             Minor ticks are not supported. This function was added
             only for completeness.
@@ -824,7 +825,9 @@ class Axes3D(Axes):
     def cla(self):
         """Clear axes and disable mouse button callbacks.
         """
-        self.disable_mouse_rotation()
+        # Disabling mouse interaction might have been needed a long
+        # time ago, but I can't find a reason for it now - BVR (2012-03)
+        #self.disable_mouse_rotation()
         self.zaxis.cla()
 
         # TODO: Support sharez
@@ -1042,6 +1045,7 @@ class Axes3D(Axes):
         Set / unset 3D grid.
 
         .. note::
+
             Currently, this function does not behave the same as
             :meth:`matplotlib.axes.Axes.grid`, but it is intended to
             eventually support that behavior.
@@ -1348,16 +1352,10 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         Z = np.atleast_2d(Z)
-        rows, cols = Z.shape
         # TODO: Support masked arrays
-        X = np.asarray(X)
-        Y = np.asarray(Y)
-        # Force X and Y to take the same shape.
-        # If they can not be fitted to that shape,
-        # then an exception is automatically thrown.
-        X.shape = (rows, cols)
-        Y.shape = (rows, cols)
-        
+        X, Y, Z = np.broadcast_arrays(X, Y, Z)
+        rows, cols = Z.shape
+
         rstride = kwargs.pop('rstride', 10)
         cstride = kwargs.pop('cstride', 10)
 
@@ -1393,7 +1391,7 @@ class Axes3D(Axes):
         #colset contains the data for coloring: either average z or the facecolor
         colset = []
         for rs in xrange(0, rows-1, rstride):
-            for cs in xrange(0, cols-1, cstride):  
+            for cs in xrange(0, cols-1, cstride):
                 ps = []
                 for a in (X, Y, Z) :
                     ztop = a[rs,cs:min(cols, cs+cstride+1)]
@@ -1522,14 +1520,8 @@ class Axes3D(Axes):
         had_data = self.has_data()
         Z = np.atleast_2d(Z)
         # FIXME: Support masked arrays
-        X = np.asarray(X)
-        Y = np.asarray(Y)
+        X, Y, Z = np.broadcast_arrays(X, Y, Z)
         rows, cols = Z.shape
-        # Force X and Y to take the same shape.
-        # If they can not be fitted to that shape,
-        # then an exception is automatically thrown.
-        X.shape = (rows, cols)
-        Y.shape = (rows, cols)
 
         # We want two sets of lines, one running along the "rows" of
         # Z and another set of lines running along the "columns" of Z.
@@ -1569,6 +1561,123 @@ class Axes3D(Axes):
         self.auto_scale_xyz(X, Y, Z, had_data)
 
         return linec
+
+    def plot_trisurf(self, *args, **kwargs):
+        """
+        ============= ================================================
+        Argument      Description
+        ============= ================================================
+        *X*, *Y*, *Z* Data values as 1D arrays
+        *color*       Color of the surface patches
+        *cmap*        A colormap for the surface patches.
+        *norm*        An instance of Normalize to map values to colors
+        *vmin*        Minimum value to map
+        *vmax*        Maximum value to map
+        *shade*       Whether to shade the facecolors
+        ============= ================================================
+
+        The (optional) triangulation can be specified in one of two ways;
+        either::
+
+          plot_trisurf(triangulation, ...)
+
+        where triangulation is a :class:`~matplotlib.tri.Triangulation`
+        object, or::
+
+          plot_trisurf(X, Y, ...)
+          plot_trisurf(X, Y, triangles, ...)
+          plot_trisurf(X, Y, triangles=triangles, ...)
+
+        in which case a Triangulation object will be created.  See
+        :class:`~matplotlib.tri.Triangulation` for a explanation of
+        these possibilities.
+
+        The remaining arguments are::
+
+          plot_trisurf(..., Z)
+
+        where *Z* is the array of values to contour, one per point
+        in the triangulation.
+
+        Other arguments are passed on to
+        :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+
+        **Examples:**
+
+        .. plot:: mpl_examples/mplot3d/trisurf3d_demo.py
+        .. plot:: mpl_examples/mplot3d/trisurf3d_demo2.py
+
+        .. versionadded:: 1.2.0
+            This plotting function was added for the v1.2.0 release.
+        """
+
+        had_data = self.has_data()
+
+        # TODO: Support custom face colours
+        color = np.array(colorConverter.to_rgba(kwargs.pop('color', 'b')))
+
+        cmap = kwargs.get('cmap', None)
+        norm = kwargs.pop('norm', None)
+        vmin = kwargs.pop('vmin', None)
+        vmax = kwargs.pop('vmax', None)
+        linewidth = kwargs.get('linewidth', None)
+        shade = kwargs.pop('shade', cmap is None)
+        lightsource = kwargs.pop('lightsource', None)
+
+        tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
+        z = np.asarray(args[0])
+
+        triangles = tri.get_masked_triangles()
+        xt = tri.x[triangles][...,np.newaxis]
+        yt = tri.y[triangles][...,np.newaxis]
+        zt = np.array(z)[triangles][...,np.newaxis]
+
+        verts = np.concatenate((xt, yt, zt), axis=2)
+
+        # Only need these vectors to shade if there is no cmap
+        if cmap is None and shade:
+            totpts = len(verts)
+            v1 = np.empty((totpts, 3))
+            v2 = np.empty((totpts, 3))
+            # This indexes the vertex points
+            which_pt = 0
+
+        colset = []
+        for i in xrange(len(verts)):
+            avgzsum = verts[i,0,2] + verts[i,1,2] + verts[i,2,2]
+            colset.append(avgzsum / 3.0)
+
+            # Only need vectors to shade if no cmap
+            if cmap is None and shade:
+                v1[which_pt] = np.array(verts[i,0]) - np.array(verts[i,1])
+                v2[which_pt] = np.array(verts[i,1]) - np.array(verts[i,2])
+                which_pt += 1
+
+        if cmap is None and shade:
+            normals = np.cross(v1, v2)
+        else:
+            normals = []
+
+        polyc = art3d.Poly3DCollection(verts, *args, **kwargs)
+
+        if cmap:
+            colset = np.array(colset)
+            polyc.set_array(colset)
+            if vmin is not None or vmax is not None:
+                polyc.set_clim(vmin, vmax)
+            if norm is not None:
+                polyc.set_norm(norm)
+        else:
+            if shade:
+                colset = self._shade_colors(color, normals)
+            else:
+                colset = color
+            polyc.set_facecolors(colset)
+
+        self.add_collection(polyc)
+        self.auto_scale_xyz(tri.x, tri.y, z, had_data)
+
+        return polyc
 
     def _3d_extend_contour(self, cset, stride=5):
         '''
@@ -1853,9 +1962,13 @@ class Axes3D(Axes):
         ys = np.ma.ravel(ys)
         zs = np.ma.ravel(zs)
         if xs.size != ys.size:
-            raise ValueError("x and y must be the same size")
-        if xs.size != zs.size and zs.size == 1:
-            zs = np.array(zs[0] * xs.size)
+            raise ValueError("Arguments 'xs' and 'ys' must be of same size.")
+        if xs.size != zs.size:
+            if zs.size == 1:
+                zs = np.tile(zs[0], xs.size)
+            else:
+                raise ValueError(("Argument 'zs' must be of same size as 'xs' "
+                    "and 'ys' or of size 1."))
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
@@ -2073,7 +2186,7 @@ def get_test_data(delta=0.05):
 
 
 ########################################################
-# Register Axes3D as a 'projection' object available 
+# Register Axes3D as a 'projection' object available
 # for use just like any other axes
 ########################################################
 import matplotlib.projections as proj

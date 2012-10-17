@@ -2,8 +2,8 @@
 
 """
 
-You can enable picking by setting the"picker" property of an artist
-(eg a matplotlib Line2D, Text, Patch, Polygon, AxesImage,
+You can enable picking by setting the "picker" property of an artist
+(for example, a matplotlib Line2D, Text, Patch, Polygon, AxesImage,
 etc...)
 
 There are a variety of meanings of the picker property
@@ -15,27 +15,27 @@ There are a variety of meanings of the picker property
       the artist
 
     float - if picker is a number it is interpreted as an
-      epsilon tolerance in points and the the artist will fire
+      epsilon tolerance in points and the artist will fire
       off an event if it's data is within epsilon of the mouse
       event.  For some artists like lines and patch collections,
       the artist may provide additional data to the pick event
-      that is generated, eg the indices of the data within
+      that is generated, for example, the indices of the data within
       epsilon of the pick event
 
-     function - if picker is callable, it is a user supplied
+    function - if picker is callable, it is a user supplied
       function which determines whether the artist is hit by the
       mouse event.
 
          hit, props = picker(artist, mouseevent)
 
-      to determine the hit test.  if the mouse event is over the
+      to determine the hit test.  If the mouse event is over the
       artist, return hit=True and props is a dictionary of properties
       you want added to the PickEvent attributes
 
 
 After you have enabled an artist for picking by setting the "picker"
 property, you need to connect to the figure canvas pick_event to get
-pick callbacks on mouse press events.  Eg,
+pick callbacks on mouse press events.  For example,
 
   def pick_handler(event):
       mouseevent = event.mouseevent
@@ -47,9 +47,9 @@ The pick event (matplotlib.backend_bases.PickEvent) which is passed to
 your callback is always fired with two attributes:
 
   mouseevent - the mouse event that generate the pick event.  The
-    mouse event in turn has attributes like x and y (the coords in
-    display space, eg pixels from left, bottom) and xdata, ydata (the
-    coords in data space).  Additionaly, you can get information about
+    mouse event in turn has attributes like x and y (the coordinates in
+    display space, such as pixels from left, bottom) and xdata, ydata (the
+    coords in data space).  Additionally, you can get information about
     which buttons were pressed, which keys were pressed, which Axes
     the mouse is over, etc.  See matplotlib.backend_bases.MouseEvent
     for details.
@@ -58,8 +58,8 @@ your callback is always fired with two attributes:
 
 Additionally, certain artists like Line2D and PatchCollection may
 attach additional meta data like the indices into the data that meet
-the picker criteria (eg all the points in the line that are within the
-specified epsilon tolerance)
+the picker criteria (for example, all the points in the line that are within
+the specified epsilon tolerance)
 
 The examples below illustrate each of these methods.
 """

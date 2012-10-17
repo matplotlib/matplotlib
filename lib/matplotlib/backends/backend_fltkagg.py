@@ -78,6 +78,13 @@ def new_figure_manager(num, *args, **kwargs):
     """
     FigureClass = kwargs.pop('FigureClass', Figure)
     figure = FigureClass(*args, **kwargs)
+    return new_figure_manager_given_figure(num, figure)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
     window = Fltk.Fl_Double_Window(10,10,30,30)
     canvas = FigureCanvasFltkAgg(figure)
     window.end()
@@ -136,6 +143,8 @@ class FltkCanvas(Fltk.Fl_Widget):
                     self._key=special_key[ikey]
                 except:
                     self._key=None
+
+            # TODO: Handle ctrl, alt, super modifiers.
             FigureCanvasBase.key_press_event(self._source, self._key)
             return 1
         elif event == Fltk.FL_KEYUP:

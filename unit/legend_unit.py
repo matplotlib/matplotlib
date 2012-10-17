@@ -1,22 +1,22 @@
 from __future__ import print_function
-from pylab import figure, show, nx
+from pylab import figure, show, np
 
 Ntests = 3
-t = nx.arange(0.0, 1.0, 0.05)
-s = nx.sin(2*nx.pi*t)
+t = np.arange(0.0, 1.0, 0.05)
+s = np.sin(2*np.pi*t)
 
 # scatter creates a RegPolyCollection
 fig = figure()
 ax = fig.add_subplot(Ntests, 1, 1)
 N = 100
-x, y = 0.9*nx.mlab.rand(2,N)
-area = nx.pi*(10 * nx.mlab.rand(N))**2 # 0 to 10 point radiuses
+x, y = 0.9*np.random.rand(2,N)
+area = np.pi*(10 * np.random.rand(N))**2 # 0 to 10 point radiuses
 ax.scatter(x,y,s=area, marker='^', c='r', label='scatter')
 ax.legend()
 
 # vlines creates a LineCollection
 ax = fig.add_subplot(Ntests, 1, 2)
-ax.vlines(t, [0], nx.sin(2*nx.pi*t), label='vlines')
+ax.vlines(t, [0], np.sin(2*np.pi*t), label='vlines')
 ax.legend()
 
 # vlines creates a LineCollection

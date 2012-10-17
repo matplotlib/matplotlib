@@ -12,7 +12,7 @@ from numpy import ma
 from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \
     path_in_path, path_intersects_path, convert_path_to_polygons, \
-    cleanup_path
+    cleanup_path, points_in_path
 from matplotlib.cbook import simple_linear_interpolation, maxdict
 from matplotlib import rcParams
 
@@ -60,10 +60,13 @@ class Path(object):
     at all, but have a default one provided for them by
     :meth:`iter_segments`.
 
-    Note also that the vertices and codes arrays should be treated as
-    immutable -- there are a number of optimizations and assumptions
-    made up front in the constructor that will not change when the
-    data changes.
+    .. note::
+
+        The vertices and codes arrays should be treated as
+        immutable -- there are a number of optimizations and assumptions
+        made up front in the constructor that will not change when the
+        data changes.
+
     """
 
     # Path codes
@@ -277,10 +280,29 @@ class Path(object):
 
         If *transform* is not *None*, the path will be transformed
         before performing the test.
+
+        *radius* allows the path to be made slightly larger or
+        smaller.
         """
         if transform is not None:
             transform = transform.frozen()
         result = point_in_path(point[0], point[1], radius, self, transform)
+        return result
+
+    def contains_points(self, points, transform=None, radius=0.0):
+        """
+        Returns a bool array which is *True* if the path contains the
+        corresponding point.
+
+        If *transform* is not *None*, the path will be transformed
+        before performing the test.
+
+        *radius* allows the path to be made slightly larger or
+        smaller.
+        """
+        if transform is not None:
+            transform = transform.frozen()
+        result = points_in_path(points, radius, self, transform)
         return result
 
     def contains_path(self, path, transform=None):
@@ -628,7 +650,7 @@ class Path(object):
 
         if is_wedge:
             length = n * 3 + 4
-            vertices = np.empty((length, 2), np.float_)
+            vertices = np.zeros((length, 2), np.float_)
             codes = cls.CURVE4 * np.ones((length, ), cls.code_type)
             vertices[1] = [xA[0], yA[0]]
             codes[0:2] = [cls.MOVETO, cls.LINETO]
@@ -688,12 +710,53 @@ class Path(object):
         return hatch_path
 
 _get_path_collection_extents = get_path_collection_extents
-def get_path_collection_extents(*args):
+def get_path_collection_extents(
+        master_transform, paths, transforms, offsets, offset_transform):
     """
-    Given a sequence of :class:`Path` objects, returns the bounding
-    box that encapsulates all of them.
+    Given a sequence of :class:`Path` objects,
+    :class:`~matplotlib.transforms.Transform` objects and offsets, as
+    found in a :class:`~matplotlib.collections.PathCollection`,
+    returns the bounding box that encapsulates all of them.
+
+    *master_transform* is a global transformation to apply to all paths
+
+    *paths* is a sequence of :class:`Path` instances.
+
+    *transforms* is a sequence of
+    :class:`~matplotlib.transforms.Affine2D` instances.
+
+    *offsets* is a sequence of (x, y) offsets (or an Nx2 array)
+
+    *offset_transform* is a :class:`~matplotlib.transforms.Affine2D`
+    to apply to the offsets before applying the offset to the path.
+
+    The way that *paths*, *transforms* and *offsets* are combined
+    follows the same method as for collections.  Each is iterated over
+    independently, so if you have 3 paths, 2 transforms and 1 offset,
+    their combinations are as follows:
+
+        (A, A, A), (B, B, A), (C, A, A)
     """
     from transforms import Bbox
-    if len(args[1]) == 0:
+    if len(paths) == 0:
         raise ValueError("No paths provided")
-    return Bbox.from_extents(*_get_path_collection_extents(*args))
+    return Bbox.from_extents(*_get_path_collection_extents(
+        master_transform, paths, transforms, offsets, offset_transform))
+
+def get_paths_extents(paths, transforms=[]):
+    """
+    Given a sequence of :class:`Path` objects and optional
+    :class:`~matplotlib.transforms.Transform` objects, returns the
+    bounding box that encapsulates all of them.
+
+    *paths* is a sequence of :class:`Path` instances.
+
+    *transforms* is an optional sequence of
+    :class:`~matplotlib.transforms.Affine2D` instances to apply to
+    each path.
+    """
+    from transforms import Bbox, Affine2D
+    if len(paths) == 0:
+        raise ValueError("No paths provided")
+    return Bbox.from_extents(*_get_path_collection_extents(
+        Affine2D(), paths, transforms, [], Affine2D()))

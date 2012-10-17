@@ -29,6 +29,6 @@ for add in np.arange(15):
 
 im_ani = animation.ArtistAnimation(fig2, ims, interval=50, repeat_delay=3000,
     blit=True)
-#im_ani.save('im.mp4')
+#im_ani.save('im.mp4', metadata={'artist':'Guido'})
 
 plt.show()

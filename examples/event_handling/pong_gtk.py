@@ -12,10 +12,8 @@ import gtk, gobject
 import matplotlib
 matplotlib.use('GTKAgg')
 
-import numpy as np
 import matplotlib.pyplot as plt
 import pipong
-from numpy.random import randn, randint
 
 
 fig = plt.figure()

@@ -28,7 +28,6 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D
 from matplotlib.backends._backend_gdk import pixbuf_get_pixels_array
 
-
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 _debug = False
 
@@ -142,7 +141,7 @@ class RendererGDK(RendererBase):
     def draw_text(self, gc, x, y, s, prop, angle, ismath):
         x, y = int(x), int(y)
 
-        if x <0 or y <0: # window has shrunk and text is off the edge
+        if x < 0 or y < 0: # window has shrunk and text is off the edge
             return
 
         if angle not in (0,90):
@@ -157,6 +156,9 @@ class RendererGDK(RendererBase):
         else:
             layout, inkRect, logicalRect = self._get_pango_layout(s, prop)
             l, b, w, h = inkRect
+            if (x + w > self.width or y + h > self.height):
+                return
+
             self.gdkDrawable.draw_layout(gc.gdkGC, x, y-h-b, layout)
 
 
@@ -225,7 +227,8 @@ class RendererGDK(RendererBase):
         x = int(x-h)
         y = int(y-w)
 
-        if x < 0 or y < 0: # window has shrunk and text is off the edge
+        if (x < 0 or y < 0 or # window has shrunk and text is off the edge
+            x + w > self.width or y + h > self.height):
             return
 
         key = (x,y,s,angle,hash(prop))
@@ -419,11 +422,15 @@ def new_figure_manager(num, *args, **kwargs):
     """
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas  = FigureCanvasGDK(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas  = FigureCanvasGDK(figure)
     manager = FigureManagerBase(canvas, num)
-    # equals:
-    #manager = FigureManagerBase (FigureCanvasGDK (Figure(*args, **kwargs),
-    #                             num)
     return manager
 
 
@@ -465,6 +472,3 @@ class FigureCanvasGDK (FigureCanvasBase):
                                  0, 0, 0, 0, width, height)
 
         pixbuf.save(filename, format)
-
-    def get_default_filetype(self):
-        return 'png'

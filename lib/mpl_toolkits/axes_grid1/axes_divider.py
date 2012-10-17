@@ -151,6 +151,8 @@ class Divider(object):
         :param horizontal: list of sizes
                     (:mod:`~mpl_toolkits.axes_grid.axes_size`)
                     for horizontal division
+
+        .
         """
         self._horizontal = h
 
@@ -164,6 +166,8 @@ class Divider(object):
         :param horizontal: list of sizes
                     (:mod:`~mpl_toolkits.axes_grid.axes_size`)
                     for horizontal division
+
+        .
         """
         self._vertical = v
 
@@ -932,5 +936,3 @@ def make_axes_area_auto_adjustable(ax,
 #from matplotlib.axes import Axes
 from mpl_axes import Axes
 LocatableAxes = locatable_axes_factory(Axes)
-
-

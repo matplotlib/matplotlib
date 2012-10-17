@@ -98,7 +98,7 @@ class RendererTemplate(RendererBase):
     # performance will probably want to implement it
 #     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
 #                        coordinates, offsets, offsetTrans, facecolors,
-#                        antialiased, showedges):
+#                        antialiased, edgecolors):
 #         pass
 
     def draw_image(self, gc, x, y, im):
@@ -184,13 +184,21 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    # if a main-level app must be created, this is the usual place to
+    # if a main-level app must be created, this (and
+    # new_figure_manager_given_figure) is the usual place to
     # do it -- see backend_wx, backend_wxagg and backend_tkagg for
     # examples.  Not all GUIs require explicit instantiation of a
     # main-level app (egg backend_gtk, backend_gtkagg) for pylab
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasTemplate(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasTemplate(figure)
     manager = FigureManagerTemplate(canvas, num)
     return manager
 
@@ -253,4 +261,3 @@ class FigureManagerTemplate(FigureManagerBase):
 
 
 FigureManager = FigureManagerTemplate
-

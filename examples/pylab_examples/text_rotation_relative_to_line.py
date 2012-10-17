@@ -2,7 +2,7 @@
 """
 Text objects in matplotlib are normally rotated with respect to the
 screen coordinate system (i.e., 45 degrees rotation plots text along a
-line that is inbetween horizontal and vertical no matter how the axes
+line that is in between horizontal and vertical no matter how the axes
 are changed).  However, at times one wants to rotate text with respect
 to something on the plot.  In this case, the correct angle won't be
 the angle of that object in the plot coordinate system, but the angle

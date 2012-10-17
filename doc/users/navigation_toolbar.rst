@@ -76,28 +76,31 @@ The ``Save`` button
     ``svg`` and ``pdf``.
 
 
+.. _key-event-handling:
+
 Navigation Keyboard Shortcuts
 -----------------------------
 
 The following table holds all the default keys, which can be overwritten by use of your matplotlibrc (#keymap.\*).
 
-================================== ==============================================
+================================== =================================================
 Command                            Keyboard Shortcut(s)
-================================== ==============================================
+================================== =================================================
 Home/Reset                         **h** or **r** or **home**
 Back                               **c** or **left arrow** or **backspace**
 Forward                            **v** or **right arrow**
 Pan/Zoom                           **p**
 Zoom-to-rect                       **o**
-Save                               **s**
-Toggle fullscreen                  **f**
-Constrain pan/zoom to x axis       hold **x**
-Constrain pan/zoom to y axis       hold **y**
-Preserve aspect ratio              hold **CONTROL**
-Toggle grid                        **g**
-Toggle x axis scale (log/linear)   **L** or **k**
-Toggle y axis scale (log/linear)   **l**
-================================== ==============================================
+Save                               **ctrl** + **s**
+Toggle fullscreen                  **ctrl** + **f**
+Close plot                         **ctrl** + **w**
+Constrain pan/zoom to x axis       hold **x** when panning/zooming with mouse 
+Constrain pan/zoom to y axis       hold **y** when panning/zooming with mouse
+Preserve aspect ratio              hold **CONTROL** when panning/zooming with mouse
+Toggle grid                        **g** when mouse is over an axes
+Toggle x axis scale (log/linear)   **L** or **k**  when mouse is over an axes
+Toggle y axis scale (log/linear)   **l** when mouse is over an axes
+================================== =================================================
 
 If you are using :mod:`matplotlib.pyplot` the toolbar will be created
 automatically for every figure.  If you are writing your own user

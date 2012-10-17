@@ -26,6 +26,7 @@
 #include "agg_scanline_storage_aa.h"
 #include "agg_scanline_storage_bin.h"
 #include "agg_span_allocator.h"
+#include "agg_span_converter.h"
 #include "agg_span_image_filter_gray.h"
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
@@ -442,10 +443,10 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R& rasterizer)
     double l, b, r, t;
     if (py_convert_bbox(cliprect.ptr(), l, b, r, t))
     {
-        rasterizer.clip_box(std::max(int(mpl_round(l)), 0),
-                            std::max(int(height) - int(mpl_round(b)), 0),
-                            std::min(int(mpl_round(r)), int(width)),
-                            std::min(int(height) - int(mpl_round(t)), int(height)));
+        rasterizer.clip_box(std::max(int(floor(l - 0.5)), 0),
+                            std::max(int(floor(height - b - 0.5)), 0),
+                            std::min(int(floor(r - 0.5)), int(width)),
+                            std::min(int(floor(height - t - 0.5)), int(height)));
     }
     else
     {
@@ -659,7 +660,7 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     // Deal with the difference in y-axis direction
     marker_trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_scaling(1.0, -1.0);
-    trans *= agg::trans_affine_translation(0.0, (double)height);
+    trans *= agg::trans_affine_translation(0.5, (double)height + 0.5);
 
     PathIterator       marker_path(marker_path_obj);
     transformed_path_t marker_path_transformed(marker_path, marker_trans);
@@ -745,8 +746,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
                     continue;
                 }
 
-                x = (double)(int)x;
-                y = (double)(int)y;
+                x = floor(x);
+                y = floor(y);
 
                 // Cull points outside the boundary of the image.
                 // Values that are too large may overflow and create
@@ -781,8 +782,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
                     continue;
                 }
 
-                x = (double)(int)x;
-                y = (double)(int)y;
+                x = floor(x);
+                y = floor(y);
 
                 // Cull points outside the boundary of the image.
                 // Values that are too large may overflow and create
@@ -984,6 +985,30 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
     return Py::Object();
 }
 
+class span_conv_alpha
+{
+public:
+    typedef agg::rgba8 color_type;
+
+    double m_alpha;
+
+    span_conv_alpha(double alpha) :
+        m_alpha(alpha)
+    {
+    }
+
+    void prepare() {}
+    void generate(color_type* span, int x, int y, unsigned len) const
+    {
+        do
+            {
+                span->a = (agg::int8u)((double)span->a * m_alpha);
+                ++span;
+            }
+        while(--len);
+    }
+};
+
 
 Py::Object
 RendererAgg::draw_image(const Py::Tuple& args)
@@ -1068,11 +1093,14 @@ RendererAgg::draw_image(const Py::Tuple& args)
         typedef agg::span_interpolator_linear<> interpolator_type;
         typedef agg::span_image_filter_rgba_nn<image_accessor_type,
                                                interpolator_type> image_span_gen_type;
+        typedef agg::span_converter<image_span_gen_type, span_conv_alpha> span_conv;
 
         color_span_alloc_type sa;
         image_accessor_type ia(pixf, agg::rgba8(0, 0, 0, 0));
         interpolator_type interpolator(inv_mtx);
         image_span_gen_type image_span_generator(ia, interpolator);
+        span_conv_alpha conv_alpha(alpha);
+        span_conv spans(image_span_generator, conv_alpha);
 
         if (has_clippath)
         {
@@ -1081,12 +1109,12 @@ RendererAgg::draw_image(const Py::Tuple& args)
             typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
             typedef agg::renderer_scanline_aa<amask_ren_type,
                                               color_span_alloc_type,
-                                              image_span_gen_type>
+                                              span_conv>
                 renderer_type_alpha;
 
             pixfmt_amask_type pfa(pixFmt, alphaMask);
             amask_ren_type r(pfa);
-            renderer_type_alpha ri(r, sa, image_span_generator);
+            renderer_type_alpha ri(r, sa, spans);
 
             theRasterizer.add_path(rect2);
             agg::render_scanlines(theRasterizer, slineP8, ri);
@@ -1096,11 +1124,11 @@ RendererAgg::draw_image(const Py::Tuple& args)
             typedef agg::renderer_base<pixfmt> ren_type;
             typedef agg::renderer_scanline_aa<ren_type,
                                               color_span_alloc_type,
-                                              image_span_gen_type>
+                                              span_conv>
                 renderer_type;
 
             ren_type r(pixFmt);
-            renderer_type ri(r, sa, image_span_generator);
+            renderer_type ri(r, sa, spans);
 
             theRasterizer.add_path(rect2);
             agg::render_scanlines(theRasterizer, slineP8, ri);
@@ -1111,7 +1139,8 @@ RendererAgg::draw_image(const Py::Tuple& args)
     {
         set_clipbox(gc.cliprect, rendererBase);
         rendererBase.blend_from(
-            pixf, 0, (int)x, (int)(height - (y + image->rowsOut)), alpha * 255);
+            pixf, 0, (int)x, (int)(height - (y + image->rowsOut)),
+            (agg::int8u)(alpha * 255));
     }
 
     rendererBase.reset_clipping(true);
@@ -1372,7 +1401,8 @@ RendererAgg::_draw_path_collection_generic
  const Py::Object&              edgecolors_obj,
  const Py::SeqBase<Py::Float>&  linewidths,
  const Py::SeqBase<Py::Object>& linestyles_obj,
- const Py::SeqBase<Py::Int>&    antialiaseds)
+ const Py::SeqBase<Py::Int>&    antialiaseds,
+ const bool                     data_offsets)
 {
     typedef agg::conv_transform<typename PathGenerator::path_iterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t>                         nan_removed_t;
@@ -1486,7 +1516,11 @@ RendererAgg::_draw_path_collection_generic
             double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
             double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
             offset_trans.transform(&xo, &yo);
-            trans *= agg::trans_affine_translation(xo, yo);
+            if (data_offsets) {
+                trans = agg::trans_affine_translation(xo, yo) * trans;
+            } else {
+                trans *= agg::trans_affine_translation(xo, yo);
+            }
         }
 
         // These transformations must be done post-offsets
@@ -1604,7 +1638,7 @@ Py::Object
 RendererAgg::draw_path_collection(const Py::Tuple& args)
 {
     _VERBOSE("RendererAgg::draw_path_collection");
-    args.verify_length(12);
+    args.verify_length(13);
 
     Py::Object gc_obj = args[0];
     GCAgg gc(gc_obj, dpi);
@@ -1621,6 +1655,9 @@ RendererAgg::draw_path_collection(const Py::Tuple& args)
     Py::SeqBase<Py::Int>    antialiaseds     = args[10];
     // We don't actually care about urls for Agg, so just ignore it.
     // Py::SeqBase<Py::Object> urls             = args[11];
+    std::string             offset_position  = Py::String(args[12]);
+
+    bool data_offsets = (offset_position == "data");
 
     try
     {
@@ -1638,7 +1675,8 @@ RendererAgg::draw_path_collection(const Py::Tuple& args)
          edgecolors_obj,
          linewidths,
          linestyles_obj,
-         antialiaseds);
+         antialiaseds,
+         data_offsets);
     }
     catch (const char *e)
     {
@@ -1764,28 +1802,18 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
     agg::trans_affine offset_trans     = py_to_agg_transformation_matrix(args[6].ptr());
     Py::Object        facecolors_obj   = args[7];
     bool              antialiased      = (bool)Py::Boolean(args[8]);
-    bool              showedges        = (bool)Py::Boolean(args[9]);
-    bool              free_edgecolors  = false;
+    Py::Object        edgecolors_obj   = args[9];
 
     QuadMeshGenerator path_generator(mesh_width, mesh_height, coordinates.ptr());
 
     Py::SeqBase<Py::Object> transforms_obj;
-    Py::Object edgecolors_obj;
     Py::Tuple linewidths(1);
     linewidths[0] = Py::Float(gc.linewidth);
     Py::SeqBase<Py::Object> linestyles_obj;
     Py::Tuple antialiaseds(1);
     antialiaseds[0] = Py::Int(antialiased ? 1 : 0);
 
-    if (showedges)
-    {
-        npy_intp dims[] = { 1, 4, 0 };
-        double data[] = { 0, 0, 0, 1 };
-        edgecolors_obj = Py::Object(PyArray_SimpleNewFromData(2, dims, PyArray_DOUBLE,
-                                                              (char*)data), true);
-    }
-    else
-    {
+    if (edgecolors_obj.isNone()) {
         if (antialiased)
         {
             edgecolors_obj = facecolors_obj;
@@ -1794,7 +1822,6 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
         {
             npy_intp dims[] = { 0, 0 };
             edgecolors_obj = PyArray_SimpleNew(1, dims, PyArray_DOUBLE);
-            free_edgecolors = true;
         }
     }
 
@@ -1814,7 +1841,8 @@ RendererAgg::draw_quad_mesh(const Py::Tuple& args)
              edgecolors_obj,
              linewidths,
              linestyles_obj,
-             antialiaseds);
+             antialiaseds,
+             false);
     }
     catch (const char* e)
     {

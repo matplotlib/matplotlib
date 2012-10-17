@@ -207,12 +207,20 @@ class Text(Artist):
             return False,{}
 
         l,b,w,h = self.get_window_extent().bounds
-
-        r = l+w
-        t = b+h
+        r, t = l+w, b+h
+        
         x, y = mouseevent.x, mouseevent.y
-        inside = (x >= l and x <= r and y >= t and y <= b)
-        return inside, {}
+        inside = (l <= x <= r and b <= y <= t)
+        cattr = {}
+
+        # if the text has a surrounding patch, also check containment for it,
+        # and merge the results with the results for the text.
+        if self._bbox_patch:
+            patch_inside, patch_cattr =  self._bbox_patch.contains(mouseevent)
+            inside = inside or patch_inside
+            cattr["bbox_patch"] = patch_cattr
+
+        return inside, cattr 
 
     def _get_xy_display(self):
         'get the (possibly unit converted) transformed x, y in display coords'
@@ -361,7 +369,8 @@ class Text(Artist):
         width  = xmax - xmin
         height = ymax - ymin
 
-        # Now move the box to the targe position offset the display bbox by alignment
+        # Now move the box to the target position offset the display 
+        # bbox by alignment
         halign = self._horizontalalignment
         valign = self._verticalalignment
 
@@ -1043,6 +1052,7 @@ class TextWithDash(Text):
     amount in canvas units.  (default = 0)
 
     .. note::
+
         The alignment of the two objects is based on the bounding box
         of the :class:`~matplotlib.text.Text`, as obtained by
         :meth:`~matplotlib.artist.Artist.get_window_extent`.  This, in
@@ -1052,10 +1062,12 @@ class TextWithDash(Text):
         backend used.
 
     .. note::
+
         I'm not sure that I got the
         :meth:`~matplotlib.text.TextWithDash.get_window_extent` right,
         or whether that's sufficient for providing the object bounding
         box.
+
     """
     __name__ = 'textwithdash'
 
@@ -1802,17 +1814,14 @@ class Annotation(Text, _AnnotationBase):
         else:
             self.arrow_patch = None
 
-
     def contains(self,event):
-        t,tinfo = Text.contains(self,event)
+        contains, tinfo = Text.contains(self,event)
         if self.arrow is not None:
-            a,ainfo=self.arrow.contains(event)
-            t = t or a
-
+            in_arrow, _ = self.arrow.contains(event)
+            contains = contains or in_arrow
         # self.arrow_patch is currently not checked as this can be a line - JJ
 
-        return t,tinfo
-
+        return contains, tinfo
 
     def set_figure(self, fig):
 

@@ -7,8 +7,7 @@ import numpy as np
 
 def triplot(ax, *args, **kwargs):
     """
-    Draw a unstructured triangular grid as lines and/or markers to
-    the :class:`~matplotlib.axes.Axes`.
+    Draw a unstructured triangular grid as lines and/or markers.
 
     The triangulation to plot can be specified in one of two ways;
     either::

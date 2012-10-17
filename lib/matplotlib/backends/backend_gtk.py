@@ -40,6 +40,7 @@ from matplotlib import lines
 from matplotlib import markers
 from matplotlib import cbook
 from matplotlib import verbose
+from matplotlib import rcParams
 
 backend_version = "%d.%d.%d" % gtk.pygtk_version
 
@@ -49,6 +50,9 @@ _debug = False
 # the true dots per inch on the screen; should be display dependent
 # see http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5 for some info about screen dpi
 PIXELS_PER_INCH = 96
+
+# Hide the benign warning that it can't stat a file that doesn't
+warnings.filterwarnings('ignore', '.*Unable to retrieve the file info for.*', gtk.Warning)
 
 cursord = {
     cursors.MOVE          : gdk.Cursor(gdk.FLEUR),
@@ -86,10 +90,15 @@ def new_figure_manager(num, *args, **kwargs):
     """
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasGTK(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasGTK(figure)
     manager = FigureManagerGTK(canvas, num)
-    # equals:
-    #manager = FigureManagerGTK(FigureCanvasGTK(Figure(*args, **kwargs), num)
     return manager
 
 
@@ -185,6 +194,10 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                65455 : '/',
                65439 : 'dec',
                65421 : 'enter',
+               65511 : 'super',
+               65512 : 'super',
+               65406 : 'alt',
+               65289 : 'tab',
                }
 
     # Setting this as a static constant prevents
@@ -312,20 +325,25 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         FigureCanvasBase.leave_notify_event(self, event)
 
     def enter_notify_event(self, widget, event):
-        FigureCanvasBase.enter_notify_event(self, event)
+        x, y, state = event.window.get_pointer()
+        FigureCanvasBase.enter_notify_event(self, event, xy=(x,y))
 
     def _get_key(self, event):
         if event.keyval in self.keyvald:
             key = self.keyvald[event.keyval]
-        elif event.keyval <256:
+        elif event.keyval < 256:
             key = chr(event.keyval)
         else:
             key = None
 
-        ctrl  = event.state & gdk.CONTROL_MASK
-        shift = event.state & gdk.SHIFT_MASK
-        return key
+        for key_mask, prefix in (
+                                 [gdk.MOD4_MASK, 'super'],
+                                 [gdk.MOD1_MASK, 'alt'],
+                                 [gdk.CONTROL_MASK, 'ctrl'],):
+            if event.state & key_mask:
+                key = '{}+{}'.format(prefix, key)
 
+        return key
 
     def configure_event(self, widget, event):
         if _debug: print('FigureCanvasGTK.%s' % fn_name())
@@ -470,9 +488,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         else:
             raise ValueError("filename must be a path or a file-like object")
 
-    def get_default_filetype(self):
-        return 'png'
-
     def new_timer(self, *args, **kwargs):
         """
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
@@ -519,7 +534,7 @@ class FigureManagerGTK(FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = gtk.Window()
-        self.window.set_title("Figure %d" % num)
+        self.set_window_title("Figure %d" % num)
         if (window_icon):
             try:
                 self.window.set_icon_from_file(window_icon)
@@ -535,9 +550,6 @@ class FigureManagerGTK(FigureManagerBase):
         self.vbox.show()
 
         self.canvas.show()
-
-        # attach a show method to the figure  for pylab ease of use
-        self.canvas.figure.show = lambda *args: self.window.show()
 
         self.vbox.pack_start(self.canvas, True, True)
 
@@ -590,7 +602,7 @@ class FigureManagerGTK(FigureManagerBase):
         # show the figure window
         self.window.show()
 
-    def full_screen_toggle (self):
+    def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag
         if self._full_screen_flag:
             self.window.fullscreen()
@@ -602,13 +614,16 @@ class FigureManagerGTK(FigureManagerBase):
     def _get_toolbar(self, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set
-        if matplotlib.rcParams['toolbar'] == 'classic':
+        if rcParams['toolbar'] == 'classic':
             toolbar = NavigationToolbar (canvas, self.window)
-        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
+        elif rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK (canvas, self.window)
         else:
             toolbar = None
         return toolbar
+
+    def get_window_title(self):
+        return self.window.get_title()
 
     def set_window_title(self, title):
         self.window.set_title(title)
@@ -622,19 +637,6 @@ class FigureManagerGTK(FigureManagerBase):
 
 
 class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
-    # list of toolitems to add to the toolbar, format is:
-    # text, tooltip_text, image_file, callback(str)
-    toolitems = (
-        ('Home', 'Reset original view', 'home.png', 'home'),
-        ('Back', 'Back to  previous view','back.png', 'back'),
-        ('Forward', 'Forward to next view','forward.png', 'forward'),
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move.png','pan'),
-        ('Zoom', 'Zoom to rectangle','zoom_to_rect.png', 'zoom'),
-        (None, None, None, None),
-        ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
-        ('Save', 'Save the figure','filesave.png', 'save_figure'),
-        )
-
     def __init__(self, canvas, window):
         self.win = window
         gtk.Toolbar.__init__(self)
@@ -694,7 +696,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
 
 
     def _init_toolbar2_4(self):
-        basedir = os.path.join(matplotlib.rcParams['datapath'],'images')
+        basedir = os.path.join(rcParams['datapath'],'images')
         if not _new_tooltip_api:
             self.tooltips = gtk.Tooltips()
 
@@ -702,7 +704,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
             if text is None:
                 self.insert( gtk.SeparatorToolItem(), -1 )
                 continue
-            fname = os.path.join(basedir, image_file)
+            fname = os.path.join(basedir, image_file + '.png')
             image = gtk.Image()
             image.set_from_file(fname)
             tbutton = gtk.ToolButton(image, text)
@@ -728,11 +730,13 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         self.show_all()
 
     def get_filechooser(self):
-        return FileChooserDialog(
+        fc = FileChooserDialog(
             title='Save the figure',
             parent=self.win,
             filetypes=self.canvas.get_supported_filetypes(),
             default_filetype=self.canvas.get_default_filetype())
+        fc.set_current_name(self.canvas.get_default_filename())
+        return fc
 
     def save_figure(self, *args):
         fname, format = self.get_filechooser().get_filename_from_user()
@@ -1253,7 +1257,7 @@ try:
         icon_filename = 'matplotlib.png'
     else:
         icon_filename = 'matplotlib.svg'
-    window_icon = os.path.join(matplotlib.rcParams['datapath'], 'images', icon_filename)
+    window_icon = os.path.join(rcParams['datapath'], 'images', icon_filename)
 except:
     window_icon = None
     verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])

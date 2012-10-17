@@ -1,13 +1,12 @@
 from __future__ import print_function
-from matplotlib.collections import PolyCollection
+from matplotlib.collections import PolyCollection, TriMesh
 from matplotlib.colors import Normalize
 from matplotlib.tri.triangulation import Triangulation
 import numpy as np
 
 def tripcolor(ax, *args, **kwargs):
     """
-    Create a pseudocolor plot of an unstructured triangular grid to
-    the :class:`~matplotlib.axes.Axes`.
+    Create a pseudocolor plot of an unstructured triangular grid.
 
     The triangulation can be specified in one of two ways; either::
 
@@ -28,9 +27,20 @@ def tripcolor(ax, *args, **kwargs):
     :class:`~matplotlib.tri.Triangulation` for a explanation of these
     possibilities.
 
-    The next argument must be *C*, the array of color values, one per
-    point in the triangulation.  The colors used for each triangle
-    are from the mean C of the triangle's three points.
+    The next argument must be *C*, the array of color values, either
+    one per point in the triangulation if color values are defined at
+    points, or one per triangle in the triangulation if color values
+    are defined at triangles. If there are the same number of points
+    and triangles in the triangulation it is assumed that color
+    values are defined at points; to force the use of color values at
+    triangles use the kwarg *facecolors*=C instead of just *C*.
+
+    *shading* may be 'flat' (the default) or 'gouraud'. If *shading*
+    is 'flat' and C values are defined at points, the color values
+    used for each triangle are from the mean C of the triangle's
+    three points. If *shading* is 'gouraud' then color values must be
+    defined at points.  *shading* of 'faceted' is deprecated;
+    please use *edgecolors* instead.
 
     The remaining kwargs are the same as for
     :meth:`~matplotlib.axes.Axes.pcolor`.
@@ -47,35 +57,79 @@ def tripcolor(ax, *args, **kwargs):
     vmin = kwargs.pop('vmin', None)
     vmax = kwargs.pop('vmax', None)
     shading = kwargs.pop('shading', 'flat')
+    facecolors = kwargs.pop('facecolors', None)
 
     tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
-    x = tri.x
-    y = tri.y
-    triangles = tri.get_masked_triangles()
 
-    # Vertices of triangles.
-    verts = np.concatenate((x[triangles][...,np.newaxis],
-                            y[triangles][...,np.newaxis]), axis=2)
-
-    C = np.asarray(args[0])
-    if C.shape != x.shape:
-        raise ValueError('C array must have same length as triangulation x and'
-                         ' y arrays')
-
-    # Color values, one per triangle, mean of the 3 vertex color values.
-    C = C[triangles].mean(axis=1)
-
-    if shading == 'faceted':
-        edgecolors = (0,0,0,1),
-        linewidths = (0.25,)
+    # C is the colors array, defined at either points or faces (i.e. triangles).
+    # If facecolors is None, C are defined at points.
+    # If facecolors is not None, C are defined at faces.
+    if facecolors is not None:
+        C = facecolors
     else:
-        edgecolors = 'face'
-        linewidths = (1.0,)
-    kwargs.setdefault('edgecolors', edgecolors)
-    kwargs.setdefault('antialiaseds', (0,))
+        C = np.asarray(args[0])
+
+    # If there are a different number of points and triangles in the
+    # triangulation, can omit facecolors kwarg as it is obvious from
+    # length of C whether it refers to points or faces.
+    # Do not do this for gouraud shading.
+    if (facecolors is None and len(C) == len(tri.triangles) and
+           len(C) != len(tri.x) and shading != 'gouraud'):
+        facecolors = C
+
+    # Check length of C is OK.
+    if ( (facecolors is None and len(C) != len(tri.x)) or
+           (facecolors is not None and len(C) != len(tri.triangles)) ):
+        raise ValueError('Length of color values array must be the same '
+                         'as either the number of triangulation points '
+                         'or triangles')
+
+
+    # Handling of linewidths, shading, edgecolors and antialiased as
+    # in Axes.pcolor
+    linewidths = (0.25,)
+    if 'linewidth' in kwargs:
+        kwargs['linewidths'] = kwargs.pop('linewidth')
     kwargs.setdefault('linewidths', linewidths)
 
-    collection = PolyCollection(verts, **kwargs)
+    if shading == 'faceted':   # Deprecated.
+        edgecolors = 'k'
+    else:
+        edgecolors = 'none'
+    if 'edgecolor' in kwargs:
+        kwargs['edgecolors'] = kwargs.pop('edgecolor')
+    ec = kwargs.setdefault('edgecolors', edgecolors)
+
+    if 'antialiased' in kwargs:
+        kwargs['antialiaseds'] = kwargs.pop('antialiased')
+    if 'antialiaseds' not in kwargs and ec.lower() == "none":
+        kwargs['antialiaseds'] = False
+
+
+    if shading == 'gouraud':
+        if facecolors is not None:
+            raise ValueError('Gouraud shading does not support the use '
+                             'of facecolors kwarg')
+        if len(C) != len(tri.x):
+            raise ValueError('For gouraud shading, the length of color '
+                             'values array must be the same as the '
+                             'number of triangulation points')
+        collection = TriMesh(tri, **kwargs)
+    else:
+        # Vertices of triangles.
+        maskedTris = tri.get_masked_triangles()
+        verts = np.concatenate((tri.x[maskedTris][...,np.newaxis],
+                                tri.y[maskedTris][...,np.newaxis]), axis=2)
+
+        # Color values.
+        if facecolors is None:
+            # One color per triangle, the mean of the 3 vertex color values.
+            C = C[maskedTris].mean(axis=1)
+        elif tri.mask is not None:
+            # Remove color values of masked triangles.
+            C = C.compress(1-tri.mask)
+
+        collection = PolyCollection(verts, **kwargs)
 
     collection.set_alpha(alpha)
     collection.set_array(C)

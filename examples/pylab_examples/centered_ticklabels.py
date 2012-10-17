@@ -1,10 +1,10 @@
 # sometimes it is nice to have ticklabels centered.  mpl currently
 # associates a label with a tick, and the label can be aligned
-# 'center', 'feft', or 'right' using the horizontal alignment property:
+# 'center', 'left', or 'right' using the horizontal alignment property:
 #
 #
 #   for label in ax.xaxis.get_xticklabels():
-#       label.set_horizntal_alignment('right')
+#       label.set_horizontalalignment('right')
 #
 #
 # but this doesn't help center the label between ticks.  One solution
@@ -21,7 +21,7 @@ import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
 
 # load some financial data; apple's stock price
-fh = cbook.get_sample_data('aapl.npy')
+fh = cbook.get_sample_data('aapl.npy.gz')
 r = np.load(fh); fh.close()
 r = r[-250:]  # get the last 250 days
 

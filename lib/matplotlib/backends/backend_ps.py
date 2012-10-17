@@ -533,6 +533,11 @@ grestore
                                                simplify=simplify):
             if code == Path.MOVETO:
                 ps.append("%g %g m" % tuple(points))
+            elif code == Path.CLOSEPOLY:
+                ps.append("cl")
+            elif last_points is None:
+                # The other operations require a previous point
+                raise ValueError('Path lacks initial MOVETO')
             elif code == Path.LINETO:
                 ps.append("%g %g l" % tuple(points))
             elif code == Path.CURVE3:
@@ -541,8 +546,6 @@ grestore
                           tuple(points[2:]))
             elif code == Path.CURVE4:
                 ps.append("%g %g %g %g %g %g c" % tuple(points))
-            elif code == Path.CLOSEPOLY:
-                ps.append("cl")
             last_points = points
 
         ps = "\n".join(ps)
@@ -588,14 +591,28 @@ grestore
 
         # construct the generic marker command:
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # dont want the translate to be global
+
+        lw = gc.get_linewidth()
+        stroke = lw != 0.0
+        if stroke:
+            ps_cmd.append('%.1f setlinewidth' % lw)
+            jint = gc.get_joinstyle()
+            ps_cmd.append('%d setlinejoin' % jint)
+            cint = gc.get_capstyle()
+            ps_cmd.append('%d setlinecap' % cint)
+
         ps_cmd.append(self._convert_path(marker_path, marker_trans,
                                          simplify=False))
 
         if rgbFace:
-            ps_cmd.extend(['gsave', ps_color, 'fill', 'grestore'])
-        if gc.shouldstroke():
-            ps_cmd.append('stroke')
+            if stroke:
+                ps_cmd.append('gsave')
+            ps_cmd.extend([ps_color, 'fill'])
+            if stroke:
+                ps_cmd.append('grestore')
 
+        if stroke:
+            ps_cmd.append('stroke')
         ps_cmd.extend(['grestore', '} bind def'])
 
         for vertices, code in path.iter_segments(trans, simplify=False):
@@ -608,7 +625,8 @@ grestore
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offsetTrans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls):
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
         write = self._pswriter.write
 
         path_codes = []
@@ -623,8 +641,9 @@ grestore
             path_codes.append(name)
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-            gc, path_codes, offsets, offsetTrans, facecolors, edgecolors,
-            linewidths, linestyles, antialiaseds, urls):
+            gc, master_transform, all_transforms, path_codes, offsets,
+            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+            antialiaseds, urls, offset_position):
             ps = "%g %g %s" % (xo, yo, path_id)
             self._draw_ps(ps, gc0, rgbFace)
 
@@ -925,7 +944,14 @@ class GraphicsContextPS(GraphicsContextBase):
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasPS(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasPS(figure)
     manager = FigureManagerPS(canvas, num)
     return manager
 
@@ -1091,7 +1117,7 @@ class FigureCanvasPS(FigureCanvasBase):
             else: print("%!PS-Adobe-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
             print(("%%Creator: matplotlib version "
-                         +__version__+", http://matplotlib.sourceforge.net/"), file=fh)
+                         +__version__+", http://matplotlib.org/"), file=fh)
             print("%%CreationDate: "+time.ctime(time.time()), file=fh)
             print("%%Orientation: " + orientation, file=fh)
             if not isEPSF: print("%%DocumentPaperSizes: "+papertype, file=fh)
@@ -1239,7 +1265,7 @@ class FigureCanvasPS(FigureCanvasBase):
             print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             if title: print("%%Title: "+title, file=fh)
             print(("%%Creator: matplotlib version "
-                         +__version__+", http://matplotlib.sourceforge.net/"), file=fh)
+                         +__version__+", http://matplotlib.org/"), file=fh)
             print("%%CreationDate: "+time.ctime(time.time()), file=fh)
             print("%%%%BoundingBox: %d %d %d %d" % bbox, file=fh)
             print("%%EndComments", file=fh)

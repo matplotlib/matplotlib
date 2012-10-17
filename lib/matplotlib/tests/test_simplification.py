@@ -18,7 +18,7 @@ Path = path.Path
 # NOTE: All of these tests assume that path.simplify is set to True
 # (the default)
 
-@image_comparison(baseline_images=['clipping'])
+@image_comparison(baseline_images=['clipping'], remove_text=True)
 def test_clipping():
     t = np.arange(0.0, 2.0, 0.01)
     s = np.sin(2*pi*t)
@@ -27,10 +27,8 @@ def test_clipping():
     ax = fig.add_subplot(111)
     ax.plot(t, s, linewidth=1.0)
     ax.set_ylim((-0.20, -0.28))
-    ax.set_xticks([])
-    ax.set_yticks([])
 
-@image_comparison(baseline_images=['overflow'], tol=1e-2)
+@image_comparison(baseline_images=['overflow'], tol=1e-2, remove_text=True)
 def test_overflow():
     x = np.array([1.0,2.0,3.0,2.0e5])
     y = np.arange(len(x))
@@ -39,10 +37,8 @@ def test_overflow():
     ax = fig.add_subplot(111)
     ax.plot(x,y)
     ax.set_xlim(xmin=2,xmax=6)
-    ax.set_xticks([])
-    ax.set_yticks([])
 
-@image_comparison(baseline_images=['clipping_diamond'])
+@image_comparison(baseline_images=['clipping_diamond'], remove_text=True)
 def test_diamond():
     x = np.array([0.0, 1.0, 0.0, -1.0, 0.0])
     y = np.array([1.0, 0.0, -1.0, 0.0, 1.0])
@@ -52,8 +48,6 @@ def test_diamond():
     ax.plot(x, y)
     ax.set_xlim(xmin=-0.6, xmax=0.6)
     ax.set_ylim(ymin=-0.6, ymax=0.6)
-    ax.set_xticks([])
-    ax.set_yticks([])
 
 @cleanup
 def test_noise():
@@ -63,8 +57,6 @@ def test_noise():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     p1 = ax.plot(x, solid_joinstyle='round', linewidth=2.0)
-    ax.set_xticks([])
-    ax.set_yticks([])
 
     path = p1[0].get_path()
     transform = p1[0].get_transform()
@@ -81,8 +73,6 @@ def test_sine_plus_noise():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     p1 = ax.plot(x, solid_joinstyle='round', linewidth=2.0)
-    ax.set_xticks([])
-    ax.set_yticks([])
 
     path = p1[0].get_path()
     transform = p1[0].get_transform()
@@ -91,7 +81,7 @@ def test_sine_plus_noise():
 
     assert len(simplified) == 876
 
-@image_comparison(baseline_images=['simplify_curve'])
+@image_comparison(baseline_images=['simplify_curve'], remove_text=True)
 def test_simplify_curve():
     pp1 = patches.PathPatch(
         Path([(0, 0), (1, 0), (1, 1), (nan, 1), (0, 0), (2, 0), (2, 2), (0, 0)],
@@ -101,12 +91,10 @@ def test_simplify_curve():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.add_patch(pp1)
-    ax.set_xticks([])
-    ax.set_yticks([])
     ax.set_xlim((0, 2))
     ax.set_ylim((0, 2))
 
-@image_comparison(baseline_images=['hatch_simplify'])
+@image_comparison(baseline_images=['hatch_simplify'], remove_text=True)
 def test_hatch():
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -114,14 +102,12 @@ def test_hatch():
     ax.set_xlim((0.45, 0.55))
     ax.set_ylim((0.45, 0.55))
 
-@image_comparison(baseline_images=['fft_peaks'])
+@image_comparison(baseline_images=['fft_peaks'], remove_text=True)
 def test_fft_peaks():
     fig = plt.figure()
     t = arange(65536)
     ax = fig.add_subplot(111)
     p1 = ax.plot(abs(fft(sin(2*pi*.01*t)*blackman(len(t)))))
-    ax.set_xticks([])
-    ax.set_yticks([])
 
     path = p1[0].get_path()
     transform = p1[0].get_transform()
@@ -186,7 +172,7 @@ def test_throw_rendering_complexity_exceeded():
     finally:
         rcParams['path.simplify'] = True
 
-@image_comparison(baseline_images=['clipper_edge'])
+@image_comparison(baseline_images=['clipper_edge'], remove_text=True)
 def test_clipper():
     dat = (0, 1, 0, 2, 0, 3, 0, 4, 0, 5)
     fig = plt.figure(figsize=(2, 1))
@@ -195,15 +181,13 @@ def test_clipper():
     ax = fig.add_axes((0, 0, 1.0, 1.0), ylim = (0, 5), autoscale_on = False)
     ax.plot(dat)
     ax.xaxis.set_major_locator(plt.MultipleLocator(1))
-    ax.xaxis.set_major_formatter(plt.NullFormatter())
     ax.yaxis.set_major_locator(plt.MultipleLocator(1))
-    ax.yaxis.set_major_formatter(plt.NullFormatter())
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
 
     ax.set_xlim(5, 9)
 
-@image_comparison(baseline_images=['para_equal_perp'])
+@image_comparison(baseline_images=['para_equal_perp'], remove_text=True)
 def test_para_equal_perp():
     x = np.array([0, 1, 2, 1, 0, -1, 0, 1] + [1] * 128)
     y = np.array([1, 1, 2, 1, 0, -1, 0, 0] + [0] * 128)
@@ -212,6 +196,18 @@ def test_para_equal_perp():
     ax = fig.add_subplot(111)
     ax.plot(x + 1, y + 1)
     ax.plot(x + 1, y + 1, 'ro')
+
+@image_comparison(baseline_images=['clipping_with_nans'])
+def test_clipping_with_nans():
+    x = np.linspace(0, 3.14 * 2, 3000)
+    y = np.sin(x)
+    x[::100] = np.nan
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(x, y)
+    ax.set_ylim(-0.25, 0.25)
+
 
 if __name__=='__main__':
     import nose

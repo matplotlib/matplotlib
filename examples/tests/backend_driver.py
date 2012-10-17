@@ -9,11 +9,10 @@ You can specify the backends to be tested either via the --backends
 switch, which takes a comma-separated list, or as separate arguments,
 e.g.
 
-    python backend_driver.py agg ps cairo.png cairo.ps
+    python backend_driver.py agg ps
 
-would test the agg and ps backends, and the cairo backend with output
-to png and ps files. If no arguments are given, a default list of
-backends will be tested.
+would test the agg and ps backends. If no arguments are given, a
+default list of backends will be tested.
 
 Interspersed with the backend arguments can be switches for the Python
 interpreter executing the tests. If entering such arguments causes an
@@ -27,7 +26,6 @@ import matplotlib.rcsetup as rcsetup
 from matplotlib.cbook import Bunch, dedent
 
 all_backends = list(rcsetup.all_backends)  # to leave the original list alone
-all_backends.extend(['cairo.png', 'cairo.ps', 'cairo.pdf', 'cairo.svg'])
 
 # actual physical directory for each dir
 dirs = dict(pylab = os.path.join('..', 'pylab_examples'),
@@ -161,6 +159,7 @@ files['pylab'] = [
     'pcolor_log.py',
     'pcolor_small.py',
     'pie_demo.py',
+    'pie_demo2.py',
     'plotfile_demo.py',
     'polar_bar.py',
     'polar_demo.py',
@@ -407,8 +406,7 @@ def parse_options():
                   help=dedent('''
       Run tests only for these backends; comma-separated list of
       one or more of: agg, ps, svg, pdf, template, cairo,
-      cairo.png, cairo.ps, cairo.pdf, cairo.svg. Default is everything
-      except cairo.'''))
+      Default is everything except cairo.'''))
     op.add_option('--clean', action='store_true', dest='clean',
                   help='Remove result directories, run no tests')
     op.add_option('-c', '--coverage', action='store_true', dest='coverage',

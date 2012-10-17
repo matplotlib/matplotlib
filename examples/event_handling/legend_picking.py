@@ -28,7 +28,7 @@ for legline, origline in zip(leg.get_lines(), lines):
 
 def onpick(event):
     # on the pick event, find the orig line corresponding to the
-    # legend proxy line, and toggle the visibilit
+    # legend proxy line, and toggle the visibility
     legline = event.artist
     origline = lined[legline]
     vis = not origline.get_visible()

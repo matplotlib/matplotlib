@@ -1,10 +1,12 @@
-# Editor temporary/working/backup files #
 #########################################
+# Editor temporary/working/backup files #
 .#*
 [#]*#
 *~
 *$
 *.bak
+.project
+.pydevproject
 
 # Compiled source #
 ###################
@@ -27,6 +29,8 @@ doc/_build
 dist
 # Egg metadata
 *.egg-info
+# tox testing tool
+.tox
 
 # OS generated files #
 ######################

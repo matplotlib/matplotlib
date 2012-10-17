@@ -33,6 +33,7 @@ class FigureManagerGTKAgg(FigureManagerGTK):
             toolbar = None
         return toolbar
 
+
 def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
@@ -40,9 +41,17 @@ def new_figure_manager(num, *args, **kwargs):
     if DEBUG: print('backend_gtkagg.new_figure_manager')
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasGTKAgg(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasGTKAgg(figure)
     return FigureManagerGTKAgg(canvas, num)
     if DEBUG: print('backend_gtkagg.new_figure_manager done')
+
 
 class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
     filetypes = FigureCanvasGTK.filetypes.copy()
@@ -101,6 +110,7 @@ class FigureCanvasGTKAgg(FigureCanvasGTK, FigureCanvasAgg):
         # Do this so we can save the resolution of figure in the PNG file
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_png(filename, *args, **kwargs)
+
 
 """\
 Traceback (most recent call last):

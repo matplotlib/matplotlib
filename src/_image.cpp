@@ -33,7 +33,8 @@
 #include "mplutils.h"
 
 
-typedef agg::pixfmt_rgba32_pre pixfmt;
+typedef agg::pixfmt_rgba32 pixfmt;
+typedef agg::pixfmt_rgba32_pre pixfmt_pre;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::span_interpolator_linear<> interpolator_type;
 typedef agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> rasterizer;
@@ -430,20 +431,24 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs)
     ras.add_path(imageBox);
 
     typedef agg::wrap_mode_reflect reflect_type;
-    typedef agg::image_accessor_wrap<pixfmt, reflect_type, reflect_type> img_accessor_type;
+    typedef agg::image_accessor_wrap<pixfmt_pre, reflect_type, reflect_type> img_accessor_type;
 
-    pixfmt pixfmtin(*rbufIn);
+    pixfmt_pre pixfmtin(*rbufIn);
     img_accessor_type ia(pixfmtin);
     switch (interpolation)
     {
 
     case NEAREST:
     {
-        typedef agg::span_image_filter_rgba_nn<img_accessor_type, interpolator_type> span_gen_type;
-        typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
-        span_gen_type sg(ia, interpolator);
-        renderer_type ri(rb, sa, sg);
-        agg::render_scanlines(ras, sl, ri);
+        if (colsIn == numcols && rowsIn == numrows) {
+            memcpy(bufferOut, bufferIn, colsIn * rowsIn * 4);
+        } else {
+            typedef agg::span_image_filter_rgba_nn<img_accessor_type, interpolator_type> span_gen_type;
+            typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+            span_gen_type sg(ia, interpolator);
+            renderer_type ri(rb, sa, sg);
+            agg::render_scanlines(ras, sl, ri);
+        }
     }
     break;
 
@@ -1061,8 +1066,7 @@ _image_module::fromarray2(const Py::Tuple& args)
         int rgba = A->dimensions[2] == 4;
         double r, g, b, alpha;
         const size_t N = imo->rowsIn * imo->colsIn;
-        size_t i = 0;
-        while (i < N)
+        for (size_t i = 0; i < N; ++i)
         {
             r = *(double *)(A->data++);
             g = *(double *)(A->data++);
@@ -1989,7 +1993,3 @@ init_image(void)
     return _image->module().ptr();
 #endif
 }
-
-
-
-

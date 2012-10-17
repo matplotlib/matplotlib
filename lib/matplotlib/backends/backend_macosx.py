@@ -13,18 +13,19 @@ from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.mathtext import MathTextParser
 from matplotlib.colors import colorConverter
-
+from matplotlib import rcParams
 
 from matplotlib.widgets import SubplotTool
 
 import matplotlib
 from matplotlib.backends import _macosx
 
+
 class Show(ShowBase):
     def mainloop(self):
         _macosx.show()
-
 show = Show()
+
 
 class RendererMac(RendererBase):
     """
@@ -41,6 +42,7 @@ class RendererMac(RendererBase):
         self.width = width
         self.height = height
         self.gc = GraphicsContextMac()
+        self.gc.set_dpi(self.dpi)
         self.mathtext_parser = MathTextParser('MacOSX')
 
     def set_width_height (self, width, height):
@@ -60,43 +62,36 @@ class RendererMac(RendererBase):
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offsetTrans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls):
-        cliprect = gc.get_clip_rectangle()
-        clippath, clippath_transform = gc.get_clip_path()
-        if all_transforms:
-            transforms = [numpy.dot(master_transform, t) for t in all_transforms]
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
+        if offset_position=='data':
+            offset_position = True
         else:
-            transforms = [master_transform]
-        gc.draw_path_collection(cliprect,
-                                clippath,
-                                clippath_transform,
-                                paths,
-                                transforms,
-                                offsets,
-                                offsetTrans,
-                                facecolors,
-                                edgecolors,
-                                linewidths,
-                                linestyles,
-                                antialiaseds)
+            offset_position = False
+        path_ids = []
+        for path, transform in self._iter_collection_raw_paths(
+            master_transform, paths, all_transforms):
+            path_ids.append((path, transform))
+        master_transform = master_transform.get_matrix()
+        all_transforms = [t.get_matrix() for t in all_transforms]
+        offsetTrans = offsetTrans.get_matrix()
+        gc.draw_path_collection(master_transform, path_ids, all_transforms,
+                             offsets, offsetTrans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds,
+                             offset_position)
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
                        coordinates, offsets, offsetTrans, facecolors,
-                       antialiased, showedges):
-        cliprect = gc.get_clip_rectangle()
-        clippath, clippath_transform = gc.get_clip_path()
-        gc.draw_quad_mesh(master_transform,
-                          cliprect,
-                          clippath,
-                          clippath_transform,
+                       antialiased, edgecolors):
+        gc.draw_quad_mesh(master_transform.get_matrix(),
                           meshWidth,
                           meshHeight,
                           coordinates,
                           offsets,
-                          offsetTrans,
+                          offsetTrans.get_matrix(),
                           facecolors,
                           antialiased,
-                          showedges)
+                          edgecolors)
 
     def new_gc(self):
         self.gc.save()
@@ -135,7 +130,7 @@ class RendererMac(RendererBase):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         if ismath:
-           self._draw_mathtext(gc, x, y, s, prop, angle)
+            self._draw_mathtext(gc, x, y, s, prop, angle)
         else:
             family =  prop.get_family()
             weight = prop.get_weight()
@@ -172,6 +167,7 @@ class RendererMac(RendererBase):
 
     def option_image_nocomposite(self):
         return True
+
 
 class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
     """
@@ -210,6 +206,7 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
         path = path.get_fully_transformed_path()
         _macosx.GraphicsContext.set_clip_path(self, path)
 
+
 ########################################################################
 #
 # The following functions and classes are for pylab and implement
@@ -224,7 +221,7 @@ def draw_if_interactive():
     it will be redrawn as soon as the event loop resumes via PyOS_InputHook.
     This function should be called after each draw event, even if
     matplotlib is not running interactively.
-	"""
+    """
     if matplotlib.is_interactive():
         figManager =  Gcf.get_active()
         if figManager is not None:
@@ -237,12 +234,24 @@ def new_figure_manager(num, *args, **kwargs):
     """
     if not _macosx.verify_main_display():
         import warnings
-        warnings.warn("Python is not installed as a framework. The MacOSX backend may not work correctly if Python is not installed as a framework. Please see the Python documentation for more information on installing Python as a framework on Mac OS X")
+        warnings.warn("Python is not installed as a framework. The MacOSX "
+                      "backend may not work correctly if Python is not "
+                      "installed as a framework. Please see the Python "
+                      "documentation for more information on installing "
+                      "Python as a framework on Mac OS X")
     FigureClass = kwargs.pop('FigureClass', Figure)
     figure = FigureClass(*args, **kwargs)
+    return new_figure_manager_given_figure(num, figure)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
     canvas = FigureCanvasMac(figure)
     manager = FigureManagerMac(canvas, num)
     return manager
+
 
 class TimerMac(_macosx.Timer, TimerBase):
     '''
@@ -259,7 +268,6 @@ class TimerMac(_macosx.Timer, TimerBase):
         functions add_callback and remove_callback can be used.
     '''
     # completely implemented at the C-level (in _macosx.Timer)
-
 
 
 class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
@@ -308,7 +316,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         width, height = self.figure.get_size_inches()
         width, height = width*dpi, height*dpi
         filename = unicode(filename)
-        self.write_bitmap(filename, width, height)
+        self.write_bitmap(filename, width, height, dpi)
         self.figure.dpi = old_dpi
 
     def print_bmp(self, filename, *args, **kwargs):
@@ -329,9 +337,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
     def print_gif(self, filename, *args, **kwargs):
         self._print_bitmap(filename, *args, **kwargs)
 
-    def get_default_filetype(self):
-        return 'png'
-
     def new_timer(self, *args, **kwargs):
         """
         Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
@@ -348,6 +353,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
         """
         return TimerMac(*args, **kwargs)
 
+
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     """
     Wrap everything up into a window for the pylab interface
@@ -356,9 +362,9 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
         title = "Figure %d" % num
         _macosx.FigureManager.__init__(self, canvas, title)
-        if matplotlib.rcParams['toolbar']=='classic':
+        if rcParams['toolbar']=='classic':
             self.toolbar = NavigationToolbarMac(canvas)
-        elif matplotlib.rcParams['toolbar']=='toolbar2':
+        elif rcParams['toolbar']=='toolbar2':
             self.toolbar = NavigationToolbar2Mac(canvas)
         else:
             self.toolbar = None
@@ -370,20 +376,18 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             if self.toolbar != None: self.toolbar.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
-        # This is ugly, but this is what tkagg and gtk are doing.
-        # It is needed to get ginput() working.
-        self.canvas.figure.show = lambda *args: self.show()
         if matplotlib.is_interactive():
             self.show()
 
     def close(self):
         Gcf.destroy(self.num)
 
+
 class NavigationToolbarMac(_macosx.NavigationToolbar):
 
     def __init__(self, canvas):
         self.canvas = canvas
-        basedir = os.path.join(matplotlib.rcParams['datapath'], "images")
+        basedir = os.path.join(rcParams['datapath'], "images")
         images = {}
         for imagename in ("stock_left",
                           "stock_right",
@@ -441,10 +445,12 @@ class NavigationToolbarMac(_macosx.NavigationToolbar):
         self.canvas.invalidate()
 
     def save_figure(self, *args):
-        filename = _macosx.choose_save_file('Save the figure')
+        filename = _macosx.choose_save_file('Save the figure',
+                                            self.canvas.get_default_filename())
         if filename is None: # Cancel
             return
         self.canvas.print_figure(filename)
+
 
 class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
@@ -452,7 +458,7 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         NavigationToolbar2.__init__(self, canvas)
 
     def _init_toolbar(self):
-        basedir = os.path.join(matplotlib.rcParams['datapath'], "images")
+        basedir = os.path.join(rcParams['datapath'], "images")
         _macosx.NavigationToolbar2.__init__(self, basedir)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
@@ -465,7 +471,8 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         _macosx.set_cursor(cursor)
 
     def save_figure(self, *args):
-        filename = _macosx.choose_save_file('Save the figure')
+        filename = _macosx.choose_save_file('Save the figure',
+                                            self.canvas.get_default_filename())
         if filename is None: # Cancel
             return
         self.canvas.print_figure(filename)
@@ -479,6 +486,9 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
     def set_message(self, message):
         _macosx.NavigationToolbar2.set_message(self, message.encode('utf-8'))
+
+    def dynamic_update(self):
+        self.canvas.draw_idle()
 
 ########################################################################
 #

@@ -9,11 +9,11 @@ on how to use these modules.
 '''
 
 # The Olson database is updated several times a year.
-OLSON_VERSION = '2011k'
+OLSON_VERSION = '2012d'
 VERSION = OLSON_VERSION
 # Version format for a patch release - only one so far.
 #VERSION = OLSON_VERSION + '.2'
-__version__ = OLSON_VERSION
+__version__ = OLSON_VERSION + "-mpl"
 
 OLSEN_VERSION = OLSON_VERSION # Old releases had this misspelling
 
@@ -115,7 +115,7 @@ def resource_exists(name):
 # module, as well as the Zope3 i18n package. Perhaps we should just provide
 # the POT file and translations, and leave it up to callers to make use
 # of them.
-# 
+#
 # t = gettext.translation(
 #         'pytz', os.path.join(os.path.dirname(__file__), 'locales'),
 #         fallback=True
@@ -128,7 +128,7 @@ def resource_exists(name):
 _tzinfo_cache = {}
 
 def timezone(zone):
-    r''' Return a datetime.tzinfo implementation for the given timezone 
+    r''' Return a datetime.tzinfo implementation for the given timezone
 
     >>> from datetime import datetime, timedelta
     >>> utc = timezone('UTC')
@@ -199,18 +199,19 @@ HOUR = datetime.timedelta(hours=1)
 class UTC(datetime.tzinfo):
     """UTC
 
-    Identical to the reference UTC implementation given in Python docs except
-    that it unpickles using the single module global instance defined beneath
-    this class declaration.
-
-    Also contains extra attributes and methods to match other pytz tzinfo
-    instances.
+    Optimized UTC implementation. It unpickles using the single module global
+    instance defined beneath this class declaration.
     """
     zone = "UTC"
 
     _utcoffset = ZERO
     _dst = ZERO
     _tzname = zone
+
+    def fromutc(self, dt):
+        if dt.tzinfo is None:
+            return self.localize(dt)
+        return super(utc.__class__, self).fromutc(dt)
 
     def utcoffset(self, dt):
         return ZERO
@@ -232,9 +233,11 @@ class UTC(datetime.tzinfo):
 
     def normalize(self, dt, is_dst=False):
         '''Correct the timezone information on the given datetime'''
+        if dt.tzinfo is self:
+            return dt
         if dt.tzinfo is None:
             raise ValueError('Naive time - no tzinfo set')
-        return dt.replace(tzinfo=self)
+        return dt.astimezone(self)
 
     def __repr__(self):
         return "<UTC>"
@@ -249,7 +252,7 @@ UTC = utc = UTC() # UTC is a singleton
 def _UTC():
     """Factory function for utc unpickling.
 
-    Makes sure that unpickling a utc instance always returns the same 
+    Makes sure that unpickling a utc instance always returns the same
     module global.
 
     These examples belong in the UTC class above, but it is obscured; or in
@@ -616,6 +619,7 @@ all_timezones = \
  'America/Coral_Harbour',
  'America/Cordoba',
  'America/Costa_Rica',
+ 'America/Creston',
  'America/Cuiaba',
  'America/Curacao',
  'America/Danmarkshavn',
@@ -1094,7 +1098,7 @@ all_timezones = \
  'Zulu']
 all_timezones = [
         tz for tz in all_timezones if resource_exists(tz)]
-        
+
 all_timezones_set = set(all_timezones)
 common_timezones = \
 ['Africa/Abidjan',
@@ -1187,6 +1191,7 @@ common_timezones = \
  'America/Chicago',
  'America/Chihuahua',
  'America/Costa_Rica',
+ 'America/Creston',
  'America/Cuiaba',
  'America/Curacao',
  'America/Danmarkshavn',
@@ -1528,5 +1533,5 @@ common_timezones = \
  'UTC']
 common_timezones = [
         tz for tz in common_timezones if tz in all_timezones]
-        
+
 common_timezones_set = set(common_timezones)

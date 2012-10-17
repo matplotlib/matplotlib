@@ -25,7 +25,10 @@ Environment Variables
 
   This is the directory used to store user customizations to matplotlib, as
   well as some caches to improve performance. If :envvar:`MPLCONFIGDIR` is not
-  defined, :file:`{HOME}/.matplotlib` is used by default.
+  defined, :file:`{HOME}/.matplotlib` is used if it is writable.
+  Otherwise, the python standard library :func:`tempfile.gettmpdir` is
+  used to find a base directory in which the :file:`matplotlib`
+  subdirectory is created.
 
 .. _setting-linux-osx-environment-variables:
 

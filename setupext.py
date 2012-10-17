@@ -47,39 +47,23 @@ import os
 import re
 import subprocess
 from distutils import sysconfig, version
+from collections import defaultdict
 
-basedir = {
+# basedir is a dictionary keyed by sys.platform, and on most platforms it is
+# set to ['/usr/local', '/usr']. Giving this defaultdict a factory that
+# returns this default removes the need to update this code every time a new
+# version of freebsd comes out, for example, provided that the default basedir
+# remains sufficient on that platform
+basedir = defaultdict(lambda: ['/usr/local', '/usr'], {
+    # execptions to the ['/usr/local', '/usr'] defaults
     'win32'  : ['win32_static',],
-    'linux2-alpha' : ['/usr/local', '/usr'],
-    'linux2-hppa' : ['/usr/local', '/usr'],
-    'linux2-mips' : ['/usr/local', '/usr'],
-    'linux2-sparc' : ['/usr/local', '/usr'],
-    'linux2' : ['/usr/local', '/usr'],
-    'linux3' : ['/usr/local', '/usr'],
-    'linux'  : ['/usr/local', '/usr',],
-    'cygwin' : ['/usr/local', '/usr',],
-    '_darwin' : ['/sw/lib/freetype2', '/sw/lib/freetype219', '/usr/local',
-                '/usr', '/sw'],
-    # it appears builds with darwin are broken because of all the
-    # different flags the deps can be compile with, so I am pushing
-    # people to :
-    #   make -f make.osx fetch deps mpl_build mpl_install
-
-    'darwin' : [],
-
-    'freebsd4' : ['/usr/local', '/usr'],
-    'freebsd5' : ['/usr/local', '/usr'],
-    'freebsd6' : ['/usr/local', '/usr'],
+    'darwin' : ['/usr/local/', '/usr', '/usr/X11', '/opt/local'],
     'sunos5' : [os.getenv('MPLIB_BASE') or '/usr/local',],
-    'gnukfreebsd5' : ['/usr/local', '/usr'],
-    'gnukfreebsd6' : ['/usr/local', '/usr'],
-    'gnukfreebsd7' : ['/usr/local', '/usr'],
-    'gnukfreebsd8' : ['/usr/local', '/usr'],
     'gnu0' : ['/usr'],
     'aix5' : ['/usr/local'],
-}
+    })
 
-import sys, os, stat
+import sys
 
 from textwrap import fill
 from distutils.core import Extension
@@ -123,6 +107,7 @@ options = {'display_status': True,
            'verbose': False,
            'provide_pytz': 'auto',
            'provide_dateutil': 'auto',
+           'provide_six': 'auto',
            'build_agg': True,
            'build_gtk': 'auto',
            'build_gtkagg': 'auto',
@@ -158,6 +143,10 @@ if os.path.exists(setup_cfg):
     try: options['provide_dateutil'] = config.getboolean("provide_packages",
                                                          "dateutil")
     except: options['provide_dateutil'] = 'auto'
+
+    try: options['provide_six'] = config.getboolean("provide_packages",
+                                                    "six")
+    except: options['provide_six'] = 'auto'
 
     try: options['build_gtk'] = config.getboolean("gui_support", "gtk")
     except: options['build_gtk'] = 'auto'
@@ -269,6 +258,20 @@ if sys.platform == 'win32' and win32_compiler == 'msvc':
 else:
     std_libs = ['stdc++', 'm']
 
+def set_pkgconfig_path():
+    pkgconfig_path = sysconfig.get_config_var('LIBDIR')
+    if pkgconfig_path is None:
+        return
+
+    pkgconfig_path = os.path.join(pkgconfig_path, 'pkgconfig')
+    if not os.path.isdir(pkgconfig_path):
+        return
+
+    try:
+        os.environ['PKG_CONFIG_PATH'] += ':' + pkgconfig_path
+    except KeyError:
+        os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
+
 def has_pkgconfig():
     if has_pkgconfig.cache is not None:
         return has_pkgconfig.cache
@@ -278,6 +281,10 @@ def has_pkgconfig():
         #print 'environ',  os.environ['PKG_CONFIG_PATH']
         status, output = getstatusoutput("pkg-config --help")
         has_pkgconfig.cache = (status == 0)
+
+        # Set the PKG_CONFIG_PATH environment variable
+        if has_pkgconfig.cache:
+            set_pkgconfig_path()
     return has_pkgconfig.cache
 has_pkgconfig.cache = None
 
@@ -447,24 +454,14 @@ def check_for_cairo():
         print_status("Cairo", cairo.version)
         return True
 
-def check_for_datetime():
-    try:
-        import datetime
-    except ImportError:
-        print_status("datetime", "no")
-        return False
-    else:
-        print_status("datetime", "present, version unknown")
-        return True
-
-def check_provide_pytz(hasdatetime=True):
-    if hasdatetime and (options['provide_pytz'] is True):
+def check_provide_pytz():
+    if options['provide_pytz'] is True:
         print_status("pytz", "matplotlib will provide")
         return True
     try:
         import pytz
     except ImportError:
-        if hasdatetime and options['provide_pytz']:
+        if options['provide_pytz']:
             print_status("pytz", "matplotlib will provide")
             return True
         else:
@@ -478,14 +475,14 @@ def check_provide_pytz(hasdatetime=True):
             print_status("pytz", pytz.__version__)
             return False
 
-def check_provide_dateutil(hasdatetime=True):
-    if hasdatetime and (options['provide_dateutil'] is True):
+def check_provide_dateutil():
+    if options['provide_dateutil'] is True:
         print_status("dateutil", "matplotlib will provide")
         return True
     try:
         import dateutil
     except ImportError:
-        if hasdatetime and options['provide_dateutil']:
+        if options['provide_dateutil']:
             print_status("dateutil", "matplotlib will provide")
             return True
         else:
@@ -502,6 +499,36 @@ def check_provide_dateutil(hasdatetime=True):
         except AttributeError:
             print_status("dateutil", "present, version unknown")
             return False
+
+def check_provide_six():
+    # We don't need six on Python 2.x
+    if sys.version_info[0] < 3:
+        return
+
+    if options['provide_six'] is True:
+        print_status("six", "matplotlib will provide")
+        return True
+    try:
+        import six
+    except ImportError:
+        if options['provide_six']:
+            print_status("six", "matplotlib will provide")
+            return True
+        else:
+            print_status("six", "no")
+            return False
+    else:
+        try:
+            if six.__version__.endswith('mpl'):
+                print_status("six", "matplotlib will provide")
+                return True
+            else:
+                print_status("six", six.__version__)
+                return False
+        except AttributeError:
+            print_status("six", "present, version unknown")
+            return False
+
 
 def check_for_dvipng():
     try:
@@ -958,7 +985,7 @@ def add_tk_flags(module):
     message = None
     if sys.platform == 'win32':
         major, minor1, minor2, s, tmp = sys.version_info
-        if (2, 6) <= (major, minor1) <= (3, 2):
+        if (2, 6) <= (major, minor1) <= (3, 3):
             module.include_dirs.extend(['win32_static/include/tcl85'])
             module.libraries.extend(['tk85', 'tcl85'])
         elif major == 2 and minor1 in [3, 4, 5]:

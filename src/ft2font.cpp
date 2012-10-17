@@ -36,17 +36,7 @@
       at the size at 12 pixels scaled by 2 through a transform,
       because the hints will have been computed differently (except
       you have disabled hints).
-
- This hack is enabled only when VERTICAL_HINTING is defined, and will
- only be effective when load_char and set_text are called with 'flags=
- LOAD_DEFAULT', which is the default.
  */
-#define VERTICAL_HINTING
-#ifdef VERTICAL_HINTING
-#define HORIZ_HINTING 8
-#else
-#define HORIZ_HINTING 1
-#endif
 
 FT_Library _ft2Library;
 
@@ -131,14 +121,27 @@ FT2Image::draw_bitmap(FT_Bitmap*  bitmap,
     FT_Int x_start = MAX(0, -x);
     FT_Int y_offset = y1 - MAX(0, -y);
 
-    for (FT_Int i = y1; i < y2; ++i)
-    {
-        unsigned char* dst = _buffer + (i * image_width + x1);
-        unsigned char* src = bitmap->buffer + (((i - y_offset) * bitmap->pitch) + x_start);
-        for (FT_Int j = x1; j < x2; ++j, ++dst, ++src)
+    if (bitmap->pixel_mode == FT_PIXEL_MODE_GRAY) {
+        for (FT_Int i = y1; i < y2; ++i)
         {
-            *dst |= *src;
+            unsigned char* dst = _buffer + (i * image_width + x1);
+            unsigned char* src = bitmap->buffer + (((i - y_offset) * bitmap->pitch) + x_start);
+            for (FT_Int j = x1; j < x2; ++j, ++dst, ++src)
+                *dst |= *src;
         }
+    } else if (bitmap->pixel_mode == FT_PIXEL_MODE_MONO) {
+        for (FT_Int i = y1; i < y2; ++i)
+        {
+            unsigned char* dst = _buffer + (i * image_width + x1);
+            unsigned char* src = bitmap->buffer + ((i - y_offset) * bitmap->pitch);
+            for (FT_Int j = x1; j < x2; ++j, ++dst) {
+                int x = (j - x1 + x_start);
+                int val = *(src + (x >> 3)) & (1 << (7 - (x & 0x7)));
+                *dst = val ? 255 : *dst;
+            }
+        }
+    } else {
+        throw Py::Exception("Unknown pixel mode");
     }
 
     _isDirty = true;
@@ -408,7 +411,7 @@ FT2Image::py_get_height(const Py::Tuple & args)
 PYCXX_VARARGS_METHOD_DECL(FT2Image, py_get_height)
 
 Py::PythonClassObject<Glyph> Glyph::factory(
-        const FT_Face& face, const FT_Glyph& glyph, size_t ind)
+        const FT_Face& face, const FT_Glyph& glyph, size_t ind, long hinting_factor)
 {
     Py::Callable class_type(type());
     Py::PythonClassObject<Glyph> obj = Py::PythonClassObject<Glyph>(
@@ -419,12 +422,12 @@ Py::PythonClassObject<Glyph> Glyph::factory(
     FT_BBox bbox;
     FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_subpixels, &bbox);
 
-    o->setattro("width",        Py::Int(face->glyph->metrics.width / HORIZ_HINTING));
+    o->setattro("width",        Py::Int(face->glyph->metrics.width / hinting_factor));
     o->setattro("height",       Py::Int(face->glyph->metrics.height));
-    o->setattro("horiBearingX", Py::Int(face->glyph->metrics.horiBearingX / HORIZ_HINTING));
+    o->setattro("horiBearingX", Py::Int(face->glyph->metrics.horiBearingX / hinting_factor));
     o->setattro("horiBearingY", Py::Int(face->glyph->metrics.horiBearingY));
     o->setattro("horiAdvance",  Py::Int(face->glyph->metrics.horiAdvance));
-    o->setattro("linearHoriAdvance",  Py::Int(face->glyph->linearHoriAdvance / HORIZ_HINTING));
+    o->setattro("linearHoriAdvance",  Py::Int(face->glyph->linearHoriAdvance / hinting_factor));
     o->setattro("vertBearingX", Py::Int(face->glyph->metrics.vertBearingX));
 
     o->setattro("vertBearingY", Py::Int(face->glyph->metrics.vertBearingY));
@@ -510,6 +513,7 @@ FT2Font::get_path()
     for (n = 0; n < outline.n_contours; n++)
     {
         int  last;  // index of last point in contour
+        bool starts_with_last;
 
         last  = outline.contours[n];
         limit = outline.points + last;
@@ -528,13 +532,22 @@ FT2Font::get_path()
         {
             throw Py::RuntimeError("A contour cannot start with a cubic control point");
         }
+        else if (tag == FT_CURVE_TAG_CONIC)
+        {
+            starts_with_last = true;
+        } else {
+            starts_with_last = false;
+        }
 
         count++;
 
         while (point < limit)
         {
-            point++;
-            tags++;
+            if (!starts_with_last) {
+                point++;
+                tags++;
+            }
+            starts_with_last = false;
 
             tag = FT_CURVE_TAG(tags[0]);
             switch (tag)
@@ -630,7 +643,8 @@ FT2Font::get_path()
     first = 0;
     for (n = 0; n < outline.n_contours; n++)
     {
-        int  last;  // index of last point in contour
+        int last;  // index of last point in contour
+        bool starts_with_last;
 
         last  = outline.contours[n];
         limit = outline.points + last;
@@ -644,16 +658,29 @@ FT2Font::get_path()
         tags  = outline.tags  + first;
         tag   = FT_CURVE_TAG(tags[0]);
 
-        double x = conv(v_start.x);
-        double y = flip_y ? -conv(v_start.y) : conv(v_start.y);
+        double x, y;
+        if (tag != FT_CURVE_TAG_ON)
+        {
+            x = conv(v_last.x);
+            y = flip_y ? -conv(v_last.y) : conv(v_last.y);
+            starts_with_last = true;
+        } else {
+            x = conv(v_start.x);
+            y = flip_y ? -conv(v_start.y) : conv(v_start.y);
+            starts_with_last = false;
+        }
+
         *(outpoints++) = x;
         *(outpoints++) = y;
         *(outcodes++) = MOVETO;
 
         while (point < limit)
         {
-            point++;
-            tags++;
+            if (!starts_with_last) {
+                point++;
+                tags++;
+            }
+            starts_with_last = false;
 
             tag = FT_CURVE_TAG(tags[0]);
             switch (tag)
@@ -825,40 +852,46 @@ FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds)
     {
         std::ostringstream s;
         s << "Could not load facefile " << facefile << "; Unknown_File_Format" << std::endl;
+        ob_refcnt--;
         throw Py::RuntimeError(s.str());
     }
     else if (error == FT_Err_Cannot_Open_Resource)
     {
         std::ostringstream s;
         s << "Could not open facefile " << facefile << "; Cannot_Open_Resource" << std::endl;
+        ob_refcnt--;
         throw Py::RuntimeError(s.str());
     }
     else if (error == FT_Err_Invalid_File_Format)
     {
         std::ostringstream s;
         s << "Could not open facefile " << facefile << "; Invalid_File_Format" << std::endl;
+        ob_refcnt--;
         throw Py::RuntimeError(s.str());
     }
     else if (error)
     {
         std::ostringstream s;
         s << "Could not open facefile " << facefile << "; freetype error code " << error << std::endl;
+        ob_refcnt--;
         throw Py::RuntimeError(s.str());
     }
 
     // set a default fontsize 12 pt at 72dpi
-#ifdef VERTICAL_HINTING
-    error = FT_Set_Char_Size(face, 12 * 64, 0, 72 * HORIZ_HINTING, 72);
-    static FT_Matrix transform = { 65536 / HORIZ_HINTING, 0, 0, 65536 };
+    hinting_factor = 8;
+    if (kwds.hasKey("hinting_factor"))
+    {
+        hinting_factor = Py::Long(kwds["hinting_factor"]);
+    }
+
+    error = FT_Set_Char_Size(face, 12 * 64, 0, 72 * hinting_factor, 72);
+    static FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
     FT_Set_Transform(face, &transform, 0);
-#else
-    error = FT_Set_Char_Size(face, 12 * 64, 0, 72, 72);
-#endif
-    //error = FT_Set_Char_Size( face, 20 * 64, 0, 80, 80 );
     if (error)
     {
         std::ostringstream s;
         s << "Could not set the fontsize for facefile  " << facefile << std::endl;
+        ob_refcnt--;
         throw Py::RuntimeError(s.str());
     }
 
@@ -993,17 +1026,12 @@ FT2Font::set_size(const Py::Tuple & args)
     double ptsize = Py::Float(args[0]);
     double dpi = Py::Float(args[1]);
 
-#ifdef VERTICAL_HINTING
     int error = FT_Set_Char_Size(face, (long)(ptsize * 64), 0,
-                                 (unsigned int)dpi * HORIZ_HINTING,
+                                 (unsigned int)dpi * hinting_factor,
                                  (unsigned int)dpi);
-    static FT_Matrix transform = { 65536 / HORIZ_HINTING, 0, 0, 65536 };
+    static FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
     FT_Set_Transform(face, &transform, 0);
-#else
-    int error = FT_Set_Char_Size(face, (long)(ptsize * 64), 0,
-                                 (unsigned int)dpi,
-                                 (unsigned int)dpi);
-#endif
+
     if (error)
     {
         throw Py::RuntimeError("Could not set the fontsize");
@@ -1126,7 +1154,7 @@ FT2Font::get_kerning(const Py::Tuple & args)
 
     if (!FT_Get_Kerning(face, left, right, mode, &delta))
     {
-        return Py::Int(delta.x / HORIZ_HINTING);
+        return Py::Int(delta.x / hinting_factor);
     }
     else
     {
@@ -1214,7 +1242,7 @@ FT2Font::set_text(const Py::Tuple & args, const Py::Dict & kwargs)
             FT_Vector delta;
             FT_Get_Kerning(face, previous, glyph_index,
                            FT_KERNING_DEFAULT, &delta);
-            pen.x += delta.x / HORIZ_HINTING;
+            pen.x += delta.x / hinting_factor;
         }
         error = FT_Load_Glyph(face, glyph_index, flags);
         if (error)
@@ -1319,7 +1347,7 @@ FT2Font::load_char(const Py::Tuple & args, const Py::Dict & kwargs)
 
     size_t num = glyphs.size();  //the index into the glyphs list
     glyphs.push_back(thisGlyph);
-    return Glyph::factory(face, thisGlyph, num);
+    return Glyph::factory(face, thisGlyph, num, hinting_factor);
 }
 PYCXX_KEYWORDS_METHOD_DECL(FT2Font, load_char)
 
@@ -1369,7 +1397,7 @@ FT2Font::load_glyph(const Py::Tuple & args, const Py::Dict & kwargs)
 
     size_t num = glyphs.size();  //the index into the glyphs list
     glyphs.push_back(thisGlyph);
-    return Glyph::factory(face, thisGlyph, num);
+    return Glyph::factory(face, thisGlyph, num, hinting_factor);
 }
 PYCXX_KEYWORDS_METHOD_DECL(FT2Font, load_glyph)
 
@@ -1420,11 +1448,17 @@ char FT2Font::draw_glyphs_to_bitmap__doc__[] =
     "The bitmap size will be automatically set to include the glyphs\n"
     ;
 Py::Object
-FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
+FT2Font::draw_glyphs_to_bitmap(const Py::Tuple &args, const Py::Dict &kwargs)
 {
 
     _VERBOSE("FT2Font::draw_glyphs_to_bitmap");
     args.verify_length(0);
+
+    long antialiased = 1;
+    if (kwargs.hasKey("antialiased"))
+    {
+        antialiased = Py::Long(kwargs["antialiased"]);
+    }
 
     FT_BBox string_bbox = compute_string_bbox();
     size_t width = (string_bbox.xMax - string_bbox.xMin) / 64 + 2;
@@ -1438,11 +1472,11 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
         FT_BBox bbox;
         FT_Glyph_Get_CBox(glyphs[n], ft_glyph_bbox_pixels, &bbox);
 
-        error = FT_Glyph_To_Bitmap(&glyphs[n],
-                                   ft_render_mode_normal,
-                                   0,
-                                   1
-                                  );
+        error = FT_Glyph_To_Bitmap(
+            &glyphs[n],
+            antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO,
+            0,
+            1);
         if (error)
         {
             throw Py::RuntimeError("Could not convert glyph to bitmap");
@@ -1460,7 +1494,7 @@ FT2Font::draw_glyphs_to_bitmap(const Py::Tuple & args)
 
     return Py::Object();
 }
-PYCXX_VARARGS_METHOD_DECL(FT2Font, draw_glyphs_to_bitmap)
+PYCXX_KEYWORDS_METHOD_DECL(FT2Font, draw_glyphs_to_bitmap)
 
 char FT2Font::get_xys__doc__[] =
     "get_xys()\n"
@@ -1468,11 +1502,16 @@ char FT2Font::get_xys__doc__[] =
     "Get the xy locations of the current glyphs\n"
     ;
 Py::Object
-FT2Font::get_xys(const Py::Tuple & args)
+FT2Font::get_xys(const Py::Tuple &args, const Py::Dict &kwargs)
 {
-
     _VERBOSE("FT2Font::get_xys");
     args.verify_length(0);
+
+    long antialiased = 1;
+    if (kwargs.hasKey("antialiased"))
+    {
+        antialiased = Py::Long(kwargs["antialiased"]);
+    }
 
     FT_BBox string_bbox = compute_string_bbox();
     Py::Tuple xys(glyphs.size());
@@ -1483,11 +1522,11 @@ FT2Font::get_xys(const Py::Tuple & args)
         FT_BBox bbox;
         FT_Glyph_Get_CBox(glyphs[n], ft_glyph_bbox_pixels, &bbox);
 
-        error = FT_Glyph_To_Bitmap(&glyphs[n],
-                                   ft_render_mode_normal,
-                                   0,
-                                   1
-                                  );
+        error = FT_Glyph_To_Bitmap(
+            &glyphs[n],
+            antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO,
+            0,
+            1);
         if (error)
         {
             throw Py::RuntimeError("Could not convert glyph to bitmap");
@@ -1510,7 +1549,7 @@ FT2Font::get_xys(const Py::Tuple & args)
 
     return xys;
 }
-PYCXX_VARARGS_METHOD_DECL(FT2Font, get_xys)
+PYCXX_KEYWORDS_METHOD_DECL(FT2Font, get_xys)
 
 char FT2Font::draw_glyph_to_bitmap__doc__[] =
     "draw_glyph_to_bitmap(bitmap, x, y, glyph)\n"
@@ -1525,7 +1564,7 @@ char FT2Font::draw_glyph_to_bitmap__doc__[] =
     "a glyph returned by load_char\n";
 
 Py::Object
-FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args)
+FT2Font::draw_glyph_to_bitmap(const Py::Tuple &args, const Py::Dict &kwargs)
 {
     _VERBOSE("FT2Font::draw_glyph_to_bitmap");
     args.verify_length(4);
@@ -1542,16 +1581,23 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args)
 
     Glyph* glyph = Py::PythonClassObject<Glyph>(args[3]).getCxxObject();
 
+    long antialiased = 1;
+    if (kwargs.hasKey("antialiased"))
+    {
+        antialiased = Py::Long(kwargs["antialiased"]);
+    }
+
     if (glyph->glyphInd >= glyphs.size())
     {
         throw Py::ValueError("glyph num is out of range");
     }
 
-    error = FT_Glyph_To_Bitmap(&glyphs[glyph->glyphInd],
-                               ft_render_mode_normal,
-                               &sub_offset,  //no additional translation
-                               1   //destroy image;
-                              );
+    error = FT_Glyph_To_Bitmap(
+        &glyphs[glyph->glyphInd],
+        antialiased ? FT_RENDER_MODE_NORMAL : FT_RENDER_MODE_MONO,
+        &sub_offset,  // additional translation
+        1   //destroy image
+        );
     if (error)
     {
         throw Py::RuntimeError("Could not convert glyph to bitmap");
@@ -1562,7 +1608,7 @@ FT2Font::draw_glyph_to_bitmap(const Py::Tuple & args)
     im->draw_bitmap(&bitmap->bitmap, x + bitmap->left, y);
     return Py::Object();
 }
-PYCXX_VARARGS_METHOD_DECL(FT2Font, draw_glyph_to_bitmap)
+PYCXX_KEYWORDS_METHOD_DECL(FT2Font, draw_glyph_to_bitmap)
 
 char FT2Font::get_glyph_name__doc__[] =
     "get_glyph_name(index)\n"
@@ -2084,11 +2130,11 @@ FT2Font::init_type()
 
     PYCXX_ADD_VARARGS_METHOD(clear, clear,
                              FT2Font::clear__doc__);
-    PYCXX_ADD_VARARGS_METHOD(draw_glyph_to_bitmap, draw_glyph_to_bitmap,
+    PYCXX_ADD_KEYWORDS_METHOD(draw_glyph_to_bitmap, draw_glyph_to_bitmap,
                              FT2Font::draw_glyph_to_bitmap__doc__);
-    PYCXX_ADD_VARARGS_METHOD(draw_glyphs_to_bitmap, draw_glyphs_to_bitmap,
+    PYCXX_ADD_KEYWORDS_METHOD(draw_glyphs_to_bitmap, draw_glyphs_to_bitmap,
                              FT2Font::draw_glyphs_to_bitmap__doc__);
-    PYCXX_ADD_VARARGS_METHOD(get_xys, get_xys,
+    PYCXX_ADD_KEYWORDS_METHOD(get_xys, get_xys,
                              FT2Font::get_xys__doc__);
 
     PYCXX_ADD_VARARGS_METHOD(get_num_glyphs, get_num_glyphs,
@@ -2264,6 +2310,16 @@ initft2font(void)
     if (error)
     {
         throw Py::RuntimeError("Could not find initialize the freetype2 library");
+    }
+
+    {
+        FT_Int major, minor, patch;
+        char version_string[64];
+
+        FT_Library_Version(_ft2Library, &major, &minor, &patch);
+        sprintf(version_string, "%d.%d.%d", major, minor, patch);
+
+        d["__freetype_version__"] = Py::String(version_string);
     }
 
     import_array();

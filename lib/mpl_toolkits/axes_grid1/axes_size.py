@@ -187,6 +187,7 @@ class MaxHeight(_Base):
 class Fraction(_Base):
     """
     An instance whose size is a *fraction* of the *ref_size*.
+    ::
 
       >>> s = Fraction(0.3, AxesX(ax))
 
@@ -223,7 +224,7 @@ def from_any(size, fraction_ref=None):
     """
     Creates Fixed unit when the first argument is a float, or a
     Fraction unit if that is a string that ends with %. The second
-    argument is only meaningful when Fraction unit is created.
+    argument is only meaningful when Fraction unit is created.::
 
       >>> a = Size.from_any(1.2) # => Size.Fixed(1.2)
       >>> Size.from_any("50%", a) # => Size.Fraction(0.5, a)
@@ -280,8 +281,7 @@ class GetExtentHelper(object):
         try:
             self._get_func = self._get_func_map[direction]
         except KeyError:
-            print "direction must be one of left, right, bottom, top"
-            raise
+            raise KeyError("direction must be one of left, right, bottom, top")
 
     def __call__(self, renderer):
         vl = [self._get_func(ax.get_tightbbox(renderer, False),

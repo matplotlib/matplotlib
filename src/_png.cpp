@@ -48,6 +48,8 @@ public:
                            "read_png_float(fileobj)");
         add_varargs_method("read_png_uint8", &_png_module::read_png_uint8,
                            "read_png_uint8(fileobj)");
+        add_varargs_method("read_png_int", &_png_module::read_png_int,
+                           "read_png_int(fileobj)");
         initialize("Module to write PNG files");
     }
 
@@ -57,7 +59,8 @@ private:
     Py::Object write_png(const Py::Tuple& args);
     Py::Object read_png_uint8(const Py::Tuple& args);
     Py::Object read_png_float(const Py::Tuple& args);
-    PyObject* _read_png(const Py::Object& py_fileobj, const bool float_result);
+    Py::Object read_png_int(const Py::Tuple& args);
+    PyObject* _read_png(const Py::Object& py_fileobj, const bool float_result, int result_bit_depth = -1);
 };
 
 static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t length)
@@ -297,7 +300,8 @@ static void read_png_data(png_structp png_ptr, png_bytep data, png_size_t length
 }
 
 PyObject*
-_png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
+_png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
+                       int result_bit_depth)
 {
     png_byte header[8];   // 8 is the maximum size that can be checked
     FILE* fp = NULL;
@@ -418,6 +422,7 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
     if (png_get_color_type(png_ptr, info_ptr) == PNG_COLOR_TYPE_PALETTE)
     {
         png_set_palette_to_rgb(png_ptr);
+        bit_depth = 8;
     }
 
     // If there's an alpha channel convert gray to RGB
@@ -501,7 +506,18 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
             }
         }
     } else {
-        A = (PyArrayObject *) PyArray_SimpleNew(num_dims, dimensions, NPY_UBYTE);
+        if (result_bit_depth < 0) {
+            result_bit_depth = bit_depth;
+        }
+
+        if (result_bit_depth == 8) {
+            A = (PyArrayObject *) PyArray_SimpleNew(num_dims, dimensions, NPY_UBYTE);
+        } else if (result_bit_depth == 16) {
+            A = (PyArrayObject *) PyArray_SimpleNew(num_dims, dimensions, NPY_UINT16);
+        } else {
+            throw Py::RuntimeError(
+                "_image_module::readpng: image has unknown bit depth");
+        }
 
         if (A == NULL)
         {
@@ -517,17 +533,32 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
                 if (bit_depth == 16)
                 {
                     png_uint_16* ptr = &reinterpret_cast<png_uint_16*>(row)[x * dimensions[2]];
-                    for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
-                    {
-                        *(png_byte*)(A->data + offset + p*A->strides[2]) = ptr[p] >> 8;
+
+                    if (result_bit_depth == 16) {
+                        for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
+                        {
+                            *(png_uint_16*)(A->data + offset + p*A->strides[2]) = ptr[p];
+                        }
+                    } else {
+                        for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
+                        {
+                            *(png_byte*)(A->data + offset + p*A->strides[2]) = ptr[p] >> 8;
+                        }
                     }
                 }
                 else
                 {
                     png_byte* ptr = &(row[x * dimensions[2]]);
-                    for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
-                    {
-                        *(png_byte*)(A->data + offset + p*A->strides[2]) = ptr[p];
+                    if (result_bit_depth == 16) {
+                        for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
+                        {
+                            *(png_uint_16*)(A->data + offset + p*A->strides[2]) = ptr[p];
+                        }
+                    } else {
+                        for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
+                        {
+                            *(png_byte*)(A->data + offset + p*A->strides[2]) = ptr[p];
+                        }
                     }
                 }
             }
@@ -568,6 +599,12 @@ _png_module::read_png_float(const Py::Tuple& args)
 
 Py::Object
 _png_module::read_png_uint8(const Py::Tuple& args)
+{
+    throw Py::RuntimeError("read_png_uint8 is deprecated.  Use read_png_int instead.");
+}
+
+Py::Object
+_png_module::read_png_int(const Py::Tuple& args)
 {
     args.verify_length(1);
     return Py::asObject(_read_png(args[0], false));

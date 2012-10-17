@@ -35,11 +35,20 @@ from matplotlib._pylab_helpers import Gcf
 
 mplBundle = NSBundle.bundleWithPath_(os.path.dirname(__file__))
 
+
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass( *args, **kwargs )
-    canvas = FigureCanvasCocoaAgg(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasCocoaAgg(figure)
     return FigureManagerCocoaAgg(canvas, num)
+
 
 ## Below is the original show() function:
 #def show():

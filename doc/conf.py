@@ -25,9 +25,10 @@ sys.path.append(os.path.abspath('sphinxext'))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['matplotlib.sphinxext.mathmpl', 'math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
+              'sphinx.ext.doctest',
               'matplotlib.sphinxext.plot_directive', 'sphinx.ext.inheritance_diagram',
               'gen_gallery', 'gen_rst',
-              'matplotlib.sphinxext.ipython_console_highlighting']
+              'matplotlib.sphinxext.ipython_console_highlighting', 'github']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,7 +41,7 @@ master_doc = 'contents'
 
 # General substitutions.
 project = 'Matplotlib'
-copyright = '2008, John Hunter, Darren Dale, Michael Droettboom'
+copyright = '2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the matplotlib development team'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -74,10 +75,16 @@ unused_docs = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+default_role = 'obj'
+
 # Plot directive configuration
 # ----------------------------
 
 plot_formats = [('png', 80), ('hires.png', 200), ('pdf', 50)]
+
+# Github extension
+
+github_project_url = "http://github.com/matplotlib/matplotlib/"
 
 # Options for HTML output
 # -----------------------
@@ -155,7 +162,9 @@ latex_font_size = '11pt'
 # (source start file, target name, title, author, document class [howto/manual]).
 
 latex_documents = [
-  ('contents', 'Matplotlib.tex', 'Matplotlib', 'Darren Dale, Michael Droettboom, Eric Firing, John Hunter', 'manual'),
+  ('contents', 'Matplotlib.tex', 'Matplotlib',
+   'John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the '
+   'matplotlib development team', 'manual'),
 ]
 
 
@@ -186,3 +195,11 @@ autoclass_content = 'both'
 rst_epilog = """
 .. |minimum_numpy_version| replace:: %s
 """ % matplotlib.__version__numpy__
+
+texinfo_documents = [
+  ("contents", 'matplotlib', 'Matplotlib Documentation',
+   'John Hunter@*Darren Dale@*Eric Firing@*Michael Droettboom@*'
+   'The matplotlib development team',
+   'Matplotlib', "Python plotting package", 'Programming',
+   1),
+]

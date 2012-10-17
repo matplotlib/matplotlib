@@ -3,7 +3,6 @@
 
 from __future__ import print_function
 
-import os, sys
 import matplotlib
 matplotlib.use('QtAgg') # qt3 example
 
@@ -16,12 +15,9 @@ TRUE  = 1
 FALSE = 0
 ITERS = 1000
 
-import pylab as p
 import matplotlib.pyplot as plt
-import numpy as np
 import time
 import pipong
-from numpy.random import randn, randint
 
 class BlitQT(QObject):
     def __init__(self):

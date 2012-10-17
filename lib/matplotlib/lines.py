@@ -6,6 +6,8 @@ variety of line styles, markers and colors.
 # TODO: expose cap and join style attrs
 from __future__ import division, print_function
 
+import warnings
+
 import numpy as np
 from numpy import ma
 from matplotlib import verbose
@@ -249,29 +251,35 @@ class Line2D(Artist):
         if len(self._xy)==0: return False,{}
 
         # Convert points to pixels
-        if self._transformed_path is None:
-            self._transform_path()
-        path, affine = self._transformed_path.get_transformed_path_and_affine()
+        path, affine = self._get_transformed_path().get_transformed_path_and_affine()
         path = affine.transform_path(path)
         xy = path.vertices
         xt = xy[:, 0]
         yt = xy[:, 1]
 
         # Convert pick radius from points to pixels
-        if self.figure == None:
-            warning.warn('no figure set when check if mouse is on line')
+        if self.figure is None:
+            warnings.warn('no figure set when check if mouse is on line')
             pixels = self.pickradius
         else:
             pixels = self.figure.dpi/72. * self.pickradius
 
-        # Check for collision
-        if self._linestyle in ['None',None]:
-            # If no line, return the nearby point(s)
-            d = (xt-mouseevent.x)**2 + (yt-mouseevent.y)**2
-            ind, = np.nonzero(np.less_equal(d, pixels**2))
-        else:
-            # If line, return the nearby segment(s)
-            ind = segment_hits(mouseevent.x,mouseevent.y,xt,yt,pixels)
+        # the math involved in checking for containment (here and inside of segment_hits) assumes
+        # that it is OK to overflow.  In case the application has set the error flags such that
+        # an exception is raised on overflow, we temporarily set the appropriate error flags here
+        # and set them back when we are finished. 
+        olderrflags = np.seterr(all='ignore')
+        try:
+            # Check for collision
+            if self._linestyle in ['None',None]:
+                # If no line, return the nearby point(s)
+                d = (xt-mouseevent.x)**2 + (yt-mouseevent.y)**2
+                ind, = np.nonzero(np.less_equal(d, pixels**2))
+            else:
+                # If line, return the nearby segment(s)
+                ind = segment_hits(mouseevent.x,mouseevent.y,xt,yt,pixels)
+        finally:
+            np.seterr(**olderrflags)
 
         ind += self.ind_offset
 
@@ -438,6 +446,11 @@ class Line2D(Artist):
         self._invalidy = False
 
     def _transform_path(self, subslice=None):
+        """
+        Puts a TransformedPath instance at self._transformed_path,
+        all invalidation of the transform is then handled by the 
+        TransformedPath instance.
+        """
         # Masked arrays are now handled by the Path class itself
         if subslice is not None:
             _path = Path(self._xy[subslice,:])
@@ -445,6 +458,14 @@ class Line2D(Artist):
             _path = self._path
         self._transformed_path = TransformedPath(_path, self.get_transform())
 
+    def _get_transformed_path(self):
+        """
+        Return the :class:`~matplotlib.transforms.TransformedPath` instance
+        of this line.
+        """
+        if self._transformed_path is None:
+            self._transform_path()
+        return self._transformed_path
 
     def set_transform(self, t):
         """
@@ -474,8 +495,8 @@ class Line2D(Artist):
             subslice = slice(max(i0-1, 0), i1+1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
-        if self._transformed_path is None:
-            self._transform_path()
+
+        transformed_path = self._get_transformed_path()
 
         if not self.get_visible(): return
 
@@ -499,7 +520,7 @@ class Line2D(Artist):
 
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         if funcname != '_draw_nothing':
-            tpath, affine = self._transformed_path.get_transformed_path_and_affine()
+            tpath, affine = transformed_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
                 self._lineFunc = getattr(self, funcname)
                 funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
@@ -520,7 +541,7 @@ class Line2D(Artist):
                 gc.set_linewidth(self._markeredgewidth)
             gc.set_alpha(self._alpha)
             marker = self._marker
-            tpath, affine = self._transformed_path.get_transformed_points_and_affine()
+            tpath, affine = transformed_path.get_transformed_points_and_affine()
             if len(tpath.vertices):
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
@@ -542,11 +563,16 @@ class Line2D(Artist):
                 if type(snap) == float:
                     snap = renderer.points_to_pixels(self._markersize) >= snap
                 gc.set_snap(snap)
+                gc.set_joinstyle(marker.get_joinstyle())
+                gc.set_capstyle(marker.get_capstyle())
                 marker_path = marker.get_path()
                 marker_trans = marker.get_transform()
                 w = renderer.points_to_pixels(self._markersize)
-                if marker.get_marker() != ',': # Don't scale for pixels
+                if marker.get_marker() != ',':
+                    # Don't scale for pixels, and don't stroke them
                     marker_trans = marker_trans.scale(w)
+                else:
+                    gc.set_linewidth(0)
                 renderer.draw_markers(
                     gc, marker_path, marker_trans, subsampled, affine.frozen(),
                     rgbFace)

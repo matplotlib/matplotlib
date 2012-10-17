@@ -1,5 +1,5 @@
 """
-You will need to have freetype, libpng and zlib installed to comile
+You will need to have freetype, libpng and zlib installed to compile
 matplotlib, inlcuding the *-devel versions of these libraries if you
 are using a package manager like RPM or debian.
 
@@ -48,9 +48,9 @@ from setupext import build_agg, build_gtkagg, build_tkagg,\
      check_for_qt, check_for_qt4, check_for_pyside, check_for_cairo, \
      check_provide_pytz, check_provide_dateutil,\
      check_for_dvipng, check_for_ghostscript, check_for_latex, \
-     check_for_pdftops, check_for_datetime, options, build_png, build_tri
+     check_for_pdftops, options, build_png, build_tri, check_provide_six
 
-# jdh
+
 packages = [
     'matplotlib',
     'matplotlib.backends',
@@ -98,14 +98,18 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'mpl-data/fonts/ttf/RELEASENOTES.TXT',
                               'mpl-data/images/*.xpm',
                               'mpl-data/images/*.svg',
+                              'mpl-data/images/*.gif',
                               'mpl-data/images/*.png',
                               'mpl-data/images/*.ppm',
                               'mpl-data/example/*.npy',
                               'mpl-data/matplotlibrc',
-                              'mpl-data/matplotlib.conf',
                               'mpl-data/*.glade',
+                              'mpl-data/sample_data/*.*',
+                              'mpl-data/sample_data/axes_grid/*.*',
                               'backends/Matplotlib.nib/*',
                               ]}
+
+package_dir = {'': 'lib'}
 
 if 1:
     # TODO: exclude these when making release?
@@ -118,6 +122,8 @@ if 1:
         return result
     baseline_images = [chop_package(f) for f in baseline_images]
     package_data['matplotlib'].extend(baseline_images)
+    package_data['matplotlib'].append('tests/mpltest.ttf')
+    package_data['matplotlib'].append('tests/test_rcparams.rc')
 
 if not check_for_numpy(__version__numpy__):
     sys.exit(1)
@@ -184,46 +190,53 @@ check_for_cairo()
 print_raw("")
 print_raw("OPTIONAL DATE/TIMEZONE DEPENDENCIES")
 
-hasdatetime = check_for_datetime()
-provide_dateutil = check_provide_dateutil(hasdatetime)
-provide_pytz = check_provide_pytz(hasdatetime)
+provide_dateutil = check_provide_dateutil()
+provide_pytz = check_provide_pytz()
+provide_six = check_provide_six()
 
-if hasdatetime: # dates require python23 datetime
-    # only install pytz and dateutil if the user hasn't got them
+def add_pytz():
+    packages.append('pytz')
 
-    def add_pytz():
-        packages.append('pytz')
+    resources = ['zone.tab', 'locales/pytz.pot']
+    for dirpath, dirnames, filenames in os.walk(
+        os.path.join('lib', 'pytz', 'zoneinfo')
+        ):
 
-        resources = ['zone.tab', 'locales/pytz.pot']
-        for dirpath, dirnames, filenames in os.walk(
-            os.path.join('lib', 'pytz', 'zoneinfo')
-            ):
+        # remove the 'pytz' part of the path
+        basepath = os.path.join(*dirpath.split(os.path.sep)[2:])
+        #print dirpath, basepath
+        resources.extend([os.path.join(basepath, filename)
+                          for filename in filenames])
+    package_data['pytz'] = resources
+    #print resources
+    assert len(resources) > 10, 'zoneinfo files not found!'
 
-            # remove the 'pytz' part of the path
-            basepath = os.path.join(*dirpath.split(os.path.sep)[2:])
-            #print dirpath, basepath
-            resources.extend([os.path.join(basepath, filename)
-                              for filename in filenames])
-        package_data['pytz'] = resources
-        #print resources
-        assert len(resources) > 10, 'zoneinfo files not found!'
-
-
-    def add_dateutil():
-        packages.append('dateutil')
-        packages.append('dateutil.zoneinfo')
-        package_data['dateutil'] = ['zoneinfo/zoneinfo*.tar.*']
-
-    if sys.platform=='win32':
-        # always add these to the win32 installer
-        add_pytz()
-        add_dateutil()
+def add_dateutil():
+    packages.append('dateutil')
+    packages.append('dateutil.zoneinfo')
+    package_data['dateutil'] = ['zoneinfo/*.tar.gz']
+    if sys.version_info[0] >= 3:
+        package_dir['dateutil'] = 'lib/dateutil_py3'
     else:
-        # only add them if we need them
-        if provide_pytz:
-            add_pytz()
-            print_raw("adding pytz")
-        if provide_dateutil: add_dateutil()
+        package_dir['dateutil'] = 'lib/dateutil_py2'
+
+def add_six():
+    py_modules.append('six')
+
+if sys.platform=='win32':
+    # always add these to the win32 installer
+    add_pytz()
+    add_dateutil()
+    add_six()
+else:
+    # only add them if we need them
+    if provide_pytz:
+        add_pytz()
+        print_raw("adding pytz")
+    if provide_dateutil:
+        add_dateutil()
+    if provide_six:
+        add_six()
 
 print_raw("")
 print_raw("OPTIONAL USETEX DEPENDENCIES")
@@ -241,12 +254,6 @@ if options['backend']: rc['backend'] = options['backend']
 template = open('matplotlibrc.template').read()
 open('lib/matplotlib/mpl-data/matplotlibrc', 'w').write(template%rc)
 
-# Write the default matplotlib.conf file
-template = open('lib/matplotlib/mpl-data/matplotlib.conf.template').read()
-template = template.replace("datapath = ", "#datapath = ")
-template = template.replace("    use = 'Agg'", "    use = '%s'"%rc['backend'])
-open('lib/matplotlib/mpl-data/matplotlib.conf', 'w').write(template)
-
 try: additional_params # has setupegg.py provided
 except NameError: additional_params = {}
 
@@ -255,8 +262,16 @@ for mod in ext_modules:
         mod.extra_compile_args.append('-DVERBOSE')
 
 if sys.version_info[0] >= 3:
+    def should_2to3(file, root):
+        file = os.path.abspath(file)[len(os.path.abspath(root))+1:]
+        if ('py3' in file or
+            file.startswith('pytz') or
+            file.startswith('dateutil') or
+            file.startswith('six')):
+            return False
+        return True
+
     import multiprocessing
-    from distutils import util
     def refactor(x):
         from lib2to3.refactor import RefactoringTool, get_fixers_from_package
         class DistutilsRefactoringTool(RefactoringTool):
@@ -272,7 +287,7 @@ if sys.version_info[0] >= 3:
         def run_2to3(self, files):
             # We need to skip certain files that have already been
             # converted to Python 3.x
-            filtered = [x for x in files if 'py3' not in x]
+            filtered = [x for x in files if should_2to3(x, self.build_lib)]
             if sys.platform.startswith('win'):
                 # doing this in parallel on windows may crash your computer
                 [refactor(f) for f in filtered]
@@ -288,9 +303,9 @@ print_raw("packages %s" % packages)
 distrib = setup(name="matplotlib",
       version= __version__,
       description = "Python plotting package",
-      author = "John D. Hunter",
-      author_email="jdh2358@gmail.com",
-      url = "http://matplotlib.sourceforge.net",
+      author = "John D. Hunter, Michael Droettboom",
+      author_email="mdroe@stsci.edu",
+      url = "http://matplotlib.org",
       long_description = """
       matplotlib strives to produce publication quality 2D graphics
       for interactive graphing, scientific publishing, user interface
@@ -302,7 +317,7 @@ distrib = setup(name="matplotlib",
       platforms='any',
       py_modules = py_modules,
       ext_modules = ext_modules,
-      package_dir = {'': 'lib'},
+      package_dir = package_dir,
       package_data = package_data,
       cmdclass = {'build_py': build_py},
       **additional_params

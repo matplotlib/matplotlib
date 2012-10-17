@@ -64,6 +64,15 @@ Surface plots
 .. plot:: mpl_examples/mplot3d/surface3d_demo2.py
 .. plot:: mpl_examples/mplot3d/surface3d_demo3.py
 
+.. _trisurface:
+
+Tri-Surface plots
+=================
+.. automethod:: Axes3D.plot_trisurf
+
+.. plot:: mpl_examples/mplot3d/trisurf3d_demo.py
+
+
 .. _contour3d:
 
 Contour plots

@@ -114,7 +114,7 @@ def copy_if_out_of_date(original, derived):
 
 def check_build():
     build_dirs = ['build', 'build/doctrees', 'build/html', 'build/latex',
-                  '_static', '_templates']
+                  'build/texinfo', '_static', '_templates']
     for d in build_dirs:
         try:
             os.mkdir(d)
@@ -130,8 +130,11 @@ def sfpdf():
     'push a copy to the sf site'
     os.system('cd build/latex; scp Matplotlib.pdf jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/')
 
-def figs():
-    os.system('cd users/figures/ && python make.py')
+def doctest():
+    os.system('sphinx-build -b doctest -d build/doctrees . build/doctest')
+
+def linkcheck():
+    os.system('sphinx-build -b linkcheck -d build/doctrees . build/linkcheck')
 
 def html():
     check_build()
@@ -173,6 +176,26 @@ def latex():
     else:
         print('latex build has not been tested on windows')
 
+def texinfo():
+    check_build()
+    #figs()
+    if sys.platform != 'win32':
+        # Texinfo format.
+        if os.system(
+                'sphinx-build -b texinfo -d build/doctrees . build/texinfo'):
+            raise SystemExit("Building Texinfo failed.")
+
+        # Produce info file.
+        os.chdir('build/texinfo')
+
+        # Call the makefile produced by sphinx...
+        if os.system('make'):
+            raise SystemExit("Rendering Texinfo failed.")
+
+        os.chdir('../..')
+    else:
+        print('texinfo build has not been tested on windows')
+
 def clean():
     shutil.rmtree("build", ignore_errors=True)
     shutil.rmtree("examples", ignore_errors=True)
@@ -195,13 +218,15 @@ def all():
 
 
 funcd = {
-    'figs'     : figs,
     'html'     : html,
     'latex'    : latex,
+    'texinfo'  : texinfo,
     'clean'    : clean,
     'sf'       : sf,
     'sfpdf'    : sfpdf,
     'all'      : all,
+    'doctest'  : doctest,
+    'linkcheck': linkcheck,
     }
 
 

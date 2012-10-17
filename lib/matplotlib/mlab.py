@@ -332,10 +332,6 @@ docstring.interpd.update(PSD=cbook.dedent("""
           argument, it must take a data segment as an argument and
           return the windowed version of the segment.
 
-      *noverlap*: integer
-          The number of points of overlap between blocks.  The default value
-          is 0 (no overlap).
-
       *pad_to*: integer
           The number of points to which the data segment is padded when
           performing the FFT.  This can be different from *NFFT*, which
@@ -377,6 +373,10 @@ def psd(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     %(PSD)s
 
+      *noverlap*: integer
+          The number of points of overlap between blocks.  The default value
+          is 0 (no overlap).
+
     Returns the tuple (*Pxx*, *freqs*).
 
     Refs:
@@ -409,6 +409,10 @@ def csd(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
 
     %(PSD)s
 
+      *noverlap*: integer
+          The number of points of overlap between blocks.  The default value
+          is 0 (no overlap).
+
     Returns the tuple (*Pxy*, *freqs*).
 
     Refs:
@@ -436,6 +440,10 @@ def specgram(x, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
     spectrum is returned.
 
     %(PSD)s
+
+      *noverlap*: integer
+          The number of points of overlap between blocks.  The default value
+          is 128.
 
     Returns a tuple (*Pxx*, *freqs*, *t*):
 
@@ -481,6 +489,10 @@ def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
         Array or sequence containing the data
 
     %(PSD)s
+
+      *noverlap*: integer
+          The number of points of overlap between blocks.  The default value
+          is 0 (no overlap).
 
     The return value is the tuple (*Cxy*, *f*), where *f* are the
     frequencies of the coherence vector. For cohere, scaling the
@@ -639,7 +651,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
         FFTSlices[iCol] = Slices
         if preferSpeedOverMemory:
             FFTConjSlices[iCol] = np.conjugate(Slices)
-        Pxx[iCol] = np.divide(np.mean(abs(Slices)**2), normVal)
+        Pxx[iCol] = np.divide(np.mean(abs(Slices)**2, axis=0), normVal)
     del Slices, ind, windowVals
 
     # compute the coherences and phases for all pairs using the
@@ -657,7 +669,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
             Pxy = FFTSlices[i] * FFTConjSlices[j]
         else:
             Pxy = FFTSlices[i] * np.conjugate(FFTSlices[j])
-        if numSlices>1: Pxy = np.mean(Pxy)
+        if numSlices>1: Pxy = np.mean(Pxy, axis=0)
         #Pxy = np.divide(Pxy, normVal)
         Pxy /= normVal
         #Cxy[(i,j)] = np.divide(np.absolute(Pxy)**2, Pxx[i]*Pxx[j])
@@ -687,16 +699,15 @@ def entropy(y, bins):
       x = mu + sigma * randn(200000)
       Sanalytic = 0.5 * ( 1.0 + log(2*pi*sigma**2.0) )
     """
-    n,bins = np.histogram(y, bins)
+    n, bins = np.histogram(y, bins)
     n = n.astype(np.float_)
 
     n = np.take(n, np.nonzero(n)[0])         # get the positive
 
     p = np.divide(n, len(y))
 
-    delta = bins[1]-bins[0]
-    S = -1.0*np.sum(p*log(p)) + log(delta)
-    #S = -1.0*np.sum(p*log(p))
+    delta = bins[1] - bins[0]
+    S = -1.0 * np.sum(p * np.log(p)) + np.log(delta)
     return S
 
 def normpdf(x, *args):
@@ -710,22 +721,20 @@ def levypdf(x, gamma, alpha):
 
     N = len(x)
 
-    if N%2 != 0:
+    if N % 2 != 0:
         raise ValueError('x must be an event length array; try\n' + \
               'x = np.linspace(minx, maxx, N), where N is even')
 
+    dx = x[1] - x[0]
 
-    dx = x[1]-x[0]
+    f = 1/(N*dx)*np.arange(-N / 2, N / 2, np.float_)
 
+    ind = np.concatenate([np.arange(N / 2, N, int),
+                          np.arange(0, N / 2, int)])
+    df = f[1] - f[0]
+    cfl = np.exp(-gamma * np.absolute(2 * np.pi * f) ** alpha)
 
-    f = 1/(N*dx)*np.arange(-N/2, N/2, np.float_)
-
-    ind = np.concatenate([np.arange(N/2, N, int),
-                           np.arange(0, N/2, int)])
-    df = f[1]-f[0]
-    cfl = exp(-gamma*np.absolute(2*pi*f)**alpha)
-
-    px = np.fft.fft(np.take(cfl,ind)*df).astype(np.float_)
+    px = np.fft.fft(np.take(cfl, ind) * df).astype(np.float_)
     return np.take(px, ind)
 
 
@@ -1446,7 +1455,6 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
         else:
             row = [converterseq[j](val)
                       for j,val in enumerate(splitfunc(line))]
-        thisLen = len(row)
         X.append(row)
 
     X = np.array(X, dtype)
@@ -1499,7 +1507,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
 
-import operator
 import math
 
 
@@ -1521,7 +1528,7 @@ def exp_safe(x):
     """
 
     if type(x) is np.ndarray:
-        return exp(np.clip(x,exp_safe_MIN,exp_safe_MAX))
+        return np.exp(np.clip(x,exp_safe_MIN,exp_safe_MAX))
     else:
         return math.exp(x)
 
@@ -1805,7 +1812,6 @@ def rec_drop_fields(rec, names):
     """
 
     names = set(names)
-    Nr = len(rec)
 
     newdtype = np.dtype([(name, rec.dtype[name]) for name in rec.dtype.names
                        if name not in names])
@@ -2134,8 +2140,6 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     import dateutil.parser
     import datetime
-    parsedate = dateutil.parser.parse
-
 
     fh = cbook.to_filehandle(fname)
 
@@ -2926,7 +2930,6 @@ def stineman_interp(xi,x,y,yp=None):
     x=np.asarray(x, np.float_)
     y=np.asarray(y, np.float_)
     assert x.shape == y.shape
-    N=len(y)
 
     if yp is None:
         yp = slopes(x,y)
@@ -2999,17 +3002,17 @@ def poly_below(xmin, xs, ys):
       ax.fill(xv, yv)
     """
     if ma.isMaskedArray(xs) or ma.isMaskedArray(ys):
-        nx = ma
+        numpy = ma
     else:
-        nx = np
+        numpy = np
 
-    xs = nx.asarray(xs)
-    ys = nx.asarray(ys)
+    xs = numpy.asarray(xs)
+    ys = numpy.asarray(ys)
     Nx = len(xs)
     Ny = len(ys)
     assert(Nx==Ny)
-    x = xmin*nx.ones(2*Nx)
-    y = nx.ones(2*Nx)
+    x = xmin*numpy.ones(2*Nx)
+    y = numpy.ones(2*Nx)
     x[:Nx] = xs
     y[:Nx] = ys
     y[Nx:] = ys[::-1]
@@ -3028,19 +3031,19 @@ def poly_between(x, ylower, yupper):
     :meth:`matplotlib.axes.Axes.fill`.
     """
     if ma.isMaskedArray(ylower) or ma.isMaskedArray(yupper) or ma.isMaskedArray(x):
-        nx = ma
+        numpy = ma
     else:
-        nx = np
+        numpy = np
 
     Nx = len(x)
     if not cbook.iterable(ylower):
-        ylower = ylower*nx.ones(Nx)
+        ylower = ylower*numpy.ones(Nx)
 
     if not cbook.iterable(yupper):
-        yupper = yupper*nx.ones(Nx)
+        yupper = yupper*numpy.ones(Nx)
 
-    x = nx.concatenate( (x, x[::-1]) )
-    y = nx.concatenate( (yupper, ylower[::-1]) )
+    x = numpy.concatenate( (x, x[::-1]) )
+    y = numpy.concatenate( (yupper, ylower[::-1]) )
     return x,y
 
 
@@ -3182,3 +3185,33 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     c2x, c2y = c1x + 1./3. * (q2x - q0x), c1y + 1./3. * (q2y - q0y)
     # c3x, c3y = q2x, q2y
     return q0x, q0y, c1x, c1y, c2x, c2y, q2x, q2y
+
+def offset_line(y, yerr):
+    """
+    Offsets an array *y* by +/- an error and returns a tuple (y - err, y + err).
+
+    The error term can be:
+
+    * A scalar. In this case, the returned tuple is obvious.
+    * A vector of the same length as *y*. The quantities y +/- err are computed
+      component-wise.
+    * A tuple of length 2. In this case, yerr[0] is the error below *y* and
+      yerr[1] is error above *y*. For example::
+
+        from pylab import *
+        x = linspace(0, 2*pi, num=100, endpoint=True)
+        y = sin(x)
+        y_minus, y_plus = mlab.offset_line(y, 0.1)
+        plot(x, y)
+        fill_between(x, ym, y2=yp)
+        show()
+
+    """
+    if cbook.is_numlike(yerr) or (cbook.iterable(yerr) and len(yerr) == len(y)):
+        ymin = y - yerr
+        ymax = y + yerr
+    elif len(yerr) == 2:
+        ymin, ymax = y - yerr[0], y + yerr[1]
+    else:
+        raise ValueError("yerr must be scalar, 1xN or 2xN")
+    return ymin, ymax

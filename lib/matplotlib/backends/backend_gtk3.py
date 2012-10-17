@@ -22,6 +22,7 @@ from matplotlib.widgets import SubplotTool
 from matplotlib import lines
 from matplotlib import cbook
 from matplotlib import verbose
+from matplotlib import rcParams
 
 backend_version = "%s.%s.%s" % (Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
 
@@ -258,15 +259,21 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
     def _get_key(self, event):
         if event.keyval in self.keyvald:
             key = self.keyvald[event.keyval]
-        elif event.keyval <256:
+        elif event.keyval < 256:
             key = chr(event.keyval)
         else:
             key = None
 
-        #ctrl  = event.get_state() & Gdk.EventMask.CONTROL
-        #shift = event.get_state() & Gdk.EventMask.SHIFT
-        return key
+        modifiers = [
+                     (Gdk.ModifierType.MOD4_MASK, 'super'),
+                     (Gdk.ModifierType.MOD1_MASK, 'alt'),
+                     (Gdk.ModifierType.CONTROL_MASK, 'ctrl'),
+                    ]
+        for key_mask, prefix in modifiers:
+            if event.state & key_mask:
+                key = '{}+{}'.format(prefix, key)
 
+        return key
 
     def configure_event(self, widget, event):
         if _debug: print 'FigureCanvasGTK3.%s' % fn_name()
@@ -302,9 +309,6 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
             return False
         if self._idle_draw_id == 0:
             self._idle_draw_id = GObject.idle_add(idle_draw)
-
-    def get_default_filetype(self):
-        return 'png'
 
     def new_timer(self, *args, **kwargs):
         """
@@ -354,16 +358,18 @@ class FigureManagerGTK3(FigureManagerBase):
         FigureManagerBase.__init__(self, canvas, num)
 
         self.window = Gtk.Window()
-        self.window.set_title("Figure %d" % num)
-        if (window_icon):
-            try:
-                self.window.set_icon_from_file(window_icon)
-            except:
-                # some versions of gtk throw a glib.GError but not
-                # all, so I am not sure how to catch it.  I am unhappy
-                # diong a blanket catch here, but an not sure what a
-                # better way is - JDH
-                verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+        self.set_window_title("Figure %d" % num)
+        try:
+            self.window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # some versions of gtk throw a glib.GError but not
+            # all, so I am not sure how to catch it.  I am unhappy
+            # doing a blanket catch here, but am not sure what a
+            # better way is - JDH
+            verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
 
         self.vbox = Gtk.Box()
         self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
@@ -371,9 +377,6 @@ class FigureManagerGTK3(FigureManagerBase):
         self.vbox.show()
 
         self.canvas.show()
-
-        # attach a show method to the figure  for pylab ease of use
-        self.canvas.figure.show = lambda *args: self.window.show()
 
         self.vbox.pack_start(self.canvas, True, True, 0)
 
@@ -435,13 +438,16 @@ class FigureManagerGTK3(FigureManagerBase):
     def _get_toolbar(self, canvas):
         # must be inited after the window, drawingArea and figure
         # attrs are set
-        if matplotlib.rcParams['toolbar'] == 'classic':
+        if rcParams['toolbar'] == 'classic':
             toolbar = NavigationToolbar (canvas, self.window)
-        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
+        elif rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2GTK3 (canvas, self.window)
         else:
             toolbar = None
         return toolbar
+
+    def get_window_title(self):
+        return self.window.get_title()
 
     def set_window_title(self, title):
         self.window.set_title(title)
@@ -455,19 +461,6 @@ class FigureManagerGTK3(FigureManagerBase):
 
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
-    # list of toolitems to add to the toolbar, format is:
-    # text, tooltip_text, image_file, callback(str)
-    toolitems = (
-        ('Home', 'Reset original view', 'home.png', 'home'),
-        ('Back', 'Back to  previous view','back.png', 'back'),
-        ('Forward', 'Forward to next view','forward.png', 'forward'),
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move.png','pan'),
-        ('Zoom', 'Zoom to rectangle','zoom_to_rect.png', 'zoom'),
-        (None, None, None, None),
-        ('Subplots', 'Configure subplots','subplots.png', 'configure_subplots'),
-        ('Save', 'Save the figure','filesave.png', 'save_figure'),
-        )
-
     def __init__(self, canvas, window):
         self.win = window
         GObject.GObject.__init__(self)
@@ -512,13 +505,13 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
     def _init_toolbar(self):
         self.set_style(Gtk.ToolbarStyle.ICONS)
-        basedir = os.path.join(matplotlib.rcParams['datapath'],'images')
+        basedir = os.path.join(rcParams['datapath'],'images')
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
                 self.insert( Gtk.SeparatorToolItem(), -1 )
                 continue
-            fname = os.path.join(basedir, image_file)
+            fname = os.path.join(basedir, image_file + '.png')
             image = Gtk.Image()
             image.set_from_file(fname)
             tbutton = Gtk.ToolButton()
@@ -541,11 +534,13 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.show_all()
 
     def get_filechooser(self):
-        return FileChooserDialog(
+        fc = FileChooserDialog(
             title='Save the figure',
             parent=self.win,
             filetypes=self.canvas.get_supported_filetypes(),
             default_filetype=self.canvas.get_default_filetype())
+        fc.set_current_name(self.canvas.get_default_filename())
+        return fc
 
     def save_figure(self, *args):
         fname, format = self.get_filechooser().get_filename_from_user()
@@ -566,12 +561,15 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
 
 
         window = Gtk.Window()
-        if (window_icon):
-            try: window.set_icon_from_file(window_icon)
-            except:
-                # we presumably already logged a message on the
-                # failure of the main plot, don't keep reporting
-                pass
+        try:
+            window.set_icon_from_file(window_icon)
+        except (SystemExit, KeyboardInterrupt):
+            # re-raise exit type Exceptions
+            raise
+        except:
+            # we presumably already logged a message on the
+            # failure of the main plot, don't keep reporting
+            pass
         window.set_title("Subplot Configuration Tool")
         window.set_default_size(w, h)
         vbox = Gtk.Box()
@@ -967,7 +965,6 @@ class DialogLineprops:
         line = self.lines[ind]
         return line
 
-
     def get_active_linestyle(self):
         'get the active lineinestyle'
         ind = self.cbox_linestyles.get_active()
@@ -1000,8 +997,6 @@ class DialogLineprops:
         line.set_markerfacecolor((r,g,b))
 
         line.figure.canvas.draw()
-
-
 
     def on_combobox_lineprops_changed(self, item):
         'update the widgets from the active line'
@@ -1048,17 +1043,14 @@ class DialogLineprops:
     def on_dialog_lineprops_cancelbutton_clicked(self, button):
         self.dlg.hide()
 
-# set icon used when windows are minimized
-try:
 
-    if sys.platform == 'win32':
-        icon_filename = 'matplotlib.png'
-    else:
-        icon_filename = 'matplotlib.svg'
-    window_icon = os.path.join(matplotlib.rcParams['datapath'], 'images', icon_filename)
-except:
-    window_icon = None
-    verbose.report('Could not load matplotlib icon: %s' % sys.exc_info()[1])
+# Define the file to use as the GTk icon
+if sys.platform == 'win32':
+    icon_filename = 'matplotlib.png'
+else:
+    icon_filename = 'matplotlib.svg'
+window_icon = os.path.join(matplotlib.rcParams['datapath'], 'images', icon_filename)
+
 
 def error_msg_gtk(msg, parent=None):
     if parent is not None: # find the toplevel Gtk.Window

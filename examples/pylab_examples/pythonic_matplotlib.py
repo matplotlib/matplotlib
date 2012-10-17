@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Some people prefer to write more pythonic, object oriented, code
-rather than use the pylab interface to matplotlib.  This example show
+rather than use the pylab interface to matplotlib.  This example shows
 you how.
 
 Unless you are an application developer, I recommend using part of the

@@ -8,7 +8,7 @@ controlling major and minor ticks
 from __future__ import print_function
 import datetime
 from pylab import figure, show
-from matplotlib.dates import MONDAY, SATURDAY
+from matplotlib.dates import MONDAY
 from matplotlib.finance import quotes_historical_yahoo
 from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 

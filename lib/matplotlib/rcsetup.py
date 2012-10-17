@@ -30,7 +30,7 @@ interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX',
 
 
 non_interactive_bk = ['agg', 'cairo', 'emf', 'gdk',
-                      'pdf', 'ps', 'svg', 'template']
+                      'pdf', 'pgf', 'ps', 'svg', 'template']
 all_backends = interactive_bk + non_interactive_bk
 
 
@@ -113,10 +113,6 @@ validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
 validate_toolbar = ValidateInStrings('toolbar',[
     'None','classic','toolbar2',
     ], ignorecase=True)
-
-def validate_autolayout(v):
-    if v:
-        warnings.warn("figure.autolayout is not currently supported")
 
 def validate_maskedarray(v):
     # 2008/12/12: start warning; later, remove all traces of maskedarray
@@ -251,9 +247,8 @@ validate_verbose = ValidateInStrings('verbose',[
     'silent', 'helpful', 'debug', 'debug-annoying',
     ])
 
-validate_cairo_format = ValidateInStrings('cairo_format',
-                            ['png', 'ps', 'pdf', 'svg'],
-                            ignorecase=True)
+def deprecate_savefig_extension(value):
+    warnings.warn("savefig.extension is deprecated.  Use savefig.format instead.")
 
 validate_ps_papersize = ValidateInStrings('ps_papersize',[
     'auto', 'letter', 'legal', 'ledger',
@@ -312,6 +307,34 @@ def deprecate_svg_embed_char_paths(value):
     warnings.warn("svg.embed_char_paths is deprecated.  Use svg.fonttype instead.")
 
 validate_svg_fonttype = ValidateInStrings('fonttype', ['none', 'path', 'svgfont'])
+
+def validate_hinting(s):
+    if s in (True, False):
+        return s
+    if s.lower() in ('auto', 'native', 'either', 'none'):
+        return s.lower()
+    raise ValueError("hinting should be 'auto', 'native', 'either' or 'none'")
+
+validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
+                                           ['xelatex', 'lualatex', 'pdflatex'])
+
+validate_movie_writer = ValidateInStrings('animation.writer',
+    ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file',
+     'imagemagick', 'imagemagick_file'])
+
+validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
+    ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
+
+def validate_bbox(s):
+    if type(s) is str:
+        s = s.lower()
+        if s == 'tight':
+            return s
+        if s == 'standard':
+            return None
+        raise ValueError("bbox should be 'tight' or 'standard'")
+
+
 
 class ValidateInterval:
     """
@@ -407,7 +430,9 @@ defaultParams = {
     'text.latex.preamble' : [[''], validate_stringlist],
     'text.latex.preview' : [False, validate_bool],
     'text.dvipnghack'     : [None, validate_bool_maybe_none],
-    'text.hinting'        : [True, validate_bool],
+    'text.hinting'        : [True, validate_hinting],
+    'text.hinting_factor' : [8, validate_int],
+    'text.antialiased'    : [True, validate_bool],
 
     # The following are deprecated and replaced by, e.g., 'font.style'
     #'text.fontstyle'      : ['normal', str],
@@ -451,7 +476,9 @@ defaultParams = {
                                # use scientific notation if log10
                                # of the axis range is smaller than the
                                # first or larger than the second
-    'axes.formatter.use_locale' : [False, validate_bool], # Use the current locale to format ticks
+    'axes.formatter.use_locale' : [False, validate_bool],
+                               # Use the current locale to format ticks
+    'axes.formatter.use_mathtext' : [False, validate_bool],
     'axes.unicode_minus'        : [True, validate_bool],
     'axes.color_cycle'      : [['b','g','r','c','m','y','k'],
                                     validate_colorlist], # cycle of plot
@@ -509,6 +536,7 @@ defaultParams = {
     'grid.color'       : ['k', validate_color],       # grid color
     'grid.linestyle'   : [':', str],       # dotted
     'grid.linewidth'   : [0.5, validate_float],     # in points
+    'grid.alpha'       : [1.0, validate_float],
 
 
     # figure props
@@ -517,7 +545,7 @@ defaultParams = {
     'figure.dpi'        : [ 80, validate_float],   # DPI
     'figure.facecolor'  : [ '0.75', validate_color], # facecolor; scalar gray
     'figure.edgecolor'  : [ 'w', validate_color],  # edgecolor; white
-    'figure.autolayout' : [ False, validate_autolayout],
+    'figure.autolayout' : [ False, validate_bool],
 
     'figure.subplot.left'   : [0.125, ValidateInterval(0, 1, closedmin=True, closedmax=True)],
     'figure.subplot.right'  : [0.9, ValidateInterval(0, 1, closedmin=True, closedmax=True)],
@@ -530,9 +558,11 @@ defaultParams = {
     'savefig.facecolor'   : ['w', validate_color],  # facecolor; white
     'savefig.edgecolor'   : ['w', validate_color],  # edgecolor; white
     'savefig.orientation' : ['portrait', validate_orientation],  # edgecolor; white
-    'savefig.extension'   : ['auto', str],          # what to add to extensionless filenames
+    'savefig.extension'   : ['png', deprecate_savefig_extension], # what to add to extensionless filenames
+    'savefig.format'      : ['png', str], # value checked by backend at runtime
+    'savefig.bbox'        : [None, validate_bbox], # options are 'tight', or 'standard'. 'standard' validates to None.
+    'savefig.pad_inches'  : [0.1, validate_float],
 
-    'cairo.format'       : ['png', validate_cairo_format],
     'tk.window_focus'    : [False, validate_bool],  # Maintain shell focus for TkAgg
     'tk.pythoninspect'   : [False, validate_tkpythoninspect],  # obsolete
     'ps.papersize'       : ['letter', validate_ps_papersize], # Set the papersize/type
@@ -545,6 +575,12 @@ defaultParams = {
     'pdf.use14corefonts' : [False, validate_bool],  # use only the 14 PDF core fonts
                                                     # embedded in every PDF viewing application
     'pdf.fonttype'      : [3, validate_fonttype],  # 3 (Type3) or 42 (Truetype)
+
+    'pgf.debug'         : [False, validate_bool],  # output debug information
+    'pgf.texsystem'     : ['xelatex', validate_pgf_texsystem], # choose latex application for creating pdf files (xelatex/lualatex)
+    'pgf.rcfonts'       : [True, validate_bool],   # use matplotlib rc settings for font configuration
+    'pgf.preamble'      : [[''], validate_stringlist], # provide a custom preamble for the latex process
+
     'svg.image_inline'  : [True, validate_bool],    # write raster image data directly into the svg file
     'svg.image_noscale' : [False, validate_bool],  # suppress scaling of raster data embedded in SVG
     'svg.embed_char_paths' : [True, deprecate_svg_embed_char_paths],  # True to save all characters as paths in the SVG
@@ -559,23 +595,31 @@ defaultParams = {
     'agg.path.chunksize' : [0, validate_int],       # 0 to disable chunking;
                                                     # recommend about 20000 to
                                                     # enable. Experimental.
-    # key-mappings
-    'keymap.fullscreen' : ['f', validate_stringlist],
+    # key-mappings (multi-character mappings should be a list/tuple)
+    'keymap.fullscreen' : [('f', 'ctrl+f'), validate_stringlist],
     'keymap.home' : [['h', 'r', 'home'], validate_stringlist],
     'keymap.back' : [['left', 'c', 'backspace'], validate_stringlist],
     'keymap.forward' : [['right', 'v'], validate_stringlist],
     'keymap.pan' : ['p', validate_stringlist],
     'keymap.zoom' : ['o', validate_stringlist],
-    'keymap.save' : ['s', validate_stringlist],
+    'keymap.save' : [('s', 'ctrl+s'), validate_stringlist],
+    'keymap.quit' : [('ctrl+w', ), validate_stringlist],
     'keymap.grid' : ['g', validate_stringlist],
     'keymap.yscale' : ['l', validate_stringlist],
     'keymap.xscale' : [['k', 'L'], validate_stringlist],
     'keymap.all_axes' : ['a', validate_stringlist],
 
-    # sample data
-    'examples.download' : [True, validate_bool],
-    'examples.directory' : ['', str],
-
+    # Animation settings
+    'animation.writer' : ['ffmpeg', validate_movie_writer],
+    'animation.codec' : ['mpeg4', str],
+    'animation.bitrate' : [-1, validate_int],
+    'animation.frame_format' : ['png', validate_movie_frame_fmt], # Controls image format when frames are written to disk
+    'animation.ffmpeg_path' : ['ffmpeg', str], # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
+    'animation.ffmpeg_args' : ['', validate_stringlist], # Additional arguments for ffmpeg movie writer (using pipes)
+    'animation.mencoder_path' : ['mencoder', str], # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
+    'animation.mencoder_args' : ['', validate_stringlist], # Additional arguments for mencoder movie writer (using pipes)
+    'animation.convert_path' : ['convert', str], # Path to convert binary. If just binary name, subprocess uses $PATH
+    'animation.convert_args' : ['', validate_stringlist], # Additional arguments for mencoder movie writer (using pipes)
 }
 
 if __name__ == '__main__':

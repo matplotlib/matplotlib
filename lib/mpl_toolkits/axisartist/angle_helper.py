@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from math import floor
 
 import numpy as np
@@ -433,38 +435,38 @@ if __name__ == "__main__":
     #print select_step360(20.5+21.2/3600., 20.5+33.3/3600., 5)
 
     # test threshold factor
-    print select_step360(20.5+11.2/3600., 20.5+53.3/3600., 5,
-                         threshold_factor=60)
+    print(select_step360(20.5+11.2/3600., 20.5+53.3/3600., 5,
+                         threshold_factor=60))
 
-    print select_step360(20.5+11.2/3600., 20.5+53.3/3600., 5,
-                         threshold_factor=1)
+    print(select_step360(20.5+11.2/3600., 20.5+53.3/3600., 5,
+                         threshold_factor=1))
 
     fmt = FormatterDMS()
     #print fmt("left", 60, [0, -30, -60])
-    print fmt("left", 600, [12301, 12302, 12303])
+    print(fmt("left", 600, [12301, 12302, 12303]))
 
-    print select_step360(20.5+21.2/3600., 20.5+21.4/3600., 5)
-    print fmt("left", 36000, [738210, 738215, 738220])
-    print fmt("left", 360000, [7382120, 7382125, 7382130])
-    print fmt("left", 1., [45, 46, 47])
-    print fmt("left", 10., [452, 453, 454])
+    print(select_step360(20.5+21.2/3600., 20.5+21.4/3600., 5))
+    print(fmt("left", 36000, [738210, 738215, 738220]))
+    print(fmt("left", 360000, [7382120, 7382125, 7382130]))
+    print(fmt("left", 1., [45, 46, 47]))
+    print(fmt("left", 10., [452, 453, 454]))
 
 if 0:
-    print select_step360(20+21.2/60., 21+33.3/60., 5)
-    print select_step360(20.5+21.2/3600., 20.5+33.3/3600., 5)
-    print select_step360(20+21.2/60., 20+53.3/60., 5)
+    print(select_step360(20+21.2/60., 21+33.3/60., 5))
+    print(select_step360(20.5+21.2/3600., 20.5+33.3/3600., 5))
+    print(select_step360(20+21.2/60., 20+53.3/60., 5))
 
     ###
     levs, n, factor = select_step360(20.5+21.2/3600., 20.5+27.25/3600., 5)
     levs = levs * 0.1
     fmt = FormatterDMS()
     #print fmt("left", 60, [0, -30, -60])
-    print fmt("left", factor, levs)
+    print(fmt("left", factor, levs))
 
 
-    print select_step(-180, 180, 10, hour=False)
-    print select_step(-12, 12, 10, hour=True)
+    print(select_step(-180, 180, 10, hour=False))
+    print(select_step(-12, 12, 10, hour=True))
 
     fmt = FormatterDMS()
     #print fmt("left", 60, [0, -30, -60])
-    print fmt("left", 3600, [0, -30, -60])
+    print(fmt("left", 3600, [0, -30, -60]))

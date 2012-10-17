@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 # generate a thumbnail gallery of examples
 template = """\
 {%% extends "layout.html" %%}
@@ -9,6 +11,11 @@ template = """\
 <h3>Click on any image to see full size image and source code</h3>
 <br/>
 
+<li><a class="reference internal" href="#">Gallery</a><ul>
+%s
+</ul>
+</li>
+
 %s
 {%% endblock %%}
 """
@@ -16,7 +23,7 @@ template = """\
 import os, glob, re, sys, warnings
 import matplotlib.image as image
 
-multiimage = re.compile('(.*)_\d\d')
+multiimage = re.compile('(.*?)(_\d\d){1,2}')
 
 def make_thumbnail(args):
     image.thumbnail(args[0], args[1], 0.3)
@@ -42,14 +49,32 @@ def gen_gallery(app, doctree):
         'matplotlib_icon',
         ])
 
-    data = []
     thumbnails = {}
+    rows = []
+    toc_rows = []
 
-    for subdir in ('api', 'pylab_examples', 'mplot3d', 'widgets', 'axes_grid' ):
+    link_template = """\
+    <a href="%s"><img src="%s" border="0" alt="%s"/></a>
+    """
+
+    header_template = """<div class="section" id="%s">\
+    <h4>%s<a class="headerlink" href="#%s" title="Permalink to this headline">¶</a></h4>"""
+
+    toc_template = """\
+    <li><a class="reference internal" href="#%s">%s</a></li>"""
+
+    dirs = ('api', 'pylab_examples', 'mplot3d', 'widgets', 'axes_grid' )
+
+    for subdir in dirs :
+        rows.append(header_template % (subdir, subdir, subdir))
+        toc_rows.append(toc_template % (subdir, subdir))
+
         origdir = os.path.join('build', rootdir, subdir)
         thumbdir = os.path.join(outdir, rootdir, subdir, 'thumbnails')
         if not os.path.exists(thumbdir):
             os.makedirs(thumbdir)
+
+        data = []
 
         for filename in sorted(glob.glob(os.path.join(origdir, '*.png'))):
             if filename.endswith("hires.png"):
@@ -68,31 +93,32 @@ def gen_gallery(app, doctree):
                 thumbnails[orig_path] = thumb_path
 
             m = multiimage.match(basename)
-            if m is None:
-                pyfile = '%s.py'%basename
-            else:
+            if m is not None:
                 basename = m.group(1)
-                pyfile = '%s.py'%basename
 
             data.append((subdir, basename,
                          os.path.join(rootdir, subdir, 'thumbnails', filename)))
 
-    link_template = """\
-    <a href="%s"><img src="%s" border="0" alt="%s"/></a>
-    """
 
-    if len(data) == 0:
-        warnings.warn("No thumbnails were found")
 
-    rows = []
-    for (subdir, basename, thumbfile) in data:
-        if thumbfile is not None:
-            link = 'examples/%s/%s.html'%(subdir, basename)
-            rows.append(link_template%(link, thumbfile, basename))
+
+        for (subdir, basename, thumbfile) in data:
+            if thumbfile is not None:
+                link = 'examples/%s/%s.html'%(subdir, basename)
+                rows.append(link_template%(link, thumbfile, basename))
+
+        if len(data) == 0:
+            warnings.warn("No thumbnails were found in %s" % subdir)
+
+        # Close out the <div> opened up at the top of this loop
+        rows.append("</div>")
+
+    content = template % ('\n'.join(toc_rows),
+                          '\n'.join(rows))
 
     # Only write out the file if the contents have actually changed.
     # Otherwise, this triggers a full rebuild of the docs
-    content = template%'\n'.join(rows)
+
     gallery_path = os.path.join(app.builder.srcdir, '_templates', 'gallery.html')
     if os.path.exists(gallery_path):
         fh = file(gallery_path, 'r')

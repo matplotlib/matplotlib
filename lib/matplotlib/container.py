@@ -1,5 +1,6 @@
 import matplotlib.cbook as cbook
 
+
 class Container(tuple):
     """
     Base class for containers.
@@ -15,7 +16,7 @@ class Container(tuple):
 
         self.eventson = False  # fire events only if eventson
         self._oid = 0  # an observer id
-        self._propobservers = {} # a dict from oids to funcs
+        self._propobservers = {}  # a dict from oids to funcs
 
         self._remove_method = None
 
@@ -29,7 +30,7 @@ class Container(tuple):
             c.remove()
 
         if self._remove_method:
-            self._remove_method()
+            self._remove_method(self)
 
     def get_label(self):
         """
@@ -41,9 +42,9 @@ class Container(tuple):
         """
         Set the label to *s* for auto legend.
 
-        ACCEPTS: any string
+        ACCEPTS: string or anything printable with '%s' conversion.
         """
-        self._label = s
+        self._label = '%s' % (s, )
         self.pchanged()
 
     def add_callback(self, func):
@@ -69,8 +70,10 @@ class Container(tuple):
                For adding callbacks
 
         """
-        try: del self._propobservers[oid]
-        except KeyError: pass
+        try:
+            del self._propobservers[oid]
+        except KeyError:
+            pass
 
     def pchanged(self):
         """
@@ -109,5 +112,3 @@ class StemContainer(Container):
         self.stemlines = stemlines
         self.baseline = baseline
         Container.__init__(self, markerline_stemlines_baseline, **kwargs)
-
-

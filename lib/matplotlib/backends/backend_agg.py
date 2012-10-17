@@ -21,7 +21,7 @@ TODO:
   * integrate screen dpi w/ ppi and text
 """
 from __future__ import division
-
+import threading
 import numpy as np
 
 from matplotlib import verbose, rcParams
@@ -30,7 +30,8 @@ from matplotlib.backend_bases import RendererBase,\
 from matplotlib.cbook import is_string_like, maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
-from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
+from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING, \
+     LOAD_DEFAULT, LOAD_NO_AUTOHINT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
@@ -40,17 +41,42 @@ from matplotlib import _png
 
 backend_version = 'v2.2'
 
+def get_hinting_flag():
+    mapping = {
+        True: LOAD_FORCE_AUTOHINT,
+        False: LOAD_NO_HINTING,
+        'either': LOAD_DEFAULT,
+        'native': LOAD_NO_AUTOHINT,
+        'auto': LOAD_FORCE_AUTOHINT,
+        'none': LOAD_NO_HINTING
+        }
+    return mapping[rcParams['text.hinting']]
+
+
 class RendererAgg(RendererBase):
     """
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
     debug=1
+
+    # we want to cache the fonts at the class level so that when
+    # multiple figures are created we can reuse them.  This helps with
+    # a bug on windows where the creation of too many figures leads to
+    # too many open file handles.  However, storing them at the class
+    # level is not thread safe.  The solution here is to let the
+    # FigureCanvas acquire a lock on the fontd at the start of the
+    # draw, and release it when it is done.  This allows multiple
+    # renderers to share the cached fonts, but only one figure can
+    # draw at at time and so the font cache is used by only one
+    # renderer at a time
+
+    lock = threading.RLock()
+    _fontd = maxdict(50)
     def __init__(self, width, height, dpi):
         if __debug__: verbose.report('RendererAgg.__init__', 'debug-annoying')
         RendererBase.__init__(self)
         self.texd = maxdict(50)  # a cache of tex image rasters
-        self._fontd = maxdict(50)
 
         self.dpi = dpi
         self.width = width
@@ -141,7 +167,7 @@ class RendererAgg(RendererBase):
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
-        flags = self._get_hinting_flag()
+        flags = get_hinting_flag()
         font = self._get_agg_font(prop)
         if font is None: return None
         if len(s) == 1 and ord(s) > 127:
@@ -150,7 +176,7 @@ class RendererAgg(RendererBase):
             # We pass '0' for angle here, since it will be rotated (in raster
             # space) in the following call to draw_text_image).
             font.set_text(s, 0, flags=flags)
-        font.draw_glyphs_to_bitmap()
+        font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
 
         #print x, y, int(x), int(y), s
         self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, angle, gc)
@@ -178,7 +204,7 @@ class RendererAgg(RendererBase):
                 self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
 
-        flags = self._get_hinting_flag()
+        flags = get_hinting_flag()
         font = self._get_agg_font(prop)
         font.set_text(s, 0.0, flags=flags)  # the width and height of unrotated string
         w, h = font.get_width_height()
@@ -214,15 +240,17 @@ class RendererAgg(RendererBase):
                                      'debug-annoying')
 
         key = hash(prop)
-        font = self._fontd.get(key)
+        font = RendererAgg._fontd.get(key)
 
         if font is None:
             fname = findfont(prop)
-            font = self._fontd.get(fname)
+            font = RendererAgg._fontd.get(fname)
             if font is None:
-                font = FT2Font(str(fname))
-                self._fontd[fname] = font
-            self._fontd[key] = font
+                font = FT2Font(
+                    str(fname),
+                    hinting_factor=rcParams['text.hinting_factor'])
+                RendererAgg._fontd[fname] = font
+            RendererAgg._fontd[key] = font
 
         font.clear()
         size = prop.get_size_in_points()
@@ -367,7 +395,14 @@ def new_figure_manager(num, *args, **kwargs):
 
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas = FigureCanvasAgg(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas = FigureCanvasAgg(figure)
     manager = FigureManagerBase(canvas, num)
     return manager
 
@@ -397,7 +432,15 @@ class FigureCanvasAgg(FigureCanvasBase):
         if __debug__: verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
 
         self.renderer = self.get_renderer()
-        self.figure.draw(self.renderer)
+        # acquire a lock on the shared font cache
+        RendererAgg.lock.acquire()
+
+        try:
+            self.figure.draw(self.renderer)
+        finally:
+            RendererAgg.lock.release()
+
+
 
     def get_renderer(self):
         l, b, w, h = self.figure.bbox.bounds
@@ -425,9 +468,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         if __debug__: verbose.report('FigureCanvasAgg.buffer_rgba',
                                      'debug-annoying')
         return self.renderer.buffer_rgba()
-
-    def get_default_filetype(self):
-        return 'png'
 
     def print_raw(self, filename_or_obj, *args, **kwargs):
         FigureCanvasAgg.draw(self)

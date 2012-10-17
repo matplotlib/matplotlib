@@ -42,7 +42,7 @@ def test1(ax):
 def test2(ax):
 
     # bbox=round has two optional argument. pad and rounding_size.
-    # They can be set during the initiallization.
+    # They can be set during the initialization.
     p_fancy = FancyBboxPatch((bb.xmin, bb.ymin),
                              abs(bb.width), abs(bb.height),
                              boxstyle="round,pad=0.1",

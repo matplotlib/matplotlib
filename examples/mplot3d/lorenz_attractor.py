@@ -30,7 +30,7 @@ zs = np.empty((stepCnt + 1,))
 xs[0], ys[0], zs[0] = (0., 1., 1.05)
 
 # Stepping through "time".
-for i in xrange(stepCnt) :
+for i in range(stepCnt) :
     # Derivatives of the X, Y, Z state
     x_dot, y_dot, z_dot = lorenz(xs[i], ys[i], zs[i])
     xs[i + 1] = xs[i] + (x_dot * dt)

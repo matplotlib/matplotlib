@@ -32,12 +32,19 @@ ymid = y[triang.triangles].mean(axis=1)
 mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
 triang.set_mask(mask)
 
-# pcolor plot.
+# tripcolor plot.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.tripcolor(triang, z, shading='faceted')
+plt.tripcolor(triang, z, shading='flat', cmap=plt.cm.rainbow)
 plt.colorbar()
-plt.title('tripcolor of Delaunay triangulation')
+plt.title('tripcolor of Delaunay triangulation, flat shading')
+
+# Illustrate Gouraud shading.
+plt.figure()
+plt.gca().set_aspect('equal')
+plt.tripcolor(triang, z, shading='gouraud', cmap=plt.cm.rainbow)
+plt.colorbar()
+plt.title('tripcolor of Delaunay triangulation, gouraud shading')
 
 
 # You can specify your own triangulation rather than perform a Delaunay
@@ -63,9 +70,6 @@ xy = np.asarray([
     [-0.057,0.916],[-0.025,0.933],[-0.077,0.990],[-0.059,0.993] ])
 x = xy[:,0]*180/3.14159
 y = xy[:,1]*180/3.14159
-x0 = -5
-y0 = 52
-z = np.exp(-0.01*( (x-x0)*(x-x0) + (y-y0)*(y-y0) ))
 
 triangles = np.asarray([
     [67,66, 1],[65, 2,66],[ 1,66, 2],[64, 2,65],[63, 3,64],[60,59,57],
@@ -83,13 +87,21 @@ triangles = np.asarray([
     [32,31,33],[39,38,72],[33,72,38],[33,38,34],[37,35,38],[34,38,35],
     [35,37,36] ])
 
+xmid = x[triangles].mean(axis=1)
+ymid = y[triangles].mean(axis=1)
+x0 = -5
+y0 = 52
+zfaces = np.exp(-0.01*( (xmid-x0)*(xmid-x0) + (ymid-y0)*(ymid-y0) ))
+
 # Rather than create a Triangulation object, can simply pass x, y and triangles
 # arrays to tripcolor directly.  It would be better to use a Triangulation object
 # if the same triangulation was to be used more than once to save duplicated
 # calculations.
+# Can specify one color value per face rather than one per point by using the
+# facecolors kwarg.
 plt.figure()
 plt.gca().set_aspect('equal')
-plt.tripcolor(x, y, triangles, z, shading='faceted')
+plt.tripcolor(x, y, triangles, facecolors=zfaces, edgecolors='k')
 plt.colorbar()
 plt.title('tripcolor of user-specified triangulation')
 plt.xlabel('Longitude (degrees)')

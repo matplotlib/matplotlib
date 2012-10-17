@@ -1,8 +1,96 @@
+2012-10-05 Add support for saving animations as animated GIFs. - JVDP
+
+2012-08-11 Fix path-closing bug in patches.Polygon, so that regardless
+           of whether the path is the initial one or was subsequently
+           set by set_xy(), get_xy() will return a closed path if and
+           only if get_closed() is True.  Thanks to Jacob Vanderplas. - EF
+
+2012-08-05 When a norm is passed to contourf, either or both of the
+           vmin, vmax attributes of that norm are now respected.
+           Formerly they were respected only if both were
+           specified. In addition, vmin and/or vmax can now
+           be passed to contourf directly as kwargs. - EF
+
+2012-07-24 Contourf handles the extend kwarg by mapping the extended
+           ranges outside the normed 0-1 range so that they are
+           handled by colormap colors determined by the set_under
+           and set_over methods.  Previously the extended ranges
+           were mapped to 0 or 1 so that the "under" and "over"
+           colormap colors were ignored. This change also increases
+           slightly the color contrast for a given set of contour
+           levels. - EF
+
+2012-06-24 Make use of mathtext in tick labels configurable - DSD
+
+2012-06-05 Images loaded through PIL are now ordered correctly - CG
+
+2012-06-02 Add new Axes method and pyplot function, hist2d. - PO
+
+2012-05-31 Remove support for 'cairo.<format>' style of backend specification.
+           Deprecate 'cairo.format' and 'savefig.extension' rcParams and
+           replace with 'savefig.format'. - Martin Spacek
+
+2012-05-29 pcolormesh now obeys the passed in "edgecolor" kwarg.
+           To support this, the "shading" argument to pcolormesh now only
+           takes "flat" or "gouraud".  To achieve the old "faceted" behavior,
+           pass "edgecolors='k'". - MGD
+
+2012-05-22 Added radius kwarg to pie charts. - HH
+
+2012-05-22 Collections now have a setting "offset_position" to select whether
+           the offsets are given in "screen" coordinates (default,
+           following the old behavior) or "data" coordinates.  This is currently
+           used internally to improve the performance of hexbin.
+
+           As a result, the "draw_path_collection" backend methods have grown
+           a new argument "offset_position". - MGD
+
+2012-05-04 Add a new argument to pie charts - startingangle - that
+           allows one to specify the angle offset for the first wedge
+           of the chart. - EP
+
+2012-05-03 symlog scale now obeys the logarithmic base.  Previously, it was
+           completely ignored and always treated as base e. - MGD
+
+2012-05-03 Allow linscalex/y keyword to symlog scale that allows the size of
+           the linear portion relative to the logarithmic portion to be
+           adjusted. - MGD
+
+2012-04-14 Added new plot style: stackplot. This new feature supports stacked
+           area plots. - Damon McDougall
+
+2012-04-06 When path clipping changes a LINETO to a MOVETO, it also
+           changes any CLOSEPOLY command to a LINETO to the initial
+           point. This fixes a problem with pdf and svg where the
+           CLOSEPOLY would then draw a line to the latest MOVETO
+           position instead of the intended initial position. - JKS
+
+2012-03-27 Add support to ImageGrid for placing colorbars only at
+           one edge of each column/row. - RMM
+
+2012-03-07 Refactor movie writing into useful classes that make use
+           of pipes to write image data to ffmpeg or mencoder. Also
+           improve settings for these and the ability to pass custom
+           options. - RMM
+
+2012-02-29 errorevery keyword added to errorbar to enable errorbar
+           subsampling. fixes issue #600.
+
+2012-02-28 Added plot_trisurf to the mplot3d toolkit. This supports plotting
+           three dimensional surfaces on an irregular grid. - Damon McDougall
+
+2012-01-23 The radius labels in polar plots no longer use a fixed
+           padding, but use a different alignment depending on the
+           quadrant they are in.  This fixes numerical problems when
+           (rmax - rmin) gets too small. - MGD
+
+2012-01-08 Add axes.streamplot to plot streamlines of a velocity field.
+                   Adapted from Tom Flannaghan streamplot implementation. -TSY
+
 2011-12-29 ps and pdf markers are now stroked only if the line width
            is nonzero for consistency with agg, fixes issue #621. - JKS
 
 2011-12-27 Work around an EINTR bug in some versions of subprocess. - JKS
-
 
 2011-10-25 added support for \operatorname to mathtext,
            including the ability to insert spaces, such as

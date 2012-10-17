@@ -109,7 +109,7 @@ class AxisArtistHelper(object):
             return trans
 
         def get_tick_iterators(self, axes):
-            # iter : iteratable object that yields (c, angle, l) where
+            # iter : iterable object that yields (c, angle, l) where
             # c, angle, l is position, tick angle, and label
 
             return iter_major, iter_minor
@@ -215,7 +215,6 @@ class AxisArtistHelper(object):
                           axes.get_yaxis_transform()][self.nth_coord]
 
             return trans_tick
-
 
 
     class Floating(_Base):
@@ -810,38 +809,6 @@ class Axes(maxes.Axes):
 
         return _bbox
 
-
-    def set_xlim(self, left=None, right=None, emit=True, auto=False,
-                 swap_axis=True, **kw):
-
-        x1o, x2o = self.get_xlim()
-
-        maxes.Axes.set_xlim(self, left, right, emit, auto, **kw)
-        x1, x2 = self.get_xlim()
-
-        if not swap_axis:
-            return
-
-        if (x1o > x2o and x1 < x2) or (x1o < x2o and x1 > x2):
-            self.axis["right"], self.axis["left"] = self.axis["left"], self.axis["right"]
-
-            self.axis["left"].set_axis_direction("left")
-            self.axis["right"].set_axis_direction("right")
-
-
-    def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
-                 swap_axis=True, **kw):
-
-        y1o, y2o = self.get_ylim()
-
-        maxes.Axes.set_ylim(self, bottom, top, emit, auto, **kw)
-        y1, y2 = self.get_ylim()
-
-        if y1o > y2o and y1 < y2 or (y1o < y2o and y1 > y2):
-            self.axis["top"], self.axis["bottom"] = self.axis["bottom"], self.axis["top"]
-
-            self.axis["top"].set_axis_direction("top")
-            self.axis["bottom"].set_axis_direction("bottom")
 
 
 

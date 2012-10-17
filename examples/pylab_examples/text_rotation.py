@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-The way matplotlib does text layout is counter-intuituve to some, so
+The way matplotlib does text layout is counter-intuitive to some, so
 this example is designed to make it a little clearer.  The text is
 aligned by it's bounding box (the rectangular box that surrounds the
 ink rectangle).  The order of operations is basically rotation then

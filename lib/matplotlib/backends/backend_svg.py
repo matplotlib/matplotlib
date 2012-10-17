@@ -1,6 +1,6 @@
 from __future__ import division
 
-import os, base64, tempfile, urllib, gzip, io, sys
+import os, base64, tempfile, urllib, gzip, io, sys, codecs
 
 import numpy as np
 
@@ -327,11 +327,16 @@ class RendererSVG(RendererBase):
         """
         Create a new hatch pattern
         """
-        dictkey = (gc.get_hatch(), rgbFace, gc.get_rgb())
+        if rgbFace is not None:
+            rgbFace = tuple(rgbFace)
+        edge = gc.get_rgb()
+        if edge is not None:
+            edge = tuple(edge)
+        dictkey = (gc.get_hatch(), rgbFace, edge)
         oid = self._hatchd.get(dictkey)
         if oid is None:
             oid = self._make_id(u'h', dictkey)
-            self._hatchd[dictkey] = ((gc.get_hatch_path(), rgbFace, gc.get_rgb()), oid)
+            self._hatchd[dictkey] = ((gc.get_hatch_path(), rgbFace, edge), oid)
         else:
             _, oid = oid
         return oid
@@ -374,7 +379,7 @@ class RendererSVG(RendererBase):
             writer.end(u'pattern')
         writer.end(u'defs')
 
-    def _get_style(self, gc, rgbFace):
+    def _get_style_dict(self, gc, rgbFace):
         """
         return the style string.  style is generated from the
         GraphicsContext and rgbFace
@@ -407,7 +412,10 @@ class RendererSVG(RendererBase):
             if gc.get_capstyle() != 'projecting':
                 attrib[u'stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
 
-        return generate_css(attrib)
+        return attrib
+
+    def _get_style(self, gc, rgbFace):
+        return generate_css(self._get_style_dict(gc, rgbFace))
 
     def _get_clip(self, gc):
         cliprect = gc.get_clip_rectangle()
@@ -536,16 +544,22 @@ class RendererSVG(RendererBase):
             return
 
         writer = self.writer
-        dictkey = (id(marker_path), marker_trans)
+        path_data = self._convert_path(
+            marker_path,
+            marker_trans + Affine2D().scale(1.0, -1.0),
+            simplify=False)
+        style = self._get_style_dict(gc, rgbFace)
+        dictkey = (path_data, generate_css(style))
         oid = self._markers.get(dictkey)
+        for key in style.keys():
+            if not key.startswith('stroke'):
+                del style[key]
+        style = generate_css(style)
+
         if oid is None:
             oid = self._make_id(u'm', dictkey)
-            path_data = self._convert_path(
-                marker_path,
-                marker_trans + Affine2D().scale(1.0, -1.0),
-                simplify=False)
             writer.start(u'defs')
-            writer.element(u'path', id=oid, d=path_data)
+            writer.element(u'path', id=oid, d=path_data, style=style)
             writer.end(u'defs')
             self._markers[dictkey] = oid
 
@@ -568,7 +582,8 @@ class RendererSVG(RendererBase):
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offsetTrans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls):
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position):
         writer = self.writer
         path_codes = []
         writer.start(u'defs')
@@ -583,8 +598,9 @@ class RendererSVG(RendererBase):
         writer.end(u'defs')
 
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
-            gc, path_codes, offsets, offsetTrans, facecolors, edgecolors,
-            linewidths, linestyles, antialiaseds, urls):
+            gc, master_transform, all_transforms, path_codes, offsets,
+            offsetTrans, facecolors, edgecolors, linewidths, linestyles,
+            antialiaseds, urls, offset_position):
             clipid = self._get_clip(gc0)
             url = gc0.get_url()
             if url is not None:
@@ -641,9 +657,9 @@ class RendererSVG(RendererBase):
 
         writer.start(u'defs')
         for i in range(3):
-            x1, y1 = points[i]
-            x2, y2 = points[(i + 1) % 3]
-            x3, y3 = points[(i + 2) % 3]
+            x1, y1 = tpoints[i]
+            x2, y2 = tpoints[(i + 1) % 3]
+            x3, y3 = tpoints[(i + 2) % 3]
             c = colors[i][:]
 
             if x2 == x3:
@@ -686,13 +702,13 @@ class RendererSVG(RendererBase):
         href = u'#GT%x' % self._n_gradients
         writer.element(
             u'use',
-            attrib={u'xlink:href': u'#%s' % href,
+            attrib={u'xlink:href': href,
                     u'fill': rgb2hex(avg_color),
                     u'fill-opacity': str(avg_color[-1])})
         for i in range(3):
             writer.element(
                 u'use',
-                attrib={u'xlink:href': u'#%s' % href,
+                attrib={u'xlink:href': href,
                         u'fill': u'url(#GR%x_%d)' % (self._n_gradients, i),
                         u'fill-opacity': u'1',
                         u'filter': u'url(#colorAdd)'})
@@ -722,7 +738,7 @@ class RendererSVG(RendererBase):
         clipid = self._get_clip(gc)
         if clipid is not None:
             # Can't apply clip-path directly to the image because the
-            # image as a transformation, which would also be applied
+            # image has a transformation, which would also be applied
             # to the clip-path
             self.writer.start(u'g', attrib={u'clip-path': u'url(#%s)' % clipid})
 
@@ -739,7 +755,7 @@ class RendererSVG(RendererBase):
             im.resize(numcols, numrows)
 
         h,w = im.get_size_out()
-
+        oid = getattr(im, '_gid', None)
         url = getattr(im, '_url', None)
         if url is not None:
             self.writer.start(u'a', attrib={u'xlink:href': url})
@@ -749,7 +765,8 @@ class RendererSVG(RendererBase):
             rows, cols, buffer = im.as_rgba_str()
             _png.write_png(buffer, cols, rows, bytesio)
             im.flipud_out()
-            attrib[u'xlink:href'] = (
+            oid = oid or self._make_id('image', bytesio)
+            attrib['xlink:href'] = (
                 u"data:image/png;base64,\n" +
                 base64.b64encode(bytesio.getvalue()).decode('ascii'))
         else:
@@ -760,11 +777,14 @@ class RendererSVG(RendererBase):
             rows, cols, buffer = im.as_rgba_str()
             _png.write_png(buffer, cols, rows, filename)
             im.flipud_out()
+            oid = oid or 'Im_' + self._make_id('image', filename)
             attrib[u'xlink:href'] = filename
 
         alpha = gc.get_alpha()
         if alpha != 1.0:
             attrib['opacity'] = str(alpha)
+
+        attrib['id'] = oid
 
         if transform is None:
             self.writer.element(
@@ -774,11 +794,17 @@ class RendererSVG(RendererBase):
                 attrib=attrib)
         else:
             flipped = self._make_flip_transform(transform)
+            flipped = np.array(flipped.to_values())
+            y = y+dy
+            if dy > 0.0:
+                flipped[3] *= -1.0
+                y *= -1.0
             attrib[u'transform'] = generate_transform(
-                [(u'matrix', flipped.to_values())])
+                [(u'matrix', flipped)])
             self.writer.element(
                 u'image',
-                x=unicode(x), y=unicode(y+dy), width=unicode(dx), height=unicode(-dy),
+                x=unicode(x), y=unicode(y),
+                width=unicode(dx), height=unicode(abs(dy)),
                 attrib=attrib)
 
         if url is not None:
@@ -1064,7 +1090,11 @@ class FigureCanvasSVG(FigureCanvasBase):
         if is_string_like(filename):
             fh_to_close = svgwriter = io.open(filename, 'w', encoding='utf-8')
         elif is_writable_file_like(filename):
-            svgwriter = io.TextIOWrapper(filename, 'utf-8')
+            if not isinstance(filename, io.TextIOBase):
+                if sys.version_info[0] >= 3:
+                    svgwriter = io.TextIOWrapper(filename, 'utf-8')
+                else:
+                    svgwriter = codecs.getwriter('utf-8')(filename)
             fh_to_close = None
         else:
             raise ValueError("filename must be a path or a file-like object")
@@ -1121,13 +1151,21 @@ FigureManager = FigureManagerSVG
 def new_figure_manager(num, *args, **kwargs):
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
-    canvas  = FigureCanvasSVG(thisFig)
+    return new_figure_manager_given_figure(num, thisFig)
+
+
+def new_figure_manager_given_figure(num, figure):
+    """
+    Create a new figure manager instance for the given figure.
+    """
+    canvas  = FigureCanvasSVG(figure)
     manager = FigureManagerSVG(canvas, num)
     return manager
+
 
 svgProlog = u"""\
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 """

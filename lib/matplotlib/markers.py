@@ -24,8 +24,9 @@ class MarkerStyle:
 marker                         description
 ============================== ===============================================
 %s
-``'$...$'``                    render the string using mathtext
-*verts*                        a list of (x, y) pairs in range (0, 1)
+``'$...$'``                    render the string using mathtext.
+*verts*                        a list of (x, y) pairs used for Path vertices.
+path                           a :class:`~matplotlib.path.Path` instance.
 (*numsides*, *style*, *angle*) see below
 ============================== ===============================================
 
@@ -48,7 +49,7 @@ will create a custom, regular symbol.
       =====   =============================================
 
     *angle*:
-      the angle of rotation of the symbol
+      the angle of rotation of the symbol, in degrees
 
 For backward compatibility, the form (*verts*, 0) is also accepted,
 but it is equivalent to just *verts* for giving a raw set of vertices
@@ -112,12 +113,24 @@ that define the shape.
         self.set_marker(marker)
         self.set_fillstyle(fillstyle)
 
+    def __getstate__(self):
+        d = self.__dict__.copy()
+        d.pop('_marker_function')
+        return d
+
+    def __setstate__(self, statedict):
+        self.__dict__ = statedict
+        self.set_marker(self._marker)
+        self._recache()
+
     def _recache(self):
         self._path = Path(np.empty((0,2)))
         self._transform = IdentityTransform()
         self._alt_path = None
         self._alt_transform = None
         self._snap_threshold = None
+        self._joinstyle = 'round'
+        self._capstyle = 'butt'
         self._filled = True
         self._marker_function()
 
@@ -136,6 +149,12 @@ that define the shape.
         self._fillstyle = fillstyle
         self._recache()
 
+    def get_joinstyle(self):
+        return self._joinstyle
+
+    def get_capstyle(self):
+        return self._capstyle
+
     def get_marker(self):
         return self._marker
 
@@ -143,6 +162,8 @@ that define the shape.
         if (iterable(marker) and len(marker) in (2, 3) and
             marker[1] in (0, 1, 2, 3)):
             self._marker_function = self._set_tuple_marker
+        elif isinstance(marker, np.ndarray):
+            self._marker_function = self._set_vertices
         elif marker in self.markers:
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
@@ -152,10 +173,10 @@ that define the shape.
             self._marker_function = self._set_path_marker
         else:
             try:
-                path = Path(marker)
+                _ = Path(marker)
                 self._marker_function = self._set_vertices
-            except:
-                raise ValueError('Unrecognized marker style %s' % marker)
+            except ValueError:
+                raise ValueError('Unrecognized marker style {}'.format(marker))
 
         self._marker = marker
         self._recache()
@@ -188,8 +209,9 @@ that define the shape.
         self._set_custom_marker(self._marker)
 
     def _set_vertices(self):
-        path = Path(verts)
-        self._set_custom_marker(path)
+        verts = self._marker
+        marker = Path(verts)
+        self._set_custom_marker(marker)
 
     def _set_tuple_marker(self):
         marker = self._marker
@@ -201,11 +223,14 @@ that define the shape.
             symstyle = marker[1]
             if symstyle == 0:
                 self._path = Path.unit_regular_polygon(numsides)
+                self._joinstyle = 'miter'
             elif symstyle == 1:
                 self._path = Path.unit_regular_star(numsides)
+                self._joinstyle = 'bevel'
             elif symstyle == 2:
                 self._path = Path.unit_regular_asterisk(numsides)
                 self._filled = False
+                self._joinstyle = 'bevel'
             elif symstyle == 3:
                 self._path = Path.unit_circle()
             self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
@@ -220,7 +245,6 @@ that define the shape.
 
         Submitted by tcb
         """
-        from matplotlib.patches import PathPatch
         from matplotlib.text import TextPath
         from matplotlib.font_manager import FontProperties
 
@@ -252,7 +276,7 @@ that define the shape.
 
     def _set_circle(self, reduction = 1.0):
         self._transform = Affine2D().scale(0.5 * reduction)
-        self._snap_threshold = 3.0
+        self._snap_threshold = 6.0
         fs = self.get_fillstyle()
         if not self._half_fill():
             self._path = Path.unit_circle()
@@ -269,8 +293,17 @@ that define the shape.
 
     def _set_pixel(self):
         self._path = Path.unit_rectangle()
-        self._transform = Affine2D().translate(-0.5, 0.5)
-        self._snap_threshold = False
+        # Ideally, you'd want -0.5, -0.5 here, but then the snapping
+        # algorithm in the Agg backend will round this to a 2x2
+        # rectangle from (-1, -1) to (1, 1).  By offsetting it
+        # slightly, we can force it to be (0, 0) to (1, 1), which both
+        # makes it only be a single pixel and places it correctly
+        # aligned to 1-width stroking (i.e. the ticks).  This hack is
+        # the best of a number of bad alternatives, mainly because the
+        # backends are not aware of what marker is actually being used
+        # beyond just its path data.
+        self._transform = Affine2D().translate(-0.49999, -0.49999)
+        self._snap_threshold = None
 
     def _set_point(self):
         self._set_circle(reduction = self._point_size_reduction)
@@ -319,6 +352,8 @@ that define the shape.
 
             self._alt_transform = self._transform
 
+        self._joinstyle = 'miter'
+
     def _set_triangle_up(self):
         return self._set_triangle(0.0, 0)
 
@@ -351,6 +386,8 @@ that define the shape.
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
 
+        self._joinstyle = 'miter'
+
     def _set_diamond(self):
         self._transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
         self._snap_threshold = 5.0
@@ -368,6 +405,8 @@ that define the shape.
 
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
+
+        self._joinstyle = 'miter'
 
     def _set_thin_diamond(self):
         self._set_diamond()
@@ -403,6 +442,8 @@ that define the shape.
             self._alt_path = mpath_alt
             self._alt_transform = self._transform
 
+        self._joinstyle = 'miter'
+
     def _set_star(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 5.0
@@ -415,10 +456,10 @@ that define the shape.
         else:
             verts = polypath.vertices
 
-            top = Path(np.vstack((verts[0:4,:], verts[7:10,:], verts[0])))
-            bottom = Path(np.vstack((verts[3:8,:], verts[3])))
-            left = Path(np.vstack((verts[0:6,:], verts[0])))
-            right = Path(np.vstack((verts[0], verts[5:10,:], verts[0])))
+            top = Path(np.vstack((verts[0:4, :], verts[7:10, :], verts[0])))
+            bottom = Path(np.vstack((verts[3:8, :], verts[3])))
+            left = Path(np.vstack((verts[0:6, :], verts[0])))
+            right = Path(np.vstack((verts[0], verts[5:10, :], verts[0])))
 
             if fs == 'top':
                 mpath, mpath_alt = top, bottom
@@ -431,6 +472,8 @@ that define the shape.
             self._path = mpath
             self._alt_path = mpath_alt
             self._alt_transform = self._transform
+
+        self._joinstyle = 'bevel'
 
     def _set_hexagon1(self):
         self._transform = Affine2D().scale(0.5)
@@ -446,10 +489,10 @@ that define the shape.
 
             # not drawing inside lines
             x = np.abs(np.cos(5*np.pi/6.))
-            top = Path(np.vstack(([-x,0],verts[(1,0,5),:],[x,0])))
-            bottom = Path(np.vstack(([-x,0],verts[2:5,:],[x,0])))
-            left = Path(verts[(0,1,2,3),:])
-            right = Path(verts[(0,5,4,3),:])
+            top = Path(np.vstack(([-x, 0], verts[(1, 0, 5), :], [x, 0])))
+            bottom = Path(np.vstack(([-x, 0], verts[2:5, :], [x, 0])))
+            left = Path(verts[(0, 1, 2, 3), :])
+            right = Path(verts[(0, 5, 4, 3), :])
 
             if fs == 'top':
                 mpath, mpath_alt = top, bottom
@@ -463,6 +506,8 @@ that define the shape.
             self._path = mpath
             self._alt_path = mpath_alt
             self._alt_transform = self._transform
+
+        self._joinstyle = 'miter'
 
     def _set_hexagon2(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(30)
@@ -478,10 +523,10 @@ that define the shape.
 
             # not drawing inside lines
             x, y = np.sqrt(3)/4, 3/4.
-            top = Path(verts[(1,0,5,4,1),:])
-            bottom = Path(verts[(1,2,3,4),:])
-            left = Path(np.vstack(([x,y],verts[(0,1,2),:],[-x,-y],[x,y])))
-            right = Path(np.vstack(([x,y],verts[(5,4,3),:],[-x,-y])))
+            top = Path(verts[(1, 0, 5, 4, 1), :])
+            bottom = Path(verts[(1, 2, 3, 4), :])
+            left = Path(np.vstack(([x, y], verts[(0, 1, 2), :], [-x, -y], [x, y])))
+            right = Path(np.vstack(([x, y], verts[(5, 4, 3), :], [-x, -y])))
 
             if fs == 'top':
                 mpath, mpath_alt = top, bottom
@@ -495,6 +540,8 @@ that define the shape.
             self._path = mpath
             self._alt_path = mpath_alt
             self._alt_transform = self._transform
+
+        self._joinstyle = 'miter'
 
     def _set_octagon(self):
         self._transform = Affine2D().scale(0.5)
@@ -519,6 +566,8 @@ that define the shape.
             self._transform.rotate_deg(rotate)
             self._path = self._alt_path = half
             self._alt_transform = self._transform.frozen().rotate_deg(180.0)
+
+        self._joinstyle = 'miter'
 
     _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]])
     def _set_vline(self):
@@ -605,24 +654,28 @@ that define the shape.
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
+        self._joinstyle = 'miter'
 
     def _set_caretup(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(180)
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
+        self._joinstyle = 'miter'
 
     def _set_caretleft(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(270)
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
+        self._joinstyle = 'miter'
 
     def _set_caretright(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(90)
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
+        self._joinstyle = 'miter'
 
     _x_path = Path([[-1.0, -1.0], [1.0, 1.0],
                     [-1.0, 1.0], [1.0, -1.0]],

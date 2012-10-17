@@ -181,7 +181,7 @@ This is array slicing.  You can read more in the `Numpy tutorial <http://www.sci
 
 .. sourcecode:: ipython
 
-    In [7]: imgplot = mpimg.imshow(lum_img)
+    In [7]: imgplot = plt.imshow(lum_img)
 
 .. plot::
 
@@ -226,7 +226,9 @@ object:
         imgplot = plt.imshow(lum_img)
         imgplot.set_cmap('spectral')
 
-There are many other colormap schemes available.  See the `list and images of the colormaps <http://matplotlib.sourceforge.net/examples/pylab_examples/show_colormaps.html>`_.
+There are many other colormap schemes available.  See the `list and
+images of the colormaps
+<http://matplotlib.org/examples/pylab_examples/show_colormaps.html>`_.
 
 .. _`Color Bars`:
 
@@ -291,7 +293,7 @@ object.
 
 .. sourcecode:: ipython
 
-    In[11]: imgplot.set_clim=(0.0,0.7)
+    In[11]: imgplot.set_clim(0.0,0.7)
 
 .. plot::
 
@@ -335,7 +337,7 @@ and the computer has to draw in pixels to fill that space.
     In [9]: img = Image.open('stinkbug.png')    # Open image as PIL image object
     In [10]: rsize = img.resize((img.size[0]/10,img.size[1]/10)) # Use PIL to resize
     In [11]: rsizeArr = np.asarray(rsize)  # Get array back
-    In [12]: imgplot = mpimg.imshow(rsizeArr)
+    In [12]: imgplot = plt.imshow(rsizeArr)
 
 .. plot::
 

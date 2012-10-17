@@ -5,7 +5,7 @@ class PointBrowser:
     """
     Click on a point to select and highlight it -- the data that
     generated the point will be shown in the lower axes.  Use the 'n'
-    and 'p' keys to browse through the next and pervious points
+    and 'p' keys to browse through the next and previous points
     """
     def __init__(self):
         self.lastind = 0

@@ -6,7 +6,7 @@
 from __future__ import print_function
 
 import sys, os, re
-import enthought.traits.api as traits
+import traits.api as traits
 from matplotlib.cbook import is_string_like
 from matplotlib.artist import Artist
 
@@ -186,8 +186,8 @@ p.facecolor = 0.25
 p.fill = 'f'
 print('p.facecolor', type(p.facecolor), p.facecolor)
 print('p.fill', type(p.fill), p.fill)
-if p.fill_: print 'fill'
-else: print 'no fill'
+if p.fill_: print('fill')
+else: print('no fill')
 if doprint:
    print()
    print('Patch')

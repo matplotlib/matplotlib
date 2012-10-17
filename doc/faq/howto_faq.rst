@@ -529,10 +529,12 @@ important for complex figures that take some time to draw.
 you're all done issuing commands and you want to draw the figure now.
 
 .. note::
-    :func:`~matplotlib.pyplot.show` should typically only be called
-    at most once per script and it should be the last line of your script.
-    At that point, the GUI takes control of the interpreter.  If you want
-    to force a figure draw, use :func:`~matplotlib.pyplot.draw` instead.
+
+    :func:`~matplotlib.pyplot.show` should typically only be called at
+    most once per script and it should be the last line of your
+    script.  At that point, the GUI takes control of the interpreter.
+    If you want to force a figure draw, use
+    :func:`~matplotlib.pyplot.draw` instead.
 
 Many users are frustrated by ``show`` because they want it to be a
 blocking call that raises the figure, pauses the script until they
@@ -754,8 +756,9 @@ Cite Matplotlib
 ===============
 
 If you want to refer to matplotlib in a publication, you can use
-"Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing in Science &
-Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `citeulike <http://www.citeulike.org/user/jabl/article/2878517>`_)::
+"Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
+in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `here
+<http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
 
   @article{Hunter:2007,
 	  Address = {10662 LOS VAQUEROS CIRCLE, PO BOX 3014, LOS ALAMITOS, CA 90720-1314 USA},
@@ -778,4 +781,3 @@ Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `citeulike <http://www.citeul
                       development, interactive scripting, and publication-quality image
                       generation across user interfaces and operating systems.},
 	  Bdsk-Url-1 = {http://gateway.isiknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcAuth=Alerting&SrcApp=Alerting&DestApp=WOS&DestLinkType=FullRecord;KeyUT=000245668100019}}
-
