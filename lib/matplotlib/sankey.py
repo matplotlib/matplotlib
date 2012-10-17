@@ -10,8 +10,8 @@ __version__ = "2011/09/16"
 #     http://matplotlib.sourceforge.net/examples/api/sankey_demo_old.html
 # Modifications by Kevin Davies (kld@alumni.carnegiemellon.edu) 6/3/2011:
 #   --Used arcs for the curves (so that the widths of the paths are uniform)
-#   --Converted the function to a class and created methods to join
-#     multiple simple Sankey diagrams
+#   --Converted the function to a class and created methods to join multiple
+#     simple Sankey diagrams
 #   --Provided handling for cases where the total of the inputs isn't 100
 #     Now, the default layout is based on the assumption that the inputs sum to
 #     1.  A scaling parameter can be used in other cases.
@@ -234,13 +234,13 @@ class Sankey:
         #path[2] = path[2][::-1]
         #return path
 
-    def add(self, patchlabel='', flows=np.array([1.0,-1.0]), orients=[0,0],
-            labels='', trunklength=1.0, pathlengths=0.25, prior=None,
-            connect=(0,0), rotation=0, **kwargs):
+    def add(self, patchlabel='', flows=np.array([1.0,-1.0]),
+            orientations=[0,0], labels='', trunklength=1.0, pathlengths=0.25,
+             prior=None, connect=(0,0), rotation=0, **kwargs):
         """
         call signature::
 
-          add(patchlabel='', flows=np.array([1.0,-1.0]), orients=[0,0],
+          add(patchlabel='', flows=np.array([1.0,-1.0]), orientations=[0,0],
               labels='', trunklength=1.0, pathlengths=0.25, prior=None,
               connect=(0,0), rotation=0, **kwargs)
 
@@ -260,16 +260,16 @@ class Sankey:
           *flows*           array of flow values
                             By convention, inputs are positive and outputs are
                             negative.
-          *orients*         list of orientations of the paths
+          *orientations*    list of orientations of the paths
                             Valid values are 1 (from/to the top), 0 (from/to
                             the left or right), or -1 (from/to the bottom).  If
-                            *orients* == 0, inputs will break in from the
+                            *orientations* == 0, inputs will break in from the
                             left and outputs will break away to the right.
           *labels*          list of specifications of the labels for the flows
-                            Each value may be None (no labels), '' (just label
-                            the quantities), or a labeling string.  If a single
-                            value is provided, it will be applied to all flows.
-                            If an entry is a non-empty string, then the
+                            Each value may be *None* (no labels), '' (just
+                            label the quantities), or a labeling string.  If a
+                            single value is provided, it will be applied to all
+                            flows.  If an entry is a non-empty string, then the
                             quantity for the corresponding flow will be shown
                             below the string.  However, if the *unit* of the
                             main diagram is *None*, then quantities are never
@@ -288,14 +288,14 @@ class Sankey:
           *connect*         a (prior, this) tuple indexing the flow of the
                             prior diagram and the flow of this diagram which
                             should be connected
-                            If this is the first diagram or *prior* is None,
+                            If this is the first diagram or *prior* is *None*,
                             *connect* will be ignored.
           *rotation*        angle of rotation of the diagram [deg]
                             *rotation* is ignored if this diagram is connected
                             to an existing one (using *prior* and *connect*).
-                            The interpretation of the *orients* argument
+                            The interpretation of the *orientations* argument
                             will be rotated accordingly (e.g., if *rotation*
-                            == 90, an *orients* entry of 1 means to/from
+                            == 90, an *orientations* entry of 1 means to/from
                             the left).
           ===============   ===================================================
 
@@ -327,9 +327,10 @@ class Sankey:
         else:
             # In the code below, angles are expressed in deg/90.
             rotation /= 90.0
-        assert len(orients) == n, ("orients and flows must have the same "
-                                   "length.\norients has length %d, but flows "
-                                   "has length %d."%(len(orients), n))
+        assert len(orientations) == n, ("orientations and flows must have the "
+                                        "same length.\norientations has "
+                                        "length %d, but flows has length %d."\
+                                        %(len(orientations), n))
         if getattr(labels, '__iter__', False):
         # iterable() isn't used because it would give True if labels is a
         # string.
@@ -371,7 +372,7 @@ class Sankey:
             assert connect[0] < len(self.diagrams[prior].flows), \
                    ("The connection index to the source diagram is %d, but "
                     "that diagram has only %d flows.\nThe index is zero-based."
-                    % (connect[0], len(self.diagrams[prior].flows)))
+                    %(connect[0], len(self.diagrams[prior].flows)))
             assert connect[1] < n, ("The connection index to this diagram is "
                                     "%d, but this diagram has only %d flows.\n"
                                     "The index is zero-based."%(connect[1], n))
@@ -400,7 +401,7 @@ class Sankey:
 
         # Determine the angles of the arrows (before rotation).
         angles = [None]*n
-        for i, (orient, is_input) in enumerate(zip(orients, are_inputs)):
+        for i, (orient, is_input) in enumerate(zip(orientations, are_inputs)):
             if orient == 1:
                 if is_input:
                     angles[i] = DOWN
@@ -411,8 +412,8 @@ class Sankey:
                 if is_input is not None:
                     angles[i] = RIGHT
             else:
-                assert orient == -1, ("The value of orients[%d] is %d, but it "
-                                      "must be -1, 0, or 1."%(i, orient))
+                assert orient == -1, ("The value of orientations[%d] is %d, "
+                                     "but it must be -1, 0, or 1."%(i, orient))
                 if is_input:
                     angles[i] = UP
                 elif is_input == False:
@@ -605,10 +606,10 @@ class Sankey:
             kwds = dict(s=patchlabel, ha='center', va='center')
             text = self.ax.text(*offset, **kwds)
         if False: # Debug
-            print "llpath\n", llpath
-            print "ulpath\n", self._revert(ulpath)
-            print "urpath\n", urpath
-            print "lrpath\n", self._revert(lrpath)
+            print("llpath\n", llpath)
+            print("ulpath\n", self._revert(ulpath))
+            print("urpath\n", urpath)
+            print("lrpath\n", self._revert(lrpath))
             xs, ys = zip(*vertices)
             self.ax.plot(xs, ys, 'go-')
         patch = PathPatch(Path(vertices, codes),
@@ -681,7 +682,7 @@ class Sankey:
                             (DOWN), and an output from the top side will have
                             an angle of 1 (UP).  If a flow has been skipped
                             (because its magnitude is less than *tolerance*),
-                            then its angle will be None.
+                            then its angle will be *None*.
           *tips*            array in which each row is an [x, y] pair
                             indicating the positions of the tips (or "dips") of
                             the flow paths
@@ -737,8 +738,8 @@ class Sankey:
                             approximately -1.0).
           *unit*            string representing the physical unit associated
                             with the flow quantities
-                            If *unit* is None, then none of the quantities are
-                            labeled.
+                            If *unit* is *None*, then none of the quantities
+                            are labeled.
           *format*          a Python number formatting string to be used in
                             labeling the flow as a quantity (i.e., a number
                             times a unit, where the unit is given)
