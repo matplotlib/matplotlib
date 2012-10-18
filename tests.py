@@ -18,6 +18,7 @@ matplotlib.use('agg')
 import nose
 from matplotlib.testing.noseclasses import KnownFailure
 from matplotlib import default_test_modules
+from mpl_toolkits import toolkits_test_modules
 
 from matplotlib import font_manager
 # Make sure the font caches are created before starting any possibly
@@ -36,7 +37,7 @@ multiprocess._instantiate_plugins = plugins
 
 def run():
     nose.main(addplugins=[x() for x in plugins],
-              defaultTest=default_test_modules)
+              defaultTest = default_test_modules + toolkits_test_modules)
 
 if __name__ == '__main__':
     run()
