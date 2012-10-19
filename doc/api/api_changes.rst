@@ -22,6 +22,9 @@ Changes in 1.3.x
 Changes in 1.2.x
 ================
 
+* The ``classic`` option of the rc parameter ``toolbar`` is deprecated
+  and will be removed in the next release.
+
 * The :meth:`~matplotlib.cbook.isvector` method has been removed since it
   is no longer functional.
 

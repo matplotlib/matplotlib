@@ -47,7 +47,7 @@ backend      : %(backend)s
 #backend_fallback: True
 
 #interactive  : False
-#toolbar      : toolbar2   # None | classic | toolbar2
+#toolbar      : toolbar2   # None | toolbar2  ("classic" is deprecated)
 #timezone     : UTC        # a pytz timezone string, eg US/Central or Europe/Paris
 
 # Where your matplotlib data lives if you installed to a non-default
