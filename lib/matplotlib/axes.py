@@ -7364,6 +7364,20 @@ class Axes(martist.Artist):
 
         x = X.compressed()
         y = Y.compressed()
+        
+        # Transform from native to data coordinates?
+        t = collection._transform
+        if (not isinstance(t, mtransforms.Transform)
+            and hasattr(t, '_as_mpl_transform')):
+            t = t._as_mpl_transform(self.axes)
+        
+        if t and any(t.contains_branch_seperately(self.transData)):
+            trans_to_data = t - self.transData
+            pts = np.vstack([x, y]).T.astype(np.float)
+            transformed_pts = trans_to_data.transform(pts)
+            x = transformed_pts[..., 0]
+            y = transformed_pts[..., 1]
+
         minx = np.amin(x)
         maxx = np.amax(x)
         miny = np.amin(y)
@@ -7490,6 +7504,19 @@ class Axes(martist.Artist):
         collection.autoscale_None()
 
         self.grid(False)
+        
+        # Transform from native to data coordinates?
+        t = collection._transform
+        if (not isinstance(t, mtransforms.Transform)
+            and hasattr(t, '_as_mpl_transform')):
+            t = t._as_mpl_transform(self.axes)
+        
+        if t and any(t.contains_branch_seperately(self.transData)):
+            trans_to_data = t - self.transData
+            pts = np.vstack([X, Y]).T.astype(np.float)
+            transformed_pts = trans_to_data.transform(pts)
+            X = transformed_pts[..., 0]
+            Y = transformed_pts[..., 1]
 
         minx = np.amin(X)
         maxx = np.amax(X)
