@@ -1556,7 +1556,10 @@ class RendererPdf(RendererBase):
             return
 
         self.check_gc(gc, rgbFace)
-        fillp = gc.fillp()
+        if rgbFace:
+            fillp = gc.fillp()
+        else:
+            fillp = None
         strokep = gc.strokep()
 
         output = self.file.output
