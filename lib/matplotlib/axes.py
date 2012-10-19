@@ -2205,7 +2205,7 @@ class Axes(martist.Artist):
           *scilimits*    (m, n), pair of integers; if *style*
                          is 'sci', scientific notation will
                          be used for numbers outside the range
-                         10`-m`:sup: to 10`n`:sup:.
+                         10`m`:sup: to 10`n`:sup:.
                          Use (0,0) to include all numbers.
           *useOffset*    [True | False | offset]; if True,
                          the offset will be calculated as needed;
