@@ -2205,7 +2205,7 @@ class Axes(martist.Artist):
           *scilimits*    (m, n), pair of integers; if *style*
                          is 'sci', scientific notation will
                          be used for numbers outside the range
-                         10`-m`:sup: to 10`n`:sup:.
+                         10`m`:sup: to 10`n`:sup:.
                          Use (0,0) to include all numbers.
           *useOffset*    [True | False | offset]; if True,
                          the offset will be calculated as needed;
@@ -7364,6 +7364,20 @@ class Axes(martist.Artist):
 
         x = X.compressed()
         y = Y.compressed()
+        
+        # Transform from native to data coordinates?
+        t = collection._transform
+        if (not isinstance(t, mtransforms.Transform)
+            and hasattr(t, '_as_mpl_transform')):
+            t = t._as_mpl_transform(self.axes)
+        
+        if t and any(t.contains_branch_seperately(self.transData)):
+            trans_to_data = t - self.transData
+            pts = np.vstack([x, y]).T.astype(np.float)
+            transformed_pts = trans_to_data.transform(pts)
+            x = transformed_pts[..., 0]
+            y = transformed_pts[..., 1]
+
         minx = np.amin(x)
         maxx = np.amax(x)
         miny = np.amin(y)
@@ -7490,6 +7504,19 @@ class Axes(martist.Artist):
         collection.autoscale_None()
 
         self.grid(False)
+        
+        # Transform from native to data coordinates?
+        t = collection._transform
+        if (not isinstance(t, mtransforms.Transform)
+            and hasattr(t, '_as_mpl_transform')):
+            t = t._as_mpl_transform(self.axes)
+        
+        if t and any(t.contains_branch_seperately(self.transData)):
+            trans_to_data = t - self.transData
+            pts = np.vstack([X, Y]).T.astype(np.float)
+            transformed_pts = trans_to_data.transform(pts)
+            X = transformed_pts[..., 0]
+            Y = transformed_pts[..., 1]
 
         minx = np.amin(X)
         maxx = np.amax(X)
@@ -8072,7 +8099,7 @@ class Axes(martist.Artist):
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
             if mlast is None:
-                mlast = np.zeros(len(bins)-1, np.int)
+                mlast = np.zeros(len(bins)-1, m.dtype)
             if normed:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()

@@ -4,6 +4,7 @@ Render to qt from agg
 from __future__ import division, print_function
 
 import os, sys
+import ctypes
 
 import matplotlib
 from matplotlib.figure import Figure
@@ -14,6 +15,10 @@ from backend_qt4 import QtCore, QtGui, FigureManagerQT, FigureCanvasQT,\
      NavigationToolbar2QT
 
 DEBUG = False
+
+_decref = ctypes.pythonapi.Py_DecRef
+_decref.argtypes = [ctypes.py_object]
+_decref.restype = None
 
 
 def new_figure_manager( num, *args, **kwargs ):
@@ -95,6 +100,8 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
             else:
                 stringBuffer = self.renderer._renderer.tostring_argb()
 
+            refcnt = sys.getrefcount(stringBuffer)
+
             qImage = QtGui.QImage(stringBuffer, self.renderer.width,
                                   self.renderer.height,
                                   QtGui.QImage.Format_ARGB32)
@@ -106,6 +113,14 @@ class FigureCanvasQTAgg( FigureCanvasQT, FigureCanvasAgg ):
                 p.setPen( QtGui.QPen( QtCore.Qt.black, 1, QtCore.Qt.DotLine ) )
                 p.drawRect( self.rect[0], self.rect[1], self.rect[2], self.rect[3] )
             p.end()
+
+            # This works around a bug in PySide 1.1.2 on Python 3.x,
+            # where the reference count of stringBuffer is incremented
+            # but never decremented by QImage.
+            # TODO: revert PR #1323 once the issue is fixed in PySide.
+            del qImage
+            if refcnt != sys.getrefcount(stringBuffer):
+                _decref(stringBuffer)
         else:
             bbox = self.blitbox
             l, b, r, t = bbox.extents
