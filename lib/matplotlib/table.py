@@ -279,7 +279,9 @@ class Table(Artist):
 
     def get_window_extent(self, renderer):
         'Return the bounding box of the table in window coords'
-        boxes = [c.get_window_extent(renderer) for c in self._cells]
+        boxes = [cell.get_window_extent(renderer)
+                 for cell in self._cells.values()]
+
         return Bbox.union(boxes)
 
     def _do_cell_alignment(self):
