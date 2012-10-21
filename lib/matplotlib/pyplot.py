@@ -162,7 +162,7 @@ def pause(interval):
     Pause for *interval* seconds.
 
     If there is an active figure it will be updated and displayed,
-    and the gui event loop will run during the pause.
+    and the GUI event loop will run during the pause.
 
     If there is no active figure, or if a non-interactive backend
     is in use, this executes time.sleep(interval).
@@ -625,7 +625,7 @@ def axes(*args, **kwargs):
       axis.  An :class:`~matplotlib.axes.Axes` instance is returned.
 
     =======   ============   ================================================
-    kwarg     Accepts        Desctiption
+    kwarg     Accepts        Description
     =======   ============   ================================================
     axisbg    color          the axes background color
     frameon   [True|False]   display the frame?
@@ -845,7 +845,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
           array.
 
         If *False*, no squeezing at all is done: the returned axis
-        object is always a 2-d array contaning Axis instances, even if it
+        object is always a 2-d array containing Axis instances, even if it
         ends up being 1x1.
 
       *subplot_kw* : dict
@@ -898,7 +898,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         # same as
         plt.subplots(2, 2, sharex=True, sharey=True)
     """
-    # for backwards compatability
+    # for backwards compatibility
     if isinstance(sharex, bool):
         if sharex:
             sharex = "all"
@@ -1634,7 +1634,7 @@ def colors():
     matplotlib handles colors.
 
     Commands which take color arguments can use several formats to
-    specify the colors.  For the basic builtin colors, you can use a
+    specify the colors.  For the basic built-in colors, you can use a
     single letter
 
       =====   =======
@@ -1669,7 +1669,7 @@ def colors():
 
        subplot(111, axisbg=(0.1843, 0.3098, 0.3098))
 
-    Here is an example that creates a pale turqoise title::
+    Here is an example that creates a pale turquoise title::
 
       title('Is this the best color?', color='#afeeee')
 
