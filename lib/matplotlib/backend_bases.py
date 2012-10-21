@@ -2091,7 +2091,8 @@ class FigureCanvasBase(object):
                 if bbox_filtered:
                     _bbox = Bbox.union(bbox_filtered)
                     trans = Affine2D().scale(1.0 / self.figure.dpi)
-                    bbox_inches = TransformedBbox(_bbox, trans)
+                    bbox_extra = TransformedBbox(_bbox, trans)
+                    bbox_inches = Bbox.union([bbox_inches, bbox_extra])
 
                 pad = kwargs.pop("pad_inches", None)
                 if pad is None:
