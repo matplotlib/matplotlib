@@ -1147,7 +1147,7 @@ class Axes3D(Axes):
             self.elev = art3d.norm_angle(self.elev - (dy/h)*180)
             self.azim = art3d.norm_angle(self.azim - (dx/w)*180)
             self.get_proj()
-            self.figure.canvas.draw()
+            self.figure.canvas.draw_idle()
 
 #        elif self.button_pressed == 2:
             # pan view
@@ -1168,7 +1168,7 @@ class Axes3D(Axes):
             self.set_ylim3d(miny - dy, maxy + dy)
             self.set_zlim3d(minz - dz, maxz + dz)
             self.get_proj()
-            self.figure.canvas.draw()
+            self.figure.canvas.draw_idle()
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         '''
