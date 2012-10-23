@@ -7347,8 +7347,9 @@ class Axes(martist.Artist):
         # makes artifacts that are often disturbing.
         if 'antialiased' in kwargs:
             kwargs['antialiaseds'] = kwargs.pop('antialiased')
-        if 'antialiaseds' not in kwargs and ec.lower() == "none":
-                kwargs['antialiaseds'] = False
+        if 'antialiaseds' not in kwargs and (is_string_like(ec) and
+                ec.lower() == "none"):
+            kwargs['antialiaseds'] = False
 
 
         collection = mcoll.PolyCollection(verts, **kwargs)
