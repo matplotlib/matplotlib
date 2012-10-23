@@ -44,12 +44,15 @@ def draw_if_interactive():
 class Show(backend_bases.ShowBase):
     def mainloop(self):
         WebAggApplication.initialize()
-        if rcParams['webagg.open_in_browser']:
-            import webbrowser
-            print("Opening in webbrowser")
-            for manager in Gcf.get_all_fig_managers():
-                webbrowser.open("http://127.0.0.1:{0}/{1}/".format(
-                    WebAggApplication.port, manager.num))
+        for manager in Gcf.get_all_fig_managers():
+            url = "http://127.0.0.1:{0}/{1}/".format(
+                    WebAggApplication.port, manager.num)
+            if rcParams['webagg.open_in_browser']:
+                import webbrowser
+                webbrowser.open(url)
+            else:
+                print("To view figure, visit {0}".format(url))
+
         WebAggApplication.start()
 
 show = Show()
