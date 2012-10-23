@@ -48,7 +48,8 @@ from setupext import build_agg, build_gtkagg, build_tkagg,\
      check_for_qt, check_for_qt4, check_for_pyside, check_for_cairo, \
      check_provide_pytz, check_provide_dateutil,\
      check_for_dvipng, check_for_ghostscript, check_for_latex, \
-     check_for_pdftops, options, build_png, build_tri, check_provide_six
+     check_for_pdftops, options, build_png, build_tri, check_provide_six, \
+     check_for_tornado
 
 
 packages = [
@@ -197,6 +198,7 @@ check_for_qt()
 check_for_qt4()
 check_for_pyside()
 check_for_cairo()
+check_for_tornado()
 
 print_raw("")
 print_raw("OPTIONAL DATE/TIMEZONE DEPENDENCIES")

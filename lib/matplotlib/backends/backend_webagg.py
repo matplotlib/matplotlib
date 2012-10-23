@@ -3,9 +3,9 @@ Displays Agg images in the browser, with interactivity
 """
 from __future__ import division, print_function
 
-import cStringIO
 import datetime
 import errno
+import io
 import json
 import os
 import random
@@ -104,10 +104,23 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
 
     def __init__(self, *args, **kwargs):
         backend_agg.FigureCanvasAgg.__init__(self, *args, **kwargs)
-        self.png_buffer = cStringIO.StringIO()
-        self.png_is_old = True
-        self.force_full = True
-        self.pending_draw = None
+
+        # A buffer to hold the PNG data for the last frame.  This is
+        # retained so it can be resent to each client without
+        # regenerating it.
+        self._png_buffer = io.BytesIO()
+
+        # Set to True when the renderer contains data that is newer
+        # than the PNG buffer.
+        self._png_is_old = True
+
+        # Set to True by the `refresh` message so that the next frame
+        # sent to the clients will be a full frame.
+        self._force_full = True
+
+        # Set to True when a drawing is in progress to prevent redraw
+        # messages from piling up.
+        self._pending_draw = None
 
     def show(self):
         # show the figure window
@@ -117,7 +130,7 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
         # TODO: Do we just queue the drawing here?  That's what Gtk does
         renderer = self.get_renderer()
 
-        self.png_is_old = True
+        self._png_is_old = True
 
         backend_agg.RendererAgg.lock.acquire()
         try:
@@ -128,9 +141,9 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
             self.manager.refresh_all()
 
     def draw_idle(self):
-        if self.pending_draw is None:
+        if self._pending_draw is None:
             ioloop = tornado.ioloop.IOLoop.instance()
-            self.pending_draw = ioloop.add_timeout(
+            self._pending_draw = ioloop.add_timeout(
                 datetime.timedelta(milliseconds=50),
                 self._draw_idle_callback)
 
@@ -138,57 +151,65 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
         try:
             self.draw()
         finally:
-            self.pending_draw = None
+            self._pending_draw = None
 
     def get_diff_image(self):
-        if self.png_is_old:
+        if self._png_is_old:
+            # The buffer is created as type uint32 so that entire
+            # pixels can be compared in one numpy call, rather than
+            # needing to compare each plane separately.
             buffer = np.frombuffer(
-                self.renderer.buffer_rgba(), dtype=np.uint32)
-            buffer = buffer.reshape(
-                (self.renderer.height, self.renderer.width))
+                self._renderer.buffer_rgba(), dtype=np.uint32)
+            buffer.shape = (
+                self._renderer.height, self._renderer.width)
 
-            if not self.force_full:
+            if not self._force_full:
                 last_buffer = np.frombuffer(
-                    self.last_renderer.buffer_rgba(), dtype=np.uint32)
-                last_buffer = last_buffer.reshape(
-                    (self.renderer.height, self.renderer.width))
+                    self._last_renderer.buffer_rgba(), dtype=np.uint32)
+                last_buffer.shape = (
+                    self._renderer.height, self._renderer.width)
 
                 diff = buffer != last_buffer
                 output = np.where(diff, buffer, 0)
             else:
                 output = buffer
 
-            self.png_buffer.reset()
-            self.png_buffer.truncate()
+            # Clear out the PNG data buffer rather than recreating it
+            # each time.  This reduces the number of memory
+            # (de)allocations.
+            self._png_buffer.truncate()
+            self._png_buffer.seek(0)
+
             # TODO: We should write a new version of write_png that
             # handles the differencing inline
             _png.write_png(
                 output.tostring(),
                 output.shape[1], output.shape[0],
-                self.png_buffer)
+                self._png_buffer)
 
-            self.renderer, self.last_renderer = \
-              self.last_renderer, self.renderer
-            self.force_full = False
-            self.png_is_old = False
-        return self.png_buffer.getvalue()
+            # Swap the renderer frames
+            self._renderer, self._last_renderer = \
+              self._last_renderer, self._renderer
+            self._force_full = False
+            self._png_is_old = False
+        return self._png_buffer.getvalue()
 
     def get_renderer(self):
         l, b, w, h = self.figure.bbox.bounds
         key = w, h, self.figure.dpi
         try:
-            self._lastKey, self.renderer
+            self._lastKey, self._renderer
         except AttributeError:
             need_new_renderer = True
         else:
             need_new_renderer = (self._lastKey != key)
 
         if need_new_renderer:
-            self.renderer = backend_agg.RendererAgg(w, h, self.figure.dpi)
-            self.last_renderer = backend_agg.RendererAgg(w, h, self.figure.dpi)
+            self._renderer = backend_agg.RendererAgg(w, h, self.figure.dpi)
+            self._last_renderer = backend_agg.RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
 
-        return self.renderer
+        return self._renderer
 
     def handle_event(self, event):
         type = event['type']
@@ -201,8 +222,10 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
             # off by 1
             button = event['button'] + 1
 
-            # The right mouse button pops up a context menu, which doesn't
-            # work very well, so use the middle mouse button instead
+            # The right mouse button pops up a context menu, which
+            # doesn't work very well, so use the middle mouse button
+            # instead.  It doesn't seem that it's possible to disable
+            # the context menu in recent versions of Chrome.
             if button == 2:
                 button = 3
 
@@ -223,7 +246,7 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
             # TODO: Be more suspicious of the input
             getattr(self.toolbar, event['name'])()
         elif type == 'refresh':
-            self.force_full = True
+            self._force_full = True
             self.draw_idle()
 
     def send_event(self, event_type, **kwargs):
@@ -247,9 +270,6 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         backend_bases.FigureManagerBase.__init__(self, canvas, num)
 
         self.web_sockets = set()
-
-        self.canvas = canvas
-        self.num = num
 
         self.toolbar = self._get_toolbar(canvas)
 
@@ -279,16 +299,9 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
 
 class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
-    toolitems = (
-        ('Home', 'Reset original view', 'home', 'home'),
-        ('Back', 'Back to  previous view', 'back', 'back'),
-        ('Forward', 'Forward to next view', 'forward', 'forward'),
-        (None, None, None, None),
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
-        ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
-        (None, None, None, None),
+    toolitems = list(backend_bases.NavigationToolbar2.toolitems[:6]) + [
         ('Download', 'Download plot', 'filesave', 'download')
-        )
+        ]
 
     def _init_toolbar(self):
         self.message = ''
@@ -331,7 +344,7 @@ class WebAggApplication(tornado.web.Application):
                 tpl = fd.read()
 
             fignum = int(fignum)
-            manager = Gcf().get_fig_manager(fignum)
+            manager = Gcf.get_fig_manager(fignum)
 
             t = tornado.template.Template(tpl)
             self.write(t.generate(
@@ -341,7 +354,7 @@ class WebAggApplication(tornado.web.Application):
     class Download(tornado.web.RequestHandler):
         def get(self, fignum, format):
             self.fignum = int(fignum)
-            manager = Gcf().get_fig_manager(self.fignum)
+            manager = Gcf.get_fig_manager(self.fignum)
 
             # TODO: Move this to a central location
             mimetypes = {
@@ -357,25 +370,25 @@ class WebAggApplication(tornado.web.Application):
 
             self.set_header('Content-Type', mimetypes.get(format, 'binary'))
 
-            buffer = cStringIO.StringIO()
+            buffer = io.BytesIO()
             manager.canvas.print_figure(buffer, format=format)
             self.write(buffer.getvalue())
 
     class WebSocket(tornado.websocket.WebSocketHandler):
         def open(self, fignum):
             self.fignum = int(fignum)
-            manager = Gcf().get_fig_manager(self.fignum)
+            manager = Gcf.get_fig_manager(self.fignum)
             manager.add_web_socket(self)
             l, b, w, h = manager.canvas.figure.bbox.bounds
             manager.resize(w, h)
             self.on_message('{"type":"refresh"}')
 
         def on_close(self):
-            Gcf().get_fig_manager(self.fignum).remove_web_socket(self)
+            Gcf.get_fig_manager(self.fignum).remove_web_socket(self)
 
         def on_message(self, message):
             message = json.loads(message)
-            canvas = Gcf().get_fig_manager(self.fignum).canvas
+            canvas = Gcf.get_fig_manager(self.fignum).canvas
             canvas.handle_event(message)
 
         def send_event(self, event_type, **kwargs):
@@ -384,7 +397,7 @@ class WebAggApplication(tornado.web.Application):
             self.write_message(json.dumps(payload))
 
         def send_image(self):
-            canvas = Gcf().get_fig_manager(self.fignum).canvas
+            canvas = Gcf.get_fig_manager(self.fignum).canvas
             diff = canvas.get_diff_image()
             self.write_message(diff, binary=True)
 
@@ -416,8 +429,11 @@ class WebAggApplication(tornado.web.Application):
 
         app = cls()
 
+        # This port selection algorithm is borrowed, more or less
+        # verbatim, from IPython.
         def random_ports(port, n):
-            """Generate a list of n random ports near the given port.
+            """
+            Generate a list of n random ports near the given port.
 
             The first 5 ports will be sequential, and the remaining n-5 will be
             randomly selected in the range [port-2*n, port+2*n].
@@ -429,8 +445,7 @@ class WebAggApplication(tornado.web.Application):
 
         success = None
         cls.port = rcParams['webagg.port']
-        # TODO: Configure port_retrues
-        for port in random_ports(cls.port, 50):
+        for port in random_ports(cls.port, rcParams['webagg.port_retries']):
             try:
                 app.listen(port)
             except socket.error as e:
