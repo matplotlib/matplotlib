@@ -375,6 +375,8 @@ class WebAggApplication(tornado.web.Application):
             self.write(buffer.getvalue())
 
     class WebSocket(tornado.websocket.WebSocketHandler):
+        supports_binary = True
+
         def open(self, fignum):
             self.fignum = int(fignum)
             manager = Gcf.get_fig_manager(self.fignum)
@@ -388,8 +390,14 @@ class WebAggApplication(tornado.web.Application):
 
         def on_message(self, message):
             message = json.loads(message)
-            canvas = Gcf.get_fig_manager(self.fignum).canvas
-            canvas.handle_event(message)
+            # The 'supports_binary' message is on a client-by-client
+            # basis.  The others affect the (shared) canvas as a
+            # whole.
+            if message['type'] == 'supports_binary':
+                self.supports_binary = message['value']
+            else:
+                canvas = Gcf.get_fig_manager(self.fignum).canvas
+                canvas.handle_event(message)
 
         def send_event(self, event_type, **kwargs):
             payload = {'type': event_type}
@@ -399,7 +407,12 @@ class WebAggApplication(tornado.web.Application):
         def send_image(self):
             canvas = Gcf.get_fig_manager(self.fignum).canvas
             diff = canvas.get_diff_image()
-            self.write_message(diff, binary=True)
+            if self.supports_binary:
+                self.write_message(diff, binary=True)
+            else:
+                data_uri = "data:image/png;base64,{0}".format(
+                    diff.encode('base64').replace('\n', ''))
+                self.write_message(data_uri)
 
     def __init__(self):
         super(WebAggApplication, self).__init__([
