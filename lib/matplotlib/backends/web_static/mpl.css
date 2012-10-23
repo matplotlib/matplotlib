@@ -1,13 +1,18 @@
+.mpl-canvas {
+    width:800px;
+    height:600px;
+}
+
 .mpl-message {
     float:right;
     vertical-align:text-center;
 }
 
 .mpl-toolbar-spacer {
-    padding:8px
+    padding:8px;
 }
 
 .mpl-toolbar-button {
-    padding:0px
-    margin:0px
+    padding:0px;
+    margin:0px;
 }

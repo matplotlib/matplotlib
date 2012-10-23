@@ -523,6 +523,9 @@ class Animation(object):
     '''
     def __init__(self, fig, event_source=None, blit=False):
         self._fig = fig
+        # Disables blitting for backends that don't support it.  This
+        # allows users to request it if available, but still have a
+        # fallback that works if it is not.
         self._blit = blit and fig.canvas.supports_blit
 
         # These are the basics of the animation.  The frame sequence represents

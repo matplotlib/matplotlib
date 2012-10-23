@@ -454,6 +454,16 @@ def check_for_cairo():
         print_status("Cairo", cairo.version)
         return True
 
+def check_for_tornado():
+    try:
+        import tornado
+    except ImportError:
+        print_status("Tornado (webagg)", "no")
+        return False
+    else:
+        print_status("Tornado (webagg)", tornado.version)
+        return True
+
 def check_provide_pytz():
     if options['provide_pytz'] is True:
         print_status("pytz", "matplotlib will provide")
