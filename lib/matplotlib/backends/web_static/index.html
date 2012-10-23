@@ -22,10 +22,10 @@
           {% else %}
             <button id="{{ name }}"
                     class="mpl-toolbar-button"
+                    onclick="toolbar_button_onclick('{{ method }}');"
+                    onmouseover="toolbar_button_onmouseover('{{ tooltip }}');"
                     role="button">
               <img src="/images/{{ image }}.png" width="24" height="24"
-                   onclick="toolbar_button_onclick('{{ method }}');"
-                   onmouseover="toolbar_button_onmouseover('{{ tooltip }}');"
                    alt="{{ tooltip }}"/>
             </button>
           {% end %}
