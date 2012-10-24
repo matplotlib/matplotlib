@@ -142,7 +142,10 @@ class ImageComparisonTest(CleanupTest):
                     if self._remove_text:
                         self.remove_text(figure)
 
-                    figure.savefig(actual_fname)
+                    if self._savefig_kwarg:
+                        figure.savefig(actual_fname, **self._savefig_kwarg)
+                    else:
+                        figure.savefig(actual_fname)
 
                     err = compare_images(expected_fname, actual_fname,
                                          self._tol, in_decorator=True)
@@ -166,7 +169,7 @@ class ImageComparisonTest(CleanupTest):
                 yield (do_test,)
 
 def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
-                     freetype_version=None, remove_text=False):
+                     freetype_version=None, remove_text=False, savefig_kwarg=None):
     """
     call signature::
 
@@ -231,7 +234,8 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
              '_extensions': extensions,
              '_tol': tol,
              '_freetype_version': freetype_version,
-             '_remove_text': remove_text})
+             '_remove_text': remove_text,
+             '_savefig_kwarg': savefig_kwarg})
 
         return new_class
     return compare_images_decorator
