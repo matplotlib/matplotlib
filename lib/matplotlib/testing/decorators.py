@@ -202,6 +202,10 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
         Remove the title and tick text from the figure before
         comparison.  This does not remove other, more deliberate,
         text, such as legends and annotations.
+
+      *savefig_kwarg*: dict
+        Optional arguments that are passed to the savefig method.
+
     """
 
     if baseline_images is None:
