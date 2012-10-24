@@ -484,6 +484,10 @@ class WebAggApplication(tornado.web.Application):
         if cls.started:
             return
 
-        tornado.ioloop.IOLoop.instance().start()
+        print("Press Ctrl+C to stop server")
+        try:
+            tornado.ioloop.IOLoop.instance().start()
+        except KeyboardInterrupt:
+            print("Server stopped")
 
         cls.started = True
