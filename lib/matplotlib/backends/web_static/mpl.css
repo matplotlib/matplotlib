@@ -1,3 +1,14 @@
+body {
+    font-family: sans;
+}
+
+.mpl-warnings {
+    display:none;
+    background:#ffdddd;
+    color:#880000;
+    border:1 #880000;
+}
+
 .mpl-message {
     float:right;
     vertical-align:middle;
