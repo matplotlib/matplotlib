@@ -16,7 +16,7 @@ __all__ = ['streamplot']
 
 def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
                cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
-               minlength=0.1, transform=None):
+               minlength=0.1, transform=False):
     """Draws streamlines of a vector flow.
 
     *x*, *y* : 1d arrays
@@ -47,6 +47,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         See :class:`~matplotlib.patches.FancyArrowPatch`.
     *minlength* : float
         Minimum length of streamline in axes coordinates.
+    *transform* : :class:`~matplotlib.transforms.Transform`
+        Transformation object to use. Specifying `None` uses
+        device coordinates. The default is to use the axes' `transData`.
 
     Returns:
 
@@ -70,6 +73,9 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     if linewidth is None:
         linewidth = matplotlib.rcParams['lines.linewidth']
+
+    if transform == False:  # transform=None is a valid setting
+        transform = axes.transData
 
     line_kw = {}
     arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
