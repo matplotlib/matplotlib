@@ -3,9 +3,8 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import numpy as np
 
-@image_comparison(baseline_images = ['bbox_inches_tight'], remove_text=True,
-                  freetype_version = '2.4.10',
-                  savefig_kwarg = dict(bbox_inches='tight'))
+@image_comparison(baseline_images=['bbox_inches_tight'], remove_text=True,
+                  savefig_kwarg=dict(bbox_inches='tight'))
 def test_bbox_inches_tight():
     "Test that a figure saved using bbox_inches'tight' is clipped right"
     rcParams.update(rcParamsDefault)
@@ -23,7 +22,8 @@ def test_bbox_inches_tight():
     ind = np.arange(len(colLabels)) + 0.3  # the x locations for the groups
     cellText = []
     width = 0.4     # the width of the bars
-    yoff = np.array([0.0] * len(colLabels)) # the bottom values for stacked bar chart
+    yoff = np.array([0.0] * len(colLabels))
+    # the bottom values for stacked bar chart
     fig, ax = plt.subplots(1,1)
     for row in xrange(rows):
         plt.bar(ind, data[row], width, bottom=yoff)
