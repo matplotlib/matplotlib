@@ -801,7 +801,7 @@ class Cursor(AxesWidget):
 
     and the visibility of the cursor itself with the *visible* attribute
     """
-    def __init__(self, ax, useblit=False, **lineprops):
+    def __init__(self, ax, horizOn=True, vertOn=True, useblit=False, **lineprops):
         """
         Add a cursor to *ax*.  If ``useblit=True``, use the backend-
         dependent blitting features for faster updates (GTKAgg
@@ -816,8 +816,8 @@ class Cursor(AxesWidget):
         self.connect_event('draw_event', self.clear)
 
         self.visible = True
-        self.horizOn = True
-        self.vertOn = True
+        self.horizOn = horizOn
+        self.vertOn = vertOn
         self.useblit = useblit
 
         if useblit:
