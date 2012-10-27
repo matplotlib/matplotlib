@@ -1066,6 +1066,7 @@ for s in sys.argv[1:]:
 
 default_test_modules = [
     'matplotlib.tests.test_agg',
+    'matplotlib.tests.test_artist',
     'matplotlib.tests.test_axes',
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_backend_pgf',
