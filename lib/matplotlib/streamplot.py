@@ -65,6 +65,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     mask = StreamMask(density)
     dmap = DomainMap(grid, mask)
 
+    # default to data coordinates
+    if transform is None:
+        transform = axes.transData
+
     if color is None:
         color = axes._get_lines.color_cycle.next()
 
