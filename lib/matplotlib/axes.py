@@ -7948,13 +7948,13 @@ class Axes(martist.Artist):
             if log:
                 #in the case of log scale there are three cases 
                 #to consider for the y axis limit
-                #1) has zero or negative bin but other bins may be 0<n<1 
+                #1) has zero or negative bin but other bins may be 0<n<1
                 #   due to weighting or normalization. We want 
                 #   (positive minimum)*0.1 to be the minimum
-                #2) has zero/negative bin but the rest are greater than 1. 
+                #2) has zero/negative bin but the rest are greater than 1.
                 #   this one we want minimum at 0.1 (normal cases)
-                #3) all zero/negative bin .... no idea how to display this
-                #   anyway so put minimum at 0.1
+                #3) all zero/negative bin .... no idea how to display
+                #   this anyway so put minimum at 0.1
                 ndata = np.array(n)
                 if np.any(ndata<=0):
                     warnings.warn(
