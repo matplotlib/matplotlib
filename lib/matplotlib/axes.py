@@ -1120,7 +1120,7 @@ class Axes(martist.Artist):
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
-                                ', '.join(mtransforms.BBox.coefs.keys()))
+                                ', '.join(mtransforms.Bbox.coefs.keys()))
 
     def get_data_ratio(self):
         """
