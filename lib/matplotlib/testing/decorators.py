@@ -167,7 +167,7 @@ class ImageComparisonTest(CleanupTest):
 
 def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
                      freetype_version=None, remove_text=False,
-                     savefig_kwarg=dict()):
+                     savefig_kwarg=None):
     """
     call signature::
 
@@ -212,6 +212,10 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
     if extensions is None:
         # default extensions to test
         extensions = ['png', 'pdf', 'svg']
+
+    if savefig_kwarg is None:
+        #default no kwargs to savefig
+        savefig_kwarg = dict()
 
     def compare_images_decorator(func):
         # We want to run the setup function (the actual test function
