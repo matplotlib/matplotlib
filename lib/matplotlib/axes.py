@@ -8807,6 +8807,9 @@ class Axes(martist.Artist):
         bbox_extra_artists = [t for t in self.texts if t.get_visible()]
         if self.legend_:
             bbox_extra_artists.append(self.legend_)
+        if self.tables:
+            for t in self.tables:
+                bbox_extra_artists.append(t)
         return bbox_extra_artists
 
 
