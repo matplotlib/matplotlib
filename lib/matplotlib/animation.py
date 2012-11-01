@@ -548,7 +548,7 @@ class Animation(object):
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
              bitrate=None, extra_args=None, metadata=None, extra_anim=None,
-             savefig_kwargs={}):
+             savefig_kwargs=None):
         '''
         Saves a movie file by drawing every frame.
 
@@ -595,6 +595,9 @@ class Animation(object):
         the individual frames. This can be used to set tight bounding boxes,
         for example.
         '''
+        if savefig_kwargs is None:
+            savefig_kwargs = {}
+
         # Need to disconnect the first draw callback, since we'll be doing
         # draws. Otherwise, we'll end up starting the animation.
         if self._first_draw_id is not None:
