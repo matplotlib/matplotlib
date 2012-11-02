@@ -142,7 +142,7 @@ class ImageComparisonTest(CleanupTest):
                     if self._remove_text:
                         self.remove_text(figure)
 
-                    figure.savefig(actual_fname)
+                    figure.savefig(actual_fname, **self._savefig_kwarg)
 
                     err = compare_images(expected_fname, actual_fname,
                                          self._tol, in_decorator=True)
@@ -166,7 +166,8 @@ class ImageComparisonTest(CleanupTest):
                 yield (do_test,)
 
 def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
-                     freetype_version=None, remove_text=False):
+                     freetype_version=None, remove_text=False,
+                     savefig_kwarg=None):
     """
     call signature::
 
@@ -199,6 +200,10 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
         Remove the title and tick text from the figure before
         comparison.  This does not remove other, more deliberate,
         text, such as legends and annotations.
+
+      *savefig_kwarg*: dict
+        Optional arguments that are passed to the savefig method.
+
     """
 
     if baseline_images is None:
@@ -207,6 +212,10 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
     if extensions is None:
         # default extensions to test
         extensions = ['png', 'pdf', 'svg']
+
+    if savefig_kwarg is None:
+        #default no kwargs to savefig
+        savefig_kwarg = dict()
 
     def compare_images_decorator(func):
         # We want to run the setup function (the actual test function
@@ -231,7 +240,8 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
              '_extensions': extensions,
              '_tol': tol,
              '_freetype_version': freetype_version,
-             '_remove_text': remove_text})
+             '_remove_text': remove_text,
+             '_savefig_kwarg': savefig_kwarg})
 
         return new_class
     return compare_images_decorator
