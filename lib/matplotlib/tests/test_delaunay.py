@@ -93,6 +93,10 @@ cosine_peak.title = 'Cosine Peak'
 allfuncs = [exponential, cliff, saddle, gentle, steep, sphere, trig, gauss, cloverleaf, cosine_peak]
 
 
+def _expand_range(range,epsilon=1e-6):
+    delta = (range[1]-range[0])*epsilon/2.0
+    return (range[0]-delta, range[1]+delta)
+
 class LinearTester(object):
     name = 'Linear'
     def __init__(self, xrange=(0.0, 1.0), yrange=(0.0, 1.0), nrange=101, npoints=250):
@@ -100,6 +104,7 @@ class LinearTester(object):
         self.yrange = yrange
         self.nrange = nrange
         self.npoints = npoints
+        self.bbox = _expand_range(xrange) + _expand_range(yrange)
 
         rng = np.random.RandomState(1234567890)
         self.x = rng.uniform(xrange[0], xrange[1], size=npoints)
@@ -113,7 +118,7 @@ class LinearTester(object):
 
     def interpolator(self, func):
         z = func(self.x, self.y)
-        return self.tri.linear_extrapolator(z, bbox=self.xrange+self.yrange)
+        return self.tri.linear_extrapolator(z, bbox=self.bbox)
 
     def plot(self, func, interp=True, plotter='imshow'):
         if interp:
@@ -157,7 +162,7 @@ class NNTester(LinearTester):
     name = 'Natural Neighbors'
     def interpolator(self, func):
         z = func(self.x, self.y)
-        return self.tri.nn_extrapolator(z, bbox=self.xrange+self.yrange)
+        return self.tri.nn_extrapolator(z, bbox=self.bbox)
 
 def make_all_testfuncs(allfuncs=allfuncs):
     def make_test(func):
