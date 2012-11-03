@@ -295,6 +295,7 @@ class RendererPS(RendererBase):
         if hatch in self._hatches:
             return self._hatches[hatch]
         name = 'H%d' % len(self._hatches)
+        hatchwidth = rcParams['hatch.linewidth']
         self._pswriter.write("""\
   << /PatternType 1
      /PaintType 2
@@ -305,7 +306,7 @@ class RendererPS(RendererBase):
 
      /PaintProc {
         pop
-        0 setlinewidth
+        %(hatchwidth)f setlinewidth
 """ % locals())
         self._pswriter.write(
             self._convert_path(Path.hatch(hatch), Affine2D().scale(72.0),

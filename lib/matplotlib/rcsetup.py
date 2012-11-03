@@ -404,6 +404,9 @@ defaultParams = {
     'patch.facecolor'   : ['b', validate_color], # blue
     'patch.antialiased' : [True, validate_bool], # antialised (no jaggies)
 
+    # hatch props
+    'hatch.linewidth'   : [0.1, validate_float], # Hatch line width in points
+
 
     # font props
     'font.family'       : ['sans-serif', str],       # used by text object

@@ -80,6 +80,14 @@ backend      : %(backend)s
 #patch.edgecolor        : black
 #patch.antialiased      : True    # render patches in antialised (no jaggies)
 
+
+### HATCHES
+# Hatches are marks used to fill patterns within an artist.
+# See
+# http://matplotlib.sourceforge.net/api/artist_api.html#matplotlib.patches.Patch.set_hatch
+# information on hatch properties
+#hatch.linewidth        : 0.1 # line width in points
+
 ### FONT
 #
 # font properties used by text.Text.  See
