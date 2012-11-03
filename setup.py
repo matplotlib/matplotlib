@@ -242,7 +242,6 @@ else:
     # only add them if we need them
     if provide_pytz:
         add_pytz()
-        print_raw("adding pytz")
     if provide_dateutil:
         add_dateutil()
     if provide_six:
