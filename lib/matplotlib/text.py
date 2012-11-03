@@ -10,7 +10,7 @@ from matplotlib import cbook
 from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import Artist
-from matplotlib.cbook import is_string_like, maxdict
+from matplotlib.cbook import is_string_like, maxdict, is_numlike
 from matplotlib import docstring
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import bbox_artist, YAArrow, FancyBboxPatch, \
@@ -69,21 +69,21 @@ docstring.interpd.update(Text =  """
     family                     [ 'serif' | 'sans-serif' | 'cursive' | 'fantasy' | 'monospace' ]
     figure                     a matplotlib.figure.Figure instance
     fontproperties             a matplotlib.font_manager.FontProperties instance
-    horizontalalignment or ha  [ 'center' | 'right' | 'left' ]
+    horizontalalignment or ha  [ 'center' | 'right' | 'left' | fraction text width from left ]
     label                      any string
     linespacing                float
     lod                        [True | False]
     multialignment             ['left' | 'right' | 'center' ]
     name or fontname           string eg, ['Sans' | 'Courier' | 'Helvetica' ...]
     position                   (x,y)
-    rotation                   [ angle in degrees 'vertical' | 'horizontal'
+    rotation                   [ angle in degrees | 'vertical' | 'horizontal' ]
     rotation_mode              [ None | 'anchor']
     size or fontsize           [ size in points | relative size eg 'smaller', 'x-large' ]
     style or fontstyle         [ 'normal' | 'italic' | 'oblique']
     text                       string
     transform                  a matplotlib.transform transformation instance
     variant                    [ 'normal' | 'small-caps' ]
-    verticalalignment or va    [ 'center' | 'top' | 'bottom' | 'baseline' ]
+    verticalalignment or va    [ 'center' | 'top' | 'bottom' | 'baseline' | fraction text height from bottom ]
     visible                    [True | False]
     weight or fontweight       [ 'normal' | 'bold' | 'heavy' | 'light' | 'ultrabold' | 'ultralight']
     x                          float
@@ -378,25 +378,29 @@ class Text(Artist):
         if  rotation_mode != "anchor":
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
-            if halign=='center':  offsetx = (xmin + width/2.0)
+            if halign=='center':  offsetx = (xmin + width*0.5)
             elif halign=='right': offsetx = (xmin + width)
+            elif is_numlike(halign): offsetx = xmin + halign * (xmax - xmin)
             else: offsetx = xmin
 
-            if valign=='center': offsety = (ymin + height/2.0)
+            if valign=='center': offsety = (ymin + height*0.5)
             elif valign=='top': offsety  = (ymin + height)
             elif valign=='baseline': offsety = (ymin + height) - baseline
+            elif is_numlike(valign): offsety = ymin + valign * (ymax - ymin)
             else: offsety = ymin
         else:
             xmin1, ymin1 = cornersHoriz[0]
             xmax1, ymax1 = cornersHoriz[2]
 
-            if halign=='center':  offsetx = (xmin1 + xmax1)/2.0
+            if halign=='center':  offsetx = (xmin1 + xmax1)*0.5
             elif halign=='right': offsetx = xmax1
+            elif is_numlike(halign): offsetx = xmin1 + halign * (xmax1 - xmin1)
             else: offsetx = xmin1
 
-            if valign=='center': offsety = (ymin1 + ymax1)/2.0
+            if valign=='center': offsety = (ymin1 + ymax1)*0.5
             elif valign=='top': offsety  = ymax1
             elif valign=='baseline': offsety = ymax1 - baseline
+            elif is_numlike(valign): offsety = ymin1 + valign * (ymax1 - ymin1)
             else: offsety = ymin1
 
             offsetx, offsety = M.transform_point((offsetx, offsety))
@@ -796,11 +800,11 @@ class Text(Artist):
         """
         Set the horizontal alignment to one of
 
-        ACCEPTS: [ 'center' | 'right' | 'left' ]
+        ACCEPTS: [ 'center' | 'right' | 'left' | fraction text width from left ]
         """
         legal = ('center', 'right', 'left')
-        if align not in legal:
-            raise ValueError('Horizontal alignment must be one of %s' % str(legal))
+        if align not in legal and not is_numlike(align):
+            raise ValueError('Horizontal alignment must be numeric or one of %s' % str(legal))
         self._horizontalalignment = align
 
     def set_ma(self, align):
@@ -811,7 +815,7 @@ class Text(Artist):
     def set_multialignment(self, align):
         """
         Set the alignment for multiple lines layout.  The layout of the
-        bounding box of all the lines is determined bu the horizontalalignment
+        bounding box of all the lines is determined by the horizontalalignment
         and verticalalignment properties, but the multiline text within that
         box can be
 
@@ -957,11 +961,11 @@ class Text(Artist):
         """
         Set the vertical alignment
 
-        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' ]
+        ACCEPTS: [ 'center' | 'top' | 'bottom' | 'baseline' | fraction text height from bottom ]
         """
         legal = ('top', 'bottom', 'center', 'baseline')
-        if align not in legal:
-            raise ValueError('Vertical alignment must be one of %s' % str(legal))
+        if align not in legal and not is_numlike(align):
+            raise ValueError('Vertical alignment must be numeric or one of %s' % str(legal))
 
         self._verticalalignment = align
 
