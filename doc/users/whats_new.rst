@@ -20,6 +20,11 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.3
 =====================
 
+Initialize a rotated rectangle
+------------------------------
+Damon McDougall extended the `~matplotlib.patches.Rectangle` constructor to
+accept an `angle` kwarg, specifying the rotation of a rectangle in degrees.
+
 Rectangular colorbar extensions
 -------------------------------
 Andrew Dawson added a new keyword argument *extendrect* to
