@@ -12,7 +12,7 @@ fig.canvas.draw()
 # grab the pixel buffer and dump it into a numpy array
 buf = fig.canvas.buffer_rgba()
 l, b, w, h = fig.bbox.bounds
-X = np.frombuffer(buf, np.uint8)
+X = np.fromstring(buf, np.uint8)
 X.shape = h,w,4
 
 # now display the array X as an Axes in a new figure
