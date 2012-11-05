@@ -493,10 +493,8 @@ class Figure(Artist):
             kwargs['verticalalignment'] = 'top'
 
         if self._suptitle is not None:
-            self._suptitle.set_text(t)
-            self._suptitle.set_position((x, y))
-        else:
-            self._suptitle = self.text(x, y, t, **kwargs)
+            self._suptitle.set_text('')
+        self._suptitle = self.text(x, y, t, **kwargs)
         return self._suptitle
 
     def set_canvas(self, canvas):
