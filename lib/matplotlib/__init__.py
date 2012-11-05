@@ -999,9 +999,18 @@ def use(arg, warn=True, force=False):
     :func:`matplotlib.get_backend`.
 
     """
+    # Lets determine the proper backend name first
+    if arg.startswith('module://'):
+        name = arg
+    else:
+        # Lowercase only non-module backend names (modules are case-sensitive)
+        arg = arg.lower()
+        name = validate_backend(arg)
+
     # Check if we've already set up a backend
     if 'matplotlib.backends' in sys.modules:
-        if warn:
+        # Warn only if called with a different name
+        if (rcParams['backend'] != name) and warn:
             warnings.warn(_use_error_msg)
 
         # Unless we've been told to force it, just return
@@ -1011,14 +1020,7 @@ def use(arg, warn=True, force=False):
     else:
         need_reload = False
 
-    # Set-up the proper backend name
-    if arg.startswith('module://'):
-        name = arg
-    else:
-        # Lowercase only non-module backend names (modules are case-sensitive)
-        arg = arg.lower()
-        name = validate_backend(arg)
-
+    # Store the backend name
     rcParams['backend'] = name
 
     # If needed we reload here because a lot of setup code is triggered on
