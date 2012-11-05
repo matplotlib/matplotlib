@@ -598,6 +598,23 @@ class Animation(object):
         if savefig_kwargs is None:
             savefig_kwargs = {}
 
+        # FIXME: Using 'bbox_inches' doesn't currently work with writers that pipe
+        # the data to the command because this requires a fixed frame size (see
+        # Ryan May's reply in this thread: [1]). Thus we drop the 'bbox_inches'
+        # argument if it exists in savefig_kwargs.
+        #
+        # [1] http://matplotlib.1069221.n5.nabble.com/Animation-class-let-save-accept-kwargs-which-are-passed-on-to-savefig-td39627.html
+        #
+        if savefig_kwargs.has_key('bbox_inches'):
+            if not (writer in ['ffmpeg_file', 'mencoder_file'] or
+                    isinstance(writer, (FFMpegFileWriter, MencoderFileWriter))):
+                print("Warning: discarding the 'bbox_inches' argument in " \
+                          "'savefig_kwargs' as it is only currently supported " \
+                          "with the writers 'ffmpeg_file' and 'mencoder_file' " \
+                          "(writer used: '{}').".format(writer if isinstance(writer, str)
+                                                        else writer.__class__.__name__))
+                savefig_kwargs.pop('bbox_inches')
+
         # Need to disconnect the first draw callback, since we'll be doing
         # draws. Otherwise, we'll end up starting the animation.
         if self._first_draw_id is not None:
