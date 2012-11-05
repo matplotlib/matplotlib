@@ -22,8 +22,8 @@ new in matplotlib-1.3
 
 Initialize a rotated rectangle
 ------------------------------
-Damon McDougall extended the `~matplotlib.patches.Rectangle` constructor to
-accept an `angle` kwarg, specifying the rotation of a rectangle in degrees.
+Damon McDougall extended the :class:`~matplotlib.patches.Rectangle` constructor
+to accept an `angle` kwarg, specifying the rotation of a rectangle in degrees.
 
 Rectangular colorbar extensions
 -------------------------------
