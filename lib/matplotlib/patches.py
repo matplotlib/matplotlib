@@ -579,7 +579,7 @@ class Rectangle(Patch):
         height = self.convert_yunits(self._height)
         bbox = transforms.Bbox.from_bounds(x, y, width, height)
         rot_trans = transforms.Affine2D()
-        rot_trans.translate(-x, -y).rotate_deg(self._angle).translate(x, y)
+        rot_trans.rotate_deg_around(x, y, self._angle)
         self._rect_transform = transforms.BboxTransformTo(bbox)
         self._rect_transform += rot_trans
 
