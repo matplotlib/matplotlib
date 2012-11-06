@@ -11,33 +11,16 @@
 [status]
 # To suppress display of the dependencies and their versions
 # at the top of the build log, uncomment the following line:
-#suppress = True
-#
-# Uncomment to insert lots of diagnostic prints in extension code
-#verbose = True
+#suppress = False
 
 [packages]
 # There are a number of subpackages of matplotlib that are considered
 # optional.  They are all installed by default, but they may be turned
 # off here.
 #
-#tests = False
-#sample_data = False
-#toolkits = False
-
-[provide_packages]
-# By default, matplotlib checks for a few dependencies and
-# installs them if missing. This feature can be turned off
-# by uncommenting the following lines. Acceptible values are:
-#     True: install, overwrite an existing installation
-#     False: do not install
-#     auto: install only if the package is unavailable. This
-#           is the default behavior
-#
-## Date/timezone support:
-#pytz = False
-#dateutil = False
-#six = False
+#tests = True
+#sample_data = True
+#toolkits = True
 
 [gui_support]
 # Matplotlib supports multiple GUI toolkits, including Cocoa,
@@ -46,17 +29,24 @@
 # which is provided by matplotlib and built by default.
 #
 # Some backends are written in pure Python, and others require
-# extension code to be compiled. By default, matplotlib checks
-# for these GUI toolkits during installation and, if present,
-# compiles the required extensions to support the toolkit. GTK
-# support requires the GTK runtime environment and PyGTK. Wx
-# support requires wxWidgets and wxPython. Tk support requires
-# Tk and Tkinter. The other GUI toolkits do not require any
-# extension code, and can be used as long as the libraries are
-# installed on your system.
+# extension code to be compiled. By default, matplotlib checks for
+# these GUI toolkits during installation and, if present, compiles the
+# required extensions to support the toolkit.
 #
-# You can uncomment any the following lines if you know you do
-# not want to use the GUI toolkit. Acceptible values are:
+# - GTK 2.x support of any kind requires the GTK runtime environment
+#   headers and PyGTK.
+# - Tk support requires Tk development headers and Tkinter.
+# - Mac OSX backend requires the Cocoa headers included with XCode.
+# - Windowing is MS-Windows specific, and requires the "windows.h"
+#   header.
+#
+# The other GUI toolkits do not require any extension code, and can be
+# used as long as the libraries are installed on your system --
+# therefore they are installed unconditionally.
+#
+# You can uncomment any the following lines to change this
+# behavior. Acceptible values are:
+#
 #     True: build the extension. Exits with a warning if the
 #           required dependencies are not available
 #     False: do not build the extension
@@ -64,11 +54,11 @@
 #           otherwise skip silently. This is the default
 #           behavior
 #
-#gtk = False
-#gtkagg = False
-#tkagg = False
-#macosx = False
-#windowing = False
+#gtk = auto
+#gtkagg = auto
+#tkagg = auto
+#macosx = auto
+#windowing = auto
 
 [rc_options]
 # User-configurable options
@@ -77,7 +67,7 @@
 # FltkAgg, MacOSX, Pdf, Ps, QtAgg, Qt4Agg, SVG, TkAgg, WX, WXAgg.
 #
 # The Agg, Ps, Pdf and SVG backends do not require external
-# dependencies. Do not choose GTK, GTKAgg, GTKCairo, MacOSX, TkAgg or WXAgg
+# dependencies. Do not choose GTK, GTKAgg, GTKCairo, MacOSX, or TkAgg
 # if you have disabled the relevent extension modules.  Agg will be used
 # by default.
 #
