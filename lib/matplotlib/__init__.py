@@ -99,10 +99,27 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import print_function
 
+import sys
+
 __version__  = '1.3.x'
 __version__numpy__ = '1.4' # minimum required numpy version
 
-import os, re, shutil, subprocess, sys, warnings
+try:
+    import dateutil
+except ImportError:
+    raise ImportError("matplotlib requires dateutil")
+
+try:
+    import pyparsing
+except ImportError:
+    raise ImportError("matplotlib requires pyparsing")
+else:
+    if sys.version_info[0] >= 3:
+        if [int(x) for x in pyparsing.__version__.split('.')] <= (1, 5, 6):
+            raise ImportError(
+                "matplotlib requires pyparsing > 1.5.6 on Python 3.x")
+
+import os, re, shutil, subprocess, warnings
 import distutils.sysconfig
 import distutils.version
 
