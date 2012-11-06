@@ -1534,7 +1534,7 @@ class RendererPdf(RendererBase):
             path_codes.append(name)
 
         output = self.file.output
-        output(Op.gsave)
+        output(*self.gc.push())
         lastx, lasty = 0, 0
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
             gc, master_transform, all_transforms, path_codes, offsets,
@@ -1545,7 +1545,7 @@ class RendererPdf(RendererBase):
             dx, dy = xo - lastx, yo - lasty
             output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id, Op.use_xobject)
             lastx, lasty = xo, yo
-        output(Op.grestore)
+        output(*self.gc.pop())
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         # For simple paths or small numbers of markers, don't bother
