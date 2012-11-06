@@ -44,11 +44,6 @@ if os.path.exists(setup_cfg):
         pass
 
     try:
-        options['verbose'] = not config.getboolean("status", "verbose")
-    except:
-        pass
-
-    try:
         options['backend'] = config.get("rc_options", "backend")
     except:
         pass
@@ -249,7 +244,7 @@ class PkgConfig(object):
         """
         flag_map = {
             '-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
-        command = "pkg-config --libs --cflags {0}".format(package)
+        command = "pkg-config --libs --cflags " + package
 
         use_defaults = True
         if self.has_pkgconfig:
@@ -348,6 +343,14 @@ class SetupPackage(object):
         `extensions` list passed to `distutils.setup`.
         """
         return None
+
+    def get_install_requires(self):
+        """
+        Get a list of Python packages that we require.
+        pip/easy_install will attempt to download and install this
+        package if it is not installed.
+        """
+        return []
 
     def _check_for_pkg_config(self, package, include_file, min_version=None,
                               version=None):
@@ -803,6 +806,42 @@ class Tri(SetupPackage):
         return ext
 
 
+class Dateutil(SetupPackage):
+    name = "dateutil"
+
+    def check(self):
+        try:
+            import dateutil
+        except ImportError:
+            return (
+                "dateutil was not found. It is required for date axis "
+                "support. pip/easy_install may attempt to install it "
+                "after matplotlib.")
+
+        return "using dateutil version %s" % dateutil.__version__
+
+    def get_install_requires(self):
+        return ['python_dateutil']
+
+
+class Pyparsing(SetupPackage):
+    name = "pyparsing"
+
+    def check(self):
+        try:
+            import pyparsing
+        except ImportError:
+            return (
+                "pyparsing was not found. It is required for mathtext "
+                "support. pip/easy_install may attempt to install it "
+                "after matplotlib.")
+
+        return "using pyparsing version %s" % pyparsing.__version__
+
+    def get_install_requires(self):
+        return ['pyparsing']
+
+
 class BackendAgg(OptionalBackendPackage):
     name = "agg"
     force = False
@@ -874,6 +913,7 @@ class BackendTkAgg(OptionalBackendPackage):
 
         ext = make_extension('matplotlib.backends._tkagg', sources)
         self.add_flags(ext)
+        Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
         CXX().add_flags(ext)
         return ext
@@ -1250,6 +1290,8 @@ class BackendGtkAgg(BackendGtk):
         ext = make_extension('matplotlib.backends._gtkagg', sources)
         self.add_flags(ext)
         LibAgg().add_flags(ext)
+        CXX().add_flags(ext)
+        Numpy().add_flags(ext)
         return ext
 
 

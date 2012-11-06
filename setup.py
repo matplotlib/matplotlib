@@ -38,7 +38,7 @@ from setupext import print_line, print_raw, print_message, print_status
 __version__ = setupext.Matplotlib().check()
 
 
-# These are the packages in the order we want to build them.  This
+# These are the packages in the order we want to display them.  This
 # list may contain strings to create section headers for the display.
 mpl_packages = [
     'Building Matplotlib',
@@ -47,6 +47,8 @@ mpl_packages = [
     setupext.Platform(),
     'Required dependencies and extensions',
     setupext.Numpy(),
+    setupext.Dateutil(),
+    setupext.Pyparsing(),
     setupext.CXX(),
     setupext.LibAgg(),
     setupext.FreeType(),
@@ -92,6 +94,7 @@ py_modules = []
 ext_modules = []
 package_data = {}
 package_dir = {'': 'lib'}
+install_requires = []
 default_backend = None
 
 
@@ -149,6 +152,7 @@ for package in good_packages:
     for key, val in data.items():
         package_data.setdefault(key, [])
         package_data[key] = list(set(val + package_data[key]))
+    install_requires.extend(package.get_install_requires())
 
 # Write the default matplotlibrc file
 if default_backend is None:
@@ -204,7 +208,7 @@ distrib = setup(name="matplotlib",
       classifiers=classifiers,
 
       # List third-party Python packages that we require
-      install_requires=['dateutils', 'pyparsing'],
+      install_requires=install_requires,
 
       # Automatically 2to3 source on Python 3.x
       use_2to3=True,
@@ -214,11 +218,10 @@ distrib = setup(name="matplotlib",
       # check for zip safety.
       zip_safe=False,
 
-      # This option is important -- it reverts to the standard
-      # distutils installation method.  Otherwise, the behavior is to
-      # build an egg and install that, which unfortunately, makes
-      # building and importing much slower.
-      options={
-          'install': {'old_and_unmanageable': 'True'}
-          }
+      # Install our nose plugin so it will always be found
+      entry_points={
+          'nose.plugins.0.10': [
+              'KnownFailure = matplotlib.testing.noseclasses:KnownFailure'
+            ]
+        },
      )
