@@ -836,6 +836,11 @@ class Pyparsing(SetupPackage):
                 "support. pip/easy_install may attempt to install it "
                 "after matplotlib.")
 
+        if sys.version_info[0] >= 3:
+            if [int(x) for x in pyparsing.__version__.split('.')] <= [1, 5, 6]:
+                return (
+                    "matplotlib requires pyparsing > 1.5.6 on Python 3.x")
+
         return "using pyparsing version %s" % pyparsing.__version__
 
     def get_install_requires(self):

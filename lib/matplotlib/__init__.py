@@ -115,7 +115,7 @@ except ImportError:
     raise ImportError("matplotlib requires pyparsing")
 else:
     if sys.version_info[0] >= 3:
-        if [int(x) for x in pyparsing.__version__.split('.')] <= (1, 5, 6):
+        if [int(x) for x in pyparsing.__version__.split('.')] <= [1, 5, 6]:
             raise ImportError(
                 "matplotlib requires pyparsing > 1.5.6 on Python 3.x")
 
