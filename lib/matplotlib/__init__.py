@@ -90,8 +90,8 @@ The base matplotlib namespace includes:
         for the first time.  In particular, it must be called
         **before** importing pylab (if pylab is imported).
 
-matplotlib was initially written by John D. Hunter (jdh2358 at
-gmail.com) and is now developed and maintained by a host of others.
+matplotlib was initially written by John D. Hunter (1968-2012) and is now
+developed and maintained by a host of others.
 
 Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
