@@ -7,6 +7,7 @@ Author: Jouni K Seppänen <jks@iki.fi>
 from __future__ import division, print_function
 
 import codecs
+import copy
 import os
 import re
 import sys
