@@ -29,7 +29,7 @@ def toggle_selector(event):
         toggle_selector.RS.set_active(True)
 
 
-current_ax = plt.subplot(111)                    # make a new plotingrange
+fig, current_ax = plt.subplots()                    # make a new plotingrange
 N = 100000                                       # If N is large one can see
 x = np.linspace(0.0, 10.0, N)                    # improvement by use blitting!
 

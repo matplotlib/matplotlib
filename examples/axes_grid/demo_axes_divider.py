@@ -75,7 +75,7 @@ def demo_locatable_axes_easy(ax):
     ax_cb.yaxis.tick_right()
 
 
-def demo_images_side_by_sied(ax):
+def demo_images_side_by_side(ax):
     from mpl_toolkits.axes_grid1 import make_axes_locatable
 
     divider = make_axes_locatable(ax)
@@ -120,7 +120,7 @@ def demo():
     # two images side by side with fixed padding.
 
     ax = fig1.add_subplot(2, 2, 4)
-    demo_images_side_by_sied(ax)
+    demo_images_side_by_side(ax)
 
     plt.draw()
     plt.show()

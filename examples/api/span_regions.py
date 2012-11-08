@@ -14,8 +14,7 @@ s1 = np.sin(2*np.pi*t)
 s2 = 1.2*np.sin(4*np.pi*t)
 
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.set_title('using span_where')
 ax.plot(t, s1, color='black')
 ax.axhline(0, color='black', lw=2)

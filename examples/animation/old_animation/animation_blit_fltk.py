@@ -3,7 +3,7 @@ import sys
 import fltk
 import matplotlib
 matplotlib.use('FltkAgg')
-import pylab as p
+import matplotlib.pyplot as plt
 import numpy as npy
 import time
 
@@ -42,13 +42,13 @@ class animator:
             sys.exit()
         return True
 
-ax = p.subplot(111)
-p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
-p.grid() # to ensure proper background restore
+fig, ax = plt.subplots()
+plt.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
+plt.grid() # to ensure proper background restore
 # create the initial line
 x = npy.arange(0,2*npy.pi,0.01)
-line, = p.plot(x, npy.sin(x), animated=True)
-p.draw()
+line, = plt.plot(x, npy.sin(x), animated=True)
+plt.draw()
 anim=animator(ax)
 
 fltk.Fl.add_idle(anim.update)

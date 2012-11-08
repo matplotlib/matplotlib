@@ -3,8 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 x, y = np.random.rand(2, 200)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 circ = patches.Circle( (0.5, 0.5), 0.25, alpha=0.8, fc='yellow')
 ax.add_patch(circ)
 

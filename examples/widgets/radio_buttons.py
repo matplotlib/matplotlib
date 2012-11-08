@@ -7,7 +7,7 @@ s0 = np.sin(2*np.pi*t)
 s1 = np.sin(4*np.pi*t)
 s2 = np.sin(8*np.pi*t)
 
-ax = plt.subplot(111)
+fig, ax = plt.subplots()
 l, = ax.plot(t, s0, lw=2, color='red')
 plt.subplots_adjust(left=0.3)
 

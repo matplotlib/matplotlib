@@ -8,8 +8,7 @@ N = 5
 menMeans = (150*cm, 160*cm, 146*cm, 172*cm, 155*cm)
 menStd =   ( 20*cm,  30*cm,  32*cm,  10*cm,  20*cm)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 ind = np.arange(N)    # the x locations for the groups
 width = 0.35         # the width of the bars

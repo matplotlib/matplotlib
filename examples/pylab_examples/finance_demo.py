@@ -19,9 +19,8 @@ quotes = quotes_historical_yahoo('INTC', date1, date2)
 if len(quotes) == 0:
     raise SystemExit
 
-fig = figure()
+fig, ax = subplots()
 fig.subplots_adjust(bottom=0.2)
-ax = fig.add_subplot(111)
 ax.xaxis.set_major_locator(mondays)
 ax.xaxis.set_minor_locator(alldays)
 ax.xaxis.set_major_formatter(weekFormatter)

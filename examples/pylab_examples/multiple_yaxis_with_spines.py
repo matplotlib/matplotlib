@@ -6,10 +6,9 @@ def make_patch_spines_invisible(ax):
     for sp in ax.spines.itervalues():
         sp.set_visible(False)
 
-fig = plt.figure()
+fig, host = plt.subplots()
 fig.subplots_adjust(right=0.75)
 
-host = fig.add_subplot(111)
 par1 = host.twinx()
 par2 = host.twinx()
 

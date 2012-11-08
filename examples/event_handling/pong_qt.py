@@ -23,7 +23,7 @@ class BlitQT(QObject):
     def __init__(self):
         QObject.__init__(self, None, "app")
 
-        self.ax = plt.subplot(111)
+        _, self.ax = plt.subplots()
         self.animation = pipong.Game(self.ax)
 
     def timerEvent(self, evt):

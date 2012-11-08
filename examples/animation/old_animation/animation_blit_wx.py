@@ -24,7 +24,7 @@ if '--no-accel' in sys.argv:
     matplotlib.backends.backend_wxagg._use_accelerator(False)
 
 
-ax = p.subplot(111)
+fig, ax = plt.subplots()
 canvas = ax.figure.canvas
 
 

@@ -9,8 +9,7 @@ from matplotlib import cm
 from numpy.random import randn
 
 # Make plot with vertical (default) colorbar
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 data = np.clip(randn(250, 250), -1, 1)
 
@@ -22,8 +21,7 @@ cbar = fig.colorbar(cax, ticks=[-1, 0, 1])
 cbar.ax.set_yticklabels(['< -1', '0', '> 1'])# vertically oriented colorbar
 
 # Make plot with horizontal colorbar
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 data = np.clip(randn(250, 250), -1, 1)
 

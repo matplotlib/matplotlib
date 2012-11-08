@@ -64,8 +64,7 @@ class Scope:
 
 from pylab import figure, show
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 scope = Scope(ax)
 gobject.idle_add(scope.update)
 

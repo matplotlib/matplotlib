@@ -9,8 +9,7 @@ import matplotlib.mlab as mlab
 mu, sigma = 100, 15
 x = mu + sigma * np.random.randn(10000)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 # the histogram of the data
 n, bins, patches = ax.hist(x, 50, normed=1, facecolor='green', alpha=0.75)
