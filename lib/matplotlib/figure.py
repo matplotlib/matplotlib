@@ -368,6 +368,9 @@ class Figure(Artist):
                 "matplotlib is currently using a non-GUI backend, "
                 "so cannot show the figure")
 
+    def update(self):
+        self.canvas.draw_idle()
+
     def _get_axes(self):
         return self._axstack.as_list()
 
