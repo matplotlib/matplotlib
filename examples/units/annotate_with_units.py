@@ -1,9 +1,7 @@
 import matplotlib.pyplot as plt
 from basic_units import cm
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
-
+fig, ax = plt.subplots()
 
 ax.annotate( "Note 01", [0.5*cm,  0.5*cm] )
 

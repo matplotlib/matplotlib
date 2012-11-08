@@ -5,8 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 x = np.arange(0, 2*np.pi, 0.01)        # x-array
 line, = ax.plot(x, np.sin(x))

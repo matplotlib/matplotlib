@@ -25,8 +25,7 @@ fh = cbook.get_sample_data('aapl.npy.gz')
 r = np.load(fh); fh.close()
 r = r[-250:]  # get the last 250 days
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(r.date, r.adj_close)
 
 ax.xaxis.set_major_locator(dates.MonthLocator())

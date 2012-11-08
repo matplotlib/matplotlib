@@ -24,7 +24,7 @@ class BlitQT(QObject):
     def __init__(self):
         QObject.__init__(self, None, "app")
 
-        self.ax = p.subplot(111)
+        fig, self.ax = plt.subplots()
         self.canvas = self.ax.figure.canvas
         self.cnt = 0
 

@@ -145,7 +145,6 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from matplotlib.patches import Polygon
 
-    fig = plt.figure()
     theta = np.arange(0, 2*np.pi, 0.1)
     r = 1.5
 
@@ -154,7 +153,7 @@ if __name__ == '__main__':
 
     poly = Polygon(list(zip(xs, ys)), animated=True)
 
-    ax = plt.subplot(111)
+    fig, ax = plt.subplots()
     ax.add_patch(poly)
     p = PolygonInteractor(ax, poly)
 

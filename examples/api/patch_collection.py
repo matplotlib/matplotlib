@@ -5,8 +5,7 @@ from matplotlib.collections import PatchCollection
 import matplotlib.pyplot as plt
 
 
-fig=plt.figure()
-ax=fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 resolution = 50 # the number of vertices
 N = 3

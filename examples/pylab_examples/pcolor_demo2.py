@@ -19,7 +19,7 @@ X,Y = meshgrid(x, y)
 Z = func3(X, Y)
 
 
-ax = subplot(111)
+fig, ax = plt.subplots()
 im = imshow(Z, cmap=cm.RdBu, vmax=abs(Z).max(), vmin=-abs(Z).max())
 #im.set_interpolation('nearest')
 #im.set_interpolation('bicubic')

@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 
 Path = mpath.Path
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 pp1 = mpatches.PathPatch(
     Path([(0, 0), (1, 0), (1, 1), (0, 0)],
          [Path.MOVETO, Path.CURVE3, Path.CURVE3, Path.CLOSEPOLY]),

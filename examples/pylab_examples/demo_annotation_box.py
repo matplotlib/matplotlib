@@ -6,9 +6,7 @@ from matplotlib.cbook import get_sample_data
 import numpy as np
 
 if 1:
-    fig = plt.gcf()
-    fig.clf()
-    ax = plt.subplot(111)
+    fig, ax = plt.subplots()
 
     offsetbox = TextArea("Test 1", minimumdescent=False)
 
