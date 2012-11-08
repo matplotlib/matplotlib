@@ -1,4 +1,4 @@
-from matplotlib.pyplot import figure, show
+import matplotlib.pyplot as plt
 from numpy import pi, sin, linspace
 from matplotlib.mlab import stineman_interp
 
@@ -7,8 +7,7 @@ y = sin(x); yp = None
 xi = linspace(x[0],x[-1],100);
 yi = stineman_interp(xi,x,y,yp);
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(x,y,'ro',xi,yi,'-b.')
-show()
+plt.show()
 

@@ -23,19 +23,15 @@ def make_heights_equal(fig, rect, ax1, ax2, pad):
     
 if __name__ == "__main__":
 
-    fig1 = plt.figure()
-
     arr1 = np.arange(20).reshape((4,5))
     arr2 = np.arange(20).reshape((5,4))
 
-    ax1 = plt.subplot(121)
-    ax2 = plt.subplot(122)
-
+    fig, (ax1, ax2) = plt.subplots(1,2)
     ax1.imshow(arr1, interpolation="nearest")
     ax2.imshow(arr2, interpolation="nearest")
 
     rect = 111 # subplot param for combined axes
-    make_heights_equal(fig1, rect, ax1, ax2, pad=0.5) # pad in inches
+    make_heights_equal(fig, rect, ax1, ax2, pad=0.5) # pad in inches
     
     for ax in [ax1, ax2]:
         ax.locator_params(nbins=4)
@@ -44,7 +40,9 @@ if __name__ == "__main__":
     ax3 = plt.axes([0.5, 0.5, 0.001, 0.001], frameon=False)
     ax3.xaxis.set_visible(False)
     ax3.yaxis.set_visible(False)
-    ax3.annotate("Location of two axes are adjusted\n so that they have equal heights\n while maintaining their aspect ratios", (0.5, 0.5),
+    ax3.annotate("Location of two axes are adjusted\n"
+                 "so that they have equal heights\n"
+                 "while maintaining their aspect ratios", (0.5, 0.5),
                  xycoords="axes fraction", va="center", ha="center",
                  bbox=dict(boxstyle="round, pad=1", fc="w"))
 

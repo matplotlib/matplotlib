@@ -7,7 +7,7 @@ from matplotlib.patches import Polygon
 def func(x):
     return (x-3)*(x-5)*(x-7)+85
 
-ax = subplot(111)
+fig, ax = plt.subplots()
 
 a, b = 2, 9 # integral area
 x = arange(0, 10, 0.01)

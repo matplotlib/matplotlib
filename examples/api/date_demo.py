@@ -28,8 +28,7 @@ yearsFmt = mdates.DateFormatter('%Y')
 datafile = cbook.get_sample_data('goog.npy')
 r = np.load(datafile).view(np.recarray)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(r.date, r.adj_close)
 
 

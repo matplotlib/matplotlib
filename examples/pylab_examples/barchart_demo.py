@@ -11,7 +11,7 @@ ind = np.arange(N)  # the x locations for the groups
 width = 0.35       # the width of the bars
 
 
-plt.subplot(111)
+fig, ax = plt.subplots()
 rects1 = plt.bar(ind, menMeans, width,
                     color='r',
                     yerr=menStd,

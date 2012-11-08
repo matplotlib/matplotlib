@@ -28,8 +28,7 @@ from StringIO import StringIO
 
 ET.register_namespace("","http://www.w3.org/2000/svg")
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 # Create patches to which tooltips will be assigned.
 circle = plt.Circle((0,0), 5, fc='blue')
