@@ -24,8 +24,7 @@ The twinx and twiny methods are also exposed as pyplot functions.
 import numpy as np
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-ax1 = fig.add_subplot(111)
+fig, ax1 = plt.subplots()
 t = np.arange(0.01, 10.0, 0.01)
 s1 = np.exp(t)
 ax1.plot(t, s1, 'b-')

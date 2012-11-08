@@ -12,8 +12,7 @@ dates = drange(date1, date2, delta)
 
 y = arange( len(dates)*1.0)
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot_date(dates, y*y)
 
 # this is superfluous, since the autoscaler should get it right, but

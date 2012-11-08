@@ -41,7 +41,7 @@ minorLocator   = MultipleLocator(5)
 t = arange(0.0, 100.0, 0.1)
 s = sin(0.1*pi*t)*exp(-t*0.01)
 
-ax = subplot(111)
+fig, ax = plt.subplots()
 plot(t,s)
 
 ax.xaxis.set_major_locator(majorLocator)

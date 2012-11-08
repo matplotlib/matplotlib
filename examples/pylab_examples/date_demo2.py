@@ -32,8 +32,7 @@ if len(quotes) == 0:
 dates = [q[0] for q in quotes]
 opens = [q[1] for q in quotes]
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot_date(dates, opens, '-')
 ax.xaxis.set_major_locator(months)
 ax.xaxis.set_major_formatter(monthsFmt)

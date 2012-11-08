@@ -44,8 +44,7 @@ def emitter(p=0.03):
         else:
             yield np.random.rand(1)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 scope = Scope(ax)
 
 # pass a generator in "emitter" to produce data for the update func

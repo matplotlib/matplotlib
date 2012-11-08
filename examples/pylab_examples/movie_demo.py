@@ -3,12 +3,12 @@
 
 from __future__ import print_function
 
-import os, sys
+import os
 from pylab import *
 
 files = []
-figure(figsize=(5,5))
-ax = subplot(111)
+
+fig, ax = plt.subplots(figsize=(5,5))
 for i in range(50):  # 50 frames
     cla()
     imshow(rand(5,5), interpolation='nearest')

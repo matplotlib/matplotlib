@@ -8,19 +8,17 @@ theta = 0.25*np.pi
 xx = x*np.cos(theta) - y*np.sin(theta)
 yy = x*np.sin(theta) + y*np.cos(theta)
 
-ax1 = plt.subplot(221)
+fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2)
 ax1.set_aspect(1)
 ax1.pcolormesh(xx, yy, d)
 ax1.set_title("No Rasterization")
 
-ax2 = plt.subplot(222)
 ax2.set_aspect(1)
 ax2.set_title("Rasterization")
 
 m = ax2.pcolormesh(xx, yy, d)
 m.set_rasterized(True)
 
-ax3 = plt.subplot(223)
 ax3.set_aspect(1)
 ax3.pcolormesh(xx, yy, d)
 ax3.text(0.5, 0.5, "Text", alpha=0.2,
@@ -29,7 +27,6 @@ ax3.text(0.5, 0.5, "Text", alpha=0.2,
 ax3.set_title("No Rasterization")
 
 
-ax4 = plt.subplot(224)
 ax4.set_aspect(1)
 m = ax4.pcolormesh(xx, yy, d)
 m.set_zorder(-20)

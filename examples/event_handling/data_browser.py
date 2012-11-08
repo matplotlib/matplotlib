@@ -70,11 +70,9 @@ if __name__ == '__main__':
     xs = np.mean(X, axis=1)
     ys = np.std(X, axis=1)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(211)
+    fig, (ax, ax2) = plt.subplots(2, 1)
     ax.set_title('click on point to plot time series')
     line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
-    ax2 = fig.add_subplot(212)
 
     browser = PointBrowser()
 
