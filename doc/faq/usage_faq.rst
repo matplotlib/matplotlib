@@ -253,17 +253,21 @@ a file:
 ============   ================================================================
 Backend        Description
 ============   ================================================================
-GTKAgg         Agg rendering to a :term:`GTK` canvas (requires PyGTK_)
-GTK            GDK rendering to a :term:`GTK` canvas (not recommended)
+GTKAgg         Agg rendering to a :term:`GTK` 2.x canvas (requires PyGTK_)
+GTK3Agg        Agg rendering to a :term:`GTK` 3.x canvas (requires PyGObject_)
+GTK            GDK rendering to a :term:`GTK` 2.x canvas (not recommended)
                (requires PyGTK_)
-GTKCairo       Cairo rendering to a :term:`GTK` Canvas (requires PyGTK_)
+GTKCairo       Cairo rendering to a :term:`GTK` 2.x canvas (requires PyGTK_
+               and pycairo_)
+GTK3Cairo      Cairo rendering to a :term:`GTK` 3.x canvas (requires PyGObject_
+               and pycairo_)
 WXAgg          Agg rendering to to a :term:`wxWidgets` canvas
                (requires wxPython_)
 WX             Native :term:`wxWidgets` drawing to a :term:`wxWidgets` Canvas
                (not recommended) (requires wxPython_)
 TkAgg          Agg rendering to a :term:`Tk` canvas (requires TkInter_)
 QtAgg          Agg rendering to a :term:`Qt` canvas (requires PyQt_)
-               (not recommended; use Qt4Agg)
+               (deprecated; use Qt4Agg)
 Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_)
 FLTKAgg        Agg rendering to a :term:`FLTK` canvas (requires pyFLTK_)
                (not widely used; consider TKAgg, GTKAgg, WXAgg, or
@@ -280,6 +284,8 @@ macosx         Cocoa rendering in OSX windows
 .. _`Cairo graphics`: http://en.wikipedia.org/wiki/Cairo_(graphics)
 .. _`Gimp Drawing Kit`: http://en.wikipedia.org/wiki/GDK
 .. _PyGTK: http://www.pygtk.org
+.. _PyGObject: https://live.gnome.org/PyGObject
+.. _pycairo: http://www.cairographics.org/pycairo/
 .. _wxPython: http://www.wxpython.org/
 .. _TkInter: http://wiki.python.org/moin/TkInter
 .. _PyQt: http://www.riverbankcomputing.co.uk/software/pyqt/intro
@@ -425,6 +431,3 @@ generate one or more figures and display them before ending
 or generating a new set of figures.  In that case, use
 :func:`~matplotlib.pyplot.show` to display the figure(s) and
 to block execution until you have manually destroyed them.
-
-
-
