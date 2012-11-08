@@ -58,11 +58,8 @@ class MandlebrotDisplay(object):
 md = MandlebrotDisplay()
 Z = md(-2., 0.5, -1.25, 1.25)
 
-fig = plt.figure()
-ax1 = fig.add_subplot(1, 2, 1)
+fig1, (ax1, ax2) = plt.subplots(1, 2)
 ax1.imshow(Z, origin='lower', extent=(md.x.min(), md.x.max(), md.y.min(), md.y.max()))
-
-ax2 = fig.add_subplot(1, 2, 2)
 ax2.imshow(Z, origin='lower', extent=(md.x.min(), md.x.max(), md.y.min(), md.y.max()))
 
 rect = UpdatingRect([0, 0], 0, 0, facecolor='None', edgecolor='black')

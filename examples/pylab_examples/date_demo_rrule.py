@@ -21,7 +21,7 @@ dates = drange(date1, date2, delta)
 s = rand(len(dates)) # make up some random y values
 
 
-ax = subplot(111)
+fig, ax = plt.subplots()
 plot_date(dates, s)
 ax.xaxis.set_major_locator(loc)
 ax.xaxis.set_major_formatter(formatter)

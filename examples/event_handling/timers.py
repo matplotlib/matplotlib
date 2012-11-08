@@ -8,8 +8,7 @@ def update_title(axes):
     axes.set_title(datetime.now())
     axes.figure.canvas.draw()
 
-fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1)
+fig, ax = plt.subplots()
 
 x = np.linspace(-3, 3)
 ax.plot(x, x*x)

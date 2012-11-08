@@ -16,8 +16,7 @@ import matplotlib.pyplot as plt
 import pipong
 
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 canvas = ax.figure.canvas
 
 

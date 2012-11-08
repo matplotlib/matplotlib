@@ -11,8 +11,7 @@ X = numpy.random.rand(100, 1000)
 xs = numpy.mean(X, axis=1)
 ys = numpy.std(X, axis=1)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.set_title('click on point to plot time series')
 line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
 

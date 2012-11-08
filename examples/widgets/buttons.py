@@ -5,7 +5,7 @@ from matplotlib.widgets import Button
 
 freqs = np.arange(2, 20, 3)
 
-ax = plt.subplot(111)
+fig, ax = plt.subplots()
 plt.subplots_adjust(bottom=0.2)
 t = np.arange(0.0, 1.0, 0.001)
 s = np.sin(2*np.pi*freqs[0]*t)

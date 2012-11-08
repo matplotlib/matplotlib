@@ -38,8 +38,7 @@ g = r.gains1-r.gains2
 tr = (1+g).cumprod()  # the total return
 
 # plot the return
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(r.date, tr)
 ax.set_title('total return: long APPL, short GOOG')
 ax.grid()

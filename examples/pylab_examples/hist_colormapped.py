@@ -3,8 +3,7 @@ from pylab import figure, show
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 Ntotal = 1000
 N, bins, patches = ax.hist(n.random.rand(Ntotal), 20)
 

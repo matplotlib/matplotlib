@@ -30,7 +30,7 @@ ax.plot(a, c+d, 'k', label='Total message length')
 legend = ax.legend(loc='upper center', shadow=True)
 
 # The frame is matplotlib.patches.Rectangle instance surrounding the legend.
-frame  = legend.get_frame()
+frame = legend.get_frame()
 frame.set_facecolor('0.90')
 
 # Set the fontsize

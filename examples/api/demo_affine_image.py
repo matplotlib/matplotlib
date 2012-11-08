@@ -32,8 +32,8 @@ def imshow_affine(ax, z, *kl, **kwargs):
 if 1:
 
     # image rotation
-    
-    ax1 = plt.subplot(121)
+
+    fig, (ax1, ax2) = plt.subplots(1,2)
     Z = get_image()
     im1 = imshow_affine(ax1, Z, interpolation='none', cmap=cm.jet,
                         origin='lower',
@@ -55,7 +55,6 @@ if 1:
 
     # image skew
 
-    ax2 = plt.subplot(122)
     im2 = ax2.imshow(Z, interpolation='none', cmap=cm.jet,
                      origin='lower',
                      extent=[-2, 4, -3, 2], clip_on=True)

@@ -9,9 +9,7 @@ matplotlib.use('WXAgg') # do this before importing pylab
 
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 t = np.arange(0, 2*np.pi, 0.1)
 line, = ax.plot(t, np.sin(t))
 dt = 0.05

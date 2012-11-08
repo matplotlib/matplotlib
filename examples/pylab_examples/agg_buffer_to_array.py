@@ -3,8 +3,7 @@ from pylab import figure, show
 import numpy as np
 
 # make an agg figure
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot([1,2,3])
 ax.set_title('a simple figure')
 fig.canvas.draw()

@@ -47,8 +47,7 @@ ax1.set_title('Now regions with y2>1 are masked')
 # arrays to a very fine grid before plotting.
 
 # show how to use transforms to create axes spans where a certain condition is satisfied
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 y = np.sin(4*np.pi*x)
 ax.plot(x, y, color='black')
 
