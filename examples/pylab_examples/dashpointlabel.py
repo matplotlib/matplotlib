@@ -15,9 +15,7 @@ dash_style = (
     (1, 20, 30, 60, 10),
     )
 
-fig = pylab.figure()
-ax = fig.add_subplot(111)
-
+fig, ax = plt.subplots()
 
 (x,y) = zip(*DATA)
 ax.plot(x, y, marker='o')

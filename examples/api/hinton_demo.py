@@ -11,8 +11,7 @@ def hinton(W, maxWeight=None, ax=None):
     Draws a Hinton diagram for visualizing a weight matrix.
     """
     if not ax:
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
+        fig, ax = plt.subplots()
 
     if not maxWeight:
         maxWeight = 2**np.ceil(np.log(np.abs(W).max())/np.log(2))

@@ -15,8 +15,7 @@ def press(event):
         xl.set_visible(not visible)
         fig.canvas.draw()
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 fig.canvas.mpl_connect('key_press_event', press)
 

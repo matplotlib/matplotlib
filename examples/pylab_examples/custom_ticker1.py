@@ -22,7 +22,7 @@ def millions(x, pos):
 
 formatter = FuncFormatter(millions)
 
-ax = subplot(111)
+fig, ax = plt.subplots()
 ax.yaxis.set_major_formatter(formatter)
 bar(x, money)
 xticks( x + 0.5,  ('Bill', 'Fred', 'Mary', 'Sue') )

@@ -25,20 +25,16 @@ def leave_figure(event):
     event.canvas.figure.patch.set_facecolor('grey')
     event.canvas.draw()
 
-fig1 = plt.figure()
+fig1, (ax, ax2) = plt.subplots(2, 1)
 fig1.suptitle('mouse hover over figure or axes to trigger events')
-ax1 = fig1.add_subplot(211)
-ax2 = fig1.add_subplot(212)
 
 fig1.canvas.mpl_connect('figure_enter_event', enter_figure)
 fig1.canvas.mpl_connect('figure_leave_event', leave_figure)
 fig1.canvas.mpl_connect('axes_enter_event', enter_axes)
 fig1.canvas.mpl_connect('axes_leave_event', leave_axes)
 
-fig2 = plt.figure()
+fig2, (ax, ax2) = plt.subplots(2, 1)
 fig2.suptitle('mouse hover over figure or axes to trigger events')
-ax1 = fig2.add_subplot(211)
-ax2 = fig2.add_subplot(212)
 
 fig2.canvas.mpl_connect('figure_enter_event', enter_figure)
 fig2.canvas.mpl_connect('figure_leave_event', leave_figure)

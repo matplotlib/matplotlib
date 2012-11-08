@@ -7,12 +7,10 @@ x = np.arange(10)
 
 y1, y2, y3 = fnx(), fnx(), fnx()
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.stackplot(x, y)
 plt.show()
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.stackplot(x, y1, y2, y3)
 plt.show()
