@@ -15,6 +15,8 @@ revision, see the :ref:`github-stats`.
    versions 2.4 to 2.7.  matplotlib 1.2 and later require
    versions 2.6, 2.7, and 3.1 and higher.
 
+.. contents:: Table of Contents
+
 .. _whats-new-1-2:
 
 new in matplotlib-1.2
