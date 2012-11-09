@@ -36,6 +36,13 @@ if ("matplotlib.sourceforge.net" == document.location.hostname ||
 <a href="{{ pathto('index') }}"><img src="{{
 pathto("_static/logo2.png", 1) }}" border="0" alt="matplotlib"/></a>
 </div>
+
+<!-- The "Fork me on github" ribbon -->
+<img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" usemap="#ribbonmap"/>
+<map name="ribbonmap">
+    <area shape="poly" coords="20,2,148,-1,148,135" href="https://github.com/matplotlib/matplotlib" alt="Fork me on GitHub" />
+</map>
+
 {{ super() }}
 {% endblock %}
 
