@@ -1,3 +1,6 @@
+matplotlib
+==========
+
 matplotlib is a python 2D plotting library which produces publication
 quality figures in a variety of hardcopy formats and interactive
 environments across platforms. matplotlib can be used in python
@@ -6,4 +9,17 @@ application servers, and various graphical user interface toolkits.
 
 Home page: <http://matplotlib.org/>
 
+
+Installation
+=============
 For installation instructions and requirements, see the INSTALL file.
+
+Testing
+=======
+
+After installation, you can launch the test suite::
+
+  $ make test
+
+Consider reading http://matplotlib.org/devel/coding_guide.html#testing for
+more information.
