@@ -4807,6 +4807,7 @@ class Axes(martist.Artist):
         orientation = kwargs.pop('orientation', 'vertical')
         log = kwargs.pop('log', False)
         label = kwargs.pop('label', '')
+
         def make_iterable(x):
             if not iterable(x):
                 return [x]
@@ -4882,47 +4883,52 @@ class Axes(martist.Artist):
 
         # FIXME: convert the following to proper input validation
         # raising ValueError; don't use assert for this.
-        assert len(left)==nbars, "incompatible sizes: argument 'left' must be length %d or scalar" % nbars
-        assert len(height)==nbars, ("incompatible sizes: argument 'height' must be length %d or scalar" %
-                                    nbars)
-        assert len(width)==nbars, ("incompatible sizes: argument 'width' must be length %d or scalar" %
-                                   nbars)
-        assert len(bottom)==nbars, ("incompatible sizes: argument 'bottom' must be length %d or scalar" %
-                                    nbars)
+        assert len(left) == nbars, ("incompatible sizes: argument 'left' must "
+                                    "be length %d or scalar" % nbars)
+        assert len(height) == nbars, ("incompatible sizes: argument 'height' "
+                                      "must be length %d or scalar" %
+                                      nbars)
+        assert len(width) == nbars, ("incompatible sizes: argument 'width' "
+                                     "must be length %d or scalar" %
+                                     nbars)
+        assert len(bottom) == nbars, ("incompatible sizes: argument 'bottom' "
+                                      "must be length %d or scalar" %
+                                      nbars)
 
         patches = []
 
         # lets do some conversions now since some types cannot be
         # subtracted uniformly
         if self.xaxis is not None:
-            left = self.convert_xunits( left )
-            width = self.convert_xunits( width )
+            left = self.convert_xunits(left)
+            width = self.convert_xunits(width)
             if xerr is not None:
-                xerr = self.convert_xunits( xerr )
+                xerr = self.convert_xunits(xerr)
 
         if self.yaxis is not None:
-            bottom = self.convert_yunits( bottom )
-            height = self.convert_yunits( height )
+            bottom = self.convert_yunits(bottom)
+            height = self.convert_yunits(height)
             if yerr is not None:
-                yerr = self.convert_yunits( yerr )
+                yerr = self.convert_yunits(yerr)
 
         if align == 'edge':
             pass
         elif align == 'center':
             if orientation == 'vertical':
-                left = [left[i] - width[i]/2. for i in xrange(len(left))]
+                left = [left[i] - width[i] / 2. for i in xrange(len(left))]
             elif orientation == 'horizontal':
-                bottom = [bottom[i] - height[i]/2. for i in xrange(len(bottom))]
+                bottom = [bottom[i] - height[i] / 2.
+                          for i in xrange(len(bottom))]
 
         else:
             raise ValueError('invalid alignment: %s' % align)
 
         args = zip(left, bottom, width, height, color, edgecolor, linewidth)
         for l, b, w, h, c, e, lw in args:
-            if h<0:
+            if h < 0:
                 b += h
                 h = abs(h)
-            if w<0:
+            if w < 0:
                 l += w
                 w = abs(w)
             r = mpatches.Rectangle(
@@ -4939,18 +4945,18 @@ class Axes(martist.Artist):
             patches.append(r)
 
         holdstate = self._hold
-        self.hold(True) # ensure hold is on before plotting errorbars
+        self.hold(True)  # ensure hold is on before plotting errorbars
 
         if xerr is not None or yerr is not None:
             if orientation == 'vertical':
                 # using list comps rather than arrays to preserve unit info
-                x = [l+0.5*w for l, w in zip(left, width)]
-                y = [b+h for b,h in zip(bottom, height)]
+                x = [l + 0.5 * w for l, w in zip(left, width)]
+                y = [b + h for b, h in zip(bottom, height)]
 
             elif orientation == 'horizontal':
                 # using list comps rather than arrays to preserve unit info
-                x = [l+w for l,w in zip(left, width)]
-                y = [b+0.5*h for b,h in zip(bottom, height)]
+                x = [l + w for l, w in zip(left, width)]
+                y = [b + 0.5 * h for b, h in zip(bottom, height)]
 
             if "label" not in error_kw:
                 error_kw["label"] = '_nolegend_'
@@ -4961,14 +4967,14 @@ class Axes(martist.Artist):
         else:
             errorbar = None
 
-        self.hold(holdstate) # restore previous hold state
+        self.hold(holdstate)  # restore previous hold state
 
         if adjust_xlim:
             xmin, xmax = self.dataLim.intervalx
             xmin = np.amin([w for w in width if w > 0])
             if xerr is not None:
                 xmin = xmin - np.amax(xerr)
-            xmin = max(xmin*0.9, 1e-100)
+            xmin = max(xmin * 0.9, 1e-100)
             self.dataLim.intervalx = (xmin, xmax)
 
         if adjust_ylim:
@@ -4976,7 +4982,7 @@ class Axes(martist.Artist):
             ymin = np.amin([h for h in height if h > 0])
             if yerr is not None:
                 ymin = ymin - np.amax(yerr)
-            ymin = max(ymin*0.9, 1e-100)
+            ymin = max(ymin * 0.9, 1e-100)
             self.dataLim.intervaly = (ymin, ymax)
         self.autoscale_view()
 
@@ -5054,8 +5060,8 @@ class Axes(martist.Artist):
         %(Rectangle)s
         """
 
-        patches = self.bar(left=left, height=height, width=width, bottom=bottom,
-                           orientation='horizontal', **kwargs)
+        patches = self.bar(left=left, height=height, width=width,
+                           bottom=bottom, orientation='horizontal', **kwargs)
         return patches
 
     @docstring.dedent_interpd
@@ -5121,7 +5127,8 @@ class Axes(martist.Artist):
         *baseline*).
 
         .. seealso::
-            This `document <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
+            This
+            `document <http://www.mathworks.com/help/techdoc/ref/stem.html>`_
             for details.
 
 
@@ -5129,8 +5136,9 @@ class Axes(martist.Artist):
 
         .. plot:: mpl_examples/pylab_examples/stem_plot.py
         """
-        remember_hold=self._hold
-        if not self._hold: self.cla()
+        remember_hold = self._hold
+        if not self._hold:
+            self.cla()
         self.hold(True)
 
         markerline, = self.plot(x, y, markerfmt, label="_nolegend_")
@@ -5140,11 +5148,11 @@ class Axes(martist.Artist):
 
         stemlines = []
         for thisx, thisy in zip(x, y):
-            l, = self.plot([thisx,thisx], [bottom, thisy], linefmt,
+            l, = self.plot([thisx, thisx], [bottom, thisy], linefmt,
                            label="_nolegend_")
             stemlines.append(l)
 
-        baseline, = self.plot([np.amin(x), np.amax(x)], [bottom,bottom],
+        baseline, = self.plot([np.amin(x), np.amax(x)], [bottom, bottom],
                               basefmt, label="_nolegend_")
 
         self.hold(remember_hold)
@@ -5188,9 +5196,9 @@ class Axes(martist.Artist):
             A sequence of strings providing the labels for each wedge
 
           *autopct*: [ *None* | format string | format function ]
-            If not *None*, is a string or function used to label the
-            wedges with their numeric value.  The label will be placed inside
-            the wedge.  If it is a format string, the label will be ``fmt%pct``.
+            If not *None*, is a string or function used to label the wedges
+            with their numeric value.  The label will be placed inside the
+            wedge.  If it is a format string, the label will be ``fmt%pct``.
             If it is a function, it will be called.
 
           *pctdistance*: scalar
@@ -5237,16 +5245,19 @@ class Axes(martist.Artist):
         x = np.asarray(x).astype(np.float32)
 
         sx = float(x.sum())
-        if sx>1: x = np.divide(x,sx)
+        if sx > 1:
+            x = np.divide(x, sx)
 
-        if labels is None: labels = ['']*len(x)
-        if explode is None: explode = [0]*len(x)
-        assert(len(x)==len(labels))
-        assert(len(x)==len(explode))
-        if colors is None: colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
+        if labels is None:
+            labels = [''] * len(x)
+        if explode is None:
+            explode = [0] * len(x)
+        assert(len(x) == len(labels))
+        assert(len(x) == len(explode))
+        if colors is None:
+            colors = ('b', 'g', 'r', 'c', 'm', 'y', 'k', 'w')
 
-
-        center = 0,0
+        center = 0, 0
         if radius is None:
             radius = 1
 
@@ -5261,15 +5272,15 @@ class Axes(martist.Artist):
         autotexts = []
 
         i = 0
-        for frac, label, expl in cbook.safezip(x,labels, explode):
+        for frac, label, expl in cbook.safezip(x, labels, explode):
             x, y = center
             theta2 = theta1 + frac
-            thetam = 2*math.pi*0.5*(theta1+theta2)
-            x += expl*math.cos(thetam)
-            y += expl*math.sin(thetam)
+            thetam = 2 * math.pi * 0.5 * (theta1 + theta2)
+            x += expl * math.cos(thetam)
+            y += expl * math.sin(thetam)
 
-            w = mpatches.Wedge((x,y), radius, 360.*theta1, 360.*theta2,
-                      facecolor=colors[i%len(colors)])
+            w = mpatches.Wedge((x, y), radius, 360. * theta1, 360. * theta2,
+                      facecolor=colors[i % len(colors)])
             slices.append(w)
             self.add_patch(w)
             w.set_label(label)
@@ -5281,13 +5292,12 @@ class Axes(martist.Artist):
                 shad = mpatches.Shadow(w, -0.02, -0.02,
                               #props={'facecolor':w.get_facecolor()}
                               )
-                shad.set_zorder(0.9*w.get_zorder())
+                shad.set_zorder(0.9 * w.get_zorder())
                 shad.set_label('_nolegend_')
                 self.add_patch(shad)
 
-
-            xt = x + labeldistance*radius*math.cos(thetam)
-            yt = y + labeldistance*radius*math.sin(thetam)
+            xt = x + labeldistance * radius * math.cos(thetam)
+            yt = y + labeldistance * radius * math.sin(thetam)
             label_alignment = xt > 0 and 'left' or 'right'
 
             t = self.text(xt, yt, label,
@@ -5298,12 +5308,12 @@ class Axes(martist.Artist):
             texts.append(t)
 
             if autopct is not None:
-                xt = x + pctdistance*radius*math.cos(thetam)
-                yt = y + pctdistance*radius*math.sin(thetam)
+                xt = x + pctdistance * radius * math.cos(thetam)
+                yt = y + pctdistance * radius * math.sin(thetam)
                 if is_string_like(autopct):
-                    s = autopct%(100.*frac)
+                    s = autopct % (100. * frac)
                 elif callable(autopct):
-                    s = autopct(100.*frac)
+                    s = autopct(100. * frac)
                 else:
                     raise TypeError(
                         'autopct must be callable or a format string')
@@ -5312,7 +5322,6 @@ class Axes(martist.Artist):
                               horizontalalignment='center',
                               verticalalignment='center')
                 autotexts.append(t)
-
 
             theta1 = theta2
             i += 1
@@ -5432,10 +5441,12 @@ class Axes(martist.Artist):
         """
 
         if errorevery < 1:
-            raise ValueError('errorevery has to be a strictly positive integer')
+            raise ValueError(
+                'errorevery has to be a strictly positive integer')
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
         holdstate = self._hold
         self._hold = True
 
@@ -5451,44 +5462,51 @@ class Axes(martist.Artist):
 
         if xerr is not None:
             if not iterable(xerr):
-                xerr = [xerr]*len(x)
+                xerr = [xerr] * len(x)
 
         if yerr is not None:
             if not iterable(yerr):
-                yerr = [yerr]*len(y)
+                yerr = [yerr] * len(y)
 
         l0 = None
 
         if barsabove and fmt is not None:
-            l0, = self.plot(x,y,fmt,label="_nolegend_", **kwargs)
+            l0, = self.plot(x, y, fmt, label="_nolegend_", **kwargs)
 
         barcols = []
         caplines = []
 
-        lines_kw = {'label':'_nolegend_'}
+        lines_kw = {'label': '_nolegend_'}
         if elinewidth:
             lines_kw['linewidth'] = elinewidth
         else:
             if 'linewidth' in kwargs:
-                lines_kw['linewidth']=kwargs['linewidth']
+                lines_kw['linewidth'] = kwargs['linewidth']
             if 'lw' in kwargs:
-                lines_kw['lw']=kwargs['lw']
+                lines_kw['lw'] = kwargs['lw']
         if 'transform' in kwargs:
             lines_kw['transform'] = kwargs['transform']
 
         # arrays fine here, they are booleans and hence not units
         if not iterable(lolims):
-            lolims = np.asarray([lolims]*len(x), bool)
-        else: lolims = np.asarray(lolims, bool)
+            lolims = np.asarray([lolims] * len(x), bool)
+        else:
+            lolims = np.asarray(lolims, bool)
 
-        if not iterable(uplims): uplims = np.array([uplims]*len(x), bool)
-        else: uplims = np.asarray(uplims, bool)
+        if not iterable(uplims):
+            uplims = np.array([uplims] * len(x), bool)
+        else:
+            uplims = np.asarray(uplims, bool)
 
-        if not iterable(xlolims): xlolims = np.array([xlolims]*len(x), bool)
-        else: xlolims = np.asarray(xlolims, bool)
+        if not iterable(xlolims):
+            xlolims = np.array([xlolims] * len(x), bool)
+        else:
+            xlolims = np.asarray(xlolims, bool)
 
-        if not iterable(xuplims): xuplims = np.array([xuplims]*len(x), bool)
-        else: xuplims = np.asarray(xuplims, bool)
+        if not iterable(xuplims):
+            xuplims = np.array([xuplims] * len(x), bool)
+        else:
+            xuplims = np.asarray(xuplims, bool)
 
         everymask = np.arange(len(x)) % errorevery == 0
 
@@ -5497,17 +5515,16 @@ class Axes(martist.Artist):
             return xs[mask], ys[mask] where mask is True but xs and
             ys are not arrays
             """
-            assert len(xs)==len(ys)
-            assert len(xs)==len(mask)
+            assert len(xs) == len(ys)
+            assert len(xs) == len(mask)
             xs = [thisx for thisx, b in zip(xs, mask) if b]
             ys = [thisy for thisy, b in zip(ys, mask) if b]
             return xs, ys
 
-
         if capsize > 0:
             plot_kw = {
-                'ms':2*capsize,
-                'label':'_nolegend_'}
+                'ms': 2 * capsize,
+                'label': '_nolegend_'}
             if capthick is not None:
                 # 'mew' has higher priority, I believe,
                 # if both 'mew' and 'markeredgewidth' exists.
@@ -5518,30 +5535,30 @@ class Axes(martist.Artist):
             # For backwards-compat, allow explicit setting of
             # 'mew' or 'markeredgewidth' to over-ride capthick.
             if 'markeredgewidth' in kwargs:
-                plot_kw['markeredgewidth']=kwargs['markeredgewidth']
+                plot_kw['markeredgewidth'] = kwargs['markeredgewidth']
             if 'mew' in kwargs:
-                plot_kw['mew']=kwargs['mew']
+                plot_kw['mew'] = kwargs['mew']
             if 'transform' in kwargs:
                 plot_kw['transform'] = kwargs['transform']
 
         if xerr is not None:
-            if (iterable(xerr) and len(xerr)==2 and
+            if (iterable(xerr) and len(xerr) == 2 and
                 iterable(xerr[0]) and iterable(xerr[1])):
                 # using list comps rather than arrays to preserve units
-                left  = [thisx-thiserr for (thisx, thiserr)
-                         in cbook.safezip(x,xerr[0])]
-                right  = [thisx+thiserr for (thisx, thiserr)
-                          in cbook.safezip(x,xerr[1])]
+                left = [thisx - thiserr for (thisx, thiserr)
+                        in cbook.safezip(x, xerr[0])]
+                right = [thisx + thiserr for (thisx, thiserr)
+                         in cbook.safezip(x, xerr[1])]
             else:
                 # using list comps rather than arrays to preserve units
-                left  = [thisx-thiserr for (thisx, thiserr)
-                         in cbook.safezip(x,xerr)]
-                right  = [thisx+thiserr for (thisx, thiserr)
-                          in cbook.safezip(x,xerr)]
+                left = [thisx - thiserr for (thisx, thiserr)
+                        in cbook.safezip(x, xerr)]
+                right = [thisx + thiserr for (thisx, thiserr)
+                         in cbook.safezip(x, xerr)]
 
             yo, _ = xywhere(y, right, everymask)
-            lo, ro= xywhere(left, right, everymask)
-            barcols.append( self.hlines(yo, lo, ro, **lines_kw ) )
+            lo, ro = xywhere(left, right, everymask)
+            barcols.append(self.hlines(yo, lo, ro, **lines_kw))
             if capsize > 0:
                 if xlolims.any():
                     # can't use numpy logical indexing since left and
@@ -5550,75 +5567,75 @@ class Axes(martist.Artist):
 
                     caplines.extend(
                         self.plot(leftlo, ylo, ls='None',
-                                  marker=mlines.CARETLEFT, **plot_kw) )
+                                  marker=mlines.CARETLEFT, **plot_kw))
                     xlolims = ~xlolims
                     leftlo, ylo = xywhere(left, y, xlolims & everymask)
-                    caplines.extend( self.plot(leftlo, ylo, 'k|', **plot_kw) )
+                    caplines.extend(self.plot(leftlo, ylo, 'k|', **plot_kw))
                 else:
 
                     leftlo, ylo = xywhere(left, y, everymask)
-                    caplines.extend( self.plot(leftlo, ylo, 'k|', **plot_kw) )
+                    caplines.extend(self.plot(leftlo, ylo, 'k|', **plot_kw))
 
                 if xuplims.any():
 
                     rightup, yup = xywhere(right, y, xuplims & everymask)
                     caplines.extend(
                         self.plot(rightup,  yup, ls='None',
-                                  marker=mlines.CARETRIGHT, **plot_kw) )
+                                  marker=mlines.CARETRIGHT, **plot_kw))
                     xuplims = ~xuplims
                     rightup, yup = xywhere(right, y, xuplims & everymask)
-                    caplines.extend( self.plot(rightup,  yup, 'k|', **plot_kw) )
+                    caplines.extend(self.plot(rightup, yup, 'k|', **plot_kw))
                 else:
                     rightup, yup = xywhere(right, y, everymask)
-                    caplines.extend( self.plot(rightup,  yup, 'k|', **plot_kw) )
+                    caplines.extend(self.plot(rightup, yup, 'k|', **plot_kw))
 
         if yerr is not None:
-            if (iterable(yerr) and len(yerr)==2 and
+            if (iterable(yerr) and len(yerr) == 2 and
                 iterable(yerr[0]) and iterable(yerr[1])):
                 # using list comps rather than arrays to preserve units
-                lower  = [thisy-thiserr for (thisy, thiserr)
-                          in cbook.safezip(y,yerr[0])]
-                upper  = [thisy+thiserr for (thisy, thiserr)
-                          in cbook.safezip(y,yerr[1])]
+                lower = [thisy - thiserr for (thisy, thiserr)
+                         in cbook.safezip(y, yerr[0])]
+                upper = [thisy + thiserr for (thisy, thiserr)
+                         in cbook.safezip(y, yerr[1])]
             else:
                 # using list comps rather than arrays to preserve units
-                lower  = [thisy-thiserr for (thisy, thiserr)
-                          in cbook.safezip(y,yerr)]
-                upper  = [thisy+thiserr for (thisy, thiserr)
-                          in cbook.safezip(y,yerr)]
+                lower = [thisy - thiserr for (thisy, thiserr)
+                         in cbook.safezip(y, yerr)]
+                upper = [thisy + thiserr for (thisy, thiserr)
+                         in cbook.safezip(y, yerr)]
 
             xo, _ = xywhere(x, lower, everymask)
-            lo, uo= xywhere(lower, upper, everymask)
-            barcols.append( self.vlines(xo, lo, uo, **lines_kw) )
+            lo, uo = xywhere(lower, upper, everymask)
+            barcols.append(self.vlines(xo, lo, uo, **lines_kw))
             if capsize > 0:
 
                 if lolims.any():
                     xlo, lowerlo = xywhere(x, lower, lolims & everymask)
                     caplines.extend(
                         self.plot(xlo, lowerlo, ls='None',
-                                  marker=mlines.CARETDOWN, **plot_kw) )
+                                  marker=mlines.CARETDOWN, **plot_kw))
                     lolims = ~lolims
                     xlo, lowerlo = xywhere(x, lower, lolims & everymask)
-                    caplines.extend( self.plot(xlo, lowerlo, 'k_', **plot_kw) )
+                    caplines.extend(self.plot(xlo, lowerlo, 'k_', **plot_kw))
                 else:
                     xlo, lowerlo = xywhere(x, lower, everymask)
-                    caplines.extend( self.plot(xlo, lowerlo, 'k_', **plot_kw) )
+                    caplines.extend(self.plot(xlo, lowerlo, 'k_', **plot_kw))
 
                 if uplims.any():
                     xup, upperup = xywhere(x, upper, uplims & everymask)
 
                     caplines.extend(
                         self.plot(xup, upperup, ls='None',
-                                  marker=mlines.CARETUP, **plot_kw) )
+                                  marker=mlines.CARETUP, **plot_kw))
                     uplims = ~uplims
                     xup, upperup = xywhere(x, upper, uplims & everymask)
-                    caplines.extend( self.plot(xup, upperup, 'k_', **plot_kw) )
+                    caplines.extend(self.plot(xup, upperup, 'k_', **plot_kw))
                 else:
                     xup, upperup = xywhere(x, upper, everymask)
-                    caplines.extend( self.plot(xup, upperup, 'k_', **plot_kw) )
+                    caplines.extend(self.plot(xup, upperup, 'k_', **plot_kw))
 
         if not barsabove and fmt is not None:
-            l0, = self.plot(x,y,fmt,**kwargs)
+            l0, = self.plot(x, y, fmt, **kwargs)
 
         if ecolor is None:
             if l0 is None:
@@ -5634,13 +5651,14 @@ class Axes(martist.Artist):
         self.autoscale_view()
         self._hold = holdstate
 
-        errorbar_container = ErrorbarContainer((l0, tuple(caplines), tuple(barcols)),
+        errorbar_container = ErrorbarContainer((l0, tuple(caplines),
+                                                tuple(barcols)),
                                                has_xerr=(xerr is not None),
                                                has_yerr=(yerr is not None),
                                                label=label)
         self.containers.append(errorbar_container)
 
-        return errorbar_container # (l0, caplines, barcols)
+        return errorbar_container  # (l0, caplines, barcols)
 
     def boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
@@ -5703,9 +5721,9 @@ class Axes(martist.Artist):
             Array or sequence whose first dimension (or length) is compatible
             with *x* and whose second dimension is 2. When the current element
             of *conf_intervals* is not None, the notch locations computed by
-            matplotlib are overridden (assuming notch is True). When an element of
-            *conf_intervals* is None, boxplot compute notches the method
-            specified by the other kwargs (e.g. *bootstrap*).
+            matplotlib are overridden (assuming notch is True). When an
+            element of *conf_intervals* is None, boxplot compute notches the
+            method specified by the other kwargs (e.g. *bootstrap*).
 
           *positions* : [ default 1,2,...,n ]
             Sets the horizontal positions of the boxes. The ticks and limits
@@ -5741,10 +5759,10 @@ class Axes(martist.Artist):
         def bootstrapMedian(data, N=5000):
             # determine 95% confidence intervals of the median
             M = len(data)
-            percentile = [2.5,97.5]
+            percentile = [2.5, 97.5]
             estimate = np.zeros(N)
             for n in range(N):
-                bsIndex = np.random.random_integers(0,M-1,M)
+                bsIndex = np.random.random_integers(0, M - 1, M)
                 bsData = data[bsIndex]
                 estimate[n] = mlab.prctile(bsData, 50)
             CI = mlab.prctile(estimate, percentile)
@@ -5765,11 +5783,12 @@ class Axes(martist.Artist):
                 # and Larsen, W.A. (1978) "Variations of
                 # Boxplots", The American Statistician, 32:12-16.
                 N = len(data)
-                notch_min = med - 1.57*iq/np.sqrt(N)
-                notch_max = med + 1.57*iq/np.sqrt(N)
+                notch_min = med - 1.57 * iq / np.sqrt(N)
+                notch_max = med + 1.57 * iq / np.sqrt(N)
             return notch_min, notch_max
 
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
         holdStatus = self._hold
         whiskers, caps, boxes, medians, fliers = [], [], [], [], []
 
@@ -5779,7 +5798,7 @@ class Axes(martist.Artist):
                 if hasattr(x[0], 'shape'):
                     x = list(x)
                 else:
-                    x = [x,]
+                    x = [x, ]
             elif len(x.shape) == 2:
                 nr, nc = x.shape
                 if nr == 1:
@@ -5787,7 +5806,7 @@ class Axes(martist.Artist):
                 elif nc == 1:
                     x = [x.ravel()]
                 else:
-                    x = [x[:,i] for i in xrange(nc)]
+                    x = [x[:, i] for i in xrange(nc)]
             else:
                 raise ValueError("input x can have no more than 2 dimensions")
         if not hasattr(x[0], '__len__'):
@@ -5830,7 +5849,7 @@ class Axes(martist.Artist):
             positions = range(1, col + 1)
         if widths is None:
             distance = max(positions) - min(positions)
-            widths = min(0.15*max(distance,1.0), 0.5)
+            widths = min(0.15 * max(distance, 1.0), 0.5)
         if isinstance(widths, float) or isinstance(widths, int):
             widths = np.ones((col,), float) * widths
 
@@ -5839,12 +5858,12 @@ class Axes(martist.Artist):
         for i, pos in enumerate(positions):
             d = np.ravel(x[i])
             row = len(d)
-            if row==0:
+            if row == 0:
                 # no data, skip this position
                 continue
 
             # get median and quartiles
-            q1, med, q3 = mlab.prctile(d,[25,50,75])
+            q1, med, q3 = mlab.prctile(d, [25, 50, 75])
 
             # replace with input medians if available
             if usermedians is not None:
@@ -5853,15 +5872,15 @@ class Axes(martist.Artist):
 
             # get high extreme
             iq = q3 - q1
-            hi_val = q3 + whis*iq
-            wisk_hi = np.compress( d <= hi_val , d )
+            hi_val = q3 + whis * iq
+            wisk_hi = np.compress(d <= hi_val, d)
             if len(wisk_hi) == 0:
                 wisk_hi = q3
             else:
                 wisk_hi = max(wisk_hi)
             # get low extreme
-            lo_val = q1 - whis*iq
-            wisk_lo = np.compress( d >= lo_val, d )
+            lo_val = q1 - whis * iq
+            wisk_lo = np.compress(d >= lo_val, d)
             if len(wisk_lo) == 0:
                 wisk_lo = q1
             else:
@@ -5872,8 +5891,8 @@ class Axes(martist.Artist):
             flier_hi_x = []
             flier_lo_x = []
             if len(sym) != 0:
-                flier_hi = np.compress( d > wisk_hi, d )
-                flier_lo = np.compress( d < wisk_lo, d )
+                flier_hi = np.compress(d > wisk_hi, d)
+                flier_lo = np.compress(d < wisk_lo, d)
                 flier_hi_x = np.ones(flier_hi.shape[0]) * pos
                 flier_lo_x = np.ones(flier_lo.shape[0]) * pos
 
@@ -5893,7 +5912,8 @@ class Axes(martist.Artist):
             # calculate 'notch' plot
             if notch:
                 # conf. intervals from user, if available
-                if conf_intervals is not None and conf_intervals[i] is not None:
+                if (conf_intervals is not None and
+                    conf_intervals[i] is not None):
                     notch_max = np.max(conf_intervals[i])
                     notch_min = np.min(conf_intervals[i])
                 else:
@@ -5903,7 +5923,7 @@ class Axes(martist.Artist):
                 # make our notched box vectors
                 box_x = [box_x_min, box_x_max, box_x_max, cap_x_max, box_x_max,
                          box_x_max, box_x_min, box_x_min, cap_x_min, box_x_min,
-                         box_x_min ]
+                         box_x_min]
                 box_y = [q1, q1, notch_min, med, notch_max, q3, q3, notch_max,
                          med, notch_min, q1]
                 # make our median line vectors
@@ -5912,45 +5932,49 @@ class Axes(martist.Artist):
             # calculate 'regular' plot
             else:
                 # make our box vectors
-                box_x = [box_x_min, box_x_max, box_x_max, box_x_min, box_x_min ]
-                box_y = [q1, q1, q3, q3, q1 ]
+                box_x = [box_x_min, box_x_max, box_x_max, box_x_min, box_x_min]
+                box_y = [q1, q1, q3, q3, q1]
                 # make our median line vectors
                 med_x = [box_x_min, box_x_max]
 
-            def to_vc(xs,ys):
+            def to_vc(xs, ys):
                 # convert arguments to verts and codes
                 verts = []
                 #codes = []
-                for xi,yi in zip(xs,ys):
-                    verts.append( (xi,yi) )
-                verts.append( (0,0) ) # ignored
+                for xi, yi in zip(xs, ys):
+                    verts.append((xi, yi))
+                verts.append((0, 0))  # ignored
                 codes = [mpath.Path.MOVETO] + \
-                        [mpath.Path.LINETO]*(len(verts)-2) + \
+                        [mpath.Path.LINETO] * (len(verts) - 2) + \
                         [mpath.Path.CLOSEPOLY]
-                return verts,codes
+                return verts, codes
 
-            def patch_list(xs,ys):
-                verts,codes = to_vc(xs,ys)
-                path = mpath.Path( verts, codes )
+            def patch_list(xs, ys):
+                verts, codes = to_vc(xs, ys)
+                path = mpath.Path(verts, codes)
                 patch = mpatches.PathPatch(path)
                 self.add_artist(patch)
                 return [patch]
 
             # vertical or horizontal plot?
             if vert:
+
                 def doplot(*args):
                     return self.plot(*args)
-                def dopatch(xs,ys):
-                    return patch_list(xs,ys)
+
+                def dopatch(xs, ys):
+                    return patch_list(xs, ys)
             else:
+
                 def doplot(*args):
                     shuffled = []
                     for i in xrange(0, len(args), 3):
-                        shuffled.extend([args[i+1], args[i], args[i+2]])
+                        shuffled.extend([args[i + 1], args[i], args[i + 2]])
                     return self.plot(*shuffled)
-                def dopatch(xs,ys):
-                    xs,ys = ys,xs # flip X, Y
-                    return patch_list(xs,ys)
+
+                def dopatch(xs, ys):
+                    xs, ys = ys, xs  # flip X, Y
+                    return patch_list(xs, ys)
 
             if patch_artist:
                 median_color = 'k'
@@ -5966,7 +5990,7 @@ class Axes(martist.Artist):
             else:
                 boxes.extend(doplot(box_x, box_y, 'b-'))
 
-            medians.extend(doplot(med_x, med_y, median_color+'-'))
+            medians.extend(doplot(med_x, med_y, median_color + '-'))
             fliers.extend(doplot(flier_hi_x, flier_hi, sym,
                                  flier_lo_x, flier_lo, sym))
 
@@ -5976,7 +6000,7 @@ class Axes(martist.Artist):
         else:
             setticks, setlim = self.set_yticks, self.set_ylim
 
-        newlimits = min(positions)-0.5, max(positions)+0.5
+        newlimits = min(positions) - 0.5, max(positions) + 0.5
         setlim(newlimits)
         setticks(positions)
 
@@ -6077,7 +6101,8 @@ class Axes(martist.Artist):
         returned.
         """
 
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.convert_xunits(x)
@@ -6112,14 +6137,13 @@ class Axes(martist.Artist):
             else:
                 colors = mcolors.colorConverter.to_rgba_array(c, alpha)
 
-
         if faceted:
             edgecolors = None
         else:
             edgecolors = 'none'
             warnings.warn(
                 '''replace "faceted=False" with "edgecolors='none'"''',
-                DeprecationWarning)   #2008/04/18
+                DeprecationWarning)  # 2008/04/18
 
         # to be API compatible
         if marker is None and not (verts is None):
@@ -6134,18 +6158,19 @@ class Axes(martist.Artist):
 
         collection = mcoll.PathCollection(
                 (path,), scales,
-                facecolors = colors,
-                edgecolors = edgecolors,
-                linewidths = linewidths,
-                offsets = zip(x,y),
-                transOffset = kwargs.pop('transform', self.transData),
+                facecolors=colors,
+                edgecolors=edgecolors,
+                linewidths=linewidths,
+                offsets=zip(x, y),
+                transOffset=kwargs.pop('transform', self.transData),
                 )
         collection.set_transform(mtransforms.IdentityTransform())
         collection.set_alpha(alpha)
         collection.update(kwargs)
 
         if colors is None:
-            if norm is not None: assert(isinstance(norm, mcolors.Normalize))
+            if norm is not None:
+                assert(isinstance(norm, mcolors.Normalize))
             collection.set_array(np.asarray(c))
             collection.set_cmap(cmap)
             collection.set_norm(norm)
@@ -6160,10 +6185,10 @@ class Axes(martist.Artist):
         # to data coords to get the exact bounding box for efficiency
         # reasons.  It can be done right if this is deemed important.
         # Also, only bother with this padding if there is anything to draw.
-        if self._xmargin < 0.05 and x.size > 0 :
+        if self._xmargin < 0.05 and x.size > 0:
             self.set_xmargin(0.05)
 
-        if self._ymargin < 0.05 and x.size > 0 :
+        if self._ymargin < 0.05 and x.size > 0:
             self.set_ymargin(0.05)
 
         self.add_collection(collection)
@@ -6172,12 +6197,12 @@ class Axes(martist.Artist):
         return collection
 
     @docstring.dedent_interpd
-    def hexbin(self, x, y, C = None, gridsize = 100, bins = None,
-                    xscale = 'linear', yscale = 'linear', extent = None,
-                    cmap=None, norm=None, vmin=None, vmax=None,
-                    alpha=None, linewidths=None, edgecolors='none',
-                    reduce_C_function = np.mean, mincnt=None, marginals=False,
-                    **kwargs):
+    def hexbin(self, x, y, C=None, gridsize=100, bins=None,
+               xscale='linear', yscale='linear', extent=None,
+               cmap=None, norm=None, vmin=None, vmax=None,
+               alpha=None, linewidths=None, edgecolors='none',
+               reduce_C_function=np.mean, mincnt=None, marginals=False,
+               **kwargs):
         """
         Make a hexagonal binning plot.
 
@@ -6306,29 +6331,28 @@ class Axes(martist.Artist):
 
         """
 
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
-
         x, y, C = cbook.delete_masked_points(x, y, C)
-
 
         # Set the size of the hexagon grid
         if iterable(gridsize):
             nx, ny = gridsize
         else:
             nx = gridsize
-            ny = int(nx/math.sqrt(3))
+            ny = int(nx / math.sqrt(3))
         # Count the number of data in each hexagon
         x = np.array(x, float)
         y = np.array(y, float)
-        if xscale=='log':
+        if xscale == 'log':
             if np.any(x <= 0.0):
                 raise ValueError("x contains non-positive values, so can not"
                                  " be log-scaled")
             x = np.log10(x)
-        if yscale=='log':
+        if yscale == 'log':
             if np.any(y <= 0.0):
                 raise ValueError("y contains non-positive values, so can not"
                                  " be log-scaled")
@@ -6345,15 +6369,15 @@ class Axes(martist.Artist):
         padding = 1.e-9 * (xmax - xmin)
         xmin -= padding
         xmax += padding
-        sx = (xmax-xmin) / nx
-        sy = (ymax-ymin) / ny
+        sx = (xmax - xmin) / nx
+        sy = (ymax - ymin) / ny
 
         if marginals:
             xorig = x.copy()
             yorig = y.copy()
 
-        x = (x-xmin)/sx
-        y = (y-ymin)/sy
+        x = (x - xmin) / sx
+        y = (y - ymin) / sy
         ix1 = np.round(x).astype(int)
         iy1 = np.round(y).astype(int)
         ix2 = np.floor(x).astype(int)
@@ -6363,41 +6387,41 @@ class Axes(martist.Artist):
         ny1 = ny + 1
         nx2 = nx
         ny2 = ny
-        n = nx1*ny1+nx2*ny2
+        n = nx1 * ny1 + nx2 * ny2
 
-        d1 = (x-ix1)**2 + 3.0 * (y-iy1)**2
-        d2 = (x-ix2-0.5)**2 + 3.0 * (y-iy2-0.5)**2
-        bdist = (d1<d2)
+        d1 = (x - ix1) ** 2 + 3.0 * (y - iy1) ** 2
+        d2 = (x - ix2 - 0.5) ** 2 + 3.0 * (y - iy2 - 0.5) ** 2
+        bdist = (d1 < d2)
         if C is None:
             accum = np.zeros(n)
             # Create appropriate views into "accum" array.
-            lattice1 = accum[:nx1*ny1]
-            lattice2 = accum[nx1*ny1:]
-            lattice1.shape = (nx1,ny1)
-            lattice2.shape = (nx2,ny2)
+            lattice1 = accum[:nx1 * ny1]
+            lattice2 = accum[nx1 * ny1:]
+            lattice1.shape = (nx1, ny1)
+            lattice2.shape = (nx2, ny2)
 
             for i in xrange(len(x)):
                 if bdist[i]:
                     if ((ix1[i] >= 0) and (ix1[i] < nx1) and
                         (iy1[i] >= 0) and (iy1[i] < ny1)):
-                        lattice1[ix1[i], iy1[i]]+=1
+                        lattice1[ix1[i], iy1[i]] += 1
                 else:
                     if ((ix2[i] >= 0) and (ix2[i] < nx2) and
                         (iy2[i] >= 0) and (iy2[i] < ny2)):
-                        lattice2[ix2[i], iy2[i]]+=1
+                        lattice2[ix2[i], iy2[i]] += 1
 
             # threshold
             if mincnt is not None:
                 for i in xrange(nx1):
                     for j in xrange(ny1):
-                        if lattice1[i,j]<mincnt:
-                            lattice1[i,j] = np.nan
+                        if lattice1[i, j] < mincnt:
+                            lattice1[i, j] = np.nan
                 for i in xrange(nx2):
                     for j in xrange(ny2):
-                        if lattice2[i,j]<mincnt:
-                            lattice2[i,j] = np.nan
-            accum = np.hstack((
-                lattice1.astype(float).ravel(), lattice2.astype(float).ravel()))
+                        if lattice2[i, j] < mincnt:
+                            lattice2[i, j] = np.nan
+            accum = np.hstack((lattice1.astype(float).ravel(),
+                               lattice2.astype(float).ravel()))
             good_idxs = ~np.isnan(accum)
 
         else:
@@ -6405,87 +6429,86 @@ class Axes(martist.Artist):
                 mincnt = 0
 
             # create accumulation arrays
-            lattice1 = np.empty((nx1,ny1),dtype=object)
+            lattice1 = np.empty((nx1, ny1), dtype=object)
             for i in xrange(nx1):
                 for j in xrange(ny1):
-                    lattice1[i,j] = []
-            lattice2 = np.empty((nx2,ny2),dtype=object)
+                    lattice1[i, j] = []
+            lattice2 = np.empty((nx2, ny2), dtype=object)
             for i in xrange(nx2):
                 for j in xrange(ny2):
-                    lattice2[i,j] = []
+                    lattice2[i, j] = []
 
             for i in xrange(len(x)):
                 if bdist[i]:
                     if ((ix1[i] >= 0) and (ix1[i] < nx1) and
                         (iy1[i] >= 0) and (iy1[i] < ny1)):
-                        lattice1[ix1[i], iy1[i]].append( C[i] )
+                        lattice1[ix1[i], iy1[i]].append(C[i])
                 else:
                     if ((ix2[i] >= 0) and (ix2[i] < nx2) and
                         (iy2[i] >= 0) and (iy2[i] < ny2)):
-                        lattice2[ix2[i], iy2[i]].append( C[i] )
-
+                        lattice2[ix2[i], iy2[i]].append(C[i])
 
             for i in xrange(nx1):
                 for j in xrange(ny1):
-                    vals = lattice1[i,j]
-                    if len(vals)>mincnt:
-                        lattice1[i,j] = reduce_C_function( vals )
+                    vals = lattice1[i, j]
+                    if len(vals) > mincnt:
+                        lattice1[i, j] = reduce_C_function(vals)
                     else:
-                        lattice1[i,j] = np.nan
+                        lattice1[i, j] = np.nan
             for i in xrange(nx2):
                 for j in xrange(ny2):
-                    vals = lattice2[i,j]
-                    if len(vals)>mincnt:
-                        lattice2[i,j] = reduce_C_function( vals )
+                    vals = lattice2[i, j]
+                    if len(vals) > mincnt:
+                        lattice2[i, j] = reduce_C_function(vals)
                     else:
-                        lattice2[i,j] = np.nan
+                        lattice2[i, j] = np.nan
 
-            accum = np.hstack((
-                lattice1.astype(float).ravel(), lattice2.astype(float).ravel()))
+            accum = np.hstack((lattice1.astype(float).ravel(),
+                               lattice2.astype(float).ravel()))
             good_idxs = ~np.isnan(accum)
 
         offsets = np.zeros((n, 2), float)
-        offsets[:nx1*ny1,0] = np.repeat(np.arange(nx1), ny1)
-        offsets[:nx1*ny1,1] = np.tile(np.arange(ny1), nx1)
-        offsets[nx1*ny1:,0] = np.repeat(np.arange(nx2) + 0.5, ny2)
-        offsets[nx1*ny1:,1] = np.tile(np.arange(ny2), nx2) + 0.5
-        offsets[:,0] *= sx
-        offsets[:,1] *= sy
-        offsets[:,0] += xmin
-        offsets[:,1] += ymin
+        offsets[:nx1 * ny1, 0] = np.repeat(np.arange(nx1), ny1)
+        offsets[:nx1 * ny1, 1] = np.tile(np.arange(ny1), nx1)
+        offsets[nx1 * ny1:, 0] = np.repeat(np.arange(nx2) + 0.5, ny2)
+        offsets[nx1 * ny1:, 1] = np.tile(np.arange(ny2), nx2) + 0.5
+        offsets[:, 0] *= sx
+        offsets[:, 1] *= sy
+        offsets[:, 0] += xmin
+        offsets[:, 1] += ymin
         # remove accumulation bins with no data
-        offsets = offsets[good_idxs,:]
+        offsets = offsets[good_idxs, :]
         accum = accum[good_idxs]
 
-        if xscale=='log':
-            offsets[:,0] = 10**(offsets[:,0])
-            xmin = 10**xmin
-            xmax = 10**xmax
+        if xscale == 'log':
+            offsets[:, 0] = 10 ** (offsets[:, 0])
+            xmin = 10 ** xmin
+            xmax = 10 ** xmax
             self.set_xscale('log')
-        if yscale=='log':
-            offsets[:,1] = 10**(offsets[:,1])
-            ymin = 10**ymin
-            ymax = 10**ymax
+        if yscale == 'log':
+            offsets[:, 1] = 10 ** (offsets[:, 1])
+            ymin = 10 ** ymin
+            ymax = 10 ** ymax
             self.set_yscale('log')
 
         polygon = np.zeros((6, 2), float)
-        polygon[:,0] = sx * np.array([ 0.5, 0.5, 0.0, -0.5, -0.5,  0.0])
-        polygon[:,1] = sy * np.array([-0.5, 0.5, 1.0,  0.5, -0.5, -1.0]) / 3.0
+        polygon[:, 0] = sx * np.array([0.5, 0.5, 0.0, -0.5, -0.5, 0.0])
+        polygon[:, 1] = sy * np.array([-0.5, 0.5, 1.0,  0.5, -0.5, -1.0]) / 3.0
 
-        if edgecolors=='none':
+        if edgecolors == 'none':
             edgecolors = 'face'
 
         collection = mcoll.PolyCollection(
             [polygon],
-            edgecolors = edgecolors,
-            linewidths = linewidths,
-            offsets = offsets,
-            transOffset = mtransforms.IdentityTransform(),
-            offset_position = "data"
+            edgecolors=edgecolors,
+            linewidths=linewidths,
+            offsets=offsets,
+            transOffset=mtransforms.IdentityTransform(),
+            offset_position="data"
             )
 
         if isinstance(norm, mcolors.LogNorm):
-            if (accum==0).any():
+            if (accum == 0).any():
                 # make sure we have not zeros
                 accum += 1
 
@@ -6496,17 +6519,18 @@ class Axes(martist.Artist):
                 norm.autoscale(accum)
 
         # Transform accum if needed
-        if bins=='log':
-            accum = np.log10(accum+1)
-        elif bins!=None:
+        if bins == 'log':
+            accum = np.log10(accum + 1)
+        elif bins != None:
             if not iterable(bins):
                 minimum, maximum = min(accum), max(accum)
-                bins-=1 # one less edge than bins
-                bins = minimum + (maximum-minimum)*np.arange(bins)/bins
+                bins -= 1  # one less edge than bins
+                bins = minimum + (maximum - minimum) * np.arange(bins) / bins
             bins = np.sort(bins)
             accum = bins.searchsorted(accum)
 
-        if norm is not None: assert(isinstance(norm, mcolors.Normalize))
+        if norm is not None:
+            assert(isinstance(norm, mcolors.Normalize))
         collection.set_array(accum)
         collection.set_cmap(cmap)
         collection.set_norm(norm)
@@ -6519,7 +6543,7 @@ class Axes(martist.Artist):
             collection.autoscale_None()
 
         corners = ((xmin, ymin), (xmax, ymax))
-        self.update_datalim( corners)
+        self.update_datalim(corners)
         self.autoscale_view(tight=True)
 
         # add the collection last
@@ -6527,15 +6551,14 @@ class Axes(martist.Artist):
         if not marginals:
             return collection
 
-
         if C is None:
             C = np.ones(len(x))
 
         def coarse_bin(x, y, coarse):
-            ind = coarse.searchsorted(x).clip(0, len(coarse)-1)
+            ind = coarse.searchsorted(x).clip(0, len(coarse) - 1)
             mus = np.zeros(len(coarse))
             for i in range(len(coarse)):
-                mu = reduce_C_function(y[ind==i])
+                mu = reduce_C_function(y[ind == i])
                 mus[i] = mu
             return mus
 
@@ -6544,22 +6567,25 @@ class Axes(martist.Artist):
         xcoarse = coarse_bin(xorig, C, coarse)
         valid = ~np.isnan(xcoarse)
         verts, values = [], []
-        for i,val in enumerate(xcoarse):
+        for i, val in enumerate(xcoarse):
             thismin = coarse[i]
-            if i<len(coarse)-1:
-                thismax = coarse[i+1]
+            if i < len(coarse) - 1:
+                thismax = coarse[i + 1]
             else:
                 thismax = thismin + np.diff(coarse)[-1]
 
-            if not valid[i]: continue
+            if not valid[i]:
+                continue
 
-            verts.append([(thismin, 0), (thismin, 0.05), (thismax, 0.05), (thismax, 0)])
+            verts.append([(thismin, 0),
+                          (thismin, 0.05),
+                          (thismax, 0.05),
+                          (thismax, 0)])
             values.append(val)
 
         values = np.array(values)
         trans = mtransforms.blended_transform_factory(
             self.transData, self.transAxes)
-
 
         hbar = mcoll.PolyCollection(verts, transform=trans, edgecolors='face')
 
@@ -6574,18 +6600,19 @@ class Axes(martist.Artist):
         ycoarse = coarse_bin(yorig, C, coarse)
         valid = ~np.isnan(ycoarse)
         verts, values = [], []
-        for i,val in enumerate(ycoarse):
+        for i, val in enumerate(ycoarse):
             thismin = coarse[i]
-            if i<len(coarse)-1:
-                thismax = coarse[i+1]
+            if i < len(coarse) - 1:
+                thismax = coarse[i + 1]
             else:
                 thismax = thismin + np.diff(coarse)[-1]
-            if not valid[i]: continue
-            verts.append([(0, thismin), (0.0, thismax), (0.05, thismax), (0.05, thismin)])
+            if not valid[i]:
+                continue
+            verts.append([(0, thismin), (0.0, thismax),
+                          (0.05, thismax), (0.05, thismin)])
             values.append(val)
 
         values = np.array(values)
-
 
         trans = mtransforms.blended_transform_factory(
             self.transAxes, self.transData)
@@ -6597,8 +6624,6 @@ class Axes(martist.Artist):
         vbar.set_alpha(alpha)
         vbar.update(kwargs)
         self.add_collection(vbar)
-
-
 
         collection.hbar = hbar
         collection.vbar = vbar
@@ -6655,7 +6680,8 @@ class Axes(martist.Artist):
     quiverkey.__doc__ = mquiver.QuiverKey.quiverkey_doc
 
     def quiver(self, *args, **kw):
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
         q = mquiver.Quiver(self, *args, **kw)
         self.add_collection(q, False)
         self.update_datalim(q.XY)
@@ -6670,7 +6696,8 @@ class Axes(martist.Artist):
     def streamplot(self, x, y, u, v, density=1, linewidth=None, color=None,
                    cmap=None, norm=None, arrowsize=1, arrowstyle='-|>',
                    minlength=0.1, transform=None):
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
         stream_container = mstream.streamplot(self, x, y, u, v,
                                               density=density,
                                               linewidth=linewidth,
@@ -6693,7 +6720,8 @@ class Axes(martist.Artist):
 
         .. plot:: mpl_examples/pylab_examples/barb_demo.py
         """
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
         b = mquiver.Barbs(self, *args, **kw)
         self.add_collection(b)
         self.update_datalim(b.get_offsets())
@@ -6741,12 +6769,13 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/fill_demo.py
 
         """
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
 
         patches = []
         for poly in self._get_patches_for_fill(*args, **kwargs):
-            self.add_patch( poly )
-            patches.append( poly )
+            self.add_patch(poly)
+            patches.append(poly)
         self.autoscale_view()
         return patches
 
@@ -6810,9 +6839,9 @@ class Axes(martist.Artist):
         y2 = ma.masked_invalid(self.convert_yunits(y2))
 
         if y1.ndim == 0:
-            y1 = np.ones_like(x)*y1
+            y1 = np.ones_like(x) * y1
         if y2.ndim == 0:
-            y2 = np.ones_like(x)*y2
+            y2 = np.ones_like(x) * y2
 
         if where is None:
             where = np.ones(len(x), np.bool)
@@ -6836,14 +6865,14 @@ class Axes(martist.Artist):
                 continue
 
             N = len(xslice)
-            X = np.zeros((2*N+2, 2), np.float)
+            X = np.zeros((2 * N + 2, 2), np.float)
 
             if interpolate:
                 def get_interp_point(ind):
-                    im1 = max(ind-1, 0)
-                    x_values = x[im1:ind+1]
-                    diff_values = y1[im1:ind+1] - y2[im1:ind+1]
-                    y1_values = y1[im1:ind+1]
+                    im1 = max(ind - 1, 0)
+                    x_values = x[im1:ind + 1]
+                    diff_values = y1[im1:ind + 1] - y2[im1:ind + 1]
+                    y1_values = y1[im1:ind + 1]
 
                     if len(diff_values) == 2:
                         if np.ma.is_masked(diff_values[1]):
@@ -6867,12 +6896,12 @@ class Axes(martist.Artist):
                 end = xslice[-1], y2slice[-1]
 
             X[0] = start
-            X[N+1] = end
+            X[N + 1] = end
 
-            X[1:N+1,0] = xslice
-            X[1:N+1,1] = y1slice
-            X[N+2:,0] = xslice[::-1]
-            X[N+2:,1] = y2slice[::-1]
+            X[1:N + 1, 0] = xslice
+            X[1:N + 1, 1] = y1slice
+            X[N + 2:, 0] = xslice[::-1]
+            X[N + 2:, 1] = y2slice[::-1]
 
             polys.append(X)
 
@@ -6942,9 +6971,9 @@ class Axes(martist.Artist):
         x2 = ma.masked_invalid(self.convert_xunits(x2))
 
         if x1.ndim == 0:
-            x1 = np.ones_like(y)*x1
+            x1 = np.ones_like(y) * x1
         if x2.ndim == 0:
-            x2 = np.ones_like(y)*x2
+            x2 = np.ones_like(y) * x2
 
         if where is None:
             where = np.ones(len(y), np.bool)
@@ -6968,18 +6997,18 @@ class Axes(martist.Artist):
                 continue
 
             N = len(yslice)
-            Y = np.zeros((2*N+2, 2), np.float)
+            Y = np.zeros((2 * N + 2, 2), np.float)
 
             # the purpose of the next two lines is for when x2 is a
             # scalar like 0 and we want the fill to go all the way
             # down to 0 even if none of the x1 sample points do
             Y[0] = x2slice[0], yslice[0]
-            Y[N+1] = x2slice[-1], yslice[-1]
+            Y[N + 1] = x2slice[-1], yslice[-1]
 
-            Y[1:N+1,0] = x1slice
-            Y[1:N+1,1] = yslice
-            Y[N+2:,0] = x2slice[::-1]
-            Y[N+2:,1] = yslice[::-1]
+            Y[1:N + 1, 0] = x1slice
+            Y[1:N + 1, 1] = yslice
+            Y[N + 2:, 0] = x2slice[::-1]
+            Y[N + 2:, 1] = yslice[::-1]
 
             polys.append(Y)
 
@@ -7111,10 +7140,13 @@ class Axes(martist.Artist):
 
         """
 
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
 
-        if norm is not None: assert(isinstance(norm, mcolors.Normalize))
-        if aspect is None: aspect = rcParams['image.aspect']
+        if norm is not None:
+            assert(isinstance(norm, mcolors.Normalize))
+        if aspect is None:
+            aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
         im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
                        filternorm=filternorm,
@@ -7144,11 +7176,11 @@ class Axes(martist.Artist):
         return im
 
     def _pcolorargs(self, funcname, *args):
-        if len(args)==1:
+        if len(args) == 1:
             C = args[0]
             numRows, numCols = C.shape
-            X, Y = np.meshgrid(np.arange(numCols+1), np.arange(numRows+1) )
-        elif len(args)==3:
+            X, Y = np.meshgrid(np.arange(numCols + 1), np.arange(numRows + 1))
+        elif len(args) == 3:
             X, Y, C = args
         else:
             raise TypeError(
@@ -7157,7 +7189,7 @@ class Axes(martist.Artist):
         Nx = X.shape[-1]
         Ny = Y.shape[0]
         if len(X.shape) != 2 or X.shape[0] == 1:
-            x = X.reshape(1,Nx)
+            x = X.reshape(1, Nx)
             X = x.repeat(Ny, axis=0)
         if len(Y.shape) != 2 or Y.shape[1] == 1:
             y = Y.reshape(Ny, 1)
@@ -7314,7 +7346,8 @@ class Axes(martist.Artist):
                 pcolor and pcolormesh.
         """
 
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
 
         alpha = kwargs.pop('alpha', None)
         norm = kwargs.pop('norm', None)
@@ -7330,34 +7363,35 @@ class Axes(martist.Artist):
         C = ma.asarray(C)
         X = ma.asarray(X)
         Y = ma.asarray(Y)
-        mask = ma.getmaskarray(X)+ma.getmaskarray(Y)
-        xymask = mask[0:-1,0:-1]+mask[1:,1:]+mask[0:-1,1:]+mask[1:,0:-1]
+        mask = ma.getmaskarray(X) + ma.getmaskarray(Y)
+        xymask = (mask[0:-1, 0:-1] + mask[1:, 1:] +
+                  mask[0:-1, 1:] + mask[1:, 0:-1])
         # don't plot if C or any of the surrounding vertices are masked.
-        mask = ma.getmaskarray(C)[0:Ny-1,0:Nx-1]+xymask
+        mask = ma.getmaskarray(C)[0:Ny - 1, 0:Nx - 1] + xymask
 
         newaxis = np.newaxis
         compress = np.compress
 
-        ravelmask = (mask==0).ravel()
-        X1 = compress(ravelmask, ma.filled(X[0:-1,0:-1]).ravel())
-        Y1 = compress(ravelmask, ma.filled(Y[0:-1,0:-1]).ravel())
-        X2 = compress(ravelmask, ma.filled(X[1:,0:-1]).ravel())
-        Y2 = compress(ravelmask, ma.filled(Y[1:,0:-1]).ravel())
-        X3 = compress(ravelmask, ma.filled(X[1:,1:]).ravel())
-        Y3 = compress(ravelmask, ma.filled(Y[1:,1:]).ravel())
-        X4 = compress(ravelmask, ma.filled(X[0:-1,1:]).ravel())
-        Y4 = compress(ravelmask, ma.filled(Y[0:-1,1:]).ravel())
+        ravelmask = (mask == 0).ravel()
+        X1 = compress(ravelmask, ma.filled(X[0:-1, 0:-1]).ravel())
+        Y1 = compress(ravelmask, ma.filled(Y[0:-1, 0:-1]).ravel())
+        X2 = compress(ravelmask, ma.filled(X[1:, 0:-1]).ravel())
+        Y2 = compress(ravelmask, ma.filled(Y[1:, 0:-1]).ravel())
+        X3 = compress(ravelmask, ma.filled(X[1:, 1:]).ravel())
+        Y3 = compress(ravelmask, ma.filled(Y[1:, 1:]).ravel())
+        X4 = compress(ravelmask, ma.filled(X[0:-1, 1:]).ravel())
+        Y4 = compress(ravelmask, ma.filled(Y[0:-1, 1:]).ravel())
         npoly = len(X1)
 
-        xy = np.concatenate((X1[:,newaxis], Y1[:,newaxis],
-                             X2[:,newaxis], Y2[:,newaxis],
-                             X3[:,newaxis], Y3[:,newaxis],
-                             X4[:,newaxis], Y4[:,newaxis],
-                             X1[:,newaxis], Y1[:,newaxis]),
+        xy = np.concatenate((X1[:, newaxis], Y1[:, newaxis],
+                             X2[:, newaxis], Y2[:, newaxis],
+                             X3[:, newaxis], Y3[:, newaxis],
+                             X4[:, newaxis], Y4[:, newaxis],
+                             X1[:, newaxis], Y1[:, newaxis]),
                              axis=1)
         verts = xy.reshape((npoly, 5, 2))
 
-        C = compress(ravelmask, ma.filled(C[0:Ny-1,0:Nx-1]).ravel())
+        C = compress(ravelmask, ma.filled(C[0:Ny - 1, 0:Nx - 1]).ravel())
 
         linewidths = (0.25,)
         if 'linewidth' in kwargs:
@@ -7382,12 +7416,12 @@ class Axes(martist.Artist):
                 ec.lower() == "none"):
             kwargs['antialiaseds'] = False
 
-
         collection = mcoll.PolyCollection(verts, **kwargs)
 
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None: assert(isinstance(norm, mcolors.Normalize))
+        if norm is not None:
+            assert(isinstance(norm, mcolors.Normalize))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
