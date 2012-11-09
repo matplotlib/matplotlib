@@ -1,7 +1,10 @@
 import numpy as np
+
+from matplotlib.testing.decorators import cleanup
 from matplotlib import pyplot as plt
 
 
+@cleanup
 def test_contour_shape_1d_valid():
 
     x = np.arange(10)
@@ -13,6 +16,7 @@ def test_contour_shape_1d_valid():
     ax.contour(x, y, z)
 
 
+@cleanup
 def test_contour_shape_2d_valid():
 
     x = np.arange(10)
@@ -25,6 +29,7 @@ def test_contour_shape_2d_valid():
     ax.contour(xg, yg, z)
 
 
+@cleanup
 def test_contour_shape_mismatch_1():
 
     x = np.arange(9)
@@ -40,6 +45,7 @@ def test_contour_shape_mismatch_1():
         assert exc.args[0] == 'Length of x must be number of columns in z.'
 
 
+@cleanup
 def test_contour_shape_mismatch_2():
 
     x = np.arange(10)
@@ -55,6 +61,7 @@ def test_contour_shape_mismatch_2():
         assert exc.args[0] == 'Length of y must be number of rows in z.'
 
 
+@cleanup
 def test_contour_shape_mismatch_3():
 
     x = np.arange(10)
@@ -76,6 +83,7 @@ def test_contour_shape_mismatch_3():
         assert exc.args[0] == 'Number of dimensions of x and y should match.'
 
 
+@cleanup
 def test_contour_shape_mismatch_4():
 
     g = np.random.random((9, 10))
@@ -97,6 +105,7 @@ def test_contour_shape_mismatch_4():
         assert exc.args[0] == 'Shape of y does not match that of z: found (9, 9) instead of (9, 10).'
 
 
+@cleanup
 def test_contour_shape_invalid_1():
 
     x = np.random.random((3, 3, 3))
@@ -112,6 +121,7 @@ def test_contour_shape_invalid_1():
         assert exc.args[0] == 'Inputs x and y must be 1D or 2D.'
 
 
+@cleanup
 def test_contour_shape_invalid_2():
 
     x = np.random.random((3, 3, 3))
