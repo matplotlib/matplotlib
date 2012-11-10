@@ -4,7 +4,6 @@ Illustrate the three different join styles
 """
 
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 
 def plot_angle(ax, x, y, angle, style):

@@ -1,5 +1,5 @@
-from matplotlib.pyplot import figure, show
-from numpy import arange, pi, cos, sin, pi
+import matplotlib.pyplot as plt
+from numpy import arange, pi, cos, sin
 from numpy.random import rand
 
 # unit area ellipse
@@ -14,4 +14,4 @@ s*= 10**2.
 fig, ax = plt.subplots()
 ax.scatter(x,y,s,c,marker=None,verts =verts)
 
-show()
+plt.show()

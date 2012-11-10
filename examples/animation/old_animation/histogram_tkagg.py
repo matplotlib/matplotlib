@@ -2,7 +2,6 @@
 This example shows how to use a path patch to draw a bunch of
 rectangles for an animated histogram
 """
-import time
 import numpy as np
 import matplotlib
 matplotlib.use('TkAgg') # do this before importing pylab

@@ -71,7 +71,7 @@ class PathInteractor:
         'this method is called whenever the pathpatchgon object is called'
         # only copy the artist props to the line (except visibility)
         vis = self.line.get_visible()
-        Artist.update_from(self.line, pathpatch)
+        plt.Artist.update_from(self.line, pathpatch)
         self.line.set_visible(vis)  # don't use the pathpatch visibility state
 
 
