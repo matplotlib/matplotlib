@@ -21,6 +21,7 @@ import traceback
 import warnings
 from weakref import ref, WeakKeyDictionary
 
+import matplotlib
 
 import numpy as np
 import numpy.ma as ma
@@ -570,9 +571,17 @@ def get_sample_data(fname, asfileobj=True):
     `mpl-data/sample_data` directory.  If *asfileobj* is `True`
     return a file object, otherwise just a file path.
 
+    Set the rc parameter examples.directory to the directory where we should
+    look, if sample_data files are stored in a location different than
+    default (which is 'mpl-data/sample_data` at the same level of 'matplotlib`
+    Python module files).
+
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    root = os.path.join(os.path.dirname(__file__), "mpl-data", "sample_data")
+    if matplotlib.rcParams['examples.directory']:
+        root = matplotlib.rcParams['examples.directory']
+    else:
+        root = os.path.join(os.path.dirname(__file__), "mpl-data", "sample_data")
     path = os.path.join(root, fname)
 
     if asfileobj:
