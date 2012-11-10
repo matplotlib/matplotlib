@@ -12,7 +12,7 @@ import numpy as npy
 import time
 
 fig, ax = plt.subplots()
-canvas = ax.figure.canvas
+canvas = fig.canvas
 
 
 # create the initial line

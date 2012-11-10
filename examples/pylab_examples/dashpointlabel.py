@@ -1,4 +1,4 @@
-import pylab
+import matplotlib.pyplot as plt
 
 DATA = ((1, 3),
         (2, 4),
@@ -34,5 +34,5 @@ for i in range(len(DATA)):
 ax.set_xlim((0.0, 5.0))
 ax.set_ylim((0.0, 5.0))
 
-pylab.show()
+plt.show()
 

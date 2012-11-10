@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import datetime
-from matplotlib.pyplot import figure, show
+import matplotlib.pyplot as plt
 from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange
 from numpy import arange
 
@@ -30,4 +30,4 @@ ax.xaxis.set_major_formatter( DateFormatter('%Y-%m-%d') )
 ax.fmt_xdata = DateFormatter('%Y-%m-%d %H:%M:%S')
 fig.autofmt_xdate()
 
-show()
+plt.show()

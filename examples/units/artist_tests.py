@@ -11,7 +11,6 @@ import matplotlib.lines as lines
 import matplotlib.patches as patches
 import matplotlib.text as text
 import matplotlib.collections as collections
-import matplotlib.units as units
 
 from basic_units import cm, inch
 import numpy as np

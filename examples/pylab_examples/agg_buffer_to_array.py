@@ -1,5 +1,4 @@
-import matplotlib
-from pylab import figure, show
+import matplotlib.pyplot as plt
 import numpy as np
 
 # make an agg figure
@@ -17,7 +16,7 @@ X = np.frombuffer(buf, np.uint8).copy()
 X.shape = h,w,4
 
 # now display the array X as an Axes in a new figure
-fig2 = figure()
+fig2 = plt.figure()
 ax2 = fig2.add_subplot(111, frameon=False)
 ax2.imshow(X)
-show()
+plt.show()
