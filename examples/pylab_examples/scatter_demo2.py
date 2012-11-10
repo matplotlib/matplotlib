@@ -1,10 +1,8 @@
 """
 make a scatter plot with varying color and size arguments
 """
-import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
 
 # load a numpy record array from yahoo csv data with fields date,

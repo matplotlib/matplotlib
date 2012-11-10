@@ -10,7 +10,7 @@ def millions(x):
 x =     rand(20)
 y =     1e7*rand(20)
 
-fig, ax = plt.subplots()
+fig, ax = subplots()
 ax.fmt_ydata = millions
 plot(x, y, 'o')
 

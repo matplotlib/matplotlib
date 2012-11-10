@@ -12,9 +12,7 @@
 # between the major ticks.  Here is an example that labels the months,
 # centered between the ticks
 
-import datetime
 import numpy as np
-import matplotlib
 import matplotlib.cbook as cbook
 import matplotlib.dates as dates
 import matplotlib.ticker as ticker

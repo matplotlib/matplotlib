@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from pylab import *
+import matplotlib.pyplot as plt
 from matplotlib.dates import  DateFormatter, WeekdayLocator, HourLocator, \
      DayLocator, MONDAY
 from matplotlib.finance import quotes_historical_yahoo, candlestick,\
@@ -19,7 +19,7 @@ quotes = quotes_historical_yahoo('INTC', date1, date2)
 if len(quotes) == 0:
     raise SystemExit
 
-fig, ax = subplots()
+fig, ax = plt.subplots()
 fig.subplots_adjust(bottom=0.2)
 ax.xaxis.set_major_locator(mondays)
 ax.xaxis.set_minor_locator(alldays)
@@ -31,7 +31,7 @@ candlestick(ax, quotes, width=0.6)
 
 ax.xaxis_date()
 ax.autoscale_view()
-setp( gca().get_xticklabels(), rotation=45, horizontalalignment='right')
+plt.setp( plt.gca().get_xticklabels(), rotation=45, horizontalalignment='right')
 
-show()
+plt.show()
 
