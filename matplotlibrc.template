@@ -423,6 +423,9 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #keymap.xscale : L, k                # toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 # enable all axes
 
+# Control location of examples data files
+#examples.directory : ''   # directory to look in for custom installation
+
 ###ANIMATION settings
 #animation.writer : ffmpeg         # MovieWriter 'backend' to use
 #animation.codec : mp4             # Codec to use for writing movie
