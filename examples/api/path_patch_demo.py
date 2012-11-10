@@ -1,4 +1,3 @@
-import numpy as np
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt

@@ -2,7 +2,6 @@ from __future__ import print_function
 """
 A simple example of an animated plot using a wx backend
 """
-import time
 import numpy as np
 import matplotlib
 matplotlib.use('WXAgg') # do this before importing pylab

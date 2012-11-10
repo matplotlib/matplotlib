@@ -11,7 +11,6 @@ just make up some data for little Johnny Doe...
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab
-from matplotlib.patches import Polygon
 from matplotlib.ticker import MaxNLocator
 
 

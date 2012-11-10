@@ -11,7 +11,7 @@ Formatter to get the appropriate date string for a given index.
 from __future__ import print_function
 import numpy
 from matplotlib.mlab import csv2rec
-from pylab import figure, show
+import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 from matplotlib.ticker import Formatter
 
@@ -37,4 +37,4 @@ fig, ax = plt.subplots()
 ax.xaxis.set_major_formatter(formatter)
 ax.plot(numpy.arange(len(r)), r.close, 'o-')
 fig.autofmt_xdate()
-show()
+plt.show()
