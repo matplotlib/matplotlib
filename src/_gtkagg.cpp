@@ -121,6 +121,7 @@ private:
                               destbuffer,
                               deststride);
 
+	gdk_gc_destroy(gc);
         if (needfree)
         {
             delete [] destbuffer;
