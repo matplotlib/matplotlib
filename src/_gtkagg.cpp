@@ -120,7 +120,7 @@ private:
                               GDK_RGB_DITHER_NORMAL,
                               destbuffer,
                               deststride);
-	gdk_gc_destroy(gc);
+
         if (needfree)
         {
             delete [] destbuffer;
