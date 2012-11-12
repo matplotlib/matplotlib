@@ -97,12 +97,14 @@ def test_contour_shape_mismatch_4():
         ax.contour(b, g, z)
     except TypeError as exc:
         print exc.args[0]
-        assert exc.args[0] == 'Shape of x does not match that of z: found (9, 9) instead of (9, 10).'
+        assert exc.args[0] == 'Shape of x does not match that of z: ' + \
+                              'found (9, 9) instead of (9, 10).'
 
     try:
         ax.contour(g, b, z)
     except TypeError as exc:
-        assert exc.args[0] == 'Shape of y does not match that of z: found (9, 9) instead of (9, 10).'
+        assert exc.args[0] == 'Shape of y does not match that of z: ' + \
+                              'found (9, 9) instead of (9, 10).'
 
 
 @cleanup
