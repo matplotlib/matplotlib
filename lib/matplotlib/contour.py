@@ -1449,10 +1449,12 @@ class QuadContourSet(ContourSet):
         elif x.ndim == 2:
 
             if x.shape != z.shape:
-                raise TypeError("Shape of x does not match that of z: found {0} instead of {1}.".format(x.shape, z.shape))
+                raise TypeError("Shape of x does not match that of z: found "
+                            "{0} instead of {1}.".format(x.shape, z.shape))
 
             if y.shape != z.shape:
-                raise TypeError("Shape of y does not match that of z: found {0} instead of {1}.".format(y.shape, z.shape))
+                raise TypeError("Shape of y does not match that of z: found "
+                            "{0} instead of {1}.".format(y.shape, z.shape))
 
         else:
 
