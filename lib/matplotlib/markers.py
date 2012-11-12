@@ -276,7 +276,7 @@ that define the shape.
 
     def _set_circle(self, reduction = 1.0):
         self._transform = Affine2D().scale(0.5 * reduction)
-        self._snap_threshold = 3.0
+        self._snap_threshold = 6.0
         fs = self.get_fillstyle()
         if not self._half_fill():
             self._path = Path.unit_circle()

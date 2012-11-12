@@ -31,7 +31,6 @@ from text import Text
 from transforms import Bbox
 
 
-
 class Cell(Rectangle):
     """
     A cell is a Rectangle with some associated text.
@@ -49,17 +48,16 @@ class Cell(Rectangle):
 
         # Call base
         Rectangle.__init__(self, xy, width=width, height=height,
-                 edgecolor=edgecolor, facecolor=facecolor,
-                 )
+                           edgecolor=edgecolor, facecolor=facecolor)
         self.set_clip_on(False)
 
         # Create text object
-        if loc is None: loc = 'right'
+        if loc is None:
+            loc = 'right'
         self._loc = loc
         self._text = Text(x=xy[0], y=xy[1], text=text,
                           fontproperties=fontproperties)
         self._text.set_clip_on(False)
-
 
     def set_transform(self, trans):
         Rectangle.set_transform(self, trans)
@@ -93,7 +91,8 @@ class Cell(Rectangle):
 
     @allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
         # draw the rectangle
         Rectangle.draw(self, renderer)
 
@@ -134,13 +133,13 @@ class Cell(Rectangle):
 
     def get_required_width(self, renderer):
         """ Get width required for this cell. """
-        l,b,w,h = self.get_text_bounds(renderer)
+        l, b, w, h = self.get_text_bounds(renderer)
         return w * (1.0 + (2.0 * self.PAD))
-
 
     def set_text_props(self, **kwargs):
         'update the text properties with kwargs'
         self._text.update(kwargs)
+
 
 class Table(Artist):
     """
@@ -155,25 +154,24 @@ class Table(Artist):
     Return value is a sequence of text, line and patch instances that make
     up the table
     """
-    codes = {'best'       : 0,
-             'upper right'  : 1,  # default
-             'upper left'   : 2,
-             'lower left'   : 3,
-             'lower right'  : 4,
-             'center left'  : 5,
-             'center right' : 6,
-             'lower center' : 7,
-             'upper center' : 8,
-             'center'       : 9,
-
-             'top right'    : 10,
-             'top left'     : 11,
-             'bottom left'  : 12,
-             'bottom right' : 13,
-             'right'        : 14,
-             'left'         : 15,
-             'top'          : 16,
-             'bottom'       : 17,
+    codes = {'best': 0,
+             'upper right':  1,  # default
+             'upper left':   2,
+             'lower left':   3,
+             'lower right':  4,
+             'center left':  5,
+             'center right': 6,
+             'lower center': 7,
+             'upper center': 8,
+             'center':       9,
+             'top right':    10,
+             'top left':     11,
+             'bottom left':  12,
+             'bottom right': 13,
+             'right':        14,
+             'left':         15,
+             'top':          16,
+             'bottom':       17,
              }
 
     FONTSIZE = 10
@@ -184,9 +182,12 @@ class Table(Artist):
         Artist.__init__(self)
 
         if is_string_like(loc) and loc not in self.codes:
-            warnings.warn('Unrecognized location %s. Falling back on bottom; valid locations are\n%s\t' %(loc, '\n\t'.join(self.codes.iterkeys())))
+            warnings.warn('Unrecognized location %s. Falling back on '
+                          'bottom; valid locations are\n%s\t' %
+                          (loc, '\n\t'.join(self.codes.iterkeys())))
             loc = 'bottom'
-        if is_string_like(loc): loc = self.codes.get(loc, 1)
+        if is_string_like(loc):
+            loc = self.codes.get(loc, 1)
         self.set_figure(ax.figure)
         self._axes = ax
         self._loc = loc
@@ -205,7 +206,7 @@ class Table(Artist):
 
     def add_cell(self, row, col, *args, **kwargs):
         """ Add a cell to the table. """
-        xy = (0,0)
+        xy = (0, 0)
 
         cell = Cell(xy, *args, **kwargs)
         cell.set_figure(self.figure)
@@ -215,18 +216,21 @@ class Table(Artist):
         self._cells[(row, col)] = cell
 
     def _approx_text_height(self):
-        return self.FONTSIZE/72.0*self.figure.dpi/self._axes.bbox.height * 1.2
+        return (self.FONTSIZE / 72.0 * self.figure.dpi /
+                self._axes.bbox.height * 1.2)
 
     @allow_rasterization
     def draw(self, renderer):
-        # Need a renderer to do hit tests on mouseevent; assume the last one will do
+        # Need a renderer to do hit tests on mouseevent; assume the last one
+        # will do
         if renderer is None:
             renderer = self._cachedRenderer
         if renderer is None:
             raise RuntimeError('No renderer defined')
         self._cachedRenderer = renderer
 
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
         renderer.open_group('table')
         self._update_positions(renderer)
 
@@ -249,13 +253,13 @@ class Table(Artist):
         bbox = Bbox.union(boxes)
         return bbox.inverse_transformed(self.get_transform())
 
-    def contains(self,mouseevent):
+    def contains(self, mouseevent):
         """Test whether the mouse event occurred in the table.
 
         Returns T/F, {}
         """
         if callable(self._contains):
-            return self._contains(self,mouseevent)
+            return self._contains(self, mouseevent)
 
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
@@ -263,10 +267,10 @@ class Table(Artist):
             boxes = [self._cells[pos].get_window_extent(self._cachedRenderer)
                  for pos in self._cells.iterkeys()
                  if pos[0] >= 0 and pos[1] >= 0]
-            bbox = bbox_all(boxes)
-            return bbox.contains(mouseevent.x,mouseevent.y),{}
+            bbox = Bbox.union(boxes)
+            return bbox.contains(mouseevent.x, mouseevent.y), {}
         else:
-            return False,{}
+            return False, {}
 
     def get_children(self):
         'Return the Artists contained by the table'
@@ -275,8 +279,10 @@ class Table(Artist):
 
     def get_window_extent(self, renderer):
         'Return the bounding box of the table in window coords'
-        boxes = [c.get_window_extent(renderer) for c in self._cells]
-        return bbox_all(boxes)
+        boxes = [cell.get_window_extent(renderer)
+                 for cell in self._cells.values()]
+
+        return Bbox.union(boxes)
 
     def _do_cell_alignment(self):
         """ Calculate row heights and column widths.
@@ -346,7 +352,8 @@ class Table(Artist):
         cells = []
         for key, cell in self._cells.iteritems():
             # ignore auto-sized columns
-            if key[1] in self._autoColumns: continue
+            if key[1] in self._autoColumns:
+                continue
             size = cell.auto_set_font_size(renderer)
             fontsize = min(fontsize, size)
             cells.append(cell)
@@ -376,8 +383,8 @@ class Table(Artist):
 
         for c in self._cells.itervalues():
             x, y = c.get_x(), c.get_y()
-            c.set_x(x+ox)
-            c.set_y(y+oy)
+            c.set_x(x + ox)
+            c.set_y(y + oy)
 
     def _update_positions(self, renderer):
         # called from renderer to allow more precise estimates of
@@ -394,12 +401,12 @@ class Table(Artist):
         self._do_cell_alignment()
 
         bbox = self._get_grid_bbox(renderer)
-        l,b,w,h = bbox.bounds
+        l, b, w, h = bbox.bounds
 
         if self._bbox is not None:
             # Position according to bbox
             rl, rb, rw, rh = self._bbox
-            self.scale(rw/w, rh/h)
+            self.scale(rw / w, rh / h)
             ox = rl - l
             oy = rb - b
             self._do_cell_alignment()
@@ -408,8 +415,8 @@ class Table(Artist):
             (BEST, UR, UL, LL, LR, CL, CR, LC, UC, C,
              TR, TL, BL, BR, R, L, T, B) = range(len(self.codes))
             # defaults for center
-            ox = (0.5-w/2)-l
-            oy = (0.5-h/2)-b
+            ox = (0.5 - w / 2) - l
+            oy = (0.5 - h / 2) - b
             if self._loc in (UL, LL, CL):   # left
                 ox = self.AXESPAD - l
             if self._loc in (BEST, UR, LR, R, CR):  # right
@@ -419,25 +426,25 @@ class Table(Artist):
             if self._loc in (LL, LR, LC):           # lower
                 oy = self.AXESPAD - b
             if self._loc in (LC, UC, C):            # center x
-                ox = (0.5-w/2)-l
+                ox = (0.5 - w / 2) - l
             if self._loc in (CL, CR, C):            # center y
-                oy = (0.5-h/2)-b
+                oy = (0.5 - h / 2) - b
 
             if self._loc in (TL, BL, L):            # out left
-                ox =  - (l + w)
+                ox = - (l + w)
             if self._loc in (TR, BR, R):            # out right
                 ox = 1.0 - l
             if self._loc in (TR, TL, T):            # out top
                 oy = 1.0 - b
             if self._loc in (BL, BR, B):           # out bottom
-                oy =  - (b + h)
+                oy = - (b + h)
 
         self._offset(ox, oy)
-
 
     def get_celld(self):
         'return a dict of cells in the table'
         return self._cells
+
 
 def table(ax,
     cellText=None, cellColours=None,
@@ -477,7 +484,7 @@ def table(ax,
 
     # Set colwidths if not given
     if colWidths is None:
-        colWidths = [1.0/cols] * cols
+        colWidths = [1.0 / cols] * cols
 
     # Check row and column labels
     rowLabelWidth = 0
@@ -514,7 +521,7 @@ def table(ax,
     # Add the cells
     for row in xrange(rows):
         for col in xrange(cols):
-            table.add_cell(row+offset, col,
+            table.add_cell(row + offset, col,
                            width=colWidths[col], height=height,
                            text=cellText[row][col],
                            facecolor=cellColours[row][col],
@@ -530,7 +537,7 @@ def table(ax,
     # Do row labels
     if rowLabels is not None:
         for row in xrange(rows):
-            table.add_cell(row+offset, -1,
+            table.add_cell(row + offset, -1,
                            width=rowLabelWidth or 1e-15, height=height,
                            text=rowLabels[row], facecolor=rowColours[row],
                            loc=rowLoc)

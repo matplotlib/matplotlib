@@ -24,9 +24,11 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch
 from matplotlib.collections import LineCollection, RegularPolyCollection, \
      CircleCollection, PathCollection
-from matplotlib.transforms import Bbox, BboxBase, TransformedBbox, BboxTransformTo, BboxTransformFrom
+from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
+from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
 
-from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea, DraggableOffsetBox
+from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
+from matplotlib.offsetbox import DraggableOffsetBox
 
 from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
 import legend_handler
@@ -39,12 +41,13 @@ class DraggableLegend(DraggableOffsetBox):
                  legend upon finalizing. If "bbox", update
                  *bbox_to_anchor* parameter.
         """
-        self.legend=legend
+        self.legend = legend
 
         if update in ["loc", "bbox"]:
             self._update = update
         else:
-            raise ValueError("update parameter '%s' is not supported." % update)
+            raise ValueError("update parameter '%s' is not supported." %
+                             update)
 
         DraggableOffsetBox.__init__(self, legend, legend._legend_box,
                                     use_blit=use_blit)
@@ -60,20 +63,21 @@ class DraggableLegend(DraggableOffsetBox):
         elif self._update == "bbox":
             self._update_bbox_to_anchor(loc_in_canvas)
         else:
-            raise RuntimeError("update parameter '%s' is not supported." % self.update)
+            raise RuntimeError("update parameter '%s' is not supported." %
+                               self.update)
 
     def _update_loc(self, loc_in_canvas):
         bbox = self.legend.get_bbox_to_anchor()
 
         # if bbox has zero width or height, the transformation is
         # ill-defined. Fall back to the defaul bbox_to_anchor.
-        if bbox.width ==0 or bbox.height ==0:
+        if bbox.width == 0 or bbox.height == 0:
             self.legend.set_bbox_to_anchor(None)
             bbox = self.legend.get_bbox_to_anchor()
 
         _bbox_transform = BboxTransformFrom(bbox)
-        self.legend._loc = tuple(_bbox_transform.transform_point(loc_in_canvas))
-
+        self.legend._loc = tuple(
+                            _bbox_transform.transform_point(loc_in_canvas))
 
     def _update_bbox_to_anchor(self, loc_in_canvas):
 
@@ -107,69 +111,77 @@ class Legend(Artist):
     respect its parent.
 
     """
-    codes = {'best'         : 0, # only implemented for axis legends
-             'upper right'  : 1,
-             'upper left'   : 2,
-             'lower left'   : 3,
-             'lower right'  : 4,
-             'right'        : 5,
-             'center left'  : 6,
-             'center right' : 7,
-             'lower center' : 8,
-             'upper center' : 9,
-             'center'       : 10,
+    codes = {'best':         0,  # only implemented for axis legends
+             'upper right':  1,
+             'upper left':   2,
+             'lower left':   3,
+             'lower right':  4,
+             'right':        5,
+             'center left':  6,
+             'center right': 7,
+             'lower center': 8,
+             'upper center': 9,
+             'center':       10,
              }
 
     zorder = 5
+
     def __str__(self):
         return "Legend"
 
     def __init__(self, parent, handles, labels,
-                 loc = None,
-                 numpoints = None,     # the number of points in the legend line
-                 markerscale = None,   # the relative size of legend markers vs. original
-                 scatterpoints = 3,    # TODO: may be an rcParam
+                 loc=None,
+                 numpoints=None,    # the number of points in the legend line
+                 markerscale=None,  # the relative size of legend markers
+                                    # vs. original
+                 scatterpoints=3,    # TODO: may be an rcParam
                  scatteryoffsets=None,
-                 prop = None,          # properties for the legend texts
-                 fontsize = None,        # keyword to set font size directly
+                 prop=None,          # properties for the legend texts
+                 fontsize=None,        # keyword to set font size directly
 
                  # the following dimensions are in axes coords
-                 pad = None,           # deprecated; use borderpad
-                 labelsep = None,      # deprecated; use labelspacing
-                 handlelen = None,     # deprecated; use handlelength
-                 handletextsep = None, # deprecated; use handletextpad
-                 axespad = None,       # deprecated; use borderaxespad
+                 pad=None,            # deprecated; use borderpad
+                 labelsep=None,       # deprecated; use labelspacing
+                 handlelen=None,      # deprecated; use handlelength
+                 handletextsep=None,  # deprecated; use handletextpad
+                 axespad=None,        # deprecated; use borderaxespad
 
                  # spacing & pad defined as a fraction of the font-size
-                 borderpad = None,     # the whitespace inside the legend border
-                 labelspacing=None, #the vertical space between the legend entries
-                 handlelength=None, # the length of the legend handles
-                 handleheight=None, # the height of the legend handles
-                 handletextpad=None, # the pad between the legend handle and text
-                 borderaxespad=None, # the pad between the axes and legend border
-                 columnspacing=None, # spacing between columns
+                 borderpad=None,      # the whitespace inside the legend border
+                 labelspacing=None,   # the vertical space between the legend
+                                      # entries
+                 handlelength=None,   # the length of the legend handles
+                 handleheight=None,   # the height of the legend handles
+                 handletextpad=None,  # the pad between the legend handle
+                                      # and text
+                 borderaxespad=None,  # the pad between the axes and legend
+                                      # border
+                 columnspacing=None,  # spacing between columns
 
-                 ncol=1, # number of columns
-                 mode=None, # mode for horizontal distribution of columns. None, "expand"
+                 ncol=1,     # number of columns
+                 mode=None,  # mode for horizontal distribution of columns.
+                             # None, "expand"
 
-                 fancybox=None, # True use a fancy box, false use a rounded box, none use rc
-                 shadow = None,
-                 title = None, # set a title for the legend
-                 bbox_to_anchor = None, # bbox that the legend will be anchored.
-                 bbox_transform = None, # transform for the bbox
-                 frameon = None, # draw frame
-                 handler_map = None,
+                 fancybox=None,  # True use a fancy box, false use a rounded
+                                 # box, none use rc
+                 shadow=None,
+                 title=None,  # set a title for the legend
+                 bbox_to_anchor=None,  # bbox that the legend will be anchored.
+                 bbox_transform=None,  # transform for the bbox
+                 frameon=None,  # draw frame
+                 handler_map=None,
                  ):
         """
-        - *parent* : the artist that contains the legend
-        - *handles* : a list of artists (lines, patches) to be added to the legend
-        - *labels* : a list of strings to label the legend
+        - *parent*: the artist that contains the legend
+        - *handles*: a list of artists (lines, patches) to be added to the
+                      legend
+        - *labels*: a list of strings to label the legend
 
         Optional keyword arguments:
 
-        ================   ==================================================================
+        ================   ====================================================
         Keyword            Description
-        ================   ==================================================================
+        ================   ====================================================
         loc                a location code
         prop               the font property
         fontsize           the font size (used only if prop is not specified)
@@ -177,8 +189,10 @@ class Legend(Artist):
         numpoints          the number of points in the legend for line
         scatterpoints      the number of points in the legend for scatter plot
         scatteryoffsets    a list of yoffsets for scatter symbols in legend
-        frameon            if True, draw a frame around the legend. If None, use rc
-        fancybox           if True, draw a frame with a round fancybox.  If None, use rc
+        frameon            if True, draw a frame around the legend.
+                           If None, use rc
+        fancybox           if True, draw a frame with a round fancybox.
+                           If None, use rc
         shadow             if True, draw a shadow behind legend
         ncol               number of columns
         borderpad          the fractional whitespace inside the legend border
@@ -191,43 +205,44 @@ class Legend(Artist):
         title              the legend title
         bbox_to_anchor     the bbox that the legend will be anchored.
         bbox_transform     the transform for the bbox. transAxes if None.
-        ================   ==================================================================
-    
-    
+        ================   =====================================================
+
+
         The pad and spacing parameters are measured in font-size units.  E.g.,
         a fontsize of 10 points and a handlelength=5 implies a handlelength of
         50 points.  Values from rcParams will be used if None.
-        
+
         Users can specify any arbitrary location for the legend using the
         *bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
         of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
         See :meth:`set_bbox_to_anchor` for more detail.
-        
+
         The legend location can be specified by setting *loc* with a tuple of
         2 floats, which is interpreted as the lower-left corner of the legend
         in the normalized axes coordinate.
         """
-        from matplotlib.axes import Axes     # local import only to avoid circularity
-        from matplotlib.figure import Figure # local import only to avoid circularity
+        # local import only to avoid circularity
+        from matplotlib.axes import Axes
+        from matplotlib.figure import Figure
 
         Artist.__init__(self)
 
         if prop is None:
             if fontsize is not None:
-                self.prop=FontProperties(size=fontsize)
+                self.prop = FontProperties(size=fontsize)
             else:
-                self.prop=FontProperties(size=rcParams["legend.fontsize"])
+                self.prop = FontProperties(size=rcParams["legend.fontsize"])
         elif isinstance(prop, dict):
-            self.prop=FontProperties(**prop)
+            self.prop = FontProperties(**prop)
             if "size" not in prop:
                 self.prop.set_size(rcParams["legend.fontsize"])
         else:
-            self.prop=prop
+            self.prop = prop
 
         self._fontsize = self.prop.get_size_in_points()
 
-        propnames=['numpoints', 'markerscale', 'shadow', "columnspacing",
-                   "scatterpoints", "handleheight"]
+        propnames = ["numpoints", "markerscale", "shadow", "columnspacing",
+                     "scatterpoints", "handleheight"]
 
         self.texts = []
         self.legendHandles = []
@@ -239,24 +254,24 @@ class Legend(Artist):
 
         for name in propnames:
             if localdict[name] is None:
-                value = rcParams["legend."+name]
+                value = rcParams["legend." + name]
             else:
                 value = localdict[name]
             setattr(self, name, value)
 
         # Take care the deprecated keywords
-        deprecated_kwds = {"pad":"borderpad",
-                           "labelsep":"labelspacing",
-                           "handlelen":"handlelength",
-                           "handletextsep":"handletextpad",
-                           "axespad":"borderaxespad"}
+        deprecated_kwds = {"pad": "borderpad",
+                           "labelsep": "labelspacing",
+                           "handlelen": "handlelength",
+                           "handletextsep": "handletextpad",
+                           "axespad": "borderaxespad"}
 
         # convert values of deprecated keywords (ginve in axes coords)
         # to new vaules in a fraction of the font size
 
         # conversion factor
         bbox = parent.bbox
-        axessize_fontsize = min(bbox.width, bbox.height)/self._fontsize
+        axessize_fontsize = min(bbox.width, bbox.height) / self._fontsize
 
         for k, v in deprecated_kwds.iteritems():
             # use deprecated value if not None and if their newer
@@ -264,43 +279,44 @@ class Legend(Artist):
             if localdict[k] is not None and localdict[v] is None:
                 warnings.warn("Use '%s' instead of '%s'." % (v, k),
                               DeprecationWarning)
-                setattr(self, v, localdict[k]*axessize_fontsize)
+                setattr(self, v, localdict[k] * axessize_fontsize)
                 continue
 
             # Otherwise, use new keywords
             if localdict[v] is None:
-                setattr(self, v, rcParams["legend."+v])
+                setattr(self, v, rcParams["legend." + v])
             else:
                 setattr(self, v, localdict[v])
 
         del localdict
 
         handles = list(handles)
-        if len(handles)<2:
+        if len(handles) < 2:
             ncol = 1
         self._ncol = ncol
 
         if self.numpoints <= 0:
-            raise ValueError("numpoints must be > 0; it was %d"% numpoints)
+            raise ValueError("numpoints must be > 0; it was %d" % numpoints)
 
         # introduce y-offset for handles of the scatter plot
         if scatteryoffsets is None:
-            self._scatteryoffsets = np.array([3./8., 4./8., 2.5/8.])
+            self._scatteryoffsets = np.array([3. / 8., 4. / 8., 2.5 / 8.])
         else:
             self._scatteryoffsets = np.asarray(scatteryoffsets)
-        reps =  int(self.scatterpoints / len(self._scatteryoffsets)) + 1
-        self._scatteryoffsets = np.tile(self._scatteryoffsets, reps)[:self.scatterpoints]
+        reps = int(self.scatterpoints / len(self._scatteryoffsets)) + 1
+        self._scatteryoffsets = np.tile(self._scatteryoffsets,
+                                        reps)[:self.scatterpoints]
 
         # _legend_box is an OffsetBox instance that contains all
         # legend items and will be initialized from _init_legend_box()
         # method.
         self._legend_box = None
 
-        if isinstance(parent,Axes):
+        if isinstance(parent, Axes):
             self.isaxes = True
             self.set_axes(parent)
             self.set_figure(parent.figure)
-        elif isinstance(parent,Figure):
+        elif isinstance(parent, Figure):
             self.isaxes = False
             self.set_figure(parent)
         else:
@@ -309,24 +325,26 @@ class Legend(Artist):
 
         if loc is None:
             loc = rcParams["legend.loc"]
-            if not self.isaxes and loc in [0,'best']:
+            if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
         if is_string_like(loc):
             if loc not in self.codes:
                 if self.isaxes:
-                    warnings.warn('Unrecognized location "%s". Falling back on "best"; '
-                                  'valid locations are\n\t%s\n'
+                    warnings.warn('Unrecognized location "%s". Falling back '
+                                  'on "best"; valid locations are\n\t%s\n'
                                   % (loc, '\n\t'.join(self.codes.iterkeys())))
                     loc = 0
                 else:
-                    warnings.warn('Unrecognized location "%s". Falling back on "upper right"; '
+                    warnings.warn('Unrecognized location "%s". Falling back '
+                                  'on "upper right"; '
                                   'valid locations are\n\t%s\n'
                                    % (loc, '\n\t'.join(self.codes.iterkeys())))
                     loc = 1
             else:
                 loc = self.codes[loc]
         if not self.isaxes and loc == 0:
-            warnings.warn('Automatic legend placement (loc="best") not implemented for figure legend. '
+            warnings.warn('Automatic legend placement (loc="best") not '
+                          'implemented for figure legend. '
                           'Falling back on "upper right".')
             loc = 1
 
@@ -350,11 +368,11 @@ class Legend(Artist):
         if fancybox is None:
             fancybox = rcParams["legend.fancybox"]
 
-        if fancybox == True:
-            self.legendPatch.set_boxstyle("round",pad=0,
+        if fancybox:
+            self.legendPatch.set_boxstyle("round", pad=0,
                                           rounding_size=0.2)
         else:
-            self.legendPatch.set_boxstyle("square",pad=0)
+            self.legendPatch.set_boxstyle("square", pad=0)
 
         self._set_artist_props(self.legendPatch)
 
@@ -407,26 +425,29 @@ class Legend(Artist):
     def _findoffset_best(self, width, height, xdescent, ydescent, renderer):
         "Helper function to locate the legend at its best position"
         ox, oy = self._find_best_position(width, height, renderer)
-        return ox+xdescent, oy+ydescent
+        return ox + xdescent, oy + ydescent
 
     def _findoffset_loc(self, width, height, xdescent, ydescent, renderer):
         "Helper function to locate the legend using the location code"
 
-        if iterable(self._loc) and len(self._loc)==2:
+        if iterable(self._loc) and len(self._loc) == 2:
             # when loc is a tuple of axes(or figure) coordinates.
             fx, fy = self._loc
             bbox = self.get_bbox_to_anchor()
             x, y = bbox.x0 + bbox.width * fx, bbox.y0 + bbox.height * fy
         else:
             bbox = Bbox.from_bounds(0, 0, width, height)
-            x, y = self._get_anchored_bbox(self._loc, bbox, self.get_bbox_to_anchor(), renderer)
+            x, y = self._get_anchored_bbox(self._loc, bbox,
+                                           self.get_bbox_to_anchor(),
+                                           renderer)
 
-        return x+xdescent, y+ydescent
+        return x + xdescent, y + ydescent
 
     @allow_rasterization
     def draw(self, renderer):
         "Draw everything that belongs to the legend"
-        if not self.get_visible(): return
+        if not self.get_visible():
+            return
 
         renderer.open_group('legend')
 
@@ -435,8 +456,8 @@ class Legend(Artist):
         # if mode == fill, set the width of the legend_box to the
         # width of the paret (minus pads)
         if self._mode in ["expand"]:
-            pad = 2*(self.borderaxespad+self.borderpad)*fontsize
-            self._legend_box.set_width(self.get_bbox_to_anchor().width-pad)
+            pad = 2 * (self.borderaxespad + self.borderpad) * fontsize
+            self._legend_box.set_width(self.get_bbox_to_anchor().width - pad)
 
         if self._drawFrame:
             # update the location and size of the legend
@@ -466,21 +487,21 @@ class Legend(Artist):
         else:
             return renderer.points_to_pixels(self._fontsize)
 
-
     # _default_handler_map defines the default mapping between plot
     # elements and the legend handlers.
 
     _default_handler_map = {
-        StemContainer:legend_handler.HandlerStem(),
-        ErrorbarContainer:legend_handler.HandlerErrorbar(),
-        Line2D:legend_handler.HandlerLine2D(),
-        Patch:legend_handler.HandlerPatch(),
-        LineCollection:legend_handler.HandlerLineCollection(),
-        RegularPolyCollection:legend_handler.HandlerRegularPolyCollection(),
-        CircleCollection:legend_handler.HandlerCircleCollection(),
-        BarContainer:legend_handler.HandlerPatch(update_func=legend_handler.update_from_first_child),
-        tuple:legend_handler.HandlerTuple(),
-        PathCollection:legend_handler.HandlerPathCollection()
+        StemContainer: legend_handler.HandlerStem(),
+        ErrorbarContainer: legend_handler.HandlerErrorbar(),
+        Line2D: legend_handler.HandlerLine2D(),
+        Patch: legend_handler.HandlerPatch(),
+        LineCollection: legend_handler.HandlerLineCollection(),
+        RegularPolyCollection: legend_handler.HandlerRegularPolyCollection(),
+        CircleCollection: legend_handler.HandlerCircleCollection(),
+        BarContainer: legend_handler.HandlerPatch(
+                        update_func=legend_handler.update_from_first_child),
+        tuple: legend_handler.HandlerTuple(),
+        PathCollection: legend_handler.HandlerPathCollection()
         }
 
     # (get|set|update)_default_handler_maps are public interfaces to
@@ -550,7 +571,6 @@ class Legend(Artist):
 
         return handler
 
-
     def _init_legend_box(self, handles, labels):
         """
         Initialize the legend_box. The legend_box is an instance of
@@ -582,7 +602,7 @@ class Legend(Artist):
 
         # The approximate height and descent of text. These values are
         # only used for plotting the legend handle.
-        descent = 0.35*self._approx_text_height()*(self.handleheight - 0.7)
+        descent = 0.35 * self._approx_text_height() * (self.handleheight - 0.7)
         # 0.35 and 0.7 are just heuristic numbers. this may need to be improbed
         height = self._approx_text_height() * self.handleheight - descent
         # each handle needs to be drawn inside a box of (x, y, w, h) =
@@ -601,7 +621,11 @@ class Legend(Artist):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
 
             if handler is None:
-                warnings.warn("Legend does not support %s\nUse proxy artist instead.\n\nhttp://matplotlib.sourceforge.net/users/legend_guide.html#using-proxy-artist\n" % (str(orig_handle),))
+                warnings.warn(
+                  "Legend does not support %s\nUse proxy artist "
+                  "instead.\n\n"
+                  "http://matplotlib.sourceforge.net/users/legend_guide.html#using-proxy-artist\n" %
+                (str(orig_handle),))
                 handle_list.append(None)
                 continue
 
@@ -611,11 +635,11 @@ class Legend(Artist):
 
             labelboxes.append(textbox)
 
-            handlebox = DrawingArea(width=self.handlelength*fontsize,
+            handlebox = DrawingArea(width=self.handlelength * fontsize,
                                     height=height,
                                     xdescent=0., ydescent=descent)
 
-            handle = handler(self, orig_handle, \
+            handle = handler(self, orig_handle,
                              #xdescent, ydescent, width, height,
                              fontsize,
                              handlebox)
@@ -631,30 +655,34 @@ class Legend(Artist):
             # (num_smallcol) columns will have (nrows) rows.
             ncol = min(self._ncol, len(handleboxes))
             nrows, num_largecol = divmod(len(handleboxes), ncol)
-            num_smallcol = ncol-num_largecol
+            num_smallcol = ncol - num_largecol
 
             # starting index of each column and number of rows in it.
-            largecol = safezip(range(0, num_largecol*(nrows+1), (nrows+1)),
-                               [nrows+1] * num_largecol)
-            smallcol = safezip(range(num_largecol*(nrows+1), len(handleboxes), nrows),
+            largecol = safezip(range(0,
+                                     num_largecol * (nrows + 1),
+                                     (nrows + 1)),
+                               [nrows + 1] * num_largecol)
+            smallcol = safezip(range(num_largecol * (nrows + 1),
+                                     len(handleboxes),
+                                     nrows),
                                [nrows] * num_smallcol)
         else:
             largecol, smallcol = [], []
 
         handle_label = safezip(handleboxes, labelboxes)
         columnbox = []
-        for i0, di in largecol+smallcol:
+        for i0, di in largecol + smallcol:
             # pack handleBox and labelBox into itemBox
             itemBoxes = [HPacker(pad=0,
-                                 sep=self.handletextpad*fontsize,
+                                 sep=self.handletextpad * fontsize,
                                  children=[h, t], align="baseline")
-                         for h, t in handle_label[i0:i0+di]]
+                         for h, t in handle_label[i0:i0 + di]]
             # minimumdescent=False for the text of the last row of the column
             itemBoxes[-1].get_children()[1].set_minimumdescent(False)
 
             # pack columnBox
             columnbox.append(VPacker(pad=0,
-                                        sep=self.labelspacing*fontsize,
+                                        sep=self.labelspacing * fontsize,
                                         align="baseline",
                                         children=itemBoxes))
 
@@ -663,7 +691,7 @@ class Legend(Artist):
         else:
             mode = "fixed"
 
-        sep = self.columnspacing*fontsize
+        sep = self.columnspacing * fontsize
 
         self._legend_handle_box = HPacker(pad=0,
                                           sep=sep, align="baseline",
@@ -672,8 +700,8 @@ class Legend(Artist):
 
         self._legend_title_box = TextArea("")
 
-        self._legend_box = VPacker(pad=self.borderpad*fontsize,
-                                   sep=self.labelspacing*fontsize,
+        self._legend_box = VPacker(pad=self.borderpad * fontsize,
+                                   sep=self.labelspacing * fontsize,
                                    align="center",
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
@@ -696,8 +724,8 @@ class Legend(Artist):
         Second element is a list of bounding boxes for all the patches in
         the legend's handles.
         """
-
-        assert self.isaxes # should always hold because function is only called internally
+        # should always hold because function is only called internally
+        assert self.isaxes
 
         ax = self.parent
         vertices = []
@@ -751,7 +779,9 @@ class Legend(Artist):
 
     def get_patches(self):
         'return a list of patch instances in the legend'
-        return silent_list('Patch', [h for h in self.legendHandles if isinstance(h, Patch)])
+        return silent_list('Patch',
+                           [h for h in self.legendHandles
+                            if isinstance(h, Patch)])
 
     def get_texts(self):
         'return a list of text.Text instance in the legend'
@@ -778,7 +808,7 @@ class Legend(Artist):
         'return Text instance for the legend title'
         return self._legend_title_box._text
 
-    def get_window_extent(self, *args, **kwargs) :
+    def get_window_extent(self, *args, **kwargs):
         'return a extent of the the legend'
         return self.legendPatch.get_window_extent(*args, **kwargs)
 
@@ -842,26 +872,27 @@ class Legend(Artist):
         location code. Return the (x,y) coordinate of the bbox.
 
         - loc: a location code in range(1, 11).
-          This corresponds to the possible values for self._loc, excluding "best".
+          This corresponds to the possible values for self._loc, excluding
+          "best".
 
         - bbox: bbox to be placed, display coodinate units.
         - parentbbox: a parent box which will contain the bbox. In
             display coordinates.
         """
-        assert loc in range(1,11) # called only internally
+        assert loc in range(1, 11)  # called only internally
 
         BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
 
-        anchor_coefs={UR:"NE",
-                      UL:"NW",
-                      LL:"SW",
-                      LR:"SE",
-                      R:"E",
-                      CL:"W",
-                      CR:"E",
-                      LC:"S",
-                      UC:"N",
-                      C:"C"}
+        anchor_coefs = {UR: "NE",
+                        UL: "NW",
+                        LL: "SW",
+                        LR: "SE",
+                        R: "E",
+                        CL: "W",
+                        CR: "E",
+                        LC: "S",
+                        UC: "N",
+                        C: "C"}
 
         c = anchor_coefs[loc]
 
@@ -870,7 +901,6 @@ class Legend(Artist):
         anchored_box = bbox.anchored(c, container=container)
         return anchored_box.x0, anchored_box.y0
 
-
     def _find_best_position(self, width, height, renderer, consider=None):
         """
         Determine the best location to place the legend.
@@ -878,14 +908,16 @@ class Legend(Artist):
         `consider` is a list of (x, y) pairs to consider as a potential
         lower-left corner of the legend. All are display coords.
         """
-
-        assert self.isaxes # should always hold because function is only called internally
+        # should always hold because function is only called internally
+        assert self.isaxes
 
         verts, bboxes, lines = self._auto_legend_data()
 
         bbox = Bbox.from_bounds(0, 0, width, height)
         consider = [self._get_anchored_bbox(x, bbox, self.get_bbox_to_anchor(),
-                                            renderer) for x in range(1, len(self.codes))]
+                                            renderer)
+                    for x
+                    in range(1, len(self.codes))]
 
         #tx, ty = self.legendPatch.get_x(), self.legendPatch.get_y()
 
@@ -913,7 +945,7 @@ class Legend(Artist):
         for candidate in candidates:
             if candidate[0] < minCandidate[0]:
                 minCandidate = candidate
-        
+
         ox, oy = minCandidate[1]
 
         return ox, oy
@@ -947,7 +979,9 @@ class Legend(Artist):
 
         if state:
             if self._draggable is None:
-                self._draggable = DraggableLegend(self, use_blit, update=update)
+                self._draggable = DraggableLegend(self,
+                                                  use_blit,
+                                                  update=update)
         else:
             if self._draggable is not None:
                 self._draggable.disconnect()

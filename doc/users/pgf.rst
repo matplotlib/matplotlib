@@ -6,7 +6,7 @@ Typesetting With XeLaTeX/LuaLaTeX
 
 Using the ``pgf`` backend, matplotlib can export figures as pgf drawing commands
 that can be processed with pdflatex, xelatex or lualatex. XeLaTeX and LuaLaTeX
-have full unicode support and can use any fonts installed in the operating
+have full unicode support and can use any font that is installed in the operating
 system, making use of advanced typographic features of OpenType, AAT and
 Graphite. Pgf pictures created by ``plt.savefig('figure.pgf')`` can be
 embedded as raw commands in LaTeX documents. Figures can also be directly
@@ -25,7 +25,7 @@ or registering it for handling pdf output
     matplotlib.backend_bases.register_backend('pdf', FigureCanvasPgf)
 
 The second method allows you to keep using regular interactive backends and to
-save PDF files from the graphical user interface.
+save xelatex, lualatex or pdflatex compiled PDF files from the graphical user interface.
 
 Matplotlib's pgf support requires a recent LaTeX_ installation that includes
 the TikZ/PGF packages (such as TeXLive_), preferably with XeLaTeX or LuaLaTeX
@@ -66,6 +66,9 @@ the glyph coverage of these fonts is very limited. If you want to keep the
 Computer Modern font face but require extended unicode support, consider
 installing the `Computer Modern Unicode <http://sourceforge.net/projects/cm-unicode/>`_
 fonts *CMU Serif*, *CMU Sans Serif*, etc.
+
+When saving to ``.pgf``, the font configuration matplotlib used for the
+layout of the figure is included in the header of the text file.
 
 .. literalinclude:: plotting/examples/pgf_fonts.py
    :end-before: plt.savefig
@@ -112,29 +115,29 @@ unicode handling must be configured in the preamble.
 
 .. image:: /_static/pgf_texsystem.*
 
-.. _pgf-hangups:
 
-Possible hangups
-================
+.. _pgf-troubleshooting:
+
+Troubleshooting
+===============
 
 * Please note that the TeX packages found in some Linux distributions and
   MiKTeX installations are dramatically outdated. Make sure to update your
-  package catalog and upgrade or install a recent TeX distribution before
-  reporting problems.
+  package catalog and upgrade or install a recent TeX distribution.
 
 * On Windows, the :envvar:`PATH` environment variable may need to be modified
   to include the directories containing the latex, dvipng and ghostscript
   executables. See :ref:`environment-variables` and
   :ref:`setting-windows-environment-variables` for details.
 
+* A limitation on Windows causes the backend to keep file handles that have
+  been opened by your application open. As a result, it may not be possible
+  to delete the corresponding files until the application closes (see
+  `#1324 <https://github.com/matplotlib/matplotlib/issues/1324>`_).
+
 * Sometimes the font rendering in figures that are saved to png images is
   very bad. This happens when the pdftocairo tool is not available and
   ghostscript is used for the pdf to png conversion.
-
-.. _pgf-troubleshooting:
-
-Troubleshooting
-===============
 
 * Make sure what you are trying to do is possible in a LaTeX document,
   that your LaTeX syntax is valid and that you are using raw strings
@@ -142,7 +145,12 @@ Troubleshooting
 
 * The ``pgf.preamble`` rc setting provides lots of flexibility, and lots of
   ways to cause problems. When experiencing problems, try to minimalize or
-  disable the custom preamble before reporting problems.
+  disable the custom preamble.
+
+* If the font configuration used by matplotlib differs from the font setting
+  in yout LaTeX document, the alignment of text elements in imported figures
+  may be off. Check the header of your ``.pgf`` file if you are unsure about
+  the fonts matplotlib used for the layout.
 
 * If you still need help, please see :ref:`reporting-problems`
 

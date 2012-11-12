@@ -1353,7 +1353,7 @@ _add_polygon(Py::List& polygons, const std::vector<double>& polygon)
     {
         return;
     }
-    npy_intp polygon_dims[] = { polygon.size() / 2, 2, 0 };
+    npy_intp polygon_dims[] = { static_cast<npy_intp>(polygon.size() / 2), 2, 0 };
     PyArrayObject* polygon_array = NULL;
     polygon_array = (PyArrayObject*)PyArray_SimpleNew
                     (2, polygon_dims, PyArray_DOUBLE);

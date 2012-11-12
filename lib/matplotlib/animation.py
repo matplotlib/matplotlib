@@ -26,8 +26,6 @@ from matplotlib import verbose
 from matplotlib import rcParams
 
 # Other potential writing methods:
-# * ImageMagick convert: convert -set delay 3 -colorspace GRAY -colors 16
-#   -dispose 1 -loop 0 -scale 50% *.png Output.gif
 # * http://pymedia.org/
 # * libmng (produces swf) python wrappers: https://github.com/libming/libming
 # * Wrap x264 API:
@@ -450,6 +448,41 @@ class MencoderFileWriter(FileMovieWriter, MencoderBase):
                                 self.fps)] + self.output_args
 
 
+# Base class for animated GIFs with convert utility
+class ImageMagickBase:
+    exec_key = 'animation.convert_path'
+    args_key = 'animation.convert_args'
+
+    @property
+    def delay(self):
+        return 100. / self.fps
+
+    @property
+    def output_args(self):
+        return [self.outfile]
+
+
+@writers.register('imagemagick')
+class ImageMagickWriter(MovieWriter, ImageMagickBase):
+    def _args(self):
+        return ([self.bin_path(),
+                 '-size', '%ix%i' % self.frame_size, '-depth', '8',
+                 '-delay', str(self.delay), '-loop', '0',
+                 '%s:-' % self.frame_format]
+                + self.output_args)
+
+
+@writers.register('imagemagick_file')
+class ImageMagickFileWriter(FileMovieWriter, ImageMagickBase):
+    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
+                         'pbm', 'raw', 'rgba']
+
+    def _args(self):
+        return ([self.bin_path(), '-delay', str(self.delay), '-loop', '0',
+                 '%s*.%s' % (self.temp_prefix, self.frame_format)]
+                + self.output_args)
+
+
 class Animation(object):
     '''
     This class wraps the creation of an animation using matplotlib. It is
@@ -512,7 +545,7 @@ class Animation(object):
         self.event_source = None
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
-            bitrate=None, extra_args=None, metadata=None, extra_anim=None):
+             bitrate=None, extra_args=None, metadata=None, extra_anim=None):
         '''
         Saves a movie file by drawing every frame.
 

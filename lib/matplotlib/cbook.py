@@ -72,8 +72,10 @@ else:
         except (ValueError, ImportError, AttributeError):
             preferredencoding = None
 
-        if preferredencoding is None: return unicode(s)
-        else: return unicode(s, preferredencoding)
+        if preferredencoding is None:
+            return unicode(s)
+        else:
+            return unicode(s, preferredencoding)
 
 
 class converter:
@@ -84,12 +86,14 @@ class converter:
     def __init__(self, missing='Null', missingval=None):
         self.missing = missing
         self.missingval = missingval
+
     def __call__(self, s):
-        if s==self.missing: return self.missingval
+        if s == self.missing:
+            return self.missingval
         return s
 
     def is_missing(self, s):
-        return not s.strip() or s==self.missing
+        return not s.strip() or s == self.missing
 
 
 class tostr(converter):
@@ -106,7 +110,8 @@ class todatetime(converter):
         self.fmt = fmt
 
     def __call__(self, s):
-        if self.is_missing(s): return self.missingval
+        if self.is_missing(s):
+            return self.missingval
         tup = time.strptime(s, self.fmt)
         return datetime.datetime(*tup[:6])
 
@@ -117,8 +122,10 @@ class todate(converter):
         'use a :func:`time.strptime` format string for conversion'
         converter.__init__(self, missing, missingval)
         self.fmt = fmt
+
     def __call__(self, s):
-        if self.is_missing(s): return self.missingval
+        if self.is_missing(s):
+            return self.missingval
         tup = time.strptime(s, self.fmt)
         return datetime.date(*tup[:3])
 
@@ -128,8 +135,10 @@ class tofloat(converter):
     def __init__(self, missing='Null', missingval=None):
         converter.__init__(self, missing)
         self.missingval = missingval
+
     def __call__(self, s):
-        if self.is_missing(s): return self.missingval
+        if self.is_missing(s):
+            return self.missingval
         return float(s)
 
 
@@ -139,7 +148,8 @@ class toint(converter):
         converter.__init__(self, missing)
 
     def __call__(self, s):
-        if self.is_missing(s): return self.missingval
+        if self.is_missing(s):
+            return self.missingval
         return int(s)
 
 
@@ -195,7 +205,8 @@ class _BoundMethodProxy(object):
         if self.inst is not None and self.inst() is None:
             raise ReferenceError
         elif self.inst is not None:
-            # build a new instance method with a strong reference to the instance
+            # build a new instance method with a strong reference to the
+            # instance
             if sys.version_info[0] >= 3:
                 mtd = types.MethodType(self.func, self.inst())
             else:
@@ -236,12 +247,12 @@ class CallbackRegistry:
         >>> def ondrink(x):
         ...    print 'drink', x
 
-        >>> from matplotlib.cbook import CallbackRegistry 
+        >>> from matplotlib.cbook import CallbackRegistry
         >>> callbacks = CallbackRegistry()
 
         >>> id_eat = callbacks.connect('eat', oneat)
-        >>> id_drink = callbacks.connect('drink', ondrink)        
-        
+        >>> id_drink = callbacks.connect('drink', ondrink)
+
         >>> callbacks.process('drink', 123)
         drink 123
         >>> callbacks.process('eat', 456)
@@ -267,7 +278,7 @@ class CallbackRegistry:
     def __init__(self, *args):
         if len(args):
             warnings.warn(
-                'CallbackRegistry no longer requires a list of callback types.' 
+                'CallbackRegistry no longer requires a list of callback types.'
                 ' Ignoring arguments',
                 DeprecationWarning)
         self.callbacks = dict()
@@ -344,10 +355,12 @@ class Scheduler(threading.Thread):
         self._stopevent = threading.Event()
 
     def stop(self):
-        if self._stopped: return
+        if self._stopped:
+            return
         self._stopevent.set()
         self.join()
         self._stopped = True
+
 
 class Timeout(Scheduler):
     """
@@ -365,7 +378,9 @@ class Timeout(Scheduler):
             Scheduler.idlelock.acquire()
             b = self.func(self)
             Scheduler.idlelock.release()
-            if not b: break
+            if not b:
+                break
+
 
 class Idle(Scheduler):
     """
@@ -375,6 +390,7 @@ class Idle(Scheduler):
     # just implements a short wait time.  But it will provide a
     # placeholder for a proper impl ater
     waittime = 0.05
+
     def __init__(self, func):
         Scheduler.__init__(self)
         self.func = func
@@ -386,7 +402,9 @@ class Idle(Scheduler):
             Scheduler.idlelock.acquire()
             b = self.func(self)
             Scheduler.idlelock.release()
-            if not b: break
+            if not b:
+                break
+
 
 class silent_list(list):
     """
@@ -396,7 +414,8 @@ class silent_list(list):
     """
     def __init__(self, type, seq=None):
         self.type = type
-        if seq is not None: self.extend(seq)
+        if seq is not None:
+            self.extend(seq)
 
     def __repr__(self):
         return '<a list of %d %s objects>' % (len(self), self.type)
@@ -412,12 +431,15 @@ class silent_list(list):
         self.type = state['type']
         self.extend(state['seq'])
 
+
 def strip_math(s):
     'remove latex formatting from mathtext'
     remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
     s = s[1:-1]
-    for r in remove:  s = s.replace(r,'')
+    for r in remove:
+        s = s.replace(r, '')
     return s
+
 
 class Bunch:
     """
@@ -435,14 +457,17 @@ class Bunch:
     def __init__(self, **kwds):
         self.__dict__.update(kwds)
 
-
     def __repr__(self):
         keys = self.__dict__.iterkeys()
-        return 'Bunch(%s)'%', '.join(['%s=%s'%(k,self.__dict__[k]) for k in keys])
+        return 'Bunch(%s)' % ', '.join(['%s=%s' % (k, self.__dict__[k])
+                                        for k
+                                        in keys])
+
 
 def unique(x):
     'Return a list of unique elements of *x*'
-    return dict([ (val, 1) for val in x]).keys()
+    return dict([(val, 1) for val in x]).keys()
+
 
 def iterable(obj):
     'return true if *obj* is iterable'
@@ -455,40 +480,54 @@ def iterable(obj):
 
 def is_string_like(obj):
     'Return True if *obj* looks like a string'
-    if isinstance(obj, (str, unicode)): return True
+    if isinstance(obj, (str, unicode)):
+        return True
     # numpy strings are subclass of str, ma strings are not
     if ma.isMaskedArray(obj):
         if obj.ndim == 0 and obj.dtype.kind in 'SU':
             return True
         else:
             return False
-    try: obj + ''
-    except: return False
+    try:
+        obj + ''
+    except:
+        return False
     return True
+
 
 def is_sequence_of_strings(obj):
     """
     Returns true if *obj* is iterable and contains strings
     """
-    if not iterable(obj): return False
-    if is_string_like(obj): return False
+    if not iterable(obj):
+        return False
+    if is_string_like(obj):
+        return False
     for o in obj:
-        if not is_string_like(o): return False
+        if not is_string_like(o):
+            return False
     return True
+
 
 def is_writable_file_like(obj):
     'return true if *obj* looks like a file object with a *write* method'
     return hasattr(obj, 'write') and callable(obj.write)
 
+
 def is_scalar(obj):
     'return true if *obj* is not string like and is not iterable'
     return not is_string_like(obj) and not iterable(obj)
 
+
 def is_numlike(obj):
     'return true if *obj* looks like a number'
-    try: obj+1
-    except: return False
-    else: return True
+    try:
+        obj + 1
+    except:
+        return False
+    else:
+        return True
+
 
 def to_filehandle(fname, flag='rU', return_opened=False):
     """
@@ -500,11 +539,11 @@ def to_filehandle(fname, flag='rU', return_opened=False):
         if fname.endswith('.gz'):
             import gzip
             # get rid of 'U' in flag for gzipped files.
-            flag = flag.replace('U','')
+            flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
         elif fname.endswith('.bz2'):
             # get rid of 'U' in flag for bz2 files
-            flag = flag.replace('U','')
+            flag = flag.replace('U', '')
             import bz2
             fh = bz2.BZ2File(fname, flag)
         else:
@@ -538,7 +577,7 @@ def get_sample_data(fname, asfileobj=True):
 
     if asfileobj:
         if (os.path.splitext(fname)[-1].lower() in
-               ('.csv', '.xrc', '.txt')):
+                ('.csv', '.xrc', '.txt')):
             mode = 'r'
         else:
             mode = 'rb'
@@ -555,12 +594,12 @@ def get_sample_data(fname, asfileobj=True):
 def flatten(seq, scalarp=is_scalar_or_string):
     """
     Returns a generator of flattened nested containers
-    
+
     For example:
-    
+
         >>> from matplotlib.cbook import flatten
         >>> l = (('John', ['Hunter']), (1, 23), [[([42, (5, 23)], )]])
-        >>> print list(flatten(l)) 
+        >>> print list(flatten(l))
         ['John', 'Hunter', 1, 23, 42, 5, 23]
 
     By: Composite of Holger Krekel and Luther Blissett
@@ -597,7 +636,8 @@ class Sorter:
     def _helper(self, data, aux, inplace):
         aux.sort()
         result = [data[i] for junk, i in aux]
-        if inplace: data[:] = result
+        if inplace:
+            data[:] = result
         return result
 
     def byItem(self, data, itemindex=None, inplace=1):
@@ -614,15 +654,12 @@ class Sorter:
             return self._helper(data, aux, inplace)
 
     def byAttribute(self, data, attributename, inplace=1):
-        aux = [(getattr(data[i],attributename),i) for i in range(len(data))]
+        aux = [(getattr(data[i], attributename), i) for i in range(len(data))]
         return self._helper(data, aux, inplace)
 
     # a couple of handy synonyms
     sort = byItem
     __call__ = byItem
-
-
-
 
 
 class Xlator(dict):
@@ -657,7 +694,6 @@ class Xlator(dict):
         return self._make_regex().sub(self, text)
 
 
-
 def soundex(name, len=4):
     """ soundex module conforming to Odell-Russell algorithm """
 
@@ -669,8 +705,9 @@ def soundex(name, len=4):
     # Translate letters in name to soundex digits
     for c in name.upper():
         if c.isalpha():
-            if not fc: fc = c   # Remember first letter
-            d = soundex_digits[ord(c)-ord('A')]
+            if not fc:
+                fc = c   # Remember first letter
+            d = soundex_digits[ord(c) - ord('A')]
             # Duplicate consecutive soundex digits are skipped
             if not sndx or (d != sndx[-1]):
                 sndx += d
@@ -685,21 +722,32 @@ def soundex(name, len=4):
     return (sndx + (len * '0'))[:len]
 
 
-
 class Null:
     """ Null objects always and reliably "do nothing." """
 
-    def __init__(self, *args, **kwargs): pass
-    def __call__(self, *args, **kwargs): return self
-    def __str__(self): return "Null()"
-    def __repr__(self): return "Null()"
-    def __nonzero__(self): return 0
+    def __init__(self, *args, **kwargs):
+        pass
 
-    def __getattr__(self, name): return self
-    def __setattr__(self, name, value): return self
-    def __delattr__(self, name): return self
+    def __call__(self, *args, **kwargs):
+        return self
 
+    def __str__(self):
+        return "Null()"
 
+    def __repr__(self):
+        return "Null()"
+
+    def __nonzero__(self):
+        return 0
+
+    def __getattr__(self, name):
+        return self
+
+    def __setattr__(self, name, value):
+        return self
+
+    def __delattr__(self, name):
+        return self
 
 
 def mkdirs(newdir, mode=0o777):
@@ -712,7 +760,7 @@ def mkdirs(newdir, mode=0o777):
     try:
         if not os.path.exists(newdir):
             parts = os.path.split(newdir)
-            for i in range(1, len(parts)+1):
+            for i in range(1, len(parts) + 1):
                 thispart = os.path.join(*parts[:i])
                 if not os.path.exists(thispart):
                     os.makedirs(thispart, mode)
@@ -741,16 +789,19 @@ class GetRealpathAndStat:
         return result
 get_realpath_and_stat = GetRealpathAndStat()
 
+
 def dict_delall(d, keys):
     'delete all of the *keys* from the :class:`dict` *d*'
     for key in keys:
-        try: del d[key]
-        except KeyError: pass
+        try:
+            del d[key]
+        except KeyError:
+            pass
 
 
 class RingBuffer:
     """ class that implements a not-yet-full buffer """
-    def __init__(self,size_max):
+    def __init__(self, size_max):
         self.max = size_max
         self.data = []
 
@@ -759,12 +810,13 @@ class RingBuffer:
         def append(self, x):
             """ Append an element overwriting the oldest one. """
             self.data[self.cur] = x
-            self.cur = (self.cur+1) % self.max
+            self.cur = (self.cur + 1) % self.max
+
         def get(self):
             """ return list of elements in correct order """
-            return self.data[self.cur:]+self.data[:self.cur]
+            return self.data[self.cur:] + self.data[:self.cur]
 
-    def append(self,x):
+    def append(self, x):
         """append an element at the end of the buffer"""
         self.data.append(x)
         if len(self.data) == self.max:
@@ -780,7 +832,6 @@ class RingBuffer:
         return self.data[i % len(self.data)]
 
 
-
 def get_split_ind(seq, N):
     """
     *seq* is a list of words.  Return the index into seq such that::
@@ -794,20 +845,21 @@ def get_split_ind(seq, N):
     # todo: use Alex's xrange pattern from the cbook for efficiency
     for (word, ind) in zip(seq, xrange(len(seq))):
         sLen += len(word) + 1  # +1 to account for the len(' ')
-        if sLen>=N: return ind
+        if sLen >= N:
+            return ind
     return len(seq)
 
 
 def wrap(prefix, text, cols):
     'wrap *text* with *prefix* at length *cols*'
-    pad = ' '*len(prefix.expandtabs())
+    pad = ' ' * len(prefix.expandtabs())
     available = cols - len(pad)
 
     seq = text.split(' ')
     Nseq = len(seq)
     ind = 0
     lines = []
-    while ind<Nseq:
+    while ind < Nseq:
         lastInd = ind
         ind += get_split_ind(seq[ind:], available)
         lines.append(seq[lastInd:ind])
@@ -824,6 +876,8 @@ def wrap(prefix, text, cols):
 _find_dedent_regex = re.compile("(?:(?:\n\r?)|^)( *)\S")
 # A cache to hold the regexs that actually remove the indent.
 _dedent_regex = {}
+
+
 def dedent(s):
     """
     Remove excess indentation from docstring *s*.
@@ -870,7 +924,8 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
 
     from Parmar and Martelli in the Python Cookbook
     """
-    import os.path, fnmatch
+    import os.path
+    import fnmatch
     # Expand patterns from semicolon-separated string to list
     pattern_list = patterns.split(';')
     results = []
@@ -890,6 +945,7 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
 
     return results
 
+
 def get_recursive_filelist(args):
     """
     Recurse all the files and dirs in *args* ignoring symbolic links
@@ -908,20 +964,22 @@ def get_recursive_filelist(args):
     return [f for f in files if not os.path.islink(f)]
 
 
-
 def pieces(seq, num=2):
     "Break up the *seq* into *num* tuples"
     start = 0
     while 1:
-        item = seq[start:start+num]
-        if not len(item): break
+        item = seq[start:start + num]
+        if not len(item):
+            break
         yield item
         start += num
 
-def exception_to_str(s = None):
+
+def exception_to_str(s=None):
 
     sh = io.StringIO()
-    if s is not None: print(s, file=sh)
+    if s is not None:
+        print(s, file=sh)
     traceback.print_exc(file=sh)
     return sh.getvalue()
 
@@ -931,32 +989,41 @@ def allequal(seq):
     Return *True* if all elements of *seq* compare equal.  If *seq* is
     0 or 1 length, return *True*
     """
-    if len(seq)<2: return True
+    if len(seq) < 2:
+        return True
     val = seq[0]
     for i in xrange(1, len(seq)):
         thisval = seq[i]
-        if thisval != val: return False
+        if thisval != val:
+            return False
     return True
+
 
 def alltrue(seq):
     """
     Return *True* if all elements of *seq* evaluate to *True*.  If
     *seq* is empty, return *False*.
     """
-    if not len(seq): return False
+    if not len(seq):
+        return False
     for val in seq:
-        if not val: return False
+        if not val:
+            return False
     return True
+
 
 def onetrue(seq):
     """
     Return *True* if one element of *seq* is *True*.  It *seq* is
     empty, return *False*.
     """
-    if not len(seq): return False
+    if not len(seq):
+        return False
     for val in seq:
-        if val: return True
+        if val:
+            return True
     return False
+
 
 def allpairs(x):
     """
@@ -966,8 +1033,7 @@ def allpairs(x):
 
     .. _thread: http://groups.google.com/groups?q=all+pairs+group:*python*&hl=en&lr=&ie=UTF-8&selm=mailman.4028.1096403649.5135.python-list%40python.org&rnum=1
     """
-    return [ (s, f) for i, f in enumerate(x) for s in x[i+1:] ]
-
+    return [(s, f) for i, f in enumerate(x) for s in x[i + 1:]]
 
 
 class maxdict(dict):
@@ -980,14 +1046,14 @@ class maxdict(dict):
         dict.__init__(self)
         self.maxsize = maxsize
         self._killkeys = []
+
     def __setitem__(self, k, v):
         if k not in self:
-            if len(self)>=self.maxsize:
+            if len(self) >= self.maxsize:
                 del self[self._killkeys[0]]
                 del self._killkeys[0]
             self._killkeys.append(k)
         dict.__setitem__(self, k, v)
-
 
 
 class Stack(object):
@@ -1003,8 +1069,10 @@ class Stack(object):
 
     def __call__(self):
         'return the current element, or None'
-        if not len(self._elements): return self._default
-        else: return self._elements[self._pos]
+        if not len(self._elements):
+            return self._default
+        else:
+            return self._elements[self._pos]
 
     def __len__(self):
         return self._elements.__len__()
@@ -1015,12 +1083,14 @@ class Stack(object):
     def forward(self):
         'move the position forward and return the current element'
         N = len(self._elements)
-        if self._pos<N-1: self._pos += 1
+        if self._pos < N - 1:
+            self._pos += 1
         return self()
 
     def back(self):
         'move the position back and return the current element'
-        if self._pos>0: self._pos -= 1
+        if self._pos > 0:
+            self._pos -= 1
         return self()
 
     def push(self, o):
@@ -1028,19 +1098,20 @@ class Stack(object):
         push object onto stack at current position - all elements
         occurring later than the current position are discarded
         """
-        self._elements = self._elements[:self._pos+1]
+        self._elements = self._elements[:self._pos + 1]
         self._elements.append(o)
-        self._pos = len(self._elements)-1
+        self._pos = len(self._elements) - 1
         return self()
 
     def home(self):
         'push the first element onto the top of the stack'
-        if not len(self._elements): return
+        if not len(self._elements):
+            return
         self.push(self._elements[0])
         return self()
 
     def empty(self):
-        return len(self._elements)==0
+        return len(self._elements) == 0
 
     def clear(self):
         'empty the stack'
@@ -1059,8 +1130,10 @@ class Stack(object):
         self.clear()
         bubbles = []
         for thiso in old:
-            if thiso==o: bubbles.append(thiso)
-            else: self.push(thiso)
+            if thiso == o:
+                bubbles.append(thiso)
+            else:
+                self.push(thiso)
         for thiso in bubbles:
             self.push(o)
         return o
@@ -1072,12 +1145,17 @@ class Stack(object):
         old = self._elements[:]
         self.clear()
         for thiso in old:
-            if thiso==o: continue
-            else: self.push(thiso)
+            if thiso == o:
+                continue
+            else:
+                self.push(thiso)
+
 
 def popall(seq):
     'empty a list'
-    for i in xrange(len(seq)): seq.pop()
+    for i in xrange(len(seq)):
+        seq.pop()
+
 
 def finddir(o, match, case=False):
     """
@@ -1085,61 +1163,68 @@ def finddir(o, match, case=False):
     is True require an exact case match.
     """
     if case:
-        names = [(name,name) for name in dir(o) if is_string_like(name)]
+        names = [(name, name) for name in dir(o) if is_string_like(name)]
     else:
-        names = [(name.lower(), name) for name in dir(o) if is_string_like(name)]
+        names = [(name.lower(), name) for name in dir(o)
+                 if is_string_like(name)]
         match = match.lower()
-    return [orig for name, orig in names if name.find(match)>=0]
+    return [orig for name, orig in names if name.find(match) >= 0]
+
 
 def reverse_dict(d):
     'reverse the dictionary -- may lose data if values are not unique!'
-    return dict([(v,k) for k,v in d.iteritems()])
+    return dict([(v, k) for k, v in d.iteritems()])
+
 
 def restrict_dict(d, keys):
     """
     Return a dictionary that contains those keys that appear in both
     d and keys, with values from d.
     """
-    return dict([(k,v) for (k,v) in d.iteritems() if k in keys])
+    return dict([(k, v) for (k, v) in d.iteritems() if k in keys])
+
 
 def report_memory(i=0):  # argument may go away
     'return the memory consumed by process'
     from subprocess import Popen, PIPE
     pid = os.getpid()
-    if sys.platform=='sunos5':
+    if sys.platform == 'sunos5':
         a2 = Popen('ps -p %d -o osz' % pid, shell=True,
-            stdout=PIPE).stdout.readlines()
+                   stdout=PIPE).stdout.readlines()
         mem = int(a2[-1].strip())
     elif sys.platform.startswith('linux'):
         a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
-            stdout=PIPE).stdout.readlines()
+                   stdout=PIPE).stdout.readlines()
         mem = int(a2[1].split()[1])
     elif sys.platform.startswith('darwin'):
         a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
-            stdout=PIPE).stdout.readlines()
+                   stdout=PIPE).stdout.readlines()
         mem = int(a2[1].split()[0])
     elif sys.platform.startswith('win'):
         try:
             a2 = Popen(["tasklist", "/nh", "/fi", "pid eq %d" % pid],
-                stdout=PIPE).stdout.read()
+                       stdout=PIPE).stdout.read()
         except OSError:
             raise NotImplementedError(
                 "report_memory works on Windows only if "
                 "the 'tasklist' program is found")
-        mem = int(a2.strip().split()[-2].replace(',',''))
+        mem = int(a2.strip().split()[-2].replace(',', ''))
     else:
         raise NotImplementedError(
-                "We don't have a memory monitor for %s" % sys.platform)
+            "We don't have a memory monitor for %s" % sys.platform)
     return mem
 
 _safezip_msg = 'In safezip, len(args[0])=%d but len(args[%d])=%d'
+
+
 def safezip(*args):
     'make sure *args* are equal len before zipping'
     Nx = len(args[0])
     for i, arg in enumerate(args[1:]):
         if len(arg) != Nx:
-            raise ValueError(_safezip_msg % (Nx, i+1, len(arg)))
+            raise ValueError(_safezip_msg % (Nx, i + 1, len(arg)))
     return zip(*args)
+
 
 def issubclass_safe(x, klass):
     'return issubclass(x, klass) and return False on a TypeError'
@@ -1149,6 +1234,7 @@ def issubclass_safe(x, klass):
     except TypeError:
         return False
 
+
 def safe_masked_invalid(x):
     x = np.asanyarray(x)
     try:
@@ -1157,6 +1243,7 @@ def safe_masked_invalid(x):
     except TypeError:
         return x
     return xm
+
 
 class MemoryMonitor:
     def __init__(self, nmax=20000):
@@ -1180,19 +1267,19 @@ class MemoryMonitor:
     def report(self, segments=4):
         n = self._n
         segments = min(n, segments)
-        dn = int(n/segments)
+        dn = int(n / segments)
         ii = range(0, n, dn)
-        ii[-1] = n-1
+        ii[-1] = n - 1
         print()
         print('memory report: i, mem, dmem, dmem/nloops')
         print(0, self._mem[0])
         for i in range(1, len(ii)):
-            di = ii[i] - ii[i-1]
+            di = ii[i] - ii[i - 1]
             if di == 0:
                 continue
-            dm = self._mem[ii[i]] - self._mem[ii[i-1]]
+            dm = self._mem[ii[i]] - self._mem[ii[i - 1]]
             print('%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
-                                            dm, dm / float(di)))
+                                         dm, dm / float(di)))
         if self._overflow:
             print("Warning: array size was too small for the number of calls.")
 
@@ -1274,7 +1361,8 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
     for obj in objects:
         outstream.write("Examining: %r\n" % (obj,))
-        recurse(obj, obj, { }, [])
+        recurse(obj, obj, {}, [])
+
 
 class Grouper(object):
     """
@@ -1310,7 +1398,7 @@ class Grouper(object):
         True
         >>> grp.joined(a, d)
         False
-    
+
     """
     def __init__(self, init=[]):
         mapping = self._mapping = {}
@@ -1372,7 +1460,8 @@ class Grouper(object):
         """
         self.clean()
 
-        class Token: pass
+        class Token:
+            pass
         token = Token()
 
         # Mark each group as we come across if by appending a token,
@@ -1409,7 +1498,7 @@ def simple_linear_interpolation(a, steps):
 
     result[0] = a[0]
     a0 = a[0:-1]
-    a1 = a[1:  ]
+    a1 = a[1:]
     delta = ((a1 - a0) / steps)
 
     for i in range(1, int(steps)):
@@ -1418,9 +1507,11 @@ def simple_linear_interpolation(a, steps):
 
     return result
 
+
 def recursive_remove(path):
     if os.path.isdir(path):
-        for fname in glob.glob(os.path.join(path, '*')) + glob.glob(os.path.join(path, '.*')):
+        for fname in glob.glob(os.path.join(path, '*')) + \
+                     glob.glob(os.path.join(path, '.*')):
             if os.path.isdir(fname):
                 recursive_remove(fname)
                 os.removedirs(fname)
@@ -1429,6 +1520,7 @@ def recursive_remove(path):
         #os.removedirs(path)
     else:
         os.remove(path)
+
 
 def delete_masked_points(*args):
     """
@@ -1492,7 +1584,7 @@ def delete_masked_points(*args):
                 mask = np.isfinite(xd)
                 if isinstance(mask, np.ndarray):
                     masks.append(mask)
-            except: #Fixme: put in tuple of possible exceptions?
+            except:  # Fixme: put in tuple of possible exceptions?
                 pass
     if len(masks):
         mask = reduce(np.logical_and, masks)
@@ -1506,7 +1598,8 @@ def delete_masked_points(*args):
             margs[i] = x.filled()
     return margs
 
-def unmasked_index_ranges(mask, compressed = True):
+
+def unmasked_index_ranges(mask, compressed=True):
     '''
     Find index ranges where *mask* is *False*.
 
@@ -1558,52 +1651,50 @@ def unmasked_index_ranges(mask, compressed = True):
 
 # a dict to cross-map linestyle arguments
 _linestyles = [('-', 'solid'),
-    ('--', 'dashed'),
-    ('-.', 'dashdot'),
-    (':',  'dotted')]
+               ('--', 'dashed'),
+               ('-.', 'dashdot'),
+               (':', 'dotted')]
 
 ls_mapper = dict(_linestyles)
 ls_mapper.update([(ls[1], ls[0]) for ls in _linestyles])
 
-def less_simple_linear_interpolation( x, y, xi, extrap=False ):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('less_simple_linear_interpolation has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
-    import matplotlib.mlab as mlab
-    return mlab.less_simple_linear_interpolation( x, y, xi, extrap=extrap )
 
-def isvector(X):
+def less_simple_linear_interpolation(x, y, xi, extrap=False):
     """
     This function has been moved to matplotlib.mlab -- please import
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('isvector has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('less_simple_linear_interpolation has been moved to '
+                  'matplotlib.mlab -- please import it from there',
+                  DeprecationWarning)
     import matplotlib.mlab as mlab
-    return mlab.isvector( x, y, xi, extrap=extrap )
+    return mlab.less_simple_linear_interpolation(x, y, xi, extrap=extrap)
 
-def vector_lengths( X, P=2., axis=None ):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('vector_lengths has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
-    import matplotlib.mlab as mlab
-    return mlab.vector_lengths( X, P=2., axis=axis )
 
-def distances_along_curve( X ):
+def vector_lengths(X, P=2.0, axis=None):
     """
     This function has been moved to matplotlib.mlab -- please import
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('distances_along_curve has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('vector_lengths has been moved to matplotlib.mlab -- '
+                  'please import it from there', DeprecationWarning)
     import matplotlib.mlab as mlab
-    return mlab.distances_along_curve( X )
+    return mlab.vector_lengths(X, P=2.0, axis=axis)
+
+
+def distances_along_curve(X):
+    """
+    This function has been moved to matplotlib.mlab -- please import
+    it from there
+    """
+    # deprecated from cbook in 0.98.4
+    warnings.warn('distances_along_curve has been moved to matplotlib.mlab '
+                  '-- please import it from there', DeprecationWarning)
+    import matplotlib.mlab as mlab
+    return mlab.distances_along_curve(X)
+
 
 def path_length(X):
     """
@@ -1611,9 +1702,11 @@ def path_length(X):
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('path_length has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('path_length has been moved to matplotlib.mlab '
+                  '-- please import it from there', DeprecationWarning)
     import matplotlib.mlab as mlab
     return mlab.path_length(X)
+
 
 def is_closed_polygon(X):
     """
@@ -1621,9 +1714,11 @@ def is_closed_polygon(X):
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('is_closed_polygon has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('is_closed_polygon has been moved to matplotlib.mlab '
+                  '-- please import it from there', DeprecationWarning)
     import matplotlib.mlab as mlab
     return mlab.is_closed_polygon(X)
+
 
 def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     """
@@ -1631,9 +1726,11 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     it from there
     """
     # deprecated from cbook in 0.98.4
-    warnings.warn('quad2cubic has been moved to matplotlib.mlab -- please import it from there', DeprecationWarning)
+    warnings.warn('quad2cubic has been moved to matplotlib.mlab -- please '
+                  'import it from there', DeprecationWarning)
     import matplotlib.mlab as mlab
     return mlab.quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y)
+
 
 def align_iterators(func, *iterables):
     """
@@ -1666,7 +1763,8 @@ def align_iterators(func, *iterables):
                 raise ValueError("Iterator has been left behind")
             return retval
 
-    # This can be made more efficient by not computing the minimum key for each iteration
+    # This can be made more efficient by not computing the minimum key for each
+    # iteration
     iters = [myiter(it) for it in iterables]
     minvals = minkey = True
     while 1:
@@ -1677,6 +1775,7 @@ def align_iterators(func, *iterables):
         else:
             break
 
+
 def is_math_text(s):
     # Did we find an even number of non-escaped dollar signs?
     # If so, treat is as math text.
@@ -1684,7 +1783,8 @@ def is_math_text(s):
         s = unicode(s)
     except UnicodeDecodeError:
         raise ValueError(
-            "matplotlib display text must have all code points < 128 or use Unicode strings")
+            "matplotlib display text must have all code points < 128 or use "
+            "Unicode strings")
 
     dollar_count = s.count(r'$') - s.count(r'\$')
     even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
@@ -1786,9 +1886,9 @@ else:
     check_output = _check_output
 
 
-if __name__=='__main__':
-    assert( allequal([1,1,1]) )
-    assert(not  allequal([1,1,0]) )
-    assert( allequal([]) )
-    assert( allequal(('a', 'a')))
-    assert( not allequal(('a', 'b')))
+if __name__ == '__main__':
+    assert(allequal([1, 1, 1]))
+    assert(not allequal([1, 1, 0]))
+    assert(allequal([]))
+    assert(allequal(('a', 'a')))
+    assert(not allequal(('a', 'b')))

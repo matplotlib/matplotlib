@@ -15,6 +15,18 @@ revision, see the :ref:`github-stats`.
    versions 2.4 to 2.7.  matplotlib 1.2 and later require
    versions 2.6, 2.7, and 3.1 and higher.
 
+.. _whats-new-1-3:
+
+new in matplotlib-1.3
+=====================
+
+Rectangular colorbar extensions
+-------------------------------
+Andrew Dawson added a new keyword argument *extendrect* to
+:meth:`~matplotlib.pyplot.colorbar` to optionally make colorbar
+extensions rectangular instead of triangular.
+
+
 .. _whats-new-1-2:
 
 new in matplotlib-1.2
@@ -45,7 +57,7 @@ sufficiently mature.
 PGF/TikZ backend
 ----------------
 Peter Würtz wrote a backend that allows matplotlib to export figures as
-drawing commands for LaTeX that can be processed by PdfLaTeX, XeLaTeX or
+drawing commands for LaTeX. These can be processed by PdfLaTeX, XeLaTeX or
 LuaLaTeX using the PGF/TikZ package. Usage examples and documentation are
 found in :ref:`pgf-tutorial`.
 

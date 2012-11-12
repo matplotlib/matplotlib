@@ -3554,7 +3554,7 @@ FigureCanvas_write_bitmap(FigureCanvas* self, PyObject* args)
 
     NSBitmapImageRep* rep = [NSBitmapImageRep imageRepWithData:data];
 
-    NSSize pxlSize = NSMakeSize(rep.pixelsWide, rep.pixelsHigh);
+    NSSize pxlSize = NSMakeSize([rep pixelsWide], [rep pixelsHigh]);
     NSSize newSize = NSMakeSize(72.0 * pxlSize.width / dpi, 72.0 * pxlSize.height / dpi);
 
     [rep setSize:newSize];

@@ -110,13 +110,17 @@ def validate_backend(s):
 
 validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
 
-validate_toolbar = ValidateInStrings('toolbar',[
-    'None','classic','toolbar2',
-    ], ignorecase=True)
-
-def validate_autolayout(v):
-    if v:
-        warnings.warn("figure.autolayout is not currently supported")
+def validate_toolbar(s):
+    validator = ValidateInStrings(
+                'toolbar',
+                ['None','classic','toolbar2'],
+                ignorecase=True)
+    s = validator(s)
+    if s.lower == 'classic':
+        warnings.warn("'classic' Navigation Toolbar "
+                      "is deprecated in v1.2.x and will be "
+                      "removed in v1.3")
+    return s
 
 def validate_maskedarray(v):
     # 2008/12/12: start warning; later, remove all traces of maskedarray
@@ -323,7 +327,8 @@ validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
                                            ['xelatex', 'lualatex', 'pdflatex'])
 
 validate_movie_writer = ValidateInStrings('animation.writer',
-    ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file'])
+    ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file',
+     'imagemagick', 'imagemagick_file'])
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
@@ -621,6 +626,8 @@ defaultParams = {
     'animation.ffmpeg_args' : ['', validate_stringlist], # Additional arguments for ffmpeg movie writer (using pipes)
     'animation.mencoder_path' : ['mencoder', str], # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
     'animation.mencoder_args' : ['', validate_stringlist], # Additional arguments for mencoder movie writer (using pipes)
+    'animation.convert_path' : ['convert', str], # Path to convert binary. If just binary name, subprocess uses $PATH
+    'animation.convert_args' : ['', validate_stringlist], # Additional arguments for mencoder movie writer (using pipes)
 }
 
 if __name__ == '__main__':

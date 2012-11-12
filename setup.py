@@ -73,6 +73,16 @@ py_modules = ['pylab']
 
 ext_modules = []
 
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Science/Research',
+    'License :: OSI Approved :: Python Software Foundation License',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 2',
+    'Programming Language :: Python :: 3',
+    'Topic :: Scientific/Engineering :: Visualization',
+    ]
+
 for line in open('lib/matplotlib/__init__.py').readlines():
     if (line.startswith('__version__')):
         exec(line.strip())
@@ -232,7 +242,6 @@ else:
     # only add them if we need them
     if provide_pytz:
         add_pytz()
-        print_raw("adding pytz")
     if provide_dateutil:
         add_dateutil()
     if provide_six:
@@ -319,6 +328,7 @@ distrib = setup(name="matplotlib",
       ext_modules = ext_modules,
       package_dir = package_dir,
       package_data = package_data,
+      classifiers = classifiers,
       cmdclass = {'build_py': build_py},
       **additional_params
       )

@@ -21,10 +21,12 @@ cmap_d = dict()
 # reverse all the colormaps.
 # reversed colormaps have '_r' appended to the name.
 
+
 def _reverser(f):
     def freversed(x):
-        return f(1-x)
+        return f(1 - x)
     return freversed
+
 
 def revcmap(data):
     """Can only handle specification *data* in dictionary format."""
@@ -42,6 +44,7 @@ def revcmap(data):
         data_r[key] = valnew
     return data_r
 
+
 def _reverse_cmap_spec(spec):
     """Reverses cmap specification *spec*, can handle both dict and tuple
     type specs."""
@@ -53,6 +56,7 @@ def _reverse_cmap_spec(spec):
         if len(revspec[0]) == 2:    # e.g., (1, (1.0, 0.0, 1.0))
             revspec = [(1.0 - a, b) for a, b in revspec]
         return revspec
+
 
 def _generate_cmap(name, lutsize):
     """Generates the requested cmap from it's name *name*.  The lut size is
@@ -86,6 +90,7 @@ for cmapname in datad.iterkeys():
 locals().update(cmap_d)
 
 # Continue with definitions ...
+
 
 def register_cmap(name=None, cmap=None, data=None, lut=None):
     """
@@ -125,6 +130,7 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
     cmap = colors.LinearSegmentedColormap(name, data, lut)
     cmap_d[name] = cmap
 
+
 def get_cmap(name=None, lut=None):
     """
     Get a colormap instance, defaulting to rc values if *name* is None.
@@ -154,6 +160,7 @@ def get_cmap(name=None, lut=None):
 
     raise ValueError("Colormap %s is not recognized" % name)
 
+
 class ScalarMappable:
     """
     This is a mixin class to support scalar -> RGBA mapping.  Handles
@@ -169,14 +176,16 @@ class ScalarMappable:
 
         self.callbacksSM = cbook.CallbackRegistry()
 
-        if cmap is None: cmap = get_cmap()
-        if norm is None: norm = colors.Normalize()
+        if cmap is None:
+            cmap = get_cmap()
+        if norm is None:
+            norm = colors.Normalize()
 
         self._A = None
         self.norm = norm
         self.cmap = get_cmap(cmap)
         self.colorbar = None
-        self.update_dict = {'array':False}
+        self.update_dict = {'array': False}
 
     def set_colorbar(self, im, ax):
         'set the colorbar image and axes associated with mappable'
@@ -219,9 +228,9 @@ class ScalarMappable:
                     if x.dtype == np.uint8:
                         alpha = np.uint8(alpha * 255)
                     m, n = x.shape[:2]
-                    xx = np.empty(shape=(m,n,4), dtype = x.dtype)
-                    xx[:,:,:3] = x
-                    xx[:,:,3] = alpha
+                    xx = np.empty(shape=(m, n, 4), dtype=x.dtype)
+                    xx[:, :, :3] = x
+                    xx[:, :, 3] = alpha
                 elif x.shape[2] == 4:
                     xx = x
                 else:
@@ -267,11 +276,13 @@ class ScalarMappable:
         ACCEPTS: a length 2 sequence of floats
         """
         if (vmin is not None and vmax is None and
-                                cbook.iterable(vmin) and len(vmin)==2):
+                cbook.iterable(vmin) and len(vmin) == 2):
             vmin, vmax = vmin
 
-        if vmin is not None: self.norm.vmin = vmin
-        if vmax is not None: self.norm.vmax = vmax
+        if vmin is not None:
+            self.norm.vmin = vmin
+        if vmax is not None:
+            self.norm.vmax = vmax
         self.changed()
 
     def set_cmap(self, cmap):
@@ -286,7 +297,8 @@ class ScalarMappable:
 
     def set_norm(self, norm):
         'set the normalization instance'
-        if norm is None: norm = colors.Normalize()
+        if norm is None:
+            norm = colors.Normalize()
         self.norm = norm
         self.changed()
 
@@ -309,7 +321,6 @@ class ScalarMappable:
             raise TypeError('You must first set_array for mappable')
         self.norm.autoscale_None(self._A)
         self.changed()
-
 
     def add_checker(self, checker):
         """

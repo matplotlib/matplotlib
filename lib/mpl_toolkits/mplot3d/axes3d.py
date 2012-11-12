@@ -1562,7 +1562,7 @@ class Axes3D(Axes):
 
         return linec
 
-    def plot_trisurf(self, X, Y, Z, *args, **kwargs):
+    def plot_trisurf(self, *args, **kwargs):
         """
         ============= ================================================
         Argument      Description
@@ -1576,8 +1576,36 @@ class Axes3D(Axes):
         *shade*       Whether to shade the facecolors
         ============= ================================================
 
+        The (optional) triangulation can be specified in one of two ways;
+        either::
+
+          plot_trisurf(triangulation, ...)
+
+        where triangulation is a :class:`~matplotlib.tri.Triangulation`
+        object, or::
+
+          plot_trisurf(X, Y, ...)
+          plot_trisurf(X, Y, triangles, ...)
+          plot_trisurf(X, Y, triangles=triangles, ...)
+
+        in which case a Triangulation object will be created.  See
+        :class:`~matplotlib.tri.Triangulation` for a explanation of
+        these possibilities.
+
+        The remaining arguments are::
+
+          plot_trisurf(..., Z)
+
+        where *Z* is the array of values to contour, one per point
+        in the triangulation.
+
         Other arguments are passed on to
         :class:`~mpl_toolkits.mplot3d.art3d.Poly3DCollection`
+
+        **Examples:**
+
+        .. plot:: mpl_examples/mplot3d/trisurf3d_demo.py
+        .. plot:: mpl_examples/mplot3d/trisurf3d_demo2.py
 
         .. versionadded:: 1.2.0
             This plotting function was added for the v1.2.0 release.
@@ -1596,15 +1624,13 @@ class Axes3D(Axes):
         shade = kwargs.pop('shade', cmap is None)
         lightsource = kwargs.pop('lightsource', None)
 
-        # TODO: Support masked triangulations
-        tri = Triangulation(X, Y)
-        x = tri.x
-        y = tri.y
-        triangles = tri.triangles
+        tri, args, kwargs = Triangulation.get_from_args_and_kwargs(*args, **kwargs)
+        z = np.asarray(args[0])
 
-        xt = x[triangles][...,np.newaxis]
-        yt = y[triangles][...,np.newaxis]
-        zt = np.array(Z)[triangles][...,np.newaxis]
+        triangles = tri.get_masked_triangles()
+        xt = tri.x[triangles][...,np.newaxis]
+        yt = tri.y[triangles][...,np.newaxis]
+        zt = np.array(z)[triangles][...,np.newaxis]
 
         verts = np.concatenate((xt, yt, zt), axis=2)
 
@@ -1649,7 +1675,7 @@ class Axes3D(Axes):
             polyc.set_facecolors(colset)
 
         self.add_collection(polyc)
-        self.auto_scale_xyz(X, Y, Z, had_data)
+        self.auto_scale_xyz(tri.x, tri.y, z, had_data)
 
         return polyc
 
@@ -1936,9 +1962,13 @@ class Axes3D(Axes):
         ys = np.ma.ravel(ys)
         zs = np.ma.ravel(zs)
         if xs.size != ys.size:
-            raise ValueError("x and y must be the same size")
-        if xs.size != zs.size and zs.size == 1:
-            zs = np.array(zs[0] * xs.size)
+            raise ValueError("Arguments 'xs' and 'ys' must be of same size.")
+        if xs.size != zs.size:
+            if zs.size == 1:
+                zs = np.tile(zs[0], xs.size)
+            else:
+                raise ValueError(("Argument 'zs' must be of same size as 'xs' "
+                    "and 'ys' or of size 1."))
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 

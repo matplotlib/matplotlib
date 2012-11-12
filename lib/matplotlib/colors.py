@@ -307,7 +307,7 @@ class ColorConverter(object):
                     raise ValueError(
                            'sequence length is %d; must be 3 or 4' % len(arg))
                 color = tuple(arg[:3])
-                if [x for x in color if (float(x) < 0) or  (x > 1)]:
+                if [x for x in color if (float(x) < 0) or (x > 1)]:
                     # This will raise TypeError if x is not a number.
                     raise ValueError(
                             'number in rbg sequence outside 0-1 range')
@@ -344,7 +344,7 @@ class ColorConverter(object):
         try:
             if not cbook.is_string_like(arg) and cbook.iterable(arg):
                 if len(arg) == 4:
-                    if [x for x in arg if (float(x) < 0) or  (x > 1)]:
+                    if [x for x in arg if (float(x) < 0) or (x > 1)]:
                         # This will raise TypeError if x is not a number.
                         raise ValueError(
                                 'number in rbga sequence outside 0-1 range')
@@ -354,7 +354,7 @@ class ColorConverter(object):
                         raise ValueError("alpha must be in range 0-1")
                     return arg[0], arg[1], arg[2], alpha
                 r, g, b = arg[:3]
-                if [x for x in (r, g, b) if (float(x) < 0) or  (x > 1)]:
+                if [x for x in (r, g, b) if (float(x) < 0) or (x > 1)]:
                     raise ValueError(
                             'number in rbg sequence outside 0-1 range')
             else:
@@ -953,7 +953,7 @@ class LogNorm(Normalize):
         else:
             if clip:
                 mask = ma.getmask(result)
-                val = ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                 mask=mask)
             # in-place equivalent of above can be much faster
             resdat = result.data
@@ -1254,23 +1254,23 @@ class LightSource(object):
         hsv[:, :, 1] = np.where(np.logical_and(
                                    np.abs(hsv[:, :, 1]) > 1.e-10,
                                    intensity > 0),
-                                (1. - intensity) * hsv[:, :, 1] + \
+                                (1. - intensity) * hsv[:, :, 1] +
                                          intensity * self.hsv_max_sat,
                                 hsv[:, :, 1])
 
         hsv[:, :, 2] = np.where(intensity > 0,
-                                (1. - intensity) * hsv[:, :, 2] + \
+                                (1. - intensity) * hsv[:, :, 2] +
                                      intensity * self.hsv_max_val,
                                 hsv[:, :, 2])
 
         hsv[:, :, 1] = np.where(np.logical_and(
                                np.abs(hsv[:, :, 1]) > 1.e-10,
                                intensity < 0),
-                               (1. + intensity) * hsv[:, :, 1] - \
+                               (1. + intensity) * hsv[:, :, 1] -
                                     intensity * self.hsv_min_sat,
                                hsv[:, :, 1])
         hsv[:, :, 2] = np.where(intensity < 0,
-                               (1. + intensity) * hsv[:, :, 2] -\
+                               (1. + intensity) * hsv[:, :, 2] -
                                     intensity * self.hsv_min_val,
                                hsv[:, :, 2])
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] < 0., 0, hsv[:, :, 1:])

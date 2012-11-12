@@ -49,20 +49,25 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Minimum length of streamline in axes coordinates.
 
     Returns:
-    
+
         *stream_container* : StreamplotSet
             Container object with attributes
-                lines : `matplotlib.collections.LineCollection` of streamlines
-                arrows : collection of `matplotlib.patches.FancyArrowPatch` objects
-                    repesenting arrows half-way along stream lines.
-            This container will probably change in the future to allow changes to
-            the colormap, alpha, etc. for both lines and arrows, but these changes
-            should be backward compatible.
-    
+                lines: `matplotlib.collections.LineCollection` of streamlines
+                arrows: collection of `matplotlib.patches.FancyArrowPatch`
+                        objects representing arrows half-way along stream
+                        lines.
+            This container will probably change in the future to allow changes
+            to the colormap, alpha, etc. for both lines and arrows, but these
+            changes should be backward compatible.
+
     """
     grid = Grid(x, y)
     mask = StreamMask(density)
     dmap = DomainMap(grid, mask)
+
+    # default to data coordinates
+    if transform is None:
+        transform = axes.transData
 
     if color is None:
         color = axes._get_lines.color_cycle.next()
@@ -71,7 +76,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         linewidth = matplotlib.rcParams['lines.linewidth']
 
     line_kw = {}
-    arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10*arrowsize)
+    arrow_kw = dict(arrowstyle=arrowstyle, mutation_scale=10 * arrowsize)
 
     use_multicolor_lines = isinstance(color, np.ndarray)
     if use_multicolor_lines:
@@ -104,7 +109,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         if mask[ym, xm] == 0:
             xg, yg = dmap.mask2grid(xm, ym)
             t = integrate(xg, yg)
-            if t != None:
+            if t is not None:
                 trajectories.append(t)
 
     if use_multicolor_lines:
@@ -128,10 +133,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         streamlines.extend(np.hstack([points[:-1], points[1:]]))
 
         # Add arrows half way along each trajectory.
-        s = np.cumsum(np.sqrt(np.diff(tx)**2 + np.diff(ty)**2))
+        s = np.cumsum(np.sqrt(np.diff(tx) ** 2 + np.diff(ty) ** 2))
         n = np.searchsorted(s, s[-1] / 2.)
         arrow_tail = (tx[n], ty[n])
-        arrow_head = (np.mean(tx[n:n+2]), np.mean(ty[n:n+2]))
+        arrow_head = (np.mean(tx[n:n + 2]), np.mean(ty[n:n + 2]))
 
         if isinstance(linewidth, np.ndarray):
             line_widths = interpgrid(linewidth, tgx, tgy)[:-1]
@@ -143,15 +148,15 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
             line_colors.extend(color_values)
             arrow_kw['color'] = cmap(norm(color_values[n]))
 
-        p = patches.FancyArrowPatch(arrow_tail, 
-                                    arrow_head, 
-                                    transform=transform, 
+        p = patches.FancyArrowPatch(arrow_tail,
+                                    arrow_head,
+                                    transform=transform,
                                     **arrow_kw)
         axes.add_patch(p)
         arrows.append(p)
 
-    lc = mcollections.LineCollection(streamlines, 
-                                     transform=transform, 
+    lc = mcollections.LineCollection(streamlines,
+                                     transform=transform,
                                      **line_kw)
     if use_multicolor_lines:
         lc.set_array(np.asarray(line_colors))
@@ -275,7 +280,7 @@ class Grid(object):
         """Return True if point is a valid index of grid."""
         # Note that xi/yi can be floats; so, for example, we can't simply check
         # `xi < self.nx` since `xi` can be `self.nx - 1 < xi < self.nx`
-        return xi >= 0 and xi <= self.nx-1 and yi >= 0 and yi <= self.ny-1
+        return xi >= 0 and xi <= self.nx - 1 and yi >= 0 and yi <= self.ny - 1
 
 
 class StreamMask(object):
@@ -330,6 +335,7 @@ class StreamMask(object):
 class InvalidIndexError(Exception):
     pass
 
+
 class TerminateTrajectory(Exception):
     pass
 
@@ -345,7 +351,7 @@ def get_integrator(u, v, dmap, minlength):
     # speed (path length) will be in axes-coordinates
     u_ax = u / dmap.grid.nx
     v_ax = v / dmap.grid.ny
-    speed = np.ma.sqrt(u_ax**2 + v_ax**2)
+    speed = np.ma.sqrt(u_ax ** 2 + v_ax ** 2)
 
     def forward_time(xi, yi):
         ds_dt = interpgrid(speed, xi, yi)
@@ -382,7 +388,7 @@ def get_integrator(u, v, dmap, minlength):
 
         if stotal > minlength:
             return x_traj, y_traj
-        else: # reject short trajectories
+        else:  # reject short trajectories
             dmap.undo_trajectory()
             return None
 
@@ -423,7 +429,7 @@ def _integrate_rk12(x0, y0, dmap, f):
     ## increment the location gradually. However, due to the efficient
     ## nature of the interpolation, this doesn't boost speed by much
     ## for quite a bit of complexity.
-    maxds = min(1./dmap.mask.nx, 1./dmap.mask.ny, 0.1)
+    maxds = min(1. / dmap.mask.nx, 1. / dmap.mask.ny, 0.1)
 
     ds = maxds
     stotal = 0
@@ -455,7 +461,7 @@ def _integrate_rk12(x0, y0, dmap, f):
 
         nx, ny = dmap.grid.shape
         # Error is normalized to the axes coordinates
-        error = np.sqrt(((dx2-dx1)/nx)**2 + ((dy2-dy1)/ny)**2)
+        error = np.sqrt(((dx2 - dx1) / nx) ** 2 + ((dy2 - dy1) / ny) ** 2)
 
         # Only save step if within error tolerance
         if error < maxerror:
@@ -473,7 +479,7 @@ def _integrate_rk12(x0, y0, dmap, f):
         if error == 0:
             ds = maxds
         else:
-            ds = min(maxds, 0.85 * ds * (maxerror/error)**0.5)
+            ds = min(maxds, 0.85 * ds * (maxerror / error) ** 0.5)
 
     return stotal, xf_traj, yf_traj
 
@@ -497,8 +503,8 @@ def _euler_step(xf_traj, yf_traj, dmap, f):
     else:
         dsy = (ny - 1 - yi) / cy
     ds = min(dsx, dsy)
-    xf_traj.append(xi + cx*ds)
-    yf_traj.append(yi + cy*ds)
+    xf_traj.append(xi + cx * ds)
+    yf_traj.append(yi + cy * ds)
     return ds, xf_traj, yf_traj
 
 
@@ -519,10 +525,14 @@ def interpgrid(a, xi, yi):
         x = np.int(xi)
         y = np.int(yi)
         # conditional is faster than clipping for integers
-        if x == (Nx - 2): xn = x
-        else: xn = x + 1
-        if y == (Ny - 2): yn = y
-        else: yn = y + 1
+        if x == (Nx - 2):
+            xn = x
+        else:
+            xn = x + 1
+        if y == (Ny - 2):
+            yn = y
+        else:
+            yn = y + 1
 
     a00 = a[y, x]
     a01 = a[y, xn]
@@ -563,20 +573,20 @@ def _gen_starting_points(shape):
         if direction == 'right':
             x += 1
             if x >= xlast:
-                xlast -=1
+                xlast -= 1
                 direction = 'up'
         elif direction == 'up':
             y += 1
             if y >= ylast:
-                ylast -=1
+                ylast -= 1
                 direction = 'left'
         elif direction == 'left':
             x -= 1
             if x <= xfirst:
-                xfirst +=1
+                xfirst += 1
                 direction = 'down'
         elif direction == 'down':
             y -= 1
             if y <= yfirst:
-                yfirst +=1
+                yfirst += 1
                 direction = 'right'
