@@ -1123,6 +1123,8 @@ class TimerBase(object):
         '''
         for func, args, kwargs in self.callbacks:
             ret = func(*args, **kwargs)
+            # docstring above explains why we use `if ret is False` here,
+            # instead of `if not ret`.
             if ret is False:
                 self.callbacks.remove((func, args, kwargs))
 
