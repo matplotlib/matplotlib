@@ -8617,6 +8617,9 @@ class Axes(martist.Artist):
         spectrum is shown.  If *x* is complex, both positive and
         negative parts of the spectrum are shown.  This can be
         overridden using the *sides* keyword argument.
+        
+        Also note that while the plot is in dB, the *Pxx* array returned is
+        linear in power.
 
         **Example:**
 
