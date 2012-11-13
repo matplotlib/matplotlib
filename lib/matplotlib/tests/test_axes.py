@@ -901,6 +901,20 @@ def test_hist_stacked_weighted():
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), weights=(w1,w2), histtype="stepfilled", stacked=True)
 
+@cleanup
+def test_stem_args():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    x = range(10)
+    y = range(10)
+
+    # Test the call signatures
+    ax.stem(y)
+    ax.stem(x, y)
+    ax.stem(x, y, 'r--')
+    ax.stem(x, y, 'r--', basefmt='b--')
+
 @image_comparison(baseline_images=['transparent_markers'], remove_text=True)
 def test_transparent_markers():
     np.random.seed(0)
