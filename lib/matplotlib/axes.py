@@ -6597,6 +6597,10 @@ class Axes(martist.Artist):
         Draws arrow on specified axis from (*x*, *y*) to (*x* + *dx*,
         *y* + *dy*). Uses FancyArrow patch to construct the arrow.
 
+        The resulting arrow is affected by the axes aspect ratio and limits. This
+        may produce an arrow whose head is not square with its stem. To create
+        an arrow whose head is square with its stem, use :meth:`annotate`.
+
         Optional kwargs control the arrow construction and properties:
 
         %(FancyArrow)s
