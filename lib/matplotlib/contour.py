@@ -1424,20 +1424,42 @@ class QuadContourSet(ContourSet):
         x = np.asarray(x, dtype=np.float64)
         y = np.asarray(y, dtype=np.float64)
         z = ma.asarray(args[2], dtype=np.float64)
+
         if z.ndim != 2:
             raise TypeError("Input z must be a 2D array.")
         else:
             Ny, Nx = z.shape
-        if x.shape == z.shape and y.shape == z.shape:
-            return x, y, z
-        if x.ndim != 1 or y.ndim != 1:
+
+        if x.ndim != y.ndim:
+            raise TypeError("Number of dimensions of x and y should match.")
+
+        if x.ndim == 1:
+
+            nx, = x.shape
+            ny, = y.shape
+
+            if nx != Nx:
+                raise TypeError("Length of x must be number of columns in z.")
+
+            if ny != Ny:
+                raise TypeError("Length of y must be number of rows in z.")
+
+            x, y = np.meshgrid(x, y)
+
+        elif x.ndim == 2:
+
+            if x.shape != z.shape:
+                raise TypeError("Shape of x does not match that of z: found "
+                            "{0} instead of {1}.".format(x.shape, z.shape))
+
+            if y.shape != z.shape:
+                raise TypeError("Shape of y does not match that of z: found "
+                            "{0} instead of {1}.".format(y.shape, z.shape))
+
+        else:
+
             raise TypeError("Inputs x and y must be 1D or 2D.")
-        nx, = x.shape
-        ny, = y.shape
-        if nx != Nx or ny != Ny:
-            raise TypeError("Length of x must be number of columns in z,\n" +
-                            "and length of y must be number of rows.")
-        x, y = np.meshgrid(x, y)
+
         return x, y, z
 
     def _initialize_x_y(self, z):
