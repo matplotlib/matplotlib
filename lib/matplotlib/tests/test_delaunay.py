@@ -193,20 +193,20 @@ make_all_2d_testfuncs()
 ref_interpolator = Triangulation([0,10,10,0],
                                  [0,0,10,10]).linear_interpolator([1,10,5,2.0])
 
-def equal_arrays(a1,a2, tolerance=1e-10):
-    return np.all(np.absolute(a1 - a2) < tolerance)
-
 def test_1d_grid():
     res = ref_interpolator[3:6:2j,1:1:1j]
-    assert equal_arrays(res, [[1.6],[1.9]])
+    assert np.allclose(res, [[1.6],[1.9]], rtol=0)
 
 def test_0d_grid():
     res = ref_interpolator[3:3:1j,1:1:1j]
-    assert equal_arrays(res, [[1.6]])
+    assert np.allclose(res, [[1.6]], rtol=0)
 
 @image_comparison(baseline_images=['delaunay-1d-interp'], extensions=['png'])
 def test_1d_plots():
     x_range = slice(0.25,9.75,20j)
     x = np.mgrid[x_range]
+    ax = plt.gca()
     for y in xrange(2,10,2):
         plt.plot(x, ref_interpolator[x_range,y:y:1j])
+    ax.set_xticks([])
+    ax.set_yticks([])
