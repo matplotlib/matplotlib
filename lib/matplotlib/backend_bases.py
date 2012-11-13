@@ -1123,7 +1123,7 @@ class TimerBase(object):
         '''
         for func, args, kwargs in self.callbacks:
             ret = func(*args, **kwargs)
-            if not ret:
+            if ret is False:
                 self.callbacks.remove((func, args, kwargs))
 
         if len(self.callbacks) == 0:
