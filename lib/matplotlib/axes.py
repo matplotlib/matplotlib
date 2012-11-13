@@ -7450,7 +7450,7 @@ class Axes(martist.Artist):
         maxy = np.amax(y)
 
         corners = (minx, miny), (maxx, maxy)
-        self.update_datalim( corners)
+        self.update_datalim(corners)
         self.autoscale_view()
         self.add_collection(collection)
         return collection
@@ -7505,7 +7505,8 @@ class Axes(martist.Artist):
             'gouraud', each quad will be Gouraud shaded.  When gouraud
             shading, edgecolors is ignored.
 
-          *edgecolors*: [ *None* | ``'None'`` | ``'face'`` | color | color sequence]
+          *edgecolors*: [*None* | ``'None'`` | ``'face'`` | color |
+                         color sequence]
             If *None*, the rc setting is used by default.
 
             If ``'None'``, edges will not be visible.
@@ -7531,7 +7532,8 @@ class Axes(martist.Artist):
                 For an explanation of the grid orientation and the
                 expansion of 1-D *X* and/or *Y* to 2-D arrays.
         """
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
 
         alpha = kwargs.pop('alpha', None)
         norm = kwargs.pop('norm', None)
@@ -7547,8 +7549,8 @@ class Axes(martist.Artist):
 
         # convert to one dimensional arrays
         if shading != 'gouraud':
-            C = ma.ravel(C[0:Ny-1, 0:Nx-1]) # data point in each cell is value at
-                                            # lower left corner
+            C = ma.ravel(C[0:Ny - 1, 0:Nx - 1])  # data point in each cell is
+                                                 # value at lower left corner
         else:
             C = C.ravel()
         X = X.ravel()
@@ -7563,7 +7565,8 @@ class Axes(martist.Artist):
             antialiased=antialiased, shading=shading, **kwargs)
         collection.set_alpha(alpha)
         collection.set_array(C)
-        if norm is not None: assert(isinstance(norm, mcolors.Normalize))
+        if norm is not None:
+            assert(isinstance(norm, mcolors.Normalize))
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_clim(vmin, vmax)
@@ -7590,7 +7593,7 @@ class Axes(martist.Artist):
         maxy = np.amax(Y)
 
         corners = (minx, miny), (maxx, maxy)
-        self.update_datalim( corners)
+        self.update_datalim(corners)
         self.autoscale_view()
         self.add_collection(collection)
         return collection
@@ -7679,14 +7682,16 @@ class Axes(martist.Artist):
 
         """
 
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
 
         alpha = kwargs.pop('alpha', None)
         norm = kwargs.pop('norm', None)
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
-        if norm is not None: assert(isinstance(norm, mcolors.Normalize))
+        if norm is not None:
+            assert(isinstance(norm, mcolors.Normalize))
 
         C = args[-1]
         nr, nc = C.shape
@@ -7704,8 +7709,8 @@ class Axes(martist.Artist):
                 else:
                     dx = np.diff(x)
                     dy = np.diff(y)
-                    if (np.ptp(dx) < 0.01*np.abs(dx.mean()) and
-                        np.ptp(dy) < 0.01*np.abs(dy.mean())):
+                    if (np.ptp(dx) < 0.01 * np.abs(dx.mean()) and
+                        np.ptp(dy) < 0.01 * np.abs(dy.mean())):
                         style = "image"
                     else:
                         style = "pcolorimage"
@@ -7720,12 +7725,12 @@ class Axes(martist.Artist):
 
             # convert to one dimensional arrays
             # This should also be moved to the QuadMesh class
-            C = ma.ravel(C) # data point in each cell is value
-                            # at lower left corner
+            C = ma.ravel(C)  # data point in each cell is value
+                             # at lower left corner
             X = x.ravel()
             Y = y.ravel()
-            Nx = nc+1
-            Ny = nr+1
+            Nx = nc + 1
+            Ny = nr + 1
 
             # The following needs to be cleaned up; the renderer
             # requires separate contiguous arrays for X and Y,
@@ -7780,13 +7785,15 @@ class Axes(martist.Artist):
         return ret
 
     def contour(self, *args, **kwargs):
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
         kwargs['filled'] = False
         return mcontour.QuadContourSet(self, *args, **kwargs)
     contour.__doc__ = mcontour.QuadContourSet.contour_doc
 
     def contourf(self, *args, **kwargs):
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
         kwargs['filled'] = True
         return mcontour.QuadContourSet(self, *args, **kwargs)
     contourf.__doc__ = mcontour.QuadContourSet.contour_doc
@@ -8041,7 +8048,8 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/histogram_demo.py
 
         """
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
 
         # xrange becomes range after 2to3
         bin_range = range
@@ -8058,10 +8066,9 @@ class Axes(martist.Artist):
         if align not in ['left', 'mid', 'right']:
             raise ValueError("align kwarg %s is not recognized" % align)
 
-        if orientation not in [ 'horizontal', 'vertical']:
+        if orientation not in ['horizontal', 'vertical']:
             raise ValueError(
                 "orientation kwarg %s is not recognized" % orientation)
-
 
         if kwargs.get('width') is not None:
             raise DeprecationWarning(
@@ -8069,7 +8076,7 @@ class Axes(martist.Artist):
                 'and not absolute width')
 
         if histtype == 'barstacked' and not stacked:
-            stacked=True
+            stacked = True
 
         # Massage 'x' for processing.
         # NOTE: Be sure any changes here is also done below to 'weights'
@@ -8077,23 +8084,24 @@ class Axes(martist.Artist):
             # TODO: support masked arrays;
             x = np.asarray(x)
             if x.ndim == 2:
-                x = x.T # 2-D input with columns as datasets; switch to rows
+                x = x.T  # 2-D input with columns as datasets; switch to rows
             elif x.ndim == 1:
                 x = x.reshape(1, x.shape[0])  # new view, single row
             else:
                 raise ValueError("x must be 1D or 2D")
             if x.shape[1] < x.shape[0]:
-                warnings.warn('2D hist input should be nsamples x nvariables;\n '
-                    'this looks transposed (shape is %d x %d)' % x.shape[::-1])
+                warnings.warn('2D hist input should be nsamples x '
+                              'nvariables;\n this looks transposed '
+                              '(shape is %d x %d)' % x.shape[::-1])
         else:
             # multiple hist with data of different length
             x = [np.asarray(xi) for xi in x]
 
-        nx = len(x) # number of datasets
+        nx = len(x)  # number of datasets
 
         if color is None:
             color = [self._get_lines.color_cycle.next()
-                                            for i in xrange(nx)]
+                     for i in xrange(nx)]
         else:
             color = mcolors.colorConverter.to_rgba_array(color)
             if len(color) != nx:
@@ -8101,7 +8109,7 @@ class Axes(martist.Artist):
 
         # We need to do to 'weights' what was done to 'x'
         if weights is not None:
-            if isinstance(weights, np.ndarray) or not iterable(weights[0]) :
+            if isinstance(weights, np.ndarray) or not iterable(weights[0]):
                 w = np.array(weights)
                 if w.ndim == 2:
                     w = w.T
@@ -8119,8 +8127,7 @@ class Axes(martist.Artist):
                     raise ValueError(
                         'weights should have the same shape as x')
         else:
-            w = [None]*nx
-
+            w = [None] * nx
 
         # Save autoscale state for later restoration; turn autoscaling
         # off so we can do it all a single time at the end, instead
@@ -8152,19 +8159,20 @@ class Axes(martist.Artist):
         # We will handle the normed kwarg within mpl until we
         # get to the point of requiring numpy >= 1.5.
         hist_kwargs = dict(range=bin_range)
-        if np.__version__ < "1.3": # version 1.1 and 1.2
+        if np.__version__ < "1.3":  # version 1.1 and 1.2
             hist_kwargs['new'] = True
 
         n = []
         mlast = bottom
-        # reversed order is necessary so when stacking histogram, first dataset is on top
-        # if histogram isn't stacked, this doesn't make any difference
+        # reversed order is necessary so when stacking histogram, first
+        # dataset is on top if histogram isn't stacked, this doesn't make any
+        # difference
         for i in reversed(xrange(nx)):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
             if mlast is None:
-                mlast = np.zeros(len(bins)-1, m.dtype)
+                mlast = np.zeros(len(bins) - 1, m.dtype)
             if normed:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
@@ -8176,14 +8184,14 @@ class Axes(martist.Artist):
         if cumulative:
             slc = slice(None)
             if cbook.is_numlike(cumulative) and cumulative < 0:
-                slc = slice(None,None,-1)
+                slc = slice(None, None, -1)
 
             if normed:
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
 
-        n.reverse() # put them back in the right order
+        n.reverse()  # put them back in the right order
 
         patches = []
 
@@ -8192,26 +8200,26 @@ class Axes(martist.Artist):
 
             if rwidth is not None:
                 dr = min(1.0, max(0.0, rwidth))
-            elif len(n)>1:
+            elif len(n) > 1:
                 dr = 0.8
             else:
                 dr = 1.0
 
-            if histtype=='bar' and not stacked:
-                width = dr*totwidth/nx
+            if histtype == 'bar' and not stacked:
+                width = dr * totwidth / nx
                 dw = width
 
                 if nx > 1:
-                    boffset = -0.5*dr*totwidth*(1.0-1.0/nx)
+                    boffset = -0.5 * dr * totwidth * (1.0 - 1.0 / nx)
                 else:
                     boffset = 0.0
                 stacked = False
-            elif histtype=='barstacked' or stacked:
-                width = dr*totwidth
+            elif histtype == 'barstacked' or stacked:
+                width = dr * totwidth
                 boffset, dw = 0.0, 0.0
 
             if align == 'mid' or align == 'edge':
-                boffset += 0.5*totwidth
+                boffset += 0.5 * totwidth
             elif align == 'right':
                 boffset += totwidth
 
@@ -8221,27 +8229,27 @@ class Axes(martist.Artist):
                 _barfunc = self.bar
 
             for m, c in zip(n, color):
-                patch = _barfunc(bins[:-1]+boffset, m, width,
-                                  align='center', log=log,
-                                  color=c)
+                patch = _barfunc(bins[:-1] + boffset, m, width,
+                                 align='center', log=log,
+                                 color=c)
                 patches.append(patch)
                 boffset += dw
 
         elif histtype.startswith('step'):
-            x = np.zeros( 2*len(bins), np.float )
-            y = np.zeros( 2*len(bins), np.float )
+            x = np.zeros(2 * len(bins), np.float)
+            y = np.zeros(2 * len(bins), np.float)
 
             x[0::2], x[1::2] = bins, bins
 
             minimum = np.min(n)
 
             if align == 'left' or align == 'center':
-                x -= 0.5*(bins[1]-bins[0])
+                x -= 0.5 * (bins[1] - bins[0])
             elif align == 'right':
-                x += 0.5*(bins[1]-bins[0])
+                x += 0.5 * (bins[1] - bins[0])
 
             if log:
-                y[0],y[-1] = minimum, minimum
+                y[0], y[-1] = minimum, minimum
                 if orientation == 'horizontal':
                     self.set_xscale('log')
                 else:  # orientation == 'vertical'
@@ -8254,32 +8262,32 @@ class Axes(martist.Artist):
             for m, c in zip(n, color):
                 y[1:-1:2], y[2::2] = m, m
                 if log:
-                    y[y<minimum]=minimum
+                    y[y < minimum] = minimum
                 if orientation == 'horizontal':
-                    x,y = y,x
+                    x, y = y, x
 
                 if fill:
-                    patches.append( self.fill(x, y,
-                        closed=False, facecolor=c) )
+                    patches.append(self.fill(x, y,
+                        closed=False, facecolor=c))
                 else:
-                    patches.append( self.fill(x, y,
-                        closed=False, edgecolor=c, fill=False) )
+                    patches.append(self.fill(x, y,
+                        closed=False, edgecolor=c, fill=False))
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
-                xmin0 = max(_saved_bounds[0]*0.9, minimum)
+                xmin0 = max(_saved_bounds[0] * 0.9, minimum)
                 xmax = self.dataLim.intervalx[1]
                 for m in n:
-                    xmin = np.amin(m[m!=0]) # filter out the 0 height bins
-                xmin = max(xmin*0.9, minimum)
+                    xmin = np.amin(m[m != 0])  # filter out the 0 height bins
+                xmin = max(xmin * 0.9, minimum)
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
             elif orientation == 'vertical':
-                ymin0 = max(_saved_bounds[1]*0.9, minimum)
+                ymin0 = max(_saved_bounds[1] * 0.9, minimum)
                 ymax = self.dataLim.intervaly[1]
                 for m in n:
-                    ymin = np.amin(m[m!=0]) # filter out the 0 height bins
-                ymin = max(ymin*0.9, minimum)
+                    ymin = np.amin(m[m != 0])  # filter out the 0 height bins
+                ymin = max(ymin * 0.9, minimum)
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
 
@@ -8290,7 +8298,8 @@ class Axes(martist.Artist):
         elif is_sequence_of_strings(label):
             labels = list(label)
         else:
-            raise ValueError('invalid label: must be string or sequence of strings')
+            raise ValueError('invalid label: must be string or sequence of '
+                             'strings')
 
         if len(labels) < nx:
             labels += [None] * (nx - len(labels))
@@ -8299,7 +8308,8 @@ class Axes(martist.Artist):
             if patch:
                 p = patch[0]
                 p.update(kwargs)
-                if lbl is not None: p.set_label(lbl)
+                if lbl is not None:
+                    p.set_label(lbl)
 
                 p.set_snap(False)
 
@@ -8309,9 +8319,11 @@ class Axes(martist.Artist):
 
         if binsgiven:
             if orientation == 'vertical':
-                self.update_datalim([(bins[0],0), (bins[-1],0)], updatey=False)
+                self.update_datalim([(bins[0], 0), (bins[-1], 0)],
+                                    updatey=False)
             else:
-                self.update_datalim([(0,bins[0]), (0,bins[-1])], updatex=False)
+                self.update_datalim([(0, bins[0]), (0, bins[-1])],
+                                    updatex=False)
 
         self.set_autoscalex_on(_saved_autoscalex)
         self.set_autoscaley_on(_saved_autoscaley)
@@ -8323,14 +8335,15 @@ class Axes(martist.Artist):
             return n, bins, cbook.silent_list('Lists of Patches', patches)
 
     @docstring.dedent_interpd
-    def hist2d(self, x, y, bins = 10, range=None, normed=False, weights=None,
+    def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,
                cmin=None, cmax=None, **kwargs):
         """
         Make a 2D histogram plot.
 
         Call signature::
 
-          hist2d(x, y, bins = None, range=None, weights=None, cmin=None, cmax=None **kwargs)
+          hist2d(x, y, bins=None, range=None, weights=None, cmin=None,
+                 cmax=None **kwargs)
 
         Make a 2d histogram plot of *x* versus *y*, where *x*,
         *y* are 1-D sequences of the same length.
@@ -8395,17 +8408,19 @@ class Axes(martist.Artist):
         # xrange becomes range after 2to3
         bin_range = range
         range = __builtins__["range"]
-        h,xedges,yedges = np.histogram2d(x, y, bins=bins, range=bin_range,
-                                         normed=normed, weights=weights)
+        h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=bin_range,
+                                           normed=normed, weights=weights)
 
-        if cmin is not None: h[h<cmin]=None
-        if cmax is not None: h[h>cmax]=None
+        if cmin is not None:
+            h[h < cmin] = None
+        if cmax is not None:
+            h[h > cmax] = None
 
-        pc = self.pcolorfast(xedges,yedges,h.T,**kwargs)
-        self.set_xlim(xedges[0],xedges[-1])
-        self.set_ylim(yedges[0],yedges[-1])
+        pc = self.pcolorfast(xedges, yedges, h.T, **kwargs)
+        self.set_xlim(xedges[0], xedges[-1])
+        self.set_ylim(yedges[0], yedges[-1])
 
-        return h,xedges,yedges,pc
+        return h, xedges, yedges, pc
 
     @docstring.dedent_interpd
     def psd(self, x, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
@@ -8459,9 +8474,10 @@ class Axes(martist.Artist):
 
         .. plot:: mpl_examples/pylab_examples/psd_demo.py
         """
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
         pxx, freqs = mlab.psd(x, NFFT, Fs, detrend, window, noverlap, pad_to,
-            sides, scale_by_freq)
+                              sides, scale_by_freq)
         pxx.shape = len(freqs),
         freqs += Fc
 
@@ -8470,17 +8486,18 @@ class Axes(martist.Artist):
         else:
             psd_units = 'dB'
 
-        self.plot(freqs, 10*np.log10(pxx), **kwargs)
+        self.plot(freqs, 10 * np.log10(pxx), **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Power Spectral Density (%s)' % psd_units)
         self.grid(True)
         vmin, vmax = self.viewLim.intervaly
-        intv = vmax-vmin
+        intv = vmax - vmin
         logi = int(np.log10(intv))
-        if logi==0: logi=.1
-        step = 10*logi
+        if logi == 0:
+            logi = .1
+        step = 10 * logi
         #print vmin, vmax, step, intv, math.floor(vmin), math.ceil(vmax)+1
-        ticks = np.arange(math.floor(vmin), math.ceil(vmax)+1, step)
+        ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
 
         return pxx, freqs
@@ -8539,23 +8556,24 @@ class Axes(martist.Artist):
             :meth:`psd`
                 For a description of the optional parameters.
         """
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
         pxy, freqs = mlab.csd(x, y, NFFT, Fs, detrend, window, noverlap,
             pad_to, sides, scale_by_freq)
         pxy.shape = len(freqs),
         # pxy is complex
         freqs += Fc
 
-        self.plot(freqs, 10*np.log10(np.absolute(pxy)), **kwargs)
+        self.plot(freqs, 10 * np.log10(np.absolute(pxy)), **kwargs)
         self.set_xlabel('Frequency')
         self.set_ylabel('Cross Spectrum Magnitude (dB)')
         self.grid(True)
         vmin, vmax = self.viewLim.intervaly
 
-        intv = vmax-vmin
-        step = 10*int(np.log10(intv))
+        intv = vmax - vmin
+        step = 10 * int(np.log10(intv))
 
-        ticks = np.arange(math.floor(vmin), math.ceil(vmax)+1, step)
+        ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
 
         return pxy, freqs
@@ -8611,7 +8629,8 @@ class Axes(martist.Artist):
 
         .. plot:: mpl_examples/pylab_examples/cohere_demo.py
         """
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
         cxy, freqs = mlab.cohere(x, y, NFFT, Fs, detrend, window, noverlap,
             scale_by_freq)
         freqs += Fc
@@ -8690,7 +8709,8 @@ class Axes(martist.Artist):
 
         .. plot:: mpl_examples/pylab_examples/specgram_demo.py
         """
-        if not self._hold: self.cla()
+        if not self._hold:
+            self.cla()
 
         Pxx, freqs, bins = mlab.specgram(x, NFFT, Fs, detrend,
              window, noverlap, pad_to, sides, scale_by_freq)
@@ -8698,7 +8718,8 @@ class Axes(martist.Artist):
         Z = 10. * np.log10(Pxx)
         Z = np.flipud(Z)
 
-        if xextent is None: xextent = 0, np.amax(bins)
+        if xextent is None:
+            xextent = 0, np.amax(bins)
         xmin, xmax = xextent
         freqs += Fc
         extent = xmin, xmax, freqs[0], freqs[-1]
@@ -8708,7 +8729,7 @@ class Axes(martist.Artist):
         return Pxx, freqs, bins, im
 
     def spy(self, Z, precision=0, marker=None, markersize=None,
-            aspect='equal',  **kwargs):
+            aspect='equal', **kwargs):
         """
         Plot the sparsity pattern on a 2-D array.
 
@@ -8789,13 +8810,13 @@ class Axes(martist.Artist):
             marker = 's'
         if marker is None and markersize is None:
             Z = np.asarray(Z)
-            mask = np.absolute(Z)>precision
+            mask = np.absolute(Z) > precision
 
             if 'cmap' not in kwargs:
                 kwargs['cmap'] = mcolors.ListedColormap(['w', 'k'],
                                                         name='binary')
             nr, nc = Z.shape
-            extent = [-0.5, nc-0.5, nr-0.5, -0.5]
+            extent = [-0.5, nc - 0.5, nr - 0.5, -0.5]
             ret = self.imshow(mask, interpolation='nearest', aspect=aspect,
                                 extent=extent, origin='upper', **kwargs)
         else:
@@ -8810,16 +8831,18 @@ class Axes(martist.Artist):
                     x = c.col[nonzero]
             else:
                 Z = np.asarray(Z)
-                nonzero = np.absolute(Z)>precision
+                nonzero = np.absolute(Z) > precision
                 y, x = np.nonzero(nonzero)
-            if marker is None: marker = 's'
-            if markersize is None: markersize = 10
+            if marker is None:
+                marker = 's'
+            if markersize is None:
+                markersize = 10
             marks = mlines.Line2D(x, y, linestyle='None',
                          marker=marker, markersize=markersize, **kwargs)
             self.add_line(marks)
             nr, nc = Z.shape
-            self.set_xlim(xmin=-0.5, xmax=nc-0.5)
-            self.set_ylim(ymin=nr-0.5, ymax=-0.5)
+            self.set_xlim(xmin=-0.5, xmax=nc - 0.5)
+            self.set_ylim(ymin=nr - 0.5, ymax=-0.5)
             self.set_aspect(aspect)
             ret = marks
         self.title.set_y(1.05)
@@ -8917,7 +8940,7 @@ class Axes(martist.Artist):
             bb.append(bb_yaxis)
 
         _bbox = mtransforms.Bbox.union(
-            [b for b in bb if b.width!=0 or b.height!=0])
+            [b for b in bb if b.width != 0 or b.height != 0])
 
         return _bbox
 
@@ -8988,18 +9011,19 @@ class SubplotBase:
                     rows, cols, num = map(int, s)
                 except ValueError:
                     raise ValueError(
-                         'Single argument to subplot must be a 3-digit integer')
-                self._subplotspec = GridSpec(rows, cols)[num-1]
+                         'Single argument to subplot must be a 3-digit '
+                         'integer')
+                self._subplotspec = GridSpec(rows, cols)[num - 1]
                 # num - 1 for converting from MATLAB to python indexing
-        elif len(args)==3:
+        elif len(args) == 3:
             rows, cols, num = args
             rows = int(rows)
             cols = int(cols)
             if isinstance(num, tuple) and len(num) == 2:
                 num = [int(n) for n in num]
-                self._subplotspec = GridSpec(rows, cols)[num[0]-1:num[1]]
+                self._subplotspec = GridSpec(rows, cols)[num[0] - 1:num[1]]
             else:
-                self._subplotspec = GridSpec(rows, cols)[int(num)-1]
+                self._subplotspec = GridSpec(rows, cols)[int(num) - 1]
                 # num - 1 for converting from MATLAB to python indexing
         else:
             raise ValueError('Illegal argument(s) to subplot: %s' % (args,))
@@ -9022,12 +9046,12 @@ class SubplotBase:
     def get_geometry(self):
         """get the subplot geometry, eg 2,2,3"""
         rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
-        return rows, cols, num1+1 # for compatibility
+        return rows, cols, num1 + 1  # for compatibility
 
     # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
         """change subplot geometry, eg. from 1,1,1 to 2,2,3"""
-        self._subplotspec = GridSpec(numrows, numcols)[num-1]
+        self._subplotspec = GridSpec(numrows, numcols)[num - 1]
         self.update_params()
         self.set_position(self.figbox)
 
@@ -9047,16 +9071,16 @@ class SubplotBase:
                                                          return_all=True)
 
     def is_first_col(self):
-        return self.colNum==0
+        return self.colNum == 0
 
     def is_first_row(self):
-        return self.rowNum==0
+        return self.rowNum == 0
 
     def is_last_row(self):
-        return self.rowNum==self.numRows-1
+        return self.rowNum == self.numRows - 1
 
     def is_last_col(self):
-        return self.colNum==self.numCols-1
+        return self.colNum == self.numCols - 1
 
     # COVERAGE NOTE: Never used internally or from examples
     def label_outer(self):
@@ -9080,8 +9104,9 @@ class SubplotBase:
         ax2 = self.figure.add_subplot(self.get_subplotspec(), *kl, **kwargs)
         return ax2
 
-
 _subplot_classes = {}
+
+
 def subplot_class_factory(axes_class=None):
     # This makes a new class that inherits from SubplotBase and the
     # given axes_class (which is assumed to be a subclass of Axes).
