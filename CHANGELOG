@@ -2,6 +2,10 @@
            Also added some tests for the normalization class.
            Till Stensitzki
 
+2012-11-12 Make axes.stem take at least one argument.
+           Uses a default range(n) when the first arg not provided.
+           Damon McDougall
+
 2012-11-09 Make plt.subplot() without arguments act as subplot(111) - PI
 
 2012-10-05 Add support for saving animations as animated GIFs. - JVDP
