@@ -93,6 +93,10 @@ cosine_peak.title = 'Cosine Peak'
 allfuncs = [exponential, cliff, saddle, gentle, steep, sphere, trig, gauss, cloverleaf, cosine_peak]
 
 
+def _expand_range(range,epsilon=1e-6):
+    delta = (range[1]-range[0])*epsilon/2.0
+    return (range[0]-delta, range[1]+delta)
+
 class LinearTester(object):
     name = 'Linear'
     def __init__(self, xrange=(0.0, 1.0), yrange=(0.0, 1.0), nrange=101, npoints=250):
@@ -100,6 +104,7 @@ class LinearTester(object):
         self.yrange = yrange
         self.nrange = nrange
         self.npoints = npoints
+        self.bbox = _expand_range(xrange) + _expand_range(yrange)
 
         rng = np.random.RandomState(1234567890)
         self.x = rng.uniform(xrange[0], xrange[1], size=npoints)
@@ -113,7 +118,7 @@ class LinearTester(object):
 
     def interpolator(self, func):
         z = func(self.x, self.y)
-        return self.tri.linear_extrapolator(z, bbox=self.xrange+self.yrange)
+        return self.tri.linear_extrapolator(z, bbox=self.bbox)
 
     def plot(self, func, interp=True, plotter='imshow'):
         if interp:
@@ -157,9 +162,9 @@ class NNTester(LinearTester):
     name = 'Natural Neighbors'
     def interpolator(self, func):
         z = func(self.x, self.y)
-        return self.tri.nn_extrapolator(z, bbox=self.xrange+self.yrange)
+        return self.tri.nn_extrapolator(z, bbox=self.bbox)
 
-def make_all_testfuncs(allfuncs=allfuncs):
+def make_all_2d_testfuncs(allfuncs=allfuncs):
     def make_test(func):
         filenames = [
             '%s-%s' % (func.func_name, x) for x in
@@ -187,4 +192,27 @@ def make_all_testfuncs(allfuncs=allfuncs):
     for func in allfuncs:
         globals()['test_%s' % func.func_name] = make_test(func)
 
-make_all_testfuncs()
+make_all_2d_testfuncs()
+
+# 1d and 0d grid tests
+
+ref_interpolator = Triangulation([0,10,10,0],
+                                 [0,0,10,10]).linear_interpolator([1,10,5,2.0])
+
+def equal_arrays(a1,a2, tolerance=1e-10):
+    return np.all(np.absolute(a1 - a2) < tolerance)
+
+def test_1d_grid():
+    res = ref_interpolator[3:6:2j,1:1:1j]
+    assert equal_arrays(res, [[1.6],[1.9]])
+
+def test_0d_grid():
+    res = ref_interpolator[3:3:1j,1:1:1j]
+    assert equal_arrays(res, [[1.6]])
+
+@image_comparison(baseline_images=['delaunay-1d-interp'], extensions=['png'])
+def test_1d_plots():
+    x_range = slice(0.25,9.75,20j)
+    x = np.mgrid[x_range]
+    for y in xrange(2,10,2):
+        plt.plot(x, ref_interpolator[x_range,y:y:1j])

@@ -293,17 +293,19 @@ static PyObject *linear_interpolate_grid(double x0, double x1, int xsteps,
     dy = (y1 - y0) / (ysteps-1);
 
     rowtri = 0;
+    targety = y0;
     for (iy=0; iy<ysteps; iy++) {
-        targety = y0 + dy*iy;
         rowtri = walking_triangles(rowtri, x0, targety, x, y, nodes, neighbors);
         tri = rowtri;
+        targetx = x0;
         for (ix=0; ix<xsteps; ix++) {
-            targetx = x0 + dx*ix;
             INDEXN(z_ptr, xsteps, iy, ix) = linear_interpolate_single(
                 targetx, targety,
                 x, y, nodes, neighbors, planes, defvalue, tri, &coltri);
             if (coltri != -1) tri = coltri;
+            targetx+=dx;
         }
+        targety+=dy;
     }
 
     return z;
