@@ -115,7 +115,7 @@ def _get_textbox(text, renderer):
     projected_xs = []
     projected_ys = []
 
-    theta = text.get_rotation() / 180. * math.pi
+    theta = np.deg2rad(text.get_rotation())
     tr = mtransforms.Affine2D().rotate(-theta)
 
     for t, wh, x, y in text._get_layout(renderer)[1]:
@@ -507,7 +507,7 @@ class Text(Artist):
             x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
             self._bbox_patch.set_bounds(0., 0.,
                                         w_box, h_box)
-            theta = self.get_rotation() / 180. * math.pi
+            theta = np.deg2rad(self.get_rotation())
             tr = mtransforms.Affine2D().rotate(theta)
             tr = tr.translate(posx + x_box, posy + y_box)
             self._bbox_patch.set_transform(tr)
@@ -524,7 +524,7 @@ class Text(Artist):
         x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
         self._bbox_patch.set_bounds(0., 0.,
                                     w_box, h_box)
-        theta = self.get_rotation() / 180. * math.pi
+        theta = np.deg2rad(self.get_rotation())
         tr = mtransforms.Affine2D().rotate(theta)
         tr = tr.translate(posx + x_box, posy + y_box)
         self._bbox_patch.set_transform(tr)
