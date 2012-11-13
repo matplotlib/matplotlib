@@ -26,6 +26,13 @@ Andrew Dawson added a new keyword argument *extendrect* to
 :meth:`~matplotlib.pyplot.colorbar` to optionally make colorbar
 extensions rectangular instead of triangular.
 
+Calling subplot() without arguments
+-----------------------------------
+A call to :func:`~matplotlib.pyplot.subplot` without any arguments now
+acts the same as `subplot(111)` or `subplot(1,1,1)` -- it creates one axes for
+the whole figure. This was already the behavior for both
+:func:`~matplotlib.pyplot.axes` and :func:`~matplotlib.pyplot.subplots`, and
+now this consistency is shared with :func:`~matplotlib.pyplot.subplot`.
 
 .. _whats-new-1-2:
 
