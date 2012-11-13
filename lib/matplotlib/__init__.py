@@ -1077,6 +1077,7 @@ default_test_modules = [
     'matplotlib.tests.test_cbook',
     'matplotlib.tests.test_colorbar',
     'matplotlib.tests.test_colors',
+    'matplotlib.tests.test_contour',
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_delaunay',
     'matplotlib.tests.test_figure',
