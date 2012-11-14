@@ -54,6 +54,18 @@ def test_formatter_ticker():
     ax.set_xlabel( "x-label 005" )
     ax.autoscale_view()
 
+def test_add_collection():
+    fig = matplotlib.figure.Figure()
+    fig2 = matplotlib.figure.Figure()
+    ax = fig.add_subplot(111)
+    ax2 = fig2.add_subplot(111)
+    coll = ax2.scatter([0, 1], [0, 1])
+    ax.add_collection(coll)
+    bounds = ax.dataLim.bounds
+    coll = ax2.scatter([], [])
+    ax.add_collection(coll)
+    assert ax.dataLim.bounds == bounds
+
 @image_comparison(baseline_images=["formatter_large_small"])
 def test_formatter_large_small():
     # github issue #617, pull #619
