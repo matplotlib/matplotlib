@@ -6044,7 +6044,7 @@ class Axes(martist.Artist):
 
         %(Collection)s
 
-        A :class:`~matplotlib.collections.Collection` instance is
+        A :class:`~matplotlib.collections.PathCollection` instance is
         returned.
         """
 
