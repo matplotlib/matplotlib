@@ -208,18 +208,6 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         w,h = self.get_width_height()
         self.resize( w, h )
 
-        # JDH: Note the commented out code below does not work as
-        # expected, because according to Pierre Raybaut, The reason is
-        # that PyQt fails (silently) to call a method of this object
-        # just before detroying it. Using a lambda function will work,
-        # exactly the same as using a function (which is not bound to
-        # the object to be destroyed).
-        #
-        #QtCore.QObject.connect(self, QtCore.SIGNAL('destroyed()'),
-        #    self.close_event)
-        QtCore.QObject.connect(self, QtCore.SIGNAL('destroyed()'),
-                               lambda: self.close_event())
-
     def __timerEvent(self, event):
         # hide until we can test and fix
         self.mpl_idle_event(event)
@@ -377,6 +365,10 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             self._idle = True
         if d: QtCore.QTimer.singleShot(0, idle_draw)
 
+class MainWindow(QtGui.QMainWindow):
+    def closeEvent(self, event):
+        self.emit(QtCore.SIGNAL('closing()'))
+
 class FigureManagerQT( FigureManagerBase ):
     """
     Public attributes
@@ -391,8 +383,9 @@ class FigureManagerQT( FigureManagerBase ):
         if DEBUG: print('FigureManagerQT.%s' % fn_name())
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
-        self.window = QtGui.QMainWindow()
-        self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.window = MainWindow()
+        self.window.connect(self.window, QtCore.SIGNAL('closing()'),
+            canvas.close_event)
 
         self.window.setWindowTitle("Figure %d" % num)
         image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
@@ -619,7 +612,6 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
     def configure_subplots(self):
         self.adj_window = QtGui.QMainWindow()
         win = self.adj_window
-        win.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         win.setWindowTitle("Subplot Configuration Tool")
         image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
