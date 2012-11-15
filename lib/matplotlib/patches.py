@@ -1600,18 +1600,12 @@ def _pprint_table(_table, leadingspace=2):
     return "\n".join(lines)
 
 
-def _pprint_styles(_styles, leadingspace=2):
+def _pprint_styles(_styles):
     """
     A helper function for the _Style class.  Given the dictionary of
     (stylename : styleclass), return a formatted string listing all the
     styles. Used to update the documentation.
     """
-    # FIXME pad isn't used, which means leadingspace is not use.
-    if leadingspace:
-        pad = ' ' * leadingspace
-    else:
-        pad = ''
-
     names, attrss, clss = [], [], []
 
     import inspect
