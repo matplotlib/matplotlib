@@ -102,7 +102,7 @@ class TriContourSet(ContourSet):
 
           tricontour(triangulation, ...)
 
-        where triangulation is a :class:`~matplotlib.tri.Triangulation`
+        where triangulation is a :class:`matplotlib.tri.Triangulation`
         object, or
 
         ::
