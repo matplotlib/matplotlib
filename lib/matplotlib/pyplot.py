@@ -727,6 +727,9 @@ def subplot(*args, **kwargs):
 
     ``subplot(111)`` is the default axis.
 
+    ``subplot()`` by itself is the same as ``subplot(111)``
+
+
     New subplots that overlap old will delete the old axes.  If you do
     not want this behavior, use
     :meth:`~matplotlib.figure.Figure.add_subplot` or the
@@ -768,6 +771,10 @@ def subplot(*args, **kwargs):
     .. plot:: mpl_examples/pylab_examples/subplot_demo.py
 
     """
+    # if subplot called without arguments, create subplot(1,1,1)
+    if len(args)==0:
+        args=(1,1,1)
+
     # This check was added because it is very easy to type
     # subplot(1, 2, False) when subplots(1, 2, False) was intended
     # (sharex=False, that is). In most cases, no error will

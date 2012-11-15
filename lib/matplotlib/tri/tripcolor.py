@@ -12,7 +12,7 @@ def tripcolor(ax, *args, **kwargs):
 
       tripcolor(triangulation, ...)
 
-    where triangulation is a :class:`~matplotlib.tri.Triangulation`
+    where triangulation is a :class:`matplotlib.tri.Triangulation`
     object, or
 
     ::

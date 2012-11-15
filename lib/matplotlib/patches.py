@@ -539,8 +539,11 @@ class Rectangle(Patch):
             + "(%g,%g;%gx%g)" % (self._x, self._y, self._width, self._height)
 
     @docstring.dedent_interpd
-    def __init__(self, xy, width, height, **kwargs):
+    def __init__(self, xy, width, height, angle=0.0, **kwargs):
         """
+
+        *angle*
+          rotation in degrees (anti-clockwise)
 
         *fill* is a boolean indicating whether to fill the rectangle
 
@@ -554,6 +557,7 @@ class Rectangle(Patch):
         self._y = xy[1]
         self._width = width
         self._height = height
+        self._angle = angle
         # Note: This cannot be calculated until this is added to an Axes
         self._rect_transform = transforms.IdentityTransform()
 
@@ -574,7 +578,10 @@ class Rectangle(Patch):
         width = self.convert_xunits(self._width)
         height = self.convert_yunits(self._height)
         bbox = transforms.Bbox.from_bounds(x, y, width, height)
+        rot_trans = transforms.Affine2D()
+        rot_trans.rotate_deg_around(x, y, self._angle)
         self._rect_transform = transforms.BboxTransformTo(bbox)
+        self._rect_transform += rot_trans
 
     def get_patch_transform(self):
         self._update_patch_transform()
@@ -1593,18 +1600,12 @@ def _pprint_table(_table, leadingspace=2):
     return "\n".join(lines)
 
 
-def _pprint_styles(_styles, leadingspace=2):
+def _pprint_styles(_styles):
     """
     A helper function for the _Style class.  Given the dictionary of
     (stylename : styleclass), return a formatted string listing all the
     styles. Used to update the documentation.
     """
-    # FIXME pad isn't used, which means leadingspace is not use.
-    if leadingspace:
-        pad = ' ' * leadingspace
-    else:
-        pad = ''
-
     names, attrss, clss = [], [], []
 
     import inspect
