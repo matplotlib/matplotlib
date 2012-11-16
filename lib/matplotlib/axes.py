@@ -2342,8 +2342,8 @@ class Axes(martist.Artist):
         *which* : ['major' | 'minor' | 'both']
             Default is 'major'; apply arguments to *which* ticks.
 
-        *direction* : ['in' | 'out']
-            Puts ticks inside or outside the axes.
+        *direction* : ['in' | 'out' | 'inout']
+            Puts ticks inside the axes, outside the axes, or both.
 
         *length*
             Tick length in points.
