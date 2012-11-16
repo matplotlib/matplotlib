@@ -37,7 +37,7 @@ Style
   - You may want to consider installing automatic PEP8 checking in
     your editor.
 
-* No tabs (only space).  No trailing whitespace.
+* No tabs (only spaces).  No trailing whitespace.
 
   - Configuring your editor to remove these things upon saving will
     save a lot of trouble.
@@ -49,10 +49,15 @@ Style
     import matplotlib as mpl
     from matplotlib import pyplot as plt
     import matplotlib.cbook as cbook
+    import matplotlib.collections as mcol
+    import matplotlib.patches as mpatches
 
 * See below for additional points about
   :ref:`keyword-argument-processing`, if code in your pull request
   does that.
+
+* Adding a new pyplot function involves generating code.  See
+  :ref:`new-pyplot-function` for more information.
 
 Documentation
 -------------
@@ -235,6 +240,8 @@ example code you can load it into a file handle with::
 
     import matplotlib.cbook as cbook
     fh = cbook.get_sample_data('mydata.dat')
+
+.. _new-pyplot-function:
 
 Writing a new pyplot function
 -----------------------------
