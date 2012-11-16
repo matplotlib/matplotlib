@@ -6,7 +6,7 @@ python:
   - 3.2
 
 install:
-  - pip install --use-mirrors nose
+  - pip install --use-mirrors nose python-dateutil pyparsing
   # This is a workaround to install numpy with the version of
   # virtualenv in Travis.  If that is updated in the future, this can
   # be simplified to 'pip install numpy'
