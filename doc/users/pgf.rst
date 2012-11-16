@@ -40,7 +40,7 @@ Rc parameters that control the behavior of the pgf backend:
     =================  =====================================================
     pgf.preamble       Lines to be included in the LaTeX preamble
     pgf.rcfonts        Setup fonts from rc params using the fontspec package
-    pgf.texsystem      Either "xelatex", "lualatex" or "pdflatex"
+    pgf.texsystem      Either "xelatex" (default), "lualatex" or "pdflatex"
     =================  =====================================================
 
 .. note::
@@ -82,10 +82,10 @@ Custom preamble
 ===============
 
 Full customization is possible by adding your own commands to the preamble.
-Use the ``pgf.preamble`` parameter if you want to configure the math fonts or
-for loading additional packages. Also, if you want to do the font configuration
-yourself instead of using the fonts specified in the rc parameters, make sure
-to disable ``pgf.rcfonts``.
+Use the ``pgf.preamble`` parameter if you want to configure the math fonts,
+using ``unicode-math`` for example, or for loading additional packages. Also,
+if you want to do the font configuration yourself instead of using the fonts
+specified in the rc parameters, make sure to disable ``pgf.rcfonts``.
 
 .. htmlonly::
 
@@ -146,6 +146,15 @@ Troubleshooting
 * The ``pgf.preamble`` rc setting provides lots of flexibility, and lots of
   ways to cause problems. When experiencing problems, try to minimalize or
   disable the custom preamble.
+
+* Configuring an ``unicode-math`` environment can be a bit tricky. The
+  TeXLive distribution for example provides a set of math fonts which are
+  usually not installed system-wide. XeTeX, unlike LuaLatex, cannot find
+  these fonts by their name, which is why you might have to specify
+  ``\setmathfont{xits-math.otf}`` instead of ``\setmathfont{XITS Math}`` or
+  alternatively make the fonts available to your OS. See this
+  `tex.stackexchange.com question <http://tex.stackexchange.com/questions/43642>`_
+  for more details.
 
 * If the font configuration used by matplotlib differs from the font setting
   in yout LaTeX document, the alignment of text elements in imported figures
