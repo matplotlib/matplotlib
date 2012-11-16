@@ -205,7 +205,7 @@ class Legend(Artist):
         title              the legend title
         bbox_to_anchor     the bbox that the legend will be anchored.
         bbox_transform     the transform for the bbox. transAxes if None.
-        ================   =====================================================
+        ================   ====================================================
 
 
         The pad and spacing parameters are measured in font-size units.  E.g.,
