@@ -12,11 +12,38 @@ import sys
 from textwrap import fill
 
 
+try:
+    from subprocess import check_output
+except ImportError:
+    # check_output is not available in Python 2.6
+    def check_output(*popenargs, **kwargs):
+        """
+        Run command with arguments and return its output as a byte
+        string.
+
+        Backported from Python 2.7 as it's implemented as pure python
+        on stdlib.
+        """
+        process = subprocess.Popen(
+            stdout=subprocess.PIPE, *popenargs, **kwargs)
+        output, unused_err = process.communicate()
+        retcode = process.poll()
+        if retcode:
+            cmd = kwargs.get("args")
+            if cmd is None:
+                cmd = popenargs[0]
+            error = subprocess.CalledProcessError(retcode, cmd)
+            error.output = output
+            raise error
+        return output
+
+
 if sys.platform != 'win32':
     if sys.version_info[0] < 3:
         from commands import getstatusoutput
     else:
         from subprocess import getstatusoutput
+
 
 if sys.version_info[0] < 3:
     import ConfigParser as configparser
@@ -249,7 +276,7 @@ class PkgConfig(object):
         use_defaults = True
         if self.has_pkgconfig:
             try:
-                output = subprocess.check_output(command, shell=True)
+                output = check_output(command, shell=True)
             except subprocess.CalledProcessError:
                 pass
             else:
