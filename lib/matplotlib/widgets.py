@@ -1433,7 +1433,7 @@ class LassoSelector(AxesWidget):
     """Selection curve of an arbitrary shape.
 
     The selected path can be used in conjunction with
-    :function:`~matplotlib.path.Path.contains_point` to select
+    :func:`~matplotlib.path.Path.contains_point` to select
     data points from an image.
 
     In contrast to :class:`Lasso`, `LassoSelector` is written with an interface
