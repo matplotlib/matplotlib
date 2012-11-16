@@ -115,10 +115,11 @@ In the matplotlib source repository, build the documentation::
   python make.py latex
 
 Then copy the build products into your local checkout of the
-`matplotlib.github.com` repository::
+`matplotlib.github.com` repository (assuming here to be checked out in
+`~/matplotlib.github.com`::
 
   cp -r build/html/* ~/matplotlib.github.com
-  cp
+  cp build/latex/Matplotlib.pdf ~/matplotlib.github.com
 
 Then, from the `matplotlib.github.com` directory, commit and push the
 changes upstream::
