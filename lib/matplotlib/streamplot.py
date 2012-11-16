@@ -82,6 +82,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     if use_multicolor_lines:
         assert color.shape == grid.shape
         line_colors = []
+        if np.any(np.isnan(color)):
+            color = np.ma.array(color, mask=np.isnan(color))
     else:
         line_kw['color'] = color
         arrow_kw['color'] = color
