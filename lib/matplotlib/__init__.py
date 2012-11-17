@@ -1105,6 +1105,7 @@ default_test_modules = [
     'matplotlib.tests.test_scale',
     'matplotlib.tests.test_simplification',
     'matplotlib.tests.test_spines',
+    'matplotlib.tests.test_streamplot',
     'matplotlib.tests.test_subplots',
     'matplotlib.tests.test_text',
     'matplotlib.tests.test_ticker',
