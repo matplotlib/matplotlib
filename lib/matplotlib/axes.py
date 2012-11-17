@@ -5115,7 +5115,7 @@ class Axes(martist.Artist):
             second = np.asarray(args[0], dtype=np.float)
             x, y = y, second
             args = args[1:]
-        except:
+        except (IndexError, ValueError):
             # The second array doesn't make sense, or it doesn't exist
             second = np.arange(len(y))
             x = second
