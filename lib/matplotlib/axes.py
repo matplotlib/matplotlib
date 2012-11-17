@@ -5108,20 +5108,32 @@ class Axes(martist.Artist):
 
         # Assume there's at least one data array
         y = np.asarray(args[0], dtype=np.float)
+        args = args[1:]
 
         # Try a second one
         try:
-            second = np.asarray(args[1], dtype=np.float)
+            second = np.asarray(args[0], dtype=np.float)
             x, y = y, second
+            args = args[1:]
         except:
             # The second array doesn't make sense, or it doesn't exist
             second = np.arange(len(y))
             x = second
 
         # Popping some defaults
-        linefmt = kwargs.pop('linefmt', 'b-')
-        markerfmt = kwargs.pop('markerfmt', 'bo')
-        basefmt = kwargs.pop('basefmt', 'r-')
+        try:
+            linefmt = kwargs.pop('linefmt', args[0])
+        except IndexError:
+            linefmt = kwargs.pop('linefmt', 'b-')
+        try:
+            markerfmt = kwargs.pop('markerfmt', args[1])
+        except IndexError:
+            markerfmt = kwargs.pop('markerfmt', 'bo')
+        try:
+            basefmt = kwargs.pop('basefmt', args[2])
+        except IndexError:
+            basefmt = kwargs.pop('basefmt', 'r-')
+
         bottom = kwargs.pop('bottom', None)
         label = kwargs.pop('label', None)
 
