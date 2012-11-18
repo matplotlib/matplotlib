@@ -827,15 +827,27 @@ def test_stackplot():
 
 @image_comparison(baseline_images=['boxplot'])
 def test_boxplot():
+
+    def myCIs(data):
+        return 1, (-2, 2)
+
     x = np.linspace(-7, 7, 140)
     x = np.hstack([-25, x, 25])
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    # show 1 boxplot with mpl medians/conf. interfals, 1 with manual values
-    ax.boxplot([x, x], bootstrap=10000, usermedians=[None, 1.0],
-               conf_intervals=[None, (-1.0, 3.5)], notch=1)
+    # show 1 boxplot with mpl medians/conf. interfals, 1 with manual values,
+    #    and one using a function
+    ax.boxplot(x, bootstrap=10000, positions=[1], notch=1,
+               usermedians=[None,], conf_intervals=[None])
+
+    ax.boxplot(x, bootstrap=10000, positions=[2], notch=1,
+               usermedians=[1.0], conf_intervals=[(-1.0, 3.5)])
+
+    ax.boxplot(x, bootstrap=10000, notch=1, positions=[3], ci_func=myCIs)
     ax.set_ylim((-30, 30))
+    ax.set_xlim((0,4))
+    ax.set_xticks([1,2,3])
 
 @image_comparison(baseline_images=['errorbar_basic',
                                    'errorbar_mixed'])

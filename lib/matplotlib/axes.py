@@ -5615,7 +5615,8 @@ class Axes(martist.Artist):
 
     def boxplot(self, x, notch=False, sym='b+', vert=True, whis=1.5,
                 positions=None, widths=None, patch_artist=False,
-                bootstrap=None, usermedians=None, conf_intervals=None):
+                bootstrap=None, usermedians=None, conf_intervals=None,
+                ci_func=None):
         """
         Make a box and whisker plot.
 
@@ -5663,20 +5664,27 @@ class Axes(martist.Artist):
             bootstrap the median to determine it's 95% confidence intervals.
             Values between 1000 and 10000 are recommended.
 
+          *ci_func* : [ function ]
+            A user-specified function that Computes the median and its
+            confidence intervals. This function should return the median and
+            the confidence intervals stored in an iterable of shape=(2,). Use
+            of this kwarg will override the default computation of the median.
+
           *usermedians* : [ default None ]
             An array or sequence whose first dimension (or length) is
             compatible with *x*. This overrides the medians computed by
             matplotlib for each element of *usermedians* that is not None.
-            When an element of *usermedians* == None, the median will be
-            computed directly as normal.
+            When an element of *usermedians* is None, boxplot computes notches
+            per the method specified by the other kwargs (e.g. *bootstrap*,
+            *ci_func*).
 
           *conf_intervals* : [ default None ]
             Array or sequence whose first dimension (or length) is compatible
             with *x* and whose second dimension is 2. When the current element
             of *conf_intervals* is not None, the notch locations computed by
-            matplotlib are overridden (assuming notch is True). When an element of
-            *conf_intervals* is None, boxplot compute notches the method
-            specified by the other kwargs (e.g. *bootstrap*).
+            matplotlib are overridden (assuming notch is True). When an element
+            of *conf_intervals* is None, boxplot computes notches per the
+            method specified by the other kwargs (e.g. *bootstrap*, *ci_func*).
 
           *positions* : [ default 1,2,...,n ]
             Sets the horizontal positions of the boxes. The ticks and limits
@@ -5707,7 +5715,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: pyplots/boxplot_demo.py
+        .. plot:: mpl_examples/pylab_examples/boxplot_demo3.py
         """
         def bootstrapMedian(data, N=5000):
             # determine 95% confidence intervals of the median
@@ -5768,7 +5776,7 @@ class Axes(martist.Artist):
         # sanitize user-input medians
         msg1 = "usermedians must either be a list/tuple or a 1d array"
         msg2 = "usermedians' length must be compatible with x"
-        if usermedians is not None:
+        if usermedians is not None and ci_func is None:
             if hasattr(usermedians, 'shape'):
                 if len(usermedians.shape) != 1:
                     raise ValueError(msg1)
@@ -5781,7 +5789,7 @@ class Axes(martist.Artist):
         msg1 = "conf_intervals must either be a list of tuples or a 2d array"
         msg2 = "conf_intervals' length must be compatible with x"
         msg3 = "each conf_interval, if specificied, must have two values"
-        if conf_intervals is not None:
+        if conf_intervals is not None and ci_func is None:
             if hasattr(conf_intervals, 'shape'):
                 if len(conf_intervals.shape) != 2:
                     raise ValueError(msg1)
@@ -5818,9 +5826,11 @@ class Axes(martist.Artist):
             q1, med, q3 = mlab.prctile(d,[25,50,75])
 
             # replace with input medians if available
-            if usermedians is not None:
+            if usermedians is not None and ci_func is None:
                 if usermedians[i] is not None:
                     med = usermedians[i]
+            elif ci_func is not None:
+                med, CIs = ci_func(d)
 
             # get high extreme
             iq = q3 - q1
@@ -5867,6 +5877,9 @@ class Axes(martist.Artist):
                 if conf_intervals is not None and conf_intervals[i] is not None:
                     notch_max = np.max(conf_intervals[i])
                     notch_min = np.min(conf_intervals[i])
+                elif ci_func is not None:
+                    notch_min = np.min(CIs)
+                    notch_max = np.max(CIs)
                 else:
                     notch_min, notch_max = computeConfInterval(d, med, iq,
                                                                bootstrap)
