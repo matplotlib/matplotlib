@@ -367,7 +367,7 @@ customizations to the nose testing infrastructure are in
 :mod:`matplotlib.testing`. (There is other old testing cruft around,
 please ignore it while we consolidate our testing to these locations.)
 
-.. _nose: http://somethingaboutorange.com/mrl/projects/nose/
+.. _nose: https://nose.readthedocs.org/en/latest/
 
 Requirements
 ------------
@@ -386,33 +386,34 @@ Running the tests
 
 Running the tests is simple. Make sure you have nose installed and run
 the script :file:`tests.py` in the root directory of the distribution.
+
 The script can take any of the usual `nosetest arguments`_, such as
 
-===================  ===========
-``-v``               increase verbosity
-``-d``               detailed error messages
-``--with-coverage``  enable collecting coverage information
-===================  ===========
+  ===================  ===========
+  ``-v``               increase verbosity
+  ``-d``               detailed error messages
+  ``--with-coverage``  enable collecting coverage information
+  ===================  ===========
 
-To run a single test from the command line, you can provide a
-dot-separated path to the module followed by the function separated by
-a colon, eg.  (this is assuming the test is installed)::
+  To run a single test from the command line, you can provide a
+  dot-separated path to the module followed by the function separated by
+  a colon, eg.  (this is assuming the test is installed)::
 
-  python tests.py matplotlib.tests.test_simplification:test_clipping
+    python tests.py matplotlib.tests.test_simplification:test_clipping
 
-An alternative implementation that does not look at command line
-arguments works from within Python::
+  An alternative implementation that does not look at command line
+  arguments works from within Python::
 
-  import matplotlib
-  matplotlib.test()
-
-
-.. _`nosetest arguments`: http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
+    import matplotlib
+    matplotlib.test()
 
 
-Running tests by any means other than `matplotlib.test()`
-does not load the nose "knownfailureif" (Known failing tests) plugin,
-causing known-failing tests to fail for real.
+  .. _`nosetest arguments`: http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
+
+
+  Running tests by any means other than `matplotlib.test()`
+  does not load the nose "knownfailureif" (Known failing tests) plugin,
+  causing known-failing tests to fail for real.
 
 Writing a simple test
 ---------------------
