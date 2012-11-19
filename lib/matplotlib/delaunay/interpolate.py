@@ -1,10 +1,12 @@
 from __future__ import print_function
 import numpy as np
 
-from matplotlib._delaunay import compute_planes, linear_interpolate_grid, nn_interpolate_grid
+from matplotlib._delaunay import compute_planes, linear_interpolate_grid
+from matplotlib._delaunay import nn_interpolate_grid
 from matplotlib._delaunay import nn_interpolate_unstructured
 
 __all__ = ['LinearInterpolator', 'NNInterpolator']
+
 
 def slice2gridspec(key):
     """Convert a 2-tuple of slices to start,stop,steps for x and y.
@@ -34,6 +36,7 @@ def slice2gridspec(key):
 
     return x0, x1, xstep, y0, y1, ystep
 
+
 class LinearInterpolator(object):
     """Interpolate a function defined on the nodes of a triangulation by
     using the planes defined by the three function values at each corner of
@@ -60,10 +63,10 @@ class LinearInterpolator(object):
 
     Linear Interpolation
     --------------------
-    Given the Delauany triangulation (or indeed *any* complete triangulation) we
-    can interpolate values inside the convex hull by locating the enclosing
-    triangle of the interpolation point and returning the value at that point of
-    the plane defined by the three node values.
+    Given the Delauany triangulation (or indeed *any* complete triangulation)
+    we can interpolate values inside the convex hull by locating the enclosing
+    triangle of the interpolation point and returning the value at that point
+    of the plane defined by the three node values.
 
         f = planes[tri,0]*x + planes[tri,1]*y + planes[tri,2]
 
@@ -81,10 +84,13 @@ class LinearInterpolator(object):
 
     def __getitem__(self, key):
         x0, x1, xstep, y0, y1, ystep = slice2gridspec(key)
-        grid = linear_interpolate_grid(x0, x1, xstep, y0, y1, ystep, self.default_value,
+        grid = linear_interpolate_grid(
+            x0, x1, xstep, y0, y1, ystep, self.default_value,
             self.planes, self.triangulation.x, self.triangulation.y,
-            self.triangulation.triangle_nodes, self.triangulation.triangle_neighbors)
+            self.triangulation.triangle_nodes,
+            self.triangulation.triangle_neighbors)
         return grid
+
 
 class NNInterpolator(object):
     """Interpolate a function defined on the nodes of a triangulation by
@@ -109,23 +115,23 @@ class NNInterpolator(object):
     -------------------------------
     One feature of the Delaunay triangulation is that for each triangle, its
     circumcircle contains no other point (although in degenerate cases, like
-    squares, other points may be *on* the circumcircle). One can also construct
-    what is called the Voronoi diagram from a Delaunay triangulation by
-    connecting the circumcenters of the triangles to those of their neighbors to
-    form a tesselation of irregular polygons covering the plane and containing
-    only one node from the triangulation. Each point in one node's Voronoi
-    polygon is closer to that node than any other node.
+    squares, other points may be *on* the circumcircle). One can also
+    construct what is called the Voronoi diagram from a Delaunay triangulation
+    by connecting the circumcenters of the triangles to those of their
+    neighbors to form a tesselation of irregular polygons covering the plane
+    and containing only one node from the triangulation. Each point in one
+    node's Voronoi polygon is closer to that node than any other node.
 
     To compute the Natural Neighbors interpolant, we consider adding the
-    interpolation point to the triangulation. We define the natural neighbors of
-    this point as the set of nodes participating in Delaunay triangles whose
-    circumcircles contain the point. To restore the Delaunay-ness of the
+    interpolation point to the triangulation. We define the natural neighbors
+    of this point as the set of nodes participating in Delaunay triangles
+    whose circumcircles contain the point. To restore the Delaunay-ness of the
     triangulation, one would only have to alter those triangles and Voronoi
-    polygons. The new Voronooi diagram would have a polygon around the inserted
-    point. This polygon would "steal" area from the original Voronoi polygons.
-    For each node i in the natural neighbors set, we compute the area stolen
-    from its original Voronoi polygon, stolen[i]. We define the natural
-    neighbors coordinates
+    polygons. The new Voronoi diagram would have a polygon around the
+    inserted point. This polygon would "steal" area from the original Voronoi
+    polygons. For each node i in the natural neighbors set, we compute the
+    area stolen from its original Voronoi polygon, stolen[i]. We define the
+    natural neighbors coordinates
 
         phi[i] = stolen[i] / sum(stolen,axis=0)
 
@@ -134,8 +140,8 @@ class NNInterpolator(object):
 
     The interpolated surface is C1-continuous except at the nodes themselves
     across the convex hull of the input points. One can find the set of points
-    that a given node will affect by computing the union of the areas covered by
-    the circumcircles of each Delaunay triangle that node participates in.
+    that a given node will affect by computing the union of the areas covered
+    by the circumcircles of each Delaunay triangle that node participates in.
     """
 
     def __init__(self, triangulation, z, default_value=np.nan):
@@ -145,7 +151,8 @@ class NNInterpolator(object):
 
     def __getitem__(self, key):
         x0, x1, xstep, y0, y1, ystep = slice2gridspec(key)
-        grid = nn_interpolate_grid(x0, x1, xstep, y0, y1, ystep, self.default_value,
+        grid = nn_interpolate_grid(
+            x0, x1, xstep, y0, y1, ystep, self.default_value,
             self.triangulation.x, self.triangulation.y, self.z,
             self.triangulation.circumcenters,
             self.triangulation.triangle_nodes,
