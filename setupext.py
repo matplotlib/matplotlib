@@ -4,6 +4,7 @@ from distutils import sysconfig
 from distutils import version
 from distutils.core import Extension
 import glob
+import io
 import multiprocessing
 import os
 import re
@@ -634,17 +635,48 @@ class CXX(SetupPackage):
     name = 'pycxx'
 
     def check(self):
+        if sys.version_info[:2] == (2, 7):
+            # There is no version of PyCXX in the wild that will work
+            # with Python 2.7
+            self.__class__.found_external = False
+            return ("Official version of PyCXX are not compatible with "
+                    "Python 2.7.  Using local copy")
+
+        self.__class__.found_external = True
+        old_stdout = sys.stdout
+        sys.stdout = io.BytesIO()
+        try:
+            import CXX
+        except ImportError:
+            self.__class__.found_external = False
+            return "Couldn't import.  Using local copy."
+        finally:
+            sys.stdout = old_stdout
+
         try:
             return self._check_for_pkg_config(
-                'PyCXX', 'CXX/Extensions.hxx', min_version='PATCH')
+                'PyCXX', 'CXX/Extensions.hxx', min_version='6.2.4')
         except CheckFailed as e:
             self.__class__.found_external = False
             return str(e) + ' Using local copy.'
-        else:
-            self.__class__.found_external = True
 
     def add_flags(self, ext):
         if self.found_external:
+            support_dir = os.path.normpath(
+                   os.path.join(
+                       sys.prefix,
+                       'share',
+                       'python%d.%d' % (
+                           sys.version_info[0], sys.version_info[1]),
+                       'CXX'))
+            if not os.path.exists(support_dir):
+                # On Fedora 17, these files are installed in /usr/share/CXX
+                support_dir = '/usr/src/CXX'
+            ext.sources.extend([
+                os.path.join(support_dir, x) for x in
+                ['cxxsupport.cxx', 'cxx_extensions.cxx',
+                 'IndirectPythonInterface.cxx',
+                 'cxxextensions.c']])
             pkg_config.setup_extension(ext, 'PyCXX')
         else:
             ext.sources.extend(glob.glob('CXX/*.cxx'))
@@ -661,28 +693,30 @@ class LibAgg(SetupPackage):
     name = 'libagg'
 
     def check(self):
+        self.__class__.found_external = True
         try:
             return self._check_for_pkg_config(
                 'libagg', 'agg2/agg_basics.h', min_version='PATCH')
         except CheckFailed as e:
             self.__class__.found_external = False
             return str(e) + ' Using local copy.'
-        finally:
-            self.__class__.found_external = True
 
     def add_flags(self, ext):
-        ext.include_dirs.append('agg24/include')
-        agg_sources = [
-            'agg_bezier_arc.cpp',
-            'agg_curves.cpp',
-            'agg_image_filters.cpp',
-            'agg_trans_affine.cpp',
-            'agg_vcgen_contour.cpp',
-            'agg_vcgen_dash.cpp',
-            'agg_vcgen_stroke.cpp',
-            ]
-        ext.sources.extend(
-            os.path.join('agg24', 'src', x) for x in agg_sources)
+        if self.found_external:
+            pkg_config.setup_extension(ext, 'libagg')
+        else:
+            ext.include_dirs.append('agg24/include')
+            agg_sources = [
+                'agg_bezier_arc.cpp',
+                'agg_curves.cpp',
+                'agg_image_filters.cpp',
+                'agg_trans_affine.cpp',
+                'agg_vcgen_contour.cpp',
+                'agg_vcgen_dash.cpp',
+                'agg_vcgen_stroke.cpp',
+                ]
+            ext.sources.extend(
+                os.path.join('agg24', 'src', x) for x in agg_sources)
 
 
 class FreeType(SetupPackage):
