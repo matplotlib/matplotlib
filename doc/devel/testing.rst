@@ -65,11 +65,28 @@ example, here is a test from :mod:`matplotlib.tests.test_basic`::
   from nose.tools import assert_equal
 
   def test_simple():
-      '''very simple example test'''
+      """
+      very simple example test
+      """
       assert_equal(1+1,2)
 
 Nose determines which functions are tests by searching for functions
 beginning with "test" in their name.
+
+If the test as side effects that need to be cleaned up, such as
+creating figures using the pyplot interface, use the ``@cleanup``
+decorator::
+
+  from matplotlib.testing.decorators import cleanup
+
+  @cleanup
+  def test_create_figure():
+      """
+      very simple example test that creates a figure using pyplot.
+      """
+      fig = figure()
+      ...
+
 
 Writing an image comparison test
 --------------------------------
@@ -146,27 +163,31 @@ fail condition, which can be a value such as True, False, or
 Creating a new module in matplotlib.tests
 -----------------------------------------
 
-Let's say you've added a new module named
-``matplotlib.tests.test_whizbang_features``.  To add this module to
-the list of default tests, append its name to ``default_test_modules``
-in :file:`lib/matplotlib/__init__.py`.
+We try to keep the tests categorized by the primary module they are
+testing.  For example, the tests related to the ``mathtext.py`` module
+are in ``test_mathtext.py``.
+
+Let's say you've added a new module named ``whizbang.py`` and you want
+to add tests for it in ``matplotlib.tests.test_whizbang``.  To add
+this module to the list of default tests, append its name to
+``default_test_modules`` in :file:`lib/matplotlib/__init__.py`.
 
 Using tox
 ---------
 
-`Tox <http://tox.testrun.org/>`_ is a tool for running tests against multiple
-Python environments, including multiple versions of Python (e.g.: 2.6, 2.7,
-3.2, etc.) and even different Python implementations altogether (e.g.: CPython,
-PyPy, Jython, etc.)
+`Tox <http://tox.testrun.org/>`_ is a tool for running tests against
+multiple Python environments, including multiple versions of Python
+(e.g.: 2.6, 2.7, 3.2, etc.) and even different Python implementations
+altogether (e.g.: CPython, PyPy, Jython, etc.)
 
-Testing all 4 versions of Python (2.6, 2.7, 3.1, and 3.2) requires having four
-versions of Python installed on your system and on the PATH. Depending on your
-operating system, you may want to use your package manager (such as apt-get,
-yum or MacPorts) to do this, or use `pythonbrew
-<https://github.com/utahta/pythonbrew>`_.
+Testing all 4 versions of Python (2.6, 2.7, 3.1, and 3.2) requires
+having four versions of Python installed on your system and on the
+PATH. Depending on your operating system, you may want to use your
+package manager (such as apt-get, yum or MacPorts) to do this, or use
+`pythonbrew <https://github.com/utahta/pythonbrew>`_.
 
-tox makes it easy to determine if your working copy introduced any regressions
-before submitting a pull request. Here's how to use it:
+tox makes it easy to determine if your working copy introduced any
+regressions before submitting a pull request. Here's how to use it:
 
 .. code-block:: bash
 
@@ -179,40 +200,47 @@ You can also run tox on a subset of environments:
 
     $ tox -e py26,py27
 
-Tox processes everything serially so it can take a long time to test several
-environments. To speed it up, you might try using a new, parallelized version
-of tox called ``detox``. Give this a try:
+Tox processes everything serially so it can take a long time to test
+several environments. To speed it up, you might try using a new,
+parallelized version of tox called ``detox``. Give this a try:
 
 .. code-block:: bash
 
     $ pip install -U -i http://pypi.testrun.org detox
     $ detox
 
-Tox is configured using a file called ``tox.ini``. You may need to edit this
-file if you want to add new environments to test (e.g.: ``py33``) or if you
-want to tweak the dependencies or the way the tests are run. For more info on
-the ``tox.ini`` file, see the `Tox Configuration Specification
+Tox is configured using a file called ``tox.ini``. You may need to
+edit this file if you want to add new environments to test (e.g.:
+``py33``) or if you want to tweak the dependencies or the way the
+tests are run. For more info on the ``tox.ini`` file, see the `Tox
+Configuration Specification
 <http://tox.testrun.org/latest/config.html>`_.
 
 Using Travis CI
 ---------------
 
-`Travis CI <http://travis-ci.org/>`_ is a hosted CI system "in the cloud".
+`Travis CI <http://travis-ci.org/>`_ is a hosted CI system "in the
+cloud".
 
-Travis is configured to receive notifications of new commits to GitHub repos
-(via GitHub "service hooks") and to run builds or tests when it sees these new
-commits. It looks for a YAML file called ``.travis.yml`` in the root of the
-repository to see how to test the project.
+Travis is configured to receive notifications of new commits to GitHub
+repos (via GitHub "service hooks") and to run builds or tests when it
+sees these new commits. It looks for a YAML file called
+``.travis.yml`` in the root of the repository to see how to test the
+project.
 
-Travis CI is already enabled for the `main matplotlib GitHub repository
-<https://github.com/matplotlib/matplotlib/>`_ -- for example, see `its Travis
-page <http://travis-ci.org/#!/matplotlib/matplotlib>`_.
+Travis CI is already enabled for the `main matplotlib GitHub
+repository <https://github.com/matplotlib/matplotlib/>`_ -- for
+example, see `its Travis page
+<http://travis-ci.org/#!/matplotlib/matplotlib>`_.
 
-If you want to enable Travis CI for your personal matplotlib GitHub repo,
-simply enable the repo to use Travis CI in either the Travis CI UI or the
-GitHub UI (Admin | Service Hooks). For details, see `the Travis CI Getting
-Started page <http://about.travis-ci.org/docs/user/getting-started/>`_.
+If you want to enable Travis CI for your personal matplotlib GitHub
+repo, simply enable the repo to use Travis CI in either the Travis CI
+UI or the GitHub UI (Admin | Service Hooks). For details, see `the
+Travis CI Getting Started page
+<http://about.travis-ci.org/docs/user/getting-started/>`_.  This
+generally isn't necessary, since any pull request submitted against
+the main matplotlib repository will be tested.
 
 Once this is configured, you can see the Travis CI results at
-http://travis-ci.org/#!/your_GitHub_user_name/matplotlib -- here's `an example
-<http://travis-ci.org/#!/msabramo/matplotlib>`_.
+http://travis-ci.org/#!/your_GitHub_user_name/matplotlib -- here's `an
+example <http://travis-ci.org/#!/msabramo/matplotlib>`_.
