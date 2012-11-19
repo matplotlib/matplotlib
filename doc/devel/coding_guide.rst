@@ -384,12 +384,9 @@ The following software is required to run the tests:
 Running the tests
 -----------------
 
-Running the tests is simple. Make sure you have nose installed. There are two
-options to run tests in matplotlib:
+Running the tests is simple. Make sure you have nose installed and run
+the script :file:`tests.py` in the root directory of the distribution.
 
-- use the makefile, and type ``make test`` or ``make test-coverage``
-
-- run the script :file:`tests.py` in the root directory of the distribution.
 The script can take any of the usual `nosetest arguments`_, such as
 
   ===================  ===========
