@@ -2342,8 +2342,8 @@ class Axes(martist.Artist):
         *which* : ['major' | 'minor' | 'both']
             Default is 'major'; apply arguments to *which* ticks.
 
-        *direction* : ['in' | 'out']
-            Puts ticks inside or outside the axes.
+        *direction* : ['in' | 'out' | 'inout']
+            Puts ticks inside the axes, outside the axes, or both.
 
         *length*
             Tick length in points.
@@ -4556,8 +4556,7 @@ class Axes(martist.Artist):
             instance. If *prop* is a dictionary, a new instance will be
             created with *prop*. If *None*, use rc settings.
 
-          *fontsize*: [ size in points | 'xx-small' | 'x-small' |
-          'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
+          *fontsize*: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
             Set the font size.  May be either a size string, relative to
             the default font size, or an absolute font size in points. This
             argument is only used if prop is not specified.
@@ -7102,7 +7101,7 @@ class Axes(martist.Artist):
             parameter, i.e. when interpolation is one of: 'sinc',
             'lanczos' or 'blackman'
 
-        Additional kwargs are :class:`~matplotlib.artist.Artist` properties:
+        Additional kwargs are :class:`~matplotlib.artist.Artist` properties.
 
         %(Artist)s
 
@@ -7397,13 +7396,13 @@ class Axes(martist.Artist):
 
         x = X.compressed()
         y = Y.compressed()
-        
+
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform)
             and hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
-        
+
         if t and any(t.contains_branch_seperately(self.transData)):
             trans_to_data = t - self.transData
             pts = np.vstack([x, y]).T.astype(np.float)
@@ -7537,13 +7536,13 @@ class Axes(martist.Artist):
         collection.autoscale_None()
 
         self.grid(False)
-        
+
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform)
             and hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
-        
+
         if t and any(t.contains_branch_seperately(self.transData)):
             trans_to_data = t - self.transData
             pts = np.vstack([X, Y]).T.astype(np.float)
