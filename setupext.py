@@ -723,6 +723,9 @@ class FreeType(SetupPackage):
     name = "freetype"
 
     def check(self):
+        if sys.platform == 'win32':
+            return "Unknown version"
+
         status, output = getstatusoutput("freetype-config --version")
         if status == 0:
             version = output
@@ -883,6 +886,24 @@ class Dateutil(SetupPackage):
 
     def get_install_requires(self):
         return ['python_dateutil']
+
+
+class Tornado(SetupPackage):
+    name = "tornado"
+
+    def check(self):
+        try:
+            import tornado
+        except ImportError:
+            return (
+                "tornado was not found. It is required for the WebAgg "
+                "backend. pip/easy_install may attempt to install it "
+                "after matplotlib.")
+
+        return "using tornado version %s" % tornado.__version__
+
+    def get_install_requires(self):
+        return ['tornado']
 
 
 class Pyparsing(SetupPackage):
