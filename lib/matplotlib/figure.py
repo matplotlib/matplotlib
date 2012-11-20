@@ -1143,7 +1143,7 @@ class Figure(Artist):
         """
         Call signature::
 
-          set_xlabel(xlabel, fontdict=None, labelpad=None, **kwargs)
+          set_xlabel(xlabel, fontdict=None, labelpad=0.08, **kwargs)
 
         Set the label for the xaxis.
 
@@ -1187,7 +1187,7 @@ class Figure(Artist):
         """
         Call signature::
 
-          set_ylabel(ylabel, fontdict=None, labelpad=None, **kwargs)
+          set_ylabel(ylabel, fontdict=None, labelpad=0.10, **kwargs)
 
         Set the label for the xaxis.
 
