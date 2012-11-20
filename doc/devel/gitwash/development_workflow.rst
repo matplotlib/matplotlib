@@ -134,6 +134,9 @@ without interfering with the output from the comparison.  More detail?
 Note the three dots in the URL above (``master...my-new-feature``) and
 see :ref:`dot2-dot3`.
 
+It's a good idea to consult the :ref:`pull-request-checklist` to make
+sure your pull request is ready for merging.
+
 Asking for your changes to be merged into the main repo
 =======================================================
 
