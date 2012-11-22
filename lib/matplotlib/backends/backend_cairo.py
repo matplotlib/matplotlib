@@ -157,15 +157,12 @@ class RendererCairo(RendererBase):
         # bbox - not currently used
         if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
-        clippath, clippath_trans = gc.get_clip_path()
-
         im.flipud_out()
 
         rows, cols, buf = im.color_conv (BYTE_FORMAT)
         surface = cairo.ImageSurface.create_for_data (
                       buf, cairo.FORMAT_ARGB32, cols, rows, cols*4)
-        # function does not pass a 'gc' so use renderer.ctx
-        ctx = self.gc.ctx
+        ctx = gc.ctx
         ctx.save()
         if clippath is not None:
             ctx.new_path()
