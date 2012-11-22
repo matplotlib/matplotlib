@@ -164,10 +164,6 @@ class RendererCairo(RendererBase):
                       buf, cairo.FORMAT_ARGB32, cols, rows, cols*4)
         ctx = gc.ctx
         ctx.save()
-        if clippath is not None:
-            ctx.new_path()
-            RendererCairo.convert_path(ctx, clippath, clippath_trans)
-            ctx.clip()
         y = self.height - y - rows
         ctx.set_source_surface (surface, x, y)
         ctx.paint()
