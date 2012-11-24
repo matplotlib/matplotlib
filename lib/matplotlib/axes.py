@@ -8604,11 +8604,12 @@ class Axes(martist.Artist):
                    cmap=None, xextent=None, pad_to=None, sides='default',
                    scale_by_freq=None, **kwargs)
 
-        Compute a spectrogram of data in *x*.  Data are split into
+        Compute and plot a spectrogram of data in *x*.  Data are split into
         *NFFT* length segments and the PSD of each section is
         computed.  The windowing function *window* is applied to each
         segment, and the amount of overlap of each segment is
-        specified with *noverlap*.
+        specified with *noverlap*. The spectrogram is plotted in decibels
+        as a colormap (using imshow).
 
         %(PSD)s
 
@@ -8647,6 +8648,9 @@ class Axes(martist.Artist):
         spectrum is shown.  If *x* is complex, both positive and
         negative parts of the spectrum are shown.  This can be
         overridden using the *sides* keyword argument.
+        
+        Also note that while the plot is in dB, the *Pxx* array returned is
+        linear in power.
 
         **Example:**
 
