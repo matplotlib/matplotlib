@@ -595,6 +595,11 @@ class Animation(object):
         the individual frames. This can be used to set tight bounding boxes,
         for example.
         '''
+        if len(writers.list()) == 0:
+            raise ValueError("Cannot save animation: no writers are "
+                             "available. Please install mencoder or "
+                             "ffmpeg to save animations.")
+
         if savefig_kwargs is None:
             savefig_kwargs = {}
 
