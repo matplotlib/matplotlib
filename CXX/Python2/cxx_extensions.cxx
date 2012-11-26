@@ -261,7 +261,9 @@ extern "C"
     static int setattr_handler( PyObject *, char *, PyObject * );
     static PyObject *getattro_handler( PyObject *, PyObject * );
     static int setattro_handler( PyObject *, PyObject *, PyObject * );
+#if defined( PYCXX_PYTHON_2TO3 )
     static int compare_handler( PyObject *, PyObject * );
+#endif
     static PyObject *rich_compare_handler( PyObject *, PyObject *, int );
     static PyObject *repr_handler( PyObject * );
     static PyObject *str_handler( PyObject * );
@@ -723,6 +725,7 @@ extern "C" int setattro_handler( PyObject *self, PyObject *name, PyObject *value
     }
 }
 
+#if defined( PYCXX_PYTHON_2TO3 )
 extern "C" int compare_handler( PyObject *self, PyObject *other )
 {
     try
@@ -735,6 +738,7 @@ extern "C" int compare_handler( PyObject *self, PyObject *other )
         return -1;    // indicate error
     }
 }
+#endif
 
 #if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 1)
 extern "C" PyObject *rich_compare_handler( PyObject *self, PyObject *other, int op )
