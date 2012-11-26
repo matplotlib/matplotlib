@@ -254,7 +254,9 @@ extern "C"
     // All the following functions redirect the call from Python
     // onto the matching virtual function in PythonExtensionBase
     //
+#if defined( PYCXX_PYTHON_2TO3 )
     static int print_handler( PyObject *, FILE *, int );
+#endif
     static PyObject *getattr_handler( PyObject *, char * );
     static int setattr_handler( PyObject *, char *, PyObject * );
     static PyObject *getattro_handler( PyObject *, PyObject * );
@@ -290,9 +292,7 @@ extern "C"
     static PyObject *number_invert_handler( PyObject * );
     static PyObject *number_int_handler( PyObject * );
     static PyObject *number_float_handler( PyObject * );
-#if !defined( PY3 )
     static PyObject *number_long_handler( PyObject * );
-#endif
     static PyObject *number_oct_handler( PyObject * );
     static PyObject *number_hex_handler( PyObject * );
     static PyObject *number_add_handler( PyObject *, PyObject * );
@@ -335,13 +335,9 @@ PythonType &PythonType::supportSequenceType()
         sequence_table->sq_concat = sequence_concat_handler;
         sequence_table->sq_repeat = sequence_repeat_handler;
         sequence_table->sq_item = sequence_item_handler;
-#if !defined( PY3 )
         sequence_table->sq_slice = sequence_slice_handler;
-#endif
         sequence_table->sq_ass_item = sequence_ass_item_handler;    // BAS setup seperately?
-#if !defined( PY3 )
         sequence_table->sq_ass_slice = sequence_ass_slice_handler;  // BAS setup seperately?
-#endif
     }
     return *this;
 }
@@ -370,36 +366,26 @@ PythonType &PythonType::supportNumberType()
         number_table->nb_add = number_add_handler;
         number_table->nb_subtract = number_subtract_handler;
         number_table->nb_multiply = number_multiply_handler;
-#if !defined( PY3 )
         number_table->nb_divide = number_divide_handler;
-#endif
         number_table->nb_remainder = number_remainder_handler;
         number_table->nb_divmod = number_divmod_handler;
         number_table->nb_power = number_power_handler;
         number_table->nb_negative = number_negative_handler;
         number_table->nb_positive = number_positive_handler;
         number_table->nb_absolute = number_absolute_handler;
-#if !defined( PY3 )
         number_table->nb_nonzero = number_nonzero_handler;
-#endif
         number_table->nb_invert = number_invert_handler;
         number_table->nb_lshift = number_lshift_handler;
         number_table->nb_rshift = number_rshift_handler;
         number_table->nb_and = number_and_handler;
         number_table->nb_xor = number_xor_handler;
         number_table->nb_or = number_or_handler;
-#if !defined( PY3 )
         number_table->nb_coerce = 0;
-#endif
         number_table->nb_int = number_int_handler;
-#if !defined( PY3 )
         number_table->nb_long = number_long_handler;
-#endif
         number_table->nb_float = number_float_handler;
-#if !defined( PY3 )
         number_table->nb_oct = number_oct_handler;
         number_table->nb_hex = number_hex_handler;
-#endif
     }
     return *this;
 }
@@ -411,11 +397,9 @@ PythonType &PythonType::supportBufferType()
         buffer_table = new PyBufferProcs;
         memset( buffer_table, 0, sizeof( PyBufferProcs ) );   // ensure new fields are 0
         table->tp_as_buffer = buffer_table;
-#if !defined( PY3 )
         buffer_table->bf_getreadbuffer = buffer_getreadbuffer_handler;
         buffer_table->bf_getwritebuffer = buffer_getwritebuffer_handler;
         buffer_table->bf_getsegcount = buffer_getsegcount_handler;
-#endif
     }
     return *this;
 }
@@ -434,10 +418,9 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
 
     memset( table, 0, sizeof( PyTypeObject ) );   // ensure new fields are 0
     *reinterpret_cast<PyObject *>( table ) = py_object_initializer;
-#if !defined( PY3 )
     table->ob_type = _Type_Type();
     table->ob_size = 0;
-#endif
+
     table->tp_name = const_cast<char *>( default_name );
     table->tp_basicsize = basic_size;
     table->tp_itemsize = itemsize;
@@ -575,11 +558,13 @@ PythonType &PythonType::dealloc( void( *f )( PyObject * ))
     return *this;
 }
 
+#if defined( PYCXX_PYTHON_2TO3 )
 PythonType &PythonType::supportPrint()
 {
     table->tp_print = print_handler;
     return *this;
 }
+#endif
 
 PythonType &PythonType::supportGetattr()
 {
@@ -605,11 +590,13 @@ PythonType &PythonType::supportSetattro()
     return *this;
 }
 
+#if defined( PYCXX_PYTHON_2TO3 )
 PythonType &PythonType::supportCompare()
 {
     table->tp_compare = compare_handler;
     return *this;
 }
+#endif
 
 #if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 1)
 PythonType &PythonType::supportRichCompare()
@@ -669,6 +656,7 @@ PythonExtensionBase *getPythonExtensionBase( PyObject *self )
 }
 
 
+#if defined( PYCXX_PYTHON_2TO3 )
 extern "C" int print_handler( PyObject *self, FILE *fp, int flags )
 {
     try
@@ -681,6 +669,7 @@ extern "C" int print_handler( PyObject *self, FILE *fp, int flags )
         return -1;    // indicate error
     }
 }
+#endif
 
 extern "C" PyObject *getattr_handler( PyObject *self, char *name )
 {
@@ -1719,11 +1708,7 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
         Tuple self_and_name_tuple( _self_and_name_tuple );
 
         PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
-        #if PY_VERSION_HEX < 0x02070000
-            void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
-        #else
-            void *self_as_void = PyCapsule_GetPointer( self_in_cobject, NULL );
-        #endif
+        void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
         if( self_as_void == NULL )
             return NULL;
 
@@ -1739,11 +1724,7 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
                     (
                     self->invoke_method_keyword
                         (
-                        #if PY_VERSION_HEX < 0x02070000
-                            PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
-                        #else
-                            PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ),
-                        #endif
+                        PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
                         args,
                         keywords
                         )
@@ -1759,11 +1740,7 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
                     (
                     self->invoke_method_keyword
                         (
-                        #if PY_VERSION_HEX < 0x02070000
-                            PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
-                        #else
-                            PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ),
-                        #endif
+                        PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
                         args,
                         keywords
                         )
@@ -1785,11 +1762,7 @@ extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple
         Tuple self_and_name_tuple( _self_and_name_tuple );
 
         PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
-        #if PY_VERSION_HEX < 0x02070000
-            void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
-        #else
-            void *self_as_void = PyCapsule_GetPointer( self_in_cobject, NULL );
-        #endif
+        void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
         if( self_as_void == NULL )
             return NULL;
 
@@ -1800,11 +1773,7 @@ extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple
                 (
                 self->invoke_method_varargs
                     (
-                    #if PY_VERSION_HEX < 0x02070000
-                        PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
-                    #else
-                        PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL ),
-                    #endif
+                    PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
                     args
                     )
                 );
