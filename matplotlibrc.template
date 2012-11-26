@@ -434,7 +434,11 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #animation.frame_format: 'png'     # Controls frame format used by temp files
 #animation.ffmpeg_path: 'ffmpeg'   # Path to ffmpeg binary. Without full path
                                    # $PATH is searched
-#animation.ffmpeg_args: ''         # Additional arugments to pass to mencoder
-#animation.mencoder_path: 'ffmpeg' # Path to mencoder binary. Without full path
+#animation.ffmpeg_args: ''         # Additional arugments to pass to ffmpeg
+#animation.avconv_path: 'avconv'   # Path to ffmpeg binary. Without full path
+                                   # $PATH is searched
+#animation.avconv_args: ''         # Additional arugments to pass to ffmpeg
+#animation.mencoder_path: 'mencoder' 
+			           # Path to mencoder binary. Without full path
                                    # $PATH is searched
 #animation.mencoder_args: ''       # Additional arugments to pass to mencoder

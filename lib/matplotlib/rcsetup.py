@@ -327,7 +327,9 @@ validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
                                            ['xelatex', 'lualatex', 'pdflatex'])
 
 validate_movie_writer = ValidateInStrings('animation.writer',
-    ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file',
+    ['ffmpeg', 'ffmpeg_file',
+     'avconv', 'avconv_file',
+     'mencoder', 'mencoder_file',
      'imagemagick', 'imagemagick_file'])
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
@@ -627,7 +629,9 @@ defaultParams = {
     'animation.frame_format' : ['png', validate_movie_frame_fmt], # Controls image format when frames are written to disk
     'animation.ffmpeg_path' : ['ffmpeg', str], # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
     'animation.ffmpeg_args' : ['', validate_stringlist], # Additional arguments for ffmpeg movie writer (using pipes)
-    'animation.mencoder_path' : ['mencoder', str], # Path to FFMPEG binary. If just binary name, subprocess uses $PATH.
+    'animation.avconv_path' : ['avconv', str], # Path to AVConv binary. If just binary name, subprocess uses $PATH.
+    'animation.avconv_args' : ['', validate_stringlist], # Additional arguments for avconv movie writer (using pipes)
+    'animation.mencoder_path' : ['mencoder', str], # Path to MENCODER binary. If just binary name, subprocess uses $PATH.
     'animation.mencoder_args' : ['', validate_stringlist], # Additional arguments for mencoder movie writer (using pipes)
     'animation.convert_path' : ['convert', str], # Path to convert binary. If just binary name, subprocess uses $PATH
     'animation.convert_args' : ['', validate_stringlist], # Additional arguments for mencoder movie writer (using pipes)

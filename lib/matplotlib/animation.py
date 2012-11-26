@@ -390,6 +390,57 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
                 self._base_temp_name()] + self.output_args
 
 
+# Base class of avconv information. Has the config keys and the common set
+# of arguments that controls the *output* side of things.
+class AVConvBase:
+    exec_key = 'animation.avconv_path'
+    args_key = 'animation.avconv_args'
+
+    @property
+    def output_args(self):
+        # The %dk adds 'k' as a suffix so that avconv treats our bitrate as in
+        # kbps
+        args = ['-vcodec', self.codec]
+        if self.bitrate > 0:
+            args.extend(['-b', '%dk' % self.bitrate])
+        if self.extra_args:
+            args.extend(self.extra_args)
+        for k, v in self.metadata.items():
+            args.extend(['-metadata', '%s=%s' % (k, v)])
+
+        return args + ['-y', self.outfile]
+
+
+# Combine AVConv options with pipe-based writing
+@writers.register('avconv')
+class AVConvWriter(MovieWriter, AVConvBase):
+    def _args(self):
+        # Returns the command line parameters for subprocess to use
+        # avconv to create a movie using a pipe.
+        args = [self.bin_path(), '-f', 'rawvideo', '-vcodec', 'rawvideo',
+                '-s', '%dx%d' % self.frame_size, '-pix_fmt', self.frame_format,
+                '-r', str(self.fps)]
+        # Logging is quieted because subprocess.PIPE has limited buffer size.
+        if not verbose.ge('debug'):
+            args += ['-loglevel', 'quiet']
+        args += ['-i', 'pipe:'] + self.output_args
+        return args
+
+
+#Combine AVConv options with temp file-based writing
+@writers.register('avconv_file')
+class AVConvFileWriter(FileMovieWriter, AVConvBase):
+    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
+                         'pbm', 'raw', 'rgba']
+
+    def _args(self):
+        # Returns the command line parameters for subprocess to use
+        # avconv to create a movie using a collection of temp images
+        return [self.bin_path(), '-vframes', str(self._frame_counter),
+                '-r', str(self.fps), '-i',
+                self._base_temp_name()] + self.output_args
+
+
 # Base class of mencoder information. Contains configuration key information
 # as well as arguments for controlling *output*
 class MencoderBase:
