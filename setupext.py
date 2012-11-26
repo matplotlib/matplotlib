@@ -635,12 +635,12 @@ class CXX(SetupPackage):
     name = 'pycxx'
 
     def check(self):
-        if sys.version_info[:2] == (2, 7):
+        if sys.version_info[0] >= 3:
             # There is no version of PyCXX in the wild that will work
-            # with Python 2.7
+            # with Python 3.x
             self.__class__.found_external = False
-            return ("Official version of PyCXX are not compatible with "
-                    "Python 2.7.  Using local copy")
+            return ("Official versions of PyCXX are not compatible with "
+                    "Python 3.x.  Using local copy")
 
         self.__class__.found_external = True
         old_stdout = sys.stdout
