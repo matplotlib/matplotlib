@@ -2027,8 +2027,6 @@ def set_cmap(cmap):
 
     if im is not None:
         im.set_cmap(cmap)
-    else:
-        raise RuntimeError('You must first define an image, eg with imshow')
 
     draw_if_interactive()
 
