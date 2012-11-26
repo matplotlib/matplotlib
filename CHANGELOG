@@ -1,3 +1,7 @@
+2012-11-16 plt.set_cmap no longer throws errors if there is not already
+           an active colorable artist, such as an image, and just sets
+           up the colormap to use from that point forward. - PI
+
 2012-11-13 Add a symmetric log normalization class to colors.py.
            Also added some tests for the normalization class.
            Till Stensitzki
