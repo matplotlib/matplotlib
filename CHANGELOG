@@ -1,3 +1,5 @@
+2012-11-25 Make rc_context available via pyplot interface - PI
+
 2012-11-13 Add a symmetric log normalization class to colors.py.
            Also added some tests for the normalization class.
            Till Stensitzki
