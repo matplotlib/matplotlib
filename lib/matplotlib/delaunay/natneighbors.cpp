@@ -42,7 +42,7 @@ NaturalNeighbors::~NaturalNeighbors()
 int NaturalNeighbors::find_containing_triangle(double targetx, double targety, int start_triangle)
 {
     int final_triangle;
-    final_triangle = walking_triangles(start_triangle, targetx, targety, 
+    final_triangle = walking_triangles(start_triangle, targetx, targety,
         x, y, nodes, neighbors);
     return final_triangle;
 }
@@ -115,7 +115,7 @@ double NaturalNeighbors::interpolate_one(double *z, double targetx, double targe
                     targetx, targety,
                     INDEX2(c, i, 0), INDEX2(c, i, 1))) {
 
-                // bail out with the appropriate values if we're actually on a 
+                // bail out with the appropriate values if we're actually on a
                 // node
                 if ((fabs(targetx - this->x[INDEX3(this->nodes, t, j)]) < TOLERANCE_EPS)
                  && (fabs(targety - this->y[INDEX3(this->nodes, t, j)]) < TOLERANCE_EPS)) {
@@ -138,7 +138,7 @@ double NaturalNeighbors::interpolate_one(double *z, double targetx, double targe
             double ati = 0.0;
 
             if (!onedge || ((edge[0] != q) && edge[1] != q)) {
-                ati = signed_area(vx, vy, 
+                ati = signed_area(vx, vy,
                                   INDEX2(c, j, 0), INDEX2(c, j, 1),
                                   INDEX2(c, k, 0), INDEX2(c, k, 1));
 
@@ -160,11 +160,11 @@ double NaturalNeighbors::interpolate_one(double *z, double targetx, double targe
     // doesn't work so well. We'll take care of these two nodes here.
     if (onedge) {
 
-        // If we're on the convex hull, then the other nodes don't actually 
-        // contribute anything, just the nodes for the edge we're on. The 
+        // If we're on the convex hull, then the other nodes don't actually
+        // contribute anything, just the nodes for the edge we're on. The
         // Voronoi "polygons" are infinite in extent.
         if (onhull) {
-            double a = (hypot(targetx-x[edge[0]], targety-y[edge[0]]) / 
+            double a = (hypot(targetx-x[edge[0]], targety-y[edge[0]]) /
                         hypot(x[edge[1]]-x[edge[0]], y[edge[1]]-y[edge[0]]));
             return (1-a) * z[edge[0]] + a*z[edge[1]];
         }
@@ -233,11 +233,11 @@ double NaturalNeighbors::interpolate_one(double *z, double targetx, double targe
 
         for (sit = alltri0.begin(); sit != alltri0.end(); sit++) {
             poly0.push(INDEX2(this->centers, *sit, 0),
-                       INDEX2(this->centers, *sit, 1)); 
+                       INDEX2(this->centers, *sit, 1));
         }
         for (sit = alltri1.begin(); sit != alltri1.end(); sit++) {
             poly1.push(INDEX2(this->centers, *sit, 0),
-                       INDEX2(this->centers, *sit, 1)); 
+                       INDEX2(this->centers, *sit, 1));
         }
 
         double a0 = poly0.area();
@@ -256,20 +256,19 @@ double NaturalNeighbors::interpolate_one(double *z, double targetx, double targe
     return f;
 }
 
-void NaturalNeighbors::interpolate_grid(double *z, 
+void NaturalNeighbors::interpolate_grid(double *z,
     double x0, double x1, int xsteps,
     double y0, double y1, int ysteps,
     double *output,
     double defvalue, int start_triangle)
 {
-    int i, ix, iy, rowtri, coltri, tri;
+    int ix, iy, rowtri, coltri, tri;
     double dx, dy, targetx, targety;
 
     dx = (x1 - x0) / (xsteps-1);
     dy = (y1 - y0) / (ysteps-1);
 
     rowtri = 0;
-    i = 0;
     for (iy=0; iy<ysteps; iy++) {
         targety = y0 + dy*iy;
         rowtri = find_containing_triangle(x0, targety, rowtri);
@@ -284,7 +283,7 @@ void NaturalNeighbors::interpolate_grid(double *z,
     }
 }
 
-void NaturalNeighbors::interpolate_unstructured(double *z, int size, 
+void NaturalNeighbors::interpolate_unstructured(double *z, int size,
     double *intx, double *inty, double *output, double defvalue)
 {
     int i, tri1, tri2;

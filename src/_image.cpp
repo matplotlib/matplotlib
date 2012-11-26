@@ -371,8 +371,8 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs)
         throw Py::RuntimeError("You must first load the image");
     }
 
-    int numcols = Py::Int(args[0]);
-    int numrows = Py::Int(args[1]);
+    size_t numcols = Py::Int(args[0]);
+    size_t numrows = Py::Int(args[1]);
 
     colsOut = numcols;
     rowsOut = numrows;
