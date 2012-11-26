@@ -219,7 +219,7 @@ import sys, warnings
 from cbook import flatten, is_string_like, exception_to_str, \
      silent_list, iterable, dedent
 
-from matplotlib import mpl  # pulls in most modules
+import matplotlib as mpl
 
 from matplotlib.dates import date2num, num2date,\
         datestr2num, strpdate2num, drange,\

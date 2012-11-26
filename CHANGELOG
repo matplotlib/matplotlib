@@ -1,3 +1,7 @@
+
+2012-11-26 removed matplotlib/mpl.py, which was used only in pylab.py and was
+           now replaced by the more suitable `import matplotlib as mpl`. - PI
+
 2012-11-13 Add a symmetric log normalization class to colors.py.
            Also added some tests for the normalization class.
            Till Stensitzki
