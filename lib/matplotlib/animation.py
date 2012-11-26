@@ -595,11 +595,6 @@ class Animation(object):
         the individual frames. This can be used to set tight bounding boxes,
         for example.
         '''
-        if len(writers.list()) == 0:
-            raise ValueError("Cannot save animation: no writers are "
-                             "available. Please install mencoder or "
-                             "ffmpeg to save animations.")
-
         if savefig_kwargs is None:
             savefig_kwargs = {}
 
@@ -662,7 +657,13 @@ class Animation(object):
             else:
                 import warnings
                 warnings.warn("MovieWriter %s unavailable" % writer)
-                writer = writers.list()[0]
+
+                try:
+                    writer = writers.list()[0]
+                except:
+                    raise ValueError("Cannot save animation: no writers are "
+                                     "available. Please install mencoder or "
+                                     "ffmpeg to save animations.")
 
         verbose.report('Animation.save using %s' % type(writer),
                        level='helpful')
