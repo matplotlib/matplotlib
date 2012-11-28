@@ -660,7 +660,7 @@ class Animation(object):
 
                 try:
                     writer = writers.list()[0]
-                except:
+                except IndexError:
                     raise ValueError("Cannot save animation: no writers are "
                                      "available. Please install mencoder or "
                                      "ffmpeg to save animations.")
