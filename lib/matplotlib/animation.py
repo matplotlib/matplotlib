@@ -53,6 +53,9 @@ class MovieWriterRegistry(object):
         ''' Get a list of available MovieWriters.'''
         return self.avail.keys()
 
+    def is_available(self, name):
+        return name in self.avail
+
     def __getitem__(self, name):
         if not self.avail:
             raise RuntimeError("No MovieWriters available!")
