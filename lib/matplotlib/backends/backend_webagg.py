@@ -326,6 +326,15 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
     def dynamic_update(self):
         self.canvas.draw_idle()
 
+    def draw_rubberband(self, event, x0, y0, x1, y1):
+        self.canvas.send_event(
+            "rubberband", x0=x0, y0=y0, x1=x1, y1=y1)
+
+    def release_zoom(self, event):
+        super(NavigationToolbar2WebAgg, self).release_zoom(event)
+        self.canvas.send_event(
+            "rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
+
 
 class WebAggApplication(tornado.web.Application):
     initialized = False
