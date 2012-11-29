@@ -7,15 +7,25 @@
      onkeydown="key_event(event, 'key_press')"
      onkeyup="key_event(event, 'key_release')">
     <div id="mpl-div">
-      <div id="mpl-warnings" class="mpl-warnings"></div>
+      <div id="mpl-warnings" class="mpl-warnings">
+      </div>
 
-      <canvas id="mpl-canvas"
-              class="mpl-canvas"
-              width="800" height="600"
-              onmousedown="mouse_event(event, 'button_press')"
-              onmouseup="mouse_event(event, 'button_release')"
-              onmousemove="mouse_event(event, 'motion_notify')">
-      </canvas>
+      <div id="mpl-canvas-div"
+           style="position: relative;">
+        <canvas id="mpl-canvas"
+                class="mpl-canvas"
+                width="800" height="600"
+                style="position: absolute; left: 0; top: 0; z-index: 0">
+        </canvas>
+
+        <canvas id="mpl-rubberband-canvas"
+                width="800" height="600"
+                onmousedown="mouse_event(event, 'button_press')"
+                onmouseup="mouse_event(event, 'button_release')"
+                onmousemove="mouse_event(event, 'motion_notify')"
+                style="position: absolute; left: 0; top: 0; z-index: 1">
+        </canvas>
+      </div>
 
       <div id="toolbar">
         {% for name, tooltip, image, method in toolitems %}
