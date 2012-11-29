@@ -7332,8 +7332,8 @@ class Axes(martist.Artist):
         Y = ma.asarray(Y)
         mask = ma.getmaskarray(X)+ma.getmaskarray(Y)
         xymask = mask[0:-1,0:-1]+mask[1:,1:]+mask[0:-1,1:]+mask[1:,0:-1]
-        # don't plot if C or any of the surrounding vertices are masked.
-        mask = ma.getmaskarray(C)[0:Ny-1,0:Nx-1]+xymask
+        # don't plot if any of the surrounding vertices are masked.
+        mask = xymask
 
         newaxis = np.newaxis
         compress = np.compress
@@ -7357,7 +7357,8 @@ class Axes(martist.Artist):
                              axis=1)
         verts = xy.reshape((npoly, 5, 2))
 
-        C = compress(ravelmask, ma.filled(C[0:Ny-1,0:Nx-1]).ravel())
+        # don't remove masked points in C (so cmap.set_bad color is used)
+        C = compress(ravelmask, C[0:Ny-1,0:Nx-1].ravel())
 
         linewidths = (0.25,)
         if 'linewidth' in kwargs:
