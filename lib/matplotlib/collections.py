@@ -88,6 +88,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  hatch=None,
                  urls=None,
                  offset_position='screen',
+                 path_effects=None,
                  **kwargs
                  ):
         """
@@ -121,6 +122,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 self._uniform_offsets = offsets
 
+        self._path_effects = None
         self.update(kwargs)
         self._paths = None
 
@@ -254,11 +256,21 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if self._hatch:
             gc.set_hatch(self._hatch)
 
-        renderer.draw_path_collection(
-            gc, transform.frozen(), paths, self.get_transforms(),
-            offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
-            self._linewidths, self._linestyles, self._antialiaseds, self._urls,
-            self._offset_position)
+        if self.get_path_effects():
+            #from patheffects import PathEffectsRenderer
+            for pe in self.get_path_effects():
+                pe.draw_path_collection(renderer,
+                    gc, transform.frozen(), paths, self.get_transforms(),
+                    offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles, self._antialiaseds, self._urls,
+                    self._offset_position)
+        else:
+
+            renderer.draw_path_collection(
+                gc, transform.frozen(), paths, self.get_transforms(),
+                offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
+                self._linewidths, self._linestyles, self._antialiaseds, self._urls,
+                self._offset_position)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -636,6 +648,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.norm = other.norm
         self.cmap = other.cmap
         # self.update_dict = other.update_dict # do we need to copy this? -JJL
+
+    def set_path_effects(self, path_effects):
+        """
+        set path_effects, which should be a list of instances of
+        matplotlib.patheffect._Base class or its derivatives.
+        """
+        self._path_effects = path_effects
+
+    def get_path_effects(self):
+        return self._path_effects
+
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
