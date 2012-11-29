@@ -6,25 +6,22 @@ from matplotlib import animation
 from matplotlib.testing.noseclasses import KnownFailureTest
 
 
+WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
+                     mencoder='mp4', mencoder_file='mp4',
+                     avconv='mp4', avconv_file='mp4',
+                     imagemagick='gif', imagemagick_file='gif')
+                     
+
+
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
 def test_save_animation_smoketest():
-    writers = ['ffmpeg', 'ffmpeg_file',
-               'mencoder', 'mencoder_file',
-               'avconv', 'avconv_file',
-               'imagemagick', 'imagemagick_file']
-
-    for writer in writers:
-        if writer.startswith('imagemagick'):
-            extension = '.gif'
-        else:
-            extension = '.mp4'
-
+    for writer, extension in WRITER_OUTPUT.iteritems():
         yield check_save_animation, writer, extension
 
 
-def check_save_animation(writer, extension='.mp4'):
+def check_save_animation(writer, extension='mp4'):
     if not animation.writers.is_available(writer):
         raise KnownFailureTest("writer '%s' not available on this system"
                                % writer)
@@ -41,12 +38,10 @@ def check_save_animation(writer, extension='.mp4'):
         line.set_data(x, y)
         return line,
 
-    fid, fname = tempfile.mkstemp(suffix=extension)
-
+    # Use NamedTemporaryFile: will be automatically deleted
+    F = tempfile.NamedTemporaryFile(suffix='.' + extension)
     anim = animation.FuncAnimation(fig, animate, init_func=init, frames=5)
-    anim.save(fname, fps=30, writer=writer)
-
-    os.remove(fname)
+    anim.save(F.name, fps=30, writer=writer)
 
 
 if __name__ == '__main__':
