@@ -111,7 +111,7 @@ class RendererMac(RendererBase):
                       *gc.get_clip_path())
         im.flipud_out()
 
-    def draw_tex(self, gc, x, y, s, prop, angle):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
         texmanager = self.get_texmanager()
@@ -128,7 +128,7 @@ class RendererMac(RendererBase):
             self.mathtext_parser.parse(s, self.dpi, prop)
         gc.draw_mathtext(x, y, angle, 255 - image.as_array())
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         if ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
         else:

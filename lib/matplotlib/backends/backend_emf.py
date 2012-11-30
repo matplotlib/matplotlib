@@ -358,7 +358,7 @@ class RendererEMF(RendererBase):
             if debugPrint: print("draw_rectangle: optimizing away (%f,%f) w=%f,h=%f" % (x,y,width,height))
 
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
         Draw the text.Text instance s at x,y (display coords) with font
         properties instance prop at angle in degrees, using GraphicsContext gc
