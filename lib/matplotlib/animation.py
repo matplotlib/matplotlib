@@ -657,7 +657,13 @@ class Animation(object):
             else:
                 import warnings
                 warnings.warn("MovieWriter %s unavailable" % writer)
-                writer = writers.list()[0]
+
+                try:
+                    writer = writers.list()[0]
+                except IndexError:
+                    raise ValueError("Cannot save animation: no writers are "
+                                     "available. Please install mencoder or "
+                                     "ffmpeg to save animations.")
 
         verbose.report('Animation.save using %s' % type(writer),
                        level='helpful')
