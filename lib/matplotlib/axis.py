@@ -1847,9 +1847,10 @@ class YAxis(Axis):
                                size=rcParams['axes.labelsize'],
                                weight=rcParams['axes.labelweight']),
             color=rcParams['axes.labelcolor'],
-            verticalalignment='center',
-            horizontalalignment='right',
+            verticalalignment='bottom',
+            horizontalalignment='center',
             rotation='vertical',
+            rotation_mode='anchor',
             )
         label.set_transform(mtransforms.blended_transform_factory(
             mtransforms.IdentityTransform(), self.axes.transAxes))

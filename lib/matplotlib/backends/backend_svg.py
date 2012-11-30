@@ -815,7 +815,7 @@ class RendererSVG(RendererBase):
     def _adjust_char_id(self, char_id):
         return char_id.replace(u"%20", u"_")
 
-    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
+    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath, mtext=None):
         """
         draw the text by converting them to paths using textpath module.
 
@@ -940,7 +940,7 @@ class RendererSVG(RendererBase):
 
             writer.end('g')
 
-    def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath):
+    def _draw_text_as_text(self, gc, x, y, s, prop, angle, ismath, mtext=None):
         writer = self.writer
 
         color = rgb2hex(gc.get_rgb())
@@ -953,7 +953,8 @@ class RendererSVG(RendererBase):
         if not ismath:
             font = self._get_font(prop)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-            y -= font.get_descent() / 64.0
+            descent = font.get_descent() / 64.0
+            y -= descent
 
             fontsize = prop.get_size_in_points()
 
@@ -967,11 +968,40 @@ class RendererSVG(RendererBase):
             style[u'font-style'] = prop.get_style().lower()
             attrib[u'style'] = generate_css(style)
 
-            attrib[u'transform'] = generate_transform([
-                (u'translate', (x, y)),
-                (u'rotate', (-angle,))])
+            if angle == 0 or mtext.get_rotation_mode() == "anchor":
+                # If text anchoring can be supported, get the original
+                # coordinates and add alignment information.
 
-            writer.element(u'text', s, attrib=attrib)
+                # Get anchor coordinates.
+                transform = mtext.get_transform()
+                ax, ay = transform.transform_point(mtext.get_position())
+                ay = self.height - ay
+
+                # Don't do vertical anchor alignment. Most applications do not
+                # support 'alignment-baseline' yet. Apply the vertical layout
+                # to the anchor point manually for now.
+                angle_rad = angle * np.pi / 180.
+                dir_vert = np.array([np.sin(angle_rad), np.cos(angle_rad)])
+                y += descent  # Undo inappropriate text descent handling
+                v_offset = np.dot(dir_vert, [(x - ax), (y - ay)])
+                ax = ax + (v_offset - descent) * dir_vert[0]
+                ay = ay + (v_offset - descent) * dir_vert[1]
+
+                ha_mpl_to_svg = {'left': 'start', 'right': 'end',
+                                 'center': 'middle'}
+                style[u'text-anchor'] = ha_mpl_to_svg[mtext.get_ha()]
+
+                attrib[u'x'] = str(ax)
+                attrib[u'y'] = str(ay)
+                attrib[u'style'] = generate_css(style)
+                attrib[u'transform'] = u"rotate(%f, %f, %f)" % (-angle, ax, ay)
+                writer.element(u'text', s, attrib=attrib)
+            else:
+                attrib[u'transform'] = generate_transform([
+                    (u'translate', (x, y)),
+                    (u'rotate', (-angle,))])
+
+                writer.element(u'text', s, attrib=attrib)
 
             if rcParams['svg.fonttype'] == 'svgfont':
                 fontset = self._fonts.setdefault(font.fname, set())
@@ -1053,10 +1083,10 @@ class RendererSVG(RendererBase):
 
             writer.end(u'g')
 
-    def draw_tex(self, gc, x, y, s, prop, angle):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         clipid = self._get_clip(gc)
         if clipid is not None:
             # Cannot apply clip-path directly to the text, because
@@ -1065,9 +1095,9 @@ class RendererSVG(RendererBase):
                 u'g', attrib={u'clip-path': u'url(#%s)' % clipid})
 
         if rcParams['svg.fonttype'] == 'path':
-            self._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
+            self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
         else:
-            self._draw_text_as_text(gc, x, y, s, prop, angle, ismath)
+            self._draw_text_as_text(gc, x, y, s, prop, angle, ismath, mtext)
 
         if clipid is not None:
             self.writer.end(u'g')
