@@ -104,7 +104,7 @@ class RendererTemplate(RendererBase):
     def draw_image(self, gc, x, y, im):
         pass
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         pass
 
     def flipy(self):

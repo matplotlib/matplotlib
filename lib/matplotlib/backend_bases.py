@@ -443,12 +443,12 @@ class RendererBase:
         """
         return False
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         """
         """
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
         Draw the text instance
 
@@ -462,13 +462,16 @@ class RendererBase:
             the y location of the text in display coords
 
         *s*
-             a :class:`matplotlib.text.Text` instance
+            the text string
 
         *prop*
           a :class:`matplotlib.font_manager.FontProperties` instance
 
         *angle*
             the rotation angle in degrees
+
+        *mtext*
+            a :class:`matplotlib.text.Text` instance
 
         **backend implementers note**
 

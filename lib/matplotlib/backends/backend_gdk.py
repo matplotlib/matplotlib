@@ -138,7 +138,7 @@ class RendererGDK(RendererBase):
         im.flipud_out()
 
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         x, y = int(x), int(y)
 
         if x < 0 or y < 0: # window has shrunk and text is off the edge

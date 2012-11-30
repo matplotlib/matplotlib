@@ -41,6 +41,14 @@ the whole figure. This was already the behavior for both
 :func:`~matplotlib.pyplot.axes` and :func:`~matplotlib.pyplot.subplots`, and
 now this consistency is shared with :func:`~matplotlib.pyplot.subplot`.
 
+Anchored text support
+---------------------
+The `svg` and `pgf` backends are now able to save text alignment information
+to their output formats. This allows to edit text elements in saved figures,
+using Inkscape for example, while preserving their intended position. For
+`svg` please note that you'll have to disable the default text-to-path
+conversion (`mpl.rc('svg', fonttype='none')`).
+
 .. _whats-new-1-2:
 
 new in matplotlib-1.2
