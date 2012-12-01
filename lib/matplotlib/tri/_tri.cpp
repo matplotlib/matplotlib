@@ -1113,4 +1113,3 @@ Py::Object TriModule::new_tricontourgenerator(const Py::Tuple &args)
 
     return Py::asObject(new TriContourGenerator(tri, z));
 }
-
