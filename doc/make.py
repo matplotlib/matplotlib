@@ -121,15 +121,6 @@ def check_build():
         except OSError:
             pass
 
-def sf():
-    'push a copy to the sf site'
-    shutil.copy('../CHANGELOG', 'build/html/_static/CHANGELOG')
-    os.system('cd build/html; rsync -avz . jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/ -essh --cvs-exclude')
-
-def sfpdf():
-    'push a copy to the sf site'
-    os.system('cd build/latex; scp Matplotlib.pdf jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/')
-
 def doctest():
     os.system('sphinx-build -b doctest -d build/doctrees . build/doctest')
 
@@ -156,6 +147,8 @@ def html():
     # Clean out PDF files from the _images directory
     for filename in glob.glob('build/html/_images/*.pdf'):
         os.remove(filename)
+
+    shutil.copy('../CHANGELOG', 'build/html/_static/CHANGELOG')
 
 def latex():
     check_build()
@@ -222,8 +215,6 @@ funcd = {
     'latex'    : latex,
     'texinfo'  : texinfo,
     'clean'    : clean,
-    'sf'       : sf,
-    'sfpdf'    : sfpdf,
     'all'      : all,
     'doctest'  : doctest,
     'linkcheck': linkcheck,

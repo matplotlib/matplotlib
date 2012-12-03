@@ -49,6 +49,7 @@ DEBUG = False
 
 MaskedArray = ma.MaskedArray
 
+
 class TransformNode(object):
     """
     :class:`TransformNode` is the base class for anything that
@@ -63,13 +64,13 @@ class TransformNode(object):
     # invalidation was "affine-only", the _invalid member is set to
     # INVALID_AFFINE_ONLY
     INVALID_NON_AFFINE = 1
-    INVALID_AFFINE     = 2
-    INVALID            = INVALID_NON_AFFINE | INVALID_AFFINE
+    INVALID_AFFINE = 2
+    INVALID = INVALID_NON_AFFINE | INVALID_AFFINE
 
     # Some metadata about the transform, used to determine whether an
     # invalidation is affine-only
     is_affine = False
-    is_bbox   = False
+    is_bbox = False
 
     pass_through = False
     """
@@ -150,7 +151,8 @@ class TransformNode(object):
             self._invalid = value
 
             for parent in self._parents.itervalues():
-                parent._invalidate_internal(value=value, invalidating_node=self)
+                parent._invalidate_internal(value=value,
+                                            invalidating_node=self)
 
     def set_children(self, *children):
         """
@@ -164,6 +166,7 @@ class TransformNode(object):
 
     if DEBUG:
         _set_children = set_children
+
         def set_children(self, *children):
             self._set_children(*children)
             self._children = children
@@ -212,7 +215,9 @@ class TransformNode(object):
                     props['style'] = 'bold'
                 props['shape'] = 'box'
                 props['label'] = '"%s"' % label
-                props = ' '.join(['%s=%s' % (key, val) for key, val in props.iteritems()])
+                props = ' '.join(['%s=%s' % (key, val)
+                                  for key, val
+                                  in props.iteritems()])
 
                 fobj.write('%s [%s];\n' %
                            (hash(root), props))
@@ -224,10 +229,10 @@ class TransformNode(object):
                             if val is child:
                                 name = key
                                 break
-                        fobj.write('"%s" -> "%s" [label="%s", fontsize=10];\n' % (
-                                hash(root),
-                                hash(child),
-                                name))
+                        fobj.write('"%s" -> "%s" [label="%s", fontsize=10];\n'
+                                    % (hash(root),
+                                    hash(child),
+                                    name))
                         recurse(child)
 
             fobj.write("digraph G {\n")
@@ -259,8 +264,8 @@ class BboxBase(TransformNode):
             if ma.isMaskedArray(points):
                 warnings.warn("Bbox bounds are a masked array.")
             points = np.asarray(points)
-            if (points[1,0] - points[0,0] == 0 or
-                points[1,1] - points[0,1] == 0):
+            if (points[1, 0] - points[0, 0] == 0 or
+                points[1, 1] - points[0, 1] == 0):
                 warnings.warn("Singular Bbox.")
         _check = staticmethod(_check)
 
@@ -295,30 +300,30 @@ class BboxBase(TransformNode):
     def _get_x1(self):
         return self.get_points()[1, 0]
     x1 = property(_get_x1, None, None, """
-         (property) :attr:`x1` is the second of the pair of *x* coordinates that
-         define the bounding box.  :attr:`x1` is not guaranteed to be
+         (property) :attr:`x1` is the second of the pair of *x* coordinates
+         that define the bounding box.  :attr:`x1` is not guaranteed to be
          greater than :attr:`x0`.  If you require that, use :attr:`xmax`.""")
 
     def _get_y1(self):
         return self.get_points()[1, 1]
     y1 = property(_get_y1, None, None, """
-         (property) :attr:`y1` is the second of the pair of *y* coordinates that
-         define the bounding box.  :attr:`y1` is not guaranteed to be
+         (property) :attr:`y1` is the second of the pair of *y* coordinates
+         that define the bounding box.  :attr:`y1` is not guaranteed to be
          greater than :attr:`y0`.  If you require that, use :attr:`ymax`.""")
 
     def _get_p0(self):
         return self.get_points()[0]
     p0 = property(_get_p0, None, None, """
-         (property) :attr:`p0` is the first pair of (*x*, *y*) coordinates that
-         define the bounding box.  It is not guaranteed to be the bottom-left
-         corner.  For that, use :attr:`min`.""")
+         (property) :attr:`p0` is the first pair of (*x*, *y*) coordinates
+         that define the bounding box.  It is not guaranteed to be the
+         bottom-left corner.  For that, use :attr:`min`.""")
 
     def _get_p1(self):
         return self.get_points()[1]
     p1 = property(_get_p1, None, None, """
-         (property) :attr:`p1` is the second pair of (*x*, *y*) coordinates that
-         define the bounding box.  It is not guaranteed to be the top-right
-         corner.  For that, use :attr:`max`.""")
+         (property) :attr:`p1` is the second pair of (*x*, *y*) coordinates
+         that define the bounding box.  It is not guaranteed to be the
+         top-right corner.  For that, use :attr:`max`.""")
 
     def _get_xmin(self):
         return min(self.get_points()[:, 0])
@@ -398,7 +403,8 @@ class BboxBase(TransformNode):
     def _get_extents(self):
         return self.get_points().flatten().copy()
     extents = property(_get_extents, None, None, """
-        (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`x1`, :attr:`y1`).""")
+        (property) Returns (:attr:`x0`, :attr:`y0`, :attr:`x1`,
+        :attr:`y1`).""")
 
     def get_points(self):
         return NotImplementedError()
@@ -469,8 +475,8 @@ class BboxBase(TransformNode):
         """
         y0, y1 = self.intervaly
         return ((y0 < y1
-                 and (x > y0 and x < y1))
-                or (x > y1 and x < y0))
+                 and (y > y0 and y < y1))
+                or (y > y1 and y < y0))
 
     def fully_contains(self, x, y):
         """
@@ -517,7 +523,7 @@ class BboxBase(TransformNode):
         return Bbox(transform.inverted().transform(self.get_points()))
 
     coefs = {'C':  (0.5, 0.5),
-             'SW': (0,0),
+             'SW': (0, 0),
              'S':  (0.5, 0),
              'SE': (1.0, 0),
              'E':  (1.0, 0.5),
@@ -525,7 +531,8 @@ class BboxBase(TransformNode):
              'N':  (0.5, 1.0),
              'NW': (0, 1.0),
              'W':  (0, 0.5)}
-    def anchored(self, c, container = None):
+
+    def anchored(self, c, container=None):
         """
         Return a copy of the :class:`Bbox`, shifted to position *c*
         within a container.
@@ -555,8 +562,8 @@ class BboxBase(TransformNode):
             cx, cy = c
         L, B, W, H = self.bounds
         return Bbox(self._points +
-                    [(l + cx * (w-W)) - L,
-                     (b + cy * (h-H)) - B])
+                    [(l + cx * (w - W)) - L,
+                     (b + cy * (h - H)) - B])
 
     def shrunk(self, mx, my):
         """
@@ -569,7 +576,7 @@ class BboxBase(TransformNode):
         return Bbox([self._points[0],
                     self._points[0] + [mx * w, my * h]])
 
-    def shrunk_to_aspect(self, box_aspect, container = None, fig_aspect = 1.0):
+    def shrunk_to_aspect(self, box_aspect, container=None, fig_aspect=1.0):
         """
         Return a copy of the :class:`Bbox`, shrunk so that it is as
         large as it can be while having the desired aspect ratio,
@@ -583,11 +590,11 @@ class BboxBase(TransformNode):
         if container is None:
             container = self
         w, h = container.size
-        H = w * box_aspect/fig_aspect
+        H = w * box_aspect / fig_aspect
         if H <= h:
             W = w
         else:
-            W = h * fig_aspect/box_aspect
+            W = h * fig_aspect / box_aspect
             H = h
         return Bbox([self._points[0],
                      self._points[0] + (W, H)])
@@ -749,6 +756,7 @@ class Bbox(BboxBase):
         self._points_orig = self._points.copy()
     if DEBUG:
         ___init__ = __init__
+
         def __init__(self, points, **kwargs):
             self._check(points)
             self.___init__(points, **kwargs)
@@ -758,6 +766,7 @@ class Bbox(BboxBase):
             TransformNode.invalidate(self)
 
     _unit_values = np.array([[0.0, 0.0], [1.0, 1.0]], np.float_)
+
     @staticmethod
     def unit():
         """
@@ -822,7 +831,9 @@ class Bbox(BboxBase):
            - when None, use the last value passed to :meth:`ignore`.
         """
         warnings.warn(
-            "update_from_data requires a memory copy -- please replace with update_from_data_xy")
+            "update_from_data requires a memory copy -- please replace with "
+            "update_from_data_xy")
+
         xy = np.hstack((x.reshape((len(x), 1)), y.reshape((len(y), 1))))
         return self.update_from_data_xy(xy, ignore)
 
@@ -856,12 +867,11 @@ class Bbox(BboxBase):
         if changed:
             self.invalidate()
             if updatex:
-                self._points[:,0] = points[:,0]
+                self._points[:, 0] = points[:, 0]
                 self._minpos[0] = minpos[0]
             if updatey:
-                self._points[:,1] = points[:,1]
+                self._points[:, 1] = points[:, 1]
                 self._minpos[1] = minpos[1]
-
 
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):
         """
@@ -929,7 +939,7 @@ class Bbox(BboxBase):
 
     def _set_bounds(self, bounds):
         l, b, w, h = bounds
-        points = np.array([[l, b], [l+w, b+h]], np.float_)
+        points = np.array([[l, b], [l + w, b + h]], np.float_)
         if np.any(self._points != points):
             self._points = points
             self.invalidate()
@@ -980,12 +990,13 @@ class Bbox(BboxBase):
 
     def mutatedx(self):
         'return whether the x-limits have changed since init'
-        return (self._points[0,0]!=self._points_orig[0,0] or
-                self._points[1,0]!=self._points_orig[1,0])
+        return (self._points[0, 0] != self._points_orig[0, 0] or
+                self._points[1, 0] != self._points_orig[1, 0])
+
     def mutatedy(self):
         'return whether the y-limits have changed since init'
-        return (self._points[0,1]!=self._points_orig[0,1] or
-                self._points[1,1]!=self._points_orig[1,1])
+        return (self._points[0, 1] != self._points_orig[0, 1] or
+                self._points[1, 1] != self._points_orig[1, 1])
 
 
 class TransformedBbox(BboxBase):
@@ -1025,6 +1036,7 @@ class TransformedBbox(BboxBase):
 
     if DEBUG:
         _get_points = get_points
+
         def get_points(self):
             points = self._get_points()
             self._check(points)
@@ -1161,24 +1173,27 @@ class Transform(TransformNode):
         if self.output_dims != 2:
             raise ValueError('contains_branch_seperately only supports '
                              'transforms with 2 output dimensions')
-        # for a non-blended transform each seperate dimension is the same, so just
-        # return the appropriate shape.
+        # for a non-blended transform each seperate dimension is the same, so
+        # just return the appropriate shape.
         return [self.contains_branch(other_transform)] * 2
 
     def __sub__(self, other):
         """
         Returns a transform stack which goes all the way down self's transform
-        stack, and then ascends back up other's stack. If it can, this is optimised::
+        stack, and then ascends back up other's stack. If it can, this is
+        optimised::
 
             # normally
             A - B == a + b.inverted()
 
-            # sometimes, when A contains the tree B there is no need to descend all the way down
-            # to the base of A (via B), instead we can just stop at B.
+            # sometimes, when A contains the tree B there is no need to
+            # descend all the way down to the base of A (via B), instead we
+            # can just stop at B.
 
             (A + B) - (B)^-1 == A
 
-            # similarly, when B contains tree A, we can avoid decending A at all, basically:
+            # similarly, when B contains tree A, we can avoid decending A at
+            # all, basically:
             A - (A + B) == ((B + A) - A).inverted() or B^-1
 
         For clarity, the result of ``(A + B) - B + B == (A + B)``.
@@ -1358,15 +1373,15 @@ class Transform(TransformNode):
             angles = angles / 180.0 * np.pi
 
         # Move a short distance away
-        pts2 = pts + pushoff * np.c_[ np.cos(angles), np.sin(angles) ]
+        pts2 = pts + pushoff * np.c_[np.cos(angles), np.sin(angles)]
 
         # Transform both sets of points
-        tpts = self.transform( pts )
-        tpts2 = self.transform( pts2 )
+        tpts = self.transform(pts)
+        tpts2 = self.transform(pts2)
 
         # Calculate transformed angles
         d = tpts2 - tpts
-        a = np.arctan2( d[:,1], d[:,0] )
+        a = np.arctan2(d[:, 1], d[:, 0])
 
         # Convert back to degrees if desired
         if not radians:
@@ -1419,6 +1434,7 @@ class TransformWrapper(Transform):
         return self._child.__eq__(other)
 
     if DEBUG:
+
         def __str__(self):
             return str(self._child)
 
@@ -1441,15 +1457,15 @@ class TransformWrapper(Transform):
         self._child = child
         self.set_children(child)
 
-        self.transform                 = child.transform
-        self.transform_affine          = child.transform_affine
-        self.transform_non_affine      = child.transform_non_affine
-        self.transform_path            = child.transform_path
-        self.transform_path_affine     = child.transform_path_affine
+        self.transform = child.transform
+        self.transform_affine = child.transform_affine
+        self.transform_non_affine = child.transform_non_affine
+        self.transform_path = child.transform_path
+        self.transform_path_affine = child.transform_path_affine
         self.transform_path_non_affine = child.transform_path_non_affine
-        self.get_affine                = child.get_affine
-        self.inverted                  = child.inverted
-        self.get_matrix                = child.get_matrix
+        self.get_affine = child.get_affine
+        self.inverted = child.inverted
+        self.get_matrix = child.get_matrix
 
         # note we do not wrap other properties here since the transform's
         # child can be changed with WrappedTransform.set and so checking
@@ -1517,7 +1533,8 @@ class AffineBase(Transform):
     transform.__doc__ = Transform.transform.__doc__
 
     def transform_affine(self, values):
-        raise NotImplementedError('Affine subclasses should override this method.')
+        raise NotImplementedError('Affine subclasses should override this '
+                                  'method.')
     transform_affine.__doc__ = Transform.transform_affine.__doc__
 
     def transform_non_affine(self, points):
@@ -1605,6 +1622,7 @@ class Affine2DBase(AffineBase):
 
     if DEBUG:
         _transform_affine = transform_affine
+
         def transform_affine(self, points):
             # The major speed trap here is just converting to the
             # points to an array in the first place.  If we can use
@@ -1678,7 +1696,7 @@ class Affine2D(Affine2DBase):
         """
         return Affine2D(
             np.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], np.float_)
-            .reshape((3,3)))
+            .reshape((3, 3)))
 
     def get_matrix(self):
         """
@@ -1759,7 +1777,7 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        return self.rotate(degrees*np.pi/180.)
+        return self.rotate(degrees * np.pi / 180.)
 
     def rotate_around(self, x, y, theta):
         """

@@ -90,8 +90,8 @@ The base matplotlib namespace includes:
         for the first time.  In particular, it must be called
         **before** importing pylab (if pylab is imported).
 
-matplotlib was initially written by John D. Hunter (jdh2358 at
-gmail.com) and is now developed and maintained by a host of others.
+matplotlib was initially written by John D. Hunter (1968-2012) and is now
+developed and maintained by a host of others.
 
 Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
@@ -99,7 +99,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import print_function
 
-__version__  = '1.2.0rc2'
+__version__  = '1.2.0'
 __version__numpy__ = '1.4' # minimum required numpy version
 
 import os, re, shutil, subprocess, sys, warnings
@@ -214,8 +214,14 @@ class Verbose:
     _commandLineVerbose = None
 
     for arg in sys.argv[1:]:
-        if not arg.startswith('--verbose-'): continue
-        _commandLineVerbose = arg[10:]
+        if not arg.startswith('--verbose-'):
+            continue
+        level_str = arg[10:]
+        # If it doesn't match one of ours, then don't even
+        # bother noting it, we are just a 3rd-party library
+        # to somebody else's script.
+        if level_str in levels:
+            _commandLineVerbose = level_str
 
     def __init__(self):
         self.set_level('silent')
@@ -227,8 +233,10 @@ class Verbose:
         if self._commandLineVerbose is not None:
             level = self._commandLineVerbose
         if level not in self.levels:
-            raise ValueError('Illegal verbose string "%s".  Legal values are %s'%(level, self.levels))
-        self.level = level
+            warnings.warn('matplotlib: unrecognized --verbose-* string "%s".'
+                          ' Legal values are %s' % (level, self.levels))
+        else:
+            self.level = level
 
     def set_fileo(self, fname):
         std = {
@@ -815,6 +823,20 @@ Please do not ask for support with these customizations active.
 # this is the instance used by the matplotlib classes
 rcParams = rc_params()
 
+if rcParams['examples.directory']:
+    # paths that are intended to be relative to matplotlib_fname()
+    # are allowed for the examples.directory parameter.
+    # However, we will need to fully qualify the path because
+    # Sphinx requires absolute paths.
+    if not os.path.isabs(rcParams['examples.directory']):
+        _basedir, _fname = os.path.split(matplotlib_fname())
+        # Sometimes matplotlib_fname() can return relative paths,
+        # Also, using realpath() guarentees that Sphinx will use
+        # the same path that matplotlib sees (in case of weird symlinks).
+        _basedir = os.path.realpath(_basedir)
+        _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
+        rcParams['examples.directory'] = _fullpath
+
 rcParamsOrig = rcParams.copy()
 
 rcParamsDefault = RcParams([ (key, default) for key, (default, converter) in \
@@ -1058,6 +1080,7 @@ for s in sys.argv[1:]:
 
 default_test_modules = [
     'matplotlib.tests.test_agg',
+    'matplotlib.tests.test_artist',
     'matplotlib.tests.test_axes',
     'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_backend_pgf',
@@ -1078,11 +1101,13 @@ default_test_modules = [
     'matplotlib.tests.test_scale',
     'matplotlib.tests.test_simplification',
     'matplotlib.tests.test_spines',
+    'matplotlib.tests.test_subplots',
     'matplotlib.tests.test_text',
     'matplotlib.tests.test_ticker',
     'matplotlib.tests.test_tightlayout',
     'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_transforms',
+    'matplotlib.tests.test_arrow_patches',
     ]
 
 
