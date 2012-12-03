@@ -2099,8 +2099,7 @@ def polar(*args, **kwargs):
 
 def plotfile(fname, cols=(0,), plotfuncs=None,
              comments='#', skiprows=0, checkrows=5, delimiter=',', names=None,
-             subplots=True, newfig=True,
-             **kwargs):
+             subplots=True, newfig=True, **kwargs):
     """
     Plot the data in in a file.
 
@@ -2195,9 +2194,6 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
                     ax = fig.add_subplot(N-1,1,i, sharex=ax1)
             elif i==1:
                 ax = fig.add_subplot(1,1,1)
-
-            ax.grid(True)
-
 
             yname, y = getname_val(cols[i])
             ynamelist.append(yname)

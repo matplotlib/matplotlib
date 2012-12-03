@@ -15,6 +15,11 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* Removed call of :meth:`~matplotlib.axes.Axes.grid` in
+  :meth:`~matplotlib.pyplot.plotfile`. To draw the axes grid, set to *True*
+  matplotlib.rcParams['axes.grid'] or ``axes.grid`` in ``.matplotlibrc`` or
+  explicitly call :meth:`~matplotlib.axes.Axes.grid`
+
 * A new keyword *extendrect* in :meth:`~matplotlib.pyplot.colorbar` and
   :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the shape
   of colorbar extensions.
