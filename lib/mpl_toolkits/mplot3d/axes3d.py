@@ -56,7 +56,7 @@ class Axes3D(Axes):
           *sharez*           Other axes to share z-limits with
           ================   =========================================
 
-        .. versionadded :: 1.2.0
+        .. versionadded :: 1.2.1
             *sharez*
 
         ''' % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
@@ -64,8 +64,6 @@ class Axes3D(Axes):
         if rect is None:
             rect = [0.0, 0.0, 1.0, 1.0]
         self._cids = []
-
-        # TODO: Support z-axis sharing
 
         self.initial_azim = kwargs.pop('azim', -60)
         self.initial_elev = kwargs.pop('elev', 30)
@@ -125,15 +123,20 @@ class Axes3D(Axes):
         self._axis3don = True
 
     def have_units(self):
-        'Return *True* if units are set on the *x*, *y*, or *z* axes'
+        """
+        Return *True* if units are set on the *x*, *y*, or *z* axes
+
+        """
         return (self.xaxis.have_units() or self.yaxis.have_units() or
                 self.zaxis.have_units())
 
     def convert_zunits(self, z):
-        """For artists in an axes, if the zaxis has units support,
+        """
+        For artists in an axes, if the zaxis has units support,
         convert *z* using zaxis unit type
 
-        .. versionadded :: 1.2.0
+        .. versionadded :: 1.2.1
+
         """
         return self.zaxis.convert_units(z)
 
@@ -141,6 +144,7 @@ class Axes3D(Axes):
                            kwargs=None):
         """
         Look for unit *kwargs* and update the axis instances as necessary
+
         """
         Axes._process_unit_info(self, xdata=xdata, ydata=ydata, kwargs=kwargs)
 
@@ -154,8 +158,8 @@ class Axes3D(Axes):
 
         # process kwargs 2nd since these will override default units
         if kwargs is not None:
-            zunits = kwargs.pop( 'zunits', self.zaxis.units)
-            if zunits!=self.zaxis.units:
+            zunits = kwargs.pop('zunits', self.zaxis.units)
+            if zunits != self.zaxis.units:
                 self.zaxis.set_units(zunits)
                 # If the units being set imply a different converter,
                 # we need to update.
@@ -461,7 +465,7 @@ class Axes3D(Axes):
             Function signature was changed to better match the 2D version.
             *tight* is now explicitly a kwarg and placed first.
             
-        .. versionchanged :: 1.2.0
+        .. versionchanged :: 1.2.1
             This is now fully functional.
 
         """
@@ -551,12 +555,12 @@ class Axes3D(Axes):
         return (xmin, xmax)
 
     def set_xlim3d(self, left=None, right=None, emit=True, auto=False, **kw):
-        '''
+        """
         Set 3D x limits.
 
         See :meth:`matplotlib.axes.Axes.set_xlim` for full documentation.
 
-        '''
+        """
         if 'xmin' in kw:
             left = kw.pop('xmin')
         if 'xmax' in kw:
@@ -565,7 +569,7 @@ class Axes3D(Axes):
             raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
         if right is None and iterable(left):
-            left,right = left
+            left, right = left
 
         self._process_unit_info(xdata=(left, right))
         if left is not None:
@@ -574,13 +578,15 @@ class Axes3D(Axes):
             right = self.convert_xunits(right)
 
         old_left, old_right = self.get_xlim()
-        if left is None: left = old_left
-        if right is None: right = old_right
+        if left is None:
+            left = old_left
+        if right is None:
+            right = old_right
 
-        if left==right:
+        if left == right:
             warnings.warn(('Attempting to set identical left==right results\n'
-                   + 'in singular transformations; automatically expanding.\n'
-                   + 'left=%s, right=%s') % (left, right))
+                     'in singular transformations; automatically expanding.\n'
+                     'left=%s, right=%s') % (left, right))
         left, right = mtransforms.nonsingular(left, right, increasing=False)
         left, right = self.xaxis.limit_range_for_scale(left, right)
         self.xy_viewLim.intervalx = (left, right)
@@ -604,12 +610,12 @@ class Axes3D(Axes):
 
 
     def set_ylim3d(self, bottom=None, top=None, emit=True, auto=False, **kw):
-        '''
+        """
         Set 3D y limits.
 
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation.
 
-        '''
+        """
         if 'ymin' in kw:
             bottom = kw.pop('ymin')
         if 'ymax' in kw:
@@ -618,7 +624,7 @@ class Axes3D(Axes):
             raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
         if top is None and iterable(bottom):
-            bottom,top = bottom
+            bottom, top = bottom
 
         self._process_unit_info(ydata=(bottom, top))
         if bottom is not None:
@@ -627,13 +633,15 @@ class Axes3D(Axes):
             top = self.convert_yunits(top)
 
         old_bottom, old_top = self.get_ylim()
-        if bottom is None: bottom = old_bottom
-        if top is None: top = old_top
+        if bottom is None:
+            bottom = old_bottom
+        if top is None:
+            top = old_top
 
-        if top==bottom:
+        if top == bottom:
             warnings.warn(('Attempting to set identical bottom==top results\n'
-                   + 'in singular transformations; automatically expanding.\n'
-                   + 'bottom=%s, top=%s') % (bottom, top))
+                     'in singular transformations; automatically expanding.\n'
+                     'bottom=%s, top=%s') % (bottom, top))
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
         self.xy_viewLim.intervaly = (bottom, top)
@@ -656,12 +664,12 @@ class Axes3D(Axes):
     set_ylim = set_ylim3d
 
     def set_zlim3d(self, bottom=None, top=None, emit=True, auto=False, **kw):
-        '''
+        """
         Set 3D z limits.
 
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation
-        .
-        '''
+        
+        """
         if 'zmin' in kw:
             bottom = kw.pop('zmin')
         if 'zmax' in kw:
@@ -670,7 +678,7 @@ class Axes3D(Axes):
             raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
         if top is None and iterable(bottom):
-            bottom,top = bottom
+            bottom, top = bottom
 
         self._process_unit_info(zdata=(bottom, top))
         if bottom is not None:
@@ -679,13 +687,15 @@ class Axes3D(Axes):
             top = self.convert_zunits(top)
 
         old_bottom, old_top = self.get_zlim()
-        if bottom is None: bottom = old_bottom
-        if top is None: top = old_top
+        if bottom is None:
+            bottom = old_bottom
+        if top is None:
+            top = old_top
 
-        if top==bottom:
+        if top == bottom:
             warnings.warn(('Attempting to set identical bottom==top results\n'
-                   + 'in singular transformations; automatically expanding.\n'
-                   + 'bottom=%s, top=%s') % (bottom, top))
+                     'in singular transformations; automatically expanding.\n'
+                     'bottom=%s, top=%s') % (bottom, top))
         bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
         bottom, top = self.zaxis.limit_range_for_scale(bottom, top)
         self.zz_viewLim.intervalx = (bottom, top)
@@ -2149,7 +2159,7 @@ class Axes3D(Axes):
             is_2d = False
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir)
 
-        if self._zmargin < 0.05 and xs.size > 0 :
+        if self._zmargin < 0.05 and xs.size > 0:
             self.set_zmargin(0.05)
 
         #FIXME: why is this necessary?
