@@ -10,8 +10,8 @@ the `PSF <http://www.python.org/psf/license>`_ license.  See the Open
 Source Initiative `licenses page
 <http://www.opensource.org/licenses>`_ for details on individual
 licenses. Non-BSD compatible licenses (eg LGPL) are acceptable in
-matplotlib :ref:`toolkits-index`.  For a discussion of the motivations
-behind the licencing choice, see :ref:`license-discussion`.
+matplotlib toolkits.  For a discussion of the motivations behind the
+licencing choice, see :ref:`license-discussion`.
 
 
 License agreement for matplotlib |version|
@@ -63,8 +63,3 @@ products or services of Licensee, or any third party.
 8. By copying, installing or otherwise using matplotlib |version|,
 Licensee agrees to be bound by the terms and conditions of this License
 Agreement.
-
-
-
-
-

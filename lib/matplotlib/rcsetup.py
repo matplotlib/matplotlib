@@ -110,13 +110,17 @@ def validate_backend(s):
 
 validate_qt4 = ValidateInStrings('backend.qt4', ['PyQt4', 'PySide'])
 
-validate_toolbar = ValidateInStrings('toolbar',[
-    'None','classic','toolbar2',
-    ], ignorecase=True)
-
-def validate_autolayout(v):
-    if v:
-        warnings.warn("figure.autolayout is not currently supported")
+def validate_toolbar(s):
+    validator = ValidateInStrings(
+                'toolbar',
+                ['None','classic','toolbar2'],
+                ignorecase=True)
+    s = validator(s)
+    if s.lower == 'classic':
+        warnings.warn("'classic' Navigation Toolbar "
+                      "is deprecated in v1.2.x and will be "
+                      "removed in v1.3")
+    return s
 
 def validate_maskedarray(v):
     # 2008/12/12: start warning; later, remove all traces of maskedarray
@@ -253,6 +257,15 @@ validate_verbose = ValidateInStrings('verbose',[
 
 def deprecate_savefig_extension(value):
     warnings.warn("savefig.extension is deprecated.  Use savefig.format instead.")
+    return value
+
+def update_savefig_format(value):
+    # The old savefig.extension could also have a value of "auto", but
+    # the new savefig.format does not.  We need to fix this here.
+    value = str(value)
+    if value == 'auto':
+        value = 'png'
+    return value
 
 validate_ps_papersize = ValidateInStrings('ps_papersize',[
     'auto', 'letter', 'legal', 'ledger',
@@ -323,7 +336,8 @@ validate_pgf_texsystem = ValidateInStrings('pgf.texsystem',
                                            ['xelatex', 'lualatex', 'pdflatex'])
 
 validate_movie_writer = ValidateInStrings('animation.writer',
-    ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file'])
+    ['ffmpeg', 'ffmpeg_file', 'mencoder', 'mencoder_file',
+     'imagemagick', 'imagemagick_file'])
 
 validate_movie_frame_fmt = ValidateInStrings('animation.frame_format',
     ['png', 'jpeg', 'tiff', 'raw', 'rgba'])
@@ -562,7 +576,7 @@ defaultParams = {
     'savefig.edgecolor'   : ['w', validate_color],  # edgecolor; white
     'savefig.orientation' : ['portrait', validate_orientation],  # edgecolor; white
     'savefig.extension'   : ['png', deprecate_savefig_extension], # what to add to extensionless filenames
-    'savefig.format'      : ['png', str], # value checked by backend at runtime
+    'savefig.format'      : ['png', update_savefig_format], # value checked by backend at runtime
     'savefig.bbox'        : [None, validate_bbox], # options are 'tight', or 'standard'. 'standard' validates to None.
     'savefig.pad_inches'  : [0.1, validate_float],
 
@@ -611,6 +625,9 @@ defaultParams = {
     'keymap.yscale' : ['l', validate_stringlist],
     'keymap.xscale' : [['k', 'L'], validate_stringlist],
     'keymap.all_axes' : ['a', validate_stringlist],
+
+    # sample data
+    'examples.directory' : ['', str],
 
     # Animation settings
     'animation.writer' : ['ffmpeg', validate_movie_writer],

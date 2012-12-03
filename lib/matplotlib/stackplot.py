@@ -7,7 +7,6 @@ http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-w
 
 """
 import numpy as np
-import matplotlib
 
 __all__ = ['stackplot']
 
@@ -51,9 +50,11 @@ def stackplot(axes, x, *args, **kwargs):
     r = []
 
     # Color between x = 0 and the first array.
-    r.append(axes.fill_between(x, 0, y_stack[0,:], facecolor=axes._get_lines.color_cycle.next(), **kwargs))
+    r.append(axes.fill_between(x, 0, y_stack[0, :],
+             facecolor=axes._get_lines.color_cycle.next(), **kwargs))
 
     # Color between array i-1 and array i
-    for i in xrange(len(y)-1):
-        r.append(axes.fill_between(x, y_stack[i,:], y_stack[i+1,:], facecolor=axes._get_lines.color_cycle.next(), **kwargs))
+    for i in xrange(len(y) - 1):
+        r.append(axes.fill_between(x, y_stack[i, :], y_stack[i + 1, :],
+                 facecolor=axes._get_lines.color_cycle.next(), **kwargs))
     return r

@@ -4,9 +4,9 @@ import numpy as np
 from numpy import ma
 
 from matplotlib.cbook import dedent
-from matplotlib.ticker import (NullFormatter, ScalarFormatter, 
+from matplotlib.ticker import (NullFormatter, ScalarFormatter,
                                LogFormatterMathtext)
-from matplotlib.ticker import (NullLocator, LogLocator, AutoLocator, 
+from matplotlib.ticker import (NullLocator, LogLocator, AutoLocator,
                                SymmetricalLogLocator)
 from matplotlib.transforms import Transform, IdentityTransform
 from matplotlib import docstring
@@ -120,7 +120,7 @@ class LogScale(ScaleBase):
         output_dims = 1
         is_separable = True
         has_inverse = True
-        
+
         def __init__(self, nonpos):
             Transform.__init__(self)
             if nonpos == 'mask':
@@ -208,7 +208,7 @@ class LogScale(ScaleBase):
         output_dims = 1
         is_separable = True
         has_inverse = True
-        
+
         def __init__(self, base, nonpos):
             Transform.__init__(self)
             self.base = base
@@ -231,7 +231,7 @@ class LogScale(ScaleBase):
         output_dims = 1
         is_separable = True
         has_inverse = True
-        
+
         def __init__(self, base):
             Transform.__init__(self)
             self.base = base
@@ -241,7 +241,7 @@ class LogScale(ScaleBase):
 
         def inverted(self):
             return LogScale.LogTransform(self.base)
-                
+
     def __init__(self, axis, **kwargs):
         """
         *basex*/*basey*:
@@ -325,7 +325,7 @@ class SymmetricalLogScale(ScaleBase):
         output_dims = 1
         is_separable = True
         has_inverse = True
-        
+
         def __init__(self, base, linthresh, linscale):
             Transform.__init__(self)
             self.base = base
@@ -336,7 +336,10 @@ class SymmetricalLogScale(ScaleBase):
 
         def transform_non_affine(self, a):
             sign = np.sign(a)
-            masked = ma.masked_inside(a, -self.linthresh, self.linthresh, copy=False)
+            masked = ma.masked_inside(a,
+                                      -self.linthresh,
+                                      self.linthresh,
+                                      copy=False)
             log = sign * self.linthresh * (
                 self._linscale_adj +
                 ma.log(np.abs(masked) / self.linthresh) / self._log_base)
@@ -354,10 +357,12 @@ class SymmetricalLogScale(ScaleBase):
         output_dims = 1
         is_separable = True
         has_inverse = True
-        
+
         def __init__(self, base, linthresh, linscale):
             Transform.__init__(self)
-            symlog = SymmetricalLogScale.SymmetricalLogTransform(base, linthresh, linscale)
+            symlog = SymmetricalLogScale.SymmetricalLogTransform(base,
+                                                                 linthresh,
+                                                                 linscale)
             self.base = base
             self.linthresh = linthresh
             self.invlinthresh = symlog.transform(linthresh)
@@ -366,7 +371,8 @@ class SymmetricalLogScale(ScaleBase):
 
         def transform_non_affine(self, a):
             sign = np.sign(a)
-            masked = ma.masked_inside(a, -self.invlinthresh, self.invlinthresh, copy=False)
+            masked = ma.masked_inside(a, -self.invlinthresh,
+                                      self.invlinthresh, copy=False)
             exp = sign * self.linthresh * (
                 ma.power(self.base, (sign * (masked / self.linthresh))
                 - self._linscale_adj))
@@ -420,7 +426,9 @@ class SymmetricalLogScale(ScaleBase):
         assert linthresh > 0.0
         assert linscale >= 1.0
 
-        self._transform = self.SymmetricalLogTransform(base, linthresh, linscale)
+        self._transform = self.SymmetricalLogTransform(base,
+                                                       linthresh,
+                                                       linscale)
 
         self.base = base
         self.linthresh = linthresh
@@ -434,7 +442,8 @@ class SymmetricalLogScale(ScaleBase):
         """
         axis.set_major_locator(SymmetricalLogLocator(self.get_transform()))
         axis.set_major_formatter(LogFormatterMathtext(self.base))
-        axis.set_minor_locator(SymmetricalLogLocator(self.get_transform(), self.subs))
+        axis.set_minor_locator(SymmetricalLogLocator(self.get_transform(),
+                                                     self.subs))
         axis.set_minor_formatter(NullFormatter())
 
     def get_transform(self):
@@ -445,9 +454,9 @@ class SymmetricalLogScale(ScaleBase):
 
 
 _scale_mapping = {
-    'linear'            : LinearScale,
-    'log'               : LogScale,
-    'symlog'            : SymmetricalLogScale
+    'linear': LinearScale,
+    'log':    LogScale,
+    'symlog': SymmetricalLogScale
     }
 
 
@@ -502,6 +511,6 @@ def get_scale_docs():
 
 
 docstring.interpd.update(
-    scale = ' | '.join([repr(x) for x in get_scale_names()]),
-    scale_docs = get_scale_docs().strip(),
+    scale=' | '.join([repr(x) for x in get_scale_names()]),
+    scale_docs=get_scale_docs().strip(),
     )

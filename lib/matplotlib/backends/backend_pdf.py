@@ -1534,7 +1534,7 @@ class RendererPdf(RendererBase):
             path_codes.append(name)
 
         output = self.file.output
-        output(Op.gsave)
+        output(*self.gc.push())
         lastx, lasty = 0, 0
         for xo, yo, path_id, gc0, rgbFace in self._iter_collection(
             gc, master_transform, all_transforms, path_codes, offsets,
@@ -1545,7 +1545,7 @@ class RendererPdf(RendererBase):
             dx, dy = xo - lastx, yo - lasty
             output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id, Op.use_xobject)
             lastx, lasty = xo, yo
-        output(Op.grestore)
+        output(*self.gc.pop())
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         # For simple paths or small numbers of markers, don't bother
@@ -1556,7 +1556,7 @@ class RendererPdf(RendererBase):
             return
 
         self.check_gc(gc, rgbFace)
-        fillp = gc.fillp()
+        fillp = gc.fillp(rgbFace)
         strokep = gc.strokep()
 
         output = self.file.output
@@ -2002,13 +2002,20 @@ class GraphicsContextPdf(GraphicsContextBase):
         return (self._linewidth > 0 and self._alpha > 0 and
                 (len(self._rgb) <= 3 or self._rgb[3] != 0.0))
 
-    def fillp(self):
+    def fillp(self, *args):
         """
         Predicate: does the path need to be filled?
+
+        An optional argument can be used to specify an alternative
+        _fillcolor, as needed by RendererPdf.draw_markers.
         """
-        return self._hatch or \
-            (self._fillcolor is not None and
-             (len(self._fillcolor) <= 3 or self._fillcolor[3] != 0.0))
+        if len(args):
+            _fillcolor = args[0]
+        else:
+            _fillcolor = self._fillcolor
+        return (self._hatch or
+                (_fillcolor is not None and
+                 (len(_fillcolor) <= 3 or _fillcolor[3] != 0.0)))
 
     def close_and_paint(self):
         """

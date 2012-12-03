@@ -16,7 +16,7 @@ import matplotlib.cbook as cbook
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
-import matplotlib.dates as _ # <-registers a date unit converter 
+import matplotlib.dates as _ # <-registers a date unit converter
 from matplotlib import docstring
 import matplotlib.font_manager as font_manager
 import matplotlib.image as mimage
@@ -465,7 +465,7 @@ class Axes(martist.Artist):
         self._frameon = frameon
         self._axisbelow = rcParams['axes.axisbelow']
 
-        self._rasterization_zorder = -30000
+        self._rasterization_zorder = None
 
         self._hold = rcParams['axes.hold']
         self._connected = {} # a dict from events to (id, func)
@@ -1120,7 +1120,7 @@ class Axes(martist.Artist):
             self._anchor = anchor
         else:
             raise ValueError('argument must be among %s' %
-                                ', '.join(mtransforms.BBox.coefs.keys()))
+                                ', '.join(mtransforms.Bbox.coefs.keys()))
 
     def get_data_ratio(self):
         """
@@ -1621,7 +1621,7 @@ class Axes(martist.Artist):
         if not label:
             container.set_label('_container%d'%len(self.containers))
         self.containers.append(container)
-        container.set_remove_method(lambda h: self.containers.remove(container))
+        container.set_remove_method(lambda h: self.containers.remove(h))
         return container
 
 
@@ -1852,7 +1852,9 @@ class Axes(martist.Artist):
 
     def set_rasterization_zorder(self, z):
         """
-        Set zorder value below which artists will be rasterized
+        Set zorder value below which artists will be rasterized.  Set
+        to `None` to disable rasterizing of artists below a particular
+        zorder.
         """
         self._rasterization_zorder = z
 
@@ -2029,7 +2031,8 @@ class Axes(martist.Artist):
         # rasterize artists with negative zorder
         # if the minimum zorder is negative, start rasterization
         rasterization_zorder = self._rasterization_zorder
-        if len(dsu) > 0 and dsu[0][0] < rasterization_zorder:
+        if (rasterization_zorder is not None and
+            len(dsu) > 0 and dsu[0][0] < rasterization_zorder):
             renderer.start_rasterizing()
             dsu_rasterized = [l for l in dsu if l[0] < rasterization_zorder]
             dsu = [l for l in dsu if l[0] >= rasterization_zorder]
@@ -2202,7 +2205,7 @@ class Axes(martist.Artist):
           *scilimits*    (m, n), pair of integers; if *style*
                          is 'sci', scientific notation will
                          be used for numbers outside the range
-                         10`-m`:sup: to 10`n`:sup:.
+                         10`m`:sup: to 10`n`:sup:.
                          Use (0,0) to include all numbers.
           *useOffset*    [True | False | offset]; if True,
                          the offset will be calculated as needed;
@@ -2331,8 +2334,8 @@ class Axes(martist.Artist):
         *which* : ['major' | 'minor' | 'both']
             Default is 'major'; apply arguments to *which* ticks.
 
-        *direction* : ['in' | 'out']
-            Puts ticks inside or outside the axes.
+        *direction* : ['in' | 'out' | 'inout']
+            Puts ticks inside the axes, outside the axes, or both.
 
         *length*
             Tick length in points.
@@ -3972,7 +3975,7 @@ class Axes(martist.Artist):
 
             plot(x, y, color='green', linestyle='dashed', marker='o',
                  markerfacecolor='blue', markersize=12).
-                 
+
         See :class:`~matplotlib.lines.Line2D` for details.
 
         The kwargs are :class:`~matplotlib.lines.Line2D` properties:
@@ -4516,8 +4519,7 @@ class Axes(martist.Artist):
             instance. If *prop* is a dictionary, a new instance will be
             created with *prop*. If *None*, use rc settings.
 
-          *fontsize*: [ size in points | 'xx-small' | 'x-small' |
-          'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
+          *fontsize*: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
             Set the font size.  May be either a size string, relative to
             the default font size, or an absolute font size in points. This
             argument is only used if prop is not specified.
@@ -7066,14 +7068,14 @@ class Axes(martist.Artist):
             parameter, i.e. when interpolation is one of: 'sinc',
             'lanczos' or 'blackman'
 
-        Additional kwargs are :class:`~matplotlib.artist.Artist` properties:
+        Additional kwargs are :class:`~matplotlib.artist.Artist` properties.
 
         %(Artist)s
 
         **Example:**
 
         .. plot:: mpl_examples/pylab_examples/image_demo.py
-        
+
         """
 
         if not self._hold: self.cla()
@@ -7138,6 +7140,10 @@ class Axes(martist.Artist):
     def pcolor(self, *args, **kwargs):
         """
         Create a pseudocolor plot of a 2-D array.
+
+        Note: pcolor can be very slow for large arrays; consider
+        using the similar but much faster
+        :func:`~matplotlib.pyplot.pcolormesh` instead.
 
         Call signatures::
 
@@ -7269,6 +7275,11 @@ class Axes(martist.Artist):
         Stroking the edges may be preferred if *alpha* is 1, but
         will cause artifacts otherwise.
 
+        .. seealso::
+
+            :func:`~matplotlib.pyplot.pcolormesh`
+                For an explanation of the differences between
+                pcolor and pcolormesh.
         """
 
         if not self._hold: self.cla()
@@ -7335,8 +7346,9 @@ class Axes(martist.Artist):
         # makes artifacts that are often disturbing.
         if 'antialiased' in kwargs:
             kwargs['antialiaseds'] = kwargs.pop('antialiased')
-        if 'antialiaseds' not in kwargs and ec.lower() == "none":
-                kwargs['antialiaseds'] = False
+        if 'antialiaseds' not in kwargs and (is_string_like(ec) and
+                ec.lower() == "none"):
+            kwargs['antialiaseds'] = False
 
 
         collection = mcoll.PolyCollection(verts, **kwargs)
@@ -7352,6 +7364,20 @@ class Axes(martist.Artist):
 
         x = X.compressed()
         y = Y.compressed()
+
+        # Transform from native to data coordinates?
+        t = collection._transform
+        if (not isinstance(t, mtransforms.Transform)
+            and hasattr(t, '_as_mpl_transform')):
+            t = t._as_mpl_transform(self.axes)
+
+        if t and any(t.contains_branch_seperately(self.transData)):
+            trans_to_data = t - self.transData
+            pts = np.vstack([x, y]).T.astype(np.float)
+            transformed_pts = trans_to_data.transform(pts)
+            x = transformed_pts[..., 0]
+            y = transformed_pts[..., 1]
+
         minx = np.amin(x)
         maxx = np.amax(x)
         miny = np.amin(y)
@@ -7413,10 +7439,12 @@ class Axes(martist.Artist):
             'gouraud', each quad will be Gouraud shaded.  When gouraud
             shading, edgecolors is ignored.
 
-          *edgecolors*: [ *None* | ``'None'`` | color | color sequence]
+          *edgecolors*: [ *None* | ``'None'`` | ``'face'`` | color | color sequence]
             If *None*, the rc setting is used by default.
 
             If ``'None'``, edges will not be visible.
+
+            If ``'face'``, edges will have the same color as the faces.
 
             An mpl color or sequence of colors will set the edge color
 
@@ -7477,6 +7505,19 @@ class Axes(martist.Artist):
 
         self.grid(False)
 
+        # Transform from native to data coordinates?
+        t = collection._transform
+        if (not isinstance(t, mtransforms.Transform)
+            and hasattr(t, '_as_mpl_transform')):
+            t = t._as_mpl_transform(self.axes)
+
+        if t and any(t.contains_branch_seperately(self.transData)):
+            trans_to_data = t - self.transData
+            pts = np.vstack([X, Y]).T.astype(np.float)
+            transformed_pts = trans_to_data.transform(pts)
+            X = transformed_pts[..., 0]
+            Y = transformed_pts[..., 1]
+
         minx = np.amin(X)
         maxx = np.amax(X)
         miny = np.amin(Y)
@@ -7493,23 +7534,25 @@ class Axes(martist.Artist):
         """
         pseudocolor plot of a 2-D array
 
-        Experimental; this is a version of pcolor that
-        does not draw lines, that provides the fastest
-        possible rendering with the Agg backend, and that
-        can handle any quadrilateral grid.
+        Experimental; this is a pcolor-type method that
+        provides the fastest possible rendering with the Agg
+        backend, and that can handle any quadrilateral grid.
+        It supports only flat shading (no outlines), it lacks
+        support for log scaling of the axes, and it does not
+        have a pyplot wrapper.
 
         Call signatures::
 
-          pcolor(C, **kwargs)
-          pcolor(xr, yr, C, **kwargs)
-          pcolor(x, y, C, **kwargs)
-          pcolor(X, Y, C, **kwargs)
+          ax.pcolorfast(C, **kwargs)
+          ax.pcolorfast(xr, yr, C, **kwargs)
+          ax.pcolorfast(x, y, C, **kwargs)
+          ax.pcolorfast(X, Y, C, **kwargs)
 
         C is the 2D array of color values corresponding to quadrilateral
         cells. Let (nr, nc) be its shape.  C may be a masked array.
 
-        ``pcolor(C, **kwargs)`` is equivalent to
-        ``pcolor([0,nc], [0,nr], C, **kwargs)``
+        ``ax.pcolorfast(C, **kwargs)`` is equivalent to
+        ``ax.pcolorfast([0,nc], [0,nr], C, **kwargs)``
 
         *xr*, *yr* specify the ranges of *x* and *y* corresponding to the
         rectangular region bounding *C*.  If::
@@ -8056,7 +8099,7 @@ class Axes(martist.Artist):
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
             if mlast is None:
-                mlast = np.zeros(len(bins)-1, np.int)
+                mlast = np.zeros(len(bins)-1, m.dtype)
             if normed:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
@@ -8125,7 +8168,7 @@ class Axes(martist.Artist):
 
             x[0::2], x[1::2] = bins, bins
 
-            minimum = min(bins)
+            minimum = np.min(n)
 
             if align == 'left' or align == 'center':
                 x -= 0.5*(bins[1]-bins[0])

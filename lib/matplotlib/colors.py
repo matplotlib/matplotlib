@@ -163,7 +163,8 @@ cnames = {
     'orchid':               '#DA70D6',
     'palegoldenrod':        '#EEE8AA',
     'palegreen':            '#98FB98',
-    'palevioletred':        '#AFEEEE',
+    'paleturquoise':        '#AFEEEE',
+    'palevioletred':        '#DB7093',
     'papayawhip':           '#FFEFD5',
     'peachpuff':            '#FFDAB9',
     'peru':                 '#CD853F',
@@ -953,7 +954,7 @@ class LogNorm(Normalize):
         else:
             if clip:
                 mask = ma.getmask(result)
-                val = ma.array(np.clip(result.filled(vmax), vmin, vmax),
+                result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
                                 mask=mask)
             # in-place equivalent of above can be much faster
             resdat = result.data
