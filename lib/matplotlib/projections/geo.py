@@ -163,19 +163,19 @@ class GeoAxes(Axes):
 
     set_ylim = set_xlim
 
-    def format_coord(self, long, lat):
+    def format_coord(self, lon, lat):
         'return a format string formatting the coordinate'
-        long = long * (180.0 / np.pi)
+        lon = lon * (180.0 / np.pi)
         lat = lat * (180.0 / np.pi)
         if lat >= 0.0:
             ns = 'N'
         else:
             ns = 'S'
-        if long >= 0.0:
+        if lon >= 0.0:
             ew = 'E'
         else:
             ew = 'W'
-        return u'%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(long), ew)
+        return u'%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(lon), ew)
 
     def set_longitude_grid(self, degrees):
         """
@@ -576,10 +576,10 @@ class LambertAxes(GeoAxes):
 
             lat = np.arcsin(cos_c*np.sin(clat) +
                              ((y*sin_c*np.cos(clat)) / p))
-            long = clong + np.arctan(
+            lon = clong + np.arctan(
                 (x*sin_c) / (p*np.cos(clat)*cos_c - y*np.sin(clat)*sin_c))
 
-            return np.concatenate((long, lat), 1)
+            return np.concatenate((lon, lat), 1)
         transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
 
         def inverted(self):
