@@ -257,6 +257,15 @@ validate_verbose = ValidateInStrings('verbose',[
 
 def deprecate_savefig_extension(value):
     warnings.warn("savefig.extension is deprecated.  Use savefig.format instead.")
+    return value
+
+def update_savefig_format(value):
+    # The old savefig.extension could also have a value of "auto", but
+    # the new savefig.format does not.  We need to fix this here.
+    value = str(value)
+    if value == 'auto':
+        value = 'png'
+    return value
 
 validate_ps_papersize = ValidateInStrings('ps_papersize',[
     'auto', 'letter', 'legal', 'ledger',
@@ -567,7 +576,7 @@ defaultParams = {
     'savefig.edgecolor'   : ['w', validate_color],  # edgecolor; white
     'savefig.orientation' : ['portrait', validate_orientation],  # edgecolor; white
     'savefig.extension'   : ['png', deprecate_savefig_extension], # what to add to extensionless filenames
-    'savefig.format'      : ['png', str], # value checked by backend at runtime
+    'savefig.format'      : ['png', update_savefig_format], # value checked by backend at runtime
     'savefig.bbox'        : [None, validate_bbox], # options are 'tight', or 'standard'. 'standard' validates to None.
     'savefig.pad_inches'  : [0.1, validate_float],
 
