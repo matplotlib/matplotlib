@@ -43,10 +43,7 @@ import shutil
 import sys
 from subprocess import Popen, PIPE, STDOUT
 
-try:
-    from hashlib import md5
-except ImportError:
-    from md5 import md5  # Deprecated in 2.5
+from hashlib import md5
 
 import distutils.version
 import numpy as np
