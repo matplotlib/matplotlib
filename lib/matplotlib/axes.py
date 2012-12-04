@@ -2429,7 +2429,7 @@ class Axes(martist.Artist):
     def invert_xaxis(self):
         "Invert the x-axis."
         left, right = self.get_xlim()
-        self.set_xlim(right, left)
+        self.set_xlim(right, left, auto=None)
 
     def xaxis_inverted(self):
         """Returns *True* if the x-axis is inverted."""
@@ -2655,7 +2655,7 @@ class Axes(martist.Artist):
         Invert the y-axis.
         """
         bottom, top = self.get_ylim()
-        self.set_ylim(top, bottom)
+        self.set_ylim(top, bottom, auto=None)
 
     def yaxis_inverted(self):
         """Returns *True* if the y-axis is inverted."""
