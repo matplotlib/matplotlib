@@ -262,25 +262,25 @@ class HammerAxes(Axes):
         Axes.set_ylim(self, -np.pi / 2.0, np.pi / 2.0)
     set_ylim = set_xlim
 
-    def format_coord(self, long, lat):
+    def format_coord(self, lon, lat):
         """
         Override this method to change how the values are displayed in
         the status bar.
 
         In this case, we want them to be displayed in degrees N/S/E/W.
         """
-        long = long * (180.0 / np.pi)
+        lon = lon * (180.0 / np.pi)
         lat = lat * (180.0 / np.pi)
         if lat >= 0.0:
             ns = 'N'
         else:
             ns = 'S'
-        if long >= 0.0:
+        if lon >= 0.0:
             ew = 'E'
         else:
             ew = 'W'
         # \u00b0 : degree symbol
-        return '%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(long), ew)
+        return '%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(lon), ew)
 
     class DegreeFormatter(Formatter):
         """
