@@ -195,6 +195,10 @@ def pause(interval):
 def rc(*args, **kwargs):
     matplotlib.rc(*args, **kwargs)
 
+@docstring.copy_dedent(matplotlib.rc_context)
+def rc_context(rc=None, fname=None):
+    matplotlib.rc_context(rc, fname)
+
 @docstring.copy_dedent(matplotlib.rcdefaults)
 def rcdefaults():
     matplotlib.rcdefaults()
