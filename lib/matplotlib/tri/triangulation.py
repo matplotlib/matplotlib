@@ -3,6 +3,7 @@ import matplotlib.delaunay as delaunay
 import matplotlib._tri as _tri
 import numpy as np
 
+
 class Triangulation(object):
     """
     An unstructured triangular grid consisting of npoints points and
@@ -35,6 +36,9 @@ class Triangulation(object):
         triangle.  neighbors[i,j] is the triangle that is the neighbor
         to the edge from point index triangles[i,j] to point index
         triangles[i,(j+1)%3].
+
+    For a Triangulation to be valid it must not have duplicate points,
+    triangles formed from colinear points, or overlapping triangles.
     """
     def __init__(self, x, y, triangles=None, mask=None):
         self.x = np.asarray(x, dtype=np.float64)
@@ -49,11 +53,13 @@ class Triangulation(object):
         if triangles is None:
             # No triangulation specified, so use matplotlib.delaunay.
             dt = delaunay.Triangulation(self.x, self.y)
-            self.triangles = np.asarray(dt.to_client_point_indices(dt.triangle_nodes),
-                                        dtype=np.int32)
+            self.triangles = np.asarray(
+                                 dt.to_client_point_indices(dt.triangle_nodes),
+                                 dtype=np.int32)
             if mask is None:
-                self._edges = np.asarray(dt.to_client_point_indices(dt.edge_db),
-                                         dtype=np.int32)
+                self._edges = np.asarray(
+                                  dt.to_client_point_indices(dt.edge_db),
+                                  dtype=np.int32)
                 # Delaunay triangle_neighbors uses different edge indexing,
                 # so convert.
                 neighbors = np.asarray(dt.triangle_neighbors, dtype=np.int32)
@@ -79,6 +85,9 @@ class Triangulation(object):
         # Underlying C++ object is not created until first needed.
         self._cpp_triangulation = None
 
+        # Default TriFinder not created until needed.
+        self._trifinder = None
+
     @property
     def edges(self):
         if self._edges is None:
@@ -99,7 +108,7 @@ class Triangulation(object):
         Return an array of triangles that are not masked.
         """
         if self.mask is not None:
-            return self.triangles.compress(1-self.mask, axis=0)
+            return self.triangles.compress(1 - self.mask, axis=0)
         else:
             return self.triangles
 
@@ -149,6 +158,18 @@ class Triangulation(object):
             triangulation = Triangulation(x, y, triangles, mask)
         return triangulation, args, kwargs
 
+    def get_trifinder(self):
+        """
+        Return the default :class:`matplotlib.tri.TriFinder` of this
+        triangulation, creating it if necessary.  This allows the same
+        TriFinder object to be easily shared.
+        """
+        if self._trifinder is None:
+            # Default TriFinder class.
+            from matplotlib.tri.trifinder import TrapezoidMapTriFinder
+            self._trifinder = TrapezoidMapTriFinder(self)
+        return self._trifinder
+
     @property
     def neighbors(self):
         if self._neighbors is None:
@@ -176,3 +197,7 @@ class Triangulation(object):
         # Clear derived fields so they are recalculated when needed.
         self._edges = None
         self._neighbors = None
+
+        # Recalculate TriFinder if it exists.
+        if self._trifinder is not None:
+            self._trifinder._initialize()
