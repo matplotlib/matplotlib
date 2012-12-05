@@ -22,6 +22,7 @@ import warnings
 from weakref import ref, WeakKeyDictionary
 
 import matplotlib
+from matplotlib import MatplotlibDeprecationWarning as mDeprecation
 
 import numpy as np
 import numpy.ma as ma
@@ -281,7 +282,7 @@ class CallbackRegistry:
             warnings.warn(
                 'CallbackRegistry no longer requires a list of callback types.'
                 ' Ignoring arguments',
-                DeprecationWarning)
+                mDeprecation)
         self.callbacks = dict()
         self._cid = 0
         self._func_cid_map = {}
@@ -1676,7 +1677,7 @@ def less_simple_linear_interpolation(x, y, xi, extrap=False):
     # deprecated from cbook in 0.98.4
     warnings.warn('less_simple_linear_interpolation has been moved to '
                   'matplotlib.mlab -- please import it from there',
-                  DeprecationWarning)
+                  mDeprecation)
     import matplotlib.mlab as mlab
     return mlab.less_simple_linear_interpolation(x, y, xi, extrap=extrap)
 
@@ -1688,7 +1689,7 @@ def vector_lengths(X, P=2.0, axis=None):
     """
     # deprecated from cbook in 0.98.4
     warnings.warn('vector_lengths has been moved to matplotlib.mlab -- '
-                  'please import it from there', DeprecationWarning)
+                  'please import it from there', mDeprecation)
     import matplotlib.mlab as mlab
     return mlab.vector_lengths(X, P=2.0, axis=axis)
 
@@ -1700,7 +1701,7 @@ def distances_along_curve(X):
     """
     # deprecated from cbook in 0.98.4
     warnings.warn('distances_along_curve has been moved to matplotlib.mlab '
-                  '-- please import it from there', DeprecationWarning)
+                  '-- please import it from there', mDeprecation)
     import matplotlib.mlab as mlab
     return mlab.distances_along_curve(X)
 
@@ -1712,7 +1713,7 @@ def path_length(X):
     """
     # deprecated from cbook in 0.98.4
     warnings.warn('path_length has been moved to matplotlib.mlab '
-                  '-- please import it from there', DeprecationWarning)
+                  '-- please import it from there', mDeprecation)
     import matplotlib.mlab as mlab
     return mlab.path_length(X)
 
@@ -1724,7 +1725,7 @@ def is_closed_polygon(X):
     """
     # deprecated from cbook in 0.98.4
     warnings.warn('is_closed_polygon has been moved to matplotlib.mlab '
-                  '-- please import it from there', DeprecationWarning)
+                  '-- please import it from there', mDeprecation)
     import matplotlib.mlab as mlab
     return mlab.is_closed_polygon(X)
 
@@ -1736,7 +1737,7 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     """
     # deprecated from cbook in 0.98.4
     warnings.warn('quad2cubic has been moved to matplotlib.mlab -- please '
-                  'import it from there', DeprecationWarning)
+                  'import it from there', mDeprecation)
     import matplotlib.mlab as mlab
     return mlab.quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y)
 
