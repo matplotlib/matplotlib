@@ -16,6 +16,7 @@ from mlab import dist
 from patches import Circle, Rectangle
 from lines import Line2D
 from transforms import blended_transform_factory
+from matplotlib import MatplotlibDeprecationWarning as mDeprecation
 
 class LockDraw:
     """
@@ -1149,7 +1150,7 @@ class SpanSelector(AxesWidget):
 class HorizontalSpanSelector(SpanSelector):
     def __init__(self, ax, onselect, **kwargs):
         import warnings
-        warnings.warn('Use SpanSelector instead!', DeprecationWarning)
+        warnings.warn('Use SpanSelector instead!', mDeprecation)
         SpanSelector.__init__(self, ax, onselect, 'horizontal', **kwargs)
 
 
