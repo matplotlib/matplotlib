@@ -484,6 +484,9 @@ class Line2D(Artist):
 
     @allow_rasterization
     def draw(self, renderer):
+        """draw the Line with `renderer` unless visiblity is False"""
+        if not self.get_visible(): return
+
         if self._invalidy or self._invalidx:
             self.recache()
         self.ind_offset = 0  # Needed for contains() method.
@@ -497,8 +500,6 @@ class Line2D(Artist):
             self._transform_path(subslice)
 
         transformed_path = self._get_transformed_path()
-
-        if not self.get_visible(): return
 
         renderer.open_group('line2d', self.get_gid())
         gc = renderer.new_gc()
