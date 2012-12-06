@@ -28,6 +28,7 @@ import os
 if os.path.exists('MANIFEST'): os.remove('MANIFEST')
 
 import sys
+import platform
 major, minor1, minor2, s, tmp = sys.version_info
 
 if major==2 and minor1<6 or major<2:
@@ -91,7 +92,7 @@ print_line()
 print_raw("BUILDING MATPLOTLIB")
 print_status('matplotlib', __version__)
 print_status('python', sys.version)
-print_status('platform', sys.platform)
+print_status('platform', platform.platform())
 if sys.platform == 'win32':
     print_status('Windows version', sys.getwindowsversion())
 print_raw("")
