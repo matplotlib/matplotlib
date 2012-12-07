@@ -53,6 +53,9 @@ class MovieWriterRegistry(object):
         ''' Get a list of available MovieWriters.'''
         return self.avail.keys()
 
+    def is_available(self, name):
+        return name in self.avail
+
     def __getitem__(self, name):
         if not self.avail:
             raise RuntimeError("No MovieWriters available!")
@@ -388,6 +391,24 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
         return [self.bin_path(), '-vframes', str(self._frame_counter),
                 '-r', str(self.fps), '-i',
                 self._base_temp_name()] + self.output_args
+
+
+# Base class of avconv information.  AVConv has identical arguments to
+# FFMpeg
+class AVConvBase(FFMpegBase):
+    exec_key = 'animation.avconv_path'
+    args_key = 'animation.avconv_args' 
+
+
+# Combine AVConv options with pipe-based writing
+@writers.register('avconv')
+class AVConvWriter(AVConvBase, FFMpegWriter):
+    pass
+
+# Combine AVConv options with file-based writing
+@writers.register('avconv_file')
+class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
+    pass
 
 
 # Base class of mencoder information. Contains configuration key information
