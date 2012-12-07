@@ -756,8 +756,8 @@ class Sankey:
 
         # Add the path labels.
         texts = []
-        for i, (number, angle, label, location) in enumerate(zip(flows, angles,
-                                                     labels, label_locations)):
+        for number, angle, label, location in zip(flows, angles, labels,
+                                                  label_locations):
             if label is None or angle is None:
                 label = ''
             elif self.unit is not None:
@@ -840,5 +840,3 @@ class Sankey:
                       self.extent[3] + self.margin])
         self.ax.set_aspect('equal', adjustable='datalim')
         return self.diagrams
-
-
