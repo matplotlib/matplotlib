@@ -49,6 +49,13 @@ using Inkscape for example, while preserving their intended position. For
 `svg` please note that you'll have to disable the default text-to-path
 conversion (`mpl.rc('svg', fonttype='none')`).
 
+Triangular grid interpolation
+-----------------------------
+Ian Thomas added classes to perform interpolation within triangular grids
+(:class:`~matplotlib.tri.LinearTriInterpolator`) and a utility class to find
+the triangles in which points lie (
+:class:`~matplotlib.tri.TrapezoidMapTriFinder`).
+
 .. _whats-new-1-2:
 
 new in matplotlib-1.2
@@ -298,7 +305,7 @@ to address the most common layout issues.
     fig, axes_list = plt.subplots(2, 1)
     for ax in axes_list.flat:
         ax.set(xlabel="x-label", ylabel="y-label", title="before tight_layout")
-	ax.locator_params(nbins=3)
+    ax.locator_params(nbins=3)
 
     plt.show()
 
@@ -308,7 +315,7 @@ to address the most common layout issues.
     fig, axes_list = plt.subplots(2, 1)
     for ax in axes_list.flat:
         ax.set(xlabel="x-label", ylabel="y-label", title="after tight_layout")
-	ax.locator_params(nbins=3)
+    ax.locator_params(nbins=3)
 
     plt.tight_layout()
     plt.show()

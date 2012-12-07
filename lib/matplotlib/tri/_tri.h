@@ -115,6 +115,7 @@ struct XYZ
     XYZ(const double& x_, const double& y_, const double& z_);
     XYZ cross(const XYZ& other) const;
     double dot(const XYZ& other) const;
+    double length_squared() const;
     XYZ operator-(const XYZ& other) const;
     friend std::ostream& operator<<(std::ostream& os, const XYZ& xyz);
 
@@ -188,6 +189,13 @@ public:
                   PyArrayObject* neighbors);
 
     virtual ~Triangulation();
+
+    /* Calculate plane equation coefficients for all unmasked triangles from
+     * the point (x,y) coordinates and point z-array of shape (npoints) passed
+     * in via the args.  Returned array has shape (npoints,3) and allows
+     * z-value at (x,y) coordinates in triangle tri to be calculated using
+     *      z = array[tri,0]*x + array[tri,1]*y + array[tri,2]. */
+    Py::Object calculate_plane_coefficients(const Py::Tuple &args);
 
     // Return the boundaries collection, creating it if necessary.
     const Boundaries& get_boundaries() const;
