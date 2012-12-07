@@ -13,3 +13,9 @@ triangular grids
 
 .. autoclass:: matplotlib.tri.TrapezoidMapTriFinder
    :members: __call__
+
+.. autoclass:: matplotlib.tri.TriInterpolator
+   :members:
+
+.. autoclass:: matplotlib.tri.LinearTriInterpolator
+   :members: __call__

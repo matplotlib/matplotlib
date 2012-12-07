@@ -219,3 +219,34 @@ def test_trifinder():
     assert_equal(trifinder, triang.get_trifinder())
     tris = trifinder(xs, ys)
     assert_array_equal(tris, [-1, -1, 1, -1])
+
+def test_triinterp():
+    # Test points within triangles of masked triangulation.
+    x,y = np.meshgrid(np.arange(4), np.arange(4))
+    x = x.ravel()
+    y = y.ravel()
+    z = 1.23*x - 4.79*y
+    triangles = [[0,1,4], [1,5,4], [1,2,5], [2,6,5], [2,3,6], [3,7,6], [4,5,8],
+                 [5,9,8], [5,6,9], [6,10,9], [6,7,10], [7,11,10], [8,9,12],
+                 [9,13,12], [9,10,13], [10,14,13], [10,11,14], [11,15,14]]
+    mask = np.zeros(len(triangles))
+    mask[8:10] = 1
+    triang = mtri.Triangulation(x, y, triangles, mask)
+    linear_interp = mtri.LinearTriInterpolator(triang, z)
+
+    xs = np.linspace(0.25, 2.75, 6)
+    ys = [0.25, 0.75, 2.25, 2.75]
+    xs,ys = np.meshgrid(xs,ys)
+    xs = xs.ravel()
+    ys = ys.ravel()
+    zs = linear_interp(xs, ys)
+    assert_array_almost_equal(zs, (1.23*xs - 4.79*ys))
+
+    # Test points outside triangulation.
+    xs = [-0.25, 1.25, 1.75, 3.25]
+    ys = xs
+    xs, ys = np.meshgrid(xs,ys)
+    xs = xs.ravel()
+    ys = ys.ravel()
+    zs = linear_interp(xs, ys)
+    assert_array_equal(zs.mask, [True]*16)
