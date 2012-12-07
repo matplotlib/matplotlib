@@ -2,6 +2,7 @@
 """
 Module for creating Sankey diagrams using matplotlib
 """
+from __future__ import print_function
 __author__ = "Kevin L. Davies"
 __credits__ = ["Yannick Copin"]
 __license__ = "BSD"
