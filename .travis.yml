@@ -13,7 +13,7 @@ install:
   - 'if [ $TRAVIS_PYTHON_VERSION == "3.2" ]; then pip install https://github.com/y-p/numpy/archive/1.6.2_with_travis_fix.tar.gz; fi'
   - 'if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install numpy; fi' # should be nop if pre-installed
   - if [[ $TRAVIS_PYTHON_VERSION == '2.'* ]]; then pip install --use-mirrors PIL; fi
-  - python setup.py install
+  - python setup.py install --old-and-unmanageable
 
 script:
   - mkdir ../foo
