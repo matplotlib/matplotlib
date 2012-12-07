@@ -155,7 +155,7 @@ def set_default_color_cycle(clist):
     """
     rcParams['axes.color_cycle'] = clist
     warnings.warn("Set rcParams['axes.color_cycle'] directly",
-                                                    DeprecationWarning)
+                  DeprecationWarning)
 
 
 class _process_plot_var_args(object):
@@ -271,9 +271,9 @@ class _process_plot_var_args(object):
             # (can't use setdefault because it always evaluates
             # its second argument)
         seg = mlines.Line2D(x, y,
-                     axes=self.axes,
-                     **kw
-                     )
+                            axes=self.axes,
+                            **kw
+                            )
         self.set_lineprops(seg, **kwargs)
         return seg
 
@@ -3196,76 +3196,7 @@ class Axes(martist.Artist):
                                      'see API_CHANGES in the src distribution')
         martist.Artist.pick(self, args[0])
 
-    def __pick(self, x, y, trans=None, among=None):
-        """
-        Return the artist under point that is closest to the *x*, *y*.
-        If *trans* is *None*, *x*, and *y* are in window coords,
-        (0,0 = lower left).  Otherwise, *trans* is a
-        :class:`~matplotlib.transforms.Transform` that specifies the
-        coordinate system of *x*, *y*.
-
-        The selection of artists from amongst which the pick function
-        finds an artist can be narrowed using the optional keyword
-        argument *among*. If provided, this should be either a sequence
-        of permitted artists or a function taking an artist as its
-        argument and returning a true value if and only if that artist
-        can be selected.
-
-        Note this algorithm calculates distance to the vertices of the
-        polygon, so if you want to pick a patch, click on the edge!
-        """
-        # MGDTODO: Needs updating
-        if trans is not None:
-            xywin = trans.transform_point((x, y))
-        else:
-            xywin = x, y
-
-        def dist_points(p1, p2):
-            'return the distance between two points'
-            x1, y1 = p1
-            x2, y2 = p2
-            return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
-
-        def dist_x_y(p1, x, y):
-            '*x* and *y* are arrays; return the distance to the closest point'
-            x1, y1 = p1
-            return min(np.sqrt((x - x1) ** 2 + (y - y1) ** 2))
-
-        def dist(a):
-            if isinstance(a, Text):
-                bbox = a.get_window_extent()
-                l, b, w, h = bbox.bounds
-                verts = (l, b), (l, b + h), (l + w, b + h), (l + w, b)
-                xt, yt = zip(*verts)
-            elif isinstance(a, Patch):
-                path = a.get_path()
-                tverts = a.get_transform().transform_path(path)
-                xt, yt = zip(*tverts)
-            elif isinstance(a, mlines.Line2D):
-                xdata = a.get_xdata(orig=False)
-                ydata = a.get_ydata(orig=False)
-                xt, yt = a.get_transform().numerix_x_y(xdata, ydata)
-
-            return dist_x_y(xywin, np.asarray(xt), np.asarray(yt))
-
-        artists = self.lines + self.patches + self.texts
-        if callable(among):
-            # FIXME test is not defined
-            artists = filter(test, artists)
-        elif iterable(among):
-            amongd = dict([(k, 1) for k in among])
-            artists = [a for a in artists if a in amongd]
-        elif among is None:
-            pass
-        else:
-            raise ValueError('among must be callable or iterable')
-        if not len(artists):
-            return None
-        ds = [(dist(a), a) for a in artists]
-        ds.sort()
-        return ds[0][1]
-
-    #### Labelling
+    ### Labelling
 
     def get_title(self):
         """
