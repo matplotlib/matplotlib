@@ -10,6 +10,8 @@ from numpy import ma
 import matplotlib
 rcParams = matplotlib.rcParams
 
+from matplotlib import MatplotlibDeprecationWarning as MDeprecation
+
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
 import matplotlib.axis as maxis
@@ -1051,7 +1053,7 @@ class Axes(martist.Artist):
             the option 'normal' for aspect is deprecated. Use 'auto' instead.
         """
         if aspect == 'normal':
-            raise DeprecationWarning("Use 'auto' instead of 'normal' for "
+            raise MDeprecation("Use 'auto' instead of 'normal' for "
                                      "aspect. Will be removed in 1.4.x")
             self._aspect = 'auto'
 
