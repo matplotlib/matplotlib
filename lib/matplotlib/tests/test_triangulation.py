@@ -122,3 +122,12 @@ def test_tripcolor():
     plt.subplot(122)
     plt.tripcolor(triang, facecolors=Cfaces, edgecolors='k')
     plt.title('facecolors')
+
+def test_no_modify():
+    triangles = np.array([[3, 2, 0], [3, 1, 0]], dtype=np.int32)
+    points = np.array([(0, 0), (0, 1.1), (1, 0), (1, 1)])
+
+    old_triangles = triangles.copy()
+    tri = mtri.Triangulation(points[:,0], points[:,1], triangles)
+    edges = tri.edges
+    assert_array_equal(old_triangles, triangles)
