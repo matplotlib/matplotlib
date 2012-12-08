@@ -128,6 +128,6 @@ def test_no_modify():
     points = np.array([(0, 0), (0, 1.1), (1, 0), (1, 1)])
 
     old_simplices = simplices.copy()
-    tri = mtri.Triangulation(points, simplices)
+    tri = mtri.Triangulation(points[:,0], points[:,1], simplices)
     edges = tri.edges
     assert_array_equal(old_simplices, simplices)
