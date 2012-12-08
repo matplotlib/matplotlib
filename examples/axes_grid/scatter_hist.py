@@ -1,17 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 # the random data
 x = np.random.randn(1000)
 y = np.random.randn(1000)
 
 
-fig = plt.figure(1, figsize=(5.5,5.5))
-
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+fig, axScatter = plt.subplots(figsize=(5.5,5.5))
 
 # the scatter plot:
-axScatter = plt.subplot(111)
 axScatter.scatter(x, y)
 axScatter.set_aspect(1.)
 

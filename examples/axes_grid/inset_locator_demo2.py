@@ -13,9 +13,7 @@ def get_demo_image():
     # z is a numpy array of 15x15
     return z, (-3,4,-4,3)
 
-
-fig = plt.figure(1, [5,4])
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots(figsize=[5,4])
 
 # prepare the demo image
 Z, extent = get_demo_image()

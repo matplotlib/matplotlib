@@ -11,8 +11,7 @@ t = np.random.rand(50) * np.pi * 2.0
 x = r * np.cos(t)
 y = r * np.sin(t)
 
-fig = plt.figure(figsize=(6,6))
-ax = plt.subplot(111)
+fig, ax = plt.subplots(figsize=(6,6))
 circle = Circle((0, 0), 1, facecolor='none',
                 edgecolor=(0,0.8,0.8), linewidth=3, alpha=0.5)
 ax.add_patch(circle)

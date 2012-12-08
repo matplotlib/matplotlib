@@ -2,7 +2,6 @@
 Emulate an oscilloscope.  Requires the animation API introduced in
 matplotlib 1.0 SVN.
 """
-import matplotlib
 import numpy as np
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
@@ -44,8 +43,7 @@ def emitter(p=0.03):
         else:
             yield np.random.rand(1)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 scope = Scope(ax)
 
 # pass a generator in "emitter" to produce data for the update func

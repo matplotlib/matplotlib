@@ -4,7 +4,6 @@ Illustrate the three different join styles
 """
 
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 
 def plot_angle(ax, x, y, angle, style):
@@ -17,8 +16,7 @@ def plot_angle(ax, x, y, angle, style):
     ax.plot(xx[1:2], yy[1:2], 'o', color='red', markersize=3)
     ax.text(x,y+.2,'%.0f degrees' % angle)
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.set_title('Join style')
 
 for x,style in enumerate((('miter', 'round', 'bevel'))):

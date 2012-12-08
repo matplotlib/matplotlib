@@ -1,10 +1,8 @@
 """
 make a scatter plot with varying color and size arguments
 """
-import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
 import matplotlib.cbook as cbook
 
 # load a numpy record array from yahoo csv data with fields date,
@@ -21,8 +19,7 @@ delta1 = np.diff(r.adj_close)/r.adj_close[:-1]
 volume = (15*r.volume[:-2]/r.volume[0])**2
 close = 0.003*r.close[:-2]/0.003*r.open[:-2]
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.scatter(delta1[:-1], delta1[1:], c=close, s=volume, alpha=0.75)
 
 #ticks = arange(-0.06, 0.061, 0.02)

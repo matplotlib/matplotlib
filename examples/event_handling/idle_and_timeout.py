@@ -7,8 +7,7 @@ This is only tested on gtk so far and is a prototype implementation
 import numpy as np
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 t = np.arange(0.0, 2.0, 0.01)
 y1 = np.sin(2*np.pi*t)
