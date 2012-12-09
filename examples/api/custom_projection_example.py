@@ -385,9 +385,10 @@ class HammerAxes(Axes):
         output_dims = 2
         is_separable = False
 
-        def transform(self, ll):
+        def transform_non_affine(self, ll):
             """
-            Override the transform method to implement the custom transform.
+            Override the transform_non_affine method to implement the custom 
+            transform.
 
             The input and output are Nx2 numpy arrays.
             """
@@ -404,6 +405,14 @@ class HammerAxes(Axes):
             y = (sqrt2 * np.sin(latitude)) / alpha
             return np.concatenate((x, y), 1)
 
+        # Note: For compatibility with matplotlib v1.1 and older, you'll need
+        # to explicitly implement a ``transform`` method as well. Otherwise a
+        # ``NotImplementedError`` will be raised. This isn't necessary for v1.2
+        # and newer, however.  
+        def transform(self, values):
+            return self.transform_affine(self.transform_non_affine(values))
+        transform.__doc__ = Transform.transform.__doc__
+
         # This is where things get interesting.  With this projection,
         # straight lines in data space become curves in display space.
         # This is done by interpolating new values between the input
@@ -411,10 +420,17 @@ class HammerAxes(Axes):
         # differently-sized array, any transform that requires
         # changing the length of the data array must happen within
         # ``transform_path``.
-        def transform_path(self, path):
-            vertices = path.vertices
+        def transform_path_non_affine(self, path):
             ipath = path.interpolated(path._interpolation_steps)
             return Path(self.transform(ipath.vertices), ipath.codes)
+        transform_path_non_affine.__doc__ = \
+                Transform.transform_path_non_affine.__doc__
+
+        # Once again, for compatibility with matplotlib v1.1 and older, we need
+        # to explicitly override ``transform_path``. With v1.2 and newer, only
+        # overriding the ``transform_path_non_affine`` method is sufficient.
+        transform_path = transform_path_non_affine
+        transform_path.__doc__ = Transform.transform_path.__doc__
 
         def inverted(self):
             return HammerAxes.InvertedHammerTransform()
@@ -425,7 +441,7 @@ class HammerAxes(Axes):
         output_dims = 2
         is_separable = False
 
-        def transform(self, xy):
+        def transform_non_affine(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
 
@@ -435,7 +451,11 @@ class HammerAxes(Axes):
             longitude = 2 * np.arctan((z*x) / (2.0 * (2.0*z*z - 1.0)))
             latitude = np.arcsin(y*z)
             return np.concatenate((longitude, latitude), 1)
-        transform.__doc__ = Transform.transform.__doc__
+        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+
+        # As before, we need to implement the "transform" method for 
+        # compatibility with matplotlib v1.1 and older.
+        transform = transform_non_affine
 
         def inverted(self):
             # The inverse of the inverse is the original transform... ;)
