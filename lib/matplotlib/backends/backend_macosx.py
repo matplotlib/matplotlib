@@ -107,8 +107,7 @@ class RendererMac(RendererBase):
     def draw_image(self, gc, x, y, im):
         im.flipud_out()
         nrows, ncols, data = im.as_rgba_str()
-        gc.draw_image(x, y, nrows, ncols, data, gc.get_clip_rectangle(),
-                      *gc.get_clip_path())
+        gc.draw_image(x, y, nrows, ncols, data)
         im.flipud_out()
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
