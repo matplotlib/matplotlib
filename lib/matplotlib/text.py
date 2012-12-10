@@ -585,8 +585,7 @@ class Text(Artist):
                 if self.get_path_effects():
                     for path_effect in self.get_path_effects():
                         path_effect.draw_tex(renderer, gc, x, y, clean_line,
-                                             self._fontproperties, angle,
-                                             mtext=self)
+                                             self._fontproperties, angle)
                 else:
                     renderer.draw_tex(gc, x, y, clean_line,
                                       self._fontproperties, angle, mtext=self)
@@ -605,7 +604,7 @@ class Text(Artist):
                     for path_effect in self.get_path_effects():
                         path_effect.draw_text(renderer, gc, x, y, clean_line,
                                               self._fontproperties, angle,
-                                              ismath=ismath, mtext=self)
+                                              ismath=ismath)
                 else:
                     renderer.draw_text(gc, x, y, clean_line,
                                        self._fontproperties, angle,
