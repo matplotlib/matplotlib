@@ -59,8 +59,9 @@ class Triangulation(object):
                 neighbors = np.asarray(dt.triangle_neighbors, dtype=np.int32)
                 self._neighbors = np.roll(neighbors, 1, axis=1)
         else:
-            # Triangulation specified.
-            self.triangles = np.asarray(triangles, dtype=np.int32)
+            # Triangulation specified. Copy, since we may correct triangle
+            # orientation.
+            self.triangles = np.array(triangles, dtype=np.int32)
             if self.triangles.ndim != 2 or self.triangles.shape[1] != 3:
                 raise ValueError('triangles must be a (?,3) array')
             if self.triangles.max() >= len(self.x):
