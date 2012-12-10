@@ -397,7 +397,7 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
 # FFMpeg
 class AVConvBase(FFMpegBase):
     exec_key = 'animation.avconv_path'
-    args_key = 'animation.avconv_args' 
+    args_key = 'animation.avconv_args'
 
 
 # Combine AVConv options with pipe-based writing
