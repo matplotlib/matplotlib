@@ -5693,12 +5693,14 @@ show(PyObject* self)
     if(nwin > 0)
     {
         [NSApp activateIgnoringOtherApps: YES];
+        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         NSArray *windowsArray = [NSApp windows];
         NSEnumerator *enumerator = [windowsArray objectEnumerator];
         NSWindow *window;
         while ((window = [enumerator nextObject])) {
             [window orderFront:nil];
         }
+        [pool release];
         [NSApp run];
     }
     Py_INCREF(Py_None);
