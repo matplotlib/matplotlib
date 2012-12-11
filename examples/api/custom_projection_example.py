@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import matplotlib
 from matplotlib.axes import Axes
 from matplotlib.patches import Circle
 from matplotlib.path import Path
@@ -405,14 +406,6 @@ class HammerAxes(Axes):
             y = (sqrt2 * np.sin(latitude)) / alpha
             return np.concatenate((x, y), 1)
 
-        # Note: For compatibility with matplotlib v1.1 and older, you'll need
-        # to explicitly implement a ``transform`` method as well. Otherwise a
-        # ``NotImplementedError`` will be raised. This isn't necessary for v1.2
-        # and newer, however.  
-        def transform(self, values):
-            return self.transform_affine(self.transform_non_affine(values))
-        transform.__doc__ = Transform.transform.__doc__
-
         # This is where things get interesting.  With this projection,
         # straight lines in data space become curves in display space.
         # This is done by interpolating new values between the input
@@ -426,11 +419,19 @@ class HammerAxes(Axes):
         transform_path_non_affine.__doc__ = \
                 Transform.transform_path_non_affine.__doc__
 
-        # Once again, for compatibility with matplotlib v1.1 and older, we need
-        # to explicitly override ``transform_path``. With v1.2 and newer, only
-        # overriding the ``transform_path_non_affine`` method is sufficient.
-        transform_path = transform_path_non_affine
-        transform_path.__doc__ = Transform.transform_path.__doc__
+        if matplotlib.__version__ < '1.2':
+            # Note: For compatibility with matplotlib v1.1 and older, you'll
+            # need to explicitly implement a ``transform`` method as well.
+            # Otherwise a ``NotImplementedError`` will be raised. This isn't
+            # necessary for v1.2 and newer, however.  
+            transform = transform_non_affine
+
+            # Similarly, we need to explicitly override ``transform_path`` if
+            # compatibility with older matplotlib versions is needed. With v1.2
+            # and newer, only overriding the ``transform_path_non_affine``
+            # method is sufficient.
+            transform_path = transform_path_non_affine
+            transform_path.__doc__ = Transform.transform_path.__doc__
 
         def inverted(self):
             return HammerAxes.InvertedHammerTransform()
@@ -455,7 +456,8 @@ class HammerAxes(Axes):
 
         # As before, we need to implement the "transform" method for 
         # compatibility with matplotlib v1.1 and older.
-        transform = transform_non_affine
+        if matplotlib.__version__ < '1.2':
+            transform = transform_non_affine
 
         def inverted(self):
             # The inverse of the inverse is the original transform... ;)
