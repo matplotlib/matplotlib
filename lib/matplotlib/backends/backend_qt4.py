@@ -337,7 +337,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             # prepend the ctrl, alt, super keys if appropriate (sorted in that order)
             for modifier, prefix, Qt_key in self._modifier_keys:
                 if event.key() != Qt_key and int(event.modifiers()) & modifier == modifier:
-                    key = u'{}+{}'.format(prefix, key)
+                    key = u'{0}+{1}'.format(prefix, key)
 
         return key
 

@@ -1254,7 +1254,7 @@ The current aspect ratio will be kept."""
                              [evt.AltDown, 'alt'],
                              [evt.ControlDown, 'ctrl'], ):
             if meth():
-                key = '{}+{}'.format(prefix, key)
+                key = '{0}+{1}'.format(prefix, key)
 
         return key
 
