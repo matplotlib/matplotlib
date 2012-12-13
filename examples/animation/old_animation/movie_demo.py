@@ -49,7 +49,7 @@ except subprocess.CalledProcessError:
     # This is a quick and dirty check; it leaves some spurious output
     # for the user to puzzle over.
 except OSError:
-    print not_found_msg
+    print(not_found_msg)
     sys.exit("quitting\n")
 
 
