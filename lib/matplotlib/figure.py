@@ -1203,6 +1203,12 @@ class Figure(Artist):
                 **kwargs )
         return self.xlabel
 
+    def get_xlabel(self):
+        """
+        Get the xlabel text string.
+        """
+        return self.xlabel.get_text()
+
     @docstring.dedent_interpd
     def set_ylabel(self, ylabel, fontdict=None, labelpad=0.10, **kwargs):
         """
@@ -1248,6 +1254,12 @@ class Figure(Artist):
                 (self.bigextents[3]+self.bigextents[1])/2, ylabel,
                 fontdict=fontdict, **kwargs )
         return self.ylabel
+
+    def get_ylabel(self):
+        """
+        Get the ylabel text string.
+        """
+        return self.ylabel.get_text()
 
     def _set_artist_props(self, a):
         if a!= self:
