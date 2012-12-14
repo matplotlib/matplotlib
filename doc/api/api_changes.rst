@@ -19,6 +19,9 @@ Changes in 1.3.x
   :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the shape
   of colorbar extensions.
 
+* The `~matplotlib.mpl` module is now deprecated. Those who relied on this
+  module should transition to simply using `import matplotlib as mpl`.
+
 Changes in 1.2.x
 ================
 
