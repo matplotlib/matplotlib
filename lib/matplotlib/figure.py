@@ -809,7 +809,7 @@ class Figure(Artist):
         self.sca(a)
 
         #update the bounding box containing all the axes
-        self._rect_largest( a )  
+        self._set_bigextents( a )  
 
         return a
 
@@ -888,10 +888,10 @@ class Figure(Artist):
 
         self._axstack.add(key, a)
         self.sca(a)
-        self._rect_largest( a ) 
+        self._set_bigextents( a ) 
         return a
 
-    def _rect_largest( self, ax ):
+    def _set_bigextents( self, ax ):
         """Given an axis/subplot instance create or update a the extent
         that enclose all of the axis. 
         This method is intented for internal use only

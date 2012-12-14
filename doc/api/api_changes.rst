@@ -15,6 +15,17 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* :meth:`~matplotlib.figure.Figure.set_xlabel`,
+  :meth:`~matplotlib.figure.Figure.set_ylabel`,
+  :meth:`~matplotlib.figure.Figure.get_xlabel` and
+  :meth:`~matplotlib.figure.Figure.get_ylabel` added to
+  :class:`~matplotlib.figure.Figure`. The methods has the same API as the
+  corresponding ones in :class:`~matplotlib.axes.Axes`. A new private
+  :meth:`~matplotlib.figure.Figure._set_bigextents` has been added. It is used in
+  :meth:`~matplotlib.figure.Figure.add_axes` and
+  :meth:`~matplotlib.figure.Figure.add_subplot` to find the overall size of the
+  axes/subplots. 
+
 * Removed call of :meth:`~matplotlib.axes.Axes.grid` in
   :meth:`~matplotlib.pyplot.plotfile`. To draw the axes grid, set to *True*
   matplotlib.rcParams['axes.grid'] or ``axes.grid`` in ``.matplotlibrc`` or
