@@ -524,7 +524,7 @@ class Text(Artist):
         if renderer is not None:
             self._renderer = renderer
         if not self.get_visible(): return
-        if self.get_text()=='': return
+        if self.get_text().strip() == '': return
 
         renderer.open_group('text', self.get_gid())
 
@@ -1898,7 +1898,7 @@ class Annotation(Text, _AnnotationBase):
                         props = props.copy() # don't want to alter the pad externally
                         pad = props.pop('pad', 4)
                         pad = renderer.points_to_pixels(pad)
-                        if self.get_text() == "":
+                        if self.get_text().strip() == "":
                             self.arrow_patch.set_patchA(None)
                             return
 
