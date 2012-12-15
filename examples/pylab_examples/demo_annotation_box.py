@@ -69,7 +69,7 @@ if 1:
 
 
     from matplotlib._png import read_png
-    fn = get_sample_data("lena.png", asfileobj=False)
+    fn = get_sample_data("grace_hopper.png", asfileobj=False)
     arr_lena = read_png(fn)
 
     imagebox = OffsetImage(arr_lena, zoom=0.2)
