@@ -730,7 +730,7 @@ Here are the 0.98.4 notes from the CHANGELOG::
     Added mdehoon's native macosx backend from sf patch 2179017 - JDH
 
     Removed the prints in the set_*style commands.  Return the list of
-    preprinted strings instead - JDH
+    printed strings instead - JDH
 
     Some of the changes Michael made to improve the output of the
     property tables in the rest docs broke of made difficult to use
