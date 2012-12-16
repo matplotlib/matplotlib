@@ -496,7 +496,7 @@ and :ref:`what-is-a-backend`).
    Therefore, multiple calls to ``show`` are now allowed.
 
 Having ``show`` block further execution of the script or the python
-interperator depends on whether matplotlib is set for interactive mode
+interpreter depends on whether matplotlib is set for interactive mode
 or not.  In non-interactive mode (the default setting), execution is paused
 until the last figure window is closed.  In interactive mode, the execution
 is not paused, which allows you to create additional figures (but the script
