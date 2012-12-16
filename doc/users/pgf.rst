@@ -45,7 +45,7 @@ Rc parameters that control the behavior of the pgf backend:
 
 .. note::
 
-   TeX defines a set of secial characters, such as::
+   TeX defines a set of special characters, such as::
 
      # $ % & ~ _ ^ \ { }
 

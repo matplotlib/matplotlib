@@ -40,7 +40,7 @@ histograms and will return the bin counts or probabilities
 Path demo
 =========
 
-You can add aribitrary paths in matplotlib as of release 0.98.  See
+You can add arbitrary paths in matplotlib as of release 0.98.  See
 the :mod:`matplotlib.path`.
 
 .. plot:: mpl_examples/api/path_patch_demo.py

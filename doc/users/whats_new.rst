@@ -284,7 +284,7 @@ Tight Layout
 
 A frequent issue raised by users of matplotlib is the lack of a layout
 engine to nicely space out elements of the plots. While matplotlib still
-adheres to the philosphy of giving users complete control over the placement
+adheres to the philosophy of giving users complete control over the placement
 of plot elements, Jae-Joon Lee created the :mod:`~matplotlib.tight_layout`
 module and introduced a new
 command :func:`~matplotlib.pyplot.tight_layout`
@@ -673,7 +673,7 @@ multiple columns and rows, as well as fancy box drawing.  See
 Fancy annotations and arrows
 -----------------------------
 
-Jae-Joon has added lot's of support to annotations for drawing fancy
+Jae-Joon has added lots of support to annotations for drawing fancy
 boxes and connectors in annotations.  See
 :func:`~matplotlib.pyplot.annotate` and
 :class:`~matplotlib.patches.BoxStyle`,
@@ -707,7 +707,7 @@ Ryan May did a lot of work to rationalize the amplitude scaling of
 :func:`~matplotlib.pyplot.psd` and friends.  See
 :ref:`pylab_examples-psd_demo2`. and :ref:`pylab_examples-psd_demo3`.
 The changes should increase MATLAB
-compatabililty and increase scaling options.
+compatibility and increase scaling options.
 
 .. _fill-between:
 
@@ -717,7 +717,7 @@ Fill between
 Added a :func:`~matplotlib.pyplot.fill_between` function to make it
 easier to do shaded region plots in the presence of masked data.  You
 can pass an *x* array and a *ylower* and *yupper* array to fill
-betweem, and an optional *where* argument which is a logical mask
+between, and an optional *where* argument which is a logical mask
 where you want to do the filling.
 
 .. plot:: pyplots/whats_new_98_4_fill_between.py
@@ -730,14 +730,14 @@ Here are the 0.98.4 notes from the CHANGELOG::
     Added mdehoon's native macosx backend from sf patch 2179017 - JDH
 
     Removed the prints in the set_*style commands.  Return the list of
-    pprinted strings instead - JDH
+    printed strings instead - JDH
 
     Some of the changes Michael made to improve the output of the
     property tables in the rest docs broke of made difficult to use
     some of the interactive doc helpers, eg setp and getp.  Having all
     the rest markup in the ipython shell also confused the docstrings.
     I added a new rc param docstring.harcopy, to format the docstrings
-    differently for hardcopy and other use.  Ther ArtistInspector
+    differently for hardcopy and other use.  The ArtistInspector
     could use a little refactoring now since there is duplication of
     effort between the rest out put and the non-rest output - JDH
 
@@ -769,19 +769,19 @@ Here are the 0.98.4 notes from the CHANGELOG::
     are added. -JJL
 
     Fixed a bug in the new legend class that didn't allowed a tuple of
-    coordinate vlaues as loc. -JJL
+    coordinate values as loc. -JJL
 
     Improve checks for external dependencies, using subprocess
     (instead of deprecated popen*) and distutils (for version
     checking) - DSD
 
-    Reimplementaion of the legend which supports baseline alignement,
+    Reimplementation of the legend which supports baseline alignment,
     multi-column, and expand mode. - JJL
 
     Fixed histogram autoscaling bug when bins or range are given
     explicitly (fixes Debian bug 503148) - MM
 
-    Added rcParam axes.unicode_minus which allows plain hypen for
+    Added rcParam axes.unicode_minus which allows plain hyphen for
     minus when False - JDH
 
     Added scatterpoints support in Legend. patch by Erik Tollerud -
@@ -805,7 +805,7 @@ Here are the 0.98.4 notes from the CHANGELOG::
 
     Add 'pad_to' and 'sides' parameters to mlab.psd() to allow
     controlling of zero padding and returning of negative frequency
-    components, respecitively.  These are added in a way that does not
+    components, respectively.  These are added in a way that does not
     change the API. - RM
 
     Fix handling of c kwarg by scatter; generalize is_string_like to
