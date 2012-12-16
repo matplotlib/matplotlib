@@ -121,7 +121,7 @@ Baptiste Carvello
 
 Jeffrey Whitaker
   at `NOAA <http://www.boulder.noaa.gov>`_ wrote the
-  :ref:`toolkit_basemap` tookit
+  :ref:`toolkit_basemap` toolkit
 
 Sigve Tjoraand, Ted Drain, James Evans
   and colleagues at the `JPL <http://www.jpl.nasa.gov>`_ collaborated
@@ -163,7 +163,7 @@ Jouni K. Seppänen
   fixes to the code, to tex support and to the get_sample_data handler
 
 Paul Kienzle
-  improved the picking infrastruture for interactive plots, and with
+  improved the picking infrastructure for interactive plots, and with
   Alex Mont contributed fast rendering code for quadrilateral meshes.
 
 Michael Droettboom
