@@ -51,7 +51,7 @@ used as text labels. If label attribute is empty string or starts with
 Therefore, plots drawn by some *pyplot* commands are not supported by
 legend.  For example, :func:`~matplotlib.pyplot.fill_between` creates
 :class:`~matplotlib.collections.PolyCollection` that is not
-supported. Also support is limted for some commands that creat
+supported. Also support is limited for some commands that create
 multiple artists. For example, :func:`~matplotlib.pyplot.errorbar`
 creates multiples :class:`~matplotlib.lines.Line2D` instances.
 
@@ -253,7 +253,7 @@ For each *p_i*, matplotlib
      in the handler_map
 
 
-Unless specified, the defaul handler_map is used. Below is a partial
+Unless specified, the default handler_map is used. Below is a partial
 list of key-handler pairs included in the default handler map.
 
   * Line2D : legend_handler.HandlerLine2D()
@@ -281,7 +281,7 @@ instances (p1 and p2). ::
 In the above example, only *p1* will be handled by *my_handler*, while
 others will be handled by default handlers.
 
-The curent default handler_map has handlers for errorbar and bar
+The current default handler_map has handlers for errorbar and bar
 plots. Also, it includes an entry for `tuple` which is mapped to
 `HandlerTuple`. It simply plots over all the handles for items in the
 given tuple. For example,
@@ -310,7 +310,7 @@ Handler can be any callable object with following signature. ::
 
 Where *legend* is the legend itself, *orig_handle* is the original
 plot (*p_i* in the above example), *fontsize* is the fontsize in
-pixles, and *handlebox* is a OffsetBox instance. Within the call, you
+pixels, and *handlebox* is a OffsetBox instance. Within the call, you
 create relevant artists (using relevant properties from the *legend*
 and/or *orig_handle*) and add them into the handlebox. The artists
 needs to be scaled according to the fontsize (note that the size is in

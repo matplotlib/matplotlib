@@ -139,7 +139,7 @@ working with Sphinx in general. Here are a few additional things to keep in mind
   ``:file:`` directive.
 
 * Function arguments and keywords should be referred to using the *emphasis*
-  role. This will keep matplotlib's documentation consistant with Python's
+  role. This will keep matplotlib's documentation consistent with Python's
   documentation::
 
     Here is a description of *argument*
@@ -401,7 +401,7 @@ Internal section references
 ===========================
 
 To maximize internal consistency in section labeling and references,
-use hypen separated, descriptive labels for section references, eg::
+use hyphen separated, descriptive labels for section references, eg::
 
     .. _howto-webapp:
 
@@ -411,7 +411,7 @@ and refer to it using  the standard reference syntax::
 
 Keep in mind that we may want to reorganize the contents later, so
 let's avoid top level names in references like ``user`` or ``devel``
-or ``faq`` unless necesssary, because for example the FAQ "what is a
+or ``faq`` unless necessary, because for example the FAQ "what is a
 backend?" could later become part of the users guide, so the label::
 
     .. _what-is-a-backend
@@ -464,7 +464,7 @@ Emacs helpers
 
 There is an emacs mode `rst.el
 <http://docutils.sourceforge.net/tools/editors/emacs/rst.el>`_ which
-automates many important ReST tasks like building and updateing
+automates many important ReST tasks like building and updating
 table-of-contents, and promoting or demoting section headings.  Here
 is the basic ``.emacs`` configuration::
 
