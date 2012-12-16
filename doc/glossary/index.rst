@@ -58,7 +58,7 @@ Glossary
       <http://en.wikipedia.org/wiki/Portable_Network_Graphics>`_), a raster graphics format
       that employs lossless data compression which is more suitable
       for line art than the lossy jpg format. Unlike the gif format,
-      png is not encumbered by erements for a patent license.
+      png is not encumbered by requirements for a patent license.
 
   PS
       Postscript (`PS <http://en.wikipedia.org/wiki/PostScript>`_) is a
