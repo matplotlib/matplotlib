@@ -324,7 +324,7 @@ more control, it supports a few other options.
       annotate("Test", xy=(0.5, 1), xycoords=("data", "axes fraction"))
 
     0.5 is in data coordinate, and 1 is in normalized axes coordinate.
-    You may use an atist or transform as with a tuple. For example,
+    You may use an artist or transform as with a tuple. For example,
 
     .. plot:: users/plotting/examples/annotate_simple_coord02.py
        :include-source:

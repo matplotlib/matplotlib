@@ -162,7 +162,7 @@ Pull Requests (123):
 * :ghpull:`1074`: Added broadcasting support in some mplot3d methods
 * :ghpull:`1064`: Locator interface
 * :ghpull:`850`: Added tripcolor triangle-centred colour values.
-* :ghpull:`1093`: Exposed the callback id for the default key press handler so that it can be easily diabled. Fixes #215.
+* :ghpull:`1093`: Exposed the callback id for the default key press handler so that it can be easily disabled. Fixes #215.
 * :ghpull:`1065`: fixed conversion from pt to inch in tight_layout
 * :ghpull:`1082`: doc: in pcolormesh docstring, say what it does.
 * :ghpull:`1078`: doc: note that IDLE doesn't work with interactive mode.
@@ -192,7 +192,7 @@ Pull Requests (123):
 * :ghpull:`1002`: Fixed potential overflow exception in the lines.contains() method
 * :ghpull:`1025`: Timers
 * :ghpull:`989`: Animation subprocess bug
-* :ghpull:`898`: Added warnings for easily confusible subplot/subplots invokations
+* :ghpull:`898`: Added warnings for easily confusable subplot/subplots invocations
 * :ghpull:`963`: Add detection of file extension for file-like objects
 * :ghpull:`973`: Fix sankey.py pep8 and py3 compatibility
 * :ghpull:`972`: Force closing PIL image files
@@ -244,7 +244,7 @@ Issues (226):
 * :ghissue:`557`: Crash during date axis setup
 * :ghissue:`600`: errorbar(): kwarg 'markevery' not working as expected.
 * :ghissue:`174`: Memory leak in example simple_idle_wx.py
-* :ghissue:`232`: format in plot_direcitive sphinx>=1.0.6 compatible patch
+* :ghissue:`232`: format in plot_directive sphinx>=1.0.6 compatible patch
 * :ghissue:`1162`: FIX nose.tools.assert_is is only supported with python2.7
 * :ghissue:`1165`: tight_layout fails on twinx, twiny
 * :ghissue:`803`: Return arrow collection as 2nd argument of streamplot.
@@ -346,7 +346,7 @@ Issues (226):
 * :ghissue:`850`: Added tripcolor triangle-centred colour values.
 * :ghissue:`1059`: Matplotlib figure window freezes during interactive mode
 * :ghissue:`215`: skipping mpl-axes-interaction during  key_press_event\'s
-* :ghissue:`1093`: Exposed the callback id for the default key press handler so that it can be easily diabled. Fixes #215.
+* :ghissue:`1093`: Exposed the callback id for the default key press handler so that it can be easily disabled. Fixes #215.
 * :ghissue:`909`: Log Formatter for tick labels can't handle non-integer base
 * :ghissue:`1065`: fixed conversion from pt to inch in tight_layout
 * :ghissue:`1086`: Problem with subplot / matplotlib.dates interaction
@@ -403,7 +403,7 @@ Issues (226):
 * :ghissue:`1002`: Fixed potential overflow exception in the lines.contains() method
 * :ghissue:`1025`: Timers
 * :ghissue:`989`: Animation subprocess bug
-* :ghissue:`898`: Added warnings for easily confusible subplot/subplots invokations
+* :ghissue:`898`: Added warnings for easily confusable subplot/subplots invocations
 * :ghissue:`963`: Add detection of file extension for file-like objects
 * :ghissue:`973`: Fix sankey.py pep8 and py3 compatibility
 * :ghissue:`972`: Force closing PIL image files

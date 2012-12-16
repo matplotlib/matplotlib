@@ -1,7 +1,7 @@
 .. _release-guide:
 
 *************************
-Doing a matplolib release
+Doing a matplotlib release
 *************************
 
 A guide for developers who are doing a matplotlib release
