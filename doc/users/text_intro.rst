@@ -51,7 +51,7 @@ interface
    in the API.
 
 All of these functions create and return a
-:func:`matplotlib.text.Text` instance, which can bew configured with a
+:func:`matplotlib.text.Text` instance, which can be configured with a
 variety of font and other properties.  The example below shows all of
 these commands in action.
 
