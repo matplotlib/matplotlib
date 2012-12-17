@@ -148,7 +148,7 @@ from itertools import izip
 import numpy as np
 ma = np.ma
 from matplotlib import verbose
-from matplotlib import MatplotlibDeprecationWarning as mDeprecation
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
@@ -1209,7 +1209,7 @@ def liaupunov(x, fprime):
     """
 
     warnings.warn("This does not belong in matplotlib and will be removed",
-                    mDeprecation) # 2009/06/13
+                  mplDeprecation) # 2009/06/13
 
     return np.mean(np.log(np.absolute(fprime(x))))
 
@@ -1341,7 +1341,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
     for comma-separated values.
     """
 
-    warnings.warn("use numpy.savetxt", mDeprecation)  # 2009/06/13
+    warnings.warn("use numpy.savetxt", mplDeprecation)  # 2009/06/13
 
     if cbook.is_string_like(fname):
         if fname.endswith('.gz'):
@@ -1428,7 +1428,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
            Exercises many of these options.
     """
 
-    warnings.warn("use numpy.loadtxt", mDeprecation)  # 2009/06/13
+    warnings.warn("use numpy.loadtxt", mplDeprecation)  # 2009/06/13
 
     if converters is None: converters = {}
     fh = cbook.to_filehandle(fname)
