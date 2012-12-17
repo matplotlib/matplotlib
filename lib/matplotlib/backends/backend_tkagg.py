@@ -467,7 +467,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             # note, shift is not added to the keys as this is already accounted for
             for bitmask, prefix, key_name in modifiers:
                 if event.state & (1 << bitmask) and key_name not in key:
-                    key = '{}+{}'.format(prefix, key)
+                    key = '{0}+{1}'.format(prefix, key)
 
         return key
 

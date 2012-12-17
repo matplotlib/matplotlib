@@ -341,7 +341,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                                  [gdk.MOD1_MASK, 'alt'],
                                  [gdk.CONTROL_MASK, 'ctrl'], ):
             if event.state & key_mask:
-                key = '%s+%s' % (prefix, key)
+                key = '{0}+{1}'.format(prefix, key)
 
         return key
 
