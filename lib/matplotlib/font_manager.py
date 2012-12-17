@@ -565,7 +565,10 @@ def createFontList(fontfiles, fontext='ttf'):
             except RuntimeError:
                 verbose.report("Could not parse font file %s"%fpath)
                 continue
-            prop = afmFontProperty(fpath, font)
+            try:
+                prop = afmFontProperty(fpath, font)
+            except KeyError:
+                continue
         else:
             try:
                 font = ft2font.FT2Font(str(fpath))
@@ -576,7 +579,10 @@ def createFontList(fontfiles, fontext='ttf'):
                 verbose.report("Cannot handle unicode filenames")
                 #print >> sys.stderr, 'Bad file is', fpath
                 continue
-            prop = ttfFontProperty(font)
+            try:
+                prop = ttfFontProperty(font)
+            except KeyError:
+                continue
 
         fontlist.append(prop)
     return fontlist
