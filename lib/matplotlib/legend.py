@@ -31,7 +31,7 @@ from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 from matplotlib.offsetbox import DraggableOffsetBox
 
 from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
-from matplotlib import MatplotlibDeprecationWarning as mDeprecation
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 import legend_handler
 
 
@@ -279,7 +279,7 @@ class Legend(Artist):
             # counter part is None.
             if localdict[k] is not None and localdict[v] is None:
                 warnings.warn("Use '%s' instead of '%s'." % (v, k),
-                              mDeprecation)
+                              mplDeprecation)
                 setattr(self, v, localdict[k] * axessize_fontsize)
                 continue
 
