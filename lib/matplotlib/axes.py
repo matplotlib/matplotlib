@@ -37,6 +37,7 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
 iterable = cbook.iterable
@@ -154,8 +155,7 @@ def set_default_color_cycle(clist):
 
     """
     rcParams['axes.color_cycle'] = clist
-    warnings.warn("Set rcParams['axes.color_cycle'] directly",
-                  DeprecationWarning)
+    warnings.warn("Set rcParams['axes.color_cycle'] directly", mplDeprecation)
 
 
 class _process_plot_var_args(object):
@@ -1376,11 +1376,11 @@ class Axes(martist.Artist):
 
         .. deprecated:: 0.98
         """
-        raise DeprecationWarning('Use get_children instead')
+        raise mplDeprecation('Use get_children instead')
 
     def get_frame(self):
         """Return the axes Rectangle frame"""
-        warnings.warn('use ax.patch instead', DeprecationWarning)
+        warnings.warn('use ax.patch instead', mplDeprecation)
         return self.patch
 
     def get_legend(self):
@@ -3135,13 +3135,13 @@ class Axes(martist.Artist):
         disconnect to disconnect from the axes event
 
         """
-        raise DeprecationWarning('use the callbacks CallbackRegistry instance '
-                                 'instead')
+        raise mplDeprecation('use the callbacks CallbackRegistry instance '
+                             'instead')
 
     def disconnect(self, cid):
         """disconnect from the Axes event."""
-        raise DeprecationWarning('use the callbacks CallbackRegistry instance '
-                                 'instead')
+        raise mplDeprecation('use the callbacks CallbackRegistry instance '
+                             'instead')
 
     def get_children(self):
         """return a list of child artists"""
@@ -3192,8 +3192,8 @@ class Axes(martist.Artist):
         the artist and the artist has picker set
         """
         if len(args) > 1:
-            raise DeprecationWarning('New pick API implemented -- '
-                                     'see API_CHANGES in the src distribution')
+            raise mplDeprecation('New pick API implemented -- '
+                                 'see API_CHANGES in the src distribution')
         martist.Artist.pick(self, args[0])
 
     ### Labelling
@@ -3691,9 +3691,9 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/hline_demo.py
         """
         if kwargs.get('fmt') is not None:
-            raise DeprecationWarning('hlines now uses a '
-                                     'collections.LineCollection and not a '
-                                     'list of Line2D to draw; see API_CHANGES')
+            raise mplDeprecation('hlines now uses a '
+                                 'collections.LineCollection and not a '
+                                 'list of Line2D to draw; see API_CHANGES')
 
         # We do the conversion first since not all unitized data is uniform
         # process the unit information
@@ -3773,9 +3773,9 @@ class Axes(martist.Artist):
         """
 
         if kwargs.get('fmt') is not None:
-            raise DeprecationWarning('vlines now uses a '
-                                     'collections.LineCollection and not a '
-                                     'list of Line2D to draw; see API_CHANGES')
+            raise mplDeprecation('vlines now uses a '
+                                 'collections.LineCollection and not a '
+                                 'list of Line2D to draw; see API_CHANGES')
 
         self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
 
@@ -6074,7 +6074,7 @@ class Axes(martist.Artist):
             edgecolors = 'none'
             warnings.warn(
                 '''replace "faceted=False" with "edgecolors='none'"''',
-                DeprecationWarning)  # 2008/04/18
+                mplDeprecation)  # 2008/04/18
 
         # to be API compatible
         if marker is None and not (verts is None):
@@ -8002,7 +8002,7 @@ class Axes(martist.Artist):
                 "orientation kwarg %s is not recognized" % orientation)
 
         if kwargs.get('width') is not None:
-            raise DeprecationWarning(
+            raise mplDeprecation(
                 'hist now uses the rwidth to give relative width '
                 'and not absolute width')
 
@@ -8735,7 +8735,7 @@ class Axes(martist.Artist):
         """
         if precision is None:
             precision = 0
-            warnings.DeprecationWarning("Use precision=0 instead of None")
+            warnings.warn("Use precision=0 instead of None", mplDeprecation)
             # 2008/10/03
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
