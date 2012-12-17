@@ -1,7 +1,7 @@
 import warnings
 
 from matplotlib import path
-from matplotlib import MatplotlibDeprecationWarning as mDeprecation
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 def pnpoly(x, y, xyverts):
     """
@@ -20,7 +20,7 @@ def pnpoly(x, y, xyverts):
     warnings.warn(
         "nxutils is deprecated.  Use matplotlib.path.Path.contains_point"
         " instead.",
-        mDeprecation)
+        mplDeprecation)
 
     p = path.Path(xyverts)
     return p.contains_point(x, y)
@@ -45,7 +45,7 @@ def points_inside_poly(xypoints, xyverts):
     warnings.warn(
         "nxutils is deprecated.  Use matplotlib.path.Path.contains_points"
         " instead.",
-        mDeprecation)
+        mplDeprecation)
 
     p = path.Path(xyverts)
     return p.contains_points(xypoints)
