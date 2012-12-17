@@ -307,6 +307,15 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         ]
 
     def _init_toolbar(self):
+        jqueryui_icons = ['ui-icon ui-icon-home',
+            'ui-icon ui-icon-circle-arrow-w',
+            'ui-icon ui-icon-circle-arrow-e', None,
+            'ui-icon ui-icon-arrow-4',
+            'ui-icon ui-icon-search',
+            'ui-icon ui-icon-disk']
+        for index, item in enumerate(self.toolitems):
+            if item[0] is not None:
+                self.toolitems[index]=(item[0],item[1],jqueryui_icons[index],item[3])
         self.message = ''
         self.cursor = 0
 
@@ -436,6 +445,18 @@ class WebAggApplication(tornado.web.Application):
             (r'/images/(.*)', tornado.web.StaticFileHandler,
              {'path':
               os.path.join(os.path.dirname(__file__), '../mpl-data/images')}),
+            (r'/static/jquery/css/themes/base/(.*)', tornado.web.StaticFileHandler,
+             {'path':
+              os.path.join(os.path.dirname(__file__), 'web_static/jquery/css/themes/base')}),
+            (r'/static/jquery/css/themes/base/images/(.*)', tornado.web.StaticFileHandler,
+             {'path':
+              os.path.join(os.path.dirname(__file__), 'web_static/jquery/css/themes/base/images')}),
+            (r'/static/jquery/js/(.*)', tornado.web.StaticFileHandler,
+             {'path':
+              os.path.join(os.path.dirname(__file__), 'web_static/jquery/js')}), 
+            (r'/static/css/(.*)', tornado.web.StaticFileHandler,
+             {'path':
+              os.path.join(os.path.dirname(__file__), 'web_static/css')}),
             # An MPL favicon
             (r'/favicon.ico', self.FavIcon),
             # The page that contains all of the pieces
