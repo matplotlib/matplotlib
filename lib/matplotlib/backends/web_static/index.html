@@ -1,12 +1,17 @@
 <html>
   <head>
     <script src="/static/mpl.js"></script>
-    <link href="/static/mpl.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="/static/css/page.css" type="text/css">
+    <link rel="stylesheet" href="/static/css/boilerplate.css" type="text/css" />
+    <link rel="stylesheet" href="/static/css/fbm.css" type="text/css" />
+	<link rel="stylesheet" href="/static/jquery/css/themes/base/jquery-ui.min.css" >
+	<script src="/static/jquery/js/jquery-1.7.1.min.js"></script>
+	<script src="/static/jquery/js/jquery-ui.min.js"></script>
   </head>
   <body
      onkeydown="key_event(event, 'key_press')"
      onkeyup="key_event(event, 'key_release')">
-    <div id="mpl-div">
+    <div style="margin-left: auto ; margin-right: auto ; width: 800px;">
       <div id="mpl-warnings" class="mpl-warnings">
       </div>
 
@@ -27,30 +32,33 @@
         </canvas>
       </div>
 
-      <div id="toolbar">
+      <div id="toolbar" class="ui-widget ui-widget-content"
+	   style="border-top-style: none; border-left-style: none; border-right-style: none; border-bottom-style: none;">
         {% for name, tooltip, image, method in toolitems %}
           {% if name is None %}
-            <span class="mpl-toolbar-spacer"></span>
+            <span style='width: 0.1em'></span>
           {% else %}
             <button id="{{ name }}"
-                    class="mpl-toolbar-button"
                     onclick="toolbar_button_onclick('{{ method }}');"
-                    onmouseover="toolbar_button_onmouseover('{{ tooltip }}');"
-                    role="button">
-              <img src="/images/{{ image }}.png" width="24" height="24"
-                   alt="{{ tooltip }}"/>
+                    role="button"
+					style="margin-top: 0px;"
+					class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only">
+              <span class="ui-button-icon-primary ui-icon {{ image }} ui-corner-all"></span>
+			  <span class="ui-button-text">{{ tooltip }}</span>
             </button>
           {% end %}
         {% end %}
-        <select id="mpl-format" class="mpl-toolbar-option">
-          {% for filetype, extensions in sorted(canvas.get_supported_filetypes_grouped().items()) %}
-             <option value="{{ extensions[0] }}"
-             {% if extensions[0] == canvas.get_default_filetype() %}
-                selected
-             {% end %}
-             >{{filetype}} ({{", ".join(extensions)}})</option>
-          {% end %}
-        </select>
+		<span>
+	        <select id="mpl-format" class="mpl-toolbar-option ui-widget ui-widget-content" style="margin-top: 0px;">
+	          {% for filetype, extensions in sorted(canvas.get_supported_filetypes_grouped().items()) %}
+	             <option value="{{ extensions[0] }}"
+	             {% if extensions[0] == canvas.get_default_filetype() %}
+	                selected
+	             {% end %}
+	             >{{filetype}} ({{", ".join(extensions)}})</option>
+	          {% end %}
+	        </select>
+		</span>
         <span id="mpl-message" class="mpl-message"/>
       </div>
     </div>

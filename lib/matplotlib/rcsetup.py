@@ -387,7 +387,7 @@ defaultParams = {
     'backend'           : ['Agg', validate_backend], # agg is certainly present
     'backend_fallback'  : [True, validate_bool], # agg is certainly present
     'backend.qt4'       : ['PyQt4', validate_qt4],
-    'webagg.port'       : [8888, validate_int],
+    'webagg.port'       : [8988, validate_int],
     'webagg.open_in_browser' : [True, validate_bool],
     'webagg.port_retries' : [50, validate_int],
     'toolbar'           : ['toolbar2', validate_toolbar],
