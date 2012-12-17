@@ -46,7 +46,7 @@ import cStringIO
 import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
-from matplotlib import MatplotlibDeprecationWarning as mDeprecation
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 try:
     from PIL import Image
@@ -2275,7 +2275,7 @@ class FigureCanvasBase(object):
         """
         str = "Using default event loop until function specific"
         str += " to this GUI is implemented"
-        warnings.warn(str, mDeprecation)
+        warnings.warn(str, mplDeprecation)
 
         if timeout <= 0: timeout = np.inf
         timestep = 0.01

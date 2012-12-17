@@ -12,7 +12,7 @@ import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
-from matplotlib import MatplotlibDeprecationWarning as mDeprecation
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
@@ -1269,7 +1269,7 @@ class Circle(Ellipse):
             import warnings
             warnings.warn('Circle is now scale free.  '
                           'Use CirclePolygon instead!',
-                          mDeprecation)
+                          mplDeprecation)
             kwargs.pop('resolution')
 
         self.radius = radius
