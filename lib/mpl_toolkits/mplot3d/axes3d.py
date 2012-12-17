@@ -1389,7 +1389,7 @@ class Axes3D(Axes):
             This function was added, but not tested. Please report any bugs.
         """
         bottom, top = self.get_zlim()
-        self.set_zlim(top, bottom)
+        self.set_zlim(top, bottom, auto=None)
 
     def zaxis_inverted(self):
         '''
