@@ -541,7 +541,7 @@ class Text(Artist):
             self._renderer = renderer
         if not self.get_visible():
             return
-        if self.get_text() == '':
+        if self.get_text().strip() == '':
             return
 
         renderer.open_group('text', self.get_gid())
@@ -755,7 +755,7 @@ class Text(Artist):
         if dpi is not None:
             dpi_orig = self.figure.dpi
             self.figure.dpi = dpi
-        if self.get_text() == '':
+        if self.get_text().strip() == '':
             tx, ty = self._get_xy_display()
             return Bbox.from_bounds(tx, ty, 0, 0)
 
@@ -1926,7 +1926,7 @@ class Annotation(Text, _AnnotationBase):
                         props = props.copy()
                         pad = props.pop('pad', 4)
                         pad = renderer.points_to_pixels(pad)
-                        if self.get_text() == "":
+                        if self.get_text().strip() == "":
                             self.arrow_patch.set_patchA(None)
                             return
 
