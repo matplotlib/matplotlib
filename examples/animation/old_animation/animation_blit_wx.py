@@ -26,7 +26,7 @@ if '--no-accel' in sys.argv:
 
 
 fig, ax = plt.subplots()
-canvas = ax.figure.canvas
+canvas = fig.canvas
 
 
 p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs

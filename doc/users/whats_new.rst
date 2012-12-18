@@ -36,10 +36,10 @@ extensions rectangular instead of triangular.
 Examples now use subplots()
 ---------------------------
 For the sake of brevity and clarity, most of the :ref:`examples
-<examples-index>` now use the newer :func:`~matplotlib.pyplot.subplots`
-, which creates a figure and one (or multiple) axes object(s) in one
-call. The old way involved a call to :func:`~matplotlib.pyplot.figure`,
-followed by one (or multiple) :func:`~matplotlib.pyplot.subplot` calls.
+<examples-index>` now use the newer :func:`~matplotlib.pyplot.subplots`, which
+creates a figure and one (or multiple) axes object(s) in one call. The old way
+involved a call to :func:`~matplotlib.pyplot.figure`, followed by one (or
+multiple) :func:`~matplotlib.pyplot.subplot` calls.
 
 Calling subplot() without arguments
 -----------------------------------
