@@ -2429,7 +2429,7 @@ class Axes(martist.Artist):
     def invert_xaxis(self):
         "Invert the x-axis."
         left, right = self.get_xlim()
-        self.set_xlim(right, left)
+        self.set_xlim(right, left, auto=None)
 
     def xaxis_inverted(self):
         """Returns *True* if the x-axis is inverted."""
@@ -2655,7 +2655,7 @@ class Axes(martist.Artist):
         Invert the y-axis.
         """
         bottom, top = self.get_ylim()
-        self.set_ylim(top, bottom)
+        self.set_ylim(top, bottom, auto=None)
 
     def yaxis_inverted(self):
         """Returns *True* if the y-axis is inverted."""
@@ -6075,6 +6075,12 @@ class Axes(martist.Artist):
             warnings.warn(
                 '''replace "faceted=False" with "edgecolors='none'"''',
                 mplDeprecation)  # 2008/04/18
+<<<<<<< HEAD
+=======
+
+        sym = None
+        symstyle = 0
+>>>>>>> upstream/v1.2.x
 
         # to be API compatible
         if marker is None and not (verts is None):
@@ -8632,7 +8638,7 @@ class Axes(martist.Artist):
         spectrum is shown.  If *x* is complex, both positive and
         negative parts of the spectrum are shown.  This can be
         overridden using the *sides* keyword argument.
-        
+
         Also note that while the plot is in dB, the *Pxx* array returned is
         linear in power.
 

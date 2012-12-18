@@ -852,28 +852,24 @@ FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds)
     {
         std::ostringstream s;
         s << "Could not load facefile " << facefile << "; Unknown_File_Format" << std::endl;
-        ob_refcnt--;
         throw Py::RuntimeError(s.str());
     }
     else if (error == FT_Err_Cannot_Open_Resource)
     {
         std::ostringstream s;
         s << "Could not open facefile " << facefile << "; Cannot_Open_Resource" << std::endl;
-        ob_refcnt--;
         throw Py::RuntimeError(s.str());
     }
     else if (error == FT_Err_Invalid_File_Format)
     {
         std::ostringstream s;
         s << "Could not open facefile " << facefile << "; Invalid_File_Format" << std::endl;
-        ob_refcnt--;
         throw Py::RuntimeError(s.str());
     }
     else if (error)
     {
         std::ostringstream s;
         s << "Could not open facefile " << facefile << "; freetype error code " << error << std::endl;
-        ob_refcnt--;
         throw Py::RuntimeError(s.str());
     }
 
@@ -891,7 +887,6 @@ FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds)
     {
         std::ostringstream s;
         s << "Could not set the fontsize for facefile  " << facefile << std::endl;
-        ob_refcnt--;
         throw Py::RuntimeError(s.str());
     }
 
