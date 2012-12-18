@@ -1,8 +1,8 @@
 import warnings
-from matplotlib import MatplotlibDeprecationWarning as mDeprecation
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 warnings.warn(
     "matplotlib.mpl is deprecated and will be removed in the next release."
-    "Please use `import matplotlib as mpl` instead", mDeprecation)
+    "Please use `import matplotlib as mpl` instead", mplDeprecation)
 from matplotlib import artist
 from matplotlib import axis
 from matplotlib import axes
