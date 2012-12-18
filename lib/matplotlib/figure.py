@@ -318,7 +318,6 @@ class Figure(Artist):
         self.patch.set_aa(False)
 
         self._hold = rcParams['axes.hold']
-        self.canvas = None
 
         if subplotpars is None:
             subplotpars = SubplotParams()
@@ -327,8 +326,16 @@ class Figure(Artist):
         self.set_tight_layout(tight_layout)
 
         self._axstack = AxesStack()  # track all figure axes and current axes
+        self._axobservers = []
+        self.canvas = self._setup_canvas()
         self.clf()
         self._cachedRenderer = None
+
+    def _setup_canvas(self):
+        import matplotlib.backends as mbackends
+        backend_mod, _, _, _ = mbackends.pylab_setup()
+        manager = backend_mod.new_figure_manager_given_figure(1, self)
+        return manager.canvas
 
     def show(self, warn=True):
         """
@@ -360,6 +367,9 @@ class Figure(Artist):
             warnings.warn(
                 "matplotlib is currently using a non-GUI backend, "
                 "so cannot show the figure")
+
+    def update(self):
+        self.canvas.draw_idle()
 
     def _get_axes(self):
         return self._axstack.as_list()
