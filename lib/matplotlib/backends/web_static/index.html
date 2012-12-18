@@ -1,17 +1,30 @@
 <html>
-  <head>
-    <script src="/static/mpl.js"></script>
+  <head>   
     <link rel="stylesheet" href="/static/css/page.css" type="text/css">
     <link rel="stylesheet" href="/static/css/boilerplate.css" type="text/css" />
     <link rel="stylesheet" href="/static/css/fbm.css" type="text/css" />
 	<link rel="stylesheet" href="/static/jquery/css/themes/base/jquery-ui.min.css" >
 	<script src="/static/jquery/js/jquery-1.7.1.min.js"></script>
 	<script src="/static/jquery/js/jquery-ui.min.js"></script>
+	<script src="/static/mpl.js"></script>
+	<script>
+	$(function(){
+		// Hover states on the static widgets
+	$( ".ui-button" ).hover(
+			function() {
+				$( this ).addClass( "ui-state-hover" );
+			},
+			function() {
+				$( this ).removeClass( "ui-state-hover" );
+			}
+		);
+	});
+	</script>
   </head>
   <body
      onkeydown="key_event(event, 'key_press')"
      onkeyup="key_event(event, 'key_release')">
-    <div style="margin-left: auto ; margin-right: auto ; width: 800px;">
+    <div id="mpl-div" style="margin-left: auto ; margin-right: auto ; width: 800px;">
       <div id="mpl-warnings" class="mpl-warnings">
       </div>
 
@@ -41,7 +54,7 @@
             <button id="{{ name }}"
                     onclick="toolbar_button_onclick('{{ method }}');"
                     role="button"
-					style="margin-top: 0px;"
+					aria-disabled="false"
 					class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only">
               <span class="ui-button-icon-primary ui-icon {{ image }} ui-corner-all"></span>
 			  <span class="ui-button-text">{{ tooltip }}</span>
