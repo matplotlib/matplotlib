@@ -874,7 +874,7 @@ class Figure(Artist):
                 if isinstance(ax, projection_class):
                     # the axes already existed, so set it as active & return
                     self.sca(ax)
-                    self._rect_largest( ax ) 
+                    self._set_bigextents( ax ) 
                     return ax
                 else:
                     # Undocumented convenience behavior:
