@@ -1,36 +1,61 @@
 # -*- coding: UTF-8 -*-
+import os
+import re
+import glob
+import warnings
 
-# generate a thumbnail gallery of examples
-template = """\
-{%% extends "layout.html" %%}
-{%% set title = "Thumbnail gallery" %%}
-
-
-{%% block body %%}
-
-<h3>Click on any image to see full size image and source code</h3>
-<br/>
-
-<li><a class="reference internal" href="#">Gallery</a><ul>
-%s
-</ul>
-</li>
-
-%s
-{%% endblock %%}
-"""
-
-import os, glob, re, sys, warnings
 import matplotlib.image as image
 
 multiimage = re.compile('(.*?)(_\d\d){1,2}')
 
+
+# generate a thumbnail gallery of examples
+gallery_template = """\
+{{% extends "layout.html" %}}
+{{% set title = "Thumbnail gallery" %}}
+
+
+{{% block body %}}
+
+<h3>Click on any image to see full size image and source code</h3>
+<br/>
+
+<li><a class="reference internal" href="#">Gallery</a>
+    <ul>
+    {toc}
+    </ul>
+</li>
+
+{gallery}
+
+{{% endblock %}}
+"""
+
+header_template = """\
+<div class="section" id="{section}">
+<h4>
+    {title}<a class="headerlink" href="#{section}" title="Permalink to this headline">¶</a>
+</h4>"""
+
+link_template = """\
+<a href="{link}"><img src="{thumb}" border="0" alt="{basename}"/></a>
+"""
+
+toc_template = """\
+<li><a class="reference internal" href="#{section}">{section}</a></li>"""
+
+
+custom_titles = {'pylab_examples' : 'pylab examples'}
+
+
 def make_thumbnail(args):
     image.thumbnail(args[0], args[1], 0.3)
+
 
 def out_of_date(original, derived):
     return (not os.path.exists(derived) or
             os.stat(derived).st_mtime < os.stat(original).st_mtime)
+
 
 def gen_gallery(app, doctree):
     if app.builder.name != 'html':
@@ -52,22 +77,12 @@ def gen_gallery(app, doctree):
     thumbnails = {}
     rows = []
     toc_rows = []
-
-    link_template = """\
-    <a href="%s"><img src="%s" border="0" alt="%s"/></a>
-    """
-
-    header_template = """<div class="section" id="%s">\
-    <h4>%s<a class="headerlink" href="#%s" title="Permalink to this headline">¶</a></h4>"""
-
-    toc_template = """\
-    <li><a class="reference internal" href="#%s">%s</a></li>"""
-
     dirs = ('api', 'pylab_examples', 'mplot3d', 'widgets', 'axes_grid' )
 
     for subdir in dirs :
-        rows.append(header_template % (subdir, subdir, subdir))
-        toc_rows.append(toc_template % (subdir, subdir))
+        title = custom_titles.get(subdir, subdir)
+        rows.append(header_template.format(title=title, section=subdir))
+        toc_rows.append(toc_template.format(section=subdir))
 
         origdir = os.path.join('build', rootdir, subdir)
         thumbdir = os.path.join(outdir, rootdir, subdir, 'thumbnails')
@@ -99,13 +114,12 @@ def gen_gallery(app, doctree):
             data.append((subdir, basename,
                          os.path.join(rootdir, subdir, 'thumbnails', filename)))
 
-
-
-
         for (subdir, basename, thumbfile) in data:
             if thumbfile is not None:
                 link = 'examples/%s/%s.html'%(subdir, basename)
-                rows.append(link_template%(link, thumbfile, basename))
+                rows.append(link_template.format(link=link,
+                                                 thumb=thumbfile,
+                                                 basename=basename))
 
         if len(data) == 0:
             warnings.warn("No thumbnails were found in %s" % subdir)
@@ -113,19 +127,21 @@ def gen_gallery(app, doctree):
         # Close out the <div> opened up at the top of this loop
         rows.append("</div>")
 
-    content = template % ('\n'.join(toc_rows),
-                          '\n'.join(rows))
+    content = gallery_template.format(toc='\n'.join(toc_rows),
+                                      gallery='\n'.join(rows))
 
     # Only write out the file if the contents have actually changed.
     # Otherwise, this triggers a full rebuild of the docs
 
-    gallery_path = os.path.join(app.builder.srcdir, '_templates', 'gallery.html')
+    gallery_path = os.path.join(app.builder.srcdir,
+                                '_templates', 'gallery.html')
     if os.path.exists(gallery_path):
         fh = file(gallery_path, 'r')
         regenerate = fh.read() != content
         fh.close()
     else:
         regenerate = True
+
     if regenerate:
         fh = file(gallery_path, 'w')
         fh.write(content)
@@ -135,6 +151,7 @@ def gen_gallery(app, doctree):
         thumbnails.iterkeys(), "generating thumbnails... ",
         length=len(thumbnails)):
         image.thumbnail(key, thumbnails[key], 0.3)
+
 
 def setup(app):
     app.connect('env-updated', gen_gallery)
