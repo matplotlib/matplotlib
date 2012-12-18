@@ -14,7 +14,7 @@ def add_sizebar(ax, size):
    ax.add_artist(asb)
 
 
-fig, (ax,ax2) = plt.subplots(1,2, figsize=[5.5, 3])
+fig, (ax, ax2) = plt.subplots(1, 2, figsize=[5.5, 3])
 
 # first subplot
 ax.set_aspect(1.)
