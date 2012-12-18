@@ -6075,12 +6075,6 @@ class Axes(martist.Artist):
             warnings.warn(
                 '''replace "faceted=False" with "edgecolors='none'"''',
                 mplDeprecation)  # 2008/04/18
-<<<<<<< HEAD
-=======
-
-        sym = None
-        symstyle = 0
->>>>>>> upstream/v1.2.x
 
         # to be API compatible
         if marker is None and not (verts is None):
