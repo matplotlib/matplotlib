@@ -5,8 +5,9 @@ we put a tick mark on every 5th easter
 
 See https://moin.conectiva.com.br/DateUtil for help with rrules
 """
-from pylab import *
+import matplotlib.pyplot as plt
 from matplotlib.dates import YEARLY, DateFormatter, rrulewrapper, RRuleLocator, drange
+import numpy as np
 import datetime
 
 # tick every 5th easter
@@ -18,14 +19,14 @@ date2 = datetime.date( 2004, 4, 12 )
 delta = datetime.timedelta(days=100)
 
 dates = drange(date1, date2, delta)
-s = rand(len(dates)) # make up some random y values
+s = np.random.rand(len(dates)) # make up some random y values
 
 
-ax = subplot(111)
-plot_date(dates, s)
+fig, ax = plt.subplots()
+plt.plot_date(dates, s)
 ax.xaxis.set_major_locator(loc)
 ax.xaxis.set_major_formatter(formatter)
 labels = ax.get_xticklabels()
-setp(labels, rotation=30, fontsize=10)
+plt.setp(labels, rotation=30, fontsize=10)
 
-show()
+plt.show()

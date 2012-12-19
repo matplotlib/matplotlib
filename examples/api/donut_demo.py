@@ -18,8 +18,7 @@ def make_circle(r):
 
 Path = mpath.Path
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 inside_vertices = make_circle(0.5)
 outside_vertices = make_circle(1.0)

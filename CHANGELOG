@@ -23,6 +23,10 @@
 
 2012-11-09 Make plt.subplot() without arguments act as subplot(111) - PI
 
+2012-11-08 Replaced plt.figure and plt.subplot calls by the newer, more
+           convenient single call to plt.subplots() in the documentation
+           examples - PI
+
 2012-10-05 Add support for saving animations as animated GIFs. - JVDP
 
 2012-08-11 Fix path-closing bug in patches.Polygon, so that regardless

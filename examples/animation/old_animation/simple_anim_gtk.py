@@ -9,9 +9,7 @@ matplotlib.use('GTKAgg') # do this before importing pylab
 
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 def animate():
     tstart = time.time()                 # for profiling

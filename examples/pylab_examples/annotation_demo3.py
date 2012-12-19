@@ -1,10 +1,6 @@
 import matplotlib.pyplot as plt
 
-fig = plt.figure(1)
-fig.clf()
-
-ax1 = plt.subplot(121)
-ax2 = plt.subplot(122)
+fig, (ax1, ax2) = plt.subplots(1, 2)
 
 bbox_args = dict(boxstyle="round", fc="0.8")
 arrow_args = dict(arrowstyle="->")

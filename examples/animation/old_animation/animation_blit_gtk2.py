@@ -148,9 +148,8 @@ class UpdateLine(object):
 
 
 plt.rcParams["text.usetex"] = False
-fig = plt.figure()
 
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.xaxis.set_animated(True)
 ax.yaxis.set_animated(True)
 canvas = fig.canvas

@@ -1,12 +1,10 @@
-import numpy as np
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
 Path = mpath.Path
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 pathdata = [
     (Path.MOVETO, (1.58, -2.57)),
