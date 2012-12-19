@@ -617,15 +617,6 @@ bool Triangulation::is_masked(int tri) const
     return _mask && *((bool*)PyArray_DATA(_mask) + tri);
 }
 
-bool Triangulation::is_triangle_point(int tri, int point) const
-{
-    assert(tri >= 0 && tri < _ntri && "Triangle index out of bounds.");
-    assert(point >= 0 && point < _npoints && "Point index out of bounds.");
-    return (get_triangle_point(tri,0) == point ||
-            get_triangle_point(tri,1) == point ||
-            get_triangle_point(tri,2) == point);
-}
-
 Py::Object Triangulation::set_mask(const Py::Tuple &args)
 {
     _VERBOSE("Triangulation::set_mask");
@@ -1145,7 +1136,8 @@ TrapezoidMapTriFinder::~TrapezoidMapTriFinder()
     clear();
 }
 
-bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
+bool
+TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
 {
     std::vector<Trapezoid*> trapezoids;
     if (!find_trapezoids_intersecting_edge(edge, trapezoids))
@@ -1162,8 +1154,7 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
     // Replace each old trapezoid with 2+ new trapezoids, and replace its
     // corresponding nodes in the search tree with new nodes.
     unsigned int ntraps = trapezoids.size();
-    for (unsigned int i = 0; i < ntraps; ++i)
-    {
+    for (unsigned int i = 0; i < ntraps; ++i) {
         Trapezoid* old = trapezoids[i];  // old trapezoid to replace.
         bool start_trap = (i == 0);
         bool end_trap = (i == ntraps-1);
@@ -1183,8 +1174,7 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
         // that intersect the edge inserted.  There is some code duplication
         // here but it is much easier to understand this way rather than
         // interleave the 4 different cases with many more if-statements.
-        if (start_trap && end_trap)
-        {
+        if (start_trap && end_trap) {
             // Edge intersects a single trapezoid.
             if (have_left)
                 left = new Trapezoid(old->left, p, old->below, old->above);
@@ -1194,34 +1184,29 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
                 right = new Trapezoid(q, old->right, old->below, old->above);
 
             // Set pairs of trapezoid neighbours.
-            if (have_left)
-            {
+            if (have_left) {
                 left->set_lower_left(old->lower_left);
                 left->set_upper_left(old->upper_left);
                 left->set_lower_right(below);
                 left->set_upper_right(above);
             }
-            else
-            {
+            else {
                 below->set_lower_left(old->lower_left);
                 above->set_upper_left(old->upper_left);
             }
 
-            if (have_right)
-            {
+            if (have_right) {
                 right->set_lower_right(old->lower_right);
                 right->set_upper_right(old->upper_right);
                 below->set_lower_right(right);
                 above->set_upper_right(right);
             }
-            else
-            {
+            else {
                 below->set_lower_right(old->lower_right);
                 above->set_upper_right(old->upper_right);
             }
         }
-        else if (start_trap)
-        {
+        else if (start_trap) {
             // Old trapezoid is the first of 2+ trapezoids that the edge
             // intersects.
             if (have_left)
@@ -1230,15 +1215,13 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
             above = new Trapezoid(p, old->right, edge, old->above);
 
             // Set pairs of trapezoid neighbours.
-            if (have_left)
-            {
+            if (have_left) {
                 left->set_lower_left(old->lower_left);
                 left->set_upper_left(old->upper_left);
                 left->set_lower_right(below);
                 left->set_upper_right(above);
             }
-            else
-            {
+            else {
                 below->set_lower_left(old->lower_left);
                 above->set_upper_left(old->upper_left);
             }
@@ -1246,20 +1229,17 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
             below->set_lower_right(old->lower_right);
             above->set_upper_right(old->upper_right);
         }
-        else if (end_trap)
-        {
+        else if (end_trap) {
             // Old trapezoid is the last of 2+ trapezoids that the edge
             // intersects.
-            if (left_below->below == old->below)
-            {
+            if (left_below->below == old->below) {
                 below = left_below;
                 below->right = q;
             }
             else
                 below = new Trapezoid(old->left, q, old->below, edge);
 
-            if (left_above->above == old->above)
-            {
+            if (left_above->above == old->above) {
                 above = left_above;
                 above->right = q;
             }
@@ -1270,22 +1250,19 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
                 right = new Trapezoid(q, old->right, old->below, old->above);
 
             // Set pairs of trapezoid neighbours.
-            if (have_right)
-            {
+            if (have_right) {
                 right->set_lower_right(old->lower_right);
                 right->set_upper_right(old->upper_right);
                 below->set_lower_right(right);
                 above->set_upper_right(right);
             }
-            else
-            {
+            else {
                 below->set_lower_right(old->lower_right);
                 above->set_upper_right(old->upper_right);
             }
 
             // Connect to new trapezoids replacing prevOld.
-            if (below != left_below)
-            {
+            if (below != left_below) {
                 below->set_upper_left(left_below);
                 if (old->lower_left == left_old)
                     below->set_lower_left(left_below);
@@ -1293,8 +1270,7 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
                     below->set_lower_left(old->lower_left);
             }
 
-            if (above != left_above)
-            {
+            if (above != left_above) {
                 above->set_lower_left(left_above);
                 if (old->upper_left == left_old)
                     above->set_upper_left(left_above);
@@ -1302,20 +1278,17 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
                     above->set_upper_left(old->upper_left);
             }
         }
-        else  // Middle trapezoid.
-        {
+        else {  // Middle trapezoid.
             // Old trapezoid is neither the first nor last of the 3+ trapezoids
             // that the edge intersects.
-            if (left_below->below == old->below)
-            {
+            if (left_below->below == old->below) {
                 below = left_below;
                 below->right = old->right;
             }
             else
                 below = new Trapezoid(old->left, old->right, old->below, edge);
 
-            if (left_above->above == old->above)
-            {
+            if (left_above->above == old->above) {
                 above = left_above;
                 above->right = old->right;
             }
@@ -1323,8 +1296,7 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
                 above = new Trapezoid(old->left, old->right, edge, old->above);
 
             // Connect to new trapezoids replacing prevOld.
-            if (below != left_below)  // below is new.
-            {
+            if (below != left_below) {  // below is new.
                 below->set_upper_left(left_below);
                 if (old->lower_left == left_old)
                     below->set_lower_left(left_below);
@@ -1332,8 +1304,7 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
                     below->set_lower_left(old->lower_left);
             }
 
-            if (above != left_above)  // above is new.
-            {
+            if (above != left_above) {  // above is new.
                 above->set_lower_left(left_above);
                 if (old->upper_left == left_old)
                     above->set_upper_left(left_above);
@@ -1369,8 +1340,7 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
         delete old_node;
 
         // Clearing up.
-        if (!end_trap)
-        {
+        if (!end_trap) {
             // Prepare for next loop.
             left_old = old;
             left_above = above;
@@ -1381,7 +1351,8 @@ bool TrapezoidMapTriFinder::add_edge_to_tree(const Edge& edge)
     return true;
 }
 
-void TrapezoidMapTriFinder::clear()
+void
+TrapezoidMapTriFinder::clear()
 {
     delete [] _points;
     _points = 0;
@@ -1392,7 +1363,8 @@ void TrapezoidMapTriFinder::clear()
     _tree = 0;
 }
 
-Py::Object TrapezoidMapTriFinder::find_many(const Py::Tuple& args)
+Py::Object
+TrapezoidMapTriFinder::find_many(const Py::Tuple& args)
 {
     args.verify_length(2);
 
@@ -1406,8 +1378,7 @@ Py::Object TrapezoidMapTriFinder::find_many(const Py::Tuple& args)
     for (int i = 0; ok && i < ndim; ++i)
         ok = (PyArray_DIM(x,i) == PyArray_DIM(y,i));
 
-    if (!ok)
-    {
+    if (!ok) {
         Py_XDECREF(x);
         Py_XDECREF(y);
         throw Py::ValueError("x and y must be array_like with same shape");
@@ -1430,14 +1401,16 @@ Py::Object TrapezoidMapTriFinder::find_many(const Py::Tuple& args)
     return Py::asObject((PyObject*)tri);
 }
 
-int TrapezoidMapTriFinder::find_one(const XY& xy)
+int
+TrapezoidMapTriFinder::find_one(const XY& xy)
 {
     const Node* node = _tree->search(xy);
     assert(node != 0 && "Search tree for point returned null node");
     return node->get_tri();
 }
 
-bool TrapezoidMapTriFinder::find_trapezoids_intersecting_edge(
+bool
+TrapezoidMapTriFinder::find_trapezoids_intersecting_edge(
     const Edge& edge,
     std::vector<Trapezoid*>& trapezoids)
 {
@@ -1445,24 +1418,20 @@ bool TrapezoidMapTriFinder::find_trapezoids_intersecting_edge(
     // checks to deal with simple colinear (i.e. invalid) triangles.
     trapezoids.clear();
     Trapezoid* trapezoid = _tree->search(edge);
-    if (trapezoid == 0)
-    {
+    if (trapezoid == 0) {
         assert(trapezoid != 0 && "search(edge) returns null trapezoid");
         return false;
     }
 
     trapezoids.push_back(trapezoid);
-    while (edge.right->is_right_of(*trapezoid->right))
-    {
+    while (edge.right->is_right_of(*trapezoid->right)) {
         int orient = edge.get_point_orientation(*trapezoid->right);
-        if (orient == 0)
-        {
+        if (orient == 0) {
             if (edge.point_below == trapezoid->right)
                 orient = +1;
             else if (edge.point_above == trapezoid->right)
                 orient = -1;
-            else
-            {
+            else {
                 assert(0 && "Unable to deal with point on edge");
                 return false;
             }
@@ -1473,8 +1442,7 @@ bool TrapezoidMapTriFinder::find_trapezoids_intersecting_edge(
         else if (orient == +1)
             trapezoid = trapezoid->upper_right;
 
-        if (trapezoid == 0)
-        {
+        if (trapezoid == 0) {
             assert(0 && "Expected trapezoid neighbor");
             return false;
         }
@@ -1484,7 +1452,8 @@ bool TrapezoidMapTriFinder::find_trapezoids_intersecting_edge(
     return true;
 }
 
-Py::Object TrapezoidMapTriFinder::get_tree_stats()
+Py::Object
+TrapezoidMapTriFinder::get_tree_stats()
 {
     _VERBOSE("TrapezoidMapTriFinder::get_tree_stats");
 
@@ -1502,12 +1471,14 @@ Py::Object TrapezoidMapTriFinder::get_tree_stats()
     return list;
 }
 
-const Triangulation& TrapezoidMapTriFinder::get_triangulation() const
+const Triangulation&
+TrapezoidMapTriFinder::get_triangulation() const
 {
     return *(Triangulation*)_triangulation.ptr();
 }
 
-void TrapezoidMapTriFinder::init_type()
+void
+TrapezoidMapTriFinder::init_type()
 {
     _VERBOSE("TrapezoidMapTriFinder::init_type");
 
@@ -1528,7 +1499,8 @@ void TrapezoidMapTriFinder::init_type()
                       "print_tree()");
 }
 
-Py::Object TrapezoidMapTriFinder::initialize()
+Py::Object
+TrapezoidMapTriFinder::initialize()
 {
     _VERBOSE("TrapezoidMapTriFinder::initialize");
 
@@ -1540,8 +1512,7 @@ Py::Object TrapezoidMapTriFinder::initialize()
     int npoints = triang.get_npoints();
     _points = new Point[npoints + 4];
     BoundingBox bbox;
-    for (int i = 0; i < npoints; ++i)
-    {
+    for (int i = 0; i < npoints; ++i) {
         XY xy = triang.get_point_coords(i);
         // Avoid problems with -0.0 values different from 0.0
         if (xy.x == -0.0)
@@ -1555,13 +1526,11 @@ Py::Object TrapezoidMapTriFinder::initialize()
     // Last 4 points are corner points of enclosing rectangle.  Enclosing
     // rectangle made slightly larger in case corner points are already in the
     // triangulation.
-    if (bbox.empty)
-    {
+    if (bbox.empty) {
         bbox.add(XY(0.0, 0.0));
         bbox.add(XY(1.0, 1.0));
     }
-    else
-    {
+    else {
         const double small = 0.1;  // Any value > 0.0
         bbox.expand( (bbox.upper - bbox.lower)*small );
     }
@@ -1572,25 +1541,23 @@ Py::Object TrapezoidMapTriFinder::initialize()
 
     // Set up edges array.
     // First the bottom and top edges of the enclosing rectangle.
-    _edges.push_back(Edge(&_points[npoints],   &_points[npoints+1], -1,-1,0,0));
-    _edges.push_back(Edge(&_points[npoints+2], &_points[npoints+3], -1,-1,0,0));
+    _edges.push_back(Edge(&_points[npoints],  &_points[npoints+1],-1,-1,0,0));
+    _edges.push_back(Edge(&_points[npoints+2],&_points[npoints+3],-1,-1,0,0));
 
     // Add all edges in the triangulation that point to the right.  Do not
     // explicitly include edges that point to the left as the neighboring
     // triangle will supply that, unless there is no such neighbor.
     int ntri = triang.get_ntri();
-    for (int tri = 0; tri < ntri; ++tri)
-    {
-        if (!triang.is_masked(tri))
-        {
-            for (int edge = 0; edge < 3; ++edge)
-            {
+    for (int tri = 0; tri < ntri; ++tri) {
+        if (!triang.is_masked(tri)) {
+            for (int edge = 0; edge < 3; ++edge) {
                 Point* start = _points + triang.get_triangle_point(tri,edge);
-                Point* end   = _points + triang.get_triangle_point(tri,(edge+1)%3);
-                Point* other = _points + triang.get_triangle_point(tri,(edge+2)%3);
+                Point* end   = _points +
+                               triang.get_triangle_point(tri,(edge+1)%3);
+                Point* other = _points +
+                               triang.get_triangle_point(tri,(edge+2)%3);
                 TriEdge neighbor = triang.get_neighbor_edge(tri,edge);
-                if (end->is_right_of(*start))
-                {
+                if (end->is_right_of(*start)) {
                     const Point* neighbor_point_below = (neighbor.tri == -1) ?
                         0 : _points + triang.get_triangle_point(
                                           neighbor.tri, (neighbor.edge+2)%3);
@@ -1618,8 +1585,7 @@ Py::Object TrapezoidMapTriFinder::initialize()
 
     // Add edges, one at a time, to tree.
     unsigned int nedges = _edges.size();
-    for (unsigned int index = 2; index < nedges; ++index)
-    {
+    for (unsigned int index = 2; index < nedges; ++index) {
         if (!add_edge_to_tree(_edges[index]))
             throw Py::RuntimeError("Triangulation is invalid");
         _tree->assert_valid(index == nedges-1);
@@ -1628,7 +1594,8 @@ Py::Object TrapezoidMapTriFinder::initialize()
     return Py::None();
 }
 
-Py::Object TrapezoidMapTriFinder::print_tree()
+Py::Object
+TrapezoidMapTriFinder::print_tree()
 {
     _VERBOSE("TrapezoidMapTriFinder::print_tree");
 
@@ -1658,29 +1625,30 @@ TrapezoidMapTriFinder::Edge::Edge(const Point* left_,
     assert(triangle_above >= -1 && "Invalid triangle above index");
 }
 
-int TrapezoidMapTriFinder::Edge::get_point_orientation(const XY& xy) const
+int
+TrapezoidMapTriFinder::Edge::get_point_orientation(const XY& xy) const
 {
     double cross_z = (xy - *left).cross_z(*right - *left);
     return (cross_z > 0.0) ? +1 : ((cross_z < 0.0) ? -1 : 0);
 }
 
-double TrapezoidMapTriFinder::Edge::get_slope() const
+double
+TrapezoidMapTriFinder::Edge::get_slope() const
 {
     // Divide by zero is acceptable here.
     XY diff = *right - *left;
     return diff.y / diff.x;
 }
 
-double TrapezoidMapTriFinder::Edge::get_y_at_x(const double& x) const
+double
+TrapezoidMapTriFinder::Edge::get_y_at_x(const double& x) const
 {
-    if (left->x == right->x)
-    {
+    if (left->x == right->x) {
         // If edge is vertical, return lowest y from left point.
         assert(x == left->x && "x outside of edge");
         return left->y;
     }
-    else
-    {
+    else {
         // Equation of line: left + lambda*(right - left) = xy.
         // i.e. left.x + lambda(right.x - left.x) = x and similar for y.
         double lambda = (x - left->x) / (right->x - left->x);
@@ -1689,18 +1657,21 @@ double TrapezoidMapTriFinder::Edge::get_y_at_x(const double& x) const
     }
 }
 
-bool TrapezoidMapTriFinder::Edge::has_point(const Point* point) const
+bool
+TrapezoidMapTriFinder::Edge::has_point(const Point* point) const
 {
     assert(point != 0 && "Null point");
     return (left == point || right == point);
 }
 
-bool TrapezoidMapTriFinder::Edge::operator==(const Edge& other) const
+bool
+TrapezoidMapTriFinder::Edge::operator==(const Edge& other) const
 {
     return this == &other;
 }
 
-void TrapezoidMapTriFinder::Edge::print_debug() const
+void
+TrapezoidMapTriFinder::Edge::print_debug() const
 {
     std::cout << "Edge " << *this << " tri_below=" << triangle_below
         << " tri_above=" << triangle_above << std::endl;
@@ -1742,8 +1713,7 @@ TrapezoidMapTriFinder::Node::Node(Trapezoid* trapezoid)
 
 TrapezoidMapTriFinder::Node::~Node()
 {
-    switch (_type)
-    {
+    switch (_type) {
         case Type_XNode:
             if (_union.xnode.left->remove_parent(this))
                 delete _union.xnode.left;
@@ -1762,7 +1732,8 @@ TrapezoidMapTriFinder::Node::~Node()
     }
 }
 
-void TrapezoidMapTriFinder::Node::add_parent(Node* parent)
+void
+TrapezoidMapTriFinder::Node::add_parent(Node* parent)
 {
     assert(parent != 0 && "Null parent");
     assert(parent != this && "Cannot be parent of self");
@@ -1770,21 +1741,20 @@ void TrapezoidMapTriFinder::Node::add_parent(Node* parent)
     _parents.push_back(parent);
 }
 
-void TrapezoidMapTriFinder::Node::assert_valid(bool tree_complete) const
+void
+TrapezoidMapTriFinder::Node::assert_valid(bool tree_complete) const
 {
 #ifndef NDEBUG
     // Check parents.
     for (Parents::const_iterator it = _parents.begin();
-         it != _parents.end(); ++it)
-    {
+         it != _parents.end(); ++it) {
         Node* parent = *it;
         assert(parent != this && "Cannot be parent of self");
         assert(parent->has_child(this) && "Parent missing child");
     }
 
     // Check children, and recurse.
-    switch (_type)
-    {
+    switch (_type) {
         case Type_XNode:
             assert(_union.xnode.left != 0 && "Null left child");
             assert(_union.xnode.left->has_parent(this) && "Incorrect parent");
@@ -1811,8 +1781,9 @@ void TrapezoidMapTriFinder::Node::assert_valid(bool tree_complete) const
 #endif
 }
 
-void TrapezoidMapTriFinder::Node::get_stats(int depth,
-                                            NodeStats& stats) const
+void
+TrapezoidMapTriFinder::Node::get_stats(int depth,
+                                       NodeStats& stats) const
 {
     stats.node_count++;
     if (depth > stats.max_depth)
@@ -1822,8 +1793,7 @@ void TrapezoidMapTriFinder::Node::get_stats(int depth,
         stats.max_parent_count = std::max(stats.max_parent_count,
                                           static_cast<long>(_parents.size()));
 
-    switch (_type)
-    {
+    switch (_type) {
         case Type_XNode:
             _union.xnode.left->get_stats(depth+1, stats);
             _union.xnode.right->get_stats(depth+1, stats);
@@ -1840,10 +1810,10 @@ void TrapezoidMapTriFinder::Node::get_stats(int depth,
     }
 }
 
-int TrapezoidMapTriFinder::Node::get_tri() const
+int
+TrapezoidMapTriFinder::Node::get_tri() const
 {
-    switch (_type)
-    {
+    switch (_type) {
         case Type_XNode:
             return _union.xnode.point->tri;
         case Type_YNode:
@@ -1859,36 +1829,39 @@ int TrapezoidMapTriFinder::Node::get_tri() const
     }
 }
 
-bool TrapezoidMapTriFinder::Node::has_child(const Node* child) const
+bool
+TrapezoidMapTriFinder::Node::has_child(const Node* child) const
 {
     assert(child != 0 && "Null child node");
-    switch (_type)
-    {
+    switch (_type) {
         case Type_XNode:
             return (_union.xnode.left == child || _union.xnode.right == child);
         case Type_YNode:
-            return (_union.ynode.below == child || _union.ynode.above == child);
+            return (_union.ynode.below == child ||
+                    _union.ynode.above == child);
         default:  // Type_TrapezoidNode:
             return false;
     }
 }
 
-bool TrapezoidMapTriFinder::Node::has_no_parents() const
+bool
+TrapezoidMapTriFinder::Node::has_no_parents() const
 {
     return _parents.empty();
 }
 
-bool TrapezoidMapTriFinder::Node::has_parent(const Node* parent) const
+bool
+TrapezoidMapTriFinder::Node::has_parent(const Node* parent) const
 {
     return (std::find(_parents.begin(), _parents.end(), parent) !=
             _parents.end());
 }
 
-void TrapezoidMapTriFinder::Node::print(int depth /* = 0 */) const
+void
+TrapezoidMapTriFinder::Node::print(int depth /* = 0 */) const
 {
     for (int i = 0; i < depth; ++i) std::cout << "  ";
-    switch (_type)
-    {
+    switch (_type) {
         case Type_XNode:
             std::cout << "XNode " << *_union.xnode.point << std::endl;
             _union.xnode.left->print(depth + 1);
@@ -1909,7 +1882,8 @@ void TrapezoidMapTriFinder::Node::print(int depth /* = 0 */) const
     }
 }
 
-bool TrapezoidMapTriFinder::Node::remove_parent(Node* parent)
+bool
+TrapezoidMapTriFinder::Node::remove_parent(Node* parent)
 {
     assert(parent != 0 && "Null parent");
     assert(parent != this && "Cannot be parent of self");
@@ -1919,11 +1893,10 @@ bool TrapezoidMapTriFinder::Node::remove_parent(Node* parent)
     return _parents.empty();
 }
 
-void TrapezoidMapTriFinder::Node::replace_child(Node* old_child,
-                                                Node* new_child)
+void
+TrapezoidMapTriFinder::Node::replace_child(Node* old_child, Node* new_child)
 {
-    switch (_type)
-    {
+    switch (_type) {
         case Type_XNode:
             assert((_union.xnode.left == old_child ||
                     _union.xnode.right == old_child) && "Not a child Node");
@@ -1950,7 +1923,8 @@ void TrapezoidMapTriFinder::Node::replace_child(Node* old_child,
     new_child->add_parent(this);
 }
 
-void TrapezoidMapTriFinder::Node::replace_with(Node* new_node)
+void
+TrapezoidMapTriFinder::Node::replace_with(Node* new_node)
 {
     assert(new_node != 0 && "Null replacement node");
     // Replace child of each parent with new_node.  As each has parent has its
@@ -1959,11 +1933,10 @@ void TrapezoidMapTriFinder::Node::replace_with(Node* new_node)
         _parents.front()->replace_child(this, new_node);
 }
 
-const TrapezoidMapTriFinder::Node* TrapezoidMapTriFinder::Node::search(
-    const XY& xy)
+const TrapezoidMapTriFinder::Node*
+TrapezoidMapTriFinder::Node::search(const XY& xy)
 {
-    switch (_type)
-    {
+    switch (_type) {
         case Type_XNode:
             if (xy == *_union.xnode.point)
                 return this;
@@ -1971,8 +1944,7 @@ const TrapezoidMapTriFinder::Node* TrapezoidMapTriFinder::Node::search(
                 return _union.xnode.right->search(xy);
             else
                 return _union.xnode.left->search(xy);
-        case Type_YNode:
-        {
+        case Type_YNode: {
             int orient = _union.ynode.edge->get_point_orientation(xy);
             if (orient == 0)
                 return this;
@@ -1986,34 +1958,32 @@ const TrapezoidMapTriFinder::Node* TrapezoidMapTriFinder::Node::search(
     }
 }
 
-TrapezoidMapTriFinder::Trapezoid* TrapezoidMapTriFinder::Node::search(
-    const Edge& edge)
+TrapezoidMapTriFinder::Trapezoid*
+TrapezoidMapTriFinder::Node::search(const Edge& edge)
 {
-    switch (_type)
-    {
+    switch (_type) {
         case Type_XNode:
             if (edge.left == _union.xnode.point)
                 return _union.xnode.right->search(edge);
-            else
-            {
+            else {
                 if (edge.left->is_right_of(*_union.xnode.point))
                     return _union.xnode.right->search(edge);
                 else
                     return _union.xnode.left->search(edge);
             }
         case Type_YNode:
-            if (edge.left == _union.ynode.edge->left)
-            {
+            if (edge.left == _union.ynode.edge->left) {
                 // Coinciding left edge points.
-                if (edge.get_slope() == _union.ynode.edge->get_slope())
-                {
-                    if (_union.ynode.edge->triangle_above == edge.triangle_below)
+                if (edge.get_slope() == _union.ynode.edge->get_slope()) {
+                    if (_union.ynode.edge->triangle_above ==
+                        edge.triangle_below)
                         return _union.ynode.above->search(edge);
-                    else if (_union.ynode.edge->triangle_below == edge.triangle_above)
+                    else if (_union.ynode.edge->triangle_below ==
+                             edge.triangle_above)
                         return _union.ynode.below->search(edge);
-                    else
-                    {
-                        assert(0 && "Invalid triangulation, common left points");
+                    else {
+                        assert(0 &&
+                               "Invalid triangulation, common left points");
                         return 0;
                     }
                 }
@@ -2022,18 +1992,18 @@ TrapezoidMapTriFinder::Trapezoid* TrapezoidMapTriFinder::Node::search(
                 else
                     return _union.ynode.below->search(edge);
             }
-            else if (edge.right == _union.ynode.edge->right)
-            {
+            else if (edge.right == _union.ynode.edge->right) {
                 // Coinciding right edge points.
-                if (edge.get_slope() == _union.ynode.edge->get_slope())
-                {
-                    if (_union.ynode.edge->triangle_above == edge.triangle_below)
+                if (edge.get_slope() == _union.ynode.edge->get_slope()) {
+                    if (_union.ynode.edge->triangle_above ==
+                        edge.triangle_below)
                         return _union.ynode.above->search(edge);
-                    else if (_union.ynode.edge->triangle_below == edge.triangle_above)
+                    else if (_union.ynode.edge->triangle_below ==
+                             edge.triangle_above)
                         return _union.ynode.below->search(edge);
-                    else
-                    {
-                        assert(0 && "Invalid triangulation, common right points");
+                    else {
+                        assert(0 &&
+                               "Invalid triangulation, common right points");
                         return 0;
                     }
                 }
@@ -2042,11 +2012,10 @@ TrapezoidMapTriFinder::Trapezoid* TrapezoidMapTriFinder::Node::search(
                 else
                     return _union.ynode.above->search(edge);
             }
-            else
-            {
-                int orient = _union.ynode.edge->get_point_orientation(*edge.left);
-                if (orient == 0)
-                {
+            else {
+                int orient =
+                    _union.ynode.edge->get_point_orientation(*edge.left);
+                if (orient == 0) {
                     // edge.left lies on _union.ynode.edge
                     if (_union.ynode.edge->point_above != 0 &&
                         edge.has_point(_union.ynode.edge->point_above))
@@ -2054,8 +2023,7 @@ TrapezoidMapTriFinder::Trapezoid* TrapezoidMapTriFinder::Node::search(
                     else if (_union.ynode.edge->point_below != 0 &&
                              edge.has_point(_union.ynode.edge->point_below))
                         orient = +1;
-                    else
-                    {
+                    else {
                         assert(0 && "Invalid triangulation, point on edge");
                         return 0;
                     }
@@ -2083,39 +2051,40 @@ TrapezoidMapTriFinder::Trapezoid::Trapezoid(const Point* left_,
     assert(right->is_right_of(*left) && "Incorrect point order");
 }
 
-void TrapezoidMapTriFinder::Trapezoid::assert_valid(bool tree_complete) const
+void
+TrapezoidMapTriFinder::Trapezoid::assert_valid(bool tree_complete) const
 {
 #ifndef NDEBUG
     assert(left != 0 && "Null left point");
     assert(right != 0 && "Null right point");
 
-    if (lower_left != 0)
-    {
-        assert(lower_left->below == below && lower_left->lower_right == this &&
+    if (lower_left != 0) {
+        assert(lower_left->below == below &&
+               lower_left->lower_right == this &&
                "Incorrect lower_left trapezoid");
         assert(get_lower_left_point() == lower_left->get_lower_right_point() &&
                "Incorrect lower left point");
     }
 
-    if (lower_right != 0)
-    {
-        assert(lower_right->below == below && lower_right->lower_left == this &&
+    if (lower_right != 0) {
+        assert(lower_right->below == below &&
+               lower_right->lower_left == this &&
                "Incorrect lower_right trapezoid");
         assert(get_lower_right_point() == lower_right->get_lower_left_point() &&
                "Incorrect lower right point");
     }
 
-    if (upper_left != 0)
-    {
-        assert(upper_left->above == above && upper_left->upper_right == this &&
+    if (upper_left != 0) {
+        assert(upper_left->above == above &&
+               upper_left->upper_right == this &&
                "Incorrect upper_left trapezoid");
         assert(get_upper_left_point() == upper_left->get_upper_right_point() &&
                "Incorrect upper left point");
     }
 
-    if (upper_right != 0)
-    {
-        assert(upper_right->above == above && upper_right->upper_left == this &&
+    if (upper_right != 0) {
+        assert(upper_right->above == above &&
+               upper_right->upper_left == this &&
                "Incorrect upper_right trapezoid");
         assert(get_upper_right_point() == upper_right->get_upper_left_point() &&
                "Incorrect upper right point");
@@ -2123,39 +2092,43 @@ void TrapezoidMapTriFinder::Trapezoid::assert_valid(bool tree_complete) const
 
     assert(trapezoid_node != 0 && "Null trapezoid_node");
 
-    if (tree_complete)
-    {
+    if (tree_complete) {
         assert(below.triangle_above == above.triangle_below &&
                "Inconsistent triangle indices from trapezoid edges");
     }
 #endif
 }
 
-XY TrapezoidMapTriFinder::Trapezoid::get_lower_left_point() const
+XY
+TrapezoidMapTriFinder::Trapezoid::get_lower_left_point() const
 {
     double x = left->x;
     return XY(x, below.get_y_at_x(x));
 }
 
-XY TrapezoidMapTriFinder::Trapezoid::get_lower_right_point() const
+XY
+TrapezoidMapTriFinder::Trapezoid::get_lower_right_point() const
 {
     double x = right->x;
     return XY(x, below.get_y_at_x(x));
 }
 
-XY TrapezoidMapTriFinder::Trapezoid::get_upper_left_point() const
+XY
+TrapezoidMapTriFinder::Trapezoid::get_upper_left_point() const
 {
     double x = left->x;
     return XY(x, above.get_y_at_x(x));
 }
 
-XY TrapezoidMapTriFinder::Trapezoid::get_upper_right_point() const
+XY
+TrapezoidMapTriFinder::Trapezoid::get_upper_right_point() const
 {
     double x = right->x;
     return XY(x, above.get_y_at_x(x));
 }
 
-void TrapezoidMapTriFinder::Trapezoid::print_debug() const
+void
+TrapezoidMapTriFinder::Trapezoid::print_debug() const
 {
     std::cout << "Trapezoid " << this
         << " left=" << *left
@@ -2173,28 +2146,32 @@ void TrapezoidMapTriFinder::Trapezoid::print_debug() const
         << " urp=" << get_upper_right_point() << std::endl;
 }
 
-void TrapezoidMapTriFinder::Trapezoid::set_lower_left(Trapezoid* lower_left_)
+void
+TrapezoidMapTriFinder::Trapezoid::set_lower_left(Trapezoid* lower_left_)
 {
     lower_left = lower_left_;
     if (lower_left != 0)
         lower_left->lower_right = this;
 }
 
-void TrapezoidMapTriFinder::Trapezoid::set_lower_right(Trapezoid* lower_right_)
+void
+TrapezoidMapTriFinder::Trapezoid::set_lower_right(Trapezoid* lower_right_)
 {
     lower_right = lower_right_;
     if (lower_right != 0)
         lower_right->lower_left = this;
 }
 
-void TrapezoidMapTriFinder::Trapezoid::set_upper_left(Trapezoid* upper_left_)
+void
+TrapezoidMapTriFinder::Trapezoid::set_upper_left(Trapezoid* upper_left_)
 {
     upper_left = upper_left_;
     if (upper_left != 0)
         upper_left->upper_right = this;
 }
 
-void TrapezoidMapTriFinder::Trapezoid::set_upper_right(Trapezoid* upper_right_)
+void
+TrapezoidMapTriFinder::Trapezoid::set_upper_right(Trapezoid* upper_right_)
 {
     upper_right = upper_right_;
     if (upper_right != 0)
@@ -2206,7 +2183,8 @@ RandomNumberGenerator::RandomNumberGenerator(unsigned long seed)
     : _M(21870), _A(1291), _C(4621), _seed(seed % _M)
 {}
 
-unsigned long RandomNumberGenerator::operator()(unsigned long max_value)
+unsigned long
+RandomNumberGenerator::operator()(unsigned long max_value)
 {
     _seed = (_seed*_A + _C) % _M;
     return (_seed*max_value) / _M;
@@ -2354,7 +2332,8 @@ Py::Object TriModule::new_tricontourgenerator(const Py::Tuple &args)
     return Py::asObject(new TriContourGenerator(tri, z));
 }
 
-Py::Object TriModule::new_TrapezoidMapTriFinder(const Py::Tuple &args)
+Py::Object
+TriModule::new_TrapezoidMapTriFinder(const Py::Tuple &args)
 {
     _VERBOSE("TriModule::new_TrapezoidMapTriFinder");
     args.verify_length(1);

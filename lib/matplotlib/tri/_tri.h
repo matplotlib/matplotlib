@@ -239,10 +239,6 @@ public:
     // Indicates if the specified triangle is masked or not.
     bool is_masked(int tri) const;
 
-    /* Indicates if the specified point is one of the vertices of the specified
-     * triangle. */
-    bool is_triangle_point(int tri, int point) const;
-
     /* Set or clear the mask array.  Clears various derived fields so they are
      * recalculated when next needed.
      *   args[0]: mask, either Py::None or boolean array of shape (ntri). */
