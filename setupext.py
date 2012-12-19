@@ -124,6 +124,8 @@ def check_include_file(include_dirs, filename, package):
     """
     Raises an exception if the given include file can not be found.
     """
+    if sys.platform == 'win32':
+        include_dirs.extend(os.getenv('INCLUDE', '.').split(';'))
     if not has_include_file(include_dirs, filename):
         raise CheckFailed(
             "The C/C++ header for %s (%s) could not be found.  You "
@@ -1295,32 +1297,32 @@ class BackendGtk(OptionalBackendPackage):
 
     def add_flags(self, ext):
         if sys.platform == 'win32':
-            # popen broken on my win32 plaform so I can't use pkgconfig
-            ext.library_dirs.extend(
-                ['C:/GTK/bin', 'C:/GTK/lib'])
-
-            ext.include_dirs.extend(
-                ['win32_static/include/pygtk-2.0',
-                 'C:/GTK/include',
-                 'C:/GTK/include/gobject',
-                 'C:/GTK/include/gext',
-                 'C:/GTK/include/glib',
-                 'C:/GTK/include/pango',
-                 'C:/GTK/include/atk',
-                 'C:/GTK/include/X11',
-                 'C:/GTK/include/cairo',
-                 'C:/GTK/include/gdk',
-                 'C:/GTK/include/gdk-pixbuf',
-                 'C:/GTK/include/gtk',
-                 ])
-
             def getoutput(s):
                 ret = os.popen(s).read().strip()
                 return ret
 
             if 'PKG_CONFIG_PATH' not in os.environ:
                 # If Gtk+ is installed, pkg-config is required to be installed
-                os.environ['PKG_CONFIG_PATH'] = 'C:\GTK\lib\pkgconfig'
+                os.environ['PKG_CONFIG_PATH'] = 'C:\\GTK\\lib\\pkgconfig'
+
+                # popen broken on my win32 plaform so I can't use pkgconfig
+                ext.library_dirs.extend(
+                    ['C:/GTK/bin', 'C:/GTK/lib'])
+
+                ext.include_dirs.extend(
+                    ['win32_static/include/pygtk-2.0',
+                     'C:/GTK/include',
+                     'C:/GTK/include/gobject',
+                     'C:/GTK/include/gext',
+                     'C:/GTK/include/glib',
+                     'C:/GTK/include/pango',
+                     'C:/GTK/include/atk',
+                     'C:/GTK/include/X11',
+                     'C:/GTK/include/cairo',
+                     'C:/GTK/include/gdk',
+                     'C:/GTK/include/gdk-pixbuf',
+                     'C:/GTK/include/gtk',
+                     ])
 
             pygtkIncludes = getoutput(
                 'pkg-config --cflags-only-I pygtk-2.0').split()
