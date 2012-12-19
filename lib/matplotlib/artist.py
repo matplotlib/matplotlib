@@ -686,7 +686,10 @@ class Artist(object):
 
         ACCEPTS: string or anything printable with '%s' conversion.
         """
-        self._label = '%s' % (s, )
+        if s is not None:
+            self._label = '%s' % (s, )
+        else:
+            self._label = None
         self.pchanged()
 
     def get_zorder(self):
