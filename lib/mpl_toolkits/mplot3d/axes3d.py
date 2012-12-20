@@ -11,6 +11,8 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 
 import warnings
+from operator import itemgetter
+
 import matplotlib.axes as maxes
 from matplotlib.axes import Axes, rcParams
 from matplotlib import cbook
@@ -244,16 +246,14 @@ class Axes3D(Axes):
         # Calculate projection of collections and zorder them
         zlist = [(col.do_3d_projection(renderer), col) \
                  for col in self.collections]
-        zlist.sort()
-        zlist.reverse()
+        zlist.sort(key=itemgetter(0), reverse=True)
         for i, (z, col) in enumerate(zlist):
             col.zorder = i
 
         # Calculate projection of patches and zorder them
         zlist = [(patch.do_3d_projection(renderer), patch) \
                 for patch in self.patches]
-        zlist.sort()
-        zlist.reverse()
+        zlist.sort(key=itemgetter(0), reverse=True)
         for i, (z, patch) in enumerate(zlist):
             patch.zorder = i
 
