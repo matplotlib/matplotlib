@@ -76,6 +76,10 @@ files['pie'] = [
     'pie_demo.py',
     ]
 
+files['subplots_axes_and_figures'] = [
+    'subplot_demo.py',
+    ]
+
 files['pylab'] = [
     'accented_text.py',
     'alignment_test.py',
@@ -222,7 +226,6 @@ files['pylab'] = [
     'step_demo.py',
     'stix_fonts_demo.py',
     'stock_demo.py',
-    'subplot_demo.py',
     'subplots_adjust.py',
     'symlog_demo.py',
     'table_demo.py',
