@@ -82,6 +82,23 @@ default_role = 'obj'
 
 plot_formats = [('png', 80), ('hires.png', 200), ('pdf', 50)]
 
+# Subdirectories in 'examples/' directory of package
+mpl_example_sections = ('lines_bars_and_markers',
+                        'shapes_and_collections',
+                        'statistics',
+                        'images_contours_and_fields',
+                        'pie_and_polar_charts',
+                        'text_labels_and_annotations',
+                        'ticks_and_spines',
+                        'subplots_axes_and_figures',
+                        'specialty_plots',
+                        'showcase',
+                        'reference',
+                        'api', 'pylab_examples',
+                        'mplot3d', 'axes_grid',
+                        'units', 'widgets')
+
+
 # Github extension
 
 github_project_url = "http://github.com/matplotlib/matplotlib/"

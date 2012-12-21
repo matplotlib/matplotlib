@@ -2,12 +2,17 @@
 generate the rst files for the examples by iterating over the pylab examples
 """
 from __future__ import print_function
-import os, glob
 
 import os
 import re
 import sys
-fileList = []
+
+import sphinx.errors
+
+
+exclude_example_sections = ['widgets']
+noplot_regex = re.compile(r"#\s*-\*-\s*noplot\s*-\*-")
+
 
 def out_of_date(original, derived):
     """
@@ -21,13 +26,16 @@ def out_of_date(original, derived):
     return (not os.path.exists(derived) or
             os.stat(derived).st_mtime < os.stat(original).st_mtime)
 
-noplot_regex = re.compile(r"#\s*-\*-\s*noplot\s*-\*-")
-
 def generate_example_rst(app):
     rootdir = os.path.join(app.builder.srcdir, 'mpl_examples')
     exampledir = os.path.join(app.builder.srcdir, 'examples')
     if not os.path.exists(exampledir):
         os.makedirs(exampledir)
+
+    example_sections = list(app.builder.config.mpl_example_sections)
+    for section in exclude_example_sections:
+        example_sections.remove(section)
+
 
     datad = {}
     for root, subFolders, files in os.walk(rootdir):
@@ -114,13 +122,8 @@ Matplotlib Examples
 
             fhsubdirIndex.write('    %s <%s>\n'%(os.path.basename(basename),rstfile))
 
-            do_plot = (subdir in ('api',
-                                  'pylab_examples',
-                                  'units',
-                                  'mplot3d',
-                                  'axes_grid',
-                                  ) and
-                       not noplot_regex.search(contents))
+            do_plot = (subdir in example_sections
+                       and not noplot_regex.search(contents))
             if not do_plot:
                 fhstatic = file(outputfile, 'w')
                 fhstatic.write(contents)
@@ -157,3 +160,8 @@ Matplotlib Examples
 
 def setup(app):
     app.connect('builder-inited', generate_example_rst)
+
+    try: # multiple plugins may use mpl_example_sections
+        app.add_config_value('mpl_example_sections', [], True)
+    except sphinx.errors.ExtensionError:
+        pass # mpl_example_sections already defined
