@@ -42,7 +42,6 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
             subplots=os.path.join('..', 'subplots_axes_and_figures'),
             specialty=os.path.join('..', 'specialty_plots'),
             showcase=os.path.join('..', 'showcase'),
-            reference=os.path.join('..', 'reference'),
             pylab = os.path.join('..', 'pylab_examples'),
             api = os.path.join('..', 'api'),
             units = os.path.join('..', 'units'),
@@ -74,6 +73,10 @@ files['statistics'] = [
 
 files['pie'] = [
     'pie_demo.py',
+    ]
+
+files['text_labels_and_annotations'] = [
+    'unicode_demo.py',
     ]
 
 files['subplots_axes_and_figures'] = [
@@ -234,7 +237,6 @@ files['pylab'] = [
     'text_rotation_relative_to_line.py',
     'text_themes.py',
     'transoffset.py',
-    'unicode_demo.py',
     'vertical_ticklabels.py',
     'vline_demo.py',
     'xcorr_demo.py',
