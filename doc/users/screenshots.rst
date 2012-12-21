@@ -22,7 +22,7 @@ Subplot demo
 Multiple regular axes (numrows by numcolumns) are created with the
 :func:`~matplotlib.pyplot.subplot` command.
 
-.. plot:: mpl_examples/pylab_examples/subplot_demo.py
+.. plot:: mpl_examples/subplots_axes_and_figures/subplot_demo.py
 
 .. _screenshots_histogram_demo:
 
