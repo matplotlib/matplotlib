@@ -11,10 +11,11 @@ matplotlib.use('agg')
 import nose
 from matplotlib.testing.noseclasses import KnownFailure
 from matplotlib import default_test_modules
+from mpl_toolkits import toolkits_test_modules
 
 def run():
-    nose.main(addplugins=[KnownFailure()],
-              defaultTest=default_test_modules)
+    nose.main(addplugins = [KnownFailure()],
+              defaultTest = default_test_modules + toolkits_test_modules)
 
 if __name__ == '__main__':
     run()

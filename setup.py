@@ -64,6 +64,7 @@ packages = [
     'mpl_toolkits.axes_grid',
     'mpl_toolkits.axes_grid1',
     'mpl_toolkits.axisartist',
+    'mpl_toolkits.tests',
     'matplotlib.sphinxext',
     'matplotlib.tri',
 
@@ -117,7 +118,9 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'mpl-data/sample_data/*.*',
                               'mpl-data/sample_data/axes_grid/*.*',
                               'backends/Matplotlib.nib/*',
-                              ]}
+                              ],
+                'mpl_toolkits':[]
+            }
 
 package_dir = {'': 'lib'}
 
@@ -125,13 +128,19 @@ if 1:
     # TODO: exclude these when making release?
     baseline_images = glob.glob(os.path.join('lib','matplotlib','tests',
                                              'baseline_images','*','*'))
-    def chop_package(fname):
-        badstr = os.path.join('lib','matplotlib','')
+    def chop_package(fname,lib):
+        badstr = os.path.join('lib',lib,'')
         assert fname.startswith(badstr)
         result = fname[ len(badstr): ]
         return result
-    baseline_images = [chop_package(f) for f in baseline_images]
+    baseline_images = [chop_package(f,lib='matplotlib') for f in baseline_images]
     package_data['matplotlib'].extend(baseline_images)
+
+    baseline_images_mpl = glob.glob(os.path.join('lib','mpl_toolkits','tests',
+                                             'baseline_images','*','*'))
+    baseline_images_mpl = [chop_package(f,lib='mpl_toolkits') for f in baseline_images_mpl]
+    package_data['mpl_toolkits'].extend(baseline_images_mpl)
+
     package_data['matplotlib'].append('tests/mpltest.ttf')
     package_data['matplotlib'].append('tests/test_rcparams.rc')
 
