@@ -4,8 +4,12 @@ import re
 import glob
 import warnings
 
+import sphinx.errors
+
 import matplotlib.image as image
 
+
+exclude_example_sections = ['units']
 multiimage = re.compile('(.*?)(_\d\d){1,2}')
 
 
@@ -64,6 +68,10 @@ def gen_gallery(app, doctree):
     outdir = app.builder.outdir
     rootdir = 'plot_directive/mpl_examples'
 
+    example_sections = list(app.builder.config.mpl_example_sections)
+    for section in exclude_example_sections:
+        example_sections.remove(section)
+
     # images we want to skip for the gallery because they are an unusual
     # size that doesn't layout well in a table, or because they may be
     # redundant with other images or uninteresting
@@ -77,9 +85,8 @@ def gen_gallery(app, doctree):
     thumbnails = {}
     rows = []
     toc_rows = []
-    dirs = ('api', 'pylab_examples', 'mplot3d', 'widgets', 'axes_grid' )
 
-    for subdir in dirs :
+    for subdir in example_sections:
         title = custom_titles.get(subdir, subdir)
         rows.append(header_template.format(title=title, section=subdir))
         toc_rows.append(toc_template.format(section=subdir))
@@ -155,3 +162,8 @@ def gen_gallery(app, doctree):
 
 def setup(app):
     app.connect('env-updated', gen_gallery)
+
+    try: # multiple plugins may use mpl_example_sections
+        app.add_config_value('mpl_example_sections', [], True)
+    except sphinx.errors.ExtensionError:
+        pass # mpl_example_sections already defined
