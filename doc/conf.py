@@ -93,7 +93,6 @@ mpl_example_sections = ('lines_bars_and_markers',
                         'subplots_axes_and_figures',
                         'specialty_plots',
                         'showcase',
-                        'reference',
                         'api', 'pylab_examples',
                         'mplot3d', 'axes_grid',
                         'units', 'widgets')

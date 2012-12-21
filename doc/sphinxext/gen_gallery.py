@@ -11,7 +11,19 @@ import matplotlib.image as image
 
 exclude_example_sections = ['units']
 multiimage = re.compile('(.*?)(_\d\d){1,2}')
-
+custom_titles = {'pylab_examples' : 'pylab examples',
+                 'lines_bars_and_markers': 'Lines, bars, and markers',
+                 'shapes_and_collections': 'Shapes and collections',
+                 'statistics': 'Statistical plots',
+                 'images_contours_and_fields': 'Images, contours, and fields',
+                 'pie_and_polar_charts': 'Pie and polar charts',
+                 'text_labels_and_annotations': 'Text, labels, and annotations',
+                 'ticks_and_spines': 'Ticks and spines',
+                 'subplots_axes_and_figures': 'Subplots, axes, and figures',
+                 'specialty_plots': 'Specialty plots',
+                 'showcase': 'Showcase',
+                 'api': 'API',
+                 }
 
 # generate a thumbnail gallery of examples
 gallery_template = """\
@@ -46,10 +58,7 @@ link_template = """\
 """
 
 toc_template = """\
-<li><a class="reference internal" href="#{section}">{section}</a></li>"""
-
-
-custom_titles = {'pylab_examples' : 'pylab examples'}
+<li><a class="reference internal" href="#{section}">{title}</a></li>"""
 
 
 def make_thumbnail(args):
@@ -89,7 +98,7 @@ def gen_gallery(app, doctree):
     for subdir in example_sections:
         title = custom_titles.get(subdir, subdir)
         rows.append(header_template.format(title=title, section=subdir))
-        toc_rows.append(toc_template.format(section=subdir))
+        toc_rows.append(toc_template.format(title=title, section=subdir))
 
         origdir = os.path.join('build', rootdir, subdir)
         thumbdir = os.path.join(outdir, rootdir, subdir, 'thumbnails')
