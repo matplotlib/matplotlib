@@ -1544,7 +1544,7 @@ class _AnnotationBase(object):
             from matplotlib.transforms import Affine2D
             if unit == "points":
                 # dots per points
-                dpp = self.figure.get_dpi() / 12.
+                dpp = self.figure.get_dpi() / 72.
                 tr = Affine2D().scale(dpp, dpp)
             elif unit == "pixels":
                 tr = Affine2D()
