@@ -79,6 +79,10 @@ files['text_labels_and_annotations'] = [
     'unicode_demo.py',
     ]
 
+files['ticks_and_spines'] = [
+    'ticklabels_demo_rotation.py',
+    ]
+
 files['subplots_axes_and_figures'] = [
     'subplot_demo.py',
     ]
@@ -237,7 +241,6 @@ files['pylab'] = [
     'text_rotation_relative_to_line.py',
     'text_themes.py',
     'transoffset.py',
-    'vertical_ticklabels.py',
     'vline_demo.py',
     'xcorr_demo.py',
     'zorder_demo.py',
