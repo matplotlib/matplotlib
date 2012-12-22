@@ -257,7 +257,6 @@ files['api'] = [
     'date_index_formatter.py',
     'donut_demo.py',
     'font_family_rc.py',
-    'histogram_demo.py',
     'image_zcoord.py',
     'joinstyle.py',
     'legend_demo.py',
