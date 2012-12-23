@@ -78,6 +78,7 @@ files['pie'] = [
     ]
 
 files['text_labels_and_annotations'] = [
+    'text_demo_fontdict.py',
     'unicode_demo.py',
     ]
 
@@ -239,7 +240,6 @@ files['pylab'] = [
     'text_handles.py',
     'text_rotation.py',
     'text_rotation_relative_to_line.py',
-    'text_themes.py',
     'transoffset.py',
     'vline_demo.py',
     'xcorr_demo.py',
