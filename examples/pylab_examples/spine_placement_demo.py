@@ -1,30 +1,6 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.pyplot import show
+import matplotlib.pyplot as plt
 
-fig = plt.figure()
-x = np.linspace(0,2*np.pi,100)
-y = 2*np.sin(x)
-ax = fig.add_subplot(1,2,1)
-ax.set_title('dropped spines')
-ax.plot(x,y)
-for loc, spine in ax.spines.items():
-    if loc in ['left','bottom']:
-        spine.set_position(('outward',10)) # outward by 10 points
-    elif loc in ['right','top']:
-        spine.set_color('none') # don't draw spine
-    else:
-        raise ValueError('unknown spine location: %s'%loc)
-
-# turn off ticks where there is no spine
-ax.xaxis.set_ticks_position('bottom')
-ax.yaxis.set_ticks_position('left')
-
-ax = fig.add_subplot(1,2,2,sharex=ax)
-ax.plot(x,y)
-ax.set_title('normal spines')
-
-# ----------------------------------------------------
 
 fig = plt.figure()
 x = np.linspace(-np.pi,np.pi,100)
@@ -121,4 +97,4 @@ ax = fig.add_subplot(2,2,4)
 ax.plot(x,y)
 adjust_spines(ax,['bottom'])
 
-show()
+plt.show()
