@@ -91,6 +91,10 @@ files['subplots_axes_and_figures'] = [
     'subplot_demo.py',
     ]
 
+files['showcase'] = [
+    'integral_demo.py',
+    ]
+
 files['pylab'] = [
     'accented_text.py',
     'alignment_test.py',
@@ -175,7 +179,6 @@ files['pylab'] = [
     'image_nonuniform.py',
     'image_origin.py',
     'image_slices_viewer.py',
-    'integral_demo.py',
     'interp_demo.py',
     'invert_axes.py',
     'layer_images.py',
