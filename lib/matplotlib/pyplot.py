@@ -763,7 +763,7 @@ def subplot(*args, **kwargs):
             For additional information on :func:`axes` and
             :func:`subplot` keyword arguments.
 
-        :file:`examples/pylab_examples/polar_scatter.py`
+        :file:`examples/pie_and_polar_charts/polar_scatter_demo.py`
             For an example
 
     **Example:**
