@@ -3763,6 +3763,8 @@ class Axes(martist.Artist):
                             for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyles=linestyles, label=label)
+        if 'zorder' in kwargs:
+            coll.set_zorder(kwargs['zorder'])
         self.add_collection(coll)
         coll.update(kwargs)
 
@@ -3845,6 +3847,8 @@ class Axes(martist.Artist):
         #print 'creating line collection'
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyles=linestyles, label=label)
+        if 'zorder' in kwargs:
+            coll.set_zorder(kwargs['zorder'])
         self.add_collection(coll)
         coll.update(kwargs)
 
@@ -5441,7 +5445,9 @@ class Axes(martist.Artist):
                 lines_kw['lw']=kwargs['lw']
         if 'transform' in kwargs:
             lines_kw['transform'] = kwargs['transform']
-
+        if 'zorder' in kwargs:
+            lines_kw['zorder'] = kwargs['zorder']
+            
         # arrays fine here, they are booleans and hence not units
         if not iterable(lolims):
             lolims = np.asarray([lolims]*len(x), bool)
@@ -5489,6 +5495,9 @@ class Axes(martist.Artist):
                 plot_kw['mew']=kwargs['mew']
             if 'transform' in kwargs:
                 plot_kw['transform'] = kwargs['transform']
+            if 'zorder' in kwargs:
+                plot_kw['zorder'] = kwargs['zorder']
+
 
         if xerr is not None:
             if (iterable(xerr) and len(xerr)==2 and
