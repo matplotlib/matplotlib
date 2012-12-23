@@ -54,6 +54,7 @@ files = dict()
 files['lines'] = [
     'fill_demo.py',
     'fill_demo_features.py',
+    'line_demo_dash_control.py',
     ]
 
 files['shapes'] = [
@@ -135,7 +136,6 @@ files['pylab'] = [
     'custom_figure_class.py',
     'custom_ticker1.py',
     'customize_rc.py',
-    'dash_control.py',
     'dashpointlabel.py',
     'date_demo1.py',
     'date_demo2.py',
