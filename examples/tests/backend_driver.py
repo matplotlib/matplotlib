@@ -84,6 +84,7 @@ files['text_labels_and_annotations'] = [
     ]
 
 files['ticks_and_spines'] = [
+    'spines_demo_bounds.py',
     'ticklabels_demo_rotation.py',
     ]
 
