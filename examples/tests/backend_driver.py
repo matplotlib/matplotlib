@@ -74,6 +74,7 @@ files['statistics'] = [
 files['pie'] = [
     'pie_demo.py',
     'polar_bar_demo.py',
+    'polar_scatter_demo.py',
     ]
 
 files['text_labels_and_annotations'] = [
@@ -210,7 +211,6 @@ files['pylab'] = [
     'plotfile_demo.py',
     'polar_demo.py',
     'polar_legend.py',
-    'polar_scatter.py',
     'poormans_contour.py',
     'psd_demo.py',
     'psd_demo2.py',
