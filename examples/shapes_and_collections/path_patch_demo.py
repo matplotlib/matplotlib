@@ -1,14 +1,15 @@
-import numpy as np
+"""
+Demo of a PathPatch object.
+"""
 import matplotlib.path as mpath
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
+
+fig, ax = plt.subplots()
+
 Path = mpath.Path
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-
-pathdata = [
+path_data = [
     (Path.MOVETO, (1.58, -2.57)),
     (Path.CURVE4, (0.35, -1.1)),
     (Path.CURVE4, (-1.75, 2.0)),
@@ -19,18 +20,15 @@ pathdata = [
     (Path.CURVE4, (2.0, -0.5)),
     (Path.CLOSEPOLY, (1.58, -2.57)),
     ]
-
-codes, verts = zip(*pathdata)
+codes, verts = zip(*path_data)
 path = mpath.Path(verts, codes)
-patch = mpatches.PathPatch(path, facecolor='red', edgecolor='yellow', alpha=0.5)
+patch = mpatches.PathPatch(path, facecolor='r', alpha=0.5)
 ax.add_patch(patch)
 
+# plot control points and connecting lines
 x, y = zip(*path.vertices)
 line, = ax.plot(x, y, 'go-')
+
 ax.grid()
-ax.set_xlim(-3,4)
-ax.set_ylim(-3,4)
-ax.set_title('spline paths')
+ax.axis('equal')
 plt.show()
-
-

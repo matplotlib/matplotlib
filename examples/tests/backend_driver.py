@@ -57,6 +57,7 @@ files['lines'] = [
     ]
 
 files['shapes'] = [
+    'path_patch_demo.py',
     'scatter_demo.py',
     ]
 
@@ -267,7 +268,6 @@ files['api'] = [
     'logo2.py',
     'mathtext_asarray.py',
     'patch_collection.py',
-    'path_patch_demo.py',
     'quad_bezier.py',
     'scatter_piecharts.py',
     'span_regions.py',
