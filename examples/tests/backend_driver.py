@@ -52,6 +52,7 @@ dirs = dict(files=os.path.join('..', 'lines_bars_and_markers'),
 files = dict()
 
 files['lines'] = [
+    'barh_demo.py',
     'fill_demo.py',
     'fill_demo_features.py',
     'line_demo_dash_control.py',
@@ -115,7 +116,6 @@ files['pylab'] = [
     'barb_demo.py',
     'barchart_demo.py',
     'barcode_demo.py',
-    'barh_demo.py',
     'boxplot_demo.py',
     'broken_barh.py',
     'clippedline.py',
