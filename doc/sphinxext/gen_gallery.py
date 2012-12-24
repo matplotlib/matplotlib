@@ -22,6 +22,7 @@ custom_titles = {'pylab_examples' : 'pylab examples',
                  'subplots_axes_and_figures': 'Subplots, axes, and figures',
                  'specialty_plots': 'Specialty plots',
                  'showcase': 'Showcase',
+                 'color': 'Color',
                  'api': 'API',
                  }
 
