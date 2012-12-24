@@ -13,4 +13,6 @@ plt.plot(x, y, 'ro')
 plt.xticks(x, labels, rotation='vertical')
 # Pad margins so that markers don't get clipped by the axes
 plt.margins(0.2)
+# Tweak spacing to prevent clipping of tick-labels
+plt.subplots_adjust(bottom=0.15)
 plt.show()
