@@ -228,7 +228,7 @@ object:
 
 There are many other colormap schemes available.  See the `list and
 images of the colormaps
-<http://matplotlib.org/examples/pylab_examples/show_colormaps.html>`_.
+<http://matplotlib.org/examples/color/colormaps_reference.html>`_.
 
 .. _`Color Bars`:
 
