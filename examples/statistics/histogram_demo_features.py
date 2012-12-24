@@ -30,4 +30,6 @@ plt.xlabel('Smarts')
 plt.ylabel('Probability')
 plt.title(r'Histogram of IQ: $\mu=100$, $\sigma=15$')
 
+# Tweak spacing to prevent clipping of ylabel
+plt.subplots_adjust(left=0.15)
 plt.show()
