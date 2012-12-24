@@ -1,3 +1,7 @@
+# NOTE: This example has been superseded by examples in
+# 'color/colormaps_reference_*, but this example is referenced in the
+# "What's New" page, and the image tutorial.
+
 # This example comes from the Cookbook on www.scipy.org.  According to the
 # history, Andrew Straw did the conversion from an old page, but it is
 # unclear who the original author is.
