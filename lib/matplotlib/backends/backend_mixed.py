@@ -48,6 +48,7 @@ class MixedModeRenderer(object):
         # the figure dpi before and after the rasterization. Although
         # this looks ugly, I couldn't find a better solution. -JJL
         self.figure=figure
+        self._figdpi = figure.get_dpi()
 
         self._bbox_inches_restore = bbox_inches_restore
 
@@ -121,16 +122,19 @@ class MixedModeRenderer(object):
                 image.is_grayscale = False
                 image.flipud_out()
                 gc = self._renderer.new_gc()
+                # TODO: If the mixedmode resolution differs from the figure's
+                #       dpi, the image must be scaled (dpi->_figdpi). Not all
+                #       backends support this.
                 self._renderer.draw_image(
                     gc,
-                    float(l)/self.dpi*72.,
-                    (float(height) - b - h)/self.dpi*72.,
+                    float(l) / self.dpi * self._figdpi,
+                    (float(height)-b-h) / self.dpi * self._figdpi,
                     image)
             self._raster_renderer = None
             self._rasterizing = False
 
-        # restore the figure dpi.
-        self.figure.set_dpi(72)
+            # restore the figure dpi.
+            self.figure.set_dpi(self._figdpi)
 
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
