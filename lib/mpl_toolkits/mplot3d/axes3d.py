@@ -36,6 +36,7 @@ class Axes3D(Axes):
     3D axes object.
     """
     name = '3d'
+    _shared_z_axes = cbook.Grouper()
 
     def __init__(self, fig, rect=None, *args, **kwargs):
         '''
@@ -52,18 +53,22 @@ class Axes3D(Axes):
           *azim*             Azimuthal viewing angle (default -60)
           *elev*             Elevation viewing angle (default 30)
           *zscale*           [%(scale)s]
+          *sharez*           Other axes to share z-limits with
           ================   =========================================
+
+        .. versionadded :: 1.2.1
+            *sharez*
+
         ''' % {'scale': ' | '.join([repr(x) for x in mscale.get_scale_names()])}
 
         if rect is None:
             rect = [0.0, 0.0, 1.0, 1.0]
         self._cids = []
 
-        # TODO: Support z-axis sharing
-
         self.initial_azim = kwargs.pop('azim', -60)
         self.initial_elev = kwargs.pop('elev', 30)
         zscale = kwargs.pop('zscale', None)
+        sharez = kwargs.pop('sharez', None)
 
         self.xy_viewLim = unit_bbox()
         self.zz_viewLim = unit_bbox()
@@ -73,6 +78,11 @@ class Axes3D(Axes):
         # they can't be defined until Axes.__init__ has been called
         self.view_init(self.initial_elev, self.initial_azim)
         self._ready = 0
+
+        self._sharez = sharez
+        if sharez is not None:
+            self._shared_z_axes.join(self, sharez)
+            self._adjustable = 'datalim'
 
         Axes.__init__(self, fig, rect,
                       frameon=True,
@@ -112,6 +122,50 @@ class Axes3D(Axes):
     def set_axis_on(self):
         self._axis3don = True
 
+    def have_units(self):
+        """
+        Return *True* if units are set on the *x*, *y*, or *z* axes
+
+        """
+        return (self.xaxis.have_units() or self.yaxis.have_units() or
+                self.zaxis.have_units())
+
+    def convert_zunits(self, z):
+        """
+        For artists in an axes, if the zaxis has units support,
+        convert *z* using zaxis unit type
+
+        .. versionadded :: 1.2.1
+
+        """
+        return self.zaxis.convert_units(z)
+
+    def _process_unit_info(self, xdata=None, ydata=None, zdata=None,
+                           kwargs=None):
+        """
+        Look for unit *kwargs* and update the axis instances as necessary
+
+        """
+        Axes._process_unit_info(self, xdata=xdata, ydata=ydata, kwargs=kwargs)
+
+        if self.xaxis is None or self.yaxis is None or self.zaxis is None:
+            return
+
+        if zdata is not None:
+            # we only need to update if there is nothing set yet.
+            if not self.zaxis.have_units():
+                self.zaxis.update_units(xdata)
+
+        # process kwargs 2nd since these will override default units
+        if kwargs is not None:
+            zunits = kwargs.pop('zunits', self.zaxis.units)
+            if zunits != self.zaxis.units:
+                self.zaxis.set_units(zunits)
+                # If the units being set imply a different converter,
+                # we need to update.
+                if zdata is not None:
+                    self.zaxis.update_units(zdata)
+
     def set_top_view(self):
         # this happens to be the right view for the viewing coordinates
         # moved up and to the left slightly to fit labels and axes
@@ -120,6 +174,8 @@ class Axes3D(Axes):
         ydwl = (0.95/self.dist)
         ydw = (0.9/self.dist)
 
+        # This is purposely using the 2D Axes's set_xlim and set_ylim,
+        # because we are trying to place our viewing pane.
         Axes.set_xlim(self, -xdwl, xdw, auto=None)
         Axes.set_ylim(self, -ydwl, ydw, auto=None)
 
@@ -407,22 +463,17 @@ class Axes3D(Axes):
 
         .. versionchanged :: 1.1.0
             Function signature was changed to better match the 2D version.
-            *tight* is now explicitly a kwarg and placed first. However,
-            it currently does not do anything.
-        """
+            *tight* is now explicitly a kwarg and placed first.
+            
+        .. versionchanged :: 1.2.1
+            This is now fully functional.
 
-        self.set_top_view()
+        """
         if not self._ready:
             return
 
-        # TODO: This is nearly the equivalent code from the 2D
-        #       version, but it doesn't seem to work correctly.
-        #       Therefore, we are currently staying with the
-        #       same old behavior.
-        """
         # This method looks at the rectangular volume (see above)
         # of data and decides how to scale the view portal to fit it.
-
         if tight is None:
             # if image data only just use the datalim
             _tight = self._tight or (len(self.images)>0 and
@@ -431,13 +482,48 @@ class Axes3D(Axes):
         else:
             _tight = self._tight = bool(tight)
 
-        Axes.autoscale_view(self, tight=_tight, scalex=scalex, scaley=scaley)
+        if scalex and self._autoscaleXon:
+            xshared = self._shared_x_axes.get_siblings(self)
+            dl = [ax.dataLim for ax in xshared]
+            bb = mtransforms.BboxBase.union(dl)
+            x0, x1 = self.xy_dataLim.intervalx
+            xlocator = self.xaxis.get_major_locator()
+            try:
+                x0, x1 = xlocator.nonsingular(x0, x1)
+            except AttributeError:
+                x0, x1 = mtransforms.nonsingular(x0, x1, increasing=False,
+                                                         expander=0.05)
+            if self._xmargin > 0:
+                delta = (x1 - x0) * self._xmargin
+                x0 -= delta
+                x1 += delta
+            if not _tight:
+                x0, x1 = xlocator.view_limits(x0, x1)
+            self.set_xbound(x0, x1)
+
+        if scaley and self._autoscaleYon:
+            yshared = self._shared_y_axes.get_siblings(self)
+            dl = [ax.dataLim for ax in yshared]
+            bb = mtransforms.BboxBase.union(dl)
+            y0, y1 = self.xy_dataLim.intervaly
+            ylocator = self.yaxis.get_major_locator()
+            try:
+                y0, y1 = ylocator.nonsingular(y0, y1)
+            except AttributeError:
+                y0, y1 = mtransforms.nonsingular(y0, y1, increasing=False,
+                                                         expander=0.05)
+            if self._ymargin > 0:
+                delta = (y1 - y0) * self._ymargin
+                y0 -= delta
+                y1 += delta
+            if not _tight:
+                y0, y1 = ylocator.view_limits(y0, y1)
+            self.set_ybound(y0, y1)
 
         if scalez and self._autoscaleZon:
-            # TODO: mplot3d does not support the sharing of Z axis.
-            #zshared = self._shared_z_axes.get_siblings(self)
-            #dl = [ax.dataLim for ax in zshared]
-            #bb = mtransforms.BboxBase.union(dl)
+            zshared = self._shared_z_axes.get_siblings(self)
+            dl = [ax.dataLim for ax in zshared]
+            bb = mtransforms.BboxBase.union(dl)
             z0, z1 = self.zz_dataLim.intervalx
             zlocator = self.zaxis.get_major_locator()
             try:
@@ -452,16 +538,6 @@ class Axes3D(Axes):
             if not _tight:
                 z0, z1 = zlocator.view_limits(z0, z1)
             self.set_zbound(z0, z1)
-        """
-        # Previous version's code
-        if not self.get_autoscale_on():
-            return
-        if scalex:
-            self.set_xlim3d(self.xy_dataLim.intervalx)
-        if scaley:
-            self.set_ylim3d(self.xy_dataLim.intervaly)
-        if scalez:
-            self.set_zlim3d(self.zz_dataLim.intervalx)
 
     def get_w_lims(self):
         '''Get 3D world limits.'''
@@ -478,44 +554,167 @@ class Axes3D(Axes):
             xmax += 0.05
         return (xmin, xmax)
 
-    def set_xlim3d(self, *args, **kwargs):
-        '''
+    def set_xlim3d(self, left=None, right=None, emit=True, auto=False, **kw):
+        """
         Set 3D x limits.
 
         See :meth:`matplotlib.axes.Axes.set_xlim` for full documentation.
-        '''
-        # TODO: Add compatibility for 'left' and 'right'
-        # TODO: support 'emit' and 'auto'
-        lims = self._determine_lims(*args, **kwargs)
-        self.xy_viewLim.intervalx = lims
-        return lims
+
+        """
+        if 'xmin' in kw:
+            left = kw.pop('xmin')
+        if 'xmax' in kw:
+            right = kw.pop('xmax')
+        if kw:
+            raise ValueError("unrecognized kwargs: %s" % kw.keys())
+
+        if right is None and iterable(left):
+            left, right = left
+
+        self._process_unit_info(xdata=(left, right))
+        if left is not None:
+            left = self.convert_xunits(left)
+        if right is not None:
+            right = self.convert_xunits(right)
+
+        old_left, old_right = self.get_xlim()
+        if left is None:
+            left = old_left
+        if right is None:
+            right = old_right
+
+        if left == right:
+            warnings.warn(('Attempting to set identical left==right results\n'
+                     'in singular transformations; automatically expanding.\n'
+                     'left=%s, right=%s') % (left, right))
+        left, right = mtransforms.nonsingular(left, right, increasing=False)
+        left, right = self.xaxis.limit_range_for_scale(left, right)
+        self.xy_viewLim.intervalx = (left, right)
+
+        if auto is not None:
+            self._autoscaleXon = bool(auto)
+
+        if emit:
+            self.callbacks.process('xlim_changed', self)
+            # Call all of the other x-axes that are shared with this one
+            for other in self._shared_x_axes.get_siblings(self):
+                if other is not self:
+                    other.set_xlim(self.xy_viewLim.intervalx,
+                                            emit=False, auto=auto)
+                    if (other.figure != self.figure and
+                        other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+
+        return left, right
     set_xlim = set_xlim3d
 
 
-    def set_ylim3d(self, *args, **kwargs):
-        '''
+    def set_ylim3d(self, bottom=None, top=None, emit=True, auto=False, **kw):
+        """
         Set 3D y limits.
 
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation.
-        '''
-        # TODO: Add compatibility for 'top' and 'bottom'
-        # TODO: support 'emit' and 'auto'
-        lims = self._determine_lims(*args, **kwargs)
-        self.xy_viewLim.intervaly = lims
-        return lims
+
+        """
+        if 'ymin' in kw:
+            bottom = kw.pop('ymin')
+        if 'ymax' in kw:
+            top = kw.pop('ymax')
+        if kw:
+            raise ValueError("unrecognized kwargs: %s" % kw.keys())
+
+        if top is None and iterable(bottom):
+            bottom, top = bottom
+
+        self._process_unit_info(ydata=(bottom, top))
+        if bottom is not None:
+            bottom = self.convert_yunits(bottom)
+        if top is not None:
+            top = self.convert_yunits(top)
+
+        old_bottom, old_top = self.get_ylim()
+        if bottom is None:
+            bottom = old_bottom
+        if top is None:
+            top = old_top
+
+        if top == bottom:
+            warnings.warn(('Attempting to set identical bottom==top results\n'
+                     'in singular transformations; automatically expanding.\n'
+                     'bottom=%s, top=%s') % (bottom, top))
+        bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
+        bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
+        self.xy_viewLim.intervaly = (bottom, top)
+
+        if auto is not None:
+            self._autoscaleYon = bool(auto)
+
+        if emit:
+            self.callbacks.process('ylim_changed', self)
+            # Call all of the other y-axes that are shared with this one
+            for other in self._shared_y_axes.get_siblings(self):
+                if other is not self:
+                    other.set_ylim(self.xy_viewLim.intervaly,
+                                            emit=False, auto=auto)
+                    if (other.figure != self.figure and
+                        other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+
+        return bottom, top
     set_ylim = set_ylim3d
 
-    def set_zlim3d(self, *args, **kwargs):
-        '''
+    def set_zlim3d(self, bottom=None, top=None, emit=True, auto=False, **kw):
+        """
         Set 3D z limits.
 
-        See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation.
-        '''
-        # TODO: Add compatibility for 'top' and 'bottom'
-        # TODO: support 'emit' and 'auto'
-        lims = self._determine_lims(*args, **kwargs)
-        self.zz_viewLim.intervalx = lims
-        return lims
+        See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation
+        
+        """
+        if 'zmin' in kw:
+            bottom = kw.pop('zmin')
+        if 'zmax' in kw:
+            top = kw.pop('zmax')
+        if kw:
+            raise ValueError("unrecognized kwargs: %s" % kw.keys())
+
+        if top is None and iterable(bottom):
+            bottom, top = bottom
+
+        self._process_unit_info(zdata=(bottom, top))
+        if bottom is not None:
+            bottom = self.convert_zunits(bottom)
+        if top is not None:
+            top = self.convert_zunits(top)
+
+        old_bottom, old_top = self.get_zlim()
+        if bottom is None:
+            bottom = old_bottom
+        if top is None:
+            top = old_top
+
+        if top == bottom:
+            warnings.warn(('Attempting to set identical bottom==top results\n'
+                     'in singular transformations; automatically expanding.\n'
+                     'bottom=%s, top=%s') % (bottom, top))
+        bottom, top = mtransforms.nonsingular(bottom, top, increasing=False)
+        bottom, top = self.zaxis.limit_range_for_scale(bottom, top)
+        self.zz_viewLim.intervalx = (bottom, top)
+
+        if auto is not None:
+            self._autoscaleZon = bool(auto)
+
+        if emit:
+            self.callbacks.process('zlim_changed', self)
+            # Call all of the other y-axes that are shared with this one
+            for other in self._shared_z_axes.get_siblings(self):
+                if other is not self:
+                    other.set_zlim(self.zz_viewLim.intervalx,
+                                            emit=False, auto=auto)
+                    if (other.figure != self.figure and
+                        other.figure.canvas is not None):
+                        other.figure.canvas.draw_idle()
+
+        return bottom, top
     set_zlim = set_zlim3d
 
     def get_xlim3d(self):
@@ -823,15 +1022,13 @@ class Axes3D(Axes):
         return False
 
     def cla(self):
-        """Clear axes and disable mouse button callbacks.
+        """
+        Clear axes
         """
         # Disabling mouse interaction might have been needed a long
         # time ago, but I can't find a reason for it now - BVR (2012-03)
         #self.disable_mouse_rotation()
         self.zaxis.cla()
-
-        # TODO: Support sharez
-        self._sharez = None
 
         if self._sharez is not None:
             self.zaxis.major = self._sharez.zaxis.major
@@ -1192,7 +1389,7 @@ class Axes3D(Axes):
             This function was added, but not tested. Please report any bugs.
         """
         bottom, top = self.get_zlim()
-        self.set_zlim(top, bottom)
+        self.set_zlim(top, bottom, auto=None)
 
     def zaxis_inverted(self):
         '''
@@ -1987,6 +2184,9 @@ class Axes3D(Axes):
         else:
             is_2d = False
         art3d.patch_collection_2d_to_3d(patches, zs=zs, zdir=zdir)
+
+        if self._zmargin < 0.05 and xs.size > 0:
+            self.set_zmargin(0.05)
 
         #FIXME: why is this necessary?
         if not is_2d:

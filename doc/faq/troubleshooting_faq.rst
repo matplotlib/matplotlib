@@ -68,13 +68,12 @@ Getting help
 There are a number of good resources for getting help with matplotlib.
 There is a good chance your question has already been asked:
 
-  - The `mailing list
-    <http://sourceforge.net/search/?group_id=80706&type_of_search=mlists>`_.
+  - The `mailing list archive <http://matplotlib.1069221.n5.nabble.com/>`_.
 
   - `Github issues <https://github.com/matplotlib/matplotlib/issues>`_.
 
   - Stackoverflow questions tagged `matplotlib
-<http://stackoverflow.com/questions/tagged/matplotlib>`_.
+    <http://stackoverflow.com/questions/tagged/matplotlib>`_.
 
 If you are unable to find an answer to your question through search,
 please provide the following information in your e-mail to the

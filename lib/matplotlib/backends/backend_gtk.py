@@ -326,7 +326,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
     def enter_notify_event(self, widget, event):
         x, y, state = event.window.get_pointer()
-        FigureCanvasBase.enter_notify_event(self, event, xy=(x,y))
+        FigureCanvasBase.enter_notify_event(self, event, xy=(x, y))
 
     def _get_key(self, event):
         if event.keyval in self.keyvald:
@@ -339,9 +339,9 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         for key_mask, prefix in (
                                  [gdk.MOD4_MASK, 'super'],
                                  [gdk.MOD1_MASK, 'alt'],
-                                 [gdk.CONTROL_MASK, 'ctrl'],):
+                                 [gdk.CONTROL_MASK, 'ctrl'], ):
             if event.state & key_mask:
-                key = '{}+{}'.format(prefix, key)
+                key = '{0}+{1}'.format(prefix, key)
 
         return key
 
@@ -359,7 +359,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self._need_redraw = True
 
         return False  # finish event propagation?
-
 
     def draw(self):
         # Note: FigureCanvasBase.draw() is inconveniently named as it clashes

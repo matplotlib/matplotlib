@@ -338,7 +338,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             # prepend the ctrl, alt, super keys if appropriate (sorted in that order)
             for modifier, prefix, Qt_key in self._modifier_keys:
                 if event.key() != Qt_key and int(event.modifiers()) & modifier == modifier:
-                    key = u'{}+{}'.format(prefix, key)
+                    key = u'{0}+{1}'.format(prefix, key)
 
         return key
 
@@ -604,7 +604,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
 
     def set_cursor( self, cursor ):
         if DEBUG: print('Set cursor' , cursor)
-        self.canvas.window().setCursor(cursord[cursor])
+        self.canvas.setCursor(cursord[cursor])
 
     def draw_rubberband( self, event, x0, y0, x1, y1 ):
         height = self.canvas.figure.bbox.height

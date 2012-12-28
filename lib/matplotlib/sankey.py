@@ -2,6 +2,7 @@
 """
 Module for creating Sankey diagrams using matplotlib
 """
+from __future__ import print_function
 __author__ = "Kevin L. Davies"
 __credits__ = ["Yannick Copin"]
 __license__ = "BSD"
@@ -12,8 +13,8 @@ __version__ = "2011/09/16"
 #     http://matplotlib.org/examples/api/sankey_demo_old.html
 # Modifications by Kevin Davies (kld@alumni.carnegiemellon.edu) 6/3/2011:
 #   --Used arcs for the curves (so that the widths of the paths are uniform)
-#   --Converted the function to a class and created methods to join
-#     multiple simple Sankey diagrams
+#   --Converted the function to a class and created methods to join multiple
+#     simple Sankey diagrams
 #   --Provided handling for cases where the total of the inputs isn't 100
 #     Now, the default layout is based on the assumption that the inputs sum to
 #     1.  A scaling parameter can be used in other cases.
@@ -29,7 +30,7 @@ __version__ = "2011/09/16"
 #     inputs/outputs are now specified via an orientation of 0, and there may
 #     be several of each.
 #   --Added assertions to catch common calling errors
-#    -Added the physical unit as a string argument to be used in the labels, so
+#   --Added the physical unit as a string argument to be used in the labels, so
 #     that the values of the flows can usually be applied automatically
 #   --Added an argument for a minimum magnitude below which flows are not shown
 #   --Added a tapered trunk in the case that the flows do not sum to 0
@@ -62,6 +63,129 @@ class Sankey:
       `Wikipedia (6/1/2011) <http://en.wikipedia.org/wiki/Sankey_diagram>`_
 
     """
+
+    def __init__(self, ax=None, scale=1.0, unit='', format='%G', gap=0.25,
+                 radius=0.1, shoulder=0.03, offset=0.15, head_angle=100,
+                 margin=0.4, tolerance=1e-6, **kwargs):
+        """
+        Create a new Sankey instance.
+
+        Optional keyword arguments:
+
+          ===============   ===================================================
+          Field             Description
+          ===============   ===================================================
+          *ax*              axes onto which the data should be plotted
+                            If *ax* isn't provided, new axes will be created.
+          *scale*           scaling factor for the flows
+                            *scale* sizes the width of the paths in order to
+                            maintain proper layout.  The same scale is applied
+                            to all subdiagrams.  The value should be chosen
+                            such that the product of the scale and the sum of
+                            the inputs is approximately 1.0 (and the product of
+                            the scale and the sum of the outputs is
+                            approximately -1.0).
+          *unit*            string representing the physical unit associated
+                            with the flow quantities
+                            If *unit* is None, then none of the quantities are
+                            labeled.
+          *format*          a Python number formatting string to be used in
+                            labeling the flow as a quantity (i.e., a number
+                            times a unit, where the unit is given)
+          *gap*             space between paths that break in/break away
+                            to/from the top or bottom
+          *radius*          inner radius of the vertical paths
+          *shoulder*        size of the shoulders of output arrowS
+          *offset*          text offset (from the dip or tip of the arrow)
+          *head_angle*      angle of the arrow heads (and negative of the angle
+                            of the tails) [deg]
+          *margin*          minimum space between Sankey outlines and the edge
+                            of the plot area
+          *tolerance*       acceptable maximum of the magnitude of the sum of
+                            flows
+                            The magnitude of the sum of connected flows cannot
+                            be greater than *tolerance*.
+          ===============   ===================================================
+
+        The optional arguments listed above are applied to all subdiagrams so
+        that there is consistent alignment and formatting.
+
+        If :class:`Sankey` is instantiated with any keyword arguments other
+        than those explicitly listed above (``**kwargs``), they will be passed
+        to :meth:`add`, which will create the first subdiagram.
+
+        In order to draw a complex Sankey diagram, create an instance of
+        :class:`Sankey` by calling it without any kwargs::
+
+            sankey = Sankey()
+
+        Then add simple Sankey sub-diagrams::
+
+            sankey.add() # 1
+            sankey.add() # 2
+            #...
+            sankey.add() # n
+
+        Finally, create the full diagram::
+
+            sankey.finish()
+
+        Or, instead, simply daisy-chain those calls::
+
+            Sankey().add().add...  .add().finish()
+
+        .. seealso::
+
+            :meth:`add`
+            :meth:`finish`
+
+
+        **Examples:**
+
+            .. plot:: mpl_examples/api/sankey_demo_basics.py
+        """
+        # Check the arguments.
+        assert gap >= 0, (
+            "The gap is negative.\nThis isn't allowed because it "
+            "would cause the paths to overlap.")
+        assert radius <= gap, (
+            "The inner radius is greater than the path spacing.\n"
+            "This isn't allowed because it would cause the paths to overlap.")
+        assert head_angle >= 0, (
+            "The angle is negative.\nThis isn't allowed "
+            "because it would cause inputs to look like "
+            "outputs and vice versa.")
+        assert tolerance >= 0, (
+            "The tolerance is negative.\nIt must be a magnitude.")
+
+        # Create axes if necessary.
+        if ax is None:
+            import matplotlib.pyplot as plt
+            fig = plt.figure()
+            ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[])
+
+        self.diagrams = []
+
+        # Store the inputs.
+        self.ax = ax
+        self.unit = unit
+        self.format = format
+        self.scale = scale
+        self.gap = gap
+        self.radius = radius
+        self.shoulder = shoulder
+        self.offset = offset
+        self.margin = margin
+        self.pitch = np.tan(np.pi * (1 - head_angle / 180.0) / 2.0)
+        self.tolerance = tolerance
+
+        # Initialize the vertices of tight box around the diagram(s).
+        self.extent = np.array((np.inf, -np.inf, np.inf, -np.inf))
+
+        # If there are any kwargs, create the first subdiagram.
+        if len(kwargs):
+            self.add(**kwargs)
+
     def _arc(self, quadrant=0, cw=True, radius=1, center=(0, 0)):
         """
         Return the codes and vertices for a rotated, scaled, and translated
@@ -272,10 +396,10 @@ class Sankey:
                             *orientations* == 0, inputs will break in from the
                             left and outputs will break away to the right.
           *labels*          list of specifications of the labels for the flows
-                            Each value may be None (no labels), '' (just label
-                            the quantities), or a labeling string.  If a single
-                            value is provided, it will be applied to all flows.
-                            If an entry is a non-empty string, then the
+                            Each value may be *None* (no labels), '' (just
+                            label the quantities), or a labeling string.  If a
+                            single value is provided, it will be applied to all
+                            flows.  If an entry is a non-empty string, then the
                             quantity for the corresponding flow will be shown
                             below the string.  However, if the *unit* of the
                             main diagram is None, then quantities are never
@@ -294,7 +418,7 @@ class Sankey:
           *connect*         a (prior, this) tuple indexing the flow of the
                             prior diagram and the flow of this diagram which
                             should be connected
-                            If this is the first diagram or *prior* is None,
+                            If this is the first diagram or *prior* is *None*,
                             *connect* will be ignored.
           *rotation*        angle of rotation of the diagram [deg]
                             *rotation* is ignored if this diagram is connected
@@ -337,7 +461,7 @@ class Sankey:
         if rotation is None:
             rotation = 0
         else:
-            # In the code below, angles are expressed in deg/90
+            # In the code below, angles are expressed in deg/90.
             rotation /= 90.0
         if orientations is None:
             orientations = [0, 0]
@@ -558,7 +682,7 @@ class Sankey:
                                                      llpath[-1][1][1]]))
                     has_left_input = True
                 tip, label_location = self._add_input(llpath, angle, *spec)
-                tips[n - i - 1, :], = tip
+                tips[n - i - 1, :] = tip
                 label_locations[n - i - 1, :] = label_location
         # Add the right-side outputs from the top downwards.
         has_right_output = False
@@ -618,10 +742,10 @@ class Sankey:
             kwds = dict(s=patchlabel, ha='center', va='center')
             text = self.ax.text(*offset, **kwds)
         if False:  # Debug
-            print "llpath\n", llpath
-            print "ulpath\n", self._revert(ulpath)
-            print "urpath\n", urpath
-            print "lrpath\n", self._revert(lrpath)
+            print("llpath\n", llpath)
+            print("ulpath\n", self._revert(ulpath))
+            print("urpath\n", urpath)
+            print("lrpath\n", self._revert(lrpath))
             xs, ys = zip(*vertices)
             self.ax.plot(xs, ys, 'go-')
         patch = PathPatch(Path(vertices, codes),
@@ -632,22 +756,18 @@ class Sankey:
         self.ax.add_patch(patch)
 
         # Add the path labels.
-        for i, (number, angle) in enumerate(zip(flows, angles)):
-            if labels[i] is None or angle is None:
-                labels[i] = ''
+        texts = []
+        for number, angle, label, location in zip(flows, angles, labels,
+                                                  label_locations):
+            if label is None or angle is None:
+                label = ''
             elif self.unit is not None:
                 quantity = self.format % abs(number) + self.unit
-                if labels[i] != '':
-                    labels[i] += "\n"
-                labels[i] += quantity
-        texts = []
-        for i, (label, location) in enumerate(zip(labels, label_locations)):
-            if label:
-                s = label
-            else:
-                s = ''
+                if label != '':
+                    label += "\n"
+                label += quantity
             texts.append(self.ax.text(x=location[0], y=location[1],
-                                      s=s,
+                                      s=label,
                                       ha='center', va='center'))
         # Text objects are placed even they are empty (as long as the magnitude
         # of the corresponding flow is larger than the tolerance) in case the
@@ -697,7 +817,7 @@ class Sankey:
                             (DOWN), and an output from the top side will have
                             an angle of 1 (UP).  If a flow has been skipped
                             (because its magnitude is less than *tolerance*),
-                            then its angle will be None.
+                            then its angle will be *None*.
           *tips*            array in which each row is an [x, y] pair
                             indicating the positions of the tips (or "dips") of
                             the flow paths
@@ -721,125 +841,3 @@ class Sankey:
                       self.extent[3] + self.margin])
         self.ax.set_aspect('equal', adjustable='datalim')
         return self.diagrams
-
-    def __init__(self, ax=None, scale=1.0, unit='', format='%G', gap=0.25,
-                 radius=0.1, shoulder=0.03, offset=0.15, head_angle=100,
-                 margin=0.4, tolerance=1e-6, **kwargs):
-        """
-        Create a new Sankey instance.
-
-        Optional keyword arguments:
-
-          ===============   ===================================================
-          Field             Description
-          ===============   ===================================================
-          *ax*              axes onto which the data should be plotted
-                            If *ax* isn't provided, new axes will be created.
-          *scale*           scaling factor for the flows
-                            *scale* sizes the width of the paths in order to
-                            maintain proper layout.  The same scale is applied
-                            to all subdiagrams.  The value should be chosen
-                            such that the product of the scale and the sum of
-                            the inputs is approximately 1.0 (and the product of
-                            the scale and the sum of the outputs is
-                            approximately -1.0).
-          *unit*            string representing the physical unit associated
-                            with the flow quantities
-                            If *unit* is None, then none of the quantities are
-                            labeled.
-          *format*          a Python number formatting string to be used in
-                            labeling the flow as a quantity (i.e., a number
-                            times a unit, where the unit is given)
-          *gap*             space between paths that break in/break away
-                            to/from the top or bottom
-          *radius*          inner radius of the vertical paths
-          *shoulder*        size of the shoulders of output arrowS
-          *offset*          text offset (from the dip or tip of the arrow)
-          *head_angle*      angle of the arrow heads (and negative of the angle
-                            of the tails) [deg]
-          *margin*          minimum space between Sankey outlines and the edge
-                            of the plot area
-          *tolerance*       acceptable maximum of the magnitude of the sum of
-                            flows
-                            The magnitude of the sum of connected flows cannot
-                            be greater than *tolerance*.
-          ===============   ===================================================
-
-        The optional arguments listed above are applied to all subdiagrams so
-        that there is consistent alignment and formatting.
-
-        If :class:`Sankey` is instantiated with any keyword arguments other
-        than those explicitly listed above (``**kwargs``), they will be passed
-        to :meth:`add`, which will create the first subdiagram.
-
-        In order to draw a complex Sankey diagram, create an instance of
-        :class:`Sankey` by calling it without any kwargs::
-
-            sankey = Sankey()
-
-        Then add simple Sankey sub-diagrams::
-
-            sankey.add() # 1
-            sankey.add() # 2
-            #...
-            sankey.add() # n
-
-        Finally, create the full diagram::
-
-            sankey.finish()
-
-        Or, instead, simply daisy-chain those calls::
-
-            Sankey().add().add...  .add().finish()
-
-        .. seealso::
-
-            :meth:`add`
-            :meth:`finish`
-
-
-        **Examples:**
-
-            .. plot:: mpl_examples/api/sankey_demo_basics.py
-        """
-        # Check the arguments.
-        assert gap >= 0, (
-            "The gap is negative.\nThis isn't allowed because it "
-            "would cause the paths to overlap.")
-        assert radius <= gap, (
-            "The inner radius is greater than the path spacing.\n"
-            "This isn't allowed because it would cause the paths to overlap.")
-        assert head_angle >= 0, (
-            "The angle is negative.\nThis isn't allowed "
-            "because it would cause inputs to look like "
-            "outputs and vice versa.")
-        assert tolerance >= 0, (
-            "The tolerance is negative.\nIt must be a magnitude.")
-
-        # Create axes if necessary.
-        if ax is None:
-            import matplotlib.pyplot as plt
-            fig = plt.figure()
-            ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[])
-
-        self.diagrams = []
-
-        # Store the inputs.
-        self.ax = ax
-        self.unit = unit
-        self.format = format
-        self.scale = scale
-        self.gap = gap
-        self.radius = radius
-        self.shoulder = shoulder
-        self.offset = offset
-        self.margin = margin
-        self.pitch = np.tan(np.pi * (1 - head_angle / 180.0) / 2.0)
-        self.tolerance = tolerance
-
-        # Initialize the vertices of tight box around the diagram(s).
-        self.extent = np.array((np.inf, -np.inf, np.inf, -np.inf))
-
-        # If there are any kwargs, create the first subdiagram.
-        if len(kwargs):
-            self.add(**kwargs)

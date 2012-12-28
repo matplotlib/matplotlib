@@ -727,6 +727,9 @@ def subplot(*args, **kwargs):
 
     ``subplot(111)`` is the default axis.
 
+    ``subplot()`` by itself is the same as ``subplot(111)``
+
+
     New subplots that overlap old will delete the old axes.  If you do
     not want this behavior, use
     :meth:`~matplotlib.figure.Figure.add_subplot` or the
@@ -768,6 +771,10 @@ def subplot(*args, **kwargs):
     .. plot:: mpl_examples/pylab_examples/subplot_demo.py
 
     """
+    # if subplot called without arguments, create subplot(1,1,1)
+    if len(args)==0:
+        args=(1,1,1)
+
     # This check was added because it is very easy to type
     # subplot(1, 2, False) when subplots(1, 2, False) was intended
     # (sharex=False, that is). In most cases, no error will
@@ -2020,8 +2027,6 @@ def set_cmap(cmap):
 
     if im is not None:
         im.set_cmap(cmap)
-    else:
-        raise RuntimeError('You must first define an image, eg with imshow')
 
     draw_if_interactive()
 
@@ -2094,8 +2099,7 @@ def polar(*args, **kwargs):
 
 def plotfile(fname, cols=(0,), plotfuncs=None,
              comments='#', skiprows=0, checkrows=5, delimiter=',', names=None,
-             subplots=True, newfig=True,
-             **kwargs):
+             subplots=True, newfig=True, **kwargs):
     """
     Plot the data in in a file.
 
@@ -2190,9 +2194,6 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
                     ax = fig.add_subplot(N-1,1,i, sharex=ax1)
             elif i==1:
                 ax = fig.add_subplot(1,1,1)
-
-            ax.grid(True)
-
 
             yname, y = getname_val(cols[i])
             ynamelist.append(yname)

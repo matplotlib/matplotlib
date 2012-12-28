@@ -14,7 +14,7 @@ provides a ``usetex`` option for those who do want to call out to TeX
 to generate their text (see :ref:`usetex-tutorial`).
 
 Any text element can use math text.  You should use raw strings
-(preceed the quotes with an ``'r'``), and surround the math text with
+(precede the quotes with an ``'r'``), and surround the math text with
 dollar signs ($), as in TeX.  Regular text and mathtext can be
 interleaved within the same string.  Mathtext can use the Computer
 Modern fonts (from (La)TeX), `STIX <http://www.aip.org/stixfonts/>`_

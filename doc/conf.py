@@ -133,7 +133,7 @@ html_sidebars = {'index': 'indexsidebar.html',
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-html_additional_pages = {'index': 'index.html', 'gallery':'gallery.html'}
+html_additional_pages = {'index': 'index.html', 'gallery':'gallery.html', 'citing':'citing.html'}
 
 # If false, no module index is generated.
 #html_use_modindex = True

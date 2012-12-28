@@ -1157,43 +1157,6 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
     return Py_None;
 }
 
-static BOOL _clip(CGContextRef cr, PyObject* object)
-{
-    if (object == Py_None) return true;
-
-    PyArrayObject* array = NULL;
-    array = (PyArrayObject*) PyArray_FromObject(object, PyArray_DOUBLE, 2, 2);
-    if (!array)
-    {
-        PyErr_SetString(PyExc_ValueError, "failed to read clipping bounding box");
-        return false;
-    }
-
-    if (PyArray_NDIM(array)!=2 || PyArray_DIM(array, 0)!=2 || PyArray_DIM(array, 1)!=2)
-    {
-        Py_DECREF(array);
-        PyErr_SetString(PyExc_ValueError, "clipping bounding box should be a 2x2 array");
-        return false;
-    }
-
-    const double l = *(double*)PyArray_GETPTR2(array, 0, 0);
-    const double b = *(double*)PyArray_GETPTR2(array, 0, 1);
-    const double r = *(double*)PyArray_GETPTR2(array, 1, 0);
-    const double t = *(double*)PyArray_GETPTR2(array, 1, 1);
-
-    Py_DECREF(array);
-
-    CGRect rect;
-    rect.origin.x = (CGFloat) l;
-    rect.origin.y = (CGFloat) b;
-    rect.size.width = (CGFloat) (r-l);
-    rect.size.height = (CGFloat) (t-b);
-
-    CGContextClipToRect(cr, rect);
-
-    return true;
-}
-
 static int _transformation_converter(PyObject* object, void* pointer)
 {
     CGAffineTransform* matrix = (CGAffineTransform*)pointer;
@@ -3038,9 +3001,6 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
     const char* data;
     int n;
     PyObject* image;
-    PyObject* cliprect;
-    PyObject* clippath;
-    PyObject* clippath_transform;
 
     CGContextRef cr = self->cr;
     if (!cr)
@@ -3049,18 +3009,14 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "ffiiOOOO", &x,
-                                           &y,
-                                           &nrows,
-                                           &ncols,
-                                           &image,
-                                           &cliprect,
-                                           &clippath,
-                                           &clippath_transform)) return NULL;
+    if(!PyArg_ParseTuple(args, "ffiiO", &x,
+                                        &y,
+                                        &nrows,
+                                        &ncols,
+                                        &image)) return NULL;
 
     CGColorSpaceRef colorspace;
     CGDataProviderRef provider;
-    double rect[4] = {0.0, 0.0, self->size.width, self->size.height};
 
     if (!PyBytes_Check(image))
     {
@@ -3118,40 +3074,8 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    BOOL ok = true;
-    CGContextSaveGState(cr);
-    if (!_clip(cr, cliprect)) ok = false;
-    else if (clippath!=Py_None)
-    {
-        int n;
-        void* iterator  = get_path_iterator(clippath,
-                                            clippath_transform,
-                                            0,
-                                            0,
-                                            rect,
-                                            SNAP_AUTO,
-                                            1.0,
-                                            0);
-        if (iterator)
-        {
-            n = _draw_path(cr, iterator);
-            free_path_iterator(iterator);
-            if (n > 0) CGContextClip(cr);
-        }
-        else
-        {
-            PyErr_SetString(PyExc_RuntimeError,
-                "draw_image: failed to obtain path iterator for clipping");
-            ok = false;
-        }
-    }
-
-    if (ok) CGContextDrawImage(cr, CGRectMake(x,y,ncols,nrows), bitmap);
-
+    CGContextDrawImage(cr, CGRectMake(x,y,ncols,nrows), bitmap);
     CGImageRelease(bitmap);
-    CGContextRestoreGState(cr);
-
-    if (!ok) return NULL;
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -5769,12 +5693,14 @@ show(PyObject* self)
     if(nwin > 0)
     {
         [NSApp activateIgnoringOtherApps: YES];
+        NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
         NSArray *windowsArray = [NSApp windows];
         NSEnumerator *enumerator = [windowsArray objectEnumerator];
         NSWindow *window;
         while ((window = [enumerator nextObject])) {
             [window orderFront:nil];
         }
+        [pool release];
         [NSApp run];
     }
     Py_INCREF(Py_None);

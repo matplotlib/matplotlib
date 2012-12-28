@@ -37,27 +37,6 @@ class Triangulation(object):
         triangles[i,(j+1)%3].
     """
     def __init__(self, x, y, triangles=None, mask=None):
-        """
-        Create a Triangulation object.
-
-        The first two arguments must be:
-
-        *x*, *y*: arrays of shape (npoints).
-          Point coordinates.
-
-        Optional arguments (args or keyword args):
-
-        *triangles*: integer array of shape (ntri,3).
-          For each triangle, the indices of the three points that make
-          up the triangle.  If the points are ordered in a clockwise
-          manner, they are converted to anticlockwise.
-
-          If not specified, matplotlib.delaunay is used to create a
-          Delaunay triangulation of the points.
-
-        *mask*: optional boolean array of shape (ntri).
-          Which triangles are masked out.
-        """
         self.x = np.asarray(x, dtype=np.float64)
         self.y = np.asarray(y, dtype=np.float64)
         if self.x.shape != self.y.shape or len(self.x.shape) != 1:
@@ -80,8 +59,9 @@ class Triangulation(object):
                 neighbors = np.asarray(dt.triangle_neighbors, dtype=np.int32)
                 self._neighbors = np.roll(neighbors, 1, axis=1)
         else:
-            # Triangulation specified.
-            self.triangles = np.asarray(triangles, dtype=np.int32)
+            # Triangulation specified. Copy, since we may correct triangle
+            # orientation.
+            self.triangles = np.array(triangles, dtype=np.int32)
             if self.triangles.ndim != 2 or self.triangles.shape[1] != 3:
                 raise ValueError('triangles must be a (?,3) array')
             if self.triangles.max() >= len(self.x):
@@ -106,10 +86,8 @@ class Triangulation(object):
         return self._edges
 
     def get_cpp_triangulation(self):
-        """
-        Return the underlying C++ Triangulation object, creating it
-        if necessary.
-        """
+        # Return the underlying C++ Triangulation object, creating it
+        # if necessary.
         if self._cpp_triangulation is None:
             self._cpp_triangulation = _tri.Triangulation(
                 self.x, self.y, self.triangles, self.mask, self._edges,

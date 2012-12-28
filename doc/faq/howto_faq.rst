@@ -496,7 +496,7 @@ and :ref:`what-is-a-backend`).
    Therefore, multiple calls to ``show`` are now allowed.
 
 Having ``show`` block further execution of the script or the python
-interperator depends on whether matplotlib is set for interactive mode
+interpreter depends on whether matplotlib is set for interactive mode
 or not.  In non-interactive mode (the default setting), execution is paused
 until the last figure window is closed.  In interactive mode, the execution
 is not paused, which allows you to create additional figures (but the script
@@ -757,8 +757,8 @@ Cite Matplotlib
 
 If you want to refer to matplotlib in a publication, you can use
 "Matplotlib: A 2D Graphics Environment" by J. D. Hunter In Computing
-in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `here
-<http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
+in Science & Engineering, Vol. 9, No. 3. (2007), pp. 90-95 (see `this
+reference page <http://dx.doi.org/10.1109/MCSE.2007.55>`_)::
 
   @article{Hunter:2007,
 	  Address = {10662 LOS VAQUEROS CIRCLE, PO BOX 3014, LOS ALAMITOS, CA 90720-1314 USA},

@@ -309,8 +309,6 @@ PyInit_ttconv(void)
 PyMODINIT_FUNC
 initttconv(void)
 {
-    PyObject* m;
-
-    m = Py_InitModule3("ttconv", ttconv_methods, module_docstring);
+    Py_InitModule3("ttconv", ttconv_methods, module_docstring);
 }
 #endif

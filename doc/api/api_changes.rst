@@ -15,6 +15,11 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* Removed call of :meth:`~matplotlib.axes.Axes.grid` in
+  :meth:`~matplotlib.pyplot.plotfile`. To draw the axes grid, set to *True*
+  matplotlib.rcParams['axes.grid'] or ``axes.grid`` in ``.matplotlibrc`` or
+  explicitly call :meth:`~matplotlib.axes.Axes.grid`
+
 * A new keyword *extendrect* in :meth:`~matplotlib.pyplot.colorbar` and
   :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the shape
   of colorbar extensions.
@@ -74,7 +79,7 @@ Changes in 1.2.x
       projection = kwargs.pop('projection', None)
       if ispolar:
           if projection is not None and projection != 'polar':
-              raise ValuError('polar and projection args are inconsistent')
+              raise ValueError('polar and projection args are inconsistent')
           projection = 'polar'
       ax = projection_factory(projection, self, rect, **kwargs)
       key = self._make_key(*args, **kwargs)
@@ -802,7 +807,7 @@ Changes for 0.91.0
 
 * Changed :func:`cbook.reversed` so it yields a tuple rather than a
   (index, tuple). This agrees with the python reversed builtin,
-  and cbook only defines reversed if python doesnt provide the
+  and cbook only defines reversed if python doesn't provide the
   builtin.
 
 * Made skiprows=1 the default on :func:`csv2rec`
@@ -887,13 +892,13 @@ Changes for 0.90.1
     units.AxisInfo object rather than a tuple.  This will make it
     easier to add axis info functionality (eg I added a default label
     on this iteration) w/o having to change the tuple length and hence
-    the API of the client code everytime new functionality is added.
+    the API of the client code every time new functionality is added.
     Also, units.ConversionInterface.convert_to_value is now simply
     named units.ConversionInterface.convert.
 
     Axes.errorbar uses Axes.vlines and Axes.hlines to draw its error
     limits int he vertical and horizontal direction.  As you'll see
-    in the changes below, these funcs now return a LineCollection
+    in the changes below, these functions now return a LineCollection
     rather than a list of lines.  The new return signature for
     errorbar is  ylins, caplines, errorcollections where
     errorcollections is a xerrcollection, yerrcollection
@@ -978,7 +983,7 @@ Changes for 0.87.7
     markeredgecolor and markerfacecolor cannot be configured in
     matplotlibrc any more. Instead, markers are generally colored
     automatically based on the color of the line, unless marker colors
-    are explicitely set as kwargs - NN
+    are explicitly set as kwargs - NN
 
     Changed default comment character for load to '#' - JDH
 
@@ -1193,7 +1198,7 @@ Changes for 0.82
 
         I see that hist uses the linspace function to create the bins
         and then uses searchsorted to put the values in their correct
-        bin. Thats all good but I am confused over the use of linspace
+        bin. That's all good but I am confused over the use of linspace
         for the bin creation. I wouldn't have thought that it does
         what is needed, to quote the docstring it creates a "Linear
         spaced array from min to max". For it to work correctly
@@ -1389,7 +1394,7 @@ Changes for 0.65.1
 
   removed add_axes and add_subplot from backend_bases.  Use
   figure.add_axes and add_subplot instead.  The figure now manages the
-  current axes with gca and sca for get and set current axe.  If you
+  current axes with gca and sca for get and set current axes.  If you
   have code you are porting which called, eg, figmanager.add_axes, you
   can now simply do figmanager.canvas.figure.add_axes.
 
@@ -1457,7 +1462,7 @@ Changes for 0.61
 
   canvas.connect is now deprecated for event handling.  use
   mpl_connect and mpl_disconnect instead.  The callback signature is
-  func(event) rather than func(widget, evet)
+  func(event) rather than func(widget, event)
 
 Changes for 0.60
 ================
@@ -1621,7 +1626,7 @@ Object constructors
   You no longer pass the bbox, dpi, or transforms to the various
   Artist constructors.  The old way or creating lines and rectangles
   was cumbersome because you had to pass so many attributes to the
-  Line2D and Rectangle classes not related directly to the gemoetry
+  Line2D and Rectangle classes not related directly to the geometry
   and properties of the object.  Now default values are added to the
   object when you call axes.add_line or axes.add_patch, so they are
   hidden from the user.
@@ -1650,18 +1655,18 @@ Transformations
 
   The entire transformation architecture has been rewritten.
   Previously the x and y transformations where stored in the xaxis and
-  yaxis insstances.  The problem with this approach is it only allows
+  yaxis instances.  The problem with this approach is it only allows
   for separable transforms (where the x and y transformations don't
   depend on one another).  But for cases like polar, they do.  Now
   transformations operate on x,y together.  There is a new base class
   matplotlib.transforms.Transformation and two concrete
-  implemetations, matplotlib.transforms.SeparableTransformation and
+  implementations, matplotlib.transforms.SeparableTransformation and
   matplotlib.transforms.Affine.  The SeparableTransformation is
   constructed with the bounding box of the input (this determines the
   rectangular coordinate system of the input, ie the x and y view
-  limits), the bounding box of the display, and possibily nonlinear
+  limits), the bounding box of the display, and possibly nonlinear
   transformations of x and y.  The 2 most frequently used
-  transformations, data cordinates -> display and axes coordinates ->
+  transformations, data coordinates -> display and axes coordinates ->
   display are available as ax.transData and ax.transAxes.  See
   alignment_demo.py which uses axes coords.
 
@@ -1791,7 +1796,7 @@ Changes for 0.42
 
   * backend_bases.AxisTextBase is now text.Text module
 
-  * All the erase and reset functionality removed frmo AxisText - not
+  * All the erase and reset functionality removed from AxisText - not
     needed with double buffered drawing.  Ditto with state change.
     Text instances have a get_prop_tup method that returns a hashable
     tuple of text properties which you can use to see if text props

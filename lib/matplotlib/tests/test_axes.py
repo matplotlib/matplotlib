@@ -419,6 +419,29 @@ def test_hexbin_extent():
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
 
+@cleanup
+def test_inverted_limits():
+    # Test gh:1553
+    # Calling invert_xaxis prior to plotting should not disable autoscaling
+    # while still maintaining the inverted direction
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.invert_xaxis()
+    ax.plot([-5, -3, 2, 4], [1, 2, -3, 5])
+
+    assert ax.get_xlim() == (4, -5)
+    assert ax.get_ylim() == (-3, 5)
+    plt.close()
+
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.invert_yaxis()
+    ax.plot([-5, -3, 2, 4], [1, 2, -3, 5])
+
+    assert ax.get_xlim() == (-5, 4)
+    assert ax.get_ylim() == (5, -3)
+    plt.close()
+
 @image_comparison(baseline_images=['nonfinite_limits'])
 def test_nonfinite_limits():
     x = np.arange(0., np.e, 0.01)
