@@ -933,6 +933,49 @@ def test_transparent_markers():
     ax = fig.add_subplot(111)
     ax.plot(data, 'D', mfc='none', markersize=100)
 
+@cleanup
+def test_mollweide_forward_inverse_closure():
+    # test that the round-trip Mollweide forward->inverse transformation is an
+    # approximate identity
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='mollweide')
+
+    # set up 1-degree grid in longitude, latitude
+    lon = np.linspace(-np.pi, np.pi, 360)
+    lat = np.linspace(-np.pi / 2.0, np.pi / 2.0, 180)
+    lon, lat = np.meshgrid(lon, lat)
+    ll = np.vstack((lon.flatten(), lat.flatten())).T
+
+    # perform forward transform
+    xy = ax.transAxes.transform(ll)
+
+    # perform inverse transform
+    ll2 = ax.transAxes.inverted().transform(xy)
+
+    # compare
+    np.testing.assert_array_almost_equal(ll, ll2)
+
+@cleanup
+def test_mollweide_inverse_forward_closure():
+    # test that the round-trip Mollweide inverse->forward transformation is an
+    # approximate identity
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='mollweide')
+
+    # set up grid in x, y
+    x = np.linspace(0, 1, 500)
+    x, y = np.meshgrid(x, x)
+    xy = np.vstack((x.flatten(), y.flatten())).T
+
+    # perform inverse transform
+    ll = ax.transAxes.inverted().transform(xy)
+
+    # perform forward transform
+    xy2 = ax.transAxes.transform(ll)
+
+    # compare
+    np.testing.assert_array_almost_equal(xy, xy2)
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
