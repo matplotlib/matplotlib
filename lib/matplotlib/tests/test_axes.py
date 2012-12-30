@@ -947,10 +947,10 @@ def test_mollweide_forward_inverse_closure():
     ll = np.vstack((lon.flatten(), lat.flatten())).T
 
     # perform forward transform
-    xy = ax.transAxes.transform(ll)
+    xy = ax.transProjection.transform(ll)
 
     # perform inverse transform
-    ll2 = ax.transAxes.inverted().transform(xy)
+    ll2 = ax.transProjection.inverted().transform(xy)
 
     # compare
     np.testing.assert_array_almost_equal(ll, ll2)
@@ -968,10 +968,10 @@ def test_mollweide_inverse_forward_closure():
     xy = np.vstack((x.flatten(), y.flatten())).T
 
     # perform inverse transform
-    ll = ax.transAxes.inverted().transform(xy)
+    ll = ax.transProjection.inverted().transform(xy)
 
     # perform forward transform
-    xy2 = ax.transAxes.transform(ll)
+    xy2 = ax.transProjection.transform(ll)
 
     # compare
     np.testing.assert_array_almost_equal(xy, xy2)
