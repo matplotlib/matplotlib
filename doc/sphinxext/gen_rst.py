@@ -33,9 +33,10 @@ def generate_example_rst(app):
         os.makedirs(exampledir)
 
     example_sections = list(app.builder.config.mpl_example_sections)
-    for section in exclude_example_sections:
-        example_sections.remove(section)
-
+    for i, (subdir, title) in enumerate(example_sections):
+        if subdir in exclude_example_sections:
+            example_sections.pop(i)
+    example_subdirs, titles = zip(*example_sections)
 
     datad = {}
     for root, subFolders, files in os.walk(rootdir):
@@ -122,7 +123,7 @@ Matplotlib Examples
 
             fhsubdirIndex.write('    %s <%s>\n'%(os.path.basename(basename),rstfile))
 
-            do_plot = (subdir in example_sections
+            do_plot = (subdir in example_subdirs
                        and not noplot_regex.search(contents))
             if not do_plot:
                 fhstatic = file(outputfile, 'w')
