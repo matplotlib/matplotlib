@@ -49,9 +49,9 @@ def test_fancy():
 
 @image_comparison(baseline_images=['framealpha'], remove_text=True)
 def test_framealpha():
-    x = np.linspace(1,100,100)
+    x = np.linspace(1, 100, 100)
     y = x
-    plt.plot(x,y, label='mylabel', lw=10)
+    plt.plot(x, y, label='mylabel', lw=10)
     plt.legend(framealpha=0.5)
     
 @image_comparison(baseline_images=['scatter_rc3','scatter_rc1'], remove_text=True)

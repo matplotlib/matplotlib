@@ -168,7 +168,7 @@ class Legend(Artist):
                  shadow=None,
                  title=None,  # set a title for the legend
 
-                 framealpha=None, #set frame alpha
+                 framealpha=None, # set frame alpha
 
                  bbox_to_anchor=None,  # bbox that the legend will be anchored.
                  bbox_transform=None,  # transform for the bbox
