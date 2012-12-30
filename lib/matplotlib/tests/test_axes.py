@@ -953,7 +953,7 @@ def test_mollweide_forward_inverse_closure():
     ll2 = ax.transProjection.inverted().transform(xy)
 
     # compare
-    np.testing.assert_array_almost_equal(ll, ll2)
+    np.testing.assert_array_almost_equal(ll, ll2, 3)
 
 @cleanup
 def test_mollweide_inverse_forward_closure():
@@ -974,7 +974,7 @@ def test_mollweide_inverse_forward_closure():
     xy2 = ax.transProjection.transform(ll)
 
     # compare
-    np.testing.assert_array_almost_equal(xy, xy2)
+    np.testing.assert_array_almost_equal(xy, xy2, 3)
 
 if __name__=='__main__':
     import nose
