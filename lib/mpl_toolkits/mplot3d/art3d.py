@@ -94,17 +94,37 @@ class Line3D(lines.Line2D):
     3D line object.
     '''
 
-    def __init__(self, xs, ys, zs, *args, **kwargs):
+    def __init__(self, xs, ys, zs, zdir='z', *args, **kwargs):
         '''
+        *zdir* sets with axes to treat as 'z'
+        
         Keyword arguments are passed onto :func:`~matplotlib.lines.Line2D`.
         '''
         lines.Line2D.__init__(self, [], [], *args, **kwargs)
-        self._verts3d = xs, ys, zs
+        self.set_3d_data(xs, ys, zs, zdir)
 
     def set_3d_properties(self, zs=0, zdir='z'):
+        # this is broken, because if the line has
+        # ever been drawn, these are the projected (x,y)
+        # see draw()
         xs = self.get_xdata()
         ys = self.get_ydata()
 
+        try:
+            zs = float(zs)
+            zs = [zs for x in xs]
+        except:
+            pass
+        self._verts3d = juggle_axes(xs, ys, zs, zdir)
+
+    def set_3d_data(self, xs=None, ys=None, zs=None, zdir='z'):
+        x_old, y_old, z_old = self._verts3d
+        if xs is None:
+            xs = x_old
+        if ys is None:
+            ys = y_old
+        if zs is None:
+            zs = z_old
         try:
             zs = float(zs)
             zs = [zs for x in xs]
