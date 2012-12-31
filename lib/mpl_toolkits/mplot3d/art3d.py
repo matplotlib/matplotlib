@@ -94,12 +94,14 @@ class Line3D(lines.Line2D):
     3D line object.
     '''
 
-    def __init__(self, xs, ys, zs, *args, **kwargs):
+    def __init__(self, xs, ys, zs, zdir='z', *args, **kwargs):
         '''
+        *zdir* sets with axes to treat as 'z'
+        
         Keyword arguments are passed onto :func:`~matplotlib.lines.Line2D`.
         '''
         lines.Line2D.__init__(self, [], [], *args, **kwargs)
-        self.set_3d_data(xs,ys,zs)
+        self.set_3d_data(xs, ys, zs, zdir)
 
     def set_3d_properties(self, zs=0, zdir='z'):
         # this is broken, because if the line has
