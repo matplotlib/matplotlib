@@ -3763,8 +3763,6 @@ class Axes(martist.Artist):
                             for thisxmin, thisxmax, thisy in zip(xmin, xmax, y)]
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyles=linestyles, label=label)
-        if 'zorder' in kwargs:
-            coll.set_zorder(kwargs['zorder'])
         self.add_collection(coll)
         coll.update(kwargs)
 
@@ -3847,8 +3845,6 @@ class Axes(martist.Artist):
         #print 'creating line collection'
         coll = mcoll.LineCollection(verts, colors=colors,
                                     linestyles=linestyles, label=label)
-        if 'zorder' in kwargs:
-            coll.set_zorder(kwargs['zorder'])
         self.add_collection(coll)
         coll.update(kwargs)
 
