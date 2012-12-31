@@ -118,7 +118,7 @@ class Line3D(lines.Line2D):
         self._verts3d = juggle_axes(xs, ys, zs, zdir)
 
     def set_3d_data(self, xs=None, ys=None, zs=None, zdir='z'):
-        x_old,y_old,z_old = self._verts3d
+        x_old, y_old, z_old = self._verts3d
         if xs is None:
             xs = x_old
         if ys is None:
