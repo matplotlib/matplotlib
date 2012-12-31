@@ -49,6 +49,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         * *cmap*: None (optional for
           :class:`matplotlib.cm.ScalarMappable`)
         * *hatch*: None
+        * *zorder*: 1 
+
 
     *offsets* and *transOffset* are used to translate the patch after
     rendering (default no offsets).  If offset_position is 'screen'
@@ -72,7 +74,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     _transOffset = transforms.IdentityTransform()
     _transforms = []
 
-    zorder = 1
+
 
     def __init__(self,
                  edgecolors=None,
@@ -88,6 +90,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  hatch=None,
                  urls=None,
                  offset_position='screen',
+                 zorder=1,
                  **kwargs
                  ):
         """
@@ -107,7 +110,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_urls(urls)
         self.set_hatch(hatch)
         self.set_offset_position(offset_position)
-
+        self.set_zorder(zorder)
+        
         self._uniform_offsets = None
         self._offsets = np.array([], np.float_)
         # Force _offsets to be Nx2
@@ -897,7 +901,7 @@ class LineCollection(Collection):
     i.e., the properties cycle if the ``len`` of props is less than the
     number of segments.
     """
-    zorder = 2
+
 
     def __init__(self, segments,     # Can be None.
                  linewidths=None,
@@ -909,6 +913,7 @@ class LineCollection(Collection):
                  norm=None,
                  cmap=None,
                  pickradius=5,
+                 zorder=2,
                  **kwargs
                  ):
         """
@@ -959,6 +964,9 @@ class LineCollection(Collection):
         *pickradius* is the tolerance for mouse clicks picking a line.
         The default is 5 pt.
 
+        *zorder*
+           2 the zorder of the LineCollection
+
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
         If the :class:`~matplotlib.cm.ScalarMappable` array
         :attr:`~matplotlib.cm.ScalarMappable._A` is not None (ie a call to
@@ -987,6 +995,7 @@ class LineCollection(Collection):
             norm=norm,
             cmap=cmap,
             pickradius=pickradius,
+            zorder=zorder,
             **kwargs)
 
         self.set_segments(segments)
