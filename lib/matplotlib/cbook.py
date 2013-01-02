@@ -323,9 +323,10 @@ class CallbackRegistry:
             except KeyError:
                 continue
             else:
-                for key, value in self._func_cid_map.items():
-                    if value == cid:
-                        del self._func_cid_map[key]
+                for category, functions in self._func_cid_map.items():
+                    for function, value in functions.items():
+                        if value == cid:
+                            del functions[function]
                 return
 
     def process(self, s, *args, **kwargs):
