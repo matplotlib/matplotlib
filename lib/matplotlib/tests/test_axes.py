@@ -963,6 +963,6 @@ def test_eb_line_zorder():
     ax.errorbar(x, y, yerr=yerr, zorder=5, lw=5, color='r')
     for j in range(10):
         ax.axhline(j, lw=5, color='k', zorder=j)
-        ax.axhline(-j, lw=5, color='k', qzorder=j)
+        ax.axhline(-j, lw=5, color='k', zorder=j)
 
     ax.set_title("errorbar zorder test")
