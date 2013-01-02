@@ -5441,7 +5441,9 @@ class Axes(martist.Artist):
                 lines_kw['lw']=kwargs['lw']
         if 'transform' in kwargs:
             lines_kw['transform'] = kwargs['transform']
-
+        if 'zorder' in kwargs:
+            lines_kw['zorder'] = kwargs['zorder']
+            
         # arrays fine here, they are booleans and hence not units
         if not iterable(lolims):
             lolims = np.asarray([lolims]*len(x), bool)
@@ -5489,6 +5491,9 @@ class Axes(martist.Artist):
                 plot_kw['mew']=kwargs['mew']
             if 'transform' in kwargs:
                 plot_kw['transform'] = kwargs['transform']
+            if 'zorder' in kwargs:
+                plot_kw['zorder'] = kwargs['zorder']
+
 
         if xerr is not None:
             if (iterable(xerr) and len(xerr)==2 and
