@@ -647,6 +647,9 @@ def add_ft2font_flags(module):
             if os.path.exists(p): module.library_dirs.append(p)
     else:
         add_base_flags(module)
+        basedirs = module.include_dirs[:]
+        for d in basedirs:
+            module.include_dirs.append(os.path.join(d, 'freetype2'))
         module.libraries.append('z')
 
     # put this last for library link order
