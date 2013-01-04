@@ -878,22 +878,26 @@ class Wedge(Patch):
         self.center = center
         self.r, self.width = r, width
         self.theta1, self.theta2 = theta1, theta2
+        self._patch_transform = transforms.IdentityTransform()
+        self._recompute_path()
 
+    def _recompute_path(self):
         # Inner and outer rings are connected unless the annulus is complete
-        if abs((theta2 - theta1) - 360) <= 1e-12:
+        if abs((self.theta2 - self.theta1) - 360) <= 1e-12:
             theta1, theta2 = 0, 360
             connector = Path.MOVETO
         else:
+            theta1, theta2 = self.theta1, self.theta2
             connector = Path.LINETO
 
         # Form the outer ring
         arc = Path.arc(theta1, theta2)
 
-        if width is not None:
-            # Partial annulus needs to draw the outter ring
+        if self.width is not None:
+            # Partial annulus needs to draw the outer ring
             # followed by a reversed and scaled inner ring
             v1 = arc.vertices
-            v2 = arc.vertices[::-1] * float(r - width) / r
+            v2 = arc.vertices[::-1] * float(self.r - self.width) / self.r
             v = np.vstack([v1, v2, v1[0, :], (0, 0)])
             c = np.hstack([arc.codes, arc.codes, connector, Path.CLOSEPOLY])
             c[len(arc.codes)] = connector
@@ -903,12 +907,33 @@ class Wedge(Patch):
             c = np.hstack([arc.codes, [connector, connector, Path.CLOSEPOLY]])
 
         # Shift and scale the wedge to the final location.
-        v *= r
-        v += np.asarray(center)
+        v *= self.r
+        v += np.asarray(self.center)
         self._path = Path(v, c)
-        self._patch_transform = transforms.IdentityTransform()
+
+    def set_center(self, center):
+        self._path = None
+        self.center = center
+
+    def set_radius(self, radius):
+        self._path = None
+        self.radius = radius
+
+    def set_theta1(self, theta1):
+        self._path = None
+        self.theta1 = theta1
+
+    def set_theta2(self, theta2):
+        self._path = None
+        self.theta2 = theta2
+
+    def set_width(self, width):
+        self._path = None
+        self.width = width
 
     def get_path(self):
+        if self._path is None:
+            self._recompute_path()
         return self._path
 
 
