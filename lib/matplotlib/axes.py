@@ -5443,7 +5443,7 @@ class Axes(martist.Artist):
             lines_kw['transform'] = kwargs['transform']
         if 'zorder' in kwargs:
             lines_kw['zorder'] = kwargs['zorder']
-            
+
         # arrays fine here, they are booleans and hence not units
         if not iterable(lolims):
             lolims = np.asarray([lolims]*len(x), bool)
@@ -6442,28 +6442,28 @@ class Axes(martist.Artist):
         if xscale == 'log' or yscale == 'log':
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
             if xscale == 'log':
-                polygons[:,:,0] = 10.0 ** polygons[:,:,0]
+                polygons[:, :, 0] = 10.0 ** polygons[:, :, 0]
                 xmin = 10.0 ** xmin
                 xmax = 10.0 ** xmax
                 self.set_xscale(xscale)
             if yscale == 'log':
-                polygons[:,:,1] = 10.0 ** polygons[:,:,1]
+                polygons[:, :, 1] = 10.0 ** polygons[:, :, 1]
                 ymin = 10.0 ** ymin
                 ymax = 10.0 ** ymax
                 self.set_yscale(yscale)
             collection = mcoll.PolyCollection(
                 polygons,
-                edgecolors = edgecolors,
-                linewidths = linewidths,
+                edgecolors=edgecolors,
+                linewidths=linewidths,
                 )
         else:
             collection = mcoll.PolyCollection(
                 [polygon],
-                edgecolors = edgecolors,
-                linewidths = linewidths,
-                offsets = offsets,
-                transOffset = mtransforms.IdentityTransform(),
-                offset_position = "data"
+                edgecolors=edgecolors,
+                linewidths=linewidths,
+                offsets=offsets,
+                transOffset=mtransforms.IdentityTransform(),
+                offset_position="data"
                 )
 
         if isinstance(norm, mcolors.LogNorm):
