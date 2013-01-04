@@ -2,7 +2,7 @@ import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-
+import matplotlib as mpl
 
 @image_comparison(baseline_images=['legend_auto1'], tol=1.5e-3, remove_text=True)
 def test_legend_auto1():
@@ -46,3 +46,22 @@ def test_fancy():
     plt.errorbar(range(10), range(10), xerr=0.5, yerr=0.5, label='XX')
     plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                ncol=2, shadow=True, title="My legend", numpoints=1)
+
+
+    
+@image_comparison(baseline_images=['scatter_rc3','scatter_rc1'], remove_text=True)
+def test_rc():
+    # using subplot triggers some offsetbox functionality untested elsewhere
+    fig = plt.figure()
+    ax =  plt.subplot(121)
+    ax.scatter(range(10), range(10, 0, -1), label='three')
+    ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
+                title="My legend")
+
+
+    mpl.rcParams['legend.scatterpoints'] = 1
+    fig = plt.figure()
+    ax =  plt.subplot(121)
+    ax.scatter(range(10), range(10, 0, -1), label='one')
+    ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
+                title="My legend")
