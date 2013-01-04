@@ -46,7 +46,7 @@ class Show(backend_bases.ShowBase):
         WebAggApplication.initialize()
         for manager in Gcf.get_all_fig_managers():
             url = "http://127.0.0.1:{0}/{1}/".format(
-                    WebAggApplication.port, manager.num)
+                WebAggApplication.port, manager.num)
             if rcParams['webagg.open_in_browser']:
                 import webbrowser
                 webbrowser.open(url)
@@ -191,8 +191,8 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
                 self._png_buffer)
 
             # Swap the renderer frames
-            self._renderer, self._last_renderer = \
-              self._last_renderer, self._renderer
+            self._renderer, self._last_renderer = (
+                self._last_renderer, self._renderer)
             self._force_full = False
             self._png_is_old = False
         return self._png_buffer.getvalue()
@@ -208,8 +208,10 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
             need_new_renderer = (self._lastKey != key)
 
         if need_new_renderer:
-            self._renderer = backend_agg.RendererAgg(w, h, self.figure.dpi)
-            self._last_renderer = backend_agg.RendererAgg(w, h, self.figure.dpi)
+            self._renderer = backend_agg.RendererAgg(
+                w, h, self.figure.dpi)
+            self._last_renderer = backend_agg.RendererAgg(
+                w, h, self.figure.dpi)
             self._lastKey = key
 
         return self._renderer
@@ -261,11 +263,13 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
     def start_event_loop(self, timeout):
         backend_bases.FigureCanvasBase.start_event_loop_default(
             self, timeout)
-    start_event_loop.__doc__ = backend_bases.FigureCanvasBase.start_event_loop_default.__doc__
+    start_event_loop.__doc__ = \
+      backend_bases.FigureCanvasBase.start_event_loop_default.__doc__
 
     def stop_event_loop(self):
         backend_bases.FigureCanvasBase.stop_event_loop_default(self)
-    stop_event_loop.__doc__ = backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
+    stop_event_loop.__doc__ = \
+      backend_bases.FigureCanvasBase.stop_event_loop_default.__doc__
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
@@ -304,18 +308,22 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
     toolitems = list(backend_bases.NavigationToolbar2.toolitems[:6]) + [
         ('Download', 'Download plot', 'filesave', 'download')
-        ]
+    ]
 
     def _init_toolbar(self):
-        jqueryui_icons = ['ui-icon ui-icon-home',
+        jqueryui_icons = [
+            'ui-icon ui-icon-home',
             'ui-icon ui-icon-circle-arrow-w',
-            'ui-icon ui-icon-circle-arrow-e', None,
+            'ui-icon ui-icon-circle-arrow-e',
+            None,
             'ui-icon ui-icon-arrow-4',
             'ui-icon ui-icon-search',
-            'ui-icon ui-icon-disk']
+            'ui-icon ui-icon-disk'
+        ]
         for index, item in enumerate(self.toolitems):
             if item[0] is not None:
-                self.toolitems[index]=(item[0],item[1],jqueryui_icons[index],item[3])
+                self.toolitems[index] = (
+                    item[0], item[1], jqueryui_icons[index], item[3])
         self.message = ''
         self.cursor = 0
 
@@ -361,7 +369,7 @@ class WebAggApplication(tornado.web.Application):
         def get(self, fignum):
             with open(os.path.join(
                     os.path.dirname(__file__),
-                    'web_static', 'index.html')) as fd:
+                    'web_backend', 'index.html')) as fd:
                 tpl = fd.read()
 
             fignum = int(fignum)
@@ -387,7 +395,7 @@ class WebAggApplication(tornado.web.Application):
                 'jpeg': 'image/jpeg',
                 'tif': 'image/tiff',
                 'emf': 'application/emf'
-                }
+            }
 
             self.set_header('Content-Type', mimetypes.get(format, 'binary'))
 
@@ -438,25 +446,32 @@ class WebAggApplication(tornado.web.Application):
     def __init__(self):
         super(WebAggApplication, self).__init__([
             # Static files for the CSS and JS
-            (r'/static/(.*)', tornado.web.StaticFileHandler,
+            (r'/static/(.*)',
+             tornado.web.StaticFileHandler,
              {'path':
-              os.path.join(os.path.dirname(__file__), 'web_static')}),
+              os.path.join(os.path.dirname(__file__), 'web_backend')}),
             # Static images for toolbar buttons
-            (r'/images/(.*)', tornado.web.StaticFileHandler,
+            (r'/images/(.*)',
+             tornado.web.StaticFileHandler,
              {'path':
               os.path.join(os.path.dirname(__file__), '../mpl-data/images')}),
-            (r'/static/jquery/css/themes/base/(.*)', tornado.web.StaticFileHandler,
+            (r'/static/jquery/css/themes/base/(.*)',
+             tornado.web.StaticFileHandler,
              {'path':
-              os.path.join(os.path.dirname(__file__), 'web_static/jquery/css/themes/base')}),
-            (r'/static/jquery/css/themes/base/images/(.*)', tornado.web.StaticFileHandler,
+              os.path.join(os.path.dirname(__file__),
+                           'web_backend/jquery/css/themes/base')}),
+            (r'/static/jquery/css/themes/base/images/(.*)',
+             tornado.web.StaticFileHandler,
              {'path':
-              os.path.join(os.path.dirname(__file__), 'web_static/jquery/css/themes/base/images')}),
+              os.path.join(os.path.dirname(__file__),
+                           'web_backend/jquery/css/themes/base/images')}),
             (r'/static/jquery/js/(.*)', tornado.web.StaticFileHandler,
              {'path':
-              os.path.join(os.path.dirname(__file__), 'web_static/jquery/js')}), 
+              os.path.join(os.path.dirname(__file__),
+                           'web_backend/jquery/js')}),
             (r'/static/css/(.*)', tornado.web.StaticFileHandler,
              {'path':
-              os.path.join(os.path.dirname(__file__), 'web_static/css')}),
+              os.path.join(os.path.dirname(__file__), 'web_backend/css')}),
             # An MPL favicon
             (r'/favicon.ico', self.FavIcon),
             # The page that contains all of the pieces
@@ -466,7 +481,7 @@ class WebAggApplication(tornado.web.Application):
             (r'/([0-9]+)/ws', self.WebSocket),
             # Handles the downloading (i.e., saving) of static images
             (r'/([0-9]+)/download.([a-z]+)', self.Download)
-            ])
+        ])
 
     @classmethod
     def initialize(cls):
