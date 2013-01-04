@@ -426,6 +426,7 @@ def test_hexbin_log():
     # Issue #1636
     fig = plt.figure()
 
+    np.random.seed(0)
     n = 100000
     x = np.random.standard_normal(n)
     y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
