@@ -523,7 +523,10 @@ class Animation(object):
     '''
     def __init__(self, fig, event_source=None, blit=False):
         self._fig = fig
-        self._blit = blit
+        # Disables blitting for backends that don't support it.  This
+        # allows users to request it if available, but still have a
+        # fallback that works if it is not.
+        self._blit = blit and fig.canvas.supports_blit
 
         # These are the basics of the animation.  The frame sequence represents
         # information for each frame of the animation and depends on how the
@@ -543,7 +546,7 @@ class Animation(object):
         # fire events and try to draw to a deleted figure.
         self._close_id = self._fig.canvas.mpl_connect('close_event',
                                                       self._stop)
-        if blit:
+        if self._blit:
             self._setup_blit()
 
     def _start(self, *args):
