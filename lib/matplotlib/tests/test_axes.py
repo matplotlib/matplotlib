@@ -419,6 +419,21 @@ def test_hexbin_extent():
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
 
+@image_comparison(baseline_images=['hexbin_log'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_hexbin_log():
+    # Issue #1636
+    fig = plt.figure()
+
+    np.random.seed(0)
+    n = 100000
+    x = np.random.standard_normal(n)
+    y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
+    y = np.power(2, y * 0.5)
+    ax = fig.add_subplot(111)
+    ax.hexbin(x, y, yscale='log')
+
 @cleanup
 def test_inverted_limits():
     # Test gh:1553
