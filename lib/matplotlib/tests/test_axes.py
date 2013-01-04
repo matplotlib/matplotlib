@@ -431,7 +431,7 @@ def test_hexbin_log():
     y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
     y = np.power(2, y * 0.5)
     ax = fig.add_subplot(111)
-    plt.hexbin(x,y,yscale='log')
+    ax.hexbin(x, y, yscale='log')
 
 @cleanup
 def test_inverted_limits():
