@@ -105,6 +105,25 @@ Installation
   ones, make sure the new files included in the match patterns in
   :file:`MANIFEST.in`, and/or in `package_data` in `setup.py`.
 
+C/C++ extensions
+----------------
+
+* Extensions may be written in C or C++.
+
+* Code style should conform to PEP7 (understanding that PEP7 doesn't
+  address C++, but most of its admonitions still apply).
+
+* Interfacing with Python may be done either with the raw Python/C API
+  or Cython.  Use of PyCXX is discouraged for new code.
+
+* Python/C interface code should be kept separate from the core C/C++
+  code.  The interface code should be named `FOO_wrap.cpp`.
+
+* Header file documentation (aka docstrings) should be in Numpydoc
+  format.  We don't plan on using automated tools for these
+  docstrings, and the Numpydoc format is well understood in the
+  scientific Python community.
+
 Style guide
 ===========
 
