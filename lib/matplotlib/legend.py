@@ -135,7 +135,7 @@ class Legend(Artist):
                  numpoints=None,    # the number of points in the legend line
                  markerscale=None,  # the relative size of legend markers
                                     # vs. original
-                 scatterpoints=3,    # TODO: may be an rcParam
+                 scatterpoints=None,    # TODO: may be an rcParam
                  scatteryoffsets=None,
                  prop=None,          # properties for the legend texts
                  fontsize=None,        # keyword to set font size directly

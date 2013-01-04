@@ -511,6 +511,7 @@ defaultParams = {
     'legend.loc'         : ['upper right',validate_legend_loc], # at some point, this should be changed to 'best'
     'legend.isaxes'      : [True,validate_bool],  # this option is internally ignored - it never served any useful purpose
     'legend.numpoints'   : [2, validate_int],     # the number of points in the legend line
+    'legend.scatterpoints' : [3, validate_int],     # the number of points in the legend line for scatter
     'legend.fontsize'    : ['large', validate_fontsize],
     'legend.markerscale' : [1.0, validate_float], # the relative size of legend markers vs. original
     'legend.shadow'        : [False, validate_bool],
