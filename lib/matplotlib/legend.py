@@ -915,10 +915,11 @@ class Legend(Artist):
         verts, bboxes, lines = self._auto_legend_data()
 
         bbox = Bbox.from_bounds(0, 0, width, height)
-        consider = [self._get_anchored_bbox(x, bbox, self.get_bbox_to_anchor(),
-                                            renderer)
-                    for x
-                    in range(1, len(self.codes))]
+        if consider is None:
+            consider = [self._get_anchored_bbox(x, bbox,
+                                                self.get_bbox_to_anchor(),
+                                                renderer)
+                        for x in range(1, len(self.codes))]
 
         #tx, ty = self.legendPatch.get_x(), self.legendPatch.get_y()
 
