@@ -729,7 +729,6 @@ class Legend(Artist):
         assert self.isaxes
 
         ax = self.parent
-        vertices = []
         bboxes = []
         lines = []
 
@@ -749,6 +748,8 @@ class Legend(Artist):
             else:
                 transform = handle.get_transform()
                 bboxes.append(handle.get_path().get_extents(transform))
+
+        vertices = np.concatenate([l.vertices for l in lines])
 
         return [vertices, bboxes, lines]
 
