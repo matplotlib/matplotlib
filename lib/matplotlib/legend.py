@@ -928,6 +928,9 @@ class Legend(Artist):
         for l, b in consider:
             legendBox = Bbox.from_bounds(l, b, width, height)
             badness = 0
+            # XXX TODO: If markers are present, it would be good to
+            # take their into account when checking vertex overlaps in
+            # the next line.
             badness = legendBox.count_contains(verts)
             badness += legendBox.count_overlaps(bboxes)
             for line in lines:
