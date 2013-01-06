@@ -108,7 +108,7 @@ class Legend(Artist):
       'upper center' : 9,
       'center'       : 10,
 
-    loc can be a tuple of the noramilzed coordinate values with
+    loc can be a tuple of the normalized coordinate values with
     respect its parent.
 
     """
