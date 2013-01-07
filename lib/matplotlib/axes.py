@@ -932,10 +932,23 @@ class Axes(martist.Artist):
             verticalalignment='baseline',
             horizontalalignment='center',
             )
-        self.title.set_transform(self.transAxes + self.titleOffsetTrans)
-        self.title.set_clip_box(None)
+        self._left_title = mtext.Text(
+            x=0.0, y=1.0, text='',
+            fontproperties=props,
+            verticalalignment='baseline',
+            horizontalalignment='left',
+            )
+        self._right_title = mtext.Text(
+            x=1.0, y=1.0, text='',
+            fontproperties=props,
+            verticalalignment='baseline',
+            horizontalalignment='right',
+            )
 
-        self._set_artist_props(self.title)
+        for _title in (self.title, self._left_title, self._right_title):
+            _title.set_transform(self.transAxes + self.titleOffsetTrans)
+            _title.set_clip_box(None)
+            self._set_artist_props(_title)
 
         # the patch draws the background of the axes.  we want this to
         # be below the other artists; the axesPatch name is
@@ -1990,6 +2003,8 @@ class Axes(martist.Artist):
             artists.extend([self.xaxis, self.yaxis])
         if not inframe:
             artists.append(self.title)
+            artists.append(self._left_title)
+            artists.append(self._right_title)
         artists.extend(self.tables)
         if self.legend_ is not None:
             artists.append(self.legend_)
@@ -3100,6 +3115,8 @@ class Axes(martist.Artist):
             children.append(self.legend_)
         children.extend(self.collections)
         children.append(self.title)
+        children.append(self._left_title)
+        children.append(self._right_title)
         children.append(self.patch)
         children.extend(self.spines.itervalues())
         return children
@@ -3137,43 +3154,82 @@ class Axes(martist.Artist):
 
     ### Labelling
 
-    def get_title(self):
+    def get_title(self, loc="center"):
+        """Get an axes title.
+
+        Get one of the three available axes titles. The available titles
+        are positioned above the axes in the center, flush with the left
+        edge, and flush with the right edge.
+
+        Parameters
+        ----------
+        loc : {'center', 'left', 'right'}, str, optional
+            Which title to get, defaults to 'center'
+
+        Returns
+        -------
+        text : :class:`~matplotlib.text.Text`
+            The matplotlib text instance representing the title
+
         """
-        Get the title text string.
-        """
-        return self.title.get_text()
+        try:
+            title = {'left': self._left_title,
+                     'center': self.title,
+                     'right': self._right_title}[loc.lower()]
+        except KeyError:
+            raise ValueError("'%s' is not a valid location" % loc)
+        return title
 
     @docstring.dedent_interpd
-    def set_title(self, label, fontdict=None, **kwargs):
+    def set_title(self, label, loc="center", fontdict=None, **kwargs):
+        """Set a title for the axes.
+
+        Set one of the three available axes titles. The available titles
+        are positioned above the axes in the center, flush with the left
+        edge, and flush with the right edge.
+
+        Parameters
+        ----------
+        label : str
+            Text to use for the title
+        loc : {'center', 'left', 'right'}, str, optional
+            Which title to set, defaults to 'center'
+        fontdict : dict
+            A dictionary controlling the appearance of the title text,
+            the default `fontdict` is:
+            {'fontsize': rcParams['axes.titlesize'],
+             'verticalalignment': 'baseline',
+             'horizontalalignment': loc}
+
+        Returns
+        -------
+        text : :class:`~matplotlib.text.Text`
+            The matplotlib text instance representing the title
+
+        Other parameters
+        ----------------
+        Other keyword arguments are text properties, see
+        :class:`~matplotlib.text.Text` for a list of valid text
+        properties.
+
         """
-        Call signature::
-
-          set_title(label, fontdict=None, **kwargs):
-
-        Set the title for the axes.
-
-        kwargs are Text properties:
-        %(Text)s
-
-        ACCEPTS: str
-
-        .. seealso::
-
-            :meth:`text`
-                for information on how override and the optional args work
-        """
+        try:
+            title = {'left': self._left_title,
+                     'center': self.title,
+                     'right': self._right_title}[loc.lower()]
+        except KeyError:
+            raise ValueError("'%s' is not a valid location" % loc)
         default = {
             'fontsize': rcParams['axes.titlesize'],
             'verticalalignment': 'baseline',
-            'horizontalalignment': 'center'
+            'horizontalalignment': loc.lower()
             }
-
-        self.title.set_text(label)
-        self.title.update(default)
+        title.set_text(label)
+        title.update(default)
         if fontdict is not None:
-            self.title.update(fontdict)
-        self.title.update(kwargs)
-        return self.title
+            title.update(fontdict)
+        title.update(kwargs)
+        return title
 
     def get_xlabel(self):
         """
@@ -8839,6 +8895,10 @@ class Axes(martist.Artist):
 
         if self.title.get_visible():
             bb.append(self.title.get_window_extent(renderer))
+        if self._left_title.get_visible():
+            bb.append(self._left_title.get_window_extent(renderer))
+        if self._right_title.get_visible():
+            bb.append(self._right_title.get_window_extent(renderer))
 
         bb_xaxis = self.xaxis.get_tightbbox(renderer)
         if bb_xaxis:
