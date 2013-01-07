@@ -118,12 +118,12 @@ package_data = {'matplotlib':['mpl-data/fonts/afm/*.afm',
                               'mpl-data/sample_data/*.*',
                               'mpl-data/sample_data/axes_grid/*.*',
                               'backends/Matplotlib.nib/*',
-                              'backends/web_static/*.*',
-                              'backends/web_static/jquery/js/*',
-                              'backends/web_static/jquery/css/themes/base/*.*',
-                              'backends/web_static/jquery/css/themes/base/images/*',
-                              'backends/web_static/css/*.*',
-                              
+                              'backends/web_backend/*.*',
+                              'backends/web_backend/jquery/js/*',
+                              'backends/web_backend/jquery/css/themes/base/*.*',
+                              'backends/web_backend/jquery/css/themes/base/images/*',
+                              'backends/web_backend/css/*.*',
+
                               ]}
 
 package_dir = {'': 'lib'}
