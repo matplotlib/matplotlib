@@ -77,7 +77,7 @@ else:
             return unicode(s, preferredencoding)
 
 
-class converter:
+class converter(object):
     """
     Base class for handling string -> python type with support for
     missing values
@@ -580,7 +580,8 @@ def get_sample_data(fname, asfileobj=True):
     if matplotlib.rcParams['examples.directory']:
         root = matplotlib.rcParams['examples.directory']
     else:
-        root = os.path.join(os.path.dirname(__file__), "mpl-data", "sample_data")
+        root = os.path.join(os.path.dirname(__file__),
+                            "mpl-data", "sample_data")
     path = os.path.join(root, fname)
 
     if asfileobj:
@@ -1820,11 +1821,3 @@ if hasattr(subprocess, 'check_output'):
     check_output = subprocess.check_output
 else:
     check_output = _check_output
-
-
-if __name__ == '__main__':
-    assert(allequal([1, 1, 1]))
-    assert(not allequal([1, 1, 0]))
-    assert(allequal([]))
-    assert(allequal(('a', 'a')))
-    assert(not allequal(('a', 'b')))
