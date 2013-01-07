@@ -10,8 +10,6 @@ from numpy import ma
 import matplotlib
 rcParams = matplotlib.rcParams
 
-from matplotlib import MatplotlibDeprecationWarning as MDeprecation
-
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
 import matplotlib.axis as maxis
@@ -1053,8 +1051,8 @@ class Axes(martist.Artist):
             the option 'normal' for aspect is deprecated. Use 'auto' instead.
         """
         if aspect == 'normal':
-            raise MDeprecation("Use 'auto' instead of 'normal' for "
-                                     "aspect. Will be removed in 1.4.x")
+            warnings.warn("Use 'auto' instead of 'normal' for aspect. Will "
+                          "be removed in 1.4.x", mplDeprecation)
             self._aspect = 'auto'
 
         elif aspect in ('equal', 'auto'):
@@ -7264,8 +7262,8 @@ class Axes(martist.Artist):
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
         if 'shading' in kwargs:
-            raise DeprecationWarning("Use edgecolors instead of shading. "
-                                     "Will be removed in 1.4")
+            warnings.warn("Use edgecolors instead of shading. "
+                          "Will be removed in 1.4", mplDeprecation)
         shading = kwargs.pop('shading', 'flat')
 
         X, Y, C = self._pcolorargs('pcolor', *args)
@@ -7310,7 +7308,6 @@ class Axes(martist.Artist):
             kwargs['linewidths'] = kwargs.pop('linewidth')
         kwargs.setdefault('linewidths', linewidths)
 
-
         if shading == 'faceted':
             edgecolors = 'k',
         else:
@@ -7319,7 +7316,6 @@ class Axes(martist.Artist):
         if 'edgecolor' in kwargs:
             kwargs['edgecolors'] = kwargs.pop('edgecolor')
         ec = kwargs.setdefault('edgecolors', edgecolors)
-
 
         # aa setting will default via collections to patch.antialiased
         # unless the boundary is not stroked, in which case the
