@@ -43,8 +43,6 @@ import types
 
 if sys.version_info[0] >= 3:
     def unicode_safe(s):
-        import matplotlib
-
         try:
             preferredencoding = locale.getpreferredencoding(
                 matplotlib.rcParams['axes.formatter.use_locale']).strip()
@@ -274,12 +272,14 @@ class CallbackRegistry:
     functions).  This technique was shared by Peter Parente on his
     `"Mindtrove" blog
     <http://mindtrove.info/articles/python-weak-references/>`_.
+
+    .. deprecated:: 1.3.0
     """
     def __init__(self, *args):
         if len(args):
             warnings.warn(
-                'CallbackRegistry no longer requires a list of callback types.'
-                ' Ignoring arguments',
+                "CallbackRegistry no longer requires a list of callback "
+                "types. Ignoring arguments. *args will be removed in 1.5",
                 mplDeprecation)
         self.callbacks = dict()
         self._cid = 0
@@ -538,7 +538,6 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     """
     if is_string_like(fname):
         if fname.endswith('.gz'):
-            import gzip
             # get rid of 'U' in flag for gzipped files.
             flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
@@ -831,6 +830,7 @@ class RingBuffer:
         if len(self.data) == self.max:
             self.cur = 0
             # Permanently change self's class from non-full to full
+            # FIXME __Full is not defined
             self.__class__ = __Full
 
     def get(self):
@@ -1298,7 +1298,7 @@ class MemoryMonitor:
 
     def plot(self, i0=0, isub=1, fig=None):
         if fig is None:
-            from pylab import figure, show
+            from pylab import figure
             fig = figure()
 
         ax = fig.add_subplot(111)
@@ -1608,8 +1608,9 @@ def delete_masked_points(*args):
     return margs
 
 
+# FIXME I don't think this is used anywhere
 def unmasked_index_ranges(mask, compressed=True):
-    '''
+    """
     Find index ranges where *mask* is *False*.
 
     *mask* will be flattened if it is not already 1-D.
@@ -1639,8 +1640,7 @@ def unmasked_index_ranges(mask, compressed=True):
 
     Prior to the transforms refactoring, this was used to support
     masked arrays in Line2D.
-
-    '''
+    """
     mask = mask.reshape(mask.size)
     m = np.concatenate(((1,), mask, (1,)))
     indices = np.arange(len(mask) + 1)
@@ -1666,79 +1666,6 @@ _linestyles = [('-', 'solid'),
 
 ls_mapper = dict(_linestyles)
 ls_mapper.update([(ls[1], ls[0]) for ls in _linestyles])
-
-
-def less_simple_linear_interpolation(x, y, xi, extrap=False):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('less_simple_linear_interpolation has been moved to '
-                  'matplotlib.mlab -- please import it from there',
-                  mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.less_simple_linear_interpolation(x, y, xi, extrap=extrap)
-
-
-def vector_lengths(X, P=2.0, axis=None):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('vector_lengths has been moved to matplotlib.mlab -- '
-                  'please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.vector_lengths(X, P=2.0, axis=axis)
-
-
-def distances_along_curve(X):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('distances_along_curve has been moved to matplotlib.mlab '
-                  '-- please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.distances_along_curve(X)
-
-
-def path_length(X):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('path_length has been moved to matplotlib.mlab '
-                  '-- please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.path_length(X)
-
-
-def is_closed_polygon(X):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('is_closed_polygon has been moved to matplotlib.mlab '
-                  '-- please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.is_closed_polygon(X)
-
-
-def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('quad2cubic has been moved to matplotlib.mlab -- please '
-                  'import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y)
 
 
 def align_iterators(func, *iterables):
