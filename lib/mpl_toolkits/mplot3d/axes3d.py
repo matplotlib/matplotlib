@@ -11,6 +11,8 @@ Module containing Axes3D, an object which can plot 3D objects on a
 """
 
 import warnings
+from operator import itemgetter
+
 import matplotlib.axes as maxes
 from matplotlib.axes import Axes, rcParams
 from matplotlib import cbook
@@ -244,16 +246,14 @@ class Axes3D(Axes):
         # Calculate projection of collections and zorder them
         zlist = [(col.do_3d_projection(renderer), col) \
                  for col in self.collections]
-        zlist.sort()
-        zlist.reverse()
+        zlist.sort(key=itemgetter(0), reverse=True)
         for i, (z, col) in enumerate(zlist):
             col.zorder = i
 
         # Calculate projection of patches and zorder them
         zlist = [(patch.do_3d_projection(renderer), patch) \
                 for patch in self.patches]
-        zlist.sort()
-        zlist.reverse()
+        zlist.sort(key=itemgetter(0), reverse=True)
         for i, (z, patch) in enumerate(zlist):
             patch.zorder = i
 
@@ -568,7 +568,7 @@ class Axes3D(Axes):
         if kw:
             raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
-        if right is None and iterable(left):
+        if right is None and cbook.iterable(left):
             left, right = left
 
         self._process_unit_info(xdata=(left, right))
@@ -623,7 +623,7 @@ class Axes3D(Axes):
         if kw:
             raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
-        if top is None and iterable(bottom):
+        if top is None and cbook.iterable(bottom):
             bottom, top = bottom
 
         self._process_unit_info(ydata=(bottom, top))
@@ -677,7 +677,7 @@ class Axes3D(Axes):
         if kw:
             raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
-        if top is None and iterable(bottom):
+        if top is None and cbook.iterable(bottom):
             bottom, top = bottom
 
         self._process_unit_info(zdata=(bottom, top))
@@ -1425,7 +1425,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        if upper is None and iterable(lower):
+        if upper is None and cbook.iterable(lower):
             lower,upper = lower
 
         old_lower,old_upper = self.get_zbound()
