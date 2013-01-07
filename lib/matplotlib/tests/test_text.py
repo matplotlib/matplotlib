@@ -80,7 +80,7 @@ def test_font_styles():
 @image_comparison(baseline_images=['multiline'])
 def test_multiline():
     fig = plt.figure()
-    ax = plt.subplot( 1, 1, 1 )
+    ax = plt.subplot(1, 1, 1)
     ax.set_title("multiline\ntext alignment")
 
     ax.set_xticks([])
@@ -146,4 +146,14 @@ def test_contains():
         vl = ax.viewLim.frozen()
         ax.plot(x, y, 'o', color=color)
         ax.viewLim.set(vl)
-    
+
+
+@image_comparison(baseline_images=['titles'])
+def test_titles():
+    # left and right side titles
+    fig = plt.figure()
+    ax = plt.subplot(1, 1, 1)
+    ax.set_title("left title", loc="left")
+    ax.set_title("right title", loc="right")
+    ax.set_xticks([])
+    ax.set_yticks([])
