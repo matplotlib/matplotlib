@@ -73,7 +73,7 @@ example, here is a test from :mod:`matplotlib.tests.test_basic`::
 Nose determines which functions are tests by searching for functions
 beginning with "test" in their name.
 
-If the test as side effects that need to be cleaned up, such as
+If the test has side effects that need to be cleaned up, such as
 creating figures using the pyplot interface, use the ``@cleanup``
 decorator::
 
