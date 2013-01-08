@@ -5439,6 +5439,8 @@ class Axes(martist.Artist):
                 lines_kw['lw'] = kwargs['lw']
         if 'transform' in kwargs:
             lines_kw['transform'] = kwargs['transform']
+        if 'zorder' in kwargs:
+            lines_kw['zorder'] = kwargs['zorder']
 
         # arrays fine here, they are booleans and hence not units
         if not iterable(lolims):
@@ -5493,6 +5495,9 @@ class Axes(martist.Artist):
                 plot_kw['mew'] = kwargs['mew']
             if 'transform' in kwargs:
                 plot_kw['transform'] = kwargs['transform']
+            if 'zorder' in kwargs:
+                plot_kw['zorder'] = kwargs['zorder']
+
 
         if xerr is not None:
             if (iterable(xerr) and len(xerr) == 2 and
@@ -6433,17 +6438,6 @@ class Axes(martist.Artist):
         offsets = offsets[good_idxs, :]
         accum = accum[good_idxs]
 
-        if xscale == 'log':
-            offsets[:, 0] = 10 ** (offsets[:, 0])
-            xmin = 10 ** xmin
-            xmax = 10 ** xmax
-            self.set_xscale('log')
-        if yscale == 'log':
-            offsets[:, 1] = 10 ** (offsets[:, 1])
-            ymin = 10 ** ymin
-            ymax = 10 ** ymax
-            self.set_yscale('log')
-
         polygon = np.zeros((6, 2), float)
         polygon[:, 0] = sx * np.array([0.5, 0.5, 0.0, -0.5, -0.5, 0.0])
         polygon[:, 1] = sy * np.array([-0.5, 0.5, 1.0,  0.5, -0.5, -1.0]) / 3.0
@@ -6451,14 +6445,32 @@ class Axes(martist.Artist):
         if edgecolors == 'none':
             edgecolors = 'face'
 
-        collection = mcoll.PolyCollection(
-            [polygon],
-            edgecolors=edgecolors,
-            linewidths=linewidths,
-            offsets=offsets,
-            transOffset=mtransforms.IdentityTransform(),
-            offset_position="data"
-            )
+        if xscale == 'log' or yscale == 'log':
+            polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
+            if xscale == 'log':
+                polygons[:, :, 0] = 10.0 ** polygons[:, :, 0]
+                xmin = 10.0 ** xmin
+                xmax = 10.0 ** xmax
+                self.set_xscale(xscale)
+            if yscale == 'log':
+                polygons[:, :, 1] = 10.0 ** polygons[:, :, 1]
+                ymin = 10.0 ** ymin
+                ymax = 10.0 ** ymax
+                self.set_yscale(yscale)
+            collection = mcoll.PolyCollection(
+                polygons,
+                edgecolors=edgecolors,
+                linewidths=linewidths,
+                )
+        else:
+            collection = mcoll.PolyCollection(
+                [polygon],
+                edgecolors=edgecolors,
+                linewidths=linewidths,
+                offsets=offsets,
+                transOffset=mtransforms.IdentityTransform(),
+                offset_position="data"
+                )
 
         if isinstance(norm, mcolors.LogNorm):
             if (accum == 0).any():
