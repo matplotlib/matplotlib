@@ -216,7 +216,7 @@ __end
 from __future__ import print_function
 import sys, warnings
 
-from matplotlib.cbook import flatten, is_string_like, exception_to_str, \
+from matplotlib._cbook import flatten, is_string_like, exception_to_str, \
      silent_list, iterable, dedent
 
 import matplotlib as mpl
@@ -258,7 +258,7 @@ from matplotlib.mlab import window_hanning, window_none,  detrend, demean, \
      rec_append_fields, rec_drop_fields, rec_join, csv2rec, rec2csv, isvector
 
 import matplotlib.mlab as mlab
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 
 from numpy import *
 from numpy.fft import *

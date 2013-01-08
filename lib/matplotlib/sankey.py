@@ -38,7 +38,7 @@ __version__ = "2011/09/16"
 
 import numpy as np
 
-from matplotlib.cbook import iterable, Bunch
+from matplotlib._cbook import iterable, Bunch
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D

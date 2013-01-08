@@ -40,7 +40,7 @@ del _version_required
 
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook        import is_string_like
+from matplotlib._cbook        import is_string_like
 from matplotlib.figure       import Figure
 from matplotlib.mathtext     import MathTextParser
 from matplotlib.path         import Path

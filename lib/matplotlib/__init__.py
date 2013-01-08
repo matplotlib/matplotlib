@@ -534,7 +534,7 @@ def _get_configdir():
     else:
         if not _is_writable_dir(h):
             return _create_tmp_config_dir()
-        from matplotlib.cbook import mkdirs
+        from matplotlib._cbook import mkdirs
         mkdirs(p)
 
     return p
@@ -587,14 +587,6 @@ def _get_data_path_cached():
 
 get_data_path = verbose.wrap('matplotlib data path %s', _get_data_path_cached,
                              always=False)
-
-
-
-def get_example_data(fname):
-    """
-    get_example_data is deprecated -- use matplotlib.cbook.get_sample_data instead
-    """
-    raise NotImplementedError('get_example_data is deprecated -- use matplotlib.cbook.get_sample_data instead')
 
 
 def get_py2exe_datafiles():

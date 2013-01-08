@@ -51,7 +51,7 @@ from __future__ import print_function, division
 import re
 import numpy as np
 from numpy import ma
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 
 parts = np.__version__.split('.')
 NP_MAJOR, NP_MINOR = map(int, parts[:2])
@@ -290,7 +290,7 @@ class ColorConverter(object):
                                     % (str(arg),))
 
         try:
-            if cbook.is_string_like(arg):
+            if _cbook.is_string_like(arg):
                 argl = arg.lower()
                 color = self.colors.get(argl, None)
                 if color is None:
@@ -303,7 +303,7 @@ class ColorConverter(object):
                             raise ValueError(
                                    'gray (string) must be in range 0-1')
                         color = tuple([fl] * 3)
-            elif cbook.iterable(arg):
+            elif _cbook.iterable(arg):
                 if len(arg) > 4 or len(arg) < 3:
                     raise ValueError(
                            'sequence length is %d; must be 3 or 4' % len(arg))
@@ -343,7 +343,7 @@ class ColorConverter(object):
             pass
 
         try:
-            if not cbook.is_string_like(arg) and cbook.iterable(arg):
+            if not _cbook.is_string_like(arg) and _cbook.iterable(arg):
                 if len(arg) == 4:
                     if [x for x in arg if (float(x) < 0) or (x > 1)]:
                         # This will raise TypeError if x is not a number.
@@ -522,7 +522,7 @@ class Colormap(object):
         if not self._isinit:
             self._init()
         mask_bad = None
-        if not cbook.iterable(X):
+        if not _cbook.iterable(X):
             vtype = 'scalar'
             xa = np.array([X])
         else:
@@ -542,7 +542,7 @@ class Colormap(object):
             # Treat 1.0 as slightly less than 1.
             vals = np.array([1, 0], dtype=xa.dtype)
             almost_one = np.nextafter(*vals)
-            cbook._putmask(xa, xa == 1.0, almost_one)
+            _cbook._putmask(xa, xa == 1.0, almost_one)
             # The following clip is fast, and prevents possible
             # conversion of large positive values to negative integers.
 
@@ -554,15 +554,15 @@ class Colormap(object):
 
             # ensure that all 'under' values will still have negative
             # value after casting to int
-            cbook._putmask(xa, xa < 0.0, -1)
+            _cbook._putmask(xa, xa < 0.0, -1)
             xa = xa.astype(int)
         # Set the over-range indices before the under-range;
         # otherwise the under-range values get converted to over-range.
-        cbook._putmask(xa, xa > self.N - 1, self._i_over)
-        cbook._putmask(xa, xa < 0, self._i_under)
+        _cbook._putmask(xa, xa > self.N - 1, self._i_over)
+        _cbook._putmask(xa, xa < 0, self._i_under)
         if mask_bad is not None:
             if mask_bad.shape == xa.shape:
-                cbook._putmask(xa, mask_bad, self._i_bad)
+                _cbook._putmask(xa, mask_bad, self._i_bad)
             elif mask_bad:
                 xa.fill(self._i_bad)
         if bytes:
@@ -731,11 +731,11 @@ class LinearSegmentedColormap(Colormap):
         to divide the range unevenly.
         """
 
-        if not cbook.iterable(colors):
+        if not _cbook.iterable(colors):
             raise ValueError('colors must be iterable')
 
-        if cbook.iterable(colors[0]) and len(colors[0]) == 2 and \
-                not cbook.is_string_like(colors[0]):
+        if _cbook.iterable(colors[0]) and len(colors[0]) == 2 and \
+                not _cbook.is_string_like(colors[0]):
             # List of value, color pairs
             vals, colors = zip(*colors)
         else:
@@ -788,10 +788,10 @@ class ListedColormap(Colormap):
         if N is None:
             N = len(self.colors)
         else:
-            if cbook.is_string_like(self.colors):
+            if _cbook.is_string_like(self.colors):
                 self.colors = [self.colors] * N
                 self.monochrome = True
-            elif cbook.iterable(self.colors):
+            elif _cbook.iterable(self.colors):
                 self.colors = list(self.colors)  # in case it was a tuple
                 if len(self.colors) == 1:
                     self.monochrome = True
@@ -857,7 +857,7 @@ class Normalize(object):
         Experimental; we may want to add an option to force the
         use of float32.
         """
-        if cbook.iterable(value):
+        if _cbook.iterable(value):
             is_scalar = False
             result = ma.asarray(value)
             if result.dtype.kind == 'f':
@@ -906,7 +906,7 @@ class Normalize(object):
         vmin = float(self.vmin)
         vmax = float(self.vmax)
 
-        if cbook.iterable(value):
+        if _cbook.iterable(value):
             val = ma.asarray(value)
             return vmin + val * (vmax - vmin)
         else:
@@ -963,7 +963,7 @@ class LogNorm(Normalize):
                 mask = (resdat <= 0)
             else:
                 mask |= resdat <= 0
-            cbook._putmask(resdat, mask, 1)
+            _cbook._putmask(resdat, mask, 1)
             np.log(resdat, resdat)
             resdat -= np.log(vmin)
             resdat /= (np.log(vmax) - np.log(vmin))
@@ -977,7 +977,7 @@ class LogNorm(Normalize):
             raise ValueError("Not invertible until scaled")
         vmin, vmax = self.vmin, self.vmax
 
-        if cbook.iterable(value):
+        if _cbook.iterable(value):
             val = ma.asarray(value)
             return vmin * ma.power((vmax / vmin), val)
         else:

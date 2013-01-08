@@ -22,7 +22,7 @@ from __future__ import print_function
 
 import errno
 import matplotlib
-import matplotlib.cbook as mpl_cbook
+import matplotlib._cbook as mpl_cbook
 import numpy as np
 import struct
 import subprocess

@@ -13,7 +13,7 @@ import warnings
 import numpy as np
 import numpy.ma as ma
 import matplotlib as mpl
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 from matplotlib import docstring
@@ -133,7 +133,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         try:
             return (float(val), )
         except TypeError:
-            if cbook.iterable(val) and len(val):
+            if _cbook.iterable(val) and len(val):
                 try:
                     float(val[0])
                 except (TypeError, ValueError):
@@ -145,7 +145,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     @staticmethod
     def _get_bool(val):
-        if not cbook.iterable(val):
+        if not _cbook.iterable(val):
             val = (val,)
         try:
             bool(val[0])
@@ -346,7 +346,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         can only be specified for the collection as a whole, not separately
         for each member.
 
-        ACCEPTS: [ '/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*' ]
+        ACCEPTS: ['/' | '\\\\' | '|' | '-' | '+' | 'x' | 'o' | 'O' | '.' | '*']
         """
         self._hatch = hatch
 
@@ -431,25 +431,25 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         try:
             dashd = backend_bases.GraphicsContextBase.dashd
-            if cbook.is_string_like(ls):
+            if _cbook.is_string_like(ls):
                 if ls in dashd:
                     dashes = [dashd[ls]]
-                elif ls in cbook.ls_mapper:
-                    dashes = [dashd[cbook.ls_mapper[ls]]]
+                elif ls in _cbook.ls_mapper:
+                    dashes = [dashd[_cbook.ls_mapper[ls]]]
                 else:
                     raise ValueError()
-            elif cbook.iterable(ls):
+            elif _cbook.iterable(ls):
                 try:
                     dashes = []
                     for x in ls:
-                        if cbook.is_string_like(x):
+                        if _cbook.is_string_like(x):
                             if x in dashd:
                                 dashes.append(dashd[x])
-                            elif x in cbook.ls_mapper:
-                                dashes.append(dashd[cbook.ls_mapper[x]])
+                            elif x in _cbook.ls_mapper:
+                                dashes.append(dashd[_cbook.ls_mapper[x]])
                             else:
                                 raise ValueError()
-                        elif cbook.iterable(x) and len(x) == 2:
+                        elif _cbook.iterable(x) and len(x) == 2:
                             dashes.append(x)
                         else:
                             raise ValueError()

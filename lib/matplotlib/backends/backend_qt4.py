@@ -6,7 +6,7 @@ import sys
 
 import matplotlib
 from matplotlib import verbose
-from matplotlib.cbook import is_string_like, onetrue
+from matplotlib._cbook import is_string_like, onetrue
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, IdleEvent, \
      cursors, TimerBase

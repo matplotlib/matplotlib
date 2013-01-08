@@ -21,7 +21,7 @@ import sys, warnings
 
 import matplotlib
 from matplotlib import _pylab_helpers, interactive
-from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
+from matplotlib._cbook import dedent, silent_list, is_string_like, is_numlike
 from matplotlib import docstring
 from matplotlib.figure import Figure, figaspect
 from matplotlib.backend_bases import FigureCanvasBase

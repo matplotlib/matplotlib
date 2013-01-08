@@ -6,13 +6,11 @@ and a mixin class for adding color mapping functionality.
 """
 from __future__ import print_function, division
 
-import os
-
 import numpy as np
 from numpy import ma
 import matplotlib as mpl
 import matplotlib.colors as colors
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 from matplotlib._cm import datad
 from matplotlib._cm import cubehelix
 
@@ -117,7 +115,7 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
         except AttributeError:
             raise ValueError("Arguments must include a name or a Colormap")
 
-    if not cbook.is_string_like(name):
+    if not _cbook.is_string_like(name):
         raise ValueError("Colormap name must be a string")
 
     if isinstance(cmap, colors.Colormap):
@@ -174,7 +172,7 @@ class ScalarMappable:
         :mod:`cm` colormap instance, for example :data:`cm.jet`
         """
 
-        self.callbacksSM = cbook.CallbackRegistry()
+        self.callbacksSM = _cbook.CallbackRegistry()
 
         if cmap is None:
             cmap = get_cmap()
@@ -276,7 +274,7 @@ class ScalarMappable:
         ACCEPTS: a length 2 sequence of floats
         """
         if (vmin is not None and vmax is None and
-                cbook.iterable(vmin) and len(vmin) == 2):
+                _cbook.iterable(vmin) and len(vmin) == 2):
             vmin, vmax = vmin
 
         if vmin is not None:

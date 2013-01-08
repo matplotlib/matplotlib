@@ -128,7 +128,7 @@ import locale
 import math
 import numpy as np
 from matplotlib import rcParams
-from matplotlib import cbook
+from matplotlib import _cbook
 from matplotlib import transforms as mtransforms
 
 
@@ -647,7 +647,7 @@ class LogFormatter(Formatter):
     def format_data(self, value):
         b = self.labelOnlyBase
         self.labelOnlyBase = False
-        value = cbook.strip_math(self.__call__(value))
+        value = _cbook.strip_math(self.__call__(value))
         self.labelOnlyBase = b
         return value
 

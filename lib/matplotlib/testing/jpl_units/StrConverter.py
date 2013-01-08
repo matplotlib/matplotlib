@@ -12,7 +12,7 @@
 #
 from __future__ import print_function
 import matplotlib.units as units
-from matplotlib.cbook import iterable
+from matplotlib._cbook import iterable
 
 # Place all imports before here.
 #===========================================================================

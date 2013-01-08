@@ -148,7 +148,7 @@ class OffsetBox(martist.Artist):
         state = martist.Artist.__getstate__(self)
 
         # pickle cannot save instancemethods, so handle them here
-        from cbook import _InstanceMethodPickler
+        from ._cbook import _InstanceMethodPickler
         import inspect
 
         offset = state['_offset']
@@ -158,7 +158,7 @@ class OffsetBox(martist.Artist):
 
     def __setstate__(self, state):
         self.__dict__ = state
-        from cbook import _InstanceMethodPickler
+        from ._cbook import _InstanceMethodPickler
         if isinstance(self._offset, _InstanceMethodPickler):
             self._offset = self._offset.get_instancemethod()
 

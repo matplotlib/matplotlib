@@ -117,7 +117,7 @@ import matplotlib
 import numpy as np
 
 import matplotlib.units as units
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 import matplotlib.ticker as ticker
 
 from dateutil.rrule import rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY, \
@@ -246,7 +246,7 @@ def datestr2num(d):
     :func:`dateutil.parser.parse`.  *d* can be a single string or a
     sequence of strings.
     """
-    if cbook.is_string_like(d):
+    if _cbook.is_string_like(d):
         dt = dateutil.parser.parse(d)
         return date2num(dt)
     else:
@@ -264,7 +264,7 @@ def date2num(d):
     that the Gregorian calendar is assumed; this is not universal
     practice.  For details, see the module docstring.
     """
-    if not cbook.iterable(d):
+    if not _cbook.iterable(d):
         return _to_ordinalf(d)
     else:
         return np.asarray([_to_ordinalf(val) for val in d])
@@ -272,14 +272,14 @@ def date2num(d):
 
 def julian2num(j):
     'Convert a Julian date (or sequence) to a matplotlib date (or sequence).'
-    if cbook.iterable(j):
+    if _cbook.iterable(j):
         j = np.asarray(j)
     return j - 1721424.5
 
 
 def num2julian(n):
     'Convert a matplotlib date (or sequence) to a Julian date (or sequence).'
-    if cbook.iterable(n):
+    if _cbook.iterable(n):
         n = np.asarray(n)
     return n + 1721424.5
 
@@ -301,7 +301,7 @@ def num2date(x, tz=None):
     """
     if tz is None:
         tz = _get_rc_timezone()
-    if not cbook.iterable(x):
+    if not _cbook.iterable(x):
         return _from_ordinalf(x, tz)
     else:
         return [_from_ordinalf(val, tz) for val in x]
@@ -392,7 +392,7 @@ class DateFormatter(ticker.Formatter):
         fmt = self.illegal_s.sub(r"\1", fmt)
         fmt = fmt.replace("%s", "s")
         if dt.year > 1900:
-            return cbook.unicode_safe(dt.strftime(fmt))
+            return _cbook.unicode_safe(dt.strftime(fmt))
 
         year = dt.year
         # For every non-leap year century, advance by
@@ -420,7 +420,7 @@ class DateFormatter(ticker.Formatter):
         for site in sites:
             s = s[:site] + syear + s[site + 4:]
 
-        return cbook.unicode_safe(s)
+        return _cbook.unicode_safe(s)
 
 
 class IndexDateFormatter(ticker.Formatter):
@@ -447,7 +447,7 @@ class IndexDateFormatter(ticker.Formatter):
 
         dt = num2date(self.t[ind], self.tz)
 
-        return cbook.unicode_safe(dt.strftime(self.fmt))
+        return _cbook.unicode_safe(dt.strftime(self.fmt))
 
 
 class AutoDateFormatter(ticker.Formatter):
@@ -1091,7 +1091,7 @@ def mx2num(mxdates):
     instances) to the new date format.
     """
     scalar = False
-    if not cbook.iterable(mxdates):
+    if not _cbook.iterable(mxdates):
         scalar = True
         mxdates = [mxdates]
     ret = epoch2num([m.ticks() for m in mxdates])

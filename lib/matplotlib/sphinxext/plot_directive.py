@@ -151,7 +151,7 @@ except ImportError:
         return jinja.from_string(template, **kw)
 
 import matplotlib
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import _pylab_helpers
@@ -798,7 +798,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # copy image files to builder's output directory, if necessary
     if not os.path.exists(dest_dir):
-        cbook.mkdirs(dest_dir)
+        _cbook.mkdirs(dest_dir)
 
     for code_piece, images in results:
         for img in images:

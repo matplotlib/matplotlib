@@ -131,7 +131,7 @@ from matplotlib.backend_bases import ShowBase
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.artist import Artist
-from matplotlib.cbook import exception_to_str, is_string_like, is_writable_file_like
+from matplotlib._cbook import exception_to_str, is_string_like, is_writable_file_like
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.text import _process_text_args, Text

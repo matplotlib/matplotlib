@@ -1,4 +1,4 @@
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 
 
 class Container(tuple):
@@ -87,7 +87,7 @@ class Container(tuple):
             func(self)
 
     def get_children(self):
-        return list(cbook.flatten(self))
+        return list(_cbook.flatten(self))
 
 
 class BarContainer(Container):

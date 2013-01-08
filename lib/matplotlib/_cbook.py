@@ -1,6 +1,6 @@
 """
 A collection of utility functions and classes.  Many (but not all)
-from the Python Cookbook -- hence the name cbook
+from the Python Cookbook -- hence the name _cbook
 """
 from __future__ import print_function
 
@@ -245,7 +245,7 @@ class CallbackRegistry:
         >>> def ondrink(x):
         ...    print 'drink', x
 
-        >>> from matplotlib.cbook import CallbackRegistry
+        >>> from matplotlib._cbook import CallbackRegistry
         >>> callbacks = CallbackRegistry()
 
         >>> id_eat = callbacks.connect('eat', oneat)
@@ -606,7 +606,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
 
     For example:
 
-        >>> from matplotlib.cbook import flatten
+        >>> from matplotlib._cbook import flatten
         >>> l = (('John', ['Hunter']), (1, 23), [[([42, (5, 23)], )]])
         >>> print list(flatten(l))
         ['John', 'Hunter', 1, 23, 42, 5, 23]
@@ -1388,7 +1388,7 @@ class Grouper(object):
 
     For example:
 
-        >>> from matplotlib.cbook import Grouper
+        >>> from matplotlib._cbook import Grouper
         >>> class Foo(object):
         ...     def __init__(self, s):
         ...         self.s = s

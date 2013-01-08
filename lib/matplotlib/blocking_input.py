@@ -24,7 +24,7 @@ windows:
 
 from __future__ import print_function
 from matplotlib import verbose
-from matplotlib.cbook import is_sequence_of_strings
+from matplotlib._cbook import is_sequence_of_strings
 import matplotlib.lines as mlines
 
 

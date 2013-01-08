@@ -52,8 +52,8 @@ import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
 from matplotlib import rcParams, get_configdir
-from matplotlib.cbook import is_string_like
-import matplotlib.cbook as cbook
+from matplotlib._cbook import is_string_like
+import matplotlib._cbook as _cbook
 from matplotlib.fontconfig_pattern import \
     parse_fontconfig_pattern, generate_fontconfig_pattern
 
@@ -168,7 +168,7 @@ def list_fonts(directory, extensions):
     """
     pattern = ';'.join(['*.%s;*.%s' % (ext, ext.upper())
                         for ext in extensions])
-    return cbook.listFiles(directory, pattern)
+    return _cbook.listFiles(directory, pattern)
 
 def win32FontDirectory():
     """
@@ -254,7 +254,7 @@ def OSXInstalledFonts(directories=None, fontext='ttf'):
     files = []
     for path in directories:
         if fontext is None:
-            files.extend(cbook.listFiles(path, '*'))
+            files.extend(_cbook.listFiles(path, '*'))
         else:
             files.extend(list_fonts(path, fontext))
     return files

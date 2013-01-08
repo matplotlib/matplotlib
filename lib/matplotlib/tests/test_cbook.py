@@ -1,38 +1,41 @@
 from __future__ import print_function
 import numpy as np
 from numpy.testing.utils import assert_array_equal
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 import matplotlib.colors as mcolors
+
+from matplotlib._cbook import delete_masked_points as dmp
 from nose.tools import assert_equal, raises
 from datetime import datetime
 
+
 def test_is_string_like():
     y = np.arange( 10 )
-    assert_equal( cbook.is_string_like( y ), False )
+    assert_equal( _cbook.is_string_like( y ), False )
     y.shape = 10, 1
-    assert_equal( cbook.is_string_like( y ), False )
+    assert_equal( _cbook.is_string_like( y ), False )
     y.shape = 1, 10
-    assert_equal( cbook.is_string_like( y ), False )
+    assert_equal( _cbook.is_string_like( y ), False )
 
-    assert cbook.is_string_like( "hello world" )
-    assert_equal( cbook.is_string_like(10), False )
+    assert _cbook.is_string_like( "hello world" )
+    assert_equal( _cbook.is_string_like(10), False )
+
 
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}
-    d1 = cbook.restrict_dict(d, ['foo', 1])
+    d1 = _cbook.restrict_dict(d, ['foo', 1])
     assert_equal(d1, d)
-    d2 = cbook.restrict_dict(d, ['bar', 2])
+    d2 = _cbook.restrict_dict(d, ['bar', 2])
     assert_equal(d2, {})
-    d3 = cbook.restrict_dict(d, {'foo': 1})
+    d3 = _cbook.restrict_dict(d, {'foo': 1})
     assert_equal(d3, {'foo': 'bar'})
-    d4 = cbook.restrict_dict(d, {})
+    d4 = _cbook.restrict_dict(d, {})
     assert_equal(d4, {})
-    d5 = cbook.restrict_dict(d, set(['foo',2]))
+    d5 = _cbook.restrict_dict(d, set(['foo',2]))
     assert_equal(d5, {'foo': 'bar'})
     # check that d was not modified
     assert_equal(d, {'foo': 'bar', 1: 2})
 
-from matplotlib.cbook import delete_masked_points as dmp
 
 class Test_delete_masked_points:
     def setUp(self):
@@ -79,8 +82,12 @@ class Test_delete_masked_points:
 
 
 def test_allequal():
-    assert(cbook.allequal([1, 1, 1]))
-    assert(not cbook.allequal([1, 1, 0]))
-    assert(cbook.allequal([]))
-    assert(cbook.allequal(('a', 'a')))
-    assert(not cbook.allequal(('a', 'b')))
+    assert(_cbook.allequal([1, 1, 1]))
+    assert(not _cbook.allequal([1, 1, 0]))
+    assert(_cbook.allequal([]))
+    assert(_cbook.allequal(('a', 'a')))
+    assert(not _cbook.allequal(('a', 'b')))
+
+if __name__ == "__main__":
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

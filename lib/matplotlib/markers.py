@@ -8,7 +8,7 @@ import textwrap
 
 import numpy as np
 
-from cbook import is_math_text, is_string_like, is_numlike, iterable
+from _cbook import is_math_text, is_string_like, is_numlike, iterable
 import docstring
 from matplotlib import rcParams
 from path import Path

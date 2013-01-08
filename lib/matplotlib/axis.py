@@ -6,7 +6,7 @@ from __future__ import division, print_function
 from matplotlib  import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 import matplotlib.font_manager as font_manager
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
@@ -626,7 +626,7 @@ class Axis(artist.Artist):
         self.axes = axes
         self.major = Ticker()
         self.minor = Ticker()
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = _cbook.CallbackRegistry()
 
         #class dummy:
         #    locator = None
@@ -720,7 +720,7 @@ class Axis(artist.Artist):
         self.isDefault_label = True
 
         # Clear the callback registry for this axis, or it may "leak"
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = _cbook.CallbackRegistry()
 
         # whether the grids are on
         self._gridOnMajor = rcParams['axes.grid']
@@ -739,8 +739,8 @@ class Axis(artist.Artist):
         # build a few default ticks; grow as necessary later; only
         # define 1 so properties set on ticks will be copied as they
         # grow
-        cbook.popall(self.majorTicks)
-        cbook.popall(self.minorTicks)
+        _cbook.popall(self.majorTicks)
+        _cbook.popall(self.minorTicks)
 
         self.majorTicks.extend([self._get_tick(major=True)])
         self.minorTicks.extend([self._get_tick(major=False)])
@@ -780,7 +780,7 @@ class Axis(artist.Artist):
         # a more visible location; or maybe there already
         # is something like this.
         def _bool(arg):
-            if cbook.is_string_like(arg):
+            if _cbook.is_string_like(arg):
                 if arg.lower() == 'on':
                     return True
                 if arg.lower() == 'off':
@@ -1082,7 +1082,7 @@ class Axis(artist.Artist):
     def get_gridlines(self):
         'Return the grid lines as a list of Line2D instance'
         ticks = self.get_major_ticks()
-        return cbook.silent_list('Line2D gridline',
+        return _cbook.silent_list('Line2D gridline',
                                  [tick.gridline for tick in ticks])
 
     def get_label(self):
@@ -1102,14 +1102,14 @@ class Axis(artist.Artist):
         ticks = self.get_major_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1On]
         labels2 = [tick.label2 for tick in ticks if tick.label2On]
-        return cbook.silent_list('Text major ticklabel', labels1 + labels2)
+        return _cbook.silent_list('Text major ticklabel', labels1 + labels2)
 
     def get_minorticklabels(self):
         'Return a list of Text instances for the minor ticklabels'
         ticks = self.get_minor_ticks()
         labels1 = [tick.label1 for tick in ticks if tick.label1On]
         labels2 = [tick.label2 for tick in ticks if tick.label2On]
-        return cbook.silent_list('Text minor ticklabel', labels1 + labels2)
+        return _cbook.silent_list('Text minor ticklabel', labels1 + labels2)
 
     def get_ticklabels(self, minor=False):
         'Return a list of Text instances for ticklabels'
@@ -1124,7 +1124,7 @@ class Axis(artist.Artist):
         for tick in ticks:
             lines.append(tick.tick1line)
             lines.append(tick.tick2line)
-        return cbook.silent_list('Line2D ticklines', lines)
+        return _cbook.silent_list('Line2D ticklines', lines)
 
     def get_minorticklines(self):
         'Return the minor tick lines as a list of Line2D instances'
@@ -1133,7 +1133,7 @@ class Axis(artist.Artist):
         for tick in ticks:
             lines.append(tick.tick1line)
             lines.append(tick.tick2line)
-        return cbook.silent_list('Line2D ticklines', lines)
+        return _cbook.silent_list('Line2D ticklines', lines)
 
     def get_ticklines(self, minor=False):
         'Return the tick lines as a list of Line2D instances'

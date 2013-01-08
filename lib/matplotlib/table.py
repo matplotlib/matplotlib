@@ -25,7 +25,7 @@ import warnings
 import artist
 from artist import Artist, allow_rasterization
 from patches import Rectangle
-from cbook import is_string_like
+from _cbook import is_string_like
 from matplotlib import docstring
 from text import Text
 from transforms import Bbox

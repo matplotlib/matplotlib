@@ -23,7 +23,6 @@ Sources:
 """
 
 from __future__ import print_function
-import matplotlib.cbook as cbook
 import io
 import itertools
 import numpy as np

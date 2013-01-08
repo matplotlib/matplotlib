@@ -13,7 +13,7 @@ from numpy import ma
 from matplotlib import verbose
 import artist
 from artist import Artist
-from cbook import iterable, is_string_like, is_numlike, ls_mapper, dedent,\
+from _cbook import iterable, is_string_like, is_numlike, ls_mapper, dedent,\
 flatten, is_math_text
 from colors import colorConverter
 from path import Path
