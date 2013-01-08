@@ -749,7 +749,10 @@ class Legend(Artist):
                 transform = handle.get_transform()
                 bboxes.append(handle.get_path().get_extents(transform))
 
-        vertices = np.concatenate([l.vertices for l in lines])
+        try:
+            vertices = np.concatenate([l.vertices for l in lines])
+        except ValueError:
+            vertices = np.array([])
 
         return [vertices, bboxes, lines]
 
