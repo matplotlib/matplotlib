@@ -235,28 +235,6 @@ then you will need to set your PYTHONPATH, eg::
 
 See also ref:`environment-variables`.
 
-.. _easy-install-osx-egg:
-
-easy_install from egg
----------------------
-
-You can also use the eggs we build for OSX (see the `installation
-instructions
-<http://pypi.python.org/pypi/setuptools#cygwin-mac-os-x-linux-other>`_
-for easy_install if you do not have it on your system already).  You
-can try::
-
-    > easy_install matplotlib
-
-which should grab the latest egg from github, but sometimes the naming
-conventions for OSX eggs can be broken (see below).  Therefore, there
-is no guarantee the right egg will be found. We recommend you download
-the latest egg from our `download site
-<https://github.com/matplotlib/matplotlib/downloads>`_ directly to your
-harddrive, and manually install it, eg::
-
-    > easy_install --install-dir=~/path/to/site-packages/  matplotlib-1.2.0-py2.7-macosx-10.5-i386.egg
-
 .. _install_from_source_on_osx_epd:
 
 Building and installing from source on OSX with EPD
@@ -323,7 +301,7 @@ Binary installers for Windows
 
 If you have already installed python, you can use one of the
 matplotlib binary installers for windows -- you can get these from the
-`download <https://github.com/matplotlib/matplotlib/downloads>`_ site.
+`download <http://matplotlib.org/downloads.html>`_ site.
 Choose the files that match your version of python (eg ``py2.7`` if
 you installed Python 2.7) which have the ``exe`` extension.  If you
 haven't already installed python, you can get the official version

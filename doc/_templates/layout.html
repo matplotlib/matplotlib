@@ -1,8 +1,40 @@
 {% extends "!layout.html" %}
 
+  <script>
+function getSnippet(id, url) {
+var req = false;
+  // For Safari, Firefox, and other non-MS browsers
+  if (window.XMLHttpRequest) {
+    try {
+      req = new XMLHttpRequest();
+    } catch (e) {
+      req = false;
+    }
+  } else if (window.ActiveXObject) {
+    // For Internet Explorer on Windows
+    try {
+      req = new ActiveXObject("Msxml2.XMLHTTP");
+    } catch (e) {
+      try {
+        req = new ActiveXObject("Microsoft.XMLHTTP");
+      } catch (e) {
+        req = false;
+      }
+    }
+  }
+ var element = document.getElementById(id);
+  if (req) {
+    // Synchronous request, wait till we have it all
+    req.open('GET', url, false);
+    req.send(null);
+    element.innerHTML = req.responseText;
+  }
+}
+</script>
 
 {% block rootrellink %}
         <li><a href="{{ pathto('index') }}">home</a>|&nbsp;</li>
+        <li><a href="http://www.matplotlib.org/downloads.html">downloads</a>|&nbsp;</li>
         <li><a href="{{ pathto('search') }}">search</a>|&nbsp;</li>
         <li><a href="{{ pathto('examples/index') }}">examples</a>|&nbsp;</li>
         <li><a href="{{ pathto('gallery') }}">gallery</a>|&nbsp;</li>
@@ -50,4 +82,3 @@ pathto("_static/logo2.png", 1) }}" border="0" alt="matplotlib"/></a>
 {# put the sidebar before the body #}
 {% block sidebar1 %}{{ sidebar() }}{% endblock %}
 {% block sidebar2 %}{% endblock %}
-
