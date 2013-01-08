@@ -322,6 +322,7 @@ distrib = setup(name="matplotlib",
       interfaces and hardcopy output formats.  There is a 'pylab' mode
       which emulates matlab graphics
       """,
+      download_url="https://downloads.sourceforge.net/project/matplotlib/matplotlib/matplotlib-{0}/matplotlib-{0}.tar.gz".format(__version__),
       packages = packages,
       platforms='any',
       py_modules = py_modules,
