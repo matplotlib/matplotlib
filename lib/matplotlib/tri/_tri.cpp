@@ -392,80 +392,95 @@ Py::Object Triangulation::calculate_plane_coefficients(const Py::Tuple &args)
         throw Py::ValueError(
             "z array must have same length as triangulation x and y arrays");
     }
-    const double* zs = (const double*)PyArray_DATA(z);
 
-    npy_intp dims[2] = {_ntri, 3};
-    PyArrayObject* planes_array = (PyArrayObject*)PyArray_SimpleNew(
-                                                      2, dims, PyArray_DOUBLE);
-    double* planes = (double*)PyArray_DATA(planes_array);
-    const int* tris = get_triangles_ptr();
-    const double* xs = (const double*)PyArray_DATA(_x);
-    const double* ys = (const double*)PyArray_DATA(_y);
-    for (int tri = 0; tri < _ntri; ++tri)
+    PyArrayObject* planes_array = 0;  // Array to return.
+
+    try
     {
-        if (is_masked(tri))
-        {
-            *planes++ = 0.0;
-            *planes++ = 0.0;
-            *planes++ = 0.0;
-            tris += 3;
-        }
-        else
-        {
-            // Equation of plane for all points r on plane is r.normal = p
-            // where normal is vector normal to the plane, and p is a constant.
-            // Rewrite as r_x*normal_x + r_y*normal_y + r_z*normal_z = p
-            // and rearrange to give
-            // r_z = (-normal_x/normal_z)*r_x + (-normal_y/normal_z)*r_y +
-            //       p/normal_z
-            XYZ point0(xs[*tris], ys[*tris], zs[*tris]);
-            tris++;
-            XYZ point1(xs[*tris], ys[*tris], zs[*tris]);
-            tris++;
-            XYZ point2(xs[*tris], ys[*tris], zs[*tris]);
-            tris++;
+        const double* zs = (const double*)PyArray_DATA(z);
 
-            XYZ normal = (point1 - point0).cross(point2 - point0);
-
-            if (normal.z == 0.0)
+        npy_intp dims[2] = {_ntri, 3};
+        planes_array = (PyArrayObject*)PyArray_SimpleNew(2, dims,
+                                                         PyArray_DOUBLE);
+        double* planes = (double*)PyArray_DATA(planes_array);
+        const int* tris = get_triangles_ptr();
+        const double* xs = (const double*)PyArray_DATA(_x);
+        const double* ys = (const double*)PyArray_DATA(_y);
+        for (int tri = 0; tri < _ntri; ++tri)
+        {
+            if (is_masked(tri))
             {
-                // Normal is in x-y plane which means triangle consists of
-                // colinear points.  Try to do the best we can by taking plane
-                // through longest side of triangle.
-                double length_sqr_01 = (point1 - point0).length_squared();
-                double length_sqr_12 = (point2 - point1).length_squared();
-                double length_sqr_20 = (point0 - point2).length_squared();
-                if (length_sqr_01 > length_sqr_12)
-                {
-                    if (length_sqr_01 > length_sqr_20)
-                        normal = normal.cross(point1 - point0);
-                    else
-                        normal = normal.cross(point0 - point2);
-                }
-                else
-                {
-                    if (length_sqr_12 > length_sqr_20)
-                        normal = normal.cross(point2 - point1);
-                    else
-                        normal = normal.cross(point0 - point2);
-                }
+                *planes++ = 0.0;
+                *planes++ = 0.0;
+                *planes++ = 0.0;
+                tris += 3;
+            }
+            else
+            {
+                // Equation of plane for all points r on plane is r.normal = p
+                // where normal is vector normal to the plane, and p is a
+                // constant.  Rewrite as
+                // r_x*normal_x + r_y*normal_y + r_z*normal_z = p
+                // and rearrange to give
+                // r_z = (-normal_x/normal_z)*r_x + (-normal_y/normal_z)*r_y +
+                //       p/normal_z
+                XYZ point0(xs[*tris], ys[*tris], zs[*tris]);
+                tris++;
+                XYZ point1(xs[*tris], ys[*tris], zs[*tris]);
+                tris++;
+                XYZ point2(xs[*tris], ys[*tris], zs[*tris]);
+                tris++;
+
+                XYZ normal = (point1 - point0).cross(point2 - point0);
 
                 if (normal.z == 0.0)
                 {
-                    // The 3 triangle points have identical x and y!  The best
-                    // we can do here is take normal = (0,0,1) and for the
-                    // constant p take the mean of the 3 points' z-values.
-                    normal = XYZ(0.0, 0.0, 1.0);
-                    point0.z = (point0.z + point1.z + point2.z) / 3.0;
-                }
-            }
+                    // Normal is in x-y plane which means triangle consists of
+                    // colinear points.  Try to do the best we can by taking
+                    // plane through longest side of triangle.
+                    double length_sqr_01 = (point1 - point0).length_squared();
+                    double length_sqr_12 = (point2 - point1).length_squared();
+                    double length_sqr_20 = (point0 - point2).length_squared();
+                    if (length_sqr_01 > length_sqr_12)
+                    {
+                        if (length_sqr_01 > length_sqr_20)
+                            normal = normal.cross(point1 - point0);
+                        else
+                            normal = normal.cross(point0 - point2);
+                    }
+                    else
+                    {
+                        if (length_sqr_12 > length_sqr_20)
+                            normal = normal.cross(point2 - point1);
+                        else
+                            normal = normal.cross(point0 - point2);
+                    }
 
-            *planes++ = -normal.x / normal.z;           // x
-            *planes++ = -normal.y / normal.z;           // y
-            *planes++ = normal.dot(point0) / normal.z;  // constant
+                    if (normal.z == 0.0)
+                    {
+                        // The 3 triangle points have identical x and y!  The
+                        // best we can do here is take normal = (0,0,1) and for
+                        // the constant p take the mean of the 3 points'
+                        // z-values.
+                        normal = XYZ(0.0, 0.0, 1.0);
+                        point0.z = (point0.z + point1.z + point2.z) / 3.0;
+                    }
+                }
+
+                *planes++ = -normal.x / normal.z;           // x
+                *planes++ = -normal.y / normal.z;           // y
+                *planes++ = normal.dot(point0) / normal.z;  // constant
+            }
         }
     }
+    catch (...)
+    {
+        Py_DECREF(z);
+        Py_XDECREF(planes_array);
+        throw;
+    }
 
+    Py_DECREF(z);
     return Py::asObject((PyObject*)planes_array);
 }
 
