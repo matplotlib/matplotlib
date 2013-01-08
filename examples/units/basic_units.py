@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.units as units
 import matplotlib.ticker as ticker
 from matplotlib.axes import Axes
-from matplotlib.cbook import iterable
+from matplotlib._cbook import iterable
 
 
 class ProxyDelegate(object):

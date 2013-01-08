@@ -4,7 +4,7 @@ conversion and different tick formatting depending on the "unit".
 Here the "unit" is just a scalar conversion factor, but this example shows mpl is
 entirely agnostic to what kind of units client packages use
 """
-from matplotlib.cbook import iterable
+from matplotlib._cbook import iterable
 import matplotlib.units as units
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt

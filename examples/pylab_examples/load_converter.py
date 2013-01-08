@@ -3,9 +3,9 @@ from matplotlib.dates import strpdate2num
 #from matplotlib.mlab import load
 import numpy as np
 from pylab import figure, show
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 
-datafile = cbook.get_sample_data('msft.csv', asfileobj=False)
+datafile = _cbook.get_sample_data('msft.csv', asfileobj=False)
 print('loading', datafile)
 
 dates, closes = np.loadtxt(

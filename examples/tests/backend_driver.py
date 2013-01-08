@@ -23,7 +23,7 @@ switches with a --.
 import os, time, sys, glob, string
 from optparse import OptionParser
 import matplotlib.rcsetup as rcsetup
-from matplotlib.cbook import Bunch, dedent
+from matplotlib._cbook import Bunch, dedent
 
 all_backends = list(rcsetup.all_backends)  # to leave the original list alone
 

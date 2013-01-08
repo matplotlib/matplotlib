@@ -10,9 +10,9 @@ and place the output next to this file before running
 """
 import os, datetime
 
-import matplotlib.cbook as cbook
+import matplotlib._cbook as _cbook
 
-todate = cbook.todate('%Y-%m-%d')
+todate = _cbook.todate('%Y-%m-%d')
 today = datetime.date.today()
 if not os.path.exists('log.txt'):
     print('You must place the "svn log" output into a file "log.txt"')
