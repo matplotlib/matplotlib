@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="432pt" version="1.1" viewBox="0 0 576 432" width="576pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -378,18 +378,18 @@ L72 43.2" style="fill:none;stroke:#000000;"/>
    <g id="legend_1">
     <g id="patch_7">
      <path d="
-M133.338 97.1659
-L267.709 97.1659
-L267.709 50.4
-L133.338 50.4
-L133.338 97.1659
+M79.2 381.6
+L213.571 381.6
+L213.571 334.834
+L79.2 334.834
+L79.2 381.6
 z
 " style="fill:#ffffff;stroke:#000000;"/>
     </g>
     <g id="line2d_36"/>
     <g id="line2d_37">
      <g>
-      <use style="fill:#0000ff;stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="153.497840909" xlink:href="#m0f54036a79" y="62.06175"/>
+      <use style="fill:#0000ff;stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="99.36" xlink:href="#m0f54036a79" y="346.495875"/>
      </g>
     </g>
     <g id="text_1">
@@ -410,14 +410,14 @@ L12.4062 0
 z
 " id="BitstreamVeraSans-Roman-31"/>
      </defs>
-     <g transform="translate(179.417840909 67.10175)scale(0.144 -0.144)">
+     <g transform="translate(125.28 351.535875)scale(0.144 -0.144)">
       <use xlink:href="#BitstreamVeraSans-Roman-31"/>
      </g>
     </g>
     <g id="line2d_38"/>
     <g id="line2d_39">
      <g>
-      <use style="fill:#008000;stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="153.497840909" xlink:href="#m365dd9364a" y="83.371125"/>
+      <use style="fill:#008000;stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="99.36" xlink:href="#m365dd9364a" y="367.80525"/>
      </g>
     </g>
     <g id="text_2">
@@ -587,7 +587,7 @@ Q26.2656 6.10938 33.4062 6.10938
 Q40.5312 6.10938 44.6094 11.75
 Q48.6875 17.3906 48.6875 27.2969" id="BitstreamVeraSans-Roman-70"/>
      </defs>
-     <g transform="translate(179.417840909 88.411125)scale(0.144 -0.144)">
+     <g transform="translate(125.28 372.84525)scale(0.144 -0.144)">
       <use xlink:href="#BitstreamVeraSans-Roman-44"/>
       <use x="77.001953125" xlink:href="#BitstreamVeraSans-Roman-e9"/>
       <use x="138.525390625" xlink:href="#BitstreamVeraSans-Roman-76"/>
