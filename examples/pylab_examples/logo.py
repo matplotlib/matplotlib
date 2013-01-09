@@ -3,10 +3,10 @@
 
 from __future__ import print_function
 from pylab import *
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 
 # convert data to mV
-datafile = _cbook.get_sample_data('membrane.dat', asfileobj=False)
+datafile = utils.get_sample_data('membrane.dat', asfileobj=False)
 print('loading', datafile)
 
 x = 1000*0.1*fromstring(file(datafile, 'rb').read(), float32)

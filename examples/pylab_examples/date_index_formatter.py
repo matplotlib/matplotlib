@@ -12,10 +12,10 @@ from __future__ import print_function
 import numpy
 from matplotlib.mlab import csv2rec
 from pylab import figure, show
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils 
 from matplotlib.ticker import Formatter
 
-datafile = _cbook.get_sample_data('msft.csv', asfileobj=False)
+datafile = utils.get_sample_data('msft.csv', asfileobj=False)
 print ('loading %s' % datafile)
 r = csv2rec(datafile)[-40:]
 

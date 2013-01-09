@@ -2,9 +2,10 @@
 
 from __future__ import print_function
 from pylab import *
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
+
 # data are 256x256 16 bit integers
-dfile = _cbook.get_sample_data('s1045.ima.gz')
+dfile = utils.get_sample_data('s1045.ima.gz')
 im = np.fromstring(dfile.read(), np.uint16).astype(float)
 im.shape = 256, 256
 

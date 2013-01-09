@@ -7,10 +7,10 @@ from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils 
 import matplotlib.ticker as ticker
 
-datafile = _cbook.get_sample_data('aapl.csv', asfileobj=False)
+datafile = utils.get_sample_data('aapl.csv', asfileobj=False)
 print ('loading %s' % datafile)
 r = mlab.csv2rec(datafile)
 

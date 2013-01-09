@@ -2,7 +2,7 @@ import numpy as np
 #from matplotlib.path import Path
 
 import matplotlib.pyplot as plt
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils 
 
 from  mpl_toolkits.axisartist.grid_helper_curvelinear import GridHelperCurveLinear
 from mpl_toolkits.axisartist import Subplot
@@ -109,7 +109,7 @@ def curvelinear_test2(fig):
     # note that ax2.transData == tr + ax1.transData
     # Anthing you draw in ax2 will match the ticks and grids of ax1.
     ax1.parasites.append(ax2)
-    intp = _cbook.simple_linear_interpolation
+    intp = utils.simple_linear_interpolation
     ax2.plot(intp(np.array([0, 30]), 50),
              intp(np.array([10., 10.]), 50))
 

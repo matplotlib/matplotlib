@@ -21,7 +21,7 @@ matplotlib.use('Agg')  # force the antigrain backend
 from matplotlib import rc
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
-from matplotlib._cbook import iterable
+from matplotlib.utils import iterable
 import numpy as np
 
 def make_fig():

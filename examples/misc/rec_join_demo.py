@@ -1,9 +1,9 @@
 from __future__ import print_function
 import numpy as np
 import matplotlib.mlab as mlab
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 
-datafile = _cbook.get_sample_data('aapl.csv', asfileobj=False)
+datafile = utils.get_sample_data('aapl.csv', asfileobj=False)
 print('loading', datafile)
 r = mlab.csv2rec(datafile)
 

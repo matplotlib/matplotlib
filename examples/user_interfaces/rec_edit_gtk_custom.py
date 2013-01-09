@@ -7,11 +7,11 @@ from __future__ import print_function
 import gtk
 import numpy as np
 import matplotlib.mlab as mlab
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 import mpl_toolkits.gtktools as gtktools
 
 
-datafile = _cbook.get_sample_data('demodata.csv', asfileobj=False)
+datafile = utils.get_sample_data('demodata.csv', asfileobj=False)
 r = mlab.csv2rec(datafile, converterd={'weekdays':str})
 
 

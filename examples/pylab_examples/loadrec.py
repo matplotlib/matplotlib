@@ -1,9 +1,9 @@
 from __future__ import print_function
 from matplotlib import mlab
 from pylab import figure, show
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 
-datafile = _cbook.get_sample_data('msft.csv', asfileobj=False)
+datafile = utils.get_sample_data('msft.csv', asfileobj=False)
 print('loading', datafile)
 a = mlab.csv2rec(datafile)
 a.sort()
