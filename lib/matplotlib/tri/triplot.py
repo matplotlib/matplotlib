@@ -1,9 +1,10 @@
 from __future__ import print_function
-from matplotlib._cbook import ls_mapper
+from matplotlib.utils import ls_mapper
 from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 from matplotlib.tri.triangulation import Triangulation
 import numpy as np
+
 
 def triplot(ax, *args, **kwargs):
     """
@@ -64,7 +65,7 @@ def triplot(ax, *args, **kwargs):
         kw['facecolor'] = None
 
         vertices = np.column_stack((x[edges].flatten(), y[edges].flatten()))
-        codes = ([Path.MOVETO] + [Path.LINETO])*len(edges)
+        codes = ([Path.MOVETO] + [Path.LINETO]) * len(edges)
 
         path = Path(vertices, codes)
         pathpatch = PathPatch(path, **kw)

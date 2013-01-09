@@ -338,7 +338,7 @@ class Axes(martist.Artist):
     coordinate system.
 
     The :class:`Axes` instance supports callbacks through a callbacks
-    attribute which is a :class:`~matplotlib._cbook.CallbackRegistry`
+    attribute which is a :class:`~matplotlib.utils.CallbackRegistry`
     instance.  The events you can connect to are 'xlim_changed' and
     'ylim_changed' and the callback will be called with func(*ax*)
     where *ax* is the :class:`Axes` instance.

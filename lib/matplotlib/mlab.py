@@ -2809,7 +2809,7 @@ griddata._reported = False
 def less_simple_linear_interpolation( x, y, xi, extrap=False ):
     """
     This function provides simple (but somewhat less so than
-    :func:`_cbook.simple_linear_interpolation`) linear interpolation.
+    :func:`utils.simple_linear_interpolation`) linear interpolation.
     :func:`simple_linear_interpolation` will give a list of point
     between a start and an end, while this does true linear
     interpolation at an arbitrary set of points.

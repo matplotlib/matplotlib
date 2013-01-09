@@ -301,7 +301,7 @@ class Grouper(object):
 
     For example:
 
-        >>> from matplotlib._cbook import Grouper
+        >>> from matplotlib.utils import Grouper
         >>> class Foo(object):
         ...     def __init__(self, s):
         ...         self.s = s
@@ -503,7 +503,7 @@ class CallbackRegistry:
         >>> def ondrink(x):
         ...    print 'drink', x
 
-        >>> from matplotlib._cbook import CallbackRegistry
+        >>> from matplotlib.utils import CallbackRegistry
         >>> callbacks = CallbackRegistry()
 
         >>> id_eat = callbacks.connect('eat', oneat)

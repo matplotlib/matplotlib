@@ -32,7 +32,7 @@ class TextToPath(object):
         self.mathtext_parser = MathTextParser('path')
         self.tex_font_map = None
 
-        from matplotlib._cbook import maxdict
+        from matplotlib.utils import maxdict
         self._ps_fontd = maxdict(50)
 
         self._texmanager = None
