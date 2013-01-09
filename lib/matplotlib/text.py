@@ -6,11 +6,11 @@ import math
 
 import numpy as np
 
-from matplotlib import _cbook
+from matplotlib import utils
 from matplotlib import rcParams
 import matplotlib.artist as artist
 from matplotlib.artist import Artist
-from matplotlib._cbook import is_string_like, maxdict
+from matplotlib.utils import is_string_like, maxdict
 from matplotlib import docstring
 from matplotlib.font_manager import FontProperties
 from matplotlib.patches import bbox_artist, YAArrow, FancyBboxPatch
@@ -1010,7 +1010,7 @@ class Text(Artist):
                 s = r'\ '
             return s, 'TeX'
 
-        if _cbook.is_math_text(s):
+        if utils.is_math_text(s):
             return s, True
         else:
             return s.replace(r'\$', '$'), False

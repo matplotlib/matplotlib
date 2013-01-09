@@ -2,7 +2,7 @@ from __future__ import division, print_function
 import re
 import warnings
 import matplotlib
-import matplotlib._cbook as _cbook
+from matplotlib import utils
 from matplotlib import docstring, rcParams
 from transforms import Bbox, IdentityTransform, TransformedBbox, \
                        TransformedPath, Transform
@@ -767,7 +767,7 @@ class Artist(object):
         if match is None:  # always return True
             def matchfunc(x):
                 return True
-        elif _cbook.issubclass_safe(match, Artist):
+        elif utils.issubclass_safe(match, Artist):
             def matchfunc(x):
                 return isinstance(x, match)
         elif callable(match):
@@ -804,7 +804,7 @@ class ArtistInspector:
         :class:`Artists` are of the same type) and it is your responsibility
         to make sure this is so.
         """
-        if _cbook.iterable(o) and len(o):
+        if utils.iterable(o) and len(o):
             o = o[0]
 
         self.oorig = o
@@ -1211,10 +1211,10 @@ def setp(obj, *args, **kwargs):
         print(insp.pprint_setters(prop=args[0]))
         return
 
-    if not _cbook.iterable(obj):
+    if not utils.iterable(obj):
         objs = [obj]
     else:
-        objs = _cbook.flatten(obj)
+        objs = utils.flatten(obj)
 
     if len(args) % 2:
         raise ValueError('The set args must be string, value pairs')
@@ -1231,7 +1231,7 @@ def setp(obj, *args, **kwargs):
             funcName = "set_%s" % s
             func = getattr(o, funcName)
             ret.extend([func(val)])
-    return [x for x in _cbook.flatten(ret)]
+    return [x for x in utils.flatten(ret)]
 
 
 def kwdoc(a):

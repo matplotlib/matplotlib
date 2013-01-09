@@ -5,7 +5,7 @@ import math
 
 import matplotlib as mpl
 import numpy as np
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
 import matplotlib.colors as colors
@@ -1811,8 +1811,8 @@ class BoxStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest thes classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib._cbook as _cbook
-            return (_cbook._NestedClassGetter(),
+            import matplotlib.utils as utils 
+            return (utils._NestedClassGetter(),
                     (BoxStyle, self.__class__.__name__),
                     self.__dict__
                     )
@@ -2179,7 +2179,7 @@ class BoxStyle(_Style):
     _style_list["roundtooth"] = Roundtooth
 
     if __doc__:  # __doc__ could be None if -OO optimization is enabled
-        __doc__ = _cbook.dedent(__doc__) % \
+        __doc__ = utils.dedent(__doc__) % \
                {"AvailableBoxstyles": _pprint_styles(_style_list)}
 
 docstring.interpd.update(
@@ -2538,8 +2538,7 @@ class ConnectionStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest thes classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib._cbook as _cbook
-            return (_cbook._NestedClassGetter(),
+            return (utils._NestedClassGetter(),
                     (ConnectionStyle, self.__class__.__name__),
                     self.__dict__
                     )
@@ -2867,7 +2866,7 @@ class ConnectionStyle(_Style):
     _style_list["bar"] = Bar
 
     if __doc__:
-        __doc__ = _cbook.dedent(__doc__) % \
+        __doc__ = utils.dedent(__doc__) % \
                {"AvailableConnectorstyles": _pprint_styles(_style_list)}
 
 
@@ -2996,7 +2995,7 @@ class ArrowStyle(_Style):
                 path_mutated, fillable = self.transmute(path_shrinked,
                                                         linewidth,
                                                         mutation_size)
-                if _cbook.iterable(fillable):
+                if utils.iterable(fillable):
                     path_list = []
                     for p in zip(path_mutated):
                         v, c = p.vertices, p.codes
@@ -3012,8 +3011,7 @@ class ArrowStyle(_Style):
         def __reduce__(self):
             # because we have decided to nest thes classes, we need to
             # add some more information to allow instance pickling.
-            import matplotlib._cbook as _cbook
-            return (_cbook._NestedClassGetter(),
+            return (utils._NestedClassGetter(),
                     (ArrowStyle, self.__class__.__name__),
                     self.__dict__
                     )
@@ -3709,7 +3707,7 @@ class ArrowStyle(_Style):
     _style_list["wedge"] = Wedge
 
     if __doc__:
-        __doc__ = _cbook.dedent(__doc__) % \
+        __doc__ = utils.dedent(__doc__) % \
                {"AvailableArrowstyles": _pprint_styles(_style_list)}
 
 
@@ -3953,7 +3951,7 @@ class FancyArrowPatch(Patch):
         """
         _path, fillable = self.get_path_in_displaycoord()
 
-        if _cbook.iterable(fillable):
+        if utils.iterable(fillable):
             _path = concatenate_paths(_path)
 
         return self.get_transform().inverted().transform_path(_path)
@@ -4026,7 +4024,7 @@ class FancyArrowPatch(Patch):
         self.set_dpi_cor(renderer.points_to_pixels(1.))
         path, fillable = self.get_path_in_displaycoord()
 
-        if not _cbook.iterable(fillable):
+        if not utils.iterable(fillable):
             path = [path]
             fillable = [fillable]
 

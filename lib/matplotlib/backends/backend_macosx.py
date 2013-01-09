@@ -8,7 +8,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, TimerBase
 from matplotlib.backend_bases import ShowBase
 
-from matplotlib._cbook import maxdict
+from matplotlib.utils import maxdict
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.mathtext import MathTextParser

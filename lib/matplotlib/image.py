@@ -5,17 +5,15 @@ operations.
 """
 from __future__ import division, print_function
 import os, warnings
-import math
 
 import numpy as np
-from numpy import ma
 
 from matplotlib import rcParams
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 
 # For clarity, names from _image are given explicitly in this module:
 import matplotlib._image as _image
@@ -412,7 +410,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         if hasattr(A,'getpixel'):
             self._A = pil_to_array(A)
         else:
-            self._A = _cbook.safe_masked_invalid(A)
+            self._A = utils.safe_masked_invalid(A)
 
         if self._A.dtype != np.uint8 and not np.can_cast(self._A.dtype, np.float):
             raise TypeError("Image data can not convert to float")
@@ -736,7 +734,7 @@ class NonUniformImage(AxesImage):
         """
         x = np.asarray(x,np.float32)
         y = np.asarray(y,np.float32)
-        A = _cbook.safe_masked_invalid(A)
+        A = utils.safe_masked_invalid(A)
         if len(x.shape) != 1 or len(y.shape) != 1\
            or A.shape[0:2] != (y.shape[0], x.shape[0]):
             raise TypeError("Axes don't match array shape")
@@ -869,7 +867,7 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
 
 
     def set_data(self, x, y, A):
-        A = _cbook.safe_masked_invalid(A)
+        A = utils.safe_masked_invalid(A)
         if x is None:
             x = np.arange(0, A.shape[1]+1, dtype=np.float64)
         else:
@@ -968,7 +966,7 @@ class FigureImage(martist.Artist, cm.ScalarMappable):
 
     def set_data(self, A):
         """Set the image array."""
-        cm.ScalarMappable.set_array(self, _cbook.safe_masked_invalid(A))
+        cm.ScalarMappable.set_array(self, utils.safe_masked_invalid(A))
 
     def set_array(self, A):
         """Deprecated; use set_data for consistency with other image types."""
@@ -1193,7 +1191,7 @@ def imread(fname, format=None):
             from PIL import Image
         except ImportError:
             return None
-        if _cbook.is_string_like(fname):
+        if utils.is_string_like(fname):
             # force close the file after reading the image
             with open(fname, "rb") as fh:
                 image = Image.open(fh)
@@ -1204,7 +1202,7 @@ def imread(fname, format=None):
 
     handlers = {'png' :_png.read_png, }
     if format is None:
-        if _cbook.is_string_like(fname):
+        if utils.is_string_like(fname):
             basename, ext = os.path.splitext(fname)
             ext = ext.lower()[1:]
         elif hasattr(fname, 'name'):
@@ -1226,7 +1224,7 @@ def imread(fname, format=None):
     # To handle Unicode filenames, we pass a file object to the PNG
     # reader extension, since Python handles them quite well, but it's
     # tricky in C.
-    if _cbook.is_string_like(fname):
+    if utils.is_string_like(fname):
         with open(fname, 'rb') as fd:
             return handler(fd)
     else:

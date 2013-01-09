@@ -214,9 +214,9 @@ __end
 
 """
 from __future__ import print_function
-import sys, warnings
+import sys
 
-from matplotlib._cbook import flatten, is_string_like, exception_to_str, \
+from matplotlib.utils import flatten, is_string_like, exception_to_str, \
      silent_list, iterable, dedent
 
 import matplotlib as mpl
@@ -258,7 +258,7 @@ from matplotlib.mlab import window_hanning, window_none,  detrend, demean, \
      rec_append_fields, rec_drop_fields, rec_join, csv2rec, rec2csv, isvector
 
 import matplotlib.mlab as mlab
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 
 from numpy import *
 from numpy.fft import *

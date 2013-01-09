@@ -534,7 +534,7 @@ def _get_configdir():
     else:
         if not _is_writable_dir(h):
             return _create_tmp_config_dir()
-        from matplotlib._cbook import mkdirs
+        from matplotlib.utils import mkdirs
         mkdirs(p)
 
     return p

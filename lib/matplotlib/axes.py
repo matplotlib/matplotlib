@@ -13,7 +13,7 @@ rcParams = matplotlib.rcParams
 import matplotlib.artist as martist
 from matplotlib.artist import allow_rasterization
 import matplotlib.axis as maxis
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
@@ -40,9 +40,9 @@ import matplotlib.tri as mtri
 from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
-iterable = _cbook.iterable
-is_string_like = _cbook.is_string_like
-is_sequence_of_strings = _cbook.is_sequence_of_strings
+iterable = utils.iterable
+is_string_like = utils.is_string_like
+is_sequence_of_strings = utils.is_sequence_of_strings
 
 
 def _string_to_bool(s):
@@ -345,8 +345,8 @@ class Axes(martist.Artist):
     """
     name = "rectilinear"
 
-    _shared_x_axes = _cbook.Grouper()
-    _shared_y_axes = _cbook.Grouper()
+    _shared_x_axes = utils.Grouper()
+    _shared_y_axes = utils.Grouper()
 
     def __str__(self):
         return "Axes(%g,%g;%gx%g)" % tuple(self._position.bounds)
@@ -849,7 +849,7 @@ class Axes(martist.Artist):
             spine.cla()
 
         self.ignore_existing_data_limits = True
-        self.callbacks = _cbook.CallbackRegistry()
+        self.callbacks = utils.CallbackRegistry()
 
         if self._sharex is not None:
             # major and minor are class instances with
@@ -1381,11 +1381,11 @@ class Axes(martist.Artist):
 
     def get_images(self):
         """return a list of Axes images contained by the Axes"""
-        return _cbook.silent_list('AxesImage', self.images)
+        return utils.silent_list('AxesImage', self.images)
 
     def get_lines(self):
         """Return a list of lines contained by the Axes"""
-        return _cbook.silent_list('Line2D', self.lines)
+        return utils.silent_list('Line2D', self.lines)
 
     def get_xaxis(self):
         """Return the XAxis instance"""
@@ -1393,12 +1393,12 @@ class Axes(martist.Artist):
 
     def get_xgridlines(self):
         """Get the x grid lines as a list of Line2D instances"""
-        return _cbook.silent_list('Line2D xgridline',
-                                 self.xaxis.get_gridlines())
+        return utils.silent_list('Line2D xgridline',
+                                  self.xaxis.get_gridlines())
 
     def get_xticklines(self):
         """Get the xtick lines as a list of Line2D instances"""
-        return _cbook.silent_list('Text xtickline',
+        return utils.silent_list('Text xtickline',
                                  self.xaxis.get_ticklines())
 
     def get_yaxis(self):
@@ -1407,12 +1407,12 @@ class Axes(martist.Artist):
 
     def get_ygridlines(self):
         """Get the y grid lines as a list of Line2D instances"""
-        return _cbook.silent_list('Line2D ygridline',
+        return utils.silent_list('Line2D ygridline',
                                  self.yaxis.get_gridlines())
 
     def get_yticklines(self):
         """Get the ytick lines as a list of Line2D instances"""
-        return _cbook.silent_list('Line2D ytickline',
+        return utils.silent_list('Line2D ytickline',
                                  self.yaxis.get_ticklines())
 
     #### Adding and tracking artists
@@ -2593,7 +2593,7 @@ class Axes(martist.Artist):
         Get the xtick labels as a list of :class:`~matplotlib.text.Text`
         instances.
         """
-        return _cbook.silent_list('Text xticklabel',
+        return utils.silent_list('Text xticklabel',
                                  self.xaxis.get_majorticklabels())
 
     def get_xminorticklabels(self):
@@ -2601,7 +2601,7 @@ class Axes(martist.Artist):
         Get the x minor tick labels as a list of
         :class:`matplotlib.text.Text` instances.
         """
-        return _cbook.silent_list('Text xticklabel',
+        return utils.silent_list('Text xticklabel',
                                  self.xaxis.get_minorticklabels())
 
     def get_xticklabels(self, minor=False):
@@ -2609,7 +2609,7 @@ class Axes(martist.Artist):
         Get the x tick labels as a list of :class:`~matplotlib.text.Text`
         instances.
         """
-        return _cbook.silent_list('Text xticklabel',
+        return utils.silent_list('Text xticklabel',
                                  self.xaxis.get_ticklabels(minor=minor))
 
     @docstring.dedent_interpd
@@ -2823,7 +2823,7 @@ class Axes(martist.Artist):
         Get the major y tick labels as a list of
         :class:`~matplotlib.text.Text` instances.
         """
-        return _cbook.silent_list('Text yticklabel',
+        return utils.silent_list('Text yticklabel',
                                  self.yaxis.get_majorticklabels())
 
     def get_yminorticklabels(self):
@@ -2831,7 +2831,7 @@ class Axes(martist.Artist):
         Get the minor y tick labels as a list of
         :class:`~matplotlib.text.Text` instances.
         """
-        return _cbook.silent_list('Text yticklabel',
+        return utils.silent_list('Text yticklabel',
                                  self.yaxis.get_minorticklabels())
 
     def get_yticklabels(self, minor=False):
@@ -2839,7 +2839,7 @@ class Axes(martist.Artist):
         Get the y tick labels as a list of :class:`~matplotlib.text.Text`
         instances
         """
-        return _cbook.silent_list('Text yticklabel',
+        return utils.silent_list('Text yticklabel',
                                  self.yaxis.get_ticklabels(minor=minor))
 
     @docstring.dedent_interpd
@@ -2979,7 +2979,7 @@ class Axes(martist.Artist):
             Intended to be overridden by new projection types.
 
         """
-        self._pan_start = _cbook.Bunch(
+        self._pan_start = utils.Bunch(
             lim=self.viewLim.frozen(),
             trans=self.transData.frozen(),
             trans_inverse=self.transData.inverted().frozen(),
@@ -4585,7 +4585,7 @@ class Axes(martist.Artist):
             raise TypeError('Invalid arguments to legend')
 
         # Why do we need to call "flatten" here? -JJL
-        # handles = _cbook.flatten(handles)
+        # handles = utils.flatten(handles)
 
         self.legend_ = mlegend.Legend(self, handles, labels, **kwargs)
         return self.legend_
@@ -5226,7 +5226,7 @@ class Axes(martist.Artist):
         autotexts = []
 
         i = 0
-        for frac, label, expl in _cbook.safezip(x, labels, explode):
+        for frac, label, expl in utils.safezip(x, labels, explode):
             x, y = center
             theta2 = theta1 + frac
             thetam = 2 * math.pi * 0.5 * (theta1 + theta2)
@@ -5508,15 +5508,15 @@ class Axes(martist.Artist):
                 iterable(xerr[0]) and iterable(xerr[1])):
                 # using list comps rather than arrays to preserve units
                 left = [thisx - thiserr for (thisx, thiserr)
-                        in _cbook.safezip(x, xerr[0])]
+                        in utils.safezip(x, xerr[0])]
                 right = [thisx + thiserr for (thisx, thiserr)
-                         in _cbook.safezip(x, xerr[1])]
+                         in utils.safezip(x, xerr[1])]
             else:
                 # using list comps rather than arrays to preserve units
                 left = [thisx - thiserr for (thisx, thiserr)
-                        in _cbook.safezip(x, xerr)]
+                        in utils.safezip(x, xerr)]
                 right = [thisx + thiserr for (thisx, thiserr)
-                         in _cbook.safezip(x, xerr)]
+                         in utils.safezip(x, xerr)]
 
             yo, _ = xywhere(y, right, everymask)
             lo, ro = xywhere(left, right, everymask)
@@ -5556,15 +5556,15 @@ class Axes(martist.Artist):
                 iterable(yerr[0]) and iterable(yerr[1])):
                 # using list comps rather than arrays to preserve units
                 lower = [thisy - thiserr for (thisy, thiserr)
-                         in _cbook.safezip(y, yerr[0])]
+                         in utils.safezip(y, yerr[0])]
                 upper = [thisy + thiserr for (thisy, thiserr)
-                         in _cbook.safezip(y, yerr[1])]
+                         in utils.safezip(y, yerr[1])]
             else:
                 # using list comps rather than arrays to preserve units
                 lower = [thisy - thiserr for (thisy, thiserr)
-                         in _cbook.safezip(y, yerr)]
+                         in utils.safezip(y, yerr)]
                 upper = [thisy + thiserr for (thisy, thiserr)
-                         in _cbook.safezip(y, yerr)]
+                         in utils.safezip(y, yerr)]
 
             xo, _ = xywhere(x, lower, everymask)
             lo, uo = xywhere(lower, upper, everymask)
@@ -6084,7 +6084,7 @@ class Axes(martist.Artist):
             if c.size == x.size:
                 c = np.ma.ravel(c)
 
-        x, y, s, c = _cbook.delete_masked_points(x, y, s, c)
+        x, y, s, c = utils.delete_masked_points(x, y, s, c)
 
         scales = s   # Renamed for readability below.
 
@@ -6300,7 +6300,7 @@ class Axes(martist.Artist):
 
         self._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
 
-        x, y, C = _cbook.delete_masked_points(x, y, C)
+        x, y, C = utils.delete_masked_points(x, y, C)
 
         # Set the size of the hexagon grid
         if iterable(gridsize):
@@ -8112,7 +8112,7 @@ class Axes(martist.Artist):
 
         # Check whether bins or range are given explicitly. In that
         # case use those values for autoscaling.
-        binsgiven = (_cbook.iterable(bins) or bin_range != None)
+        binsgiven = (utils.iterable(bins) or bin_range != None)
 
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
@@ -8151,7 +8151,7 @@ class Axes(martist.Artist):
 
         if cumulative:
             slc = slice(None)
-            if _cbook.is_numlike(cumulative) and cumulative < 0:
+            if utils.is_numlike(cumulative) and cumulative < 0:
                 slc = slice(None, None, -1)
 
             if normed:
@@ -8315,9 +8315,9 @@ class Axes(martist.Artist):
         self.autoscale_view()
 
         if nx == 1:
-            return n[0], bins, _cbook.silent_list('Patch', patches[0])
+            return n[0], bins, utils.silent_list('Patch', patches[0])
         else:
-            return n, bins, _cbook.silent_list('Lists of Patches', patches)
+            return n, bins, utils.silent_list('Lists of Patches', patches)
 
     @docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, normed=False, weights=None,

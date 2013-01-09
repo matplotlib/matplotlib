@@ -13,8 +13,8 @@ import warnings
 import numpy as np
 import numpy.ma as ma
 import matplotlib as mpl
-import matplotlib._cbook as _cbook
 import matplotlib.colors as mcolors
+import matplotlib.utils as utils
 import matplotlib.cm as cm
 from matplotlib import docstring
 import matplotlib.transforms as transforms
@@ -133,7 +133,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         try:
             return (float(val), )
         except TypeError:
-            if _cbook.iterable(val) and len(val):
+            if utils.iterable(val) and len(val):
                 try:
                     float(val[0])
                 except (TypeError, ValueError):
@@ -145,7 +145,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     @staticmethod
     def _get_bool(val):
-        if not _cbook.iterable(val):
+        if not utils.iterable(val):
             val = (val,)
         try:
             bool(val[0])
@@ -431,25 +431,25 @@ class Collection(artist.Artist, cm.ScalarMappable):
         """
         try:
             dashd = backend_bases.GraphicsContextBase.dashd
-            if _cbook.is_string_like(ls):
+            if utils.is_string_like(ls):
                 if ls in dashd:
                     dashes = [dashd[ls]]
-                elif ls in _cbook.ls_mapper:
-                    dashes = [dashd[_cbook.ls_mapper[ls]]]
+                elif ls in utils.ls_mapper:
+                    dashes = [dashd[utils.ls_mapper[ls]]]
                 else:
                     raise ValueError()
-            elif _cbook.iterable(ls):
+            elif utils.iterable(ls):
                 try:
                     dashes = []
                     for x in ls:
-                        if _cbook.is_string_like(x):
+                        if utils.is_string_like(x):
                             if x in dashd:
                                 dashes.append(dashd[x])
-                            elif x in _cbook.ls_mapper:
-                                dashes.append(dashd[_cbook.ls_mapper[x]])
+                            elif x in utils.ls_mapper:
+                                dashes.append(dashd[utils.ls_mapper[x]])
                             else:
                                 raise ValueError()
-                        elif _cbook.iterable(x) and len(x) == 2:
+                        elif utils.iterable(x) and len(x) == 2:
                             dashes.append(x)
                         else:
                             raise ValueError()

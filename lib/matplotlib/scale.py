@@ -3,7 +3,7 @@ from __future__ import print_function
 import numpy as np
 from numpy import ma
 
-from matplotlib._cbook import dedent
+from matplotlib.utils import dedent
 from matplotlib.ticker import (NullFormatter, ScalarFormatter,
                                LogFormatterMathtext)
 from matplotlib.ticker import (NullLocator, LogLocator, AutoLocator,

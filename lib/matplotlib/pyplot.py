@@ -20,8 +20,8 @@ from __future__ import print_function
 import sys, warnings
 
 import matplotlib
-from matplotlib import _pylab_helpers, interactive
-from matplotlib._cbook import dedent, silent_list, is_string_like, is_numlike
+from matplotlib import _pylab_helpers
+from matplotlib.utils import silent_list, is_string_like, is_numlike
 from matplotlib import docstring
 from matplotlib.figure import Figure, figaspect
 from matplotlib.backend_bases import FigureCanvasBase
@@ -30,15 +30,13 @@ from matplotlib.image import imsave as _imsave
 from matplotlib import rcParams, rcParamsDefault, get_backend
 from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
-from matplotlib.artist import getp, get, Artist
+from matplotlib.artist import Artist
 from matplotlib.artist import setp as _setp
-from matplotlib.axes import Axes, Subplot, _string_to_bool
+from matplotlib.axes import Axes, _string_to_bool
 from matplotlib.projections import PolarAxes
 from matplotlib import mlab  # for csv2rec, detrend_none, window_hanning
-from matplotlib.scale import get_scale_docs, get_scale_names
 
 from matplotlib import cm
-from matplotlib.cm import get_cmap, register_cmap
 
 import numpy as np
 
@@ -48,6 +46,7 @@ from matplotlib.lines import Line2D
 from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
 from matplotlib.widgets import SubplotTool, Button, Slider, Widget
+from matplotlib.cm import get_cmap, register_cmap
 
 from ticker import TickHelper, Formatter, FixedFormatter, NullFormatter,\
            FuncFormatter, FormatStrFormatter, ScalarFormatter,\

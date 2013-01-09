@@ -44,23 +44,16 @@ License   : matplotlib license (PSF compatible)
 """
 
 import os, sys, subprocess, warnings
-try:
-    set
-except NameError:
-    from sets import Set as set
+import pickle
 import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
 from matplotlib import rcParams, get_configdir
-from matplotlib._cbook import is_string_like
-import matplotlib._cbook as _cbook
+from matplotlib.utils import is_string_like
+import matplotlib.utils as utils
 from matplotlib.fontconfig_pattern import \
     parse_fontconfig_pattern, generate_fontconfig_pattern
 
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
 
 USE_FONTCONFIG = False
 
@@ -168,7 +161,7 @@ def list_fonts(directory, extensions):
     """
     pattern = ';'.join(['*.%s;*.%s' % (ext, ext.upper())
                         for ext in extensions])
-    return _cbook.listFiles(directory, pattern)
+    return utils.listFiles(directory, pattern)
 
 def win32FontDirectory():
     """
@@ -254,7 +247,7 @@ def OSXInstalledFonts(directories=None, fontext='ttf'):
     files = []
     for path in directories:
         if fontext is None:
-            files.extend(_cbook.listFiles(path, '*'))
+            files.extend(utils.listFiles(path, '*'))
         else:
             files.extend(list_fonts(path, fontext))
     return files

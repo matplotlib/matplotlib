@@ -14,13 +14,12 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors, TimerBase
 from matplotlib.backend_bases import ShowBase
 
-from matplotlib._cbook import is_string_like, is_writable_file_like
+from matplotlib.utils import is_string_like, is_writable_file_like
 from matplotlib.colors import colorConverter
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
 from matplotlib import lines
-from matplotlib import _cbook
 from matplotlib import verbose
 from matplotlib import rcParams
 
@@ -902,7 +901,7 @@ class DialogLineprops:
     linestyled = dict([ (s,i) for i,s in enumerate(linestyles)])
 
 
-    markers =  [m for m in lines.Line2D.markers if _cbook.is_string_like(m)]
+    markers =  [m for m in lines.Line2D.markers if is_string_like(m)]
 
     markerd = dict([(s,i) for i,s in enumerate(markers)])
 

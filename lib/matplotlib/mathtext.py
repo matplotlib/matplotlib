@@ -49,7 +49,7 @@ else:
 ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
-from matplotlib._cbook import Bunch, get_realpath_and_stat, \
+from matplotlib.utils import Bunch, get_realpath_and_stat, \
     is_string_like, maxdict
 from matplotlib.ft2font import FT2Font, FT2Image, KERNING_DEFAULT, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING
 from matplotlib.font_manager import findfont, FontProperties

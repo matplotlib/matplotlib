@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.units as units
 import matplotlib.ticker as ticker
 import matplotlib.projections.polar as polar
-from matplotlib._cbook import iterable
+from matplotlib.utils import iterable
 #
 # Place all imports before here.
 #===========================================================================

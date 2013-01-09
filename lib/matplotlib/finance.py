@@ -19,7 +19,7 @@ import numpy as np
 
 from matplotlib import verbose, get_configdir
 from matplotlib.dates import date2num
-from matplotlib._cbook import iterable, mkdirs
+from matplotlib.utils import iterable, mkdirs
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import colorConverter
 from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
@@ -79,7 +79,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
       library datetime.date instance.
 
       The name of this kwarg is a historical artifact.  Formerly,
-      True returned a _cbook Bunch
+      True returned a utils.Bunch
       holding 1-D ndarrays.  The behavior of a numpy recarray is
       very similar to the Bunch.
 

@@ -150,7 +150,7 @@ ma = np.ma
 from matplotlib import verbose
 from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 from matplotlib import docstring
 from matplotlib.path import Path
 
@@ -248,7 +248,7 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
         raise ValueError("sides must be one of: 'default', 'onesided', or "
             "'twosided'")
 
-    if _cbook.iterable(window):
+    if utils.iterable(window):
         assert(len(window) == NFFT)
         windowVals = window
     else:
@@ -299,7 +299,7 @@ def _spectral_helper(x, y, NFFT=256, Fs=2, detrend=detrend_none,
     return Pxy, freqs, t
 
 #Split out these keyword docs so that they can be used elsewhere
-docstring.interpd.update(PSD=_cbook.dedent("""
+docstring.interpd.update(PSD=utils.dedent("""
     Keyword arguments:
 
       *NFFT*: integer
@@ -629,7 +629,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
     # cache the FFT of every windowed, detrended NFFT length segement
     # of every channel.  If preferSpeedOverMemory, cache the conjugate
     # as well
-    if _cbook.iterable(window):
+    if utils.iterable(window):
         assert(len(window) == NFFT)
         windowVals = window
     else:
@@ -930,7 +930,7 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
         return a + (b - a)*fraction
 
     scalar = True
-    if _cbook.iterable(p):
+    if utils.iterable(p):
         scalar = False
     per = np.array(p)
     values = np.array(x).ravel()  # copy
@@ -968,7 +968,7 @@ def prctile_rank(x, p):
     indicates how many quantiles of data you want ranked.
     """
 
-    if not _cbook.iterable(p):
+    if not utils.iterable(p):
         p = np.arange(100.0/p, 100.0, 100.0/p)
     else:
         p = np.asarray(p)
@@ -1171,7 +1171,7 @@ def fftsurr(x, detrend=detrend_none, window=window_none):
     """
     Compute an FFT phase randomized surrogate of *x*.
     """
-    if _cbook.iterable(window):
+    if utils.iterable(window):
         x=window*detrend(x)
     else:
         x = window(detrend(x))
@@ -1343,7 +1343,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
 
     warnings.warn("use numpy.savetxt", mplDeprecation)  # 2009/06/13
 
-    if _cbook.is_string_like(fname):
+    if utils.is_string_like(fname):
         if fname.endswith('.gz'):
             import gzip
             fh = gzip.open(fname,'wb')
@@ -1431,7 +1431,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
     warnings.warn("use numpy.loadtxt", mplDeprecation)  # 2009/06/13
 
     if converters is None: converters = {}
-    fh = _cbook.to_filehandle(fname)
+    fh = utils.to_filehandle(fname)
     X = []
 
     if delimiter==' ':
@@ -1758,7 +1758,7 @@ def isvector(X):
 
 def safe_isnan(x):
     ':func:`numpy.isnan` for arbitrary types'
-    if _cbook.is_string_like(x):
+    if utils.is_string_like(x):
         return False
     try: b = np.isnan(x)
     except NotImplementedError: return False
@@ -1767,7 +1767,7 @@ def safe_isnan(x):
 
 def safe_isinf(x):
     ':func:`numpy.isinf` for arbitrary types'
-    if _cbook.is_string_like(x):
+    if utils.is_string_like(x):
         return False
     try: b = np.isinf(x)
     except NotImplementedError: return False
@@ -1781,8 +1781,8 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     *arrs* and *dtypes* do not have to be lists. They can just be the
     values themselves.
     """
-    if (not _cbook.is_string_like(names) and _cbook.iterable(names) \
-            and len(names) and _cbook.is_string_like(names[0])):
+    if (not utils.is_string_like(names) and utils.iterable(names) \
+            and len(names) and utils.is_string_like(names[0])):
         if len(names) != len(arrs):
             raise ValueError("number of arrays do not match number of names")
     else: # we have only 1 name and 1 array
@@ -1791,7 +1791,7 @@ def rec_append_fields(rec, names, arrs, dtypes=None):
     arrs = map(np.asarray, arrs)
     if dtypes is None:
         dtypes = [a.dtype for a in arrs]
-    elif not _cbook.iterable(dtypes):
+    elif not utils.iterable(dtypes):
         dtypes = [dtypes]
     if len(arrs) != len(dtypes):
         if len(dtypes) == 1:
@@ -1829,7 +1829,7 @@ def rec_keep_fields(rec, names):
     Return a new numpy record array with only fields listed in names
     """
 
-    if _cbook.is_string_like(names):
+    if utils.is_string_like(names):
         names = names.split(',')
 
     arrays = []
@@ -1930,7 +1930,7 @@ def rec_join(key, r1, r2, jointype='inner', defaults=None, r1postfix='1', r2post
     (other than keys) that are both in *r1* and *r2*.
     """
 
-    if _cbook.is_string_like(key):
+    if utils.is_string_like(key):
         key = (key, )
 
     for name in key:
@@ -2069,7 +2069,7 @@ def recs_join(key, name, recs, jointype='outer', missing=0., postfixes=None):
 
     """
     results = []
-    aligned_iters = _cbook.align_iterators(operator.attrgetter(key), *[iter(r) for r in recs])
+    aligned_iters = utils.align_iterators(operator.attrgetter(key), *[iter(r) for r in recs])
 
     def extract(r):
         if r is None: return missing
@@ -2143,7 +2143,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     import dateutil.parser
     import datetime
 
-    fh = _cbook.to_filehandle(fname)
+    fh = utils.to_filehandle(fname)
 
 
     class FH:
@@ -2300,7 +2300,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             seen[item] = cnt+1
 
     else:
-        if _cbook.is_string_like(names):
+        if utils.is_string_like(names):
             names = [n.strip() for n in names.split(',')]
 
     # get the converter functions by inspecting checkrows
@@ -2533,7 +2533,7 @@ def rec2txt(r, header=None, padding=3, precision=3, fields=None):
     if fields is not None:
         r = rec_keep_fields(r, fields)
 
-    if _cbook.is_numlike(precision):
+    if utils.is_numlike(precision):
         precision = [precision]*len(r.dtype)
 
     def get_type(item,atype=int):
@@ -2658,7 +2658,7 @@ def rec2csv(r, fname, delimiter=',', formatd=None, missing='',
     for i, name in enumerate(r.dtype.names):
         funcs.append(with_mask(csvformat_factory(formatd[name]).tostr))
 
-    fh, opened = _cbook.to_filehandle(fname, 'wb', return_opened=True)
+    fh, opened = utils.to_filehandle(fname, 'wb', return_opened=True)
     writer = csv.writer(fh, delimiter=delimiter)
     header = r.dtype.names
     if withheader:
@@ -2818,7 +2818,7 @@ def less_simple_linear_interpolation( x, y, xi, extrap=False ):
     only for a small number of points in relatively non-intensive use
     cases.  For real linear interpolation, use scipy.
     """
-    if _cbook.is_scalar(xi): xi = [xi]
+    if utils.is_scalar(xi): xi = [xi]
 
     x = np.asarray(x)
     y = np.asarray(y)
@@ -3040,10 +3040,10 @@ def poly_between(x, ylower, yupper):
         numpy = np
 
     Nx = len(x)
-    if not _cbook.iterable(ylower):
+    if not utils.iterable(ylower):
         ylower = ylower*numpy.ones(Nx)
 
-    if not _cbook.iterable(yupper):
+    if not utils.iterable(yupper):
         yupper = yupper*numpy.ones(Nx)
 
     x = numpy.concatenate( (x, x[::-1]) )
@@ -3211,7 +3211,7 @@ def offset_line(y, yerr):
         show()
 
     """
-    if _cbook.is_numlike(yerr) or (_cbook.iterable(yerr) and len(yerr) == len(y)):
+    if utils.is_numlike(yerr) or (utils.iterable(yerr) and len(yerr) == len(y)):
         ymin = y - yerr
         ymax = y + yerr
     elif len(yerr) == 2:

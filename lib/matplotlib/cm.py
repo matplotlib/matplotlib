@@ -10,7 +10,7 @@ import numpy as np
 from numpy import ma
 import matplotlib as mpl
 import matplotlib.colors as colors
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 from matplotlib._cm import datad
 from matplotlib._cm import cubehelix
 
@@ -115,7 +115,7 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
         except AttributeError:
             raise ValueError("Arguments must include a name or a Colormap")
 
-    if not _cbook.is_string_like(name):
+    if not utils.is_string_like(name):
         raise ValueError("Colormap name must be a string")
 
     if isinstance(cmap, colors.Colormap):
@@ -172,7 +172,7 @@ class ScalarMappable:
         :mod:`cm` colormap instance, for example :data:`cm.jet`
         """
 
-        self.callbacksSM = _cbook.CallbackRegistry()
+        self.callbacksSM = utils.CallbackRegistry()
 
         if cmap is None:
             cmap = get_cmap()
@@ -274,7 +274,7 @@ class ScalarMappable:
         ACCEPTS: a length 2 sequence of floats
         """
         if (vmin is not None and vmax is None and
-                _cbook.iterable(vmin) and len(vmin) == 2):
+                utils.iterable(vmin) and len(vmin) == 2):
             vmin, vmax = vmin
 
         if vmin is not None:
