@@ -1018,7 +1018,7 @@ class LineCollection(Collection):
 
         return _segments
 
-    get_verts = get_segments
+    get_verts = get_segments  # for compatibility with PolyCollection
     get_paths = get_segments
 
     def _add_offsets(self, segs):
