@@ -1,37 +1,37 @@
 from __future__ import print_function
 import numpy as np
 from numpy.testing.utils import assert_array_equal
-import matplotlib._cbook as _cbook
+import matplotlib.utils as utils
 import matplotlib.colors as mcolors
 
-from matplotlib._cbook import delete_masked_points as dmp
+from matplotlib.utils import delete_masked_points as dmp
 from nose.tools import assert_equal, raises
 from datetime import datetime
 
 
 def test_is_string_like():
-    y = np.arange( 10 )
-    assert_equal( _cbook.is_string_like( y ), False )
+    y = np.arange(0)
+    assert_equal(utils.is_string_like(y), False)
     y.shape = 10, 1
-    assert_equal( _cbook.is_string_like( y ), False )
+    assert_equal(utils.is_string_like(y), False)
     y.shape = 1, 10
-    assert_equal( _cbook.is_string_like( y ), False )
+    assert_equal(utils.is_string_like(y), False)
 
-    assert _cbook.is_string_like( "hello world" )
-    assert_equal( _cbook.is_string_like(10), False )
+    assert utils.is_string_like("hello world")
+    assert_equal(utils.is_string_like(10), False)
 
 
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}
-    d1 = _cbook.restrict_dict(d, ['foo', 1])
+    d1 = utils.restrict_dict(d, ['foo', 1])
     assert_equal(d1, d)
-    d2 = _cbook.restrict_dict(d, ['bar', 2])
+    d2 = utils.restrict_dict(d, ['bar', 2])
     assert_equal(d2, {})
-    d3 = _cbook.restrict_dict(d, {'foo': 1})
+    d3 = utils.restrict_dict(d, {'foo': 1})
     assert_equal(d3, {'foo': 'bar'})
-    d4 = _cbook.restrict_dict(d, {})
+    d4 = utils.restrict_dict(d, {})
     assert_equal(d4, {})
-    d5 = _cbook.restrict_dict(d, set(['foo',2]))
+    d5 = utils.restrict_dict(d, set(['foo', 2]))
     assert_equal(d5, {'foo': 'bar'})
     # check that d was not modified
     assert_equal(d, {'foo': 'bar', 1: 2})
@@ -40,8 +40,8 @@ def test_restrict_dict():
 class Test_delete_masked_points:
     def setUp(self):
         self.mask1 = [False, False, True, True, False, False]
-        self.arr0 = np.arange(1.0,7.0)
-        self.arr1 = [1,2,3,np.nan,np.nan,6]
+        self.arr0 = np.arange(1.0, 7.0)
+        self.arr1 = [1, 2, 3, np.nan, np.nan, 6]
         self.arr2 = np.array(self.arr1)
         self.arr3 = np.ma.array(self.arr2, mask=self.mask1)
         self.arr_s = ['a', 'b', 'c', 'd', 'e', 'f']
@@ -82,11 +82,11 @@ class Test_delete_masked_points:
 
 
 def test_allequal():
-    assert(_cbook.allequal([1, 1, 1]))
-    assert(not _cbook.allequal([1, 1, 0]))
-    assert(_cbook.allequal([]))
-    assert(_cbook.allequal(('a', 'a')))
-    assert(not _cbook.allequal(('a', 'b')))
+    assert(utils.allequal([1, 1, 1]))
+    assert(not utils.allequal([1, 1, 0]))
+    assert(utils.allequal([]))
+    assert(utils.allequal(('a', 'a')))
+    assert(not utils.allequal(('a', 'b')))
 
 if __name__ == "__main__":
     import nose
