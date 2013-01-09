@@ -1009,14 +1009,14 @@ class LineCollection(Collection):
     set_paths = set_segments
 
     def get_segments(self):
-        _segments = []
+        segments = []
 
         for path in self._paths:
-            _vertices = [vertex for vertex, _ in path.iter_segments()]
-            _vertices = np.asarray(_vertices)
-            _segments.append(_vertices)
+            vertices = [vertex for vertex, _ in path.iter_segments()]
+            vertices = np.asarray(vertices)
+            segments.append(vertices)
 
-        return _segments
+        return segments
 
     get_verts = get_segments  # for compatibility with PolyCollection
     get_paths = get_segments
