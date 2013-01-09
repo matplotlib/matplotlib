@@ -49,8 +49,6 @@ if sys.version_info[0] >= 3:
         return s
 else:
     def unicode_safe(s):
-        import matplotlib
-
         try:
             preferredencoding = locale.getpreferredencoding(
                 matplotlib.rcParams['axes.formatter.use_locale']).strip()
@@ -75,6 +73,7 @@ ls_mapper = dict(_linestyles)
 ls_mapper.update([(ls[1], ls[0]) for ls in _linestyles])
 
 
+# TODO rename this method is_iterable
 def iterable(obj):
     """return true if *obj* is iterable"""
     try:
@@ -87,11 +86,6 @@ def iterable(obj):
 def is_writable_file_like(obj):
     """return true if *obj* looks like a file object with a *write* method"""
     return hasattr(obj, 'write') and callable(obj.write)
-
-
-def reverse_dict(d):
-    """reverse the dictionary -- may lose data if values are not unique!"""
-    return dict([(v, k) for k, v in d.iteritems()])
 
 
 def is_string_like(obj):
@@ -112,13 +106,97 @@ def is_string_like(obj):
 
 
 def is_numlike(obj):
-    'return true if *obj* looks like a number'
+    """return true if *obj* looks like a number"""
     try:
         obj + 1
     except:
         return False
     else:
         return True
+
+
+def is_scalar(obj):
+    """return true if *obj* is not string like and is not iterable"""
+    return not is_string_like(obj) and not iterable(obj)
+
+
+def is_scalar_or_string(val):
+    """Return whether the given object is a scalar or string like."""
+    return is_string_like(val) or not iterable(val)
+
+
+def is_math_text(s):
+    # Did we find an even number of non-escaped dollar signs?
+    # If so, treat is as math text.
+    try:
+        s = unicode(s)
+    except UnicodeDecodeError:
+        raise ValueError(
+            "matplotlib display text must have all code points < 128 or use "
+            "Unicode strings")
+
+    dollar_count = s.count(r'$') - s.count(r'\$')
+    even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
+
+    return even_dollars
+
+
+def is_sequence_of_strings(obj):
+    """
+    Returns true if *obj* is iterable and contains strings
+    """
+    if not iterable(obj):
+        return False
+    if is_string_like(obj):
+        return False
+    for o in obj:
+        if not is_string_like(o):
+            return False
+    return True
+
+
+def issubclass_safe(x, klass):
+    """return issubclass(x, klass) and return False on a TypeError"""
+
+    try:
+        return issubclass(x, klass)
+    except TypeError:
+        return False
+
+
+def reverse_dict(d):
+    """reverse the dictionary -- may lose data if values are not unique!"""
+    return dict([(v, k) for k, v in d.iteritems()])
+
+
+def allequal(seq):
+    """
+    Return *True* if all elements of *seq* compare equal.  If *seq* is
+    0 or 1 length, return *True*
+    """
+    if len(seq) < 2:
+        return True
+    val = seq[0]
+    for i in xrange(1, len(seq)):
+        thisval = seq[i]
+        if thisval != val:
+            return False
+    return True
+
+
+def popall(seq):
+    """empty a list"""
+    for i in xrange(len(seq)):
+        seq.pop()
+
+
+def strip_math(s):
+    """remove latex formatting from mathtext"""
+    remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
+    s = s[1:-1]
+    for r in remove:
+        s = s.replace(r, '')
+    return s
 
 
 def to_filehandle(fname, flag='rU', return_opened=False):
@@ -194,22 +272,6 @@ def align_iterators(func, *iterables):
             break
 
 
-def is_math_text(s):
-    # Did we find an even number of non-escaped dollar signs?
-    # If so, treat is as math text.
-    try:
-        s = unicode(s)
-    except UnicodeDecodeError:
-        raise ValueError(
-            "matplotlib display text must have all code points < 128 or use "
-            "Unicode strings")
-
-    dollar_count = s.count(r'$') - s.count(r'\$')
-    even_dollars = (dollar_count > 0 and dollar_count % 2 == 0)
-
-    return even_dollars
-
-
 def mkdirs(newdir, mode=0o777):
     """
     make directory *newdir* recursively, and set *mode*.  Equivalent to ::
@@ -229,25 +291,6 @@ def mkdirs(newdir, mode=0o777):
         # Reraise the error unless it's about an already existing directory
         if err.errno != errno.EEXIST or not os.path.isdir(newdir):
             raise
-
-
-def issubclass_safe(x, klass):
-    """return issubclass(x, klass) and return False on a TypeError"""
-
-    try:
-        return issubclass(x, klass)
-    except TypeError:
-        return False
-
-
-def is_scalar(obj):
-    'return true if *obj* is not string like and is not iterable'
-    return not is_string_like(obj) and not iterable(obj)
-
-
-def is_scalar_or_string(val):
-    """Return whether the given object is a scalar or string like."""
-    return is_string_like(val) or not iterable(val)
 
 
 def flatten(seq, scalarp=is_scalar_or_string):
@@ -271,20 +314,6 @@ def flatten(seq, scalarp=is_scalar_or_string):
         else:
             for subitem in flatten(item, scalarp):
                 yield subitem
-
-
-def is_sequence_of_strings(obj):
-    """
-    Returns true if *obj* is iterable and contains strings
-    """
-    if not iterable(obj):
-        return False
-    if is_string_like(obj):
-        return False
-    for o in obj:
-        if not is_string_like(o):
-            return False
-    return True
 
 
 class Grouper(object):
@@ -410,7 +439,7 @@ class Grouper(object):
 
 
 class _BoundMethodProxy(object):
-    '''
+    """
     Our own proxy object which enables weak references to bound and unbound
     methods and arbitrary callables. Pulls information about the function,
     class, and instance out of a bound method. Stores a weak reference to the
@@ -421,7 +450,7 @@ class _BoundMethodProxy(object):
     @license: The BSD License
 
     Minor bugfixes by Michael Droettboom
-    '''
+    """
     def __init__(self, cb):
         try:
             try:
@@ -451,13 +480,13 @@ class _BoundMethodProxy(object):
             self.inst = ref(inst)
 
     def __call__(self, *args, **kwargs):
-        '''
+        """
         Proxy for a call to the weak referenced object. Take
         arbitrary params to pass to the callable.
 
         Raises `ReferenceError`: When the weak reference refers to
         a dead object
-        '''
+        """
         if self.inst is not None and self.inst() is None:
             raise ReferenceError
         elif self.inst is not None:
@@ -474,10 +503,10 @@ class _BoundMethodProxy(object):
         return mtd(*args, **kwargs)
 
     def __eq__(self, other):
-        '''
+        """
         Compare the held function and instance with that held by
         another proxy.
-        '''
+        """
         try:
             if self.inst is None:
                 return self.func == other.func and other.inst is None
@@ -487,9 +516,9 @@ class _BoundMethodProxy(object):
             return False
 
     def __ne__(self, other):
-        '''
+        """
         Inverse of __eq__.
-        '''
+        """
         return not self.__eq__(other)
 
 
@@ -736,21 +765,6 @@ def delete_masked_points(*args):
     return margs
 
 
-def popall(seq):
-    """empty a list"""
-    for i in xrange(len(seq)):
-        seq.pop()
-
-
-def strip_math(s):
-    """remove latex formatting from mathtext"""
-    remove = (r'\mathdefault', r'\rm', r'\cal', r'\tt', r'\it', '\\', '{', '}')
-    s = s[1:-1]
-    for r in remove:
-        s = s.replace(r, '')
-    return s
-
-
 def restrict_dict(d, keys):
     """
     Return a dictionary that contains those keys that appear in both
@@ -977,21 +991,6 @@ def dedent(s):
     return result
 
 
-def allequal(seq):
-    """
-    Return *True* if all elements of *seq* compare equal.  If *seq* is
-    0 or 1 length, return *True*
-    """
-    if len(seq) < 2:
-        return True
-    val = seq[0]
-    for i in xrange(1, len(seq)):
-        thisval = seq[i]
-        if thisval != val:
-            return False
-    return True
-
-
 # python2.7's subprocess provides a check_output method
 if hasattr(subprocess, 'check_output'):
     check_output = subprocess.check_output
@@ -1121,7 +1120,7 @@ def simple_linear_interpolation(a, steps):
 
 
 def report_memory(i=0):  # argument may go away
-    'return the memory consumed by process'
+    """return the memory consumed by process"""
     from subprocess import Popen, PIPE
     pid = os.getpid()
     if sys.platform == 'sunos5':
