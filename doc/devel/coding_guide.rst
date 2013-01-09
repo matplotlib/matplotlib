@@ -48,7 +48,7 @@ Style
     import numpy.ma as ma
     import matplotlib as mpl
     from matplotlib import pyplot as plt
-    import matplotlib.cbook as cbook
+    import matplotlib.utils as utils
     import matplotlib.collections as mcol
     import matplotlib.patches as mpatches
 
@@ -257,8 +257,8 @@ distributed with matplotlib in the
 `lib/matplotlib/mpl-data/sample_data/` directory.  Then in your
 example code you can load it into a file handle with::
 
-    import matplotlib.cbook as cbook
-    fh = cbook.get_sample_data('mydata.dat')
+    import matplotlib.utils as utils
+    fh = utils.get_sample_data('mydata.dat')
 
 .. _new-pyplot-function:
 

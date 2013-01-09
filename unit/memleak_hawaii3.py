@@ -6,7 +6,7 @@ import os, sys, time, gc
 import matplotlib
 matplotlib.use('PDF')
 
-from matplotlib.cbook import report_memory
+from matplotlib.utils import report_memory
 import numpy as np
 from pylab import figure, show, close
 
