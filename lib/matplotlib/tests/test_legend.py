@@ -47,7 +47,7 @@ def test_various_labels():
     ax.plot(range(4), 'o', label=1)
     ax.plot(np.linspace(4, 4.1), 'o', label=u'D\xe9velopp\xe9s')
     ax.plot(range(4, 1, -1), 'o', label='__nolegend__')
-    ax.legend(numpoints=1)
+    ax.legend(numpoints=1, loc=0)
 
 
 @image_comparison(baseline_images=['fancy'], remove_text=True)
