@@ -937,6 +937,13 @@ class Legend(Artist):
             badness = legendBox.count_contains(verts)
             badness += legendBox.count_overlaps(bboxes)
             for line in lines:
+                # FIXME: the following line is ill-suited for lines
+                # that 'spiral' around the center, because the bbox
+                # may intersect with the legend even if the line
+                # itself doesn't. One solution would be to break up
+                # the line into its straight-segment components, but
+                # this may (or may not) result in a significant
+                # slowdown if lines with many vertices are present.
                 if line.intersects_bbox(legendBox):
                     badness += 1
 
