@@ -14,8 +14,8 @@ from matplotlib.transforms import Bbox
 
 import numpy as np
 
-import matplotlib.cbook as cbook
-is_string_like = cbook.is_string_like
+import matplotlib.utils as utils
+is_string_like = utils.is_string_like
 
 
 class ParasiteAxesBase:

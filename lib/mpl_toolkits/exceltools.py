@@ -24,7 +24,7 @@ import numpy as np
 
 import xlwt as excel
 
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils 
 import matplotlib.mlab as mlab
 
 
@@ -83,7 +83,7 @@ def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN', infstr='Inf
     """
 
     autosave = False
-    if cbook.is_string_like(ws):
+    if utils.is_string_like(ws):
         filename = ws
         wb = excel.Workbook()
         ws = wb.add_sheet('worksheet')

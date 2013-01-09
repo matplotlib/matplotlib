@@ -1,7 +1,6 @@
 from __future__ import print_function
 
 import numpy as np
-import matplotlib.cbook as mcbook
 from matplotlib.transforms import Bbox
 import clip_path
 clip_line_to_rect = clip_path.clip_line_to_rect
