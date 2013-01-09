@@ -10,7 +10,7 @@ from datetime import datetime
 
 
 def test_is_string_like():
-    y = np.arange(0)
+    y = np.arange(10)
     assert_equal(utils.is_string_like(y), False)
     y.shape = 10, 1
     assert_equal(utils.is_string_like(y), False)
