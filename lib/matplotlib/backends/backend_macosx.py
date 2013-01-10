@@ -231,13 +231,6 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if not _macosx.verify_main_display():
-        import warnings
-        warnings.warn("Python is not installed as a framework. The MacOSX "
-                      "backend may not work correctly if Python is not "
-                      "installed as a framework. Please see the Python "
-                      "documentation for more information on installing "
-                      "Python as a framework on Mac OS X")
     FigureClass = kwargs.pop('FigureClass', Figure)
     figure = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, figure)
