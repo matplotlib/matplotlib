@@ -216,7 +216,7 @@ __end
 from __future__ import print_function
 import sys, warnings
 
-from cbook import flatten, is_string_like, exception_to_str, \
+from matplotlib.cbook import flatten, is_string_like, exception_to_str, \
      silent_list, iterable, dedent
 
 from matplotlib import mpl  # pulls in most modules
