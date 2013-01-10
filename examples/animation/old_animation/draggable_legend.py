@@ -20,10 +20,10 @@ from matplotlib.cbook import get_sample_data
 
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
-fn = get_sample_data("lena.png", asfileobj=False)
-arr_lena = read_png(fn)
+fn = get_sample_data("ada.png", asfileobj=False)
+arr_ada = read_png(fn)
 
-imagebox = OffsetImage(arr_lena, zoom=0.2)
+imagebox = OffsetImage(arr_ada, zoom=0.2)
 
 ab = AnnotationBbox(imagebox, xy,
                     xybox=(120., -80.),
