@@ -27,7 +27,7 @@
 #include "CXX/Extensions.hxx"
 #include "numpy/arrayobject.h"
 #include "mplutils.h"
-#include "numpy/npy_3kcompat.h"
+#include "file_compat.h"
 
 // As reported in [3082058] build _png.so on aix
 #ifdef _AIX
@@ -133,7 +133,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     PyObject* py_file = NULL;
     if (py_fileobj.isString())
     {
-        if ((py_file = npy_PyFile_OpenFile(py_file, (char *)"w")) == NULL) {
+        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"w")) == NULL) {
             throw Py::Exception();
         }
         close_file = true;
