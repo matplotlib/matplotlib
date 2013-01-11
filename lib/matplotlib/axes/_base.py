@@ -1977,6 +1977,14 @@ class _AxesBase(martist.Artist):
         artists.extend(self.lines)
         artists.extend(self.texts)
         artists.extend(self.artists)
+
+        # the frame draws the edges around the axes patch -- we
+        # decouple these so the patch can be in the background and the
+        # frame in the foreground. Do this before drawing the axis
+        # objects so that the spine has the opportunity to update them.
+        if self.axison and self._frameon:
+            artists.extend(six.itervalues(self.spines))
+
         if self.axison and not inframe:
             if self._axisbelow:
                 self.xaxis.set_zorder(0.5)
@@ -1992,12 +2000,6 @@ class _AxesBase(martist.Artist):
         artists.extend(self.tables)
         if self.legend_ is not None:
             artists.append(self.legend_)
-
-        # the frame draws the edges around the axes patch -- we
-        # decouple these so the patch can be in the background and the
-        # frame in the foreground.
-        if self.axison and self._frameon:
-            artists.extend(six.itervalues(self.spines))
 
         if self.figure.canvas.is_saving():
             dsu = [(a.zorder, a) for a in artists]
