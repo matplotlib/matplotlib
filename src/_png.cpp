@@ -149,6 +149,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     }
     else
     {
+        PyErr_Clear();
         PyObject* write_method = PyObject_GetAttrString(
                 py_file, "write");
         if (!(write_method && PyCallable_Check(write_method)))
@@ -326,6 +327,7 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
     }
     else
     {
+        PyErr_Clear();
         PyObject* read_method = PyObject_GetAttrString(py_file, "read");
         if (!(read_method && PyCallable_Check(read_method)))
         {
