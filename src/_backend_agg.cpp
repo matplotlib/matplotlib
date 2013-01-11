@@ -2034,7 +2034,7 @@ RendererAgg::write_rgba(const Py::Tuple& args)
 
     if (py_fileobj.isString())
     {
-        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"w")) == NULL) {
+        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"wb")) == NULL) {
             throw Py::Exception();
         }
         close_file = true;
@@ -2044,7 +2044,7 @@ RendererAgg::write_rgba(const Py::Tuple& args)
         py_file = py_fileobj.ptr();
     }
 
-    if ((fp = npy_PyFile_Dup(py_file, (char *)"w")))
+    if ((fp = npy_PyFile_Dup(py_file, (char *)"wb")))
     {
         if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES)
         {
