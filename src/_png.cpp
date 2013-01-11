@@ -133,7 +133,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     PyObject* py_file = NULL;
     if (py_fileobj.isString())
     {
-        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"w")) == NULL) {
+        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"wb")) == NULL) {
             throw Py::Exception();
         }
         close_file = true;
@@ -143,7 +143,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
         py_file = py_fileobj.ptr();
     }
 
-    if ((fp = npy_PyFile_Dup(py_file, (char *)"w")))
+    if ((fp = npy_PyFile_Dup(py_file, (char *)"wb")))
     {
         close_dup_file = true;
     }
@@ -313,7 +313,7 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
 
     if (py_fileobj.isString())
     {
-        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"r")) == NULL) {
+        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"rb")) == NULL) {
             throw Py::Exception();
         }
         close_file = true;
@@ -321,7 +321,7 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
         py_file = py_fileobj.ptr();
     }
 
-    if ((fp = npy_PyFile_Dup(py_file, "r")))
+    if ((fp = npy_PyFile_Dup(py_file, "rb")))
     {
         close_dup_file = true;
     }
