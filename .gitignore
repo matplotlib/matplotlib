@@ -5,6 +5,7 @@
 *~
 *$
 *.bak
+*.kdev4
 .project
 .pydevproject
 
