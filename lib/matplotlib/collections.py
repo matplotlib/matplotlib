@@ -1018,9 +1018,6 @@ class LineCollection(Collection):
 
         return segments
 
-    get_verts = get_segments  # for compatibility with PolyCollection
-    get_paths = get_segments
-
     def _add_offsets(self, segs):
         offsets = self._uniform_offsets
         Nsegs = len(segs)
