@@ -1103,6 +1103,7 @@ default_test_modules = [
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
     'matplotlib.tests.test_cbook',
+    'matplotlib.tests.test_collections',
     'matplotlib.tests.test_colorbar',
     'matplotlib.tests.test_colors',
     'matplotlib.tests.test_contour',
