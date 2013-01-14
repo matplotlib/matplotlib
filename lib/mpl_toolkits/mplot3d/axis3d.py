@@ -222,7 +222,6 @@ class Axis(maxis.XAxis):
         majorLabels = [self.major.formatter(val, i)
                        for i, val in enumerate(majorLocs)]
 
-
         mins, maxs, centers, deltas, tc, highs = self._get_coord_info(renderer)
 
         # Determine grid lines
