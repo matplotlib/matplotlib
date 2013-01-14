@@ -47,7 +47,6 @@ def test_fancy():
     plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                ncol=2, shadow=True, title="My legend", numpoints=1)
 
-
     
 @image_comparison(baseline_images=['scatter_rc3','scatter_rc1'], remove_text=True)
 def test_rc():
