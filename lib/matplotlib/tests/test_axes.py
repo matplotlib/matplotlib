@@ -1007,7 +1007,6 @@ def test_mollweide_inverse_forward_closure():
     np.testing.assert_array_almost_equal(xy, xy2, 3)
 
 
-
 @image_comparison(baseline_images=['translucent_markers'], remove_text=True)
 def test_translucent_markers():
     np.random.seed(0)
@@ -1015,10 +1014,9 @@ def test_translucent_markers():
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(data, 'D', mfc=[1,0,0,.5], markersize=100)
+    ax.plot(data, 'D', mfc=[1, 0, 0, .5], markersize=100)
 
-
-
+    
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
