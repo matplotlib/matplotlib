@@ -965,7 +965,7 @@ class LineCollection(Collection):
         The default is 5 pt.
 
         *zorder*
-           2 the zorder of the LineCollection
+           The zorder of the LineCollection.  Default is 2
 
         The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
         If the :class:`~matplotlib.cm.ScalarMappable` array
