@@ -41,6 +41,7 @@ import matplotlib.widgets as widgets
 #import matplotlib.path as path
 from matplotlib import rcParams
 from matplotlib import is_interactive
+from matplotlib import get_backend
 from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
@@ -100,6 +101,10 @@ class ShowBase(object):
             # IPython versions >= 0.10 tack the _needmain
             # attribute onto pyplot.show, and always set
             # it to False, when in --pylab mode.
+            ipython_pylab = ipython_pylab and get_backend() != 'WebAgg'
+            # TODO: The above is a hack to get the WebAgg backend
+            # working with `ipython --pylab` until proper integration
+            # is implemented.
         except AttributeError:
             ipython_pylab = False
 
@@ -108,7 +113,7 @@ class ShowBase(object):
         if ipython_pylab:
             return
 
-        if not is_interactive():
+        if not is_interactive() or get_backend() == 'WebAgg':
             self.mainloop()
 
     def mainloop(self):
