@@ -108,6 +108,7 @@ def boilerplate_gen():
         'contourf',
         'csd',
         'errorbar',
+        'eventplot',
         'fill',
         'fill_between',
         'fill_betweenx',
