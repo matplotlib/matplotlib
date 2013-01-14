@@ -959,7 +959,7 @@ class Line2D(Artist):
 
     def _get_rgb_face(self, alt=False):
         facecolor = self._get_markerfacecolor(alt=alt)
-        if is_string_like(facecolor) and facecolor.lower()=='none':
+        if is_string_like(facecolor) and facecolor.lower() == 'none':
             rgbFace = None
         else:
             rgbFace = colorConverter.to_rgb(facecolor)
@@ -967,7 +967,7 @@ class Line2D(Artist):
 
     def _get_rgba_face(self, alt=False):
         facecolor = self._get_markerfacecolor(alt=alt)
-        if is_string_like(facecolor) and facecolor.lower()=='none':
+        if is_string_like(facecolor) and facecolor.lower() == 'none':
             rgbaFace = None
         else:
             rgbaFace = colorConverter.to_rgba(facecolor)
