@@ -531,12 +531,12 @@ class Line2D(Artist):
         if self._marker:
             gc = renderer.new_gc()
             self._set_gc_clip(gc)
-            rgbFace = self._get_rgb_face()
-            rgbFaceAlt = self._get_rgb_face(alt=True)
+            rgbaFace = self._get_rgba_face()
+            rgbaFaceAlt = self._get_rgba_face(alt=True)
             edgecolor = self.get_markeredgecolor()
             if is_string_like(edgecolor) and edgecolor.lower() == 'none':
                 gc.set_linewidth(0)
-                gc.set_foreground(rgbFace)
+                gc.set_foreground(rgbaFace)
             else:
                 gc.set_foreground(edgecolor)
                 gc.set_linewidth(self._markeredgewidth)
@@ -574,16 +574,20 @@ class Line2D(Artist):
                     marker_trans = marker_trans.scale(w)
                 else:
                     gc.set_linewidth(0)
+                if rgbaFace is not None:
+                    gc.set_alpha(rgbaFace[3])
                 renderer.draw_markers(
                     gc, marker_path, marker_trans, subsampled, affine.frozen(),
-                    rgbFace)
+                    rgbaFace)
                 alt_marker_path = marker.get_alt_path()
                 if alt_marker_path:
+                    if rgbaFaceAlt is not None:
+                        gc.set_alpha(rgbaFaceAlt[3])
                     alt_marker_trans = marker.get_alt_transform()
                     alt_marker_trans = alt_marker_trans.scale(w)
                     renderer.draw_markers(
                         gc, alt_marker_path, alt_marker_trans, subsampled,
-                        affine.frozen(), rgbFaceAlt)
+                        affine.frozen(), rgbaFaceAlt)
 
             gc.restore()
 
@@ -955,11 +959,19 @@ class Line2D(Artist):
 
     def _get_rgb_face(self, alt=False):
         facecolor = self._get_markerfacecolor(alt=alt)
-        if is_string_like(facecolor) and facecolor.lower()=='none':
+        if is_string_like(facecolor) and facecolor.lower() == 'none':
             rgbFace = None
         else:
             rgbFace = colorConverter.to_rgb(facecolor)
         return rgbFace
+
+    def _get_rgba_face(self, alt=False):
+        facecolor = self._get_markerfacecolor(alt=alt)
+        if is_string_like(facecolor) and facecolor.lower() == 'none':
+            rgbaFace = None
+        else:
+            rgbaFace = colorConverter.to_rgba(facecolor)
+        return rgbaFace
 
     # some aliases....
     def set_aa(self, val):
