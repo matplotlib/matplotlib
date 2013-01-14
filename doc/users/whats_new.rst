@@ -22,6 +22,17 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.3
 =====================
 
+New eventplot plot type
+-------------------------------------
+Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
+create multiple rows or columns of identical line segments
+
+New EventCollection collections class
+-------------------------------------
+Todd Jennings created the new :class:`~matplotlib.collections.EventCollection`
+class that allows for plotting and manipulating rows or columns of identical
+line segments
+
 Baselines for stackplot
 -----------------------
 Till Stensitzki added non-zero baselines to :func:`~matplotlib.pyplot.stackplot`.
@@ -68,12 +79,6 @@ Ian Thomas added classes to perform interpolation within triangular grids
 (:class:`~matplotlib.tri.LinearTriInterpolator`) and a utility class to find
 the triangles in which points lie (
 :class:`~matplotlib.tri.TrapezoidMapTriFinder`).
-
-Left and right side axes titles
--------------------------------
-Andrew Dawson added the ability to add axes titles flush with the left and
-right sides of the top of the axes using a new keyword argument `loc` to
-:func:`~matplotlib.pyplot.title`.
 
 .. _whats-new-1-2:
 
