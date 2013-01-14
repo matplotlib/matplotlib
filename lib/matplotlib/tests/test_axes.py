@@ -1005,6 +1005,29 @@ def test_mollweide_inverse_forward_closure():
     # compare
     np.testing.assert_array_almost_equal(xy, xy2, 3)
 
+
+@image_comparison(baseline_images=['eventplot'], remove_text=True)
+def test_eventplot():
+    '''
+    test that eventplot produces the correct output
+    '''
+    np.random.seed(0)
+    data = np.random.random([6, 20])
+    colors = np.array([[1, 0, 0],
+                       [0, 1, 0],
+                       [0, 0, 1],
+                       [1, 1, 0],
+                       [1, 0, 1],
+                       [0, 1, 1]])
+    lineoffsets = np.array([-15, -3, 1, 1.5, 6, 10])
+    linelengths = [5, 2, 1, 1, 3, 1.5]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.eventplot(data, colors=colors, lineoffsets=lineoffsets,
+                 linelengths=linelengths)
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
