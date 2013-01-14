@@ -22,6 +22,17 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.3
 =====================
 
+New eventplot plot type
+-------------------------------------
+Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
+create multiple rows or columns of identical line segments
+
+New EventCollection collections class
+-------------------------------------
+Todd Jennings created the new :class:`~matplotlib.collections.EventCollection`
+class that allows for plotting and manipulating rows or columns of identical
+line segments
+
 Initialize a rotated rectangle
 ------------------------------
 Damon McDougall extended the :class:`~matplotlib.patches.Rectangle` constructor
