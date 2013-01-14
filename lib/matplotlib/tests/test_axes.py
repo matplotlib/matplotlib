@@ -962,6 +962,7 @@ def test_transparent_markers():
     ax = fig.add_subplot(111)
     ax.plot(data, 'D', mfc='none', markersize=100)
 
+
 @cleanup
 def test_mollweide_forward_inverse_closure():
     # test that the round-trip Mollweide forward->inverse transformation is an
@@ -1005,6 +1006,17 @@ def test_mollweide_inverse_forward_closure():
     # compare
     np.testing.assert_array_almost_equal(xy, xy2, 3)
 
+
+@image_comparison(baseline_images=['translucent_markers'], remove_text=True)
+def test_translucent_markers():
+    np.random.seed(0)
+    data = np.random.random(50)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(data, 'D', mfc=[1, 0, 0, .5], markersize=100)
+
+    
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
