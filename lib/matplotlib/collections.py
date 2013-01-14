@@ -1068,6 +1068,258 @@ class LineCollection(Collection):
     get_colors = get_color  # for compatibility with old versions
 
 
+class EventCollection(LineCollection):
+    '''
+    A collection of discrete events.
+
+    An event is a 1-dimensional value, usually the position of something along
+    an axis, such as time or length.  Events do not have an amplitude.  They
+    are displayed as v
+    '''
+
+    def __init__(self,
+                 positions,     # Can be None.
+                 orientation=None,
+                 lineoffset=0,
+                 linelength=1,
+                 linewidth=None,
+                 color=None,
+                 linestyle='solid',
+                 antialiased=None,
+                 **kwargs
+                 ):
+        """
+        *positions*
+            a sequence of numerical values or a 1D numpy array.  Can be None
+
+        *orientation* [ 'horizontal' | 'vertical' | None ]
+            defaults to 'horizontal' if not specified or None
+
+        *lineoffset*
+            a single numerical value, corresponding to the offset of the center
+            of the markers from the origin
+
+        *linelength*
+            a single numerical value, corresponding to the total height of the
+            marker (i.e. the marker stretches from lineoffset+linelength/2 to
+            lineoffset-linelength/2).  Defaults to 1
+
+        *linewidth*
+            a single numerical value
+
+        *color*
+            must be a sequence of RGBA tuples (eg arbitrary color
+            strings, etc, not allowed).
+
+        *linestyle* [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+
+        *antialiased*
+            1 or 2
+
+        If *linewidth*, *color*, or *antialiased* is None, they
+        default to their rcParams setting, in sequence form.
+
+        *norm*
+            None (optional for :class:`matplotlib.cm.ScalarMappable`)
+        *cmap*
+            None (optional for :class:`matplotlib.cm.ScalarMappable`)
+
+        *pickradius* is the tolerance for mouse clicks picking a line.
+        The default is 5 pt.
+
+        The use of :class:`~matplotlib.cm.ScalarMappable` is optional.
+        If the :class:`~matplotlib.cm.ScalarMappable` array
+        :attr:`~matplotlib.cm.ScalarMappable._A` is not None (ie a call to
+        :meth:`~matplotlib.cm.ScalarMappable.set_array` has been made), at
+        draw time a call to scalar mappable will be made to set the colors.
+
+        **Example:**
+
+        .. plot:: mpl_examples/pylab_examples/eventcollection_demo.py
+        """
+
+        segment = (lineoffset + linelength / 2.,
+                   lineoffset - linelength / 2.)
+        if len(positions) == 0:
+            segments = []
+        elif hasattr(positions, 'ndim') and positions.ndim > 1:
+            raise ValueError('if positions is an ndarry it cannot have \
+                              dimensionality great than 1 ')
+        elif (orientation is None or orientation.lower() == 'none' or
+              orientation.lower() == 'horizontal'):
+            positions.sort()
+            segments = [[(coord1, coord2) for coord2 in segment] for
+                        coord1 in positions]
+            self._is_horizontal = True
+        elif orientation.lower() == 'vertical':
+            positions.sort()
+            segments = [[(coord2, coord1) for coord2 in segment] for
+                        coord1 in positions]
+            self._is_horizontal = False
+        else:
+            raise ValueError("orientation must be 'horizontal' or 'vertical'")
+
+        LineCollection.__init__(self,
+                                segments,
+                                linewidths=linewidth,
+                                colors=color,
+                                antialiaseds=antialiased,
+                                linestyles=linestyle,
+                                **kwargs)
+
+        self._linelength = linelength
+        self._lineoffset = lineoffset
+
+    def get_positions(self):
+        '''
+        return an array containing the floating-point values of the positions
+        '''
+        segments = self.get_segments()
+        pos = 0 if self.is_horizontal() else 1
+        positions = []
+        for segment in segments:
+            positions.append(segment[0, pos])
+        return positions
+
+    def set_positions(self, positions):
+        '''
+        set the positions of the events to the specified value
+        '''
+        if positions is None or (hasattr(positions, 'len') and
+                                 len(positions) == 0):
+            self.set_segments([])
+            return
+
+        lineoffset = self.get_lineoffset()
+        linelength = self.get_linelength()
+        segment = (lineoffset + linelength / 2.,
+                   lineoffset - linelength / 2.)
+        positions = np.asanyarray(positions)
+        positions.sort()
+        if self.is_horizontal():
+            segments = [[(coord1, coord2) for coord2 in segment] for
+                        coord1 in positions]
+        else:
+            segments = [[(coord2, coord1) for coord2 in segment] for
+                        coord1 in positions]
+        self.set_segments(segments)
+
+    def add_positions(self, position):
+        '''
+        add one or more events at the specified positions
+        '''
+        if position is None or (hasattr(position, 'len') and
+                                len(position) == 0):
+            return
+        positions = self.get_positions()
+        positions = np.hstack([positions, np.asanyarray(position)])
+        self.set_positions(positions)
+    extend_positions = append_positions = add_positions
+
+    def is_horizontal(self):
+        '''
+        True if the eventcollection is horizontal, False if vertical
+        '''
+        return self._is_horizontal
+
+    def get_orientation(self):
+        '''
+        get the orientation of the event line, may be:
+        [ 'horizontal' | 'vertical' ]
+        '''
+        return 'horizontal' if self.is_horizontal() else 'vertical'
+
+    def switch_orientation(self):
+        '''
+        switch the orientation of the event line, either from vertical to
+        horizontal or vice versus
+        '''
+        segments = self.get_segments()
+        for i, segment in enumerate(segments):
+            segments[i] = np.fliplr(segment)
+        self.set_segments(segments)
+        self._is_horizontal = not self.is_horizontal()
+
+    def set_orientation(self, orientation=None):
+        '''
+        set the orientation of the event line
+        [ 'horizontal' | 'vertical' | None ]
+        defaults to 'horizontal' if not specified or None
+        '''
+        if (orientation is None or orientation.lower() == 'none' or
+                orientation.lower() == 'horizontal'):
+            is_horizontal = True
+        elif orientation.lower() == 'vertical':
+            is_horizontal = False
+        else:
+            raise ValueError("orientation must be 'horizontal' or 'vertical'")
+
+        if is_horizontal == self.is_horizontal():
+            return
+        self.switch_orientation()
+
+    def get_linelength(self):
+        '''
+        get the length of the lines used to mark each event
+        '''
+        return self._linelength
+
+    def set_linelength(self, linelength):
+        '''
+        set the length of the lines used to mark each event
+        '''
+        if linelength == self.get_linelength():
+            return
+        lineoffset = self.get_lineoffset()
+        segments = self.get_segments()
+        pos = 1 if self.is_horizontal() else 0
+        for segment in segments:
+            segment[0, pos] = lineoffset + linelength / 2.
+            segment[1, pos] = lineoffset - linelength / 2.
+        self.set_segments(segments)
+        self._linelength = linelength
+
+    def get_lineoffset(self):
+        '''
+        get the offset of the lines used to mark each event
+        '''
+        return self._lineoffset
+
+    def set_lineoffset(self, lineoffset):
+        '''
+        set the offset of the lines used to mark each event
+        '''
+        if lineoffset == self.get_lineoffset():
+            return
+        linelength = self.get_linelength()
+        segments = self.get_segments()
+        pos = 1 if self.is_horizontal() else 0
+        for segment in segments:
+            segment[0, pos] = lineoffset + linelength / 2.
+            segment[1, pos] = lineoffset - linelength / 2.
+        self.set_segments(segments)
+        self._lineoffset = lineoffset
+
+    def get_linewidth(self):
+        '''
+        get the width of the lines used to mark each event
+        '''
+        return self.get_linewidths()[0]
+
+    def get_linestyle(self):
+        '''
+        get the style of the lines used to mark each event
+        [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+        '''
+        return self.get_linestyles()
+
+    def get_color(self):
+        '''
+        get the color of the lines used to mark each event
+        '''
+        return self.get_colors()[0]
+
+
 class CircleCollection(Collection):
     """
     A collection of circles, drawn using splines.
