@@ -39,6 +39,11 @@ for the initial run (which builds the example gallery) to be done,
 then run "python make.py html" again. The top file of the results will
 be ./build/html/index.html
 
+Note that ../lib/matplotlib/mpl-data/matplotlibrc' is not version
+controlled, but created when matplotlib is built. This means that the
+HTML documentation cannot be generated immediately after checking out
+the source code: you will have to run ``python setup.py build`` first.
+
 To build a smaller version of the documentation (without
 high-resolution PNGs and PDF examples), type "python make.py --small
 html".
