@@ -1008,6 +1008,16 @@ class LineCollection(Collection):
     set_verts = set_segments  # for compatibility with PolyCollection
     set_paths = set_segments
 
+    def get_segments(self):
+        segments = []
+
+        for path in self._paths:
+            vertices = [vertex for vertex, _ in path.iter_segments()]
+            vertices = np.asarray(vertices)
+            segments.append(vertices)
+
+        return segments
+
     def _add_offsets(self, segs):
         offsets = self._uniform_offsets
         Nsegs = len(segs)
