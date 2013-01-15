@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.abspath('sphinxext'))
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['matplotlib.sphinxext.mathmpl', 'math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
-              'sphinx.ext.doctest',
+              'sphinx.ext.doctest', 'sphinx.ext.autosummary',
               'matplotlib.sphinxext.plot_directive', 'sphinx.ext.inheritance_diagram',
               'gen_gallery', 'gen_rst',
               'matplotlib.sphinxext.ipython_console_highlighting', 'github',
