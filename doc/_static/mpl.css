@@ -505,3 +505,33 @@ ul.search li div.context {
 ul.keywordmatches li.goodmatch a {
     font-weight: bold;
 }
+
+table.docutils {
+    border-spacing: 2px;
+    border: collapse;
+    border-top-width: 1px;
+    border-right-width: 0px;
+    border-bottom-width: 1px;
+    border-left-width: 0px;
+}
+
+table.docutils tr:nth-child(even) {
+    background-color: #F3F3FF;
+}
+table.docutils tr:nth-child(odd) {
+    background-color: #FFFFEE;
+}
+
+table.docutils tr {
+    border-style: solid none solid none;
+    border-width: 1px 0 1px 0;
+    border-color: #AAAAAA;
+}
+
+table.docutils th {
+    padding: 1px 8px 1px 5px;
+}
+
+table.docutils td {
+    border-width: 1px 0 1px 0;
+}
