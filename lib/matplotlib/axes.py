@@ -3920,7 +3920,7 @@ class Axes(martist.Artist):
         if len(colors) == 0:
             colors = [None]
 
-        if len(lineoffsets) == 1:
+        if len(lineoffsets) == 1 and len(positions) != 1:
             lineoffsets = np.tile(lineoffsets, len(positions))
             lineoffsets[0] = 0
             lineoffsets = np.cumsum(lineoffsets)
@@ -3935,20 +3935,20 @@ class Axes(martist.Artist):
             linestyles = [linestyles] * len(positions)
 
         if len(lineoffsets) != len(positions):
-            raise ValueError('lineoffsets and positions are unequal sized \
-                              sequences')
+            raise ValueError('lineoffsets and positions are unequal sized '
+                             'sequences')
         if len(linelengths) != len(positions):
-            raise ValueError('linelengths and positions are unequal sized \
-                              sequences')
+            raise ValueError('linelengths and positions are unequal sized '
+                             'sequences')
         if len(linewidths) != len(positions):
-            raise ValueError('linewidths and positions are unequal sized \
-                              sequences')
+            raise ValueError('linewidths and positions are unequal sized '
+                             'sequences')
         if len(colors) != len(positions):
-            raise ValueError('colors and positions are unequal sized \
-                              sequences')
+            raise ValueError('colors and positions are unequal sized '
+                             'sequences')
         if len(linestyles) != len(positions):
-            raise ValueError('linestyles and positions are unequal sized \
-                              sequences')
+            raise ValueError('linestyles and positions are unequal sized '
+                             'sequences')
 
         colls = []
         for position, lineoffset, linelength, linewidth, color, linestyle in \

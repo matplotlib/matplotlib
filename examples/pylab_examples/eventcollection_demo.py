@@ -51,4 +51,4 @@ ax.set_ylim([0, 1])
 ax.set_title('line plot with data points')
 
 # display the plot
-fig.show()
+plt.show()

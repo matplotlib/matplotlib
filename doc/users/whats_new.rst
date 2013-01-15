@@ -80,6 +80,12 @@ Ian Thomas added classes to perform interpolation within triangular grids
 the triangles in which points lie (
 :class:`~matplotlib.tri.TrapezoidMapTriFinder`).
 
+Left and right side axes titles
+-------------------------------
+Andrew Dawson added the ability to add axes titles flush with the left and
+right sides of the top of the axes using a new keyword argument `loc` to
+:func:`~matplotlib.pyplot.title`.
+
 .. _whats-new-1-2:
 
 new in matplotlib-1.2
