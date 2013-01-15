@@ -195,7 +195,7 @@ del version
 
 def is_string_like(obj):
     """Return True if *obj* looks like a string"""
-    if isinstance(obj, (str, unicode)):
+    if isinstance(obj, basestring):
         return True
     # numpy strings are subclass of str, ma strings are not
     if ma.isMaskedArray(obj):

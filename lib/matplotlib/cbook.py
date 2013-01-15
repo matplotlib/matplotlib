@@ -23,6 +23,8 @@ from weakref import ref, WeakKeyDictionary
 
 import matplotlib
 from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
+
+# is_string_like has to be imported here for backward compatibility
 from matplotlib import is_string_like
 
 import numpy as np
