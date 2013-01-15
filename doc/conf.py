@@ -11,12 +11,14 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import sys, os
+import os
+import sys
+import sphinx
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-sys.path.append(os.path.abspath('sphinxext'))
+sys.path.insert(0, os.path.abspath('sphinxext'))
 
 # General configuration
 # ---------------------
@@ -28,7 +30,14 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'math_symbol_table',
               'sphinx.ext.doctest',
               'matplotlib.sphinxext.plot_directive', 'sphinx.ext.inheritance_diagram',
               'gen_gallery', 'gen_rst',
-              'matplotlib.sphinxext.ipython_console_highlighting', 'github']
+              'matplotlib.sphinxext.ipython_console_highlighting', 'github',
+              'numpy_ext.numpydoc']
+
+
+autosummary_generate = True
+
+if sphinx.__version__ >= 1.1:
+    autodoc_docstring_signature = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -133,7 +142,9 @@ html_sidebars = {'index': 'indexsidebar.html',
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-html_additional_pages = {'index': 'index.html', 'gallery':'gallery.html', 'citing':'citing.html'}
+html_additional_pages = {'index': 'index.html',
+                         'gallery':'gallery.html',
+                         'citing': 'citing.html'}
 
 # If false, no module index is generated.
 #html_use_modindex = True
