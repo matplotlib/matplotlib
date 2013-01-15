@@ -64,4 +64,4 @@ ax2.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
               linelengths=linelengths2, orientation='vertical')
 ax2.set_title('vertical eventplot 2')
 
-fig.show()
+plt.show()
