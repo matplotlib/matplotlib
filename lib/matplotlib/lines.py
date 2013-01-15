@@ -262,7 +262,8 @@ class Line2D(Artist):
             return False, {}
 
         # Convert points to pixels
-        path, affine = self._get_transformed_path().get_transformed_path_and_affine()
+        path, affine = \
+            self._get_transformed_path().get_transformed_path_and_affine()
         path = affine.transform_path(path)
         xy = path.vertices
         xt = xy[:, 0]
@@ -563,7 +564,8 @@ class Line2D(Artist):
                 gc.set_linewidth(self._markeredgewidth)
 
             marker = self._marker
-            tpath, affine = transformed_path.get_transformed_points_and_affine()
+            tpath, affine = \
+                transformed_path.get_transformed_points_and_affine()
             if len(tpath.vertices):
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
