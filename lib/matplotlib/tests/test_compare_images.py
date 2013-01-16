@@ -1,7 +1,7 @@
 from __future__ import print_function
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import _image_directories
-import nose.tools
+from nose.tools import assert_equal, assert_not_equal, assert_almost_equal
 import os
 import shutil
 
@@ -29,10 +29,10 @@ def image_comparison_expect_rms(im1, im2, tol, expect_rms):
     results = compare_images(im1, im2, tol=tol, in_decorator=True)
 
     if expect_rms is None:
-        nose.tools.assert_is_none(results)
+        assert_equal(None, results)
     else:
-        nose.tools.assert_is_not_none(results)
-        nose.tools.assert_almost_equal(expect_rms, results['rms'], places=4)
+        assert_not_equal(None, results)
+        assert_almost_equal(expect_rms, results['rms'], places=4)
 
 def test_image_compare_basic():
     """Test comparison of an image and the same image with minor differences."""
