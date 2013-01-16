@@ -26,13 +26,13 @@ def stackplot(axes, x, *args, **kwargs):
     Keyword arguments:
 
     *baseline* : ['zero', 'sym', 'wiggle', 'weighted_wiggle']
-                Method use to calculate to baseline. 'zero' is just a
+                Method used to calculate the baseline. 'zero' is just a
                 simple stacked plot. 'sym' is symmetric around zero and
                 is sometimes called `ThemeRiver`.  'wiggle' minimizes the
                 sum of the squared slopes. 'weighted_wiggle' does the
                 same but weights to account for size of each layer.
                 It is also called `Streamgraph`-layout. More details
-                can be found in http://www.leebyron.com/else/streamgraph/.
+                can be found at http://www.leebyron.com/else/streamgraph/.
 
 
     *colors* : A list or tuple of colors. These will be cycled through and
