@@ -863,6 +863,41 @@ def test_stackplot():
     ax.set_xlim((0, 10))
     ax.set_ylim((0, 70))
 
+
+@image_comparison(baseline_images=['stackplot_test_baseline'])
+def test_stackplot_baseline():
+    np.random.seed(0)
+    def layers(n, m):
+        def bump(a):
+            x = 1 / (.1 + np.random.random())
+            y = 2 * np.random.random() - .5
+            z = 10 / (.1 + np.random.random())
+            for i in range(m):
+                w = (i / float(m) - y) * z
+                a[i] += x * np.exp(-w * w)
+        a = np.zeros((m, n))
+        for i in range(n):
+            for j in range(5):
+                bump(a[:, i])
+        return a
+
+    d=layers(3, 100)
+
+    fig = plt.figure()
+
+    plt.subplot(2, 2, 1)
+    plt.stackplot(range(100), d.T, baseline='zero')
+
+    plt.subplot(2, 2, 2)
+    plt.stackplot(range(100), d.T, baseline='sym')
+
+    plt.subplot(2, 2, 3)
+    plt.stackplot(range(100), d.T, baseline='wiggle')
+
+    plt.subplot(2, 2, 4)
+    plt.stackplot(range(100), d.T, baseline='weighted_wiggle')
+
+
 @image_comparison(baseline_images=['boxplot'])
 def test_boxplot():
     x = np.linspace(-7, 7, 140)
