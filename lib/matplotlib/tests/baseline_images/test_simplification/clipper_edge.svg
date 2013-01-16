@@ -1,105 +1,159 @@
-<?xml version="1.0" standalone="no"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
-<svg width="144pt" height="72pt" viewBox="0 0 144 72"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   version="1.1"
-   id="svg1">
-<filter id="colorAdd"><feComposite in="SourceGraphic" in2="BackgroundImage" operator="arithmetic" k2="1" k3="1"/></filter>
-<g id="figure1">
-<g id="patch1">
-<path style="fill: #ffffff; stroke: #ffffff; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M0.000000 72.000000L144.000000 72.000000L144.000000 0.000000
-L0.000000 0.000000L0.000000 72.000000"/>
-</g>
-<g id="axes1">
-<g id="patch2">
-<path style="fill: #ffffff; opacity: 1.000000"  d="M0.000000 72.000000L144.000000 72.000000L144.000000 0.000000
-L0.000000 0.000000L0.000000 72.000000"/>
-</g>
-<g id="line2d1">
-<defs>
-  <clipPath id="p7a7a30041bcd0eda414889f4295b8ec2">
-<rect x="0.000000" y="0.000000" width="144.000000" height="72.000000"/>
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="72pt" version="1.1" viewBox="0 0 144 72" width="144pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:square;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="
+M0 72
+L144 72
+L144 0
+L0 0
+z
+" style="fill:#ffffff;"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="
+M0 72
+L144 72
+L144 0
+L0 0
+z
+" style="fill:#ffffff;"/>
+   </g>
+   <g id="line2d_1">
+    <path clip-path="url(#p5d99cb97b2)" d="
+M-180 72
+M-1 30
+L0 28.8
+L36 72
+L72 14.4
+L108 72
+L144 0" style="fill:none;stroke:#0000ff;"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_2">
+      <defs>
+       <path d="
+M0 0
+L0 -4" id="mcb557df647" style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;"/>
+      </defs>
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="0.0" xlink:href="#mcb557df647" y="72.0"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="36.0" xlink:href="#mcb557df647" y="72.0"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_4">
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="72.0" xlink:href="#mcb557df647" y="72.0"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_5">
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="108.0" xlink:href="#mcb557df647" y="72.0"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_6">
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="144.0" xlink:href="#mcb557df647" y="72.0"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_7">
+      <defs>
+       <path d="
+M0 0
+L4 0" id="mc8fcea1516" style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;"/>
+      </defs>
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="0.0" xlink:href="#mc8fcea1516" y="72.0"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_8">
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="0.0" xlink:href="#mc8fcea1516" y="57.6"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_9">
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="0.0" xlink:href="#mc8fcea1516" y="43.2"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_10">
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="0.0" xlink:href="#mc8fcea1516" y="28.8"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_11">
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="0.0" xlink:href="#mc8fcea1516" y="14.4"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_12">
+      <g>
+       <use style="stroke:#000000;stroke-linecap:butt;stroke-width:0.5;" x="0.0" xlink:href="#mc8fcea1516" y="0.0"/>
+      </g>
+     </g>
+    </g>
+   </g>
+   <g id="patch_3">
+    <path d="
+M0 0
+L144 0" style="fill:none;stroke:#000000;"/>
+   </g>
+   <g id="patch_4">
+    <path d="
+M144 72
+L144 0" style="fill:none;stroke:#000000;"/>
+   </g>
+   <g id="patch_5">
+    <path d="
+M0 72
+L144 72" style="fill:none;stroke:#000000;"/>
+   </g>
+   <g id="patch_6">
+    <path d="
+M0 72
+L0 0" style="fill:none;stroke:#000000;"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p5d99cb97b2">
+   <rect height="72.0" width="144.0" x="0.0" y="0.0"/>
   </clipPath>
-</defs><path style="fill: none; stroke: #0000ff; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000" clip-path="url(#p7a7a30041bcd0eda414889f4295b8ec2)" d="M-180.000000 72.000000M-1.000000 30.000000L0.000000 28.800000
-L36.000000 72.000000L72.000000 14.400000L108.000000 72.000000
-L144.000000 0.000000"/>
-</g>
-<g id="matplotlib.axis1">
-<g id="xtick1">
-<g id="line2d2">
-<defs><path id="m30e32995789d870ad79a2e54c91cf9c6" d="M0.000000 0.000000L0.000000 -4.000000"/></defs>
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m30e32995789d870ad79a2e54c91cf9c6" x="0.000000" y="72.000000"/>
-</g></g>
-</g>
-<g id="xtick2">
-<g id="line2d3">
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m30e32995789d870ad79a2e54c91cf9c6" x="36.000000" y="72.000000"/>
-</g></g>
-</g>
-<g id="xtick3">
-<g id="line2d4">
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m30e32995789d870ad79a2e54c91cf9c6" x="72.000000" y="72.000000"/>
-</g></g>
-</g>
-<g id="xtick4">
-<g id="line2d5">
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m30e32995789d870ad79a2e54c91cf9c6" x="108.000000" y="72.000000"/>
-</g></g>
-</g>
-<g id="xtick5">
-<g id="line2d6">
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m30e32995789d870ad79a2e54c91cf9c6" x="144.000000" y="72.000000"/>
-</g></g>
-</g>
-</g>
-<g id="matplotlib.axis2">
-<g id="ytick1">
-<g id="line2d7">
-<defs><path id="m3400efa6b1638b3fea9e19e898273957" d="M0.000000 0.000000L4.000000 0.000000"/></defs>
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m3400efa6b1638b3fea9e19e898273957" x="0.000000" y="72.000000"/>
-</g></g>
-</g>
-<g id="ytick2">
-<g id="line2d8">
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m3400efa6b1638b3fea9e19e898273957" x="0.000000" y="57.600000"/>
-</g></g>
-</g>
-<g id="ytick3">
-<g id="line2d9">
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m3400efa6b1638b3fea9e19e898273957" x="0.000000" y="43.200000"/>
-</g></g>
-</g>
-<g id="ytick4">
-<g id="line2d10">
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m3400efa6b1638b3fea9e19e898273957" x="0.000000" y="28.800000"/>
-</g></g>
-</g>
-<g id="ytick5">
-<g id="line2d11">
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m3400efa6b1638b3fea9e19e898273957" x="0.000000" y="14.400000"/>
-</g></g>
-</g>
-<g id="ytick6">
-<g id="line2d12">
-<g ><use style="fill: none; stroke: #000000; stroke-width: 0.500000; stroke-linejoin: round; stroke-linecap: butt;  opacity: 1.000000" xlink:href="#m3400efa6b1638b3fea9e19e898273957" x="0.000000" y="0.000000"/>
-</g></g>
-</g>
-</g>
-<g id="patch3">
-<path style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M0.000000 0.000000L144.000000 0.000000"/>
-</g>
-<g id="patch4">
-<path style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M144.000000 72.000000L144.000000 0.000000"/>
-</g>
-<g id="patch5">
-<path style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M0.000000 72.000000L144.000000 72.000000"/>
-</g>
-<g id="patch6">
-<path style="fill: none; stroke: #000000; stroke-width: 1.000000; stroke-linejoin: round; stroke-linecap: square;  opacity: 1.000000"  d="M0.000000 72.000000L0.000000 0.000000"/>
-</g>
-</g>
-</g>
+ </defs>
 </svg>

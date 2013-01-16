@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="432pt" version="1.1" viewBox="0 0 576 432" width="576pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -52,14 +52,14 @@ L191.97 256.32" style="fill:none;stroke:#000000;"/>
     <path clip-path="url(#p7ff5b81e1d)" d="
 M166.86 236.45
 L200.34 236.45
-L200.34 222.962
+L200.34 222.672
 L191.97 216
-L200.34 209.038
+L200.34 209.328
 L200.34 195.55
 L166.86 195.55
-L166.86 209.038
+L166.86 209.328
 L175.23 216
-L166.86 222.962
+L166.86 222.672
 L166.86 236.45" style="fill:none;stroke:#0000ff;"/>
    </g>
    <g id="line2d_6">
