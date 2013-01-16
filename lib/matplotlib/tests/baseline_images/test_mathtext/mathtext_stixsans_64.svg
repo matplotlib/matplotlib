@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -134,11 +134,11 @@ Q25.5 6.09375 33.4062 13.2031" id="STIXGeneral-Italic-1d622"/>
    </defs>
    <g transform="translate(169.92 31.2)scale(0.12 -0.12)">
     <use transform="translate(0.0 14.9375)scale(0.81370214325)" xlink:href="#STIXGeneral-Regular-28"/>
-    <use transform="translate(27.092666626 1.59375)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(107.332647705 1.59375)" xlink:href="#STIXGeneral-Italic-1d622"/>
-    <use transform="translate(167.252633667 1.59375)" xlink:href="#STIXGeneral-Regular-3d"/>
-    <use transform="translate(241.263256836 1.59375)" xlink:href="#STIXGeneral-Italic-1d623"/>
-    <use transform="translate(290.863247681 14.9375)scale(0.81370214325)" xlink:href="#STIXGeneral-Regular-29"/>
+    <use transform="translate(27.097869873 1.59375)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(107.337850952 1.59375)" xlink:href="#STIXGeneral-Italic-1d622"/>
+    <use transform="translate(167.257836914 1.59375)" xlink:href="#STIXGeneral-Regular-3d"/>
+    <use transform="translate(241.268460083 1.59375)" xlink:href="#STIXGeneral-Italic-1d623"/>
+    <use transform="translate(290.868450928 14.9375)scale(0.81370214325)" xlink:href="#STIXGeneral-Regular-29"/>
    </g>
   </g>
  </g>

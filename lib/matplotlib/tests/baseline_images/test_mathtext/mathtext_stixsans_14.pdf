@@ -9,18 +9,17 @@ endobj
 /Shading 6 0 R /Font 3 0 R >>
 endobj
 10 0 obj
-<< /Contents 9 0 R /Type /Page /Resources 8 0 R /Parent 2 0 R
-/MediaBox [ 0 0 378 54 ] >>
+<< /Group << /CS /DeviceRGB /S /Transparency /Type /Group >> /Parent 2 0 R
+/MediaBox [ 0 0 378 54 ] /Resources 8 0 R /Type /Page /Contents 9 0 R >>
 endobj
 9 0 obj
 << /Filter /FlateDecode /Length 11 0 R >>
 stream
-xœeŒ»‚@EûùŠùÖ™]öÕHaKAh0úÿÎJ¨,&çNrïa¼ƒÆg¹	W4>—m.v\¡F+ï,WÃ,ÌH¦jƒã
-EU’"Ö˜„GÒÊ:mSçtî›K==¦×°4ïa¹Ù‡Kg"–Oèö1…üX§h•&Fgƒ¨T4üoJ_å»£øıQ0¬
+xœeŒ»‚@EûùŠùÖ™}Ànk :"…-!ˆĞ`4ü¾³*«sgrïa¼ƒÆG$\…%¤Mæ…ÓÎJ W¸H£–s”ö*,a&$öµÁ~†cE’"Ö¥{ÒÊ¥ÚÅÎáÔVçrx¯nªŞİtë“ç©	˜?¡ÙÆäí¾Ñ©Ì›RçE¥‚áStd…İÀ¥N2Ÿ
 endstream
 endobj
 11 0 obj
-154
+158
 endobj
 16 0 obj
 << /Filter /FlateDecode /Subtype /Form /Length 80 /Type /XObject
@@ -117,37 +116,37 @@ endobj
 << /Count 1 /Kids [ 10 0 R ] /Type /Pages >>
 endobj
 22 0 obj
-<< /CreationDate (D:20110405073407-04'00')
+<< /CreationDate (D:20130116131149-04'00')
 /Producer (matplotlib pdf backend)
-/Creator (matplotlib 1.1.0, http://matplotlib.sf.net) >>
+/Creator (matplotlib 1.3.x, http://matplotlib.sf.net) >>
 endobj
 xref
 0 23
 0000000000 65535 f 
 0000000016 00000 n 
-0000004491 00000 n 
-0000004304 00000 n 
-0000004347 00000 n 
-0000004368 00000 n 
-0000004389 00000 n 
-0000004410 00000 n 
+0000004553 00000 n 
+0000004366 00000 n 
+0000004409 00000 n 
+0000004430 00000 n 
+0000004451 00000 n 
+0000004472 00000 n 
 0000000065 00000 n 
-0000000314 00000 n 
+0000000372 00000 n 
 0000000208 00000 n 
-0000000543 00000 n 
-0000001295 00000 n 
-0000001083 00000 n 
-0000000775 00000 n 
-0000002340 00000 n 
-0000000563 00000 n 
-0000003235 00000 n 
-0000003026 00000 n 
-0000002716 00000 n 
-0000004282 00000 n 
-0000002362 00000 n 
-0000004551 00000 n 
+0000000605 00000 n 
+0000001357 00000 n 
+0000001145 00000 n 
+0000000837 00000 n 
+0000002402 00000 n 
+0000000625 00000 n 
+0000003297 00000 n 
+0000003088 00000 n 
+0000002778 00000 n 
+0000004344 00000 n 
+0000002424 00000 n 
+0000004613 00000 n 
 trailer
 << /Info 22 0 R /Root 1 0 R /Size 23 >>
 startxref
-4702
+4764
 %%EOF

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -37,7 +37,8 @@ Q3 48.4062 12.25 58
 Q21.5 67.5938 35.7031 67.5938
 Q49.9062 67.5938 59.1562 58
 Q68.4062 48.4062 68.4062 33.0938
-M59.7031 20.7031
+M46.7031 6.20312
+Q59.7031 20.7031 59.7031 33.0938
 Q59.7031 45.5 53.2031 52.75
 Q46.7031 60 35.7031 60
 Q24.7031 60 18.2031 52.75
