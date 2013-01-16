@@ -4417,7 +4417,8 @@ class Axes(martist.Artist):
             instance. If *prop* is a dictionary, a new instance will be
             created with *prop*. If *None*, use rc settings.
 
-          *fontsize*: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
+          *fontsize*: [size in points | 'xx-small' | 'x-small' | 'small' |
+                      'medium' | 'large' | 'x-large' | 'xx-large']
             Set the font size.  May be either a size string, relative to
             the default font size, or an absolute font size in points. This
             argument is only used if prop is not specified.
@@ -5439,7 +5440,6 @@ class Axes(martist.Artist):
             if 'zorder' in kwargs:
                 plot_kw['zorder'] = kwargs['zorder']
 
-
         if xerr is not None:
             if (iterable(xerr) and len(xerr) == 2 and
                 iterable(xerr[0]) and iterable(xerr[1])):
@@ -6036,6 +6036,7 @@ class Axes(martist.Artist):
                 colors = mcolors.colorConverter.to_rgba_array(c, alpha)
 
         faceted = kwargs.pop('faceted', None)
+        edgecolors = kwargs.get('edgecolors', None)
         if faceted is not None:
             warnings.warn("The faceted option is deprecated. "
                           "Please use edgecolor instead. Will "
@@ -6557,9 +6558,10 @@ class Axes(martist.Artist):
         Draws arrow on specified axis from (*x*, *y*) to (*x* + *dx*,
         *y* + *dy*). Uses FancyArrow patch to construct the arrow.
 
-        The resulting arrow is affected by the axes aspect ratio and limits. This
-        may produce an arrow whose head is not square with its stem. To create
-        an arrow whose head is square with its stem, use :meth:`annotate`.
+        The resulting arrow is affected by the axes aspect ratio and limits.
+        This may produce an arrow whose head is not square with its stem. To
+        create an arrow whose head is square with its stem, use
+        :meth:`annotate`.
 
         Optional kwargs control the arrow construction and properties:
 
