@@ -139,25 +139,6 @@ def _process_plot_format(fmt):
     return linestyle, marker, color
 
 
-def set_default_color_cycle(clist):
-    """
-    Change the default cycle of colors that will be used by the plot
-    command.  This must be called before creating the
-    :class:`Axes` to which it will apply; it will
-    apply to all future axes.
-
-    *clist* is a sequence of mpl color specifiers.
-
-    See also: :meth:`~matplotlib.axes.Axes.set_color_cycle`.
-
-    .. Note:: Deprecated 2010/01/03.
-              Set rcParams['axes.color_cycle'] directly.
-
-    """
-    rcParams['axes.color_cycle'] = clist
-    warnings.warn("Set rcParams['axes.color_cycle'] directly", mplDeprecation)
-
-
 class _process_plot_var_args(object):
     """
     Process variable length arguments to the plot command, so that
@@ -282,12 +263,11 @@ class _process_plot_var_args(object):
             facecolor = kw['color']
         except KeyError:
             facecolor = self.color_cycle.next()
-        seg = mpatches.Polygon(np.hstack(
-                                (x[:, np.newaxis], y[:, np.newaxis])),
-                      facecolor=facecolor,
-                      fill=True,
-                      closed=kw['closed']
-                      )
+        seg = mpatches.Polygon(np.hstack((x[:, np.newaxis],
+                                          y[:, np.newaxis])),
+                               facecolor=facecolor,
+                               fill=True,
+                               closed=kw['closed'])
         self.set_patchprops(seg, **kwargs)
         return seg
 
@@ -586,9 +566,9 @@ class Axes(martist.Artist):
         self.transData = self.transScale + (self.transLimits + self.transAxes)
 
         self._xaxis_transform = mtransforms.blended_transform_factory(
-                self.transData, self.transAxes)
+            self.transData, self.transAxes)
         self._yaxis_transform = mtransforms.blended_transform_factory(
-                self.transAxes, self.transData)
+            self.transAxes, self.transData)
 
     def get_xaxis_transform(self, which='grid'):
         """
@@ -1067,11 +1047,16 @@ class Axes(martist.Artist):
           etc.
           =====   =====================
 
+        .. deprecated:: 1.2
+            the option 'normal' for aspect is deprecated. Use 'auto' instead.
         """
-        if aspect in ('normal', 'auto'):
+        if aspect == 'normal':
+            warnings.warn("Use 'auto' instead of 'normal' for aspect. Will "
+                          "be removed in 1.4.x", mplDeprecation)
             self._aspect = 'auto'
-        elif aspect == 'equal':
-            self._aspect = 'equal'
+
+        elif aspect in ('equal', 'auto'):
+            self._aspect = aspect
         else:
             self._aspect = float(aspect)  # raise ValueError if necessary
 
@@ -1369,14 +1354,6 @@ class Axes(martist.Artist):
         self.set_ylim([v[2], v[3]], emit=emit, auto=False)
 
         return v
-
-    def get_child_artists(self):
-        """
-        Return a list of artists the axes contains.
-
-        .. deprecated:: 0.98
-        """
-        raise mplDeprecation('Use get_children instead')
 
     def get_frame(self):
         """Return the axes Rectangle frame"""
@@ -3108,30 +3085,6 @@ class Axes(martist.Artist):
         c = mcolors.colorConverter.to_rgba(c)
         self._cursorProps = lw, c
 
-    def connect(self, s, func):
-        """
-        Register observers to be notified when certain events occur.  Register
-        with callback functions with the following signatures.  The function
-        has the following signature::
-
-            func(ax)  # where ax is the instance making the callback.
-
-        The following events can be connected to:
-
-          'xlim_changed','ylim_changed'
-
-        The connection id is is returned - you can use this with
-        disconnect to disconnect from the axes event
-
-        """
-        raise mplDeprecation('use the callbacks CallbackRegistry instance '
-                             'instead')
-
-    def disconnect(self, cid):
-        """disconnect from the Axes event."""
-        raise mplDeprecation('use the callbacks CallbackRegistry instance '
-                             'instead')
-
     def get_children(self):
         """return a list of child artists"""
         children = []
@@ -3180,9 +3133,6 @@ class Axes(martist.Artist):
         each child artist will fire a pick event if mouseevent is over
         the artist and the artist has picker set
         """
-        if len(args) > 1:
-            raise mplDeprecation('New pick API implemented -- '
-                                 'see API_CHANGES in the src distribution')
         martist.Artist.pick(self, args[0])
 
     ### Labelling
@@ -3679,10 +3629,6 @@ class Axes(martist.Artist):
 
         .. plot:: mpl_examples/pylab_examples/hline_demo.py
         """
-        if kwargs.get('fmt') is not None:
-            raise mplDeprecation('hlines now uses a '
-                                 'collections.LineCollection and not a '
-                                 'list of Line2D to draw; see API_CHANGES')
 
         # We do the conversion first since not all unitized data is uniform
         # process the unit information
@@ -3760,11 +3706,6 @@ class Axes(martist.Artist):
 
         %(LineCollection)s
         """
-
-        if kwargs.get('fmt') is not None:
-            raise mplDeprecation('vlines now uses a '
-                                 'collections.LineCollection and not a '
-                                 'list of Line2D to draw; see API_CHANGES')
 
         self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
 
@@ -4476,7 +4417,8 @@ class Axes(martist.Artist):
             instance. If *prop* is a dictionary, a new instance will be
             created with *prop*. If *None*, use rc settings.
 
-          *fontsize*: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
+          *fontsize*: [size in points | 'xx-small' | 'x-small' | 'small' |
+                      'medium' | 'large' | 'x-large' | 'xx-large']
             Set the font size.  May be either a size string, relative to
             the default font size, or an absolute font size in points. This
             argument is only used if prop is not specified.
@@ -5498,7 +5440,6 @@ class Axes(martist.Artist):
             if 'zorder' in kwargs:
                 plot_kw['zorder'] = kwargs['zorder']
 
-
         if xerr is not None:
             if (iterable(xerr) and len(xerr) == 2 and
                 iterable(xerr[0]) and iterable(xerr[1])):
@@ -5970,9 +5911,8 @@ class Axes(martist.Artist):
 
     @docstring.dedent_interpd
     def scatter(self, x, y, s=20, c='b', marker='o', cmap=None, norm=None,
-                    vmin=None, vmax=None, alpha=None, linewidths=None,
-                    faceted=True, verts=None,
-                    **kwargs):
+                vmin=None, vmax=None, alpha=None, linewidths=None,
+                verts=None, **kwargs):
         """
         Make a scatter plot.
 
@@ -6095,13 +6035,16 @@ class Axes(martist.Artist):
             else:
                 colors = mcolors.colorConverter.to_rgba_array(c, alpha)
 
-        if faceted:
-            edgecolors = None
-        else:
-            edgecolors = 'none'
-            warnings.warn(
-                '''replace "faceted=False" with "edgecolors='none'"''',
-                mplDeprecation)  # 2008/04/18
+        faceted = kwargs.pop('faceted', None)
+        edgecolors = kwargs.get('edgecolors', None)
+        if faceted is not None:
+            warnings.warn("The faceted option is deprecated. "
+                          "Please use edgecolor instead. Will "
+                          "be remove in 1.4", mplDeprecation)
+            if faceted:
+                edgecolors = None
+            else:
+                edgecolors = 'none'
 
         # to be API compatible
         if marker is None and not (verts is None):
@@ -6615,9 +6558,10 @@ class Axes(martist.Artist):
         Draws arrow on specified axis from (*x*, *y*) to (*x* + *dx*,
         *y* + *dy*). Uses FancyArrow patch to construct the arrow.
 
-        The resulting arrow is affected by the axes aspect ratio and limits. This
-        may produce an arrow whose head is not square with its stem. To create
-        an arrow whose head is square with its stem, use :meth:`annotate`.
+        The resulting arrow is affected by the axes aspect ratio and limits.
+        This may produce an arrow whose head is not square with its stem. To
+        create an arrow whose head is square with its stem, use
+        :meth:`annotate`.
 
         Optional kwargs control the arrow construction and properties:
 
@@ -7319,6 +7263,9 @@ class Axes(martist.Artist):
         cmap = kwargs.pop('cmap', None)
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
+        if 'shading' in kwargs:
+            warnings.warn("Use edgecolors instead of shading. "
+                          "Will be removed in 1.4", mplDeprecation)
         shading = kwargs.pop('shading', 'flat')
 
         X, Y, C = self._pcolorargs('pcolor', *args)
@@ -7367,6 +7314,7 @@ class Axes(martist.Artist):
             edgecolors = 'k',
         else:
             edgecolors = 'none'
+
         if 'edgecolor' in kwargs:
             kwargs['edgecolors'] = kwargs.pop('edgecolor')
         ec = kwargs.setdefault('edgecolors', edgecolors)
@@ -7893,8 +7841,7 @@ class Axes(martist.Artist):
             Either an integer number of bins or a sequence giving the
             bins.  If *bins* is an integer, *bins* + 1 bin edges
             will be returned, consistent with :func:`numpy.histogram`
-            for numpy version >= 1.3, and with the *new* = True argument
-            in earlier versions.
+            for numpy version >= 1.3.
             Unequally spaced bins are supported if *bins* is a sequence.
 
           *range*:
@@ -8035,11 +7982,6 @@ class Axes(martist.Artist):
             raise ValueError(
                 "orientation kwarg %s is not recognized" % orientation)
 
-        if kwargs.get('width') is not None:
-            raise mplDeprecation(
-                'hist now uses the rwidth to give relative width '
-                'and not absolute width')
-
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
@@ -8124,8 +8066,6 @@ class Axes(martist.Artist):
         # We will handle the normed kwarg within mpl until we
         # get to the point of requiring numpy >= 1.5.
         hist_kwargs = dict(range=bin_range)
-        if np.__version__ < "1.3":  # version 1.1 and 1.2
-            hist_kwargs['new'] = True
 
         n = []
         mlast = bottom
@@ -8185,6 +8125,7 @@ class Axes(martist.Artist):
 
             if align == 'mid' or align == 'edge':
                 boffset += 0.5 * totwidth
+
             elif align == 'right':
                 boffset += totwidth
 
@@ -8767,10 +8708,6 @@ class Axes(martist.Artist):
             :func:`~matplotlib.pyplot.plot`
                For plotting options
         """
-        if precision is None:
-            precision = 0
-            warnings.warn("Use precision=0 instead of None", mplDeprecation)
-            # 2008/10/03
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
         if marker is None and markersize is None:
