@@ -1,6 +1,7 @@
 from __future__ import print_function
 from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import _image_directories
+import nose.tools
 import os
 import shutil
 
@@ -18,8 +19,6 @@ def image_comparison_expect_rms(im1, im2, tol, expect_rms):
     succeed if compare_images succeeds. Otherwise, the test will succeed if
     compare_images fails and returns an RMS error almost equal to this value.
     """
-    from nose.tools import assert_almost_equal
-    from nose.tools import assert_is_none, assert_is_not_none
     im1 = os.path.join(baseline_dir, im1)
     im2_src = os.path.join(baseline_dir, im2)
     im2 = os.path.join(result_dir, im2)
@@ -30,10 +29,10 @@ def image_comparison_expect_rms(im1, im2, tol, expect_rms):
     results = compare_images(im1, im2, tol=tol, in_decorator=True)
 
     if expect_rms is None:
-        assert_is_none(results)
+        nose.tools.assert_is_none(results)
     else:
-        assert_is_not_none(results)
-        assert_almost_equal(expect_rms, results['rms'], places=4)
+        nose.tools.assert_is_not_none(results)
+        nose.tools.assert_almost_equal(expect_rms, results['rms'], places=4)
 
 def test_image_compare_basic():
     """Test comparison of an image and the same image with minor differences."""
