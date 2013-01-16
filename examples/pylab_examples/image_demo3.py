@@ -7,7 +7,7 @@ except ImportError:
 
 import matplotlib.cbook as cbook
 
-datafile = cbook.get_sample_data('lena.jpg')
+datafile = cbook.get_sample_data('grace_hopper.jpg')
 lena = Image.open(datafile)
 dpi = rcParams['figure.dpi']
 figsize = lena.size[0]/dpi, lena.size[1]/dpi

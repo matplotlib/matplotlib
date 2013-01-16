@@ -63,7 +63,7 @@ if 1:
     ax = plt.subplot(211)
 
     from matplotlib._png import read_png
-    fn = get_sample_data("lena.png", asfileobj=False)
+    fn = get_sample_data("grace_hopper.png", asfileobj=False)
     arr = read_png(fn)
 
     text_path = TextPath((0, 0), "!?", size=150)
