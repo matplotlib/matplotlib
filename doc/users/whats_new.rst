@@ -202,7 +202,7 @@ In addition to simply plotting the streamlines of the vector field,
 line widths of the streamlines to a separate parameter, such as the speed or
 local intensity of the vector field.
 
-.. plot:: mpl_examples/pylab_examples/streamplot_demo.py
+.. plot:: mpl_examples/images_contours_and_fields/streamplot_demo_features.py
 
 
 New hist functionality
@@ -449,7 +449,7 @@ Other improvements
 
 * Pim Schellart added a new colormap called "cubehelix".
   Sameer Grover also added a colormap called "coolwarm". See it and all
-  other colormaps :ref:`here <pylab_examples-show_colormaps>`.
+  other colormaps :ref:`here <color-colormaps_reference>`.
 
 * Many bug fixes and documentation improvements.
 
