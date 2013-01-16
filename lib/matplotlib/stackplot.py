@@ -25,6 +25,16 @@ def stackplot(axes, x, *args, **kwargs):
 
     Keyword arguments:
 
+    *baseline* : ['zero', 'sym', 'wiggle', 'weighted_wiggle']
+                Method use to calculate to baseline. 'zero' is just a
+                simple stacked plot. 'sym' is symmetric around zero and
+                is sometimes called `ThemeRiver`.  'wiggle' minimizes the
+                sum of the squared slopes. 'weighted_wiggle' does the
+                same but weights to account for size of each layer.
+                It is also called `Streamgraph`-layout. More details
+                can be found in http://www.leebyron.com/else/streamgraph/.
+
+
     *colors* : A list or tuple of colors. These will be cycled through and
                used to colour the stacked areas.
                All other keyword arguments are passed to
@@ -44,17 +54,59 @@ def stackplot(axes, x, *args, **kwargs):
     if colors is not None:
         axes.set_color_cycle(colors)
 
+    baseline = kwargs.pop('baseline', 'zero')
     # Assume data passed has not been 'stacked', so stack it here.
-    y_stack = np.cumsum(y, axis=0)
+    stack = np.cumsum(y, axis=0)
 
     r = []
+    if baseline == 'zero':
+        first_line = 0.
+
+    elif baseline == 'sym':
+        first_line = -np.sum(y, 0) * 0.5
+        stack += first_line[None, :]
+
+    elif baseline == 'wiggle':
+        m = y.shape[0]
+        first_line = (y * (m - 0.5 - np.arange(0, m)[:, None])).sum(0)
+        first_line /= -m
+        stack += first_line
+
+    elif baseline == 'weighted_wiggle':
+        #TODO: Vectorize this stuff.
+        m, n = y.shape
+        center = np.zeros(n)
+        total = np.sum(y, 0)
+        for i in range(n):
+            if i > 0:
+                center[i] = center[i - 1]
+            for j in range(m):
+                if i == 0:
+                    increase = y[j, i]
+                    move_up = 0.5
+                else:
+                    below_size = 0.5 * y[j, i]
+                    for k in range(j + 1, m):
+                        below_size += y[k, i]
+                    increase = y[j, i] - y[j, i - 1]
+                    move_up = below_size / total[i]
+                center[i] += (move_up - 0.5) * increase
+        first_line = center - 0.5 * total
+        stack += first_line
+    else:
+        errstr = "Baseline method %s not recognised. " % baseline
+        errstr += "Expected 'zero', 'sym', 'wiggle' or 'weighted_wiggle'"
+        raise ValueError(errstr)
 
     # Color between x = 0 and the first array.
-    r.append(axes.fill_between(x, 0, y_stack[0, :],
-             facecolor=axes._get_lines.color_cycle.next(), **kwargs))
+    r.append(axes.fill_between(x, first_line, stack[0, :],
+                               facecolor=axes._get_lines.color_cycle.next(),
+                               **kwargs))
 
     # Color between array i-1 and array i
     for i in xrange(len(y) - 1):
-        r.append(axes.fill_between(x, y_stack[i, :], y_stack[i + 1, :],
-                 facecolor=axes._get_lines.color_cycle.next(), **kwargs))
+        color = axes._get_lines.color_cycle.next()
+        r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
+                                   facecolor= color,
+                                   **kwargs))
     return r
