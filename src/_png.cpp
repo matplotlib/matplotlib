@@ -27,6 +27,7 @@
 #include "CXX/Extensions.hxx"
 #include "numpy/arrayobject.h"
 #include "mplutils.h"
+#include "file_compat.h"
 
 // As reported in [3082058] build _png.so on aix
 #ifdef _AIX
@@ -104,6 +105,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
 
     FILE *fp = NULL;
     bool close_file = false;
+    bool close_dup_file = false;
     Py::Object buffer_obj = Py::Object(args[0]);
     PyObject* buffer = buffer_obj.ptr();
     if (!PyObject_CheckReadBuffer(buffer))
@@ -128,41 +130,34 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     }
 
     Py::Object py_fileobj = Py::Object(args[3]);
-#if PY3K
-    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
-    PyErr_Clear();
-#endif
+    PyObject* py_file = NULL;
     if (py_fileobj.isString())
     {
-        std::string fileName = Py::String(py_fileobj);
-        const char *file_name = fileName.c_str();
-        if ((fp = fopen(file_name, "wb")) == NULL)
-        {
-            throw Py::RuntimeError(
-                Printf("Could not open file %s", file_name).str());
+        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"wb")) == NULL) {
+            throw Py::Exception();
         }
         close_file = true;
     }
-#if PY3K
-    else if (fd != -1)
-    {
-        fp = fdopen(fd, "w");
-    }
-#else
-    else if (PyFile_CheckExact(py_fileobj.ptr()))
-    {
-        fp = PyFile_AsFile(py_fileobj.ptr());
-    }
-#endif
     else
     {
+        py_file = py_fileobj.ptr();
+    }
+
+    if ((fp = npy_PyFile_Dup(py_file, (char *)"wb")))
+    {
+        close_dup_file = true;
+    }
+    else
+    {
+        PyErr_Clear();
         PyObject* write_method = PyObject_GetAttrString(
-            py_fileobj.ptr(), "write");
+                py_file, "write");
         if (!(write_method && PyCallable_Check(write_method)))
         {
             Py_XDECREF(write_method);
             throw Py::TypeError(
-                "Object does not appear to be a 8-bit string path or a Python file-like object");
+                    "Object does not appear to be a 8-bit string path or "
+                    "a Python file-like object");
         }
         Py_XDECREF(write_method);
     }
@@ -205,7 +200,7 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
         }
         else
         {
-            png_set_write_fn(png_ptr, (void*)py_fileobj.ptr(),
+            png_set_write_fn(png_ptr, (void*)py_file,
                              &write_png_data, &flush_png_data);
         }
         png_set_IHDR(png_ptr, info_ptr,
@@ -241,9 +236,16 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
             png_destroy_write_struct(&png_ptr, &info_ptr);
         }
         delete [] row_pointers;
-        if (fp && close_file)
+
+        if (close_dup_file)
         {
-            fclose(fp);
+            npy_PyFile_DupClose(py_file, fp);
+        }
+
+        if (close_file)
+        {
+            npy_PyFile_CloseFile(py_file);
+            Py_DECREF(py_file);
         }
         /* Changed calls to png_destroy_write_struct to follow
            http://www.libpng.org/pub/png/libpng-manual.txt.
@@ -254,15 +256,15 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
 
     png_destroy_write_struct(&png_ptr, &info_ptr);
     delete [] row_pointers;
-#if PY3K
-    if (fp)
+    if (close_dup_file)
     {
-        fflush(fp);
+        npy_PyFile_DupClose(py_file, fp);
     }
-#endif
-    if (fp && close_file)
+
+    if (close_file)
     {
-        fclose(fp);
+        npy_PyFile_CloseFile(py_file);
+        Py_DECREF(py_file);
     }
 
     if (PyErr_Occurred()) {
@@ -306,40 +308,33 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
     png_byte header[8];   // 8 is the maximum size that can be checked
     FILE* fp = NULL;
     bool close_file = false;
-
-#if PY3K
-    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
-    PyErr_Clear();
-#endif
+    bool close_dup_file = false;
+    PyObject *py_file = NULL;
 
     if (py_fileobj.isString())
     {
-        std::string fileName = Py::String(py_fileobj);
-        const char *file_name = fileName.c_str();
-        if ((fp = fopen(file_name, "rb")) == NULL)
-        {
-            throw Py::RuntimeError(
-                Printf("Could not open file %s for reading", file_name).str());
+        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"rb")) == NULL) {
+            throw Py::Exception();
         }
         close_file = true;
+    } else {
+        py_file = py_fileobj.ptr();
     }
-#if PY3K
-    else if (fd != -1) {
-        fp = fdopen(fd, "r");
-    }
-#else
-    else if (PyFile_CheckExact(py_fileobj.ptr()))
+
+    if ((fp = npy_PyFile_Dup(py_file, "rb")))
     {
-        fp = PyFile_AsFile(py_fileobj.ptr());
+        close_dup_file = true;
     }
-#endif
     else
     {
-        PyObject* read_method = PyObject_GetAttrString(py_fileobj.ptr(), "read");
+        PyErr_Clear();
+        PyObject* read_method = PyObject_GetAttrString(py_file, "read");
         if (!(read_method && PyCallable_Check(read_method)))
         {
             Py_XDECREF(read_method);
-            throw Py::TypeError("Object does not appear to be a 8-bit string path or a Python file-like object");
+            throw Py::TypeError(
+                "Object does not appear to be a 8-bit string path or a Python "
+                "file-like object");
         }
         Py_XDECREF(read_method);
     }
@@ -354,7 +349,7 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
     }
     else
     {
-        _read_png_data(py_fileobj.ptr(), header, 8);
+        _read_png_data(py_file, header, 8);
     }
     if (png_sig_cmp(header, 0, 8))
     {
@@ -390,7 +385,7 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
     }
     else
     {
-        png_set_read_fn(png_ptr, (void*)py_fileobj.ptr(), &read_png_data);
+        png_set_read_fn(png_ptr, (void*)py_file, &read_png_data);
     }
     png_set_sig_bytes(png_ptr, 8);
     png_read_info(png_ptr, info_ptr);
@@ -572,10 +567,17 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
 #else
     png_destroy_read_struct(&png_ptr, &info_ptr, png_infopp_NULL);
 #endif
+    if (close_dup_file)
+    {
+        npy_PyFile_DupClose(py_file, fp);
+    }
+
     if (close_file)
     {
-        fclose(fp);
+        npy_PyFile_CloseFile(py_file);
+        Py_DECREF(py_file);
     }
+
     for (row = 0; row < height; row++)
     {
         delete [] row_pointers[row];
