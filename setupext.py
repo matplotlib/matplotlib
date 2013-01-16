@@ -902,7 +902,7 @@ class Tornado(SetupPackage):
                 "backend. pip/easy_install may attempt to install it "
                 "after matplotlib.")
 
-        return "using tornado version %s" % tornado.__version__
+        return "using tornado version %s" % tornado.version
 
     def get_install_requires(self):
         return ['tornado']
