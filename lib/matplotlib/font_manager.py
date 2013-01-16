@@ -777,7 +777,7 @@ class FontProperties(object):
                 return float(self._size)
             except ValueError:
                 pass
-        default_size = fontManager.get_default_size()
+        default_size = FontManager.get_default_size()
         return default_size * font_scalings.get(self._size)
 
     def get_file(self):
@@ -1008,7 +1008,8 @@ class FontManager:
         """
         return self.__default_weight
 
-    def get_default_size(self):
+    @staticmethod
+    def get_default_size():
         """
         Return the default font size.
         """
