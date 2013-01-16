@@ -39,6 +39,7 @@
 
 #include "numpy/arrayobject.h"
 #include "agg_py_transforms.h"
+#include "file_compat.h"
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
@@ -2028,44 +2029,42 @@ RendererAgg::write_rgba(const Py::Tuple& args)
 
     FILE *fp = NULL;
     Py::Object py_fileobj = Py::Object(args[0]);
-
-    #if PY3K
-    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
-    PyErr_Clear();
-    #endif
+    PyObject* py_file = NULL;
+    bool close_file = false;
 
     if (py_fileobj.isString())
     {
-        std::string fileName = Py::String(py_fileobj);
-        const char *file_name = fileName.c_str();
-        if ((fp = fopen(file_name, "wb")) == NULL)
-            throw Py::RuntimeError(
-                Printf("Could not open file %s", file_name).str());
+        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"wb")) == NULL) {
+            throw Py::Exception();
+        }
+        close_file = true;
+    }
+    else
+    {
+        py_file = py_fileobj.ptr();
+    }
+
+    if ((fp = npy_PyFile_Dup(py_file, (char *)"wb")))
+    {
         if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES)
         {
-            fclose(fp);
-            throw Py::RuntimeError(
-                Printf("Error writing to file %s", file_name).str());
-        }
-    }
-    #if PY3K
-    else if (fd != -1)
-    {
-        if (write(fd, pixBuffer, NUMBYTES) != (ssize_t)NUMBYTES)
-        {
+            npy_PyFile_DupClose(py_file, fp);
+
+            if (close_file) {
+                npy_PyFile_CloseFile(py_file);
+                Py_DECREF(py_file);
+            }
+
             throw Py::RuntimeError("Error writing to file");
         }
-    }
-    #else
-    else if (PyFile_CheckExact(py_fileobj.ptr()))
-    {
-        fp = PyFile_AsFile(py_fileobj.ptr());
-        if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES)
-        {
-            throw Py::RuntimeError("Error writing to file");
+
+        npy_PyFile_DupClose(py_file, fp);
+
+        if (close_file) {
+            npy_PyFile_CloseFile(py_file);
+            Py_DECREF(py_file);
         }
     }
-    #endif
     else
     {
         PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(),
