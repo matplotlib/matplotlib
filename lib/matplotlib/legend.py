@@ -167,6 +167,9 @@ class Legend(Artist):
                                  # box, none use rc
                  shadow=None,
                  title=None,  # set a title for the legend
+
+                 framealpha=None, # set frame alpha
+
                  bbox_to_anchor=None,  # bbox that the legend will be anchored.
                  bbox_transform=None,  # transform for the bbox
                  frameon=None,  # draw frame
@@ -195,6 +198,7 @@ class Legend(Artist):
         fancybox           if True, draw a frame with a round fancybox.
                            If None, use rc
         shadow             if True, draw a shadow behind legend
+        framealpha         If not None, alpha channel for the frame.
         ncol               number of columns
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
@@ -383,6 +387,9 @@ class Legend(Artist):
 
         # init with null renderer
         self._init_legend_box(handles, labels)
+
+        if framealpha is not None:
+          self.get_frame().set_alpha(framealpha)
 
         self._loc = loc
 
