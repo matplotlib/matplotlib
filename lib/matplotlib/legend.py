@@ -108,7 +108,7 @@ class Legend(Artist):
       'upper center' : 9,
       'center'       : 10,
 
-    loc can be a tuple of the noramilzed coordinate values with
+    loc can be a tuple of the normalized coordinate values with
     respect its parent.
 
     """
@@ -729,7 +729,6 @@ class Legend(Artist):
         assert self.isaxes
 
         ax = self.parent
-        vertices = []
         bboxes = []
         lines = []
 
@@ -749,6 +748,11 @@ class Legend(Artist):
             else:
                 transform = handle.get_transform()
                 bboxes.append(handle.get_path().get_extents(transform))
+
+        try:
+            vertices = np.concatenate([l.vertices for l in lines])
+        except ValueError:
+            vertices = np.array([])
 
         return [vertices, bboxes, lines]
 
@@ -915,10 +919,11 @@ class Legend(Artist):
         verts, bboxes, lines = self._auto_legend_data()
 
         bbox = Bbox.from_bounds(0, 0, width, height)
-        consider = [self._get_anchored_bbox(x, bbox, self.get_bbox_to_anchor(),
-                                            renderer)
-                    for x
-                    in range(1, len(self.codes))]
+        if consider is None:
+            consider = [self._get_anchored_bbox(x, bbox,
+                                                self.get_bbox_to_anchor(),
+                                                renderer)
+                        for x in range(1, len(self.codes))]
 
         #tx, ty = self.legendPatch.get_x(), self.legendPatch.get_y()
 
@@ -926,9 +931,19 @@ class Legend(Artist):
         for l, b in consider:
             legendBox = Bbox.from_bounds(l, b, width, height)
             badness = 0
+            # XXX TODO: If markers are present, it would be good to
+            # take their into account when checking vertex overlaps in
+            # the next line.
             badness = legendBox.count_contains(verts)
             badness += legendBox.count_overlaps(bboxes)
             for line in lines:
+                # FIXME: the following line is ill-suited for lines
+                # that 'spiral' around the center, because the bbox
+                # may intersect with the legend even if the line
+                # itself doesn't. One solution would be to break up
+                # the line into its straight-segment components, but
+                # this may (or may not) result in a significant
+                # slowdown if lines with many vertices are present.
                 if line.intersects_bbox(legendBox):
                     badness += 1
 
