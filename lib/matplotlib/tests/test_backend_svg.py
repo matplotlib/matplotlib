@@ -5,6 +5,7 @@ import sys
 from io import BytesIO
 import xml.parsers.expat
 from matplotlib.testing.decorators import knownfailureif, cleanup
+from matplotlib.testing.decorators import image_comparison
 
 @cleanup
 def test_visibility():
@@ -30,3 +31,13 @@ def test_visibility():
 
     parser = xml.parsers.expat.ParserCreate()
     parser.Parse(buf) # this will raise ExpatError if the svg is invalid
+
+@image_comparison(baseline_images=['noscale'], remove_text=True)
+def test_noscale():
+    X, Y = np.meshgrid(np.arange(-5, 5, 1), np.arange(-5, 5, 1))
+    Z = np.sin(Y**2)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    ax.imshow(Z, cmap='gray')
+    plt.rcParams['svg.image_noscale'] = True
