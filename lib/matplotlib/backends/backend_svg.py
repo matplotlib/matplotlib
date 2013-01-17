@@ -743,9 +743,12 @@ class RendererSVG(RendererBase):
             self.writer.start(u'g', attrib={u'clip-path': u'url(#%s)' % clipid})
 
         trans = [1,0,0,1,0,0]
+        h,w = im.get_size_out()
         if rcParams['svg.image_noscale']:
             trans = list(im.get_matrix())
             trans[5] = -trans[5]
+            trans[3] = -trans[3]
+            y += h
             attrib[u'transform'] = generate_transform([(u'matrix', tuple(trans))])
             assert trans[1] == 0
             assert trans[2] == 0
