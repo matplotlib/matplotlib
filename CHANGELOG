@@ -20,6 +20,8 @@
 2012-11-26 deprecate matplotlib/mpl.py, which was used only in pylab.py and is
            now replaced by the more suitable `import matplotlib as mpl`. - PI
 
+2012-11-25 Make rc_context available via pyplot interface - PI
+
 2012-11-16 plt.set_cmap no longer throws errors if there is not already
            an active colorable artist, such as an image, and just sets
            up the colormap to use from that point forward. - PI

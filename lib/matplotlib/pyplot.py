@@ -28,6 +28,7 @@ from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.image import imread as _imread
 from matplotlib.image import imsave as _imsave
 from matplotlib import rcParams, rcParamsDefault, get_backend
+from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
 from matplotlib.artist import setp as _setp
@@ -193,6 +194,10 @@ def pause(interval):
 @docstring.copy_dedent(matplotlib.rc)
 def rc(*args, **kwargs):
     matplotlib.rc(*args, **kwargs)
+
+@docstring.copy_dedent(matplotlib.rc_context)
+def rc_context(rc=None, fname=None):
+    matplotlib.rc_context(rc, fname)
 
 @docstring.copy_dedent(matplotlib.rcdefaults)
 def rcdefaults():
