@@ -28,10 +28,9 @@ import numpy as np
 import numpy.ma as ma
 
 
-if sys.version_info[0] >= 3:
-    import types
-else:
-    import new
+
+import types
+
 
 # On some systems, locale.getpreferredencoding returns None,
 # which can break unicode; and the sage project reports that
@@ -209,10 +208,9 @@ class _BoundMethodProxy(object):
         elif self.inst is not None:
             # build a new instance method with a strong reference to the
             # instance
-            if sys.version_info[0] >= 3:
-                mtd = types.MethodType(self.func, self.inst())
-            else:
-                mtd = new.instancemethod(self.func, self.inst(), self.klass)
+
+            mtd = types.MethodType(self.func, self.inst())
+
         else:
             # not a bound method, just return the func
             mtd = self.func
