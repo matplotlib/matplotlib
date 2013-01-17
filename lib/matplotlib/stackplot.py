@@ -73,24 +73,16 @@ def stackplot(axes, x, *args, **kwargs):
         stack += first_line
 
     elif baseline == 'weighted_wiggle':
-        #TODO: Vectorize this stuff.
         m, n = y.shape
         center = np.zeros(n)
         total = np.sum(y, 0)
-        for i in range(n):
-            if i > 0:
-                center[i] = center[i - 1]
-            for j in range(m):
-                if i == 0:
-                    increase = y[j, i]
-                    move_up = 0.5
-                else:
-                    below_size = 0.5 * y[j, i]
-                    for k in range(j + 1, m):
-                        below_size += y[k, i]
-                    increase = y[j, i] - y[j, i - 1]
-                    move_up = below_size / total[i]
-                center[i] += (move_up - 0.5) * increase
+        increase = np.hstack((y[:, 0:1], np.diff(y)))
+        below_size = total - stack
+        below_size += 0.5 * y
+        move_up = below_size / total
+        move_up[:, 0] = 0.5
+        center = (move_up - 0.5) * increase
+        center = np.cumsum(center.sum(0))
         first_line = center - 0.5 * total
         stack += first_line
     else:
