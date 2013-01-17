@@ -864,7 +864,8 @@ def test_stackplot():
     ax.set_ylim((0, 70))
 
 
-@image_comparison(baseline_images=['stackplot_test_baseline'])
+@image_comparison(baseline_images=['stackplot_test_baseline'],
+                  remove_text=True)
 def test_stackplot_baseline():
     np.random.seed(0)
     def layers(n, m):
