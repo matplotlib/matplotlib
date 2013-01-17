@@ -18,7 +18,7 @@ def fig_1():
     figure(1)
     t = arange(0, 40.0 * pi, 0.1)
     l, = plot(t, 100*sin(t), 'r', label='sine')
-    legend()
+    legend(framealpha=0.5)
 
 def fig_2():
     figure(2)

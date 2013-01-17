@@ -4448,6 +4448,9 @@ class Axes(martist.Artist):
             If *True*, draw a shadow behind legend. If *None*,
             use rc settings.
 
+          *framealpha*: [*None* | float]
+            If not None, alpha channel for legend frame. Default *None*.
+        
           *ncol* : integer
             number of columns. default is 1
 
