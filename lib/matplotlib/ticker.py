@@ -1167,6 +1167,13 @@ class MultipleLocator(Locator):
         base = self._base.get_base()
         n = (vmax - vmin + 0.001 * base) // base
         locs = vmin + np.arange(n + 1) * base
+
+        # this is a hack to deal with floating point accuracy because
+        # .3 < .1 * 3, which results in the last tick label getting
+        # cut off for some ranges and base values.  Laundering the
+        # value through str eliminates the accumulated difference at
+        # 10e-15
+
         locs[-1] = float(str(locs[-1]))
 
         return self.raise_if_exceeds(locs)
