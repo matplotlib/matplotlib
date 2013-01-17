@@ -52,3 +52,4 @@ doc/examples
 doc/_templates/gallery.html
 doc/users/installing.rst
 doc/_static/matplotlibrc
+lib/dateutil
