@@ -4,7 +4,7 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-@image_comparison(baseline_images=['legend_auto1'], tol=15, remove_text=True)
+@image_comparison(baseline_images=['legend_auto1'], remove_text=True)
 def test_legend_auto1():
     'Test automatic legend placement'
     fig = plt.figure()

@@ -501,7 +501,7 @@ def test_imshow():
 
     ax.imshow(r)
 
-@image_comparison(baseline_images=['imshow_clip'], tol=100)
+@image_comparison(baseline_images=['imshow_clip'])
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
 
