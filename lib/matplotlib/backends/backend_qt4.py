@@ -389,7 +389,9 @@ class FigureManagerQT( FigureManagerBase ):
         self.window = MainWindow()
         self.window.connect(self.window, QtCore.SIGNAL('closing()'),
             canvas.close_event)
-
+        self.window.connect( self.window, QtCore.SIGNAL( 'closing()' ),
+                            self._widgetclosed )
+        
         self.window.setWindowTitle("Figure %d" % num)
         image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
         self.window.setWindowIcon(QtGui.QIcon( image ))
@@ -403,8 +405,7 @@ class FigureManagerQT( FigureManagerBase ):
         self.canvas.setFocusPolicy( QtCore.Qt.StrongFocus )
         self.canvas.setFocus()
 
-        QtCore.QObject.connect( self.window, QtCore.SIGNAL( 'destroyed()' ),
-                            self._widgetclosed )
+
         self.window._destroying = False
 
         self.toolbar = self._get_toolbar(self.canvas, self.window)
