@@ -389,7 +389,7 @@ class FigureManagerQT( FigureManagerBase ):
         self.window = MainWindow()
         self.window.connect(self.window, QtCore.SIGNAL('closing()'),
             canvas.close_event)
-        self.window.connect( self.window, QtCore.SIGNAL( 'closing()' ),
+        self.window.connect( self.window, QtCore.SIGNAL( 'closing()'),
                             self._widgetclosed )
 
         self.window.setWindowTitle("Figure %d" % num)
