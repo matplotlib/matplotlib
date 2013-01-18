@@ -389,9 +389,9 @@ class FigureManagerQT( FigureManagerBase ):
         self.window = MainWindow()
         self.window.connect(self.window, QtCore.SIGNAL('closing()'),
             canvas.close_event)
-        self.window.connect( self.window, QtCore.SIGNAL( 'closing()' ),
+        self.window.connect( self.window, QtCore.SIGNAL( 'closing()'),
                             self._widgetclosed )
-        
+
         self.window.setWindowTitle("Figure %d" % num)
         image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
         self.window.setWindowIcon(QtGui.QIcon( image ))
