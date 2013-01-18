@@ -370,7 +370,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
 class MainWindow(QtGui.QMainWindow):
     def closeEvent(self, event):
         self.emit(QtCore.SIGNAL('closing()'))
-        QtGui.QMainWindow.closeEvent(self,event)
+        QtGui.QMainWindow.closeEvent(self, event)
 
 class FigureManagerQT( FigureManagerBase ):
     """
