@@ -38,25 +38,25 @@ def test_image_compare_basic():
     """Test comparison of an image and the same image with minor differences."""
     # This expects the images to compare equal under normal tolerance, and have
     # a small RMS.
-    im1 = 'cosine_peak-nn-img.png'
-    im2 = 'cosine_peak-nn-img-minorchange.png'
+    im1 = 'basn3p02.png'
+    im2 = 'basn3p02-minorchange.png'
     image_comparison_expect_rms(im1, im2, tol=10, expect_rms=None)
 
     # Now test with no tolerance.
-    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=2.99949)
+    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=6.50646)
 
 def test_image_compare_1px_offset():
     """Test comparison with an image that is shifted by 1px in the X axis."""
-    im1 = 'cosine_peak-nn-img.png'
-    im2 = 'cosine_peak-nn-img-1px-offset.png'
-    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=22.04263)
+    im1 = 'basn3p02.png'
+    im2 = 'basn3p02-1px-offset.png'
+    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=90.15611)
 
-def test_image_compare_title_1px_offset():
-    """Test comparison with an image with the title shifted by 1px in the X
-    axis."""
-    im1 = 'cosine_peak-nn-img.png'
-    im2 = 'cosine_peak-nn-img-title-1px-offset.png'
-    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=13.77513)
+def test_image_compare_half_1px_offset():
+    """Test comparison with an image with half the pixels shifted by 1px in the
+    X axis."""
+    im1 = 'basn3p02.png'
+    im2 = 'basn3p02-half-1px-offset.png'
+    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=63.75)
 
 def test_image_compare_scrambled():
     """Test comparison of an image and the same image scrambled."""
@@ -66,11 +66,11 @@ def test_image_compare_scrambled():
     # colour component of each pixel randomly placed somewhere in the image. It
     # contains exactly the same number of pixels of each colour value of R, G
     # and B, but in a totally different position.
-    im1 = 'cosine_peak-nn-img.png'
-    im2 = 'cosine_peak-nn-img-scrambled.png'
+    im1 = 'basn3p02.png'
+    im2 = 'basn3p02-scrambled.png'
     # Test with no tolerance to make sure that we pick up even a very small RMS
     # error.
-    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=153.19994)
+    image_comparison_expect_rms(im1, im2, tol=0, expect_rms=172.63582)
 
 def test_image_compare_shade_difference():
     """Test comparison of an image and a slightly brighter image."""
