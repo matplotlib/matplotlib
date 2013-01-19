@@ -1,4 +1,3 @@
-from matplotlib import rcParams
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import cleanup
 from matplotlib._pylab_helpers import Gcf
