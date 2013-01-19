@@ -404,7 +404,8 @@ class FigureManagerQT(FigureManagerBase):
         # will enable the canvas to process event w/o clicking.
         # ClickFocus only takes the focus is the window has been
         # clicked
-        # on. http://developer.qt.nokia.com/doc/qt-4.8/qt.html#FocusPolicy-enum
+        # on. http://qt-project.org/doc/qt-4.8/qt.html#FocusPolicy-enum or
+        # http://doc.qt.digia.com/qt/qt.html#FocusPolicy-enum
         self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.canvas.setFocus()
 
