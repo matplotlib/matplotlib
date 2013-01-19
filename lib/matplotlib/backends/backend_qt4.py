@@ -644,7 +644,9 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         sorted_filetypes.sort()
         default_filetype = self.canvas.get_default_filetype()
 
-        start = self.canvas.get_default_filename()
+        startpath = matplotlib.rcParams.get('savefig.directory', os.getcwd())
+        startpath = os.path.expanduser(startpath)
+        start = os.path.join(startpath, self.canvas.get_default_filename())
         filters = []
         selectedFilter = None
         for name, exts in sorted_filetypes:
@@ -657,6 +659,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         fname = _getSaveFileName(self, "Choose a filename to save to",
                                         start, filters, selectedFilter)
         if fname:
+            matplotlib.rcParams['savefig.directory'] = os.path.split(str(fname))[0]
             try:
                 self.canvas.print_figure( unicode(fname) )
             except Exception as e:
