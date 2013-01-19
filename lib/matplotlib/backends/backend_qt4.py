@@ -367,12 +367,14 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             self._idle = True
         if d: QtCore.QTimer.singleShot(0, idle_draw)
 
+
 class MainWindow(QtGui.QMainWindow):
     def closeEvent(self, event):
         self.emit(QtCore.SIGNAL('closing()'))
         QtGui.QMainWindow.closeEvent(self, event)
 
-class FigureManagerQT( FigureManagerBase ):
+
+class FigureManagerQT(FigureManagerBase):
     """
     Public attributes
 
@@ -382,19 +384,20 @@ class FigureManagerQT( FigureManagerBase ):
     window      : The qt.QMainWindow
     """
 
-    def __init__( self, canvas, num ):
-        if DEBUG: print('FigureManagerQT.%s' % fn_name())
-        FigureManagerBase.__init__( self, canvas, num )
+    def __init__(self, canvas, num):
+        if DEBUG:
+            print('FigureManagerQT.%s' % fn_name())
+        FigureManagerBase.__init__(self, canvas, num)
         self.canvas = canvas
         self.window = MainWindow()
         self.window.connect(self.window, QtCore.SIGNAL('closing()'),
-            canvas.close_event)
-        self.window.connect( self.window, QtCore.SIGNAL( 'closing()'),
-                            self._widgetclosed )
+                            canvas.close_event)
+        self.window.connect(self.window, QtCore.SIGNAL('closing()'),
+                            self._widgetclosed)
 
         self.window.setWindowTitle("Figure %d" % num)
-        image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
-        self.window.setWindowIcon(QtGui.QIcon( image ))
+        image = os.path.join(matplotlib.rcParams['datapath'], 'images', 'matplotlib.png')
+        self.window.setWindowIcon(QtGui.QIcon(image))
 
         # Give the keyboard focus to the figure instead of the
         # manager; StrongFocus accepts both tab and click to focus and
@@ -402,9 +405,8 @@ class FigureManagerQT( FigureManagerBase ):
         # ClickFocus only takes the focus is the window has been
         # clicked
         # on. http://developer.qt.nokia.com/doc/qt-4.8/qt.html#FocusPolicy-enum
-        self.canvas.setFocusPolicy( QtCore.Qt.StrongFocus )
+        self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.canvas.setFocus()
-
 
         self.window._destroying = False
 
@@ -421,7 +423,7 @@ class FigureManagerQT( FigureManagerBase ):
         # requested size:
         cs = canvas.sizeHint()
         sbs = self.window.statusBar().sizeHint()
-        self._status_and_tool_height = tbs_height+sbs.height()
+        self._status_and_tool_height = tbs_height + sbs.height()
         height = cs.height() + self._status_and_tool_height
         self.window.resize(cs.width(), height)
 
@@ -430,14 +432,14 @@ class FigureManagerQT( FigureManagerBase ):
         if matplotlib.is_interactive():
             self.window.show()
 
-        def notify_axes_change( fig ):
+        def notify_axes_change(fig):
             # This will be called whenever the current axes is changed
             if self.toolbar is not None:
                 self.toolbar.update()
-        self.canvas.figure.add_axobserver( notify_axes_change )
+        self.canvas.figure.add_axobserver(notify_axes_change)
 
     @QtCore.Slot()
-    def _show_message(self,s):
+    def _show_message(self, s):
         # Fixes a PySide segfault.
         self.window.statusBar().showMessage(s)
 
@@ -447,8 +449,9 @@ class FigureManagerQT( FigureManagerBase ):
         else:
             self.window.showFullScreen()
 
-    def _widgetclosed( self ):
-        if self.window._destroying: return
+    def _widgetclosed(self):
+        if self.window._destroying:
+            return
         self.window._destroying = True
         try:
             Gcf.destroy(self.num)
@@ -476,15 +479,19 @@ class FigureManagerQT( FigureManagerBase ):
     def show(self):
         self.window.show()
 
-    def destroy( self, *args ):
+    def destroy(self, *args):
         # check for qApp first, as PySide deletes it in its atexit handler
-        if QtGui.QApplication.instance() is None: return
-        if self.window._destroying: return
+        if QtGui.QApplication.instance() is None:
+            return
+        if self.window._destroying:
+            return
         self.window._destroying = True
-        QtCore.QObject.disconnect( self.window, QtCore.SIGNAL( 'destroyed()' ),
-                                   self._widgetclosed )
-        if self.toolbar: self.toolbar.destroy()
-        if DEBUG: print("destroy figure manager")
+        QtCore.QObject.disconnect(self.window, QtCore.SIGNAL('destroyed()'),
+                                  self._widgetclosed)
+        if self.toolbar:
+                self.toolbar.destroy()
+        if DEBUG:
+                print("destroy figure manager")
         self.window.close()
 
     def get_window_title(self):
