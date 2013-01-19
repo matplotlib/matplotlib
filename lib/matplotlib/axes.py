@@ -8190,13 +8190,13 @@ class Axes(martist.Artist):
                     # for normed data, set to 0.1 * minimum data value
                     # (gives 1 full dex for the lowest filled bin)
                     ndata = np.array(n)
-                    minimum = (ndata[ndata>0].min())*0.1
+                    minimum = (np.min(ndata[ndata>0]))*0.1
                 else:
                     # for non-normed data, set the min to 0.1, again so that
                     # there is 1 full dex for the lowest bin
                     minimum = 0.1
             else:
-                minimum = min(bins)
+                minimum = np.min(bins)
 
             if align == 'left' or align == 'center':
                 x -= 0.5*(bins[1]-bins[0])
