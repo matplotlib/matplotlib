@@ -5384,6 +5384,8 @@ class Axes(martist.Artist):
                 lines_kw['lw'] = kwargs['lw']
         if 'transform' in kwargs:
             lines_kw['transform'] = kwargs['transform']
+        if 'alpha' in kwargs:
+            lines_kw['alpha'] = kwargs['alpha']
         if 'zorder' in kwargs:
             lines_kw['zorder'] = kwargs['zorder']
 
@@ -5440,6 +5442,8 @@ class Axes(martist.Artist):
                 plot_kw['mew'] = kwargs['mew']
             if 'transform' in kwargs:
                 plot_kw['transform'] = kwargs['transform']
+            if 'alpha' in kwargs:
+                plot_kw['alpha'] = kwargs['alpha']
             if 'zorder' in kwargs:
                 plot_kw['zorder'] = kwargs['zorder']
 
