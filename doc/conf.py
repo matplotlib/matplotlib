@@ -47,7 +47,12 @@ copyright = '2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and 
 # other places throughout the built documents.
 #
 # The short X.Y version.
-import matplotlib
+try:
+    import matplotlib
+except ImportError:
+    msg = "Error: matplotlib must be installed before building the documentation"
+    sys.exit(msg)
+
 version = matplotlib.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
