@@ -63,8 +63,8 @@ def test_image_compare_scrambled():
     # This expects the images to compare completely different, with a very large
     # RMS.
     # Note: The image has been scrambled in a specific way, by having each
-    # colour component of each pixel randomly placed somewhere in the image. It
-    # contains exactly the same number of pixels of each colour value of R, G
+    # color component of each pixel randomly placed somewhere in the image. It
+    # contains exactly the same number of pixels of each color value of R, G
     # and B, but in a totally different position.
     im1 = 'basn3p02.png'
     im2 = 'basn3p02-scrambled.png'
@@ -74,8 +74,8 @@ def test_image_compare_scrambled():
 
 def test_image_compare_shade_difference():
     """Test comparison of an image and a slightly brighter image."""
-    # The two images are solid colour, with the second image being exactly 1
-    # colour value brighter.
+    # The two images are solid color, with the second image being exactly 1
+    # color value brighter.
     # This expects the images to compare equal under normal tolerance, and have
     # an RMS of exactly 1.
     im1 = 'all127.png'
