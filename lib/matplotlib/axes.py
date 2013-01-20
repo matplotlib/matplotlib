@@ -8185,16 +8185,25 @@ class Axes(martist.Artist):
             x[0::2], x[1::2] = bins, bins
 
             if log:
+                if orientation == 'horizontal':
+                    self.set_xscale('log')
+                    logbase = self.xaxis._scale.base
+                else:  # orientation == 'vertical'
+                    self.set_yscale('log')
+                    logbase = self.yaxis._scale.base
+
                 # setting a minimum of 0 results in problems for log plots
                 if normed:
                     # for normed data, set to 0.1 * minimum data value
                     # (gives 1 full dex for the lowest filled bin)
                     ndata = np.array(n)
-                    minimum = (np.min(ndata[ndata>0]))*0.1
+                    minimum = (np.min(ndata[ndata>0])) / logbase
                 else:
                     # for non-normed data, set the min to 0.1, again so that
                     # there is 1 full dex for the lowest bin
-                    minimum = 0.1
+                    minimum = 1.0 / logbase
+
+                y[0], y[-1] = minimum, minimum
             else:
                 minimum = np.min(bins)
 
@@ -8202,13 +8211,6 @@ class Axes(martist.Artist):
                 x -= 0.5*(bins[1]-bins[0])
             elif align == 'right':
                 x += 0.5*(bins[1]-bins[0])
-
-            if log:
-                y[0],y[-1] = minimum, minimum
-                if orientation == 'horizontal':
-                    self.set_xscale('log')
-                else:  # orientation == 'vertical'
-                    self.set_yscale('log')
 
             # If fill kwarg is set, it will be passed to the patch collection,
             # overriding this
