@@ -1920,6 +1920,7 @@ class YAxis(Axis):
         pix  = trans.transform_point((1e-10,where))
         ptp  = transinv.transform_point((pix[0],pix[1]+perturb)) # perturb the pixel.
         dy   = abs(ptp[1]-where)
+        return dy
 
     def get_label_position(self):
         """
