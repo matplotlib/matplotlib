@@ -587,7 +587,7 @@ grestore
             if rgbFace[0]==rgbFace[1] and rgbFace[0]==rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
             else:
-                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
+                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3]
 
         # construct the generic marker command:
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # dont want the translate to be global
