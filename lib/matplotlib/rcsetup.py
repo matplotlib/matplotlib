@@ -686,7 +686,8 @@ defaultParams = {
     # options are 'tight', or 'standard'. 'standard' validates to None.
     'savefig.bbox':       [None, validate_bbox],
     'savefig.pad_inches': [0.1, validate_float],
-    'savefig.directory': ['', str],
+    # default directory in savefig dialog box
+    'savefig.directory': ['~', str],
 
     # Maintain shell focus for TkAgg
     'tk.window_focus':  [False, validate_bool],
