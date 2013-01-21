@@ -451,6 +451,6 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
                                    # $PATH is searched
 #animation.avconv_args: ''         # Additional arguments to pass to avconv
 #animation.mencoder_path: 'mencoder' 
-			           # Path to mencoder binary. Without full path
+                                   # Path to mencoder binary. Without full path
                                    # $PATH is searched
 #animation.mencoder_args: ''       # Additional arguments to pass to mencoder
