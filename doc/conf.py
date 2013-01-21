@@ -34,6 +34,13 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'math_symbol_table',
               'numpy_ext.numpydoc']
 
 
+try:
+    import numpydoc
+except ImportError:
+    raise ImportError("No modyle named numpydoc - you need to install "
+                      "numpydoc to build the documentation.")
+
+
 autosummary_generate = True
 
 if sphinx.__version__ >= 1.1:
