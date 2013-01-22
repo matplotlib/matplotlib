@@ -898,8 +898,8 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         fname = asksaveasfilename(
             master=self.window,
             title='Save the figure',
-            filetypes = tk_filetypes,
-            defaultextension = defaultextension,
+            filetypes=tk_filetypes,
+            defaultextension=defaultextension,
             initialfile=self.canvas.get_default_filename(),
             )
 
