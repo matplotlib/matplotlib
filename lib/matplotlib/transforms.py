@@ -1876,38 +1876,38 @@ class Affine2D(Affine2DBase):
         self.invalidate()
         return self
 
-    def skew(self, xAxisRot, yAxisRot):
+    def skew(self, xShear, yShear):
         """
         Adds a skew in place.
 
-        *xAxisRot* and *yAxisRot* are the rotations of the *x*- and
+        *xShear* and *yShear* are the shear angles along the *x*- and
         *y*-axes, respectively, in radians.
 
         Returns *self*, so this method can easily be chained with more
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        rotX = np.tan(xAxisRot)
-        rotY = np.tan(yAxisRot)
+        rotX = np.tan(xShear)
+        rotY = np.tan(yShear)
         skew_mtx = np.array(
-                [[1.0, rotY, 0.0], [rotX, 1.0, 0.0], [0.0, 0.0, 1.0]],
+                [[1.0, rotX, 0.0], [rotY, 1.0, 0.0], [0.0, 0.0, 1.0]],
                 np.float_)
         self._mtx = np.dot(skew_mtx, self._mtx)
         self.invalidate()
         return self
 
-    def skew_deg(self, xAxisRot, yAxisRot):
+    def skew_deg(self, xShear, yShear):
         """
         Adds a skew in place.
 
-        *xAxisRot* and *yAxisRot* are the rotations of the *x*- and
+        *xShear* and *yShear* are the shear angles along the *x*- and
         *y*-axes, respectively, in degrees.
 
         Returns *self*, so this method can easily be chained with more
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        return self.skew(np.deg2rad(xAxisRot), np.deg2rad(yAxisRot))
+        return self.skew(np.deg2rad(xShear), np.deg2rad(yShear))
 
     def _get_is_separable(self):
         mtx = self.get_matrix()
