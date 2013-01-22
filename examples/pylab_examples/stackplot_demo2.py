@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 
 np.random.seed(0)
 def layers(n, m):
+    """
+    Return *n* random Gaussian mixtures, each of length *m*.
+    """
     def bump(a):
         x = 1 / (.1 + np.random.random())
         y = 2 * np.random.random() - .5
@@ -16,7 +19,7 @@ def layers(n, m):
             bump(a[:, i])
     return a
 
-d=layers(3, 100)
+d = layers(3, 100)
 
 plt.subplots()
 plt.stackplot(range(100), d.T, baseline='wiggle')
