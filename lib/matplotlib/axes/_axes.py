@@ -5807,7 +5807,9 @@ class Axes(_AxesBase):
         -----
         Rendering the histogram with a logarithmic color scale is
         accomplished by passing a :class:`colors.LogNorm` instance to
-        the *norm* keyword argument.
+        the *norm* keyword argument. Likewise, power-law normalization
+        (similar in effect to gamma correction) can be accomplished with
+        :class:`colors.PowerNorm`.
 
         Examples
         --------
