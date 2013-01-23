@@ -495,7 +495,7 @@ class Line2D(Artist):
             x0, x1 = self.axes.get_xbound()
             i0, = self._x.searchsorted([x0], 'left')
             i1, = self._x.searchsorted([x1], 'right')
-            subslice = slice(max(i0-1, 0), i1+1)
+            subslice = slice(max(i0 - 1, 0), i1 + 1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
 
@@ -505,10 +505,13 @@ class Line2D(Artist):
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
 
-        gc.set_foreground(self._color)
+        ln_color_rgba = self._get_rgba_ln_color()
+        gc.set_foreground(ln_color_rgba)
+        gc.set_alpha(ln_color_rgba[3])
+
         gc.set_antialiased(self._antialiased)
         gc.set_linewidth(self._linewidth)
-        gc.set_alpha(self._alpha)
+
         if self.is_dashed():
             cap = self._dashcapstyle
             join = self._dashjoinstyle
@@ -956,7 +959,6 @@ class Line2D(Artist):
                                    other._marker.get_fillstyle())
         self._drawstyle = other._drawstyle
 
-
     def _get_rgb_face(self, alt=False):
         facecolor = self._get_markerfacecolor(alt=alt)
         if is_string_like(facecolor) and facecolor.lower() == 'none':
@@ -972,6 +974,14 @@ class Line2D(Artist):
         else:
             rgbaFace = colorConverter.to_rgba(facecolor, self._alpha)
         return rgbaFace
+
+    def _get_rgba_ln_color(self, alt=False):
+        ln_color = self._color
+        if is_string_like(ln_color) and ln_color.lower() == 'none':
+            rgba_ln = None
+        else:
+            rgba_ln = colorConverter.to_rgba(ln_color, self._alpha)
+        return rgba_ln
 
     # some aliases....
     def set_aa(self, val):
