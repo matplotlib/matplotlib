@@ -1007,19 +1007,35 @@ def test_mollweide_inverse_forward_closure():
     np.testing.assert_array_almost_equal(xy, xy2, 3)
 
 
-@image_comparison(baseline_images=['translucent_markers'], remove_text=True)
-def test_translucent_markers():
+@image_comparison(baseline_images=['test_alpha'], remove_text=True)
+def test_alpha():
     np.random.seed(0)
     data = np.random.random(50)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot(data, 'D', mfc=[1, 0, 0, .5], markersize=100)
 
-    
-if __name__=='__main__':
-    import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+    # alpha=.5 markers, solid line
+    ax.plot(data, '-D', color=[1, 0, 0], mfc=[1, 0, 0, .5],
+            markersize=20, lw=10)
+
+    # everything solid by kwarg
+    ax.plot(data + 2, '-D', color=[1, 0, 0, .5], mfc=[1, 0, 0, .5],
+            markersize=20, lw=10,
+            alpha=1)
+
+    # everything alpha=.5 by kwarg
+    ax.plot(data + 4, '-D', color=[1, 0, 0], mfc=[1, 0, 0],
+            markersize=20, lw=10,
+            alpha=.5)
+
+    # everything alpha=.5 by colors
+    ax.plot(data + 6, '-D', color=[1, 0, 0, .5], mfc=[1, 0, 0, .5],
+            markersize=20, lw=10)
+
+    # alpha=.5 line, solid markers
+    ax.plot(data + 8, '-D', color=[1, 0, 0, .5], mfc=[1, 0, 0],
+            markersize=20, lw=10)
 
 
 @image_comparison(baseline_images=['vline_hline_zorder',
@@ -1050,3 +1066,7 @@ def test_eb_line_zorder():
         ax.axhline(-j, lw=5, color='k', zorder=j)
 
     ax.set_title("errorbar zorder test")
+
+if __name__=='__main__':
+    import nose
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
