@@ -267,7 +267,7 @@ class Line2D(Artist):
         # the math involved in checking for containment (here and inside of segment_hits) assumes
         # that it is OK to overflow.  In case the application has set the error flags such that
         # an exception is raised on overflow, we temporarily set the appropriate error flags here
-        # and set them back when we are finished. 
+        # and set them back when we are finished.
         olderrflags = np.seterr(all='ignore')
         try:
             # Check for collision
@@ -448,7 +448,7 @@ class Line2D(Artist):
     def _transform_path(self, subslice=None):
         """
         Puts a TransformedPath instance at self._transformed_path,
-        all invalidation of the transform is then handled by the 
+        all invalidation of the transform is then handled by the
         TransformedPath instance.
         """
         # Masked arrays are now handled by the Path class itself
@@ -540,7 +540,7 @@ class Line2D(Artist):
             else:
                 gc.set_foreground(edgecolor)
                 gc.set_linewidth(self._markeredgewidth)
-            gc.set_alpha(self._alpha)
+
             marker = self._marker
             tpath, affine = transformed_path.get_transformed_points_and_affine()
             if len(tpath.vertices):
@@ -970,7 +970,7 @@ class Line2D(Artist):
         if is_string_like(facecolor) and facecolor.lower() == 'none':
             rgbaFace = None
         else:
-            rgbaFace = colorConverter.to_rgba(facecolor)
+            rgbaFace = colorConverter.to_rgba(facecolor, self._alpha)
         return rgbaFace
 
     # some aliases....
