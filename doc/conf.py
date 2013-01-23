@@ -57,7 +57,7 @@ master_doc = 'contents'
 
 # General substitutions.
 project = 'Matplotlib'
-copyright = '2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the matplotlib development team'
+copyright = '2013 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the matplotlib development team'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
