@@ -150,7 +150,7 @@ class TransformNode(object):
         if self.pass_through or status_changed:
             self._invalid = value
 
-            for parent in self._parents.itervalues():
+            for parent in self._parents.values():
                 parent._invalidate_internal(value=value,
                                             invalidating_node=self)
 
