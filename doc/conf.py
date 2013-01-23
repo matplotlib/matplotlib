@@ -31,7 +31,7 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'math_symbol_table',
               'matplotlib.sphinxext.plot_directive', 'sphinx.ext.inheritance_diagram',
               'gen_gallery', 'gen_rst',
               'matplotlib.sphinxext.ipython_console_highlighting', 'github',
-              'numpy_ext.numpydoc']
+              'numpydoc']
 
 
 try:
