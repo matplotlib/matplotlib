@@ -267,7 +267,7 @@ class Line2D(Artist):
         # the math involved in checking for containment (here and inside of segment_hits) assumes
         # that it is OK to overflow.  In case the application has set the error flags such that
         # an exception is raised on overflow, we temporarily set the appropriate error flags here
-        # and set them back when we are finished. 
+        # and set them back when we are finished.
         olderrflags = np.seterr(all='ignore')
         try:
             # Check for collision
@@ -448,7 +448,7 @@ class Line2D(Artist):
     def _transform_path(self, subslice=None):
         """
         Puts a TransformedPath instance at self._transformed_path,
-        all invalidation of the transform is then handled by the 
+        all invalidation of the transform is then handled by the
         TransformedPath instance.
         """
         # Masked arrays are now handled by the Path class itself
@@ -495,7 +495,7 @@ class Line2D(Artist):
             x0, x1 = self.axes.get_xbound()
             i0, = self._x.searchsorted([x0], 'left')
             i1, = self._x.searchsorted([x1], 'right')
-            subslice = slice(max(i0-1, 0), i1+1)
+            subslice = slice(max(i0 - 1, 0), i1 + 1)
             self.ind_offset = subslice.start
             self._transform_path(subslice)
 
@@ -505,10 +505,13 @@ class Line2D(Artist):
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
 
-        gc.set_foreground(self._color)
+        ln_color_rgba = self._get_rgba_ln_color()
+        gc.set_foreground(ln_color_rgba)
+        gc.set_alpha(ln_color_rgba[3])
+
         gc.set_antialiased(self._antialiased)
         gc.set_linewidth(self._linewidth)
-        gc.set_alpha(self._alpha)
+
         if self.is_dashed():
             cap = self._dashcapstyle
             join = self._dashjoinstyle
@@ -540,7 +543,7 @@ class Line2D(Artist):
             else:
                 gc.set_foreground(edgecolor)
                 gc.set_linewidth(self._markeredgewidth)
-            gc.set_alpha(self._alpha)
+
             marker = self._marker
             tpath, affine = transformed_path.get_transformed_points_and_affine()
             if len(tpath.vertices):
@@ -956,7 +959,6 @@ class Line2D(Artist):
                                    other._marker.get_fillstyle())
         self._drawstyle = other._drawstyle
 
-
     def _get_rgb_face(self, alt=False):
         facecolor = self._get_markerfacecolor(alt=alt)
         if is_string_like(facecolor) and facecolor.lower() == 'none':
@@ -970,8 +972,16 @@ class Line2D(Artist):
         if is_string_like(facecolor) and facecolor.lower() == 'none':
             rgbaFace = None
         else:
-            rgbaFace = colorConverter.to_rgba(facecolor)
+            rgbaFace = colorConverter.to_rgba(facecolor, self._alpha)
         return rgbaFace
+
+    def _get_rgba_ln_color(self, alt=False):
+        ln_color = self._color
+        if is_string_like(ln_color) and ln_color.lower() == 'none':
+            rgba_ln = None
+        else:
+            rgba_ln = colorConverter.to_rgba(ln_color, self._alpha)
+        return rgba_ln
 
     # some aliases....
     def set_aa(self, val):
