@@ -2109,7 +2109,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
       files is automatic, if the filename ends in '.gz'
 
     - *comments*: the character used to indicate the start of a comment
-      in the file, or None to switch off the removal of comments
+      in the file, or *None* to switch off the removal of comments
 
     - *skiprows*: is the number of rows from the top to skip
 
@@ -2274,7 +2274,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     if needheader:
         for row in reader:
             #print 'csv2rec', row
-            if len(row) and comments != None and row[0].startswith(comments):
+            if len(row) and comments is not None and row[0].startswith(comments):
                 continue
             headers = row
             break
@@ -2317,7 +2317,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         while 1:
             # skip past any comments and consume one line of column header
             row = next(reader)
-            if len(row) and comments != None and row[0].startswith(comments):
+            if len(row) and comments is not None and row[0].startswith(comments):
                 continue
             break
 
@@ -2326,8 +2326,10 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     rows = []
     rowmasks = []
     for i, row in enumerate(reader):
-        if not len(row): continue
-        if comments != None and row[0].startswith(comments): continue
+        if not len(row):
+            continue
+        if comments is not None and row[0].startswith(comments):
+            continue
         # Ensure that the row returned always has the same nr of elements
         row.extend([''] * (len(converters) - len(row)))
         rows.append([func(name, val) for func, name, val in zip(converters, names, row)])
