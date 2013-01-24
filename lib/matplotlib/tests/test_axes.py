@@ -543,7 +543,7 @@ def test_polycollection_joinstyle():
     ax.set_ybound(0, 3)
 
 @image_comparison(baseline_images=['fill_between_interpolate'],
-                  tol=100, remove_text=True)
+                  remove_text=True)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -612,8 +612,7 @@ def test_symlog2():
     ax.grid(True)
     ax.set_ylim(-0.1, 0.1)
 
-@image_comparison(baseline_images=['pcolormesh'], tol=200,
-                  remove_text=True)
+@image_comparison(baseline_images=['pcolormesh'], remove_text=True)
 def test_pcolormesh():
     n = 12
     x = np.linspace(-1.5,1.5,n)
