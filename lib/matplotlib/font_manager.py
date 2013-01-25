@@ -997,7 +997,10 @@ class FontManager:
         self.afmfiles = findSystemFonts(paths, fontext='afm') + \
             findSystemFonts(fontext='afm')
         self.afmlist = createFontList(self.afmfiles, fontext='afm')
-        self.defaultFont['afm'] = self.afmfiles[0]
+        if len(self.afmfiles):
+            self.defaultFont['afm'] = self.afmfiles[0]
+        else:
+            self.defaultFont['afm'] = None
 
         self.ttf_lookup_cache = {}
         self.afm_lookup_cache = {}
