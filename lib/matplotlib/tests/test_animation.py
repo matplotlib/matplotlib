@@ -4,18 +4,20 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib.testing.noseclasses import KnownFailureTest
+from matplotlib.testing.decorators import cleanup
 
 
 WRITER_OUTPUT = dict(ffmpeg='mp4', ffmpeg_file='mp4',
                      mencoder='mp4', mencoder_file='mp4',
                      avconv='mp4', avconv_file='mp4',
                      imagemagick='gif', imagemagick_file='gif')
-                     
+
 
 
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
+@cleanup
 def test_save_animation_smoketest():
     for writer, extension in WRITER_OUTPUT.iteritems():
         yield check_save_animation, writer, extension
