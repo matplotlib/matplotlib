@@ -4450,7 +4450,7 @@ class Axes(martist.Artist):
 
           *framealpha*: [*None* | float]
             If not None, alpha channel for legend frame. Default *None*.
-        
+
           *ncol* : integer
             number of columns. default is 1
 
@@ -8140,8 +8140,8 @@ class Axes(martist.Artist):
                 patch = _barfunc(bins[:-1] + boffset, m, width,
                                  align='center', log=log,
                                  color=c)
-		# need to turn this into a collection so that it's consistent
-		# with the step histogram
+                # need to turn this into a collection so that it's consistent
+                # with the step histogram
                 patches.append(mcoll.PatchCollection(patch))
                 boffset += dw
 
@@ -8169,10 +8169,10 @@ class Axes(martist.Artist):
             # overriding this
             fill = (histtype == 'stepfilled')
 
-	    y_bottom = y[:]
+            y_bottom = y[:]
             for m, c in zip(n, color):
-		if stacked:
-		    y_bottom = y[:]
+                if stacked:
+                    y_bottom = y[:]
                 y[1:-1:2], y[2::2] = m, m
                 if log:
                     y[y < minimum] = minimum
