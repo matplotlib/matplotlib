@@ -1018,7 +1018,8 @@ class NavigationToolbar(gtk.Toolbar):
 
 
 class FileChooserDialog(gtk.FileChooserDialog):
-    """GTK+ 2.4 file selector which presents the user with a menu of supported image formats
+    """GTK+ 2.4 file selector which presents the user with a menu
+    of supported image formats
     """
     def __init__ (self,
                   title   = 'Save file',
