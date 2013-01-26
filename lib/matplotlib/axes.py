@@ -8192,15 +8192,15 @@ class Axes(martist.Artist):
                     self.set_yscale('log')
                     logbase = self.yaxis._scale.base
 
-                # setting a minimum of 0 results in problems for log plots
+                # Setting a minimum of 0 results in problems for log plots
                 if normed:
-                    # for normed data, set to 0.1 * minimum data value
-                    # (gives 1 full dex for the lowest filled bin)
+                    # For normed data, set to log base * minimum data value
+                    # (gives 1 full tick-label unit for the lowest filled bin)
                     ndata = np.array(n)
                     minimum = (np.min(ndata[ndata>0])) / logbase
                 else:
-                    # for non-normed data, set the min to 0.1, again so that
-                    # there is 1 full dex for the lowest bin
+                    # For non-normed data, set the min to log base, again so that
+                    # there is 1 full tick-label unit for the lowest bin
                     minimum = 1.0 / logbase
 
                 y[0], y[-1] = minimum, minimum
