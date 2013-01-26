@@ -29,6 +29,12 @@ They may be symmetric or weighted.
 
 .. plot:: mpl_examples/pylab_examples/stackplot_demo2.py
 
+Remember save directory
+-----------------------
+Martin Spacek made the save figure dialog remember the last directory saved
+to. The default is configurable with the new `savefig.directory` setting
+in `matplotlibrc`.
+
 Initialize a rotated rectangle
 ------------------------------
 Damon McDougall extended the :class:`~matplotlib.patches.Rectangle` constructor
