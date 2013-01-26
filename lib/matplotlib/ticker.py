@@ -1450,8 +1450,8 @@ class LogLocator(Locator):
         while numdec / stride + 1 > self.numticks:
             stride += 1
 
-        decades = np.arange(math.floor(vmin)-1.0,
-                            math.ceil(vmax) + 1.0 + stride, stride)
+        decades = np.arange(math.floor(vmin)-stride,
+                            math.ceil(vmax) + 2*stride, stride)
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)
             if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
