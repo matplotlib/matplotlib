@@ -6103,7 +6103,7 @@ class Axes(martist.Artist):
         if faceted is not None:
             warnings.warn("The faceted option is deprecated. "
                           "Please use edgecolor instead. Will "
-                          "be remove in 1.4", mplDeprecation)
+                          "be removed in 1.4", mplDeprecation)
             if faceted:
                 edgecolors = None
             else:
