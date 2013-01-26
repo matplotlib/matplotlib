@@ -1171,26 +1171,49 @@ def box(on=None):
     ax.set_frame_on(on)
     draw_if_interactive()
 
+
 def title(s, *args, **kwargs):
     """
-    Set the title of the current axis.
+    title(label, loc='center', fontdict=None, **kwargs)
 
-    Default font override is::
+    Set a title of the current axes.
 
-      override = {'fontsize': 'medium',
-                  'verticalalignment': 'baseline',
-                  'horizontalalignment': 'center'}
+    Set one of the three available axes titles. The available titles are
+    positioned above the axes in the center, flush with the left edge,
+    and flush with the right edge.
 
-    .. seealso::
+    Parameters
+    ----------
+    label : str
+        Text to use for the title
+    loc : {'center', 'left', 'right'}, str, optional
+        Which title to set, defaults to 'center'
+    fontdict : dict
+        A dictionary controlling the appearance of the title text,
+        the default `fontdict` is:
+        {'fontsize': rcParams['axes.titlesize'],
+         'verticalalignment': 'baseline',
+         'horizontalalignment': loc}
 
-       :func:`~matplotlib.pyplot.text`
-           for information on how override and the optional args work.
+    Returns
+    -------
+    text : :class:`~matplotlib.text.Text`
+        The matplotlib text instance representing the title
+
+    Other parameters
+    ----------------
+    Other keyword arguments are text properties, see
+    :class:`~matplotlib.text.Text` for a list of valid text
+    properties.
+
+    See also
+    --------
+    :func:`~matplotlib.pyplot.text` : Add text to the current axes
+
     """
     l =  gca().set_title(s, *args, **kwargs)
     draw_if_interactive()
     return l
-
-
 
 
 ## Axis ##
