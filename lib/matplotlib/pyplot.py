@@ -1208,7 +1208,7 @@ def title(s, *args, **kwargs):
 
     See also
     --------
-    :func:`~matplotlib.pyplot.text` : Add text to the current axes
+    See :func:`~matplotlib.pyplot.text` for adding text to the current axes
 
     """
     l =  gca().set_title(s, *args, **kwargs)
