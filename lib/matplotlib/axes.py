@@ -8232,8 +8232,8 @@ class Axes(martist.Artist):
                     ndata = np.array(n)
                     minimum = (np.min(ndata[ndata>0])) / logbase
                 else:
-                    # For non-normed data, set the min to log base, again so that
-                    # there is 1 full tick-label unit for the lowest bin
+                    # For non-normed data, set the min to log base, again so
+                    # that there is 1 full tick-label unit for the lowest bin
                     minimum = 1.0 / logbase
 
                 y[0], y[-1] = minimum, minimum
