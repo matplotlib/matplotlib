@@ -22,6 +22,13 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.3
 =====================
 
+Baselines for stackplot
+-----------------------
+Till Stensitzki added non-zero baselines to :func:`~matplotlib.pyplot.stackplot`.
+They may be symmetric or weighted.
+
+.. plot:: mpl_examples/pylab_examples/stackplot_demo2.py
+
 Initialize a rotated rectangle
 ------------------------------
 Damon McDougall extended the :class:`~matplotlib.patches.Rectangle` constructor
