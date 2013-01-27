@@ -8218,11 +8218,27 @@ class Axes(martist.Artist):
                 x += 0.5 * (bins[1] - bins[0])
 
             if log:
-                y[0], y[-1] = minimum, minimum
                 if orientation == 'horizontal':
                     self.set_xscale('log')
+                    logbase = self.xaxis._scale.base
                 else:  # orientation == 'vertical'
                     self.set_yscale('log')
+                    logbase = self.yaxis._scale.base
+
+                # Setting a minimum of 0 results in problems for log plots
+                if normed:
+                    # For normed data, set to log base * minimum data value
+                    # (gives 1 full tick-label unit for the lowest filled bin)
+                    ndata = np.array(n)
+                    minimum = (np.min(ndata[ndata>0])) / logbase
+                else:
+                    # For non-normed data, set the min to log base, again so that
+                    # there is 1 full tick-label unit for the lowest bin
+                    minimum = 1.0 / logbase
+
+                y[0], y[-1] = minimum, minimum
+            else:
+                minimum = np.min(bins)
 
             # If fill kwarg is set, it will be passed to the patch collection,
             # overriding this
