@@ -727,6 +727,23 @@ def test_hist_log():
     ax = fig.add_subplot(111)
     ax.hist(data, fill=False, log=True)
 
+@image_comparison(baseline_images=['hist_steplog'], remove_text=True)
+def test_hist_steplog():
+    np.random.seed(0)
+    data = np.random.standard_normal(2000)
+    data += -2.0 - np.min(data)
+    data_pos = data + 2.1
+    data_big = data_pos + 30
+
+    ax = plt.subplot(3, 1, 1)
+    plt.hist(data, 100, histtype='stepfilled', log=True)
+
+    ax = plt.subplot(3, 1, 2)
+    plt.hist(data_pos, 100, histtype='stepfilled', log=True)
+
+    ax = plt.subplot(3, 1, 3)
+    plt.hist(data_big, 100, histtype='stepfilled', log=True)
+
 def contour_dat():
     x = np.linspace(-3, 5, 150)
     y = np.linspace(-3, 5, 120)
