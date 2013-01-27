@@ -4,6 +4,8 @@
 
 2013-01-07 Add framealpha keyword argument to legend - PO
 
+2013-01-16 Till Stensitzki added a baseline feature to stackplot
+
 2012-12-22 Added classes for interpolation within triangular grids
            (LinearTriInterpolator) and to find the triangles in which points
            lie (TrapezoidMapTriFinder) to matplotlib.tri module. - IMT
