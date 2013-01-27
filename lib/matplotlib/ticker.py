@@ -1153,7 +1153,7 @@ class MultipleLocator(Locator):
 
     def __init__(self, base=1.0):
         self._base = Base(base)
-
+        
     def __call__(self):
         'Return the locations of the ticks'
         vmin, vmax = self.axis.get_view_interval()
@@ -1163,9 +1163,19 @@ class MultipleLocator(Locator):
         if vmax < vmin:
             vmin, vmax = vmax, vmin
         vmin = self._base.ge(vmin)
+        vmax = self._base.le(vmax)
         base = self._base.get_base()
         n = (vmax - vmin + 0.001 * base) // base
         locs = vmin + np.arange(n + 1) * base
+
+        # this is a hack to deal with floating point accuracy because
+        # .3 < .1 * 3, which results in the last tick label getting
+        # cut off for some ranges and base values.  Laundering the
+        # value through str eliminates the accumulated difference at
+        # 10e-15
+
+        locs[-1] = float(str(locs[-1]))
+
         return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
