@@ -915,7 +915,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
                 rcParams['savefig.directory'] = initialdir
             else:
                 # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(str(fname))
+                rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 # This method will handle the delegation to the correct type
                 self.canvas.print_figure(fname)

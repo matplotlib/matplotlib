@@ -664,7 +664,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
                 matplotlib.rcParams['savefig.directory'] = startpath
             else:
                 # save dir for next time
-                matplotlib.rcParams['savefig.directory'] = os.path.dirname(str(fname))
+                matplotlib.rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 self.canvas.print_figure( unicode(fname) )
             except Exception as e:
