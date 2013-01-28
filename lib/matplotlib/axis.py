@@ -1620,8 +1620,14 @@ class XAxis(Axis):
         # first figure out the pixel location of the "where" point.  We use 1e-10 for the
         # y point, so that we remain compatible with log axes.
         #
-        # I THINK this will work too for polar axes, but I'm not 100% sure.
+        # Note that this routine does not work for a polar axis, because of the 1e-10 below.  To
+        # do things correctly, we need to use rmax instead of 1e-10 for a polar axis.  But
+        # since we do not have that kind of information at this point, we just don't try to 
+        # pad anything for the theta axis of a polar plot.  
         #
+        if self.axes.name == 'polar':
+           return 0
+
         trans = self.axes.transData     # transformation from data coords to display coords
         transinv = trans.inverted()     # transformation from display coords to data coords
         pix  = trans.transform_point((where,1e-10))
@@ -1912,8 +1918,6 @@ class YAxis(Axis):
         
         # first figure out the pixel location of the "where" point.  We use 1e-10 for the
         # x point, so that we remain compatible with log axes.
-        #
-        # I THINK this will work too for polar axes, but I'm not 100% sure.
         #
         trans = self.axes.transData     # transformation from data coords to display coords
         transinv = trans.inverted()     # transformation from display coords to data coords
