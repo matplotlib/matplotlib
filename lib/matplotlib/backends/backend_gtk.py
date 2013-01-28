@@ -747,7 +747,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
                 rcParams['savefig.directory'] = startpath
             else:
                 # save dir for next time
-                rcParams['savefig.directory'] = os.path.dirname(str(fname))
+                rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 self.canvas.print_figure(fname, format=format)
             except Exception as e:
