@@ -1617,7 +1617,7 @@ FT2Font::get_glyph_name(const Py::Tuple & args)
     args.verify_length(1);
 
     char buffer[128];
-    FT_UInt glyph_number = Py::Int(args[0]);
+    FT_UInt glyph_number = (FT_UInt)(unsigned long long)Py::Int(args[0]);
 
     if (!FT_HAS_GLYPH_NAMES(face))
     {
