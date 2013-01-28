@@ -1626,7 +1626,7 @@ class XAxis(Axis):
         # pad anything for the theta axis of a polar plot.  
         #
         if self.axes.name == 'polar':
-           return 0
+           return 0.0
 
         trans = self.axes.transData     # transformation from data coords to display coords
         transinv = trans.inverted()     # transformation from display coords to data coords
