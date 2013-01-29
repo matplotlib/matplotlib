@@ -264,8 +264,8 @@ class Line2D(Artist):
             return False, {}
 
         # Convert points to pixels
-        path, affine = \
-            self._get_transformed_path().get_transformed_path_and_affine()
+        transformed_path = self._get_transformed_path()
+        path, affine = transformed_path.get_transformed_path_and_affine()
         path = affine.transform_path(path)
         xy = path.vertices
         xt = xy[:, 0]
