@@ -1616,15 +1616,17 @@ FT2Font::get_glyph_name(const Py::Tuple & args)
     _VERBOSE("FT2Font::get_glyph_name");
     args.verify_length(1);
 
+    char buffer[128];
+    FT_UInt glyph_number = (FT_UInt)(unsigned long long)Py::Int(args[0]);
+
     if (!FT_HAS_GLYPH_NAMES(face))
     {
-        throw Py::RuntimeError("Face has no glyph names");
-    }
-
-    char buffer[128];
-    if (FT_Get_Glyph_Name(face, (FT_UInt) (unsigned long)Py::Int(args[0]), buffer, 128))
-    {
-        throw Py::RuntimeError("Could not get glyph names.");
+        snprintf(buffer, 128, "uni%04x", glyph_number);
+    } else {
+        if (FT_Get_Glyph_Name(face, glyph_number, buffer, 128))
+        {
+            throw Py::RuntimeError("Could not get glyph names.");
+        }
     }
     return Py::String(buffer);
 }
