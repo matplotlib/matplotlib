@@ -8065,9 +8065,7 @@ class Axes(martist.Artist):
 
         n = []
         mlast = bottom
-        # reversed order is necessary so when stacking histogram, first dataset is on top
-        # if histogram isn't stacked, this doesn't make any difference
-        for i in reversed(xrange(nx)):
+        for i in xrange(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
@@ -8090,8 +8088,6 @@ class Axes(martist.Artist):
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
-
-        n.reverse() # put them back in the right order
 
         patches = []
 
@@ -8129,17 +8125,23 @@ class Axes(martist.Artist):
                 _barfunc = self.bar
 
             for m, c in zip(n, color):
-                patch = _barfunc(bins[:-1]+boffset, m, width,
+                patch = _barfunc(bins[:-1]+boffset, m, width, bottom,
                                   align='center', log=log,
                                   color=c)
                 patches.append(patch)
+                if stacked:
+                    if bottom is None:
+                        bottom = 0.0
+                    bottom += m
                 boffset += dw
 
         elif histtype.startswith('step'):
-            x = np.zeros( 2*len(bins), np.float )
-            y = np.zeros( 2*len(bins), np.float )
+            # these define the perimeter of the polygon
+            x = np.zeros( 4*len(bins)-3, np.float )
+            y = np.zeros( 4*len(bins)-3, np.float )
 
-            x[0::2], x[1::2] = bins, bins
+            x[0:2*len(bins)-1:2], x[1:2*len(bins)-1:2] = bins, bins[:-1]
+            x[2*len(bins)-1:] = x[1:2*len(bins)-1][::-1]
 
             minimum = np.min(n)
 
@@ -8159,19 +8161,37 @@ class Axes(martist.Artist):
             # overriding this
             fill = (histtype == 'stepfilled')
 
-            for m, c in zip(n, color):
-                y[1:-1:2], y[2::2] = m, m
+            xvals, yvals = [], []
+            for m in n:
+                # starting point for drawing polygon
+                y[0] = y[-1]
+                # top of the previous polygon becomes the bottom
+                y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+                # set the top of this polygon
+                y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = m, m
                 if log:
                     y[y<minimum]=minimum
                 if orientation == 'horizontal':
                     x,y = y,x
 
+                xvals.append(x.copy())
+                yvals.append(y.copy())
+
+            # add patches in reverse order so that when stacking,
+            # items lower in the stack are plottted on top of
+            # items higher in the stack
+            for x, y, c in reversed(zip(xvals, yvals, color)):
                 if fill:
                     patches.append( self.fill(x, y,
-                        closed=False, facecolor=c) )
+                                              closed=False,
+                                              facecolor=c) )
                 else:
                     patches.append( self.fill(x, y,
-                        closed=False, edgecolor=c, fill=False) )
+                                              closed=False, edgecolor=c,
+                                              fill=False) )
+
+            # we return patches, so put it back in the expected order
+            patches.reverse()
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
