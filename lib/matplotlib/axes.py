@@ -4506,7 +4506,7 @@ class Axes(martist.Artist):
 
           *framealpha*: [*None* | float]
             If not None, alpha channel for legend frame. Default *None*.
-        
+
           *ncol* : integer
             number of columns. default is 1
 
@@ -8132,10 +8132,7 @@ class Axes(martist.Artist):
 
         n = []
         mlast = bottom
-        # reversed order is necessary so when stacking histogram, first
-        # dataset is on top if histogram isn't stacked, this doesn't make any
-        # difference
-        for i in reversed(xrange(nx)):
+        for i in xrange(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
@@ -8158,8 +8155,6 @@ class Axes(martist.Artist):
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
-
-        n.reverse()  # put them back in the right order
 
         patches = []
 
@@ -8201,7 +8196,9 @@ class Axes(martist.Artist):
                 patch = _barfunc(bins[:-1] + boffset, m, width,
                                  align='center', log=log,
                                  color=c)
-                patches.append(patch)
+                # need to turn this into a collection so that it's consistent
+                # with the step histogram
+                patches.append(mcoll.PatchCollection(patch))
                 boffset += dw
 
         elif histtype.startswith('step'):
@@ -8244,7 +8241,10 @@ class Axes(martist.Artist):
             # overriding this
             fill = (histtype == 'stepfilled')
 
+            y_bottom = y[:]
             for m, c in zip(n, color):
+                if stacked:
+                    y_bottom = y[:]
                 y[1:-1:2], y[2::2] = m, m
                 if log:
                     y[y < minimum] = minimum
@@ -8252,11 +8252,11 @@ class Axes(martist.Artist):
                     x, y = y, x
 
                 if fill:
-                    patches.append(self.fill(x, y,
-                        closed=False, facecolor=c))
+                    patches.append(self.fill_between(x, y, y_bottom,
+                        closed=False, facecolors=c))
                 else:
-                    patches.append(self.fill(x, y,
-                        closed=False, edgecolor=c, fill=False))
+                    patches.append(self.fill_between(x, y, y_bottom,
+                        closed=False, edgecolors=c, fill=False))
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
@@ -8290,17 +8290,11 @@ class Axes(martist.Artist):
             labels += [None] * (nx - len(labels))
 
         for (patch, lbl) in zip(patches, labels):
-            if patch:
-                p = patch[0]
-                p.update(kwargs)
-                if lbl is not None:
-                    p.set_label(lbl)
+            patch.update(kwargs)
+            if lbl is not None:
+                patch.set_label(lbl)
 
-                p.set_snap(False)
-
-                for p in patch[1:]:
-                    p.update(kwargs)
-                    p.set_label('_nolegend_')
+            patch.set_snap(False)
 
         if binsgiven:
             if orientation == 'vertical':
