@@ -936,11 +936,11 @@ def test_errorbar():
 
     fig.suptitle('Variable errorbars')
 
-@image_comparison(baseline_images=['hist_stacked'])
-def test_hist_stacked():
+@image_comparison(baseline_images=['hist_stacked_stepfilled'])
+def test_hist_stacked_stepfilled():
     # make some data
-    d1 = np.linspace(0, 10, 50)
-    d2 = np.linspace(1, 3, 20)
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), histtype="stepfilled", stacked=True)
@@ -967,6 +967,33 @@ def test_hist_stacked_weighted():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), weights=(w1,w2), histtype="stepfilled", stacked=True)
+
+@image_comparison(baseline_images=['hist_stacked_stepfilled_alpha'])
+def test_hist_stacked_stepfilled_alpha():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="stepfilled", stacked=True, alpha=0.5)
+
+@image_comparison(baseline_images=['hist_stacked_step'])
+def test_hist_stacked_step():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="step", stacked=True)
+
+@image_comparison(baseline_images=['hist_stacked_bar'])
+def test_hist_stacked_bar():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="barstacked", stacked=True)
 
 @image_comparison(baseline_images=['transparent_markers'], remove_text=True)
 def test_transparent_markers():
