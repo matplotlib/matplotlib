@@ -349,7 +349,8 @@ class Figure(Artist):
         try:
             manager = getattr(self.canvas, 'manager')
         except AttributeError as err:
-            raise AttributeError("%s Figure.show works only "
+            raise AttributeError("%s\n"
+                                 "Figure.show works only "
                                  "for figures managed by pyplot, normally "
                                  "created by pyplot.figure()." % err)
 
@@ -979,8 +980,8 @@ class Figure(Artist):
         if self.suppressComposite is not None:
             not_composite = self.suppressComposite
 
-        if len(self.images) <= 1 or not_composite or \
-                not cbook.allequal([im.origin for im in self.images]):
+        if (len(self.images) <= 1 or not_composite or
+                not cbook.allequal([im.origin for im in self.images])):
             for a in self.images:
                 dsu.append((a.get_zorder(), a, a.draw, [renderer]))
         else:
