@@ -841,9 +841,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 # Default zorder taken from LineCollection
                 zorder = kwargs.get('zorder', 2)
                 col = mcoll.LineCollection(segs,
-                                     antialiaseds = aa,
-                                     linewidths = width,
-                                     linestyle = lstyle,
+                                     antialiaseds=aa,
+                                     linewidths=width,
+                                     linestyle=[lstyle],
                                      alpha=self.alpha,
                                      transform=self.get_transform(),
                                      zorder=zorder)
