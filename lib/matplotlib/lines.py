@@ -520,7 +520,7 @@ class Line2D(Artist):
             self.ind_offset = subslice.start
             self._transform_path(subslice)
 
-        transformed_path = self._get_transformed_path()
+        transf_path = self._get_transformed_path()
 
         renderer.open_group('line2d', self.get_gid())
         gc = renderer.new_gc()
@@ -545,7 +545,7 @@ class Line2D(Artist):
 
         funcname = self._lineStyles.get(self._linestyle, '_draw_nothing')
         if funcname != '_draw_nothing':
-            tpath, affine = transformed_path.get_transformed_path_and_affine()
+            tpath, affine = transf_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
                 self._lineFunc = getattr(self, funcname)
                 funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
@@ -566,8 +566,7 @@ class Line2D(Artist):
                 gc.set_linewidth(self._markeredgewidth)
 
             marker = self._marker
-            tpath, affine = \
-                transformed_path.get_transformed_points_and_affine()
+            tpath, affine = transf_path.get_transformed_points_and_affine()
             if len(tpath.vertices):
                 # subsample the markers if markevery is not None
                 markevery = self.get_markevery()
