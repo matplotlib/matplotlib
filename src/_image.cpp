@@ -406,10 +406,6 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs)
 
     typedef agg::span_allocator<agg::rgba8> span_alloc_type;
     span_alloc_type sa;
-    agg::rgba8 background(agg::rgba8(int(255*bg.r),
-                                     int(255*bg.g),
-                                     int(255*bg.b),
-                                     int(255*bg.a)));
 
     // the image path
     agg::path_storage path;
