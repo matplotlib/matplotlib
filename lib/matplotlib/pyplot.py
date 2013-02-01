@@ -2932,8 +2932,8 @@ def quiverkey(*args, **kw):
 # changes will be lost
 @_autogen_docstring(Axes.scatter)
 def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None,
-            vmax=None, alpha=None, linewidths=None, faceted=True, verts=None,
-            hold=None, **kwargs):
+            vmax=None, alpha=None, linewidths=None, verts=None, hold=None,
+            **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -2943,8 +2943,7 @@ def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None,
     try:
         ret = ax.scatter(x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
                          vmin=vmin, vmax=vmax, alpha=alpha,
-                         linewidths=linewidths, faceted=faceted, verts=verts,
-                         **kwargs)
+                         linewidths=linewidths, verts=verts, **kwargs)
         draw_if_interactive()
     finally:
         ax.hold(washold)
