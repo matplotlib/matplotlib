@@ -4,7 +4,7 @@ from mpl_toolkits.axes_grid.inset_locator import inset_axes, zoomed_inset_axes
 from mpl_toolkits.axes_grid.colorbar import colorbar
 
 def get_demo_image():
-    from matplotlib.cbook import get_sample_data
+    from matplotlib.utils import get_sample_data
     import numpy as np
     f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
     z = np.load(f)

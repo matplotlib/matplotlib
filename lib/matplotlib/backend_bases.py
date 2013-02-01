@@ -34,7 +34,7 @@ import time
 import io
 
 import numpy as np
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils
 import matplotlib.colors as colors
 import matplotlib.transforms as transforms
 import matplotlib.widgets as widgets
@@ -230,7 +230,7 @@ class RendererBase:
                 antialiaseds, urls, offset_position):
             path, transform = path_id
             transform = transforms.Affine2D(
-                            transform.get_matrix()).translate(xo, yo)
+                transform.get_matrix()).translate(xo, yo)
             self.draw_path(gc0, path, transform, rgbFace)
 
     def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
@@ -635,7 +635,7 @@ class RendererBase:
         return points
 
     def strip_math(self, s):
-        return cbook.strip_math(s)
+        return utils.strip_math(s)
 
     def start_rasterizing(self):
         """
@@ -1493,7 +1493,7 @@ class FigureCanvasBase(object):
         figure.set_canvas(self)
         self.figure = figure
         # a dictionary from event name to a dictionary that maps cid->func
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = utils.CallbackRegistry()
         self.widgetlock = widgets.LockDraw()
         self._button = None  # the button pressed
         self._key = None  # the key pressed
@@ -1863,7 +1863,8 @@ class FigureCanvasBase(object):
     # compare_images_decorator (decorators.py line 112)
     # if the backend has not already been loaded earlier on.  Simple trigger:
     # >>> import matplotlib.tests.test_spines
-    # >>> list(matplotlib.tests.test_spines.test_spines_axes_positions())[0][0]()
+    # >>> list(
+    #       matplotlib.tests.test_spines.test_spines_axes_positions())[0][0]()
 
     def print_emf(self, *args, **kwargs):
         from backends.backend_emf import FigureCanvasEMF  # lazy import
@@ -1937,7 +1938,7 @@ class FigureCanvasBase(object):
             if kwargs.pop("dryrun", False):
                 return
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
-            options = cbook.restrict_dict(kwargs, ['quality', 'optimize',
+            options = utils.restrict_dict(kwargs, ['quality', 'optimize',
                                                    'progressive'])
             return image.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
@@ -2042,11 +2043,11 @@ class FigureCanvasBase(object):
         """
         if format is None:
             # get format from filename, or from backend's default filetype
-            if cbook.is_string_like(filename):
+            if utils.is_string_like(filename):
                 format = os.path.splitext(filename)[1][1:]
             if format is None or format == '':
                 format = self.get_default_filetype()
-                if cbook.is_string_like(filename):
+                if utils.is_string_like(filename):
                     filename = filename.rstrip('.') + '.' + format
         format = format.lower()
 
@@ -2094,7 +2095,8 @@ class FigureCanvasBase(object):
 
                 bbox_extra_artists = kwargs.pop("bbox_extra_artists", None)
                 if bbox_extra_artists is None:
-                    bbox_extra_artists = self.figure.get_default_bbox_extra_artists()
+                    bbox_extra_artists = \
+                        self.figure.get_default_bbox_extra_artists()
 
                 bb = [a.get_window_extent(renderer)
                       for a in bbox_extra_artists]
@@ -2594,15 +2596,14 @@ class NavigationToolbar2(object):
         ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
         (None, None, None, None),
         ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
-        ('Save', 'Save the figure', 'filesave', 'save_figure'),
-      )
+        ('Save', 'Save the figure', 'filesave', 'save_figure'))
 
     def __init__(self, canvas):
         self.canvas = canvas
         canvas.toolbar = self
         # a dict from axes index to a list of view limits
-        self._views = cbook.Stack()
-        self._positions = cbook.Stack()  # stack of subplot positions
+        self._views = utils.Stack()
+        self._positions = utils.Stack()  # stack of subplot positions
         self._xypress = None  # the location and axis info at the time
                               # of the press
         self._idPress = None

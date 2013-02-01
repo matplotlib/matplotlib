@@ -50,7 +50,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib._png import read_png
-from matplotlib.cbook import mkdirs
+from matplotlib.utils import mkdirs
 import matplotlib.dviread as dviread
 import re
 

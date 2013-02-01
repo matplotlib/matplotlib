@@ -15,7 +15,7 @@ import matplotlib.colors as colors
 import matplotlib.collections as mcoll
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils
 import matplotlib.mlab as mlab
 import matplotlib.mathtext as mathtext
 import matplotlib.patches as mpatches
@@ -203,7 +203,7 @@ class ContourLabeler:
         #self.labelCValues = [] # same
         self.labelXYs = []
 
-        if cbook.iterable(self.labelManual):
+        if utils.iterable(self.labelManual):
             for x, y in self.labelManual:
                 self.add_label_near(x, y, inline,
                                     inline_spacing)
@@ -226,7 +226,7 @@ class ContourLabeler:
         self.cl_xy = self.labelXYs
         self.cl_cvalues = self.labelCValues
 
-        self.labelTextsList = cbook.silent_list('text.Text', self.labelTexts)
+        self.labelTextsList = utils.silent_list('text.Text', self.labelTexts)
         return self.labelTextsList
 
     def print_label(self, linecontour, labelwidth):
@@ -282,7 +282,7 @@ class ContourLabeler:
         """
         Return the width of the label in points.
         """
-        if not cbook.is_string_like(lev):
+        if not utils.is_string_like(lev):
             lev = self.get_text(lev, fmt)
 
         lev, ismath = text.Text.is_math_text(lev)
@@ -338,7 +338,7 @@ class ContourLabeler:
 
     def get_text(self, lev, fmt):
         "get the text of the label"
-        if cbook.is_string_like(lev):
+        if utils.is_string_like(lev):
             return lev
         else:
             if isinstance(fmt, dict):
@@ -796,9 +796,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 ncolors -= 1
             cmap = colors.ListedColormap(self.colors, N=ncolors)
         if self.filled:
-            self.collections = cbook.silent_list('mcoll.PathCollection')
+            self.collections = utils.silent_list('mcoll.PathCollection')
         else:
-            self.collections = cbook.silent_list('mcoll.LineCollection')
+            self.collections = utils.silent_list('mcoll.LineCollection')
         # label lists must be initialized here
         self.labelTexts = []
         self.labelCValues = []
@@ -1172,7 +1172,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if linewidths is None:
             tlinewidths = [(mpl.rcParams['lines.linewidth'],)] * Nlev
         else:
-            if not cbook.iterable(linewidths):
+            if not utils.iterable(linewidths):
                 linewidths = [linewidths] * Nlev
             else:
                 linewidths = list(linewidths)
@@ -1196,9 +1196,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     if lev < eps:
                         tlinestyles[i] = neg_ls
         else:
-            if cbook.is_string_like(linestyles):
+            if utils.is_string_like(linestyles):
                 tlinestyles = [linestyles] * Nlev
-            elif cbook.iterable(linestyles):
+            elif utils.iterable(linestyles):
                 tlinestyles = list(linestyles)
                 if len(tlinestyles) < Nlev:
                     nreps = int(np.ceil(Nlev / len(linestyles)))

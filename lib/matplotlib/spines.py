@@ -10,7 +10,7 @@ import matplotlib.transforms as mtransforms
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils
 import numpy as np
 import warnings
 
@@ -166,7 +166,7 @@ class Spine(mpatches.Patch):
         """
         self._ensure_position_is_set()
         position = self._position
-        if cbook.is_string_like(position):
+        if utils.is_string_like(position):
             if position == 'center':
                 position = ('axes', 0.5)
             elif position == 'zero':
@@ -272,7 +272,7 @@ class Spine(mpatches.Patch):
         """calculate the offset transform performed by the spine"""
         self._ensure_position_is_set()
         position = self._position
-        if cbook.is_string_like(position):
+        if utils.is_string_like(position):
             if position == 'center':
                 position = ('axes', 0.5)
             elif position == 'zero':

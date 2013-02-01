@@ -7,7 +7,6 @@ import numpy.ma as ma
 import matplotlib
 rcParams = matplotlib.rcParams
 from matplotlib.axes import Axes
-from matplotlib import cbook
 from matplotlib.patches import Circle
 from matplotlib.path import Path
 import matplotlib.spines as mspines

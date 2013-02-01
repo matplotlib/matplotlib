@@ -87,7 +87,7 @@ gracefully, and here are some tricks to help you work around them.
 We'll load up some sample date data which contains datetime.date
 objects in a numpy record array::
 
-  In [63]: datafile = cbook.get_sample_data('goog.npy')
+  In [63]: datafile = utils.get_sample_data('goog.npy')
 
   In [64]: r = np.load(datafile).view(np.recarray)
 
@@ -116,8 +116,8 @@ you will see that the x tick labels are all squashed together.
 .. plot::
    :context:
 
-   import matplotlib.cbook as cbook
-   datafile = cbook.get_sample_data('goog.npy')
+   import matplotlib.utils as utils 
+   datafile = utils.get_sample_data('goog.npy')
    r = np.load(datafile).view(np.recarray)
    plt.figure()
    plt.plot(r.date, r.close)
@@ -175,10 +175,10 @@ right.
    import matplotlib.pyplot as plt
    import numpy as np
 
-   import matplotlib.cbook as cbook
+   import matplotlib.utils as utils 
 
    # load up some sample financial data
-   datafile = cbook.get_sample_data('goog.npy')
+   datafile = utils.get_sample_data('goog.npy')
    r = np.load(datafile).view(np.recarray)
 
    # create two subplots with the shared x and y axes

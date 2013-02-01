@@ -25,7 +25,7 @@ import matplotlib.colors as colors
 import matplotlib.cm as cm
 from matplotlib import docstring
 import matplotlib.ticker as ticker
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils
 import matplotlib.collections as collections
 import matplotlib.contour as contour
 from matplotlib.path import Path
@@ -376,7 +376,7 @@ class ColorbarBase(cm.ScalarMappable):
                 formatter = ticker.LogFormatter()
             else:
                 formatter = None
-        elif cbook.is_string_like(format):
+        elif utils.is_string_like(format):
             formatter = ticker.FormatStrFormatter(format)
         else:
             formatter = format  # Assume it is a Formatter
@@ -386,7 +386,7 @@ class ColorbarBase(cm.ScalarMappable):
         else:
             self.cbar_axis.set_major_formatter(formatter)
 
-        if cbook.iterable(ticks):
+        if utils.iterable(ticks):
             self.cbar_axis.set_ticks(ticks)
         elif ticks is not None:
             self.cbar_axis.set_major_locator(ticks)

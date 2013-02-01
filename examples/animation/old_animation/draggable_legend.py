@@ -16,7 +16,7 @@ d2 = txt.draggable()
 
 
 from matplotlib._png import read_png
-from matplotlib.cbook import get_sample_data
+from matplotlib.utils import get_sample_data
 
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 

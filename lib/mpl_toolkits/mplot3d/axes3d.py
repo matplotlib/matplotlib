@@ -15,7 +15,7 @@ from operator import itemgetter
 
 import matplotlib.axes as maxes
 from matplotlib.axes import Axes, rcParams
-from matplotlib import cbook
+import matplotlib.utils as utils
 import matplotlib.transforms as mtransforms
 from matplotlib.transforms import Bbox
 import matplotlib.collections as mcoll
@@ -38,7 +38,7 @@ class Axes3D(Axes):
     3D axes object.
     """
     name = '3d'
-    _shared_z_axes = cbook.Grouper()
+    _shared_z_axes = utils.Grouper()
 
     def __init__(self, fig, rect=None, *args, **kwargs):
         '''
@@ -547,7 +547,7 @@ class Axes3D(Axes):
         return minx, maxx, miny, maxy, minz, maxz
 
     def _determine_lims(self, xmin=None, xmax=None, *args, **kwargs):
-        if xmax is None and cbook.iterable(xmin):
+        if xmax is None and utils.iterable(xmin):
             xmin, xmax = xmin
         if xmin == xmax:
             xmin -= 0.05
@@ -568,7 +568,7 @@ class Axes3D(Axes):
         if kw:
             raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
-        if right is None and cbook.iterable(left):
+        if right is None and utils.iterable(left):
             left, right = left
 
         self._process_unit_info(xdata=(left, right))
@@ -623,7 +623,7 @@ class Axes3D(Axes):
         if kw:
             raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
-        if top is None and cbook.iterable(bottom):
+        if top is None and utils.iterable(bottom):
             bottom, top = bottom
 
         self._process_unit_info(ydata=(bottom, top))
@@ -677,7 +677,7 @@ class Axes3D(Axes):
         if kw:
             raise ValueError("unrecognized kwargs: %s" % kw.keys())
 
-        if top is None and cbook.iterable(bottom):
+        if top is None and utils.iterable(bottom):
             bottom, top = bottom
 
         self._process_unit_info(zdata=(bottom, top))
@@ -827,7 +827,7 @@ class Axes3D(Axes):
 
         .. versionadded :: 1.1.0
         """
-        return cbook.silent_list('Text zticklabel',
+        return utils.silent_list('Text zticklabel',
                                  self.zaxis.get_majorticklabels())
 
     def get_zminorticklabels(self) :
@@ -840,7 +840,7 @@ class Axes3D(Axes):
 
         .. versionadded :: 1.1.0
         """
-        return cbook.silent_list('Text zticklabel',
+        return utils.silent_list('Text zticklabel',
                                  self.zaxis.get_minorticklabels())
 
     def set_zticklabels(self, *args, **kwargs) :
@@ -865,7 +865,7 @@ class Axes3D(Axes):
 
         .. versionadded:: 1.1.0
         """
-        return cbook.silent_list('Text zticklabel',
+        return utils.silent_list('Text zticklabel',
                                  self.zaxis.get_ticklabels(minor=minor))
 
     def zaxis_date(self, tz=None) :
@@ -1425,7 +1425,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        if upper is None and cbook.iterable(lower):
+        if upper is None and utis.iterable(lower):
             lower,upper = lower
 
         old_lower,old_upper = self.get_zbound()
@@ -1491,23 +1491,23 @@ class Axes3D(Axes):
 
         argsi = 0
         # First argument is array of zs
-        if len(args) > 0 and cbook.iterable(args[0]) and \
+        if len(args) > 0 and utils.iterable(args[0]) and \
                 len(xs) == len(args[0]) :
             # So, we know that it is an array with
             # first dimension the same as xs.
             # Next, check to see if the data contained
             # therein (if any) is scalar (and not another array).
-            if len(args[0]) == 0 or cbook.is_scalar(args[0][0]) :
+            if len(args[0]) == 0 or utils.is_scalar(args[0][0]) :
                 zs = args[argsi]
                 argsi += 1
 
         # First argument is z value
-        elif len(args) > 0 and cbook.is_scalar(args[0]):
+        elif len(args) > 0 and utils.is_scalar(args[0]):
             zs = args[argsi]
             argsi += 1
 
         # Match length
-        if not cbook.iterable(zs):
+        if not utils.iterable(zs):
             zs = np.ones(len(xs)) * zs
 
         lines = Axes.plot(self, xs, ys, *args[argsi:], **kwargs)
@@ -2169,16 +2169,16 @@ class Axes3D(Axes):
 
         s = np.ma.ravel(s)  # This doesn't have to match x, y in size.
 
-        cstr = cbook.is_string_like(c) or cbook.is_sequence_of_strings(c)
+        cstr = utils.is_string_like(c) or utils.is_sequence_of_strings(c)
         if not cstr:
             c = np.asanyarray(c)
             if c.size == xs.size:
                 c = np.ma.ravel(c)
 
-        xs, ys, zs, s, c = cbook.delete_masked_points(xs, ys, zs, s, c)
+        xs, ys, zs, s, c = utils.delete_masked_points(xs, ys, zs, s, c)
 
         patches = Axes.scatter(self, xs, ys, s=s, c=c, *args, **kwargs)
-        if not cbook.iterable(zs):
+        if not utils.iterable(zs):
             is_2d = True
             zs = np.ones(len(xs)) * zs
         else:
@@ -2220,7 +2220,7 @@ class Axes3D(Axes):
 
         patches = Axes.bar(self, left, height, *args, **kwargs)
 
-        if not cbook.iterable(zs):
+        if not utils.iterable(zs):
             zs = np.ones(len(left)) * zs
 
         verts = []
@@ -2282,18 +2282,18 @@ class Axes3D(Axes):
         '''
         had_data = self.has_data()
 
-        if not cbook.iterable(x):
+        if not utils.iterable(x):
             x = [x]
-        if not cbook.iterable(y):
+        if not utils.iterable(y):
             y = [y]
-        if not cbook.iterable(z):
+        if not utils.iterable(z):
             z = [z]
 
-        if not cbook.iterable(dx):
+        if not utils.iterable(dx):
             dx = [dx]
-        if not cbook.iterable(dy):
+        if not utils.iterable(dy):
             dy = [dy]
-        if not cbook.iterable(dz):
+        if not utils.iterable(dz):
             dz = [dz]
 
         if len(dx) == 1:

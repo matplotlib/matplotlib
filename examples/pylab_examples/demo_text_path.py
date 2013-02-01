@@ -11,7 +11,7 @@ import matplotlib.patches as mpatches
 from matplotlib.offsetbox import AnnotationBbox,\
      AnchoredOffsetbox, AuxTransformBox
 
-from matplotlib.cbook import get_sample_data
+from matplotlib.utils import get_sample_data
 
 from matplotlib.text import TextPath
 

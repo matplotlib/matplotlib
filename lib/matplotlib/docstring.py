@@ -1,5 +1,5 @@
 from __future__ import print_function
-from matplotlib import cbook
+import matplotlib.utils as utils
 import sys
 import types
 
@@ -85,7 +85,7 @@ class Appender(object):
 
 def dedent(func):
     "Dedent a docstring (if present)"
-    func.__doc__ = func.__doc__ and cbook.dedent(func.__doc__)
+    func.__doc__ = func.__doc__ and utils.dedent(func.__doc__)
     return func
 
 def copy(source):

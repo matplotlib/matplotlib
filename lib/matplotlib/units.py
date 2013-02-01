@@ -43,7 +43,7 @@ datetime objects::
 
 """
 from __future__ import print_function
-from matplotlib.cbook import iterable, is_numlike
+from matplotlib.utils import iterable, is_numlike
 
 
 class AxisInfo:

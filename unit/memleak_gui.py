@@ -11,7 +11,7 @@ use --help option to see all options
 The default number of loops typically will not yield a stable
 estimate--for that you may need many hundreds of loops and some patience.
 
-You may need to edit cbook.report_memory to support your platform
+You may need to edit utils.report_memory to support your platform
 
 '''
 from __future__ import print_function
@@ -48,7 +48,7 @@ matplotlib.rcParams['toolbar'] = matplotlib.validate_toolbar(options.toolbar)
 if options.backend:
     matplotlib.use(options.backend)
 import pylab
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils
 
 print('# columns are: iteration, OS memory (k), number of python objects')
 print('#')
@@ -59,7 +59,7 @@ for i in range(indEnd+1):
     fig.clf()
     pylab.close(fig)
     gc.collect()
-    val = cbook.report_memory(i)
+    val = utils.report_memory(i)
     if options.verbose:
         if i % 10 == 0:
             #print ("iter: %4d OS memory: %8d Python objects: %8d" %
@@ -106,4 +106,4 @@ if i > indStart:
     print('# Average memory consumed per loop: %1.4fk bytes\n' % ((end-start)/float(indEnd-indStart)))
 
 if options.cycles:
-    cbook.print_cycles(gc.garbage)
+    utils.print_cycles(gc.garbage)

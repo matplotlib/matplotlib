@@ -5,7 +5,7 @@ try:
 except ImportError:
     raise SystemExit("PIL must be installed to run this example")
 
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils
 
 datafile = cbook.get_sample_data('grace_hopper.jpg')
 lena = Image.open(datafile)

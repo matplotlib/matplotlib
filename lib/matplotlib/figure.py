@@ -24,9 +24,9 @@ from matplotlib import __version__ as _mpl_version
 import matplotlib.artist as martist
 from matplotlib.artist import Artist, allow_rasterization
 
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils
 
-from matplotlib.cbook import Stack, iterable
+from matplotlib.utils import Stack, iterable
 
 from matplotlib import _image
 from matplotlib.image import FigureImage
@@ -234,7 +234,7 @@ class Figure(Artist):
 
     """
     The Figure instance supports callbacks through a *callbacks*
-    attribute which is a :class:`matplotlib.cbook.CallbackRegistry`
+    attribute which is a :class:`matplotlib.utils.CallbackRegistry`
     instance.  The events you can connect to are 'dpi_changed', and
     the callback will be called with ``func(fig)`` where fig is the
     :class:`Figure` instance.
@@ -292,7 +292,7 @@ class Figure(Artist):
         """
         Artist.__init__(self)
 
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = utils.CallbackRegistry()
 
         if figsize is None  : figsize   = rcParams['figure.figsize']
         if dpi is None      : dpi       = rcParams['figure.dpi']
@@ -900,7 +900,7 @@ class Figure(Artist):
         a gui widget is tracking the axes in the figure.
         """
         self.suppressComposite = None
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = utils.CallbackRegistry()
 
         for ax in tuple(self.axes):  # Iterate over the copy.
             ax.cla()
@@ -963,7 +963,7 @@ class Figure(Artist):
             not_composite = self.suppressComposite
 
         if len(self.images)<=1 or not_composite or \
-                not cbook.allequal([im.origin for im in self.images]):
+                not utils.allequal([im.origin for im in self.images]):
             for a in self.images:
                 dsu.append( (a.get_zorder(), a, a.draw, [renderer]))
         else:

@@ -3,7 +3,6 @@ Contains a class for managing paths (polylines).
 """
 
 from __future__ import print_function
-import math
 from weakref import WeakValueDictionary
 
 import numpy as np
@@ -13,7 +12,7 @@ from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \
     path_in_path, path_intersects_path, convert_path_to_polygons, \
     cleanup_path, points_in_path
-from matplotlib.cbook import simple_linear_interpolation, maxdict
+from matplotlib.utils import simple_linear_interpolation, maxdict
 from matplotlib import rcParams
 
 class Path(object):

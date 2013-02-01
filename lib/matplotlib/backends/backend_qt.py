@@ -12,7 +12,7 @@ warnings.warn("QT3-based backends are deprecated and will be removed after"
 
 import matplotlib
 from matplotlib import verbose
-from matplotlib.cbook import is_string_like, onetrue
+from matplotlib.utils import is_string_like, onetrue
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
      FigureManagerBase, FigureCanvasBase, NavigationToolbar2, cursors
 from matplotlib.backend_bases import ShowBase

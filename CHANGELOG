@@ -6,10 +6,11 @@
 
 2013-01-16 Till Stensitzki added a baseline feature to stackplot
 
+2013-01-09 Deprecated the cbook module in favor of a private, not publicly
+	   documentation module utils.
 2012-12-22 Added classes for interpolation within triangular grids
            (LinearTriInterpolator) and to find the triangles in which points
            lie (TrapezoidMapTriFinder) to matplotlib.tri module. - IMT
-
 2012-12-05 Added MatplotlibDeprecationWarning class for signaling deprecation.
            Matplotlib developers can use this class as follows:
 

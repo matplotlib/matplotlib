@@ -3,7 +3,7 @@ Grab mpl data from the ~/.matplotlib/sample_data cache if it exists, else
 fetch it from github and cache it
 """
 from __future__ import print_function
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils
 import matplotlib.pyplot as plt
 fname = cbook.get_sample_data('ada.png', asfileobj=False)
 

@@ -9,7 +9,7 @@ warnings.warn(
 from matplotlib import artist
 from matplotlib import axis
 from matplotlib import axes
-from matplotlib import cbook
+from matplotlib.utils import _cbook
 from matplotlib import collections
 from matplotlib import colors
 from matplotlib import colorbar

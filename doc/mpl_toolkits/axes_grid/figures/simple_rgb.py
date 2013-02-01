@@ -4,7 +4,7 @@ from mpl_toolkits.axes_grid1.axes_rgb import RGBAxes
 
 def get_demo_image():
     import numpy as np
-    from matplotlib.cbook import get_sample_data
+    from matplotlib.utils import get_sample_data
     f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
     z = np.load(f)
     # z is a numpy array of 15x15

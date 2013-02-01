@@ -25,7 +25,7 @@ import numpy as np
 
 import matplotlib as mpl
 import matplotlib.artist as martist
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils
 import matplotlib.collections as collections
 import matplotlib.colors as colors
 import matplotlib.contour as contour
@@ -288,7 +288,7 @@ class ColorbarBase(cm.ScalarMappable):
         self.patch = None
         self.dividers = None
         self.set_label('')
-        if cbook.iterable(ticks):
+        if utils.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
             self.locator = ticks    # Handle default in _ticker()
@@ -297,7 +297,7 @@ class ColorbarBase(cm.ScalarMappable):
                 self.formatter = ticker.LogFormatterMathtext()
             else:
                 self.formatter = ticker.ScalarFormatter()
-        elif cbook.is_string_like(format):
+        elif utils.is_string_like(format):
             self.formatter = ticker.FormatStrFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter
@@ -367,7 +367,7 @@ class ColorbarBase(cm.ScalarMappable):
         update_ticks is *False*. To manually update the ticks, call
         *update_ticks* method explicitly.
         """
-        if cbook.iterable(ticks):
+        if utils.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
             self.locator = ticks
@@ -509,9 +509,9 @@ class ColorbarBase(cm.ScalarMappable):
         y = self._locate(levels)
         igood = (y < 1.001) & (y > -0.001)
         y = y[igood]
-        if cbook.iterable(colors):
+        if utils.iterable(colors):
             colors = np.asarray(colors)[igood]
-        if cbook.iterable(linewidths):
+        if utils.iterable(linewidths):
             linewidths = np.asarray(linewidths)[igood]
         N = len(y)
         x = np.array([0.0, 1.0])

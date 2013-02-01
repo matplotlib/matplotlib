@@ -20,9 +20,8 @@ Interface::
 """
 from __future__ import print_function
 
-import errno
 import matplotlib
-import matplotlib.cbook as mpl_cbook
+import matplotlib.utils as utils
 import numpy as np
 import struct
 import subprocess
@@ -32,7 +31,7 @@ if sys.version_info[0] >= 3:
     def ord(x):
         return x
 
-_dvistate = mpl_cbook.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
+_dvistate = utils.Bunch(pre=0, outer=1, inpage=2, post_post=3, finale=4)
 
 class Dvi(object):
     """
@@ -103,7 +102,7 @@ class Dvi(object):
 
         if self.dpi is None:
             # special case for ease of debugging: output raw dvi coordinates
-            return mpl_cbook.Bunch(text=self.text, boxes=self.boxes,
+            return utils.Bunch(text=self.text, boxes=self.boxes,
                                    width=maxx-minx, height=maxy_pure-miny,
                                    descent=maxy-maxy_pure)
 
@@ -112,7 +111,7 @@ class Dvi(object):
                   for (x,y,f,g,w) in self.text ]
         boxes = [ ((x-minx)*d, (maxy-y)*d, h*d, w*d) for (x,y,h,w) in self.boxes ]
 
-        return mpl_cbook.Bunch(text=text, boxes=boxes,
+        return utils.Bunch(text=text, boxes=boxes,
                                width=(maxx-minx)*d,
                                height=(maxy_pure-miny)*d,
                                descent=(maxy-maxy_pure)*d)
@@ -545,7 +544,7 @@ class Vf(Dvi):
         self.f = self._first_font
 
     def _finalize_packet(self):
-        self._chars[self._packet_char] = mpl_cbook.Bunch(
+        self._chars[self._packet_char] = utils.Bunch(
             text=self.text, boxes=self.boxes, width = self._packet_width)
         self.state = _dvistate.outer
 
@@ -764,7 +763,7 @@ class PsfontsMap(object):
         except ValueError:
             pass
 
-        self._font[texname] = mpl_cbook.Bunch(
+        self._font[texname] = utils.Bunch(
             texname=texname, psname=psname, effects=effects,
             encoding=encoding, filename=filename)
 

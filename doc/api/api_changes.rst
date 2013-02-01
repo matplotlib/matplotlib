@@ -26,6 +26,7 @@ Changes in 1.3.x
 
 * The `~matplotlib.mpl` module is now deprecated. Those who relied on this
   module should transition to simply using `import matplotlib as mpl`.
+* The module ``cbook`` is deprecated and will be removed in 1.5.x.
 
 Changes in 1.2.x
 ================

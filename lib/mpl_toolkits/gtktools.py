@@ -34,7 +34,7 @@ Example usage
 import copy
 import gtk, gobject
 import numpy as npy
-import matplotlib.cbook as cbook
+import matplotlib.utils as utils 
 import matplotlib.mlab as mlab
 
 
@@ -356,7 +356,7 @@ class RecListStore(gtk.ListStore):
 
      * stringd - a dict mapping dtype names to a list of valid strings for the combo drop downs
 
-     * callbacks - a matplotlib.cbook.CallbackRegistry.  Connect to the cell_changed with
+     * callbacks - a matplotlib.utils.CallbackRegistry.  Connect to the cell_changed with
 
         def mycallback(liststore, rownum, colname, oldval, newval):
            print 'verify: old=%s, new=%s, rec=%s'%(oldval, newval, liststore.r[rownum][colname])
@@ -381,7 +381,7 @@ class RecListStore(gtk.ListStore):
             formatd = mlab.get_formatd(r)
 
         self.stringd = stringd
-        self.callbacks = cbook.CallbackRegistry(['cell_changed'])
+        self.callbacks = utils.CallbackRegistry(['cell_changed'])
 
         self.r = r
 
@@ -439,7 +439,7 @@ class RecListStore(gtk.ListStore):
         oldval = self.r[rownum][colname]
         try: newval = format.fromstr(newtext)
         except ValueError:
-            msg = cbook.exception_to_str('Error converting "%s"'%newtext)
+            msg = utils.exception_to_str('Error converting "%s"'%newtext)
             error_message(msg, title='Error')
             return
         self.r[rownum][colname] = newval

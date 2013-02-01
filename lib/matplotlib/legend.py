@@ -18,7 +18,7 @@ import numpy as np
 
 from matplotlib import rcParams
 from matplotlib.artist import Artist, allow_rasterization
-from matplotlib.cbook import is_string_like, iterable, silent_list, safezip
+from matplotlib.utils import is_string_like, iterable, silent_list, safezip
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle, Shadow, FancyBboxPatch

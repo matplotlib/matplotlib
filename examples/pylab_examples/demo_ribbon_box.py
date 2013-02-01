@@ -4,7 +4,7 @@ from matplotlib.image import BboxImage
 
 from matplotlib._png import read_png
 import matplotlib.colors
-from matplotlib.cbook import get_sample_data
+from matplotlib.utils import get_sample_data
 
 class RibbonBox(object):
 

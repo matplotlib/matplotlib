@@ -27,7 +27,7 @@ import numpy as np
 from matplotlib import verbose, rcParams
 from matplotlib.backend_bases import RendererBase,\
      FigureManagerBase, FigureCanvasBase
-from matplotlib.cbook import is_string_like, maxdict
+from matplotlib.utils import is_string_like, maxdict
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont
 from matplotlib.ft2font import FT2Font, LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING, \

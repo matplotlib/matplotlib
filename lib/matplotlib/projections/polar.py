@@ -8,7 +8,7 @@ import matplotlib
 rcParams = matplotlib.rcParams
 from matplotlib.axes import Axes
 import matplotlib.axis as maxis
-from matplotlib import cbook
+import matplotlib.utils as utils
 from matplotlib import docstring
 from matplotlib.patches import Circle
 from matplotlib.path import Path
@@ -235,7 +235,7 @@ class PolarAxes(Axes):
             warnings.warn(
                 """The resolution kwarg to Polar plots is now ignored.
 If you need to interpolate data points, consider running
-cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
+utils.simple_linear_interpolation on the data before passing to matplotlib.""")
         Axes.__init__(self, *args, **kwargs)
         self.set_aspect('equal', adjustable='box', anchor='C')
         self.cla()
@@ -603,7 +603,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         elif button == 3:
             mode = 'zoom'
 
-        self._pan_start = cbook.Bunch(
+        self._pan_start = utils.Bunch(
             rmax          = self.get_rmax(),
             trans         = self.transData.frozen(),
             trans_inverse = self.transData.inverted().frozen(),

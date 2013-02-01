@@ -580,7 +580,7 @@ def curvelinear_test2(fig):
 
     from mpl_toolkits.axes_grid.parasite_axes import SubplotHost, \
          ParasiteAxesAuxTrans
-    import matplotlib.cbook as cbook
+    import matplotlib.utils as utils
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
     # system in degree
@@ -649,7 +649,7 @@ def curvelinear_test2(fig):
     # note that ax2.transData == tr + ax1.transData
     # Anthing you draw in ax2 will match the ticks and grids of ax1.
     ax1.parasites.append(ax2)
-    intp = cbook.simple_linear_interpolation
+    intp = utils.simple_linear_interpolation
     ax2.plot(intp(np.array([0, 30]), 50),
              intp(np.array([10., 10.]), 50))
 
@@ -747,7 +747,7 @@ def curvelinear_test3(fig):
 #     # note that ax2.transData == tr + ax1.transData
 #     # Anthing you draw in ax2 will match the ticks and grids of ax1.
 #     ax1.parasites.append(ax2)
-#     intp = cbook.simple_linear_interpolation
+#     intp = utils.simple_linear_interpolation
 #     ax2.plot(intp(np.array([0, 30]), 50),
 #              intp(np.array([10., 10.]), 50))
 

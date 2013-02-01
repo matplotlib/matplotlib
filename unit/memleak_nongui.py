@@ -2,7 +2,7 @@ from __future__ import print_function
 import os,matplotlib
 matplotlib.use('Agg')
 from matplotlib.figure import Figure
-from matplotlib.cbook import report_memory
+from matplotlib.utils import report_memory
 
 def plot():
     fig = Figure()
