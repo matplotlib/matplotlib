@@ -930,7 +930,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     if isinstance(sharex, Axes):
         subplot_kw['sharex'] = sharex
         sharex = "all"
-    if isinstance(sharex, Axes):
+    if isinstance(sharey, Axes):
         subplot_kw['sharey'] = sharey
         sharey = "all"
 
