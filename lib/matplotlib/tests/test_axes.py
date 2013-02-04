@@ -54,6 +54,7 @@ def test_formatter_ticker():
     ax.set_xlabel( "x-label 005" )
     ax.autoscale_view()
 
+@cleanup
 def test_add_collection():
     fig = matplotlib.figure.Figure()
     fig2 = matplotlib.figure.Figure()
