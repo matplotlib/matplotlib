@@ -1159,14 +1159,24 @@ _path_module::affine_transform(const Py::Tuple& args)
             size_t stride1 = PyArray_STRIDE(vertices, 1);
             double x;
             double y;
+            volatile double t0;
+	    volatile double t1;
+	    volatile double t;
 
             for (size_t i = 0; i < n; ++i)
             {
                 x = *(double*)(vertex_in);
                 y = *(double*)(vertex_in + stride1);
 
-                *vertex_out++ = a * x + c * y + e;
-                *vertex_out++ = b * x + d * y + f;
+		t0 = a * x;
+		t1 = c * y;
+                t = t0 + t1 + e;
+                *(vertex_out++) = t;
+
+		t0 = b * x;
+		t1 = d * y;
+                t = t0 + t1 + f;
+                *(vertex_out++) = t;
 
                 vertex_in += stride0;
             }
