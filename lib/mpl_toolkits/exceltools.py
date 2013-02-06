@@ -124,7 +124,7 @@ def rec2excel(r, ws, formatd=None, rownum=0, colnum=0, nanstr='NaN', infstr='Inf
                 ws.write(rownum, colnum+i, nanstr)
             elif mlab.safe_isinf(val):
                 sgn = np.sign(val)
-                if sgn<0: s = infstr
+                if sgn>0: s = infstr
                 else: s = '-%s'%infstr
                 ws.write(rownum, colnum+i, s)
             elif format.xlstyle is None:
