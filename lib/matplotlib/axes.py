@@ -5324,7 +5324,7 @@ class Axes(martist.Artist):
             array-like object, errorbars are drawn at +/-value relative
             to the data.
 
-            If a sequence of shape 2xN, errorbars are drawn at - row1
+            If a sequence of shape 2xN, errorbars are drawn at -row1
             and +row2 relative to the data.
 
           *fmt*: '-'
