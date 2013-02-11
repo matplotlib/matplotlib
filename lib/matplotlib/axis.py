@@ -982,11 +982,11 @@ class Axis(artist.Artist):
         
         if hasattr(self,'_get_pixel_distance_along_axis'):
             try:
-               ds1 = self._get_pixel_distance_along_axis(interval_expanded[0],-1)/2.0
+               ds1 = self._get_pixel_distance_along_axis(interval_expanded[0], -1) / 2.0
             except:
                ds1 = 0.0
             try:
-               ds2 = self._get_pixel_distance_along_axis(interval_expanded[1],+1)/2.0
+               ds2 = self._get_pixel_distance_along_axis(interval_expanded[1], +1) / 2.0
             except:
                ds2 = 0.0
             interval_expanded = (interval[0] - ds1, interval[1] + ds2)
