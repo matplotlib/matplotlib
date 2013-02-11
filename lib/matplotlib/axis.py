@@ -978,12 +978,18 @@ class Axis(artist.Artist):
         if interval[0] <= interval[1]:
             interval_expanded = interval
         else:
-            interval_expanded = interval[1],interval[0]
+            interval_expanded = interval[1], interval[0]
         
         if hasattr(self,'_get_pixel_distance_along_axis'):
-            ds1 = self._get_pixel_distance_along_axis(interval_expanded[0],-1)/2.0
-            ds2 = self._get_pixel_distance_along_axis(interval_expanded[1],+1)/2.0
-            interval_expanded = (interval[0]-ds1,interval[1]+ds2)
+            try:
+               ds1 = self._get_pixel_distance_along_axis(interval_expanded[0],-1)/2.0
+            except:
+               ds1 = 0.0
+            try:
+               ds2 = self._get_pixel_distance_along_axis(interval_expanded[1],+1)/2.0
+            except:
+               ds2 = 0.0
+            interval_expanded = (interval[0] - ds1, interval[1] + ds2)
 
         ticks_to_draw = []
         for tick, loc, label in tick_tups:
@@ -1613,26 +1619,26 @@ class XAxis(Axis):
         return offsetText
 
     def _get_pixel_distance_along_axis(self,where,perturb):
-        # returns the amount, in data coordinates, that a single pixel corresponds to in the
-        # locality given by "where", which is also given in data coordinates, and is an x coordinate.
-        # "perturb" is the amount to perturb the pixel.  Usually +1 or -1.
+        """
+        Returns the amount, in data coordinates, that a single pixel corresponds to in the
+        locality given by "where", which is also given in data coordinates, and is an x coordinate.
+        "perturb" is the amount to perturb the pixel.  Usually +1 or -1.
+        """
         
-        # first figure out the pixel location of the "where" point.  We use 1e-10 for the
-        # y point, so that we remain compatible with log axes.
-        #
         # Note that this routine does not work for a polar axis, because of the 1e-10 below.  To
         # do things correctly, we need to use rmax instead of 1e-10 for a polar axis.  But
         # since we do not have that kind of information at this point, we just don't try to 
         # pad anything for the theta axis of a polar plot.  
-        #
         if self.axes.name == 'polar':
            return 0.0
 
+        #first figure out the pixel location of the "where" point.  We use 1e-10 for the
+        #y point, so that we remain compatible with log axes.
         trans = self.axes.transData     # transformation from data coords to display coords
         transinv = trans.inverted()     # transformation from display coords to data coords
-        pix  = trans.transform_point((where,1e-10))
-        ptp  = transinv.transform_point((pix[0]+perturb,pix[1])) # perturb the pixel.
-        dx   = abs(ptp[0]-where)
+        pix  = trans.transform_point((where, 1e-10))
+        ptp  = transinv.transform_point((pix[0] + perturb, pix[1])) # perturb the pixel.
+        dx   = abs(ptp[0] - where)
         
         return dx
 
