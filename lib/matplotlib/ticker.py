@@ -1165,7 +1165,7 @@ class MultipleLocator(Locator):
         vmin = self._base.ge(vmin)
         base = self._base.get_base()
         n = (vmax - vmin + 0.001 * base) // base
-        locs = vmin-base + np.arange(n + 3) * base
+        locs = vmin - base + np.arange(n + 3) * base
         return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
@@ -1450,8 +1450,8 @@ class LogLocator(Locator):
         while numdec / stride + 1 > self.numticks:
             stride += 1
 
-        decades = np.arange(math.floor(vmin)-stride,
-                            math.ceil(vmax) + 2*stride, stride)
+        decades = np.arange(math.floor(vmin) - stride,
+                            math.ceil(vmax) + 2 * stride, stride)
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)
             if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):
