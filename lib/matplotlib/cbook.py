@@ -24,6 +24,9 @@ from weakref import ref, WeakKeyDictionary
 import matplotlib
 from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
+# is_string_like has to be imported here for backward compatibility
+from matplotlib import is_string_like
+
 import numpy as np
 import numpy.ma as ma
 
@@ -43,7 +46,6 @@ import types
 
 if sys.version_info[0] >= 3:
     def unicode_safe(s):
-        import matplotlib
 
         try:
             preferredencoding = locale.getpreferredencoding(
@@ -475,23 +477,6 @@ def iterable(obj):
     try:
         iter(obj)
     except TypeError:
-        return False
-    return True
-
-
-def is_string_like(obj):
-    'Return True if *obj* looks like a string'
-    if isinstance(obj, (str, unicode)):
-        return True
-    # numpy strings are subclass of str, ma strings are not
-    if ma.isMaskedArray(obj):
-        if obj.ndim == 0 and obj.dtype.kind in 'SU':
-            return True
-        else:
-            return False
-    try:
-        obj + ''
-    except:
         return False
     return True
 
@@ -1298,7 +1283,7 @@ class MemoryMonitor:
 
     def plot(self, i0=0, isub=1, fig=None):
         if fig is None:
-            from pylab import figure, show
+            from pylab import figure
             fig = figure()
 
         ax = fig.add_subplot(111)
