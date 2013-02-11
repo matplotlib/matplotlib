@@ -5320,11 +5320,12 @@ class Axes(martist.Artist):
         Optional keyword arguments:
 
           *xerr*/*yerr*: [ scalar | N, Nx1, or 2xN array-like ]
-            If a scalar number, len(N) array-like object, or an Nx1 array-like
-            object, errorbars are drawn +/- value.
+            If a scalar number, len(N) array-like object, or an Nx1
+            array-like object, errorbars are drawn at +/-value relative
+            to the data.
 
-            If a sequence of shape 2xN, errorbars are drawn at -row1 and
-            +row2
+            If a sequence of shape 2xN, errorbars are drawn at - row1
+            and +row2 relative to the data.
 
           *fmt*: '-'
             The plot format symbol. If *fmt* is *None*, only the
