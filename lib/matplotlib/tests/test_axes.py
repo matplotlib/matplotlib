@@ -56,6 +56,8 @@ def test_formatter_ticker():
 
 @cleanup
 def test_add_collection():
+    # Test if data limits are unchanged by adding an empty collection.
+    # Github issue #1490, pull #1497. 
     fig = matplotlib.figure.Figure()
     fig2 = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
