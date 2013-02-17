@@ -366,6 +366,8 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #savefig.format     : png      # png, ps, pdf, svg
 #savefig.bbox       : standard # 'tight' or 'standard'.
 #savefig.pad_inches : 0.1      # Padding to be used when bbox is set to 'tight'
+#savefig.directory  : ~        # default directory in savefig dialog box,
+                               # leave empty to always use current working directory
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
@@ -450,6 +452,6 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
                                    # $PATH is searched
 #animation.avconv_args: ''         # Additional arguments to pass to avconv
 #animation.mencoder_path: 'mencoder' 
-			           # Path to mencoder binary. Without full path
+                                   # Path to mencoder binary. Without full path
                                    # $PATH is searched
 #animation.mencoder_args: ''       # Additional arguments to pass to mencoder
