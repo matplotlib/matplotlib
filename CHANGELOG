@@ -1,3 +1,6 @@
+2013-01-23 Add 'savefig.directory' to rcParams to remember and fill in the last
+           directory saved to for figure save dialogs - Martin Spacek
+
 2013-01-08 Added two extra titles to axes which are flush with the left and
            right edges of the plot respectively.
            Andrew Dawson
@@ -38,7 +41,7 @@
            _get_rbg_face except it return a (r,g,b,a) tuble, to line2D.
            Modified Line2D.draw to use _get_rbga_face to get the markerface
            color so that any alpha set by  markerfacecolor will respected.
-	   - Thomas Caswell
+           - Thomas Caswell
 
 2012-11-13 Add a symmetric log normalization class to colors.py.
            Also added some tests for the normalization class.
