@@ -1899,7 +1899,7 @@ class FigureCanvasBase(object):
         from backends.backend_agg import FigureCanvasAgg  # lazy import
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_raw(*args, **kwargs)
-    print_bmp = print_rgb = print_raw
+    print_bmp = print_rgba = print_raw
 
     def print_svg(self, *args, **kwargs):
         from backends.backend_svg import FigureCanvasSVG  # lazy import
