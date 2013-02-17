@@ -111,7 +111,7 @@ w0[:len(x0)/2] = 0.5
 w1 = np.ones_like(x1)
 w1[:len(x1)/2] = 0.5
 w2 = np.ones_like(x2)
-w0[:len(x2)/2] = 0.5
+w2[:len(x2)/2] = 0.5
 
 
 
