@@ -1777,10 +1777,10 @@ class Annotation(Text, _AnnotationBase):
         =================   ===================================================
         'figure points'     points from the lower left corner of the figure
         'figure pixels'     pixels from the lower left corner of the figure
-        'figure fraction'   0,0 is lower left of figure and 1,1 is upper, right
+        'figure fraction'   0,0 is lower left of figure and 1,1 is upper right
         'axes points'       points from lower left corner of axes
         'axes pixels'       pixels from lower left corner of axes
-        'axes fraction'     0,1 is lower left of axes and 1,1 is upper right
+        'axes fraction'     0,0 is lower left of axes and 1,1 is upper right
         'data'              use the coordinate system of the object being
                             annotated (default)
         'offset points'     Specify an offset (in points) from the *xy* value
