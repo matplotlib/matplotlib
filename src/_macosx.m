@@ -2536,10 +2536,10 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
 {
     float x;
     float y;
-    const UniChar* text;
     int n;
     PyObject* family;
     float size;
+    const char* text;
     const char* weight;
     const char* italic;
     float angle;
@@ -2557,7 +2557,7 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "ffu#Ofssf",
+    if(!PyArg_ParseTuple(args, "ffs#Ofssf",
                                 &x,
                                 &y,
                                 &text,
@@ -2567,6 +2567,7 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
                                 &weight,
                                 &italic,
                                 &angle)) return NULL;
+    CFStringRef s = CFStringCreateWithCString(kCFAllocatorDefault, text, kCFStringEncodingUTF8);
 
     font = setfont(cr, family, size, weight, italic);
 
@@ -2587,8 +2588,6 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
                                         &kCFTypeDictionaryValueCallBacks);
     CGColorRelease(color);
     CFRelease(font);
-
-    CFStringRef s = CFStringCreateWithCharacters(kCFAllocatorDefault, text, n);
 
     CFAttributedStringRef string = CFAttributedStringCreate(kCFAllocatorDefault,
                                                             s,
@@ -2631,10 +2630,10 @@ GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
 static PyObject*
 GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* args)
 {
-    const UniChar* text;
     int n;
     PyObject* family;
     float size;
+    const char* text;
     const char* weight;
     const char* italic;
 
@@ -2652,9 +2651,14 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "u#Ofss",
-                         &text, &n, &family, &size, &weight, &italic))
-        return NULL;
+    if(!PyArg_ParseTuple(args, "s#Ofss",
+                                &text,
+                                &n,
+                                &family,
+                                &size,
+                                &weight,
+                                &italic)) return NULL;
+    CFStringRef s = CFStringCreateWithCString(kCFAllocatorDefault, text, kCFStringEncodingUTF8);
 
     font = setfont(cr, family, size, weight, italic);
 
@@ -2670,8 +2674,6 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
                                         &kCFTypeDictionaryKeyCallBacks,
                                         &kCFTypeDictionaryValueCallBacks);
     CFRelease(font);
-
-    CFStringRef s = CFStringCreateWithCharacters(kCFAllocatorDefault, text, n);
 
     CFAttributedStringRef string = CFAttributedStringCreate(kCFAllocatorDefault,
                                                             s,
@@ -2697,7 +2699,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     return Py_BuildValue("fff", width, rect.size.height, descent);
 }
 
-#else
+#else // Text drawing for OSX versions <10.5
 
 static PyObject*
 GraphicsContext_draw_text (GraphicsContext* self, PyObject* args)
@@ -3009,11 +3011,14 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "ffiiO", &x,
-                                        &y,
-                                        &nrows,
-                                        &ncols,
-                                        &image)) return NULL;
+    if(!PyArg_ParseTuple(args, "ffiiOOOO", &x,
+                                           &y,
+                                           &nrows,
+                                           &ncols,
+                                           &image,
+                                           &cliprect,
+                                           &clippath,
+                                           &clippath_transform)) return NULL;
 
     CGColorSpaceRef colorspace;
     CGDataProviderRef provider;
@@ -4900,7 +4905,11 @@ choose_save_file(PyObject* unused, PyObject* args)
         unsigned int n = [filename length];
         unichar* buffer = malloc(n*sizeof(unichar));
         [filename getCharacters: buffer];
+#if (PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 3)
+        PyObject* string =  PyUnicode_FromKindAndData(PyUnicode_2BYTE_KIND, buffer, n);
+#else
         PyObject* string =  PyUnicode_FromUnicode(buffer, n);
+#endif
         free(buffer);
         return string;
     }
