@@ -183,17 +183,17 @@ class RendererCairo(RendererBase):
             ctx.select_font_face (prop.get_name(),
                                   self.fontangles [prop.get_style()],
                                   self.fontweights[prop.get_weight()])
-            
+
             size = prop.get_size_in_points() * self.dpi / 72.0
-            
+
             ctx.save()
             if angle:
                 ctx.rotate (-angle * np.pi / 180)
             ctx.set_font_size (size)
             if sys.version_info[0] < 3:
-                ctx.show_text (s.encode("utf-8"))
+                ctx.show_text(s.encode("utf-8"))
             else:
-                ctx.show_text (s)
+                ctx.show_text(s)
             ctx.restore()
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
@@ -211,19 +211,19 @@ class RendererCairo(RendererBase):
         for font, fontsize, s, ox, oy in glyphs:
             ctx.new_path()
             ctx.move_to(ox, oy)
-            
+
             fontProp = ttfFontProperty(font)
             ctx.save()
             ctx.select_font_face (fontProp.name,
                                   self.fontangles [fontProp.style],
                                   self.fontweights[fontProp.weight])
-            
+
             size = fontsize * self.dpi / 72.0
             ctx.set_font_size(size)
             if sys.version_info[0] < 3:
-                ctx.show_text (s.encode("utf-8"))
+                ctx.show_text(s.encode("utf-8"))
             else:
-                ctx.show_text (s)
+                ctx.show_text(s)
             ctx.restore()
 
         for ox, oy, w, h in rects:
