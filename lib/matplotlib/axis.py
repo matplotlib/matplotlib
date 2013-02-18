@@ -980,7 +980,7 @@ class Axis(artist.Artist):
         else:
             interval_expanded = interval[1], interval[0]
         
-        if hasattr(self,'_get_pixel_distance_along_axis'):
+        if hasattr(self, '_get_pixel_distance_along_axis'):
             try:
                ds1 = self._get_pixel_distance_along_axis(interval_expanded[0], -1) / 2.0
             except:
@@ -1618,11 +1618,14 @@ class XAxis(Axis):
         self.offset_text_position = 'bottom'
         return offsetText
 
-    def _get_pixel_distance_along_axis(self,where,perturb):
+    def _get_pixel_distance_along_axis(self, where, perturb):
         """
         Returns the amount, in data coordinates, that a single pixel corresponds to in the
         locality given by "where", which is also given in data coordinates, and is an x coordinate.
         "perturb" is the amount to perturb the pixel.  Usually +1 or -1.
+
+        Implementing this routine for an axis is optional; if present, it will ensure that no
+        ticks are lost due to round-off at the extreme ends of an axis.
         """
         
         # Note that this routine does not work for a polar axis, because of the 1e-10 below.  To
@@ -1632,8 +1635,10 @@ class XAxis(Axis):
         if self.axes.name == 'polar':
            return 0.0
 
-        #first figure out the pixel location of the "where" point.  We use 1e-10 for the
-        #y point, so that we remain compatible with log axes.
+        #
+        # first figure out the pixel location of the "where" point.  We use 1e-10 for the
+        # y point, so that we remain compatible with log axes.
+        #
         trans = self.axes.transData     # transformation from data coords to display coords
         transinv = trans.inverted()     # transformation from display coords to data coords
         pix  = trans.transform_point((where, 1e-10))
@@ -1917,19 +1922,25 @@ class YAxis(Axis):
         self.offset_text_position = 'left'
         return offsetText
 
-    def _get_pixel_distance_along_axis(self,where,perturb):
-        # returns the amount, in data coordinates, that a single pixel corresponds to in the
-        # locality given by "where", which is also given in data coordinates, and is a y coordinate.
-        # "perturb" is the amount to perturb the pixel.  Usually +1 or -1.
-        
+    def _get_pixel_distance_along_axis(self, where, perturb):
+        """
+        Returns the amount, in data coordinates, that a single pixel corresponds to in the
+        locality given by "where", which is also given in data coordinates, and is an y coordinate.
+        "perturb" is the amount to perturb the pixel.  Usually +1 or -1.
+
+        Implementing this routine for an axis is optional; if present, it will ensure that no
+        ticks are lost due to round-off at the extreme ends of an axis.
+        """
+
+        #        
         # first figure out the pixel location of the "where" point.  We use 1e-10 for the
         # x point, so that we remain compatible with log axes.
         #
         trans = self.axes.transData     # transformation from data coords to display coords
         transinv = trans.inverted()     # transformation from display coords to data coords
-        pix  = trans.transform_point((1e-10,where))
-        ptp  = transinv.transform_point((pix[0],pix[1]+perturb)) # perturb the pixel.
-        dy   = abs(ptp[1]-where)
+        pix  = trans.transform_point((1e-10, where))
+        ptp  = transinv.transform_point((pix[0], pix[1] + perturb)) # perturb the pixel.
+        dy   = abs(ptp[1] - where)
         return dy
 
     def get_label_position(self):
