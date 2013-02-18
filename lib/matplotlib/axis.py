@@ -16,6 +16,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
 import numpy as np
+import warnings
 
 GRIDLINE_INTERPOLATION_STEPS = 180
 
@@ -981,13 +982,19 @@ class Axis(artist.Artist):
             interval_expanded = interval[1], interval[0]
         
         if hasattr(self, '_get_pixel_distance_along_axis'):
+            # normally, one does not want to catch all exceptions that could possibly happen, but it
+            # is not clear exactly what exceptions might arise from a user's projection (their rendition
+            # of the Axis object).  So, we catch all, with the idea that one would rather potentially
+            # lose a tick from one side of the axis or another, rather than see a stack trace.
             try:
                ds1 = self._get_pixel_distance_along_axis(interval_expanded[0], -0.5) 
             except:
+               warnings.warn("Unable to find pixel distance along axis for interval padding; assuming no interval padding needed.")
                ds1 = 0.0
             try:
                ds2 = self._get_pixel_distance_along_axis(interval_expanded[1], +0.5) 
             except:
+               warnings.warn("Unable to find pixel distance along axis for interval padding; assuming no interval padding needed.")
                ds2 = 0.0
             interval_expanded = (interval[0] - ds1, interval[1] + ds2)
 
