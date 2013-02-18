@@ -83,7 +83,7 @@ _Plotting commands
   specgram - a spectrogram plot
   spy      - plot sparsity pattern using markers or image
   stem     - make a stem plot
-  subplot  - make a subplot (numrows, numcols, axesnum)
+  subplot  - make a subplot (nrows, ncols, plot_number)
   subplots_adjust - change the params controlling the subplot positions of current figure
   subplot_tool - launch the subplot configuration tool
   suptitle   - add a figure title
