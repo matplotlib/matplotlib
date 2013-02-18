@@ -220,7 +220,10 @@ class RendererCairo(RendererBase):
             
             size = fontsize * self.dpi / 72.0
             ctx.set_font_size(size)
-            ctx.show_text(s.encode("utf-8"))
+            if sys.version_info[0] < 3:
+                ctx.show_text (s.encode("utf-8"))
+            else:
+                ctx.show_text (s)
             ctx.restore()
 
         for ox, oy, w, h in rects:
