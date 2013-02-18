@@ -716,35 +716,47 @@ def gca(**kwargs):
 
 def subplot(*args, **kwargs):
     """
-    Create a new axes (subplot).
+    Return a subplot axes positioned by the given grid definition.
 
-    Creating axes with::
+    Typical call signature::
 
-      subplot(numRows, numCols, plotNum)
+      subplot(nrows, ncols, plot_number)
 
-    where *plotNum* = 1 is the first plot number and increasing *plotNums*
-    fill rows first.  max(*plotNum*) == *numRows* * *numCols*
+    Where *nrows* and *ncols* are used to notionally split the figure
+    into ``nrows * ncols`` sub-axes, and *plot_number* is used to identify
+    the particular subplot that this function is to create within the notional
+    grid. *plot_number* starts at 1, increments across rows first and has a
+    maximum of ``nrows * ncols``.
 
-    You can leave out the commas if *numRows* <= *numCols* <=
-    *plotNum* < 10, as in::
+    In the case when *nrows*, *ncols* and *plot_number* are all less than 10,
+    a convenience exists, such that the a 3 digit number can be given instead,
+    where the hundreds represent *nrows*, the tens represent *ncols* and the
+    units represent *plot_number*. For instance::
 
-      subplot(211)    # 2 rows, 1 column, first (upper) plot
+      subplot(211)
 
-    ``subplot(111)`` is the default axis.
+    produces a subaxes in a figure which represents the top plot (i.e. the
+    first) in a 2 row by 1 column notional grid (no grid actually exists,
+    but conceptually this is how the returned subplot has been positioned).
 
-    ``subplot()`` by itself is the same as ``subplot(111)``
+    .. note::
 
+       Creating a new subplot with a position which is entirely inside a
+       pre-existing axes will trigger the larger axes to be deleted::
 
-    New subplots that overlap old will delete the old axes.  If you do
-    not want this behavior, use
-    :meth:`~matplotlib.figure.Figure.add_subplot` or the
-    :func:`~matplotlib.pyplot.axes` command.  Eg.::
+          import matplotlib.pyplot as plt
+          # plot a line, implicitly creating a subplot(111)
+          plt.plot([1,2,3])
+          # now create a subplot which represents the top plot of a grid
+          # with 2 rows and 1 column. Since this subplot will overlap the
+          # first, the plot (and its axes) previously created, will be removed
+          plt.subplot(211)
+          plt.plot(range(12))
+          plt.subplot(212, axisbg='y') # creates 2nd subplot with yellow background
 
-      from pylab import *
-      plot([1,2,3])  # implicitly creates subplot(111)
-      subplot(211)   # overlaps, subplot(111) is killed
-      plot(rand(12), rand(12))
-      subplot(212, axisbg='y') # creates 2nd subplot with yellow background
+       If you do not want this behavior, use the
+       :meth:`~matplotlib.figure.Figure.add_subplot` method or the
+       :func:`~matplotlib.pyplot.axes` function instead.
 
     Keyword arguments:
 
