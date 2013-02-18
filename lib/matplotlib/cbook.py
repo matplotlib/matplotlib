@@ -1,6 +1,14 @@
 """
 A collection of utility functions and classes.  Many (but not all)
-from the Python Cookbook -- hence the name cbook
+from the Python Cookbook -- hence the name cbook.
+
+This module is in transition, with the intention of migrating
+functionality used in matplotlib to a new module, possibly called
+"utils".  Functionality not needed in matplotlib might then be
+deprecated and eventually removed.
+
+This module is safe to import from anywhere within matplotlib;
+it imports matplotlib only at runtime.
 """
 from __future__ import print_function
 
@@ -18,18 +26,28 @@ import sys
 import threading
 import time
 import traceback
+import types
 import warnings
 from weakref import ref, WeakKeyDictionary
-
-import matplotlib
-from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 import numpy as np
 import numpy.ma as ma
 
 
-import types
+class MatplotlibDeprecationWarning(UserWarning):
+    """
+    A class for issuing deprecation warnings for Matplotlib users.
 
+    In light of the fact that Python builtin DeprecationWarnings are ignored
+    by default as of Python 2.7 (see link below), this class was put in to
+    allow for the signaling of deprecation, but via UserWarnings which are not
+    ignored by default.
+
+    http://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
+    """
+    pass
+
+mplDeprecation = MatplotlibDeprecationWarning
 
 # On some systems, locale.getpreferredencoding returns None,
 # which can break unicode; and the sage project reports that
@@ -42,6 +60,8 @@ import types
 
 if sys.version_info[0] >= 3:
     def unicode_safe(s):
+        import matplotlib
+
         try:
             preferredencoding = locale.getpreferredencoding(
                 matplotlib.rcParams['axes.formatter.use_locale']).strip()
@@ -576,6 +596,8 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
+    import matplotlib
+
     if matplotlib.rcParams['examples.directory']:
         root = matplotlib.rcParams['examples.directory']
     else:
