@@ -1,15 +1,11 @@
 """
-A collection of utility functions and classes.  Many (but not all)
-from the Python Cookbook -- hence the name cbook.
-
-This module is in transition, with the intention of migrating
-functionality used in matplotlib to a new module, possibly called
-"utils".  Functionality not needed in matplotlib might then be
-deprecated and eventually removed.
+A collection of utility functions and classes.  Originally, many 
+(but not all) were from the Python Cookbook -- hence the name cbook.
 
 This module is safe to import from anywhere within matplotlib;
 it imports matplotlib only at runtime.
 """
+
 from __future__ import print_function
 
 import datetime
