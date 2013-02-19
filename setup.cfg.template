@@ -28,6 +28,7 @@
 ## Date/timezone support:
 #pytz = False
 #dateutil = False
+#pyparsing = False
 #six = False
 
 [gui_support]
