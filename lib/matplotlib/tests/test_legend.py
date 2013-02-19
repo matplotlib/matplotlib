@@ -26,6 +26,19 @@ def test_legend_auto2():
     ax.legend([b1[0], b2[0]], ['up', 'down'], loc=0)
 
 
+@image_comparison(baseline_images=['legend_auto3'])
+def test_legend_auto3():
+    'Test automatic legend placement'
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
+    y = [0.95, 0.95, 0.05, 0.05, 0.5, 0.5]
+    ax.plot(x, y, 'o-', label='line')
+    ax.set_xlim(0.0, 1.0)
+    ax.set_ylim(0.0, 1.0)
+    ax.legend(loc=0)
+
+
 @image_comparison(baseline_images=['legend_various_labels'], remove_text=True)
 def test_various_labels():
     # tests all sorts of label types
@@ -34,7 +47,7 @@ def test_various_labels():
     ax.plot(range(4), 'o', label=1)
     ax.plot(np.linspace(4, 4.1), 'o', label=u'D\xe9velopp\xe9s')
     ax.plot(range(4, 1, -1), 'o', label='__nolegend__')
-    ax.legend(numpoints=1)
+    ax.legend(numpoints=1, loc=0)
 
 
 @image_comparison(baseline_images=['fancy'], remove_text=True)

@@ -645,7 +645,7 @@ class BboxBase(TransformNode):
         dy0 = np.sign(vertices[:, 1] - y0)
         dx1 = np.sign(vertices[:, 0] - x1)
         dy1 = np.sign(vertices[:, 1] - y1)
-        inside = (abs(dx0 + dx1) + abs(dy0 + dy1)) <= 2
+        inside = ((abs(dx0 + dx1) + abs(dy0 + dy1)) == 0)
         return np.sum(inside)
 
     def count_overlaps(self, bboxes):
