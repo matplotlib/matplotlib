@@ -3180,7 +3180,7 @@ class Axes(martist.Artist):
         return title
 
     @docstring.dedent_interpd
-    def set_title(self, label, loc="center", fontdict=None, **kwargs):
+    def set_title(self, label, fontdict=None, loc="center", **kwargs):
         """Set a title for the axes.
 
         Set one of the three available axes titles. The available titles
