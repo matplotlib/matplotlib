@@ -3011,14 +3011,11 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    if(!PyArg_ParseTuple(args, "ffiiOOOO", &x,
-                                           &y,
-                                           &nrows,
-                                           &ncols,
-                                           &image,
-                                           &cliprect,
-                                           &clippath,
-                                           &clippath_transform)) return NULL;
+    if(!PyArg_ParseTuple(args, "ffiiO", &x,
+                                        &y,
+                                        &nrows,
+                                        &ncols,
+                                        &image)) return NULL;
 
     CGColorSpaceRef colorspace;
     CGDataProviderRef provider;
