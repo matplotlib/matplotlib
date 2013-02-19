@@ -106,6 +106,11 @@ import os, re, shutil, subprocess, sys, warnings
 import distutils.sysconfig
 import distutils.version
 
+# cbook must import matplotlib only within function
+# definitions, so it is safe to import from it here.
+from matplotlib.cbook import MatplotlibDeprecationWarning
+from matplotlib.cbook import is_string_like
+
 try:
     reload
 except NameError:
@@ -122,19 +127,6 @@ if 0:
 if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
 
-
-class MatplotlibDeprecationWarning(UserWarning):
-    """
-    A class for issuing deprecation warnings for Matplotlib users.
-
-    In light of the fact that Python builtin DeprecationWarnings are ignored
-    by default as of Python 2.7 (see link below), this class was put in to
-    allow for the signaling of deprecation, but via UserWarnings which are not
-    ignored by default.
-
-    http://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
-    """
-    pass
 
 """
 Manage user customizations through a rc file.
@@ -191,12 +183,6 @@ if not found_version >= expected_version:
         'numpy %s or later is required; you have %s' % (
             __version__numpy__, numpy.__version__))
 del version
-
-def is_string_like(obj):
-    if hasattr(obj, 'shape'): return 0
-    try: obj + ''
-    except (TypeError, ValueError): return 0
-    return 1
 
 
 def _is_writable_dir(p):
