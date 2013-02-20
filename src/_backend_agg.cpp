@@ -39,6 +39,13 @@
 
 #include "numpy/arrayobject.h"
 #include "agg_py_transforms.h"
+
+// This C function resides in npy_3kcompat.h and is unused by
+// matplotlib. This is here so that the compiler doesn't complain
+// that it is unused.
+extern "C" {
+__attribute__((unused)) static void simple_capsule_dtor(void *ptr);
+}
 #include "file_compat.h"
 
 #ifndef M_PI
@@ -2048,7 +2055,9 @@ RendererAgg::write_rgba(const Py::Tuple& args)
     {
         if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES)
         {
-            npy_PyFile_DupClose(py_file, fp);
+            if (npy_PyFile_DupClose(py_file, fp)) {
+              throw Py::RuntimeError("Error closing dupe file handle");
+            }
 
             if (close_file) {
                 npy_PyFile_CloseFile(py_file);
@@ -2058,7 +2067,9 @@ RendererAgg::write_rgba(const Py::Tuple& args)
             throw Py::RuntimeError("Error writing to file");
         }
 
-        npy_PyFile_DupClose(py_file, fp);
+        if (npy_PyFile_DupClose(py_file, fp)) {
+          throw Py::RuntimeError("Error closing dupe file handle");
+        }
 
         if (close_file) {
             npy_PyFile_CloseFile(py_file);

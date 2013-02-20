@@ -1030,7 +1030,7 @@ def add_tk_flags(module):
                 if not exists(join(F, fw + '.framework')):
                     break
             else:
-                # ok, F is now directory with both frameworks. Continure
+                # ok, F is now directory with both frameworks. Continue
                 # building
                 tk_framework_found = 1
                 break
