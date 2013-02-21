@@ -7096,7 +7096,8 @@ class Axes(martist.Artist):
         """
 
         if not self._hold: self.cla()
-
+        if isinstance(X, np.ndarray):
+            X = X.squeeze()
         if norm is not None: assert(isinstance(norm, mcolors.Normalize))
         if aspect is None: aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
