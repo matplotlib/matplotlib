@@ -1930,7 +1930,7 @@ class FigureCanvasBase(object):
             Supported kwargs:
 
             *quality*: The image quality, on a scale from 1 (worst) to
-                95 (best). The default is 75. Values above 95 should
+                95 (best). The default is 95. Values above 95 should
                 be avoided; 100 completely disables the JPEG
                 quantization stage.
 
@@ -1949,6 +1949,9 @@ class FigureCanvasBase(object):
             image = Image.frombuffer('RGBA', size, buf, 'raw', 'RGBA', 0, 1)
             options = cbook.restrict_dict(kwargs, ['quality', 'optimize',
                                                    'progressive'])
+
+            if 'quality' not in options: options['quality'] = 95
+
             return image.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
 
