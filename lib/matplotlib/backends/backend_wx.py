@@ -128,6 +128,7 @@ from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
      FigureCanvasBase, FigureManagerBase, NavigationToolbar2, \
      cursors, TimerBase
 from matplotlib.backend_bases import ShowBase
+from matplotlib.backend_bases import _has_pil
 
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.artist import Artist
@@ -1132,9 +1133,10 @@ The current aspect ratio will be kept."""
     def print_bmp(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_BMP, *args, **kwargs)
 
-    def print_jpeg(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_JPEG, *args, **kwargs)
-    print_jpg = print_jpeg
+    if not _has_pil:
+        def print_jpeg(self, filename, *args, **kwargs):
+            return self._print_image(filename, wx.BITMAP_TYPE_JPEG, *args, **kwargs)
+        print_jpg = print_jpeg
 
     def print_pcx(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_PCX, *args, **kwargs)
@@ -1142,9 +1144,10 @@ The current aspect ratio will be kept."""
     def print_png(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_PNG, *args, **kwargs)
 
-    def print_tiff(self, filename, *args, **kwargs):
-        return self._print_image(filename, wx.BITMAP_TYPE_TIF, *args, **kwargs)
-    print_tif = print_tiff
+    if not _has_pil:
+        def print_tiff(self, filename, *args, **kwargs):
+            return self._print_image(filename, wx.BITMAP_TYPE_TIF, *args, **kwargs)
+        print_tif = print_tiff
 
     def print_xpm(self, filename, *args, **kwargs):
         return self._print_image(filename, wx.BITMAP_TYPE_XPM, *args, **kwargs)
