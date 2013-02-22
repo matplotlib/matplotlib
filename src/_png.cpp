@@ -28,12 +28,6 @@
 #include "numpy/arrayobject.h"
 #include "mplutils.h"
 
-// This C function resides in npy_3kcompat.h and is unused by
-// matplotlib. This is here so that the compiler doesn't complain
-// that it is unused.
-extern "C" {
-__attribute__((unused)) static void simple_capsule_dtor(void *ptr);
-}
 #include "file_compat.h"
 
 // As reported in [3082058] build _png.so on aix
