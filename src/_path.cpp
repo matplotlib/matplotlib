@@ -1075,7 +1075,7 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
                 ((double *)pyarray->data)[2*i]   = (*p)[i].x;
                 ((double *)pyarray->data)[2*i+1] = (*p)[i].y;
             }
-            if (PyList_SetItem(py_results, p - results.begin(), (PyObject *)pyarray) != -1)
+            if (PyList_SetItem(py_results, p - results.begin(), (PyObject *)pyarray) == -1)
             {
                 throw Py::RuntimeError("Error creating results list");
             }
