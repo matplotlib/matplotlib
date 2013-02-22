@@ -8108,7 +8108,7 @@ class Axes(martist.Artist):
             hist_kwargs['new'] = True
 
         n = []
-        mlast = bottom
+        mlast = None
         # reversed order is necessary so when stacking histogram, first dataset is on top
         # if histogram isn't stacked, this doesn't make any difference
         for i in reversed(xrange(nx)):
@@ -8124,6 +8124,8 @@ class Axes(martist.Artist):
                 m += mlast
                 mlast[:] = m
             n.append(m)
+
+
 
         if cumulative:
             slc = slice(None)
@@ -8175,7 +8177,7 @@ class Axes(martist.Artist):
             for m, c in zip(n, color):
                 patch = _barfunc(bins[:-1]+boffset, m, width,
                                   align='center', log=log,
-                                  color=c)
+                                  color=c, bottom=bottom)
                 patches.append(patch)
                 boffset += dw
 
