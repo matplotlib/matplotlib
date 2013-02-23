@@ -4792,11 +4792,10 @@ class Axes(martist.Artist):
         if orientation == 'vertical':
             self._process_unit_info(xdata=left, ydata=height, kwargs=kwargs)
             if log:
-                self.set_yscale('log')
+                self.set_yscale('log', nonposy = 'clip')
             # size width and bottom according to length of left
             if _bottom is None:
                 if self.get_yscale() == 'log':
-                    bottom = [1e-100]
                     adjust_ylim = True
                 else:
                     bottom = [0]
@@ -4808,11 +4807,10 @@ class Axes(martist.Artist):
         elif orientation == 'horizontal':
             self._process_unit_info(xdata=width, ydata=bottom, kwargs=kwargs)
             if log:
-                self.set_xscale('log')
+                self.set_xscale('log', nonposx = 'clip')
             # size left and height according to length of bottom
             if _left is None:
                 if self.get_xscale() == 'log':
-                    left = [1e-100]
                     adjust_xlim = True
                 else:
                     left = [0]
@@ -8118,7 +8116,7 @@ class Axes(martist.Artist):
             if normed:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
-            if stacked:
+            if stacked :
                 m += mlast
                 mlast[:] = m
             n.append(m)
@@ -8171,14 +8169,18 @@ class Axes(martist.Artist):
                 _barfunc = self.bar
 
             for m, c in zip(n, color):
-                patch = _barfunc(bins[:-1]+boffset, m, width, bottom,
+                if bottom is None:
+                    bottom = np.zeros(len(m), np.float)
+                if stacked:
+                    height = m-bottom
+                else :
+                    height = m
+                patch = _barfunc(bins[:-1]+boffset, height, width, bottom,
                                   align='center', log=log,
                                   color=c, bottom=bottom)
                 patches.append(patch)
                 if stacked:
-                    if bottom is None:
-                        bottom = 0.0
-                    bottom += m
+                    bottom[:] = m
                 boffset += dw
 
         elif histtype.startswith('step'):
@@ -8191,10 +8193,10 @@ class Axes(martist.Artist):
 
             if log:
                 if orientation == 'horizontal':
-                    self.set_xscale('log')
+                    self.set_xscale('log', nonposx = 'clip')
                     logbase = self.xaxis._scale.base
                 else:  # orientation == 'vertical'
-                    self.set_yscale('log')
+                    self.set_yscale('log', nonposy = 'clip')
                     logbase = self.yaxis._scale.base
 
                 # Setting a minimum of 0 results in problems for log plots
