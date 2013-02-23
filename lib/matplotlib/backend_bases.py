@@ -1930,9 +1930,10 @@ class FigureCanvasBase(object):
             Supported kwargs:
 
             *quality*: The image quality, on a scale from 1 (worst) to
-                95 (best). The default is 95. Values above 95 should
-                be avoided; 100 completely disables the JPEG
-                quantization stage.
+                95 (best). The default is 95, if not given in the
+                matplotlibrc file in the savefig.jpeg_quality parameter. 
+                Values above 95 should be avoided; 100 completely
+                disables the JPEG quantization stage.
 
             *optimize*: If present, indicates that the encoder should
                 make an extra pass over the image in order to select
@@ -1950,7 +1951,8 @@ class FigureCanvasBase(object):
             options = cbook.restrict_dict(kwargs, ['quality', 'optimize',
                                                    'progressive'])
 
-            if 'quality' not in options: options['quality'] = 95
+            if 'quality' not in options: 
+                options['quality'] = rcParams.get('savefig.jpeg_quality',95)
 
             return image.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
