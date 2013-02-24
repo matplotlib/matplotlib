@@ -25,7 +25,6 @@ demonstrating the interaction between wxPython and the matplotlib
 figure canvas.
 
 Matt Newville <newville@cars.uchicago.edu>
-last modified: 12-Nov-2004
 license:  use it any way you want
 """
 
@@ -137,7 +136,7 @@ class PlotFrame(wx.Frame):
     def onKeyEvent(self,event=None):
         """ capture , act upon keystroke events"""
         if event == None: return
-        key = event.KeyCode()
+        key = event.KeyCode
         if (key < wx.WXK_SPACE or  key > 255):  return
 
         if (event.ControlDown() and chr(key)=='C'): # Ctrl-C
