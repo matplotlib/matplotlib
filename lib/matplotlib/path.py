@@ -179,7 +179,7 @@ class Path(object):
         vertices = np.vstack([x.vertices for x in args])
         vertices.reshape((total_length, 2))
 
-        codes = np.ones(total_length, dtype=cls.code_type)
+        codes = np.empty(total_length, dtype=cls.code_type)
         i = 0
         for path in args:
             if path.codes is None:
