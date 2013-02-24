@@ -12,7 +12,7 @@ from numpy import ma
 from matplotlib._path import point_in_path, get_path_extents, \
     point_in_path_collection, get_path_collection_extents, \
     path_in_path, path_intersects_path, convert_path_to_polygons, \
-    cleanup_path, points_in_path
+    cleanup_path, points_in_path, clip_path_to_rect
 from matplotlib.cbook import simple_linear_interpolation, maxdict
 from matplotlib import rcParams
 
@@ -171,22 +171,23 @@ class Path(object):
     def make_compound_path(cls, *args):
         """
         (staticmethod) Make a compound path from a list of Path
-        objects.  Only polygons (not curves) are supported.
+        objects.
         """
-        for p in args:
-            assert p.codes is None
-
         lengths = [len(x) for x in args]
         total_length = sum(lengths)
 
         vertices = np.vstack([x.vertices for x in args])
         vertices.reshape((total_length, 2))
 
-        codes = cls.LINETO * np.ones(total_length)
+        codes = np.empty(total_length, dtype=cls.code_type)
         i = 0
-        for length in lengths:
-            codes[i] = cls.MOVETO
-            i += length
+        for path in args:
+            if path.codes is None:
+                codes[i] = cls.MOVETO
+                codes[i + 1:i + len(path.vertices)] = cls.LINETO
+            else:
+                codes[i:i + len(path.codes)] = path.codes
+            i += len(path.vertices)
 
         return cls(vertices, codes)
 
@@ -708,6 +709,22 @@ class Path(object):
         hatch_path = get_path(hatchpattern, density)
         cls._hatch_dict[(hatchpattern, density)] = hatch_path
         return hatch_path
+
+    def clip_to_bbox(self, bbox, inside=True):
+        """
+        Clip the path to the given bounding box.
+
+        The path must be made up of one or more closed polygons.  This
+        algorithm will not behave correctly for unclosed paths.
+
+        If *inside* is `True`, clip to the inside of the box, otherwise
+        to the outside of the box.
+        """
+        # Use make_compound_path_from_polys
+        verts = clip_path_to_rect(self, bbox, inside)
+        paths = [Path(poly) for poly in verts]
+        return self.make_compound_path(*paths)
+
 
 _get_path_collection_extents = get_path_collection_extents
 def get_path_collection_extents(
