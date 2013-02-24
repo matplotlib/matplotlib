@@ -714,6 +714,9 @@ class Path(object):
         """
         Clip the path to the given bounding box.
 
+        The path must be made up of one or more closed polygons.  This
+        algorithm will not behave correctly for unclosed paths.
+
         If *inside* is `True`, clip to the inside of the box, otherwise
         to the outside of the box.
         """
