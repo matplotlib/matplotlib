@@ -49,17 +49,19 @@ def test_Polygon_close():
 
 @image_comparison(baseline_images=['clip_to_bbox'])
 def test_clip_to_bbox():
-    plt.figure()
+    fig = plt.figure()
 
-    ax = plt.axes()
+    ax = fig.add_subplot(111)
     ax.set_xlim([-18, 20])
     ax.set_ylim([-150, 100])
 
-    path = mpath.Path.unit_regular_star(8)
+    star = mpath.Path.unit_regular_star(8)
+    path = mpath.Path(star.vertices.copy(), star.codes)
     path.vertices *= [10, 100]
     path.vertices -= [5, 25]
 
-    path2 = mpath.Path.unit_circle()
+    circle = mpath.Path.unit_circle()
+    path2 = mpath.Path(circle.vertices.copy(), circle.codes)
     path2.vertices *= [10, 100]
     path2.vertices += [10, -25]
 
