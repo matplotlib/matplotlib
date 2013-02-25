@@ -1403,6 +1403,9 @@ class BackendGtk3Agg(OptionalBackendPackage):
     name = "gtk3agg"
 
     def check(self):
+        if 'TRAVIS' in os.environ:
+            raise CheckFailed("Can't build with Travis")
+
         # This check needs to be performed out-of-process, because
         # importing gi and then importing regular old pygtk afterward
         # segfaults the interpreter.
@@ -1442,6 +1445,9 @@ class BackendGtk3Cairo(OptionalBackendPackage):
     name = "gtk3cairo"
 
     def check(self):
+        if 'TRAVIS' in os.environ:
+            raise CheckFailed("Can't build with Travis")
+
         # This check needs to be performed out-of-process, because
         # importing gi and then importing regular old pygtk afterward
         # segfaults the interpreter.
