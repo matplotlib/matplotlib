@@ -469,7 +469,7 @@ class RendererPS(RendererBase):
         im.flipud_out()
 
         h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
-        hexlines = '\n'.join(self._hex_lines(bits))
+        hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
 
         if dx is None:
             xscale = w / self.image_magnification
