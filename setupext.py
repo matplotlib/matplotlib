@@ -501,7 +501,7 @@ class Matplotlib(SetupPackage):
             'matplotlib.tri',
             ]
 
-    def get_py_packages(self):
+    def get_py_modules(self):
         return ['pylab']
 
     def get_package_data(self):
