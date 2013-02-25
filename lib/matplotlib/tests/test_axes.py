@@ -996,6 +996,18 @@ def test_hist_stacked():
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), histtype="stepfilled", stacked=True)
 
+
+@image_comparison(baseline_images=['hist_offset'])
+def test_hist_offset():
+    # make some data
+    d1 = np.linspace(0, 10, 50)
+    d2 = np.linspace(1, 3, 20)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(d1, bottom=5)
+    ax.hist(d2, bottom=15)
+
+
 @image_comparison(baseline_images=['hist_stacked_weights'])
 def test_hist_stacked_weighted():
     # make some data
