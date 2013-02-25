@@ -4674,7 +4674,7 @@ class Axes(martist.Artist):
 
           *framealpha*: [*None* | float]
             If not None, alpha channel for legend frame. Default *None*.
-        
+
           *ncol* : integer
             number of columns. default is 1
 
@@ -8300,7 +8300,7 @@ class Axes(martist.Artist):
         hist_kwargs = dict(range=bin_range)
 
         n = []
-        mlast = bottom
+        mlast = None
         # reversed order is necessary so when stacking histogram, first
         # dataset is on top if histogram isn't stacked, this doesn't make any
         # difference
@@ -8317,6 +8317,8 @@ class Axes(martist.Artist):
                 m += mlast
                 mlast[:] = m
             n.append(m)
+
+
 
         if cumulative:
             slc = slice(None)
@@ -8369,7 +8371,7 @@ class Axes(martist.Artist):
             for m, c in zip(n, color):
                 patch = _barfunc(bins[:-1] + boffset, m, width,
                                  align='center', log=log,
-                                 color=c)
+                                 color=c, bottom=bottom)
                 patches.append(patch)
                 boffset += dw
 

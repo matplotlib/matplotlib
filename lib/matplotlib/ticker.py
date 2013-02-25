@@ -581,7 +581,7 @@ class ScalarFormatter(Formatter):
             sign = tup[1][0].replace(positive_sign, '')
             exponent = tup[1][1:].lstrip('0')
             if self._useMathText or self._usetex:
-                if significand == '1':
+                if significand == '1' and exponent != '':
                     # reformat 1x10^y as 10^y
                     significand = ''
                 if exponent:
