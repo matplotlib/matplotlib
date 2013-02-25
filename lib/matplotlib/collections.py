@@ -49,7 +49,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         * *cmap*: None (optional for
           :class:`matplotlib.cm.ScalarMappable`)
         * *hatch*: None
-        * *zorder*: 1 
+        * *zorder*: 1
 
 
     *offsets* and *transOffset* are used to translate the patch after
@@ -111,11 +111,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_hatch(hatch)
         self.set_offset_position(offset_position)
         self.set_zorder(zorder)
-        
+
         self._uniform_offsets = None
-        self._offsets = np.array([], np.float_)
-        # Force _offsets to be Nx2
-        self._offsets.shape = (0, 2)
+        self._offsets = np.array([[0, 0]], np.float_)
         if offsets is not None:
             offsets = np.asanyarray(offsets)
             offsets.shape = (-1, 2)             # Make it Nx2
