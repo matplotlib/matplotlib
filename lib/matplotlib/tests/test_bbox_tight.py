@@ -15,8 +15,7 @@ def test_bbox_inches_tight():
             [  78415,   81858,  150656,  193263,   69638],
             [ 139361,  331509,  343164,  781380,   52269]]
 
-    colLabels = ('Freeze', 'Wind', 'Flood', 'Quake', 'Hail')
-    rowLabels = ['%d year' % x for x in (100, 50, 20, 10, 5)]
+    colLabels = rowLabels = [''] * 5
 
     rows = len(data)
     ind = np.arange(len(colLabels)) + 0.3  # the x locations for the groups
@@ -28,9 +27,9 @@ def test_bbox_inches_tight():
     for row in xrange(rows):
         plt.bar(ind, data[row], width, bottom=yoff)
         yoff = yoff + data[row]
-        cellText.append(['%1.1f' % (x/1000.0) for x in yoff])
+        cellText.append([''])
     plt.xticks([])
-    plt.legend(['1', '2', '3', '4', '5'], loc = (1.2, 0.2))
+    plt.legend([''] * 5, loc = (1.2, 0.2))
     # Add a table at the bottom of the axes
     cellText.reverse()
     the_table = plt.table(cellText=cellText,
