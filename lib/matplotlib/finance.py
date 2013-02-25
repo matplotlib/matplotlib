@@ -43,9 +43,9 @@ stock_dt = np.dtype([('date', object),
                      ('day', np.int8),
                      ('d', np.float),     # mpl datenum
                      ('open', np.float),
-                     ('close', np.float),
                      ('high', np.float),
                      ('low', np.float),
+                     ('close', np.float),
                      ('volume', np.float),
                      ('aclose', np.float)])
 
@@ -55,7 +55,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
     Parse the historical data in file handle fh from yahoo finance.
 
     *adjusted*
-      If True (default) replace open, close, high, and low prices with
+      If True (default) replace open, high, low, close prices with
       their adjusted values. The adjustment is by a scale factor, S =
       adjusted_close/close. Adjusted prices are actual prices
       multiplied by S.
@@ -70,15 +70,15 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
       If False (default for compatibility with earlier versions)
       return a list of tuples containing
 
-        d, open, close, high, low, volume
+        d, open, high, low, close, volume
 
       If None (preferred alternative to False), return
       a 2-D ndarray corresponding to the list of tuples.
 
       Otherwise return a numpy recarray with
 
-        date, year, month, day, d, open, close, high, low,
-        volume, aclose
+        date, year, month, day, d, open, high, low, close,
+        volume, adjusted_close
 
       where d is a floating poing representation of date,
       as returned by date2num, and date is a python standard
@@ -113,25 +113,25 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
         aclose = float(vals[6])
 
         results.append((dt, dt.year, dt.month, dt.day,
-                        dnum, open, close, high, low, volume, aclose))
+                        dnum, open, high, low, close, volume, aclose))
     results.reverse()
     d = np.array(results, dtype=stock_dt)
     if adjusted:
         scale = d['aclose'] / d['close']
         scale[np.isinf(scale)] = np.nan
         d['open'] *= scale
-        d['close'] *= scale
         d['high'] *= scale
         d['low'] *= scale
+        d['close'] *= scale
 
     if not asobject:
         # 2-D sequence; formerly list of tuples, now ndarray
         ret = np.zeros((len(d), 6), dtype=np.float)
         ret[:,0] = d['d']
         ret[:,1] = d['open']
-        ret[:,2] = d['close']
         ret[:,3] = d['high']
         ret[:,4] = d['low']
+        ret[:,2] = d['close']
         ret[:,5] = d['volume']
         if asobject is None:
             return ret
@@ -250,9 +250,9 @@ def plot_day_summary(ax, quotes, ticksize=3,
                      colorup='k', colordown='r',
                      ):
     """
-    quotes is a sequence of (time, open, close, high, low, ...) sequences
+    quotes is a sequence of (time, open, high, low, close, ...) sequences
 
-    Represent the time, open, close, high, low as a vertical line
+    Represent the time, open, high, low, close as a vertical line
     ranging from low to high.  The left tick is the open and the right
     tick is the close.
 
@@ -268,7 +268,7 @@ def plot_day_summary(ax, quotes, ticksize=3,
     lines = []
     for q in quotes:
 
-        t, open, close, high, low = q[:5]
+        t, open, high, low, close = q[:5]
 
         if close>=open : color = colorup
         else           : color = colordown
@@ -310,13 +310,13 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
 
     """
 
-    quotes is a sequence of (time, open, close, high, low, ...) sequences.
+    quotes is a sequence of (time, open, high, low, close, ...) sequences.
     As long as the first 5 elements are these values,
     the record can be as long as you want (eg it may store volume).
 
     time must be in float days format - see date2num
 
-    Plot the time, open, close, high, low as a vertical line ranging
+    Plot the time, open, high, low, close as a vertical line ranging
     from low to high.  Use a rectangular bar to represent the
     open-close span.  If close >= open, use colorup to color the bar,
     otherwise use colordown
@@ -337,7 +337,7 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     lines = []
     patches = []
     for q in quotes:
-        t, open, close, high, low = q[:5]
+        t, open, high, low, close = q[:5]
 
         if close>=open :
             color = colorup
@@ -374,12 +374,12 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     return lines, patches
 
 
-def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
+def plot_day_summary2(ax, opens, highs, lows, closes ticksize=4,
                       colorup='k', colordown='r',
                      ):
     """
 
-    Represent the time, open, close, high, low as a vertical line
+    Represent the time, open, high, low, close as a vertical line
     ranging from low to high.  The left tick is the open and the right
     tick is the close.
 
@@ -391,7 +391,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
     return value is a list of lines added
     """
 
-    # note this code assumes if any value open, close, low, high is
+    # note this code assumes if any value open, low, high, close is
     # missing they all are missing
 
     rangeSegments = [ ((i, low), (i, high)) for i, low, high in zip(xrange(len(lows)), lows, highs) if low != -1 ]
@@ -467,7 +467,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
     return rangeCollection, openCollection, closeCollection
 
 
-def candlestick2(ax, opens, closes, highs, lows, width=4,
+def candlestick2(ax, opens, highs, lows, closes, width=4,
                  colorup='k', colordown='r',
                  alpha=0.75,
                 ):
@@ -486,7 +486,7 @@ def candlestick2(ax, opens, closes, highs, lows, width=4,
     return value is lineCollection, barCollection
     """
 
-    # note this code assumes if any value open, close, low, high is
+    # note this code assumes if any value open, low, high, close is
     # missing they all are missing
 
     delta = width/2.
@@ -609,7 +609,7 @@ def volume_overlay3(ax, quotes,
                    width=4, alpha=1.0):
     """
     Add a volume overlay to the current axes.  quotes is a list of (d,
-    open, close, high, low, volume) and close-open is used to
+    open, high, low, close, volume) and close-open is used to
     determine the color of the bar
 
     kwarg
@@ -629,7 +629,7 @@ def volume_overlay3(ax, quotes,
                False : colordown,
                }
 
-    dates, opens, closes, highs, lows, volumes = zip(*quotes)
+    dates, opens, highs, lows, closes, volumes = zip(*quotes)
     colors = [colord[close1>=close0] for close0, close1 in zip(closes[:-1], closes[1:]) if close0!=-1 and close1 !=-1]
     colors.insert(0,colord[closes[0]>=opens[0]])
 
@@ -637,14 +637,14 @@ def volume_overlay3(ax, quotes,
     left = -width/2.0
 
 
-    bars = [ ( (left, 0), (left, volume), (right, volume), (right, 0)) for d, open, close, high, low, volume in quotes]
+    bars = [ ( (left, 0), (left, volume), (right, volume), (right, 0)) for d, open, high, low, close, volume in quotes]
 
     sx = ax.figure.dpi * (1.0/72.0)  # scale for points
     sy = ax.bbox.height / ax.viewLim.height
 
     barTransform = Affine2D().scale(sx,sy)
 
-    dates = [d for d, open, close, high, low, volume in quotes]
+    dates = [d for d, open, high, low, close, volume in quotes]
     offsetsBars = [(d, 0) for d in dates]
 
     useAA = 0,  # use tuple here
@@ -666,7 +666,7 @@ def volume_overlay3(ax, quotes,
 
     minpy, maxx = (min(dates), max(dates))
     miny = 0
-    maxy = max([volume for d, open, close, high, low, volume in quotes])
+    maxy = max([volume for d, open, high, low, close, volume in quotes])
     corners = (minpy, miny), (maxx, maxy)
     ax.update_datalim(corners)
     #print 'datalim', ax.dataLim.bounds
