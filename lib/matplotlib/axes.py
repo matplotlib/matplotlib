@@ -1481,7 +1481,11 @@ class Axes(martist.Artist):
 
         if collection.get_clip_path() is None:
             collection.set_clip_path(self.patch)
-        if autolim and collection._paths and len(collection._offsets):
+
+        if (autolim and
+            collection._paths is not None and
+            len(collection._paths) and
+            len(collection._offsets)):
             self.update_datalim(collection.get_datalim(self.transData))
 
         collection._remove_method = lambda h: self.collections.remove(h)
