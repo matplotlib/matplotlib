@@ -297,7 +297,7 @@ if sys.version_info[0] >= 3:
             # We need to skip certain files that have already been
             # converted to Python 3.x
             filtered = [x for x in files if should_2to3(x, self.build_lib)]
-            if sys.platform.startswith('win'):
+            if sys.platform.startswith('win') or 'TRAVIS' in os.environ:
                 # doing this in parallel on windows may crash your computer
                 [refactor(f) for f in filtered]
             else:
