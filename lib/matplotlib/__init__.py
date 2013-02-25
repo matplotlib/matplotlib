@@ -99,10 +99,27 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import print_function
 
+import sys
+
 __version__  = '1.3.x'
 __version__numpy__ = '1.4' # minimum required numpy version
 
-import os, re, shutil, subprocess, sys, warnings
+try:
+    import dateutil
+except ImportError:
+    raise ImportError("matplotlib requires dateutil")
+
+try:
+    import pyparsing
+except ImportError:
+    raise ImportError("matplotlib requires pyparsing")
+else:
+    if sys.version_info[0] >= 3:
+        if [int(x) for x in pyparsing.__version__.split('.')] <= [1, 5, 6]:
+            raise ImportError(
+                "matplotlib requires pyparsing > 1.5.6 on Python 3.x")
+
+import os, re, shutil, subprocess, warnings
 import distutils.sysconfig
 import distutils.version
 
@@ -944,10 +961,10 @@ class rc_context(object):
     This allows one to do::
 
     >>> with mpl.rc_context(fname='screen.rc'):
-    >>>     plt.plot(x, a)
-    >>>     with mpl.rc_context(fname='print.rc'):
-    >>>         plt.plot(x, b)
-    >>>     plt.plot(x, c)
+    ...     plt.plot(x, a)
+    ...     with mpl.rc_context(fname='print.rc'):
+    ...         plt.plot(x, b)
+    ...     plt.plot(x, c)
 
     The 'a' vs 'x' and 'c' vs 'x' plots would have settings from
     'screen.rc', while the 'b' vs 'x' plot would have settings from
@@ -956,7 +973,7 @@ class rc_context(object):
     A dictionary can also be passed to the context manager::
 
     >>> with mpl.rc_context(rc={'text.usetex': True}, fname='screen.rc'):
-    >>>     plt.plot(x, a)
+    ...     plt.plot(x, a)
 
     The 'rc' dictionary takes precedence over the settings loaded from
     'fname'.  Passing a dictionary only is also valid.

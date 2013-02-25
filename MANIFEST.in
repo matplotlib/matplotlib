@@ -1,20 +1,16 @@
-include CHANGELOG KNOWN_BUGS INSTALL
+include CHANGELOG INSTALL
 include INTERACTIVE TODO CONTRIBUTING.md
-include Makefile  make.osx MANIFEST.in MANIFEST
+include Makefile MANIFEST.in MANIFEST
 include matplotlibrc.template setup.cfg.template
-include __init__.py setupext.py setup.py setupegg.py
-include examples/data/*
-include lib/mpl_toolkits
-include lib/matplotlib/mpl-data/matplotlib.conf
-include lib/matplotlib/mpl-data/matplotlib.conf.template
+include setupext.py setup.py setupegg.py
 include lib/matplotlib/mpl-data/lineprops.glade
 include lib/matplotlib/mpl-data/matplotlibrc
 include lib/matplotlib/mpl-data/images/*
 include lib/matplotlib/mpl-data/fonts/ttf/*
 include lib/matplotlib/mpl-data/fonts/pdfcorefonts/*
 include lib/matplotlib/mpl-data/fonts/afm/*
-recursive-include lib/matplotlib/mpl-data/sample_data/*
-recursive-include license LICENSE*
+recursive-include lib/matplotlib/mpl-data/sample_data/ *
+recursive-include LICENSE *
 recursive-include examples *
 recursive-include doc *
 recursive-include src  *.cpp *.c *.h *.m
