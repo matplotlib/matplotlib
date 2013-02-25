@@ -4,6 +4,12 @@ Tests specific to the patches module.
 
 from numpy.testing import assert_array_equal
 from matplotlib.patches import Polygon
+from matplotlib.testing.decorators import image_comparison
+import matplotlib.pyplot as plt
+from matplotlib import patches as mpatches
+from matplotlib import path as mpath
+from matplotlib import transforms as mtrans
+
 
 def test_Polygon_close():
     """
@@ -40,3 +46,32 @@ def test_Polygon_close():
     p.set_xy(xyclosed)
     assert_array_equal(p.get_xy(), xyclosed)
 
+
+@image_comparison(baseline_images=['clip_to_bbox'])
+def test_clip_to_bbox():
+    plt.figure()
+
+    ax = plt.axes()
+    ax.set_xlim([-18, 20])
+    ax.set_ylim([-150, 100])
+
+    path = mpath.Path.unit_regular_star(8)
+    path.vertices *= [10, 100]
+    path.vertices -= [5, 25]
+
+    path2 = mpath.Path.unit_circle()
+    path2.vertices *= [10, 100]
+    path2.vertices += [10, -25]
+
+    combined = mpath.Path.make_compound_path(path, path2)
+
+    patch = mpatches.PathPatch(
+        combined, alpha=0.5, facecolor='coral', edgecolor='none')
+    ax.add_patch(patch)
+
+    bbox = mtrans.Bbox([[-12, -77.5], [50, -110]])
+    result_path = combined.clip_to_bbox(bbox)
+    result_patch = mpatches.PathPatch(
+        result_path, alpha=0.5, facecolor='green', lw=4, edgecolor='black')
+
+    ax.add_patch(result_patch)
