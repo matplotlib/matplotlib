@@ -66,9 +66,6 @@ namespace Py
         const std::string m_module_name;
         const std::string m_full_module_name;
         MethodTable m_method_table;
-#if PY3
-        PyModuleDef m_module_def;
-#endif
         PyObject *m_module;
 
     private:
@@ -136,19 +133,11 @@ namespace Py
             {
                 MethodDefExt<T> *method_def = (*i).second;
 
-                #if PY_VERSION_HEX < 0x02070000
-                    static PyObject *self = PyCObject_FromVoidPtr( this, do_not_dealloc );
-                #else
-                    static PyObject *self = PyCapsule_New( this, NULL, NULL );
-                #endif
+                static PyObject *self = PyCObject_FromVoidPtr( this, do_not_dealloc );
 
                 Tuple args( 2 );
-                args[0] = Object( self );
-                #if PY_VERSION_HEX < 0x02070000
-                    args[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ) );
-                #else
-                    args[1] = Object( PyCapsule_New( method_def, NULL, NULL ) );
-                #endif
+                args[0] = Object( self, true );
+                args[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ), true );
 
                 PyObject *func = PyCFunction_New
                                     (

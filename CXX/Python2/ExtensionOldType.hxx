@@ -178,11 +178,8 @@ namespace Py
             Tuple self( 2 );
 
             self[0] = Object( this );
-            #if PY_VERSION_HEX < 0x02070000
-                self[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ), true );
-            #else
-                self[1] = Object( PyCapsule_New( method_def, NULL, NULL ), true );
-            #endif
+            self[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ), true );
+
             PyObject *func = PyCFunction_New( &method_def->ext_meth_def, self.ptr() );
 
             return Object(func, true);
@@ -238,12 +235,8 @@ namespace Py
 
                 PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
                 T *self = static_cast<T *>( self_in_cobject );
-                #if PY_VERSION_HEX < 0x02070000
-                    void *capsule = PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() );
-                #else
-                    void *capsule = PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL );
-                #endif
-                MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>( capsule );
+                MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>(
+                                                PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ) );
                 Object result;
 
                 // Adding try & catch in case of STL debug-mode exceptions.
@@ -278,12 +271,8 @@ namespace Py
                 PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
                 T *self = static_cast<T *>( self_in_cobject );
 
-                #if PY_VERSION_HEX < 0x02070000
-                    void *capsule = PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() );
-                #else
-                    void *capsule = PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL );
-                #endif
-                MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>( capsule );
+                MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>(
+                                                PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ) );
                 Tuple args( _args );
 
                 Object result;
@@ -319,12 +308,8 @@ namespace Py
                 PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
                 T *self = static_cast<T *>( self_in_cobject );
 
-                #if PY_VERSION_HEX < 0x02070000
-                    void *capsule = PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() );
-                #else
-                    void *capsule = PyCapsule_GetPointer( self_and_name_tuple[1].ptr(), NULL );
-                #endif
-                MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>( capsule );
+                MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>(
+                                                PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ) );
 
                 Tuple args( _args );
 

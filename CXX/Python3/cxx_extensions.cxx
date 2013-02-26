@@ -366,7 +366,7 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
 
     memset( table, 0, sizeof( PyTypeObject ) );   // ensure new fields are 0
     *reinterpret_cast<PyObject *>( table ) = py_object_initializer;
-    // QQQ table->ob_type = _Type_Type();
+    reinterpret_cast<PyObject *>( table )->ob_type = _Type_Type();
     // QQQ table->ob_size = 0;
     table->tp_name = const_cast<char *>( default_name );
     table->tp_basicsize = basic_size;
@@ -440,10 +440,10 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
     table->tp_version_tag = 0;
 
 #ifdef COUNT_ALLOCS
-    table->tp_allocs = 0;
-    table->tp_frees = 0;
+    table->tp_alloc = 0;
+    table->tp_free = 0;
     table->tp_maxalloc = 0;
-    table->tp_prev = 0;
+    table->tp_orev = 0;
     table->tp_next = 0;
 #endif
 }
@@ -1601,9 +1601,6 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
         return 0;
     }
 }
-
-extern "C" void do_not_dealloc( void * )
-{}
 
 
 //--------------------------------------------------------------------------------
