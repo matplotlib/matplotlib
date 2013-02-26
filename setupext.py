@@ -598,6 +598,9 @@ class Tests(OptionalPackage):
                 'tests/test_rcparams.rc'
             ]}
 
+    def get_install_requires(self):
+        return ['nose']
+
 
 class Numpy(SetupPackage):
     name = "numpy"
@@ -607,13 +610,13 @@ class Numpy(SetupPackage):
         try:
             import numpy
         except ImportError:
-            raise CheckFailed(
-                "Requires numpy %s or later.  (Numpy not found)" %
+            raise SystemExit(
+                "Requires numpy %s or later to build.  (Numpy not found)" %
                 min_version)
 
         if not is_min_version(numpy.__version__, min_version):
-            raise CheckFailed(
-                "Requires numpy %s or later.  (Found %s)" %
+            raise SystemExit(
+                "Requires numpy %s or later to build.  (Found %s)" %
                 (min_version, numpy.__version__))
 
         ext = make_extension('test', [])
@@ -921,14 +924,17 @@ class Pyparsing(SetupPackage):
                 "after matplotlib.")
 
         if sys.version_info[0] >= 3:
-            if [int(x) for x in pyparsing.__version__.split('.')] <= [1, 5, 6]:
+            if [int(x) for x in pyparsing.__version__.split('.')] < [2, 0, 0]:
                 return (
-                    "matplotlib requires pyparsing > 1.5.6 on Python 3.x")
+                    "matplotlib requires pyparsing >= 2.0.0 on Python 3.x")
 
         return "using pyparsing version %s" % pyparsing.__version__
 
     def get_install_requires(self):
-        return ['pyparsing']
+        if sys.version_info[0] >= 3:
+            return ['pyparsing>=2.0.0']
+        else:
+            return ['pyparsing']
 
 
 class BackendAgg(OptionalBackendPackage):
