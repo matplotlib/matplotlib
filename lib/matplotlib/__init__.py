@@ -115,9 +115,9 @@ except ImportError:
     raise ImportError("matplotlib requires pyparsing")
 else:
     if sys.version_info[0] >= 3:
-        if [int(x) for x in pyparsing.__version__.split('.')] <= [1, 5, 6]:
+        if [int(x) for x in pyparsing.__version__.split('.')] < [2, 0, 0]:
             raise ImportError(
-                "matplotlib requires pyparsing > 1.5.6 on Python 3.x")
+                "matplotlib requires pyparsing >= 2.0.0 on Python 3.x")
 
 import os, re, shutil, subprocess, warnings
 import distutils.sysconfig
