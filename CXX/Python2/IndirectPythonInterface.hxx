@@ -113,10 +113,8 @@ bool _Instance_Check( PyObject *op );
 PyTypeObject * _Method_Type();
 bool _Method_Check( PyObject *op );
 
-#if PY_VERSION_HEX < 0x02070000
 PyTypeObject * _CObject_Type();
 bool _CObject_Check( PyObject *op );
-#endif
 
 PyTypeObject * _Complex_Type();
 bool _Complex_Check( PyObject *op );

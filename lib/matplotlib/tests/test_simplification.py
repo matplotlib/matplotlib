@@ -168,7 +168,7 @@ def test_throw_rendering_complexity_exceeded():
     ax = fig.add_subplot(111)
     ax.plot(xx, yy)
     try:
-        fig.savefig(io.StringIO())
+        fig.savefig(io.BytesIO())
     finally:
         rcParams['path.simplify'] = True
 

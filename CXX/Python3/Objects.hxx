@@ -413,7 +413,7 @@ namespace Py
         {
         }
 
-        virtual bool accepts( PyObject *pyob ) const
+        virtual bool accepts( PyObject *pyob )
         {
             return pyob == NULL;
         }
@@ -1328,7 +1328,6 @@ namespace Py
         }
 
         // Assignment acquires new ownership of pointer
-
         SeqBase<T> &operator=( const Object &rhs )
         {
             return *this = *rhs;
@@ -1520,7 +1519,7 @@ namespace Py
 
             int operator-( const iterator &other ) const
             {
-              if( seq->ptr() != other.seq->ptr() )
+                if( seq->ptr() != other.seq->ptr() )
                     throw RuntimeError( "SeqBase<T>::iterator comparison error" );
 
                 return count - other.count;
@@ -2192,8 +2191,8 @@ namespace Py
                 }
             }
         }
-        // Assignment acquires new ownership of pointer
 
+        // Assignment acquires new ownership of pointer
         Tuple &operator=( const Object &rhs )
         {
             return *this = *rhs;
@@ -2380,8 +2379,8 @@ namespace Py
         {
             return max_size();
         }
-        // Assignment acquires new ownership of pointer
 
+        // Assignment acquires new ownership of pointer
         List &operator=( const Object &rhs )
         {
             return *this = *rhs;
@@ -3074,8 +3073,8 @@ namespace Py
             set( PyDict_New(), true );
             validate();
         }
-        // Assignment acquires new ownership of pointer
 
+        // Assignment acquires new ownership of pointer
         Dict &operator=( const Object &rhs )
         {
             return *this = *rhs;
