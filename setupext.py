@@ -1540,6 +1540,7 @@ class BackendMacOSX(OptionalBackendPackage):
         Numpy().add_flags(ext)
         LibAgg().add_flags(ext)
         CXX().add_flags(ext)
+        ext.extra_link_args.extend(['-framework', 'Cocoa'])
         return ext
 
 
