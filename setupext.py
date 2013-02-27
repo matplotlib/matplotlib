@@ -939,7 +939,8 @@ class Pyparsing(SetupPackage):
         if sys.version_info[0] >= 3:
             return ['pyparsing>=2.0.0']
         else:
-            return ['pyparsing>=1.5.6,<=1.5.7']
+            # pyparsing >= 2.0.0 is not compatible with Python 2
+            return ['pyparsing>=1.5.6,<2.0.0']
 
 
 class BackendAgg(OptionalBackendPackage):
