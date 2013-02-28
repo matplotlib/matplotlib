@@ -3660,10 +3660,10 @@ class Axes(martist.Artist):
 
         Parameters
         ----------
-        y : scalar or 1D array like
+        y : scalar or 1D array_like
             y-indexes where to plot the lines.
 
-        xmin, xmax : scalar or 1D array like
+        xmin, xmax : scalar or 1D array_like
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
@@ -3675,19 +3675,20 @@ class Axes(martist.Artist):
 
         Returns
         -------
-        matplotlib.collections.LineCollection
+        lines : `~matplotlib.collections.LineCollection`
 
         Other parameters
         ----------------
-        kwargs correspond to matplotlib.collections.LineCollection properties.
-
-        Notes
-        -----
-        .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
+        kwargs :  `~matplotlib.collections.LineCollection` properties.
 
         See also
         --------
         vlines : vertical lines
+
+        Examples
+        --------
+        .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
+
         """
 
         # We do the conversion first since not all unitized data is uniform
@@ -3748,10 +3749,10 @@ class Axes(martist.Artist):
 
         Parameters
         ----------
-        x : scalar or 1D array like
+        x : scalar or 1D array_like
             x-indexes where to plot the lines.
 
-        xmin, xmax : scalar or 1D array like
+        xmin, xmax : scalar or 1D array_like
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
@@ -3763,19 +3764,19 @@ class Axes(martist.Artist):
 
         Returns
         -------
-        matplotlib.collections.LineCollection
+        lines : `~matplotlib.collections.LineCollection`
 
         Other parameters
         ----------------
-        kwargs correspond to matplotlib.collections.LineCollection properties.
-
-        Notes
-        -----
-        .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
+        kwargs : `~matplotlib.collections.LineCollection` properties.
 
         See also
         --------
         hlines : horizontal lines
+
+        Examples
+        ---------
+        .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
 
         """
 
