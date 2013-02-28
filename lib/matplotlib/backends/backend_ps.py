@@ -1187,7 +1187,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if passed_in_file_object:
             with open(tmpfile, 'rb') as fh:
-                print(fh.read(), file=outfile)
+                outfile.write(fh.read())
         else:
             with open(outfile, 'w') as fh:
                 pass
