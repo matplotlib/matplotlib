@@ -165,7 +165,7 @@ class ImageComparisonTest(CleanupTest):
 
                 yield (do_test,)
 
-def image_comparison(baseline_images=None, extensions=None, tol=1e-3,
+def image_comparison(baseline_images=None, extensions=None, tol=10,
                      freetype_version=None, remove_text=False,
                      savefig_kwarg=None):
     """
