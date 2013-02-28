@@ -997,16 +997,6 @@ def test_hist_stacked_bar():
     ax.hist(d, bins=10, histtype='barstacked', align='mid', color=colors, label=labels)
     ax.legend(loc='upper right', bbox_to_anchor = (1.0, 1.0), ncol=1)
 
-@image_comparison(baseline_images=['hist_offset'])
-def test_hist_offset():
-    # make some data
-    d1 = np.linspace(0, 10, 50)
-    d2 = np.linspace(1, 3, 20)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.hist(d1, bottom=5)
-    ax.hist(d2, bottom=15)
-
 @image_comparison(baseline_images=['transparent_markers'], remove_text=True)
 def test_transparent_markers():
     np.random.seed(0)
