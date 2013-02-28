@@ -3681,7 +3681,7 @@ class Axes(martist.Artist):
 
         Example
         --------
-        .. plot:: mpl_examples/pylab_examples/hline_demo.py
+        .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
 
         See also
         --------
@@ -3764,6 +3764,10 @@ class Axes(martist.Artist):
         Returns
         -------
         :class:`~matplotlib.collections.LineCollection`
+
+        Example
+        -------
+        .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
 
         See also
         --------
