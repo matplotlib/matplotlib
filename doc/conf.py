@@ -37,7 +37,7 @@ extensions = ['matplotlib.sphinxext.mathmpl', 'math_symbol_table',
 try:
     import numpydoc
 except ImportError:
-    raise ImportError("No modyle named numpydoc - you need to install "
+    raise ImportError("No module named numpydoc - you need to install "
                       "numpydoc to build the documentation.")
 
 
