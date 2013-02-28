@@ -1179,6 +1179,7 @@ class FigureCanvasPS(FigureCanvasBase):
             print("end", file=fh)
             print("showpage", file=fh)
             if not isEPSF: print("%%EOF", file=fh)
+            fh.flush()
 
         if rcParams['ps.usedistiller'] == 'ghostscript':
             gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
@@ -1293,6 +1294,7 @@ class FigureCanvasPS(FigureCanvasBase):
             #print >>fh, "grestore"
             print("end", file=fh)
             print("showpage", file=fh)
+            fh.flush()
 
         if isLandscape: # now we are ready to rotate
             isLandscape = True
