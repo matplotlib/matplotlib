@@ -4792,7 +4792,7 @@ class Axes(martist.Artist):
         if orientation == 'vertical':
             self._process_unit_info(xdata=left, ydata=height, kwargs=kwargs)
             if log:
-                self.set_yscale('log', nonposy = 'clip')
+                self.set_yscale('log', nonposy='clip')
             # size width and bottom according to length of left
             if _bottom is None:
                 if self.get_yscale() == 'log':
@@ -4807,7 +4807,7 @@ class Axes(martist.Artist):
         elif orientation == 'horizontal':
             self._process_unit_info(xdata=width, ydata=bottom, kwargs=kwargs)
             if log:
-                self.set_xscale('log', nonposx = 'clip')
+                self.set_xscale('log', nonposx='clip')
             # size left and height according to length of bottom
             if _left is None:
                 if self.get_xscale() == 'log':
@@ -8116,7 +8116,7 @@ class Axes(martist.Artist):
             if normed:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
-            if stacked :
+            if stacked:
                 m += mlast
                 mlast[:] = m
             n.append(m)
@@ -8172,10 +8172,10 @@ class Axes(martist.Artist):
                 if bottom is None:
                     bottom = np.zeros(len(m), np.float)
                 if stacked:
-                    height = m-bottom
+                    height = m - bottom
                 else :
                     height = m
-                patch = _barfunc(bins[:-1]+boffset, height, width, bottom,
+                patch = _barfunc(bins[:-1]+boffset, height, width,
                                   align='center', log=log,
                                   color=c, bottom=bottom)
                 patches.append(patch)
