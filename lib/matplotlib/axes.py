@@ -3656,37 +3656,36 @@ class Axes(martist.Artist):
         """
         Plot horizontal lines.
 
-        call signature::
+        Plot horizontal lines at each `y` from `xmin` to `xmax`.
 
-          hlines(y, xmin, xmax, colors='k', linestyles='solid', **kwargs)
+        Parameters
+        ----------
+        y : scalar or 1D array like
+            y-indexes where to plot the lines.
 
-        Plot horizontal lines at each *y* from *xmin* to *xmax*.
+        xmin, xmax : scalar or 1D array like
+            Respective beginning and end of each line. If scalars are
+            provided, all lines will have same length.
 
-        Returns the :class:`~matplotlib.collections.LineCollection`
-        that was added.
+        colors : a line collections color argument, either a single color
+        or a list of colors
 
-        Required arguments:
+        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional,
+        default : 'solid'
 
-          *y*:
-            a 1-D numpy array or iterable.
+        label : string, optional, default: ''
 
-          *xmin* and *xmax*:
-            can be scalars or ``len(x)`` numpy arrays.  If they are
-            scalars, then the respective values are constant, else the
-            widths of the lines are determined by *xmin* and *xmax*.
+        Returns
+        -------
+        :class:`~matplotlib.collections.LineCollection`
 
-        Optional keyword arguments:
-
-          *colors*:
-            a line collections color argument, either a single color
-            or a ``len(y)`` list of colors
-
-          *linestyles*:
-            [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
-
-        **Example:**
-
+        Example
+        --------
         .. plot:: mpl_examples/pylab_examples/hline_demo.py
+
+        See also
+        --------
+        vlines : horizontal lines
         """
 
         # We do the conversion first since not all unitized data is uniform
@@ -3743,27 +3742,33 @@ class Axes(martist.Artist):
         """
         Plot vertical lines.
 
-        Call signature::
+        Plot vertical lines at each `x` from `ymin` to `ymax`.
 
-          vlines(x, ymin, ymax, color='k', linestyles='solid')
+        Parameters
+        ----------
+        x : scalar or 1D array like
+            x-indexes where to plot the lines.
 
-        Plot vertical lines at each *x* from *ymin* to *ymax*.  *ymin*
-        or *ymax* can be scalars or len(*x*) numpy arrays.  If they are
-        scalars, then the respective values are constant, else the
-        heights of the lines are determined by *ymin* and *ymax*.
+        xmin, xmax : scalar or 1D array like
+            Respective beginning and end of each line. If scalars are
+            provided, all lines will have same length.
 
-        *colors* :
-          A line collection's color args, either a single color
-          or a ``len(x)`` list of colors
+        colors : a line collections color argument, either a single color
+        or a list of colors
 
-        *linestyles* : [ 'solid' | 'dashed' | 'dashdot' | 'dotted' ]
+        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional,
+        default : 'solid'
 
-        Returns the :class:`matplotlib.collections.LineCollection`
-        that was added.
+        label : string, optional, default: ''
 
-        kwargs are :class:`~matplotlib.collections.LineCollection` properties:
+        Returns
+        -------
+        :class:`~matplotlib.collections.LineCollection`
 
-        %(LineCollection)s
+        See also
+        --------
+        hlines : horizontal lines
+
         """
 
         self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
@@ -8322,8 +8327,6 @@ class Axes(martist.Artist):
                 mlast[:] = m
             n.append(m)
 
-
-
         if cumulative:
             slc = slice(None)
             if cbook.is_numlike(cumulative) and cumulative < 0:
@@ -8405,7 +8408,7 @@ class Axes(martist.Artist):
                     # For normed data, set to log base * minimum data value
                     # (gives 1 full tick-label unit for the lowest filled bin)
                     ndata = np.array(n)
-                    minimum = (np.min(ndata[ndata>0])) / logbase
+                    minimum = (np.min(ndata[ndata > 0])) / logbase
                 else:
                     # For non-normed data, set the min to log base, again so
                     # that there is 1 full tick-label unit for the lowest bin
