@@ -3667,25 +3667,27 @@ class Axes(martist.Artist):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : a line collections color argument, either a single color
-        or a list of colors
+        colors : array_like of colors, optional, default: 'k'
 
-        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional,
-        default : 'solid'
+        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional
 
         label : string, optional, default: ''
 
         Returns
         -------
-        :class:`~matplotlib.collections.LineCollection`
+        matplotlib.collections.LineCollection
 
-        Example
-        --------
+        Other parameters
+        ----------------
+        kwargs correspond to matplotlib.collections.LineCollection properties.
+
+        Notes
+        -----
         .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
 
         See also
         --------
-        vlines : horizontal lines
+        vlines : vertical lines
         """
 
         # We do the conversion first since not all unitized data is uniform
@@ -3753,20 +3755,22 @@ class Axes(martist.Artist):
             Respective beginning and end of each line. If scalars are
             provided, all lines will have same length.
 
-        colors : a line collections color argument, either a single color
-        or a list of colors
+        colors : array_like of colors, optional, default: 'k'
 
-        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional,
-        default : 'solid'
+        linestyles : ['solid' | 'dashed' | 'dashdot' | 'dotted'], optional
 
         label : string, optional, default: ''
 
         Returns
         -------
-        :class:`~matplotlib.collections.LineCollection`
+        matplotlib.collections.LineCollection
 
-        Example
-        -------
+        Other parameters
+        ----------------
+        kwargs correspond to matplotlib.collections.LineCollection properties.
+
+        Notes
+        -----
         .. plot:: mpl_examples/pylab_examples/vline_hline_demo.py
 
         See also
