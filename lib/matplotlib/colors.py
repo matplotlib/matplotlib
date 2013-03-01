@@ -16,11 +16,11 @@ colormap instances, but is also useful for making custom colormaps, and
 list of color specifications.
 
 The module also provides a single instance, *colorConverter*, of the
-:class:`ColorConverter` class providing methods for converting single
-color specifications or sequences of them to *RGB* or *RGBA*.
+:class:`ColorConverter` class providing methods for converting single color
+specifications or sequences of them to *RGB* or *RGBA*.
 
-Commands which take color arguments can use several formats to specify
-the colors.  For the basic builtin colors, you can use a single letter
+Commands which take color arguments can use several formats to specify the
+colors.  For the basic builtin colors, you can use a single letter
 
     - b: blue
     - g: green
@@ -31,21 +31,20 @@ the colors.  For the basic builtin colors, you can use a single letter
     - k: black
     - w: white
 
-Gray shades can be given as a string encoding a float in the 0-1
-range, e.g.::
+Gray shades can be given as a string encoding a float in the 0-1 range, e.g.::
 
     color = '0.75'
 
-For a greater range of colors, you have two options.  You can specify
-the color using an html hex string, as in::
+For a greater range of colors, you have two options.  You can specify the
+color using an html hex string, as in::
 
       color = '#eeefff'
 
-or you can pass an *R* , *G* , *B* tuple, where each of *R* , *G* , *B*
-are in the range [0,1].
+or you can pass an *R* , *G* , *B* tuple, where each of *R* , *G* , *B* are in
+the range [0,1].
 
-Finally, legal html names for colors, like 'red', 'burlywood' and
-'chartreuse' are supported.
+Finally, legal html names for colors, like 'red', 'burlywood' and 'chartreuse'
+are supported.
 """
 from __future__ import print_function, division
 import re
@@ -198,8 +197,7 @@ cnames = {
     'white':                '#FFFFFF',
     'whitesmoke':           '#F5F5F5',
     'yellow':               '#FFFF00',
-    'yellowgreen':          '#9ACD32',
-    }
+    'yellowgreen':          '#9ACD32'}
 
 
 # add british equivs
@@ -255,8 +253,7 @@ class ColorConverter(object):
         'm': (0.75, 0, 0.75),
         'y': (0.75, 0.75, 0),
         'k': (0.0, 0.0, 0.0),
-        'w': (1.0, 1.0, 1.0),
-        }
+        'w': (1.0, 1.0, 1.0), }
 
     cache = {}
 
@@ -286,8 +283,8 @@ class ColorConverter(object):
                 pass
             except TypeError:
                 raise ValueError(
-                      'to_rgb: arg "%s" is unhashable even inside a tuple'
-                                    % (str(arg),))
+                    'to_rgb: arg "%s" is unhashable even inside a tuple'
+                    % (str(arg),))
 
         try:
             if cbook.is_string_like(arg):
@@ -301,26 +298,26 @@ class ColorConverter(object):
                         fl = float(argl)
                         if fl < 0 or fl > 1:
                             raise ValueError(
-                                   'gray (string) must be in range 0-1')
+                                'gray (string) must be in range 0-1')
                         color = tuple([fl] * 3)
             elif cbook.iterable(arg):
                 if len(arg) > 4 or len(arg) < 3:
                     raise ValueError(
-                           'sequence length is %d; must be 3 or 4' % len(arg))
+                        'sequence length is %d; must be 3 or 4' % len(arg))
                 color = tuple(arg[:3])
                 if [x for x in color if (float(x) < 0) or (x > 1)]:
                     # This will raise TypeError if x is not a number.
                     raise ValueError(
-                            'number in rbg sequence outside 0-1 range')
+                        'number in rbg sequence outside 0-1 range')
             else:
                 raise ValueError(
-                        'cannot convert argument to rgb sequence')
+                    'cannot convert argument to rgb sequence')
 
             self.cache[arg] = color
 
         except (KeyError, ValueError, TypeError) as exc:
             raise ValueError(
-                    'to_rgb: Invalid rgb arg "%s"\n%s' % (str(arg), exc))
+                'to_rgb: Invalid rgb arg "%s"\n%s' % (str(arg), exc))
             # Error messages could be improved by handling TypeError
             # separately; but this should be rare and not too hard
             # for the user to figure out as-is.
@@ -348,7 +345,7 @@ class ColorConverter(object):
                     if [x for x in arg if (float(x) < 0) or (x > 1)]:
                         # This will raise TypeError if x is not a number.
                         raise ValueError(
-                                'number in rbga sequence outside 0-1 range')
+                            'number in rbga sequence outside 0-1 range')
                     if alpha is None:
                         return tuple(arg)
                     if alpha < 0.0 or alpha > 1.0:
@@ -357,7 +354,7 @@ class ColorConverter(object):
                 r, g, b = arg[:3]
                 if [x for x in (r, g, b) if (float(x) < 0) or (x > 1)]:
                     raise ValueError(
-                            'number in rbg sequence outside 0-1 range')
+                        'number in rbg sequence outside 0-1 range')
             else:
                 r, g, b = self.to_rgb(arg)
             if alpha is None:
@@ -365,7 +362,7 @@ class ColorConverter(object):
             return r, g, b, alpha
         except (TypeError, ValueError) as exc:
             raise ValueError(
-                    'to_rgba: Invalid rgba arg "%s"\n%s' % (str(arg), exc))
+                'to_rgba: Invalid rgba arg "%s"\n%s' % (str(arg), exc))
 
     def to_rgba_array(self, c, alpha=None):
         """
@@ -458,18 +455,18 @@ def makeMappingArray(N, data, gamma=1.0):
 
     if x[0] != 0. or x[-1] != 1.0:
         raise ValueError(
-           "data mapping points must start with x=0. and end with x=1")
+            "data mapping points must start with x=0. and end with x=1")
     if np.sometrue(np.sort(x) - x):
         raise ValueError(
-           "data mapping points must have x in increasing order")
+            "data mapping points must have x in increasing order")
     # begin generation of lookup table
     x = x * (N - 1)
     lut = np.zeros((N,), np.float)
     xind = (N - 1) * np.linspace(0, 1, N) ** gamma
     ind = np.searchsorted(x, xind)[1:-1]
 
-    lut[1:-1] = (((xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1]))
-                  * (y0[ind] - y1[ind - 1]) + y1[ind - 1])
+    lut[1:-1] = (((xind[1:-1] - x[ind - 1]) / (x[ind] - x[ind - 1])) *
+                 (y0[ind] - y1[ind - 1]) + y1[ind - 1])
     lut[0] = y1[0]
     lut[-1] = y0[-1]
     # ensure that the lut is confined to values between 0 and 1 by clipping it
@@ -635,8 +632,8 @@ class Colormap(object):
     def is_gray(self):
         if not self._isinit:
             self._init()
-        return (np.alltrue(self._lut[:, 0] == self._lut[:, 1])
-                    and np.alltrue(self._lut[:, 0] == self._lut[:, 2]))
+        return (np.alltrue(self._lut[:, 0] == self._lut[:, 1]) and
+                np.alltrue(self._lut[:, 0] == self._lut[:, 2]))
 
 
 class LinearSegmentedColormap(Colormap):
@@ -701,15 +698,15 @@ class LinearSegmentedColormap(Colormap):
 
     def _init(self):
         self._lut = np.ones((self.N + 3, 4), np.float)
-        self._lut[:-3, 0] = makeMappingArray(self.N,
-                self._segmentdata['red'], self._gamma)
-        self._lut[:-3, 1] = makeMappingArray(self.N,
-                self._segmentdata['green'], self._gamma)
-        self._lut[:-3, 2] = makeMappingArray(self.N,
-                self._segmentdata['blue'], self._gamma)
+        self._lut[:-3, 0] = makeMappingArray(
+            self.N, self._segmentdata['red'], self._gamma)
+        self._lut[:-3, 1] = makeMappingArray(
+            self.N, self._segmentdata['green'], self._gamma)
+        self._lut[:-3, 2] = makeMappingArray(
+            self.N, self._segmentdata['blue'], self._gamma)
         if 'alpha' in self._segmentdata:
-            self._lut[:-3, 3] = makeMappingArray(self.N,
-                    self._segmentdata['alpha'], 1)
+            self._lut[:-3, 3] = makeMappingArray(
+                self.N, self._segmentdata['alpha'], 1)
         self._isinit = True
         self._set_extremes()
 
@@ -955,7 +952,7 @@ class LogNorm(Normalize):
             if clip:
                 mask = ma.getmask(result)
                 result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                mask=mask)
+                                  mask=mask)
             # in-place equivalent of above can be much faster
             resdat = result.data
             mask = result.mask
@@ -1000,7 +997,7 @@ class LogNorm(Normalize):
             self.vmin = ma.min(A)
         if self.vmax is None:
             self.vmax = ma.max(A)
-            
+
 
 class SymLogNorm(Normalize):
     """
@@ -1039,7 +1036,7 @@ class SymLogNorm(Normalize):
         result, is_scalar = self.process_value(value)
         self.autoscale_None(result)
         vmin, vmax = self.vmin, self.vmax
-        
+
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         elif vmin == vmax:
@@ -1048,7 +1045,7 @@ class SymLogNorm(Normalize):
             if clip:
                 mask = ma.getmask(result)
                 result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                mask=mask)
+                                  mask=mask)
             # in-place equivalent of above can be much faster
             resdat = self._transform(result.data)
             resdat -= self._lower
@@ -1057,8 +1054,8 @@ class SymLogNorm(Normalize):
         if is_scalar:
             result = result[0]
         return result
-    
-    def _transform(self, a):        
+
+    def _transform(self, a):
         """
         Inplace transformation.
         """
@@ -1069,7 +1066,7 @@ class SymLogNorm(Normalize):
         a[masked] = log
         a[~masked] *= self._linscale_adj
         return a
-        
+
     def _inv_transform(self, a):
         """
         Inverse inplace Transformation.
@@ -1081,15 +1078,14 @@ class SymLogNorm(Normalize):
         a[masked] = exp
         a[~masked] /= self._linscale_adj
         return a
-        
+
     def _transform_vmin_vmax(self):
         """
         Calculates vmin and vmax in the transformed system.
         """
         vmin, vmax = self.vmin, self.vmax
         arr = np.array([vmax, vmin])
-        self._upper, self._lower  = self._transform(arr)
-
+        self._upper, self._lower = self._transform(arr)
 
     def inverse(self, value):
         if not self.scaled():
@@ -1097,15 +1093,15 @@ class SymLogNorm(Normalize):
         val = ma.asarray(value)
         val = val * (self._upper - self._lower) + self._lower
         return self._inv_transform(val)
-        
+
     def autoscale(self, A):
         """
         Set *vmin*, *vmax* to min, max of *A*.
-        """        
+        """
         self.vmin = ma.min(A)
         self.vmax = ma.max(A)
         self._transform_vmin_vmax()
- 
+
     def autoscale_None(self, A):
         """ autoscale only None-valued vmin or vmax """
         if self.vmin is not None and self.vmax is not None:
@@ -1355,8 +1351,8 @@ class LightSource(object):
         dx, dy = np.gradient(elevation)
         slope = 0.5 * np.pi - np.arctan(np.hypot(dx, dy))
         aspect = np.arctan2(dx, dy)
-        intensity = np.sin(alt) * np.sin(slope) + np.cos(alt) *\
-                    np.cos(slope) * np.cos(-az - aspect - 0.5 * np.pi)
+        intensity = (np.sin(alt) * np.sin(slope) + np.cos(alt) *
+                     np.cos(slope) * np.cos(-az - aspect - 0.5 * np.pi))
         # rescale to interval -1,1
         # +1 means maximum sun exposure and -1 means complete shade.
         intensity = (intensity - intensity.min()) / \
@@ -1367,28 +1363,26 @@ class LightSource(object):
         hsv = rgb_to_hsv(rgb[:, :, 0:3])
         # modify hsv values to simulate illumination.
 
-        hsv[:, :, 1] = np.where(np.logical_and(
-                                   np.abs(hsv[:, :, 1]) > 1.e-10,
-                                   intensity > 0),
-                                (1. - intensity) * hsv[:, :, 1] +
-                                         intensity * self.hsv_max_sat,
+        hsv[:, :, 1] = np.where(np.logical_and(np.abs(hsv[:, :, 1]) > 1.e-10,
+                                               intensity > 0),
+                                ((1. - intensity) * hsv[:, :, 1] +
+                                 intensity * self.hsv_max_sat),
                                 hsv[:, :, 1])
 
         hsv[:, :, 2] = np.where(intensity > 0,
-                                (1. - intensity) * hsv[:, :, 2] +
-                                     intensity * self.hsv_max_val,
+                                ((1. - intensity) * hsv[:, :, 2] +
+                                 intensity * self.hsv_max_val),
                                 hsv[:, :, 2])
 
-        hsv[:, :, 1] = np.where(np.logical_and(
-                               np.abs(hsv[:, :, 1]) > 1.e-10,
-                               intensity < 0),
-                               (1. + intensity) * hsv[:, :, 1] -
-                                    intensity * self.hsv_min_sat,
-                               hsv[:, :, 1])
+        hsv[:, :, 1] = np.where(np.logical_and(np.abs(hsv[:, :, 1]) > 1.e-10,
+                                               intensity < 0),
+                                ((1. + intensity) * hsv[:, :, 1] -
+                                 intensity * self.hsv_min_sat),
+                                hsv[:, :, 1])
         hsv[:, :, 2] = np.where(intensity < 0,
-                               (1. + intensity) * hsv[:, :, 2] -
-                                    intensity * self.hsv_min_val,
-                               hsv[:, :, 2])
+                                ((1. + intensity) * hsv[:, :, 2] -
+                                 intensity * self.hsv_min_val),
+                                hsv[:, :, 2])
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] < 0., 0, hsv[:, :, 1:])
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] > 1., 1, hsv[:, :, 1:])
         # convert modified hsv back to rgb.
