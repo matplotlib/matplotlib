@@ -463,18 +463,18 @@ class CubicTriInterpolator(TriInterpolator):
         else:
             raise ValueError("Invalid return_key: " + return_key)
 
-    def _compute_dof(self, kind, **kwargs):
+    def _compute_dof(self, kind, dz):
         """
         Computes and returns nodal dofs according to kind
 
         Parameters
         ----------
         kind: {'min_E', 'geom', 'user'}
-                Choice of the _DOF_estimator subclass to perform the gradient
-                estimation.
-        **kwargs: keyword argument(s), optional
-                  The remaining **kwargs (if any) are passed to the
-                  _DOF_estimator.
+            Choice of the _DOF_estimator subclass to perform the gradient
+            estimation.
+        dz: tuple of array_likes (dzdx, dzdy), optional
+            Used only if *kind=user ; in this case passed to the
+            :class:`_DOF_estimator_user`.
 
         Returns
         -------
@@ -483,13 +483,17 @@ class CubicTriInterpolator(TriInterpolator):
               degree of freedoms of reduced-HCT triangle elements).
         """
         if kind == 'user':
-            TE = _DOF_estimator_user(self, **kwargs)
+            if dz is None:
+                raise ValueError("For a CubicTriInterpolator with "
+                                 "*kind*='user', a valid *dz* "
+                                 "argument is expected.")
+            TE = _DOF_estimator_user(self, dz=dz)
         elif kind == 'geom':
-            TE = _DOF_estimator_geom(self, **kwargs)
+            TE = _DOF_estimator_geom(self)
         elif kind == 'min_E':
-            TE = _DOF_estimator_min_E(self, **kwargs)
+            TE = _DOF_estimator_min_E(self)
         else:
-            raise ValueError("CubicTriInterpolator kind proposed :{0} ; "
+            raise ValueError("CubicTriInterpolator *kind* proposed: {0} ; "
                              "should be one of: "
                              "'user', 'geom', 'min_E'".format(kind))
         return TE.compute_dof_from_df()
@@ -775,7 +779,8 @@ E(f) = integral( (d2z/dx2 + d2z/dy2)**2 dA)
         dsdksi = _roll_vectorized(prod, 3*subtri, axis=0)
         dfdksi = _prod_vectorized(dofs, dsdksi)
         # In global coordinates:
-        # Here we try to deal with the simpliest colinear cases.
+        # Here we try to deal with the simpliest colinear cases, returning a
+        # null matrix.
         J_inv = _safe_inv22_vectorized(J)
         dfdx = _prod_vectorized(J_inv, _transpose_vectorized(dfdksi))
         return dfdx
@@ -914,8 +919,8 @@ E(f) = integral( (d2z/dx2 + d2z/dy2)**2 dA)
         Returns H_rot used to rotate Hessian from local to global coordinates.
         if *return_area* is True, returns also the triangle area (0.5*det(J))
         """
-        # Here we try to deal with the simpliest colinear cases ; a zero
-        # energy and area is impsoed.
+        # Here we try to deal with the simpliest colinear cases ; a null
+        # energy and area is imposed.
         J_inv = _safe_inv22_vectorized(J)
         Ji00 = J_inv[:, 0, 0]
         Ji11 = J_inv[:, 1, 1]
@@ -1074,9 +1079,9 @@ Returns dof array of shape (9,) so that for each apex iapex:
 
 
 class _DOF_estimator_user(_DOF_estimator):
-    """ self.dz is imposed by user / Accounts for scaling if any """
-    def compute_dz(self, **kwargs):
-        (dzdx, dzdy) = kwargs['dz']
+    """ dz is imposed by user / Accounts for scaling if any """
+    def compute_dz(self, dz):
+        (dzdx, dzdy) = dz
         dzdx = dzdx * self._unit_x
         dzdy = dzdy * self._unit_y
         return np.vstack([dzdx, dzdy]).T
@@ -1084,7 +1089,7 @@ class _DOF_estimator_user(_DOF_estimator):
 
 class _DOF_estimator_geom(_DOF_estimator):
     """ Fast 'geometric' approximation, recommended for large arrays. """
-    def compute_dz(self, **kwargs):
+    def compute_dz(self):
         """
         self.df is computed as weighted average of _triangles sharing a common
         node. On each triangle itri f is first assumed linear (= ~f), which
@@ -1152,7 +1157,7 @@ class _DOF_estimator_geom(_DOF_estimator):
         dM2 = tris_pts[:, 2, :] - tris_pts[:, 0, :]
         dM = np.dstack([dM1, dM2])
         # Here we try to deal with the simpliest colinear cases: a null
-        # is assumed in this case.
+        # gradient is assumed in this case.
         dM_inv = _safe_inv22_vectorized(dM)
 
         dZ1 = tris_f[:, 1] - tris_f[:, 0]
@@ -1168,15 +1173,15 @@ class _DOF_estimator_geom(_DOF_estimator):
 
 class _DOF_estimator_min_E(_DOF_estimator_geom):
     """
-    The 'smothest' approximation, df is computed through global minimization
+    The 'smoothest' approximation, df is computed through global minimization
     of the bending energy:
-      E(f) = integral[(d2z/dx2 + d2z/dy2)**2 dA]
+      E(f) = integral[(d2z/dx2 + d2z/dy2 + 2 d2z/dxdy)**2 dA]
     """
-    def __init__(self, Interpolator, **kwargs):
+    def __init__(self, Interpolator):
         self._eccs = Interpolator._eccs
-        _DOF_estimator_geom.__init__(self, Interpolator, **kwargs)
+        _DOF_estimator_geom.__init__(self, Interpolator)
 
-    def compute_dz(self, **kwargs):
+    def compute_dz(self):
         """
         Elliptic solver for bending energy minimization.
         Uses a dedicated 'toy' sparse Jacobi PCG solver.
@@ -1210,9 +1215,9 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
         err0 = np.linalg.norm(Kff_coo.dot(Uf0) - Ff)
         if err0 < err:
             # Maybe a good occasion to raise a warning here ?
-            warnings.warn('In TriCubicInterpolator initialization, PCG sparse'
-                          + ' solver did not converge after 1000 iterations. '
-                          + '`geom` approximation is used instead of `min_E`')
+            warnings.warn("In TriCubicInterpolator initialization, PCG sparse"
+                          " solver did not converge after 1000 iterations. "
+                          "`geom` approximation is used instead of `min_E`")
             Uf = Uf0
 
         # Building dz from Uf
@@ -1223,7 +1228,7 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
 
 
 # The following private :class:_Sparse_Matrix_coo and :func:_cg provide
-# a PCG sparse solver for (symetric) elliptic problems.
+# a PCG sparse solver for (symmetric) elliptic problems.
 class _Sparse_Matrix_coo:
     def __init__(self, vals, rows, cols, shape):
         """
@@ -1249,7 +1254,7 @@ class _Sparse_Matrix_coo:
         # minlength=self.m of bincount ; however:
         # - it is new in numpy 1.6
         # - it is unecessary when each row have at least 1 entry in global
-        #   matrix, which is the case here
+        #   matrix, which is the case here.
         return np.bincount(self.rows, weights=self.vals*V[self.cols])
 
     def compress_csc(self):
@@ -1433,7 +1438,7 @@ def _inv22_vectorized(M):
 # The exception is the computation of barycentric coordinates, which is done
 # by inversion of the *metric* matrix. In this case, we need to compute a set
 # of valid coordinates (1 among numerous possibilities), to ensure point 4).
-# We benefit here from the symetry of metric = J x J.T, which makes it easier
+# We benefit here from the symmetry of metric = J x J.T, which makes it easier
 # to compute a pseudo-inverse in :func:`_pseudo_inv22sym_vectorized`
 def _safe_inv22_vectorized(M):
     """
