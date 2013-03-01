@@ -6,6 +6,7 @@ from nose.tools import assert_equal
 from numpy.testing import assert_array_equal, assert_array_almost_equal,\
     assert_array_less
 from matplotlib.testing.decorators import image_comparison
+import matplotlib.cm as cm
 
 
 def test_delaunay():
@@ -322,8 +323,8 @@ def test_triinterp():
     cubic_min_E = mtri.CubicTriInterpolator(triang, z)
     cubic_geom = mtri.CubicTriInterpolator(triang, z, kind='geom')
     zs = quad(xs, ys)
+    diff_lin = np.abs(linear_interp(xs, ys) - zs)
     for interp in (cubic_min_E, cubic_geom):
-        diff_lin = np.abs(linear_interp(xs, ys) - zs)
         diff_cubic = np.abs(interp(xs, ys) - zs)
         assert(np.max(diff_lin) >= 10.*np.max(diff_cubic))
         assert(np.dot(diff_lin, diff_lin) >=
@@ -461,7 +462,7 @@ def test_triinterpcubic_cg_solver():
         assert_array_almost_equal(np.dot(mat_dense, x), b)
 
     # 2) Same matrix with inserting 2 rows - cols with null diag terms
-    # (but still linked with the rest of the matrice by extra-diag terms)
+    # (but still linked with the rest of the matrix by extra-diag terms)
     (i_zero, j_zero) = (12, 49)
     vals, rows, cols, _ = poisson_sparse_matrix(n, m)
     rows = rows + 1*(rows >= i_zero) + 1*(rows >= j_zero)
@@ -530,11 +531,10 @@ def test_triinterp_colinear():
     # These are not valid triangulations, but we try to deal with the
     # simplest violations (i. e. those handled by default TriFinder).
     #
-    # Note that CubicTriInterpolator with kind='min_E' or 'geom' still pass a
-    # linear patch test.
-    # For the CubicTriInterpolator, we also test interpolation inside a
-    # flat triangle, by forcing *tri_index* in a call to
-    # :meth:`_interpolate_multikeys`
+    # Note that the LinearTriInterpolator and the CubicTriInterpolator with
+    # kind='min_E' or 'geom' still pass a linear patch test.
+    # We also test interpolation inside a  flat triangle, by forcing
+    # *tri_index* in a call to :meth:`_interpolate_multikeys`.
 
     delta = 0.  # If +ve, triangulation is OK, if -ve triangulation invalid,
                 # if zero have colinear points but should pass tests anyway.
@@ -582,6 +582,197 @@ def test_triinterp_colinear():
             zs, = interp._interpolate_multikeys(
                 xs, ys, tri_index=itri*np.ones(10, dtype=np.int32))
             assert_array_almost_equal(zs_target, zs)
+
+
+def test_triinterp_transformations():
+    # 1) Testing that the interpolation scheme is invariant by rotation of the
+    # whole figure.
+    # Note: This test is non-trivial for a CubicTriInterpolator with
+    # kind='min_E'. It does fail for a non-isotropic stiffness matrix E of
+    # :class:`_ReducedHCT_Element` (tested with E=np.diag([1., 1., 1.])), and
+    # provides a good test for :meth:`get_Kff_and_Ff`of the same class.
+    #
+    # 2) Also testing that the interpolation scheme is invariant by expansion
+    # of the whole figure along one axis.
+    n_angles = 20
+    n_radii = 10
+    min_radius = 0.15
+
+    def z(x, y):
+        r1 = np.sqrt((0.5-x)**2 + (0.5-y)**2)
+        theta1 = np.arctan2(0.5-x, 0.5-y)
+        r2 = np.sqrt((-x-0.2)**2 + (-y-0.2)**2)
+        theta2 = np.arctan2(-x-0.2, -y-0.2)
+        z = -(2*(np.exp((r1/10)**2)-1)*30. * np.cos(7.*theta1) +
+              (np.exp((r2/10)**2)-1)*30. * np.cos(11.*theta2) +
+              0.7*(x**2 + y**2))
+        return (np.max(z)-z)/(np.max(z)-np.min(z))
+
+    # First create the x and y coordinates of the points.
+    radii = np.linspace(min_radius, 0.95, n_radii)
+    angles = np.linspace(0 + n_angles, 2*np.pi + n_angles,
+                         n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
+    x0 = (radii*np.cos(angles)).flatten()
+    y0 = (radii*np.sin(angles)).flatten()
+    triang0 = mtri.Triangulation(x0, y0)  # Delaunay triangulation
+    z0 = z(x0, y0)
+
+    # Then create the test points
+    xs0 = np.linspace(-1., 1., 23)
+    ys0 = np.linspace(-1., 1., 23)
+    xs0, ys0 = np.meshgrid(xs0, ys0)
+    xs0 = xs0.ravel()
+    ys0 = ys0.ravel()
+
+    interp_z0 = {}
+    for i_angle in range(2):
+        # Rotating everything
+        theta = 2*np.pi / n_angles * i_angle
+        x = np.cos(theta)*x0 + np.sin(theta)*y0
+        y = -np.sin(theta)*x0 + np.cos(theta)*y0
+        xs = np.cos(theta)*xs0 + np.sin(theta)*ys0
+        ys = -np.sin(theta)*xs0 + np.cos(theta)*ys0
+        triang = mtri.Triangulation(x, y, triang0.triangles)
+        linear_interp = mtri.LinearTriInterpolator(triang, z0)
+        cubic_min_E = mtri.CubicTriInterpolator(triang, z0)
+        cubic_geom = mtri.CubicTriInterpolator(triang, z0, kind='geom')
+        dic_interp = {'lin': linear_interp,
+                      'min_E': cubic_min_E,
+                      'geom': cubic_geom}
+        # Testing that the interpolation is invariant by rotation...
+        for interp_key in ['lin', 'min_E', 'geom']:
+            interp = dic_interp[interp_key]
+            if i_angle == 0:
+                interp_z0[interp_key] = interp(xs0, ys0)  # storage
+            else:
+                interpz = interp(xs, ys)
+                assert_array_almost_equal(interpz, interp_z0[interp_key])
+
+    scale_factor = 987654.3210
+    for scaled_axis in ('x', 'y'):
+        # Scaling everything (expansion along scaled_axis)
+        if scaled_axis == 'x':
+            x = scale_factor * x0
+            y = y0
+            xs = scale_factor * xs0
+            ys = ys0
+        else:
+            x = x0
+            y = scale_factor * y0
+            xs = xs0
+            ys = scale_factor * ys0
+        triang = mtri.Triangulation(x, y, triang0.triangles)
+        linear_interp = mtri.LinearTriInterpolator(triang, z0)
+        cubic_min_E = mtri.CubicTriInterpolator(triang, z0)
+        cubic_geom = mtri.CubicTriInterpolator(triang, z0, kind='geom')
+        dic_interp = {'lin': linear_interp,
+                      'min_E': cubic_min_E,
+                      'geom': cubic_geom}
+        # Testing that the interpolation is invariant by expansion along
+        # 1 axis...
+        for interp_key in ['lin', 'min_E', 'geom']:
+            interpz = dic_interp[interp_key](xs, ys)
+            assert_array_almost_equal(interpz, interp_z0[interp_key])
+
+
+@image_comparison(baseline_images=['tri_smooth_contouring'],
+                  extensions=['png'], remove_text=True)
+def test_tri_smooth_contouring():
+    # Image comparison based on example tricontour_smooth_user.
+    n_angles = 20
+    n_radii = 10
+    min_radius = 0.15
+
+    def z(x, y):
+        r1 = np.sqrt((0.5-x)**2 + (0.5-y)**2)
+        theta1 = np.arctan2(0.5-x, 0.5-y)
+        r2 = np.sqrt((-x-0.2)**2 + (-y-0.2)**2)
+        theta2 = np.arctan2(-x-0.2, -y-0.2)
+        z = -(2*(np.exp((r1/10)**2)-1)*30. * np.cos(7.*theta1) +
+              (np.exp((r2/10)**2)-1)*30. * np.cos(11.*theta2) +
+              0.7*(x**2 + y**2))
+        return (np.max(z)-z)/(np.max(z)-np.min(z))
+
+    # First create the x and y coordinates of the points.
+    radii = np.linspace(min_radius, 0.95, n_radii)
+    angles = np.linspace(0 + n_angles, 2*np.pi + n_angles,
+                         n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
+    x0 = (radii*np.cos(angles)).flatten()
+    y0 = (radii*np.sin(angles)).flatten()
+    triang0 = mtri.Triangulation(x0, y0)  # Delaunay triangulation
+    z0 = z(x0, y0)
+    xmid = x0[triang0.triangles].mean(axis=1)
+    ymid = y0[triang0.triangles].mean(axis=1)
+    mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
+    triang0.set_mask(mask)
+
+    # Then the plot
+    plt.title("Refined tricontouring, subdiv=4")
+    refiner = mtri.UniformTriRefiner(triang0)
+    tri_refi, z_test_refi = refiner.refine_field(z0, subdiv=4)
+    levels = np.arange(0., 1., 0.025)
+    plt.triplot(triang0, lw=0.5, color='0.5')
+    plt.tricontour(tri_refi, z_test_refi, levels=levels, colors="black")
+
+
+@image_comparison(baseline_images=['tri_smooth_gradient'],
+                  extensions=['png'], remove_text=True)
+def test_tri_smooth_gradient():
+    # Image comparison based on example trigradient_demo.
+
+    def dipole_potential(x, y):
+        """ An electric dipole potential V """
+        r_sq = x**2 + y**2
+        theta = np.arctan2(y, x)
+        z = np.cos(theta)/r_sq
+        return (np.max(z)-z) / (np.max(z)-np.min(z))
+
+    # Creating a Triangulation
+    n_angles = 30
+    n_radii = 10
+    min_radius = 0.2
+    radii = np.linspace(min_radius, 0.95, n_radii)
+    angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
+    angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
+    angles[:, 1::2] += np.pi/n_angles
+    x = (radii*np.cos(angles)).flatten()
+    y = (radii*np.sin(angles)).flatten()
+    V = dipole_potential(x, y)
+    triang = mtri.Triangulation(x, y)
+    xmid = x[triang.triangles].mean(axis=1)
+    ymid = y[triang.triangles].mean(axis=1)
+    mask = np.where(xmid*xmid + ymid*ymid < min_radius*min_radius, 1, 0)
+    triang.set_mask(mask)
+
+    # Refine data - interpolates the electrical potential V
+    refiner = mtri.UniformTriRefiner(triang)
+    tri_refi, z_test_refi = refiner.refine_field(V, subdiv=3)
+
+    # Computes the electrical field (Ex, Ey) as gradient of -V
+    tci = mtri.CubicTriInterpolator(triang, -V)
+    (Ex, Ey) = tci.gradient(triang.x, triang.y)
+    E_norm = np.sqrt(Ex**2 + Ey**2)
+
+    # Plot the triangulation, the potential iso-contours and the vector field
+    plt.figure()
+    plt.gca().set_aspect('equal')
+    plt.triplot(triang, color='0.8')
+
+    levels = np.arange(0., 1., 0.01)
+    cmap = cm.get_cmap(name='hot', lut=None)
+    plt.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
+                   linewidths=[2.0, 1.0, 1.0, 1.0])
+    # Plots direction of the electrical vector field
+    plt.quiver(triang.x, triang.y, Ex/E_norm, Ey/E_norm,
+               units='xy', scale=10., zorder=3, color='blue',
+               width=0.007, headwidth=3., headlength=4.)
+
+    plt.title('Gradient plot: an electrical dipole')
+    plt.show()
 
 
 def test_tritools():
