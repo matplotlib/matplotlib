@@ -6164,85 +6164,70 @@ class Axes(martist.Artist):
         """
         Make a scatter plot.
 
-        Call signatures::
+        Parameters
+        ----------
+        x, y : array_like, shape (n, )
+            Input data
 
-          scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None,
-                  vmin=None, vmax=None, alpha=None, linewidths=None,
-                  verts=None, **kwargs)
+        s : scalar or array_like, shape (n, ), optional, default: 20
+            size in points^2.
 
-        Make a scatter plot of *x* versus *y*, where *x*, *y* are
-        converted to 1-D sequences which must be of the same length, *N*.
+        c : color or sequence of color, optional, default : 'b'
+            `c` can be a single color format string, or a sequence of color
+            specifications of length `N`, or a sequence of `N` numbers to be
+            mapped to colors using the `cmap` and `norm` specified via kwargs
+            (see below). Note that `c` should not be a single numeric RGB or
+            RGBA sequence because that is indistinguishable from an array of
+            values to be colormapped.  `c` can be a 2-D array in which the
+            rows are RGB or RGBA, however.
 
-        Keyword arguments:
+        marker : `~matplotlib.markers.MarkerStyle`, optional, default: 'o'
+            See `~matplotlib.markers` for more information on the different
+            styles of markers scatter supports.
 
-          *s*:
-            size in points^2.  It is a scalar or an array of the same
-            length as *x* and *y*.
+        cmap : `~matplotlib.colors.Colormap`, optional, default: None
+            A `~matplotlib.colors.Colormap` instance or registered name.
+            `cmap` is only used if `c` is an array of floats. If None,
+            defaults to rc `image.cmap`.
 
-          *c*:
-            a color. *c* can be a single color format string, or a
-            sequence of color specifications of length *N*, or a
-            sequence of *N* numbers to be mapped to colors using the
-            *cmap* and *norm* specified via kwargs (see below). Note
-            that *c* should not be a single numeric RGB or RGBA
-            sequence because that is indistinguishable from an array
-            of values to be colormapped.  *c* can be a 2-D array in
-            which the rows are RGB or RGBA, however.
+        norm : `~matplotlib.colors.Normalize`, optional, default: None
+            A `~matplotlib.colors.Normalize` instance is used to scale
+            luminance data to 0, 1. `norm` is only used if `c` is an array of
+            floats. If `None`, use the default :func:`normalize`.
 
-          *marker*:
-            See `~matplotlib.markers`
+        vmin, vmax : scalar, optional, default: None
+            `vmin` and `vmax` are used in conjunction with `norm` to normalize
+            luminance data.  If either are `None`, the min and max of the
+            color array is used.  Note if you pass a `norm` instance, your
+            settings for `vmin` and `vmax` will be ignored.
 
-        Any or all of *x*, *y*, *s*, and *c* may be masked arrays, in
+        alpha : scalar, optional, default: None
+            The alpha blending value, between 0 (transparent) and 1 (opaque)
+
+        linewidths : scalar or array_like, optional, default: None
+            If None, defaults to (lines.linewidth,).  Note that this is a
+            tuple, and if you set the linewidths argument you must set it as a
+            sequence of floats, as required by
+            `~matplotlib.collections.RegularPolyCollection`.
+
+        Returns
+        -------
+        paths : `~matplotlib.collections.PathCollection`
+
+        Other parameters
+        ----------------
+        kwargs : `~matplotlib.collections.Collection` properties
+
+        Notes
+        ------
+        Any or all of `x`, `y`, `s`, and `c` may be masked arrays, in
         which case all masks will be combined and only unmasked points
         will be plotted.
 
-        Other keyword arguments: the color mapping and normalization
-        arguments will be used only if *c* is an array of floats.
+        Examples
+        --------
+        .. plot:: mpl_examples/pylab_examples/scatter_demo.py
 
-          *cmap*: [ *None* | Colormap ]
-            A :class:`matplotlib.colors.Colormap` instance or registered
-            name. If *None*, defaults to rc ``image.cmap``. *cmap* is
-            only used if *c* is an array of floats.
-
-          *norm*: [ *None* | Normalize ]
-            A :class:`matplotlib.colors.Normalize` instance is used to
-            scale luminance data to 0, 1. If *None*, use the default
-            :func:`normalize`. *norm* is only used if *c* is an array
-            of floats.
-
-          *vmin*/*vmax*:
-            *vmin* and *vmax* are used in conjunction with norm to
-            normalize luminance data.  If either are *None*, the min and
-            max of the color array *C* is used.  Note if you pass a
-            *norm* instance, your settings for *vmin* and *vmax* will
-            be ignored.
-
-          *alpha*: ``0 <= scalar <= 1``  or *None*
-            The alpha value for the patches
-
-          *linewidths*: [ *None* | scalar | sequence ]
-            If *None*, defaults to (lines.linewidth,).  Note that this
-            is a tuple, and if you set the linewidths argument you
-            must set it as a sequence of floats, as required by
-            :class:`~matplotlib.collections.RegularPolyCollection`.
-
-        Optional kwargs control the
-        :class:`~matplotlib.collections.Collection` properties; in
-        particular:
-
-          *edgecolors*:
-            The string 'none' to plot faces with no outlines
-
-          *facecolors*:
-            The string 'none' to plot unfilled outlines
-
-        Here are the standard descriptions of all the
-        :class:`~matplotlib.collections.Collection` kwargs:
-
-        %(Collection)s
-
-        A :class:`~matplotlib.collections.PathCollection` instance is
-        returned.
         """
 
         if not self._hold:
@@ -7191,105 +7176,99 @@ class Axes(martist.Artist):
         """
         Display an image on the axes.
 
-        Call signature::
+        Parameters
+        -----------
+        X : array_like, shape (n, m) or (n, m, 3) or (n, m, 4)
+            Display the image in `X` to current axes.  `X` may be a float
+            array, a uint8 array or a PIL image. If `X` is an array, it
+            can have the following shapes:
 
-          imshow(X, cmap=None, norm=None, aspect=None, interpolation=None,
-                 alpha=None, vmin=None, vmax=None, origin=None, extent=None,
-                 **kwargs)
+            - MxN -- luminance (grayscale, float array only)
+            - MxNx3 -- RGB (float or uint8 array)
+            - MxNx4 -- RGBA (float or uint8 array)
 
-        Display the image in *X* to current axes.  *X* may be a float
-        array, a uint8 array or a PIL image. If *X* is an array, *X*
-        can have the following shapes:
+            The value for each component of MxNx3 and MxNx4 float arrays
+            should be in the range 0.0 to 1.0; MxN float arrays may be
+            normalised.
 
-        * MxN -- luminance (grayscale, float array only)
-        * MxNx3 -- RGB (float or uint8 array)
-        * MxNx4 -- RGBA (float or uint8 array)
+        cmap : `~matplotlib.colors.Colormap`, optional, default: None
+            If None, default to rc `image.cmap` value. `cmap` is ignored when
+            `X` has RGB(A) information
 
-        The value for each component of MxNx3 and MxNx4 float arrays should be
-        in the range 0.0 to 1.0; MxN float arrays may be normalised.
+        aspect : ['auto' | 'equal' | scalar], optional, default: None
+            If 'auto', changes the image aspect ratio to match that of the
+            axes.
 
-        An :class:`matplotlib.image.AxesImage` instance is returned.
+            If 'equal', and `extent` is None, changes the axes aspect ratio to
+            match that of the image. If `extent` is not `None`, the axes
+            aspect ratio is changed to match that of the extent.
 
-        Keyword arguments:
+            If None, default to rc ``image.aspect`` value.
 
-          *cmap*: [ *None* | Colormap ]
-            A :class:`matplotlib.colors.Colormap` instance, eg. cm.jet.
-            If *None*, default to rc ``image.cmap`` value.
+        interpolation : string, optional, default: None
+            Acceptable values are 'none', 'nearest', 'bilinear', 'bicubic',
+            'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser',
+            'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc',
+            'lanczos'
 
-            *cmap* is ignored when *X* has RGB(A) information
+            If `interpolation` is None, default to rc `image.interpolation`.
+            See also the `filternorm` and `filterrad` parameters.
+            If `interpolation` is 'none', then no interpolation is performed
+            on the Agg, ps and pdf backends. Other backends will fall back to
+            'nearest'.
 
-          *aspect*: [ *None* | 'auto' | 'equal' | scalar ]
-            If 'auto', changes the image aspect ratio to match that of the axes
+        norm : `~matplotlib.colors.Normalize`, optional, default: None
+            A `~matplotlib.colors.Normalize` instance is used to scale
+            luminance data to 0, 1. If `None`, use the default
+            func:`normalize`. `norm` is only used if `X` is an array of
+            floats.
 
-            If 'equal', and *extent* is *None*, changes the axes
-            aspect ratio to match that of the image. If *extent* is
-            not *None*, the axes aspect ratio is changed to match that
-            of the extent.
+        vmin, vmax : scalar, optional, default: None
+            `vmin` and `vmax` are used in conjunction with norm to normalize
+            luminance data.  Note if you pass a `norm` instance, your
+            settings for `vmin` and `vmax` will be ignored.
 
-            If *None*, default to rc ``image.aspect`` value.
-
-          *interpolation*:
-
-            Acceptable values are *None*, 'none', 'nearest', 'bilinear',
-            'bicubic', 'spline16', 'spline36', 'hanning', 'hamming',
-            'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
-            'bessel', 'mitchell', 'sinc', 'lanczos'
-
-            If *interpolation* is *None*, default to rc
-            ``image.interpolation``. See also the *filternorm* and
-            *filterrad* parameters
-
-            If *interpolation* is ``'none'``, then no interpolation is
-            performed on the Agg, ps and pdf backends. Other backends
-            will fall back to 'nearest'.
-
-          *norm*: [ *None* | Normalize ]
-            An :class:`matplotlib.colors.Normalize` instance; if
-            *None*, default is ``normalization()``.  This scales
-            luminance -> 0-1
-
-            *norm* is only used for an MxN float array.
-
-          *vmin*/*vmax*: [ *None* | scalar ]
-            Used to scale a luminance image to 0-1.  If either is
-            *None*, the min and max of the luminance values will be
-            used.  Note if *norm* is not *None*, the settings for
-            *vmin* and *vmax* will be ignored.
-
-          *alpha*: scalar
+        alpha : scalar, optional, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque)
-            or *None*
 
-          *origin*: [ *None* | 'upper' | 'lower' ]
+        origin : ['upper' | 'lower'], optional, default: None
             Place the [0,0] index of the array in the upper left or lower left
-            corner of the axes. If *None*, default to rc ``image.origin``.
+            corner of the axes. If None, default to rc `image.origin`.
 
-          *extent*: [ *None* | scalars (left, right, bottom, top) ]
+        extent : scalars (left, right, bottom, top), optional, default: None
             Data limits for the axes.  The default assigns zero-based row,
-            column indices to the *x*, *y* centers of the pixels.
+            column indices to the `x`, `y` centers of the pixels.
 
-          *shape*: [ *None* | scalars (columns, rows) ]
+        shape : scalars (columns, rows), optional, default: None
             For raw buffer images
 
-          *filternorm*:
+        filternorm : scalar, optional, default: 1
             A parameter for the antigrain image resize filter.  From the
-            antigrain documentation, if *filternorm* = 1, the filter normalizes
-            integer values and corrects the rounding errors. It doesn't do
-            anything with the source floating point values, it corrects only
-            integers according to the rule of 1.0 which means that any sum of
-            pixel weights must be equal to 1.0.  So, the filter function must
-            produce a graph of the proper shape.
+            antigrain documentation, if `filternorm` = 1, the filter
+            normalizes integer values and corrects the rounding errors. It
+            doesn't do anything with the source floating point values, it
+            corrects only integers according to the rule of 1.0 which means
+            that any sum of pixel weights must be equal to 1.0.  So, the
+            filter function must produce a graph of the proper shape.
 
-          *filterrad*:
-            The filter radius for filters that have a radius
-            parameter, i.e. when interpolation is one of: 'sinc',
-            'lanczos' or 'blackman'
+        filterrad : scalar, optional, default: 4.0
+            The filter radius for filters that have a radius parameter, i.e.
+            when interpolation is one of: 'sinc', 'lanczos' or 'blackman'
 
-        Additional kwargs are :class:`~matplotlib.artist.Artist` properties.
+        Returns
+        --------
+        image : `~matplotlib.image.AxesImage`
 
-        %(Artist)s
+        Other parameters
+        ----------------
+        kwargs : `~matplotlib.artist.Artist` properties.
 
-        **Example:**
+        See also
+        --------
+        matshow : Plot a matrix or an array as an image.
+
+        Examples
+        --------
 
         .. plot:: mpl_examples/pylab_examples/image_demo.py
 
@@ -8061,14 +8040,6 @@ class Axes(martist.Artist):
         """
         Plot a histogram.
 
-        Call signature::
-
-          hist(x, bins=10, range=None, normed=False, weights=None,
-                 cumulative=False, bottom=None, histtype='bar', align='mid',
-                 orientation='vertical', rwidth=None, log=False,
-                 color=None, label=None, stacked=False,
-                 **kwargs)
-
         Compute and draw the histogram of *x*. The return value is a
         tuple (*n*, *bins*, *patches*) or ([*n0*, *n1*, ...], *bins*,
         [*patches0*, *patches1*,...]) if the input contains multiple
@@ -8081,128 +8052,130 @@ class Axes(martist.Artist):
 
         Masked arrays are not supported at present.
 
-        Keyword arguments:
+        Parameters
+        ----------
+        x : array_like, shape (n, )
+            Input values.
 
-          *bins*:
-            Either an integer number of bins or a sequence giving the
-            bins.  If *bins* is an integer, *bins* + 1 bin edges
-            will be returned, consistent with :func:`numpy.histogram`
-            for numpy version >= 1.3.
-            Unequally spaced bins are supported if *bins* is a sequence.
+        bins : integer or array_like, optional, default: 10
+            If an integer is given, `bins + 1` bin edges are returned,
+            consistently with :func:`numpy.histogram` for numpy version >=
+            1.3.
+            Unequally spaced bins are supported if `bins` is a sequence.
 
-          *range*:
+        range : tuple, optional, default: None
             The lower and upper range of the bins. Lower and upper outliers
-            are ignored. If not provided, *range* is (x.min(), x.max()).
-            Range has no effect if *bins* is a sequence.
+            are ignored. If not provided, `range` is (x.min(), x.max()). Range
+            has no effect if `bins` is a sequence.
 
-            If *bins* is a sequence or *range* is specified, autoscaling
+            If `bins` is a sequence or `range` is specified, autoscaling
             is based on the specified bin range instead of the
             range of x.
 
-          *normed*:
-            If *True*, the first element of the return tuple will
+        normed : boolean, optional, default: False
+            If `True`, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
-            ``n/(len(x)*dbin)``.  In a probability density, the integral of
+            ``n/(len(x)`dbin)``.  In a probability density, the integral of
             the histogram should be 1; you can verify that with a
             trapezoidal integration of the probability density function::
 
-              pdf, bins, patches = ax.hist(...)
-              print np.sum(pdf * np.diff(bins))
+                pdf, bins, patches = ax.hist(...)
+                print np.sum(pdf ` np.diff(bins))
 
-            .. note::
 
-                Until numpy release 1.5, the underlying numpy
-                histogram function was incorrect with *normed*=*True*
-                if bin sizes were unequal.  MPL inherited that
-                error.  It is now corrected within MPL when using
-                earlier numpy versions
+        weights : array_like, shape (n, ), optional, default: None
+            An array of weights, of the same shape as `x`.  Each value in `x`
+            only contributes its associated weight towards the bin count
+            (instead of 1).  If `normed` is True, the weights are normalized,
+            so that the integral of the density over the range remains 1.
 
-          *weights*:
-            An array of weights, of the same shape as *x*.  Each value in
-            *x* only contributes its associated weight towards the bin
-            count (instead of 1).  If *normed* is True, the weights are
-            normalized, so that the integral of the density over the range
-            remains 1.
+        cumulative : boolean, optional, default : True
+            If `True`, then a histogram is computed where each bin gives the
+            counts in that bin plus all bins for smaller values. The last bin
+            gives the total number of datapoints.  If `normed` is also `True`
+            then the histogram is normalized such that the last bin equals 1.
+            If `cumulative` evaluates to less than 0 (e.g. -1), the direction
+            of accumulation is reversed.  In this case, if `normed` is also
+            `True`, then the histogram is normalized such that the first bin
+            equals 1.
 
-          *cumulative*:
-            If *True*, then a histogram is computed where each bin
-            gives the counts in that bin plus all bins for smaller values.
-            The last bin gives the total number of datapoints.  If *normed*
-            is also *True* then the histogram is normalized such that the
-            last bin equals 1. If *cumulative* evaluates to less than 0
-            (e.g. -1), the direction of accumulation is reversed.  In this
-            case, if *normed* is also *True*, then the histogram is normalized
-            such that the first bin equals 1.
-
-          *histtype*: [ 'bar' | 'barstacked' | 'step' | 'stepfilled' ]
+        histtype : ['bar' | 'barstacked' | 'step' | 'stepfilled'], optional
             The type of histogram to draw.
 
-              - 'bar' is a traditional bar-type histogram.  If multiple data
-                are given the bars are aranged side by side.
+            - 'bar' is a traditional bar-type histogram.  If multiple data
+              are given the bars are aranged side by side.
 
-              - 'barstacked' is a bar-type histogram where multiple
-                data are stacked on top of each other.
+            - 'barstacked' is a bar-type histogram where multiple
+              data are stacked on top of each other.
 
-              - 'step' generates a lineplot that is by default
-                unfilled.
+            - 'step' generates a lineplot that is by default
+              unfilled.
 
-              - 'stepfilled' generates a lineplot that is by default
-                filled.
+            - 'stepfilled' generates a lineplot that is by default
+              filled.
 
-          *align*: ['left' | 'mid' | 'right' ]
+        align : ['left' | 'mid' | 'right'], optional, default: 'mid'
             Controls how the histogram is plotted.
 
-              - 'left': bars are centered on the left bin edges.
+                - 'left': bars are centered on the left bin edges.
 
-              - 'mid': bars are centered between the bin edges.
+                - 'mid': bars are centered between the bin edges.
 
-              - 'right': bars are centered on the right bin edges.
+                - 'right': bars are centered on the right bin edges.
 
-          *orientation*: [ 'horizontal' | 'vertical' ]
-            If 'horizontal', :func:`~matplotlib.pyplot.barh` will be
-            used for bar-type histograms and the *bottom* kwarg will be
-            the left edges.
+        orientation : ['horizontal' | 'vertical'], optional
+            If 'horizontal', `~matplotlib.pyplot.barh` will be used for
+            bar-type histograms and the *bottom* kwarg will be the left edges.
 
-          *rwidth*:
-            The relative width of the bars as a fraction of the bin
-            width.  If *None*, automatically compute the width. Ignored
-            if *histtype* = 'step' or 'stepfilled'.
+        rwidth : scalar, optional, default: None
+            The relative width of the bars as a fraction of the bin width.  If
+            `None`, automatically compute the width. Ignored if `histtype` =
+            'step' or 'stepfilled'.
 
-          *log*:
-            If *True*, the histogram axis will be set to a log scale.
-            If *log* is *True* and *x* is a 1D array, empty bins will
-            be filtered out and only the non-empty (*n*, *bins*,
-            *patches*) will be returned.
+        log : boolean, optional, default : False
+            If `True`, the histogram axis will be set to a log scale. If `log`
+            is `True` and `x` is a 1D array, empty bins will be filtered out
+            and only the non-empty (`n`, `bins`, `patches`) will be returned.
 
-          *color*:
-            Color spec or sequence of color specs, one per
-            dataset.  Default (*None*) uses the standard line
-            color sequence.
+        color : color or array_like of colors, optional, default: None
+            Color spec or sequence of color specs, one per dataset.  Default
+            (`None`) uses the standard line color sequence.
 
-          *label*:
-            String, or sequence of strings to match multiple
-            datasets.  Bar charts yield multiple patches per
-            dataset, but only the first gets the label, so
-            that the legend command will work as expected::
+        label : string, optional, default: ''
+            String, or sequence of strings to match multiple datasets.  Bar
+            charts yield multiple patches per dataset, but only the first gets
+            the label, so that the legend command will work as expected::
 
                 ax.hist(10+2*np.random.randn(1000), label='men')
                 ax.hist(12+3*np.random.randn(1000), label='women', alpha=0.5)
                 ax.legend()
 
-          *stacked*:
-            If *True*, multiple data are stacked on top of each other
-            If *False* multiple data are aranged side by side if
-            histtype is 'bar' or on top of each other if histtype is 'step'
+        stacked : boolean, optional, default : False
+            If `True`, multiple data are stacked on top of each other If
+            `False` multiple data are aranged side by side if histtype is
+            'bar' or on top of each other if histtype is 'step'
 
-            .
+        Returns
+        -------
+        (n, bins, patches) or ([n0, n1, ...], bins, [patches0, patches1,...])
 
-        kwargs are used to update the properties of the
-        :class:`~matplotlib.patches.Patch` instances returned by *hist*:
+        Other Parameters
+        ----------------
+        kwargs : `~matplotlib.patches.Patch` properties
 
-        %(Patch)s
+        See also
+        --------
+        hist2d : 2D histograms
 
-        **Example:**
+        Notes
+        -----
+        Until numpy release 1.5, the underlying numpy histogram function was
+        incorrect with `normed`=`True` if bin sizes were unequal.  MPL
+        inherited that error.  It is now corrected within MPL when using
+        earlier numpy versions
 
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/histogram_demo.py
 
         """
@@ -8534,18 +8507,12 @@ class Axes(martist.Artist):
         """
         Make a 2D histogram plot.
 
-        Call signature::
+        Parameters
+        ----------
+        x, y: array_like, shape (n, )
+            Input values
 
-          hist2d(x, y, bins=None, range=None, weights=None, cmin=None,
-                 cmax=None **kwargs)
-
-        Make a 2d histogram plot of *x* versus *y*, where *x*,
-        *y* are 1-D sequences of the same length.
-
-        The return value is ``(counts, xedges, yedges, Image)``.
-
-        Optional keyword arguments:
-        *bins*: [None | int | [int, int] | array_like | [array, array]]
+        bins: [None | int | [int, int] | array_like | [array, array]]
 
             The bin specification:
 
@@ -8563,39 +8530,48 @@ class Axes(martist.Artist):
 
             The default value is 10.
 
-        *range*: [*None* | array_like shape(2,2)]
-             The leftmost and rightmost edges of the bins along each
-             dimension (if not specified explicitly in the bins
-             parameters): [[xmin, xmax], [ymin, ymax]]. All values
-             outside of this range will be considered outliers and not
-             tallied in the histogram.
+        range : array_like shape(2, 2), optional, default: None
+             The leftmost and rightmost edges of the bins along each dimension
+             (if not specified explicitly in the bins parameters): [[xmin,
+             xmax], [ymin, ymax]]. All values outside of this range will be
+             considered outliers and not tallied in the histogram.
 
-        *normed*:[True|False]
+        normed : boolean, optional, default: False
              Normalize histogram.
-             The default value is False
 
-        *weights*: [*None* | array]
+        weights : array_like, shape (n, ), optional, default: None
             An array of values w_i weighing each sample (x_i, y_i).
 
-        *cmin* : [None| scalar]
-             All bins that has count less than cmin will not be
-             displayed and these count values in the return value
-             count histogram will also be set to nan upon return
+        cmin : scalar, optional, default: None
+             All bins that has count less than cmin will not be displayed and
+             these count values in the return value count histogram will also
+             be set to nan upon return
 
-        *cmax* : [None| scalar]
-             All bins that has count more than cmax will not be
-             displayed (set to none before passing to imshow) and
-             these count values in the return value count histogram
-             will also be set to nan upon return
+        cmax : scalar, optional, default: None
+             All bins that has count more than cmax will not be displayed (set
+             to none before passing to imshow) and these count values in the
+             return value count histogram will also be set to nan upon return
 
-        Remaining keyword arguments are passed directly to :meth:`pcolorfast`.
+        Returns
+        -------
+        The return value is ``(counts, xedges, yedges, Image)``.
 
+        Other parameters
+        -----------------
+        kwargs : :meth:`pcolorfast` properties.
+
+        See also
+        --------
+        hist : 1D histogram
+
+        Notes
+        -----
         Rendering the histogram with a logarithmic color scale is
         accomplished by passing a :class:`colors.LogNorm` instance to
         the *norm* keyword argument.
 
-        **Example:**
-
+        Examples
+        --------
         .. plot:: mpl_examples/pylab_examples/hist2d_demo.py
         """
 
@@ -9050,20 +9026,32 @@ class Axes(martist.Artist):
         """
         Plot a matrix or array as an image.
 
-        The matrix will be shown the way it would be printed,
-        with the first row at the top.  Row and column numbering
-        is zero-based.
+        The matrix will be shown the way it would be printed, with the first
+        row at the top.  Row and column numbering is zero-based.
 
-        Argument:
-            *Z*   anything that can be interpreted as a 2-D array
+        Parameters
+        ----------
+        Z : array_like shape (n, m)
+            The matrix to be displayed.
 
-        kwargs all are passed to :meth:`~matplotlib.axes.Axes.imshow`.
-        :meth:`matshow` sets defaults for *origin*,
-        *interpolation*, and *aspect*; if you want row zero to
-        be at the bottom instead of the top, you can set the *origin*
-        kwarg to "lower".
+        Returns
+        -------
+        image : `~matplotlib.image.AxesImage`
 
-        Returns: an :class:`matplotlib.image.AxesImage` instance.
+        Other parameters
+        ----------------
+        kwargs : `~matplotlib.axes.Axes.imshow` arguments
+            Sets `origin` to 'upper', 'interpolation' to 'nearest' and
+            'aspect' to equal.
+
+        See also
+        --------
+        imshow : plot an image
+
+        Examples
+        --------
+        .. plot:: mpl_examples/pylab_examples/matshow.py
+
         """
         Z = np.asanyarray(Z)
         nr, nc = Z.shape
