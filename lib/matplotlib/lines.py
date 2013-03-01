@@ -816,9 +816,13 @@ class Line2D(Artist):
         """
         Set the line marker
 
-        %(MarkerTable)s
+        Parameters
+        -----------
 
-        %(MarkerAccepts)s
+        marker: marker style
+            See `~matplotlib.markers` for full description of possible
+            argument
+
         """
         self._marker.set_marker(marker)
 

@@ -2,9 +2,78 @@
 This module contains functions to handle markers.  Used by both the
 marker functionality of `~matplotlib.axes.Axes.plot` and
 `~matplotlib.axes.Axes.scatter`.
-"""
 
-import textwrap
+All possible markers are defined here:
+
+============================== ===============================================
+marker                         description
+============================== ===============================================
+"."                            point
+","                            pixel
+"o"                            circle
+"v"                            triangle_down
+"^"                            triangle_up
+"<"                            triangle_left
+">"                            triangle_right
+"1"                            tri_down
+"2"                            tri_up
+"3"                            tri_left
+"4"                            tri_right
+"8"                            octagon
+"s"                            square
+"p"                            pentagon
+"*"                            star
+"h"                            hexagon1
+"H"                            hexagon2
+"+"                            plus
+"x"                            x
+"D"                            diamond
+"d"                            thin_diamond
+"|"                            vline
+"_"                            hline
+TICKLEFT                       tickleft
+TICKRIGHT                      tickright
+TICKUP                         tickup
+TICKDOWN                       tickdown
+CARETLEFT                      caretleft
+CARETRIGHT                     caretright
+CARETUP                        caretup
+CARETDOWN                      caretdown
+"None"                         nothing
+None                           nothing
+" "                            nothing
+""                             nothing
+``'$...$'``                    render the string using mathtext.
+`verts`                        a list of (x, y) pairs used for Path vertices.
+path                           a `~matplotlib.path.Path` instance.
+(`numsides`, `style`, `angle`) see below
+============================== ===============================================
+
+The marker can also be a tuple (`numsides`, `style`, `angle`), which
+will create a custom, regular symbol.
+
+    `numsides`:
+      the number of sides
+
+    `style`:
+      the style of the regular symbol:
+
+      =====   =============================================
+      Value   Description
+      =====   =============================================
+      0       a regular polygon
+      1       a star-like symbol
+      2       an asterisk
+      3       a circle (`numsides` and `angle` is ignored)
+      =====   =============================================
+
+    `angle`:
+      the angle of rotation of the symbol, in degrees
+
+For backward compatibility, the form (`verts`, 0) is also accepted,
+but it is equivalent to just `verts` for giving a raw set of vertices
+that define the shape.
+"""
 
 import numpy as np
 
@@ -20,45 +89,16 @@ from transforms import IdentityTransform, Affine2D
 
 
 class MarkerStyle(object):
-    style_table = """
-============================== ===============================================
-marker                         description
-============================== ===============================================
-%s
-``'$...$'``                    render the string using mathtext.
-*verts*                        a list of (x, y) pairs used for Path vertices.
-path                           a :class:`~matplotlib.path.Path` instance.
-(*numsides*, *style*, *angle*) see below
-============================== ===============================================
+    """
+    Markers object
 
-The marker can also be a tuple (*numsides*, *style*, *angle*), which
-will create a custom, regular symbol.
-
-    *numsides*:
-      the number of sides
-
-    *style*:
-      the style of the regular symbol:
-
-      =====   =============================================
-      Value   Description
-      =====   =============================================
-      0       a regular polygon
-      1       a star-like symbol
-      2       an asterisk
-      3       a circle (*numsides* and *angle* is ignored)
-      =====   =============================================
-
-    *angle*:
-      the angle of rotation of the symbol, in degrees
-
-For backward compatibility, the form (*verts*, 0) is also accepted,
-but it is equivalent to just *verts* for giving a raw set of vertices
-that define the shape.
-"""
+    """
+    # FIXME: get rid of this
+    style_table = """"""
 
     # TODO: Automatically generate this
-    accepts = """ACCEPTS: [ %s | ``'$...$'`` | *tuple* | *Nx2 array* ]"""
+    # Get rid of this
+    accepts = """"""
 
     markers = {
         '.': 'point',
@@ -110,6 +150,16 @@ that define the shape.
     _point_size_reduction = 0.5
 
     def __init__(self, marker=None, fillstyle='full'):
+        """
+
+        Parameters
+        ----------
+        marker : string or array_like, optional, default: None
+            See the descriptions of possible markers in the module docstring.
+
+        fillstyle : string, optional, default: 'full'
+            'full', 'left", 'right', 'bottom', 'top', 'none'
+        """
         self._fillstyle = fillstyle
         self.set_marker(marker)
         self.set_fillstyle(fillstyle)
@@ -720,13 +770,5 @@ that define the shape.
 
 _styles = [(repr(x), y) for x, y in MarkerStyle.markers.items()]
 _styles.sort(key=lambda x: x[1])
-MarkerStyle.style_table = (
-    MarkerStyle.style_table %
-    '\n'.join(['%-30s %-33s' % ('``%s``' % x, y) for (x, y) in _styles]))
-
-MarkerStyle.accepts = textwrap.fill(
-    MarkerStyle.accepts %
-    ' | '.join(['``%s``' % x for (x, y) in _styles]))
-
 docstring.interpd.update(MarkerTable=MarkerStyle.style_table)
 docstring.interpd.update(MarkerAccepts=MarkerStyle.accepts)
