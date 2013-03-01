@@ -469,7 +469,7 @@ class RendererPS(RendererBase):
         im.flipud_out()
 
         h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
-        hexlines = '\n'.join(self._hex_lines(bits))
+        hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
 
         if dx is None:
             xscale = w / self.image_magnification
@@ -1179,6 +1179,7 @@ class FigureCanvasPS(FigureCanvasBase):
             print("end", file=fh)
             print("showpage", file=fh)
             if not isEPSF: print("%%EOF", file=fh)
+            fh.flush()
 
         if rcParams['ps.usedistiller'] == 'ghostscript':
             gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
@@ -1187,7 +1188,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         if passed_in_file_object:
             with open(tmpfile, 'rb') as fh:
-                print(fh.read(), file=outfile)
+                outfile.write(fh.read())
         else:
             with open(outfile, 'w') as fh:
                 pass
@@ -1293,6 +1294,7 @@ class FigureCanvasPS(FigureCanvasBase):
             #print >>fh, "grestore"
             print("end", file=fh)
             print("showpage", file=fh)
+            fh.flush()
 
         if isLandscape: # now we are ready to rotate
             isLandscape = True
