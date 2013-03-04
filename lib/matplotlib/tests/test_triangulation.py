@@ -711,7 +711,6 @@ def test_tri_smooth_contouring():
     triang0.set_mask(mask)
 
     # Then the plot
-    plt.title("Refined tricontouring, subdiv=4")
     refiner = mtri.UniformTriRefiner(triang0)
     tri_refi, z_test_refi = refiner.refine_field(z0, subdiv=4)
     levels = np.arange(0., 1., 0.025)
@@ -770,8 +769,6 @@ def test_tri_smooth_gradient():
     plt.quiver(triang.x, triang.y, Ex/E_norm, Ey/E_norm,
                units='xy', scale=10., zorder=3, color='blue',
                width=0.007, headwidth=3., headlength=4.)
-
-    plt.title('Gradient plot: an electrical dipole')
     plt.show()
 
 

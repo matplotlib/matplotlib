@@ -463,7 +463,7 @@ class CubicTriInterpolator(TriInterpolator):
         else:
             raise ValueError("Invalid return_key: " + return_key)
 
-    def _compute_dof(self, kind, dz):
+    def _compute_dof(self, kind, dz=None):
         """
         Computes and returns nodal dofs according to kind
 
@@ -604,28 +604,28 @@ class CubicTriInterpolator(TriInterpolator):
 # problem (Reduced HCT element)
 class _ReducedHCT_Element():
     """
-Implementation of reduced HCT triangular element with explicit shape
-functions.
+    Implementation of reduced HCT triangular element with explicit shape
+    functions.
 
-Computes z, dz, d2z and the element stiffness matrix for bending energy:
-E(f) = integral( (d2z/dx2 + d2z/dy2)**2 dA)
+    Computes z, dz, d2z and the element stiffness matrix for bending energy:
+    E(f) = integral( (d2z/dx2 + d2z/dy2)**2 dA)
 
- *** Reference for the shape functions: ***
- [1] Basis functions for general Hsieh-Clough-Tocher _triangles, complete or
-     reduced.
- Michel Bernadou, Kamal Hassan
- International Journal for Numerical Methods in Engineering.
-     17(5):784 - 789.  2.01
+    *** Reference for the shape functions: ***
+    [1] Basis functions for general Hsieh-Clough-Tocher _triangles, complete or
+        reduced.
+        Michel Bernadou, Kamal Hassan
+        International Journal for Numerical Methods in Engineering.
+        17(5):784 - 789.  2.01
 
- *** Element description: ***
- 9 dofs: z and dz given at 3 apex
- C1 (conform)
+    *** Element description: ***
+    9 dofs: z and dz given at 3 apex
+    C1 (conform)
 
     """
     # 1) Loads matrices to generate shape functions as a function of
     #    triangle eccentricities - based on [1] p.11 '''
     M = np.array([
-        [0.00,  0.00, 0.00,  4.50,  4.50, 0.00, 0.00, 0.00, 0.00, 0.00],
+        [ 0.00, 0.00, 0.00,  4.50,  4.50, 0.00, 0.00, 0.00, 0.00, 0.00],
         [-0.25, 0.00, 0.00,  0.50,  1.25, 0.00, 0.00, 0.00, 0.00, 0.00],
         [-0.25, 0.00, 0.00,  1.25,  0.50, 0.00, 0.00, 0.00, 0.00, 0.00],
         [ 0.50, 1.00, 0.00, -1.50,  0.00, 3.00, 3.00, 0.00, 0.00, 3.00],
@@ -942,7 +942,7 @@ E(f) = integral( (d2z/dx2 + d2z/dy2)**2 dA)
         minimization of curvature energy with value of function at node
         imposed and derivatives 'free'.
         Builds the global Kff matrix in cco format.
-        Builds the full Ff vec  Ff = - Kfc x Uc
+        Builds the full Ff vec Ff = - Kfc x Uc
 
         Parameters
         ----------
@@ -1048,17 +1048,17 @@ class _DOF_estimator():
     @staticmethod
     def get_dof_vec(tri_z, tri_dz, J):
         """
-Computes the dof vector of a triangle, knowing the value of f, df and of the
-local Jacobian at each node.
+        Computes the dof vector of a triangle, knowing the value of f, df and
+        of the local Jacobian at each node.
 
-*tri_z*: array of shape (3,) of f nodal values
-*tri_dz*: array of shape (3,2) of df/dx, df/dy nodal values
-*J*: Jacobian matrix in local basis of apex 0
+        *tri_z*: array of shape (3,) of f nodal values
+        *tri_dz*: array of shape (3,2) of df/dx, df/dy nodal values
+        *J*: Jacobian matrix in local basis of apex 0
 
-Returns dof array of shape (9,) so that for each apex iapex:
-        dof[iapex*3+0] = f(Ai)
-        dof[iapex*3+1] = df(Ai).(AiAi+)
-        dof[iapex*3+2] = df(Ai).(AiAi-)]
+        Returns dof array of shape (9,) so that for each apex iapex:
+            dof[iapex*3+0] = f(Ai)
+            dof[iapex*3+1] = df(Ai).(AiAi+)
+            dof[iapex*3+2] = df(Ai).(AiAi-)]
         """
         npt = tri_z.shape[0]
         dof = np.zeros([npt, 9], dtype=np.float64)
@@ -1311,28 +1311,28 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
 
     Parameters
     ----------
-    *A*: _Sparse_Matrix_coo
+    A: _Sparse_Matrix_coo
         *A* must have been compressed before by compress_csc or
         compress_csr method.
 
-    *b*: array
+    b: array
         Right hand side of the linear system.
 
     Returns
     ----------
-    *x*: array.
+    x: array.
         The converged solution.
-    *err*: float
+    err: float
         The absolute error np.linalg.norm(A.dot(x) - b)
 
     Other parameters
     ----------
-    *x0*: array.
+    x0: array.
         Starting guess for the solution.
-    *tol*: float.
+    tol: float.
         Tolerance to achieve. The algorithm terminates when the relative
         residual is below tol.
-    *maxiter*: integer.
+    maxiter: integer.
         Maximum number of iterations. Iteration will stop
         after maxiter steps even if the specified tolerance has not
         been achieved.
