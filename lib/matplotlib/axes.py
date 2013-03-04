@@ -6190,9 +6190,7 @@ class Axes(martist.Artist):
             which the rows are RGB or RGBA, however.
 
           *marker*:
-            can be one of:
-
-            %(MarkerTable)s
+            See `~matplotlib.markers`
 
         Any or all of *x*, *y*, *s*, and *c* may be masked arrays, in
         which case all masks will be combined and only unmasked points
