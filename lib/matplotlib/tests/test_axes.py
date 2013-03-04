@@ -1213,13 +1213,6 @@ def test_eb_line_zorder():
 
     ax.set_title("errorbar zorder test")
 
-if __name__=='__main__':
-    import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
-
-
-
-
 
 @image_comparison(baseline_images=['step_linestyle'], remove_text=True)
 def test_step_linestyle():
@@ -1239,7 +1232,6 @@ def test_step_linestyle():
         ax.set_ylim([-1, 7])
 
 
-
-if __name__=='__main__':
+if __name__ == '__main__':
     import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
