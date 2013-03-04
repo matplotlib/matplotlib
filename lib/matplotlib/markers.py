@@ -78,7 +78,6 @@ that define the shape.
 import numpy as np
 
 from cbook import is_math_text, is_string_like, is_numlike, iterable
-import docstring
 from matplotlib import rcParams
 from path import Path
 from transforms import IdentityTransform, Affine2D
@@ -89,16 +88,6 @@ from transforms import IdentityTransform, Affine2D
 
 
 class MarkerStyle(object):
-    """
-    Markers object
-
-    """
-    # FIXME: get rid of this
-    style_table = """"""
-
-    # TODO: Automatically generate this
-    # Get rid of this
-    accepts = """"""
 
     markers = {
         '.': 'point',
@@ -151,6 +140,15 @@ class MarkerStyle(object):
 
     def __init__(self, marker=None, fillstyle='full'):
         """
+        MarkerStyle
+
+        Attributes
+        ----------
+        markers : list of known markes
+
+        fillstyles : list of known fillstyles
+
+        filled_markers : list of known filled markers.
 
         Parameters
         ----------
@@ -195,8 +193,16 @@ class MarkerStyle(object):
         return self._fillstyle
 
     def set_fillstyle(self, fillstyle):
-        # TODO: Raise exception for markers where fillstyle doesn't make sense
-        assert fillstyle in self.fillstyles
+        """
+        Sets fillstyle
+
+        Parameters
+        ----------
+        fillstyle : string amongst known fillstyles
+        """
+        if fillstyle not in self.fillstyles:
+            raise ValueError("Unrecognized fillstyle %s"
+                             % ' '.join(self.fillstyles))
         self._fillstyle = fillstyle
         self._recache()
 
@@ -211,7 +217,7 @@ class MarkerStyle(object):
 
     def set_marker(self, marker):
         if (iterable(marker) and len(marker) in (2, 3) and
-            marker[1] in (0, 1, 2, 3)):
+                marker[1] in (0, 1, 2, 3)):
             self._marker_function = self._set_tuple_marker
         elif isinstance(marker, np.ndarray):
             self._marker_function = self._set_vertices
@@ -767,8 +773,3 @@ class MarkerStyle(object):
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._x_path
-
-_styles = [(repr(x), y) for x, y in MarkerStyle.markers.items()]
-_styles.sort(key=lambda x: x[1])
-docstring.interpd.update(MarkerTable=MarkerStyle.style_table)
-docstring.interpd.update(MarkerAccepts=MarkerStyle.accepts)
