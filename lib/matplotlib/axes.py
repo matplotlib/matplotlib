@@ -3244,23 +3244,23 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def set_xlabel(self, xlabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Call signature::
-
-          set_xlabel(xlabel, fontdict=None, labelpad=None, **kwargs)
-
         Set the label for the xaxis.
 
-        *labelpad* is the spacing in points between the label and the x-axis
+        Parameters
+        ----------
+        xlabel : string
+            x label
 
-        Valid kwargs are :class:`~matplotlib.text.Text` properties:
-        %(Text)s
+        labelpad : scalar, optional, default: None
+            spacing in points between the label and the x-axis
 
-        ACCEPTS: str
+        Other parameters
+        ----------------
+        kwargs : `~matplotlib.text.Text` properties
 
-        .. seealso::
-
-            :meth:`text`
-                for information on how override and the optional args work
+        See also
+        --------
+        text : for information on how override and the optional args work
         """
         if labelpad is not None:
             self.xaxis.labelpad = labelpad
@@ -3276,23 +3276,24 @@ class Axes(martist.Artist):
     @docstring.dedent_interpd
     def set_ylabel(self, ylabel, fontdict=None, labelpad=None, **kwargs):
         """
-        Call signature::
-
-          set_ylabel(ylabel, fontdict=None, labelpad=None, **kwargs)
-
         Set the label for the yaxis
 
-        *labelpad* is the spacing in points between the label and the y-axis
+        Parameters
+        ----------
+        ylabel : string
+            y label
 
-        Valid kwargs are :class:`~matplotlib.text.Text` properties:
-        %(Text)s
+        labelpad : scalar, optional, default: None
+            spacing in points between the label and the x-axis
 
-        ACCEPTS: str
+        Other parameters
+        ----------------
+        kwargs : `~matplotlib.text.Text` properties
 
-        .. seealso::
+        See also
+        --------
+        text : for information on how override and the optional args work
 
-            :meth:`text`
-                for information on how override and the optional args work
         """
         if labelpad is not None:
             self.yaxis.labelpad = labelpad
@@ -3304,49 +3305,52 @@ class Axes(martist.Artist):
         """
         Add text to the axes.
 
-        Call signature::
-
-          text(x, y, s, fontdict=None, **kwargs)
-
         Add text in string *s* to axis at location *x*, *y*, data
         coordinates.
 
-        Keyword arguments:
+        Parameters
+        -----------
+        s : string
+            text
 
-          *fontdict*:
-            A dictionary to override the default text properties.
-            If *fontdict* is *None*, the defaults are determined by your rc
-            parameters.
+        x, y : scalars
+            data coordinates
 
-          *withdash*: [ *False* | *True* ]
-            Creates a :class:`~matplotlib.text.TextWithDash` instance
-            instead of a :class:`~matplotlib.text.Text` instance.
+        fontdict : dictionary, optional, default: None
+            A dictionary to override the default text properties. If fontdict
+            is None, the defaults are determined by your rc parameters.
 
+        withdash : boolean, optional, default: False
+            Creates a `~matplotlib.text.TextWithDash` instance instead of a
+            `~matplotlib.text.Text` instance.
+
+        Other parameters
+        ----------------
+        kwargs : `~matplotlib.text.Text` properties.
+
+        Examples
+        --------
         Individual keyword arguments can be used to override any given
         parameter::
 
-            text(x, y, s, fontsize=12)
+            >>> text(x, y, s, fontsize=12)
 
         The default transform specifies that text is in data coords,
         alternatively, you can specify text in axis coords (0,0 is
         lower-left and 1,1 is upper-right).  The example below places
         text in the center of the axes::
 
-            text(0.5, 0.5,'matplotlib',
-                 horizontalalignment='center',
-                 verticalalignment='center',
-                 transform = ax.transAxes)
+            >>> text(0.5, 0.5,'matplotlib', horizontalalignment='center',
+            >>>      verticalalignment='center',
+            >>>      transform = ax.transAxes)
 
-       You can put a rectangular box around the text instance (eg. to
-       set a background color) by using the keyword *bbox*.  *bbox* is
-       a dictionary of :class:`matplotlib.patches.Rectangle`
-       properties.  For example::
+        You can put a rectangular box around the text instance (eg. to
+        set a background color) by using the keyword *bbox*.  *bbox* is
+        a dictionary of `~matplotlib.patches.Rectangle`
+        properties.  For example::
 
-         text(x, y, s, bbox=dict(facecolor='red', alpha=0.5))
+            >>> text(x, y, s, bbox=dict(facecolor='red', alpha=0.5))
 
-       Valid kwargs are :class:`~matplotlib.text.Text` properties:
-
-       %(Text)s
         """
         default = {
             'verticalalignment': 'baseline',
@@ -3362,12 +3366,10 @@ class Axes(martist.Artist):
         # a dash to TextWithDash and dashlength.
         if withdash:
             t = mtext.TextWithDash(
-                x=x, y=y, text=s,
-                )
+                x=x, y=y, text=s)
         else:
             t = mtext.Text(
-                x=x, y=y, text=s,
-                )
+                x=x, y=y, text=s)
         self._set_artist_props(t)
 
         t.update(default)
