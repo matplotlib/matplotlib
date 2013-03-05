@@ -1952,7 +1952,7 @@ class FigureCanvasBase(object):
                                                    'progressive'])
 
             if 'quality' not in options: 
-                options['quality'] = rcParams.get('savefig.jpeg_quality',95)
+                options['quality'] = rcParams['savefig.jpeg_quality']
 
             return image.save(filename_or_obj, format='jpeg', **options)
         print_jpeg = print_jpg
