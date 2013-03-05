@@ -687,6 +687,7 @@ defaultParams = {
     'savefig.frameon':     [True, validate_bool],
     'savefig.orientation': ['portrait', validate_orientation],  # edgecolor;
                                                                  #white
+    'savefig.jpeg_quality': [95, validate_int],
     # what to add to extensionless filenames
     'savefig.extension':  ['png', deprecate_savefig_extension],
     # value checked by backend at runtime
