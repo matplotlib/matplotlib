@@ -75,10 +75,17 @@ conversion (`mpl.rc('svg', fonttype='none')`).
 
 Triangular grid interpolation
 -----------------------------
-Ian Thomas added classes to perform interpolation within triangular grids
-(:class:`~matplotlib.tri.LinearTriInterpolator`) and a utility class to find
+Geoffroy Billotey and Ian Thomas added classes to perform interpolation within
+triangular grids: (:class:`~matplotlib.tri.LinearTriInterpolator` and
+:class:`~matplotlib.tri.CubicTriInterpolator`) and a utility class to find
 the triangles in which points lie (
 :class:`~matplotlib.tri.TrapezoidMapTriFinder`).
+A helper class to perform mesh refinement and smooth contouring was also added
+(:class:`~matplotlib.tri.UniformTriRefiner`).
+Finally, a class implementing some basic tools for triangular mesh improvement
+was added (:class:`~matplotlib.tri.TriAnalyzer`).
+
+.. plot:: mpl_examples/pylab_examples/tricontour_smooth_user.py
 
 Left and right side axes titles
 -------------------------------
