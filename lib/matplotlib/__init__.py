@@ -495,12 +495,19 @@ def _create_tmp_config_dir():
     """
     If the config directory can not be created, create a temporary
     directory.
+
+    Returns None if a writable temporary directory could not be created.
     """
     import getpass
     import tempfile
 
-    tempdir = os.path.join(
-        tempfile.gettempdir(), 'matplotlib-%s' % getpass.getuser())
+    try:
+        tempdir = tempfile.gettempdir()
+    except NotImplementedError:
+        # Some restricted platforms (such as Google App Engine) do not provide
+        # gettempdir.
+        return None
+    tempdir = os.path.join(tempdir, 'matplotlib-%s' % getpass.getuser())
     os.environ['MPLCONFIGDIR'] = tempdir
 
     return tempdir
@@ -519,7 +526,9 @@ def _get_configdir():
        create it if necessary).
     2. If the chosen directory exists and is writable, use that as the
        configuration directory.
-    3. Create a temporary directory, and use it as the configuration directory.
+    3. If possible, create a temporary directory, and use it as the
+       configuration directory.
+    4. A writable directory could not be found or created; return None.
     """
 
     configdir = os.environ.get('MPLCONFIGDIR')
