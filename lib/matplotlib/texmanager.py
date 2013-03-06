@@ -94,21 +94,32 @@ class TexManager:
     oldcache = os.path.join(oldpath, '.tex.cache')
 
     configdir = mpl.get_configdir()
-    if configdir is None:
-        raise RuntimeError('Could not find a suitable configuration directory')
-    texcache = os.path.join(configdir, 'tex.cache')
+    if configdir is not None:
+        texcache = os.path.join(configdir, 'tex.cache')
+    else:
+        # Should only happen in a restricted environment (such as Google App
+        # Engine). Deal with this gracefully by not creating a cache directory.
+        texcache = None
 
     if os.path.exists(oldcache):
-        # FIXME raise proper warning
-        print("""\
+        if texcache is not None:
+            # FIXME raise proper warning
+            print("""\
 WARNING: found a TeX cache dir in the deprecated location "%s".
   Moving it to the new default location "%s".""" % (oldcache, texcache),
-              file=sys.stderr)
-        try:
-            shutil.move(oldcache, texcache)
-        except IOError as e:
-            print("WARNING: File could not be renamed: %s" % e, file=sys.stderr)
-    mkdirs(texcache)
+                  file=sys.stderr)
+            try:
+                shutil.move(oldcache, texcache)
+            except IOError as e:
+                print("WARNING: File could not be renamed: %s" % e,
+                      file=sys.stderr)
+        else:
+            print("""\
+WARNING: Could not rename old TeX cache dir "%s": a suitable configuration
+  directory could not be found.""" % oldcache, file=sys.stderr)
+
+    if texcache is not None:
+        mkdirs(texcache)
 
     _dvipng_hack_alpha = None
     #_dvipng_hack_alpha = dvipng_hack_alpha()
@@ -149,6 +160,11 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                              font_families]))
 
     def __init__(self):
+
+        if not self.texcache:
+            raise RuntimeError(
+                ('Cannot create TexManager, as there is no cache directory '
+                 'available'))
 
         mkdirs(self.texcache)
         ff = rcParams['font.family'].lower()
