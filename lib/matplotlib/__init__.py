@@ -470,26 +470,25 @@ def checkdep_usetex(s):
 
 def _get_home():
     """Find user's home directory if possible.
-    Otherwise raise error.
+    Otherwise, returns None.
 
-    :see:  http://mail.python.org/pipermail/python-list/2005-February/263921.html
+    :see:  http://mail.python.org/pipermail/python-list/2005-February/325395.html
     """
-    path=''
     try:
-        path=os.path.expanduser("~")
+        path = os.path.expanduser("~")
     except:
         pass
-    if not os.path.isdir(path):
-        for evar in ('HOME', 'USERPROFILE', 'TMP'):
-            try:
-                path = os.environ[evar]
-                if os.path.isdir(path):
-                    break
-            except: pass
-    if path:
-        return path
     else:
-        raise RuntimeError('please define environment variable $HOME')
+        if os.path.isdir(path):
+            return path
+    for evar in ('HOME', 'USERPROFILE', 'TMP'):
+        try:
+            path = os.environ[evar]
+            if os.path.isdir(path):
+                return path
+        except:
+            pass
+    return None
 
 
 def _create_tmp_config_dir():
@@ -513,12 +512,14 @@ def _get_configdir():
     """
     Return the string representing the configuration directory.
 
-    Default is HOME/.matplotlib.  You can override this with the
-    MPLCONFIGDIR environment variable.  If the default is not
-    writable, and MPLCONFIGDIR is not set, then
-    tempfile.gettempdir() is used to provide a directory in
-    which a matplotlib subdirectory is created as the configuration
-    directory.
+    The directory is chosen as follows:
+
+    1. If the MPLCONFIGDIR environment variable is supplied, choose that. Else,
+       choose the '.matplotlib' subdirectory of the user's home directory (and
+       create it if necessary).
+    2. If the chosen directory exists and is writable, use that as the
+       configuration directory.
+    3. Create a temporary directory, and use it as the configuration directory.
     """
 
     configdir = os.environ.get('MPLCONFIGDIR')
@@ -530,18 +531,21 @@ def _get_configdir():
         return configdir
 
     h = get_home()
-    p = os.path.join(get_home(), '.matplotlib')
+    if h is not None:
+        p = os.path.join(h, '.matplotlib')
 
-    if os.path.exists(p):
-        if not _is_writable_dir(p):
-            return _create_tmp_config_dir()
-    else:
-        if not _is_writable_dir(h):
-            return _create_tmp_config_dir()
-        from matplotlib.cbook import mkdirs
-        mkdirs(p)
+        if os.path.exists(p):
+            if not _is_writable_dir(p):
+                return _create_tmp_config_dir()
+        else:
+            if not _is_writable_dir(h):
+                return _create_tmp_config_dir()
+            from matplotlib.cbook import mkdirs
+            mkdirs(p)
 
-    return p
+        return p
+
+    return _create_tmp_config_dir()
 get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
 
 
@@ -643,18 +647,20 @@ WARNING: Old rc filename ".matplotlibrc" found in working dir
             print("WARNING: File could not be renamed: %s" % e, file=sys.stderr)
 
     home = get_home()
-    oldname = os.path.join( home, '.matplotlibrc')
-    if os.path.exists(oldname):
-        configdir = get_configdir()
-        newname = os.path.join(configdir, 'matplotlibrc')
-        print("""\
+    if home:
+        oldname = os.path.join( home, '.matplotlibrc')
+        if os.path.exists(oldname):
+            configdir = get_configdir()
+            newname = os.path.join(configdir, 'matplotlibrc')
+            print("""\
 WARNING: Old rc filename "%s" found and renamed to
   new default rc file name "%s"."""%(oldname, newname), file=sys.stderr)
 
-        try:
-            shutil.move(oldname, newname)
-        except IOError as e:
-            print("WARNING: File could not be renamed: %s" % e, file=sys.stderr)
+            try:
+                shutil.move(oldname, newname)
+            except IOError as e:
+                print("WARNING: File could not be renamed: %s" % e,
+                      file=sys.stderr)
 
 
     fname = os.path.join( os.getcwd(), 'matplotlibrc')
