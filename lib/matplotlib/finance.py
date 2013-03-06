@@ -28,6 +28,8 @@ from matplotlib.transforms import Affine2D
 
 
 configdir = get_configdir()
+if configdir is None:
+    raise RuntimeError('Could not find a suitable configuration directory')
 cachedir = os.path.join(configdir, 'finance.cache')
 
 

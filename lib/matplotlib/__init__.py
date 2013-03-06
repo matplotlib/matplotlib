@@ -656,20 +656,25 @@ WARNING: Old rc filename ".matplotlibrc" found in working dir
             print("WARNING: File could not be renamed: %s" % e, file=sys.stderr)
 
     home = get_home()
+    configdir = get_configdir()
     if home:
         oldname = os.path.join( home, '.matplotlibrc')
         if os.path.exists(oldname):
-            configdir = get_configdir()
-            newname = os.path.join(configdir, 'matplotlibrc')
-            print("""\
+            if configdir is not None:
+                newname = os.path.join(configdir, 'matplotlibrc')
+                print("""\
 WARNING: Old rc filename "%s" found and renamed to
   new default rc file name "%s"."""%(oldname, newname), file=sys.stderr)
 
-            try:
-                shutil.move(oldname, newname)
-            except IOError as e:
-                print("WARNING: File could not be renamed: %s" % e,
-                      file=sys.stderr)
+                try:
+                    shutil.move(oldname, newname)
+                except IOError as e:
+                    print("WARNING: File could not be renamed: %s" % e,
+                          file=sys.stderr)
+            else:
+                print("""\
+WARNING: Could not rename old rc file "%s": a suitable configuration directory
+  could not be found.""" % oldname, file=sys.stderr)
 
 
     fname = os.path.join( os.getcwd(), 'matplotlibrc')
@@ -682,8 +687,9 @@ WARNING: Old rc filename "%s" found and renamed to
             if os.path.exists(fname):
                 return fname
 
-    fname = os.path.join(get_configdir(), 'matplotlibrc')
-    if os.path.exists(fname): return fname
+    if configdir is not None:
+        fname = os.path.join(configdir, 'matplotlibrc')
+        if os.path.exists(fname): return fname
 
 
     path =  get_data_path() # guaranteed to exist or raise

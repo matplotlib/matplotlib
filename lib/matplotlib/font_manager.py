@@ -1311,10 +1311,13 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         return result
 
 else:
+    configdir = get_configdir()
+    if configdir is None:
+        raise RuntimeError('Could not find a suitable configuration directory')
     if sys.version_info[0] >= 3:
-        _fmcache = os.path.join(get_configdir(), 'fontList.py3k.cache')
+        _fmcache = os.path.join(configdir, 'fontList.py3k.cache')
     else:
-        _fmcache = os.path.join(get_configdir(), 'fontList.cache')
+        _fmcache = os.path.join(configdir, 'fontList.cache')
 
     fontManager = None
 
