@@ -102,7 +102,10 @@ class TexManager:
 WARNING: found a TeX cache dir in the deprecated location "%s".
   Moving it to the new default location "%s".""" % (oldcache, texcache),
               file=sys.stderr)
-        shutil.move(oldcache, texcache)
+        try:
+            shutil.move(oldcache, texcache)
+        except IOError as e:
+            print("WARNING: File could not be renamed: %s" % e, file=sys.stderr)
     mkdirs(texcache)
 
     _dvipng_hack_alpha = None
