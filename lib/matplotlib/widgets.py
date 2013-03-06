@@ -928,9 +928,8 @@ class MultiCursor(Widget):
         ax2 = fig.add_subplot(212, sharex=ax1)
         ax2.plot(t, s2)
 
-        multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1)
-        #multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1,
-        #                    horizOn=True, vertOn=True)
+        multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1,
+                            horizOn=False, vertOn=True)
         show()
 
     """
