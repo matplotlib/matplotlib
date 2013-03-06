@@ -642,7 +642,10 @@ def matplotlib_fname():
 WARNING: Old rc filename ".matplotlibrc" found in working dir
   and and renamed to new default rc file name "matplotlibrc"
   (no leading"dot"). """, file=sys.stderr)
-        shutil.move('.matplotlibrc', 'matplotlibrc')
+        try:
+            shutil.move('.matplotlibrc', 'matplotlibrc')
+        except IOError as e:
+            print("WARNING: File could not be renamed: %s" % e, file=sys.stderr)
 
     home = get_home()
     oldname = os.path.join( home, '.matplotlibrc')
@@ -653,7 +656,10 @@ WARNING: Old rc filename ".matplotlibrc" found in working dir
 WARNING: Old rc filename "%s" found and renamed to
   new default rc file name "%s"."""%(oldname, newname), file=sys.stderr)
 
-        shutil.move(oldname, newname)
+        try:
+            shutil.move(oldname, newname)
+        except IOError as e:
+            print("WARNING: File could not be renamed: %s" % e, file=sys.stderr)
 
 
     fname = os.path.join( os.getcwd(), 'matplotlibrc')
