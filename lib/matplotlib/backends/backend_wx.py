@@ -1172,7 +1172,7 @@ The current aspect ratio will be kept."""
         if filetype == wx.BITMAP_TYPE_JPEG:
            jpeg_quality = kwargs.get('quality',rcParams['savefig.jpeg_quality'])
            image = self.bitmap.ConvertToImage()
-           image.SetOption(wx.IMAGE_OPTION_QUALITY,jpeg_quality)
+           image.SetOption(wx.IMAGE_OPTION_QUALITY,str(jpeg_quality))
          
 
         # Now that we have rendered into the bitmap, save it
