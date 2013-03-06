@@ -94,6 +94,8 @@ class TexManager:
     oldcache = os.path.join(oldpath, '.tex.cache')
 
     configdir = mpl.get_configdir()
+    if configdir is None:
+        raise RuntimeError('Could not find a suitable configuration directory')
     texcache = os.path.join(configdir, 'tex.cache')
 
     if os.path.exists(oldcache):
