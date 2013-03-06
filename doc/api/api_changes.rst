@@ -27,6 +27,11 @@ Changes in 1.3.x
 * The `~matplotlib.mpl` module is now deprecated. Those who relied on this
   module should transition to simply using `import matplotlib as mpl`.
 
+* The extension of :class:`~matplotlib.widgets.MultiCursor` to both vertical
+  (default) and/or horizontal cursor implied that ``self.line`` is replaced
+  by ``self.vline`` for vertical cursors lines and ``self.hline`` is added
+  for the horizontal cursors lines.
+
 Changes in 1.2.x
 ================
 
