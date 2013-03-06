@@ -216,13 +216,8 @@ def _is_writable_dir(p):
     try: p + ''  # test is string like
     except TypeError: return False
     try:
-        t = tempfile.TemporaryFile(dir=p)
-        try:
-            t.write(ascii('1'))
-        finally:
-            t.close()
+        return os.access(p, os.W_OK)
     except OSError: return False
-    else: return True
 
 class Verbose:
     """
