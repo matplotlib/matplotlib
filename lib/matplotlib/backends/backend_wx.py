@@ -1162,15 +1162,29 @@ The current aspect ratio will be kept."""
         gc = renderer.new_gc()
 
         self.figure.draw(renderer)
+    
+        # image is the object that we call SaveFile on. 
+        image = self.bitmap
+
+        # set the JPEG quality appropriately.  Unfortunately, it is only possible
+        # to set the quality on a wx.Image object.  So if we are saving a JPEG,
+        # convert the wx.Bitmap to a wx.Image, and set the quality.
+        if filetype == wx.BITMAP_TYPE_JPEG:
+           jpeg_quality = kwargs.get('quality',rcParams['savefig.jpeg_quality'])
+           image = self.bitmap.ConvertToImage()
+           image.SetOption(wx.IMAGE_OPTION_QUALITY,jpeg_quality)
+         
 
         # Now that we have rendered into the bitmap, save it
         # to the appropriate file type and clean up
         if is_string_like(filename):
-            if not self.bitmap.SaveFile(filename, filetype):
+            if not image.SaveFile(filename, filetype):
                 DEBUG_MSG('print_figure() file save error', 4, self)
                 raise RuntimeError('Could not save figure to %s\n' % (filename))
         elif is_writable_file_like(filename):
-            if not self.bitmap.ConvertToImage().SaveStream(filename, filetype):
+            if not isinstance(image,wx.Image):
+               image = image.ConvertToImage()
+            if not image.SaveStream(filename, filetype):
                 DEBUG_MSG('print_figure() file save error', 4, self)
                 raise RuntimeError('Could not save figure to %s\n' % (filename))
 
