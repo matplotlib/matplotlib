@@ -426,50 +426,32 @@ Py::Object Triangulation::calculate_plane_coefficients(const Py::Tuple &args)
                 //       p/normal_z
                 XYZ point0(xs[*tris], ys[*tris], zs[*tris]);
                 tris++;
-                XYZ point1(xs[*tris], ys[*tris], zs[*tris]);
+                XYZ side01 = XYZ(xs[*tris], ys[*tris], zs[*tris]) - point0;
                 tris++;
-                XYZ point2(xs[*tris], ys[*tris], zs[*tris]);
+                XYZ side02 = XYZ(xs[*tris], ys[*tris], zs[*tris]) - point0;
                 tris++;
 
-                XYZ normal = (point1 - point0).cross(point2 - point0);
+                XYZ normal = side01.cross(side02);
 
                 if (normal.z == 0.0)
                 {
                     // Normal is in x-y plane which means triangle consists of
-                    // colinear points.  Try to do the best we can by taking
-                    // plane through longest side of triangle.
-                    double length_sqr_01 = (point1 - point0).length_squared();
-                    double length_sqr_12 = (point2 - point1).length_squared();
-                    double length_sqr_20 = (point0 - point2).length_squared();
-                    if (length_sqr_01 > length_sqr_12)
-                    {
-                        if (length_sqr_01 > length_sqr_20)
-                            normal = normal.cross(point1 - point0);
-                        else
-                            normal = normal.cross(point0 - point2);
-                    }
-                    else
-                    {
-                        if (length_sqr_12 > length_sqr_20)
-                            normal = normal.cross(point2 - point1);
-                        else
-                            normal = normal.cross(point0 - point2);
-                    }
-
-                    if (normal.z == 0.0)
-                    {
-                        // The 3 triangle points have identical x and y!  The
-                        // best we can do here is take normal = (0,0,1) and for
-                        // the constant p take the mean of the 3 points'
-                        // z-values.
-                        normal = XYZ(0.0, 0.0, 1.0);
-                        point0.z = (point0.z + point1.z + point2.z) / 3.0;
-                    }
+                    // colinear points. To avoid dividing by zero, we use the
+                    // Moore-Penrose pseudo-inverse.
+                    double sum2 = (side01.x*side01.x + side01.y*side01.y +
+                                   side02.x*side02.x + side02.y*side02.y);
+                    double a = (side01.x*side01.z + side02.x*side02.z) / sum2;
+                    double b = (side01.y*side01.z + side02.y*side02.z) / sum2;
+                    *planes++ = a;
+                    *planes++ = b;
+                    *planes++ = point0.z - a*point0.x - b*point0.y;
                 }
-
-                *planes++ = -normal.x / normal.z;           // x
-                *planes++ = -normal.y / normal.z;           // y
-                *planes++ = normal.dot(point0) / normal.z;  // constant
+                else
+                {
+                    *planes++ = -normal.x / normal.z;           // x
+                    *planes++ = -normal.y / normal.z;           // y
+                    *planes++ = normal.dot(point0) / normal.z;  // constant
+                }
             }
         }
     }
