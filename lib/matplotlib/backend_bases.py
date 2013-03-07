@@ -372,6 +372,8 @@ class RendererBase:
                     xp, yp = transform.transform_point((0, 0))
                     xo = -(xp - xo)
                     yo = -(yp - yo)
+            if not (np.isfinite(xo) and np.isfinite(yo)):
+                continue
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
