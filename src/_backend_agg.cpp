@@ -444,10 +444,10 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R& rasterizer)
     double l, b, r, t;
     if (py_convert_bbox(cliprect.ptr(), l, b, r, t))
     {
-        rasterizer.clip_box(std::max(int(floor(l - 0.5)), 0),
-                            std::max(int(floor(height - b - 0.5)), 0),
-                            std::min(int(floor(r - 0.5)), int(width)),
-                            std::min(int(floor(height - t - 0.5)), int(height)));
+        rasterizer.clip_box(std::max(int(floor(l + 0.5)), 0),
+                            std::max(int(floor(height - b + 0.5)), 0),
+                            std::min(int(floor(r + 0.5)), int(width)),
+                            std::min(int(floor(height - t + 0.5)), int(height)));
     }
     else
     {
@@ -678,7 +678,7 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     PathIterator path(path_obj);
     transformed_path_t path_transformed(path, trans);
     snap_t             path_snapped(path_transformed,
-                                    SNAP_TRUE,
+                                    SNAP_FALSE,
                                     path.total_vertices(),
                                     0.0);
     curve_t            path_curve(path_snapped);
@@ -759,6 +759,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
                     continue;
                 }
 
+                /* These values are correctly snapped above -- so we don't want
+                   to round here, we really only want to truncate */
                 x = floor(x);
                 y = floor(y);
 
@@ -795,6 +797,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
                     continue;
                 }
 
+                /* These values are correctly snapped above -- so we don't want
+                   to round here, we really only want to truncate */
                 x = floor(x);
                 y = floor(y);
 
