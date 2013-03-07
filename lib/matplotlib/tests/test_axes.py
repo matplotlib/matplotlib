@@ -57,7 +57,7 @@ def test_formatter_ticker():
 @cleanup
 def test_add_collection():
     # Test if data limits are unchanged by adding an empty collection.
-    # Github issue #1490, pull #1497. 
+    # Github issue #1490, pull #1497.
     fig = matplotlib.figure.Figure()
     fig2 = matplotlib.figure.Figure()
     ax = fig.add_subplot(111)
@@ -986,11 +986,11 @@ def test_errorbar():
 
     fig.suptitle('Variable errorbars')
 
-@image_comparison(baseline_images=['hist_stacked'])
-def test_hist_stacked():
+@image_comparison(baseline_images=['hist_stacked_stepfilled'])
+def test_hist_stacked_stepfilled():
     # make some data
-    d1 = np.linspace(0, 10, 50)
-    d2 = np.linspace(1, 3, 20)
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), histtype="stepfilled", stacked=True)
@@ -1031,6 +1031,35 @@ def test_stem_args():
     ax.stem(x, y)
     ax.stem(x, y, 'r--')
     ax.stem(x, y, 'r--', basefmt='b--')
+
+@image_comparison(baseline_images=['hist_stacked_stepfilled_alpha'])
+def test_hist_stacked_stepfilled_alpha():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="stepfilled", stacked=True, alpha=0.5)
+
+@image_comparison(baseline_images=['hist_stacked_step'])
+def test_hist_stacked_step():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="step", stacked=True)
+
+@image_comparison(baseline_images=['hist_stacked_bar'])
+def test_hist_stacked_bar():
+    # make some data
+    d = [[100, 100, 100, 100, 200, 320, 450, 80, 20, 600, 310, 800], [20, 23, 50, 11, 100, 420], [120, 120, 120, 140, 140, 150, 180], [60, 60, 60, 60, 300, 300, 5, 5, 5, 5, 10, 300], [555, 555, 555, 30, 30, 30, 30, 30, 100, 100, 100, 100, 30, 30], [30, 30, 30, 30, 400, 400, 400, 400, 400, 400, 400, 400]]
+    colors = [(0.5759849696758961, 1.0, 0.0), (0.0, 1.0, 0.350624650815206), (0.0, 1.0, 0.6549834156005998), (0.0, 0.6569064625276622, 1.0), (0.28302699607823545, 0.0, 1.0), (0.6849123462299822, 0.0, 1.0)]
+    labels = ['green', 'orange', ' yellow', 'magenta', 'black']
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(d, bins=10, histtype='barstacked', align='mid', color=colors, label=labels)
+    ax.legend(loc='upper right', bbox_to_anchor = (1.0, 1.0), ncol=1)
 
 @image_comparison(baseline_images=['transparent_markers'], remove_text=True)
 def test_transparent_markers():

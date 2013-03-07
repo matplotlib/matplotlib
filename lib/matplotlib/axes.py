@@ -4921,11 +4921,10 @@ class Axes(martist.Artist):
         if orientation == 'vertical':
             self._process_unit_info(xdata=left, ydata=height, kwargs=kwargs)
             if log:
-                self.set_yscale('log')
+                self.set_yscale('log', nonposy='clip')
             # size width and bottom according to length of left
             if _bottom is None:
                 if self.get_yscale() == 'log':
-                    bottom = [1e-100]
                     adjust_ylim = True
                 else:
                     bottom = [0]
@@ -4937,11 +4936,10 @@ class Axes(martist.Artist):
         elif orientation == 'horizontal':
             self._process_unit_info(xdata=width, ydata=bottom, kwargs=kwargs)
             if log:
-                self.set_xscale('log')
+                self.set_xscale('log', nonposx='clip')
             # size left and height according to length of bottom
             if _left is None:
                 if self.get_xscale() == 'log':
-                    left = [1e-100]
                     adjust_xlim = True
                 else:
                     left = [0]
@@ -8218,6 +8216,11 @@ class Axes(martist.Artist):
             raise ValueError(
                 "orientation kwarg %s is not recognized" % orientation)
 
+        if kwargs.get('width') is not None:
+            raise mplDeprecation(
+                'hist now uses the rwidth to give relative width '
+                'and not absolute width')
+
         if histtype == 'barstacked' and not stacked:
             stacked = True
 
@@ -8233,9 +8236,9 @@ class Axes(martist.Artist):
             else:
                 raise ValueError("x must be 1D or 2D")
             if x.shape[1] < x.shape[0]:
-                warnings.warn('2D hist input should be nsamples x '
-                              'nvariables;\n this looks transposed '
-                              '(shape is %d x %d)' % x.shape[::-1])
+                warnings.warn(
+                    '2D hist input should be nsamples x nvariables;\n '
+                    'this looks transposed (shape is %d x %d)' % x.shape[::-1])
         else:
             # multiple hist with data of different length
             x = [np.asarray(xi) for xi in x]
@@ -8270,7 +8273,7 @@ class Axes(martist.Artist):
                     raise ValueError(
                         'weights should have the same shape as x')
         else:
-            w = [None] * nx
+            w = [None]*nx
 
         # Save autoscale state for later restoration; turn autoscaling
         # off so we can do it all a single time at the end, instead
@@ -8285,7 +8288,7 @@ class Axes(martist.Artist):
 
         # Check whether bins or range are given explicitly. In that
         # case use those values for autoscaling.
-        binsgiven = (cbook.iterable(bins) or bin_range != None)
+        binsgiven = (cbook.iterable(bins) or bin_range is not None)
 
         # If bins are not specified either explicitly or via range,
         # we need to figure out the range required for all datasets,
@@ -8304,16 +8307,13 @@ class Axes(martist.Artist):
         hist_kwargs = dict(range=bin_range)
 
         n = []
-        mlast = None
-        # reversed order is necessary so when stacking histogram, first
-        # dataset is on top if histogram isn't stacked, this doesn't make any
-        # difference
-        for i in reversed(xrange(nx)):
+        mlast = bottom
+        for i in xrange(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
             if mlast is None:
-                mlast = np.zeros(len(bins) - 1, m.dtype)
+                mlast = np.zeros(len(bins)-1, m.dtype)
             if normed:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
@@ -8321,8 +8321,6 @@ class Axes(martist.Artist):
                 m += mlast
                 mlast[:] = m
             n.append(m)
-
-
 
         if cumulative:
             slc = slice(None)
@@ -8333,8 +8331,6 @@ class Axes(martist.Artist):
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
-
-        n.reverse()  # put them back in the right order
 
         patches = []
 
@@ -8349,21 +8345,20 @@ class Axes(martist.Artist):
                 dr = 1.0
 
             if histtype == 'bar' and not stacked:
-                width = dr * totwidth / nx
+                width = dr*totwidth/nx
                 dw = width
 
                 if nx > 1:
-                    boffset = -0.5 * dr * totwidth * (1.0 - 1.0 / nx)
+                    boffset = -0.5*dr*totwidth*(1.0-1.0/nx)
                 else:
                     boffset = 0.0
                 stacked = False
             elif histtype == 'barstacked' or stacked:
-                width = dr * totwidth
+                width = dr*totwidth
                 boffset, dw = 0.0, 0.0
 
             if align == 'mid' or align == 'edge':
-                boffset += 0.5 * totwidth
-
+                boffset += 0.5*totwidth
             elif align == 'right':
                 boffset += totwidth
 
@@ -8373,31 +8368,34 @@ class Axes(martist.Artist):
                 _barfunc = self.bar
 
             for m, c in zip(n, color):
-                patch = _barfunc(bins[:-1] + boffset, m, width,
+                if bottom is None:
+                    bottom = np.zeros(len(m), np.float)
+                if stacked:
+                    height = m - bottom
+                else:
+                    height = m
+                patch = _barfunc(bins[:-1]+boffset, height, width,
                                  align='center', log=log,
                                  color=c, bottom=bottom)
                 patches.append(patch)
+                if stacked:
+                    bottom[:] = m
                 boffset += dw
 
         elif histtype.startswith('step'):
-            x = np.zeros(2 * len(bins), np.float)
-            y = np.zeros(2 * len(bins), np.float)
+            # these define the perimeter of the polygon
+            x = np.zeros(4 * len(bins) - 3, np.float)
+            y = np.zeros(4 * len(bins) - 3, np.float)
 
-            x[0::2], x[1::2] = bins, bins
-
-            minimum = np.min(n)
-
-            if align == 'left' or align == 'center':
-                x -= 0.5 * (bins[1] - bins[0])
-            elif align == 'right':
-                x += 0.5 * (bins[1] - bins[0])
+            x[0:2*len(bins)-1:2], x[1:2*len(bins)-1:2] = bins, bins[:-1]
+            x[2*len(bins)-1:] = x[1:2*len(bins)-1][::-1]
 
             if log:
                 if orientation == 'horizontal':
-                    self.set_xscale('log')
+                    self.set_xscale('log', nonposx='clip')
                     logbase = self.xaxis._scale.base
                 else:  # orientation == 'vertical'
-                    self.set_yscale('log')
+                    self.set_yscale('log', nonposy='clip')
                     logbase = self.yaxis._scale.base
 
                 # Setting a minimum of 0 results in problems for log plots
@@ -8407,47 +8405,71 @@ class Axes(martist.Artist):
                     ndata = np.array(n)
                     minimum = (np.min(ndata[ndata>0])) / logbase
                 else:
-                    # For non-normed data, set the min to log base, again so
-                    # that there is 1 full tick-label unit for the lowest bin
+                    # For non-normed data, set the min to log base,
+                    # again so that there is 1 full tick-label unit
+                    # for the lowest bin
                     minimum = 1.0 / logbase
 
                 y[0], y[-1] = minimum, minimum
             else:
                 minimum = np.min(bins)
 
+            if align == 'left' or align == 'center':
+                x -= 0.5*(bins[1]-bins[0])
+            elif align == 'right':
+                x += 0.5*(bins[1]-bins[0])
+
             # If fill kwarg is set, it will be passed to the patch collection,
             # overriding this
             fill = (histtype == 'stepfilled')
 
-            for m, c in zip(n, color):
-                y[1:-1:2], y[2::2] = m, m
+            xvals, yvals = [], []
+            for m in n:
+                # starting point for drawing polygon
+                y[0] = y[-1]
+                # top of the previous polygon becomes the bottom
+                y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+                # set the top of this polygon
+                y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = m, m
                 if log:
                     y[y < minimum] = minimum
                 if orientation == 'horizontal':
                     x, y = y, x
 
+                xvals.append(x.copy())
+                yvals.append(y.copy())
+
+            # add patches in reverse order so that when stacking,
+            # items lower in the stack are plottted on top of
+            # items higher in the stack
+            for x, y, c in reversed(zip(xvals, yvals, color)):
                 if fill:
                     patches.append(self.fill(x, y,
-                        closed=False, facecolor=c))
+                                             closed=False,
+                                             facecolor=c))
                 else:
                     patches.append(self.fill(x, y,
-                        closed=False, edgecolor=c, fill=False))
+                                             closed=False, edgecolor=c,
+                                             fill=False))
+
+            # we return patches, so put it back in the expected order
+            patches.reverse()
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
-                xmin0 = max(_saved_bounds[0] * 0.9, minimum)
+                xmin0 = max(_saved_bounds[0]*0.9, minimum)
                 xmax = self.dataLim.intervalx[1]
                 for m in n:
-                    xmin = np.amin(m[m != 0])  # filter out the 0 height bins
-                xmin = max(xmin * 0.9, minimum)
+                    xmin = np.amin(m[m != 0]) # filter out the 0 height bins
+                xmin = max(xmin*0.9, minimum)
                 xmin = min(xmin0, xmin)
                 self.dataLim.intervalx = (xmin, xmax)
             elif orientation == 'vertical':
-                ymin0 = max(_saved_bounds[1] * 0.9, minimum)
+                ymin0 = max(_saved_bounds[1]*0.9, minimum)
                 ymax = self.dataLim.intervaly[1]
                 for m in n:
-                    ymin = np.amin(m[m != 0])  # filter out the 0 height bins
-                ymin = max(ymin * 0.9, minimum)
+                    ymin = np.amin(m[m != 0]) # filter out the 0 height bins
+                ymin = max(ymin*0.9, minimum)
                 ymin = min(ymin0, ymin)
                 self.dataLim.intervaly = (ymin, ymax)
 
@@ -8458,8 +8480,8 @@ class Axes(martist.Artist):
         elif is_sequence_of_strings(label):
             labels = list(label)
         else:
-            raise ValueError('invalid label: must be string or sequence of '
-                             'strings')
+            raise ValueError(
+                'invalid label: must be string or sequence of strings')
 
         if len(labels) < nx:
             labels += [None] * (nx - len(labels))
@@ -8479,11 +8501,11 @@ class Axes(martist.Artist):
 
         if binsgiven:
             if orientation == 'vertical':
-                self.update_datalim([(bins[0], 0), (bins[-1], 0)],
-                                    updatey=False)
+                self.update_datalim(
+                    [(bins[0], 0), (bins[-1], 0)], updatey=False)
             else:
-                self.update_datalim([(0, bins[0]), (0, bins[-1])],
-                                    updatex=False)
+                self.update_datalim(
+                    [(0, bins[0]), (0, bins[-1])], updatex=False)
 
         self.set_autoscalex_on(_saved_autoscalex)
         self.set_autoscaley_on(_saved_autoscaley)
