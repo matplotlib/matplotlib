@@ -5,6 +5,7 @@ A PostScript backend, which can produce both PostScript .ps and .eps
 # PY3KTODO: Get rid of "print >>fh" syntax
 
 from __future__ import division, print_function
+import contextlib
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
@@ -1105,8 +1106,21 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
 
-        fd, tmpfile = mkstemp()
-        with io.open(fd, 'wb') as raw_fh:
+        if rcParams['ps.usedistiller']:
+            # We are going to use an external program to process the output.
+            # Write to a temporary file.
+            fd, tmpfile = mkstemp()
+            context_manager = io.open(fd, 'wb')
+        else:
+            # Write directly to outfile.
+            if passed_in_file_object:
+                @contextlib.contextmanager
+                def null_context(value):
+                    yield value
+                context_manager = null_context(outfile)
+            else:
+                context_manager = open(outfile, 'wb')
+        with context_manager as raw_fh:
             if sys.version_info[0] >= 3:
                 fh = io.TextIOWrapper(raw_fh, encoding="ascii")
             else:
@@ -1181,20 +1195,21 @@ class FigureCanvasPS(FigureCanvasBase):
             if not isEPSF: print("%%EOF", file=fh)
             fh.flush()
 
-        if rcParams['ps.usedistiller'] == 'ghostscript':
-            gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-        elif rcParams['ps.usedistiller'] == 'xpdf':
-            xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+        if rcParams['ps.usedistiller']:
+            if rcParams['ps.usedistiller'] == 'ghostscript':
+                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+            elif rcParams['ps.usedistiller'] == 'xpdf':
+                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
 
-        if passed_in_file_object:
-            with open(tmpfile, 'rb') as fh:
-                outfile.write(fh.read())
-        else:
-            with open(outfile, 'w') as fh:
-                pass
-            mode = os.stat(outfile).st_mode
-            shutil.move(tmpfile, outfile)
-            os.chmod(outfile, mode)
+            if passed_in_file_object:
+                with open(tmpfile, 'rb') as fh:
+                    outfile.write(fh.read())
+            else:
+                with open(outfile, 'w') as fh:
+                    pass
+                mode = os.stat(outfile).st_mode
+                shutil.move(tmpfile, outfile)
+                os.chmod(outfile, mode)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
                           orientation, isLandscape, papertype,
