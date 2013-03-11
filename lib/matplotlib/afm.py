@@ -1,23 +1,27 @@
 """
 This is a python interface to Adobe Font Metrics Files.  Although a
-number of other python implementations exist (and may be more complete
-than mine) I decided not to go with them because either they were
-either
+number of other python implementations exist, and may be more complete
+than this, it was decided not to go with them because they were
+either:
 
   1) copyrighted or used a non-BSD compatible license
 
-  2) had too many dependencies and I wanted a free standing lib
+  2) had too many dependencies and a free standing lib was needed
 
-  3) Did more than I needed and it was easier to write my own than
-     figure out how to just get what I needed from theirs
+  3) Did more than needed and it was easier to write afresh rather than
+     figure out how to get just what was needed.
 
-It is pretty easy to use, and requires only built-in python libs::
+It is pretty easy to use, and requires only built-in python libs:
 
-    >>> from afm import AFM
-    >>> fh = open('ptmr8a.afm')
-    >>> afm = AFM(fh)
+    >>> from matplotlib import rcParams
+    >>> import os.path
+    >>> afm_fname = os.path.join(rcParams['datapath'], 
+    ...                         'fonts', 'afm', 'ptmr8a.afm')
+    >>>
+    >>> from matplotlib.afm import AFM
+    >>> afm = AFM(open(afm_fname))
     >>> afm.string_width_height('What the heck?')
-    (6220.0, 683)
+    (6220.0, 694)
     >>> afm.get_fontname()
     'Times-Roman'
     >>> afm.get_kern_dist('A', 'f')
@@ -26,12 +30,7 @@ It is pretty easy to use, and requires only built-in python libs::
     -92.0
     >>> afm.get_bbox_char('!')
     [130, -9, 238, 676]
-    >>> afm.get_bbox_font()
-    [-168, -218, 1000, 898]
 
-
-AUTHOR:
-  John D. Hunter <jdh2358@gmail.com>
 """
 
 from __future__ import print_function
@@ -550,13 +549,3 @@ class AFM(object):
         not specified in AFM file.
         """
         return self._header.get(b'StdVW', None)
-
-
-if __name__ == '__main__':
-    #pathname = '/usr/local/lib/R/afm/'
-    pathname = '/usr/local/share/fonts/afms/adobe'
-
-    for fname in os.listdir(pathname):
-        with open(os.path.join(pathname, fname)) as fh:
-            afm = AFM(fh)
-            w, h = afm.string_width_height('John Hunter is the Man!')
