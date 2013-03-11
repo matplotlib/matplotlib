@@ -545,7 +545,7 @@ def test_triinterp_colinear():
     # avoid issues related to round-off errors we only use integer
     # coefficients (otherwise the Triangulation might become invalid even with
     # delta == 0).
-    transformations = [[1, 0], [0, 1], [1, 1], [3, 7], [-5, -2], [-3, 2]]
+    transformations = [[1, 0], [0, 1], [1, 1], [1, 2], [-2, -1], [-2, 1]]
     for transformation in transformations:
         x_rot = transformation[0]*x0 + transformation[1]*y0
         y_rot = -transformation[1]*x0 + transformation[0]*y0
