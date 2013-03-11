@@ -18,6 +18,7 @@ from lines import Line2D
 from transforms import blended_transform_factory
 from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
+
 class LockDraw:
     """
     Some widgets, like the cursor, draw onto the canvas, and this is not
@@ -829,7 +830,8 @@ class Cursor(AxesWidget):
 
     and the visibility of the cursor itself with the *visible* attribute
     """
-    def __init__(self, ax, horizOn=True, vertOn=True, useblit=False, **lineprops):
+    def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
+                 **lineprops):
         """
         Add a cursor to *ax*.  If ``useblit=True``, use the backend-
         dependent blitting features for faster updates (GTKAgg
@@ -907,7 +909,8 @@ class Cursor(AxesWidget):
 
 class MultiCursor(Widget):
     """
-    Provide a vertical line cursor shared between multiple axes
+    Provide a vertical (default) and/or horizontal line cursor shared between
+    multiple axes
 
     Example usage::
 
@@ -925,16 +928,23 @@ class MultiCursor(Widget):
         ax2 = fig.add_subplot(212, sharex=ax1)
         ax2.plot(t, s2)
 
-        multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1)
+        multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1,
+                            horizOn=False, vertOn=True)
         show()
 
     """
-    def __init__(self, canvas, axes, useblit=True, **lineprops):
+    def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
+                 **lineprops):
 
         self.canvas = canvas
         self.axes = axes
+        self.horizOn = horizOn
+        self.vertOn = vertOn
+
         xmin, xmax = axes[-1].get_xlim()
+        ymin, ymax = axes[-1].get_ylim()
         xmid = 0.5 * (xmin + xmax)
+        ymid = 0.5 * (ymin + ymax)
 
         self.visible = True
         self.useblit = useblit and self.canvas.supports_blit
@@ -943,8 +953,18 @@ class MultiCursor(Widget):
 
         if useblit:
             lineprops['animated'] = True
-        self.lines = [ax.axvline(xmid, visible=False, **lineprops)
-                      for ax in axes]
+
+        if vertOn:
+            self.vlines = [ax.axvline(xmid, visible=False, **lineprops)
+                           for ax in axes]
+        else:
+            self.vlines = []
+
+        if horizOn:
+            self.hlines = [ax.axhline(ymid, visible=False, **lineprops)
+                           for ax in axes]
+        else:
+            self.hlines = []
 
         self.canvas.mpl_connect('motion_notify_event', self.onmove)
         self.canvas.mpl_connect('draw_event', self.clear)
@@ -952,9 +972,9 @@ class MultiCursor(Widget):
     def clear(self, event):
         """clear the cursor"""
         if self.useblit:
-            self.background = self.canvas.copy_from_bbox(
-                                    self.canvas.figure.bbox)
-        for line in self.lines:
+            self.background = (
+                self.canvas.copy_from_bbox(self.canvas.figure.bbox))
+        for line in self.vlines + self.hlines:
             line.set_visible(False)
 
     def onmove(self, event):
@@ -965,19 +985,26 @@ class MultiCursor(Widget):
         self.needclear = True
         if not self.visible:
             return
-
-        for line in self.lines:
-            line.set_xdata((event.xdata, event.xdata))
-            line.set_visible(self.visible)
+        if self.vertOn:
+            for line in self.vlines:
+                line.set_xdata((event.xdata, event.xdata))
+                line.set_visible(self.visible)
+        if self.horizOn:
+            for line in self.hlines:
+                line.set_ydata((event.ydata, event.ydata))
+                line.set_visible(self.visible)
         self._update()
 
     def _update(self):
-
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
-            for ax, line in zip(self.axes, self.lines):
-                ax.draw_artist(line)
+            if self.vertOn:
+                for ax, line in zip(self.axes, self.vlines):
+                    ax.draw_artist(line)
+            if self.horizOn:
+                for ax, line in zip(self.axes, self.hlines):
+                    ax.draw_artist(line)
             self.canvas.blit(self.canvas.figure.bbox)
         else:
 
@@ -1349,7 +1376,7 @@ class RectangleSelector(AxesWidget):
         # boundaries.
         if event.button == self.eventpress.button and event.inaxes != self.ax:
             (xdata, ydata) = self.ax.transData.inverted().transform_point(
-                                            (event.x, event.y))
+                (event.x, event.y))
             x0, x1 = self.ax.get_xbound()
             y0, y1 = self.ax.get_ybound()
             xdata = max(x0, xdata)
@@ -1407,7 +1434,7 @@ class RectangleSelector(AxesWidget):
         yproblems = self.minspany is not None and spany < self.minspany
 
         if (((self.drawtype == 'box') or (self.drawtype == 'line')) and
-             (xproblems or yproblems)):
+                (xproblems or yproblems)):
             # check if drawn distance (if it exists) is not too small in
             # neither x nor y-direction
             return
