@@ -1214,16 +1214,31 @@ def report_memory(i=0):  # argument may go away
     from matplotlib.subprocess_fixed import Popen, PIPE
     pid = os.getpid()
     if sys.platform == 'sunos5':
-        a2 = Popen('ps -p %d -o osz' % pid, shell=True,
-                   stdout=PIPE).stdout.readlines()
+        try:
+            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Sun OS only if "
+                "the 'ps' program is found")
         mem = int(a2[-1].strip())
     elif sys.platform.startswith('linux'):
-        a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
-                   stdout=PIPE).stdout.readlines()
+        try:
+            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Linux only if "
+                "the 'ps' program is found")
         mem = int(a2[1].split()[1])
     elif sys.platform.startswith('darwin'):
-        a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
-                   stdout=PIPE).stdout.readlines()
+        try:
+            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Mac OS only if "
+                "the 'ps' program is found")
         mem = int(a2[1].split()[0])
     elif sys.platform.startswith('win'):
         try:
