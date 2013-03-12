@@ -3,6 +3,8 @@ A replacement wrapper around the subprocess module, with a number of
 work-arounds:
 - Provides the check_output function (which subprocess only provides from Python
   2.7 onwards).
+- Provides a stub implementation of subprocess members on Google App Engine
+  (which are missing in subprocess).
 
 Instead of importing subprocess, other modules should use this as follows:
 
@@ -17,9 +19,19 @@ import subprocess
 
 __all__ = ['Popen', 'PIPE', 'STDOUT', 'check_output']
 
-Popen = subprocess.Popen
-PIPE = subprocess.PIPE
-STDOUT = subprocess.STDOUT
+
+if hasattr(subprocess, 'Popen'):
+    Popen = subprocess.Popen
+    # Assume that it also has the other constants.
+    PIPE = subprocess.PIPE
+    STDOUT = subprocess.STDOUT
+else:
+    # In restricted environments (such as Google App Engine), these are
+    # non-existent. Replace them with dummy versions that always raise OSError.
+    def Popen(*args, **kwargs):
+        raise OSError("subprocess.Popen is not supported")
+    PIPE = -1
+    STDOUT = -2
 
 
 def _check_output(*popenargs, **kwargs):
