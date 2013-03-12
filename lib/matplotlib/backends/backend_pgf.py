@@ -21,7 +21,7 @@ from matplotlib import _png, rcParams
 from matplotlib import font_manager
 from matplotlib.ft2font import FT2Font
 from matplotlib.cbook import is_string_like, is_writable_file_like
-from matplotlib.cbook import check_output
+from matplotlib.subprocess_fixed import check_output
 
 
 ###############################################################################
