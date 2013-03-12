@@ -1,5 +1,5 @@
-import subprocess
 import sys
+import matplotlib.subprocess_fixed as subprocess
 
 
 class MiniExpect:

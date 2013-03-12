@@ -23,9 +23,9 @@ from __future__ import print_function
 import errno
 import matplotlib
 import matplotlib.cbook as mpl_cbook
+import matplotlib.subprocess_fixed as subprocess
 import numpy as np
 import struct
-import subprocess
 import sys
 
 if sys.version_info[0] >= 3:

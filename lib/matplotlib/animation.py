@@ -20,8 +20,8 @@
 import sys
 import itertools
 import contextlib
-import subprocess
 from matplotlib.cbook import iterable, is_string_like
+import matplotlib.subprocess_fixed as subprocess
 from matplotlib import verbose
 from matplotlib import rcParams
 

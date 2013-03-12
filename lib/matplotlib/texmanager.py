@@ -41,7 +41,6 @@ import glob
 import os
 import shutil
 import sys
-from subprocess import Popen, PIPE, STDOUT
 
 from hashlib import md5
 
@@ -52,6 +51,7 @@ from matplotlib import rcParams
 from matplotlib._png import read_png
 from matplotlib.cbook import mkdirs
 import matplotlib.dviread as dviread
+from matplotlib.subprocess_fixed import Popen, PIPE, STDOUT
 import re
 
 DEBUG = False
