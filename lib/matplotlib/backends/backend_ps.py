@@ -88,7 +88,7 @@ class PsBackendHelper(object):
         except KeyError:
             pass
 
-        from subprocess import Popen, PIPE
+        from matplotlib.subprocess_fixed import Popen, PIPE
         pipe = Popen(self.gs_exe + " --version",
                      shell=True, stdout=PIPE).stdout
         if sys.version_info[0] >= 3:

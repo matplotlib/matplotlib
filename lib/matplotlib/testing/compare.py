@@ -7,6 +7,7 @@
 from __future__ import division
 
 import matplotlib
+import matplotlib.subprocess_fixed as subprocess
 from matplotlib.testing.noseclasses import ImageComparisonFailure
 from matplotlib.testing import image_util, util
 from matplotlib import _png
@@ -17,7 +18,6 @@ import math
 import os
 import numpy as np
 import shutil
-import subprocess
 import sys
 from functools import reduce
 
