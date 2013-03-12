@@ -63,8 +63,12 @@ else:
 
 
 def dvipng_hack_alpha():
-    p = Popen('dvipng -version', shell=True, stdin=PIPE, stdout=PIPE,
-              stderr=STDOUT, close_fds=(sys.platform != 'win32'))
+    try:
+        p = Popen('dvipng -version', stdin=PIPE, stdout=PIPE, stderr=STDOUT,
+                  close_fds=(sys.platform != 'win32'))
+    except OSError:
+        mpl.verbose.report('No dvipng was found', 'helpful')
+        return False
     stdin, stdout = p.stdin, p.stdout
     for line in stdout:
         if line.startswith(b'dvipng '):
@@ -74,7 +78,7 @@ def dvipng_hack_alpha():
             version = version.decode('ascii')
             version = distutils.version.LooseVersion(version)
             return version < distutils.version.LooseVersion('1.6')
-    mpl.verbose.report('No dvipng was found', 'helpful')
+    mpl.verbose.report('Unexpected response from dvipng -version', 'helpful')
     return False
 
 
