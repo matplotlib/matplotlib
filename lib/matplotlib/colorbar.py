@@ -267,6 +267,7 @@ class ColorbarBase(cm.ScalarMappable):
                  filled=True,
                  extendfrac=None,
                  extendrect=False,
+                 label='',
                  ):
         self.ax = ax
         self._patch_ax()
@@ -352,7 +353,6 @@ class ColorbarBase(cm.ScalarMappable):
             ax.yaxis.set_ticks([])
             # location is either one of 'left' or 'right'
             ax.xaxis.set_label_position(self.ticklocation)
-            # XXX This wasn't enabled before...
             ax.xaxis.set_ticks_position(self.ticklocation)
 
         self._set_label()
@@ -1228,11 +1228,8 @@ class ColorbarPatch(Colorbar):
 
             patch = mpatches.PathPatch(mpath.Path(xy),
                                        facecolor=self.cmap(self.norm(val)),
-                                       hatch=hatch,
-                                       edgecolor='none', linewidth=0,
-                                       antialiased=False, **kw
-                                       )
-
+                                       hatch=hatch, linewidth=0,
+                                       antialiased=False, **kw)
             self.ax.add_patch(patch)
             patches.append(patch)
 
@@ -1247,12 +1244,9 @@ class ColorbarPatch(Colorbar):
             self.dividers = None
 
         if self.drawedges:
-            self.dividers = collections.LineCollection(
-                                    self._edges(X, Y),
-                                    colors=(mpl.rcParams['axes.edgecolor'],),
-                                    linewidths=(
-                                        0.5 * mpl.rcParams['axes.linewidth'],)
-                                    )
+            self.dividers = collections.LineCollection(self._edges(X, Y),
+                    colors=(mpl.rcParams['axes.edgecolor'],),
+                    linewidths=(0.5 * mpl.rcParams['axes.linewidth'],))
             self.ax.add_collection(self.dividers)
 
         self.ax.hold(_hold)

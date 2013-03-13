@@ -1418,7 +1418,7 @@ class Figure(Artist):
                 ax.patch.set_edgecolor(cc[1])
 
     @docstring.dedent_interpd
-    def colorbar(self, mappable, cax=None, ax=None, use_gridspec=False, **kw):
+    def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True, **kw):
         """
         Create a colorbar for a ScalarMappable instance, *mappable*.
 
@@ -1428,6 +1428,9 @@ class Figure(Artist):
         if ax is None:
             ax = self.gca()
 
+        # Store the value of gca so that we can set it back later on.
+        current_ax = self.gca()
+
         if cax is None:
             if use_gridspec and isinstance(ax, SubplotBase):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
@@ -1436,7 +1439,7 @@ class Figure(Artist):
         cax.hold(True)
         cb = cbar.colorbar_factory(cax, mappable, **kw)
 
-        self.sca(ax)
+        self.sca(current_ax)
         return cb
 
     def subplots_adjust(self, *args, **kwargs):
