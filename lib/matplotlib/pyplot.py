@@ -209,7 +209,6 @@ def rc_context(rc=None, fname=None):
     return matplotlib.rc_context(rc, fname)
 
 
-
 @docstring.copy_dedent(matplotlib.rcdefaults)
 def rcdefaults():
     matplotlib.rcdefaults()
@@ -303,8 +302,8 @@ def xkcd():
         raise
     return context
 
-## Figures ##
 
+## Figures ##
 
 def figure(num=None,  # autoincrement if None, else integer from 1-N
            figsize=None,  # defaults to rc figure.figsize

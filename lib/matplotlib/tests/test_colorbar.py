@@ -105,9 +105,9 @@ def test_colorbar_extension_shape():
     fig2 = _colorbar_extension_shape('proportional')
 
 
-@image_comparison(
-        baseline_images=['colorbar_extensions_uniform', 'colorbar_extensions_proportional'],
-        extensions=['png'])
+@image_comparison(baseline_images=['colorbar_extensions_uniform',
+                                   'colorbar_extensions_proportional'],
+                  extensions=['png'])
 def test_colorbar_extension_length():
     '''Test variable length colorbar extensions.'''
     # Use default params so matplotlibrc doesn't cause the test to fail.
@@ -122,15 +122,15 @@ def test_colorbar_extension_length():
                                    'double_cbar',
                                    'cbar_sharing',
                                    ],
-                  extensions=['png', 'pdf']
-                  )
+                  extensions=['png'], remove_text=True,
+                  savefig_kwarg={'dpi': 40})
 def test_colorbar_positioning():
     data = np.arange(1200).reshape(30, 40)
     levels = [0, 200, 400, 600, 800, 1000, 1200]
 
     plt.figure()
     plt.contourf(data, levels=levels)
-    plt.colorbar(orientation='horizontal')
+    plt.colorbar(orientation='horizontal', use_gridspec=False)
 
 
     locations = ['left', 'right', 'top', 'bottom']
@@ -138,7 +138,7 @@ def test_colorbar_positioning():
     for i, location in enumerate(locations):
         plt.subplot(2, 2, i+1)
         plt.contourf(data, levels=levels)
-        plt.colorbar(location=location)
+        plt.colorbar(location=location, use_gridspec=False)
 
 
     plt.figure()
@@ -152,8 +152,8 @@ def test_colorbar_positioning():
     hatch_mappable = plt.contourf(data_2nd, levels=[1, 2, 3], colors='none', hatches=['/', 'o', '+'], extend='max')
     plt.contour(hatch_mappable, colors='black')
 
-    plt.colorbar(color_mappable, location='left', label='variable 1')
-    plt.colorbar(hatch_mappable, location='right', label='variable 2')
+    plt.colorbar(color_mappable, location='left', label='variable 1', use_gridspec=False)
+    plt.colorbar(hatch_mappable, location='right', label='variable 2', use_gridspec=False)
 
 
     plt.figure()
@@ -164,12 +164,14 @@ def test_colorbar_positioning():
     ax3 = plt.subplot(224)
     plt.contourf(data, levels=levels)
 
-    plt.colorbar(ax=[ax2, ax3, ax1], location='right', pad=0.0, shrink=0.5, panchor=False)
-    plt.colorbar(ax=[ax2, ax3, ax1], location='left', shrink=0.5, panchor=False)
-    plt.colorbar(ax=[ax1], location='bottom', panchor=False, anchor=(0.8, 0.5), shrink=0.6)
+    plt.colorbar(ax=[ax2, ax3, ax1], location='right', pad=0.0, shrink=0.5, panchor=False, use_gridspec=False)
+    plt.colorbar(ax=[ax2, ax3, ax1], location='left', shrink=0.5, panchor=False, use_gridspec=False)
+    plt.colorbar(ax=[ax1], location='bottom', panchor=False, anchor=(0.8, 0.5), shrink=0.6, use_gridspec=False)
 
 
-@image_comparison(baseline_images=['cbar_with_subplots_adjust'])
+@image_comparison(baseline_images=['cbar_with_subplots_adjust'],
+                  extensions=['png'], remove_text=True,
+                  savefig_kwarg={'dpi': 40})
 def test_gridspec_make_colorbar():
     plt.figure()
     data = np.arange(1200).reshape(30, 40)
