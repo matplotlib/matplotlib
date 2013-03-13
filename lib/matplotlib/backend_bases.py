@@ -2092,15 +2092,28 @@ class FigureCanvasBase(object):
                 renderer = self.figure._cachedRenderer
                 bbox_inches = self.figure.get_tightbbox(renderer)
 
-                bbox_extra_artists = kwargs.pop("bbox_extra_artists", None)
-                if bbox_extra_artists is None:
-                    bbox_extra_artists = self.figure.get_default_bbox_extra_artists()
+                bbox_artists = kwargs.pop("bbox_extra_artists", None)
+                if bbox_artists is None:
+                    bbox_artists = self.figure.get_default_bbox_extra_artists()
 
-                bb = [a.get_window_extent(renderer)
-                      for a in bbox_extra_artists]
+                bbox_filtered = []
+                for a in bbox_artists:
+                    bbox = a.get_window_extent(renderer)
+                    # print('{0:40} - {1.width:5}, {1.height:5} '
+                    #       '{1}'.format(type(a), bbox))
+                    if a.get_clip_on():
+                        clip_box = a.get_clip_box()
+                        if clip_box is not None:
+                            bbox = Bbox.intersection(bbox, clip_box)
+                        clip_path = a.get_clip_path()
+                        if clip_path is not None and bbox is not None:
+                            clip_path = clip_path.get_fully_transformed_path()
+                            bbox = Bbox.intersection(bbox,
+                                                     clip_path.get_extents())
+                    if bbox is not None and (bbox.width != 0 or
+                                             bbox.height != 0):
+                        bbox_filtered.append(bbox)
 
-                bbox_filtered = [b for b in bb
-                                 if b.width != 0 or b.height != 0]
                 if bbox_filtered:
                     _bbox = Bbox.union(bbox_filtered)
                     trans = Affine2D().scale(1.0 / self.figure.dpi)
