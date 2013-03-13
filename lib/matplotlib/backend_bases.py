@@ -2099,8 +2099,6 @@ class FigureCanvasBase(object):
                 bbox_filtered = []
                 for a in bbox_artists:
                     bbox = a.get_window_extent(renderer)
-                    # print('{0:40} - {1.width:5}, {1.height:5} '
-                    #       '{1}'.format(type(a), bbox))
                     if a.get_clip_on():
                         clip_box = a.get_clip_box()
                         if clip_box is not None:
