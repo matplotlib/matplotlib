@@ -14,9 +14,17 @@ triang = mtri.Triangulation(x, y, triangles)
 
 # Interpolate to regularly-spaced quad grid.
 z = np.cos(1.5*x)*np.cos(1.5*y)
-interp = mtri.LinearTriInterpolator(triang, z)
 xi, yi = np.meshgrid(np.linspace(0, 3, 20), np.linspace(0, 3, 20))
-zi = interp(xi, yi)
+
+interp_lin = mtri.LinearTriInterpolator(triang, z)
+zi_lin = interp_lin(xi, yi)
+
+interp_cubic_geom = mtri.CubicTriInterpolator(triang, z, kind='geom')
+zi_cubic_geom = interp_cubic_geom(xi, yi)
+
+interp_cubic_min_E = mtri.CubicTriInterpolator(triang, z, kind='min_E')
+zi_cubic_min_E = interp_cubic_min_E(xi, yi)
+
 
 # Plot the triangulation.
 plt.subplot(221)
@@ -24,29 +32,26 @@ plt.tricontourf(triang, z)
 plt.triplot(triang, 'ko-')
 plt.title('Triangular grid')
 
-# Plot interpolation to quad grid.
+# Plot linear interpolation to quad grid.
 plt.subplot(222)
-plt.contourf(xi, yi, zi)
+plt.contourf(xi, yi, zi_lin)
 plt.plot(xi, yi, 'k-', alpha=0.5)
 plt.plot(xi.T, yi.T, 'k-', alpha=0.5)
-plt.title('Linear interpolation')
+plt.title("Linear interpolation")
 
-interp2 = mtri.CubicTriInterpolator(triang, z, kind='geom')
-zi2 = interp2(xi, yi)
-
+# Plot cubic interpolation to quad grid, kind=geom
 plt.subplot(223)
-plt.contourf(xi, yi, zi2)
+plt.contourf(xi, yi, zi_cubic_geom)
 plt.plot(xi, yi, 'k-', alpha=0.5)
 plt.plot(xi.T, yi.T, 'k-', alpha=0.5)
-plt.title('Cubic interpolation (geom)')
+plt.title("Cubic interpolation,\nkind='geom'")
 
-interp3 = mtri.CubicTriInterpolator(triang, z, kind='min_E')
-zi3 = interp3(xi, yi)
-
+# Plot cubic interpolation to quad grid, kind=min_E
 plt.subplot(224)
-plt.contourf(xi, yi, zi3)
+plt.contourf(xi, yi, zi_cubic_min_E)
 plt.plot(xi, yi, 'k-', alpha=0.5)
 plt.plot(xi.T, yi.T, 'k-', alpha=0.5)
-plt.title('Cubic interpolation (min_E)')
+plt.title("Cubic interpolation,\nkind='min_E'")
 
+plt.tight_layout()
 plt.show()
