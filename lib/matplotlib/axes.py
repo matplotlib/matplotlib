@@ -1,4 +1,4 @@
-from __future__ import division, print_function
+fsteprom __future__ import division, print_function
 import math
 import warnings
 from operator import itemgetter
@@ -4807,8 +4807,8 @@ class Axes(martist.Artist):
         if where not in ('pre', 'post', 'mid'):
             raise ValueError("'where' argument to step must be "
                              "'pre', 'post' or 'mid'")
-        ln_sty = kwargs.pop('linestyle', '')
-        kwargs['linestyle'] = 'steps-' + where + ln_sty
+        usr_linestyle = kwargs.pop('linestyle', '')
+        kwargs['linestyle'] = 'steps-' + where + usr_linestyle
 
         return self.plot(x, y, *args, **kwargs)
 
