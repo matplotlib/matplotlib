@@ -695,7 +695,7 @@ class Axes(martist.Artist):
         """
         return (self.get_yaxis_transform(which='tick1') +
                 mtransforms.ScaledTranslation(-1 * pad_points / 72.0, 0,
-                                               self.figure.dpi_scale_trans),
+                                              self.figure.dpi_scale_trans),
                 "center", "right")
 
     def get_yaxis_text2_transform(self, pad_points):
@@ -721,7 +721,7 @@ class Axes(martist.Artist):
         """
         return (self.get_yaxis_transform(which='tick2') +
                 mtransforms.ScaledTranslation(pad_points / 72.0, 0,
-                                               self.figure.dpi_scale_trans),
+                                              self.figure.dpi_scale_trans),
                 "center", "left")
 
     def _update_transScale(self):
@@ -6162,7 +6162,8 @@ class Axes(martist.Artist):
                 vmin=None, vmax=None, alpha=None, linewidths=None,
                 verts=None, **kwargs):
         """
-        Make a scatter plot.
+        Make a scatter plot of x vs y, where x and y are sequence like objects
+        of the same lengths.
 
         Parameters
         ----------
