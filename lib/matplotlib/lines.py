@@ -451,9 +451,9 @@ class Line2D(Artist):
 
         self._subslice = False
         if (self.axes and len(x) > 100 and self._is_sorted(x) and
-            self.axes.name == 'rectilinear' and
-            self.axes.get_xscale() == 'linear' and
-            self._markevery is None):
+                self.axes.name == 'rectilinear' and
+                self.axes.get_xscale() == 'linear' and
+                self._markevery is None):
             self._subslice = True
         if hasattr(self, '_path'):
             interpolation_steps = self._path._interpolation_steps
@@ -816,9 +816,13 @@ class Line2D(Artist):
         """
         Set the line marker
 
-        %(MarkerTable)s
+        Parameters
+        -----------
 
-        %(MarkerAccepts)s
+        marker: marker style
+            See `~matplotlib.markers` for full description of possible
+            argument
+
         """
         self._marker.set_marker(marker)
 
