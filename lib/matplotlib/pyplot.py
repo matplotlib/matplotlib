@@ -339,6 +339,16 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
     if figManager is None:
         if get_backend().lower() == 'ps':  dpi = 72
 
+        # If toolbar is set to 'None', it should still be instantiated if
+        # the backend supports setting it's visibility, so that keyboard
+        # shortcut logic is preserved
+        invisible_toolbar = False
+        if rcParams['toolbar'] not in ('toolbar2', 'classic'):
+            if get_backend().lower() in ('qt4agg', 'qtagg', 'gtk', 'gtkagg',
+                    'gtkcairo'):
+                rcParams['toolbar'] = 'toolbar2'
+                invisible_toolbar = True
+
         figManager = new_figure_manager(num, figsize=figsize,
                                              dpi=dpi,
                                              facecolor=facecolor,
@@ -346,6 +356,10 @@ def figure(num=None, # autoincrement if None, else integer from 1-N
                                              frameon=frameon,
                                              FigureClass=FigureClass,
                                              **kwargs)
+
+        if invisible_toolbar:
+            figManager.toolbar.set_hidden(False)
+            rcParams['toolbar'] = 'None'
 
         if figLabel:
             figManager.set_window_title(figLabel)

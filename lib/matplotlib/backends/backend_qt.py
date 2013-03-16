@@ -464,6 +464,9 @@ class NavigationToolbar2QT( NavigationToolbar2, qt.QWidget ):
         self.buttons[ 'Back' ].setEnabled( canBackward )
         self.buttons[ 'Forward' ].setEnabled( canForward )
 
+    def set_hidden(self, hidden):
+        self.setVisible(hidden)
+
 # set icon used when windows are minimized
 try:
     # TODO: This is badly broken
