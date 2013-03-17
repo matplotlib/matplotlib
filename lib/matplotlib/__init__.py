@@ -213,11 +213,14 @@ def _is_writable_dir(p):
     p is a string pointing to a putative writable dir -- return True p
     is such a string, else False
     """
-    try: p + ''  # test is string like
-    except TypeError: return False
+    try:
+        p + ''  # test is string like
+    except TypeError:
+        return False
     try:
         return os.access(p, os.W_OK)
-    except OSError: return False
+    except OSError:
+        return False
 
 class Verbose:
     """
@@ -644,7 +647,7 @@ def matplotlib_fname():
 
     """
 
-    oldname = os.path.join( os.getcwd(), '.matplotlibrc')
+    oldname = os.path.join(os.getcwd(), '.matplotlibrc')
     if os.path.exists(oldname):
         print("""\
 WARNING: Old rc filename ".matplotlibrc" found in working dir
@@ -658,7 +661,7 @@ WARNING: Old rc filename ".matplotlibrc" found in working dir
     home = get_home()
     configdir = get_configdir()
     if home:
-        oldname = os.path.join( home, '.matplotlibrc')
+        oldname = os.path.join(home, '.matplotlibrc')
         if os.path.exists(oldname):
             if configdir is not None:
                 newname = os.path.join(configdir, 'matplotlibrc')
@@ -676,8 +679,7 @@ WARNING: Old rc filename "%s" found and renamed to
 WARNING: Could not rename old rc file "%s": a suitable configuration directory
   could not be found.""" % oldname, file=sys.stderr)
 
-
-    fname = os.path.join( os.getcwd(), 'matplotlibrc')
+    fname = os.path.join(os.getcwd(), 'matplotlibrc')
     if os.path.exists(fname): return fname
 
     if 'MATPLOTLIBRC' in os.environ:
@@ -689,8 +691,8 @@ WARNING: Could not rename old rc file "%s": a suitable configuration directory
 
     if configdir is not None:
         fname = os.path.join(configdir, 'matplotlibrc')
-        if os.path.exists(fname): return fname
-
+        if os.path.exists(fname):
+            return fname
 
     path =  get_data_path() # guaranteed to exist or raise
     fname = os.path.join(path, 'matplotlibrc')

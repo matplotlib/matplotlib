@@ -161,7 +161,7 @@ WARNING: Could not rename old TeX cache dir "%s": a suitable configuration
 
     def __init__(self):
 
-        if not self.texcache:
+        if self.texcache is None:
             raise RuntimeError(
                 ('Cannot create TexManager, as there is no cache directory '
                  'available'))
