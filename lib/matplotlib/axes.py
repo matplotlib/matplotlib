@@ -8088,7 +8088,8 @@ class Axes(martist.Artist):
             If `True`, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
             ``n/(len(x)`dbin)``, ie the integral of the histogram will sum to
-            1.
+            1. If *stacked* is also *True*, the sum of the histograms is
+            normalized to 1.
 
         weights : array_like, shape (n, ), optional, default: None
             An array of weights, of the same shape as `x`.  Each value in `x`
@@ -8300,9 +8301,10 @@ class Axes(martist.Artist):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
+            m = m.astype(float) # causes problems later if it's an int
             if mlast is None:
                 mlast = np.zeros(len(bins)-1, m.dtype)
-            if normed:
+            if normed and not stacked:
                 db = np.diff(bins)
                 m = (m.astype(float) / db) / m.sum()
             if stacked:
@@ -8310,6 +8312,10 @@ class Axes(martist.Artist):
                 mlast[:] = m
             n.append(m)
 
+        if stacked and normed:
+            db = np.diff(bins)
+            for m in n:
+                m[:] = (m.astype(float) / db) / n[-1].sum()
         if cumulative:
             slc = slice(None)
             if cbook.is_numlike(cumulative) and cumulative < 0:
