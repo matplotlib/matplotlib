@@ -3171,8 +3171,8 @@ class Axes(martist.Artist):
 
         Returns
         -------
-        text : :class:`~matplotlib.text.Text`
-            The matplotlib text instance representing the title
+        title: str
+            The title text string.
 
         """
         try:
@@ -3181,7 +3181,7 @@ class Axes(martist.Artist):
                      'right': self._right_title}[loc.lower()]
         except KeyError:
             raise ValueError("'%s' is not a valid location" % loc)
-        return title
+        return title.get_text()
 
     @docstring.dedent_interpd
     def set_title(self, label, loc="center", fontdict=None, **kwargs):
