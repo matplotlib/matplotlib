@@ -647,14 +647,13 @@ def matplotlib_fname():
 
     oldname = os.path.join(os.getcwd(), '.matplotlibrc')
     if os.path.exists(oldname):
-        print("""\
-WARNING: Old rc filename ".matplotlibrc" found in working dir
-  and and renamed to new default rc file name "matplotlibrc"
-  (no leading"dot"). """, file=sys.stderr)
+        warnings.warn("""\
+Old rc filename ".matplotlibrc" found in working dir and and renamed to new
+    default rc file name "matplotlibrc" (no leading ".").""")
         try:
             shutil.move('.matplotlibrc', 'matplotlibrc')
         except IOError as e:
-            print("WARNING: File could not be renamed: %s" % e, file=sys.stderr)
+            warnings.warn('File could not be renamed: %s' % e)
 
     home = get_home()
     configdir = get_configdir()
@@ -663,19 +662,18 @@ WARNING: Old rc filename ".matplotlibrc" found in working dir
         if os.path.exists(oldname):
             if configdir is not None:
                 newname = os.path.join(configdir, 'matplotlibrc')
-                print("""\
-WARNING: Old rc filename "%s" found and renamed to
-  new default rc file name "%s"."""%(oldname, newname), file=sys.stderr)
+                warnings.warn("""\
+Old rc filename "%s" found and renamed to new default rc file name "%s"."""
+                              % (oldname, newname))
 
                 try:
                     shutil.move(oldname, newname)
                 except IOError as e:
-                    print("WARNING: File could not be renamed: %s" % e,
-                          file=sys.stderr)
+                    warnings.warn('File could not be renamed: %s' % e)
             else:
-                print("""\
-WARNING: Could not rename old rc file "%s": a suitable configuration directory
-  could not be found.""" % oldname, file=sys.stderr)
+                warnings.warn("""\
+Could not rename old rc file "%s": a suitable configuration directory could not
+    be found.""" % oldname)
 
     fname = os.path.join(os.getcwd(), 'matplotlibrc')
     if os.path.exists(fname): return fname

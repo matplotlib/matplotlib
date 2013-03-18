@@ -41,6 +41,7 @@ import glob
 import os
 import shutil
 import sys
+import warnings
 
 from hashlib import md5
 
@@ -103,20 +104,17 @@ class TexManager:
 
     if os.path.exists(oldcache):
         if texcache is not None:
-            # FIXME raise proper warning
-            print("""\
-WARNING: found a TeX cache dir in the deprecated location "%s".
-  Moving it to the new default location "%s".""" % (oldcache, texcache),
-                  file=sys.stderr)
+            warnings.warn("""\
+Found a TeX cache dir in the deprecated location "%s".
+    Moving it to the new default location "%s".""" % (oldcache, texcache))
             try:
                 shutil.move(oldcache, texcache)
             except IOError as e:
-                print("WARNING: File could not be renamed: %s" % e,
-                      file=sys.stderr)
+                warnings.warn('File could not be renamed: %s' % e)
         else:
-            print("""\
-WARNING: Could not rename old TeX cache dir "%s": a suitable configuration
-  directory could not be found.""" % oldcache, file=sys.stderr)
+            warnings.warn("""\
+Could not rename old TeX cache dir "%s": a suitable configuration
+    directory could not be found.""" % oldcache)
 
     if texcache is not None:
         mkdirs(texcache)
