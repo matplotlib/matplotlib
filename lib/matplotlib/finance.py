@@ -4,7 +4,7 @@ financial data.   User contributions welcome!
 
 """
 from __future__ import division, print_function
-import os, sys, warnings
+import contextlib, os, sys, warnings
 from urllib2 import urlopen
 
 if sys.version_info[0] < 3:
@@ -184,12 +184,10 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,dividends=False)
         fh = open(cachename)
         verbose.report('Using cachefile %s for %s'%(cachename, ticker))
     else:
-        mkdirs(cachedir)
-        urlfh = urlopen(url)
-
-        fh = open(cachename, 'wb')
-        fh.write(urlfh.read())
-        fh.close()
+        mkdirs(os.path.abspath(os.path.dirname(cachename)))
+        with contextlib.closing(urlopen(url)) as urlfh:
+            with open(cachename, 'wb') as fh:
+                fh.write(urlfh.read())
         verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
         fh = open(cachename, 'r')
 
