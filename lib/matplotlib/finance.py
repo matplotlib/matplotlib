@@ -184,10 +184,11 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,dividends=False)
                      d2[0], d2[1], d2[2], ticker, g)
 
 
-    # Cache the finance data if there is a writable cache directory.
-    if cachedir is not None:
-        if cachename is None:
-            cachename = os.path.join(cachedir, md5(url).hexdigest())
+    # Cache the finance data if cachename is supplied, or there is a writable
+    # cache directory.
+    if cachename is None and cachedir is not None:
+        cachename = os.path.join(cachedir, md5(url).hexdigest())
+    if cachename is not None:
         if os.path.exists(cachename):
             fh = open(cachename)
             verbose.report('Using cachefile %s for %s'%(cachename, ticker))
