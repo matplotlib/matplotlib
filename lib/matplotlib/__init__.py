@@ -479,18 +479,16 @@ def _get_home():
     """
     try:
         path = os.path.expanduser("~")
-    except:
+    except ImportError:
+        # This happens on Google App Engine (pwd module is not present).
         pass
     else:
         if os.path.isdir(path):
             return path
     for evar in ('HOME', 'USERPROFILE', 'TMP'):
-        try:
-            path = os.environ[evar]
-            if os.path.isdir(path):
-                return path
-        except:
-            pass
+        path = os.environ.get(evar)
+        if path is not None and os.path.isdir(path):
+            return path
     return None
 
 
