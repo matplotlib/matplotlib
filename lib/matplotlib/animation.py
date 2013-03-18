@@ -21,7 +21,7 @@ import sys
 import itertools
 import contextlib
 from matplotlib.cbook import iterable, is_string_like
-import matplotlib.subprocess_fixed as subprocess
+from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams
 

@@ -8,7 +8,7 @@ work-arounds:
 
 Instead of importing subprocess, other modules should use this as follows:
 
-import subprocess_fixed as subprocess
+from matplotlib.compat import subprocess
 
 This module is safe to import from anywhere within matplotlib.
 """
