@@ -789,6 +789,8 @@ class Figure(Artist):
         ax = self._axstack.get(key)
         if ax is not None:
             self.sca(ax)
+            # update the bounding box containing all the axes
+            self._set_bigextents(ax)  
             return ax
 
         if isinstance(args[0], Axes):
@@ -804,6 +806,8 @@ class Figure(Artist):
             ax = self._axstack.get(key)
             if ax is not None and isinstance(ax, projection_class):
                 self.sca(ax)
+                # update the bounding box containing all the axes
+                self._set_bigextents(ax)  
                 return ax
 
             # create the new axes using the axes class given
