@@ -53,6 +53,9 @@ class MovieWriterRegistry(object):
         ''' Get a list of available MovieWriters.'''
         return self.avail.keys()
 
+    def is_available(self, name):
+        return name in self.avail
+
     def __getitem__(self, name):
         if not self.avail:
             raise RuntimeError("No MovieWriters available!")
@@ -390,6 +393,24 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
                 self._base_temp_name()] + self.output_args
 
 
+# Base class of avconv information.  AVConv has identical arguments to
+# FFMpeg
+class AVConvBase(FFMpegBase):
+    exec_key = 'animation.avconv_path'
+    args_key = 'animation.avconv_args'
+
+
+# Combine AVConv options with pipe-based writing
+@writers.register('avconv')
+class AVConvWriter(AVConvBase, FFMpegWriter):
+    pass
+
+# Combine AVConv options with file-based writing
+@writers.register('avconv_file')
+class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
+    pass
+
+
 # Base class of mencoder information. Contains configuration key information
 # as well as arguments for controlling *output*
 class MencoderBase:
@@ -657,7 +678,13 @@ class Animation(object):
             else:
                 import warnings
                 warnings.warn("MovieWriter %s unavailable" % writer)
-                writer = writers.list()[0]
+
+                try:
+                    writer = writers.list()[0]
+                except IndexError:
+                    raise ValueError("Cannot save animation: no writers are "
+                                     "available. Please install mencoder or "
+                                     "ffmpeg to save animations.")
 
         verbose.report('Animation.save using %s' % type(writer),
                        level='helpful')

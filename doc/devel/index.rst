@@ -13,9 +13,10 @@
    :maxdepth: 2
 
    coding_guide.rst
+   license.rst
    gitwash/index.rst
+   testing.rst
    documenting_mpl.rst
    release_guide.rst
    transformations.rst
    add_new_projection.rst
-   outline.rst

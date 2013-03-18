@@ -7,7 +7,12 @@ python:
   - 3.2
 
 install:
-  - pip install --use-mirrors nose numpy
+  - pip install --use-mirrors nose
+  # This is a workaround to install numpy with the version of
+  # virtualenv in Travis.  If that is updated in the future, this can
+  # be simplified to 'pip install numpy'
+  - 'if [ $TRAVIS_PYTHON_VERSION == "3.2" ] || [ $TRAVIS_PYTHON_VERSION == "3.1" ]; then pip install https://github.com/y-p/numpy/archive/1.6.2_with_travis_fix.tar.gz; fi'
+  - 'if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install numpy; fi' # should be nop if pre-installed
   - if [[ $TRAVIS_PYTHON_VERSION == '2.'* ]]; then pip install --use-mirrors PIL; fi
   - python setup.py install
 

@@ -603,7 +603,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
 
     def set_cursor( self, cursor ):
         if DEBUG: print('Set cursor' , cursor)
-        self.canvas.window().setCursor(cursord[cursor])
+        self.canvas.setCursor(cursord[cursor])
 
     def draw_rubberband( self, event, x0, y0, x1, y1 ):
         height = self.canvas.figure.bbox.height

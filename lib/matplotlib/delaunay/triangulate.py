@@ -55,11 +55,11 @@ class Triangulation(object):
       triangle_neighbors -- (ntriangles, 3) array of triangle_id's giving the
         neighboring triangle; indexed by a triangle_id.
 
-        The value can also be -1 meaning that that edge is on the convex hull of
-        the points and there is no neighbor on that edge. The values are ordered
-        such that triangle_neighbors[tri, i] corresponds with the edge
-        *opposite* triangle_nodes[tri, i]. As such, these neighbors are also in
-        counter-clockwise order.
+        The value can also be -1 meaning that that edge is on the convex hull
+        of the points and there is no neighbor on that edge. The values are
+        ordered such that triangle_neighbors[tri, i] corresponds with the edge
+        *opposite* triangle_nodes[tri, i]. As such, these neighbors are also
+        in counter-clockwise order.
 
       hull -- list of point_id's giving the nodes which form the convex hull
         of the point set. This list is sorted in counter-clockwise order.
@@ -99,7 +99,8 @@ class Triangulation(object):
 
         if len(duplicates) > 0:
             warnings.warn(
-                "Input data contains duplicate x,y points; some values are ignored.",
+                "Input data contains duplicate x,y points; some values are "
+                "ignored.",
                 DuplicatePointWarning,
             )
 
@@ -130,7 +131,8 @@ class Triangulation(object):
         j_sorted = np.lexsort(keys=(self.x, self.y))
         mask_duplicates = np.hstack([
             False,
-            (np.diff(self.x[j_sorted]) == 0) & (np.diff(self.y[j_sorted]) == 0),
+            (np.diff(self.x[j_sorted]) == 0) &
+            (np.diff(self.y[j_sorted]) == 0),
         ])
 
         # Array of duplicate point indices, in no particular order.
@@ -145,12 +147,12 @@ class Triangulation(object):
         border = (self.triangle_neighbors == -1)
 
         edges = {}
-        edges.update(dict(izip(self.triangle_nodes[border[:,0]][:,1],
-                               self.triangle_nodes[border[:,0]][:,2])))
-        edges.update(dict(izip(self.triangle_nodes[border[:,1]][:,2],
-                               self.triangle_nodes[border[:,1]][:,0])))
-        edges.update(dict(izip(self.triangle_nodes[border[:,2]][:,0],
-                               self.triangle_nodes[border[:,2]][:,1])))
+        edges.update(dict(izip(self.triangle_nodes[border[:, 0]][:, 1],
+                               self.triangle_nodes[border[:, 0]][:, 2])))
+        edges.update(dict(izip(self.triangle_nodes[border[:, 1]][:, 2],
+                               self.triangle_nodes[border[:, 1]][:, 0])))
+        edges.update(dict(izip(self.triangle_nodes[border[:, 2]][:, 0],
+                               self.triangle_nodes[border[:, 2]][:, 1])))
 
         # Take an arbitrary starting point and its subsequent node
         hull = list(edges.popitem())
@@ -210,23 +212,23 @@ class Triangulation(object):
         miny = min(miny, np.minimum.reduce(self.y))
         maxx = max(maxx, np.maximum.reduce(self.x))
         maxy = max(maxy, np.maximum.reduce(self.y))
-        M = max((maxx-minx)/2, (maxy-miny)/2)
-        midx = (minx + maxx)/2.0
-        midy = (miny + maxy)/2.0
+        M = max((maxx - minx) / 2, (maxy - miny) / 2)
+        midx = (minx + maxx) / 2.0
+        midy = (miny + maxy) / 2.0
 
-        xp, yp= np.array([[midx+3*M, midx, midx-3*M],
-                          [midy, midy+3*M, midy-3*M]])
+        xp, yp = np.array([[midx + 3 * M, midx, midx - 3 * M],
+                           [midy, midy + 3 * M, midy - 3 * M]])
         x1 = np.hstack((self.x, xp))
         y1 = np.hstack((self.y, yp))
         newtri = self.__class__(x1, y1)
 
         # do a least-squares fit to a plane to make pseudo-data
         xy1 = np.ones((len(self.x), 3), np.float64)
-        xy1[:,0] = self.x
-        xy1[:,1] = self.y
+        xy1[:, 0] = self.x
+        xy1[:, 1] = self.y
         from numpy.dual import lstsq
         c, res, rank, s = lstsq(xy1, z)
-        zp = np.hstack((z, xp*c[0] + yp*c[1] + c[2]))
+        zp = np.hstack((z, xp * c[0] + yp * c[1] + c[2]))
 
         return newtri, zp
 

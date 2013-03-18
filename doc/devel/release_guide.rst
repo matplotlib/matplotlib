@@ -8,10 +8,6 @@ A guide for developers who are doing a matplotlib release
 
 * Edit :file:`__init__.py` and bump the version number
 
-
-
-When doing a release
-
 .. _release-testing:
 
 Testing
@@ -35,7 +31,7 @@ Testing
 .. _release-branching:
 
 Branching
-============
+=========
 
 Once all the tests are passing and you are ready to do a release, you
 need to create a release branch::
@@ -61,13 +57,16 @@ release after the fact, just track down the commit hash, and::
 Tags allow developers to quickly checkout different releases by name,
 and also provides source download via zip and tarball on github.
 
+Then push the tags to the main repository::
+
+    git push upstream v1.0.1
+
 .. _release-packaging:
 
 Packaging
 =========
 
-
-* Make sure the :file:`MANIFEST.in` us up to date and remove
+* Make sure the :file:`MANIFEST.in` is up to date and remove
   :file:`MANIFEST` so it will be rebuilt by MANIFEST.in
 
 * run `git clean` in the mpl git directory before building the sdist
@@ -101,6 +100,32 @@ developer rights, you should see an "Upload a new file" section
 there.
 
 .. _release-announcing:
+
+Documentation updates
+=====================
+
+The built documentation exists in the `matplotlib.github.com
+<https://github.com/matplotlib/matplotlib.github.com/>`_ repository.
+Pushing changes to master automatically updates the website.
+
+In the matplotlib source repository, build the documentation::
+
+  cd doc
+  python make.py html
+  python make.py latex
+
+Then copy the build products into your local checkout of the
+`matplotlib.github.com` repository (assuming here to be checked out in
+`~/matplotlib.github.com`::
+
+  cp -r build/html/* ~/matplotlib.github.com
+  cp build/latex/Matplotlib.pdf ~/matplotlib.github.com
+
+Then, from the `matplotlib.github.com` directory, commit and push the
+changes upstream::
+
+  git commit -m "Updating for v1.0.1"
+  git push upstream master
 
 Announcing
 ==========

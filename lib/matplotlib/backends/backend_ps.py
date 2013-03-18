@@ -649,7 +649,7 @@ grestore
 
         self._path_collection_id += 1
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         """
         draw a Text instance
         """
@@ -684,7 +684,7 @@ grestore
         self._pswriter.write(ps)
         self.textcnt += 1
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
         draw a Text instance
         """

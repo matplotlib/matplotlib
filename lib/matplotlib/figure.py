@@ -330,6 +330,10 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
+        # Initialise extents containing all the axes/subplots in the figure.
+        # It is set at the first call of add_axes or add_subplot 
+        self.bigextents = None
+
     def show(self, warn=True):
         """
         If using a GUI backend with pyplot, display the figure window.
@@ -807,6 +811,10 @@ class Figure(Artist):
 
         self._axstack.add(key, a)
         self.sca(a)
+
+        # update the bounding box containing all the axes
+        self._set_bigextents(a)  
+
         return a
 
     @docstring.dedent_interpd
@@ -870,6 +878,8 @@ class Figure(Artist):
                 if isinstance(ax, projection_class):
                     # the axes already existed, so set it as active & return
                     self.sca(ax)
+                    # update the bounding box containing all the axes
+                    self._set_bigextents(ax) 
                     return ax
                 else:
                     # Undocumented convenience behavior:
@@ -883,7 +893,28 @@ class Figure(Artist):
 
         self._axstack.add(key, a)
         self.sca(a)
+        # update the bounding box containing all the axes
+        self._set_bigextents(a) 
         return a
+
+    def _set_bigextents(self, ax):
+        """
+        Given an axis/subplot instance create or update a the extent
+        that enclose all of the axis. 
+        This method is intented for internal use only
+
+        *ax* is an axis or subplot instance.
+        """
+        axextents = ax.get_position().extents # rectangle of the axis/subplot
+        if self.bigextents is None:  
+            # If the method is called for the first time
+            self.bigextents = axextents 
+        else:  
+            # upldate the extents
+            self.bigextents[0] = min( self.bigextents[0], axextents[0] )
+            self.bigextents[1] = min( self.bigextents[1], axextents[1] )
+            self.bigextents[2] = max( self.bigextents[2], axextents[2] )
+            self.bigextents[3] = max( self.bigextents[3], axextents[3] )
 
     def clf(self, keep_observers=False):
         """
@@ -1159,28 +1190,30 @@ class Figure(Artist):
             :meth:`text`
                 for information on how override and the optional args work
 
-        WARNING: as now it works only if used after all the axes/subplots 
-        have been created and require fine tuning (there is no integration
-        with tight_layout)
+        WARNING: as now it requires fine tuning (there is no integration
+        with tight_layout). If axes/subplot created after calling thing method,
+        call it again to reset the label in the correct position
         """
         if ('horizontalalignment' not in kwargs) and ('ha' not in kwargs):
             kwargs['horizontalalignment'] = 'center'
         if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
             kwargs['verticalalignment'] = 'bottom'
 
-        #get the lower and leftmost border of the axes/subplots
-        left, bottom, right, up = np.NAN, np.NAN, np.NAN, np.NAN
-        for ax in self.get_axes():
-            bbox = ax.get_position()
-            left = min( bbox.xmin, left )
-            right = max( bbox.xmax, right )
-            bottom = min( bbox.ymin, bottom )
-            up = max( bbox.ymax, up )
-        
-        #write the xlabel as text below the lowest axes. labelpad should leave enough space
-        #for the default xticklabels
-        t = self.text( (right+left)/2, bottom-labelpad, xlabel, fontdict=fontdict, **kwargs )
-        return t
+        # If there is already a xlabel, make it invisible.
+        if hasattr( self, 'xlabel' ):
+            self.xlabel.set_visible( False )
+        # Write the xlabel as text below the lower axes. 
+        # Labelpad should leave enough space for the default xticklabels 
+        self.xlabel = self.text( (self.bigextents[2] + self.bigextents[0]) / 2,
+                self.bigextents[1] - labelpad, xlabel, fontdict=fontdict,
+                **kwargs )
+        return self.xlabel
+
+    def get_xlabel(self):
+        """
+        Get the xlabel text string.
+        """
+        return self.xlabel.get_text()
 
     @docstring.dedent_interpd
     def set_ylabel(self, ylabel, fontdict=None, labelpad=0.10, **kwargs):
@@ -1203,12 +1236,12 @@ class Figure(Artist):
             :meth:`text`
                 for information on how override and the optional args work
 
-        WARNING: as now it works only if used after all the axes/subplots 
-        have been created and require fine tuning (there is no integration
-        with tight_layout)
+        WARNING: as now it requires fine tuning (there is no integration
+        with tight_layout). If axes/subplot created after calling thing method,
+        call it again to reset the label in the correct position
         """
 
-        if( 'rotation' not in kwargs ):   #default rotation
+        if( 'rotation' not in kwargs ):   # default rotation
             kwargs['rotation'] = 'vertical'
 
         if ('horizontalalignment' not in kwargs) and ('ha' not in kwargs):
@@ -1216,19 +1249,22 @@ class Figure(Artist):
         if ('verticalalignment' not in kwargs) and ('va' not in kwargs):
             kwargs['verticalalignment'] = 'center'
         
-        #get the lower and leftmost border of the axes/subplots
-        left, bottom, right, up = np.NAN, np.NAN, np.NAN, np.NAN
-        for ax in self.get_axes():
-            bbox = ax.get_position()
-            left = min( bbox.xmin, left )
-            right = max( bbox.xmax, right )
-            bottom = min( bbox.ymin, bottom )
-            up = max( bbox.ymax, up )
-        
-        #write the ylabel as text on the left the leftmost axes. labelpad should leave enough space
-        #for the default yticklabels with one or two digits
-        t = self.text( left-labelpad, (up+bottom)/2, ylabel, fontdict=fontdict, **kwargs )
-        return t
+        # If there is already a ylabel, make it invisible.
+        if hasattr( self, 'ylabel' ):
+            self.ylabel.set_visible( False )
+        # Write the ylabel as text on the left the leftmost axes. 
+        # Labelpad should leave enough space for the default 
+        # yticklabels with one or two digits
+        self.ylabel = self.text( self.bigextents[0] - labelpad,
+                (self.bigextents[3] + self.bigextents[1]) / 2, ylabel,
+                fontdict=fontdict, **kwargs )
+        return self.ylabel
+
+    def get_ylabel(self):
+        """
+        Get the ylabel text string.
+        """
+        return self.ylabel.get_text()
 
     def _set_artist_props(self, a):
         if a!= self:

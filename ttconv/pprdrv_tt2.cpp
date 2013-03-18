@@ -418,10 +418,6 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
     USHORT glyphIndex;
     int arg1;
     int arg2;
-    USHORT xscale;
-    USHORT yscale;
-    USHORT scale01;
-    USHORT scale10;
 
     /* Once around this loop for each component. */
     do
@@ -449,38 +445,24 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
 
         if (flags & WE_HAVE_A_SCALE)
         {
-            xscale = yscale = getUSHORT(glyph);
             glyph += 2;
-            scale01 = scale10 = 0;
         }
         else if (flags & WE_HAVE_AN_X_AND_Y_SCALE)
         {
-            xscale = getUSHORT(glyph);
-            glyph += 2;
-            yscale = getUSHORT(glyph);
-            glyph += 2;
-            scale01 = scale10 = 0;
+            glyph += 4;
         }
         else if (flags & WE_HAVE_A_TWO_BY_TWO)
         {
-            xscale = getUSHORT(glyph);
-            glyph += 2;
-            scale01 = getUSHORT(glyph);
-            glyph += 2;
-            scale10 = getUSHORT(glyph);
-            glyph += 2;
-            yscale = getUSHORT(glyph);
-            glyph += 2;
+            glyph += 8;
         }
         else
         {
-            xscale = yscale = scale01 = scale10 = 0;
         }
 
         /* Debugging */
 #ifdef DEBUG_TRUETYPE
-        stream.printf("%% flags=%d, arg1=%d, arg2=%d, xscale=%d, yscale=%d, scale01=%d, scale10=%d\n",
-                      (int)flags,arg1,arg2,(int)xscale,(int)yscale,(int)scale01,(int)scale10);
+        stream.printf("%% flags=%d, arg1=%d, arg2=%d\n",
+                      (int)flags,arg1,arg2);
 #endif
 
         if (pdf_mode)

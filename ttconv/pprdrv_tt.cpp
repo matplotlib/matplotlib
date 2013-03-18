@@ -179,8 +179,8 @@ void Read_name(struct TTFONT *font)
     int numrecords;                     /* Number of strings in this table */
     BYTE *strings;                      /* pointer to start of string storage */
     int x;
-    int platform,encoding;              /* Current platform id, encoding id, */
-    int language,nameid;                /* language id, name id, */
+    int platform;                       /* Current platform id */
+    int nameid;                         /* name id, */
     int offset,length;                  /* offset and length of string. */
 
 #ifdef DEBUG_TRUETYPE
@@ -214,8 +214,6 @@ void Read_name(struct TTFONT *font)
         for (x=0; x < numrecords; x++,ptr2+=12)
         {
             platform = getUSHORT(ptr2);
-            encoding = getUSHORT(ptr2+2);
-            language = getUSHORT(ptr2+4);
             nameid = getUSHORT(ptr2+6);
             length = getUSHORT(ptr2+8);
             offset = getUSHORT(ptr2+10);

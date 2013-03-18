@@ -595,30 +595,53 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\pgftext[at=\pgfqpoint{%fin}{%fin},left,bottom]{\pgfimage[interpolate=true,width=%fin,height=%fin]{%s}}" % (x * f, y * f, w * f, h * f, fname_img))
         writeln(self.fh, r"\end{pgfscope}")
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!"):
-        self.draw_text(gc, x, y, s, prop, angle, ismath)
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!", mtext=None):
+        self.draw_text(gc, x, y, s, prop, angle, ismath, mtext)
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
+        # prepare string for tex
         s = common_texification(s)
-
-        # apply font properties
         prop_cmds = _font_properties_str(prop)
         s = ur"{%s %s}" % (prop_cmds, s)
 
-        # draw text at given coordinates
-        x = x * 1. / self.dpi
-        y = y * 1. / self.dpi
+
         writeln(self.fh, r"\begin{pgfscope}")
+
         alpha = gc.get_alpha()
         if alpha != 1.0:
             writeln(self.fh, r"\pgfsetfillopacity{%f}" % alpha)
             writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % alpha)
-        stroke_rgb = tuple(gc.get_rgb())[:3]
-        if stroke_rgb != (0, 0, 0):
-            writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % stroke_rgb)
+        rgb = tuple(gc.get_rgb())[:3]
+        if rgb != (0, 0, 0):
+            writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
             writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
             writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
-        writeln(self.fh, "\\pgftext[left,bottom,x=%fin,y=%fin,rotate=%f]{%s}\n" % (x, y, angle, s))
+
+        f = 1.0 / self.figure.dpi
+        text_args = []
+        if angle == 0 or mtext.get_rotation_mode() == "anchor":
+            # if text anchoring can be supported, get the original coordinates
+            # and add alignment information
+            x, y = mtext.get_transform().transform_point(mtext.get_position())
+            text_args.append("x=%fin" % (x * f))
+            text_args.append("y=%fin" % (y * f))
+
+            halign = {"left": "left", "right": "right", "center": ""}
+            valign = {"top": "top", "bottom": "bottom",
+                      "baseline": "base", "center": ""}
+            text_args.append(halign[mtext.get_ha()])
+            text_args.append(valign[mtext.get_va()])
+        else:
+            # if not, use the text layout provided by matplotlib
+            text_args.append("x=%fin" % (x * f))
+            text_args.append("y=%fin" % (y * f))
+            text_args.append("left")
+            text_args.append("bottom")
+
+        if angle != 0:
+            text_args.append("rotate=%f" % angle)
+
+        writeln(self.fh, r"\pgftext[%s]{%s}" % (",".join(text_args), s))
         writeln(self.fh, r"\end{pgfscope}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
@@ -860,53 +883,6 @@ class FigureCanvasPgf(FigureCanvasBase):
             self._print_png_to_fh(fname_or_fh)
         else:
             raise ValueError("filename must be a path or a file-like object")
-
-    def _render_texts_pgf(self, fh):
-        # TODO: currently unused code path
-
-        # alignment anchors
-        valign = {"top": "top", "bottom": "bottom", "baseline": "base", "center": ""}
-        halign = {"left": "left", "right": "right", "center": ""}
-        # alignment anchors for 90deg. rotated labels
-        rvalign = {"top": "left", "bottom": "right", "baseline": "right", "center": ""}
-        rhalign = {"left": "top", "right": "bottom", "center": ""}
-
-        # TODO: matplotlib does not hide unused tick labels yet, workaround
-        for tick in self.figure.findobj(mpl.axis.Tick):
-            tick.label1.set_visible(tick.label1On)
-            tick.label2.set_visible(tick.label2On)
-        # TODO: strange, first legend label is always "None", workaround
-        for legend in self.figure.findobj(mpl.legend.Legend):
-            labels = legend.findobj(mpl.text.Text)
-            labels[0].set_visible(False)
-        # TODO: strange, legend child labels are duplicated,
-        # find a list of unique text objects as workaround
-        texts = self.figure.findobj(match=Text, include_self=False)
-        texts = list(set(texts))
-
-        # draw text elements
-        for text in texts:
-            s = text.get_text()
-            if not s or not text.get_visible():
-                continue
-
-            s = common_texification(s)
-
-            fontsize = text.get_fontsize()
-            angle = text.get_rotation()
-            transform = text.get_transform()
-            x, y = transform.transform_point(text.get_position())
-            x = x * 1.0 / self.figure.dpi
-            y = y * 1.0 / self.figure.dpi
-            # TODO: positioning behavior unknown for rotated elements
-            # right now only the alignment for 90deg rotations is correct
-            if angle == 90.:
-                align = rvalign[text.get_va()] + "," + rhalign[text.get_ha()]
-            else:
-                align = valign[text.get_va()] + "," + halign[text.get_ha()]
-
-            s = ur"{\fontsize{%f}{%f}\selectfont %s}" % (fontsize, fontsize*1.2, s)
-            writeln(fh, ur"\pgftext[%s,x=%fin,y=%fin,rotate=%f]{%s}" % (align,x,y,angle,s))
 
     def get_renderer(self):
         return RendererPgf(self.figure, None)

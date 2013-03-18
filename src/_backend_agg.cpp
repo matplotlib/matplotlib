@@ -154,7 +154,6 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
     Py_ssize_t length;
     unsigned char* pix;
     unsigned char* begin;
-    unsigned char* end;
     unsigned char tmp;
     size_t i, j;
 
@@ -165,7 +164,6 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
     }
 
     pix = begin;
-    end = begin + (height * stride);
     for (i = 0; i < (size_t)height; ++i)
     {
         pix = begin + i * stride;
@@ -2029,7 +2027,6 @@ RendererAgg::write_rgba(const Py::Tuple& args)
     args.verify_length(1);
 
     FILE *fp = NULL;
-    bool close_file = false;
     Py::Object py_fileobj = Py::Object(args[0]);
 
     #if PY3K
@@ -2050,7 +2047,6 @@ RendererAgg::write_rgba(const Py::Tuple& args)
             throw Py::RuntimeError(
                 Printf("Error writing to file %s", file_name).str());
         }
-        close_file = true;
     }
     #if PY3K
     else if (fd != -1)
