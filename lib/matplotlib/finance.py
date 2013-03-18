@@ -184,7 +184,7 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,dividends=False)
         fh = open(cachename)
         verbose.report('Using cachefile %s for %s'%(cachename, ticker))
     else:
-        mkdirs(cachedir)
+        mkdirs(os.path.abspath(os.path.dirname(cachename)))
         urlfh = urlopen(url)
 
         fh = open(cachename, 'wb')
