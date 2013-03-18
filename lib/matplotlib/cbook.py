@@ -1211,7 +1211,7 @@ def restrict_dict(d, keys):
 
 def report_memory(i=0):  # argument may go away
     'return the memory consumed by process'
-    from matplotlib.subprocess_fixed import Popen, PIPE
+    from matplotlib.compat.subprocess import Popen, PIPE
     pid = os.getpid()
     if sys.platform == 'sunos5':
         try:

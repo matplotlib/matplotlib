@@ -20,8 +20,8 @@ from matplotlib import _png, rcParams
 from matplotlib import font_manager
 from matplotlib.ft2font import FT2Font
 from matplotlib.cbook import is_string_like, is_writable_file_like
-import matplotlib.subprocess_fixed as subprocess
-from matplotlib.subprocess_fixed import check_output
+from matplotlib.compat import subprocess
+from matplotlib.compat.subprocess import check_output
 
 
 ###############################################################################

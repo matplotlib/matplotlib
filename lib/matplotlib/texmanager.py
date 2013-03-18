@@ -50,8 +50,8 @@ import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib._png import read_png
 from matplotlib.cbook import mkdirs
+from matplotlib.compat.subprocess import Popen, PIPE, STDOUT
 import matplotlib.dviread as dviread
-from matplotlib.subprocess_fixed import Popen, PIPE, STDOUT
 import re
 
 DEBUG = False

@@ -132,7 +132,7 @@ import distutils.version
 # definitions, so it is safe to import from it here.
 from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.cbook import is_string_like
-import matplotlib.subprocess_fixed as subprocess
+from matplotlib.compat import subprocess
 
 try:
     reload
