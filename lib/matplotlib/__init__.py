@@ -217,7 +217,24 @@ def _is_writable_dir(p):
         p + ''  # test is string like
     except TypeError:
         return False
-    return os.access(p, os.W_OK) and os.path.isdir(p)
+
+    # Test whether the operating system thinks it's a writable directory.
+    # Note that this check is necessary on Google App Engine, because the
+    # subsequent check will succeed even though p may not be writable.
+    if not os.access(p, os.W_OK) or not os.path.isdir(p):
+        return False
+
+    # Also test that it is actually possible to write to a file here.
+    try:
+        t = tempfile.TemporaryFile(dir=p)
+        try:
+            t.write(ascii('1'))
+        finally:
+            t.close()
+    except OSError:
+        return False
+
+    return True
 
 class Verbose:
     """
