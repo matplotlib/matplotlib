@@ -217,10 +217,7 @@ def _is_writable_dir(p):
         p + ''  # test is string like
     except TypeError:
         return False
-    try:
-        return os.access(p, os.W_OK)
-    except OSError:
-        return False
+    return os.access(p, os.W_OK)
 
 class Verbose:
     """
