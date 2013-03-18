@@ -104,13 +104,14 @@ class TexManager:
 
     if os.path.exists(oldcache):
         if texcache is not None:
-            warnings.warn("""\
-Found a TeX cache dir in the deprecated location "%s".
-    Moving it to the new default location "%s".""" % (oldcache, texcache))
             try:
                 shutil.move(oldcache, texcache)
             except IOError as e:
                 warnings.warn('File could not be renamed: %s' % e)
+            else:
+                warnings.warn("""\
+Found a TeX cache dir in the deprecated location "%s".
+    Moving it to the new default location "%s".""" % (oldcache, texcache))
         else:
             warnings.warn("""\
 Could not rename old TeX cache dir "%s": a suitable configuration

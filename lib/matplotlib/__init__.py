@@ -647,13 +647,14 @@ def matplotlib_fname():
 
     oldname = os.path.join(os.getcwd(), '.matplotlibrc')
     if os.path.exists(oldname):
-        warnings.warn("""\
-Old rc filename ".matplotlibrc" found in working dir and and renamed to new
-    default rc file name "matplotlibrc" (no leading ".").""")
         try:
             shutil.move('.matplotlibrc', 'matplotlibrc')
         except IOError as e:
             warnings.warn('File could not be renamed: %s' % e)
+        else:
+            warnings.warn("""\
+Old rc filename ".matplotlibrc" found in working dir and and renamed to new
+    default rc file name "matplotlibrc" (no leading ".").""")
 
     home = get_home()
     configdir = get_configdir()
@@ -662,14 +663,15 @@ Old rc filename ".matplotlibrc" found in working dir and and renamed to new
         if os.path.exists(oldname):
             if configdir is not None:
                 newname = os.path.join(configdir, 'matplotlibrc')
-                warnings.warn("""\
-Old rc filename "%s" found and renamed to new default rc file name "%s"."""
-                              % (oldname, newname))
 
                 try:
                     shutil.move(oldname, newname)
                 except IOError as e:
                     warnings.warn('File could not be renamed: %s' % e)
+                else:
+                    warnings.warn("""\
+Old rc filename "%s" found and renamed to new default rc file name "%s"."""
+                              % (oldname, newname))
             else:
                 warnings.warn("""\
 Could not rename old rc file "%s": a suitable configuration directory could not
