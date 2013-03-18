@@ -535,7 +535,7 @@ def _get_configdir():
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
         if not os.path.exists(configdir):
-            os.makedirs(configdir)
+            mkdirs(configdir)
         if not _is_writable_dir(configdir):
             return _create_tmp_config_dir()
         return configdir
