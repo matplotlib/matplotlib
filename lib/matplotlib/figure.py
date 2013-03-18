@@ -911,10 +911,10 @@ class Figure(Artist):
             self.bigextents = axextents 
         else:  
             # upldate the extents
-            self.bigextents[0] = min( self.bigextents[0], axextents[0] )
-            self.bigextents[1] = min( self.bigextents[1], axextents[1] )
-            self.bigextents[2] = max( self.bigextents[2], axextents[2] )
-            self.bigextents[3] = max( self.bigextents[3], axextents[3] )
+            self.bigextents[0] = min(self.bigextents[0], axextents[0])
+            self.bigextents[1] = min(self.bigextents[1], axextents[1])
+            self.bigextents[2] = max(self.bigextents[2], axextents[2])
+            self.bigextents[3] = max(self.bigextents[3], axextents[3])
 
     def clf(self, keep_observers=False):
         """
@@ -1200,13 +1200,13 @@ class Figure(Artist):
             kwargs['verticalalignment'] = 'bottom'
 
         # If there is already a xlabel, make it invisible.
-        if hasattr( self, 'xlabel' ):
-            self.xlabel.set_visible( False )
+        if hasattr(self, 'xlabel'):
+            self.xlabel.set_visible(False)
         # Write the xlabel as text below the lower axes. 
         # Labelpad should leave enough space for the default xticklabels 
-        self.xlabel = self.text( (self.bigextents[2] + self.bigextents[0]) / 2,
-                self.bigextents[1] - labelpad, xlabel, fontdict=fontdict,
-                **kwargs )
+        self.xlabel = self.text((self.bigextents[2]+self.bigextents[0])/2,
+                self.bigextents[1]-labelpad, xlabel, fontdict=fontdict,
+                **kwargs)
         return self.xlabel
 
     def get_xlabel(self):
@@ -1241,7 +1241,7 @@ class Figure(Artist):
         call it again to reset the label in the correct position
         """
 
-        if( 'rotation' not in kwargs ):   # default rotation
+        if('rotation' not in kwargs):   # default rotation
             kwargs['rotation'] = 'vertical'
 
         if ('horizontalalignment' not in kwargs) and ('ha' not in kwargs):
@@ -1250,14 +1250,14 @@ class Figure(Artist):
             kwargs['verticalalignment'] = 'center'
         
         # If there is already a ylabel, make it invisible.
-        if hasattr( self, 'ylabel' ):
-            self.ylabel.set_visible( False )
+        if hasattr(self, 'ylabel'):
+            self.ylabel.set_visible(False)
         # Write the ylabel as text on the left the leftmost axes. 
         # Labelpad should leave enough space for the default 
         # yticklabels with one or two digits
-        self.ylabel = self.text( self.bigextents[0] - labelpad,
-                (self.bigextents[3] + self.bigextents[1]) / 2, ylabel,
-                fontdict=fontdict, **kwargs )
+        self.ylabel = self.text(self.bigextents[0]-labelpad,
+                (self.bigextents[3] + self.bigextents[1])/2, ylabel,
+                fontdict=fontdict, **kwargs)
         return self.ylabel
 
     def get_ylabel(self):
