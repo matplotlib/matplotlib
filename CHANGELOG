@@ -1,3 +1,6 @@
+2013-03-19 Added support for passing `linestyle` kwarg to `step` so all `plot`
+	   kwargs are passed to the underlying `plot` call.  -TAC
+
 2013-02-25 Added classes CubicTriInterpolator, UniformTriRefiner, TriAnalyzer
            to matplotlib.tri module. - GBy
 
