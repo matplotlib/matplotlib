@@ -1,5 +1,5 @@
-import subprocess
 import sys
+from matplotlib.compat import subprocess
 
 
 class MiniExpect:
