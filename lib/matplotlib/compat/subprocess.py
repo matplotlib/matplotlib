@@ -13,6 +13,7 @@ from matplotlib.compat import subprocess
 This module is safe to import from anywhere within matplotlib.
 """
 
+from __future__ import absolute_import    # Required to import subprocess
 from __future__ import print_function
 
 import subprocess
