@@ -124,7 +124,7 @@ else:
                 '.'.join(str(x) for x in _required),
                 sys.version_info[0]))
 
-import os, re, shutil, subprocess, warnings
+import os, re, shutil, warnings
 import distutils.sysconfig
 import distutils.version
 
@@ -132,6 +132,7 @@ import distutils.version
 # definitions, so it is safe to import from it here.
 from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.cbook import is_string_like
+from matplotlib.compat import subprocess
 
 try:
     reload

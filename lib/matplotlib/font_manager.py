@@ -43,7 +43,7 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-import os, sys, subprocess, warnings
+import os, sys, warnings
 try:
     set
 except NameError:
@@ -54,6 +54,7 @@ from matplotlib import ft2font
 from matplotlib import rcParams, get_configdir
 from matplotlib.cbook import is_string_like
 import matplotlib.cbook as cbook
+from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import \
     parse_fontconfig_pattern, generate_fontconfig_pattern
 

@@ -2,12 +2,12 @@
 
 import os
 import shutil
-import subprocess
 import numpy as np
 import nose
 from nose.plugins.skip import SkipTest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.compat import subprocess
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.testing.decorators import _image_directories
 
