@@ -581,7 +581,7 @@ class ScalarFormatter(Formatter):
             sign = tup[1][0].replace(positive_sign, '')
             exponent = tup[1][1:].lstrip('0')
             if self._useMathText or self._usetex:
-                if significand == '1':
+                if significand == '1' and exponent != '':
                     # reformat 1x10^y as 10^y
                     significand = ''
                 if exponent:
@@ -808,13 +808,13 @@ class EngFormatter(Formatter):
         """ Formats a number in engineering notation, appending a letter
         representing the power of 1000 of the original number. Some examples:
 
-        >>> format_eng(0)       for self.places = 0
+        >>> format_eng(0)       # for self.places = 0
         '0'
 
-        >>> format_eng(1000000) for self.places = 1
+        >>> format_eng(1000000) # for self.places = 1
         '1.0 M'
 
-        >>> format_eng("-1e-6") for self.places = 2
+        >>> format_eng("-1e-6") # for self.places = 2
         u'-1.00 \u03bc'
 
         @param num: the value to represent
@@ -1165,7 +1165,7 @@ class MultipleLocator(Locator):
         vmin = self._base.ge(vmin)
         base = self._base.get_base()
         n = (vmax - vmin + 0.001 * base) // base
-        locs = vmin + np.arange(n + 1) * base
+        locs = vmin - base + np.arange(n + 3) * base
         return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
@@ -1450,8 +1450,8 @@ class LogLocator(Locator):
         while numdec / stride + 1 > self.numticks:
             stride += 1
 
-        decades = np.arange(math.floor(vmin),
-                            math.ceil(vmax) + stride, stride)
+        decades = np.arange(math.floor(vmin) - stride,
+                            math.ceil(vmax) + 2 * stride, stride)
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)
             if len(subs) > 1 or (len(subs == 1) and subs[0] != 1.0):

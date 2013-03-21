@@ -5,6 +5,7 @@ A PostScript backend, which can produce both PostScript .ps and .eps
 # PY3KTODO: Get rid of "print >>fh" syntax
 
 from __future__ import division, print_function
+import contextlib
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
@@ -87,7 +88,7 @@ class PsBackendHelper(object):
         except KeyError:
             pass
 
-        from subprocess import Popen, PIPE
+        from matplotlib.compat.subprocess import Popen, PIPE
         pipe = Popen(self.gs_exe + " --version",
                      shell=True, stdout=PIPE).stdout
         if sys.version_info[0] >= 3:
@@ -469,7 +470,7 @@ class RendererPS(RendererBase):
         im.flipud_out()
 
         h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
-        hexlines = '\n'.join(self._hex_lines(bits))
+        hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
 
         if dx is None:
             xscale = w / self.image_magnification
@@ -587,7 +588,7 @@ grestore
             if rgbFace[0]==rgbFace[1] and rgbFace[0]==rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
             else:
-                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
+                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3]
 
         # construct the generic marker command:
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # dont want the translate to be global
@@ -649,7 +650,7 @@ grestore
 
         self._path_collection_id += 1
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         """
         draw a Text instance
         """
@@ -684,7 +685,7 @@ grestore
         self._pswriter.write(ps)
         self.textcnt += 1
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
         draw a Text instance
         """
@@ -1105,8 +1106,21 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
 
-        fd, tmpfile = mkstemp()
-        with io.open(fd, 'wb') as raw_fh:
+        if rcParams['ps.usedistiller']:
+            # We are going to use an external program to process the output.
+            # Write to a temporary file.
+            fd, tmpfile = mkstemp()
+            context_manager = io.open(fd, 'wb')
+        else:
+            # Write directly to outfile.
+            if passed_in_file_object:
+                @contextlib.contextmanager
+                def null_context(value):
+                    yield value
+                context_manager = null_context(outfile)
+            else:
+                context_manager = open(outfile, 'wb')
+        with context_manager as raw_fh:
             if sys.version_info[0] >= 3:
                 fh = io.TextIOWrapper(raw_fh, encoding="ascii")
             else:
@@ -1179,21 +1193,23 @@ class FigureCanvasPS(FigureCanvasBase):
             print("end", file=fh)
             print("showpage", file=fh)
             if not isEPSF: print("%%EOF", file=fh)
+            fh.flush()
 
-        if rcParams['ps.usedistiller'] == 'ghostscript':
-            gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-        elif rcParams['ps.usedistiller'] == 'xpdf':
-            xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+        if rcParams['ps.usedistiller']:
+            if rcParams['ps.usedistiller'] == 'ghostscript':
+                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+            elif rcParams['ps.usedistiller'] == 'xpdf':
+                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
 
-        if passed_in_file_object:
-            with open(tmpfile, 'rb') as fh:
-                print(fh.read(), file=outfile)
-        else:
-            with open(outfile, 'w') as fh:
-                pass
-            mode = os.stat(outfile).st_mode
-            shutil.move(tmpfile, outfile)
-            os.chmod(outfile, mode)
+            if passed_in_file_object:
+                with open(tmpfile, 'rb') as fh:
+                    outfile.write(fh.read())
+            else:
+                with open(outfile, 'w') as fh:
+                    pass
+                mode = os.stat(outfile).st_mode
+                shutil.move(tmpfile, outfile)
+                os.chmod(outfile, mode)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
                           orientation, isLandscape, papertype,
@@ -1293,6 +1309,7 @@ class FigureCanvasPS(FigureCanvasBase):
             #print >>fh, "grestore"
             print("end", file=fh)
             print("showpage", file=fh)
+            fh.flush()
 
         if isLandscape: # now we are ready to rotate
             isLandscape = True

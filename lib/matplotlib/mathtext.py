@@ -34,16 +34,10 @@ from warnings import warn
 from numpy import inf, isinf
 import numpy as np
 
-if sys.version_info[0] >= 3:
-    from matplotlib.pyparsing_py3 import Combine, Group, Optional, Forward, \
-         Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
-         ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
-         FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
-else:
-    from matplotlib.pyparsing_py2 import Combine, Group, Optional, Forward, \
-         Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
-         ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
-         FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
+from pyparsing import Combine, Group, Optional, Forward, \
+     Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
+     ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
+     FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
 
 # Enable packrat parsing
 ParserElement.enablePackrat()

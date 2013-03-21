@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -19,20 +19,21 @@ z
 " style="fill:#ffffff;"/>
   </g>
   <g id="text_1">
-   <!-- $f^'$ -->
+   <!-- $f'$ -->
    <defs>
     <path d="
-M7.5 41.0938
-L14.2031 63.2031
-Q14.5938 64.7031 15 65.5469
-Q15.4062 66.4062 16.2969 67.0938
-Q17.2031 67.7969 18.5938 67.7969
-Q19.9062 67.7969 20.6562 66.8438
-Q21.4062 65.9062 21.4062 64.5
-Q21.4062 63.4062 20 60.5938
-L9.40625 40.2031
-z
-" id="STIXGeneral-Regular-2032"/>
+M3.51562 5.42188
+Q2.875 5.60938 2.875 6.39062
+L15.0938 51.8125
+Q15.6719 53.6562 17.0781 54.7812
+Q18.5 55.9062 20.3125 55.9062
+Q22.6562 55.9062 24.4375 54.3594
+Q26.2188 52.8281 26.2188 50.4844
+Q26.2188 49.4688 25.6875 48.1875
+L7.625 4.98438
+Q7.28125 4.29688 6.6875 4.29688
+Q6.15625 4.29688 5 4.78125
+Q3.85938 5.28125 3.51562 5.42188" id="Cmsy10-30"/>
     <path d="
 M9.71875 -16.5
 Q11.5781 -17.9219 14.2031 -17.9219
@@ -83,9 +84,9 @@ Q14.9844 -9.1875 14.9844 -10.7969
 Q14.9844 -12.9375 13.3906 -14.7188
 Q11.8125 -16.5 9.71875 -16.5" id="Cmmi10-66"/>
    </defs>
-   <g transform="translate(183.3 33.84)scale(0.12 -0.12)">
-    <use transform="translate(0.0 21.5359375)" xlink:href="#Cmmi10-66"/>
-    <use transform="translate(48.876953125 66.5421875)scale(0.7)" xlink:href="#STIXGeneral-Regular-2032"/>
+   <g transform="translate(185.04 32.52)scale(0.12 -0.12)">
+    <use transform="translate(0.0 21.484375)" xlink:href="#Cmmi10-66"/>
+    <use transform="translate(48.876953125 66.490625)scale(0.7)" xlink:href="#Cmsy10-30"/>
    </g>
   </g>
  </g>

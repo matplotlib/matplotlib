@@ -41,6 +41,7 @@ import matplotlib.widgets as widgets
 #import matplotlib.path as path
 from matplotlib import rcParams
 from matplotlib import is_interactive
+from matplotlib import get_backend
 from matplotlib._pylab_helpers import Gcf
 
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
@@ -48,6 +49,7 @@ from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 try:
     from PIL import Image
@@ -99,6 +101,10 @@ class ShowBase(object):
             # IPython versions >= 0.10 tack the _needmain
             # attribute onto pyplot.show, and always set
             # it to False, when in --pylab mode.
+            ipython_pylab = ipython_pylab and get_backend() != 'WebAgg'
+            # TODO: The above is a hack to get the WebAgg backend
+            # working with `ipython --pylab` until proper integration
+            # is implemented.
         except AttributeError:
             ipython_pylab = False
 
@@ -107,7 +113,7 @@ class ShowBase(object):
         if ipython_pylab:
             return
 
-        if not is_interactive():
+        if not is_interactive() or get_backend() == 'WebAgg':
             self.mainloop()
 
     def mainloop(self):
@@ -443,12 +449,12 @@ class RendererBase:
         """
         return False
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!'):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         """
         """
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
         Draw the text instance
 
@@ -462,13 +468,16 @@ class RendererBase:
             the y location of the text in display coords
 
         *s*
-             a :class:`matplotlib.text.Text` instance
+            the text string
 
         *prop*
           a :class:`matplotlib.font_manager.FontProperties` instance
 
         *angle*
             the rotation angle in degrees
+
+        *mtext*
+            a :class:`matplotlib.text.Text` instance
 
         **backend implementers note**
 
@@ -1118,12 +1127,14 @@ class TimerBase(object):
     def _on_timer(self):
         '''
         Runs all function that have been registered as callbacks. Functions
-        can return False if they should not be called any more. If there
+        can return False (or 0) if they should not be called any more. If there
         are no callbacks, the timer is automatically stopped.
         '''
         for func, args, kwargs in self.callbacks:
             ret = func(*args, **kwargs)
-            if not ret:
+            # docstring above explains why we use `if ret == False` here,
+            # instead of `if not ret`.
+            if ret == False:
                 self.callbacks.remove((func, args, kwargs))
 
         if len(self.callbacks) == 0:
@@ -1475,6 +1486,8 @@ class FigureCanvasBase(object):
         'axes_leave_event',
         'close_event'
     ]
+
+    supports_blit = True
 
     def __init__(self, figure):
         figure.set_canvas(self)
@@ -1886,7 +1899,7 @@ class FigureCanvasBase(object):
         from backends.backend_agg import FigureCanvasAgg  # lazy import
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_raw(*args, **kwargs)
-    print_bmp = print_rgb = print_raw
+    print_bmp = print_rgba = print_raw
 
     def print_svg(self, *args, **kwargs):
         from backends.backend_svg import FigureCanvasSVG  # lazy import
@@ -2091,7 +2104,8 @@ class FigureCanvasBase(object):
                 if bbox_filtered:
                     _bbox = Bbox.union(bbox_filtered)
                     trans = Affine2D().scale(1.0 / self.figure.dpi)
-                    bbox_inches = TransformedBbox(_bbox, trans)
+                    bbox_extra = TransformedBbox(_bbox, trans)
+                    bbox_inches = Bbox.union([bbox_inches, bbox_extra])
 
                 pad = kwargs.pop("pad_inches", None)
                 if pad is None:
@@ -2300,7 +2314,7 @@ class FigureCanvasBase(object):
         """
         str = "Using default event loop until function specific"
         str += " to this GUI is implemented"
-        warnings.warn(str, DeprecationWarning)
+        warnings.warn(str, mplDeprecation)
 
         if timeout <= 0:
             timeout = np.inf

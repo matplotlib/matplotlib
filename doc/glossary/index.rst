@@ -63,7 +63,7 @@ Glossary
   PS
       Postscript (`PS <http://en.wikipedia.org/wiki/PostScript>`_) is a
       vector graphics ASCII text language widely used in printers and
-      publishing.  Postscript was developerd by adobe systems and is
+      publishing.  Postscript was developed by adobe systems and is
       starting to show its age: for example is does not have an alpha
       channel.  PDF was designed in part as a next-generation document
       format to replace postscript
@@ -81,7 +81,7 @@ Glossary
 
   pyqt
       `pyqt <http://wiki.python.org/moin/PyQt>`_ provides python
-      wrappers for the :term:`Qt` widgets library and is requied by
+      wrappers for the :term:`Qt` widgets library and is required by
       the matplotlib QtAgg and Qt4Agg backends.  Widely used on linux
       and windows; many linux distributions package this as
       'python-qt3' or 'python-qt4'.
@@ -155,4 +155,3 @@ Glossary
       tools library for GTK, MS Windows, and MacOS.  It uses native
       widgets for each operating system, so applications will have the
       look-and-feel that users on that operating system expect.
-

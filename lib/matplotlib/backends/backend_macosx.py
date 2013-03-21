@@ -107,11 +107,10 @@ class RendererMac(RendererBase):
     def draw_image(self, gc, x, y, im):
         im.flipud_out()
         nrows, ncols, data = im.as_rgba_str()
-        gc.draw_image(x, y, nrows, ncols, data, gc.get_clip_rectangle(),
-                      *gc.get_clip_path())
+        gc.draw_image(x, y, nrows, ncols, data)
         im.flipud_out()
 
-    def draw_tex(self, gc, x, y, s, prop, angle):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
         texmanager = self.get_texmanager()
@@ -128,7 +127,7 @@ class RendererMac(RendererBase):
             self.mathtext_parser.parse(s, self.dpi, prop)
         gc.draw_mathtext(x, y, angle, 255 - image.as_array())
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         if ismath:
             self._draw_mathtext(gc, x, y, s, prop, angle)
         else:
@@ -232,13 +231,6 @@ def new_figure_manager(num, *args, **kwargs):
     """
     Create a new figure manager instance
     """
-    if not _macosx.verify_main_display():
-        import warnings
-        warnings.warn("Python is not installed as a framework. The MacOSX "
-                      "backend may not work correctly if Python is not "
-                      "installed as a framework. Please see the Python "
-                      "documentation for more information on installing "
-                      "Python as a framework on Mac OS X")
     FigureClass = kwargs.pop('FigureClass', Figure)
     figure = FigureClass(*args, **kwargs)
     return new_figure_manager_given_figure(num, figure)

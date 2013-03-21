@@ -467,7 +467,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             # note, shift is not added to the keys as this is already accounted for
             for bitmask, prefix, key_name in modifiers:
                 if event.state & (1 << bitmask) and key_name not in key:
-                    key = '{}+{}'.format(prefix, key)
+                    key = '{0}+{1}'.format(prefix, key)
 
         return key
 
@@ -895,17 +895,27 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         # work - JDH
         #defaultextension = self.canvas.get_default_filetype()
         defaultextension = ''
+        initialdir = rcParams.get('savefig.directory', '')
+        initialdir = os.path.expanduser(initialdir)
+        initialfile = self.canvas.get_default_filename()
         fname = asksaveasfilename(
             master=self.window,
             title='Save the figure',
-            filetypes = tk_filetypes,
-            defaultextension = defaultextension,
-            initialfile=self.canvas.get_default_filename(),
+            filetypes=tk_filetypes,
+            defaultextension=defaultextension,
+            initialdir=initialdir,
+            initialfile=initialfile,
             )
 
         if fname == "" or fname == ():
             return
         else:
+            if initialdir == '':
+                # explicitly missing key or empty str signals to use cwd
+                rcParams['savefig.directory'] = initialdir
+            else:
+                # save dir for next time
+                rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 # This method will handle the delegation to the correct type
                 self.canvas.print_figure(fname)

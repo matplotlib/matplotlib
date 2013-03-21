@@ -1,3 +1,4 @@
+
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
 #include <pygobject.h>
@@ -121,6 +122,7 @@ private:
                               destbuffer,
                               deststride);
 
+        gdk_gc_destroy(gc);
         if (needfree)
         {
             delete [] destbuffer;

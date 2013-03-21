@@ -57,4 +57,15 @@
 // pull in python definitions
 #include <Python.h>
 
+// fix issue with Python assuming that isspace, toupper etc are macros
+#if defined(isspace)
+#undef isspace
+#undef isupper
+#undef islower
+#undef isalnum
+#undef isalpha
+#undef toupper
+#undef tolower
+#endif
+
 #endif

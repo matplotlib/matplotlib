@@ -40,5 +40,6 @@
    spines_api.rst
    ticker_api.rst
    tight_layout_api.rst
+   tri_api.rst
    units_api.rst
    widgets_api.rst

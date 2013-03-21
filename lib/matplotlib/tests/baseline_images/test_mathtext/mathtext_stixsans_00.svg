@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -153,17 +153,18 @@ Q13.9062 18.7031 13.9062 9.59375
 Q13.9062 6.09375 18.7031 6.09375
 Q25.5 6.09375 33.4062 13.2031" id="STIXGeneral-Italic-1d622"/>
    </defs>
-   <g transform="translate(147.12 31.44)scale(0.12 -0.12)">
+   <g transform="translate(151.26 31.44)scale(0.12 -0.12)">
     <use transform="translate(0.0 5.296875)" xlink:href="#STIXGeneral-Italic-1d622"/>
     <use transform="translate(59.9199859619 5.296875)" xlink:href="#STIXGeneral-Regular-2b"/>
     <use transform="translate(133.836859131 5.296875)" xlink:href="#STIXGeneral-Italic-1d623"/>
     <use transform="translate(198.556848145 5.296875)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(287.593719482 5.296875)" xlink:href="#STIXGeneral-Regular-2026"/>
-    <use transform="translate(395.52121582 5.296875)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(511.438088989 11.796875)" xlink:href="#STIXGeneral-Regular-307"/>
-    <use transform="translate(469.438088989 5.296875)" xlink:href="#STIXGeneral-Italic-1d634"/>
-    <use transform="translate(523.458081055 5.296875)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(597.374954224 5.296875)" xlink:href="#STIXGeneral-Regular-2026"/>
+    <use transform="translate(314.473721313 11.796875)" xlink:href="#STIXGeneral-Regular-307"/>
+    <use transform="translate(272.473721313 5.296875)" xlink:href="#STIXGeneral-Italic-1d634"/>
+    <use transform="translate(326.493713379 5.296875)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(442.410586548 11.796875)" xlink:href="#STIXGeneral-Regular-307"/>
+    <use transform="translate(400.410586548 5.296875)" xlink:href="#STIXGeneral-Italic-1d634"/>
+    <use transform="translate(454.430578613 5.296875)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(528.347451782 5.296875)" xlink:href="#STIXGeneral-Regular-2026"/>
    </g>
   </g>
  </g>

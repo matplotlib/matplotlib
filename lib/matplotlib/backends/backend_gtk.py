@@ -326,7 +326,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
     def enter_notify_event(self, widget, event):
         x, y, state = event.window.get_pointer()
-        FigureCanvasBase.enter_notify_event(self, event, xy=(x,y))
+        FigureCanvasBase.enter_notify_event(self, event, xy=(x, y))
 
     def _get_key(self, event):
         if event.keyval in self.keyvald:
@@ -339,9 +339,9 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         for key_mask, prefix in (
                                  [gdk.MOD4_MASK, 'super'],
                                  [gdk.MOD1_MASK, 'alt'],
-                                 [gdk.CONTROL_MASK, 'ctrl'],):
+                                 [gdk.CONTROL_MASK, 'ctrl'], ):
             if event.state & key_mask:
-                key = '{}+{}'.format(prefix, key)
+                key = '{0}+{1}'.format(prefix, key)
 
         return key
 
@@ -359,7 +359,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         self._need_redraw = True
 
         return False  # finish event propagation?
-
 
     def draw(self):
         # Note: FigureCanvasBase.draw() is inconveniently named as it clashes
@@ -733,6 +732,7 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
         fc = FileChooserDialog(
             title='Save the figure',
             parent=self.win,
+            path=os.path.expanduser(rcParams.get('savefig.directory', '')),
             filetypes=self.canvas.get_supported_filetypes(),
             default_filetype=self.canvas.get_default_filetype())
         fc.set_current_name(self.canvas.get_default_filename())
@@ -741,6 +741,13 @@ class NavigationToolbar2GTK(NavigationToolbar2, gtk.Toolbar):
     def save_figure(self, *args):
         fname, format = self.get_filechooser().get_filename_from_user()
         if fname:
+            startpath = os.path.expanduser(rcParams.get('savefig.directory', ''))
+            if startpath == '':
+                # explicitly missing key or empty str signals to use cwd
+                rcParams['savefig.directory'] = startpath
+            else:
+                # save dir for next time
+                rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 self.canvas.print_figure(fname, format=format)
             except Exception as e:
@@ -1011,8 +1018,8 @@ class NavigationToolbar(gtk.Toolbar):
 
 
 class FileChooserDialog(gtk.FileChooserDialog):
-    """GTK+ 2.4 file selector which remembers the last file/directory
-    selected and presents the user with a menu of supported image formats
+    """GTK+ 2.4 file selector which presents the user with a menu
+    of supported image formats
     """
     def __init__ (self,
                   title   = 'Save file',

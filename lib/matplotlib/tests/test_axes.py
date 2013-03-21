@@ -54,6 +54,21 @@ def test_formatter_ticker():
     ax.set_xlabel( "x-label 005" )
     ax.autoscale_view()
 
+@cleanup
+def test_add_collection():
+    # Test if data limits are unchanged by adding an empty collection.
+    # Github issue #1490, pull #1497.
+    fig = matplotlib.figure.Figure()
+    fig2 = matplotlib.figure.Figure()
+    ax = fig.add_subplot(111)
+    ax2 = fig2.add_subplot(111)
+    coll = ax2.scatter([0, 1], [0, 1])
+    ax.add_collection(coll)
+    bounds = ax.dataLim.bounds
+    coll = ax2.scatter([], [])
+    ax.add_collection(coll)
+    assert ax.dataLim.bounds == bounds
+
 @image_comparison(baseline_images=["formatter_large_small"])
 def test_formatter_large_small():
     # github issue #617, pull #619
@@ -419,6 +434,44 @@ def test_hexbin_extent():
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
 
+@image_comparison(baseline_images=['hexbin_log'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_hexbin_log():
+    # Issue #1636
+    fig = plt.figure()
+
+    np.random.seed(0)
+    n = 100000
+    x = np.random.standard_normal(n)
+    y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
+    y = np.power(2, y * 0.5)
+    ax = fig.add_subplot(111)
+    ax.hexbin(x, y, yscale='log')
+
+@cleanup
+def test_inverted_limits():
+    # Test gh:1553
+    # Calling invert_xaxis prior to plotting should not disable autoscaling
+    # while still maintaining the inverted direction
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.invert_xaxis()
+    ax.plot([-5, -3, 2, 4], [1, 2, -3, 5])
+
+    assert ax.get_xlim() == (4, -5)
+    assert ax.get_ylim() == (-3, 5)
+    plt.close()
+
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.invert_yaxis()
+    ax.plot([-5, -3, 2, 4], [1, 2, -3, 5])
+
+    assert ax.get_xlim() == (-5, 4)
+    assert ax.get_ylim() == (5, -3)
+    plt.close()
+
 @image_comparison(baseline_images=['nonfinite_limits'])
 def test_nonfinite_limits():
     x = np.arange(0., np.e, 0.01)
@@ -448,7 +501,7 @@ def test_imshow():
 
     ax.imshow(r)
 
-@image_comparison(baseline_images=['imshow_clip'], tol=1e-2)
+@image_comparison(baseline_images=['imshow_clip'])
 def test_imshow_clip():
     # As originally reported by Gellule Xg <gellule.xg@free.fr>
 
@@ -490,7 +543,7 @@ def test_polycollection_joinstyle():
     ax.set_ybound(0, 3)
 
 @image_comparison(baseline_images=['fill_between_interpolate'],
-                  tol=1e-2, remove_text=True)
+                  remove_text=True)
 def test_fill_between_interpolate():
     x = np.arange(0.0, 2, 0.02)
     y1 = np.sin(2*np.pi*x)
@@ -559,8 +612,7 @@ def test_symlog2():
     ax.grid(True)
     ax.set_ylim(-0.1, 0.1)
 
-@image_comparison(baseline_images=['pcolormesh'], tol=0.02,
-                  remove_text=True)
+@image_comparison(baseline_images=['pcolormesh'], remove_text=True)
 def test_pcolormesh():
     n = 12
     x = np.linspace(-1.5,1.5,n)
@@ -688,6 +740,23 @@ def test_hist_log():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.hist(data, fill=False, log=True)
+
+@image_comparison(baseline_images=['hist_steplog'], remove_text=True)
+def test_hist_steplog():
+    np.random.seed(0)
+    data = np.random.standard_normal(2000)
+    data += -2.0 - np.min(data)
+    data_pos = data + 2.1
+    data_big = data_pos + 30
+
+    ax = plt.subplot(3, 1, 1)
+    plt.hist(data, 100, histtype='stepfilled', log=True)
+
+    ax = plt.subplot(3, 1, 2)
+    plt.hist(data_pos, 100, histtype='stepfilled', log=True)
+
+    ax = plt.subplot(3, 1, 3)
+    plt.hist(data_big, 100, histtype='stepfilled', log=True)
 
 def contour_dat():
     x = np.linspace(-3, 5, 150)
@@ -825,6 +894,42 @@ def test_stackplot():
     ax.set_xlim((0, 10))
     ax.set_ylim((0, 70))
 
+
+@image_comparison(baseline_images=['stackplot_test_baseline'],
+                  remove_text=True)
+def test_stackplot_baseline():
+    np.random.seed(0)
+    def layers(n, m):
+        def bump(a):
+            x = 1 / (.1 + np.random.random())
+            y = 2 * np.random.random() - .5
+            z = 10 / (.1 + np.random.random())
+            for i in range(m):
+                w = (i / float(m) - y) * z
+                a[i] += x * np.exp(-w * w)
+        a = np.zeros((m, n))
+        for i in range(n):
+            for j in range(5):
+                bump(a[:, i])
+        return a
+
+    d=layers(3, 100)
+
+    fig = plt.figure()
+
+    plt.subplot(2, 2, 1)
+    plt.stackplot(range(100), d.T, baseline='zero')
+
+    plt.subplot(2, 2, 2)
+    plt.stackplot(range(100), d.T, baseline='sym')
+
+    plt.subplot(2, 2, 3)
+    plt.stackplot(range(100), d.T, baseline='wiggle')
+
+    plt.subplot(2, 2, 4)
+    plt.stackplot(range(100), d.T, baseline='weighted_wiggle')
+
+
 @image_comparison(baseline_images=['boxplot'])
 def test_boxplot():
     x = np.linspace(-7, 7, 140)
@@ -862,8 +967,8 @@ def test_errorbar():
     ax.locator_params(nbins=4)
 
     ax = axs[0,1]
-    ax.errorbar(x, y, xerr=xerr, fmt='o')
-    ax.set_title('Hor. symmetric')
+    ax.errorbar(x, y, xerr=xerr, fmt='o', alpha=0.4)
+    ax.set_title('Hor. symmetric w/ alpha')
 
     ax = axs[1,0]
     ax.errorbar(x, y, yerr=[yerr, 2*yerr], xerr=[xerr, 2*xerr], fmt='--o')
@@ -881,14 +986,26 @@ def test_errorbar():
 
     fig.suptitle('Variable errorbars')
 
-@image_comparison(baseline_images=['hist_stacked'])
-def test_hist_stacked():
+@image_comparison(baseline_images=['hist_stacked_stepfilled'])
+def test_hist_stacked_stepfilled():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="stepfilled", stacked=True)
+
+
+@image_comparison(baseline_images=['hist_offset'])
+def test_hist_offset():
     # make some data
     d1 = np.linspace(0, 10, 50)
     d2 = np.linspace(1, 3, 20)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.hist( (d1, d2), histtype="stepfilled", stacked=True)
+    ax.hist(d1, bottom=5)
+    ax.hist(d2, bottom=15)
+
 
 @image_comparison(baseline_images=['hist_stacked_weights'])
 def test_hist_stacked_weighted():
@@ -901,6 +1018,49 @@ def test_hist_stacked_weighted():
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), weights=(w1,w2), histtype="stepfilled", stacked=True)
 
+@cleanup
+def test_stem_args():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    x = range(10)
+    y = range(10)
+
+    # Test the call signatures
+    ax.stem(y)
+    ax.stem(x, y)
+    ax.stem(x, y, 'r--')
+    ax.stem(x, y, 'r--', basefmt='b--')
+
+@image_comparison(baseline_images=['hist_stacked_stepfilled_alpha'])
+def test_hist_stacked_stepfilled_alpha():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="stepfilled", stacked=True, alpha=0.5)
+
+@image_comparison(baseline_images=['hist_stacked_step'])
+def test_hist_stacked_step():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="step", stacked=True)
+
+@image_comparison(baseline_images=['hist_stacked_bar'])
+def test_hist_stacked_bar():
+    # make some data
+    d = [[100, 100, 100, 100, 200, 320, 450, 80, 20, 600, 310, 800], [20, 23, 50, 11, 100, 420], [120, 120, 120, 140, 140, 150, 180], [60, 60, 60, 60, 300, 300, 5, 5, 5, 5, 10, 300], [555, 555, 555, 30, 30, 30, 30, 30, 100, 100, 100, 100, 30, 30], [30, 30, 30, 30, 400, 400, 400, 400, 400, 400, 400, 400]]
+    colors = [(0.5759849696758961, 1.0, 0.0), (0.0, 1.0, 0.350624650815206), (0.0, 1.0, 0.6549834156005998), (0.0, 0.6569064625276622, 1.0), (0.28302699607823545, 0.0, 1.0), (0.6849123462299822, 0.0, 1.0)]
+    labels = ['green', 'orange', ' yellow', 'magenta', 'black']
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(d, bins=10, histtype='barstacked', align='mid', color=colors, label=labels)
+    ax.legend(loc='upper right', bbox_to_anchor = (1.0, 1.0), ncol=1)
+
 @image_comparison(baseline_images=['transparent_markers'], remove_text=True)
 def test_transparent_markers():
     np.random.seed(0)
@@ -909,6 +1069,149 @@ def test_transparent_markers():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(data, 'D', mfc='none', markersize=100)
+
+
+@cleanup
+def test_mollweide_forward_inverse_closure():
+    # test that the round-trip Mollweide forward->inverse transformation is an
+    # approximate identity
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='mollweide')
+
+    # set up 1-degree grid in longitude, latitude
+    lon = np.linspace(-np.pi, np.pi, 360)
+    lat = np.linspace(-np.pi / 2.0, np.pi / 2.0, 180)
+    lon, lat = np.meshgrid(lon, lat)
+    ll = np.vstack((lon.flatten(), lat.flatten())).T
+
+    # perform forward transform
+    xy = ax.transProjection.transform(ll)
+
+    # perform inverse transform
+    ll2 = ax.transProjection.inverted().transform(xy)
+
+    # compare
+    np.testing.assert_array_almost_equal(ll, ll2, 3)
+
+@cleanup
+def test_mollweide_inverse_forward_closure():
+    # test that the round-trip Mollweide inverse->forward transformation is an
+    # approximate identity
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='mollweide')
+
+    # set up grid in x, y
+    x = np.linspace(0, 1, 500)
+    x, y = np.meshgrid(x, x)
+    xy = np.vstack((x.flatten(), y.flatten())).T
+
+    # perform inverse transform
+    ll = ax.transProjection.inverted().transform(xy)
+
+    # perform forward transform
+    xy2 = ax.transProjection.transform(ll)
+
+    # compare
+    np.testing.assert_array_almost_equal(xy, xy2, 3)
+
+
+@image_comparison(baseline_images=['test_alpha'], remove_text=True)
+def test_alpha():
+    np.random.seed(0)
+    data = np.random.random(50)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    # alpha=.5 markers, solid line
+    ax.plot(data, '-D', color=[1, 0, 0], mfc=[1, 0, 0, .5],
+            markersize=20, lw=10)
+
+    # everything solid by kwarg
+    ax.plot(data + 2, '-D', color=[1, 0, 0, .5], mfc=[1, 0, 0, .5],
+            markersize=20, lw=10,
+            alpha=1)
+
+    # everything alpha=.5 by kwarg
+    ax.plot(data + 4, '-D', color=[1, 0, 0], mfc=[1, 0, 0],
+            markersize=20, lw=10,
+            alpha=.5)
+
+    # everything alpha=.5 by colors
+    ax.plot(data + 6, '-D', color=[1, 0, 0, .5], mfc=[1, 0, 0, .5],
+            markersize=20, lw=10)
+
+    # alpha=.5 line, solid markers
+    ax.plot(data + 8, '-D', color=[1, 0, 0, .5], mfc=[1, 0, 0],
+            markersize=20, lw=10)
+
+
+@image_comparison(baseline_images=['eventplot'], remove_text=True)
+def test_eventplot():
+    '''
+    test that eventplot produces the correct output
+    '''
+    np.random.seed(0)
+
+    data1 = np.random.random([32, 20]).tolist()
+    data2 = np.random.random([6, 20]).tolist()
+    data = data1 + data2
+    num_datasets = len(data)
+
+    colors1 = [[0, 1, .7]] * len(data1)
+    colors2 = [[1, 0, 0],
+               [0, 1, 0],
+               [0, 0, 1],
+               [1, .75, 0],
+               [1, 0, 1],
+               [0, 1, 1]]
+    colors = colors1 + colors2
+
+    lineoffsets1 = 12 + np.arange(0, len(data1)) * .33
+    lineoffsets2 = [-15, -3, 1, 1.5, 6, 10]
+    lineoffsets = lineoffsets1.tolist() + lineoffsets2
+
+    linelengths1 = [.33] * len(data1)
+    linelengths2 = [5, 2, 1, 1, 3, 1.5]
+    linelengths = linelengths1 + linelengths2
+
+    fig = plt.figure()
+    axobj = fig.add_subplot(111)
+    colls = axobj.eventplot(data, colors=colors, lineoffsets=lineoffsets,
+                            linelengths=linelengths)
+
+    num_collections = len(colls)
+    np.testing.assert_equal(num_collections, num_datasets)
+
+
+@image_comparison(baseline_images=['vline_hline_zorder',
+                                   'errorbar_zorder'])
+def test_eb_line_zorder():
+    x = range(10)
+
+    # First illustrate basic pyplot interface, using defaults where possible.
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.plot(x, lw=10, zorder=5)
+    ax.axhline(1, color='red', lw=10, zorder=1)
+    ax.axhline(5, color='green', lw=10, zorder=10)
+    ax.axvline(7, color='m', lw=10, zorder=7)
+    ax.axvline(2, color='k', lw=10, zorder=3)
+
+    ax.set_title("axvline and axhline zorder test")
+
+    # Now switch to a more OO interface to exercise more features.
+    fig = plt.figure()
+    ax = fig.gca()
+    x = range(10)
+    y = np.zeros(10)
+    yerr = range(10)
+    ax.errorbar(x, y, yerr=yerr, zorder=5, lw=5, color='r')
+    for j in range(10):
+        ax.axhline(j, lw=5, color='k', zorder=j)
+        ax.axhline(-j, lw=5, color='k', zorder=j)
+
+    ax.set_title("errorbar zorder test")
 
 if __name__=='__main__':
     import nose

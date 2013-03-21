@@ -161,6 +161,12 @@ class Axis(maxis.XAxis):
 
     def _get_coord_info(self, renderer):
         minx, maxx, miny, maxy, minz, maxz = self.axes.get_w_lims()
+        if minx > maxx:
+            minx, maxx = maxx, minx
+        if miny > maxy:
+            miny, maxy = maxy, miny
+        if minz > maxz:
+            minz, maxz = maxz, minz
         mins = np.array((minx, miny, minz))
         maxs = np.array((maxx, maxy, maxz))
         centers = (maxs + mins) / 2.
@@ -205,9 +211,13 @@ class Axis(maxis.XAxis):
         index = info['i']
 
         # filter locations here so that no extra grid lines are drawn
-        interval = self.get_view_interval()
-        majorLocs = [loc for loc in majorLocs if \
-                interval[0] <= loc <= interval[1]]
+        locmin, locmax = self.get_view_interval()
+        if locmin > locmax:
+            locmin, locmax = locmax, locmin
+
+        # Rudimentary clipping
+        majorLocs = [loc for loc in majorLocs if
+                     locmin <= loc <= locmax]
         self.major.formatter.set_locs(majorLocs)
         majorLabels = [self.major.formatter(val, i)
                        for i, val in enumerate(majorLocs)]

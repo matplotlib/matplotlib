@@ -28,6 +28,7 @@ from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.image import imread as _imread
 from matplotlib.image import imsave as _imsave
 from matplotlib import rcParams, rcParamsDefault, get_backend
+from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
 from matplotlib.artist import setp as _setp
@@ -193,6 +194,10 @@ def pause(interval):
 @docstring.copy_dedent(matplotlib.rc)
 def rc(*args, **kwargs):
     matplotlib.rc(*args, **kwargs)
+
+@docstring.copy_dedent(matplotlib.rc_context)
+def rc_context(rc=None, fname=None):
+    matplotlib.rc_context(rc, fname)
 
 @docstring.copy_dedent(matplotlib.rcdefaults)
 def rcdefaults():
@@ -711,32 +716,47 @@ def gca(**kwargs):
 
 def subplot(*args, **kwargs):
     """
-    Create a new axes (subplot).
+    Return a subplot axes positioned by the given grid definition.
 
-    Creating axes with::
+    Typical call signature::
 
-      subplot(numRows, numCols, plotNum)
+      subplot(nrows, ncols, plot_number)
 
-    where *plotNum* = 1 is the first plot number and increasing *plotNums*
-    fill rows first.  max(*plotNum*) == *numRows* * *numCols*
+    Where *nrows* and *ncols* are used to notionally split the figure
+    into ``nrows * ncols`` sub-axes, and *plot_number* is used to identify
+    the particular subplot that this function is to create within the notional
+    grid. *plot_number* starts at 1, increments across rows first and has a
+    maximum of ``nrows * ncols``.
 
-    You can leave out the commas if *numRows* <= *numCols* <=
-    *plotNum* < 10, as in::
+    In the case when *nrows*, *ncols* and *plot_number* are all less than 10,
+    a convenience exists, such that the a 3 digit number can be given instead,
+    where the hundreds represent *nrows*, the tens represent *ncols* and the
+    units represent *plot_number*. For instance::
 
-      subplot(211)    # 2 rows, 1 column, first (upper) plot
+      subplot(211)
 
-    ``subplot(111)`` is the default axis.
+    produces a subaxes in a figure which represents the top plot (i.e. the
+    first) in a 2 row by 1 column notional grid (no grid actually exists,
+    but conceptually this is how the returned subplot has been positioned).
 
-    New subplots that overlap old will delete the old axes.  If you do
-    not want this behavior, use
-    :meth:`~matplotlib.figure.Figure.add_subplot` or the
-    :func:`~matplotlib.pyplot.axes` command.  Eg.::
+    .. note::
 
-      from pylab import *
-      plot([1,2,3])  # implicitly creates subplot(111)
-      subplot(211)   # overlaps, subplot(111) is killed
-      plot(rand(12), rand(12))
-      subplot(212, axisbg='y') # creates 2nd subplot with yellow background
+       Creating a new subplot with a position which is entirely inside a
+       pre-existing axes will trigger the larger axes to be deleted::
+
+          import matplotlib.pyplot as plt
+          # plot a line, implicitly creating a subplot(111)
+          plt.plot([1,2,3])
+          # now create a subplot which represents the top plot of a grid
+          # with 2 rows and 1 column. Since this subplot will overlap the
+          # first, the plot (and its axes) previously created, will be removed
+          plt.subplot(211)
+          plt.plot(range(12))
+          plt.subplot(212, axisbg='y') # creates 2nd subplot with yellow background
+
+       If you do not want this behavior, use the
+       :meth:`~matplotlib.figure.Figure.add_subplot` method or the
+       :func:`~matplotlib.pyplot.axes` function instead.
 
     Keyword arguments:
 
@@ -768,6 +788,10 @@ def subplot(*args, **kwargs):
     .. plot:: mpl_examples/pylab_examples/subplot_demo.py
 
     """
+    # if subplot called without arguments, create subplot(1,1,1)
+    if len(args)==0:
+        args=(1,1,1)
+
     # This check was added because it is very easy to type
     # subplot(1, 2, False) when subplots(1, 2, False) was intended
     # (sharex=False, that is). In most cases, no error will
@@ -1159,26 +1183,49 @@ def box(on=None):
     ax.set_frame_on(on)
     draw_if_interactive()
 
+
 def title(s, *args, **kwargs):
     """
-    Set the title of the current axis.
+    title(label, loc='center', fontdict=None, **kwargs)
 
-    Default font override is::
+    Set a title of the current axes.
 
-      override = {'fontsize': 'medium',
-                  'verticalalignment': 'baseline',
-                  'horizontalalignment': 'center'}
+    Set one of the three available axes titles. The available titles are
+    positioned above the axes in the center, flush with the left edge,
+    and flush with the right edge.
 
-    .. seealso::
+    Parameters
+    ----------
+    label : str
+        Text to use for the title
+    loc : {'center', 'left', 'right'}, str, optional
+        Which title to set, defaults to 'center'
+    fontdict : dict
+        A dictionary controlling the appearance of the title text,
+        the default `fontdict` is:
+        {'fontsize': rcParams['axes.titlesize'],
+         'verticalalignment': 'baseline',
+         'horizontalalignment': loc}
 
-       :func:`~matplotlib.pyplot.text`
-           for information on how override and the optional args work.
+    Returns
+    -------
+    text : :class:`~matplotlib.text.Text`
+        The matplotlib text instance representing the title
+
+    Other parameters
+    ----------------
+    Other keyword arguments are text properties, see
+    :class:`~matplotlib.text.Text` for a list of valid text
+    properties.
+
+    See also
+    --------
+    See :func:`~matplotlib.pyplot.text` for adding text to the current axes
+
     """
     l =  gca().set_title(s, *args, **kwargs)
     draw_if_interactive()
     return l
-
-
 
 
 ## Axis ##
@@ -2020,8 +2067,6 @@ def set_cmap(cmap):
 
     if im is not None:
         im.set_cmap(cmap)
-    else:
-        raise RuntimeError('You must first define an image, eg with imshow')
 
     draw_if_interactive()
 
@@ -2094,8 +2139,7 @@ def polar(*args, **kwargs):
 
 def plotfile(fname, cols=(0,), plotfuncs=None,
              comments='#', skiprows=0, checkrows=5, delimiter=',', names=None,
-             subplots=True, newfig=True,
-             **kwargs):
+             subplots=True, newfig=True, **kwargs):
     """
     Plot the data in in a file.
 
@@ -2190,9 +2234,6 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
                     ax = fig.add_subplot(N-1,1,i, sharex=ax1)
             elif i==1:
                 ax = fig.add_subplot(1,1,1)
-
-            ax.grid(True)
-
 
             yname, y = getname_val(cols[i])
             ynamelist.append(yname)
@@ -2556,6 +2597,29 @@ def errorbar(x, y, yerr=None, xerr=None, fmt='-', ecolor=None, elinewidth=None,
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@_autogen_docstring(Axes.eventplot)
+def eventplot(positions, orientation='horizontal', lineoffsets=1, linelengths=1,
+              linewidths=None, colors=None, linestyles='solid', hold=None,
+              **kwargs):
+    ax = gca()
+    # allow callers to override the hold state by passing hold=True|False
+    washold = ax.ishold()
+
+    if hold is not None:
+        ax.hold(hold)
+    try:
+        ret = ax.eventplot(positions, orientation=orientation,
+                           lineoffsets=lineoffsets, linelengths=linelengths,
+                           linewidths=linewidths, colors=colors,
+                           linestyles=linestyles, **kwargs)
+        draw_if_interactive()
+    finally:
+        ax.hold(washold)
+
+    return ret
+
+# This function was autogenerated by boilerplate.py.  Do not edit as
+# changes will be lost
 @_autogen_docstring(Axes.fill)
 def fill(*args, **kwargs):
     ax = gca()
@@ -2903,8 +2967,8 @@ def quiverkey(*args, **kw):
 # changes will be lost
 @_autogen_docstring(Axes.scatter)
 def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None,
-            vmax=None, alpha=None, linewidths=None, faceted=True, verts=None,
-            hold=None, **kwargs):
+            vmax=None, alpha=None, linewidths=None, verts=None, hold=None,
+            **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -2914,8 +2978,7 @@ def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None,
     try:
         ret = ax.scatter(x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
                          vmin=vmin, vmax=vmax, alpha=alpha,
-                         linewidths=linewidths, faceted=faceted, verts=verts,
-                         **kwargs)
+                         linewidths=linewidths, verts=verts, **kwargs)
         draw_if_interactive()
     finally:
         ax.hold(washold)
@@ -2997,23 +3060,21 @@ def stackplot(x, *args, **kwargs):
         draw_if_interactive()
     finally:
         ax.hold(washold)
-    
+
     return ret
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
 @_autogen_docstring(Axes.stem)
-def stem(x, y, linefmt='b-', markerfmt='bo', basefmt='r-', bottom=None,
-         label=None, hold=None):
+def stem(*args, **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
-
+    hold = kwargs.pop('hold', None)
     if hold is not None:
         ax.hold(hold)
     try:
-        ret = ax.stem(x, y, linefmt=linefmt, markerfmt=markerfmt,
-                      basefmt=basefmt, bottom=bottom, label=label)
+        ret = ax.stem(*args, **kwargs)
         draw_if_interactive()
     finally:
         ax.hold(washold)

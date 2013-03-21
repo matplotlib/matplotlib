@@ -14,6 +14,7 @@ import matplotlib.cbook as cbook
 import numpy as np
 import warnings
 
+
 class Spine(mpatches.Patch):
     """an axis spine -- the line noting the data area boundaries
 
@@ -37,7 +38,7 @@ class Spine(mpatches.Patch):
         return "Spine"
 
     @docstring.dedent_interpd
-    def __init__(self,axes,spine_type,path,**kwargs):
+    def __init__(self, axes, spine_type, path, **kwargs):
         """
         - *axes* : the Axes instance containing the spine
         - *spine_type* : a string specifying the spine type
@@ -46,26 +47,26 @@ class Spine(mpatches.Patch):
         Valid kwargs are:
         %(Patch)s
         """
-        super(Spine,self).__init__(**kwargs)
+        super(Spine, self).__init__(**kwargs)
         self.axes = axes
         self.set_figure(self.axes.figure)
         self.spine_type = spine_type
         self.set_facecolor('none')
-        self.set_edgecolor( rcParams['axes.edgecolor'] )
+        self.set_edgecolor(rcParams['axes.edgecolor'])
         self.set_linewidth(rcParams['axes.linewidth'])
         self.axis = None
 
         self.set_zorder(2.5)
-        self.set_transform(self.axes.transData) # default transform
+        self.set_transform(self.axes.transData)  # default transform
 
-        self._bounds = None # default bounds
+        self._bounds = None  # default bounds
         self._smart_bounds = False
 
         # Defer initial position determination. (Not much support for
         # non-rectangular axes is currently implemented, and this lets
         # them pass through the spines machinery without errors.)
         self._position = None
-        assert isinstance(path,matplotlib.path.Path)
+        assert isinstance(path, matplotlib.path.Path)
         self._path = path
 
         # To support drawing both linear and circular spines, this
@@ -79,28 +80,29 @@ class Spine(mpatches.Patch):
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = mtransforms.IdentityTransform()
 
-    def set_smart_bounds(self,value):
+    def set_smart_bounds(self, value):
         """set the spine and associated axis to have smart bounds"""
         self._smart_bounds = value
 
         # also set the axis if possible
-        if self.spine_type in ('left','right'):
+        if self.spine_type in ('left', 'right'):
             self.axes.yaxis.set_smart_bounds(value)
-        elif self.spine_type in ('top','bottom'):
+        elif self.spine_type in ('top', 'bottom'):
             self.axes.xaxis.set_smart_bounds(value)
 
     def get_smart_bounds(self):
         """get whether the spine has smart bounds"""
         return self._smart_bounds
 
-    def set_patch_circle(self,center,radius):
+    def set_patch_circle(self, center, radius):
         """set the spine to be circular"""
         self._patch_type = 'circle'
         self._center = center
-        self._width = radius*2
-        self._height = radius*2
+        self._width = radius * 2
+        self._height = radius * 2
         self._angle = 0
-        self.set_transform(self.axes.transAxes) # circle drawn on axes transform
+        # circle drawn on axes transform
+        self.set_transform(self.axes.transAxes)
 
     def set_patch_line(self):
         """set the spine to be linear"""
@@ -128,7 +130,7 @@ class Spine(mpatches.Patch):
             self._recompute_transform()
             return self._patch_transform
         else:
-            return super(Spine,self).get_patch_transform()
+            return super(Spine, self).get_patch_transform()
 
     def get_path(self):
         return self._path
@@ -136,10 +138,10 @@ class Spine(mpatches.Patch):
     def _ensure_position_is_set(self):
         if self._position is None:
             # default position
-            self._position = ('outward',0.0) # in points
+            self._position = ('outward', 0.0)  # in points
             self.set_position(self._position)
 
-    def register_axis(self,axis):
+    def register_axis(self, axis):
         """register an axis
 
         An axis should be registered with its corresponding spine from
@@ -151,8 +153,8 @@ class Spine(mpatches.Patch):
             self.axis.cla()
 
     def cla(self):
-        'Clear the current spine'
-        self._position = None # clear position
+        """Clear the current spine"""
+        self._position = None  # clear position
         if self.axis is not None:
             self.axis.cla()
 
@@ -165,13 +167,13 @@ class Spine(mpatches.Patch):
         self._ensure_position_is_set()
         position = self._position
         if cbook.is_string_like(position):
-            if position=='center':
-                position = ('axes',0.5)
-            elif position=='zero':
-                position = ('data',0)
-        assert len(position)==2, "position should be 2-tuple"
+            if position == 'center':
+                position = ('axes', 0.5)
+            elif position == 'zero':
+                position = ('data', 0)
+        assert len(position) == 2, "position should be 2-tuple"
         position_type, amount = position
-        if position_type=='outward' and amount == 0:
+        if position_type == 'outward' and amount == 0:
             return True
         else:
             return False
@@ -183,29 +185,30 @@ class Spine(mpatches.Patch):
             return
 
         if self._bounds is None:
-            if self.spine_type in ('left','right'):
-                low,high = self.axes.viewLim.intervaly
-            elif self.spine_type in ('top','bottom'):
-                low,high = self.axes.viewLim.intervalx
+            if self.spine_type in ('left', 'right'):
+                low, high = self.axes.viewLim.intervaly
+            elif self.spine_type in ('top', 'bottom'):
+                low, high = self.axes.viewLim.intervalx
             else:
-                raise ValueError('unknown spine spine_type: %s'%self.spine_type)
+                raise ValueError('unknown spine spine_type: %s' %
+                                 self.spine_type)
 
             if self._smart_bounds:
                 # attempt to set bounds in sophisticated way
                 if low > high:
                     # handle inverted limits
-                    low,high=high,low
+                    low, high = high, low
 
                 viewlim_low = low
                 viewlim_high = high
 
                 del low, high
 
-                if self.spine_type in ('left','right'):
-                    datalim_low,datalim_high = self.axes.dataLim.intervaly
+                if self.spine_type in ('left', 'right'):
+                    datalim_low, datalim_high = self.axes.dataLim.intervaly
                     ticks = self.axes.get_yticks()
-                elif self.spine_type in ('top','bottom'):
-                    datalim_low,datalim_high = self.axes.dataLim.intervalx
+                elif self.spine_type in ('top', 'bottom'):
+                    datalim_low, datalim_high = self.axes.dataLim.intervalx
                     ticks = self.axes.get_xticks()
                 # handle inverted limits
                 ticks = list(ticks)
@@ -227,7 +230,7 @@ class Spine(mpatches.Patch):
                     else:
                         # No tick is available
                         low = datalim_low
-                    low = max(low,viewlim_low)
+                    low = max(low, viewlim_low)
 
                 if datalim_high > viewlim_high:
                     # Data extends past view. Clip line to view.
@@ -237,92 +240,104 @@ class Spine(mpatches.Patch):
                     cond = (ticks >= datalim_high) & (ticks <= viewlim_high)
                     tickvals = ticks[cond]
                     if len(tickvals):
-                        # A tick is greater than or equal to highest data point.
+                        # A tick is greater than or equal to highest data
+                        # point.
                         high = tickvals[0]
                     else:
                         # No tick is available
                         high = datalim_high
-                    high = min(high,viewlim_high)
+                    high = min(high, viewlim_high)
 
         else:
-            low,high = self._bounds
+            low, high = self._bounds
 
         v1 = self._path.vertices
-        assert v1.shape == (2,2), 'unexpected vertices shape'
-        if self.spine_type in ['left','right']:
-            v1[0,1] = low
-            v1[1,1] = high
-        elif self.spine_type in ['bottom','top']:
-            v1[0,0] = low
-            v1[1,0] = high
+        assert v1.shape == (2, 2), 'unexpected vertices shape'
+        if self.spine_type in ['left', 'right']:
+            v1[0, 1] = low
+            v1[1, 1] = high
+        elif self.spine_type in ['bottom', 'top']:
+            v1[0, 0] = low
+            v1[1, 0] = high
         else:
-            raise ValueError('unable to set bounds for spine "%s"'%spine_type)
+            raise ValueError('unable to set bounds for spine "%s"' %
+                             self.spine_type)
 
     @allow_rasterization
     def draw(self, renderer):
         self._adjust_location()
-        return super( Spine, self).draw(renderer)
+        return super(Spine, self).draw(renderer)
 
     def _calc_offset_transform(self):
         """calculate the offset transform performed by the spine"""
         self._ensure_position_is_set()
         position = self._position
         if cbook.is_string_like(position):
-            if position=='center':
-                position = ('axes',0.5)
-            elif position=='zero':
-                position = ('data',0)
-        assert len(position)==2, "position should be 2-tuple"
+            if position == 'center':
+                position = ('axes', 0.5)
+            elif position == 'zero':
+                position = ('data', 0)
+        assert len(position) == 2, "position should be 2-tuple"
         position_type, amount = position
-        assert position_type in ('axes','outward','data')
-        if position_type=='outward':
+        assert position_type in ('axes', 'outward', 'data')
+        if position_type == 'outward':
             if amount == 0:
                 # short circuit commonest case
-                self._spine_transform =  ('identity',mtransforms.IdentityTransform())
-            elif self.spine_type in ['left','right','top','bottom']:
-                offset_vec = {'left':(-1,0),
-                              'right':(1,0),
-                              'bottom':(0,-1),
-                              'top':(0,1),
+                self._spine_transform = ('identity',
+                                         mtransforms.IdentityTransform())
+            elif self.spine_type in ['left', 'right', 'top', 'bottom']:
+                offset_vec = {'left': (-1, 0),
+                              'right': (1, 0),
+                              'bottom': (0, -1),
+                              'top': (0, 1),
                               }[self.spine_type]
                 # calculate x and y offset in dots
-                offset_x = amount*offset_vec[0]/ 72.0
-                offset_y = amount*offset_vec[1]/ 72.0
+                offset_x = amount * offset_vec[0] / 72.0
+                offset_y = amount * offset_vec[1] / 72.0
                 self._spine_transform = ('post',
-                                         mtransforms.ScaledTranslation(offset_x,offset_y,
-                                                                       self.figure.dpi_scale_trans))
+                                         mtransforms.ScaledTranslation(
+                                             offset_x,
+                                             offset_y,
+                                             self.figure.dpi_scale_trans))
             else:
                 warnings.warn('unknown spine type "%s": no spine '
-                              'offset performed'%self.spine_type)
-                self._spine_transform = ('identity',mtransforms.IdentityTransform())
-        elif position_type=='axes':
-            if self.spine_type in ('left','right'):
+                              'offset performed' % self.spine_type)
+                self._spine_transform = ('identity',
+                                         mtransforms.IdentityTransform())
+        elif position_type == 'axes':
+            if self.spine_type in ('left', 'right'):
                 self._spine_transform = ('pre',
                                          mtransforms.Affine2D.from_values(
-                    # keep y unchanged, fix x at amount
-                    0,0,0,1,amount,0))
-            elif self.spine_type in  ('bottom','top'):
+                                             # keep y unchanged, fix x at
+                                             # amount
+                                             0, 0, 0, 1, amount, 0))
+            elif self.spine_type in ('bottom', 'top'):
                 self._spine_transform = ('pre',
                                          mtransforms.Affine2D.from_values(
-                    # keep x unchanged, fix y at amount
-                    1,0,0,0,0,amount))
+                                             # keep x unchanged, fix y at
+                                             # amount
+                                             1, 0, 0, 0, 0, amount))
             else:
                 warnings.warn('unknown spine type "%s": no spine '
-                              'offset performed'%self.spine_type)
-                self._spine_transform = ('identity',mtransforms.IdentityTransform())
-        elif position_type=='data':
-            if self.spine_type in ('left','right'):
+                              'offset performed' % self.spine_type)
+                self._spine_transform = ('identity',
+                                         mtransforms.IdentityTransform())
+        elif position_type == 'data':
+            if self.spine_type in ('left', 'right'):
                 self._spine_transform = ('data',
-                                         mtransforms.Affine2D().translate(amount,0))
-            elif self.spine_type in ('bottom','top'):
+                                         mtransforms.Affine2D().translate(
+                                             amount, 0))
+            elif self.spine_type in ('bottom', 'top'):
                 self._spine_transform = ('data',
-                                         mtransforms.Affine2D().translate(0,amount))
+                                         mtransforms.Affine2D().translate(
+                                             0, amount))
             else:
                 warnings.warn('unknown spine type "%s": no spine '
-                              'offset performed'%self.spine_type)
-                self._spine_transform =  ('identity',mtransforms.IdentityTransform())
+                              'offset performed' % self.spine_type)
+                self._spine_transform = ('identity',
+                                         mtransforms.IdentityTransform())
 
-    def set_position(self,position):
+    def set_position(self, position):
         """set the position of the spine
 
         Spine position is specified by a 2 tuple of (position type,
@@ -343,20 +358,20 @@ class Spine(mpatches.Patch):
         * 'zero' -> ('data', 0.0)
 
         """
-        if position in ('center','zero'):
+        if position in ('center', 'zero'):
             # special positions
             pass
         else:
-            assert len(position)==2, "position should be 'center' or 2-tuple"
-            assert position[0] in ['outward','axes','data']
+            assert len(position) == 2, "position should be 'center' or 2-tuple"
+            assert position[0] in ['outward', 'axes', 'data']
         self._position = position
         self._calc_offset_transform()
 
         t = self.get_spine_transform()
-        if self.spine_type in ['left','right']:
+        if self.spine_type in ['left', 'right']:
             t2 = mtransforms.blended_transform_factory(t,
                                                        self.axes.transData)
-        elif self.spine_type in ['bottom','top']:
+        elif self.spine_type in ['bottom', 'top']:
             t2 = mtransforms.blended_transform_factory(self.axes.transData,
                                                        t)
         self.set_transform(t2)
@@ -377,41 +392,43 @@ class Spine(mpatches.Patch):
         if what == 'data':
             # special case data based spine locations
             data_xform = self.axes.transScale + \
-                         (how+self.axes.transLimits + self.axes.transAxes)
-            if self.spine_type in ['left','right']:
+                (how + self.axes.transLimits + self.axes.transAxes)
+            if self.spine_type in ['left', 'right']:
                 result = mtransforms.blended_transform_factory(
-                    data_xform,self.axes.transData)
-            elif self.spine_type in ['top','bottom']:
+                    data_xform, self.axes.transData)
+            elif self.spine_type in ['top', 'bottom']:
                 result = mtransforms.blended_transform_factory(
-                    self.axes.transData,data_xform)
+                    self.axes.transData, data_xform)
             else:
-                raise ValueError('unknown spine spine_type: %s'%self.spine_type)
+                raise ValueError('unknown spine spine_type: %s' %
+                                 self.spine_type)
             return result
 
-        if self.spine_type in ['left','right']:
+        if self.spine_type in ['left', 'right']:
             base_transform = self.axes.get_yaxis_transform(which='grid')
-        elif self.spine_type in ['top','bottom']:
+        elif self.spine_type in ['top', 'bottom']:
             base_transform = self.axes.get_xaxis_transform(which='grid')
         else:
-            raise ValueError('unknown spine spine_type: %s'%self.spine_type)
+            raise ValueError('unknown spine spine_type: %s' %
+                             self.spine_type)
 
-        if what=='identity':
+        if what == 'identity':
             return base_transform
-        elif what=='post':
-            return base_transform+how
-        elif what=='pre':
-            return how+base_transform
+        elif what == 'post':
+            return base_transform + how
+        elif what == 'pre':
+            return how + base_transform
         else:
-            raise ValueError("unknown spine_transform type: %s"%what)
+            raise ValueError("unknown spine_transform type: %s" % what)
 
-    def set_bounds( self, low, high ):
+    def set_bounds(self, low, high):
         """Set the bounds of the spine."""
         if self.spine_type == 'circle':
             raise ValueError(
                 'set_bounds() method incompatible with circular spines')
         self._bounds = (low, high)
 
-    def get_bounds( self ):
+    def get_bounds(self):
         """Get the bounds of the spine."""
         return self._bounds
 
@@ -421,28 +438,28 @@ class Spine(mpatches.Patch):
         (staticmethod) Returns a linear :class:`Spine`.
         """
         # all values of 13 get replaced upon call to set_bounds()
-        if spine_type=='left':
+        if spine_type == 'left':
             path = mpath.Path([(0.0, 13), (0.0, 13)])
-        elif spine_type=='right':
+        elif spine_type == 'right':
             path = mpath.Path([(1.0, 13), (1.0, 13)])
-        elif spine_type=='bottom':
+        elif spine_type == 'bottom':
             path = mpath.Path([(13, 0.0), (13, 0.0)])
-        elif spine_type=='top':
+        elif spine_type == 'top':
             path = mpath.Path([(13, 1.0), (13, 1.0)])
         else:
-            raise ValueError('unable to make path for spine "%s"'%spine_type)
-        result = cls(axes,spine_type,path,**kwargs)
+            raise ValueError('unable to make path for spine "%s"' % spine_type)
+        result = cls(axes, spine_type, path, **kwargs)
         return result
 
     @classmethod
-    def circular_spine(cls,axes,center,radius,**kwargs):
+    def circular_spine(cls, axes, center, radius, **kwargs):
         """
         (staticmethod) Returns a circular :class:`Spine`.
         """
         path = mpath.Path.unit_circle()
         spine_type = 'circle'
-        result = cls(axes,spine_type,path,**kwargs)
-        result.set_patch_circle(center,radius)
+        result = cls(axes, spine_type, path, **kwargs)
+        result.set_patch_circle(center, radius)
         return result
 
     def set_color(self, c):

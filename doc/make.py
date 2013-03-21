@@ -110,7 +110,15 @@ def copytree(src, dst, symlinks=False, ignore=None):
 def copy_if_out_of_date(original, derived):
     if (not os.path.exists(derived) or
         os.stat(derived).st_mtime < os.stat(original).st_mtime):
-        shutil.copyfile(original, derived)
+        try:
+            shutil.copyfile(original, derived)
+        except IOError:
+            if os.path.basename(original) == 'matplotlibrc':
+                msg = "'%s' not found. " % original + \
+                      "Did you run `python setup.py build`?"
+                raise IOError(msg)
+            else:
+                raise
 
 def check_build():
     build_dirs = ['build', 'build/doctrees', 'build/html', 'build/latex',
@@ -120,15 +128,6 @@ def check_build():
             os.mkdir(d)
         except OSError:
             pass
-
-def sf():
-    'push a copy to the sf site'
-    shutil.copy('../CHANGELOG', 'build/html/_static/CHANGELOG')
-    os.system('cd build/html; rsync -avz . jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/ -essh --cvs-exclude')
-
-def sfpdf():
-    'push a copy to the sf site'
-    os.system('cd build/latex; scp Matplotlib.pdf jdh2358,matplotlib@web.sf.net:/home/groups/m/ma/matplotlib/htdocs/')
 
 def doctest():
     os.system('sphinx-build -b doctest -d build/doctrees . build/doctest')
@@ -156,6 +155,8 @@ def html():
     # Clean out PDF files from the _images directory
     for filename in glob.glob('build/html/_images/*.pdf'):
         os.remove(filename)
+
+    shutil.copy('../CHANGELOG', 'build/html/_static/CHANGELOG')
 
 def latex():
     check_build()
@@ -222,8 +223,6 @@ funcd = {
     'latex'    : latex,
     'texinfo'  : texinfo,
     'clean'    : clean,
-    'sf'       : sf,
-    'sfpdf'    : sfpdf,
     'all'      : all,
     'doctest'  : doctest,
     'linkcheck': linkcheck,

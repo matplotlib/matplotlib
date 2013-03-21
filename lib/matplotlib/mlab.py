@@ -148,6 +148,7 @@ from itertools import izip
 import numpy as np
 ma = np.ma
 from matplotlib import verbose
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
@@ -1207,7 +1208,8 @@ def liaupunov(x, fprime):
         It also seems that this function's name is badly misspelled.
     """
 
-    warnings.warn("This does not belong in matplotlib and will be removed", DeprecationWarning) # 2009/06/13
+    warnings.warn("This does not belong in matplotlib and will be removed",
+                  mplDeprecation) # 2009/06/13
 
     return np.mean(np.log(np.absolute(fprime(x))))
 
@@ -1339,7 +1341,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
     for comma-separated values.
     """
 
-    warnings.warn("use numpy.savetxt", DeprecationWarning)  # 2009/06/13
+    warnings.warn("use numpy.savetxt", mplDeprecation)  # 2009/06/13
 
     if cbook.is_string_like(fname):
         if fname.endswith('.gz'):
@@ -1426,7 +1428,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
            Exercises many of these options.
     """
 
-    warnings.warn("use numpy.loadtxt", DeprecationWarning)  # 2009/06/13
+    warnings.warn("use numpy.loadtxt", mplDeprecation)  # 2009/06/13
 
     if converters is None: converters = {}
     fh = cbook.to_filehandle(fname)
@@ -2107,7 +2109,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
       files is automatic, if the filename ends in '.gz'
 
     - *comments*: the character used to indicate the start of a comment
-      in the file
+      in the file, or *None* to switch off the removal of comments
 
     - *skiprows*: is the number of rows from the top to skip
 
@@ -2272,7 +2274,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     if needheader:
         for row in reader:
             #print 'csv2rec', row
-            if len(row) and row[0].startswith(comments):
+            if len(row) and comments is not None and row[0].startswith(comments):
                 continue
             headers = row
             break
@@ -2315,7 +2317,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
         while 1:
             # skip past any comments and consume one line of column header
             row = next(reader)
-            if len(row) and row[0].startswith(comments):
+            if len(row) and comments is not None and row[0].startswith(comments):
                 continue
             break
 
@@ -2324,8 +2326,10 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
     rows = []
     rowmasks = []
     for i, row in enumerate(reader):
-        if not len(row): continue
-        if row[0].startswith(comments): continue
+        if not len(row):
+            continue
+        if comments is not None and row[0].startswith(comments):
+            continue
         # Ensure that the row returned always has the same nr of elements
         row.extend([''] * (len(converters) - len(row)))
         rows.append([func(name, val) for func, name, val in zip(converters, names, row)])

@@ -44,6 +44,11 @@ jdh_doc_snapshot:
 	python make.py html latex sf sfpdf;
 
 
+test:
+	${PYTHON} tests.py
 
+
+test-coverage:
+	${PYTHON} tests.py --with-coverage --cover-package=matplotlib	
 
 

@@ -289,8 +289,8 @@ static PyObject *linear_interpolate_grid(double x0, double x1, int xsteps,
     if (!z) return NULL;
     z_ptr = (double*)PyArray_DATA(z);
 
-    dx = (x1 - x0) / (xsteps-1);
-    dy = (y1 - y0) / (ysteps-1);
+    dx = ( xsteps==1 ? 0 : (x1 - x0) / (xsteps-1) );
+    dy = ( ysteps==1 ? 0 : (y1 - y0) / (ysteps-1) );
 
     rowtri = 0;
     for (iy=0; iy<ysteps; iy++) {

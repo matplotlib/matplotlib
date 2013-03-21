@@ -3,6 +3,7 @@ import matplotlib.delaunay as delaunay
 import matplotlib._tri as _tri
 import numpy as np
 
+
 class Triangulation(object):
     """
     An unstructured triangular grid consisting of npoints points and
@@ -35,29 +36,11 @@ class Triangulation(object):
         triangle.  neighbors[i,j] is the triangle that is the neighbor
         to the edge from point index triangles[i,j] to point index
         triangles[i,(j+1)%3].
+
+    For a Triangulation to be valid it must not have duplicate points,
+    triangles formed from colinear points, or overlapping triangles.
     """
     def __init__(self, x, y, triangles=None, mask=None):
-        """
-        Create a Triangulation object.
-
-        The first two arguments must be:
-
-        *x*, *y*: arrays of shape (npoints).
-          Point coordinates.
-
-        Optional arguments (args or keyword args):
-
-        *triangles*: integer array of shape (ntri,3).
-          For each triangle, the indices of the three points that make
-          up the triangle.  If the points are ordered in a clockwise
-          manner, they are converted to anticlockwise.
-
-          If not specified, matplotlib.delaunay is used to create a
-          Delaunay triangulation of the points.
-
-        *mask*: optional boolean array of shape (ntri).
-          Which triangles are masked out.
-        """
         self.x = np.asarray(x, dtype=np.float64)
         self.y = np.asarray(y, dtype=np.float64)
         if self.x.shape != self.y.shape or len(self.x.shape) != 1:
@@ -70,18 +53,21 @@ class Triangulation(object):
         if triangles is None:
             # No triangulation specified, so use matplotlib.delaunay.
             dt = delaunay.Triangulation(self.x, self.y)
-            self.triangles = np.asarray(dt.to_client_point_indices(dt.triangle_nodes),
-                                        dtype=np.int32)
+            self.triangles = np.asarray(
+                                 dt.to_client_point_indices(dt.triangle_nodes),
+                                 dtype=np.int32)
             if mask is None:
-                self._edges = np.asarray(dt.to_client_point_indices(dt.edge_db),
-                                         dtype=np.int32)
+                self._edges = np.asarray(
+                                  dt.to_client_point_indices(dt.edge_db),
+                                  dtype=np.int32)
                 # Delaunay triangle_neighbors uses different edge indexing,
                 # so convert.
                 neighbors = np.asarray(dt.triangle_neighbors, dtype=np.int32)
                 self._neighbors = np.roll(neighbors, 1, axis=1)
         else:
-            # Triangulation specified.
-            self.triangles = np.asarray(triangles, dtype=np.int32)
+            # Triangulation specified. Copy, since we may correct triangle
+            # orientation.
+            self.triangles = np.array(triangles, dtype=np.int32)
             if self.triangles.ndim != 2 or self.triangles.shape[1] != 3:
                 raise ValueError('triangles must be a (?,3) array')
             if self.triangles.max() >= len(self.x):
@@ -99,6 +85,19 @@ class Triangulation(object):
         # Underlying C++ object is not created until first needed.
         self._cpp_triangulation = None
 
+        # Default TriFinder not created until needed.
+        self._trifinder = None
+
+    def calculate_plane_coefficients(self, z):
+        """
+        Calculate plane equation coefficients for all unmasked triangles from
+        the point (x,y) coordinates and specified z-array of shape (npoints).
+        Returned array has shape (npoints,3) and allows z-value at (x,y)
+        position in triangle tri to be calculated using
+        z = array[tri,0]*x + array[tri,1]*y + array[tri,2].
+        """
+        return self.get_cpp_triangulation().calculate_plane_coefficients(z)
+
     @property
     def edges(self):
         if self._edges is None:
@@ -106,10 +105,8 @@ class Triangulation(object):
         return self._edges
 
     def get_cpp_triangulation(self):
-        """
-        Return the underlying C++ Triangulation object, creating it
-        if necessary.
-        """
+        # Return the underlying C++ Triangulation object, creating it
+        # if necessary.
         if self._cpp_triangulation is None:
             self._cpp_triangulation = _tri.Triangulation(
                 self.x, self.y, self.triangles, self.mask, self._edges,
@@ -121,7 +118,7 @@ class Triangulation(object):
         Return an array of triangles that are not masked.
         """
         if self.mask is not None:
-            return self.triangles.compress(1-self.mask, axis=0)
+            return self.triangles.compress(1 - self.mask, axis=0)
         else:
             return self.triangles
 
@@ -171,6 +168,18 @@ class Triangulation(object):
             triangulation = Triangulation(x, y, triangles, mask)
         return triangulation, args, kwargs
 
+    def get_trifinder(self):
+        """
+        Return the default :class:`matplotlib.tri.TriFinder` of this
+        triangulation, creating it if necessary.  This allows the same
+        TriFinder object to be easily shared.
+        """
+        if self._trifinder is None:
+            # Default TriFinder class.
+            from matplotlib.tri.trifinder import TrapezoidMapTriFinder
+            self._trifinder = TrapezoidMapTriFinder(self)
+        return self._trifinder
+
     @property
     def neighbors(self):
         if self._neighbors is None:
@@ -198,3 +207,7 @@ class Triangulation(object):
         # Clear derived fields so they are recalculated when needed.
         self._edges = None
         self._neighbors = None
+
+        # Recalculate TriFinder if it exists.
+        if self._trifinder is not None:
+            self._trifinder._initialize()

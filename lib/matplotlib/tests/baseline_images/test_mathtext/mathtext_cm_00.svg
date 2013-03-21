@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -214,17 +214,18 @@ Q10.8906 14.9844 10.7969 11.1875
 Q10.7969 7.42188 12.4219 4.46875
 Q14.0625 1.51562 17.4844 1.51562" id="Cmmi10-62"/>
    </defs>
-   <g transform="translate(143.28 31.74)scale(0.12 -0.12)">
+   <g transform="translate(147.24 31.74)scale(0.12 -0.12)">
     <use transform="translate(0.0 9.609375)" xlink:href="#Cmmi10-61"/>
     <use transform="translate(70.341796875 9.609375)" xlink:href="#Cmr10-2b"/>
     <use transform="translate(154.400390625 9.609375)" xlink:href="#Cmmi10-62"/>
     <use transform="translate(214.87890625 9.609375)" xlink:href="#Cmr10-2b"/>
-    <use transform="translate(316.49609375 9.609375)" xlink:href="#STIXGeneral-Regular-2026"/>
-    <use transform="translate(429.30078125 9.609375)" xlink:href="#Cmr10-2b"/>
-    <use transform="translate(522.953125 10.390625)" xlink:href="#Cmr10-5f"/>
-    <use transform="translate(513.359375 9.609375)" xlink:href="#Cmmi10-73"/>
-    <use transform="translate(577.6953125 9.609375)" xlink:href="#Cmr10-2b"/>
-    <use transform="translate(661.75390625 9.609375)" xlink:href="#STIXGeneral-Regular-2026"/>
+    <use transform="translate(303.53125 10.390625)" xlink:href="#Cmr10-5f"/>
+    <use transform="translate(298.9375 9.609375)" xlink:href="#Cmmi10-73"/>
+    <use transform="translate(363.2734375 9.609375)" xlink:href="#Cmr10-2b"/>
+    <use transform="translate(456.92578125 10.390625)" xlink:href="#Cmr10-5f"/>
+    <use transform="translate(447.33203125 9.609375)" xlink:href="#Cmmi10-73"/>
+    <use transform="translate(511.66796875 9.609375)" xlink:href="#Cmr10-2b"/>
+    <use transform="translate(595.7265625 9.609375)" xlink:href="#STIXGeneral-Regular-2026"/>
    </g>
   </g>
  </g>

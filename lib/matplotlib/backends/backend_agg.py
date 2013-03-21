@@ -154,11 +154,11 @@ class RendererAgg(RendererBase):
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
-        x = int(x) + ox
-        y = int(y) - oy
+        x = np.round(x + ox)
+        y = np.round(y - oy)
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
-    def draw_text(self, gc, x, y, s, prop, angle, ismath):
+    def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
         Render the text
         """
@@ -179,7 +179,8 @@ class RendererAgg(RendererBase):
         font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
 
         #print x, y, int(x), int(y), s
-        self._renderer.draw_text_image(font.get_image(), int(x), int(y) + 1, angle, gc)
+        self._renderer.draw_text_image(
+            font.get_image(), np.round(x), np.round(y) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
@@ -215,7 +216,7 @@ class RendererAgg(RendererBase):
         return w, h, d
 
 
-    def draw_tex(self, gc, x, y, s, prop, angle):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
         # todo, handle props, angle, origins
         size = prop.get_size_in_points()
 

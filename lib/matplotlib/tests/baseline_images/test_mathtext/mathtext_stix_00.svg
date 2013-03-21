@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -170,17 +170,18 @@ Q34.2031 42.4062 35.2031 44.2031
 z
 " id="STIXGeneral-Italic-73"/>
    </defs>
-   <g transform="translate(147.18 31.44)scale(0.12 -0.12)">
+   <g transform="translate(151.26 31.44)scale(0.12 -0.12)">
     <use transform="translate(0.0 5.703125)" xlink:href="#STIXGeneral-Italic-61"/>
     <use transform="translate(64.5399871826 5.703125)" xlink:href="#STIXGeneral-Regular-2b"/>
     <use transform="translate(137.776858521 5.703125)" xlink:href="#STIXGeneral-Italic-62"/>
     <use transform="translate(202.2168396 5.703125)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(289.893707275 5.703125)" xlink:href="#STIXGeneral-Regular-2026"/>
-    <use transform="translate(396.461199951 5.703125)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(511.698071289 10.109375)" xlink:href="#STIXGeneral-Regular-307"/>
-    <use transform="translate(469.698071289 5.703125)" xlink:href="#STIXGeneral-Italic-73"/>
-    <use transform="translate(523.038061523 5.703125)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(596.274932861 5.703125)" xlink:href="#STIXGeneral-Regular-2026"/>
+    <use transform="translate(316.453710937 10.109375)" xlink:href="#STIXGeneral-Regular-307"/>
+    <use transform="translate(275.453710937 5.703125)" xlink:href="#STIXGeneral-Italic-73"/>
+    <use transform="translate(328.793701172 5.703125)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(444.03057251 10.109375)" xlink:href="#STIXGeneral-Regular-307"/>
+    <use transform="translate(402.03057251 5.703125)" xlink:href="#STIXGeneral-Italic-73"/>
+    <use transform="translate(455.370562744 5.703125)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(528.607434082 5.703125)" xlink:href="#STIXGeneral-Regular-2026"/>
    </g>
   </g>
  </g>

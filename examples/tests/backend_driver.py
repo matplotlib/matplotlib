@@ -113,7 +113,7 @@ files['pylab'] = [
     'hist_colormapped.py',
     'histogram_demo.py',
     'histogram_demo_extended.py',
-    'hline_demo.py',
+    'vline_hline_demo.py',
 
     'image_clip_path.py',
     'image_demo.py',
@@ -199,7 +199,6 @@ files['pylab'] = [
     'transoffset.py',
     'unicode_demo.py',
     'vertical_ticklabels.py',
-    'vline_demo.py',
     'xcorr_demo.py',
     'zorder_demo.py',
     ]

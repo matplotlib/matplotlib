@@ -20,8 +20,8 @@
 import sys
 import itertools
 import contextlib
-import subprocess
 from matplotlib.cbook import iterable, is_string_like
+from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams
 
@@ -52,6 +52,9 @@ class MovieWriterRegistry(object):
     def list(self):
         ''' Get a list of available MovieWriters.'''
         return self.avail.keys()
+
+    def is_available(self, name):
+        return name in self.avail
 
     def __getitem__(self, name):
         if not self.avail:
@@ -184,9 +187,11 @@ class MovieWriter(object):
         'Finish any processing for writing the movie.'
         self.cleanup()
 
-    def grab_frame(self):
+    def grab_frame(self, **savefig_kwargs):
         '''
         Grab the image information from the figure and save as a movie frame.
+        All keyword arguments in savefig_kwargs are passed on to the 'savefig'
+        command that saves the figure.
         '''
         verbose.report('MovieWriter.grab_frame: Grabbing frame.',
                        level='debug')
@@ -194,7 +199,7 @@ class MovieWriter(object):
             # Tell the figure to save its data to the sink, using the
             # frame format and dpi.
             self.fig.savefig(self._frame_sink(), format=self.frame_format,
-                dpi=self.dpi)
+                dpi=self.dpi, **savefig_kwargs)
         except RuntimeError:
             out, err = self._proc.communicate()
             verbose.report('MovieWriter -- Error running proc:\n%s\n%s' % (out,
@@ -388,6 +393,24 @@ class FFMpegFileWriter(FileMovieWriter, FFMpegBase):
                 self._base_temp_name()] + self.output_args
 
 
+# Base class of avconv information.  AVConv has identical arguments to
+# FFMpeg
+class AVConvBase(FFMpegBase):
+    exec_key = 'animation.avconv_path'
+    args_key = 'animation.avconv_args'
+
+
+# Combine AVConv options with pipe-based writing
+@writers.register('avconv')
+class AVConvWriter(AVConvBase, FFMpegWriter):
+    pass
+
+# Combine AVConv options with file-based writing
+@writers.register('avconv_file')
+class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
+    pass
+
+
 # Base class of mencoder information. Contains configuration key information
 # as well as arguments for controlling *output*
 class MencoderBase:
@@ -500,7 +523,10 @@ class Animation(object):
     '''
     def __init__(self, fig, event_source=None, blit=False):
         self._fig = fig
-        self._blit = blit
+        # Disables blitting for backends that don't support it.  This
+        # allows users to request it if available, but still have a
+        # fallback that works if it is not.
+        self._blit = blit and fig.canvas.supports_blit
 
         # These are the basics of the animation.  The frame sequence represents
         # information for each frame of the animation and depends on how the
@@ -520,7 +546,7 @@ class Animation(object):
         # fire events and try to draw to a deleted figure.
         self._close_id = self._fig.canvas.mpl_connect('close_event',
                                                       self._stop)
-        if blit:
+        if self._blit:
             self._setup_blit()
 
     def _start(self, *args):
@@ -545,7 +571,8 @@ class Animation(object):
         self.event_source = None
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
-             bitrate=None, extra_args=None, metadata=None, extra_anim=None):
+             bitrate=None, extra_args=None, metadata=None, extra_anim=None,
+             savefig_kwargs=None):
         '''
         Saves a movie file by drawing every frame.
 
@@ -586,7 +613,32 @@ class Animation(object):
         `matplotlib.Figure` instance. Also, animation frames will just be
         simply combined, so there should be a 1:1 correspondence between
         the frames from the different animations.
+
+        *savefig_kwargs* is a dictionary containing keyword arguments to be
+        passed on to the 'savefig' command which is called repeatedly to save
+        the individual frames. This can be used to set tight bounding boxes,
+        for example.
         '''
+        if savefig_kwargs is None:
+            savefig_kwargs = {}
+
+        # FIXME: Using 'bbox_inches' doesn't currently work with writers that pipe
+        # the data to the command because this requires a fixed frame size (see
+        # Ryan May's reply in this thread: [1]). Thus we drop the 'bbox_inches'
+        # argument if it exists in savefig_kwargs.
+        #
+        # [1] http://matplotlib.1069221.n5.nabble.com/Animation-class-let-save-accept-kwargs-which-are-passed-on-to-savefig-td39627.html
+        #
+        if savefig_kwargs.has_key('bbox_inches'):
+            if not (writer in ['ffmpeg_file', 'mencoder_file'] or
+                    isinstance(writer, (FFMpegFileWriter, MencoderFileWriter))):
+                print("Warning: discarding the 'bbox_inches' argument in " \
+                          "'savefig_kwargs' as it is only currently supported " \
+                          "with the writers 'ffmpeg_file' and 'mencoder_file' " \
+                          "(writer used: '{}').".format(writer if isinstance(writer, str)
+                                                        else writer.__class__.__name__))
+                savefig_kwargs.pop('bbox_inches')
+
         # Need to disconnect the first draw callback, since we'll be doing
         # draws. Otherwise, we'll end up starting the animation.
         if self._first_draw_id is not None:
@@ -629,7 +681,13 @@ class Animation(object):
             else:
                 import warnings
                 warnings.warn("MovieWriter %s unavailable" % writer)
-                writer = writers.list()[0]
+
+                try:
+                    writer = writers.list()[0]
+                except IndexError:
+                    raise ValueError("Cannot save animation: no writers are "
+                                     "available. Please install mencoder or "
+                                     "ffmpeg to save animations.")
 
         verbose.report('Animation.save using %s' % type(writer),
                        level='helpful')
@@ -645,7 +703,7 @@ class Animation(object):
                 for anim, d in zip(all_anim, data):
                     #TODO: Need to see if turning off blit is really necessary
                     anim._draw_next_frame(d, blit=False)
-                writer.grab_frame()
+                writer.grab_frame(**savefig_kwargs)
 
         # Reconnect signal for first draw if necessary
         if reconnect_first_draw:

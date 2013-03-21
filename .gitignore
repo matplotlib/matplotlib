@@ -5,6 +5,7 @@
 *~
 *$
 *.bak
+*.kdev4
 .project
 .pydevproject
 
@@ -34,6 +35,7 @@ dist
 
 # OS generated files #
 ######################
+.directory
 .gdb_history
 .DS_Store?
 ehthumbs.db
@@ -51,3 +53,4 @@ doc/examples
 doc/_templates/gallery.html
 doc/users/installing.rst
 doc/_static/matplotlibrc
+lib/dateutil

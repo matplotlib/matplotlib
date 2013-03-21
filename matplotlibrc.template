@@ -41,6 +41,16 @@ backend      : %(backend)s
 # "pyqt" and "pyside".  The "pyqt" setting has the side effect of
 # forcing the use of Version 2 API for QString and QVariant.
 
+# The port to use for the web server in the WebAgg backend.
+# webagg.port : 8888
+
+# If webagg.port is unavailable, a number of other random ports will
+# be tried until one that is available is found.
+# webagg.port_retries : 50
+
+# When True, open the webbrowser to the plot that is shown
+# webagg.open_in_browser : True
+
 # if you are running pyplot inside a GUI and your backend choice
 # conflicts, we will automatically try to find a compatible one for
 # you if backend_fallback is True
@@ -295,6 +305,7 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
 #legend.shadow        : False
 #legend.frameon       : True   # whether or not to draw a frame around legend
+#legend.scatterpoints : 3 # number of scatter points
 
 ### FIGURE
 # See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
@@ -355,6 +366,8 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #savefig.format     : png      # png, ps, pdf, svg
 #savefig.bbox       : standard # 'tight' or 'standard'.
 #savefig.pad_inches : 0.1      # Padding to be used when bbox is set to 'tight'
+#savefig.directory  : ~        # default directory in savefig dialog box,
+                               # leave empty to always use current working directory
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
@@ -423,6 +436,9 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #keymap.xscale : L, k                # toggle scaling of x-axes ('log'/'linear')
 #keymap.all_axes : a                 # enable all axes
 
+# Control location of examples data files
+#examples.directory : ''   # directory to look in for custom installation
+
 ###ANIMATION settings
 #animation.writer : ffmpeg         # MovieWriter 'backend' to use
 #animation.codec : mp4             # Codec to use for writing movie
@@ -431,7 +447,11 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #animation.frame_format: 'png'     # Controls frame format used by temp files
 #animation.ffmpeg_path: 'ffmpeg'   # Path to ffmpeg binary. Without full path
                                    # $PATH is searched
-#animation.ffmpeg_args: ''         # Additional arugments to pass to mencoder
-#animation.mencoder_path: 'ffmpeg' # Path to mencoder binary. Without full path
+#animation.ffmpeg_args: ''         # Additional arguments to pass to ffmpeg
+#animation.avconv_path: 'avconv'   # Path to avconv binary. Without full path
                                    # $PATH is searched
-#animation.mencoder_args: ''       # Additional arugments to pass to mencoder
+#animation.avconv_args: ''         # Additional arguments to pass to avconv
+#animation.mencoder_path: 'mencoder' 
+                                   # Path to mencoder binary. Without full path
+                                   # $PATH is searched
+#animation.mencoder_args: ''       # Additional arguments to pass to mencoder

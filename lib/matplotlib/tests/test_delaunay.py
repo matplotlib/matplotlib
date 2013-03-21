@@ -159,7 +159,7 @@ class NNTester(LinearTester):
         z = func(self.x, self.y)
         return self.tri.nn_extrapolator(z, bbox=self.xrange+self.yrange)
 
-def make_all_testfuncs(allfuncs=allfuncs):
+def make_all_2d_testfuncs(allfuncs=allfuncs):
     def make_test(func):
         filenames = [
             '%s-%s' % (func.func_name, x) for x in
@@ -187,4 +187,27 @@ def make_all_testfuncs(allfuncs=allfuncs):
     for func in allfuncs:
         globals()['test_%s' % func.func_name] = make_test(func)
 
-make_all_testfuncs()
+make_all_2d_testfuncs()
+
+# 1d and 0d grid tests
+
+ref_interpolator = Triangulation([0,10,10,0],
+                                 [0,0,10,10]).linear_interpolator([1,10,5,2.0])
+
+def test_1d_grid():
+    res = ref_interpolator[3:6:2j,1:1:1j]
+    assert np.allclose(res, [[1.6],[1.9]], rtol=0)
+
+def test_0d_grid():
+    res = ref_interpolator[3:3:1j,1:1:1j]
+    assert np.allclose(res, [[1.6]], rtol=0)
+
+@image_comparison(baseline_images=['delaunay-1d-interp'], extensions=['png'])
+def test_1d_plots():
+    x_range = slice(0.25,9.75,20j)
+    x = np.mgrid[x_range]
+    ax = plt.gca()
+    for y in xrange(2,10,2):
+        plt.plot(x, ref_interpolator[x_range,y:y:1j])
+    ax.set_xticks([])
+    ax.set_yticks([])

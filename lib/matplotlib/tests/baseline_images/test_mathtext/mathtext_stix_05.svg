@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -37,7 +37,8 @@ L63.5938 28.5938
 z
 " id="STIXGeneral-Regular-2b"/>
     <path d="
-M19.2031 42.5938
+M15.9062 45.9062
+Q19.2031 42.5938 19.2031 40.2969
 Q19.2031 38 17.5938 36.3906
 Q16 34.7969 13.7031 34.7969
 Q11.4062 34.7969 9.75 36.4375

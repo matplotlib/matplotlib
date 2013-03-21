@@ -39,6 +39,15 @@ for the initial run (which builds the example gallery) to be done,
 then run "python make.py html" again. The top file of the results will
 be ./build/html/index.html
 
+Note that Sphinx uses the installed version of the package to build
+the documentation, so matplotlib must be installed *before* the docs
+can be generated. Even if that is the case, one of the files needed
+to do this, '../lib/matplotlib/mpl-data/matplotlibrc', is not version
+controlled, but created when matplotlib is built. This means that the
+documentation cannot be generated immediately after checking out the
+source code, even if matplotlib is installed on your system: you will
+have to run ``python setup.py build`` first.
+
 To build a smaller version of the documentation (without
 high-resolution PNGs and PDF examples), type "python make.py --small
 html".

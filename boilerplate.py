@@ -47,7 +47,7 @@ def %(func)s(%(argspec)s):
     %(ax)s = gca()
     # allow callers to override the hold state by passing hold=True|False
     %(washold)s = %(ax)s.ishold()
-    %(sethold)s
+%(sethold)s
     if hold is not None:
         %(ax)s.hold(hold)
     try:
@@ -55,7 +55,7 @@ def %(func)s(%(argspec)s):
         draw_if_interactive()
     finally:
         %(ax)s.hold(%(washold)s)
-    %(mappable)s
+%(mappable)s
     return %(ret)s
 """
 
@@ -108,6 +108,7 @@ def boilerplate_gen():
         'contourf',
         'csd',
         'errorbar',
+        'eventplot',
         'fill',
         'fill_between',
         'fill_betweenx',
@@ -169,7 +170,7 @@ def boilerplate_gen():
         #'spy'    :  'sci(%(ret)s)',  ### may return image or Line2D
         'quiver' :  'sci(%(ret)s)',
         'specgram'  : 'sci(%(ret)s[-1])',
-        'streamplot' :  'sci(%(ret)s)',
+        'streamplot' :  'sci(%(ret)s.lines)',
         'tricontour' : 'if %(ret)s._A is not None: sci(%(ret)s)',
         'tricontourf': 'if %(ret)s._A is not None: sci(%(ret)s)',
         'tripcolor'  : 'sci(%(ret)s)',
@@ -199,7 +200,7 @@ def boilerplate_gen():
             # For some commands, an additional line is needed to set the
             # color map
             if func in cmappable:
-                mappable = cmappable[func] % locals()
+                mappable = '    ' + cmappable[func] % locals()
             else:
                 mappable = ''
 
@@ -232,7 +233,7 @@ def boilerplate_gen():
             # argument in front of it since it would gobble one of the
             # arguments the user means to pass via *args)
             if varargs:
-                sethold = "hold = %(varkw)s.pop('hold', None)" % locals()
+                sethold = "    hold = %(varkw)s.pop('hold', None)" % locals()
             elif fmt is PLOT_TEMPLATE:
                 args.append('hold')
                 defaults = defaults + (None,)
@@ -306,6 +307,7 @@ def build_pyplot():
     pyplot.write('\n')
 
     pyplot.writelines(boilerplate_gen())
+    pyplot.write('\n')
 
 
 if __name__ == '__main__':

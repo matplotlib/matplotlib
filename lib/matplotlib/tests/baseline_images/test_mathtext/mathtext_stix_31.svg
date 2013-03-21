@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -19,7 +19,7 @@ z
 " style="fill:#ffffff;"/>
   </g>
   <g id="text_1">
-   <!-- $f^'$ -->
+   <!-- $f'$ -->
    <defs>
     <path d="
 M7.5 41.0938
@@ -69,9 +69,9 @@ L3.40625 39.5938
 z
 " id="STIXGeneral-Italic-66"/>
    </defs>
-   <g transform="translate(185.04 34.44)scale(0.12 -0.12)">
-    <use transform="translate(0.0 21.9734375)" xlink:href="#STIXGeneral-Italic-66"/>
-    <use transform="translate(27.799987793 76.5421875)scale(0.7)" xlink:href="#STIXGeneral-Regular-2032"/>
+   <g transform="translate(186.78 32.34)scale(0.12 -0.12)">
+    <use transform="translate(0.0 21.203125)" xlink:href="#STIXGeneral-Italic-66"/>
+    <use transform="translate(27.799987793 75.771875)scale(0.7)" xlink:href="#STIXGeneral-Regular-2032"/>
    </g>
   </g>
  </g>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -249,27 +249,27 @@ z
    </defs>
    <g transform="translate(177.66 44.4)scale(0.12 -0.12)">
     <use transform="translate(0.0 193.24)scale(0.49)" xlink:href="#STIXGeneral-Regular-35"/>
-    <use transform="translate(-25.1221006775 48.015625)scale(0.922353861789)" xlink:href="#STIXSizeThreeSym-Regular-221a"/>
-    <use transform="translate(115.622085724 232.1440625)scale(0.49)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(87.6220857239 172.05978125)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(112.122078247 172.05978125)scale(0.49)" xlink:href="#STIXGeneral-Italic-3c0"/>
-    <use transform="translate(136.818075256 186.54846875)scale(0.343)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(86.6220857239 76.1324375)" xlink:href="#STIXGeneral-Regular-220f"/>
-    <use transform="translate(103.622085724 1.3761875)scale(0.7)" xlink:href="#STIXGeneral-Regular-221e"/>
+    <use transform="translate(-25.1305006409 48.015625)scale(0.922353861789)" xlink:href="#STIXSizeThreeSym-Regular-221a"/>
+    <use transform="translate(115.630485687 232.1440625)scale(0.49)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(87.6304856873 172.05978125)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(112.13047821 172.05978125)scale(0.49)" xlink:href="#STIXGeneral-Italic-3c0"/>
+    <use transform="translate(136.82647522 186.54846875)scale(0.343)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(86.6304856873 76.1324375)" xlink:href="#STIXGeneral-Regular-220f"/>
+    <use transform="translate(103.630485687 1.3761875)scale(0.7)" xlink:href="#STIXGeneral-Regular-221e"/>
     <path d="
-M74.1221 277.5
-L74.1221 283.75
-L188.716 283.75
-L188.716 277.5
-L74.1221 277.5
+M74.1305 277.5
+L74.1305 283.75
+L188.724 283.75
+L188.724 277.5
+L74.1305 277.5
 z
 "/>
     <path d="
-M87.6221 214.108
-L87.6221 218.483
-L165.639 218.483
-L165.639 214.108
-L87.6221 214.108
+M87.6305 214.108
+L87.6305 218.483
+L165.648 218.483
+L165.648 214.108
+L87.6305 214.108
 z
 "/>
    </g>

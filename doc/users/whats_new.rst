@@ -15,10 +15,41 @@ revision, see the :ref:`github-stats`.
    versions 2.4 to 2.7.  matplotlib 1.2 and later require
    versions 2.6, 2.7, and 3.1 and higher.
 
+.. contents:: Table of Contents
+
 .. _whats-new-1-3:
 
 new in matplotlib-1.3
 =====================
+
+New eventplot plot type
+-------------------------------------
+Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
+create multiple rows or columns of identical line segments
+
+New EventCollection collections class
+-------------------------------------
+Todd Jennings created the new :class:`~matplotlib.collections.EventCollection`
+class that allows for plotting and manipulating rows or columns of identical
+line segments
+
+Baselines for stackplot
+-----------------------
+Till Stensitzki added non-zero baselines to :func:`~matplotlib.pyplot.stackplot`.
+They may be symmetric or weighted.
+
+.. plot:: mpl_examples/pylab_examples/stackplot_demo2.py
+
+Remember save directory
+-----------------------
+Martin Spacek made the save figure dialog remember the last directory saved
+to. The default is configurable with the new `savefig.directory` setting
+in `matplotlibrc`.
+
+Initialize a rotated rectangle
+------------------------------
+Damon McDougall extended the :class:`~matplotlib.patches.Rectangle` constructor
+to accept an `angle` kwarg, specifying the rotation of a rectangle in degrees.
 
 Rectangular colorbar extensions
 -------------------------------
@@ -26,6 +57,41 @@ Andrew Dawson added a new keyword argument *extendrect* to
 :meth:`~matplotlib.pyplot.colorbar` to optionally make colorbar
 extensions rectangular instead of triangular.
 
+Calling subplot() without arguments
+-----------------------------------
+A call to :func:`~matplotlib.pyplot.subplot` without any arguments now
+acts the same as `subplot(111)` or `subplot(1,1,1)` -- it creates one axes for
+the whole figure. This was already the behavior for both
+:func:`~matplotlib.pyplot.axes` and :func:`~matplotlib.pyplot.subplots`, and
+now this consistency is shared with :func:`~matplotlib.pyplot.subplot`.
+
+Anchored text support
+---------------------
+The `svg` and `pgf` backends are now able to save text alignment information
+to their output formats. This allows to edit text elements in saved figures,
+using Inkscape for example, while preserving their intended position. For
+`svg` please note that you'll have to disable the default text-to-path
+conversion (`mpl.rc('svg', fonttype='none')`).
+
+Triangular grid interpolation
+-----------------------------
+Geoffroy Billotey and Ian Thomas added classes to perform interpolation within
+triangular grids: (:class:`~matplotlib.tri.LinearTriInterpolator` and
+:class:`~matplotlib.tri.CubicTriInterpolator`) and a utility class to find
+the triangles in which points lie (
+:class:`~matplotlib.tri.TrapezoidMapTriFinder`).
+A helper class to perform mesh refinement and smooth contouring was also added
+(:class:`~matplotlib.tri.UniformTriRefiner`).
+Finally, a class implementing some basic tools for triangular mesh improvement
+was added (:class:`~matplotlib.tri.TriAnalyzer`).
+
+.. plot:: mpl_examples/pylab_examples/tricontour_smooth_user.py
+
+Left and right side axes titles
+-------------------------------
+Andrew Dawson added the ability to add axes titles flush with the left and
+right sides of the top of the axes using a new keyword argument `loc` to
+:func:`~matplotlib.pyplot.title`.
 
 .. _whats-new-1-2:
 
@@ -57,7 +123,7 @@ sufficiently mature.
 PGF/TikZ backend
 ----------------
 Peter Würtz wrote a backend that allows matplotlib to export figures as
-drawing commands for LaTeX that can be processed by PdfLaTeX, XeLaTeX or
+drawing commands for LaTeX. These can be processed by PdfLaTeX, XeLaTeX or
 LuaLaTeX using the PGF/TikZ package. Usage examples and documentation are
 found in :ref:`pgf-tutorial`.
 
@@ -262,7 +328,7 @@ Tight Layout
 
 A frequent issue raised by users of matplotlib is the lack of a layout
 engine to nicely space out elements of the plots. While matplotlib still
-adheres to the philosphy of giving users complete control over the placement
+adheres to the philosophy of giving users complete control over the placement
 of plot elements, Jae-Joon Lee created the :mod:`~matplotlib.tight_layout`
 module and introduced a new
 command :func:`~matplotlib.pyplot.tight_layout`
@@ -276,7 +342,7 @@ to address the most common layout issues.
     fig, axes_list = plt.subplots(2, 1)
     for ax in axes_list.flat:
         ax.set(xlabel="x-label", ylabel="y-label", title="before tight_layout")
-	ax.locator_params(nbins=3)
+    ax.locator_params(nbins=3)
 
     plt.show()
 
@@ -286,7 +352,7 @@ to address the most common layout issues.
     fig, axes_list = plt.subplots(2, 1)
     for ax in axes_list.flat:
         ax.set(xlabel="x-label", ylabel="y-label", title="after tight_layout")
-	ax.locator_params(nbins=3)
+    ax.locator_params(nbins=3)
 
     plt.tight_layout()
     plt.show()
@@ -651,7 +717,7 @@ multiple columns and rows, as well as fancy box drawing.  See
 Fancy annotations and arrows
 -----------------------------
 
-Jae-Joon has added lot's of support to annotations for drawing fancy
+Jae-Joon has added lots of support to annotations for drawing fancy
 boxes and connectors in annotations.  See
 :func:`~matplotlib.pyplot.annotate` and
 :class:`~matplotlib.patches.BoxStyle`,
@@ -685,7 +751,7 @@ Ryan May did a lot of work to rationalize the amplitude scaling of
 :func:`~matplotlib.pyplot.psd` and friends.  See
 :ref:`pylab_examples-psd_demo2`. and :ref:`pylab_examples-psd_demo3`.
 The changes should increase MATLAB
-compatabililty and increase scaling options.
+compatibility and increase scaling options.
 
 .. _fill-between:
 
@@ -695,7 +761,7 @@ Fill between
 Added a :func:`~matplotlib.pyplot.fill_between` function to make it
 easier to do shaded region plots in the presence of masked data.  You
 can pass an *x* array and a *ylower* and *yupper* array to fill
-betweem, and an optional *where* argument which is a logical mask
+between, and an optional *where* argument which is a logical mask
 where you want to do the filling.
 
 .. plot:: pyplots/whats_new_98_4_fill_between.py
@@ -708,14 +774,14 @@ Here are the 0.98.4 notes from the CHANGELOG::
     Added mdehoon's native macosx backend from sf patch 2179017 - JDH
 
     Removed the prints in the set_*style commands.  Return the list of
-    pprinted strings instead - JDH
+    pretty-printed strings instead - JDH
 
     Some of the changes Michael made to improve the output of the
     property tables in the rest docs broke of made difficult to use
     some of the interactive doc helpers, eg setp and getp.  Having all
     the rest markup in the ipython shell also confused the docstrings.
     I added a new rc param docstring.harcopy, to format the docstrings
-    differently for hardcopy and other use.  Ther ArtistInspector
+    differently for hardcopy and other use.  The ArtistInspector
     could use a little refactoring now since there is duplication of
     effort between the rest out put and the non-rest output - JDH
 
@@ -747,19 +813,19 @@ Here are the 0.98.4 notes from the CHANGELOG::
     are added. -JJL
 
     Fixed a bug in the new legend class that didn't allowed a tuple of
-    coordinate vlaues as loc. -JJL
+    coordinate values as loc. -JJL
 
     Improve checks for external dependencies, using subprocess
     (instead of deprecated popen*) and distutils (for version
     checking) - DSD
 
-    Reimplementaion of the legend which supports baseline alignement,
+    Reimplementation of the legend which supports baseline alignment,
     multi-column, and expand mode. - JJL
 
     Fixed histogram autoscaling bug when bins or range are given
     explicitly (fixes Debian bug 503148) - MM
 
-    Added rcParam axes.unicode_minus which allows plain hypen for
+    Added rcParam axes.unicode_minus which allows plain hyphen for
     minus when False - JDH
 
     Added scatterpoints support in Legend. patch by Erik Tollerud -
@@ -783,7 +849,7 @@ Here are the 0.98.4 notes from the CHANGELOG::
 
     Add 'pad_to' and 'sides' parameters to mlab.psd() to allow
     controlling of zero padding and returning of negative frequency
-    components, respecitively.  These are added in a way that does not
+    components, respectively.  These are added in a way that does not
     change the API. - RM
 
     Fix handling of c kwarg by scatter; generalize is_string_like to

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -261,44 +261,44 @@ Q23.4062 8.79688 50.2969 -24.2969" id="STIXSizeTwoSym-Regular-28"/>
    </defs>
    <g transform="translate(129.78 37.44)scale(0.12 -0.12)">
     <use transform="translate(0.0 26.796875)scale(0.936661585366)" xlink:href="#STIXSizeTwoSym-Regular-28"/>
-    <use transform="translate(72.1635131836 103.02578125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
-    <use transform="translate(105.133506775 140.27125)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(55.1635131836 15.69375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
-    <use transform="translate(88.1335067749 15.69375)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d639"/>
-    <use transform="translate(121.873504639 37.88921875)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(180.335057831 64.46328125)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(271.251931 103.02578125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
-    <use transform="translate(304.221924591 140.27125)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(254.251931 15.69375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
-    <use transform="translate(287.221924591 15.69375)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d63a"/>
-    <use transform="translate(321.101920319 37.88921875)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(364.443475342 26.796875)scale(0.936661585366)" xlink:href="#STIXSizeTwoSym-Regular-29"/>
-    <use transform="translate(421.386468506 64.46328125)" xlink:href="#STIXGeneral-Regular-7c"/>
-    <use transform="translate(441.386453247 64.46328125)" xlink:href="#STIXNonUnicode-Italic-e1ed"/>
-    <use transform="translate(507.886437988 54.83828125)scale(0.727642276423)" xlink:href="#STIXSizeOneSym-Regular-28"/>
-    <use transform="translate(541.933435059 64.46328125)" xlink:href="#STIXGeneral-Italic-1d639"/>
-    <use transform="translate(605.253430176 64.46328125)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(679.170303345 64.46328125)" xlink:href="#STIXGeneral-Italic-1d62a"/>
-    <use transform="translate(701.170288086 64.46328125)" xlink:href="#STIXGeneral-Italic-1d63a"/>
-    <use transform="translate(749.570281982 54.83828125)scale(0.727642276423)" xlink:href="#STIXSizeOneSym-Regular-29"/>
-    <use transform="translate(783.617279053 64.46328125)" xlink:href="#STIXGeneral-Regular-7c"/>
-    <use transform="translate(803.617263794 119.06171875)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(862.796626282 64.46328125)" xlink:href="#STIXGeneral-Regular-3d"/>
-    <use transform="translate(936.807249451 64.46328125)" xlink:href="#STIXGeneral-Regular-1d7e2"/>
+    <use transform="translate(72.1451263428 103.02578125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
+    <use transform="translate(105.115119934 140.27125)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(55.1451263428 15.69375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
+    <use transform="translate(88.1151199341 15.69375)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d639"/>
+    <use transform="translate(121.855117798 37.88921875)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(180.31667099 64.46328125)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(271.233544159 103.02578125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
+    <use transform="translate(304.20353775 140.27125)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(254.233544159 15.69375)scale(0.7)" xlink:href="#STIXGeneral-Regular-2202"/>
+    <use transform="translate(287.20353775 15.69375)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d63a"/>
+    <use transform="translate(321.083533478 37.88921875)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(364.425088501 26.796875)scale(0.936661585366)" xlink:href="#STIXSizeTwoSym-Regular-29"/>
+    <use transform="translate(421.349084473 64.46328125)" xlink:href="#STIXGeneral-Regular-7c"/>
+    <use transform="translate(441.349069214 64.46328125)" xlink:href="#STIXNonUnicode-Italic-e1ed"/>
+    <use transform="translate(507.849053955 54.83828125)scale(0.727642276423)" xlink:href="#STIXSizeOneSym-Regular-28"/>
+    <use transform="translate(541.896051025 64.46328125)" xlink:href="#STIXGeneral-Italic-1d639"/>
+    <use transform="translate(605.216046143 64.46328125)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(679.132919312 64.46328125)" xlink:href="#STIXGeneral-Italic-1d62a"/>
+    <use transform="translate(701.132904053 64.46328125)" xlink:href="#STIXGeneral-Italic-1d63a"/>
+    <use transform="translate(749.532897949 54.83828125)scale(0.727642276423)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+    <use transform="translate(783.57989502 64.46328125)" xlink:href="#STIXGeneral-Regular-7c"/>
+    <use transform="translate(803.579879761 119.06171875)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(862.759242249 64.46328125)" xlink:href="#STIXGeneral-Regular-3d"/>
+    <use transform="translate(936.769865417 64.46328125)" xlink:href="#STIXGeneral-Regular-1d7e2"/>
     <path d="
-M55.1635 77.2602
-L55.1635 83.5102
-L152.715 83.5102
-L152.715 77.2602
-L55.1635 77.2602
+M55.1451 77.2602
+L55.1451 83.5102
+L152.697 83.5102
+L152.697 77.2602
+L55.1451 77.2602
 z
 "/>
     <path d="
-M254.252 77.2602
-L254.252 83.5102
-L351.943 83.5102
-L351.943 77.2602
-L254.252 77.2602
+M254.234 77.2602
+L254.234 83.5102
+L351.925 83.5102
+L351.925 77.2602
+L254.234 77.2602
 z
 "/>
    </g>

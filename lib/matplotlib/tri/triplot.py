@@ -14,7 +14,7 @@ def triplot(ax, *args, **kwargs):
 
       triplot(triangulation, ...)
 
-    where triangulation is a :class:`~matplotlib.tri.Triangulation`
+    where triangulation is a :class:`matplotlib.tri.Triangulation`
     object, or
 
     ::

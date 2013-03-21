@@ -287,7 +287,7 @@ Colorbar
 If you create a colorbar with the :func:`~matplotlib.pyplot.colorbar`
 command, the created colorbar is an instance of Axes, *not* Subplot, so
 tight_layout does not work. With Matplotlib v1.1, you may create a
-colobar as a subplot using the gridspec.
+colorbar as a subplot using the gridspec.
 
 .. plot::
    :include-source:
