@@ -391,7 +391,7 @@ static void _release_hatch(void* info)
 - (void)keyDown:(NSEvent*)event;
 - (void)keyUp:(NSEvent*)event;
 - (void)scrollWheel:(NSEvent *)event;
-- (void)flagsChanged:(NSEvent*)event;
+//- (void)flagsChanged:(NSEvent*)event;
 @end
 
 @interface ScrollableButton : NSButton
@@ -5439,66 +5439,75 @@ set_cursor(PyObject* unused, PyObject* args)
     rubberband = NSZeroRect;
 }
 
+
+
 - (const char*)convertKeyEvent:(NSEvent*)event
 {
-    NSString* text = [event charactersIgnoringModifiers];
-    unichar uc = [text characterAtIndex:0];
-    int i = (int)uc;
-    if ([event modifierFlags] & NSNumericPadKeyMask)
-    {
-        if (i > 256)
-        {
-            if (uc==NSLeftArrowFunctionKey) return "left";
-            else if (uc==NSUpArrowFunctionKey) return "up";
-            else if (uc==NSRightArrowFunctionKey) return "right";
-            else if (uc==NSDownArrowFunctionKey) return "down";
-            else if (uc==NSF1FunctionKey) return "f1";
-            else if (uc==NSF2FunctionKey) return "f2";
-            else if (uc==NSF3FunctionKey) return "f3";
-            else if (uc==NSF4FunctionKey) return "f4";
-            else if (uc==NSF5FunctionKey) return "f5";
-            else if (uc==NSF6FunctionKey) return "f6";
-            else if (uc==NSF7FunctionKey) return "f7";
-            else if (uc==NSF8FunctionKey) return "f8";
-            else if (uc==NSF9FunctionKey) return "f9";
-            else if (uc==NSF10FunctionKey) return "f10";
-            else if (uc==NSF11FunctionKey) return "f11";
-            else if (uc==NSF12FunctionKey) return "f12";
-            else if (uc==NSScrollLockFunctionKey) return "scroll_lock";
-            else if (uc==NSBreakFunctionKey) return "break";
-            else if (uc==NSInsertFunctionKey) return "insert";
-            else if (uc==NSDeleteFunctionKey) return "delete";
-            else if (uc==NSHomeFunctionKey) return "home";
-            else if (uc==NSEndFunctionKey) return "end";
-            else if (uc==NSPageUpFunctionKey) return "pageup";
-            else if (uc==NSPageDownFunctionKey) return "pagedown";
-        }
-        else if ((char)uc == '.') return "dec";
-    }
+    NSDictionary* specialkeymappings = @{
+                                         @(NSLeftArrowFunctionKey): @"left",
+                                         @(NSRightArrowFunctionKey): @"right",
+                                         @(NSUpArrowFunctionKey): @"up",
+                                         @(NSDownArrowFunctionKey): @"down",
+                                         @(NSF1FunctionKey): @"f1",
+                                         @(NSF2FunctionKey): @"f2",
+                                         @(NSF3FunctionKey): @"f3",
+                                         @(NSF4FunctionKey): @"f4",
+                                         @(NSF5FunctionKey): @"f5",
+                                         @(NSF6FunctionKey): @"f6",
+                                         @(NSF7FunctionKey): @"f7",
+                                         @(NSF8FunctionKey): @"f8",
+                                         @(NSF9FunctionKey): @"f9",
+                                         @(NSF10FunctionKey): @"f10",
+                                         @(NSF11FunctionKey): @"f11",
+                                         @(NSF12FunctionKey): @"f12",
+                                         @(NSF13FunctionKey): @"f13",
+                                         @(NSF14FunctionKey): @"f14",
+                                         @(NSF15FunctionKey): @"f15",
+                                         @(NSF16FunctionKey): @"f16",
+                                         @(NSF17FunctionKey): @"f17",
+                                         @(NSF18FunctionKey): @"f18",
+                                         @(NSF19FunctionKey): @"f19",
+                                         @(NSScrollLockFunctionKey): @"scroll_lock",
+                                         @(NSBreakFunctionKey): @"break",
+                                         @(NSInsertFunctionKey): @"insert",
+                                         @(NSDeleteFunctionKey): @"delete",
+                                         @(NSHomeFunctionKey): @"home",
+                                         @(NSEndFunctionKey): @"end",
+                                         @(NSPageDownFunctionKey): @"pagedown",
+                                         @(NSPageUpFunctionKey): @"pageup",
+                                         @(NSDeleteCharacter): @"backspace",
+                                         @(NSEnterCharacter): @"enter",
+                                         @(NSTabCharacter): @"tab",
+                                         @(NSCarriageReturnCharacter): @"enter",
+                                         @(NSBackTabCharacter): @"backtab",
+                                         @27: @"escape"
+                                        };
 
-    switch (i)
-    {
-        case 127: return "backspace";
-        case 13: return "enter";
-        case 3: return "enter";
-        case 27: return "escape";
-        default:
-        {
-            static char s[2];
-            s[0] = (char)uc;
-            s[1] = '\0';
-            return (const char*)s;
-        }
-    }
+    NSMutableString* returnkey = [NSMutableString string];
+    if ([event modifierFlags] & NSControlKeyMask)
+        [returnkey appendString:@"ctrl+" ];
+    if ([event modifierFlags] & NSAlternateKeyMask)
+        [returnkey appendString:@"alt+" ];
+    if ([event modifierFlags] & NSCommandKeyMask)
+        [returnkey appendString:@"cmd+" ];
+    if ([event modifierFlags] & NSShiftKeyMask)
+        [returnkey appendString:@"shift+" ];
 
-    return NULL;
+    unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
+    NSString* specialchar = [specialkeymappings objectForKey:@(uc)];
+    //    NSString* specialchar = specialkeymappings[@(uc)];
+    if (specialchar)
+        [returnkey appendString:specialchar];
+    else
+        [returnkey appendString:[event charactersIgnoringModifiers]];
+
+    return [returnkey UTF8String];
 }
 
 - (void)keyDown:(NSEvent*)event
 {
     PyObject* result;
     const char* s = [self convertKeyEvent: event];
-    /* TODO: Handle ctrl, alt, super modifiers. qt4 has implemented these. */    
     PyGILState_STATE gstate = PyGILState_Ensure();
     if (s==NULL)
     {
@@ -5520,7 +5529,6 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     PyObject* result;
     const char* s = [self convertKeyEvent: event];
-    /* TODO: Handle ctrl, alt, super modifiers. qt4 has implemented these. */
     PyGILState_STATE gstate = PyGILState_Ensure();
     if (s==NULL)
     {
@@ -5561,6 +5569,9 @@ set_cursor(PyObject* unused, PyObject* args)
     PyGILState_Release(gstate);
 }
 
+/* This is all wrong. Address of pointer is being passed instead of pointer, keynames don't
+   match up with what the front-end and does the front-end even handle modifier keys by themselves?
+
 - (void)flagsChanged:(NSEvent*)event
 {
     const char *s = NULL;
@@ -5580,6 +5591,7 @@ set_cursor(PyObject* unused, PyObject* args)
 
     PyGILState_Release(gstate);
 }
+ */
 @end
 
 @implementation ScrollableButton
