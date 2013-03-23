@@ -592,6 +592,9 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
     def _get_canvas(self, fig):
         return self.canvas.__class__(fig)
 
+    def set_hidden(self, hidden):
+        self.set_visible(hidden)
+
 
 class NavigationToolbar(Gtk.Toolbar):
     """

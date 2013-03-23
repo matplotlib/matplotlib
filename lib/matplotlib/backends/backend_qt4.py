@@ -672,7 +672,8 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
                     self, "Error saving file", str(e),
                     QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)
 
-
+    def set_hidden(self, hidden):
+        self.setVisible(hidden)
 
 class SubplotToolQt( SubplotTool, QtGui.QWidget ):
     def __init__(self, targetfig, parent):

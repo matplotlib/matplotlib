@@ -2399,6 +2399,7 @@ def key_press_handler(event, canvas, toolbar=None):
         # saving current figure (default key 's')
         elif event.key in save_keys:
             toolbar.save_figure()
+        toolbar.display_cursor(event)
 
     if event.inaxes is None:
         return
@@ -2676,7 +2677,7 @@ class NavigationToolbar2(object):
         """
         raise NotImplementedError
 
-    def mouse_move(self, event):
+    def display_cursor(self, event):
         if not event.inaxes or not self._active:
             if self._lastCursor != cursors.POINTER:
                 self.set_cursor(cursors.POINTER)
@@ -2692,8 +2693,9 @@ class NavigationToolbar2(object):
 
                 self._lastCursor = cursors.MOVE
 
+    def mouse_move(self, event):
+        self.display_cursor(event)
         if event.inaxes and event.inaxes.get_navigate():
-
             try:
                 s = event.inaxes.format_coord(event.xdata, event.ydata)
             except (ValueError, OverflowError):
@@ -3095,4 +3097,8 @@ class NavigationToolbar2(object):
 
     def set_history_buttons(self):
         """Enable or disable back/forward button"""
+        pass
+
+    def set_hidden(self, is_hidden):
+        """Set the toolbars visibility."""
         pass
