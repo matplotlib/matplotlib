@@ -8,8 +8,8 @@ import matplotlib
 from matplotlib import verbose
 from matplotlib.cbook import is_string_like, onetrue
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase, \
-     FigureManagerBase, FigureCanvasBase, NavigationToolbar2, IdleEvent, \
-     cursors, TimerBase
+     FigureManagerBase, FigureCanvasBase, NavigationBase, Toolbar2Base, \
+     IdleEvent, cursors, TimerBase
 from matplotlib.backend_bases import ShowBase
 
 from matplotlib._pylab_helpers import Gcf
@@ -411,12 +411,14 @@ class FigureManagerQT(FigureManagerBase):
 
         self.window._destroying = False
 
-        self.toolbar = self._get_toolbar(self.canvas, self.window)
-        if self.toolbar is not None:
-            self.window.addToolBar(self.toolbar)
-            QtCore.QObject.connect(self.toolbar, QtCore.SIGNAL("message"),
-                                   self._show_message)
-            tbs_height = self.toolbar.sizeHint().height()
+        # TODO: Is canvas the correct QObject to be emitting status messages?
+        QtCore.QObject.connect(self.canvas, QtCore.SIGNAL("message"),
+                               self._show_message)
+
+        self.navigation = self._get_navigation(self.canvas)
+        if self.navigation.toolbar is not None:
+            self.window.addToolBar(self.navigation.toolbar)
+            tbs_height = self.navigation.toolbar.sizeHint().height()
         else:
             tbs_height = 0
 
@@ -435,8 +437,7 @@ class FigureManagerQT(FigureManagerBase):
 
         def notify_axes_change(fig):
             # This will be called whenever the current axes is changed
-            if self.toolbar is not None:
-                self.toolbar.update()
+            self.navigation.update()
         self.canvas.figure.add_axobserver(notify_axes_change)
 
     @QtCore.Slot()
@@ -462,16 +463,8 @@ class FigureManagerQT(FigureManagerBase):
             # Gcf can get destroyed before the Gcf.destroy
             # line is run, leading to a useless AttributeError.
 
-    def _get_toolbar(self, canvas, parent):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if matplotlib.rcParams['toolbar'] == 'classic':
-            print("Classic toolbar is not supported")
-        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2QT(canvas, parent, False)
-        else:
-            toolbar = None
-        return toolbar
+    def _get_navigation(self, canvas):
+        return NavigationQT(canvas, False)
 
     def resize(self, width, height):
         'set the canvas size in pixels'
@@ -489,8 +482,7 @@ class FigureManagerQT(FigureManagerBase):
         self.window._destroying = True
         QtCore.QObject.disconnect(self.window, QtCore.SIGNAL('destroyed()'),
                                   self._widgetclosed)
-        if self.toolbar:
-                self.toolbar.destroy()
+        self.navigation.destroy()
         if DEBUG:
                 print("destroy figure manager")
         self.window.close()
@@ -501,16 +493,26 @@ class FigureManagerQT(FigureManagerBase):
     def set_window_title(self, title):
         self.window.setWindowTitle(title)
 
-class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
-    def __init__(self, canvas, parent, coordinates=True):
-        """ coordinates: should we show the coordinates on the right? """
-        self.canvas = canvas
-        self.coordinates = coordinates
-        self._actions = {}
-        """A mapping of toolitem method names to their QActions"""
+class Toolbar2QT(Toolbar2Base, QtGui.QToolBar):
 
+    def __init__(self, navigation, parent, coordinates=False):
+        self.navigation = navigation
         QtGui.QToolBar.__init__( self, parent )
-        NavigationToolbar2.__init__( self, canvas )
+        self._actions = {} # A mapping of toolitem method names to QActions
+        self.coordinates = coordinates
+
+        # Add the x,y location widget at the right side of the toolbar
+        # The stretch factor is 1 which means any resizing of the toolbar
+        # will resize this label instead of the buttons.
+        if self.coordinates:
+            self.locLabel = QtGui.QLabel( "", self.canvas )
+            self.locLabel.setAlignment(
+                    QtCore.Qt.AlignRight | QtCore.Qt.AlignTop )
+            self.locLabel.setSizePolicy(
+                QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,
+                                  QtGui.QSizePolicy.Ignored))
+            labelAction = self.addWidget(self.locLabel)
+            labelAction.setVisible(True)
 
     def _icon(self, name):
         return QtGui.QIcon(os.path.join(self.basedir, name))
@@ -523,7 +525,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
                 self.addSeparator()
             else:
                 a = self.addAction(self._icon(image_file + '.png'),
-                                         text, getattr(self, callback))
+                                   text, getattr(self.navigation, callback))
                 self._actions[callback] = a
                 if callback in ['zoom', 'pan']:
                     a.setCheckable(True)
@@ -532,26 +534,38 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
 
         if figureoptions is not None:
             a = self.addAction(self._icon("qt4_editor_options.png"),
-                               'Customize', self.edit_parameters)
+                               'Customize', self.navigation.edit_parameters)
             a.setToolTip('Edit curves line and axes parameters')
 
-        self.buttons = {}
+    def _update_buttons_checked(self, active):
+        #sync button checkstates to match active mode
+        self._actions['pan'].setChecked(active == 'PAN')
+        self._actions['zoom'].setChecked(active == 'ZOOM')
 
-        # Add the x,y location widget at the right side of the toolbar
-        # The stretch factor is 1 which means any resizing of the toolbar
-        # will resize this label instead of the buttons.
-        if self.coordinates:
-            self.locLabel = QtGui.QLabel( "", self )
-            self.locLabel.setAlignment(
-                    QtCore.Qt.AlignRight | QtCore.Qt.AlignTop )
-            self.locLabel.setSizePolicy(
-                QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,
-                                  QtGui.QSizePolicy.Ignored))
-            labelAction = self.addWidget(self.locLabel)
-            labelAction.setVisible(True)
+class NavigationQT(NavigationBase):
+    def __init__(self, canvas, coordinates=True):
+        """ coordinates: should we show the coordinates on the right? """
+        toolbar = self._get_toolbar(canvas.window())
+        NavigationBase.__init__( self, canvas, toolbar )
+        self.coordinates = coordinates
 
         # reference holder for subplots_adjust window
         self.adj_window = None
+
+    def _get_toolbar(self, parent):
+        # must be inited after the window, drawingArea and figure
+        # attrs are set
+        if matplotlib.rcParams['toolbar'] == 'classic':
+            print("Classic toolbar is not supported")
+        elif matplotlib.rcParams['toolbar'] == 'toolbar2':
+            toolbar = Toolbar2QT(self, parent)
+        else:
+            toolbar = None
+        return toolbar
+
+    def destroy(self):
+        if self.toolbar:
+            self.toolbar.destroy()
 
     if figureoptions is not None:
         def edit_parameters(self):
@@ -585,26 +599,25 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
 
             figureoptions.figure_edit(axes, self)
 
-    def _update_buttons_checked(self):
-        #sync button checkstates to match active mode
-        self._actions['pan'].setChecked(self._active == 'PAN')
-        self._actions['zoom'].setChecked(self._active == 'ZOOM')
-
     def pan(self, *args):
-        super(NavigationToolbar2QT, self).pan(*args)
-        self._update_buttons_checked()
+        super(NavigationQT, self).pan(*args)
+        if self.toolbar:
+            self.toolbar._update_buttons_checked(self._active)
 
     def zoom(self, *args):
-        super(NavigationToolbar2QT, self).zoom(*args)
-        self._update_buttons_checked()
+        super(NavigationQT, self).zoom(*args)
+        if self.toolbar:
+            self.toolbar._update_buttons_checked(self._active)
 
     def dynamic_update( self ):
         self.canvas.draw()
 
     def set_message( self, s ):
-        self.emit(QtCore.SIGNAL("message"), s)
-        if self.coordinates:
-            self.locLabel.setText(s.replace(', ', '\n'))
+        # TODO: Is canvas the correct QObject to be emitting status messages?
+        self.canvas.emit(QtCore.SIGNAL("message"), s)
+        coordinates = getattr(self.toolbar, "coordinates", False)
+        if coordinates:
+            self.toolbar.locLabel.setText(s.replace(', ', '\n'))
 
     def set_cursor( self, cursor ):
         if DEBUG: print('Set cursor' , cursor)
@@ -656,7 +669,8 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
                 selectedFilter = filter
             filters.append(filter)
         filters = ';;'.join(filters)
-        fname = _getSaveFileName(self, "Choose a filename to save to",
+        # TODO: self.canvas might be wrong QT object?
+        fname = _getSaveFileName(self.canvas, "Choose a filename to save to",
                                         start, filters, selectedFilter)
         if fname:
             if startpath == '':

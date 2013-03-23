@@ -922,9 +922,9 @@ class Figure(Artist):
             ax.cla()
             self.delaxes(ax)         # removes ax from self._axstack
 
-        toolbar = getattr(self.canvas, 'toolbar', None)
-        if toolbar is not None:
-            toolbar.update()
+        navigation = getattr(self.canvas, 'navigation', None)
+        if navigation:
+            navigation.update()
         self._axstack.clear()
         self.artists = []
         self.lines = []
