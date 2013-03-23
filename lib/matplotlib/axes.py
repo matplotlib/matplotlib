@@ -4809,7 +4809,8 @@ class Axes(martist.Artist):
         if where not in ('pre', 'post', 'mid'):
             raise ValueError("'where' argument to step must be "
                              "'pre', 'post' or 'mid'")
-        kwargs['linestyle'] = 'steps-' + where
+        usr_linestyle = kwargs.pop('linestyle', '')
+        kwargs['linestyle'] = 'steps-' + where + usr_linestyle
 
         return self.plot(x, y, *args, **kwargs)
 
