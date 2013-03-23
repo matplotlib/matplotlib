@@ -3184,7 +3184,7 @@ class Axes(martist.Artist):
         return title.get_text()
 
     @docstring.dedent_interpd
-    def set_title(self, label, loc="center", fontdict=None, **kwargs):
+    def set_title(self, label, fontdict=None, loc="center", **kwargs):
         """Set a title for the axes.
 
         Set one of the three available axes titles. The available titles
@@ -3195,14 +3195,14 @@ class Axes(martist.Artist):
         ----------
         label : str
             Text to use for the title
-        loc : {'center', 'left', 'right'}, str, optional
-            Which title to set, defaults to 'center'
         fontdict : dict
             A dictionary controlling the appearance of the title text,
             the default `fontdict` is:
             {'fontsize': rcParams['axes.titlesize'],
              'verticalalignment': 'baseline',
              'horizontalalignment': loc}
+        loc : {'center', 'left', 'right'}, str, optional
+            Which title to set, defaults to 'center'
 
         Returns
         -------
