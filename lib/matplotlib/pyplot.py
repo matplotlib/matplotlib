@@ -1186,7 +1186,7 @@ def box(on=None):
 
 def title(s, *args, **kwargs):
     """
-    title(label, loc='center', fontdict=None, **kwargs)
+    title(label, fontdict=None, loc='center', **kwargs)
 
     Set a title of the current axes.
 
@@ -1198,14 +1198,14 @@ def title(s, *args, **kwargs):
     ----------
     label : str
         Text to use for the title
-    loc : {'center', 'left', 'right'}, str, optional
-        Which title to set, defaults to 'center'
     fontdict : dict
         A dictionary controlling the appearance of the title text,
         the default `fontdict` is:
         {'fontsize': rcParams['axes.titlesize'],
          'verticalalignment': 'baseline',
          'horizontalalignment': loc}
+    loc : {'center', 'left', 'right'}, str, optional
+        Which title to set, defaults to 'center'
 
     Returns
     -------
