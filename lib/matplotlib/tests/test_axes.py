@@ -1213,6 +1213,25 @@ def test_eb_line_zorder():
 
     ax.set_title("errorbar zorder test")
 
-if __name__=='__main__':
+
+@image_comparison(baseline_images=['step_linestyle'], remove_text=True)
+def test_step_linestyle():
+    x = y = np.arange(10)
+
+    # First illustrate basic pyplot interface, using defaults where possible.
+    fig, ax_lst = plt.subplots(2, 2)
+    ax_lst = ax_lst.flatten()
+
+    ln_styles = ['-', '--', '-.', ':']
+
+    for ax, ls in zip(ax_lst, ln_styles):
+        ax.step(x, y, lw=5, linestyle=ls, where='pre')
+        ax.step(x, y + 1, lw=5, linestyle=ls, where='mid')
+        ax.step(x, y + 2, lw=5, linestyle=ls, where='post')
+        ax.set_xlim([-1, 5])
+        ax.set_ylim([-1, 7])
+
+
+if __name__ == '__main__':
     import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
