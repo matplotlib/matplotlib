@@ -57,7 +57,7 @@ def compare_figure(fname):
 
     expected = os.path.join(result_dir, "expected_%s" % fname)
     shutil.copyfile(os.path.join(baseline_dir, fname), expected)
-    err = compare_images(expected, actual)
+    err = compare_images(expected, actual, tol=14)
     if err:
         raise ImageComparisonFailure('images not close: %s vs. %s' % (actual, expected))
 
