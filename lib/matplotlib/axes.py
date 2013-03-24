@@ -7069,7 +7069,7 @@ class Axes(martist.Artist):
 
         Call signature::
 
-          fill_between(y, x1, x2=0, where=None, **kwargs)
+          fill_betweenx(y, x1, x2=0, where=None, **kwargs)
 
         Create a :class:`~matplotlib.collections.PolyCollection`
         filling the regions between *x1* and *x2* where
