@@ -164,7 +164,7 @@ that define the shape.
             self._marker_function = self._set_tuple_marker
         elif isinstance(marker, np.ndarray):
             self._marker_function = self._set_vertices
-        elif marker in self.markers:
+        elif not isinstance(marker, list) and marker in self.markers:
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
         elif is_string_like(marker) and is_math_text(marker):
