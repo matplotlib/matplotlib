@@ -1070,6 +1070,18 @@ def test_transparent_markers():
     ax = fig.add_subplot(111)
     ax.plot(data, 'D', mfc='none', markersize=100)
 
+@image_comparison(baseline_images=['vertex_markers'], extensions=['png'],
+                  remove_text=True)
+def test_vertex_markers():
+    data = range(10)
+    marker_as_tuple = ((-1, -1), (1, -1), (1, 1), (-1, 1))
+    marker_as_list = [(-1, -1), (1, -1), (1, 1), (-1, 1)]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(data, linestyle='', marker=marker_as_tuple, mfc='k')
+    ax.plot(data[::-1], linestyle='', marker=marker_as_list, mfc='b')
+    ax.set_xlim([-1, 10])
+    ax.set_ylim([-1, 10])
 
 @cleanup
 def test_mollweide_forward_inverse_closure():
