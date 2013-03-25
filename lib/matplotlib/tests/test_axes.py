@@ -144,6 +144,7 @@ def test_polar_annotations():
     fig = plt.figure()
     ax = fig.add_subplot( 111, polar=True )
     line, = ax.plot( theta, r, color='#ee8d18', lw=3 )
+    line, = ax.plot( (0, 0), (0, 1), color="#0000ff", lw=1)
 
     ind = 800
     thisr, thistheta = r[ind], theta[ind]
@@ -230,6 +231,10 @@ def test_fill_units():
 
 @image_comparison(baseline_images=['single_point'])
 def test_single_point():
+    # Issue #1796: don't let lines.marker affect the grid
+    matplotlib.rcParams['lines.marker'] = 'o'
+    matplotlib.rcParams['axes.grid'] = True
+
     fig = plt.figure()
     plt.subplot( 211 )
     plt.plot( [0], [0], 'o' )
@@ -1070,7 +1075,6 @@ def test_transparent_markers():
     ax = fig.add_subplot(111)
     ax.plot(data, 'D', mfc='none', markersize=100)
 
-
 @cleanup
 def test_mollweide_forward_inverse_closure():
     # test that the round-trip Mollweide forward->inverse transformation is an
@@ -1183,6 +1187,18 @@ def test_eventplot():
     num_collections = len(colls)
     np.testing.assert_equal(num_collections, num_datasets)
 
+@image_comparison(baseline_images=['vertex_markers'], extensions=['png'],
+                  remove_text=True)
+def test_vertex_markers():
+    data = range(10)
+    marker_as_tuple = ((-1, -1), (1, -1), (1, 1), (-1, 1))
+    marker_as_list = [(-1, -1), (1, -1), (1, 1), (-1, 1)]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(data, linestyle='', marker=marker_as_tuple, mfc='k')
+    ax.plot(data[::-1], linestyle='', marker=marker_as_list, mfc='b')
+    ax.set_xlim([-1, 10])
+    ax.set_ylim([-1, 10])
 
 @image_comparison(baseline_images=['vline_hline_zorder',
                                    'errorbar_zorder'])
