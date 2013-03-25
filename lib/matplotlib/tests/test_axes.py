@@ -129,6 +129,7 @@ def test_polar_annotations():
     fig = plt.figure()
     ax = fig.add_subplot( 111, polar=True )
     line, = ax.plot( theta, r, color='#ee8d18', lw=3 )
+    line, = ax.plot( (0, 0), (0, 1), color="#0000ff", lw=1)
 
     ind = 800
     thisr, thistheta = r[ind], theta[ind]
