@@ -424,9 +424,8 @@ RendererAgg::create_alpha_buffers()
 {
     if (!alphaBuffer)
     {
-        unsigned stride(width*4);
-        alphaBuffer = new agg::int8u[NUMBYTES];
-        alphaMaskRenderingBuffer.attach(alphaBuffer, width, height, stride);
+        alphaBuffer = new agg::int8u[width * height];
+        alphaMaskRenderingBuffer.attach(alphaBuffer, width, height, width);
         rendererBaseAlphaMask.attach(pixfmtAlphaMask);
         rendererAlphaMask.attach(rendererBaseAlphaMask);
     }
@@ -1142,7 +1141,7 @@ RendererAgg::draw_image(const Py::Tuple& args)
             } catch (std::overflow_error &e) {
                 throw Py::OverflowError(e.what());
             }
-            agg::render_scanlines(theRasterizer, slineP8, ri);
+            agg::render_scanlines(theRasterizer, scanlineAlphaMask, ri);
         }
         else
         {
@@ -1208,7 +1207,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_aa_renderer_type ren(r);
                 ren.color(face.second);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1224,7 +1223,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_bin_renderer_type ren(r);
                 ren.color(face.second);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1354,7 +1353,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_aa_renderer_type ren(r);
                 ren.color(gc.color);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1370,7 +1369,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_bin_renderer_type ren(r);
                 ren.color(gc.color);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1957,7 +1956,7 @@ RendererAgg::_draw_gouraud_triangle(const double* points,
         pixfmt_amask_type pfa(pixFmt, alphaMask);
         amask_ren_type r(pfa);
         amask_aa_renderer_type ren(r, span_alloc, span_gen);
-        agg::render_scanlines(theRasterizer, slineP8, ren);
+        agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
     }
     else
     {
