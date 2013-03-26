@@ -158,8 +158,8 @@ class GeoAxes(Axes):
     set_xscale = set_yscale
 
     def set_xlim(self, *args, **kwargs):
-        Axes.set_xlim(self, -np.pi, np.pi)
-        Axes.set_ylim(self, -np.pi / 2.0, np.pi / 2.0)
+        raise NotImplementedError("set_xlim and set_ylim are not implemented "
+                                  "for geographic projections")
 
     set_ylim = set_xlim
 
