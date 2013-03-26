@@ -6027,17 +6027,19 @@ class Axes(martist.Artist):
             iq = q3 - q1
             hi_val = q3 + whis * iq
             wisk_hi = np.compress(d <= hi_val, d)
-            if len(wisk_hi) == 0:
+            if len(wisk_hi) == 0 or np.max(wisk_hi) < q3:
                 wisk_hi = q3
             else:
                 wisk_hi = max(wisk_hi)
+            
             # get low extreme
             lo_val = q1 - whis * iq
             wisk_lo = np.compress(d >= lo_val, d)
-            if len(wisk_lo) == 0:
+            if len(wisk_lo) == 0 or np.min(wisk_lo) > q1:
                 wisk_lo = q1
             else:
                 wisk_lo = min(wisk_lo)
+            
             # get fliers - if we are showing them
             flier_hi = []
             flier_lo = []
