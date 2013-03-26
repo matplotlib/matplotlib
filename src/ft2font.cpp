@@ -41,7 +41,7 @@
 FT_Library _ft2Library;
 
 FT2Image::FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
-    Py::PythonClass< FT2Image >::PythonClass(self, args, kwds),
+    Py::PythonClass< FT2Image >(self, args, kwds),
     _isDirty(true),
     _buffer(NULL),
     _width(0), _height(0)
@@ -836,7 +836,7 @@ FT2Font::get_path()
 PYCXX_NOARGS_METHOD_DECL(FT2Font, get_path)
 
 FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
-    Py::PythonClass<FT2Font>::PythonClass(self, args, kwds),
+    Py::PythonClass<FT2Font>(self, args, kwds),
     image()
 {
     args.verify_length(1);
