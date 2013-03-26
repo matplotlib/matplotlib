@@ -84,6 +84,12 @@ using Inkscape for example, while preserving their intended position. For
 `svg` please note that you'll have to disable the default text-to-path
 conversion (`mpl.rc('svg', fonttype='none')`).
 
+More robust boxplots
+--------------------
+Paul Hobson provided a fix to the :func:`~matplotlib.pyplot.boxplot`
+method that prevent whiskers from being drawn inside the box for 
+oddly distributed data sets.
+
 Triangular grid interpolation
 -----------------------------
 Geoffroy Billotey and Ian Thomas added classes to perform interpolation within
