@@ -947,9 +947,11 @@ def test_boxplot():
                conf_intervals=[None, (-1.0, 3.5)], notch=1)
     ax.set_ylim((-30, 30))
 
-@image_comparison(baseline_images=['boxplot_no_weird_whisker'])
+@image_comparison(baseline_images=['boxplot_no_inverted_whisker'],
+                  remove_text=True)
 def test_boxplot_no_weird_whisker():
-    x = np.array([3, 9000, 150, 88, 350, 200000, 1400, 960], dtype=np.float64)
+    x = np.array([3, 9000, 150, 88, 350, 200000, 1400, 960], 
+                dtype=np.float64)
     fig, ax1 = plt.subplots()
     ax1.boxplot(x)
     ax1.set_yscale('log')
