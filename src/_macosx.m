@@ -5491,8 +5491,6 @@ set_cursor(PyObject* unused, PyObject* args)
         [returnkey appendString:@"alt+" ];
     if ([event modifierFlags] & NSCommandKeyMask)
         [returnkey appendString:@"cmd+" ];
-    if ([event modifierFlags] & NSShiftKeyMask)
-        [returnkey appendString:@"shift+" ];
 
     unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
     NSString* specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
