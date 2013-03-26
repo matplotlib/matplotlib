@@ -5443,45 +5443,46 @@ set_cursor(PyObject* unused, PyObject* args)
 
 - (const char*)convertKeyEvent:(NSEvent*)event
 {
-    NSDictionary* specialkeymappings = @{
-                                         @(NSLeftArrowFunctionKey): @"left",
-                                         @(NSRightArrowFunctionKey): @"right",
-                                         @(NSUpArrowFunctionKey): @"up",
-                                         @(NSDownArrowFunctionKey): @"down",
-                                         @(NSF1FunctionKey): @"f1",
-                                         @(NSF2FunctionKey): @"f2",
-                                         @(NSF3FunctionKey): @"f3",
-                                         @(NSF4FunctionKey): @"f4",
-                                         @(NSF5FunctionKey): @"f5",
-                                         @(NSF6FunctionKey): @"f6",
-                                         @(NSF7FunctionKey): @"f7",
-                                         @(NSF8FunctionKey): @"f8",
-                                         @(NSF9FunctionKey): @"f9",
-                                         @(NSF10FunctionKey): @"f10",
-                                         @(NSF11FunctionKey): @"f11",
-                                         @(NSF12FunctionKey): @"f12",
-                                         @(NSF13FunctionKey): @"f13",
-                                         @(NSF14FunctionKey): @"f14",
-                                         @(NSF15FunctionKey): @"f15",
-                                         @(NSF16FunctionKey): @"f16",
-                                         @(NSF17FunctionKey): @"f17",
-                                         @(NSF18FunctionKey): @"f18",
-                                         @(NSF19FunctionKey): @"f19",
-                                         @(NSScrollLockFunctionKey): @"scroll_lock",
-                                         @(NSBreakFunctionKey): @"break",
-                                         @(NSInsertFunctionKey): @"insert",
-                                         @(NSDeleteFunctionKey): @"delete",
-                                         @(NSHomeFunctionKey): @"home",
-                                         @(NSEndFunctionKey): @"end",
-                                         @(NSPageDownFunctionKey): @"pagedown",
-                                         @(NSPageUpFunctionKey): @"pageup",
-                                         @(NSDeleteCharacter): @"backspace",
-                                         @(NSEnterCharacter): @"enter",
-                                         @(NSTabCharacter): @"tab",
-                                         @(NSCarriageReturnCharacter): @"enter",
-                                         @(NSBackTabCharacter): @"backtab",
-                                         @27: @"escape"
-                                        };
+    NSDictionary* specialkeymappings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                        @"left", [NSNumber numberWithUnsignedLong:NSLeftArrowFunctionKey],
+                                        @"right", [NSNumber numberWithUnsignedLong:NSRightArrowFunctionKey],
+                                        @"up", [NSNumber numberWithUnsignedLong:NSUpArrowFunctionKey],
+                                        @"down", [NSNumber numberWithUnsignedLong:NSDownArrowFunctionKey],
+                                        @"f1", [NSNumber numberWithUnsignedLong:NSF1FunctionKey],
+                                        @"f2", [NSNumber numberWithUnsignedLong:NSF2FunctionKey],
+                                        @"f3", [NSNumber numberWithUnsignedLong:NSF3FunctionKey],
+                                        @"f4", [NSNumber numberWithUnsignedLong:NSF4FunctionKey],
+                                        @"f5", [NSNumber numberWithUnsignedLong:NSF5FunctionKey],
+                                        @"f6", [NSNumber numberWithUnsignedLong:NSF6FunctionKey],
+                                        @"f7", [NSNumber numberWithUnsignedLong:NSF7FunctionKey],
+                                        @"f8", [NSNumber numberWithUnsignedLong:NSF8FunctionKey],
+                                        @"f9", [NSNumber numberWithUnsignedLong:NSF9FunctionKey],
+                                        @"f10", [NSNumber numberWithUnsignedLong:NSF10FunctionKey],
+                                        @"f11", [NSNumber numberWithUnsignedLong:NSF11FunctionKey],
+                                        @"f12", [NSNumber numberWithUnsignedLong:NSF12FunctionKey],
+                                        @"f13", [NSNumber numberWithUnsignedLong:NSF13FunctionKey],
+                                        @"f14", [NSNumber numberWithUnsignedLong:NSF14FunctionKey],
+                                        @"f15", [NSNumber numberWithUnsignedLong:NSF15FunctionKey],
+                                        @"f16", [NSNumber numberWithUnsignedLong:NSF16FunctionKey],
+                                        @"f17", [NSNumber numberWithUnsignedLong:NSF17FunctionKey],
+                                        @"f18", [NSNumber numberWithUnsignedLong:NSF18FunctionKey],
+                                        @"f19", [NSNumber numberWithUnsignedLong:NSF19FunctionKey],
+                                        @"scroll_lock", [NSNumber numberWithUnsignedLong:NSScrollLockFunctionKey],
+                                        @"break", [NSNumber numberWithUnsignedLong:NSBreakFunctionKey],
+                                        @"insert", [NSNumber numberWithUnsignedLong:NSInsertFunctionKey],
+                                        @"delete", [NSNumber numberWithUnsignedLong:NSDeleteFunctionKey],
+                                        @"home", [NSNumber numberWithUnsignedLong:NSHomeFunctionKey],
+                                        @"end", [NSNumber numberWithUnsignedLong:NSEndFunctionKey],
+                                        @"pagedown", [NSNumber numberWithUnsignedLong:NSPageDownFunctionKey],
+                                        @"pageup", [NSNumber numberWithUnsignedLong:NSPageUpFunctionKey],
+                                        @"backspace", [NSNumber numberWithUnsignedLong:NSDeleteCharacter],
+                                        @"enter", [NSNumber numberWithUnsignedLong:NSEnterCharacter],
+                                        @"tab", [NSNumber numberWithUnsignedLong:NSTabCharacter],
+                                        @"enter", [NSNumber numberWithUnsignedLong:NSCarriageReturnCharacter],
+                                        @"backtab", [NSNumber numberWithUnsignedLong:NSBackTabCharacter],
+                                        @"escape", [NSNumber numberWithUnsignedLong:27],
+                                        nil
+                                        ];
 
     NSMutableString* returnkey = [NSMutableString string];
     if ([event modifierFlags] & NSControlKeyMask)
@@ -5494,8 +5495,7 @@ set_cursor(PyObject* unused, PyObject* args)
         [returnkey appendString:@"shift+" ];
 
     unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
-    NSString* specialchar = [specialkeymappings objectForKey:@(uc)];
-    //    NSString* specialchar = specialkeymappings[@(uc)];
+    NSString* specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
     if (specialchar)
         [returnkey appendString:specialchar];
     else
