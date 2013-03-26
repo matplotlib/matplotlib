@@ -421,7 +421,7 @@ class RendererPgf(RendererBase):
         bl, tr = marker_path.get_extents(marker_trans).get_points()
         coords = bl[0] * f, bl[1] * f, tr[0] * f, tr[1] * f
         writeln(self.fh, r"\pgfsys@defobject{currentmarker}{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{" % coords)
-        self._print_pgf_path(marker_path, marker_trans)
+        self._print_pgf_path(None, marker_path, marker_trans)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
         writeln(self.fh, r"}")
@@ -441,7 +441,7 @@ class RendererPgf(RendererBase):
         # draw the path
         self._print_pgf_clip(gc)
         self._print_pgf_path_styles(gc, rgbFace)
-        self._print_pgf_path(path, transform)
+        self._print_pgf_path(gc, path, transform)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
         writeln(self.fh, r"\end{pgfscope}")
@@ -452,7 +452,7 @@ class RendererPgf(RendererBase):
 
             # combine clip and path for clipping
             self._print_pgf_clip(gc)
-            self._print_pgf_path(path, transform)
+            self._print_pgf_path(gc, path, transform)
             writeln(self.fh, r"\pgfusepath{clip}")
 
             # build pattern definition
@@ -461,7 +461,7 @@ class RendererPgf(RendererBase):
             writeln(self.fh, r"\pgfpathrectangle{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
             writeln(self.fh, r"\pgfusepath{clip}")
             scale = mpl.transforms.Affine2D().scale(self.dpi)
-            self._print_pgf_path(gc.get_hatch_path(), scale)
+            self._print_pgf_path(None, gc.get_hatch_path(), scale)
             self._pgf_path_draw(stroke=True)
             writeln(self.fh, r"\end{pgfscope}")
             writeln(self.fh, r"}")
@@ -495,7 +495,7 @@ class RendererPgf(RendererBase):
         # check for clip path
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
-            self._print_pgf_path(clippath, clippath_trans)
+            self._print_pgf_path(gc, clippath, clippath_trans)
             writeln(self.fh, r"\pgfusepath{clip}")
 
     def _print_pgf_path_styles(self, gc, rgbFace):
@@ -543,10 +543,17 @@ class RendererPgf(RendererBase):
             dash_str += r"}{%fpt}" % dash_offset
             writeln(self.fh, dash_str)
 
-    def _print_pgf_path(self, path, transform):
+    def _print_pgf_path(self, gc, path, transform):
         f = 1. / self.dpi
+        # check for clip box
+        bbox = gc.get_clip_rectangle() if gc else None
+        if bbox:
+            p1, p2 = bbox.get_points()
+            clip = (p1[0], p1[1], p2[0], p2[1])
+        else:
+            clip = None
         # build path
-        for points, code in path.iter_segments(transform):
+        for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
                 x, y = tuple(points)
                 writeln(self.fh, r"\pgfpathmoveto{\pgfqpoint{%fin}{%fin}}" %
