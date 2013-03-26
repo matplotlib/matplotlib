@@ -6024,7 +6024,7 @@ class Axes(martist.Artist):
             iq = q3 - q1
             hi_val = q3 + whis * iq
             wisk_hi = np.compress(d <= hi_val, d)
-            if len(wisk_hi) == 0 or np.max(wisk_hi) < q3 :
+            if len(wisk_hi) == 0 or np.max(wisk_hi) < q3:
                 wisk_hi = q3
             else:
                 wisk_hi = max(wisk_hi)
