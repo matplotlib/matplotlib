@@ -477,7 +477,7 @@ that define the shape.
 
     def _set_hexagon1(self):
         self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 5.0
+        self._snap_threshold = None
 
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
@@ -511,7 +511,7 @@ that define the shape.
 
     def _set_hexagon2(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(30)
-        self._snap_threshold = 5.0
+        self._snap_threshold = None
 
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
