@@ -5,7 +5,6 @@ A PostScript backend, which can produce both PostScript .ps and .eps
 # PY3KTODO: Get rid of "print >>fh" syntax
 
 from __future__ import division, print_function
-import contextlib
 import glob, math, os, shutil, sys, time
 def _fn_name(): return sys._getframe(1).f_code.co_name
 import io
@@ -974,11 +973,6 @@ class FigureCanvasPS(FigureCanvasBase):
     def print_eps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'eps', *args, **kwargs)
 
-
-
-
-
-
     def _print_ps(self, outfile, format, *args, **kwargs):
         papertype = kwargs.pop("papertype", rcParams['ps.papersize'])
         papertype = papertype.lower()
@@ -1106,21 +1100,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
 
-        if rcParams['ps.usedistiller']:
-            # We are going to use an external program to process the output.
-            # Write to a temporary file.
-            fd, tmpfile = mkstemp()
-            context_manager = io.open(fd, 'wb')
-        else:
-            # Write directly to outfile.
-            if passed_in_file_object:
-                @contextlib.contextmanager
-                def null_context(value):
-                    yield value
-                context_manager = null_context(outfile)
-            else:
-                context_manager = open(outfile, 'wb')
-        with context_manager as raw_fh:
+        def print_figure_impl():
             if sys.version_info[0] >= 3:
                 fh = io.TextIOWrapper(raw_fh, encoding="ascii")
             else:
@@ -1194,6 +1174,24 @@ class FigureCanvasPS(FigureCanvasBase):
             print("showpage", file=fh)
             if not isEPSF: print("%%EOF", file=fh)
             fh.flush()
+
+            if sys.version_info[0] >= 3:
+                fh.detach()
+
+        if rcParams['ps.usedistiller']:
+            # We are going to use an external program to process the output.
+            # Write to a temporary file.
+            fd, tmpfile = mkstemp()
+            with io.open(fd, 'wb') as raw_fh:
+                print_figure_impl()
+        else:
+            # Write directly to outfile.
+            if passed_in_file_object:
+                raw_fh = outfile
+                print_figure_impl()
+            else:
+                with open(outfile, 'wb') as raw_fh:
+                    print_figure_impl()
 
         if rcParams['ps.usedistiller']:
             if rcParams['ps.usedistiller'] == 'ghostscript':
