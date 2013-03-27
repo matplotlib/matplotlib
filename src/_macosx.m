@@ -240,11 +240,15 @@ static void _dealloc_atsui(void)
 }
 #endif
 
-static int _draw_path(CGContextRef cr, void* iterator)
+static int _draw_path(CGContextRef cr, void* iterator, int nmax)
 {
     double x1, y1, x2, y2, x3, y3;
+    static unsigned code = STOP;
+    static double xs, ys;
+    CGPoint current;
     int n = 0;
-    unsigned code;
+
+    if (code == MOVETO) CGContextMoveToPoint(cr, xs, ys);
 
     while (true)
     {
@@ -261,7 +265,6 @@ static int _draw_path(CGContextRef cr, void* iterator)
         else if (code == MOVETO)
         {
             CGContextMoveToPoint(cr, x1, y1);
-            n++;
         }
         else if (code==LINETO)
         {
@@ -270,16 +273,35 @@ static int _draw_path(CGContextRef cr, void* iterator)
         }
         else if (code==CURVE3)
         {
-            get_vertex(iterator, &x2, &y2);
-            CGContextAddQuadCurveToPoint(cr, x1, y1, x2, y2);
+            get_vertex(iterator, &xs, &ys);
+            CGContextAddQuadCurveToPoint(cr, x1, y1, xs, ys);
             n+=2;
         }
         else if (code==CURVE4)
         {
             get_vertex(iterator, &x2, &y2);
-            get_vertex(iterator, &x3, &y3);
-            CGContextAddCurveToPoint(cr, x1, y1, x2, y2, x3, y3);
+            get_vertex(iterator, &xs, &ys);
+            CGContextAddCurveToPoint(cr, x1, y1, x2, y2, xs, ys);
             n+=3;
+        }
+        if (n >= nmax)
+        {
+            switch (code)
+            {
+                case MOVETO:
+                case LINETO:
+                    xs = x1;
+                    ys = y1;
+                    break;
+                case CLOSEPOLY:
+                    current = CGContextGetPathCurrentPoint(cr);
+                    xs = current.x;
+                    ys = current.y;
+                    break;
+                /* nothing needed for CURVE3, CURVE4 */
+            }
+            code = MOVETO;
+            return -n;
         }
     }
     return n;
@@ -287,6 +309,7 @@ static int _draw_path(CGContextRef cr, void* iterator)
 
 static void _draw_hatch(void *info, CGContextRef cr)
 {
+    int n;
     PyObject* hatchpath = (PyObject*)info;
     PyObject* transform;
     int nd = 2;
@@ -294,7 +317,6 @@ static void _draw_hatch(void *info, CGContextRef cr)
     int typenum = NPY_DOUBLE;
     double data[9] = {HATCH_SIZE, 0, 0, 0, HATCH_SIZE, 0, 0, 0, 1};
     double rect[4] = { 0.0, 0.0, HATCH_SIZE, HATCH_SIZE};
-    int n;
     transform = PyArray_SimpleNewFromData(nd, dims, typenum, data);
     if (!transform)
     {
@@ -320,7 +342,7 @@ static void _draw_hatch(void *info, CGContextRef cr)
         PyGILState_Release(gstate);
         return;
     }
-    n = _draw_path(cr, iterator);
+    n = _draw_path(cr, iterator, INT_MAX);
     free_path_iterator(iterator);
     if (n==0) return;
     CGContextSetLineWidth(cr, 1.0);
@@ -702,7 +724,7 @@ GraphicsContext_set_clip_path (GraphicsContext* self, PyObject* args)
             "set_clip_path: failed to obtain path iterator for clipping");
         return NULL;
     }
-    n = _draw_path(cr, iterator);
+    n = _draw_path(cr, iterator, INT_MAX);
     free_path_iterator(iterator);
 
     if (n > 0) CGContextClip(cr);
@@ -952,89 +974,98 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                         "draw_path: failed to obtain path iterator");
         return NULL;
     }
-    n = _draw_path(cr, iterator);
-    free_path_iterator(iterator);
 
-    if (n > 0)
+    if(rgbFace)
     {
-        PyObject* hatchpath;
-        if(rgbFace)
+        float r, g, b;
+        if (!PyArg_ParseTuple(rgbFace, "fff", &r, &g, &b))
+            return NULL;
+        n = _draw_path(cr, iterator, INT_MAX);
+        if (n > 0)
         {
-            float r, g, b;
-            if (!PyArg_ParseTuple(rgbFace, "fff", &r, &g, &b))
-                return NULL;
             CGContextSaveGState(cr);
             CGContextSetRGBFillColor(cr, r, g, b, 1.0);
             CGContextDrawPath(cr, kCGPathFillStroke);
             CGContextRestoreGState(cr);
         }
-        else CGContextStrokePath(cr);
-
-        hatchpath = PyObject_CallMethod((PyObject*)self, "get_hatch_path", "");
-        if (!hatchpath)
+    }
+    else
+    {
+        const int nmax = 100;
+        while (true)
         {
-            return NULL;
+            n = _draw_path(cr, iterator, nmax);
+            if (n != 0) CGContextStrokePath(cr);
+            if (n >= 0) break;
         }
-        else if (hatchpath==Py_None)
+    }
+    free_path_iterator(iterator);
+
+    PyObject* hatchpath;
+    hatchpath = PyObject_CallMethod((PyObject*)self, "get_hatch_path", "");
+    if (!hatchpath)
+    {
+        return NULL;
+    }
+    else if (hatchpath==Py_None)
+    {
+        Py_DECREF(hatchpath);
+    }
+    else
+    {
+        CGPatternRef pattern;
+        CGColorSpaceRef baseSpace;
+        CGColorSpaceRef patternSpace;
+        static const CGPatternCallbacks callbacks = {0,
+                                                     &_draw_hatch,
+                                                     &_release_hatch};
+        baseSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        if (!baseSpace)
         {
             Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: CGColorSpaceCreateWithName failed");
+            return NULL;
         }
-        else
+        patternSpace = CGColorSpaceCreatePattern(baseSpace);
+        CGColorSpaceRelease(baseSpace);
+        if (!patternSpace)
         {
-            CGPatternRef pattern;
-            CGColorSpaceRef baseSpace;
-            CGColorSpaceRef patternSpace;
-            static const CGPatternCallbacks callbacks = {0,
-                                                         &_draw_hatch,
-                                                         &_release_hatch};
-            baseSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-            if (!baseSpace)
-            {
-                Py_DECREF(hatchpath);
-                PyErr_SetString(PyExc_RuntimeError,
-                    "draw_path: CGColorSpaceCreateWithName failed");
-                return NULL;
-            }
-            patternSpace = CGColorSpaceCreatePattern(baseSpace);
-            CGColorSpaceRelease(baseSpace);
-            if (!patternSpace)
-            {
-                Py_DECREF(hatchpath);
-                PyErr_SetString(PyExc_RuntimeError,
-                    "draw_path: CGColorSpaceCreatePattern failed");
-                return NULL;
-            }
-            CGContextSetFillColorSpace(cr, patternSpace);
-            CGColorSpaceRelease(patternSpace);
-
-            pattern = CGPatternCreate((void*)hatchpath,
-                                      CGRectMake(0, 0, HATCH_SIZE, HATCH_SIZE),
-                                      CGAffineTransformIdentity,
-                                      HATCH_SIZE, HATCH_SIZE,
-                                      kCGPatternTilingNoDistortion,
-                                      false,
-                                      &callbacks);
-            CGContextSetFillPattern(cr, pattern, self->color);
-            CGPatternRelease(pattern);
-            iterator  = get_path_iterator(path,
-                                          transform,
-                                          1,
-                                          0,
-                                          rect,
-                                          SNAP_AUTO,
-                                          linewidth,
-                                          0);
-            if (!iterator)
-            {
-                Py_DECREF(hatchpath);
-                PyErr_SetString(PyExc_RuntimeError,
-                    "draw_path: failed to obtain path iterator for hatching");
-                return NULL;
-            }
-            n = _draw_path(cr, iterator);
-            free_path_iterator(iterator);
-            CGContextFillPath(cr);
+            Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: CGColorSpaceCreatePattern failed");
+            return NULL;
         }
+        CGContextSetFillColorSpace(cr, patternSpace);
+        CGColorSpaceRelease(patternSpace);
+
+        pattern = CGPatternCreate((void*)hatchpath,
+                                  CGRectMake(0, 0, HATCH_SIZE, HATCH_SIZE),
+                                  CGAffineTransformIdentity,
+                                  HATCH_SIZE, HATCH_SIZE,
+                                  kCGPatternTilingNoDistortion,
+                                  false,
+                                  &callbacks);
+        CGContextSetFillPattern(cr, pattern, self->color);
+        CGPatternRelease(pattern);
+        iterator  = get_path_iterator(path,
+                                      transform,
+                                      1,
+                                      0,
+                                      rect,
+                                      SNAP_AUTO,
+                                      linewidth,
+                                      0);
+        if (!iterator)
+        {
+            Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: failed to obtain path iterator for hatching");
+            return NULL;
+        }
+        n = _draw_path(cr, iterator, INT_MAX);
+        free_path_iterator(iterator);
+        if (n > 0) CGContextFillPath(cr);
     }
 
     Py_INCREF(Py_None);
