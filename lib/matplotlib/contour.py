@@ -577,12 +577,12 @@ class ContourLabeler:
         paths = self.collections[conmin].get_paths()
         lc = paths[segmin].vertices
         if transform:
-            xcmin = transform.inverted().transform([xmin,ymin])
+            xcmin = transform.inverted().transform([xmin, ymin])
         else:
-            xcmin = np.array([xmin,ymin])
+            xcmin = np.array([xmin, ymin])
         if not np.allclose(xcmin, lc[imin]):
-          lc = np.r_[lc[:imin], np.array(xcmin)[None,:], lc[imin:]]
-          paths[segmin] = mpath.Path(lc)
+            lc = np.r_[lc[:imin], np.array(xcmin)[None, :], lc[imin:]]
+            paths[segmin] = mpath.Path(lc)
 
         # Get index of nearest level in subset of levels used for labeling
         lmin = self.labelIndiceList.index(conmin)
@@ -685,6 +685,7 @@ class ContourLabeler:
                 del paths[:]
                 paths.extend(additions)
 
+
 def _find_closest_point_on_leg(p1, p2, p0):
     '''find closest point to p0 on line segment connecting p1 and p2'''
 
@@ -698,14 +699,17 @@ def _find_closest_point_on_leg(p1, p2, p0):
 
     # project on to line segment to find closest point
     proj = np.dot(d01, d21) / np.dot(d21, d21)
-    if proj < 0: proj = 0
-    if proj > 1: proj = 1
+    if proj < 0:
+        proj = 0
+    if proj > 1:
+        proj = 1
     pc = p1 + proj * d21
 
     # find squared distance
     d = np.sum((pc-p0)**2)
 
     return d, pc
+
 
 def _find_closest_point_on_path(lc, point):
     '''
@@ -714,21 +718,21 @@ def _find_closest_point_on_path(lc, point):
     '''
 
     # find index of closest vertex for this segment
-    ds = np.sum((lc - point[None,:])**2, 1)
+    ds = np.sum((lc - point[None, :])**2, 1)
     imin = np.argmin(ds)
 
     dmin = 1e10
     xcmin = None
-    legmin = (None,None)
+    legmin = (None, None)
 
     closed = mlab.is_closed_polygon(lc)
 
     # build list of legs before and after this vertex
     legs = []
     if imin > 0 or closed:
-        legs.append(((imin-1)%len(lc),imin))
+        legs.append(((imin-1) % len(lc), imin))
     if imin < len(lc) - 1 or closed:
-        legs.append((imin,(imin+1)%len(lc)))
+        legs.append((imin, (imin+1) % len(lc)))
 
     for leg in legs:
         d, xc = _find_closest_point_on_leg(lc[leg[0]], lc[leg[1]], point)
@@ -738,6 +742,7 @@ def _find_closest_point_on_path(lc, point):
             legmin = leg
 
     return (dmin, xcmin, legmin)
+
 
 class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
@@ -1327,7 +1332,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         xmin = None
         ymin = None
 
-        point = np.array([x,y])
+        point = np.array([x, y])
 
         for icon in indices:
             con = self.collections[icon]
