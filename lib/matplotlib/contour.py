@@ -633,8 +633,8 @@ class ContourLabeler:
             add_label = self.add_label
 
         for icon, lev, fsize, cvalue in zip(
-            self.labelIndiceList, self.labelLevelList, self.labelFontSizeList,
-            self.labelCValueList):
+                self.labelIndiceList, self.labelLevelList,
+                self.labelFontSizeList, self.labelCValueList):
 
             con = self.collections[icon]
             trans = con.get_transform()
@@ -902,12 +902,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 paths = self._make_paths(segs, kinds)
                 # Default zorder taken from Collection
                 zorder = kwargs.get('zorder', 1)
-                col = mcoll.PathCollection(paths,
-                                     antialiaseds=(self.antialiased,),
-                                     edgecolors='none',
-                                     alpha=self.alpha,
-                                     transform=self.get_transform(),
-                                     zorder=zorder)
+                col = mcoll.PathCollection(
+                    paths,
+                    antialiaseds=(self.antialiased,),
+                    edgecolors='none',
+                    alpha=self.alpha,
+                    transform=self.get_transform(),
+                    zorder=zorder)
                 self.ax.add_collection(col)
                 self.collections.append(col)
         else:
@@ -921,13 +922,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
                 # Default zorder taken from LineCollection
                 zorder = kwargs.get('zorder', 2)
-                col = mcoll.LineCollection(segs,
-                                     antialiaseds=aa,
-                                     linewidths=width,
-                                     linestyle=[lstyle],
-                                     alpha=self.alpha,
-                                     transform=self.get_transform(),
-                                     zorder=zorder)
+                col = mcoll.LineCollection(
+                    segs,
+                    antialiaseds=aa,
+                    linewidths=width,
+                    linestyle=[lstyle],
+                    alpha=self.alpha,
+                    transform=self.get_transform(),
+                    zorder=zorder)
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, False)
                 self.collections.append(col)
@@ -972,29 +974,27 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             n_levels = len(self.collections)
 
             for i, (collection, lower, upper) in enumerate(
-                                                    zip(self.collections,
-                                                        lowers, uppers)):
-                    patch = mpatches.Rectangle(
-                                    (0, 0), 1, 1,
-                                    facecolor=collection.get_facecolor()[0],
-                                    hatch=collection.get_hatch(),
-                                    alpha=collection.get_alpha(),
-                                    )
-                    artists.append(patch)
+                    zip(self.collections, lowers, uppers)):
+                patch = mpatches.Rectangle(
+                    (0, 0), 1, 1,
+                    facecolor=collection.get_facecolor()[0],
+                    hatch=collection.get_hatch(),
+                    alpha=collection.get_alpha())
+                artists.append(patch)
 
-                    lower = str_format(lower)
-                    upper = str_format(upper)
+                lower = str_format(lower)
+                upper = str_format(upper)
 
-                    if i == 0 and self.extend in ('min', 'both'):
-                        labels.append(r'$%s \leq %s$' % (variable_name,
-                                                         lower))
-                    elif i == n_levels - 1 and self.extend in ('max', 'both'):
-                        labels.append(r'$%s > %s$' % (variable_name,
-                                                      upper))
-                    else:
-                        labels.append(r'$%s < %s \leq %s$' % (lower,
-                                                              variable_name,
-                                                              upper))
+                if i == 0 and self.extend in ('min', 'both'):
+                    labels.append(r'$%s \leq %s$' % (variable_name,
+                                                     lower))
+                elif i == n_levels - 1 and self.extend in ('max', 'both'):
+                    labels.append(r'$%s > %s$' % (variable_name,
+                                                  upper))
+                else:
+                    labels.append(r'$%s < %s \leq %s$' % (lower,
+                                                          variable_name,
+                                                          upper))
         else:
             for collection, level in zip(self.collections, self.levels):
 
@@ -1033,7 +1033,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         # Check length of allkinds.
         if (self.allkinds is not None and
-            len(self.allkinds) != len(self.allsegs)):
+                len(self.allkinds) != len(self.allsegs)):
             raise ValueError('allkinds has different length to allsegs')
 
         # Determine x,y bounds and update axes data limits.
@@ -1411,7 +1411,7 @@ class QuadContourSet(ContourSet):
             # if the transform is not trans data, and some part of it
             # contains transData, transform the xs and ys to data coordinates
             if (t != self.ax.transData and
-                        any(t.contains_branch_seperately(self.ax.transData))):
+                    any(t.contains_branch_seperately(self.ax.transData))):
                 trans_to_data = t - self.ax.transData
                 pts = (np.vstack([x.flat, y.flat]).T)
                 transformed_pts = trans_to_data.transform(pts)
@@ -1521,11 +1521,11 @@ class QuadContourSet(ContourSet):
 
             if x.shape != z.shape:
                 raise TypeError("Shape of x does not match that of z: found "
-                            "{0} instead of {1}.".format(x.shape, z.shape))
+                                "{0} instead of {1}.".format(x.shape, z.shape))
 
             if y.shape != z.shape:
                 raise TypeError("Shape of y does not match that of z: found "
-                            "{0} instead of {1}.".format(y.shape, z.shape))
+                                "{0} instead of {1}.".format(y.shape, z.shape))
 
         else:
 
