@@ -17,6 +17,18 @@ revision, see the :ref:`github-stats`.
 
 .. contents:: Table of Contents
 
+.. _whats-new-1-2-2:
+
+new in matplotlib 1.2.2
+=======================
+
+Improved collections
+--------------------
+
+The individual items of a collection may now have different alpha
+values and be rendered correctly.  This also fixes a bug where
+collections were always filled in the PDF backend.
+
 .. _whats-new-1-2:
 
 new in matplotlib-1.2
