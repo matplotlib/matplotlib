@@ -93,6 +93,16 @@ Andrew Dawson added the ability to add axes titles flush with the left and
 right sides of the top of the axes using a new keyword argument `loc` to
 :func:`~matplotlib.pyplot.title`.
 
+Improved manual contour plot label positioning
+----------------------------------------------
+
+Brian Mattern modified the manual contour plot label positioning code to
+interpolate along line segments and find the actual closest point on a
+contour to the requested position. Previously, the closest path vertex was
+used, which, in the case of straight contours was sometimes quite distant
+from the requested location. Much more precise label positioning is now
+possible.
+
 .. _whats-new-1-2:
 
 new in matplotlib-1.2
