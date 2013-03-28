@@ -1,6 +1,9 @@
 import os
 
 import matplotlib as mpl
+from matplotlib.tests import assert_str_equal
+
+
 mpl.rc('text', usetex=False)
 mpl.rc('lines', linewidth=22)
 
@@ -34,5 +37,39 @@ def test_rcparams():
         mpl.rcParams['lines.linewidth'] = linewidth
     
 
+def test_RcParams_class():
+    rc = mpl.RcParams({'font.cursive': ['Apple Chancery',
+                                        'Textile',
+                                        'Zapf Chancery',
+                                        'cursive'],
+                       'font.family': 'sans-serif',
+                       'font.weight': 'normal',
+                       'font.size': 12})
+
+
+    expected_repr = """
+RcParams({'font.cursive': ['Apple Chancery',
+                           'Textile',
+                           'Zapf Chancery',
+                           'cursive'],
+          'font.family': 'sans-serif',
+          'font.size': 12,
+          'font.weight': 'normal'})""".lstrip()
+
+    assert_str_equal(expected_repr, repr(rc))
+
+    expected_str = """
+font.cursive: ['Apple Chancery', 'Textile', 'Zapf Chancery', 'cursive']
+font.family: sans-serif
+font.size: 12
+font.weight: normal""".lstrip()
+
+    assert_str_equal(expected_str, str(rc))
+
+    # test the find_all functionality
+    assert ['font.cursive', 'font.size'] == sorted(rc.find_all('i[vz]').keys())
+    assert ['font.family'] == rc.find_all('family').keys()
+
 if __name__ == '__main__':
-    test_rcparams()
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

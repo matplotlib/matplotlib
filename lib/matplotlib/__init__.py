@@ -706,8 +706,8 @@ class RcParams(dict):
     :mod:`matplotlib.rcsetup`
     """
 
-    validate = dict([ (key, converter) for key, (default, converter) in \
-                     defaultParams.iteritems() ])
+    validate = dict((key, converter) for key, (default, converter) in \
+                     defaultParams.iteritems())
     msg_depr = "%s is deprecated and replaced with %s; please use the latter."
     msg_depr_ignore = "%s is deprecated and ignored. Use %s"
 
@@ -738,6 +738,17 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
             key = alt
         return dict.__getitem__(self, key)
 
+    def __repr__(self):
+        import pprint
+        class_name = self.__class__.__name__
+        indent = len(class_name) + 1
+        repr_split = pprint.pformat(dict(self), indent=1, width=80 - indent).split('\n')
+        repr_indented = ('\n' + ' ' * indent).join(repr_split)
+        return '{}({})'.format(class_name, repr_indented)
+
+    def __str__(self):
+        return '\n'.join('{}: {}'.format(k, v) for k, v in sorted(self.items()))
+
     def keys(self):
         """
         Return sorted list of keys.
@@ -750,12 +761,12 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
         """
         Return values in order of sorted keys.
         """
-        return [self[k] for k in self.iterkeys()]
+        return [self[k] for k in self.keys()]
 
-    def find_all(self, key_contains):
+    def find_all(self, pattern):
         """
         Return the subset of this RcParams dictionary for which the given
-        ``key_contains`` string is found somewhere in the key.
+        ``pattern`` string is found, by :func:`re.search`, somewhere in the key.
 
         .. note::
 
@@ -763,9 +774,11 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
             the parent RcParams dictionary.
 
         """
+        import re
+        pattern_re = re.compile(pattern)
         return RcParams((key, value)
                         for key, value in self.items()
-                        if key_contains in key)
+                        if pattern_re.search(key))
 
 
 def rc_params(fail_on_error=False):
