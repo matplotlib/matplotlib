@@ -1,6 +1,50 @@
 from __future__ import print_function
 
 import os
+import tempfile
+
+
+from numpy.testing import assert_array_almost_equal
+
+
+from matplotlib.image import imread
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+from matplotlib.testing.decorators import cleanup
+
+
+@cleanup
+def test_repeated_save_with_alpha():
+    # We want an image which has a background color of blue, with an
+    # alpha of 0.25.
+
+    fig = Figure([1, 0.4])
+    canvas = FigureCanvas(fig)
+    fig.set_facecolor((0, 0, 0.4))
+    fig.patch.set_alpha(0.25)
+
+    # The target color is fig.patch.get_facecolor()
+
+    _, img_fname = tempfile.mkstemp(suffix='.png')
+    try:
+        fig.savefig(img_fname,
+                    facecolor=fig.get_facecolor(),
+                    edgecolor='none')
+
+        # Save the figure again to check that the
+        # colors don't bleed from the previous renderer.
+        fig.savefig(img_fname,
+                    facecolor=fig.get_facecolor(),
+                    edgecolor='none')
+
+        # Check the first pixel has the desired color & alpha
+        # (approx: 0, 0, 0.1, 0.25)
+        assert_array_almost_equal(tuple(imread(img_fname)[0, 0]),
+                                  (0.0, 0.0, 0.098, 0.250),
+                                  decimal=3)
+    finally:
+        os.remove(img_fname)
+
 
 def report_memory(i):
     pid = os.getpid()
@@ -64,3 +108,8 @@ def report_memory(i):
 ##     # w/o text and w/o write_png: Average memory consumed per loop: 0.02
 ##     # w/o text and w/ write_png : Average memory consumed per loop: 0.3400
 ##     # w/ text and w/ write_png  : Average memory consumed per loop: 0.32
+
+
+if __name__ == "__main__":
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

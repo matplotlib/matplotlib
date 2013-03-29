@@ -411,7 +411,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
     renderingBuffer.attach(pixBuffer, width, height, stride);
     pixFmt.attach(renderingBuffer);
     rendererBase.attach(pixFmt);
-    rendererBase.clear(agg::rgba(1, 1, 1, 0));
+    rendererBase.clear(agg::rgba(0, 0, 0, 0));
     rendererAA.attach(rendererBase);
     rendererBin.attach(rendererBase);
     hatchRenderingBuffer.attach(hatchBuffer, HATCH_SIZE, HATCH_SIZE,
@@ -2388,7 +2388,7 @@ RendererAgg::clear(const Py::Tuple& args)
     _VERBOSE("RendererAgg::clear");
 
     args.verify_length(0);
-    rendererBase.clear(agg::rgba(1, 1, 1, 0));
+    rendererBase.clear(agg::rgba(0, 0, 0, 0));
 
     return Py::Object();
 }

@@ -74,6 +74,22 @@ def test_suptitle():
     fig.suptitle('title', color='g', rotation='30')
 
 
+@image_comparison(baseline_images=['alpha_background'],
+                  extensions=['png', 'svg'], # PDF is wrong
+                  savefig_kwarg={'facecolor': 'black', 'edgecolor': 'none'})
+def test_alpha():
+    # We want an image which has a background color of black, with an
+    # alpha of 0.3.
+    fig = plt.figure(figsize=[2, 1])
+    fig.set_facecolor('black')
+    fig.patch.set_alpha(0.3)
+
+    import matplotlib.patches as mpatches
+    fig.patches.append(mpatches.CirclePolygon([20, 20],
+                                              radius=15,
+                                              facecolor='red'))
+
+
 if __name__ == "__main__":
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
