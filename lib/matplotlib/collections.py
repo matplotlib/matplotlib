@@ -193,10 +193,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return result
 
     def get_window_extent(self, renderer):
-        bbox = self.get_datalim(transforms.IdentityTransform())
-        #TODO:check to ensure that this does not fail for
-        #cases other than scatter plot legend
-        return bbox
+        # TODO:check to ensure that this does not fail for
+        # cases other than scatter plot legend
+        return self.get_datalim(transforms.IdentityTransform())
 
     def _prepare_points(self):
         """Point prep for drawing and hit testing"""

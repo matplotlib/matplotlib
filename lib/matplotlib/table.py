@@ -202,6 +202,8 @@ class Table(Artist):
         self._autoColumns = []
         self._autoFontsize = True
 
+        self.set_clip_on(False)
+
         self._cachedRenderer = None
 
     def add_cell(self, row, col, *args, **kwargs):

@@ -22,4 +22,4 @@ install:
 script:
   - mkdir ../foo
   - cd ../foo
-  - python ../matplotlib/tests.py
+  - python ../matplotlib/tests.py -sv

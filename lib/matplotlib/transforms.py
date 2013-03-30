@@ -732,6 +732,31 @@ class BboxBase(TransformNode):
 
         return Bbox.from_extents(x0, y0, x1, y1)
 
+    @staticmethod
+    def intersection(bbox1, bbox2):
+        """
+        Return the intersection of the two bboxes or None
+        if they do not intersect.
+
+        Implements the algorithm described at:
+
+            http://www.tekpool.com/node/2687
+
+        """
+        intersects = not (bbox2.xmin > bbox1.xmax or
+                          bbox2.xmax < bbox1.xmin or
+                          bbox2.ymin > bbox1.ymax or
+                          bbox2.ymax < bbox1.ymin)
+
+        if intersects:
+            x0 = max([bbox1.xmin, bbox2.xmin])
+            x1 = min([bbox1.xmax, bbox2.xmax])
+            y0 = max([bbox1.ymin, bbox2.ymin])
+            y1 = min([bbox1.ymax, bbox2.ymax])
+            return Bbox.from_extents(x0, y0, x1, y1)
+
+        return None
+
 
 class Bbox(BboxBase):
     """
