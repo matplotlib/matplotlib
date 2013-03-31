@@ -110,7 +110,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
             mtransforms.Transform.__init__(self)
             self.thresh = thresh
 
-        def transform(self, a):
+        def transform_non_affine(self, a):
             """
             This transform takes an Nx1 ``numpy`` array and returns a
             transformed copy.  Since the range of the Mercator scale
@@ -144,7 +144,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
             mtransforms.Transform.__init__(self)
             self.thresh = thresh
 
-        def transform(self, a):
+        def transform_non_affine(self, a):
             return np.arctan(np.sinh(a))
 
         def inverted(self):

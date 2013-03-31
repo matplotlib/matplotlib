@@ -83,7 +83,7 @@ Here are all the date tickers:
     * :class:`RRuleLocator`: locate using a
       :class:`matplotlib.dates.rrulewrapper`.  The
       :class:`rrulewrapper` is a simple wrapper around a
-      :class:`dateutils.rrule` (`dateutil
+      :class:`dateutil.rrule` (`dateutil
       <http://labix.org/python-dateutil>`_) which allow almost
       arbitrary date tick specifications.  See `rrule example
       <../examples/pylab_examples/date_demo_rrule.html>`_.

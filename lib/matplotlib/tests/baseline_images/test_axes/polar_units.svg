@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="432pt" version="1.1" viewBox="0 0 576 432" width="576pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -34,7 +34,7 @@ z
 " style="fill:#ffffff;"/>
    </g>
    <g id="line2d_1">
-    <path clip-path="url(#p0b48484e71)" d="
+    <path clip-path="url(#pc466cf1e57)" d="
 M332.612 194.4
 L356.294 154.906
 L360 103.763
@@ -43,7 +43,7 @@ L295.2 43.2" style="fill:none;stroke:#0000ff;"/>
    <g id="matplotlib.axis_1">
     <g id="xtick_1">
      <g id="line2d_2">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M295.2 216
 L468 216" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;stroke-dashoffset:0.0;stroke-linecap:butt;stroke-width:0.5;"/>
      </g>
@@ -99,7 +99,7 @@ Q19.5312 74.2188 31.7812 74.2188" id="BitstreamVeraSans-Roman-30"/>
     </g>
     <g id="xtick_2">
      <g id="line2d_3">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M295.2 216
 L417.388 93.8119" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;stroke-dashoffset:0.0;stroke-linecap:butt;stroke-width:0.5;"/>
      </g>
@@ -160,7 +160,7 @@ z
     </g>
     <g id="xtick_3">
      <g id="line2d_4">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M295.2 216
 L295.2 43.2" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;stroke-dashoffset:0.0;stroke-linecap:butt;stroke-width:0.5;"/>
      </g>
@@ -205,7 +205,7 @@ Q23.9688 32.4219 30.6094 32.4219" id="BitstreamVeraSans-Roman-39"/>
     </g>
     <g id="xtick_4">
      <g id="line2d_5">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M295.2 216
 L173.012 93.8119" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;stroke-dashoffset:0.0;stroke-linecap:butt;stroke-width:0.5;"/>
      </g>
@@ -268,7 +268,7 @@ z
     </g>
     <g id="xtick_5">
      <g id="line2d_6">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M295.2 216
 L122.4 216" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;stroke-dashoffset:0.0;stroke-linecap:butt;stroke-width:0.5;"/>
      </g>
@@ -322,7 +322,7 @@ Q18.3125 60.0625 18.3125 54.3906" id="BitstreamVeraSans-Roman-38"/>
     </g>
     <g id="xtick_6">
      <g id="line2d_7">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M295.2 216
 L173.012 338.188" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;stroke-dashoffset:0.0;stroke-linecap:butt;stroke-width:0.5;"/>
      </g>
@@ -363,7 +363,7 @@ Q31.1094 20.4531 19.1875 8.29688" id="BitstreamVeraSans-Roman-32"/>
     </g>
     <g id="xtick_7">
      <g id="line2d_8">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M295.2 216
 L295.2 388.8" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;stroke-dashoffset:0.0;stroke-linecap:butt;stroke-width:0.5;"/>
      </g>
@@ -391,7 +391,7 @@ z
     </g>
     <g id="xtick_8">
      <g id="line2d_9">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M295.2 216
 L417.388 338.188" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;stroke-dashoffset:0.0;stroke-linecap:butt;stroke-width:0.5;"/>
      </g>
@@ -500,7 +500,7 @@ z
    <g id="matplotlib.axis_2">
     <g id="ytick_1">
      <g id="line2d_10">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M316.8 216
 L316.682 213.742
 L316.328 211.509
@@ -584,7 +584,7 @@ z
     </g>
     <g id="ytick_2">
      <g id="line2d_11">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M338.4 216
 L338.374 214.492
 L338.295 212.987
@@ -690,7 +690,7 @@ L338.4 216" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;s
     </g>
     <g id="ytick_3">
      <g id="line2d_12">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M360 216
 L359.961 213.739
 L359.842 211.48
@@ -796,7 +796,7 @@ L360 216" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;str
     </g>
     <g id="ytick_4">
      <g id="line2d_13">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M381.6 216
 L381.547 212.985
 L381.39 209.973
@@ -902,7 +902,7 @@ L381.6 216" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;s
     </g>
     <g id="ytick_5">
      <g id="line2d_14">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M403.2 216
 L403.134 212.231
 L402.937 208.466
@@ -1097,7 +1097,7 @@ L403.2 216" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;s
     </g>
     <g id="ytick_6">
      <g id="line2d_15">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M424.8 216
 L424.721 211.477
 L424.484 206.96
@@ -1292,7 +1292,7 @@ L424.8 216" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;s
     </g>
     <g id="ytick_7">
      <g id="line2d_16">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M446.4 216
 L446.308 210.723
 L446.032 205.453
@@ -1487,7 +1487,7 @@ L446.4 216" style="fill:none;stroke:#000000;stroke-dasharray:1.000000,3.000000;s
     </g>
     <g id="ytick_8">
      <g id="line2d_17">
-      <path clip-path="url(#p0b48484e71)" d="
+      <path clip-path="url(#pc466cf1e57)" d="
 M468 216
 L467.895 209.969
 L467.579 203.946
@@ -1698,7 +1698,7 @@ z
   </g>
  </g>
  <defs>
-  <clipPath id="p0b48484e71">
+  <clipPath id="pc466cf1e57">
    <path d="
 M295.2 388.8
 C341.027 388.8 384.983 370.593 417.388 338.188

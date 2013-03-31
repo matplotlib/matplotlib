@@ -108,7 +108,7 @@ class Legend(Artist):
       'upper center' : 9,
       'center'       : 10,
 
-    loc can be a tuple of the noramilzed coordinate values with
+    loc can be a tuple of the normalized coordinate values with
     respect its parent.
 
     """
@@ -135,7 +135,7 @@ class Legend(Artist):
                  numpoints=None,    # the number of points in the legend line
                  markerscale=None,  # the relative size of legend markers
                                     # vs. original
-                 scatterpoints=3,    # TODO: may be an rcParam
+                 scatterpoints=None,    # number of scatter points
                  scatteryoffsets=None,
                  prop=None,          # properties for the legend texts
                  fontsize=None,        # keyword to set font size directly
@@ -167,6 +167,9 @@ class Legend(Artist):
                                  # box, none use rc
                  shadow=None,
                  title=None,  # set a title for the legend
+
+                 framealpha=None, # set frame alpha
+
                  bbox_to_anchor=None,  # bbox that the legend will be anchored.
                  bbox_transform=None,  # transform for the bbox
                  frameon=None,  # draw frame
@@ -195,6 +198,7 @@ class Legend(Artist):
         fancybox           if True, draw a frame with a round fancybox.
                            If None, use rc
         shadow             if True, draw a shadow behind legend
+        framealpha         If not None, alpha channel for the frame.
         ncol               number of columns
         borderpad          the fractional whitespace inside the legend border
         labelspacing       the vertical space between the legend entries
@@ -384,6 +388,9 @@ class Legend(Artist):
         # init with null renderer
         self._init_legend_box(handles, labels)
 
+        if framealpha is not None:
+          self.get_frame().set_alpha(framealpha)
+
         self._loc = loc
 
         self.set_title(title)
@@ -460,14 +467,14 @@ class Legend(Artist):
             pad = 2 * (self.borderaxespad + self.borderpad) * fontsize
             self._legend_box.set_width(self.get_bbox_to_anchor().width - pad)
 
+        # update the location and size of the legend. This needs to
+        # be done in any case to clip the figure right.
+        bbox = self._legend_box.get_window_extent(renderer)
+        self.legendPatch.set_bounds(bbox.x0, bbox.y0,
+                                    bbox.width, bbox.height)
+        self.legendPatch.set_mutation_scale(fontsize)
+
         if self._drawFrame:
-            # update the location and size of the legend
-            bbox = self._legend_box.get_window_extent(renderer)
-            self.legendPatch.set_bounds(bbox.x0, bbox.y0,
-                                        bbox.width, bbox.height)
-
-            self.legendPatch.set_mutation_scale(fontsize)
-
             if self.shadow:
                 shadow = Shadow(self.legendPatch, 2, -2)
                 shadow.draw(renderer)
@@ -729,7 +736,6 @@ class Legend(Artist):
         assert self.isaxes
 
         ax = self.parent
-        vertices = []
         bboxes = []
         lines = []
 
@@ -749,6 +755,11 @@ class Legend(Artist):
             else:
                 transform = handle.get_transform()
                 bboxes.append(handle.get_path().get_extents(transform))
+
+        try:
+            vertices = np.concatenate([l.vertices for l in lines])
+        except ValueError:
+            vertices = np.array([])
 
         return [vertices, bboxes, lines]
 
@@ -915,10 +926,11 @@ class Legend(Artist):
         verts, bboxes, lines = self._auto_legend_data()
 
         bbox = Bbox.from_bounds(0, 0, width, height)
-        consider = [self._get_anchored_bbox(x, bbox, self.get_bbox_to_anchor(),
-                                            renderer)
-                    for x
-                    in range(1, len(self.codes))]
+        if consider is None:
+            consider = [self._get_anchored_bbox(x, bbox,
+                                                self.get_bbox_to_anchor(),
+                                                renderer)
+                        for x in range(1, len(self.codes))]
 
         #tx, ty = self.legendPatch.get_x(), self.legendPatch.get_y()
 
@@ -926,9 +938,19 @@ class Legend(Artist):
         for l, b in consider:
             legendBox = Bbox.from_bounds(l, b, width, height)
             badness = 0
+            # XXX TODO: If markers are present, it would be good to
+            # take their into account when checking vertex overlaps in
+            # the next line.
             badness = legendBox.count_contains(verts)
             badness += legendBox.count_overlaps(bboxes)
             for line in lines:
+                # FIXME: the following line is ill-suited for lines
+                # that 'spiral' around the center, because the bbox
+                # may intersect with the legend even if the line
+                # itself doesn't. One solution would be to break up
+                # the line into its straight-segment components, but
+                # this may (or may not) result in a significant
+                # slowdown if lines with many vertices are present.
                 if line.intersects_bbox(legendBox):
                     badness += 1
 

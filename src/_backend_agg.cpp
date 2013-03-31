@@ -6,6 +6,7 @@
 /* Python API mandates Python.h is included *first* */
 #include "Python.h"
 
+/* TODO: Remove this dependency */
 #include "ft2font.h"
 #include "_image.h"
 #include "_backend_agg.h"
@@ -39,6 +40,8 @@
 
 #include "numpy/arrayobject.h"
 #include "agg_py_transforms.h"
+
+#include "file_compat.h"
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
@@ -421,9 +424,8 @@ RendererAgg::create_alpha_buffers()
 {
     if (!alphaBuffer)
     {
-        unsigned stride(width*4);
-        alphaBuffer = new agg::int8u[NUMBYTES];
-        alphaMaskRenderingBuffer.attach(alphaBuffer, width, height, stride);
+        alphaBuffer = new agg::int8u[width * height];
+        alphaMaskRenderingBuffer.attach(alphaBuffer, width, height, width);
         rendererBaseAlphaMask.attach(pixfmtAlphaMask);
         rendererAlphaMask.attach(rendererBaseAlphaMask);
     }
@@ -441,10 +443,10 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R& rasterizer)
     double l, b, r, t;
     if (py_convert_bbox(cliprect.ptr(), l, b, r, t))
     {
-        rasterizer.clip_box(std::max(int(floor(l - 0.5)), 0),
-                            std::max(int(floor(height - b - 0.5)), 0),
-                            std::min(int(floor(r - 0.5)), int(width)),
-                            std::min(int(floor(height - t - 0.5)), int(height)));
+        rasterizer.clip_box(std::max(int(floor(l + 0.5)), 0),
+                            std::max(int(floor(height - b + 0.5)), 0),
+                            std::min(int(floor(r + 0.5)), int(width)),
+                            std::min(int(floor(height - t + 0.5)), int(height)));
     }
     else
     {
@@ -616,7 +618,11 @@ RendererAgg::render_clippath(const Py::Object& clippath,
         rendererBaseAlphaMask.clear(agg::gray8(0, 0));
         transformed_path_t transformed_clippath(clippath_iter, trans);
         agg::conv_curve<transformed_path_t> curved_clippath(transformed_clippath);
-        theRasterizer.add_path(curved_clippath);
+        try {
+            theRasterizer.add_path(curved_clippath);
+        } catch (std::overflow_error &e) {
+            throw Py::OverflowError(e.what());
+        }
         rendererAlphaMask.color(agg::gray8(255, 255));
         agg::render_scanlines(theRasterizer, scanlineAlphaMask, rendererAlphaMask);
         lastclippath = clippath;
@@ -671,7 +677,7 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     PathIterator path(path_obj);
     transformed_path_t path_transformed(path, trans);
     snap_t             path_snapped(path_transformed,
-                                    SNAP_TRUE,
+                                    SNAP_FALSE,
                                     path.total_vertices(),
                                     0.0);
     curve_t            path_curve(path_snapped);
@@ -695,7 +701,11 @@ RendererAgg::draw_markers(const Py::Tuple& args)
         unsigned fillSize = 0;
         if (face.first)
         {
-            theRasterizer.add_path(marker_path_curve);
+            try {
+                theRasterizer.add_path(marker_path_curve);
+            } catch (std::overflow_error &e) {
+                throw Py::OverflowError(e.what());
+            }
             agg::render_scanlines(theRasterizer, slineP8, scanlines);
             fillSize = scanlines.byte_size();
             if (fillSize >= MARKER_CACHE_SIZE)
@@ -710,7 +720,11 @@ RendererAgg::draw_markers(const Py::Tuple& args)
         stroke.line_cap(gc.cap);
         stroke.line_join(gc.join);
         theRasterizer.reset();
-        theRasterizer.add_path(stroke);
+        try {
+            theRasterizer.add_path(stroke);
+        } catch (std::overflow_error &e) {
+            throw Py::OverflowError(e.what());
+        }
         agg::render_scanlines(theRasterizer, slineP8, scanlines);
         unsigned strokeSize = scanlines.byte_size();
         if (strokeSize >= MARKER_CACHE_SIZE)
@@ -744,6 +758,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
                     continue;
                 }
 
+                /* These values are correctly snapped above -- so we don't want
+                   to round here, we really only want to truncate */
                 x = floor(x);
                 y = floor(y);
 
@@ -780,6 +796,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
                     continue;
                 }
 
+                /* These values are correctly snapped above -- so we don't want
+                   to round here, we really only want to truncate */
                 x = floor(x);
                 y = floor(y);
 
@@ -977,7 +995,11 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
     span_gen_type output_span_generator(&image_span_generator, gc.color);
     renderer_type ri(rendererBase, sa, output_span_generator);
 
-    theRasterizer.add_path(rect2);
+    try {
+        theRasterizer.add_path(rect2);
+    } catch (std::overflow_error &e) {
+        throw Py::OverflowError(e.what());
+    }
     agg::render_scanlines(theRasterizer, slineP8, ri);
 
     return Py::Object();
@@ -1114,8 +1136,12 @@ RendererAgg::draw_image(const Py::Tuple& args)
             amask_ren_type r(pfa);
             renderer_type_alpha ri(r, sa, spans);
 
-            theRasterizer.add_path(rect2);
-            agg::render_scanlines(theRasterizer, slineP8, ri);
+            try {
+                theRasterizer.add_path(rect2);
+            } catch (std::overflow_error &e) {
+                throw Py::OverflowError(e.what());
+            }
+            agg::render_scanlines(theRasterizer, scanlineAlphaMask, ri);
         }
         else
         {
@@ -1128,7 +1154,11 @@ RendererAgg::draw_image(const Py::Tuple& args)
             ren_type r(pixFmt);
             renderer_type ri(r, sa, spans);
 
-            theRasterizer.add_path(rect2);
+            try {
+                theRasterizer.add_path(rect2);
+            } catch (std::overflow_error &e) {
+                throw Py::OverflowError(e.what());
+            }
             agg::render_scanlines(theRasterizer, slineP8, ri);
         }
 
@@ -1163,7 +1193,11 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
     // Render face
     if (face.first)
     {
-        theRasterizer.add_path(path);
+        try {
+            theRasterizer.add_path(path);
+        } catch (std::overflow_error &e) {
+            throw Py::OverflowError(e.what());
+        }
 
         if (gc.isaa)
         {
@@ -1173,7 +1207,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_aa_renderer_type ren(r);
                 ren.color(face.second);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1189,7 +1223,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_bin_renderer_type ren(r);
                 ren.color(face.second);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1230,9 +1264,17 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
         rb.clear(agg::rgba(0.0, 0.0, 0.0, 0.0));
         rs.color(gc.color);
 
-        theRasterizer.add_path(hatch_path_curve);
+        try {
+            theRasterizer.add_path(hatch_path_curve);
+        } catch (std::overflow_error &e) {
+            throw Py::OverflowError(e.what());
+        }
         agg::render_scanlines(theRasterizer, slineP8, rs);
-        theRasterizer.add_path(hatch_path_stroke);
+        try {
+            theRasterizer.add_path(hatch_path_stroke);
+        } catch (std::overflow_error &e) {
+            throw Py::OverflowError(e.what());
+        }
         agg::render_scanlines(theRasterizer, slineP8, rs);
 
         // Put clipping back on, if originally set on entry to this
@@ -1249,7 +1291,11 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
         agg::span_allocator<agg::rgba8> sa;
         img_source_type img_src(hatch_img_pixf);
         span_gen_type sg(img_src, 0, 0);
-        theRasterizer.add_path(path);
+        try {
+            theRasterizer.add_path(path);
+        } catch (std::overflow_error &e) {
+            throw Py::OverflowError(e.what());
+        }
         agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, sa, sg);
     }
 
@@ -1267,7 +1313,11 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
             stroke.width(linewidth);
             stroke.line_cap(gc.cap);
             stroke.line_join(gc.join);
-            theRasterizer.add_path(stroke);
+            try {
+                theRasterizer.add_path(stroke);
+            } catch (std::overflow_error &e) {
+                throw Py::OverflowError(e.what());
+            }
         }
         else
         {
@@ -1288,7 +1338,11 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
             stroke.line_cap(gc.cap);
             stroke.line_join(gc.join);
             stroke.width(linewidth);
-            theRasterizer.add_path(stroke);
+            try {
+                theRasterizer.add_path(stroke);
+            } catch (std::overflow_error &e) {
+                throw Py::OverflowError(e.what());
+            }
         }
 
         if (gc.isaa)
@@ -1299,7 +1353,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_aa_renderer_type ren(r);
                 ren.color(gc.color);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1315,7 +1369,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_bin_renderer_type ren(r);
                 ren.color(gc.color);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1885,7 +1939,12 @@ RendererAgg::_draw_gouraud_triangle(const double* points,
         tpoints[4], tpoints[5],
         0.5);
 
-    theRasterizer.add_path(span_gen);
+    try {
+        theRasterizer.add_path(span_gen);
+    } catch (std::overflow_error &e) {
+        throw Py::OverflowError(e.what()
+                                );
+    }
 
     if (has_clippath)
     {
@@ -1897,7 +1956,7 @@ RendererAgg::_draw_gouraud_triangle(const double* points,
         pixfmt_amask_type pfa(pixFmt, alphaMask);
         amask_ren_type r(pfa);
         amask_aa_renderer_type ren(r, span_alloc, span_gen);
-        agg::render_scanlines(theRasterizer, slineP8, ren);
+        agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
     }
     else
     {
@@ -2028,44 +2087,46 @@ RendererAgg::write_rgba(const Py::Tuple& args)
 
     FILE *fp = NULL;
     Py::Object py_fileobj = Py::Object(args[0]);
-
-    #if PY3K
-    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
-    PyErr_Clear();
-    #endif
+    PyObject* py_file = NULL;
+    bool close_file = false;
 
     if (py_fileobj.isString())
     {
-        std::string fileName = Py::String(py_fileobj);
-        const char *file_name = fileName.c_str();
-        if ((fp = fopen(file_name, "wb")) == NULL)
-            throw Py::RuntimeError(
-                Printf("Could not open file %s", file_name).str());
+        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"wb")) == NULL) {
+            throw Py::Exception();
+        }
+        close_file = true;
+    }
+    else
+    {
+        py_file = py_fileobj.ptr();
+    }
+
+    if ((fp = npy_PyFile_Dup(py_file, (char *)"wb")))
+    {
         if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES)
         {
-            fclose(fp);
-            throw Py::RuntimeError(
-                Printf("Error writing to file %s", file_name).str());
-        }
-    }
-    #if PY3K
-    else if (fd != -1)
-    {
-        if (write(fd, pixBuffer, NUMBYTES) != (ssize_t)NUMBYTES)
-        {
+            if (npy_PyFile_DupClose(py_file, fp)) {
+              throw Py::RuntimeError("Error closing dupe file handle");
+            }
+
+            if (close_file) {
+                npy_PyFile_CloseFile(py_file);
+                Py_DECREF(py_file);
+            }
+
             throw Py::RuntimeError("Error writing to file");
         }
-    }
-    #else
-    else if (PyFile_CheckExact(py_fileobj.ptr()))
-    {
-        fp = PyFile_AsFile(py_fileobj.ptr());
-        if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES)
-        {
-            throw Py::RuntimeError("Error writing to file");
+
+        if (npy_PyFile_DupClose(py_file, fp)) {
+          throw Py::RuntimeError("Error closing dupe file handle");
+        }
+
+        if (close_file) {
+            npy_PyFile_CloseFile(py_file);
+            Py_DECREF(py_file);
         }
     }
-    #endif
     else
     {
         PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(),

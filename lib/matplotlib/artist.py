@@ -180,6 +180,15 @@ class Artist(object):
         """
         return self.axes
 
+    def get_window_extent(self, renderer):
+        """
+        Get the axes bounding box in display space.
+        Subclasses should override for inclusion in the bounding box
+        "tight" calculation. Default is to return an empty bounding
+        box at 0, 0.
+        """
+        return Bbox([[0, 0], [0, 0]])
+
     def add_callback(self, func):
         """
         Adds a callback function that will be called whenever one of
@@ -240,7 +249,7 @@ class Artist(object):
         instance used by this artist.
         """
         if self._transform is None:
-            self.set_transform(IdentityTransform())
+            self._transform = IdentityTransform()
         elif (not isinstance(self._transform, Transform)
               and hasattr(self._transform, '_as_mpl_transform')):
             self._transform = self._transform._as_mpl_transform(self.axes)
@@ -686,7 +695,10 @@ class Artist(object):
 
         ACCEPTS: string or anything printable with '%s' conversion.
         """
-        self._label = '%s' % (s, )
+        if s is not None:
+            self._label = '%s' % (s, )
+        else:
+            self._label = None
         self.pchanged()
 
     def get_zorder(self):
@@ -1194,7 +1206,7 @@ def setp(obj, *args, **kwargs):
     with python kwargs.  For example, the following are equivalent::
 
       >>> setp(lines, 'linewidth', 2, 'color', r')  # MATLAB style
-
+          ...
       >>> setp(lines, linewidth=2, color='r')       # python style
     """
 

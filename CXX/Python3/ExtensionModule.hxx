@@ -135,8 +135,8 @@ namespace Py
                 static PyObject *self = PyCapsule_New( this, NULL, NULL );
 
                 Tuple args( 2 );
-                args[0] = Object( self );
-                args[1] = Object( PyCapsule_New( method_def, NULL, NULL ) );
+                args[0] = Object( self, true );
+                args[1] = Object( PyCapsule_New( method_def, NULL, NULL ), true );
 
                 PyObject *func = PyCFunction_New
                                     (

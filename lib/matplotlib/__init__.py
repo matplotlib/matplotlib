@@ -99,12 +99,40 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import print_function
 
+import sys
+
 __version__  = '1.3.x'
 __version__numpy__ = '1.4' # minimum required numpy version
 
-import os, re, shutil, subprocess, sys, warnings
+try:
+    import dateutil
+except ImportError:
+    raise ImportError("matplotlib requires dateutil")
+
+try:
+    import pyparsing
+except ImportError:
+    raise ImportError("matplotlib requires pyparsing")
+else:
+    if sys.version_info[0] >= 3:
+        _required = [2, 0, 0]
+    else:
+        _required = [1, 5, 6]
+    if [int(x) for x in pyparsing.__version__.split('.')] < _required:
+        raise ImportError(
+            "matplotlib requires pyparsing >= {0} on Python {1}".format(
+                '.'.join(str(x) for x in _required),
+                sys.version_info[0]))
+
+import os, re, shutil, warnings
 import distutils.sysconfig
 import distutils.version
+
+# cbook must import matplotlib only within function
+# definitions, so it is safe to import from it here.
+from matplotlib.cbook import MatplotlibDeprecationWarning
+from matplotlib.cbook import is_string_like
+from matplotlib.compat import subprocess
 
 try:
     reload
@@ -122,19 +150,6 @@ if 0:
 if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
 
-
-class MatplotlibDeprecationWarning(UserWarning):
-    """
-    A class for issuing deprecation warnings for Matplotlib users.
-
-    In light of the fact that Python builtin DeprecationWarnings are ignored
-    by default as of Python 2.7 (see link below), this class was put in to
-    allow for the signaling of deprecation, but via UserWarnings which are not
-    ignored by default.
-
-    http://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
-    """
-    pass
 
 """
 Manage user customizations through a rc file.
@@ -191,12 +206,6 @@ if not found_version >= expected_version:
         'numpy %s or later is required; you have %s' % (
             __version__numpy__, numpy.__version__))
 del version
-
-def is_string_like(obj):
-    if hasattr(obj, 'shape'): return 0
-    try: obj + ''
-    except (TypeError, ValueError): return 0
-    return 1
 
 
 def _is_writable_dir(p):
@@ -733,7 +742,7 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
         """
         Return sorted list of keys.
         """
-        k = dict.keys(self)
+        k = list(dict.keys(self))
         k.sort()
         return k
 
@@ -958,10 +967,10 @@ class rc_context(object):
     This allows one to do::
 
     >>> with mpl.rc_context(fname='screen.rc'):
-    >>>     plt.plot(x, a)
-    >>>     with mpl.rc_context(fname='print.rc'):
-    >>>         plt.plot(x, b)
-    >>>     plt.plot(x, c)
+    ...     plt.plot(x, a)
+    ...     with mpl.rc_context(fname='print.rc'):
+    ...         plt.plot(x, b)
+    ...     plt.plot(x, c)
 
     The 'a' vs 'x' and 'c' vs 'x' plots would have settings from
     'screen.rc', while the 'b' vs 'x' plot would have settings from
@@ -970,7 +979,7 @@ class rc_context(object):
     A dictionary can also be passed to the context manager::
 
     >>> with mpl.rc_context(rc={'text.usetex': True}, fname='screen.rc'):
-    >>>     plt.plot(x, a)
+    ...     plt.plot(x, a)
 
     The 'rc' dictionary takes precedence over the settings loaded from
     'fname'.  Passing a dictionary only is also valid.
@@ -1103,8 +1112,10 @@ default_test_modules = [
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
     'matplotlib.tests.test_cbook',
+    'matplotlib.tests.test_collections',
     'matplotlib.tests.test_colorbar',
     'matplotlib.tests.test_colors',
+    'matplotlib.tests.test_compare_images',
     'matplotlib.tests.test_contour',
     'matplotlib.tests.test_dates',
     'matplotlib.tests.test_delaunay',
@@ -1128,6 +1139,7 @@ default_test_modules = [
     'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_arrow_patches',
+    'matplotlib.tests.test_backend_qt4',
     ]
 
 

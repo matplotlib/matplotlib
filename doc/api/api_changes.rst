@@ -24,6 +24,21 @@ Changes in 1.3.x
   :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the shape
   of colorbar extensions.
 
+* The `~matplotlib.mpl` module is now deprecated. Those who relied on this
+  module should transition to simply using `import matplotlib as mpl`.
+
+* The extension of :class:`~matplotlib.widgets.MultiCursor` to both vertical
+  (default) and/or horizontal cursor implied that ``self.line`` is replaced
+  by ``self.vline`` for vertical cursors lines and ``self.hline`` is added
+  for the horizontal cursors lines.
+
+* On POSIX platforms, the :func:`~matplotlib.cbook.report_memory` function
+  raises :class:`NotImplementedError` instead of :class:`OSError` if the
+  :command:`ps` command cannot be run.
+
+* The :func:`~matplotlib.cbook.check_output` function has been moved to
+  `~matplotlib.compat.subprocess`.
+
 Changes in 1.2.x
 ================
 

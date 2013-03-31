@@ -40,7 +40,8 @@ examples, if you use the -pylab method, you can skip the "mpimg." and
 Importing image data into Numpy arrays
 ===============================================
 
-Plotting image data is supported by the Python Image Library (`PIL <http://www.pythonware.com/products/pil/>`_), .  Natively, matplotlib
+Plotting image data is supported by the Python Image Library (`PIL 
+<http://www.pythonware.com/products/pil/>`_).  Natively, matplotlib
 only supports PNG images.  The commands shown below fall back on PIL
 if the native read fails.
 
@@ -121,7 +122,8 @@ reading/writing for any format other than PNG is limited to uint8
 data.  Why 8 bits? Most displays can only render 8 bits per channel
 worth of color gradation.  Why can they only render 8 bits/channel?
 Because that's about all the human eye can see.  More here (from a
-photography standpoint): `Luminous Landscape bit depth tutorial <http://www.luminous-landscape.com/tutorials/bit-depth.shtml>`_.
+photography standpoint): `Luminous Landscape bit depth tutorial 
+<http://www.luminous-landscape.com/tutorials/bit-depth.shtml>`_.
 
 Each inner list represents a pixel.  Here, with an RGB image, there
 are 3 values.  Since it's a black and white image, R, G, and B are all
@@ -170,14 +172,15 @@ typically quite poor.
 
 Pseudocolor is only relevant to single-channel, grayscale, luminosity
 images.  We currently have an RGB image.  Since R, G, and B are all
-similar (see for yourself above or in your data), we can just pick on
+similar (see for yourself above or in your data), we can just pick one
 channel of our data:
 
 .. sourcecode:: ipython
 
     In [6]: lum_img = img[:,:,0]
 
-This is array slicing.  You can read more in the `Numpy tutorial <http://www.scipy.org/Tentative_NumPy_Tutorial>`_.
+This is array slicing.  You can read more in the `Numpy tutorial 
+<http://www.scipy.org/Tentative_NumPy_Tutorial>`_.
 
 .. sourcecode:: ipython
 
@@ -226,8 +229,10 @@ object:
         imgplot = plt.imshow(lum_img)
         imgplot.set_cmap('spectral')
 
-There are many other colormap schemes available.  See the `list and
-images of the colormaps
+There are many other colormap schemes available.  See the `list of 
+colormaps 
+<http://matplotlib.org/api/pyplot_summary.html#matplotlib.pyplot.colormaps>`_ 
+and `images of the colormaps
 <http://matplotlib.org/examples/pylab_examples/show_colormaps.html>`_.
 
 .. _`Color Bars`:

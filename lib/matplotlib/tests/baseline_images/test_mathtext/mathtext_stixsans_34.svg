@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -205,27 +205,27 @@ z
    </defs>
    <g transform="translate(177.6 44.4)scale(0.12 -0.12)">
     <use transform="translate(0.0 193.24)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e7"/>
-    <use transform="translate(-25.2397840881 48.015625)scale(0.924666920732)" xlink:href="#STIXSizeThreeSym-Regular-221a"/>
-    <use transform="translate(115.739769135 231.55453125)scale(0.49)" xlink:href="#STIXGeneral-Italic-1d639"/>
-    <use transform="translate(86.7397691345 170.958046875)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(111.239761658 170.958046875)scale(0.49)" xlink:href="#STIXNonUnicode-Italic-e1e7"/>
-    <use transform="translate(138.924754181 186.494875)scale(0.343)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(86.7397691345 75.421171875)" xlink:href="#STIXGeneral-Regular-220f"/>
-    <use transform="translate(104.739769135 0.664921875)scale(0.7)" xlink:href="#STIXGeneral-Regular-221e"/>
+    <use transform="translate(-25.2650068665 48.015625)scale(0.924666920732)" xlink:href="#STIXSizeThreeSym-Regular-221a"/>
+    <use transform="translate(115.764991913 231.55453125)scale(0.49)" xlink:href="#STIXGeneral-Italic-1d639"/>
+    <use transform="translate(86.7649919128 170.958046875)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(111.264984436 170.958046875)scale(0.49)" xlink:href="#STIXNonUnicode-Italic-e1e7"/>
+    <use transform="translate(138.949976959 186.494875)scale(0.343)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(86.7649919128 75.421171875)" xlink:href="#STIXGeneral-Regular-220f"/>
+    <use transform="translate(104.764991913 0.664921875)scale(0.7)" xlink:href="#STIXGeneral-Regular-221e"/>
     <path d="
-M74.2398 277.5
-L74.2398 283.75
-L189.114 283.75
-L189.114 277.5
-L74.2398 277.5
+M74.265 277.5
+L74.265 283.75
+L189.139 283.75
+L189.139 277.5
+L74.265 277.5
 z
 "/>
     <path d="
-M86.7398 214.055
-L86.7398 218.43
-L167.864 218.43
-L167.864 214.055
-L86.7398 214.055
+M86.765 214.055
+L86.765 218.43
+L167.889 218.43
+L167.889 214.055
+L86.765 214.055
 z
 "/>
    </g>

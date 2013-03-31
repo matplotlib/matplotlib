@@ -196,6 +196,16 @@ libpng 1.2 (or later)
     user, you can ignore this since we build support into the
     matplotlib single click installer.
 
+:term:`dateutil` 1.1 or later
+    Provides extensions to python datetime handling.  If using pip,
+    easy_install or installing from source, the installer will attempt
+    to download and install `python_dateutil` from PyPI.
+
+:term:`pyparsing`
+    Required for matplotlib's mathtext math rendering support.  If
+    using pip, easy_install or installing from source, the installer
+    will attempt to download and install `pyparsing` from PyPI.
+
 **Optional**
 
 These are optional packages which you may want to install to use
@@ -230,17 +240,8 @@ backends and the capabilities they provide.
     agg template source statically, so it will not affect anything on
     your system outside of matplotlib.
 
-:term:`pytz` 2007g or later
-    timezone handling for python datetime objects.  By default,
-    matplotlib will install pytz if it isn't already installed on your
-    system.  To override the default, use :file:`setup.cfg` to force or
-    prevent installation of pytz.
-
-:term:`dateutil` 1.1 or later
-    provides extensions to python datetime handling.  By default, matplotlib
-    will install dateutil if it isn't already installed on your
-    system.  To override the default, use :file:`setup.cfg` to force
-    or prevent installation of dateutil.
+:term:`PyCXX` 6.2.4
+    A library for writing Python extensions in C++.
 
 .. _build_osx:
 

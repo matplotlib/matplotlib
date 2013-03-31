@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -118,13 +118,13 @@ Q22 6.40625 38.2031 -13.4062" id="STIXSizeOneSym-Regular-28"/>
    </defs>
    <g transform="translate(168.48 32.28)scale(0.12 -0.12)">
     <use transform="translate(0.0 12.3125)scale(0.709984756098)" xlink:href="#STIXSizeOneSym-Regular-28"/>
-    <use transform="translate(33.2206726074 19.171875)" xlink:href="#STIXGeneral-Italic-3be"/>
-    <use transform="translate(78.6206665039 12.3125)scale(0.705665650407)" xlink:href="#STIXSizeOneSym-Regular-28"/>
-    <use transform="translate(111.643920898 19.171875)" xlink:href="#STIXGeneral-Regular-31"/>
-    <use transform="translate(161.64390564 19.171875)" xlink:href="#STIXGeneral-Regular-2212"/>
-    <use transform="translate(230.143890381 19.171875)" xlink:href="#STIXGeneral-Italic-3be"/>
-    <use transform="translate(275.543884277 12.3125)scale(0.705665650407)" xlink:href="#STIXSizeOneSym-Regular-29"/>
-    <use transform="translate(308.567138672 12.3125)scale(0.709984756098)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+    <use transform="translate(33.2279968262 19.171875)" xlink:href="#STIXGeneral-Italic-3be"/>
+    <use transform="translate(78.6279907227 12.3125)scale(0.705665650407)" xlink:href="#STIXSizeOneSym-Regular-28"/>
+    <use transform="translate(111.680480957 19.171875)" xlink:href="#STIXGeneral-Regular-31"/>
+    <use transform="translate(161.680465698 19.171875)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(230.180450439 19.171875)" xlink:href="#STIXGeneral-Italic-3be"/>
+    <use transform="translate(275.580444336 12.3125)scale(0.705665650407)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+    <use transform="translate(308.63293457 12.3125)scale(0.709984756098)" xlink:href="#STIXSizeOneSym-Regular-29"/>
    </g>
   </g>
  </g>

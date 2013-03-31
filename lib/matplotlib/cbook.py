@@ -1,7 +1,11 @@
 """
-A collection of utility functions and classes.  Many (but not all)
-from the Python Cookbook -- hence the name cbook
+A collection of utility functions and classes.  Originally, many 
+(but not all) were from the Python Cookbook -- hence the name cbook.
+
+This module is safe to import from anywhere within matplotlib;
+it imports matplotlib only at runtime.
 """
+
 from __future__ import print_function
 
 import datetime
@@ -13,25 +17,32 @@ import io
 import locale
 import os
 import re
-import subprocess
 import sys
 import threading
 import time
 import traceback
+import types
 import warnings
 from weakref import ref, WeakKeyDictionary
-
-import matplotlib
-from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 import numpy as np
 import numpy.ma as ma
 
 
-if sys.version_info[0] >= 3:
-    import types
-else:
-    import new
+class MatplotlibDeprecationWarning(UserWarning):
+    """
+    A class for issuing deprecation warnings for Matplotlib users.
+
+    In light of the fact that Python builtin DeprecationWarnings are ignored
+    by default as of Python 2.7 (see link below), this class was put in to
+    allow for the signaling of deprecation, but via UserWarnings which are not
+    ignored by default.
+
+    http://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
+    """
+    pass
+
+mplDeprecation = MatplotlibDeprecationWarning
 
 # On some systems, locale.getpreferredencoding returns None,
 # which can break unicode; and the sage project reports that
@@ -80,7 +91,7 @@ else:
             return unicode(s, preferredencoding)
 
 
-class converter:
+class converter(object):
     """
     Base class for handling string -> python type with support for
     missing values
@@ -209,10 +220,9 @@ class _BoundMethodProxy(object):
         elif self.inst is not None:
             # build a new instance method with a strong reference to the
             # instance
-            if sys.version_info[0] >= 3:
-                mtd = types.MethodType(self.func, self.inst())
-            else:
-                mtd = new.instancemethod(self.func, self.inst(), self.klass)
+
+            mtd = types.MethodType(self.func, self.inst())
+
         else:
             # not a bound method, just return the func
             mtd = self.func
@@ -276,12 +286,14 @@ class CallbackRegistry:
     functions).  This technique was shared by Peter Parente on his
     `"Mindtrove" blog
     <http://mindtrove.info/articles/python-weak-references/>`_.
+
+    .. deprecated:: 1.3.0
     """
     def __init__(self, *args):
         if len(args):
             warnings.warn(
-                'CallbackRegistry no longer requires a list of callback types.'
-                ' Ignoring arguments',
+                "CallbackRegistry no longer requires a list of callback "
+                "types. Ignoring arguments. *args will be removed in 1.5",
                 mplDeprecation)
         self.callbacks = dict()
         self._cid = 0
@@ -540,7 +552,6 @@ def to_filehandle(fname, flag='rU', return_opened=False):
     """
     if is_string_like(fname):
         if fname.endswith('.gz'):
-            import gzip
             # get rid of 'U' in flag for gzipped files.
             flag = flag.replace('U', '')
             fh = gzip.open(fname, flag)
@@ -580,10 +591,13 @@ def get_sample_data(fname, asfileobj=True):
 
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
+    import matplotlib
+
     if matplotlib.rcParams['examples.directory']:
         root = matplotlib.rcParams['examples.directory']
     else:
-        root = os.path.join(os.path.dirname(__file__), "mpl-data", "sample_data")
+        root = os.path.join(os.path.dirname(__file__),
+                            "mpl-data", "sample_data")
     path = os.path.join(root, fname)
 
     if asfileobj:
@@ -1197,19 +1211,34 @@ def restrict_dict(d, keys):
 
 def report_memory(i=0):  # argument may go away
     'return the memory consumed by process'
-    from subprocess import Popen, PIPE
+    from matplotlib.compat.subprocess import Popen, PIPE
     pid = os.getpid()
     if sys.platform == 'sunos5':
-        a2 = Popen('ps -p %d -o osz' % pid, shell=True,
-                   stdout=PIPE).stdout.readlines()
+        try:
+            a2 = Popen('ps -p %d -o osz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Sun OS only if "
+                "the 'ps' program is found")
         mem = int(a2[-1].strip())
     elif sys.platform.startswith('linux'):
-        a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
-                   stdout=PIPE).stdout.readlines()
+        try:
+            a2 = Popen('ps -p %d -o rss,sz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Linux only if "
+                "the 'ps' program is found")
         mem = int(a2[1].split()[1])
     elif sys.platform.startswith('darwin'):
-        a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
-                   stdout=PIPE).stdout.readlines()
+        try:
+            a2 = Popen('ps -p %d -o rss,vsz' % pid, shell=True,
+                       stdout=PIPE).stdout.readlines()
+        except OSError:
+            raise NotImplementedError(
+                "report_memory works on Mac OS only if "
+                "the 'ps' program is found")
         mem = int(a2[1].split()[0])
     elif sys.platform.startswith('win'):
         try:
@@ -1300,7 +1329,7 @@ class MemoryMonitor:
 
     def plot(self, i0=0, isub=1, fig=None):
         if fig is None:
-            from pylab import figure, show
+            from pylab import figure
             fig = figure()
 
         ax = fig.add_subplot(111)
@@ -1610,8 +1639,9 @@ def delete_masked_points(*args):
     return margs
 
 
+# FIXME I don't think this is used anywhere
 def unmasked_index_ranges(mask, compressed=True):
-    '''
+    """
     Find index ranges where *mask* is *False*.
 
     *mask* will be flattened if it is not already 1-D.
@@ -1641,8 +1671,7 @@ def unmasked_index_ranges(mask, compressed=True):
 
     Prior to the transforms refactoring, this was used to support
     masked arrays in Line2D.
-
-    '''
+    """
     mask = mask.reshape(mask.size)
     m = np.concatenate(((1,), mask, (1,)))
     indices = np.arange(len(mask) + 1)
@@ -1668,79 +1697,6 @@ _linestyles = [('-', 'solid'),
 
 ls_mapper = dict(_linestyles)
 ls_mapper.update([(ls[1], ls[0]) for ls in _linestyles])
-
-
-def less_simple_linear_interpolation(x, y, xi, extrap=False):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('less_simple_linear_interpolation has been moved to '
-                  'matplotlib.mlab -- please import it from there',
-                  mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.less_simple_linear_interpolation(x, y, xi, extrap=extrap)
-
-
-def vector_lengths(X, P=2.0, axis=None):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('vector_lengths has been moved to matplotlib.mlab -- '
-                  'please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.vector_lengths(X, P=2.0, axis=axis)
-
-
-def distances_along_curve(X):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('distances_along_curve has been moved to matplotlib.mlab '
-                  '-- please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.distances_along_curve(X)
-
-
-def path_length(X):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('path_length has been moved to matplotlib.mlab '
-                  '-- please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.path_length(X)
-
-
-def is_closed_polygon(X):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('is_closed_polygon has been moved to matplotlib.mlab '
-                  '-- please import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.is_closed_polygon(X)
-
-
-def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
-    """
-    This function has been moved to matplotlib.mlab -- please import
-    it from there
-    """
-    # deprecated from cbook in 0.98.4
-    warnings.warn('quad2cubic has been moved to matplotlib.mlab -- please '
-                  'import it from there', mplDeprecation)
-    import matplotlib.mlab as mlab
-    return mlab.quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y)
 
 
 def align_iterators(func, *iterables):
@@ -1853,53 +1809,3 @@ except AttributeError:
 else:
     def _putmask(a, mask, values):
         return np.copyto(a, values, where=mask)
-
-
-def _check_output(*popenargs, **kwargs):
-    r"""Run command with arguments and return its output as a byte
-    string.
-
-    If the exit code was non-zero it raises a CalledProcessError.  The
-    CalledProcessError object will have the return code in the
-    returncode
-    attribute and output in the output attribute.
-
-    The arguments are the same as for the Popen constructor.  Example::
-
-    >>> check_output(["ls", "-l", "/dev/null"])
-    'crw-rw-rw- 1 root root 1, 3 Oct 18  2007 /dev/null\n'
-
-    The stdout argument is not allowed as it is used internally.
-    To capture standard error in the result, use stderr=STDOUT.::
-
-    >>> check_output(["/bin/sh", "-c",
-    ...               "ls -l non_existent_file ; exit 0"],
-    ...              stderr=STDOUT)
-    'ls: non_existent_file: No such file or directory\n'
-    """
-    if 'stdout' in kwargs:
-        raise ValueError('stdout argument not allowed, it will be overridden.')
-    process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
-    output, unused_err = process.communicate()
-    retcode = process.poll()
-    if retcode:
-        cmd = kwargs.get("args")
-        if cmd is None:
-            cmd = popenargs[0]
-        raise subprocess.CalledProcessError(retcode, cmd, output=output)
-    return output
-
-
-# python2.7's subprocess provides a check_output method
-if hasattr(subprocess, 'check_output'):
-    check_output = subprocess.check_output
-else:
-    check_output = _check_output
-
-
-if __name__ == '__main__':
-    assert(allequal([1, 1, 1]))
-    assert(not allequal([1, 1, 0]))
-    assert(allequal([]))
-    assert(allequal(('a', 'a')))
-    assert(not allequal(('a', 'b')))

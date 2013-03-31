@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="432pt" version="1.1" viewBox="0 0 576 432" width="576pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -29,8 +29,8 @@ z
 " style="fill:#ffffff;"/>
    </g>
    <g clip-path="url(#p340d592a0b)">
-    <image height="2.0" transform="matrix(101.454545455 0.0 0.0 101.454545455 122.727272727 165.272727273)" width="2.0" x="-0.5" xlink:href="data:image/png;base64,
-iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAABHNCSVQICAgIfAhkiAAAABtJREFUCJljvrVU8T+v6L0GhoZ/DP//JXv8BwBPvwlIEKcPcwAAAABJRU5ErkJggg==" y="-0.5"/>
+    <image height="202.909090909" id="image4ced63362d" transform="matrix(1.0 0.0 0.0 1.0 0.0 432.0)" width="202.909090909" x="72.0" xlink:href="data:image/png;base64,
+iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAABHNCSVQICAgIfAhkiAAAABtJREFUCJljvrVU8T+v6L0GhoZ/DP//JXv8BwBPvwlIEKcPcwAAAABJRU5ErkJggg==" y="-317.454545455"/>
    </g>
    <g id="matplotlib.axis_1">
     <g id="xtick_1">
@@ -208,7 +208,7 @@ z
 " style="fill:#ffffff;"/>
    </g>
    <g clip-path="url(#p6607dc6e30)">
-    <image height="203" width="204" x="315.490909091" xlink:href="data:image/png;base64,
+    <image height="203" id="image1d6fdd4b5b" width="204" x="315.490909091" xlink:href="data:image/png;base64,
 iVBORw0KGgoAAAANSUhEUgAAAMwAAADLCAYAAAAiJ3xKAAAABHNCSVQICAgIfAhkiAAAAldJREFUeJzt1UERwkAABMEEJXGDEXyAFD4xggAEYOYQkHzmdVDVrWA/U7t+9m0s/Jzn6z17AicuswfAPxEMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAYCwUAgGAgEA4FgIBAMBIKBQDAQCAaC9T6WMXsER4/bdfYETngYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEgoFAMBAIBgLBQCAYCAQDgWAgEAwEX/HUCgtErBocAAAAAElFTkSuQmCC" y="114.454545455"/>
    </g>
    <g id="matplotlib.axis_3">

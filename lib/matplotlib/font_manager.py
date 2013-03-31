@@ -43,7 +43,7 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-import os, sys, subprocess, warnings
+import os, sys, warnings
 try:
     set
 except NameError:
@@ -54,6 +54,7 @@ from matplotlib import ft2font
 from matplotlib import rcParams, get_configdir
 from matplotlib.cbook import is_string_like
 import matplotlib.cbook as cbook
+from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import \
     parse_fontconfig_pattern, generate_fontconfig_pattern
 
@@ -777,7 +778,7 @@ class FontProperties(object):
                 return float(self._size)
             except ValueError:
                 pass
-        default_size = fontManager.get_default_size()
+        default_size = FontManager.get_default_size()
         return default_size * font_scalings.get(self._size)
 
     def get_file(self):
@@ -997,7 +998,10 @@ class FontManager:
         self.afmfiles = findSystemFonts(paths, fontext='afm') + \
             findSystemFonts(fontext='afm')
         self.afmlist = createFontList(self.afmfiles, fontext='afm')
-        self.defaultFont['afm'] = self.afmfiles[0]
+        if len(self.afmfiles):
+            self.defaultFont['afm'] = self.afmfiles[0]
+        else:
+            self.defaultFont['afm'] = None
 
         self.ttf_lookup_cache = {}
         self.afm_lookup_cache = {}
@@ -1008,7 +1012,8 @@ class FontManager:
         """
         return self.__default_weight
 
-    def get_default_size(self):
+    @staticmethod
+    def get_default_size():
         """
         Return the default font size.
         """

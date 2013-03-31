@@ -83,7 +83,7 @@ _Plotting commands
   specgram - a spectrogram plot
   spy      - plot sparsity pattern using markers or image
   stem     - make a stem plot
-  subplot  - make a subplot (numrows, numcols, axesnum)
+  subplot  - make a subplot (nrows, ncols, plot_number)
   subplots_adjust - change the params controlling the subplot positions of current figure
   subplot_tool - launch the subplot configuration tool
   suptitle   - add a figure title
@@ -219,7 +219,10 @@ import sys, warnings
 from matplotlib.cbook import flatten, is_string_like, exception_to_str, \
      silent_list, iterable, dedent
 
-from matplotlib import mpl  # pulls in most modules
+import matplotlib as mpl
+# make mpl.finance module available for backwards compatability, in case folks
+# using pylab interface depended on not having to import it
+import matplotlib.finance
 
 from matplotlib.dates import date2num, num2date,\
         datestr2num, strpdate2num, drange,\

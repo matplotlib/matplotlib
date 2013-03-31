@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.sourceforge.net/) -->
+<!-- Created with matplotlib (http://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -153,26 +153,26 @@ z
    </defs>
    <g transform="translate(169.02 37.26)scale(0.12 -0.12)">
     <use transform="translate(0.0 115.168125)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e5"/>
-    <use transform="translate(-22.6190794373 26.875)scale(0.891683444717)" xlink:href="#STIXSizeOneSym-Regular-221a"/>
-    <use transform="translate(84.1190644836 87.4078125)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d61f"/>
-    <use transform="translate(133.119053802 77.89546875)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(104.119064484 0.30328125)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d620"/>
-    <use transform="translate(208.23904129 40.4203125)" xlink:href="#STIXGeneral-Regular-3d"/>
-    <use transform="translate(282.249664459 40.4203125)" xlink:href="#STIXGeneral-Regular-1d7e7"/>
+    <use transform="translate(-22.6025694275 26.875)scale(0.891683444717)" xlink:href="#STIXSizeOneSym-Regular-221a"/>
+    <use transform="translate(84.1025544739 87.4078125)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d61f"/>
+    <use transform="translate(133.102543793 77.89546875)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(104.102554474 0.30328125)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d620"/>
+    <use transform="translate(208.222531281 40.4203125)" xlink:href="#STIXGeneral-Regular-3d"/>
+    <use transform="translate(282.233154449 40.4203125)" xlink:href="#STIXGeneral-Regular-1d7e7"/>
     <path d="
-M71.6191 158.5
-L71.6191 164.75
-L193.119 164.75
-L193.119 158.5
-L71.6191 158.5
+M71.6026 158.5
+L71.6026 164.75
+L193.103 164.75
+L193.103 158.5
+L71.6026 158.5
 z
 "/>
     <path d="
-M84.1191 52.8955
-L84.1191 59.1455
-L168.119 59.1455
-L168.119 52.8955
-L84.1191 52.8955
+M84.1026 52.8955
+L84.1026 59.1455
+L168.103 59.1455
+L168.103 52.8955
+L84.1026 52.8955
 z
 "/>
    </g>

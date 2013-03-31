@@ -240,11 +240,15 @@ static void _dealloc_atsui(void)
 }
 #endif
 
-static int _draw_path(CGContextRef cr, void* iterator)
+static int _draw_path(CGContextRef cr, void* iterator, int nmax)
 {
     double x1, y1, x2, y2, x3, y3;
+    static unsigned code = STOP;
+    static double xs, ys;
+    CGPoint current;
     int n = 0;
-    unsigned code;
+
+    if (code == MOVETO) CGContextMoveToPoint(cr, xs, ys);
 
     while (true)
     {
@@ -261,7 +265,6 @@ static int _draw_path(CGContextRef cr, void* iterator)
         else if (code == MOVETO)
         {
             CGContextMoveToPoint(cr, x1, y1);
-            n++;
         }
         else if (code==LINETO)
         {
@@ -270,16 +273,35 @@ static int _draw_path(CGContextRef cr, void* iterator)
         }
         else if (code==CURVE3)
         {
-            get_vertex(iterator, &x2, &y2);
-            CGContextAddQuadCurveToPoint(cr, x1, y1, x2, y2);
+            get_vertex(iterator, &xs, &ys);
+            CGContextAddQuadCurveToPoint(cr, x1, y1, xs, ys);
             n+=2;
         }
         else if (code==CURVE4)
         {
             get_vertex(iterator, &x2, &y2);
-            get_vertex(iterator, &x3, &y3);
-            CGContextAddCurveToPoint(cr, x1, y1, x2, y2, x3, y3);
+            get_vertex(iterator, &xs, &ys);
+            CGContextAddCurveToPoint(cr, x1, y1, x2, y2, xs, ys);
             n+=3;
+        }
+        if (n >= nmax)
+        {
+            switch (code)
+            {
+                case MOVETO:
+                case LINETO:
+                    xs = x1;
+                    ys = y1;
+                    break;
+                case CLOSEPOLY:
+                    current = CGContextGetPathCurrentPoint(cr);
+                    xs = current.x;
+                    ys = current.y;
+                    break;
+                /* nothing needed for CURVE3, CURVE4 */
+            }
+            code = MOVETO;
+            return -n;
         }
     }
     return n;
@@ -287,6 +309,7 @@ static int _draw_path(CGContextRef cr, void* iterator)
 
 static void _draw_hatch(void *info, CGContextRef cr)
 {
+    int n;
     PyObject* hatchpath = (PyObject*)info;
     PyObject* transform;
     int nd = 2;
@@ -294,7 +317,6 @@ static void _draw_hatch(void *info, CGContextRef cr)
     int typenum = NPY_DOUBLE;
     double data[9] = {HATCH_SIZE, 0, 0, 0, HATCH_SIZE, 0, 0, 0, 1};
     double rect[4] = { 0.0, 0.0, HATCH_SIZE, HATCH_SIZE};
-    int n;
     transform = PyArray_SimpleNewFromData(nd, dims, typenum, data);
     if (!transform)
     {
@@ -320,7 +342,7 @@ static void _draw_hatch(void *info, CGContextRef cr)
         PyGILState_Release(gstate);
         return;
     }
-    n = _draw_path(cr, iterator);
+    n = _draw_path(cr, iterator, INT_MAX);
     free_path_iterator(iterator);
     if (n==0) return;
     CGContextSetLineWidth(cr, 1.0);
@@ -391,7 +413,7 @@ static void _release_hatch(void* info)
 - (void)keyDown:(NSEvent*)event;
 - (void)keyUp:(NSEvent*)event;
 - (void)scrollWheel:(NSEvent *)event;
-- (void)flagsChanged:(NSEvent*)event;
+//- (void)flagsChanged:(NSEvent*)event;
 @end
 
 @interface ScrollableButton : NSButton
@@ -702,7 +724,7 @@ GraphicsContext_set_clip_path (GraphicsContext* self, PyObject* args)
             "set_clip_path: failed to obtain path iterator for clipping");
         return NULL;
     }
-    n = _draw_path(cr, iterator);
+    n = _draw_path(cr, iterator, INT_MAX);
     free_path_iterator(iterator);
 
     if (n > 0) CGContextClip(cr);
@@ -952,89 +974,98 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
                         "draw_path: failed to obtain path iterator");
         return NULL;
     }
-    n = _draw_path(cr, iterator);
-    free_path_iterator(iterator);
 
-    if (n > 0)
+    if(rgbFace)
     {
-        PyObject* hatchpath;
-        if(rgbFace)
+        float r, g, b;
+        if (!PyArg_ParseTuple(rgbFace, "fff", &r, &g, &b))
+            return NULL;
+        n = _draw_path(cr, iterator, INT_MAX);
+        if (n > 0)
         {
-            float r, g, b;
-            if (!PyArg_ParseTuple(rgbFace, "fff", &r, &g, &b))
-                return NULL;
             CGContextSaveGState(cr);
             CGContextSetRGBFillColor(cr, r, g, b, 1.0);
             CGContextDrawPath(cr, kCGPathFillStroke);
             CGContextRestoreGState(cr);
         }
-        else CGContextStrokePath(cr);
-
-        hatchpath = PyObject_CallMethod((PyObject*)self, "get_hatch_path", "");
-        if (!hatchpath)
+    }
+    else
+    {
+        const int nmax = 100;
+        while (true)
         {
-            return NULL;
+            n = _draw_path(cr, iterator, nmax);
+            if (n != 0) CGContextStrokePath(cr);
+            if (n >= 0) break;
         }
-        else if (hatchpath==Py_None)
+    }
+    free_path_iterator(iterator);
+
+    PyObject* hatchpath;
+    hatchpath = PyObject_CallMethod((PyObject*)self, "get_hatch_path", "");
+    if (!hatchpath)
+    {
+        return NULL;
+    }
+    else if (hatchpath==Py_None)
+    {
+        Py_DECREF(hatchpath);
+    }
+    else
+    {
+        CGPatternRef pattern;
+        CGColorSpaceRef baseSpace;
+        CGColorSpaceRef patternSpace;
+        static const CGPatternCallbacks callbacks = {0,
+                                                     &_draw_hatch,
+                                                     &_release_hatch};
+        baseSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        if (!baseSpace)
         {
             Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: CGColorSpaceCreateWithName failed");
+            return NULL;
         }
-        else
+        patternSpace = CGColorSpaceCreatePattern(baseSpace);
+        CGColorSpaceRelease(baseSpace);
+        if (!patternSpace)
         {
-            CGPatternRef pattern;
-            CGColorSpaceRef baseSpace;
-            CGColorSpaceRef patternSpace;
-            static const CGPatternCallbacks callbacks = {0,
-                                                         &_draw_hatch,
-                                                         &_release_hatch};
-            baseSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-            if (!baseSpace)
-            {
-                Py_DECREF(hatchpath);
-                PyErr_SetString(PyExc_RuntimeError,
-                    "draw_path: CGColorSpaceCreateWithName failed");
-                return NULL;
-            }
-            patternSpace = CGColorSpaceCreatePattern(baseSpace);
-            CGColorSpaceRelease(baseSpace);
-            if (!patternSpace)
-            {
-                Py_DECREF(hatchpath);
-                PyErr_SetString(PyExc_RuntimeError,
-                    "draw_path: CGColorSpaceCreatePattern failed");
-                return NULL;
-            }
-            CGContextSetFillColorSpace(cr, patternSpace);
-            CGColorSpaceRelease(patternSpace);
-
-            pattern = CGPatternCreate((void*)hatchpath,
-                                      CGRectMake(0, 0, HATCH_SIZE, HATCH_SIZE),
-                                      CGAffineTransformIdentity,
-                                      HATCH_SIZE, HATCH_SIZE,
-                                      kCGPatternTilingNoDistortion,
-                                      false,
-                                      &callbacks);
-            CGContextSetFillPattern(cr, pattern, self->color);
-            CGPatternRelease(pattern);
-            iterator  = get_path_iterator(path,
-                                          transform,
-                                          1,
-                                          0,
-                                          rect,
-                                          SNAP_AUTO,
-                                          linewidth,
-                                          0);
-            if (!iterator)
-            {
-                Py_DECREF(hatchpath);
-                PyErr_SetString(PyExc_RuntimeError,
-                    "draw_path: failed to obtain path iterator for hatching");
-                return NULL;
-            }
-            n = _draw_path(cr, iterator);
-            free_path_iterator(iterator);
-            CGContextFillPath(cr);
+            Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: CGColorSpaceCreatePattern failed");
+            return NULL;
         }
+        CGContextSetFillColorSpace(cr, patternSpace);
+        CGColorSpaceRelease(patternSpace);
+
+        pattern = CGPatternCreate((void*)hatchpath,
+                                  CGRectMake(0, 0, HATCH_SIZE, HATCH_SIZE),
+                                  CGAffineTransformIdentity,
+                                  HATCH_SIZE, HATCH_SIZE,
+                                  kCGPatternTilingNoDistortion,
+                                  false,
+                                  &callbacks);
+        CGContextSetFillPattern(cr, pattern, self->color);
+        CGPatternRelease(pattern);
+        iterator  = get_path_iterator(path,
+                                      transform,
+                                      1,
+                                      0,
+                                      rect,
+                                      SNAP_AUTO,
+                                      linewidth,
+                                      0);
+        if (!iterator)
+        {
+            Py_DECREF(hatchpath);
+            PyErr_SetString(PyExc_RuntimeError,
+                "draw_path: failed to obtain path iterator for hatching");
+            return NULL;
+        }
+        n = _draw_path(cr, iterator, INT_MAX);
+        free_path_iterator(iterator);
+        if (n > 0) CGContextFillPath(cr);
     }
 
     Py_INCREF(Py_None);
@@ -4747,7 +4778,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     NSFont* font = [NSFont systemFontOfSize: 0.0];
     rect.size.width = 300;
     rect.size.height = 0;
-    rect.origin.x += 200;
+    rect.origin.x += height;
     NSText* messagebox = [[NSText alloc] initWithFrame: rect];
     [messagebox setFont: font];
     [messagebox setDrawsBackground: NO];
@@ -5439,66 +5470,73 @@ set_cursor(PyObject* unused, PyObject* args)
     rubberband = NSZeroRect;
 }
 
+
+
 - (const char*)convertKeyEvent:(NSEvent*)event
 {
-    NSString* text = [event charactersIgnoringModifiers];
-    unichar uc = [text characterAtIndex:0];
-    int i = (int)uc;
-    if ([event modifierFlags] & NSNumericPadKeyMask)
-    {
-        if (i > 256)
-        {
-            if (uc==NSLeftArrowFunctionKey) return "left";
-            else if (uc==NSUpArrowFunctionKey) return "up";
-            else if (uc==NSRightArrowFunctionKey) return "right";
-            else if (uc==NSDownArrowFunctionKey) return "down";
-            else if (uc==NSF1FunctionKey) return "f1";
-            else if (uc==NSF2FunctionKey) return "f2";
-            else if (uc==NSF3FunctionKey) return "f3";
-            else if (uc==NSF4FunctionKey) return "f4";
-            else if (uc==NSF5FunctionKey) return "f5";
-            else if (uc==NSF6FunctionKey) return "f6";
-            else if (uc==NSF7FunctionKey) return "f7";
-            else if (uc==NSF8FunctionKey) return "f8";
-            else if (uc==NSF9FunctionKey) return "f9";
-            else if (uc==NSF10FunctionKey) return "f10";
-            else if (uc==NSF11FunctionKey) return "f11";
-            else if (uc==NSF12FunctionKey) return "f12";
-            else if (uc==NSScrollLockFunctionKey) return "scroll_lock";
-            else if (uc==NSBreakFunctionKey) return "break";
-            else if (uc==NSInsertFunctionKey) return "insert";
-            else if (uc==NSDeleteFunctionKey) return "delete";
-            else if (uc==NSHomeFunctionKey) return "home";
-            else if (uc==NSEndFunctionKey) return "end";
-            else if (uc==NSPageUpFunctionKey) return "pageup";
-            else if (uc==NSPageDownFunctionKey) return "pagedown";
-        }
-        else if ((char)uc == '.') return "dec";
-    }
+    NSDictionary* specialkeymappings = [NSDictionary dictionaryWithObjectsAndKeys:
+                                        @"left", [NSNumber numberWithUnsignedLong:NSLeftArrowFunctionKey],
+                                        @"right", [NSNumber numberWithUnsignedLong:NSRightArrowFunctionKey],
+                                        @"up", [NSNumber numberWithUnsignedLong:NSUpArrowFunctionKey],
+                                        @"down", [NSNumber numberWithUnsignedLong:NSDownArrowFunctionKey],
+                                        @"f1", [NSNumber numberWithUnsignedLong:NSF1FunctionKey],
+                                        @"f2", [NSNumber numberWithUnsignedLong:NSF2FunctionKey],
+                                        @"f3", [NSNumber numberWithUnsignedLong:NSF3FunctionKey],
+                                        @"f4", [NSNumber numberWithUnsignedLong:NSF4FunctionKey],
+                                        @"f5", [NSNumber numberWithUnsignedLong:NSF5FunctionKey],
+                                        @"f6", [NSNumber numberWithUnsignedLong:NSF6FunctionKey],
+                                        @"f7", [NSNumber numberWithUnsignedLong:NSF7FunctionKey],
+                                        @"f8", [NSNumber numberWithUnsignedLong:NSF8FunctionKey],
+                                        @"f9", [NSNumber numberWithUnsignedLong:NSF9FunctionKey],
+                                        @"f10", [NSNumber numberWithUnsignedLong:NSF10FunctionKey],
+                                        @"f11", [NSNumber numberWithUnsignedLong:NSF11FunctionKey],
+                                        @"f12", [NSNumber numberWithUnsignedLong:NSF12FunctionKey],
+                                        @"f13", [NSNumber numberWithUnsignedLong:NSF13FunctionKey],
+                                        @"f14", [NSNumber numberWithUnsignedLong:NSF14FunctionKey],
+                                        @"f15", [NSNumber numberWithUnsignedLong:NSF15FunctionKey],
+                                        @"f16", [NSNumber numberWithUnsignedLong:NSF16FunctionKey],
+                                        @"f17", [NSNumber numberWithUnsignedLong:NSF17FunctionKey],
+                                        @"f18", [NSNumber numberWithUnsignedLong:NSF18FunctionKey],
+                                        @"f19", [NSNumber numberWithUnsignedLong:NSF19FunctionKey],
+                                        @"scroll_lock", [NSNumber numberWithUnsignedLong:NSScrollLockFunctionKey],
+                                        @"break", [NSNumber numberWithUnsignedLong:NSBreakFunctionKey],
+                                        @"insert", [NSNumber numberWithUnsignedLong:NSInsertFunctionKey],
+                                        @"delete", [NSNumber numberWithUnsignedLong:NSDeleteFunctionKey],
+                                        @"home", [NSNumber numberWithUnsignedLong:NSHomeFunctionKey],
+                                        @"end", [NSNumber numberWithUnsignedLong:NSEndFunctionKey],
+                                        @"pagedown", [NSNumber numberWithUnsignedLong:NSPageDownFunctionKey],
+                                        @"pageup", [NSNumber numberWithUnsignedLong:NSPageUpFunctionKey],
+                                        @"backspace", [NSNumber numberWithUnsignedLong:NSDeleteCharacter],
+                                        @"enter", [NSNumber numberWithUnsignedLong:NSEnterCharacter],
+                                        @"tab", [NSNumber numberWithUnsignedLong:NSTabCharacter],
+                                        @"enter", [NSNumber numberWithUnsignedLong:NSCarriageReturnCharacter],
+                                        @"backtab", [NSNumber numberWithUnsignedLong:NSBackTabCharacter],
+                                        @"escape", [NSNumber numberWithUnsignedLong:27],
+                                        nil
+                                        ];
 
-    switch (i)
-    {
-        case 127: return "backspace";
-        case 13: return "enter";
-        case 3: return "enter";
-        case 27: return "escape";
-        default:
-        {
-            static char s[2];
-            s[0] = (char)uc;
-            s[1] = '\0';
-            return (const char*)s;
-        }
-    }
+    NSMutableString* returnkey = [NSMutableString string];
+    if ([event modifierFlags] & NSControlKeyMask)
+        [returnkey appendString:@"ctrl+" ];
+    if ([event modifierFlags] & NSAlternateKeyMask)
+        [returnkey appendString:@"alt+" ];
+    if ([event modifierFlags] & NSCommandKeyMask)
+        [returnkey appendString:@"cmd+" ];
 
-    return NULL;
+    unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
+    NSString* specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
+    if (specialchar)
+        [returnkey appendString:specialchar];
+    else
+        [returnkey appendString:[event charactersIgnoringModifiers]];
+
+    return [returnkey UTF8String];
 }
 
 - (void)keyDown:(NSEvent*)event
 {
     PyObject* result;
     const char* s = [self convertKeyEvent: event];
-    /* TODO: Handle ctrl, alt, super modifiers. qt4 has implemented these. */    
     PyGILState_STATE gstate = PyGILState_Ensure();
     if (s==NULL)
     {
@@ -5520,7 +5558,6 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     PyObject* result;
     const char* s = [self convertKeyEvent: event];
-    /* TODO: Handle ctrl, alt, super modifiers. qt4 has implemented these. */
     PyGILState_STATE gstate = PyGILState_Ensure();
     if (s==NULL)
     {
@@ -5561,6 +5598,9 @@ set_cursor(PyObject* unused, PyObject* args)
     PyGILState_Release(gstate);
 }
 
+/* This is all wrong. Address of pointer is being passed instead of pointer, keynames don't
+   match up with what the front-end and does the front-end even handle modifier keys by themselves?
+
 - (void)flagsChanged:(NSEvent*)event
 {
     const char *s = NULL;
@@ -5580,6 +5620,7 @@ set_cursor(PyObject* unused, PyObject* args)
 
     PyGILState_Release(gstate);
 }
+ */
 @end
 
 @implementation ScrollableButton

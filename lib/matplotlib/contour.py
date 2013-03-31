@@ -854,7 +854,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 col = mcoll.LineCollection(segs,
                                      antialiaseds=aa,
                                      linewidths=width,
-                                     linestyle=lstyle,
+                                     linestyle=[lstyle],
                                      alpha=self.alpha,
                                      transform=self.get_transform(),
                                      zorder=zorder)

@@ -28,6 +28,7 @@ from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.image import imread as _imread
 from matplotlib.image import imsave as _imsave
 from matplotlib import rcParams, rcParamsDefault, get_backend
+from matplotlib import rc_context
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import getp, get, Artist
 from matplotlib.artist import setp as _setp
@@ -193,6 +194,10 @@ def pause(interval):
 @docstring.copy_dedent(matplotlib.rc)
 def rc(*args, **kwargs):
     matplotlib.rc(*args, **kwargs)
+
+@docstring.copy_dedent(matplotlib.rc_context)
+def rc_context(rc=None, fname=None):
+    return matplotlib.rc_context(rc, fname)
 
 @docstring.copy_dedent(matplotlib.rcdefaults)
 def rcdefaults():
@@ -711,35 +716,47 @@ def gca(**kwargs):
 
 def subplot(*args, **kwargs):
     """
-    Create a new axes (subplot).
+    Return a subplot axes positioned by the given grid definition.
 
-    Creating axes with::
+    Typical call signature::
 
-      subplot(numRows, numCols, plotNum)
+      subplot(nrows, ncols, plot_number)
 
-    where *plotNum* = 1 is the first plot number and increasing *plotNums*
-    fill rows first.  max(*plotNum*) == *numRows* * *numCols*
+    Where *nrows* and *ncols* are used to notionally split the figure
+    into ``nrows * ncols`` sub-axes, and *plot_number* is used to identify
+    the particular subplot that this function is to create within the notional
+    grid. *plot_number* starts at 1, increments across rows first and has a
+    maximum of ``nrows * ncols``.
 
-    You can leave out the commas if *numRows* <= *numCols* <=
-    *plotNum* < 10, as in::
+    In the case when *nrows*, *ncols* and *plot_number* are all less than 10,
+    a convenience exists, such that the a 3 digit number can be given instead,
+    where the hundreds represent *nrows*, the tens represent *ncols* and the
+    units represent *plot_number*. For instance::
 
-      subplot(211)    # 2 rows, 1 column, first (upper) plot
+      subplot(211)
 
-    ``subplot(111)`` is the default axis.
+    produces a subaxes in a figure which represents the top plot (i.e. the
+    first) in a 2 row by 1 column notional grid (no grid actually exists,
+    but conceptually this is how the returned subplot has been positioned).
 
-    ``subplot()`` by itself is the same as ``subplot(111)``
+    .. note::
 
+       Creating a new subplot with a position which is entirely inside a
+       pre-existing axes will trigger the larger axes to be deleted::
 
-    New subplots that overlap old will delete the old axes.  If you do
-    not want this behavior, use
-    :meth:`~matplotlib.figure.Figure.add_subplot` or the
-    :func:`~matplotlib.pyplot.axes` command.  Eg.::
+          import matplotlib.pyplot as plt
+          # plot a line, implicitly creating a subplot(111)
+          plt.plot([1,2,3])
+          # now create a subplot which represents the top plot of a grid
+          # with 2 rows and 1 column. Since this subplot will overlap the
+          # first, the plot (and its axes) previously created, will be removed
+          plt.subplot(211)
+          plt.plot(range(12))
+          plt.subplot(212, axisbg='y') # creates 2nd subplot with yellow background
 
-      from pylab import *
-      plot([1,2,3])  # implicitly creates subplot(111)
-      subplot(211)   # overlaps, subplot(111) is killed
-      plot(rand(12), rand(12))
-      subplot(212, axisbg='y') # creates 2nd subplot with yellow background
+       If you do not want this behavior, use the
+       :meth:`~matplotlib.figure.Figure.add_subplot` method or the
+       :func:`~matplotlib.pyplot.axes` function instead.
 
     Keyword arguments:
 
@@ -1166,26 +1183,49 @@ def box(on=None):
     ax.set_frame_on(on)
     draw_if_interactive()
 
+
 def title(s, *args, **kwargs):
     """
-    Set the title of the current axis.
+    title(label, fontdict=None, loc='center', **kwargs)
 
-    Default font override is::
+    Set a title of the current axes.
 
-      override = {'fontsize': 'medium',
-                  'verticalalignment': 'baseline',
-                  'horizontalalignment': 'center'}
+    Set one of the three available axes titles. The available titles are
+    positioned above the axes in the center, flush with the left edge,
+    and flush with the right edge.
 
-    .. seealso::
+    Parameters
+    ----------
+    label : str
+        Text to use for the title
+    fontdict : dict
+        A dictionary controlling the appearance of the title text,
+        the default `fontdict` is:
+        {'fontsize': rcParams['axes.titlesize'],
+         'verticalalignment': 'baseline',
+         'horizontalalignment': loc}
+    loc : {'center', 'left', 'right'}, str, optional
+        Which title to set, defaults to 'center'
 
-       :func:`~matplotlib.pyplot.text`
-           for information on how override and the optional args work.
+    Returns
+    -------
+    text : :class:`~matplotlib.text.Text`
+        The matplotlib text instance representing the title
+
+    Other parameters
+    ----------------
+    Other keyword arguments are text properties, see
+    :class:`~matplotlib.text.Text` for a list of valid text
+    properties.
+
+    See also
+    --------
+    See :func:`~matplotlib.pyplot.text` for adding text to the current axes
+
     """
     l =  gca().set_title(s, *args, **kwargs)
     draw_if_interactive()
     return l
-
-
 
 
 ## Axis ##
@@ -1722,8 +1762,8 @@ def colormaps():
       for nominal data that has no inherent ordering, where color is used
       only to distinguish categories
 
-    The base colormaps are (with the exception of `spectral`) derived from
-    those of the same name provided with Matlab:
+    The base colormaps are derived from those of the same name provided 
+    with Matlab:
 
       =========   =======================================================
       Colormap    Description
@@ -1750,7 +1790,6 @@ def colormaps():
       spring      linearly-increasing shades of magenta-yellow
       summer      sequential linearly-increasing shades of green-yellow
       winter      linearly-increasing shades of blue-green
-      spectral    black-purple-blue-green-yellow-red-white spectrum
       =========   =======================================================
 
     For the above list only, you can also set the colormap using the
@@ -1845,43 +1884,45 @@ def colormaps():
 
     Other miscellaneous schemes:
 
-      =========  =======================================================
-      Colormap   Description
-      =========  =======================================================
-      afmhot     sequential black-orange-yellow-white blackbody
-                 spectrum, commonly used in atomic force microscopy
-      brg        blue-red-green
-      bwr        diverging blue-white-red
-      coolwarm   diverging blue-gray-red, meant to avoid issues with 3D
-                 shading, color blindness, and ordering of colors [#]_
-      CMRmap     "Default colormaps on color images often reproduce to
-                 confusing grayscale images. The proposed colormap
-                 maintains an aesthetically pleasing color image that
-                 automatically reproduces to a monotonic grayscale with
-                 discrete, quantifiable saturation levels." [#]_
-      cubehelix  Unlike most other color schemes cubehelix was designed
-                 by D.A. Green to be monotonically increasing in terms
-                 of perceived brightness. Also, when printed on a black
-                 and white postscript printer, the scheme results in a
-                 greyscale with monotonically increasing brightness.
-                 This color scheme is named cubehelix because the r,g,b
-                 values produced can be visualised as a squashed helix
-                 around the diagonal in the r,g,b color cube.
-      gnuplot    gnuplot's traditional pm3d scheme
-                 (black-blue-red-yellow)
-      gnuplot2   sequential color printable as gray
-                 (black-blue-violet-yellow-white)
-      ocean      green-blue-white
-      rainbow    spectral purple-blue-green-yellow-orange-red colormap
-                 with diverging luminance
-      seismic    diverging blue-white-red
-      terrain    mapmaker's colors, blue-green-yellow-brown-white,
-                 originally from IGOR Pro
-      =========  =======================================================
+      ============= =======================================================
+      Colormap      Description
+      ============= =======================================================
+      afmhot        sequential black-orange-yellow-white blackbody
+                    spectrum, commonly used in atomic force microscopy
+      brg           blue-red-green
+      bwr           diverging blue-white-red
+      coolwarm      diverging blue-gray-red, meant to avoid issues with 3D
+                    shading, color blindness, and ordering of colors [#]_
+      CMRmap        "Default colormaps on color images often reproduce to
+                    confusing grayscale images. The proposed colormap
+                    maintains an aesthetically pleasing color image that
+                    automatically reproduces to a monotonic grayscale with
+                    discrete, quantifiable saturation levels." [#]_
+      cubehelix     Unlike most other color schemes cubehelix was designed
+                    by D.A. Green to be monotonically increasing in terms
+                    of perceived brightness. Also, when printed on a black
+                    and white postscript printer, the scheme results in a
+                    greyscale with monotonically increasing brightness.
+                    This color scheme is named cubehelix because the r,g,b
+                    values produced can be visualised as a squashed helix
+                    around the diagonal in the r,g,b color cube.
+      gnuplot       gnuplot's traditional pm3d scheme
+                    (black-blue-red-yellow)
+      gnuplot2      sequential color printable as gray
+                    (black-blue-violet-yellow-white)
+      ocean         green-blue-white
+      rainbow       spectral purple-blue-green-yellow-orange-red colormap
+                    with diverging luminance
+      seismic       diverging blue-white-red
+      nipy_spectral black-purple-blue-green-yellow-red-white spectrum, 
+                    originally from the Neuroimaging in Python project
+      terrain       mapmaker's colors, blue-green-yellow-brown-white,
+                    originally from IGOR Pro
+      ============= =======================================================
 
     The following colormaps are redundant and may be removed in future
-    versions.  It's recommended to use *gray* or *gray_r* instead, which
-    produce identical output:
+    versions.  It's recommended to use the names in the descriptions 
+    instead, which produce identical output:
 
       =========  =======================================================
       Colormap   Description
@@ -1889,6 +1930,7 @@ def colormaps():
       gist_gray  identical to *gray*
       gist_yarg  identical to *gray_r*
       binary     identical to *gray_r*
+      spectral   identical to *nipy_spectral* [#]_
       =========  =======================================================
 
     .. rubric:: Footnotes
@@ -1910,6 +1952,11 @@ def colormaps():
       Color-Scale Images
       <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
       by Carey Rappaport
+      
+    .. [#] Changed to distinguish from ColorBrewer's *Spectral* map.
+      :func:`spectral` still works, but 
+      ``set_cmap('nipy_spectral')`` is recommended for clarity.
+                 
 
     """
     return sorted(cm.cmap_d.keys())
@@ -2557,6 +2604,29 @@ def errorbar(x, y, yerr=None, xerr=None, fmt='-', ecolor=None, elinewidth=None,
 
 # This function was autogenerated by boilerplate.py.  Do not edit as
 # changes will be lost
+@_autogen_docstring(Axes.eventplot)
+def eventplot(positions, orientation='horizontal', lineoffsets=1, linelengths=1,
+              linewidths=None, colors=None, linestyles='solid', hold=None,
+              **kwargs):
+    ax = gca()
+    # allow callers to override the hold state by passing hold=True|False
+    washold = ax.ishold()
+
+    if hold is not None:
+        ax.hold(hold)
+    try:
+        ret = ax.eventplot(positions, orientation=orientation,
+                           lineoffsets=lineoffsets, linelengths=linelengths,
+                           linewidths=linewidths, colors=colors,
+                           linestyles=linestyles, **kwargs)
+        draw_if_interactive()
+    finally:
+        ax.hold(washold)
+
+    return ret
+
+# This function was autogenerated by boilerplate.py.  Do not edit as
+# changes will be lost
 @_autogen_docstring(Axes.fill)
 def fill(*args, **kwargs):
     ax = gca()
@@ -2904,8 +2974,8 @@ def quiverkey(*args, **kw):
 # changes will be lost
 @_autogen_docstring(Axes.scatter)
 def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None,
-            vmax=None, alpha=None, linewidths=None, faceted=True, verts=None,
-            hold=None, **kwargs):
+            vmax=None, alpha=None, linewidths=None, verts=None, hold=None,
+            **kwargs):
     ax = gca()
     # allow callers to override the hold state by passing hold=True|False
     washold = ax.ishold()
@@ -2915,8 +2985,7 @@ def scatter(x, y, s=20, c='b', marker='o', cmap=None, norm=None, vmin=None,
     try:
         ret = ax.scatter(x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
                          vmin=vmin, vmax=vmax, alpha=alpha,
-                         linewidths=linewidths, faceted=faceted, verts=verts,
-                         **kwargs)
+                         linewidths=linewidths, verts=verts, **kwargs)
         draw_if_interactive()
     finally:
         ax.hold(washold)

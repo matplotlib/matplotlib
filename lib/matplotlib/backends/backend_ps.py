@@ -87,7 +87,7 @@ class PsBackendHelper(object):
         except KeyError:
             pass
 
-        from subprocess import Popen, PIPE
+        from matplotlib.compat.subprocess import Popen, PIPE
         pipe = Popen(self.gs_exe + " --version",
                      shell=True, stdout=PIPE).stdout
         if sys.version_info[0] >= 3:
@@ -469,7 +469,7 @@ class RendererPS(RendererBase):
         im.flipud_out()
 
         h, w, bits, imagecmd = self._get_image_h_w_bits_command(im)
-        hexlines = '\n'.join(self._hex_lines(bits))
+        hexlines = b'\n'.join(self._hex_lines(bits)).decode('ascii')
 
         if dx is None:
             xscale = w / self.image_magnification
@@ -587,7 +587,7 @@ grestore
             if rgbFace[0]==rgbFace[1] and rgbFace[0]==rgbFace[2]:
                 ps_color = '%1.3f setgray' % rgbFace[0]
             else:
-                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace
+                ps_color = '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3]
 
         # construct the generic marker command:
         ps_cmd = ['/o {', 'gsave', 'newpath', 'translate'] # dont want the translate to be global
@@ -973,11 +973,6 @@ class FigureCanvasPS(FigureCanvasBase):
     def print_eps(self, outfile, *args, **kwargs):
         return self._print_ps(outfile, 'eps', *args, **kwargs)
 
-
-
-
-
-
     def _print_ps(self, outfile, format, *args, **kwargs):
         papertype = kwargs.pop("papertype", rcParams['ps.papersize'])
         papertype = papertype.lower()
@@ -1105,8 +1100,7 @@ class FigureCanvasPS(FigureCanvasBase):
         self.figure.set_facecolor(origfacecolor)
         self.figure.set_edgecolor(origedgecolor)
 
-        fd, tmpfile = mkstemp()
-        with io.open(fd, 'wb') as raw_fh:
+        def print_figure_impl():
             if sys.version_info[0] >= 3:
                 fh = io.TextIOWrapper(raw_fh, encoding="ascii")
             else:
@@ -1179,21 +1173,41 @@ class FigureCanvasPS(FigureCanvasBase):
             print("end", file=fh)
             print("showpage", file=fh)
             if not isEPSF: print("%%EOF", file=fh)
+            fh.flush()
 
-        if rcParams['ps.usedistiller'] == 'ghostscript':
-            gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
-        elif rcParams['ps.usedistiller'] == 'xpdf':
-            xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+            if sys.version_info[0] >= 3:
+                fh.detach()
 
-        if passed_in_file_object:
-            with open(tmpfile, 'rb') as fh:
-                print(fh.read(), file=outfile)
+        if rcParams['ps.usedistiller']:
+            # We are going to use an external program to process the output.
+            # Write to a temporary file.
+            fd, tmpfile = mkstemp()
+            with io.open(fd, 'wb') as raw_fh:
+                print_figure_impl()
         else:
-            with open(outfile, 'w') as fh:
-                pass
-            mode = os.stat(outfile).st_mode
-            shutil.move(tmpfile, outfile)
-            os.chmod(outfile, mode)
+            # Write directly to outfile.
+            if passed_in_file_object:
+                raw_fh = outfile
+                print_figure_impl()
+            else:
+                with open(outfile, 'wb') as raw_fh:
+                    print_figure_impl()
+
+        if rcParams['ps.usedistiller']:
+            if rcParams['ps.usedistiller'] == 'ghostscript':
+                gs_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+            elif rcParams['ps.usedistiller'] == 'xpdf':
+                xpdf_distill(tmpfile, isEPSF, ptype=papertype, bbox=bbox)
+
+            if passed_in_file_object:
+                with open(tmpfile, 'rb') as fh:
+                    outfile.write(fh.read())
+            else:
+                with open(outfile, 'w') as fh:
+                    pass
+                mode = os.stat(outfile).st_mode
+                shutil.move(tmpfile, outfile)
+                os.chmod(outfile, mode)
 
     def _print_figure_tex(self, outfile, format, dpi, facecolor, edgecolor,
                           orientation, isLandscape, papertype,
@@ -1293,6 +1307,7 @@ class FigureCanvasPS(FigureCanvasBase):
             #print >>fh, "grestore"
             print("end", file=fh)
             print("showpage", file=fh)
+            fh.flush()
 
         if isLandscape: # now we are ready to rotate
             isLandscape = True

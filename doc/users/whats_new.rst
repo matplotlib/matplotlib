@@ -22,6 +22,37 @@ revision, see the :ref:`github-stats`.
 new in matplotlib-1.3
 =====================
 
+New eventplot plot type
+-------------------------------------
+Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
+create multiple rows or columns of identical line segments
+
+New EventCollection collections class
+-------------------------------------
+Todd Jennings created the new :class:`~matplotlib.collections.EventCollection`
+class that allows for plotting and manipulating rows or columns of identical
+line segments
+
+Baselines for stackplot
+-----------------------
+Till Stensitzki added non-zero baselines to :func:`~matplotlib.pyplot.stackplot`.
+They may be symmetric or weighted.
+
+.. plot:: mpl_examples/pylab_examples/stackplot_demo2.py
+
+Improved ``bbox_inches="tight"`` functionality
+----------------------------------------------
+Passing ``bbox_inches="tight"`` through to :func:`plt.save` now takes into account
+*all* artists on a figure - this was previously not the case and led to several
+corner cases which did not function as expected.
+
+
+Remember save directory
+-----------------------
+Martin Spacek made the save figure dialog remember the last directory saved
+to. The default is configurable with the new `savefig.directory` setting
+in `matplotlibrc`.
+
 Initialize a rotated rectangle
 ------------------------------
 Damon McDougall extended the :class:`~matplotlib.patches.Rectangle` constructor
@@ -51,10 +82,23 @@ conversion (`mpl.rc('svg', fonttype='none')`).
 
 Triangular grid interpolation
 -----------------------------
-Ian Thomas added classes to perform interpolation within triangular grids
-(:class:`~matplotlib.tri.LinearTriInterpolator`) and a utility class to find
+Geoffroy Billotey and Ian Thomas added classes to perform interpolation within
+triangular grids: (:class:`~matplotlib.tri.LinearTriInterpolator` and
+:class:`~matplotlib.tri.CubicTriInterpolator`) and a utility class to find
 the triangles in which points lie (
 :class:`~matplotlib.tri.TrapezoidMapTriFinder`).
+A helper class to perform mesh refinement and smooth contouring was also added
+(:class:`~matplotlib.tri.UniformTriRefiner`).
+Finally, a class implementing some basic tools for triangular mesh improvement
+was added (:class:`~matplotlib.tri.TriAnalyzer`).
+
+.. plot:: mpl_examples/pylab_examples/tricontour_smooth_user.py
+
+Left and right side axes titles
+-------------------------------
+Andrew Dawson added the ability to add axes titles flush with the left and
+right sides of the top of the axes using a new keyword argument `loc` to
+:func:`~matplotlib.pyplot.title`.
 
 .. _whats-new-1-2:
 
