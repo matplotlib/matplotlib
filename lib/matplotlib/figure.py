@@ -259,7 +259,7 @@ class Figure(Artist):
                  facecolor=None,  # defaults to rc figure.facecolor
                  edgecolor=None,  # defaults to rc figure.edgecolor
                  linewidth=0.0,  # the default linewidth of the frame
-                 frameon=True,  # whether or not to draw the figure frame
+                 frameon=None,  # whether or not to draw the figure frame
                  subplotpars=None,  # default to rc
                  tight_layout=None,  # default to rc figure.autolayout
                  ):
@@ -302,6 +302,8 @@ class Figure(Artist):
             facecolor = rcParams['figure.facecolor']
         if edgecolor is None:
             edgecolor = rcParams['figure.edgecolor']
+        if frameon is None:
+            frameon = rcParams['figure.frameon']
 
         self.dpi_scale_trans = Affine2D()
         self.dpi = dpi
@@ -1306,7 +1308,8 @@ class Figure(Artist):
 
           savefig(fname, dpi=None, facecolor='w', edgecolor='w',
                   orientation='portrait', papertype=None, format=None,
-                  transparent=False, bbox_inches=None, pad_inches=0.1)
+                  transparent=False, bbox_inches=None, pad_inches=0.1,
+                  frameon=None)
 
         The output formats available depend on the backend being used.
 
@@ -1355,6 +1358,10 @@ class Figure(Artist):
             transparency of these patches will be restored to their
             original values upon exit of this function.
 
+          *frameon*:
+            If *True*, the figure patch will be colored. Else the figure
+            background will be transparent.
+
           *bbox_inches*:
             Bbox in inches. Only the given portion of the figure is
             saved. If 'tight', try to figure out the tight bbox of
@@ -1371,8 +1378,9 @@ class Figure(Artist):
         """
 
         kwargs.setdefault('dpi', rcParams['savefig.dpi'])
-
+        frameon = kwargs.pop('frameon', rcParams['savefig.frameon'])
         transparent = kwargs.pop('transparent', False)
+
         if transparent:
             kwargs.setdefault('facecolor', 'none')
             kwargs.setdefault('edgecolor', 'none')
@@ -1387,7 +1395,14 @@ class Figure(Artist):
             kwargs.setdefault('facecolor', rcParams['savefig.facecolor'])
             kwargs.setdefault('edgecolor', rcParams['savefig.edgecolor'])
 
+        if frameon:
+            original_frameon = self.get_frameon()
+            self.set_frameon(frameon)
+
         self.canvas.print_figure(*args, **kwargs)
+
+        if frameon:
+            self.set_frameon(original_frameon)
 
         if transparent:
             for ax, cc in zip(self.axes, original_axes_colors):
