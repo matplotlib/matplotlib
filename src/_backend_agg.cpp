@@ -1108,7 +1108,7 @@ RendererAgg::draw_image(const Py::Tuple& args)
         inv_mtx.invert();
 
         typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
-        typedef agg::image_accessor_clip<agg::pixfmt_rgba32>
+        typedef agg::image_accessor_clip<agg::pixfmt_rgba32_plain>
             image_accessor_type;
         typedef agg::span_interpolator_linear<> interpolator_type;
         typedef agg::span_image_filter_rgba_nn<image_accessor_type,

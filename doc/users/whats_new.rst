@@ -148,6 +148,13 @@ default quality is 95; previously, the default quality was 75.  This change
 minimizes the artifacting inherent in JPEG images, particularly with images
 that have sharp changes in color as plots often do.
 
+Full control of the background color
+------------------------------------
+Wes Campaigne and Phil Elson fixed the Agg backend such that PNGs are now
+saved with the correct background color when :meth:`fig.patch.get_alpha` is
+not 1.
+
+
 .. _whats-new-1-2-2:
 
 new in matplotlib 1.2.2
@@ -165,11 +172,6 @@ Multiple images on same axes are correctly transparent
 
 When putting multiple images onto the same axes, the background color
 of the axes will now show through correctly.
-
-Full control of the background color
-------------------------------------
-Phil Elson fixed the Agg backend such that PNGs are now saved with the correct
-background color when :meth:`fig.patch.get_alpha` is not 1.
 
 .. _whats-new-1-2:
 
