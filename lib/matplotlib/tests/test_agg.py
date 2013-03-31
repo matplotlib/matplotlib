@@ -15,12 +15,12 @@ from matplotlib.testing.decorators import cleanup
 
 @cleanup
 def test_repeated_save_with_alpha():
-    # We want an image which has a background color of blue, with an
+    # We want an image which has a background color of bluish green, with an
     # alpha of 0.25.
 
     fig = Figure([1, 0.4])
     canvas = FigureCanvas(fig)
-    fig.set_facecolor((0, 0, 0.4))
+    fig.set_facecolor((0, 1, 0.4))
     fig.patch.set_alpha(0.25)
 
     # The target color is fig.patch.get_facecolor()
@@ -38,9 +38,9 @@ def test_repeated_save_with_alpha():
                     edgecolor='none')
 
         # Check the first pixel has the desired color & alpha
-        # (approx: 0, 0, 0.1, 0.25)
+        # (approx: 0, 1.0, 0.4, 0.25)
         assert_array_almost_equal(tuple(imread(img_fname)[0, 0]),
-                                  (0.0, 0.0, 0.098, 0.250),
+                                  (0.0, 1.0, 0.4, 0.250),
                                   decimal=3)
     finally:
         os.remove(img_fname)

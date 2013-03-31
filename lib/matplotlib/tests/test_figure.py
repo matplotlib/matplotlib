@@ -75,18 +75,21 @@ def test_suptitle():
 
 
 @image_comparison(baseline_images=['alpha_background'],
-                  extensions=['png', 'svg'], # PDF is wrong
-                  savefig_kwarg={'facecolor': 'black', 'edgecolor': 'none'})
+                  # only test png and svg. The PDF output appears correct,
+                  # but Ghostscript does not preserve the background color.
+                  extensions=['png', 'svg'],
+                  savefig_kwarg={'facecolor': (0, 1, 0.4), 'edgecolor': 'none'})
 def test_alpha():
-    # We want an image which has a background color of black, with an
-    # alpha of 0.3.
+    # We want an image which has a background color and an
+    # alpha of 0.4.
     fig = plt.figure(figsize=[2, 1])
-    fig.set_facecolor('black')
-    fig.patch.set_alpha(0.3)
+    fig.set_facecolor((0, 1, 0.4))
+    fig.patch.set_alpha(0.4)
 
     import matplotlib.patches as mpatches
     fig.patches.append(mpatches.CirclePolygon([20, 20],
                                               radius=15,
+                                              alpha=0.6,
                                               facecolor='red'))
 
 

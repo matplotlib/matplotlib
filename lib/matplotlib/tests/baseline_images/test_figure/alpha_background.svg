@@ -16,7 +16,7 @@ L144 72
 L144 0
 L0 0
 z
-" style="opacity:0.3;"/>
+" style="fill:#00ff66;opacity:0.4;"/>
   </g>
   <g id="patch_2">
    <path d="
@@ -41,7 +41,7 @@ L32.1353 43.1832
 L28.8168 39.8647
 L24.6353 37.7342
 z
-" style="fill:#ff0000;stroke:#000000;"/>
+" style="fill:#ff0000;opacity:0.6;stroke:#000000;"/>
   </g>
  </g>
 </svg>
