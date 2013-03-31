@@ -918,9 +918,9 @@ class Line2D(Artist):
         steps[0::2, 0], steps[1::2, 0] = vertices[:, 0], vertices[:-1, 0]
         steps[0::2, 1], steps[1:-1:2, 1] = vertices[:, 1], vertices[1:, 1]
 
-        path = Path(steps)
-        path = path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, path, IdentityTransform())
+        self._path = Path(steps)
+        self._transformed_path = path.transformed(self.get_transform())
+        self._lineFunc(renderer, gc, self._transformed_path, IdentityTransform())
 
     def _draw_steps_post(self, renderer, gc, path, trans):
         vertices = self._xy
@@ -929,9 +929,9 @@ class Line2D(Artist):
         steps[::2, 0], steps[1:-1:2, 0] = vertices[:, 0], vertices[1:, 0]
         steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:-1, 1]
 
-        path = Path(steps)
-        path = path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, path, IdentityTransform())
+        self._path = Path(steps)
+        self._transformed_path = self._path.transformed(self.get_transform())
+        self._lineFunc(renderer, gc, self._transformed_path, IdentityTransform())
 
     def _draw_steps_mid(self, renderer, gc, path, trans):
         vertices = self._xy
@@ -943,9 +943,10 @@ class Line2D(Artist):
         steps[-1, 0] = vertices[-1, 0]
         steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:, 1]
 
-        path = Path(steps)
-        path = path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, path, IdentityTransform())
+        self._path = Path(steps)
+        self._transformed_path = self._path.transformed(self.get_transform())
+        self._lineFunc(renderer, gc, self._transformed_path, IdentityTransform())
+
 
     def _draw_solid(self, renderer, gc, path, trans):
         gc.set_linestyle('solid')
