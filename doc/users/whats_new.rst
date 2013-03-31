@@ -40,6 +40,13 @@ They may be symmetric or weighted.
 
 .. plot:: mpl_examples/pylab_examples/stackplot_demo2.py
 
+Improved ``bbox_inches="tight"`` functionality
+----------------------------------------------
+Passing ``bbox_inches="tight"`` through to :func:`plt.save` now takes into account
+*all* artists on a figure - this was previously not the case and led to several
+corner cases which did not function as expected.
+
+
 Remember save directory
 -----------------------
 Martin Spacek made the save figure dialog remember the last directory saved

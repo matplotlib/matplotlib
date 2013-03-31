@@ -9076,13 +9076,8 @@ class Axes(martist.Artist):
         return im
 
     def get_default_bbox_extra_artists(self):
-        bbox_extra_artists = [t for t in self.texts if t.get_visible()]
-        if self.legend_:
-            bbox_extra_artists.append(self.legend_)
-        if self.tables:
-            for t in self.tables:
-                bbox_extra_artists.append(t)
-        return bbox_extra_artists
+        return [artist for artist in self.get_children() 
+                if artist.get_visible()]
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
         """
