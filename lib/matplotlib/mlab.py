@@ -2129,6 +2129,14 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     - *use_mrecords*: if True, return an mrecords.fromrecords record array if any of the data are missing
 
+    - *dayfirst*: default is False so that MM-DD-YY has precedence over
+      DD-MM-YY.  See http://labix.org/python-dateutil#head-b95ce2094d189a89f80f5ae52a05b4ab7b41af47
+      for further information.
+
+    - *yearfirst*: default is False so that MM-DD-YY has precedence over
+      YY-MM-DD.  See http://labix.org/python-dateutil#head-b95ce2094d189a89f80f5ae52a05b4ab7b41af47
+      for further information.
+
       If no rows are found, *None* is returned -- see :file:`examples/loadrec.py`
     """
 
