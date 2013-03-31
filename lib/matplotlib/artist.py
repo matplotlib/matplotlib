@@ -180,6 +180,15 @@ class Artist(object):
         """
         return self.axes
 
+    def get_window_extent(self, renderer):
+        """
+        Get the axes bounding box in display space.
+        Subclasses should override for inclusion in the bounding box
+        "tight" calculation. Default is to return an empty bounding
+        box at 0, 0.
+        """
+        return Bbox([[0, 0], [0, 0]])
+
     def add_callback(self, func):
         """
         Adds a callback function that will be called whenever one of
