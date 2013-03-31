@@ -658,6 +658,7 @@ defaultParams = {
     'figure.dpi':        [80, validate_float],   # DPI
     'figure.facecolor':  ['0.75', validate_color],  # facecolor; scalar gray
     'figure.edgecolor':  ['w', validate_color],  # edgecolor; white
+    'figure.frameon':    [True, validate_bool],
     'figure.autolayout': [False, validate_bool],
 
     'figure.subplot.left': [0.125, ValidateInterval(0, 1, closedmin=True,
@@ -677,6 +678,7 @@ defaultParams = {
     'savefig.dpi':         [100, validate_float],   # DPI
     'savefig.facecolor':   ['w', validate_color],  # facecolor; white
     'savefig.edgecolor':   ['w', validate_color],  # edgecolor; white
+    'savefig.frameon':     [True, validate_bool],
     'savefig.orientation': ['portrait', validate_orientation],  # edgecolor;
                                                                  #white
     # what to add to extensionless filenames
