@@ -46,3 +46,19 @@ def test_fancy():
     plt.errorbar(range(10), range(10), xerr=0.5, yerr=0.5, label='XX')
     plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                ncol=2, shadow=True, title="My legend", numpoints=1)
+
+
+@image_comparison(baseline_images=['legend_expand'], remove_text=True)
+def test_legend_expand():
+    'Test expand mode'
+    legend_modes = [None, "expand"]
+    fig, axes_list = plt.subplots(len(legend_modes), 1)
+    x = np.arange(100)
+    for ax, mode in zip(axes_list, legend_modes):
+        ax.plot(x, 50 - x, 'o', label='y=1')
+        l1 = ax.legend(loc=2, mode=mode)
+        ax.add_artist(l1)
+        ax.plot(x, x - 50, 'o', label='y=-1')
+        l2 = ax.legend(loc=5, mode=mode)
+        ax.add_artist(l2)
+        ax.legend(loc=3, mode=mode, ncol=2)
