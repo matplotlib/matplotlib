@@ -70,6 +70,24 @@ def segment_hits(cx, cy, x, y, radius):
     return np.concatenate((points, lines))
 
 
+def _calc_steps_verts(vertices, mode):
+    steps = ma.zeros((2 * len(vertices) - 1, 2), np.float_)
+    if mode == 'pre':
+        steps[0::2, 0], steps[1::2, 0] = vertices[:, 0], vertices[:-1, 0]
+        steps[0::2, 1], steps[1:-1:2, 1] = vertices[:, 1], vertices[1:, 1]
+    elif mode == 'post':
+        steps[::2, 0], steps[1:-1:2, 0] = vertices[:, 0], vertices[1:, 0]
+        steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:-1, 1]
+    elif mode == 'mid':
+        steps[1:-1:2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
+        steps[2::2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
+        steps[0, 0] = vertices[0, 0]
+        steps[-1, 0] = vertices[-1, 0]
+        steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:, 1]
+    return steps
+
+
+
 class Line2D(Artist):
     """
     A line - the line can have both a solid linestyle connecting all
@@ -459,7 +477,15 @@ class Line2D(Artist):
             interpolation_steps = self._path._interpolation_steps
         else:
             interpolation_steps = 1
+
+        if self._drawstyle.startswith('steps'):
+            mode = self._drawstyle[6:]
+            self._xy = _calc_steps_verts(self._xy, mode)
+            self._x = self._xy[:, 0]  # just a view
+            self._y = self._xy[:, 1]  # just a view
+
         self._path = Path(self._xy, None, interpolation_steps)
+
         self._transformed_path = None
         self._invalidx = False
         self._invalidy = False
@@ -548,9 +574,7 @@ class Line2D(Artist):
             tpath, affine = transf_path.get_transformed_path_and_affine()
             if len(tpath.vertices):
                 self._lineFunc = getattr(self, funcname)
-                funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
-                drawFunc = getattr(self, funcname)
-                drawFunc(renderer, gc, tpath, affine.frozen())
+                self._draw_lines(renderer, gc, tpath, affine.frozen())
 
         if self._marker:
             gc = renderer.new_gc()
@@ -910,42 +934,6 @@ class Line2D(Artist):
 
     def _draw_lines(self, renderer, gc, path, trans):
         self._lineFunc(renderer, gc, path, trans)
-
-    def _draw_steps_pre(self, renderer, gc, path, trans):
-        vertices = self._xy
-        steps = ma.zeros((2 * len(vertices) - 1, 2), np.float_)
-
-        steps[0::2, 0], steps[1::2, 0] = vertices[:, 0], vertices[:-1, 0]
-        steps[0::2, 1], steps[1:-1:2, 1] = vertices[:, 1], vertices[1:, 1]
-
-        self._path = Path(steps)
-        self._transformed_path = path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, self._transformed_path, IdentityTransform())
-
-    def _draw_steps_post(self, renderer, gc, path, trans):
-        vertices = self._xy
-        steps = ma.zeros((2 * len(vertices) - 1, 2), np.float_)
-
-        steps[::2, 0], steps[1:-1:2, 0] = vertices[:, 0], vertices[1:, 0]
-        steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:-1, 1]
-
-        self._path = Path(steps)
-        self._transformed_path = self._path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, self._transformed_path, IdentityTransform())
-
-    def _draw_steps_mid(self, renderer, gc, path, trans):
-        vertices = self._xy
-        steps = ma.zeros((2 * len(vertices), 2), np.float_)
-
-        steps[1:-1:2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
-        steps[2::2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
-        steps[0, 0] = vertices[0, 0]
-        steps[-1, 0] = vertices[-1, 0]
-        steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:, 1]
-
-        self._path = Path(steps)
-        self._transformed_path = self._path.transformed(self.get_transform())
-        self._lineFunc(renderer, gc, self._transformed_path, IdentityTransform())
 
 
     def _draw_solid(self, renderer, gc, path, trans):
