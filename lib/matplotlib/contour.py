@@ -721,7 +721,7 @@ def _find_closest_point_on_path(lc, point):
     ds = np.sum((lc - point[None, :])**2, 1)
     imin = np.argmin(ds)
 
-    dmin = 1e10
+    dmin = np.inf
     xcmin = None
     legmin = (None, None)
 
@@ -1326,7 +1326,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if indices is None:
             indices = range(len(self.levels))
 
-        dmin = 1e10
+        dmin = np.inf
         conmin = None
         segmin = None
         xmin = None
