@@ -71,20 +71,29 @@ def segment_hits(cx, cy, x, y, radius):
 
 
 def _calc_steps_verts(vertices, mode):
-    steps = ma.zeros((2 * len(vertices) - 1, 2), np.float_)
-    if mode == 'pre':
+    """
+    Given the x,y-arrays of a line, calculate the coordinates for a step plot.
+    The mode must be one of 'steps-mid', 'steps-pre' and 'steps-post'.
+    """
+
+    if mode == 'steps-pre':
+        steps = ma.zeros((2 * len(vertices) - 1, 2), np.float_)
         steps[0::2, 0], steps[1::2, 0] = vertices[:, 0], vertices[:-1, 0]
         steps[0::2, 1], steps[1:-1:2, 1] = vertices[:, 1], vertices[1:, 1]
-    elif mode == 'post':
+    elif mode == 'steps-post':
+        steps = ma.zeros((2 * len(vertices) - 1, 2), np.float_)
         steps[::2, 0], steps[1:-1:2, 0] = vertices[:, 0], vertices[1:, 0]
         steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:-1, 1]
-    elif mode == 'mid':
+    elif mode == 'steps-mid':
+        steps = ma.zeros((2 * len(vertices), 2), np.float_)
         steps[1:-1:2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
         steps[2::2, 0] = 0.5 * (vertices[:-1, 0] + vertices[1:, 0])
         steps[0, 0] = vertices[0, 0]
         steps[-1, 0] = vertices[-1, 0]
         steps[0::2, 1], steps[1::2, 1] = vertices[:, 1], vertices[:, 1]
     return steps
+
+
 
 
 
@@ -479,7 +488,7 @@ class Line2D(Artist):
             interpolation_steps = 1
 
         if self._drawstyle.startswith('steps'):
-            mode = self._drawstyle[6:]
+            mode = self._drawstyle
             self._xy = _calc_steps_verts(self._xy, mode)
             self._x = self._xy[:, 0]  # just a view
             self._y = self._xy[:, 1]  # just a view
