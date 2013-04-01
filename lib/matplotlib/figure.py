@@ -1359,8 +1359,9 @@ class Figure(Artist):
             original values upon exit of this function.
 
           *frameon*:
-            If *True*, the figure patch will be colored. Else the figure
-            background will be transparent.
+            If *True*, the figure patch will be colored, if *False*, the
+            figure background will be transparent.  If not provided, the
+            rcParam 'savefig.frameon' will be used.
 
           *bbox_inches*:
             Bbox in inches. Only the given portion of the figure is
