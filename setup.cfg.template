@@ -5,7 +5,7 @@
 
 [directories]
 # Uncomment to override the default basedir in setupext.py.
-# This can be a single directory or a space-delimited list of directories.
+# This can be a single directory or a comma-delimited list of directories.
 #basedirlist = /usr
 
 [status]
