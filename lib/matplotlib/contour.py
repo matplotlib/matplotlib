@@ -49,7 +49,7 @@ class ClabelText(text.Text):
 
 
 class ContourLabeler:
-    '''Mixin to provide labelling capability to ContourSet'''
+    """Mixin to provide labelling capability to ContourSet"""
 
     def clabel(self, *args, **kwargs):
         """
@@ -620,7 +620,7 @@ class ContourLabeler:
                     paths.append(mpath.Path(n))
 
     def pop_label(self, index=-1):
-        '''Defaults to removing last label, but any index can be supplied'''
+        """Defaults to removing last label, but any index can be supplied"""
         self.labelCValues.pop(index)
         t = self.labelTexts.pop(index)
         t.remove()
@@ -687,7 +687,7 @@ class ContourLabeler:
 
 
 def _find_closest_point_on_leg(p1, p2, p0):
-    '''find closest point to p0 on line segment connecting p1 and p2'''
+    """find closest point to p0 on line segment connecting p1 and p2"""
 
     # handle degenerate case
     if np.all(p2 == p1):
@@ -712,10 +712,10 @@ def _find_closest_point_on_leg(p1, p2, p0):
 
 
 def _find_closest_point_on_path(lc, point):
-    '''
+    """
     lc: coordinates of vertices
     point: coordinates of test point
-    '''
+    """
 
     # find index of closest vertex for this segment
     ds = np.sum((lc - point[None, :])**2, 1)
@@ -1102,7 +1102,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         cm.ScalarMappable.changed(self)
 
     def _autolev(self, z, N):
-        '''
+        """
         Select contour levels to span the data.
 
         We need two more levels for filled contours than for
@@ -1111,7 +1111,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         a single contour boundary, say at z = 0, requires only
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
-        '''
+        """
         if self.locator is None:
             if self.logscale:
                 self.locator = ticker.LogLocator()
@@ -1280,11 +1280,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return tlinestyles
 
     def get_alpha(self):
-        '''returns alpha to be applied to all ContourSet artists'''
+        """returns alpha to be applied to all ContourSet artists"""
         return self.alpha
 
     def set_alpha(self, alpha):
-        '''sets alpha for all ContourSet artists'''
+        """sets alpha for all ContourSet artists"""
         self.alpha = alpha
         self.changed()
 
@@ -1479,14 +1479,14 @@ class QuadContourSet(ContourSet):
         return (x, y, z)
 
     def _check_xyz(self, args, kwargs):
-        '''
+        """
         For functions like contour, check that the dimensions
         of the input arrays match; if x and y are 1D, convert
         them to 2D using meshgrid.
 
         Possible change: I think we should make and use an ArgumentError
         Exception class (here and elsewhere).
-        '''
+        """
         x, y = args[:2]
         self.ax._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.ax.convert_xunits(x)
@@ -1534,7 +1534,7 @@ class QuadContourSet(ContourSet):
         return x, y, z
 
     def _initialize_x_y(self, z):
-        '''
+        """
         Return X, Y arrays such that contour(Z) will match imshow(Z)
         if origin is not None.
         The center of pixel Z[i,j] depends on origin:
@@ -1545,7 +1545,7 @@ class QuadContourSet(ContourSet):
         as in imshow.
         If origin is None and extent is not None, then extent
         will give the minimum and maximum values of x and y.
-        '''
+        """
         if z.ndim != 2:
             raise TypeError("Input must be a 2D array.")
         else:
