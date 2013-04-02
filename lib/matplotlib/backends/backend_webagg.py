@@ -44,14 +44,16 @@ def draw_if_interactive():
 class Show(backend_bases.ShowBase):
     def mainloop(self):
         WebAggApplication.initialize()
-        for manager in Gcf.get_all_fig_managers():
-            url = "http://127.0.0.1:{0}/{1}/".format(
-                WebAggApplication.port, manager.num)
-            if rcParams['webagg.open_in_browser']:
-                import webbrowser
-                webbrowser.open(url)
-            else:
-                print("To view figure, visit {0}".format(url))
+        
+        url = "http://127.0.0.1:{port}{prefix}".format(
+                port=WebAggApplication.port,
+                prefix=WebAggApplication.url_prefix)
+        
+        if rcParams['webagg.open_in_browser']:
+            import webbrowser
+            webbrowser.open(url)
+        else:
+            print("To view figure, visit {0}".format(url))
 
         WebAggApplication.start()
 
@@ -315,17 +317,21 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
                             'forward': 'ui-icon ui-icon-circle-arrow-e',
                             'zoom_to_rect': 'ui-icon ui-icon-search',
                             'move': 'ui-icon ui-icon-arrow-4',
-                            'filesave': 'ui-icon ui-icon-disk',
+                            'download': 'ui-icon ui-icon-disk',
                             None: None
                            }
 
     def _init_toolbar(self):
-        NavigationToolbar2WebAgg.toolitems = tuple(
-               (text, tooltip_text, 
-                self._jquery_icon_classes[image_file], name_of_method)
-            for text, tooltip_text, image_file, name_of_method
-            in backend_bases.NavigationToolbar2.toolitems
-            if image_file in self._jquery_icon_classes)
+        # Use the standard toolbar items + download button
+        toolitems = (backend_bases.NavigationToolbar2.toolitems + 
+            (('Download', 'Download plot', 'download', 'download'),))
+        
+        NavigationToolbar2WebAgg.toolitems = \
+            tuple(
+                    (text, tooltip_text, self._jquery_icon_classes[image_file],
+                    name_of_method)
+                  for text, tooltip_text, image_file, name_of_method
+                  in toolitems if image_file in self._jquery_icon_classes)
         
         self.message = ''
         self.cursor = 0
@@ -374,20 +380,52 @@ class WebAggApplication(tornado.web.Application):
                                    'matplotlib.png')) as fd:
                 self.write(fd.read())
 
-    class FigurePage(tornado.web.RequestHandler):
+    class SingleFigurePage(tornado.web.RequestHandler):
+        def __init__(self, application, request, **kwargs):
+            self.url_prefix = kwargs.pop('url_prefix', '')
+            return tornado.web.RequestHandler.__init__(self, application,
+                                                       request, **kwargs)
+        
         def get(self, fignum):
             with open(os.path.join(WebAggApplication._mpl_dirs['web_backend'],
-                                   'index.html')) as fd:
+                                   'single_figure.html')) as fd:
                 tpl = fd.read()
 
             fignum = int(fignum)
             manager = Gcf.get_fig_manager(fignum)
-
+            
+            ws_uri = 'ws://{req.host}{prefix}/'.format(req=self.request,
+                                                       prefix=self.url_prefix)
             t = tornado.template.Template(tpl)
             self.write(t.generate(
+                prefix=self.url_prefix,
+                ws_uri=ws_uri,
+                fig_id=fignum,
                 toolitems=NavigationToolbar2WebAgg.toolitems,
                 canvas=manager.canvas))
 
+    class AllFiguresPage(tornado.web.RequestHandler):
+        def __init__(self, application, request, **kwargs):
+            self.url_prefix = kwargs.pop('url_prefix', '')
+            return tornado.web.RequestHandler.__init__(self, application,
+                                                       request, **kwargs)
+        
+        def get(self):
+            with open(os.path.join(WebAggApplication._mpl_dirs['web_backend'],
+                                   'all_figures.html')) as fd:
+                tpl = fd.read()
+            
+            ws_uri = 'ws://{req.host}{prefix}/'.format(req=self.request,
+                                                       prefix=self.url_prefix)
+            t = tornado.template.Template(tpl)
+            
+            self.write(t.generate(
+                prefix=self.url_prefix,
+                ws_uri=ws_uri,
+                figures = sorted(list(Gcf.figs.items()), key=lambda item: item[0]),
+                toolitems=NavigationToolbar2WebAgg.toolitems))            
+            
+            
     class MPLInterfaceJS(tornado.web.RequestHandler):
         def get(self, fignum):
             with open(os.path.join(WebAggApplication._mpl_dirs['web_backend'],
@@ -465,57 +503,69 @@ class WebAggApplication(tornado.web.Application):
                     diff.encode('base64').replace('\n', ''))
                 self.write_message(data_uri)
 
-    def __init__(self):
+    def __init__(self, url_prefix=''):
+        if url_prefix:
+            assert url_prefix[0] == '/' and url_prefix[-1] != '/', \
+                   'url_prefix must start with a "/" and not end with one.'
+        
         super(WebAggApplication, self).__init__([
             # Static files for the CSS and JS
-            (r'/static/(.*)',
+            (url_prefix + r'/_static/(.*)',
              tornado.web.StaticFileHandler,
              {'path': self._mpl_dirs['web_backend']}),
 
             # Static images for toolbar buttons
-            (r'/images/(.*)',
+            (url_prefix + r'/_static/images/(.*)',
              tornado.web.StaticFileHandler,
              {'path': self._mpl_dirs['images']}),
                                                  
-            (r'/static/jquery/css/themes/base/(.*)',
+            (url_prefix + r'/_static/jquery/css/themes/base/(.*)',
              tornado.web.StaticFileHandler,
              {'path': os.path.join(self._mpl_dirs['web_backend'], 'jquery',
                                    'css', 'themes', 'base')}),
                                                  
-            (r'/static/jquery/css/themes/base/images/(.*)',
+            (url_prefix + r'/_static/jquery/css/themes/base/images/(.*)',
              tornado.web.StaticFileHandler,
              {'path': os.path.join(self._mpl_dirs['web_backend'], 'jquery',
                                    'css', 'themes', 'base', 'images')}),
                                                  
-            (r'/static/jquery/js/(.*)', tornado.web.StaticFileHandler,
+            (url_prefix + r'/_static/jquery/js/(.*)', tornado.web.StaticFileHandler,
              {'path': os.path.join(self._mpl_dirs['web_backend'],
                                    'jquery', 'js')}),
                                                  
-            (r'/static/css/(.*)', tornado.web.StaticFileHandler,
+            (url_prefix + r'/_static/css/(.*)', tornado.web.StaticFileHandler,
              {'path': os.path.join(self._mpl_dirs['web_backend'], 'css')}),
                                                  
             # An MPL favicon
-            (r'/favicon.ico', self.FavIcon),
+            (url_prefix + r'/favicon.ico', self.FavIcon),
             
             # The page that contains all of the pieces
-            (r'/([0-9]+)/?', self.FigurePage),
+            (url_prefix + r'/([0-9]+)', self.SingleFigurePage,
+             {'url_prefix': url_prefix}),
             
-            (r'/([0-9]+)/mpl_interface.js', self.MPLInterfaceJS),
+            (url_prefix + r'/([0-9]+)/mpl_interface.js', self.MPLInterfaceJS),
             
             # Sends images and events to the browser, and receives
             # events from the browser
-            (r'/([0-9]+)/ws', self.WebSocket),
+            (url_prefix + r'/([0-9]+)/ws', self.WebSocket),
             
             # Handles the downloading (i.e., saving) of static images
-            (r'/([0-9]+)/download.([a-z]+)', self.Download)
+            (url_prefix + r'/([0-9]+)/download.([a-z]+)', self.Download),
+            
+            # The page that contains all of the figures
+            (url_prefix + r'/?', self.AllFiguresPage,
+             {'url_prefix': url_prefix}),
         ])
 
     @classmethod
-    def initialize(cls):
+    def initialize(cls, url_prefix=''):
         if cls.initialized:
             return
 
-        app = cls()
+        # Create the class instance
+        app = cls(url_prefix=url_prefix)
+
+        cls.url_prefix = url_prefix
 
         # This port selection algorithm is borrowed, more or less
         # verbatim, from IPython.

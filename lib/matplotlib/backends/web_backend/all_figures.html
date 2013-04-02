@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="{{ prefix }}/_static/css/page.css" type="text/css">
+    <link rel="stylesheet" href="{{ prefix }}/_static/css/boilerplate.css" type="text/css" />
+    <link rel="stylesheet" href="{{ prefix }}/_static/css/fbm.css" type="text/css" />
+	<link rel="stylesheet" href="{{ prefix }}/_static/jquery/css/themes/base/jquery-ui.min.css" >
+	<script src="{{ prefix }}/_static/jquery/js/jquery-1.7.1.min.js"></script>
+	<script src="{{ prefix }}/_static/jquery/js/jquery-ui.min.js"></script>
+	<script src="{{ prefix }}/_static/mpl.js"></script>
+	<script src="{{ prefix }}/{{ str(figures[0][0]) }}/mpl_interface.js"></script>
+	
+	<script>
+	var websocket_url_prefix = "{{ ws_uri }}";
+	var figures = new Array();
+	
+    {% for (fig_id, _) in figures %}
+        $(document).ready(
+        function() {
+            fig = new figure({{ repr(str(fig_id)) }}, websocket_url_prefix);
+            figures.push(fig);
+            
+            fig.focus_on_mouseover = true;
+            
+            var toolbar_prefix = '{{ str(fig_id).replace(' ', '') }}-toolbar';
+            init_mpl_toolbar(fig, toolbar_prefix);
+            
+            var statusbar_prefix = '{{ str(fig_id).replace(' ', '') }}-statusbar';
+            var status_id = init_mpl_statusbar(toolbar_prefix, statusbar_prefix);
+            
+            var canvas_prefix = '{{ str(fig_id).replace(' ', '') }}-canvas';
+            init_mpl_canvas(fig, '{{ str(fig_id).replace(' ', '') }}-canvas-div', canvas_prefix);
+            
+            fig.finalize(canvas_prefix, toolbar_prefix, statusbar_prefix);
+            
+            $(fig.canvas).attr('tabindex', {{ fig_id }});
+          }
+        );
+
+	{% end %}
+	</script>
+	
+  <title>MPL | WebAgg current figures</title>	
+
+  </head>
+  <body>
+    <div id="mpl-warnings" class="mpl-warnings"></div>
+    {% for (fig_id, fig_manager) in figures %}
+        {% set fig_label='Figure: {}'.format(fig_manager.canvas.figure.get_label()) %}
+        
+        {% if fig_label == 'Figure: ' %}
+        {% set fig_label="Figure {}".format(fig_id) %}
+        {% end %}
+        
+    <div style="margin: 25px 100px;">
+        <h2>
+        <a href="{{ prefix }}/{{ str(fig_id) }}">
+        {{ fig_label }}
+            
+        </a>
+        </h2>
+       <div id="{{ str(fig_id).replace(' ', '') }}-canvas-div"></div>
+       <div id="{{ str(fig_id).replace(' ', '') }}-toolbar" style="width: 700px;"></div>
+    </div>
+    {% end %}
+    
+  </body>
+</html>
