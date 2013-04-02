@@ -2092,7 +2092,7 @@ def recs_join(key, name, recs, jointype='outer', missing=0., postfixes=None):
 
 def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
             converterd=None, names=None, missing='', missingd=None,
-            use_mrecords=False):
+            use_mrecords=False, dayfirst=False, yearfirst=False):
     """
     Load data from comma/space/tab delimited file in *fname* into a
     numpy record array and return the record array.
@@ -2130,6 +2130,14 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
       the column it appears in
 
     - *use_mrecords*: if True, return an mrecords.fromrecords record array if any of the data are missing
+
+    - *dayfirst*: default is False so that MM-DD-YY has precedence over
+      DD-MM-YY.  See http://labix.org/python-dateutil#head-b95ce2094d189a89f80f5ae52a05b4ab7b41af47
+      for further information.
+
+    - *yearfirst*: default is False so that MM-DD-YY has precedence over
+      YY-MM-DD.  See http://labix.org/python-dateutil#head-b95ce2094d189a89f80f5ae52a05b4ab7b41af47
+      for further information.
 
       If no rows are found, *None* is returned -- see :file:`examples/loadrec.py`
     """
@@ -2218,7 +2226,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     def mydate(x):
         # try and return a date object
-        d = dateparser(x)
+        d = dateparser(x, dayfirst=dayfirst, yearfirst=yearfirst)
 
         if d.hour>0 or d.minute>0 or d.second>0:
             raise ValueError('not a date')
