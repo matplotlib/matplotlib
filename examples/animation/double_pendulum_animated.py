@@ -1,9 +1,6 @@
 # Double pendulum formula translated from the C code at
 # http://www.physics.usyd.edu.au/~wheat/dpend_html/solve_dpend.c
 
-import matplotlib
-matplotlib.use('webagg')
-
 from numpy import sin, cos, pi, array
 import numpy as np
 import matplotlib.pyplot as plt
@@ -63,7 +60,7 @@ y1 = -L1*cos(y[:,0])
 x2 = L2*sin(y[:,2]) + x1
 y2 = -L2*cos(y[:,2]) + y1
 
-fig = plt.figure(figsize=[12, 5])
+fig = plt.figure()
 ax = fig.add_subplot(111, autoscale_on=False, xlim=(-2, 2), ylim=(-2, 2))
 ax.grid()
 
