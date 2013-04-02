@@ -376,7 +376,7 @@ class WebAggApplication(tornado.web.Application):
     class FavIcon(tornado.web.RequestHandler):
         def get(self):
             self.set_header('Content-Type', 'image/png')
-            with open(os.path.join(self._mpl_dirs['images'],
+            with open(os.path.join(WebAggApplication._mpl_dirs['images'],
                                    'matplotlib.png')) as fd:
                 self.write(fd.read())
 
