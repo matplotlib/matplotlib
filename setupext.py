@@ -77,7 +77,9 @@ if os.path.exists(setup_cfg):
         pass
 
     try:
-        options['basedirlist'] = config.get("directories", "basedirlist").split(',')
+        options['basedirlist'] = [
+            x.strip() for x in
+            config.get("directories", "basedirlist").split(',')]
     except:
         pass
 else:
