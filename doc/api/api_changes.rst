@@ -15,6 +15,10 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* In :class:`~matplotlib.patches.FancyArrow`, the default arrow head width,
+  ``head_width``, has been made larger to produce a visible arrow head. The new
+  value of this kwarg is ``head_width = 20 * width``.
+
 * Removed call of :meth:`~matplotlib.axes.Axes.grid` in
   :meth:`~matplotlib.pyplot.plotfile`. To draw the axes grid, set to *True*
   matplotlib.rcParams['axes.grid'] or ``axes.grid`` in ``.matplotlibrc`` or
