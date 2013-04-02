@@ -49,7 +49,7 @@ class ClabelText(text.Text):
 
 
 class ContourLabeler:
-    '''Mixin to provide labelling capability to ContourSet'''
+    """Mixin to provide labelling capability to ContourSet"""
 
     def clabel(self, *args, **kwargs):
         """
@@ -572,6 +572,18 @@ class ContourLabeler:
         conmin, segmin, imin, xmin, ymin = self.find_nearest_contour(
             x, y, self.labelIndiceList)[:5]
 
+        # The calc_label_rot_and_inline routine requires that (xmin,ymin)
+        # be a vertex in the path. So, if it isn't, add a vertex here
+        paths = self.collections[conmin].get_paths()
+        lc = paths[segmin].vertices
+        if transform:
+            xcmin = transform.inverted().transform([xmin, ymin])
+        else:
+            xcmin = np.array([xmin, ymin])
+        if not np.allclose(xcmin, lc[imin]):
+            lc = np.r_[lc[:imin], np.array(xcmin)[None, :], lc[imin:]]
+            paths[segmin] = mpath.Path(lc)
+
         # Get index of nearest level in subset of levels used for labeling
         lmin = self.labelIndiceList.index(conmin)
 
@@ -608,7 +620,7 @@ class ContourLabeler:
                     paths.append(mpath.Path(n))
 
     def pop_label(self, index=-1):
-        '''Defaults to removing last label, but any index can be supplied'''
+        """Defaults to removing last label, but any index can be supplied"""
         self.labelCValues.pop(index)
         t = self.labelTexts.pop(index)
         t.remove()
@@ -621,8 +633,8 @@ class ContourLabeler:
             add_label = self.add_label
 
         for icon, lev, fsize, cvalue in zip(
-            self.labelIndiceList, self.labelLevelList, self.labelFontSizeList,
-            self.labelCValueList):
+                self.labelIndiceList, self.labelLevelList,
+                self.labelFontSizeList, self.labelCValueList):
 
             con = self.collections[icon]
             trans = con.get_transform()
@@ -672,6 +684,64 @@ class ContourLabeler:
             if inline:
                 del paths[:]
                 paths.extend(additions)
+
+
+def _find_closest_point_on_leg(p1, p2, p0):
+    """find closest point to p0 on line segment connecting p1 and p2"""
+
+    # handle degenerate case
+    if np.all(p2 == p1):
+        d = np.sum((p0 - p1)**2)
+        return d, p1
+
+    d21 = p2 - p1
+    d01 = p0 - p1
+
+    # project on to line segment to find closest point
+    proj = np.dot(d01, d21) / np.dot(d21, d21)
+    if proj < 0:
+        proj = 0
+    if proj > 1:
+        proj = 1
+    pc = p1 + proj * d21
+
+    # find squared distance
+    d = np.sum((pc-p0)**2)
+
+    return d, pc
+
+
+def _find_closest_point_on_path(lc, point):
+    """
+    lc: coordinates of vertices
+    point: coordinates of test point
+    """
+
+    # find index of closest vertex for this segment
+    ds = np.sum((lc - point[None, :])**2, 1)
+    imin = np.argmin(ds)
+
+    dmin = np.inf
+    xcmin = None
+    legmin = (None, None)
+
+    closed = mlab.is_closed_polygon(lc)
+
+    # build list of legs before and after this vertex
+    legs = []
+    if imin > 0 or closed:
+        legs.append(((imin-1) % len(lc), imin))
+    if imin < len(lc) - 1 or closed:
+        legs.append((imin, (imin+1) % len(lc)))
+
+    for leg in legs:
+        d, xc = _find_closest_point_on_leg(lc[leg[0]], lc[leg[1]], point)
+        if d < dmin:
+            dmin = d
+            xcmin = xc
+            legmin = leg
+
+    return (dmin, xcmin, legmin)
 
 
 class ContourSet(cm.ScalarMappable, ContourLabeler):
@@ -832,12 +902,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 paths = self._make_paths(segs, kinds)
                 # Default zorder taken from Collection
                 zorder = kwargs.get('zorder', 1)
-                col = mcoll.PathCollection(paths,
-                                     antialiaseds=(self.antialiased,),
-                                     edgecolors='none',
-                                     alpha=self.alpha,
-                                     transform=self.get_transform(),
-                                     zorder=zorder)
+                col = mcoll.PathCollection(
+                    paths,
+                    antialiaseds=(self.antialiased,),
+                    edgecolors='none',
+                    alpha=self.alpha,
+                    transform=self.get_transform(),
+                    zorder=zorder)
                 self.ax.add_collection(col)
                 self.collections.append(col)
         else:
@@ -851,13 +922,14 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
                 # Default zorder taken from LineCollection
                 zorder = kwargs.get('zorder', 2)
-                col = mcoll.LineCollection(segs,
-                                     antialiaseds=aa,
-                                     linewidths=width,
-                                     linestyle=[lstyle],
-                                     alpha=self.alpha,
-                                     transform=self.get_transform(),
-                                     zorder=zorder)
+                col = mcoll.LineCollection(
+                    segs,
+                    antialiaseds=aa,
+                    linewidths=width,
+                    linestyle=[lstyle],
+                    alpha=self.alpha,
+                    transform=self.get_transform(),
+                    zorder=zorder)
                 col.set_label('_nolegend_')
                 self.ax.add_collection(col, False)
                 self.collections.append(col)
@@ -902,29 +974,27 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             n_levels = len(self.collections)
 
             for i, (collection, lower, upper) in enumerate(
-                                                    zip(self.collections,
-                                                        lowers, uppers)):
-                    patch = mpatches.Rectangle(
-                                    (0, 0), 1, 1,
-                                    facecolor=collection.get_facecolor()[0],
-                                    hatch=collection.get_hatch(),
-                                    alpha=collection.get_alpha(),
-                                    )
-                    artists.append(patch)
+                    zip(self.collections, lowers, uppers)):
+                patch = mpatches.Rectangle(
+                    (0, 0), 1, 1,
+                    facecolor=collection.get_facecolor()[0],
+                    hatch=collection.get_hatch(),
+                    alpha=collection.get_alpha())
+                artists.append(patch)
 
-                    lower = str_format(lower)
-                    upper = str_format(upper)
+                lower = str_format(lower)
+                upper = str_format(upper)
 
-                    if i == 0 and self.extend in ('min', 'both'):
-                        labels.append(r'$%s \leq %s$' % (variable_name,
-                                                         lower))
-                    elif i == n_levels - 1 and self.extend in ('max', 'both'):
-                        labels.append(r'$%s > %s$' % (variable_name,
-                                                      upper))
-                    else:
-                        labels.append(r'$%s < %s \leq %s$' % (lower,
-                                                              variable_name,
-                                                              upper))
+                if i == 0 and self.extend in ('min', 'both'):
+                    labels.append(r'$%s \leq %s$' % (variable_name,
+                                                     lower))
+                elif i == n_levels - 1 and self.extend in ('max', 'both'):
+                    labels.append(r'$%s > %s$' % (variable_name,
+                                                  upper))
+                else:
+                    labels.append(r'$%s < %s \leq %s$' % (lower,
+                                                          variable_name,
+                                                          upper))
         else:
             for collection, level in zip(self.collections, self.levels):
 
@@ -963,7 +1033,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
         # Check length of allkinds.
         if (self.allkinds is not None and
-            len(self.allkinds) != len(self.allsegs)):
+                len(self.allkinds) != len(self.allsegs)):
             raise ValueError('allkinds has different length to allsegs')
 
         # Determine x,y bounds and update axes data limits.
@@ -1032,7 +1102,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         cm.ScalarMappable.changed(self)
 
     def _autolev(self, z, N):
-        '''
+        """
         Select contour levels to span the data.
 
         We need two more levels for filled contours than for
@@ -1041,7 +1111,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         a single contour boundary, say at z = 0, requires only
         one contour line, but two filled regions, and therefore
         three levels to provide boundaries for both regions.
-        '''
+        """
         if self.locator is None:
             if self.logscale:
                 self.locator = ticker.LogLocator()
@@ -1210,11 +1280,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return tlinestyles
 
     def get_alpha(self):
-        '''returns alpha to be applied to all ContourSet artists'''
+        """returns alpha to be applied to all ContourSet artists"""
         return self.alpha
 
     def set_alpha(self, alpha):
-        '''sets alpha for all ContourSet artists'''
+        """sets alpha for all ContourSet artists"""
         self.alpha = alpha
         self.changed()
 
@@ -1256,32 +1326,33 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if indices is None:
             indices = range(len(self.levels))
 
-        dmin = 1e10
+        dmin = np.inf
         conmin = None
         segmin = None
         xmin = None
         ymin = None
 
+        point = np.array([x, y])
+
         for icon in indices:
             con = self.collections[icon]
             trans = con.get_transform()
             paths = con.get_paths()
+
             for segNum, linepath in enumerate(paths):
                 lc = linepath.vertices
-
                 # transfer all data points to screen coordinates if desired
                 if pixel:
                     lc = trans.transform(lc)
 
-                ds = (lc[:, 0] - x) ** 2 + (lc[:, 1] - y) ** 2
-                d = min(ds)
+                d, xc, leg = _find_closest_point_on_path(lc, point)
                 if d < dmin:
                     dmin = d
                     conmin = icon
                     segmin = segNum
-                    imin = mpl.mlab.find(ds == d)[0]
-                    xmin = lc[imin, 0]
-                    ymin = lc[imin, 1]
+                    imin = leg[1]
+                    xmin = xc[0]
+                    ymin = xc[1]
 
         return (conmin, segmin, imin, xmin, ymin, dmin)
 
@@ -1340,7 +1411,7 @@ class QuadContourSet(ContourSet):
             # if the transform is not trans data, and some part of it
             # contains transData, transform the xs and ys to data coordinates
             if (t != self.ax.transData and
-                        any(t.contains_branch_seperately(self.ax.transData))):
+                    any(t.contains_branch_seperately(self.ax.transData))):
                 trans_to_data = t - self.ax.transData
                 pts = (np.vstack([x.flat, y.flat]).T)
                 transformed_pts = trans_to_data.transform(pts)
@@ -1408,14 +1479,14 @@ class QuadContourSet(ContourSet):
         return (x, y, z)
 
     def _check_xyz(self, args, kwargs):
-        '''
+        """
         For functions like contour, check that the dimensions
         of the input arrays match; if x and y are 1D, convert
         them to 2D using meshgrid.
 
         Possible change: I think we should make and use an ArgumentError
         Exception class (here and elsewhere).
-        '''
+        """
         x, y = args[:2]
         self.ax._process_unit_info(xdata=x, ydata=y, kwargs=kwargs)
         x = self.ax.convert_xunits(x)
@@ -1450,11 +1521,11 @@ class QuadContourSet(ContourSet):
 
             if x.shape != z.shape:
                 raise TypeError("Shape of x does not match that of z: found "
-                            "{0} instead of {1}.".format(x.shape, z.shape))
+                                "{0} instead of {1}.".format(x.shape, z.shape))
 
             if y.shape != z.shape:
                 raise TypeError("Shape of y does not match that of z: found "
-                            "{0} instead of {1}.".format(y.shape, z.shape))
+                                "{0} instead of {1}.".format(y.shape, z.shape))
 
         else:
 
@@ -1463,7 +1534,7 @@ class QuadContourSet(ContourSet):
         return x, y, z
 
     def _initialize_x_y(self, z):
-        '''
+        """
         Return X, Y arrays such that contour(Z) will match imshow(Z)
         if origin is not None.
         The center of pixel Z[i,j] depends on origin:
@@ -1474,7 +1545,7 @@ class QuadContourSet(ContourSet):
         as in imshow.
         If origin is None and extent is not None, then extent
         will give the minimum and maximum values of x and y.
-        '''
+        """
         if z.ndim != 2:
             raise TypeError("Input must be a 2D array.")
         else:
