@@ -1287,7 +1287,7 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         except OSError:
             return None
         if pipe.returncode == 0:
-            for match in _fc_match_regex.finditer(output):
+            for match in _fc_match_regex.finditer(output.decode("utf-8")):
                 file = match.group(1)
                 if os.path.splitext(file)[1][1:] in fontexts:
                     return file
