@@ -165,7 +165,7 @@ def raise_msg_to_str(msg):
     return msg
 
 
-class TimerWx(TimerBase):
+class TimerWx(TimerBase, wx.Timer):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses WxTimer events.
 
@@ -180,23 +180,13 @@ class TimerWx(TimerBase):
     '''
     def __init__(self, parent, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
-
-        # Create a new timer and connect the timer event to our handler.
-        # For WX, the events have to use a widget for binding.
-        self.parent = parent
-        self._timer = wx.Timer(self.parent, wx.NewId())
-        self.parent.Bind(wx.EVT_TIMER, self._on_timer, self._timer)
-
-     # Unbinding causes Wx to stop for some reason. Disabling for now.
-#    def __del__(self):
-#        TimerBase.__del__(self)
-#        self.parent.Bind(wx.EVT_TIMER, None, self._timer)
+        wx.Timer.__init__(self)
 
     def _timer_start(self):
-        self._timer.Start(self._interval, self._single)
+        self.Start(self._interval, self._single)
 
     def _timer_stop(self):
-        self._timer.Stop()
+        self.Stop()
 
     def _timer_set_interval(self):
         self._timer_start()
@@ -204,8 +194,8 @@ class TimerWx(TimerBase):
     def _timer_set_single_shot(self):
         self._timer.start()
 
-    def _on_timer(self, *args):
-        TimerBase._on_timer(self)
+    def Notify(self):
+        self._on_timer()
 
 
 class RendererWx(RendererBase):
