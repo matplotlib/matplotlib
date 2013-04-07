@@ -123,18 +123,18 @@ class TimerTk(TimerBase):
         upon timer events. This list can be manipulated directly, or the
         functions add_callback and remove_callback can be used.
     '''
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
-        self.parent = parent
         self._timer = None
+        self._tcl = Tk.Tcl()
 
     def _timer_start(self):
         self._timer_stop()
-        self._timer = self.parent.after(self._interval, self._on_timer)
+        self._timer = self._tcl.after(self._interval, self._on_timer)
 
     def _timer_stop(self):
         if self._timer is not None:
-            self.parent.after_cancel(self._timer)
+            self._tcl.after_cancel(self._timer)
         self._timer = None
 
     def _on_timer(self):
@@ -143,7 +143,7 @@ class TimerTk(TimerBase):
         # Tk after() is only a single shot, so we need to add code here to
         # reset the timer if we're not operating in single shot mode.
         if not self._single and len(self.callbacks) > 0:
-            self._timer = self.parent.after(self._interval, self._on_timer)
+            self._timer = self._tcl.after(self._interval, self._on_timer)
         else:
             self._timer = None
 
@@ -493,7 +493,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
           Sequence of (func, args, kwargs) where func(*args, **kwargs) will
           be executed by the timer every *interval*.
         """
-        return TimerTk(self._tkcanvas, *args, **kwargs)
+        return TimerTk(*args, **kwargs)
 
     def flush_events(self):
         self._master.update()
