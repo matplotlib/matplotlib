@@ -245,7 +245,7 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
-class TimerMac(_macosx.Timer, TimerBase):
+class Timer(_macosx.Timer, TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses CoreFoundation
     run loops for timer events.
@@ -343,7 +343,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasBase):
           Sequence of (func, args, kwargs) where func(*args, **kwargs) will
           be executed by the timer every *interval*.
         """
-        return TimerMac(*args, **kwargs)
+        return Timer(*args, **kwargs)
 
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):

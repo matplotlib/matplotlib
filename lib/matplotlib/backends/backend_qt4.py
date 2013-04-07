@@ -85,7 +85,7 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
-class TimerQT(TimerBase):
+class Timer(TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses Qt4 timer events.
 
@@ -345,7 +345,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
           Sequence of (func, args, kwargs) where func(*args, **kwargs) will
           be executed by the timer every *interval*.
         """
-        return TimerQT(*args, **kwargs)
+        return Timer(*args, **kwargs)
 
     def flush_events(self):
         QtGui.qApp.processEvents()

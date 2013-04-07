@@ -57,7 +57,7 @@ class Show(ShowBase):
 show = Show()
 
 
-class TimerGTK3(TimerBase):
+class Timer(TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses GTK3 for timer events.
 
@@ -324,7 +324,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
           Sequence of (func, args, kwargs) where func(*args, **kwargs) will
           be executed by the timer every *interval*.
         """
-        return TimerGTK3(*args, **kwargs)
+        return Timer(*args, **kwargs)
 
     def flush_events(self):
         Gdk.threads_enter()

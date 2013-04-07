@@ -110,7 +110,7 @@ def new_figure_manager_given_figure(num, figure):
     return figManager
 
 
-class TimerTk(TimerBase):
+class Timer(TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses Tk's timer events.
 
@@ -493,7 +493,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
           Sequence of (func, args, kwargs) where func(*args, **kwargs) will
           be executed by the timer every *interval*.
         """
-        return TimerTk(*args, **kwargs)
+        return Timer(*args, **kwargs)
 
     def flush_events(self):
         self._master.update()

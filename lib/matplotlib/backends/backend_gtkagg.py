@@ -10,7 +10,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_gtk import gtk, FigureManagerGTK, FigureCanvasGTK,\
      show, draw_if_interactive,\
      error_msg_gtk, NavigationToolbar, PIXELS_PER_INCH, backend_version, \
-     NavigationToolbar2GTK
+     NavigationToolbar2GTK, Timer
 from matplotlib.backends._gtkagg import agg_to_gtk_drawable
 
 

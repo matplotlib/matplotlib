@@ -76,7 +76,7 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
-class TimerTornado(backend_bases.TimerBase):
+class Timer(backend_bases.TimerBase):
     def _timer_start(self):
         self._timer_stop()
         if self._single:
@@ -258,7 +258,7 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
         self.manager.send_event(event_type, **kwargs)
 
     def new_timer(self, *args, **kwargs):
-        return TimerTornado(*args, **kwargs)
+        return Timer(*args, **kwargs)
 
     def start_event_loop(self, timeout):
         backend_bases.FigureCanvasBase.start_event_loop_default(

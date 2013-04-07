@@ -102,7 +102,7 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
-class TimerGTK(TimerBase):
+class Timer(TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses GTK for timer events.
 

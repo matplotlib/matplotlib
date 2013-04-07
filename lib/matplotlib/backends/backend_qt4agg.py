@@ -12,7 +12,7 @@ from matplotlib.figure import Figure
 from backend_agg import FigureCanvasAgg
 from backend_qt4 import QtCore, QtGui, FigureManagerQT, FigureCanvasQT,\
      show, draw_if_interactive, backend_version, \
-     NavigationToolbar2QT
+     NavigationToolbar2QT, Timer
 
 DEBUG = False
 

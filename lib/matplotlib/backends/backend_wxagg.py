@@ -23,7 +23,7 @@ from backend_agg import FigureCanvasAgg
 import backend_wx    # already uses wxversion.ensureMinimal('2.8')
 from backend_wx import FigureManager, FigureManagerWx, FigureCanvasWx, \
     FigureFrameWx, DEBUG_MSG, NavigationToolbar2Wx, error_msg_wx, \
-    draw_if_interactive, show, Toolbar, backend_version
+    draw_if_interactive, show, Toolbar, Timer, backend_version
 import wx
 
 class FigureFrameWxAgg(FigureFrameWx):

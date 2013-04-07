@@ -165,7 +165,7 @@ def raise_msg_to_str(msg):
     return msg
 
 
-class TimerWx(TimerBase, wx.Timer):
+class Timer(wx.Timer, TimerBase):
     '''
     Subclass of :class:`backend_bases.TimerBase` that uses WxTimer events.
 
@@ -1010,7 +1010,7 @@ The current aspect ratio will be kept."""
           Sequence of (func, args, kwargs) where func(*args, **kwargs) will
           be executed by the timer every *interval*.
         """
-        return TimerWx(*args, **kwargs)
+        return Timer(*args, **kwargs)
 
     def flush_events(self):
         wx.Yield()

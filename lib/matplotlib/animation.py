@@ -24,6 +24,8 @@ from matplotlib.cbook import iterable, is_string_like
 from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams
+from matplotlib import events
+
 
 # Other potential writing methods:
 # * http://pymedia.org/
@@ -845,7 +847,7 @@ class TimedAnimation(Animation):
         # If we're not given an event source, create a new timer. This permits
         # sharing timers between animation objects for syncing animations.
         if event_source is None:
-            event_source = fig.canvas.new_timer()
+            event_source = events.Timer()
             event_source.interval = self._interval
 
         Animation.__init__(self, fig, event_source=event_source,

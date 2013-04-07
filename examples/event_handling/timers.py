@@ -1,6 +1,7 @@
 # Simple example of using general timer objects. This is used to update
 # the time placed in the title of the figure.
 import matplotlib.pyplot as plt
+from matplotlib import events
 import numpy as np
 from datetime import datetime
 
@@ -16,7 +17,7 @@ ax.plot(x, x*x)
 
 # Create a new timer object. Set the interval 500 milliseconds (1000 is default)
 # and tell the timer what function should be called.
-timer = fig.canvas.new_timer(interval=100)
+timer = events.Timer(interval=100)
 timer.add_callback(update_title, ax)
 timer.start()
 
