@@ -178,7 +178,7 @@ class TimerWx(TimerBase, wx.Timer):
         upon timer events. This list can be manipulated directly, or the
         functions add_callback and remove_callback can be used.
     '''
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
         wx.Timer.__init__(self)
 
@@ -1010,7 +1010,7 @@ The current aspect ratio will be kept."""
           Sequence of (func, args, kwargs) where func(*args, **kwargs) will
           be executed by the timer every *interval*.
         """
-        return TimerWx(self, *args, **kwargs)
+        return TimerWx(*args, **kwargs)
 
     def flush_events(self):
         wx.Yield()
