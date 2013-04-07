@@ -954,8 +954,8 @@ class FuncAnimation(TimedAnimation):
     results of drawing from the first item in the frames sequence will be
     used. This function will be called once before the first frame. 
 
-    If blit=True, *func* and *init_func* should return a list of drawables to
-    clear.
+    If blit=True, *func* and *init_func* should return an iterable of
+    drawables to clear.
     '''
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
             save_count=None, **kwargs):
