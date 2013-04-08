@@ -3,11 +3,11 @@
 Github stats
 ============
 
-GitHub stats for 2012/06/30 - 2013/03/07 (tag: v1.1.1)
+GitHub stats for 2012/06/30 - 2013/03/26 (tag: v1.1.1)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-The following 88 authors contributed 1605 commits.
+The following 90 authors contributed 1618 commits.
 
 * Aaron Boushley
 * Adam Ginsburg
@@ -35,6 +35,7 @@ The following 88 authors contributed 1605 commits.
 * David Huard
 * Eric Firing
 * Ezra Peisach
+* Francesco Montesano
 * Gellule Xg
 * Graham Poulter
 * Hubert Holin
@@ -96,24 +97,54 @@ The following 88 authors contributed 1605 commits.
 * mcelrath
 * pelson
 * pwuertz
+* torfbolt
 * vbr
 
 
-We closed a total of 1108 issues, 361 pull requests and 747 regular issues;
+We closed a total of 1222 issues, 435 pull requests and 787 regular issues;
 this is the full list (generated with the script 
 :file:`tools/github_stats.py`):
 
-Pull Requests (361):
+Pull Requests (435):
 
+* :ghpull:`1796`: axes.grid lines using lines.marker settings?
+* :ghpull:`1846`: Fix the clippath renderering so that it uses no-clip unsigned chars
+* :ghpull:`1853`: fill_betweenx signature fixed
+* :ghpull:`1854`: BF - prevent a TypeError for lists of vertices
+* :ghpull:`1843`: test_backend_pgf: TypeError
+* :ghpull:`1848`: add flushing of stdout to update on key event
+* :ghpull:`1802`: Step linestyle
+* :ghpull:`1127`: Change spectral to nipy_spectral, update docs, leave aliases
+* :ghpull:`1804`: MEP10 - documentation improvements on set_xlabel and text of axes.py
+* :ghpull:`1764`: Make loc come after fontdict in set_title. Closes #1759
+* :ghpull:`1825`: Work around missing subprocess members on Google App Engine
+* :ghpull:`1826`: backend_ps: Do not write to a temporary file unless using an external distiller
+* :ghpull:`1827`: MEP10 - documentation improvements on many common plots: scatter plots, ...
+* :ghpull:`1834`: finance: Fixed making directories for explicit cachename
+* :ghpull:`1832`: BF - correct return type for Axes.get_title
+* :ghpull:`1803`: Markers module: PEP8 fixes and MEP10 documentation fixes
+* :ghpull:`1795`: MEP10 - refactored hlines and vlines documentation
+* :ghpull:`1822`: Improved triinterp_demo pylab example
+* :ghpull:`1811`: MultiCursor with additionnal optionnal horizontal bar
+* :ghpull:`1817`: Improved test_triinterp_colinear
+* :ghpull:`1799`: Corrupt/invalid PDF and EPS files when saving a logscaled plot made with negative values
+* :ghpull:`1800`: Agg snapping fixes (for the last time...?) :)
 * :ghpull:`1786`: Cubic interpolation for triangular grids
 * :ghpull:`1808`: DOC: typo, break lines >80 char, add link to cmaps list
 * :ghpull:`1801`: Add .directory files to .gitignore
 * :ghpull:`1724`: Re-write stacked step histogram
 * :ghpull:`1790`: Fixes problem raised in #1431 (```get_transform``` should not affect ```is_transform_set```)
+* :ghpull:`1779`: Bug in postscript backend in Python 3
 * :ghpull:`1797`: PEP8 on colors module
 * :ghpull:`1291`: Fix image comparison
+* :ghpull:`1791`: Symbol not found: _CGAffineTransformIdentity on MacOS 10.6
 * :ghpull:`1794`: Fix for #1792
+* :ghpull:`1454`: Retool the setup.py infrastructure
+* :ghpull:`1785`: Fix test_bbox_inches_tight
+* :ghpull:`1784`: Attempt to fix Travis "permission denied" error for Python 3
 * :ghpull:`1775`: Issue #1763
+* :ghpull:`1615`: Offset is empty with usetex when offset is equal to 1
+* :ghpull:`1778`: Fix clip_path_to_rect, add convenience method on Path object for it
 * :ghpull:`1669`: Add EventCollection and eventplot
 * :ghpull:`1725`: Fix compiler warnings
 * :ghpull:`1756`: Remove broken printing_in_wx.py example.
@@ -128,19 +159,24 @@ Pull Requests (361):
 * :ghpull:`1755`: Update examples/pylab_examples/histogram_demo_extended.py
 * :ghpull:`1497`: Fix for empty collection check in axes.add_collection
 * :ghpull:`1685`: Add default savefig directory
+* :ghpull:`1698`: Fix bug updating WeakKeyDictionary during iteration
 * :ghpull:`1743`: slight tweak to the documentation of `errorbar`
 * :ghpull:`1748`: Typo in "Annotation" docstring.
 * :ghpull:`1750`: Name missmatch in filetypes.rgba and print_rgb of backend_bases.py
 * :ghpull:`1722`: Fix sign of infstr in exceltools.rec2exel
+* :ghpull:`1726`: stackplot_test_baseline has different results on 32-bit and 64-bit platforms
 * :ghpull:`1577`: PEP8 fixes on the line module
 * :ghpull:`1728`: Macosx backend: tweak to coordinates position
 * :ghpull:`1718`: Fix set dashes for line collections
+* :ghpull:`1721`: rcParams.keys() is not Python 3 compatible
 * :ghpull:`1699`: Enable to switch off the removal of comments in csv2rec.
+* :ghpull:`1710`: Mixing Arial with mathtext on Windows 8 fails
 * :ghpull:`1705`: Qt closeevent fixes for  v1.2.x
 * :ghpull:`1671`: Feature stack base
 * :ghpull:`1684`: Fix hist for log=True and histtype='step'
 * :ghpull:`1708`: Fix breaking doc build
 * :ghpull:`1644`: NF - Left and right side axes titles
+* :ghpull:`1666`: Fix USE_FONTCONFIG=True mode
 * :ghpull:`1691`: Fix svg flipping (again)
 * :ghpull:`1695`: Alpha kwarg fix
 * :ghpull:`1696`: Fixed doc dependency on numpy_ext.numpydoc
@@ -165,11 +201,13 @@ Pull Requests (361):
 * :ghpull:`1611`: change handling of legend labels which are None
 * :ghpull:`1657`: Add EventCollection and eventplot
 * :ghpull:`1641`: PEP8 fixes on the rcsetup module
+* :ghpull:`1650`: _png.read_png crashes on Python 3 with urllib.request object
 * :ghpull:`1568`: removed deprecated methods from the axes module. 
 * :ghpull:`1589`: Fix shifted ylabels (Issue #1571)
 * :ghpull:`1634`: add scatterpoints to  rcParam
 * :ghpull:`1654`: added explicit 'zorder' kwarg to `Colection` and `LineCollection`.
 * :ghpull:`1653`: Fix #570 - Reversing a 3d axis should now work properly.
+* :ghpull:`1651`: WebAgg: pylab compatibility
 * :ghpull:`1505`: Issue 1504: changed how `draw` handles alpha in `markerfacecolor`
 * :ghpull:`1655`: add get_segments method to collections.LineCollection
 * :ghpull:`1652`: Ignore kdevelop4 project files
@@ -178,16 +216,23 @@ Pull Requests (361):
 * :ghpull:`1582`: Linear tri interpolator
 * :ghpull:`1637`: change cbook to relative import
 * :ghpull:`1618`: Mplot3d/crashfixes
+* :ghpull:`1636`: hexbin log scale is broken in matplotlib 1.2.0
 * :ghpull:`1624`: implemented inverse transform for Mollweide axes
+* :ghpull:`1630`: A disconnected callback cannot be reconnected
 * :ghpull:`1139`: Make Axes.stem take at least one argument.
+* :ghpull:`1426`: WebAgg backend
+* :ghpull:`1606`: Document the C/C++ code guidelines
 * :ghpull:`1628`: Fix errorbar zorder v1.2
 * :ghpull:`1620`: Fix bug in _AnnotationBase
 * :ghpull:`1587`: Mac OS X 10.5 needs an autoreleasepool here to avoid memory leaks. Newer...
 * :ghpull:`1597`: new MatplotlibDeprecationWarning class (against master)
 * :ghpull:`1596`: new MatplotlibDeprecationWarning class (against 1.2.x)
+* :ghpull:`1532`: CXX/Python2/cxx_extensions.cxx:1320: Assertion `ob_refcnt == 0'
 * :ghpull:`1604`: Make font_manager ignore KeyErrors for bad fonts
 * :ghpull:`1605`: Change printed -> pretty-printed
 * :ghpull:`1557`: inverting an axis shouldn't affect the autoscaling setting
+* :ghpull:`1603`: ylim=0.0 is not well handled in polar plots
+* :ghpull:`1583`: Crash with text.usetex=True and plt.annotate
 * :ghpull:`1602`: Fixed typos in docs (squashed version of #1600)
 * :ghpull:`1592`: Fix a syntax error in examples (movie_demo.py)
 * :ghpull:`1590`: Positional argument specifiers are required by Python 2.6
@@ -210,6 +255,7 @@ Pull Requests (361):
 * :ghpull:`1550`: PEP8 fixes on the module texmanager
 * :ghpull:`1289`: Autoscaling and limits in mplot3d.
 * :ghpull:`1551`: PEP8 fixes on the spines module
+* :ghpull:`1537`: Fix savefig.extension == "auto"
 * :ghpull:`1297`: pyplot.plotfile. gridon option added with default from rcParam.
 * :ghpull:`1538`: Remove unnecessary clip from Cairo backend; squashed commit
 * :ghpull:`1544`: str.format() doesn't work on python 2.6
@@ -226,6 +272,7 @@ Pull Requests (361):
 * :ghpull:`1524`: Make README.txt consistent reStructuredText
 * :ghpull:`1525`: pgf: documentation enhancements
 * :ghpull:`1510`: pgf: documentation enhancements
+* :ghpull:`1512`: Reorganize the developer docs
 * :ghpull:`1518`: PEP8 compliance on the delaunay module
 * :ghpull:`1357`: PEP8 fixes on text.py
 * :ghpull:`1469`: PEP8-compliance on axes.py (patch 2 / 4)
@@ -249,28 +296,35 @@ Pull Requests (361):
 * :ghpull:`1395`: PEP8 fixes on contour.py
 * :ghpull:`1464`: PEP8-compliance on axes.py (patch 1 / 4)
 * :ghpull:`1400`: PEP8 fixes on offsetbox.py
+* :ghpull:`1463`: Document the Gtk3 backends
 * :ghpull:`1397`: PEP8 fixes on sankey.py
 * :ghpull:`1396`: PEP8 fixes on colors
 * :ghpull:`1394`: PEP8 fixes on _cm.py
 * :ghpull:`1456`: pgf: documentation fixes
+* :ghpull:`1450`: Colorbar edges are different in PDF backend
 * :ghpull:`1453`: Remove John Hunter's email from mpl docstring
+* :ghpull:`1437`: agg_buffer_to_array.py crashes
 * :ghpull:`1445`: JRE - Modified 'use' so that it will only warn if the requested backend ...
 * :ghpull:`1439`: Remove all mention of make.osx in README.osx
 * :ghpull:`1434`: C++11 narrowing conversions
 * :ghpull:`1449`: removed setup.py print statement.
 * :ghpull:`1420`: Join bbox_extra_artists and bbox_inches
+* :ghpull:`1444`: Colorbar edges are different in PDF backend
 * :ghpull:`1436`: Exception message improvement.
 * :ghpull:`1431`: Fixed transform=None behaviour on Artists.
 * :ghpull:`1430`: Add trove classifiers to setup.py
 * :ghpull:`1427`: Fix AttrituteError for .lower on tuple of strings
 * :ghpull:`1425`: Rebase of #1418 on v1.2.x
+* :ghpull:`1411`: Fix transparent markers in PDF backend.  Closes #1410
 * :ghpull:`1416`: backend_pdf: optional rgbFace arg in fillp replaces code in draw_markers. Closes #1410
 * :ghpull:`1414`: Fix scilimits docstring in ticklabel_format
 * :ghpull:`1314`: Range bug fix for pcolor and pcolormesh
 * :ghpull:`1323`: Work around a huge memory leak in PySide on Python 3
 * :ghpull:`1409`: Make table.py use BBox.union over bbox_all
 * :ghpull:`1387`: Make setupegg symlink correct dateutil library
+* :ghpull:`1404`: PySide segfaults immediately on Linux
 * :ghpull:`1406`: Fix bug when stacking histograms with non-integer weights (v1.2.x branch)
+* :ghpull:`1403`: Improve "Report a problem" to "Getting help"
 * :ghpull:`1380`: Fix svg writer for StringIO objects
 * :ghpull:`1388`: Deprecate original NavigationToolbar
 * :ghpull:`1389`: Remove unused autolayout_validator() from rcsetup
@@ -309,9 +363,11 @@ Pull Requests (361):
 * :ghpull:`1330`: Tiny (but serious) bugfixes in image.py
 * :ghpull:`1298`: Update trisurf to support custom triangulations
 * :ghpull:`1286`: backend_pgf: improve handling of temporary directories
+* :ghpull:`1316`: very high negative zorder breaks vector graphic rendering
 * :ghpull:`1283`: Fix tripcolor with shading='faceted'
 * :ghpull:`1320`: Cursor widget now uses widgetlock; closes Issue #156
 * :ghpull:`1315`: Add documentation of colorbar issue #1188 to colorbar documentation.
+* :ghpull:`1307`: Marker not round with markersize=3
 * :ghpull:`1285`: Hide Tk root window until later
 * :ghpull:`1305`: Fix pointer syntax error
 * :ghpull:`1294`: Update lib/mpl_toolkits/mplot3d/axes3d.py
@@ -333,7 +389,9 @@ Pull Requests (361):
 * :ghpull:`1269`: Fix typo in docstring
 * :ghpull:`1260`: Fix BoundaryNorm interpolation with numpy 1.7rc.
 * :ghpull:`1261`: Update six.py to version 1.2
+* :ghpull:`1255`: Fix test_pickle test.
 * :ghpull:`1152`: checkable pan/zoom buttons for QT NavigationToolbar
+* :ghpull:`1243`: Broken doc links
 * :ghpull:`1242`: Doc tidy up.
 * :ghpull:`1224`: Imsave alpha
 * :ghpull:`1241`: backend_pgf: fix parsing of CR+LF newlines
@@ -348,6 +406,7 @@ Pull Requests (361):
 * :ghpull:`1231`: fix Typesetting in plot() docstring
 * :ghpull:`1215`: PEP8 on lib/matplotlib.afm.py
 * :ghpull:`1216`: PEP8 fixes on the animation module
+* :ghpull:`1208`: FAIL: matplotlib.tests.test_text.test_contains.test 
 * :ghpull:`1209`: Pass linewidth to Mac context properly
 * :ghpull:`847`: Add stacked kwarg to hist and implement stacked hists for step histtype
 * :ghpull:`1228`: backend_pgf: pep8 edits
@@ -361,9 +420,12 @@ Pull Requests (361):
 * :ghpull:`1220`: Figure.show: clarify docstring and error message
 * :ghpull:`1167`: PEP8 lib/matplotlib/patches.py
 * :ghpull:`1168`: PEP8 compliance on artist.py
+* :ghpull:`1213`: Include username in tempdir
 * :ghpull:`1182`: Bezier pep8
+* :ghpull:`1206`: README and links fixes
 * :ghpull:`1192`: Issue835 2: replacement for #835
 * :ghpull:`1187`: Add a *simple* arrow example
+* :ghpull:`1120`: FAIL: matplotlib.tests.test_transforms.test_pre_transform_plotting.test on Python 3.x
 * :ghpull:`714`: Initial rework of gen_gallery.py
 * :ghpull:`1150`: the affine matrix is calculated in the display coordinate for interpolation='none'
 * :ghpull:`1145`: Fix formatter reset when twin{x,y}() is called
@@ -380,6 +442,7 @@ Pull Requests (361):
 * :ghpull:`1146`: Fix invalid transformation in InvertedSymmetricalLogTransform.
 * :ghpull:`1169`: Subplot.twin[xy] returns a Subplot instance
 * :ghpull:`1183`: FIX undefined elements were used at several places in the mlab module
+* :ghpull:`498`: get_sample_data still broken on v.1.1.x
 * :ghpull:`1170`: Uses tight_layout.get_subplotspec_list to check if all axes are compatible w/ tight_layout
 * :ghpull:`1174`: closes #1173 - backporting python2.7 subprocess's check_output to be abl...
 * :ghpull:`1175`: Pickling support added. Various whitespace fixes as a result of reading *lots* of code.
@@ -390,33 +453,42 @@ Pull Requests (361):
 * :ghpull:`1163`: tight_layout: fix regression for figures with non SubplotBase Axes
 * :ghpull:`1159`: FIX assert_raises cannot be called with ``with\\
 * :ghpull:`1160`: backend_pgf: clarifications and fixes in documentation
+* :ghpull:`1154`: six inclusion for dateutil on py3 doesn't work
 * :ghpull:`1149`: Add Phil Elson's percentage histogram example
 * :ghpull:`1158`: FIX - typo in lib/matplotlib/testing/compare.py
 * :ghpull:`1155`: workaround for fixed dpi assumption in adjust_bbox_pdf
+* :ghpull:`1142`: What's New: Python 3 paragraph
 * :ghpull:`1130`: Fix writing pdf on stdout
+* :ghpull:`832`: MPLCONFIGDIR tries to be created in read-only home
 * :ghpull:`1140`: BUG: Fix fill_between when NaN values are present
 * :ghpull:`1144`: Added tripcolor whats_new section.
 * :ghpull:`1010`: Port part of errorfill from Tony Yu's mpltools.
 * :ghpull:`1141`: backend_pgf: fix parentheses typo
 * :ghpull:`1114`: Make grid accept alpha rcParam
 * :ghpull:`1124`: PGF backend, fix #1116, #1118 and #1128
+* :ghpull:`983`: Issues with dateutil and pytz
 * :ghpull:`1133`: figure.py: import warnings, and make imports absolute
 * :ghpull:`1132`: clean out obsolete matplotlibrc-related bits to close #1123
 * :ghpull:`1131`: Cleanup after the gca test. 
+* :ghpull:`563`: sankey.add() has mutable defaults
 * :ghpull:`731`: Plot limit with transform
 * :ghpull:`1107`: Added %s support for labels.
 * :ghpull:`774`: Allow automatic use of tight_layout.
 * :ghpull:`1122`: DOC: Add streamplot description to What's New page
 * :ghpull:`1111`: Fixed transoffset example from failing.
+* :ghpull:`840`: Documentation Errors for specgram
 * :ghpull:`1088`: For a text artist, if it has a _bbox_patch associated with it, the contains test should reflect this.
 * :ghpull:`986`: Add texinfo build target in doc/make.py
 * :ghpull:`1076`: PGF backend for XeLaTeX/LuaLaTeX support
 * :ghpull:`1090`: External transform api
+* :ghpull:`1108`: Fix documentation warnings
 * :ghpull:`861`: Add rcfile function (which loads rc params from a given file).
 * :ghpull:`1062`: increased the padding on FileMovieWritter.frame_format_str
+* :ghpull:`1100`: Doc multi version master
 * :ghpull:`1105`: Fixed comma between tests.
 * :ghpull:`1095`: Colormap byteorder bug
 * :ghpull:`1103`: colorbar: correct error introduced in commit 089024; closes #1102
+* :ghpull:`1067`: Support multi-version documentation on the website
 * :ghpull:`1031`: Added 'capthick' kwarg to errorbar()
 * :ghpull:`1074`: Added broadcasting support in some mplot3d methods
 * :ghpull:`1064`: Locator interface
@@ -427,6 +499,10 @@ Pull Requests (361):
 * :ghpull:`1078`: doc: note that IDLE doesn't work with interactive mode.
 * :ghpull:`1071`: patches.polygon: fix bug in handling of path closing, #1018.
 * :ghpull:`1057`: Contour norm scaling
+* :ghpull:`1056`: Test framework cleanups
+* :ghpull:`778`: Make tests faster
+* :ghpull:`1024`: broken links in the gallery
+* :ghpull:`1054`:  stix_fonts_demo.py fails with bad refcount
 * :ghpull:`960`: Fixed logformatting for non integer bases.
 * :ghpull:`897`: GUI icon in Tkinter
 * :ghpull:`1053`: Move Python 3 import of reload() to the module that uses it
@@ -467,8 +543,48 @@ Pull Requests (361):
 * :ghpull:`970`: Fix tiff and jpeg export via PIL 
 * :ghpull:`961`: Issue 807 auto minor locator
 
-Issues (747):
+Issues (787):
 
+* :ghissue:`1839`: matplotlib 1.2.0 doesn't compile with Solaris Studio 12.3 CC
+* :ghissue:`1796`: axes.grid lines using lines.marker settings?
+* :ghissue:`1846`: Fix the clippath renderering so that it uses no-clip unsigned chars
+* :ghissue:`1844`: 1.2.0 regression: custom scale not working
+* :ghissue:`1768`: Build fails on travisCI
+* :ghissue:`1851`: Fix for the custom scale example
+* :ghissue:`1853`: fill_betweenx signature fixed
+* :ghissue:`1854`: BF - prevent a TypeError for lists of vertices
+* :ghissue:`1840`: BF - prevent a TypeError for lists of vertices in set_marker
+* :ghissue:`1842`: test_backend_pgf errors
+* :ghissue:`1850`: fill_betweenx signature fixed
+* :ghissue:`1843`: test_backend_pgf: TypeError
+* :ghissue:`1830`: Keyboard shortcuts work when toolbar not displayed
+* :ghissue:`1848`: add flushing of stdout to update on key event
+* :ghissue:`1802`: Step linestyle
+* :ghissue:`879`: Two colormaps named "spectral"
+* :ghissue:`1127`: Change spectral to nipy_spectral, update docs, leave aliases
+* :ghissue:`1804`: MEP10 - documentation improvements on set_xlabel and text of axes.py
+* :ghissue:`1764`: Make loc come after fontdict in set_title. Closes #1759
+* :ghissue:`1759`: Axes3d error on set_title
+* :ghissue:`800`: Still another Agg snapping issue.
+* :ghissue:`1727`: 'stepfilled' histogram is not filled properly when setting yscale('log')
+* :ghissue:`1612`: setupegg is broken on windows
+* :ghissue:`1591`: Image being snapped erroneously
+* :ghissue:`1845`: Agg clip rendering fix
+* :ghissue:`1838`: plot_surface and transposed arrays
+* :ghissue:`1825`: Work around missing subprocess members on Google App Engine
+* :ghissue:`1826`: backend_ps: Do not write to a temporary file unless using an external distiller
+* :ghissue:`1827`: MEP10 - documentation improvements on many common plots: scatter plots, ...
+* :ghissue:`1834`: finance: Fixed making directories for explicit cachename
+* :ghissue:`1714`: qt4_editor broken: `TransformNode instances can not be copied`
+* :ghissue:`1832`: BF - correct return type for Axes.get_title
+* :ghissue:`324`: ability to change curves, axes, labels attributes via UI
+* :ghissue:`1803`: Markers module: PEP8 fixes and MEP10 documentation fixes
+* :ghissue:`1795`: MEP10 - refactored hlines and vlines documentation
+* :ghissue:`1819`: Option for disregarding matplotlibrc, for reproducible batch production of plots
+* :ghissue:`1822`: Improved triinterp_demo pylab example
+* :ghissue:`1820`: griddata: Allow for easy switching between interpolation mechanisms
+* :ghissue:`1811`: MultiCursor with additionnal optionnal horizontal bar
+* :ghissue:`1817`: Improved test_triinterp_colinear
 * :ghissue:`1799`: Corrupt/invalid PDF and EPS files when saving a logscaled plot made with negative values
 * :ghissue:`1800`: Agg snapping fixes (for the last time...?) :)
 * :ghissue:`1521`: Triangular grid interpolation and refinement

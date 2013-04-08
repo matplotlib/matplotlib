@@ -1523,10 +1523,36 @@ class RendererPdf(RendererBase):
                              offsets, offsetTrans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
+        # We can only reuse the objects if the presence of fill and
+        # stroke (and the amount of alpha for each) is the same for
+        # all of them
+        can_do_optimization = True
+
+        if not len(facecolors):
+            filled = False
+        else:
+            if np.all(facecolors[:, 3] == facecolors[0, 3]):
+                filled = facecolors[0, 3] != 0.0
+            else:
+                can_do_optimization = False
+
+        if not len(edgecolors):
+            stroked = False
+        else:
+            if np.all(edgecolors[:, 3] == edgecolors[0, 3]):
+                stroked = edgecolors[0, 3] != 0.0
+            else:
+                can_do_optimization = False
+
+        if not can_do_optimization:
+            return RendererBase.draw_path_collection(
+                self, gc, master_transform, paths, all_transforms,
+                offsets, offsetTrans, facecolors, edgecolors,
+                linewidths, linestyles, antialiaseds, urls,
+                offset_position)
+
         padding = np.max(linewidths)
         path_codes = []
-        filled = len(facecolors)
-        stroked = len(edgecolors)
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
             master_transform, paths, all_transforms)):
             name = self.file.pathCollectionObject(

@@ -74,7 +74,10 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         return total, offsets
 
     elif mode == "expand":
-        sep = (total - sum(w_list)) / (len(w_list) - 1.)
+        if len(w_list) > 1:
+            sep = (total - sum(w_list)) / (len(w_list) - 1.)
+        else:
+            sep = 0.
         offsets_ = np.add.accumulate([0] + [w + sep for w in w_list])
         offsets = offsets_[:-1]
 

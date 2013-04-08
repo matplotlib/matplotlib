@@ -110,6 +110,18 @@ used, which, in the case of straight contours was sometimes quite distant
 from the requested location. Much more precise label positioning is now
 possible.
 
+.. _whats-new-1-2-2:
+
+new in matplotlib 1.2.2
+=======================
+
+Improved collections
+--------------------
+
+The individual items of a collection may now have different alpha
+values and be rendered correctly.  This also fixes a bug where
+collections were always filled in the PDF backend.
+
 .. _whats-new-1-2:
 
 new in matplotlib-1.2
