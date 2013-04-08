@@ -17,9 +17,10 @@ install:
   - 'if [ $TRAVIS_PYTHON_VERSION == "3.2" ]; then pip install https://github.com/y-p/numpy/archive/1.6.2_with_travis_fix.tar.gz; fi'
   - 'if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install numpy; fi' # should be nop if pre-installed
   - if [[ $TRAVIS_PYTHON_VERSION == '2.'* ]]; then pip install --use-mirrors PIL; fi
+  - sudo apt-get install inkscape
   - python setup.py install
 
 script:
-  - mkdir ../foo
-  - cd ../foo
+  - mkdir ../tmp_test_dir
+  - cd ../tmp_test_dir
   - python ../matplotlib/tests.py -sv

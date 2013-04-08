@@ -122,10 +122,15 @@ it::
 The first time this test is run, there will be no baseline image to
 compare against, so the test will fail.  Copy the output images (in
 this case `result_images/test_category/spines_axes_positions.*`) to
-the `baseline_images` tree in the source directory (in this case
-`lib/matplotlib/tests/baseline_images/test_category`) and put them
-under source code revision control (with `git add`).  When rerunning
-the tests, they should now pass.
+the correct subdirectory of `baseline_images` tree in the source
+directory (in this case
+`lib/matplotlib/tests/baseline_images/test_category`).  Note carefully
+the `.*` at the end: this will copy only the images we need to include
+in the `git` repository.  The files ending in `_pdf.png` and
+`_svg.png` are converted from the `pdf` and `svg` originals on the fly
+and do not need to be in the respository.  Put these new files under
+source code revision control (with `git add`).  When rerunning the
+tests, they should now pass.
 
 There are two optional keyword arguments to the `image_comparison`
 decorator:
