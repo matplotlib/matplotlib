@@ -4797,6 +4797,7 @@ class Axes(martist.Artist):
             if _bottom is None:
                 if self.get_yscale() == 'log':
                     adjust_ylim = True
+                    bottom = [1e-100]
                 else:
                     bottom = [0]
             nbars = len(left)
@@ -4812,6 +4813,7 @@ class Axes(martist.Artist):
             if _left is None:
                 if self.get_xscale() == 'log':
                     adjust_xlim = True
+                    left = [1e-100]
                 else:
                     left = [0]
             nbars = len(bottom)
