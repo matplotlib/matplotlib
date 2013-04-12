@@ -1,0 +1,57 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="{{ prefix }}/_static/css/page.css" type="text/css">
+    <link rel="stylesheet" href="{{ prefix }}/_static/css/boilerplate.css" type="text/css" />
+    <link rel="stylesheet" href="{{ prefix }}/_static/css/fbm.css" type="text/css" />
+	<link rel="stylesheet" href="{{ prefix }}/_static/jquery/css/themes/base/jquery-ui.min.css" >
+	<script src="{{ prefix }}/_static/jquery/js/jquery-1.7.1.min.js"></script>
+	<script src="{{ prefix }}/_static/jquery/js/jquery-ui.min.js"></script>
+	<script src="{{ prefix }}/_static/mpl.js"></script>
+	<script src="{{ prefix }}/1/mpl_interface.js"></script>
+	
+	<script>
+	var websocket_url_prefix = "{{ ws_uri }}";
+	var fig = new figure({{ repr(str(fig_id)) }}, websocket_url_prefix);
+    
+    $(document).ready(
+    function() {
+        var toolbar_prefix = 'fig-toolbar';
+        init_mpl_toolbar(fig, toolbar_prefix);
+        
+        var statusbar_prefix = 'statusbar';
+        var status_id = init_mpl_statusbar(toolbar_prefix, statusbar_prefix);
+        
+        var canvas_prefix = 'figure';
+        init_mpl_canvas(fig, 'fig-canvas-div', canvas_prefix);
+        
+        fig.finalize(canvas_prefix, toolbar_prefix, statusbar_prefix);
+        // fig.canvas.focus();
+        // Let the top level document handle key events.
+        fig.canvas.unbind('keydown');
+        fig.canvas.unbind('keyup');
+      }
+    );
+  </script>
+  
+{% set fig_label='Figure: {}'.format(canvas.figure.get_label()) %}
+    
+{% if fig_label == 'Figure: ' %}
+{% set fig_label="Figure {}".format(fig_id) %}
+{% end %}  
+
+  <title>MPL | {{ fig_label }}</title>	
+
+
+  </head>
+  <body onkeydown="fig.key_event(event, 'key_press');" onkeyup="fig.key_event(event, 'key_release');">
+    <div style="margin: 10px 100px;">
+       <h1>
+       {{ fig_label }}
+       </h1>
+       <div id="mpl-warnings" class="mpl-warnings"></div>
+       <div id="fig-canvas-div"></div>
+       <div id="fig-toolbar" style="width: 600px;"></div>
+    </div>
+    
+  </body>
+</html>
