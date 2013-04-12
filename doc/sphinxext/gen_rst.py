@@ -38,10 +38,7 @@ def generate_example_rst(app):
                 continue
 
             fullpath = os.path.join(root,fname)
-            if sys.version_info[0] >= 3:
-                contents = io.open(fullpath, encoding='utf8').read()
-            else:
-                contents = io.open(fullpath).read()
+            contents = io.open(fullpath, encoding='utf8').read()
             # indent
             relpath = os.path.split(root)[-1]
             datad.setdefault(relpath, []).append((fullpath, fname, contents))
@@ -126,34 +123,31 @@ Matplotlib Examples
                                   ) and
                        not noplot_regex.search(contents))
             if not do_plot:
-                fhstatic = open(outputfile, 'w')
+                fhstatic = io.open(outputfile, 'w', encoding='utf-8')
                 fhstatic.write(contents)
                 fhstatic.close()
 
             if not out_of_date(fullpath, outrstfile):
                 continue
 
-            if sys.version_info[0] >= 3:
-                fh = io.open(outrstfile, 'w', encoding='utf8')
-            else:
-                fh = io.open(outrstfile, 'w')
-            fh.write('.. _%s-%s:\n\n'%(subdir, basename))
+            fh = io.open(outrstfile, 'w', encoding='utf-8')
+            fh.write(u'.. _%s-%s:\n\n' % (subdir, basename))
             title = '%s example code: %s'%(subdir, fname)
             #title = '<img src=%s> %s example code: %s'%(thumbfile, subdir, fname)
 
-            fh.write(title + '\n')
-            fh.write('='*len(title) + '\n\n')
+            fh.write(title + u'\n')
+            fh.write(u'=' * len(title) + u'\n\n')
 
             if do_plot:
-                fh.write("\n\n.. plot:: %s\n\n::\n\n" % fullpath)
+                fh.write(u"\n\n.. plot:: %s\n\n::\n\n" % fullpath)
             else:
-                fh.write("[`source code <%s>`_]\n\n::\n\n" % fname)
+                fh.write(u"[`source code <%s>`_]\n\n::\n\n" % fname)
 
             # indent the contents
-            contents = '\n'.join(['    %s'%row.rstrip() for row in contents.split('\n')])
+            contents = u'\n'.join([u'    %s'%row.rstrip() for row in contents.split(u'\n')])
             fh.write(contents)
 
-            fh.write('\n\nKeywords: python, matplotlib, pylab, example, codex (see :ref:`how-to-search-examples`)')
+            fh.write(u'\n\nKeywords: python, matplotlib, pylab, example, codex (see :ref:`how-to-search-examples`)')
             fh.close()
 
         fhsubdirIndex.close()
