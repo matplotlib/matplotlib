@@ -1049,9 +1049,6 @@ class TimerBase(object):
 
         self._single = False
 
-        # Default attribute for holding the GUI-specific timer object
-        self._timer = None
-
     def __del__(self):
         'Need to stop timer and possibly disconnect timer.'
         self._timer_stop()

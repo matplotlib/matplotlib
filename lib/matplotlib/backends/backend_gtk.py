@@ -103,18 +103,8 @@ def new_figure_manager_given_figure(num, figure):
 
 
 class Timer(TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses GTK for timer events.
+    __doc__ = TimerBase.__doc__
 
-    Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * single_shot: Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
-    '''
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
         # never be stopped.

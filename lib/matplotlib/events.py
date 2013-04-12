@@ -13,17 +13,5 @@ def _initialize():
     return backend_module
 
 backend = _initialize()
-
-class Timer(backend.Timer):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses backend-specific timer events.
-
-    Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
-    '''
-
+Timer = backend.Timer
 del backend, _initialize

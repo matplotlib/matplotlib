@@ -166,18 +166,8 @@ def raise_msg_to_str(msg):
 
 
 class Timer(wx.Timer, TimerBase):
-    '''
-    Subclass of :class:`backend_bases.TimerBase` that uses WxTimer events.
+    __doc__ = TimerBase.__doc__
 
-    Attributes:
-    * interval: The time between timer events in milliseconds. Default
-        is 1000 ms.
-    * single_shot: Boolean flag indicating whether this timer should
-        operate as single shot (run once and then stop). Defaults to False.
-    * callbacks: Stores list of (func, args) tuples that will be called
-        upon timer events. This list can be manipulated directly, or the
-        functions add_callback and remove_callback can be used.
-    '''
     def __init__(self, *args, **kwargs):
         TimerBase.__init__(self, *args, **kwargs)
         wx.Timer.__init__(self)

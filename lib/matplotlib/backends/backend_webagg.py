@@ -77,6 +77,8 @@ def new_figure_manager_given_figure(num, figure):
 
 
 class Timer(backend_bases.TimerBase):
+    __doc__ = backend_bases.TimerBase.__doc__
+
     def _timer_start(self):
         self._timer_stop()
         if self._single:
