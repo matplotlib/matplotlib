@@ -6,7 +6,6 @@ from __future__ import print_function
 import sys, gc
 
 import atexit
-import traceback
 
 
 def error_msg(msg):
