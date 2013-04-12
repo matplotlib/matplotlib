@@ -225,6 +225,15 @@ def test_image_edges():
 
     assert g != 100, 'Expected a non-green edge - but sadly, it was.'
 
+@image_comparison(baseline_images=['image_composite_background'], remove_text=True)
+def test_image_composite_background():
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    arr = np.arange(12).reshape(4, 3)
+    ax.imshow(arr, extent=[0, 2, 15, 0])
+    ax.imshow(arr, extent=[4, 6, 15, 0])
+    ax.set_axis_bgcolor((1, 0, 0, 0.5))
+    ax.set_xlim([0, 12])
 
 if __name__=='__main__':
     import nose

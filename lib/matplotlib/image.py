@@ -315,7 +315,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         fc = self.axes.patch.get_facecolor()
         bg = mcolors.colorConverter.to_rgba(fc, 0)
-        im.set_bg( *bg)
+        im.set_bg(*bg)
 
         # image input dimensions
         im.reset_matrix()
@@ -1078,7 +1078,7 @@ class BboxImage(_AxesImageBase):
 
     def contains(self, mouseevent):
         """Test whether the mouse event occured within the image."""
-        if callable(self._contains): 
+        if callable(self._contains):
             return self._contains(self, mouseevent)
 
         if not self.get_visible():# or self.get_figure()._renderer is None:
