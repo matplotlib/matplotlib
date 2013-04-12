@@ -742,12 +742,14 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
         import pprint
         class_name = self.__class__.__name__
         indent = len(class_name) + 1
-        repr_split = pprint.pformat(dict(self), indent=1, width=80 - indent).split('\n')
+        repr_split = pprint.pformat(dict(self), indent=1,
+                                    width=80 - indent).split('\n')
         repr_indented = ('\n' + ' ' * indent).join(repr_split)
-        return '{}({})'.format(class_name, repr_indented)
+        return '{0}({1})'.format(class_name, repr_indented)
 
     def __str__(self):
-        return '\n'.join('{}: {}'.format(k, v) for k, v in sorted(self.items()))
+        return '\n'.join('{0}: {1}'.format(k, v)
+                         for k, v in sorted(self.items()))
 
     def keys(self):
         """
@@ -765,8 +767,8 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
 
     def find_all(self, pattern):
         """
-        Return the subset of this RcParams dictionary for which the given
-        ``pattern`` string is found, by :func:`re.search`, somewhere in the key.
+        Return the subset of this RcParams dictionary whose keys match,
+        using :func:`re.search`, the given ``pattern``.
 
         .. note::
 
