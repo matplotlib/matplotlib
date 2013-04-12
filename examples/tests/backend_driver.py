@@ -226,6 +226,7 @@ files['api'] = [
     'mathtext_asarray.py',
     'patch_collection.py',
     'path_patch_demo.py',
+    'pcolormesh_example.py',
     'quad_bezier.py',
     'scatter_piecharts.py',
     'span_regions.py',
