@@ -105,6 +105,10 @@ def new_figure_manager_given_figure(num, figure):
 class Timer(TimerBase):
     __doc__ = TimerBase.__doc__
 
+    def __init__(self, *args, **kwargs):
+        TimerBase.__init__(self, *args, **kwargs)
+        self._timer = None
+
     def _timer_start(self):
         # Need to stop it, otherwise we potentially leak a timer id that will
         # never be stopped.

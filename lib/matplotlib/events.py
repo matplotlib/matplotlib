@@ -13,5 +13,8 @@ def _initialize():
     return backend_module
 
 backend = _initialize()
-Timer = backend.Timer
+try:
+    Timer = backend.Timer
+except AttributeError:
+    from matplotlib.backend_bases import TimerBase as Timer
 del backend, _initialize
