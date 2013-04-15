@@ -23,6 +23,8 @@ except ImportError:
 
 from qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
 
+import subprocess
+
 backend_version = __version__
 def fn_name(): return sys._getframe(1).f_code.co_name
 
@@ -53,6 +55,15 @@ def _create_qApp():
         global qApp
         app = QtGui.QApplication.instance()
         if app is None:
+          
+            # try to launch a QApplication in a separate process 
+            # otherwise it may stop the intepreter on failure (if no X server for example) 
+            p = subprocess.Popen(sys.executable, stdin=subprocess.PIPE, stderr=subprocess.PIPE) 
+            p.stdin.write('from matplotlib.backends.qt4_compat import QtGui\napp = QtGui.QApplication([])\n') 
+            p.stdin.close() 
+            if p.wait() != 0: 
+                raise RuntimeError( 'Qt4 failed to initialize ' + p.stderr.readline().rstrip() )     
+              
             qApp = QtGui.QApplication( [" "] )
             QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
                                 qApp, QtCore.SLOT( "quit()" ) )
