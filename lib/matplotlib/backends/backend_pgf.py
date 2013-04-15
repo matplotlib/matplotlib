@@ -643,7 +643,7 @@ class RendererPgf(RendererBase):
             text_args.append("x=%fin" % (x * f))
             text_args.append("y=%fin" % (y * f))
             text_args.append("left")
-            text_args.append("bottom")
+            text_args.append("base")
 
         if angle != 0:
             text_args.append("rotate=%f" % angle)
