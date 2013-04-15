@@ -1280,6 +1280,224 @@ def test_mixed_collection():
     ax.set_ylim(0, 16)
 
 
+@image_comparison(baseline_images=['specgram_freqs'], remove_text=True,
+                  extensions=['png'])
+def test_specgram_freqs():
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+    fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
+
+    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y1 = np.zeros(x.size)
+    y2 = np.zeros(x.size)
+    for fstim1, fstim2 in zip(fstims1, fstims2):
+        y1 += np.sin(fstim1 * x * np.pi * 2)
+        y2 += np.sin(fstim2 * x * np.pi * 2)
+    y = np.hstack([y1, y2])
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    spec1 = ax1.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='default')
+    spec2 = ax2.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='onesided')
+    spec3 = ax3.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='twosided')
+
+
+@image_comparison(baseline_images=['specgram_noise'], remove_text=True,
+                  extensions=['png'])
+def test_specgram_noise():
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+    y = np.hstack([y1, y2])
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    spec1 = ax1.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='default')
+    spec2 = ax2.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='onesided')
+    spec3 = ax3.specgram(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                         sides='twosided')
+
+
+@image_comparison(baseline_images=['psd_freqs'], remove_text=True,
+                  extensions=['png'])
+def test_psd_freqs():
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+    fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
+
+    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y1 = np.zeros(x.size)
+    y2 = np.zeros(x.size)
+    for fstim1, fstim2 in zip(fstims1, fstims2):
+        y1 += np.sin(fstim1 * x * np.pi * 2)
+        y2 += np.sin(fstim2 * x * np.pi * 2)
+    y = np.hstack([y1, y2])
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    psd1 = ax1.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='default')
+    psd2 = ax2.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='onesided')
+    psd3 = ax3.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['psd_noise'], remove_text=True,
+                  extensions=['png'])
+def test_psd_noise():
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+    y = np.hstack([y1, y2])
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    psd1 = ax1.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='default')
+    psd2 = ax2.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='onesided')
+    psd3 = ax3.psd(y, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['csd_freqs'], remove_text=True,
+                  extensions=['png'])
+def test_csd_freqs():
+    n = 10000
+    Fs = 100.
+
+    fstims1 = [Fs/4, Fs/5, Fs/11]
+    fstims2 = [Fs/4.7, Fs/5.6, Fs/11.9]
+
+    NFFT = int(1000 * Fs / min(fstims1 + fstims2))
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    x = np.arange(0, n, 1/Fs)
+
+    y1 = np.zeros(x.size)
+    y2 = np.zeros(x.size)
+    for fstim1, fstim2 in zip(fstims1, fstims2):
+        y1 += np.sin(fstim1 * x * np.pi * 2)
+        y2 += np.sin(fstim2 * x * np.pi * 2)
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    csd1 = ax1.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='default')
+    csd2 = ax2.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='onesided')
+    csd3 = ax3.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['csd_noise'], remove_text=True,
+                  extensions=['png'])
+def test_csd_noise():
+    np.random.seed(0)
+
+    n = 10000
+    Fs = 100.
+
+    NFFT = int(1000 * Fs / 11)
+    noverlap = int(NFFT / 2)
+    pad_to = int(2 ** np.ceil(np.log2(NFFT)))
+
+    y1 = np.random.standard_normal(n)
+    y2 = np.random.rand(n)
+
+    fig = plt.figure()
+    ax1 = fig.add_subplot(3, 1, 1)
+    ax2 = fig.add_subplot(3, 1, 2)
+    ax3 = fig.add_subplot(3, 1, 3)
+
+    csd1 = ax1.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='default')
+    csd2 = ax2.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='onesided')
+    csd3 = ax3.csd(y1, y2, NFFT=NFFT, Fs=Fs, noverlap=noverlap, pad_to=pad_to,
+                   sides='twosided')
+
+    ax1.set_xlabel('')
+    ax2.set_xlabel('')
+    ax3.set_xlabel('')
+    ax1.set_ylabel('')
+    ax2.set_ylabel('')
+    ax3.set_ylabel('')
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
