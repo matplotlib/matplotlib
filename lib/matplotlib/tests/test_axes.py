@@ -333,8 +333,7 @@ def test_polar_wrap():
     plt.rgrids( [0.05, 0.1, 0.15, 0.2, 0.25, 0.3] )
 
 
-@image_comparison(baseline_images=['polar_units', 'polar_units_2'],
-                  freetype_version=('2.4.5', '2.4.9'))
+@image_comparison(baseline_images=['polar_units', 'polar_units_2'])
 def test_polar_units():
     import matplotlib.testing.jpl_units as units
     from nose.tools import assert_true

@@ -261,7 +261,7 @@ setfont
         self.pswriter.write(ps)
 
     def get_results(self, box, used_characters):
-        ship(0, -self.depth, box)
+        ship(0, 0, box)
         return (self.width,
                 self.height + self.depth,
                 self.depth,
@@ -288,7 +288,7 @@ class MathtextBackendPdf(MathtextBackend):
         self.rects.append((x1, self.height - y2, x2 - x1, y2 - y1))
 
     def get_results(self, box, used_characters):
-        ship(0, -self.depth, box)
+        ship(0, 0, box)
         return (self.width,
                 self.height + self.depth,
                 self.depth,
@@ -316,7 +316,7 @@ class MathtextBackendSvg(MathtextBackend):
             (x1, self.height - y1 + 1, x2 - x1, y2 - y1))
 
     def get_results(self, box, used_characters):
-        ship(0, -self.depth, box)
+        ship(0, 0, box)
         svg_elements = Bunch(svg_glyphs = self.svg_glyphs,
                              svg_rects = self.svg_rects)
         return (self.width,
@@ -346,7 +346,7 @@ class MathtextBackendPath(MathtextBackend):
             (x1, self.height-y2 , x2 - x1, y2 - y1))
 
     def get_results(self, box, used_characters):
-        ship(0, -self.depth, box)
+        ship(0, 0, box)
         return (self.width,
                 self.height + self.depth,
                 self.depth,
@@ -374,7 +374,7 @@ class MathtextBackendCairo(MathtextBackend):
             (x1, y1 - self.height, x2 - x1, y2 - y1))
 
     def get_results(self, box, used_characters):
-        ship(0, -self.depth, box)
+        ship(0, 0, box)
         return (self.width,
                 self.height + self.depth,
                 self.depth,

@@ -154,8 +154,10 @@ class RendererAgg(RendererBase):
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
-        x = np.round(x + ox)
-        y = np.round(y - oy)
+        xd = descent * np.sin(angle / (180.0 * np.pi))
+        yd = descent * np.cos(angle / (180.0 * np.pi))
+        x = np.round(x + ox - xd)
+        y = np.round(y - oy + yd)
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
@@ -177,10 +179,14 @@ class RendererAgg(RendererBase):
             # space) in the following call to draw_text_image).
             font.set_text(s, 0, flags=flags)
         font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
+        d = font.get_descent() / 64.0
+        # The descent needs to be adjusted for the angle
+        xd = d * np.sin(angle / (180.0 * np.pi))
+        yd = d * np.cos(angle / (180.0 * np.pi))
 
         #print x, y, int(x), int(y), s
         self._renderer.draw_text_image(
-            font.get_image(), np.round(x), np.round(y) + 1, angle, gc)
+            font.get_image(), np.round(x - xd), np.round(y + yd) + 1, angle, gc)
 
     def get_text_width_height_descent(self, s, prop, ismath):
         """
