@@ -259,9 +259,6 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
     def send_event(self, event_type, **kwargs):
         self.manager.send_event(event_type, **kwargs)
 
-    def new_timer(self, *args, **kwargs):
-        return Timer(*args, **kwargs)
-
     def start_event_loop(self, timeout):
         backend_bases.FigureCanvasBase.start_event_loop_default(
             self, timeout)

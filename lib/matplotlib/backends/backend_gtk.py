@@ -481,22 +481,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         else:
             raise ValueError("filename must be a path or a file-like object")
 
-    def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of :class:`backend_bases.Timer`.
-        This is useful for getting periodic events through the backend's native
-        event loop. Implemented only for backends with GUIs.
-
-        optional arguments:
-
-        *interval*
-          Timer interval in milliseconds
-        *callbacks*
-          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
-          be executed by the timer every *interval*.
-        """
-        return TimerGTK(*args, **kwargs)
-
     def flush_events(self):
         gtk.gdk.threads_enter()
         while gtk.events_pending():

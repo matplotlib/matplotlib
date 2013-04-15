@@ -2255,23 +2255,6 @@ class FigureCanvasBase(object):
         """
         return self.callbacks.disconnect(cid)
 
-    def new_timer(self, *args, **kwargs):
-        """
-        Creates a new backend-specific subclass of
-        :class:`backend_bases.Timer`. This is useful for getting periodic
-        events through the backend's native event loop. Implemented only for
-        backends with GUIs.
-
-        optional arguments:
-
-        *interval*
-          Timer interval in milliseconds
-        *callbacks*
-          Sequence of (func, args, kwargs) where func(*args, **kwargs) will
-          be executed by the timer every *interval*.
-        """
-        return TimerBase(*args, **kwargs)
-
     def flush_events(self):
         """
         Flush the GUI events for the figure. Implemented only for
