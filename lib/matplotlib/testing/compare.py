@@ -99,7 +99,10 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
 # parameters old and new to a list that can be passed to Popen to
 # convert files with that extension to png format.
 def get_cache_dir():
-   cache_dir = os.path.join(_get_configdir(), 'test_cache')
+   configdir = _get_configdir()
+   if configdir is None:
+      raise RuntimeError('Could not find a suitable configuration directory')
+   cache_dir = os.path.join(configdir, 'test_cache')
    if not os.path.exists(cache_dir):
       try:
          os.makedirs(cache_dir)
