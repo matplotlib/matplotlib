@@ -1,3 +1,6 @@
+2013-04-15 Added 'axes.xmargin' and 'axes.ymargin' to rpParams to set default
+	   margins on auto-scaleing. - TAC
+
 2013-03-19 Added support for passing `linestyle` kwarg to `step` so all `plot`
 	   kwargs are passed to the underlying `plot` call.  -TAC
 
