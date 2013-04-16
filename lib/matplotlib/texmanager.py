@@ -41,6 +41,7 @@ import glob
 import os
 import shutil
 import sys
+import warnings
 
 from hashlib import md5
 
@@ -94,16 +95,30 @@ class TexManager:
     oldcache = os.path.join(oldpath, '.tex.cache')
 
     configdir = mpl.get_configdir()
-    texcache = os.path.join(configdir, 'tex.cache')
+    if configdir is not None:
+        texcache = os.path.join(configdir, 'tex.cache')
+    else:
+        # Should only happen in a restricted environment (such as Google App
+        # Engine). Deal with this gracefully by not creating a cache directory.
+        texcache = None
 
     if os.path.exists(oldcache):
-        # FIXME raise proper warning
-        print("""\
-WARNING: found a TeX cache dir in the deprecated location "%s".
-  Moving it to the new default location "%s".""" % (oldcache, texcache),
-              file=sys.stderr)
-        shutil.move(oldcache, texcache)
-    mkdirs(texcache)
+        if texcache is not None:
+            try:
+                shutil.move(oldcache, texcache)
+            except IOError as e:
+                warnings.warn('File could not be renamed: %s' % e)
+            else:
+                warnings.warn("""\
+Found a TeX cache dir in the deprecated location "%s".
+    Moving it to the new default location "%s".""" % (oldcache, texcache))
+        else:
+            warnings.warn("""\
+Could not rename old TeX cache dir "%s": a suitable configuration
+    directory could not be found.""" % oldcache)
+
+    if texcache is not None:
+        mkdirs(texcache)
 
     _dvipng_hack_alpha = None
     #_dvipng_hack_alpha = dvipng_hack_alpha()
@@ -144,6 +159,11 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                              font_families]))
 
     def __init__(self):
+
+        if self.texcache is None:
+            raise RuntimeError(
+                ('Cannot create TexManager, as there is no cache directory '
+                 'available'))
 
         mkdirs(self.texcache)
         ff = rcParams['font.family'].lower()

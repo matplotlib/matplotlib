@@ -28,7 +28,13 @@ from matplotlib.transforms import Affine2D
 
 
 configdir = get_configdir()
-cachedir = os.path.join(configdir, 'finance.cache')
+# cachedir will be None if there is no writable directory.
+if configdir is not None:
+    cachedir = os.path.join(configdir, 'finance.cache')
+else:
+    # Should only happen in a restricted environment (such as Google App
+    # Engine). Deal with this gracefully by not caching finance data.
+    cachedir = None
 
 
 stock_dt = np.dtype([('date', object),
@@ -178,20 +184,25 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,dividends=False)
                      d2[0], d2[1], d2[2], ticker, g)
 
 
-    if cachename is None:
+    # Cache the finance data if cachename is supplied, or there is a writable
+    # cache directory.
+    if cachename is None and cachedir is not None:
         cachename = os.path.join(cachedir, md5(url).hexdigest())
-    if os.path.exists(cachename):
-        fh = open(cachename)
-        verbose.report('Using cachefile %s for %s'%(cachename, ticker))
-    else:
-        mkdirs(os.path.abspath(os.path.dirname(cachename)))
-        with contextlib.closing(urlopen(url)) as urlfh:
-            with open(cachename, 'wb') as fh:
-                fh.write(urlfh.read())
-        verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
-        fh = open(cachename, 'r')
+    if cachename is not None:
+        if os.path.exists(cachename):
+            fh = open(cachename)
+            verbose.report('Using cachefile %s for %s'%(cachename, ticker))
+        else:
+            mkdirs(os.path.abspath(os.path.dirname(cachename)))
+            with contextlib.closing(urlopen(url)) as urlfh:
+                with open(cachename, 'wb') as fh:
+                    fh.write(urlfh.read())
+            verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
+            fh = open(cachename, 'r')
 
-    return fh
+        return fh
+    else:
+        return urlopen(url)
 
 
 def quotes_historical_yahoo(ticker, date1, date2, asobject=False,

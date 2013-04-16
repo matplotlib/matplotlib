@@ -1311,28 +1311,38 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         return result
 
 else:
-    if sys.version_info[0] >= 3:
-        _fmcache = os.path.join(get_configdir(), 'fontList.py3k.cache')
+    configdir = get_configdir()
+    if configdir is not None:
+        if sys.version_info[0] >= 3:
+            _fmcache = os.path.join(configdir, 'fontList.py3k.cache')
+        else:
+            _fmcache = os.path.join(configdir, 'fontList.cache')
     else:
-        _fmcache = os.path.join(get_configdir(), 'fontList.cache')
+        # Should only happen in a restricted environment (such as Google App
+        # Engine). Deal with this gracefully by not caching fonts.
+        _fmcache = None
 
     fontManager = None
 
     def _rebuild():
         global fontManager
         fontManager = FontManager()
-        pickle_dump(fontManager, _fmcache)
+        if _fmcache:
+            pickle_dump(fontManager, _fmcache)
         verbose.report("generated new fontManager")
 
-    try:
-        fontManager = pickle_load(_fmcache)
-        if (not hasattr(fontManager, '_version') or
-            fontManager._version != FontManager.__version__):
+    if _fmcache:
+        try:
+            fontManager = pickle_load(_fmcache)
+            if (not hasattr(fontManager, '_version') or
+                fontManager._version != FontManager.__version__):
+                _rebuild()
+            else:
+                fontManager.default_size = None
+                verbose.report("Using fontManager instance from %s" % _fmcache)
+        except:
             _rebuild()
-        else:
-            fontManager.default_size = None
-            verbose.report("Using fontManager instance from %s" % _fmcache)
-    except:
+    else:
         _rebuild()
 
     def findfont(prop, **kw):
