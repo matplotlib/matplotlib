@@ -56,14 +56,12 @@ def _create_qApp():
         app = QtGui.QApplication.instance()
         if app is None:
           
-            # try to launch a QApplication in a separate process 
-            # otherwise it may stop the intepreter on failure (if no X server for example) 
-            p = subprocess.Popen(sys.executable, stdin=subprocess.PIPE, stderr=subprocess.PIPE) 
-            p.stdin.write('from matplotlib.backends.qt4_compat import QtGui\napp = QtGui.QApplication([])\n') 
-            p.stdin.close() 
-            if p.wait() != 0: 
-                raise RuntimeError( 'Qt4 failed to initialize ' + p.stderr.readline().rstrip() )     
-              
+            # check for DISPLAY env variable
+            if sys.platform.startswith('linux'):
+                display = os.environ.get('DISPLAY')
+                if (display is None) or (not ':' in display.strip()):
+                    raise RuntimeError('Invalid DISPLAY variable')
+        
             qApp = QtGui.QApplication( [" "] )
             QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
                                 qApp, QtCore.SLOT( "quit()" ) )
