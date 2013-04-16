@@ -181,8 +181,8 @@ class RendererAgg(RendererBase):
         font.draw_glyphs_to_bitmap(antialiased=rcParams['text.antialiased'])
         d = font.get_descent() / 64.0
         # The descent needs to be adjusted for the angle
-        xd = d * np.sin(angle / (180.0 * np.pi))
-        yd = d * np.cos(angle / (180.0 * np.pi))
+        xd = d * np.sin(np.deg2rad(angle))
+        yd = d * np.cos(np.deg2rad(angle))
 
         #print x, y, int(x), int(y), s
         self._renderer.draw_text_image(
