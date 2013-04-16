@@ -79,6 +79,10 @@ class _Base(object):
         recommended to use those generators, so that changes to the
         behavior of :meth:`draw_path_collection` can be made globally.
         """
+
+        if isinstance(renderer, MixedModeRenderer):
+            renderer = renderer._renderer
+
         path_ids = []
         for path, transform in renderer._iter_collection_raw_paths(
             master_transform, paths, all_transforms):
