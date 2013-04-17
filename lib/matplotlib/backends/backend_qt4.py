@@ -23,8 +23,6 @@ except ImportError:
 
 from qt4_compat import QtCore, QtGui, _getSaveFileName, __version__
 
-import subprocess
-
 backend_version = __version__
 def fn_name(): return sys._getframe(1).f_code.co_name
 
@@ -56,10 +54,10 @@ def _create_qApp():
         app = QtGui.QApplication.instance()
         if app is None:
           
-            # check for DISPLAY env variable
-            if sys.platform.startswith('linux'):
+            # check for DISPLAY env variable on X11 build of Qt
+            if hasattr(QtGui, "QX11Info"):
                 display = os.environ.get('DISPLAY')
-                if (display is None) or (not ':' in display.strip()):
+                if (display is None) or (not ':' in display):
                     raise RuntimeError('Invalid DISPLAY variable')
         
             qApp = QtGui.QApplication( [" "] )
