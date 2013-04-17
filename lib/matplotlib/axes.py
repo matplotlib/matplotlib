@@ -5360,10 +5360,14 @@ class Axes(martist.Artist):
           The radius of the pie, if *radius* is *None* it will be set to 1.
 
         The pie chart will probably look best if the figure and axes are
-        square.  e.g.::
+        square, or the Axes aspect is equal.  e.g.::
 
           figure(figsize=(8,8))
           ax = axes([0.1, 0.1, 0.8, 0.8])
+
+        or::
+
+          axes(aspect=1)
 
         Return value:
           If *autopct* is *None*, return the tuple (*patches*, *texts*):

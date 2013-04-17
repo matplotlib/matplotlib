@@ -752,10 +752,7 @@ class Artist(object):
         """
         Find artist objects.
 
-        pyplot signature:
-          findobj(o=gcf(), match=None, include_self=True)
-
-        Recursively find all :class:matplotlib.artist.Artist instances
+        Recursively find all :class:`~matplotlib.artist.Artist` instances
         contained in self.
 
         *match* can be
@@ -770,9 +767,7 @@ class Artist(object):
         If *include_self* is True (default), include self in the list to be
         checked for a match.
 
-        .. plot:: mpl_examples/pylab_examples/findobj_demo.py
         """
-
         if match is None:  # always return True
             def matchfunc(x):
                 return True

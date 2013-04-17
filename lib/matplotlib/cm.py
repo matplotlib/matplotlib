@@ -102,12 +102,12 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
 
         register_cmap(name='choppy', data=choppydata, lut=128)
 
-    In the first case, *cmap* must be a :class:`colors.Colormap`
+    In the first case, *cmap* must be a :class:`matplotlib.colors.Colormap`
     instance.  The *name* is optional; if absent, the name will
-    be the :attr:`name` attribute of the *cmap*.
+    be the :attr:`~matplotlib.colors.Colormap.name` attribute of the *cmap*.
 
     In the second case, the three arguments are passed to
-    the :class:`colors.LinearSegmentedColormap` initializer,
+    the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
     and the resulting colormap is registered.
 
     """
@@ -136,9 +136,9 @@ def get_cmap(name=None, lut=None):
     Get a colormap instance, defaulting to rc values if *name* is None.
 
     Colormaps added with :func:`register_cmap` take precedence over
-    builtin colormaps.
+    built-in colormaps.
 
-    If *name* is a :class:`colors.Colormap` instance, it will be
+    If *name* is a :class:`matplotlib.colors.Colormap` instance, it will be
     returned.
 
     If *lut* is not None it must be an integer giving the number of
@@ -169,9 +169,10 @@ class ScalarMappable:
 
     def __init__(self, norm=None, cmap=None):
         """
-        *norm* is an instance of :class:`colors.Normalize` or one of
-        its subclasses, used to map luminance to 0-1. *cmap* is a
-        :mod:`cm` colormap instance, for example :data:`cm.jet`
+        *norm* is an instance of :class:`matplotlib.colors.Normalize` or
+        one of its subclasses, used to map luminance to 0-1. *cmap* is a
+        :mod:`~matplotlib.cm.Colormap` instance, for example
+        :data:`matplotlib.cm.jet`.
         """
 
         self.callbacksSM = cbook.CallbackRegistry()
