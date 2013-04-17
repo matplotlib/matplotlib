@@ -65,8 +65,8 @@ else:
 
 def dvipng_hack_alpha():
     try:
-        p = Popen('dvipng -version', stdin=PIPE, stdout=PIPE, stderr=STDOUT,
-                  close_fds=(sys.platform != 'win32'))
+        p = Popen(['dvipng', '-version'], stdin=PIPE, stdout=PIPE,
+                  stderr=STDOUT, close_fds=(sys.platform != 'win32'))
     except OSError:
         mpl.verbose.report('No dvipng was found', 'helpful')
         return False
