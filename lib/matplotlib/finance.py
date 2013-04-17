@@ -78,7 +78,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
       Otherwise return a numpy recarray with
 
         date, year, month, day, d, open, close, high, low,
-        volume, adjusted_close
+        volume, aclose
 
       where d is a floating poing representation of date,
       as returned by date2num, and date is a python standard
