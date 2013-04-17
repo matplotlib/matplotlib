@@ -17,10 +17,23 @@ if 1:
                                                          foreground="w"),
                                       PathEffects.Normal()])
 
+    ax1.grid(True, linestyle="-")
+
+    pe = [PathEffects.withStroke(linewidth=3,
+                                 foreground="w")]
+    for l in ax1.get_xgridlines() + ax1.get_ygridlines():
+        l.set_path_effects(pe)
+
     ax2 = plt.subplot(132)
     arr = np.arange(25).reshape((5,5))
     ax2.imshow(arr)
     cntr = ax2.contour(arr, colors="k")
+
+    plt.setp(cntr.collections,
+             path_effects=[PathEffects.withStroke(linewidth=3,
+                                                  foreground="w")])
+
+
     clbls = ax2.clabel(cntr, fmt="%2.0f", use_clabeltext=True)
     plt.setp(clbls,
              path_effects=[PathEffects.withStroke(linewidth=3,
