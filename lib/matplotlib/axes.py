@@ -901,8 +901,8 @@ class Axes(martist.Artist):
 
         self._autoscaleXon = True
         self._autoscaleYon = True
-        self._xmargin = 0
-        self._ymargin = 0
+        self._xmargin = rcParams['axes.xmargin']
+        self._ymargin = rcParams['axes.ymargin']
         self._tight = False
         self._update_transScale()  # needed?
 
@@ -9076,7 +9076,7 @@ class Axes(martist.Artist):
         return im
 
     def get_default_bbox_extra_artists(self):
-        return [artist for artist in self.get_children() 
+        return [artist for artist in self.get_children()
                 if artist.get_visible()]
 
     def get_tightbbox(self, renderer, call_axes_locator=True):
