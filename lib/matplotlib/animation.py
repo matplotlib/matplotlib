@@ -576,7 +576,7 @@ class Animation(object):
         '''
         Saves a movie file by drawing every frame.
 
-        *filename* is the output filename, eg :file:`mymovie.mp4`
+        *filename* is the output filename, e.g., :file:`mymovie.mp4`
 
         *writer* is either an instance of :class:`MovieWriter` or a string
         key that identifies a class to use, such as 'ffmpeg' or 'mencoder'.

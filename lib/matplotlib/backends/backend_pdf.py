@@ -81,7 +81,7 @@ from matplotlib import ttconv
 # stack.  Thus the state must be pushed onto the stack before narrowing
 # the clip path.  This is taken care of by GraphicsContextPdf.
 #
-# 2. Sometimes it is necessary to refer to something (e.g. font,
+# 2. Sometimes it is necessary to refer to something (e.g., font,
 # image, or extended graphics state, which contains the alpha value)
 # in the page stream by a name that needs to be defined outside the
 # stream.  PdfFile provides the methods fontName, imageObject, and
@@ -93,7 +93,7 @@ from matplotlib import ttconv
 # * the alpha channel of images
 # * image compression could be improved (PDF supports png-like compression)
 # * encoding of fonts, including mathtext fonts and unicode support
-# * TTF support has lots of small TODOs, e.g. how do you know if a font
+# * TTF support has lots of small TODOs, e.g., how do you know if a font
 #   is serif/sans-serif, or symbolic/non-symbolic?
 # * draw_markers, draw_line_collection, etc.
 
@@ -1772,7 +1772,7 @@ class RendererPdf(RendererBase):
                 assert False
         self.file.output(Op.end_text)
 
-        # Then output the boxes (e.g. variable-length lines of square
+        # Then output the boxes (e.g., variable-length lines of square
         # roots).
         boxgc = self.new_gc()
         boxgc.copy_properties(gc)
@@ -2024,7 +2024,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         the path, in which case it would presumably be filled.
         """
         # _linewidth > 0: in pdf a line of width 0 is drawn at minimum
-        #   possible device width, but e.g. agg doesn't draw at all
+        #   possible device width, but e.g., agg doesn't draw at all
         return (self._linewidth > 0 and self._alpha > 0 and
                 (len(self._rgb) <= 3 or self._rgb[3] != 0.0))
 

@@ -422,7 +422,7 @@ class Fonts(object):
 
         *fontclassX*: TODO
 
-        *symX*: a symbol in raw TeX form. e.g. '1', 'x' or '\sigma'
+        *symX*: a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
 
         *fontsizeX*: the fontsize in points
 
@@ -438,7 +438,7 @@ class Fonts(object):
 
         *font_class*: TODO
 
-        *sym*:  a symbol in raw TeX form. e.g. '1', 'x' or '\sigma'
+        *sym*:  a symbol in raw TeX form. e.g., '1', 'x' or '\sigma'
 
         *fontsize*: font size in points
 
@@ -1175,7 +1175,7 @@ class StandardPsFonts(Fonts):
 #    Typesetting math formulas
 #
 # Many of the docstrings below refer to a numbered "node" in that
-# book, e.g. node123
+# book, e.g., node123
 #
 # Note that (as TeX) y increases downward, unlike many other parts of
 # matplotlib.
@@ -3136,7 +3136,7 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
        with the output format.
 
     *format*
-       The output format, eg. 'svg', 'pdf', 'ps' or 'png'.  If not
+       The output format, e.g., 'svg', 'pdf', 'ps' or 'png'.  If not
        provided, will be deduced from the filename.
     """
     from matplotlib import figure

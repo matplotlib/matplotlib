@@ -97,9 +97,9 @@ backend      : %(backend)s
 # information on font properties.  The 6 font properties used for font
 # matching are given below with their default values.
 #
-# The font.family property has five values: 'serif' (e.g. Times),
-# 'sans-serif' (e.g. Helvetica), 'cursive' (e.g. Zapf-Chancery),
-# 'fantasy' (e.g. Western), and 'monospace' (e.g. Courier).  Each of
+# The font.family property has five values: 'serif' (e.g., Times),
+# 'sans-serif' (e.g., Helvetica), 'cursive' (e.g., Zapf-Chancery),
+# 'fantasy' (e.g., Western), and 'monospace' (e.g., Courier).  Each of
 # these font families has a default list of font names in decreasing
 # order of priority associated with them.
 #
@@ -358,7 +358,7 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
                   # paths will never be snapped.
 
 # the default savefig params can be different from the display params
-# Eg, you may want a higher resolution, or to make the figure
+# e.g., you may want a higher resolution, or to make the figure
 # background white
 #savefig.dpi        : 100      # figure dots per inch
 #savefig.facecolor  : white    # figure facecolor when saving

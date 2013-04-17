@@ -1,11 +1,11 @@
 """
 Classes for the efficient drawing of large collections of objects that
-share most properties, e.g. a large number of line segments or
+share most properties, e.g., a large number of line segments or
 polygons.
 
 The classes are not meant to be as flexible as their single element
-counterparts (e.g. you may not be able to select all line styles) but
-they are meant to be fast for common use cases (e.g. a large set of solid
+counterparts (e.g., you may not be able to select all line styles) but
+they are meant to be fast for common use cases (e.g., a large set of solid
 line segemnts)
 """
 from __future__ import print_function

@@ -202,7 +202,7 @@ class DomainMap(object):
     This class also has methods for adding trajectories to the StreamMask.
     Before adding a trajectory, run `start_trajectory` to keep track of regions
     crossed by a given trajectory. Later, if you decide the trajectory is bad
-    (e.g. if the trajectory is very short) just call `undo_trajectory`.
+    (e.g., if the trajectory is very short) just call `undo_trajectory`.
     """
 
     def __init__(self, grid, mask):

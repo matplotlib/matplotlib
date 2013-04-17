@@ -1446,7 +1446,7 @@ class KeyEvent(LocationEvent):
         the key(s) pressed. Could be **None**, a single case sensitive ascii
         character ("g", "G", "#", etc.), a special key
         ("control", "shift", "f1", "up", etc.) or a
-        combination of the above (e.g. "ctrl+alt+g", "ctrl+alt+G").
+        combination of the above (e.g., "ctrl+alt+g", "ctrl+alt+G").
 
     .. note::
 

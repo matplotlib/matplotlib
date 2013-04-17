@@ -66,7 +66,7 @@ Other python interpreters
 =========================
 
 If you can't use ipython, and still want to use matplotlib/pylab from
-an interactive python shell, e.g. the plain-ole standard python
+an interactive python shell, e.g., the plain-ole standard python
 interactive interpreter, you
 are going to need to understand what a matplotlib backend is
 :ref:`what-is-a-backend`.

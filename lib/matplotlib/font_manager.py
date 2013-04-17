@@ -455,7 +455,7 @@ def ttfFontProperty(font):
     #  Absolute sizes are: xx-small, x-small, small, medium, large, x-large,
     #    and xx-large.
     #  Relative sizes are: larger, smaller
-    #  Length value is an absolute font size, e.g. 12pt
+    #  Length value is an absolute font size, e.g., 12pt
     #  Percentage values are in 'em's.  Most robust specification.
 
     #  !!!!  Incomplete
@@ -524,7 +524,7 @@ def afmFontProperty(fontpath, font):
     #  Absolute sizes are: xx-small, x-small, small, medium, large, x-large,
     #    and xx-large.
     #  Relative sizes are: larger, smaller
-    #  Length value is an absolute font size, e.g. 12pt
+    #  Length value is an absolute font size, e.g., 12pt
     #  Percentage values are in 'em's.  Most robust specification.
 
     #  All AFM fonts are apparently scalable.
@@ -619,7 +619,7 @@ class FontProperties(object):
 
       - size: Either an relative value of 'xx-small', 'x-small',
         'small', 'medium', 'large', 'x-large', 'xx-large' or an
-        absolute font size, e.g. 12
+        absolute font size, e.g., 12
 
     The default font property for TrueType fonts (as specified in the
     default :file:`matplotlibrc` file) is::
@@ -630,7 +630,7 @@ class FontProperties(object):
     .ttf file, by using the *fname* kwarg.
 
     The preferred usage of font sizes is to use the relative values,
-    e.g.  'large', instead of absolute font sizes, e.g. 12.  This
+    e.g.,  'large', instead of absolute font sizes, e.g., 12.  This
     approach allows all text sizes to be made larger or smaller based
     on the font manager's default font size.
 
@@ -871,7 +871,7 @@ class FontProperties(object):
         """
         Set the font size.  Either an relative value of 'xx-small',
         'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'
-        or an absolute font size, e.g. 12.
+        or an absolute font size, e.g., 12.
         """
         if size is not None:
             try:

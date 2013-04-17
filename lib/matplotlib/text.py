@@ -1795,7 +1795,7 @@ class Annotation(Text, _AnnotationBase):
 
         If a 'points' or 'pixels' option is specified, values will be
         added to the bottom-left and if negative, values will be
-        subtracted from the top-right.  Eg::
+        subtracted from the top-right.  e.g.::
 
           # 10 points to the right of the left border of the axes and
           # 5 points below the top border
