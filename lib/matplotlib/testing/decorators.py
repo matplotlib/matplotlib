@@ -165,7 +165,7 @@ class ImageComparisonTest(CleanupTest):
 
                 yield (do_test,)
 
-def image_comparison(baseline_images=None, extensions=None, tol=10,
+def image_comparison(baseline_images=None, extensions=None, tol=13,
                      freetype_version=None, remove_text=False,
                      savefig_kwarg=None):
     """
@@ -260,11 +260,11 @@ def _image_directories(func):
         subdir = os.path.splitext(os.path.split(script_name)[1])[0]
     else:
         mods = module_name.split('.')
-        mods.pop(0) # <- will be the name of the package being tested (in 
+        mods.pop(0) # <- will be the name of the package being tested (in
                     # most cases "matplotlib")
         assert mods.pop(0) == 'tests'
         subdir = os.path.join(*mods)
-        
+
         import imp
         def find_dotted_module(module_name, path=None):
             """A version of imp which can handle dots in the module name"""
@@ -273,7 +273,7 @@ def _image_directories(func):
                 res = _, path, _ = imp.find_module(sub_mod, path)
                 path = [path]
             return res
-        
+
         mod_file = find_dotted_module(func.__module__)[1]
         basedir = os.path.dirname(mod_file)
 
