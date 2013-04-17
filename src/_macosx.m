@@ -1199,8 +1199,8 @@ static int _transformation_converter(PyObject* object, void* pointer)
             return 0;
         }
     const double a =  *(double*)PyArray_GETPTR2(object, 0, 0);
-    const double b =  *(double*)PyArray_GETPTR2(object, 0, 1);
-    const double c =  *(double*)PyArray_GETPTR2(object, 1, 0);
+    const double b =  *(double*)PyArray_GETPTR2(object, 1, 0);
+    const double c =  *(double*)PyArray_GETPTR2(object, 0, 1);
     const double d =  *(double*)PyArray_GETPTR2(object, 1, 1);
     const double tx =  *(double*)PyArray_GETPTR2(object, 0, 2);
     const double ty =  *(double*)PyArray_GETPTR2(object, 1, 2);
