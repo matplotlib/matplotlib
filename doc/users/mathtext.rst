@@ -46,7 +46,7 @@ produces ":math:`\alpha > \beta`".
 
 .. note::
    Mathtext should be placed between a pair of dollar signs ($).  To
-   make it easy to display monetary values, e.g. "$100.00", if a
+   make it easy to display monetary values, e.g., "$100.00", if a
    single dollar sign is present in the entire string, it will be
    displayed verbatim as a dollar sign.  This is a small change from
    regular TeX, where the dollar sign in non-math text would have to

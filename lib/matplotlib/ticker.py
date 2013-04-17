@@ -27,7 +27,7 @@ The Locator subclasses defined here are
     Tick locations are fixed
 
 :class:`IndexLocator`
-    locator for index plots (eg. where x = range(len(y)))
+    locator for index plots (e.g., where x = range(len(y)))
 
 :class:`LinearLocator`
     evenly spaced ticks from min to max
@@ -416,7 +416,7 @@ class ScalarFormatter(Formatter):
         '''
         Sets size thresholds for scientific notation.
 
-        e.g. ``formatter.set_powerlimits((-3, 4))`` sets the pre-2007 default
+        e.g., ``formatter.set_powerlimits((-3, 4))`` sets the pre-2007 default
         in which scientific notation is used for numbers less than 1e-3 or
         greater than 1e4.
         See also :meth:`set_scientific`.
@@ -772,7 +772,7 @@ class LogFormatterMathtext(LogFormatter):
 class EngFormatter(Formatter):
     """
     Formats axis values using engineering prefixes to represent powers of 1000,
-    plus a specified unit, eg. 10 MHz instead of 1e7.
+    plus a specified unit, e.g., 10 MHz instead of 1e7.
     """
 
     # The SI engineering prefixes

@@ -444,7 +444,7 @@ There are a variety of meanings of the ``picker`` property:
 
 After you have enabled an artist for picking by setting the ``picker``
 property, you need to connect to the figure canvas pick_event to get
-pick callbacks on mouse press events.  Eg::
+pick callbacks on mouse press events.  e.g.::
 
     def pick_handler(event):
         mouseevent = event.mouseevent

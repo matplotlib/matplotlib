@@ -108,7 +108,7 @@ class UniformTriRefiner(TriRefiner):
         # Now we compute found_index table if needed
         if return_tri_index:
             # We have to initialize found_index with -1 because some nodes
-            # may very well belong to no triangle at all, e.g. in case of
+            # may very well belong to no triangle at all, e.g., in case of
             # Delaunay Triangulation with DuplicatePointWarning.
             found_index = - np.ones(refi_npts, dtype=np.int32)
             tri_mask = self._triangulation.mask
@@ -160,7 +160,7 @@ class UniformTriRefiner(TriRefiner):
         Examples
         --------
         The main application of this method is to plot high-quality
-        iso-contours on a coarse triangular grid (e.g. triangulation built
+        iso-contours on a coarse triangular grid (e.g., triangulation built
         from relatively sparse test data):
 
         .. plot:: mpl_examples/pylab_examples/tricontour_smooth_user.py

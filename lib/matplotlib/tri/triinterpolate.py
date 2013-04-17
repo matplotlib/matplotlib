@@ -119,7 +119,7 @@ class TriInterpolator(object):
 
             - calculation of containing triangles
             - dealing with more than one interpolation request at the same
-              location (e.g. if the 2 derivatives are requested, it is
+              location (e.g., if the 2 derivatives are requested, it is
               unnecessary to compute the containing triangles twice)
             - scaling according to self._unit_x, self._unit_y
             - dealing with points outside of the grid (with fill value np.nan)
@@ -129,7 +129,7 @@ class TriInterpolator(object):
         (Note that np.vectorize could do most of those things very well for
         you, but it does it by function evaluations over successive tuples of
         the input arrays. Therefore, this tends to be more time consuming than
-        using optimized numpy functions - e.g. np.dot - which can be used
+        using optimized numpy functions - e.g., np.dot - which can be used
         easily on the flattened inputs, in the child-subclass methods
         :meth:`_interpolate_single_key`.)
 

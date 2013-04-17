@@ -345,7 +345,7 @@ class Artist(object):
             ax = getattr(a, 'axes', None)
             if mouseevent.inaxes is None or mouseevent.inaxes == ax:
                 # we need to check if mouseevent.inaxes is None
-                # because some objects associated with an axes (eg a
+                # because some objects associated with an axes (e.g., a
                 # tick label) can be outside the bounding box of the
                 # axes and inaxes will be None
                 a.pick(mouseevent)
@@ -367,7 +367,7 @@ class Artist(object):
             off an event if it's data is within epsilon of the mouse
             event.  For some artists like lines and patch collections,
             the artist may provide additional data to the pick event
-            that is generated, e.g. the indices of the data within
+            that is generated, e.g., the indices of the data within
             epsilon of the pick event
 
           * A function: if picker is callable, it is a user supplied
@@ -765,7 +765,7 @@ class Artist(object):
           - function with signature ``boolean = match(artist)``
             used to filter matches
 
-          - class instance: eg Line2D.  Only return artists of class type.
+          - class instance: e.g., Line2D.  Only return artists of class type.
 
         If *include_self* is True (default), include self in the list to be
         checked for a match.
@@ -828,7 +828,7 @@ class ArtistInspector:
         Get a dict mapping *fullname* -> *alias* for each *alias* in
         the :class:`~matplotlib.artist.ArtistInspector`.
 
-        Eg., for lines::
+        e.g., for lines::
 
           {'markerfacecolor': 'mfc',
            'linewidth'      : 'lw',
@@ -858,7 +858,7 @@ class ArtistInspector:
         This is done by querying the docstring of the function *set_attr*
         for a line that begins with ACCEPTS:
 
-        Eg., for a line linestyle, return
+        e.g., for a line linestyle, return
         "[ ``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'steps'`` | ``'None'`` ]"
         """
 
@@ -905,7 +905,7 @@ class ArtistInspector:
 
     def get_setters(self):
         """
-        Get the attribute strings with setters for object.  Eg., for a line,
+        Get the attribute strings with setters for object.  e.g., for a line,
         return ``['markerfacecolor', 'linewidth', ....]``.
         """
 
@@ -926,7 +926,7 @@ class ArtistInspector:
         return 'PROPNAME or alias' if *s* has an alias, else return
         PROPNAME.
 
-        E.g. for the line markerfacecolor property, which has an
+        e.g., for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
         property, which does not, return 'transform'
         """
@@ -943,7 +943,7 @@ class ArtistInspector:
         return 'PROPNAME or alias' if *s* has an alias, else return
         PROPNAME formatted for ReST
 
-        E.g. for the line markerfacecolor property, which has an
+        e.g., for the line markerfacecolor property, which has an
         alias, return 'markerfacecolor or mfc' and for the transform
         property, which does not, return 'transform'
         """
@@ -1092,7 +1092,7 @@ class ArtistInspector:
 
           - function with signature ``boolean = match(artist)``
 
-          - class instance: eg :class:`~matplotlib.lines.Line2D`
+          - class instance: e.g., :class:`~matplotlib.lines.Line2D`
 
         used to filter matches.
         """
@@ -1134,7 +1134,7 @@ def getp(obj, property=None):
         getp(obj)  # get all the object properties
         getp(obj, 'linestyle')  # get the linestyle property
 
-    *obj* is a :class:`Artist` instance, eg
+    *obj* is a :class:`Artist` instance, e.g.,
     :class:`~matplotllib.lines.Line2D` or an instance of a
     :class:`~matplotlib.axes.Axes` or :class:`matplotlib.text.Text`.
     If the *property* is 'somename', this function returns
@@ -1192,7 +1192,7 @@ def setp(obj, *args, **kwargs):
     :func:`setp` operates on a single instance or a list of instances.
     If you are in query mode introspecting the possible values, only
     the first instance in the sequence is used.  When actually setting
-    values, all the instances will be set.  E.g., suppose you have a
+    values, all the instances will be set.  e.g., suppose you have a
     list of two lines, the following will make both lines thicker and
     red::
 

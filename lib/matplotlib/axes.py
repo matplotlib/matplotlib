@@ -551,7 +551,7 @@ class Axes(martist.Artist):
 
         # Transforms the x and y axis separately by a scale factor.
         # It is assumed that this part will have non-linear components
-        # (e.g. for a log scale).
+        # (e.g., for a log scale).
         self.transScale = mtransforms.TransformWrapper(
             mtransforms.IdentityTransform())
 
@@ -1935,7 +1935,7 @@ class Axes(martist.Artist):
             x0, x1 = bb.intervalx
             xlocator = self.xaxis.get_major_locator()
             try:
-                # e.g. DateLocator has its own nonsingular()
+                # e.g., DateLocator has its own nonsingular()
                 x0, x1 = xlocator.nonsingular(x0, x1)
             except AttributeError:
                 # Default nonsingular for, e.g., MaxNLocator
@@ -2342,7 +2342,7 @@ class Axes(martist.Artist):
             Distance in points between tick and label.
 
         *labelsize*
-            Tick label font size in points or as a string (e.g. 'large').
+            Tick label font size in points or as a string (e.g., 'large').
 
         *labelcolor*
             Tick label color; mpl color spec.
@@ -3344,7 +3344,7 @@ class Axes(martist.Artist):
             >>>      verticalalignment='center',
             >>>      transform = ax.transAxes)
 
-        You can put a rectangular box around the text instance (eg. to
+        You can put a rectangular box around the text instance (e.g., to
         set a background color) by using the keyword *bbox*.  *bbox* is
         a dictionary of `~matplotlib.patches.Rectangle`
         properties.  For example::
@@ -3424,14 +3424,14 @@ class Axes(martist.Artist):
         Draw a horizontal line at *y* from *xmin* to *xmax*.  With the
         default values of *xmin* = 0 and *xmax* = 1, this line will
         always span the horizontal extent of the axes, regardless of
-        the xlim settings, even if you change them, eg. with the
+        the xlim settings, even if you change them, e.g., with the
         :meth:`set_xlim` command.  That is, the horizontal extent is
         in axes coords: 0=left, 0.5=middle, 1.0=right but the *y*
         location is in data coordinates.
 
         Return value is the :class:`~matplotlib.lines.Line2D`
         instance.  kwargs are the same as kwargs to plot, and can be
-        used to control the line properties.  Eg.,
+        used to control the line properties.  e.g.,
 
         * draw a thick red hline at *y* = 0 that spans the xrange::
 
@@ -3488,14 +3488,14 @@ class Axes(martist.Artist):
         Draw a vertical line at *x* from *ymin* to *ymax*.  With the
         default values of *ymin* = 0 and *ymax* = 1, this line will
         always span the vertical extent of the axes, regardless of the
-        ylim settings, even if you change them, eg. with the
+        ylim settings, even if you change them, e.g., with the
         :meth:`set_ylim` command.  That is, the vertical extent is in
         axes coords: 0=bottom, 0.5=middle, 1.0=top but the *x* location
         is in data coordinates.
 
         Return value is the :class:`~matplotlib.lines.Line2D`
         instance.  kwargs are the same as kwargs to plot, and can be
-        used to control the line properties.  Eg.,
+        used to control the line properties.  e.g.,
 
         * draw a thick red vline at *x* = 0 that spans the yrange::
 
@@ -3555,7 +3555,7 @@ class Axes(martist.Artist):
         Draw a horizontal span (rectangle) from *ymin* to *ymax*.
         With the default values of *xmin* = 0 and *xmax* = 1, this
         always spans the xrange, regardless of the xlim settings, even
-        if you change them, eg. with the :meth:`set_xlim` command.
+        if you change them, e.g., with the :meth:`set_xlim` command.
         That is, the horizontal extent is in axes coords: 0=left,
         0.5=middle, 1.0=right but the *y* location is in data
         coordinates.
@@ -3611,7 +3611,7 @@ class Axes(martist.Artist):
         Draw a vertical span (rectangle) from *xmin* to *xmax*.  With
         the default values of *ymin* = 0 and *ymax* = 1, this always
         spans the yrange, regardless of the ylim settings, even if you
-        change them, eg. with the :meth:`set_ylim` command.  That is,
+        change them, e.g., with the :meth:`set_ylim` command.  That is,
         the vertical extent is in axes coords: 0=bottom, 0.5=middle,
         1.0=top but the *y* location is in data coordinates.
 
@@ -4713,7 +4713,7 @@ class Axes(martist.Artist):
 
         Padding and spacing between various elements use following
         keywords parameters. These values are measure in font-size
-        units. E.g., a fontsize of 10 points and a handlelength=5
+        units. e.g., a fontsize of 10 points and a handlelength=5
         implies a handlelength of 50 points.  Values from rcParams
         will be used if None.
 
@@ -5361,7 +5361,7 @@ class Axes(martist.Artist):
           The radius of the pie, if *radius* is *None* it will be set to 1.
 
         The pie chart will probably look best if the figure and axes are
-        square.  Eg.::
+        square.  e.g.::
 
           figure(figsize=(8,8))
           ax = axes([0.1, 0.1, 0.8, 0.8])
@@ -5545,7 +5545,7 @@ class Axes(martist.Artist):
             type as *xerr* and *yerr*.
 
           *errorevery*: positive integer
-            subsamples the errorbars. Eg if everyerror=5, errorbars for every
+            subsamples the errorbars. e.g., if everyerror=5, errorbars for every
             5-th datapoint will be plotted. The data plot itself still shows
             all data points.
 
@@ -5873,7 +5873,7 @@ class Axes(martist.Artist):
             of *conf_intervals* is not None, the notch locations computed by
             matplotlib are overridden (assuming notch is True). When an
             element of *conf_intervals* is None, boxplot compute notches the
-            method specified by the other kwargs (e.g. *bootstrap*).
+            method specified by the other kwargs (e.g., *bootstrap*).
 
           *positions* : [ default 1,2,...,n ]
             Sets the horizontal positions of the boxes. The ticks and limits
@@ -6899,7 +6899,7 @@ class Axes(martist.Artist):
         The same color strings that :func:`~matplotlib.pyplot.plot`
         supports are supported by the fill format string.
 
-        If you would like to fill below a curve, eg. shade a region
+        If you would like to fill below a curve, e.g., shade a region
         between 0 and *y* along *x*, use :meth:`fill_between`
 
         The *closed* kwarg will close the polygon when *True* (default).
@@ -8098,7 +8098,7 @@ class Axes(martist.Artist):
             counts in that bin plus all bins for smaller values. The last bin
             gives the total number of datapoints.  If `normed` is also `True`
             then the histogram is normalized such that the last bin equals 1.
-            If `cumulative` evaluates to less than 0 (e.g. -1), the direction
+            If `cumulative` evaluates to less than 0 (e.g., -1), the direction
             of accumulation is reversed.  In this case, if `normed` is also
             `True`, then the histogram is normalized such that the first bin
             equals 1.
@@ -8953,7 +8953,7 @@ class Axes(martist.Artist):
             :func:`~matplotlib.pyplot.imshow`
                For image options.
 
-        For controlling colors, e.g. cyan background and red marks,
+        For controlling colors, e.g., cyan background and red marks,
         use::
 
           cmap = mcolors.ListedColormap(['c','r'])
@@ -9231,7 +9231,7 @@ class SubplotBase:
 
     # COVERAGE NOTE: Never used internally or from examples
     def change_geometry(self, numrows, numcols, num):
-        """change subplot geometry, eg. from 1,1,1 to 2,2,3"""
+        """change subplot geometry, e.g., from 1,1,1 to 2,2,3"""
         self._subplotspec = GridSpec(numrows, numcols)[num - 1]
         self.update_params()
         self.set_position(self.figbox)
