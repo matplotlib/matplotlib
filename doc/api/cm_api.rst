@@ -2,7 +2,6 @@
 cm (colormap)
 *************
 
-
 :mod:`matplotlib.cm`
 ====================
 

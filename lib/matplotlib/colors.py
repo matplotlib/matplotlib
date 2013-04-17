@@ -19,8 +19,8 @@ The module also provides a single instance, *colorConverter*, of the
 :class:`ColorConverter` class providing methods for converting single color
 specifications or sequences of them to *RGB* or *RGBA*.
 
-Commands which take color arguments can use several formats to specify the
-colors.  For the basic builtin colors, you can use a single letter
+Commands which take color arguments can use several formats to specify
+the colors.  For the basic built-in colors, you can use a single letter
 
     - b: blue
     - g: green
@@ -477,19 +477,23 @@ def makeMappingArray(N, data, gamma=1.0):
 
 
 class Colormap(object):
-    """Base class for all scalar to rgb mappings
+    """
+    Baseclass for all scalar to RGBA mappings.
 
-        Important methods:
+    Typically Colormap instances are used to convert data values (floats) from
+    the interval ``[0, 1]`` to the RGBA color that the respective Colormap
+    represents. For scaling of data into the ``[0, 1]`` interval see
+    :class:`matplotlib.colors.Normalize`.
 
-            * :meth:`set_bad`
-            * :meth:`set_under`
-            * :meth:`set_over`
     """
     def __init__(self, name, N=256):
         """
-        Public class attributes:
-        :attr:`N` : number of rgb quantization levels
-        :attr:`name` : name of colormap
+        Parameters
+
+        name : str
+            The name of the colormap.
+        N : int
+            The number of rgb quantization levels.
 
         """
         self.name = name
@@ -502,20 +506,32 @@ class Colormap(object):
         self._i_bad = N + 2
         self._isinit = False
 
-    # FIXME FIXME FIXME bytes is a *keyword* in python
     def __call__(self, X, alpha=None, bytes=False):
         """
-        *X* is either a scalar or an array (of any dimension).
-        If scalar, a tuple of rgba values is returned, otherwise
-        an array with the new shape = oldshape+(4,). If the X-values
-        are integers, then they are used as indices into the array.
-        If they are floating point, then they must be in the
-        interval (0.0, 1.0).
-        Alpha must be a scalar between 0 and 1, or None.
-        If bytes is False, the rgba values will be floats on a
-        0-1 scale; if True, they will be uint8, 0-255.
-        """
+        Parameters:
 
+        X : scalar, ndarray
+            The data value(s) to convert to RGBA.
+            For floats, X should be in the interval ``[0.0, 1.0]`` to
+            return the RGBA values ``X*100`` percent along the Colormap line.
+            For integers, X should be in the interval ``[0, Colormap.N)`` to
+            return RGBA values *indexed* from the Colormap with index ``X``.
+
+        alpha : float, None
+            Alpha must be a scalar between 0 and 1, or None.
+
+        bytes : bool
+            If False (default), the returned RGBA values will be floats in the
+            interval ``[0, 1]`` otherwise they will be uint8s in the interval
+            ``[0, 255]``.
+
+        Returns:
+
+        Tuple of RGBA values if X is scalar, othewise an array of
+        RGBA values with a shape of ``X.shape + (4, )``.
+
+        """
+        # See class docstring for arg/kwarg documentation.
         if not self._isinit:
             self._init()
         mask_bad = None
@@ -690,8 +706,8 @@ class LinearSegmentedColormap(Colormap):
                :func:`makeMappingArray`
                For information about making a mapping array.
         """
-        self.monochrome = False  # True only if all colors in map are
-                                 # identical; needed for contouring.
+        # True only if all colors in map are identical; needed for contouring.
+        self.monochrome = False
         Colormap.__init__(self, name, N)
         self._segmentdata = segmentdata
         self._gamma = gamma
@@ -762,7 +778,7 @@ class ListedColormap(Colormap):
 
         *colors*
             a list of matplotlib color specifications,
-            or an equivalent Nx3  or Nx4 floating point array
+            or an equivalent Nx3 or Nx4 floating point array
             (*N* rgb or rgba values)
         *name*
             a string to identify the colormap
@@ -815,7 +831,9 @@ class ListedColormap(Colormap):
 
 class Normalize(object):
     """
-    Normalize a given value to the 0-1 range
+    A class which, when called, can normalize data into
+    the ``[0, 1]`` interval.
+
     """
     def __init__(self, vmin=None, vmax=None, clip=False):
         """

@@ -210,7 +210,6 @@ files['pylab'] = [
     'nan_test.py',
     'newscalarformatter_demo.py',
     'pcolor_demo.py',
-    'pcolor_demo2.py',
     'pcolor_log.py',
     'pcolor_small.py',
     'pie_demo2.py',
