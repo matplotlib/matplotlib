@@ -21,6 +21,12 @@ revision, see the :ref:`github-stats`.
 
 new in matplotlib-1.3
 =====================
+``axes.xmargin`` and ``axes.ymargin`` added to rcParams
+-------------------------------------------------------
+``rcParam`` values (``axes.xmargin`` and ``axes.ymargin``) were added
+to configure the default margins used.  Previously they were
+hard-coded to default to 0, default value of both rcParam values is 0.
+
 
 New eventplot plot type
 -------------------------------------

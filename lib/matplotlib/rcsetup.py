@@ -579,6 +579,12 @@ defaultParams = {
     'axes.color_cycle': [['b', 'g', 'r', 'c', 'm', 'y', 'k'],
                          validate_colorlist],  # cycle of plot
                                                # line colors
+    'axes.xmargin': [0, ValidateInterval(0, 1,
+                                         closedmin=True,
+                                         closedmax=True)],  # margin added to xaxis
+    'axes.ymargin': [0, ValidateInterval(0, 1,
+                                         closedmin=True,
+                                         closedmax=True)],# margin added to yaxis
 
     'polaraxes.grid': [True, validate_bool],  # display polar grid or
                                                      # not
