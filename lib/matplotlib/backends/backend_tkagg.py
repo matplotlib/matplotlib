@@ -307,7 +307,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         # JDH: this method was written originally to get the pointer
         # location to the backend lastx and lasty attrs so that events
-        # like KeyEvent can be handled without mouse events.  Eg, if
+        # like KeyEvent can be handled without mouse events.  e.g., if
         # the cursor is already above the axes, then key presses like
         # 'g' should toggle the grid.  In order for this to work in
         # backend_bases, the canvas needs to know _lastx and _lasty.

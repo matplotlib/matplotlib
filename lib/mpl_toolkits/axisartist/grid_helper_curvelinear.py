@@ -336,7 +336,7 @@ class GridHelperCurveLinear(GridHelperBase):
         objects which defines the transform and its inverse. The callables
         need take two arguments of array of source coordinates and
         should return two target coordinates:
-          e.g. x2, y2 = trans(x1, y1)
+          e.g., x2, y2 = trans(x1, y1)
         """
         super(GridHelperCurveLinear, self).__init__()
 

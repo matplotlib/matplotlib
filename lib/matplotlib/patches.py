@@ -1955,7 +1955,7 @@ class BoxStyle(_Style):
             x0, y0 = x0 - pad, y0 - pad,
             x1, y1 = x0 + width, y0 + height
 
-            # Round corners are implemented as quadratic bezier. eg.
+            # Round corners are implemented as quadratic bezier. e.g.,
             # [(x0, y0-dr), (x0, y0), (x0+dr, y0)] for lower left corner.
             cp = [(x0 + dr, y0),
                   (x1 - dr, y0),

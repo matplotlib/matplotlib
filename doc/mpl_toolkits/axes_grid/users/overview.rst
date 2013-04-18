@@ -114,7 +114,7 @@ AxesGrid takes following arguments,
  ============= ========   ================================================
  fig
  rect
- nrows_ncols              number of rows and cols. e.g. (2,2)
+ nrows_ncols              number of rows and cols. e.g., (2,2)
  ngrids        None       number of grids. nrows x ncols if None
  direction     "row"      increasing direction of axes number. [row|column]
  axes_pad      0.02       pad between axes in inches

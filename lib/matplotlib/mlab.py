@@ -579,7 +579,7 @@ def cohere_pairs( X, ij, NFFT=256, Fs=2, detrend=detrend_none,
       - *freqs*: vector of frequencies, equal in length to either the
          coherence or phase vectors for any (*i*, *j*) key.
 
-    Eg., to make a coherence Bode plot::
+    e.g., to make a coherence Bode plot::
 
           subplot(211)
           plot( freqs, Cxy[(12,19)])
@@ -958,7 +958,7 @@ def prctile(x, p = (0.0, 25.0, 50.0, 75.0, 100.0)):
 def prctile_rank(x, p):
     """
     Return the rank for each element in *x*, return the rank
-    0..len(*p*).  Eg if *p* = (25, 50, 75), the return value will be a
+    0..len(*p*).  e.g., if *p* = (25, 50, 75), the return value will be a
     len(*x*) array with values in [0,1,2,3] where 0 indicates the
     value is less than the 25th percentile, 1 indicates the value is
     >= the 25th and < 50th percentile, ... and 3 indicates the value
@@ -1337,7 +1337,7 @@ def save(fname, X, fmt='%.18e',delimiter=' '):
       save('test2.out', x)        # x is 1D
       save('test3.out', x, fmt='%1.4e')  # use exponential notation
 
-    *delimiter* is used to separate the fields, eg. *delimiter* ','
+    *delimiter* is used to separate the fields, e.g., *delimiter* ','
     for comma-separated values.
     """
 
@@ -1404,7 +1404,7 @@ def load(fname,comments='#',delimiter=None, converters=None,skiprows=0,
 
     - *converters*, if not *None*, is a dictionary mapping column number to
       a function that will convert that column to a float (or the optional
-      *dtype* if specified).  Eg, if column 0 is a date string::
+      *dtype* if specified).  e.g., if column 0 is a date string::
 
         converters = {0:datestr2num}
 
@@ -2124,7 +2124,7 @@ def csv2rec(fname, comments='#', skiprows=0, checkrows=0, delimiter=',',
 
     - *missingd* is a dictionary mapping munged column names to field values
       which signify that the field does not contain actual data and should
-      be masked, e.g. '0000-00-00' or 'unused'
+      be masked, e.g., '0000-00-00' or 'unused'
 
     - *missing*: a string whose value signals a missing field regardless of
       the column it appears in

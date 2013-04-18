@@ -2,7 +2,7 @@
 This is an object-oriented plotting library.
 
 A procedural interface is provided by the companion pyplot module,
-which may be imported directly, e.g::
+which may be imported directly, e.g.::
 
     from matplotlib.pyplot import *
 
@@ -910,10 +910,10 @@ if rcParams['axes.formatter.use_locale']:
 
 def rc(group, **kwargs):
     """
-    Set the current rc params.  Group is the grouping for the rc, eg.
+    Set the current rc params.  Group is the grouping for the rc, e.g.,
     for ``lines.linewidth`` the group is ``lines``, for
     ``axes.facecolor``, the group is ``axes``, and so on.  Group may
-    also be a list or tuple of group names, eg. (*xtick*, *ytick*).
+    also be a list or tuple of group names, e.g., (*xtick*, *ytick*).
     *kwargs* is a dictionary attribute name/value pairs, eg::
 
       rc('lines', linewidth=2, color='r')
@@ -944,7 +944,7 @@ def rc(group, **kwargs):
 
 
     Note you can use python's kwargs dictionary facility to store
-    dictionaries of default parameters.  Eg, you can customize the
+    dictionaries of default parameters.  e.g., you can customize the
     font rc as follows::
 
       font = {'family' : 'monospace',
@@ -1065,7 +1065,7 @@ def use(arg, warn=True, force=False):
         is issued if you try and call this after pylab or pyplot have been
         loaded.  In certain black magic use cases, e.g.
         :func:`pyplot.switch_backend`, we are doing the reloading necessary to
-        make the backend switch work (in some cases, e.g. pure image
+        make the backend switch work (in some cases, e.g., pure image
         backends) so one can set warn=False to suppress the warnings.
 
     To find out which backend is currently set, see

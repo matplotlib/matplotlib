@@ -91,7 +91,7 @@ Keyword arguments:
     of values in degrees, CCW from the *x*-axis.
 
   *scale*: [ *None* | float ]
-    Data units per arrow length unit, e.g. m/s per plot width; a smaller
+    Data units per arrow length unit, e.g., m/s per plot width; a smaller
     scale parameter makes the arrow longer.  If *None*, a simple
     autoscaling algorithm is used, based on the average vector length
     and the number of vectors.  The arrow length unit is given by

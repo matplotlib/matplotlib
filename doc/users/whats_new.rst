@@ -564,7 +564,7 @@ Fernando Perez got tired of all the boilerplate code needed to create a
 figure and multiple subplots when using the matplotlib API, and wrote
 a :func:`~matplotlib.pyplot.subplots` helper function.  Basic usage
 allows you to create the figure and an array of subplots with numpy
-indexing (starts with 0).  Eg::
+indexing (starts with 0).  e.g.::
 
   fig, axarr = plt.subplots(2, 2)
   axarr[0,0].plot([1,2,3])   # upper, left
@@ -842,7 +842,7 @@ Here are the 0.98.4 notes from the CHANGELOG::
     Fixed a bug that the handlelength of the new legend class set too
     short when numpoints=1 -JJL
 
-    Added support for data with units (e.g. dates) to
+    Added support for data with units (e.g., dates) to
     Axes.fill_between. -RM
 
     Added fancybox keyword to legend. Also applied some changes for
@@ -919,7 +919,7 @@ Here are the 0.98.4 notes from the CHANGELOG::
     Jae-Joon Lee. - MM
 
     Fixed bug in pdf backend: if you pass a file object for output
-    instead of a filename, e.g. in a wep app, we now flush the object
+    instead of a filename, e.g., in a wep app, we now flush the object
     at the end. - JKS
 
     Add path simplification support to paths with gaps. - EF
