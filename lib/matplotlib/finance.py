@@ -26,6 +26,7 @@ from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
 from matplotlib.patches import Rectangle
 from matplotlib.transforms import Affine2D
 
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 cachedir = get_cachedir()
 # cachedir will be None if there is no writable directory.
@@ -374,9 +375,60 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
     return lines, patches
 
 
-def plot_day_summary2(ax, opens, highs, lows, closes ticksize=4,
+def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
                       colorup='k', colordown='r',
                      ):
+    """
+
+    Represent the time, open, close, high, low,  as a vertical line
+    ranging from low to high.  The left tick is the open and the right
+    tick is the close.
+
+    ax          : an Axes instance to plot to
+    ticksize    : size of open and close ticks in points
+    colorup     : the color of the lines where close >= open
+    colordown   : the color of the lines where close <  open
+
+    return value is a list of lines added
+    """
+
+    warnings.warn("This function has been deprecated in 1.3 in favor"
+                  "of `plot_day_summary_ochl`,"
+                  "which maintains the natural argument order,"
+                  "or `plot_day_summary_ohlc`,"
+                  "which uses the open-high-low-close order."
+                  "This function will be removed in 1.4", mplDeprecation)
+    return plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize,
+                             colorup, colordown)
+
+
+def plot_day_summary_ochl(ax, opens, closes, highs, lows, ticksize=4,
+                      colorup='k', colordown='r',
+                     ):
+
+    """
+
+    Represent the time, open, close, high, low,  as a vertical line
+    ranging from low to high.  The left tick is the open and the right
+    tick is the close.
+
+    ax          : an Axes instance to plot to
+    ticksize    : size of open and close ticks in points
+    colorup     : the color of the lines where close >= open
+    colordown   : the color of the lines where close <  open
+
+    return value is a list of lines added
+    """
+
+    return plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize,
+                             colorup, colordown)
+
+
+
+def plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize=4,
+                      colorup='k', colordown='r',
+                     ):
+
     """
 
     Represent the time, open, high, low, close as a vertical line
