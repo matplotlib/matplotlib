@@ -161,7 +161,7 @@ your axes or subplot, (0.5, 0.5) is the center, and (1.0, 1.0) is the
 top right.  You can also refer to points outside the range, so (-0.1,
 1.1) is to the left and above your axes.  This coordinate system is
 extremely useful when placing text in your axes, because you often
-want a text bubble in a fixed, location, eg. the upper left of the axes
+want a text bubble in a fixed, location, e.g., the upper left of the axes
 pane, and have that location remain fixed when you pan or zoom.  Here
 is a simple example that creates four panels and labels them 'A', 'B',
 'C', 'D' as you often see in journals.
@@ -419,7 +419,7 @@ and we can use this same inverted transformation to go from the unit
     Out[90]: array([ 2.5, -0.5])
 
 The final piece is the ``self.transScale`` attribute, which is
-responsible for the optional non-linear scaling of the data, eg. for
+responsible for the optional non-linear scaling of the data, e.g., for
 logarithmic axes.  When an Axes is initially setup, this is just set to
 the identity transform, since the basic matplotlib axes has linear
 scale, but when you call a logarithmic scaling function like
@@ -441,7 +441,7 @@ the typical separable matplotlib Axes, with one additional piece
           (self.transProjectionAffine + self.transAxes)
 
 ``transProjection`` handles the projection from the space,
-eg. latitude and longitude for map data, or radius and theta for polar
+e.g., latitude and longitude for map data, or radius and theta for polar
 data, to a separable Cartesian coordinate system.  There are several
 projection examples in the ``matplotlib.projections`` package, and the
 best way to learn more is to open the source for those packages and

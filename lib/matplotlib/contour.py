@@ -78,7 +78,7 @@ class ContourLabeler:
             - if *None*, the color of each label matches the color of
               the corresponding contour
 
-            - if one string color, e.g. *colors* = 'r' or *colors* =
+            - if one string color, e.g., *colors* = 'r' or *colors* =
               'red', all labels will be plotted in this color
 
             - if a tuple of matplotlib color args (string, float, rgb, etc),

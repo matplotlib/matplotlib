@@ -15,7 +15,7 @@ def out_of_date(original, derived):
     Returns True if derivative is out-of-date wrt original,
     both of which are full file paths.
 
-    TODO: this check isn't adequate in some cases.  Eg, if we discover
+    TODO: this check isn't adequate in some cases.  e.g., if we discover
     a bug when building the examples, the original and derived will be
     unchanged but we still want to force a rebuild.
     """

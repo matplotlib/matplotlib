@@ -86,7 +86,7 @@ please provide the following information in your e-mail to the
 
         python -c `import matplotlib; print matplotlib.__version__`
 
-  * where you obtained matplotlib (e.g. your Linux distribution's
+  * where you obtained matplotlib (e.g., your Linux distribution's
     packages or the matplotlib Sourceforge site, or the enthought
     python distribution `EPD
     <http://www.enthought.com/products/epd.php>`_).

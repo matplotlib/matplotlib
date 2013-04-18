@@ -81,7 +81,7 @@ for rect in rects:
    width = int(rect.get_width())
 
    # Figure out what the last digit (width modulo 10) so we can add
-   # the appropriate numerical suffix (e.g. 1st, 2nd, 3rd, etc)
+   # the appropriate numerical suffix (e.g., 1st, 2nd, 3rd, etc)
    lastDigit = width % 10
    # Note that 11, 12, and 13 are special cases
    if (width == 11) or (width == 12) or (width == 13):

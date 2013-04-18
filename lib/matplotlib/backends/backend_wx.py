@@ -2069,7 +2069,7 @@ class NavigationToolbarWx(wx.ToolBar):
 
     def update(self):
         """
-        Update the toolbar menu - called when (e.g.) a new subplot
+        Update the toolbar menu - e.g., called when a new subplot
         or axes are added
         """
         DEBUG_MSG("update()", 1, self)

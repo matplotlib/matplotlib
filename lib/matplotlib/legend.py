@@ -213,7 +213,7 @@ class Legend(Artist):
         ================   ====================================================
 
 
-        The pad and spacing parameters are measured in font-size units.  E.g.,
+        The pad and spacing parameters are measured in font-size units.  e.g.,
         a fontsize of 10 points and a handlelength=5 implies a handlelength of
         50 points.  Values from rcParams will be used if None.
 

@@ -339,7 +339,7 @@ class Line2D(Artist):
     def set_markevery(self, every):
         """
         Set the markevery property to subsample the plot when using
-        markers.  Eg if ``markevery=5``, every 5-th marker will be
+        markers.  e.g., if ``markevery=5``, every 5-th marker will be
         plotted.  *every* can be
 
         None
@@ -789,7 +789,7 @@ class Line2D(Artist):
 
         ACCEPTS: [``'-'`` | ``'--'`` | ``'-.'`` | ``':'`` | ``'None'`` |
                   ``' '`` | ``''``]
-        and any drawstyle in combination with a linestyle, e.g. ``'steps--'``.
+        and any drawstyle in combination with a linestyle, e.g., ``'steps--'``.
         """
 
         for ds in self.drawStyleKeys:  # long names are first in the list

@@ -474,7 +474,7 @@ cbook.simple_linear_interpolation on the data before passing to matplotlib.""")
         If *labels* is None, the labels will be ``fmt %% angle``
 
         *frac* is the fraction of the polar axes radius at which to
-        place the label (1 is the edge). Eg. 1.05 is outside the axes
+        place the label (1 is the edge). e.g., 1.05 is outside the axes
         and 0.95 is inside the axes.
 
         Return value is a list of tuples (*line*, *label*), where

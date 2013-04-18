@@ -96,7 +96,7 @@ colormap_kw_doc = '''
     *format*      [ None | format string | Formatter object ]
                   If None, the
                   :class:`~matplotlib.ticker.ScalarFormatter` is used.
-                  If a format string is given, e.g. '%.3f', that is
+                  If a format string is given, e.g., '%.3f', that is
                   used. An alternative
                   :class:`~matplotlib.ticker.Formatter` object may be
                   given instead.

@@ -66,7 +66,7 @@ shrink               move the tip and base some percent away from
                      the annotated point and text
 
 \*\*kwargs           any key for :class:`matplotlib.patches.Polygon`,
-                     e.g. ``facecolor``
+                     e.g., ``facecolor``
 ==================== =====================================================
 
 

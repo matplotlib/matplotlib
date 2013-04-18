@@ -523,7 +523,7 @@ class Figure(Artist):
         Set the hold state.  If hold is None (default), toggle the
         hold state.  Else set the hold state to boolean value b.
 
-        Eg::
+        e.g.::
 
             hold()      # toggle hold
             hold(True)  # hold is on
@@ -775,10 +775,10 @@ class Figure(Artist):
 
         If the figure already has an axes with the same parameters,
         then it will simply make that axes current and return it.  If
-        you do not want this behavior, e.g. you want to force the
+        you do not want this behavior, e.g., you want to force the
         creation of a new Axes, you must use a unique set of args and
         kwargs.  The axes :attr:`~matplotlib.axes.Axes.label`
-        attribute has been exposed for this purpose.  Eg., if you want
+        attribute has been exposed for this purpose.  e.g., if you want
         two axes that are otherwise identical to be added to the
         figure, make sure you give them unique labels::
 

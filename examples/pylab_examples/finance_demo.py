@@ -12,8 +12,8 @@ date2 = ( 2004, 4, 12 )
 
 mondays = WeekdayLocator(MONDAY)        # major ticks on the mondays
 alldays    = DayLocator()              # minor ticks on the days
-weekFormatter = DateFormatter('%b %d')  # Eg, Jan 12
-dayFormatter = DateFormatter('%d')      # Eg, 12
+weekFormatter = DateFormatter('%b %d')  # e.g., Jan 12
+dayFormatter = DateFormatter('%d')      # e.g., 12
 
 quotes = quotes_historical_yahoo('INTC', date1, date2)
 if len(quotes) == 0:

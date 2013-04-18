@@ -106,7 +106,8 @@ In more detail
 Asking for code review
 ======================
 
-#. Go to your repo URL |emdash| e.g. ``http://github.com/your-user-name/matplotlib``.
+#. Go to your repo URL |emdash| e.g.,
+   ``http://github.com/your-user-name/matplotlib``.
 #. Click on the *Branch list* button:
 
    .. image:: branch_list.png
