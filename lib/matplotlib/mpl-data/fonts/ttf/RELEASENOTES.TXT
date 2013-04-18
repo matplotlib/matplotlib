@@ -127,7 +127,7 @@ can be used to force rebuilding fontconfig's cache files.
 
 If you note problems, please send them to fonts at gnome dot org, with
 exactly which face and size and unicode point you observe the problem
-at. The xfd utility from XFree86 CVS may be useful for this (e.g. "xfd
+at. The xfd utility from XFree86 CVS may be useful for this (e.g., "xfd
 -fa sans").  A possibly more useful program to examine fonts at a
 variety of sizes is the "waterfall" program found in Keith Packard's
 CVS.

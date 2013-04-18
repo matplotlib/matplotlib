@@ -856,7 +856,7 @@ def find_tex_file(filename, format=None):
                               'debug')
     return result.decode('ascii')
 
-# With multiple text objects per figure (e.g. tick labels) we may end
+# With multiple text objects per figure (e.g., tick labels) we may end
 # up reading the same tfm and vf files many times, so we implement a
 # simple cache. TODO: is this worth making persistent?
 

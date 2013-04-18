@@ -12,7 +12,7 @@ from matplotlib.pyplot import gcf, setp
 class Knob:
     """
     Knob - simple class with a "setKnob" method.  
-    A Knob instance is attached to a Param instance, e.g. param.attach(knob)
+    A Knob instance is attached to a Param instance, e.g., param.attach(knob)
     Base class is for documentation purposes.
     """
     def setKnob(self, value):

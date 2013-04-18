@@ -15,7 +15,7 @@ A recent bugfix in antigrain, and a new implementation in the
 matplotlib._image module which takes advantage of this fix, no longer
 makes this necessary.  To prevent edge effects, when doing
 interpolation, the matplotlib._image module now pads the input array
-with identical pixels around the edge.  Eg, if you have a 5x5 array
+with identical pixels around the edge.  e.g., if you have a 5x5 array
 with colors a-y as below
 
 

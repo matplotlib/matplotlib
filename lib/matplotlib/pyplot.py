@@ -107,7 +107,7 @@ def findobj(o=None, match=None):
 def switch_backend(newbackend):
     """
     Switch the default backend.  This feature is **experimental**, and
-    is only expected to work switching to an image backend.  Eg, if
+    is only expected to work switching to an image backend.  e.g., if
     you have a bunch of PostScript scripts that you want to run from
     an interactive ipython session, you may want to switch to the PS
     backend before running them to avoid having a bunch of GUI windows
@@ -1351,7 +1351,7 @@ def xlim(*args, **kwargs):
       xlim( xmin, xmax )    # set the xlim to xmin, xmax
 
     If you do not specify args, you can pass the xmin and xmax as
-    kwargs, eg.::
+    kwargs, e.g.::
 
       xlim(xmax=3) # adjust the max leaving min unchanged
       xlim(xmin=1) # adjust the min leaving max unchanged
@@ -1380,7 +1380,7 @@ def ylim(*args, **kwargs):
       ylim( ymin, ymax )    # set the ylim to ymin, ymax
 
     If you do not specify args, you can pass the *ymin* and *ymax* as
-    kwargs, eg.::
+    kwargs, e.g.::
 
       ylim(ymax=3) # adjust the max leaving min unchanged
       ylim(ymin=1) # adjust the min leaving max unchanged
@@ -1605,7 +1605,7 @@ def thetagrids(*args, **kwargs):
     If *labels* is *None*, the labels will be ``fmt%angle``.
 
     *frac* is the fraction of the polar axes radius at which to place
-    the label (1 is the edge). Eg. 1.05 is outside the axes and 0.95
+    the label (1 is the edge). e.g., 1.05 is outside the axes and 0.95
     is inside the axes.
 
     Return value is a list of tuples (*lines*, *labels*):
@@ -2169,7 +2169,7 @@ def plotfile(fname, cols=(0,), plotfuncs=None,
     an :class:`~matplotlib.axes.Axes` plotting function as a string.
     Default is 'plot', other choices are 'semilogy', 'fill', 'bar',
     etc.  You must use the same type of identifier in the *cols*
-    vector as you use in the *plotfuncs* dictionary, eg., integer
+    vector as you use in the *plotfuncs* dictionary, e.g., integer
     column numbers in both or column names in both. If *subplots*
     is *False*, then including any function such as 'semilogy'
     that changes the axis scaling will set the scaling for all
