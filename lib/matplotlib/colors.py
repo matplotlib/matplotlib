@@ -1001,6 +1001,7 @@ class LogNorm(Normalize):
         if self.vmax is None:
             self.vmax = ma.max(A)
 
+
 class SqrtNorm(Normalize):
     """
     Normalize a given value to the 0-1 range on a square (or n'th) root scale
@@ -1015,7 +1016,6 @@ class SqrtNorm(Normalize):
         self.nthroot = nthroot
 
     def __call__(self, value, clip=None, midpoint=None):
-
 
         if clip is None:
             clip = self.clip
@@ -1032,28 +1032,28 @@ class SqrtNorm(Normalize):
 
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif vmin==vmax:
+        elif vmin == vmax:
             return 0.0 * val
         else:
             if clip:
                 mask = ma.getmask(val)
                 val = ma.array(np.clip(val.filled(vmax), vmin, vmax),
-                                mask=mask)
+                               mask=mask)
             result = (val-vmin) * (1.0/(vmax-vmin))
-            #result = (ma.arcsinh(val)-np.arcsinh(vmin))/(np.arcsinh(vmax)-np.arcsinh(vmin))
+            #(arcsinh(val)-arcsinh(vmin))/(arcsinh(vmax)-arcsinh(vmin))
             result = result**(1./self.nthroot)
         if vtype == 'scalar':
             result = result[0]
         return result
 
     def autoscale_None(self, A):
-        ' autoscale only None-valued vmin or vmax'
+        """ autoscale only None-valued vmin or vmax """
         if self.vmin is None:
             self.vmin = ma.min(A)
         if self.vmax is None:
             self.vmax = ma.max(A)
 
-            
+
 class AsinhNorm(Normalize):
     """
     Normalize a range of values to 0-1 on an arcsinh scale (nice alternative to
@@ -1065,8 +1065,7 @@ class AsinhNorm(Normalize):
         self.vmax = vmax
         self.clip = clip
 
-    def __call__(self,value, clip=None, midpoint=None):
-
+    def __call__(self, value, clip=None, midpoint=None):
 
         if clip is None:
             clip = self.clip
@@ -1088,15 +1087,14 @@ class AsinhNorm(Normalize):
 
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
-        elif vmin==vmax:
+        elif vmin == vmax:
             return 0.0 * val
         else:
             if clip:
                 mask = ma.getmask(val)
                 val = ma.array(np.clip(val.filled(vmax), vmin, vmax),
-                                mask=mask)
+                               mask=mask)
             result = (val-vmin) * (1.0/(vmax-vmin))
-            #result = (ma.arcsinh(val)-np.arcsinh(vmin))/(np.arcsinh(vmax)-np.arcsinh(vmin))
             result = ma.arcsinh(result/midpoint) / ma.arcsinh(1./midpoint)
         if vtype == 'scalar':
             result = result[0]
@@ -1110,7 +1108,6 @@ class AsinhNorm(Normalize):
             self.vmax = ma.max(A)
         if self.vmid is None:
             self.vmid = (self.vmax+self.vmin)/2.0
-
 
 
 class SymLogNorm(Normalize):
@@ -1150,7 +1147,7 @@ class SymLogNorm(Normalize):
         result, is_scalar = self.process_value(value)
         self.autoscale_None(result)
         vmin, vmax = self.vmin, self.vmax
-        
+
         if vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         elif vmin == vmax:
@@ -1159,7 +1156,7 @@ class SymLogNorm(Normalize):
             if clip:
                 mask = ma.getmask(result)
                 result = ma.array(np.clip(result.filled(vmax), vmin, vmax),
-                                mask=mask)
+                                  mask=mask)
             # in-place equivalent of above can be much faster
             resdat = self._transform(result.data)
             resdat -= self._lower
@@ -1168,8 +1165,8 @@ class SymLogNorm(Normalize):
         if is_scalar:
             result = result[0]
         return result
-    
-    def _transform(self, a):        
+
+    def _transform(self, a):
         """
         Inplace transformation.
         """
@@ -1180,7 +1177,7 @@ class SymLogNorm(Normalize):
         a[masked] = log
         a[~masked] *= self._linscale_adj
         return a
-        
+
     def _inv_transform(self, a):
         """
         Inverse inplace Transformation.
@@ -1192,7 +1189,7 @@ class SymLogNorm(Normalize):
         a[masked] = exp
         a[~masked] /= self._linscale_adj
         return a
-        
+
     def _transform_vmin_vmax(self):
         """
         Calculates vmin and vmax in the transformed system.
@@ -1200,7 +1197,6 @@ class SymLogNorm(Normalize):
         vmin, vmax = self.vmin, self.vmax
         arr = np.array([vmax, vmin])
         self._upper, self._lower  = self._transform(arr)
-
 
     def inverse(self, value):
         if not self.scaled():
