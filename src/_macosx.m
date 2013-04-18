@@ -2658,6 +2658,7 @@ GraphicsContext_get_text_width_height_descent(GraphicsContext* self, PyObject* a
     float size;
     const char* weight;
     const char* italic;
+
 #if PY33
     const char* text;
 #else
