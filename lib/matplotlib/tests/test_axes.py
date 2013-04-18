@@ -189,7 +189,7 @@ def test_polar_coord_annotations():
     ax.set_xlim( -20, 20 )
     ax.set_ylim( -20, 20 )
 
-@image_comparison(baseline_images=['fill_units'])
+@image_comparison(baseline_images=['fill_units'], tol=18)
 def test_fill_units():
     from datetime import datetime
     import matplotlib.testing.jpl_units as units
