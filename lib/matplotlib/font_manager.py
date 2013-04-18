@@ -1289,11 +1289,12 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         if pipe.returncode == 0:
             for match in _fc_match_regex.finditer(output):
                 file = match.group(1)
+                file = file.decode(sys.getfilesystemencoding())
                 if os.path.splitext(file)[1][1:] in fontexts:
                     return file
         return None
 
-    _fc_match_regex = re.compile(r'\sfile:\s+"([^"]*)"')
+    _fc_match_regex = re.compile(rb'\sfile:\s+"([^"]*)"')
     _fc_match_cache = {}
 
     def findfont(prop, fontext='ttf'):
