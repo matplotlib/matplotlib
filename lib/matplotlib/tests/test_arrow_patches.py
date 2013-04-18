@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
+import matplotlib
 
 def draw_arrow(ax, t, r):
     ax.annotate('', xy=(0.5, 0.5+r), xytext=(0.5, 0.5), size=30,
@@ -9,7 +10,7 @@ def draw_arrow(ax, t, r):
 @image_comparison(baseline_images=['fancyarrow_test_image'])
 def test_fancyarrow():
     r = [0.4, 0.3, 0.2, 0.1]
-    t = ["fancy", "simple"]
+    t = ["fancy", "simple", matplotlib.patches.ArrowStyle.Fancy()]
 
     fig, axes = plt.subplots(len(t), len(r), squeeze=False,
                              subplot_kw=dict(aspect=True),

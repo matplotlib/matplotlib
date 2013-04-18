@@ -3906,7 +3906,7 @@ class FancyArrowPatch(Patch):
         if arrowstyle is None:
             return ArrowStyle.pprint_styles()
 
-        if isinstance(arrowstyle, ConnectionStyle._Base):
+        if isinstance(arrowstyle, ArrowStyle._Base):
             self._arrow_transmuter = arrowstyle
         else:
             self._arrow_transmuter = ArrowStyle(arrowstyle, **kw)
