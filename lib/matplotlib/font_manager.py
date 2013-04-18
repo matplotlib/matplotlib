@@ -1292,7 +1292,7 @@ if USE_FONTCONFIG and sys.platform != 'win32':
                     return file
         return None
 
-    _fc_match_regex = re.compile(r'\sfile:\s+"([^"]*)"')
+    _fc_match_regex = re.compile(br'\sfile:\s+"([^"]*)"')
     _fc_match_cache = {}
 
     def findfont(prop, fontext='ttf'):
