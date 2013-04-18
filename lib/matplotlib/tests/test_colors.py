@@ -8,6 +8,7 @@ from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 
+
 def test_colormap_endian():
     """
     Github issue #1005: a bug in putmask caused erroneous
@@ -23,6 +24,7 @@ def test_colormap_endian():
         #print(anative.dtype.isnative, aforeign.dtype.isnative)
         assert_array_equal(cmap(anative), cmap(aforeign))
 
+
 def test_BoundaryNorm():
     """
     Github issue #1258: interpolation was failing with numpy
@@ -36,15 +38,16 @@ def test_BoundaryNorm():
     ncolors = len(boundaries)
     bn = mcolors.BoundaryNorm(boundaries, ncolors)
     assert_array_equal(bn(vals), expected)
-    
+
+
 def test_LogNorm():
     """
-    LogNorm igornoed clip, now it has the same
-    behavior as Normalize, e.g. values > vmax are bigger than 1
-    without clip, with clip they are 1.
+    LogNorm ignored clip, now it has the same behavior as Normalize, e.g.
+    values > vmax are bigger than 1 without clip, with clip they are 1.
     """
     ln = mcolors.LogNorm(clip=True, vmax=5)
     assert_array_equal(ln([1, 6]), [0, 1.0])
+
 
 def test_Normalize():
     norm = mcolors.Normalize()
@@ -61,7 +64,7 @@ def test_SymLogNorm():
     norm = mcolors.SymLogNorm(3, vmax=5, linscale=1.2)
     vals = np.array([-30, -1, 2, 6], dtype=np.float)
     normed_vals = norm(vals)
-    expected = [ 0., 0.53980074, 0.826991, 1.02758204]
+    expected = [0., 0.53980074, 0.826991, 1.02758204]
     assert_array_almost_equal(normed_vals, expected)
     _inverse_tester(norm, vals)
     _scalar_tester(norm, vals)
@@ -74,6 +77,7 @@ def _inverse_tester(norm_instance, vals):
     """
     assert_array_almost_equal(norm_instance.inverse(norm_instance(vals)), vals)
 
+
 def _scalar_tester(norm_instance, vals):
     """
     Checks if scalars and arrays are handled the same way.
@@ -81,6 +85,7 @@ def _scalar_tester(norm_instance, vals):
     """
     scalar_result = [norm_instance(float(v)) for v in vals]
     assert_array_almost_equal(scalar_result, norm_instance(vals))
+
 
 def _mask_tester(norm_instance, vals):
     """
