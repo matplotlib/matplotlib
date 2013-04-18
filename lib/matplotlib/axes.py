@@ -5545,9 +5545,9 @@ class Axes(martist.Artist):
             type as *xerr* and *yerr*.
 
           *errorevery*: positive integer
-            subsamples the errorbars. e.g., if everyerror=5, errorbars for every
-            5-th datapoint will be plotted. The data plot itself still shows
-            all data points.
+            subsamples the errorbars. e.g., if everyerror=5, errorbars for
+            every 5-th datapoint will be plotted. The data plot itself still
+            shows all data points.
 
         All other keyword arguments are passed on to the plot command for the
         markers. For example, this code makes big red squares with
