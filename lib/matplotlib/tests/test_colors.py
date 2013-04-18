@@ -71,6 +71,34 @@ def test_SymLogNorm():
     _mask_tester(norm, vals)
 
 
+def test_SqrtNorm():
+    """
+    Test SqrtNorm behavior
+    """
+    norm = mcolors.SqrtNorm(vmin=-3, vmax=5)
+    vals = np.array([-30, -1, 2, 6], dtype=np.float)
+    normed_vals = norm(vals)
+    expected = [np.nan, 0.5, 0.79056942,  1.06066017]
+    assert_array_almost_equal(normed_vals, expected)
+    _inverse_tester(norm, vals) # note that this accepts NaN == -30 because it is masked
+    _scalar_tester(norm, vals)
+    _mask_tester(norm, vals)
+
+
+def test_AsinhNorm():
+    """
+    Test AsinhNorm behavior
+    """
+    norm = mcolors.AsinhNorm(vmin=-3, vmax=5)
+    vals = np.array([-30, -1, 2, 6], dtype=np.float)
+    normed_vals = norm(vals)
+    expected = [np.nan, 0.5, 0.79056942,  1.06066017]
+    assert_array_almost_equal(normed_vals, expected)
+    _inverse_tester(norm, vals) # note that this accepts NaN == -30 because it is masked
+    _scalar_tester(norm, vals)
+    _mask_tester(norm, vals)
+
+
 def _inverse_tester(norm_instance, vals):
     """
     Checks if the inverse of the given normalization is working.

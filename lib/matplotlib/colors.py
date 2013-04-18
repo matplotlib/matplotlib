@@ -1053,6 +1053,19 @@ class SqrtNorm(Normalize):
         if self.vmax is None:
             self.vmax = ma.max(A)
 
+    def inverse(self, value):
+        if not self.scaled():
+            raise ValueError("Not invertible until scaled")
+        vmin, vmax = self.vmin, self.vmax
+
+        if cbook.iterable(value):
+            val = ma.asarray(value)
+            # r = sqrt(v-vmin/(vmax-vmin))
+            # v = r**2 * (vmax-vmin) + vmin
+            return val**self.nthroot * (vmax-vmin) + vmin
+        else:
+            return value**self.nthroot * (vmax-vmin) + vmin
+
 
 class AsinhNorm(Normalize):
     """
@@ -1109,6 +1122,18 @@ class AsinhNorm(Normalize):
         if self.vmid is None:
             self.vmid = (self.vmax+self.vmin)/2.0
 
+    def inverse(self, value):
+        if not self.scaled():
+            raise ValueError("Not invertible until scaled")
+        vmin, vmax = self.vmin, self.vmax
+
+        if cbook.iterable(value):
+            val = ma.asarray(value)
+            # r = arcsinh(v-vmin/(vmax-vmin) / midpoint) / arcsinh(1/midpoint)
+            # v = sinh(r * arcsinh(1/midpoint)) * midpoint * (vmax-vmin) + vmin
+            return np.sinh(val * np.arcsinh(1./midpoint)) * midpoint * (vmax-vmin) + vmin
+        else:
+            return np.sinh(value * np.arcsinh(1./midpoint)) * midpoint * (vmax-vmin) + vmin
 
 class SymLogNorm(Normalize):
     """
