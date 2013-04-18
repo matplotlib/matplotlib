@@ -75,3 +75,5 @@ if hasattr(subprocess, 'check_output'):
     check_output = subprocess.check_output
 else:
     check_output = _check_output
+
+CalledProcessError = subprocess.CalledProcessError
