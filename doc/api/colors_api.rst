@@ -2,8 +2,8 @@
 colors
 ******
 
-For a plot showing the available matplotlib colormaps see the
-:ref:`colormap <pylab_examples-show_colormaps>` example.
+For a visual representation of the matplotlib colormaps, see the
+"Color" section in the gallery.
 
 
 :mod:`matplotlib.colors`

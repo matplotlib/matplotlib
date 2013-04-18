@@ -483,13 +483,15 @@ class Colormap(object):
     Typically Colormap instances are used to convert data values (floats) from
     the interval ``[0, 1]`` to the RGBA color that the respective Colormap
     represents. For scaling of data into the ``[0, 1]`` interval see
-    :class:`matplotlib.colors.Normalize`.
+    :class:`matplotlib.colors.Normalize`. It is worth noting that
+    :class:`matplotlib.cm.ScalarMappable` subclasses make heavy use of this
+    ``data->normalize->map-to-color`` processing chain.
 
     """
     def __init__(self, name, N=256):
-        """
+        r"""
         Parameters
-
+        ----------
         name : str
             The name of the colormap.
         N : int
@@ -508,25 +510,23 @@ class Colormap(object):
 
     def __call__(self, X, alpha=None, bytes=False):
         """
-        Parameters:
-
+        Parameters
+        ----------
         X : scalar, ndarray
             The data value(s) to convert to RGBA.
             For floats, X should be in the interval ``[0.0, 1.0]`` to
             return the RGBA values ``X*100`` percent along the Colormap line.
             For integers, X should be in the interval ``[0, Colormap.N)`` to
             return RGBA values *indexed* from the Colormap with index ``X``.
-
         alpha : float, None
             Alpha must be a scalar between 0 and 1, or None.
-
         bytes : bool
             If False (default), the returned RGBA values will be floats in the
             interval ``[0, 1]`` otherwise they will be uint8s in the interval
             ``[0, 255]``.
 
-        Returns:
-
+        Returns
+        -------
         Tuple of RGBA values if X is scalar, othewise an array of
         RGBA values with a shape of ``X.shape + (4, )``.
 
