@@ -89,10 +89,11 @@ def test_AsinhNorm():
     """
     Test AsinhNorm behavior
     """
-    norm = mcolors.AsinhNorm(vmin=-3, vmax=5)
+    norm = mcolors.AsinhNorm(vmin=-3, vmax=5, vmid=0)
     vals = np.array([-30, -1, 2, 6], dtype=np.float)
     normed_vals = norm(vals)
-    expected = [np.nan, 0.5, 0.79056942,  1.06066017]
+    expected = [-1.694637815353593, 0.36613618958718575, 0.751895902558991,
+            1.0650312050423278]
     assert_array_almost_equal(normed_vals, expected)
     _inverse_tester(norm, vals) # note that this accepts NaN == -30 because it is masked
     _scalar_tester(norm, vals)
