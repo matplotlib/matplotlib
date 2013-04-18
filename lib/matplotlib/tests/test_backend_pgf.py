@@ -130,6 +130,21 @@ def test_rcupdate():
         create_figure()
         compare_figure('pgf_rcupdate%d.pdf' % (i+1))
 
+
+# test backend-side clipping, since large numbers are not supported by TeX
+@switch_backend('pgf')
+def test_pathclip():
+    if not check_for('xelatex'):
+        raise SkipTest('xelatex + pgf is required')
+
+    plt.figure()
+    plt.plot([0., 1e100], [0., 1e100])
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
+    # this test passes if compiling/saving to pdf works (no image comparison)
+    plt.savefig(os.path.join(result_dir, "pgf_pathclip.pdf"))
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
