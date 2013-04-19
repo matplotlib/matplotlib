@@ -464,7 +464,7 @@ class Axes3D(Axes):
         .. versionchanged :: 1.1.0
             Function signature was changed to better match the 2D version.
             *tight* is now explicitly a kwarg and placed first.
-            
+
         .. versionchanged :: 1.2.1
             This is now fully functional.
 
@@ -668,7 +668,7 @@ class Axes3D(Axes):
         Set 3D z limits.
 
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation
-        
+
         """
         if 'zmin' in kw:
             bottom = kw.pop('zmin')
@@ -1860,8 +1860,8 @@ class Axes3D(Axes):
         dz = (levels[1] - levels[0]) / 2
 
         for z, linec in zip(levels, colls):
-            topverts = art3d.paths_to_3d_segments(linec.get_paths(), z - dz)
-            botverts = art3d.paths_to_3d_segments(linec.get_paths(), z + dz)
+            topverts = art3d.paths_to_3d_segments(linec.get_paths(), z - dz)[0]
+            botverts = art3d.paths_to_3d_segments(linec.get_paths(), z + dz)[0]
 
             color = linec.get_color()[0]
 
