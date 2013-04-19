@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import math
 import os
+import re
 import signal
 import sys
 
@@ -53,6 +54,13 @@ def _create_qApp():
         global qApp
         app = QtGui.QApplication.instance()
         if app is None:
+          
+            # check for DISPLAY env variable on X11 build of Qt
+            if hasattr(QtGui, "QX11Info"):
+                display = os.environ.get('DISPLAY')
+                if display is None or not re.search(':\d', display):
+                    raise RuntimeError('Invalid DISPLAY variable')
+        
             qApp = QtGui.QApplication( [" "] )
             QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
                                 qApp, QtCore.SLOT( "quit()" ) )
