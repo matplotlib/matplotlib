@@ -35,6 +35,7 @@ dist
 
 # OS generated files #
 ######################
+.directory
 .gdb_history
 .DS_Store?
 ehthumbs.db

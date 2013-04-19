@@ -44,6 +44,7 @@ ax.plot(xs, ys, zs)
 ax.set_xlabel("X Axis")
 ax.set_ylabel("Y Axis")
 ax.set_zlabel("Z Axis")
+ax.set_title("Lorenz Attractor")
 
 plt.show()
 

@@ -21,6 +21,43 @@ revision, see the :ref:`github-stats`.
 
 new in matplotlib-1.3
 =====================
+``axes.xmargin`` and ``axes.ymargin`` added to rcParams
+-------------------------------------------------------
+``rcParam`` values (``axes.xmargin`` and ``axes.ymargin``) were added
+to configure the default margins used.  Previously they were
+hard-coded to default to 0, default value of both rcParam values is 0.
+
+
+New eventplot plot type
+-------------------------------------
+Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
+create multiple rows or columns of identical line segments
+
+New EventCollection collections class
+-------------------------------------
+Todd Jennings created the new :class:`~matplotlib.collections.EventCollection`
+class that allows for plotting and manipulating rows or columns of identical
+line segments
+
+Baselines for stackplot
+-----------------------
+Till Stensitzki added non-zero baselines to :func:`~matplotlib.pyplot.stackplot`.
+They may be symmetric or weighted.
+
+.. plot:: mpl_examples/pylab_examples/stackplot_demo2.py
+
+Improved ``bbox_inches="tight"`` functionality
+----------------------------------------------
+Passing ``bbox_inches="tight"`` through to :func:`plt.save` now takes into account
+*all* artists on a figure - this was previously not the case and led to several
+corner cases which did not function as expected.
+
+
+Remember save directory
+-----------------------
+Martin Spacek made the save figure dialog remember the last directory saved
+to. The default is configurable with the new `savefig.directory` setting
+in `matplotlibrc`.
 
 Initialize a rotated rectangle
 ------------------------------
@@ -51,10 +88,77 @@ conversion (`mpl.rc('svg', fonttype='none')`).
 
 Triangular grid interpolation
 -----------------------------
-Ian Thomas added classes to perform interpolation within triangular grids
-(:class:`~matplotlib.tri.LinearTriInterpolator`) and a utility class to find
+Geoffroy Billotey and Ian Thomas added classes to perform interpolation within
+triangular grids: (:class:`~matplotlib.tri.LinearTriInterpolator` and
+:class:`~matplotlib.tri.CubicTriInterpolator`) and a utility class to find
 the triangles in which points lie (
 :class:`~matplotlib.tri.TrapezoidMapTriFinder`).
+A helper class to perform mesh refinement and smooth contouring was also added
+(:class:`~matplotlib.tri.UniformTriRefiner`).
+Finally, a class implementing some basic tools for triangular mesh improvement
+was added (:class:`~matplotlib.tri.TriAnalyzer`).
+
+.. plot:: mpl_examples/pylab_examples/tricontour_smooth_user.py
+
+Left and right side axes titles
+-------------------------------
+Andrew Dawson added the ability to add axes titles flush with the left and
+right sides of the top of the axes using a new keyword argument `loc` to
+:func:`~matplotlib.pyplot.title`.
+
+Improved manual contour plot label positioning
+----------------------------------------------
+
+Brian Mattern modified the manual contour plot label positioning code to
+interpolate along line segments and find the actual closest point on a
+contour to the requested position. Previously, the closest path vertex was
+used, which, in the case of straight contours was sometimes quite distant
+from the requested location. Much more precise label positioning is now
+possible.
+
+Quickly find rcParams
+---------------------
+Phil Elson made it easier to search for rcParameters by passing a
+valid regular expression to :func:`matplotlib.RcParams.find_all`.
+:class:`matplotlib.RcParams` now also has a pretty repr and str representation
+so that search results are printed prettily:
+
+    >>> import matplotlib
+    >>> print(matplotlib.rcParams.find_all('\.size'))
+    RcParams({'font.size': 12,
+              'xtick.major.size': 4,
+              'xtick.minor.size': 2,
+              'ytick.major.size': 4,
+              'ytick.minor.size': 2})
+
+Better vertical text alignment
+------------------------------
+
+The vertical alignment of text is now consistent across backends.  You
+may see small differences in text placement, particularly with rotated
+text.
+
+If you are using a custom backend, note that the `draw_text` renderer
+method is now passed the location of the baseline, not the location of
+the bottom of the text bounding box.
+
+.. _whats-new-1-2-2:
+
+new in matplotlib 1.2.2
+=======================
+
+Improved collections
+--------------------
+
+The individual items of a collection may now have different alpha
+values and be rendered correctly.  This also fixes a bug where
+collections were always filled in the PDF backend.
+
+Multiple images on same axes are correctly transparent
+------------------------------------------------------
+
+When putting multiple images onto the same axes, the background color
+of the axes will now show through correctly.
 
 .. _whats-new-1-2:
 
@@ -486,7 +590,7 @@ Fernando Perez got tired of all the boilerplate code needed to create a
 figure and multiple subplots when using the matplotlib API, and wrote
 a :func:`~matplotlib.pyplot.subplots` helper function.  Basic usage
 allows you to create the figure and an array of subplots with numpy
-indexing (starts with 0).  Eg::
+indexing (starts with 0).  e.g.::
 
   fig, axarr = plt.subplots(2, 2)
   axarr[0,0].plot([1,2,3])   # upper, left
@@ -764,7 +868,7 @@ Here are the 0.98.4 notes from the CHANGELOG::
     Fixed a bug that the handlelength of the new legend class set too
     short when numpoints=1 -JJL
 
-    Added support for data with units (e.g. dates) to
+    Added support for data with units (e.g., dates) to
     Axes.fill_between. -RM
 
     Added fancybox keyword to legend. Also applied some changes for
@@ -841,7 +945,7 @@ Here are the 0.98.4 notes from the CHANGELOG::
     Jae-Joon Lee. - MM
 
     Fixed bug in pdf backend: if you pass a file object for output
-    instead of a filename, e.g. in a wep app, we now flush the object
+    instead of a filename, e.g., in a wep app, we now flush the object
     at the end. - JKS
 
     Add path simplification support to paths with gaps. - EF

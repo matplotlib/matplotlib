@@ -4,7 +4,7 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
-@image_comparison(baseline_images=['legend_auto1'], tol=1.5e-3, remove_text=True)
+@image_comparison(baseline_images=['legend_auto1'], remove_text=True)
 def test_legend_auto1():
     'Test automatic legend placement'
     fig = plt.figure()
@@ -26,6 +26,19 @@ def test_legend_auto2():
     ax.legend([b1[0], b2[0]], ['up', 'down'], loc=0)
 
 
+@image_comparison(baseline_images=['legend_auto3'])
+def test_legend_auto3():
+    'Test automatic legend placement'
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    x = [0.9, 0.1, 0.1, 0.9, 0.9, 0.5]
+    y = [0.95, 0.95, 0.05, 0.05, 0.5, 0.5]
+    ax.plot(x, y, 'o-', label='line')
+    ax.set_xlim(0.0, 1.0)
+    ax.set_ylim(0.0, 1.0)
+    ax.legend(loc=0)
+
+
 @image_comparison(baseline_images=['legend_various_labels'], remove_text=True)
 def test_various_labels():
     # tests all sorts of label types
@@ -34,7 +47,7 @@ def test_various_labels():
     ax.plot(range(4), 'o', label=1)
     ax.plot(np.linspace(4, 4.1), 'o', label=u'D\xe9velopp\xe9s')
     ax.plot(range(4, 1, -1), 'o', label='__nolegend__')
-    ax.legend(numpoints=1)
+    ax.legend(numpoints=1, loc=0)
 
 
 @image_comparison(baseline_images=['fancy'], remove_text=True)
@@ -53,7 +66,7 @@ def test_framealpha():
     y = x
     plt.plot(x, y, label='mylabel', lw=10)
     plt.legend(framealpha=0.5)
-    
+
 @image_comparison(baseline_images=['scatter_rc3','scatter_rc1'], remove_text=True)
 def test_rc():
     # using subplot triggers some offsetbox functionality untested elsewhere
@@ -70,3 +83,18 @@ def test_rc():
     ax.scatter(range(10), range(10, 0, -1), label='one')
     ax.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
                 title="My legend")
+
+@image_comparison(baseline_images=['legend_expand'], remove_text=True)
+def test_legend_expand():
+    'Test expand mode'
+    legend_modes = [None, "expand"]
+    fig, axes_list = plt.subplots(len(legend_modes), 1)
+    x = np.arange(100)
+    for ax, mode in zip(axes_list, legend_modes):
+        ax.plot(x, 50 - x, 'o', label='y=1')
+        l1 = ax.legend(loc=2, mode=mode)
+        ax.add_artist(l1)
+        ax.plot(x, x - 50, 'o', label='y=-1')
+        l2 = ax.legend(loc=5, mode=mode)
+        ax.add_artist(l2)
+        ax.legend(loc=3, mode=mode, ncol=2)

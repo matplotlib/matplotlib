@@ -29,8 +29,7 @@
 #ifndef AGG_RASTERIZER_CELLS_AA_INCLUDED
 #define AGG_RASTERIZER_CELLS_AA_INCLUDED
 
-#include "CXX/Exception.hxx"
-#include <exception>
+#include <stdexcept>
 #include <string.h>
 #include <math.h>
 #include "agg_math.h"
@@ -183,9 +182,9 @@ namespace agg
         {
             if((m_num_cells & cell_block_mask) == 0)
             {
-                if(m_num_blocks >= cell_block_limit) {
-                    throw Py::OverflowError(
-                            "Agg rendering complexity exceeded. Consider downsampling or decimating your data.");
+                if (m_num_blocks >= cell_block_limit)
+                {
+                    throw std::overflow_error("Allocated too many blocks");
                 }
                 allocate_block();
             }

@@ -362,6 +362,8 @@ class RendererBase:
         gc0 = self.new_gc()
         gc0.copy_properties(gc)
 
+        original_alpha = gc.get_alpha()
+
         if Nfacecolors == 0:
             rgbFace = None
 
@@ -383,22 +385,30 @@ class RendererBase:
                     xp, yp = transform.transform_point((0, 0))
                     xo = -(xp - xo)
                     yo = -(yp - yo)
+            if not (np.isfinite(xo) and np.isfinite(yo)):
+                continue
+            gc0.set_alpha(original_alpha)
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
-                fg = edgecolors[i % Nedgecolors]
-                if Nfacecolors == 0 and len(fg) == 4:
-                    gc0.set_alpha(fg[3])
-                gc0.set_foreground(fg)
                 if Nlinewidths:
                     gc0.set_linewidth(linewidths[i % Nlinewidths])
                 if Nlinestyles:
                     gc0.set_dashes(*linestyles[i % Nlinestyles])
+                fg = edgecolors[i % Nedgecolors]
+                if len(fg) == 4:
+                    if fg[3] == 0.0:
+                        gc0.set_linewidth(0)
+                    else:
+                        gc0.set_alpha(gc0.get_alpha() * fg[3])
+                        gc0.set_foreground(fg[:3])
+                else:
+                    gc0.set_foreground(fg)
             if rgbFace is not None and len(rgbFace) == 4:
                 if rgbFace[3] == 0:
                     rgbFace = None
                 else:
-                    gc0.set_alpha(rgbFace[3])
+                    gc0.set_alpha(gc0.get_alpha() * rgbFace[3])
                     rgbFace = rgbFace[:3]
             gc0.set_antialiased(antialiaseds[i % Naa])
             if Nurls:
@@ -465,7 +475,7 @@ class RendererBase:
             the x location of the text in display coords
 
         *y*
-            the y location of the text in display coords
+            the y location of the text baseline in display coords
 
         *s*
             the text string
@@ -487,7 +497,7 @@ class RendererBase:
 
             if 0: bbox_artist(self, renderer)
 
-        to if 1, and then the actual bounding box will be blotted along with
+        to if 1, and then the actual bounding box will be plotted along with
         your text.
         """
 
@@ -1436,7 +1446,7 @@ class KeyEvent(LocationEvent):
         the key(s) pressed. Could be **None**, a single case sensitive ascii
         character ("g", "G", "#", etc.), a special key
         ("control", "shift", "f1", "up", etc.) or a
-        combination of the above (e.g. "ctrl+alt+g", "ctrl+alt+G").
+        combination of the above (e.g., "ctrl+alt+g", "ctrl+alt+G").
 
     .. note::
 
@@ -1899,7 +1909,7 @@ class FigureCanvasBase(object):
         from backends.backend_agg import FigureCanvasAgg  # lazy import
         agg = self.switch_backends(FigureCanvasAgg)
         return agg.print_raw(*args, **kwargs)
-    print_bmp = print_rgb = print_raw
+    print_bmp = print_rgba = print_raw
 
     def print_svg(self, *args, **kwargs):
         from backends.backend_svg import FigureCanvasSVG  # lazy import
@@ -2092,15 +2102,26 @@ class FigureCanvasBase(object):
                 renderer = self.figure._cachedRenderer
                 bbox_inches = self.figure.get_tightbbox(renderer)
 
-                bbox_extra_artists = kwargs.pop("bbox_extra_artists", None)
-                if bbox_extra_artists is None:
-                    bbox_extra_artists = self.figure.get_default_bbox_extra_artists()
+                bbox_artists = kwargs.pop("bbox_extra_artists", None)
+                if bbox_artists is None:
+                    bbox_artists = self.figure.get_default_bbox_extra_artists()
 
-                bb = [a.get_window_extent(renderer)
-                      for a in bbox_extra_artists]
+                bbox_filtered = []
+                for a in bbox_artists:
+                    bbox = a.get_window_extent(renderer)
+                    if a.get_clip_on():
+                        clip_box = a.get_clip_box()
+                        if clip_box is not None:
+                            bbox = Bbox.intersection(bbox, clip_box)
+                        clip_path = a.get_clip_path()
+                        if clip_path is not None and bbox is not None:
+                            clip_path = clip_path.get_fully_transformed_path()
+                            bbox = Bbox.intersection(bbox,
+                                                     clip_path.get_extents())
+                    if bbox is not None and (bbox.width != 0 or
+                                             bbox.height != 0):
+                        bbox_filtered.append(bbox)
 
-                bbox_filtered = [b for b in bb
-                                 if b.width != 0 or b.height != 0]
                 if bbox_filtered:
                     _bbox = Bbox.union(bbox_filtered)
                     trans = Affine2D().scale(1.0 / self.figure.dpi)

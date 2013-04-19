@@ -27,6 +27,7 @@
 #include "CXX/Extensions.hxx"
 #include "numpy/arrayobject.h"
 #include "mplutils.h"
+
 #include "file_compat.h"
 
 // As reported in [3082058] build _png.so on aix
@@ -239,7 +240,9 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
 
         if (close_dup_file)
         {
-            npy_PyFile_DupClose(py_file, fp);
+            if (npy_PyFile_DupClose(py_file, fp)) {
+              throw Py::RuntimeError("Error closing dupe file handle");
+            }
         }
 
         if (close_file)
@@ -258,7 +261,9 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     delete [] row_pointers;
     if (close_dup_file)
     {
-        npy_PyFile_DupClose(py_file, fp);
+        if (npy_PyFile_DupClose(py_file, fp)) {
+          throw Py::RuntimeError("Error closing dupe file handle");
+        }
     }
 
     if (close_file)
@@ -569,7 +574,9 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result,
 #endif
     if (close_dup_file)
     {
-        npy_PyFile_DupClose(py_file, fp);
+        if (npy_PyFile_DupClose(py_file, fp)) {
+          throw Py::RuntimeError("Error closing dupe file handle");
+        }
     }
 
     if (close_file)

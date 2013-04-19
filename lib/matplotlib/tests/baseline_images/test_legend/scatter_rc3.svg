@@ -289,11 +289,11 @@ L72 43.2" style="fill:none;stroke:#000000;"/>
    <g id="legend_1">
     <g id="patch_7">
      <path d="
-M282.109 236.746
-L370.762 236.746
-L370.762 195.254
-L282.109 195.254
-L282.109 236.746
+M282.109 237.946
+L370.762 237.946
+L370.762 194.054
+L282.109 194.054
+L282.109 237.946
 z
 " style="fill:#ffffff;stroke:#000000;"/>
     </g>
@@ -441,7 +441,7 @@ L54.3906 54.6875
 z
 " id="BitstreamVeraSans-Roman-67"/>
      </defs>
-     <g transform="translate(295.857215909 210.143625)scale(0.12 -0.12)">
+     <g transform="translate(295.857215909 208.9434375)scale(0.12 -0.12)">
       <use xlink:href="#BitstreamVeraSans-Roman-4d"/>
       <use x="86.279296875" xlink:href="#BitstreamVeraSans-Roman-79"/>
       <use x="145.458984375" xlink:href="#BitstreamVeraSans-Roman-20"/>
@@ -492,9 +492,9 @@ C-1.16182 2.00046 -0.593012 2.23607 0 2.23607
 z
 " id="C1_2_919e3f95db"/>
      </defs>
-     <use style="fill:#0000ff;stroke:#000000;stroke-linecap:butt;" x="292.189090909" xlink:href="#C1_0_919e3f95db" y="227.001"/>
-     <use style="fill:#0000ff;stroke:#000000;stroke-linecap:butt;" x="302.269090909" xlink:href="#C1_1_919e3f95db" y="225.741"/>
-     <use style="fill:#0000ff;stroke:#000000;stroke-linecap:butt;" x="312.349090909" xlink:href="#C1_2_919e3f95db" y="227.631"/>
+     <use style="fill:#0000ff;stroke:#000000;stroke-linecap:butt;" x="292.189090909" xlink:href="#C1_0_919e3f95db" y="228.2011875"/>
+     <use style="fill:#0000ff;stroke:#000000;stroke-linecap:butt;" x="302.269090909" xlink:href="#C1_1_919e3f95db" y="226.9411875"/>
+     <use style="fill:#0000ff;stroke:#000000;stroke-linecap:butt;" x="312.349090909" xlink:href="#C1_2_919e3f95db" y="228.8311875"/>
     </g>
     <g id="text_2">
      <!-- three -->
@@ -556,7 +556,7 @@ Q30.0781 56 35.7969 56
 Q45.2188 56 50.0469 50.1719
 Q54.8906 44.3438 54.8906 33.0156" id="BitstreamVeraSans-Roman-68"/>
      </defs>
-     <g transform="translate(328.189090909 230.781)scale(0.144 -0.144)">
+     <g transform="translate(328.189090909 231.9811875)scale(0.144 -0.144)">
       <use xlink:href="#BitstreamVeraSans-Roman-74"/>
       <use x="39.208984375" xlink:href="#BitstreamVeraSans-Roman-68"/>
       <use x="102.587890625" xlink:href="#BitstreamVeraSans-Roman-72"/>

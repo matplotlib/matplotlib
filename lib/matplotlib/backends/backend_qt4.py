@@ -1,6 +1,7 @@
 from __future__ import division, print_function
 import math
 import os
+import re
 import signal
 import sys
 
@@ -53,6 +54,13 @@ def _create_qApp():
         global qApp
         app = QtGui.QApplication.instance()
         if app is None:
+          
+            # check for DISPLAY env variable on X11 build of Qt
+            if hasattr(QtGui, "QX11Info"):
+                display = os.environ.get('DISPLAY')
+                if display is None or not re.search(':\d', display):
+                    raise RuntimeError('Invalid DISPLAY variable')
+        
             qApp = QtGui.QApplication( [" "] )
             QtCore.QObject.connect( qApp, QtCore.SIGNAL( "lastWindowClosed()" ),
                                 qApp, QtCore.SLOT( "quit()" ) )
@@ -367,12 +375,14 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             self._idle = True
         if d: QtCore.QTimer.singleShot(0, idle_draw)
 
+
 class MainWindow(QtGui.QMainWindow):
     def closeEvent(self, event):
         self.emit(QtCore.SIGNAL('closing()'))
         QtGui.QMainWindow.closeEvent(self, event)
 
-class FigureManagerQT( FigureManagerBase ):
+
+class FigureManagerQT(FigureManagerBase):
     """
     Public attributes
 
@@ -382,29 +392,31 @@ class FigureManagerQT( FigureManagerBase ):
     window      : The qt.QMainWindow
     """
 
-    def __init__( self, canvas, num ):
-        if DEBUG: print('FigureManagerQT.%s' % fn_name())
-        FigureManagerBase.__init__( self, canvas, num )
+    def __init__(self, canvas, num):
+        if DEBUG:
+            print('FigureManagerQT.%s' % fn_name())
+        FigureManagerBase.__init__(self, canvas, num)
         self.canvas = canvas
         self.window = MainWindow()
         self.window.connect(self.window, QtCore.SIGNAL('closing()'),
-            canvas.close_event)
+                            canvas.close_event)
+        self.window.connect(self.window, QtCore.SIGNAL('closing()'),
+                            self._widgetclosed)
 
         self.window.setWindowTitle("Figure %d" % num)
-        image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
-        self.window.setWindowIcon(QtGui.QIcon( image ))
+        image = os.path.join(matplotlib.rcParams['datapath'], 'images', 'matplotlib.png')
+        self.window.setWindowIcon(QtGui.QIcon(image))
 
         # Give the keyboard focus to the figure instead of the
         # manager; StrongFocus accepts both tab and click to focus and
         # will enable the canvas to process event w/o clicking.
         # ClickFocus only takes the focus is the window has been
         # clicked
-        # on. http://developer.qt.nokia.com/doc/qt-4.8/qt.html#FocusPolicy-enum
-        self.canvas.setFocusPolicy( QtCore.Qt.StrongFocus )
+        # on. http://qt-project.org/doc/qt-4.8/qt.html#FocusPolicy-enum or
+        # http://doc.qt.digia.com/qt/qt.html#FocusPolicy-enum
+        self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.canvas.setFocus()
 
-        QtCore.QObject.connect( self.window, QtCore.SIGNAL( 'destroyed()' ),
-                            self._widgetclosed )
         self.window._destroying = False
 
         self.toolbar = self._get_toolbar(self.canvas, self.window)
@@ -420,7 +432,7 @@ class FigureManagerQT( FigureManagerBase ):
         # requested size:
         cs = canvas.sizeHint()
         sbs = self.window.statusBar().sizeHint()
-        self._status_and_tool_height = tbs_height+sbs.height()
+        self._status_and_tool_height = tbs_height + sbs.height()
         height = cs.height() + self._status_and_tool_height
         self.window.resize(cs.width(), height)
 
@@ -429,14 +441,14 @@ class FigureManagerQT( FigureManagerBase ):
         if matplotlib.is_interactive():
             self.window.show()
 
-        def notify_axes_change( fig ):
+        def notify_axes_change(fig):
             # This will be called whenever the current axes is changed
             if self.toolbar is not None:
                 self.toolbar.update()
-        self.canvas.figure.add_axobserver( notify_axes_change )
+        self.canvas.figure.add_axobserver(notify_axes_change)
 
     @QtCore.Slot()
-    def _show_message(self,s):
+    def _show_message(self, s):
         # Fixes a PySide segfault.
         self.window.statusBar().showMessage(s)
 
@@ -446,8 +458,9 @@ class FigureManagerQT( FigureManagerBase ):
         else:
             self.window.showFullScreen()
 
-    def _widgetclosed( self ):
-        if self.window._destroying: return
+    def _widgetclosed(self):
+        if self.window._destroying:
+            return
         self.window._destroying = True
         try:
             Gcf.destroy(self.num)
@@ -475,15 +488,19 @@ class FigureManagerQT( FigureManagerBase ):
     def show(self):
         self.window.show()
 
-    def destroy( self, *args ):
+    def destroy(self, *args):
         # check for qApp first, as PySide deletes it in its atexit handler
-        if QtGui.QApplication.instance() is None: return
-        if self.window._destroying: return
+        if QtGui.QApplication.instance() is None:
+            return
+        if self.window._destroying:
+            return
         self.window._destroying = True
-        QtCore.QObject.disconnect( self.window, QtCore.SIGNAL( 'destroyed()' ),
-                                   self._widgetclosed )
-        if self.toolbar: self.toolbar.destroy()
-        if DEBUG: print("destroy figure manager")
+        QtCore.QObject.disconnect(self.window, QtCore.SIGNAL('destroyed()'),
+                                  self._widgetclosed)
+        if self.toolbar:
+                self.toolbar.destroy()
+        if DEBUG:
+                print("destroy figure manager")
         self.window.close()
 
     def get_window_title(self):
@@ -635,7 +652,9 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         sorted_filetypes.sort()
         default_filetype = self.canvas.get_default_filetype()
 
-        start = self.canvas.get_default_filename()
+        startpath = matplotlib.rcParams.get('savefig.directory', '')
+        startpath = os.path.expanduser(startpath)
+        start = os.path.join(startpath, self.canvas.get_default_filename())
         filters = []
         selectedFilter = None
         for name, exts in sorted_filetypes:
@@ -648,6 +667,12 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         fname = _getSaveFileName(self, "Choose a filename to save to",
                                         start, filters, selectedFilter)
         if fname:
+            if startpath == '':
+                # explicitly missing key or empty str signals to use cwd
+                matplotlib.rcParams['savefig.directory'] = startpath
+            else:
+                # save dir for next time
+                matplotlib.rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 self.canvas.print_figure( unicode(fname) )
             except Exception as e:

@@ -41,7 +41,7 @@
 FT_Library _ft2Library;
 
 FT2Image::FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
-    Py::PythonClass< FT2Image >::PythonClass(self, args, kwds),
+    Py::PythonClass< FT2Image >(self, args, kwds),
     _isDirty(true),
     _buffer(NULL),
     _width(0), _height(0)
@@ -836,7 +836,7 @@ FT2Font::get_path()
 PYCXX_NOARGS_METHOD_DECL(FT2Font, get_path)
 
 FT2Font::FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
-    Py::PythonClass<FT2Font>::PythonClass(self, args, kwds),
+    Py::PythonClass<FT2Font>(self, args, kwds),
     image()
 {
     args.verify_length(1);
@@ -1616,15 +1616,13 @@ FT2Font::get_glyph_name(const Py::Tuple & args)
     _VERBOSE("FT2Font::get_glyph_name");
     args.verify_length(1);
 
-
     char buffer[128];
-
-    FT_UInt glyph_number = Py::Int(args[0]);
+    FT_UInt glyph_number = (FT_UInt)(unsigned long long)Py::Int(args[0]);
 
     if (!FT_HAS_GLYPH_NAMES(face))
-     {
+    {
         snprintf(buffer, 128, "uni%04x", glyph_number);
-     } else {
+    } else {
         if (FT_Get_Glyph_Name(face, glyph_number, buffer, 128))
         {
             throw Py::RuntimeError("Could not get glyph names.");

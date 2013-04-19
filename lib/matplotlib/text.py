@@ -323,6 +323,8 @@ class Text(Artist):
             else:
                 w, h, d = 0, 0, 0
 
+            h, d = lp_h, lp_bl
+
             whs[i] = w, h
 
             # For general multiline text, we will have a fixed spacing
@@ -336,9 +338,11 @@ class Text(Artist):
             # what TeX does.
 
             d_yoffset = max(0, (h - d) - (lp_h - lp_bl))
+            if d_yoffset:
+                d += d_yoffset
 
-            horizLayout[i] = thisx, thisy - (d + d_yoffset), w, h
             baseline = (h - d) - thisy
+            horizLayout[i] = thisx, thisy - d, w, h
             thisy -= offsety + d_yoffset
             width = max(width, w)
 
@@ -364,6 +368,8 @@ class Text(Artist):
         cornersHoriz = np.array(
             [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)],
             np.float_)
+        cornersHoriz[:,1] -= d
+
         # now rotate the bbox
         cornersRotated = M.transform(cornersHoriz)
 
@@ -1777,10 +1783,10 @@ class Annotation(Text, _AnnotationBase):
         =================   ===================================================
         'figure points'     points from the lower left corner of the figure
         'figure pixels'     pixels from the lower left corner of the figure
-        'figure fraction'   0,0 is lower left of figure and 1,1 is upper, right
+        'figure fraction'   0,0 is lower left of figure and 1,1 is upper right
         'axes points'       points from lower left corner of axes
         'axes pixels'       pixels from lower left corner of axes
-        'axes fraction'     0,1 is lower left of axes and 1,1 is upper right
+        'axes fraction'     0,0 is lower left of axes and 1,1 is upper right
         'data'              use the coordinate system of the object being
                             annotated (default)
         'offset points'     Specify an offset (in points) from the *xy* value
@@ -1795,7 +1801,7 @@ class Annotation(Text, _AnnotationBase):
 
         If a 'points' or 'pixels' option is specified, values will be
         added to the bottom-left and if negative, values will be
-        subtracted from the top-right.  Eg::
+        subtracted from the top-right.  e.g.::
 
           # 10 points to the right of the left border of the axes and
           # 5 points below the top border

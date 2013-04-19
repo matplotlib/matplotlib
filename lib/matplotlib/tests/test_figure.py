@@ -65,6 +65,15 @@ def test_gca():
     assert_true(fig.gca(projection='rectilinear') is ax1)
     assert_true(fig.gca() is ax1)
 
+
+@image_comparison(baseline_images=['figure_suptitle'])
+def test_suptitle():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+    fig.suptitle('hello', color='r')
+    fig.suptitle('title', color='g', rotation='30')
+
+
 if __name__ == "__main__":
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

@@ -23,9 +23,9 @@ from __future__ import print_function
 import errno
 import matplotlib
 import matplotlib.cbook as mpl_cbook
+from matplotlib.compat import subprocess
 import numpy as np
 import struct
-import subprocess
 import sys
 
 if sys.version_info[0] >= 3:
@@ -856,7 +856,7 @@ def find_tex_file(filename, format=None):
                               'debug')
     return result.decode('ascii')
 
-# With multiple text objects per figure (e.g. tick labels) we may end
+# With multiple text objects per figure (e.g., tick labels) we may end
 # up reading the same tfm and vf files many times, so we implement a
 # simple cache. TODO: is this worth making persistent?
 

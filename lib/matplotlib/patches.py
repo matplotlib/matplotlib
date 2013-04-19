@@ -1021,7 +1021,7 @@ class FancyArrow(Polygon):
 
         """
         if head_width is None:
-            head_width = 3 * width
+            head_width = 20 * width
         if head_length is None:
             head_length = 1.5 * head_width
 
@@ -1955,7 +1955,7 @@ class BoxStyle(_Style):
             x0, y0 = x0 - pad, y0 - pad,
             x1, y1 = x0 + width, y0 + height
 
-            # Round corners are implemented as quadratic bezier. eg.
+            # Round corners are implemented as quadratic bezier. e.g.,
             # [(x0, y0-dr), (x0, y0), (x0+dr, y0)] for lower left corner.
             cp = [(x0 + dr, y0),
                   (x1 - dr, y0),
@@ -3906,7 +3906,7 @@ class FancyArrowPatch(Patch):
         if arrowstyle is None:
             return ArrowStyle.pprint_styles()
 
-        if isinstance(arrowstyle, ConnectionStyle._Base):
+        if isinstance(arrowstyle, ArrowStyle._Base):
             self._arrow_transmuter = arrowstyle
         else:
             self._arrow_transmuter = ArrowStyle(arrowstyle, **kw)

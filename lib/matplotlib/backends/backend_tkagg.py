@@ -307,7 +307,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
 
         # JDH: this method was written originally to get the pointer
         # location to the backend lastx and lasty attrs so that events
-        # like KeyEvent can be handled without mouse events.  Eg, if
+        # like KeyEvent can be handled without mouse events.  e.g., if
         # the cursor is already above the axes, then key presses like
         # 'g' should toggle the grid.  In order for this to work in
         # backend_bases, the canvas needs to know _lastx and _lasty.
@@ -895,17 +895,27 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
         # work - JDH
         #defaultextension = self.canvas.get_default_filetype()
         defaultextension = ''
+        initialdir = rcParams.get('savefig.directory', '')
+        initialdir = os.path.expanduser(initialdir)
+        initialfile = self.canvas.get_default_filename()
         fname = asksaveasfilename(
             master=self.window,
             title='Save the figure',
-            filetypes = tk_filetypes,
-            defaultextension = defaultextension,
-            initialfile=self.canvas.get_default_filename(),
+            filetypes=tk_filetypes,
+            defaultextension=defaultextension,
+            initialdir=initialdir,
+            initialfile=initialfile,
             )
 
         if fname == "" or fname == ():
             return
         else:
+            if initialdir == '':
+                # explicitly missing key or empty str signals to use cwd
+                rcParams['savefig.directory'] = initialdir
+            else:
+                # save dir for next time
+                rcParams['savefig.directory'] = os.path.dirname(unicode(fname))
             try:
                 # This method will handle the delegation to the correct type
                 self.canvas.print_figure(fname)
