@@ -1165,7 +1165,6 @@ The current aspect ratio will be kept."""
     
         # image is the object that we call SaveFile on. 
         image = self.bitmap
-
         # set the JPEG quality appropriately.  Unfortunately, it is only possible
         # to set the quality on a wx.Image object.  So if we are saving a JPEG,
         # convert the wx.Bitmap to a wx.Image, and set the quality.
