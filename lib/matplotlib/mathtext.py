@@ -34,13 +34,20 @@ from warnings import warn
 from numpy import inf, isinf
 import numpy as np
 
+import pyparsing
 from pyparsing import Combine, Group, Optional, Forward, \
      Literal, OneOrMore, ZeroOrMore, ParseException, Empty, \
      ParseResults, Suppress, oneOf, StringEnd, ParseFatalException, \
      FollowedBy, Regex, ParserElement, QuotedString, ParseBaseException
 
 # Enable packrat parsing
-ParserElement.enablePackrat()
+if (sys.version_info[0] >= 3 and
+    [int(x) for x in pyparsing.__version__.split('.')] < [2, 0, 0]):
+    warn("Due to a bug in pyparsing <= 2.0.0 on Python 3.x, packrat parsing "
+         "has been disabled.  Mathtext rendering will be much slower as a "
+         "result.  Install pyparsing 2.0.0 or later to improve performance.")
+else:
+    ParserElement.enablePackrat()
 
 from matplotlib.afm import AFM
 from matplotlib.cbook import Bunch, get_realpath_and_stat, \
