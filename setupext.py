@@ -963,7 +963,7 @@ class Pyparsing(SetupPackage):
 
     def get_install_requires(self):
         if sys.version_info[0] >= 3:
-            return ['pyparsing>=2.0.0']
+            return ['pyparsing>=1.5.6']
         else:
             # pyparsing >= 2.0.0 is not compatible with Python 2
             return ['pyparsing>=1.5.6,<2.0.0']
