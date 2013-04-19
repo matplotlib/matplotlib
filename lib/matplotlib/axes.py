@@ -6229,7 +6229,7 @@ class Axes(martist.Artist):
 
         Examples
         --------
-        .. plot:: mpl_examples/pylab_examples/scatter_demo.py
+        .. plot:: mpl_examples/shapes_and_collections/scatter_demo.py
 
         """
 
