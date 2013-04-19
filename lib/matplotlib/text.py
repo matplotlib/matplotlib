@@ -323,6 +323,8 @@ class Text(Artist):
             else:
                 w, h, d = 0, 0, 0
 
+            h, d = lp_h, lp_bl
+
             whs[i] = w, h
 
             # For general multiline text, we will have a fixed spacing
@@ -336,9 +338,11 @@ class Text(Artist):
             # what TeX does.
 
             d_yoffset = max(0, (h - d) - (lp_h - lp_bl))
+            if d_yoffset:
+                d += d_yoffset
 
-            horizLayout[i] = thisx, thisy - (d + d_yoffset), w, h
             baseline = (h - d) - thisy
+            horizLayout[i] = thisx, thisy - d, w, h
             thisy -= offsety + d_yoffset
             width = max(width, w)
 
@@ -364,6 +368,8 @@ class Text(Artist):
         cornersHoriz = np.array(
             [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)],
             np.float_)
+        cornersHoriz[:,1] -= d
+
         # now rotate the bbox
         cornersRotated = M.transform(cornersHoriz)
 
