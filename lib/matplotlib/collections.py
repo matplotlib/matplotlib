@@ -745,6 +745,16 @@ class PolyCollection(Collection):
 
     set_paths = set_verts
 
+    def set_verts_and_codes(self, verts, codes):
+        assert(len(verts) == len(codes))
+        self._paths = []
+        for xy, cds in zip(verts, codes):
+            assert(len(xy) == len(cds))
+            if len(xy):
+                self._paths.append(mpath.Path(xy, cds))
+            else:
+                self._paths.append(mpath.Path(xy))
+
     @allow_rasterization
     def draw(self, renderer):
         if self._sizes is not None:
