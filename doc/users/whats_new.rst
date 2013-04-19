@@ -131,6 +131,17 @@ so that search results are printed prettily:
               'ytick.major.size': 4,
               'ytick.minor.size': 2})
 
+Better vertical text alignment
+------------------------------
+
+The vertical alignment of text is now consistent across backends.  You
+may see small differences in text placement, particularly with rotated
+text.
+
+If you are using a custom backend, note that the `draw_text` renderer
+method is now passed the location of the baseline, not the location of
+the bottom of the text bounding box.
+
 .. _whats-new-1-2-2:
 
 new in matplotlib 1.2.2

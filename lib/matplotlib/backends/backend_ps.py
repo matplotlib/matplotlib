@@ -755,7 +755,7 @@ grestore
             #print 'text', s
             lines = []
             thisx = 0
-            thisy = font.get_descent() / 64.0
+            thisy = 0
             for c in s:
                 ccode = ord(c)
                 gind = cmap.get(ccode)

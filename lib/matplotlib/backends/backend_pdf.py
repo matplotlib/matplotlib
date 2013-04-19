@@ -1622,15 +1622,15 @@ class RendererPdf(RendererBase):
         self.check_gc(gc)
         self.file.output(name, Op.shading)
 
-    def _setup_textpos(self, x, y, descent, angle, oldx=0, oldy=0, olddescent=0, oldangle=0):
+    def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
         if angle == oldangle == 0:
-            self.file.output(x - oldx, (y + descent) - (oldy + olddescent), Op.textpos)
+            self.file.output(x - oldx, y - oldy, Op.textpos)
         else:
             angle = angle / 180.0 * pi
             self.file.output( cos(angle), sin(angle),
                              -sin(angle), cos(angle),
                               x,        y,         Op.textmatrix)
-            self.file.output(0, descent, Op.textpos)
+            self.file.output(0, 0, Op.textpos)
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
@@ -1660,7 +1660,7 @@ class RendererPdf(RendererBase):
                 fonttype = global_fonttype
 
             if fonttype == 42 or num <= 255:
-                self._setup_textpos(ox, oy, 0, 0, oldx, oldy)
+                self._setup_textpos(ox, oy, 0, oldx, oldy)
                 oldx, oldy = ox, oy
                 if (fontname, fontsize) != prev_font:
                     self.file.output(self.file.fontName(fontname), fontsize,
@@ -1762,7 +1762,7 @@ class RendererPdf(RendererBase):
                 self.file.output(elt[1], elt[2], Op.selectfont)
             elif elt[0] == 'text':
                 curx, cury = mytrans.transform((elt[1], elt[2]))
-                self._setup_textpos(curx, cury, 0, angle, oldx, oldy)
+                self._setup_textpos(curx, cury, angle, oldx, oldy)
                 oldx, oldy = curx, cury
                 if len(elt[3]) == 1:
                     self.file.output(elt[3][0], Op.show)
@@ -1811,13 +1811,11 @@ class RendererPdf(RendererBase):
         if rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
             l, b, w, h = font.get_str_bbox(s)
-            descent = -b * fontsize / 1000
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)
             self.track_characters(font, s)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-            descent = font.get_descent() / 64.0
 
             fonttype = rcParams['pdf.fonttype']
 
@@ -1857,7 +1855,7 @@ class RendererPdf(RendererBase):
                              self.file.fontName(prop),
                              fontsize,
                              Op.selectfont)
-            self._setup_textpos(x, y, descent, angle)
+            self._setup_textpos(x, y, angle)
             self.file.output(self.encode_string(s, fonttype), Op.show, Op.end_text)
 
         def draw_text_woven(chunks):
@@ -1878,7 +1876,6 @@ class RendererPdf(RendererBase):
             # output all the 2-byte characters.
             for mode in (1, 2):
                 newx = oldx = 0
-                olddescent = 0
                 # Output a 1-byte character chunk
                 if mode == 1:
                     self.file.output(Op.begin_text,
@@ -1888,10 +1885,9 @@ class RendererPdf(RendererBase):
 
                 for chunk_type, chunk in chunks:
                     if mode == 1 and chunk_type == 1:
-                        self._setup_textpos(newx, 0, descent, 0, oldx, 0, olddescent, 0)
+                        self._setup_textpos(newx, 0, 0, oldx, 0, 0)
                         self.file.output(self.encode_string(chunk, fonttype), Op.show)
                         oldx = newx
-                        olddescent = descent
 
                     lastgind = None
                     for c in chunk:

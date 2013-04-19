@@ -86,7 +86,7 @@ Q6.59375 17.9688 6.59375 36.375
 Q6.59375 54.8281 13.0625 64.5156
 Q19.5312 74.2188 31.7812 74.2188" id="BitstreamVeraSans-Roman-30"/>
       </defs>
-      <g transform="translate(68.9765625 157.753308824)scale(0.12 -0.12)">
+      <g transform="translate(68.9765625 157.965183824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
       </g>
      </g>
@@ -120,7 +120,7 @@ L12.4062 0
 z
 " id="BitstreamVeraSans-Roman-31"/>
       </defs>
-      <g transform="translate(118.995625 157.595808824)scale(0.12 -0.12)">
+      <g transform="translate(118.995625 157.965183824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
       </g>
      </g>
@@ -163,7 +163,7 @@ Q49.8594 40.875 45.4062 35.4062
 Q44.1875 33.9844 37.6406 27.2188
 Q31.1094 20.4531 19.1875 8.29688" id="BitstreamVeraSans-Roman-32"/>
       </defs>
-      <g transform="translate(168.423125 157.753308824)scale(0.12 -0.12)">
+      <g transform="translate(168.423125 157.965183824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-32"/>
       </g>
      </g>
@@ -214,7 +214,7 @@ Q53.9062 64.0156 53.9062 55.3281
 Q53.9062 49.2656 50.4375 45.0938
 Q46.9688 40.9219 40.5781 39.3125" id="BitstreamVeraSans-Roman-33"/>
       </defs>
-      <g transform="translate(217.9209375 157.753308824)scale(0.12 -0.12)">
+      <g transform="translate(217.9209375 157.965183824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-33"/>
       </g>
      </g>
@@ -253,7 +253,7 @@ L4.89062 26.7031
 z
 " id="BitstreamVeraSans-Roman-34"/>
       </defs>
-      <g transform="translate(267.2125 157.595808824)scale(0.12 -0.12)">
+      <g transform="translate(267.2125 157.965183824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-34"/>
       </g>
      </g>
@@ -298,7 +298,7 @@ Q14.8906 38.1406 10.7969 36.2812
 z
 " id="BitstreamVeraSans-Roman-35"/>
       </defs>
-      <g transform="translate(317.1696875 157.595808824)scale(0.12 -0.12)">
+      <g transform="translate(317.1696875 157.965183824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-35"/>
       </g>
      </g>
@@ -346,7 +346,7 @@ Q23.3906 74.2188 37.2031 74.2188
 Q40.9219 74.2188 44.7031 73.4844
 Q48.4844 72.75 52.5938 71.2969" id="BitstreamVeraSans-Roman-36"/>
       </defs>
-      <g transform="translate(366.579375 157.753308824)scale(0.12 -0.12)">
+      <g transform="translate(366.579375 157.965183824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-36"/>
       </g>
      </g>
@@ -376,7 +376,7 @@ L8.20312 64.5938
 z
 " id="BitstreamVeraSans-Roman-37"/>
       </defs>
-      <g transform="translate(416.3875 157.595808824)scale(0.12 -0.12)">
+      <g transform="translate(416.3875 157.965183824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-37"/>
       </g>
      </g>
@@ -432,7 +432,7 @@ Q38.1406 66.4062 31.7812 66.4062
 Q25.3906 66.4062 21.8438 63.2344
 Q18.3125 60.0625 18.3125 54.3906" id="BitstreamVeraSans-Roman-38"/>
       </defs>
-      <g transform="translate(465.8 157.753308824)scale(0.12 -0.12)">
+      <g transform="translate(465.8 157.965183824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-38"/>
       </g>
      </g>
@@ -480,7 +480,7 @@ Q16.2188 57.2812 16.2188 49.4219
 Q16.2188 41.5 20.0938 36.9531
 Q23.9688 32.4219 30.6094 32.4219" id="BitstreamVeraSans-Roman-39"/>
       </defs>
-      <g transform="translate(515.3821875 157.753308824)scale(0.12 -0.12)">
+      <g transform="translate(515.3821875 157.965183824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-39"/>
       </g>
      </g>
@@ -519,7 +519,7 @@ L10.6875 0
 z
 " id="BitstreamVeraSans-Roman-2e"/>
       </defs>
-      <g transform="translate(42.745625 149.214871324)scale(0.12 -0.12)">
+      <g transform="translate(42.745625 148.158308824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -540,7 +540,7 @@ z
      </g>
      <g id="text_12">
       <!-- 0.96 -->
-      <g transform="translate(42.828125 132.273694853)scale(0.12 -0.12)">
+      <g transform="translate(42.828125 131.217132353)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -561,7 +561,7 @@ z
      </g>
      <g id="text_13">
       <!-- 0.98 -->
-      <g transform="translate(42.89375 115.332518382)scale(0.12 -0.12)">
+      <g transform="translate(42.89375 114.275955882)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -582,7 +582,7 @@ z
      </g>
      <g id="text_14">
       <!-- 1.00 -->
-      <g transform="translate(43.39625 98.3913419118)scale(0.12 -0.12)">
+      <g transform="translate(43.39625 97.3347794118)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -603,7 +603,7 @@ z
      </g>
      <g id="text_15">
       <!-- 1.02 -->
-      <g transform="translate(43.80125 81.4501654412)scale(0.12 -0.12)">
+      <g transform="translate(43.80125 80.3936029412)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -624,7 +624,7 @@ z
      </g>
      <g id="text_16">
       <!-- 1.04 -->
-      <g transform="translate(43.2725 64.5089889706)scale(0.12 -0.12)">
+      <g transform="translate(43.2725 63.4524264706)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -645,7 +645,7 @@ z
      </g>
      <g id="text_17">
       <!-- 1.06 -->
-      <g transform="translate(43.355 47.5678125)scale(0.12 -0.12)">
+      <g transform="translate(43.355 46.51125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -712,7 +712,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_18">
       <!-- 0.94 -->
-      <g transform="translate(59.3728125 279.729779412)scale(0.12 -0.12)">
+      <g transform="translate(59.3728125 279.941654412)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -733,7 +733,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_19">
       <!-- 0.96 -->
-      <g transform="translate(133.8140625 279.729779412)scale(0.12 -0.12)">
+      <g transform="translate(133.8140625 279.941654412)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -754,7 +754,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_20">
       <!-- 0.98 -->
-      <g transform="translate(208.246875 279.729779412)scale(0.12 -0.12)">
+      <g transform="translate(208.246875 279.941654412)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -775,7 +775,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_21">
       <!-- 1.00 -->
-      <g transform="translate(282.898125 279.729779412)scale(0.12 -0.12)">
+      <g transform="translate(282.898125 279.941654412)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -796,7 +796,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_22">
       <!-- 1.02 -->
-      <g transform="translate(357.500625 279.729779412)scale(0.12 -0.12)">
+      <g transform="translate(357.500625 279.941654412)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -817,7 +817,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_23">
       <!-- 1.04 -->
-      <g transform="translate(431.63625 279.729779412)scale(0.12 -0.12)">
+      <g transform="translate(431.63625 279.941654412)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -838,7 +838,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_24">
       <!-- 1.06 -->
-      <g transform="translate(506.0775 279.729779412)scale(0.12 -0.12)">
+      <g transform="translate(506.0775 279.941654412)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -861,7 +861,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_25">
       <!-- 0 -->
-      <g transform="translate(61.953125 271.191341912)scale(0.12 -0.12)">
+      <g transform="translate(61.953125 270.134779412)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
       </g>
      </g>
@@ -879,7 +879,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_26">
       <!-- 1 -->
-      <g transform="translate(62.79125 259.903786765)scale(0.12 -0.12)">
+      <g transform="translate(62.79125 258.840661765)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
       </g>
      </g>
@@ -897,7 +897,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_27">
       <!-- 2 -->
-      <g transform="translate(62.44625 248.688419118)scale(0.12 -0.12)">
+      <g transform="translate(62.44625 247.546544118)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-32"/>
       </g>
      </g>
@@ -915,7 +915,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_28">
       <!-- 3 -->
-      <g transform="translate(62.241875 237.308988971)scale(0.12 -0.12)">
+      <g transform="translate(62.241875 236.252426471)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-33"/>
       </g>
      </g>
@@ -933,7 +933,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_29">
       <!-- 4 -->
-      <g transform="translate(61.625 226.021433824)scale(0.12 -0.12)">
+      <g transform="translate(61.625 224.958308824)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-34"/>
       </g>
      </g>
@@ -951,7 +951,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_30">
       <!-- 5 -->
-      <g transform="translate(62.339375 214.642003676)scale(0.12 -0.12)">
+      <g transform="translate(62.339375 213.664191176)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-35"/>
       </g>
      </g>
@@ -969,7 +969,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_31">
       <!-- 6 -->
-      <g transform="translate(61.95875 203.426636029)scale(0.12 -0.12)">
+      <g transform="translate(61.95875 202.370073529)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-36"/>
       </g>
      </g>
@@ -987,7 +987,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_32">
       <!-- 7 -->
-      <g transform="translate(62.375 192.139080882)scale(0.12 -0.12)">
+      <g transform="translate(62.375 191.075955882)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-37"/>
       </g>
      </g>
@@ -1005,7 +1005,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_33">
       <!-- 8 -->
-      <g transform="translate(62.0 180.838400735)scale(0.12 -0.12)">
+      <g transform="translate(62.0 179.781838235)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-38"/>
       </g>
      </g>
@@ -1023,7 +1023,7 @@ L295.2 165.176" style="fill:none;stroke:#0000ff;"/>
      </g>
      <g id="text_34">
       <!-- 9 -->
-      <g transform="translate(61.964375 169.544283088)scale(0.12 -0.12)">
+      <g transform="translate(61.964375 168.487720588)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-39"/>
       </g>
      </g>
@@ -1102,7 +1102,7 @@ z
      </g>
      <g id="text_35">
       <!-- 0.94 -->
-      <g transform="translate(59.3728125 401.70625)scale(0.12 -0.12)">
+      <g transform="translate(59.3728125 401.918125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -1123,7 +1123,7 @@ z
      </g>
      <g id="text_36">
       <!-- 0.96 -->
-      <g transform="translate(133.8140625 401.70625)scale(0.12 -0.12)">
+      <g transform="translate(133.8140625 401.918125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -1144,7 +1144,7 @@ z
      </g>
      <g id="text_37">
       <!-- 0.98 -->
-      <g transform="translate(208.246875 401.70625)scale(0.12 -0.12)">
+      <g transform="translate(208.246875 401.918125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -1165,7 +1165,7 @@ z
      </g>
      <g id="text_38">
       <!-- 1.00 -->
-      <g transform="translate(282.898125 401.70625)scale(0.12 -0.12)">
+      <g transform="translate(282.898125 401.918125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -1186,7 +1186,7 @@ z
      </g>
      <g id="text_39">
       <!-- 1.02 -->
-      <g transform="translate(357.500625 401.70625)scale(0.12 -0.12)">
+      <g transform="translate(357.500625 401.918125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -1207,7 +1207,7 @@ z
      </g>
      <g id="text_40">
       <!-- 1.04 -->
-      <g transform="translate(431.63625 401.70625)scale(0.12 -0.12)">
+      <g transform="translate(431.63625 401.918125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -1228,7 +1228,7 @@ z
      </g>
      <g id="text_41">
       <!-- 1.06 -->
-      <g transform="translate(506.0775 401.70625)scale(0.12 -0.12)">
+      <g transform="translate(506.0775 401.918125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -1251,7 +1251,7 @@ z
      </g>
      <g id="text_42">
       <!-- 0.94 -->
-      <g transform="translate(42.745625 393.1678125)scale(0.12 -0.12)">
+      <g transform="translate(42.745625 392.11125)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -1272,7 +1272,7 @@ z
      </g>
      <g id="text_43">
       <!-- 0.96 -->
-      <g transform="translate(42.828125 376.226636029)scale(0.12 -0.12)">
+      <g transform="translate(42.828125 375.170073529)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -1293,7 +1293,7 @@ z
      </g>
      <g id="text_44">
       <!-- 0.98 -->
-      <g transform="translate(42.89375 359.285459559)scale(0.12 -0.12)">
+      <g transform="translate(42.89375 358.228897059)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-30"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-39"/>
@@ -1314,7 +1314,7 @@ z
      </g>
      <g id="text_45">
       <!-- 1.00 -->
-      <g transform="translate(43.39625 342.344283088)scale(0.12 -0.12)">
+      <g transform="translate(43.39625 341.287720588)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -1335,7 +1335,7 @@ z
      </g>
      <g id="text_46">
       <!-- 1.02 -->
-      <g transform="translate(43.80125 325.403106618)scale(0.12 -0.12)">
+      <g transform="translate(43.80125 324.346544118)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -1356,7 +1356,7 @@ z
      </g>
      <g id="text_47">
       <!-- 1.04 -->
-      <g transform="translate(43.2725 308.461930147)scale(0.12 -0.12)">
+      <g transform="translate(43.2725 307.405367647)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
@@ -1377,7 +1377,7 @@ z
      </g>
      <g id="text_48">
       <!-- 1.06 -->
-      <g transform="translate(43.355 291.520753676)scale(0.12 -0.12)">
+      <g transform="translate(43.355 290.464191176)scale(0.12 -0.12)">
        <use xlink:href="#BitstreamVeraSans-Roman-31"/>
        <use x="63.623046875" xlink:href="#BitstreamVeraSans-Roman-2e"/>
        <use x="95.41015625" xlink:href="#BitstreamVeraSans-Roman-30"/>
