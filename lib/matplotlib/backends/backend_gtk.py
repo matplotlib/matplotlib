@@ -475,6 +475,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         if format in ['jpg','jpeg']:
            if 'quality' not in options:
               options['quality'] = rcParams['savefig.jpeg_quality']
+
            options['quality'] = str(options['quality'])
 
 
