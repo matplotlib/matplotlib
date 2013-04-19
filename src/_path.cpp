@@ -952,8 +952,9 @@ clip_to_rect_one_step(const Polygon& polygon, Polygon& result, const Filter& fil
     }
 }
 
+template<class Path>
 void
-clip_to_rect(PathIterator& path,
+clip_to_rect(Path& path,
              double x0, double y0, double x1, double y1,
              bool inside, std::vector<Polygon>& results)
 {
@@ -1048,8 +1049,10 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
     }
 
     std::vector<Polygon> results;
+    typedef agg::conv_curve<PathIterator> curve_t;
+    curve_t curve(path);
 
-    ::clip_to_rect(path, x0, y0, x1, y1, inside, results);
+    ::clip_to_rect(curve, x0, y0, x1, y1, inside, results);
 
     npy_intp dims[2];
     dims[1] = 2;
@@ -1064,7 +1067,7 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
         for (std::vector<Polygon>::const_iterator p = results.begin(); p != results.end(); ++p)
         {
             size_t size = p->size();
-            dims[0] = p->size();
+            dims[0] = (npy_intp)size + 1;
             PyArrayObject* pyarray = (PyArrayObject*)PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
             if (pyarray == NULL)
             {
@@ -1075,7 +1078,10 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
                 ((double *)pyarray->data)[2*i]   = (*p)[i].x;
                 ((double *)pyarray->data)[2*i+1] = (*p)[i].y;
             }
-            if (PyList_SetItem(py_results, p - results.begin(), (PyObject *)pyarray) != -1)
+            ((double *)pyarray->data)[2*size]   = (*p)[0].x;
+            ((double *)pyarray->data)[2*size+1] = (*p)[0].y;
+
+            if (PyList_SetItem(py_results, p - results.begin(), (PyObject *)pyarray) == -1)
             {
                 throw Py::RuntimeError("Error creating results list");
             }
@@ -1159,14 +1165,24 @@ _path_module::affine_transform(const Py::Tuple& args)
             size_t stride1 = PyArray_STRIDE(vertices, 1);
             double x;
             double y;
+            volatile double t0;
+	    volatile double t1;
+	    volatile double t;
 
             for (size_t i = 0; i < n; ++i)
             {
                 x = *(double*)(vertex_in);
                 y = *(double*)(vertex_in + stride1);
 
-                *vertex_out++ = a * x + c * y + e;
-                *vertex_out++ = b * x + d * y + f;
+		t0 = a * x;
+		t1 = c * y;
+                t = t0 + t1 + e;
+                *(vertex_out++) = t;
+
+		t0 = b * x;
+		t1 = d * y;
+                t = t0 + t1 + f;
+                *(vertex_out++) = t;
 
                 vertex_in += stride0;
             }

@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib.testing.decorators import cleanup
+from matplotlib.testing.decorators import cleanup, image_comparison
 from matplotlib import pyplot as plt
 
 
@@ -137,3 +137,15 @@ def test_contour_shape_invalid_2():
         ax.contour(x, y, z)
     except TypeError as exc:
         assert exc.args[0] == 'Input z must be a 2D array.'
+
+
+@image_comparison(baseline_images=['contour_manual_labels'])
+def test_contour_manual_labels():
+
+    x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
+    z = np.max(np.dstack([abs(x), abs(y)]), 2)
+
+    plt.figure(figsize=(6, 2))
+    cs = plt.contour(x,y,z)
+    pts = np.array([(1.5, 3.0), (1.5, 4.4), (1.5, 6.0)])
+    plt.clabel(cs, manual=pts)

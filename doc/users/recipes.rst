@@ -40,7 +40,7 @@ Easily creating subplots
 In early versions of matplotlib, if you wanted to use the pythonic API
 and create a figure instance and from that create a grid of subplots,
 possibly with shared axes, it involved a fair amount of boilerplate
-code.  Eg
+code.  e.g.
 
 .. sourcecode:: python
 

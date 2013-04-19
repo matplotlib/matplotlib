@@ -103,7 +103,7 @@ def _parse_header(fh):
     """
     Reads the font metrics header (up to the char metrics) and returns
     a dictionary mapping *key* to *val*.  *val* will be converted to the
-    appropriate python type as necessary; eg:
+    appropriate python type as necessary; e.g.:
 
         * 'False'->False
         * '0'->0
@@ -496,18 +496,18 @@ class AFM(object):
             return 0
 
     def get_fontname(self):
-        "Return the font name, eg, 'Times-Roman'"
+        "Return the font name, e.g., 'Times-Roman'"
         return self._header[b'FontName']
 
     def get_fullname(self):
-        "Return the font full name, eg, 'Times-Roman'"
+        "Return the font full name, e.g., 'Times-Roman'"
         name = self._header.get(b'FullName')
         if name is None:  # use FontName as a substitute
             name = self._header[b'FontName']
         return name
 
     def get_familyname(self):
-        "Return the font family name, eg, 'Times'"
+        "Return the font family name, e.g., 'Times'"
         name = self._header.get(b'FamilyName')
         if name is not None:
             return name
@@ -518,7 +518,7 @@ class AFM(object):
         return re.sub(extras, '', name)
 
     def get_weight(self):
-        "Return the font weight, eg, 'Bold' or 'Roman'"
+        "Return the font weight, e.g., 'Bold' or 'Roman'"
         return self._header[b'Weight']
 
     def get_angle(self):

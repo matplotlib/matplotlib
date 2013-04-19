@@ -43,7 +43,7 @@ License   : matplotlib license (PSF compatible)
             see license/LICENSE_TTFQUERY.
 """
 
-import os, sys, subprocess, warnings
+import os, sys, warnings
 try:
     set
 except NameError:
@@ -54,6 +54,7 @@ from matplotlib import ft2font
 from matplotlib import rcParams, get_configdir
 from matplotlib.cbook import is_string_like
 import matplotlib.cbook as cbook
+from matplotlib.compat import subprocess
 from matplotlib.fontconfig_pattern import \
     parse_fontconfig_pattern, generate_fontconfig_pattern
 
@@ -454,7 +455,7 @@ def ttfFontProperty(font):
     #  Absolute sizes are: xx-small, x-small, small, medium, large, x-large,
     #    and xx-large.
     #  Relative sizes are: larger, smaller
-    #  Length value is an absolute font size, e.g. 12pt
+    #  Length value is an absolute font size, e.g., 12pt
     #  Percentage values are in 'em's.  Most robust specification.
 
     #  !!!!  Incomplete
@@ -523,7 +524,7 @@ def afmFontProperty(fontpath, font):
     #  Absolute sizes are: xx-small, x-small, small, medium, large, x-large,
     #    and xx-large.
     #  Relative sizes are: larger, smaller
-    #  Length value is an absolute font size, e.g. 12pt
+    #  Length value is an absolute font size, e.g., 12pt
     #  Percentage values are in 'em's.  Most robust specification.
 
     #  All AFM fonts are apparently scalable.
@@ -618,7 +619,7 @@ class FontProperties(object):
 
       - size: Either an relative value of 'xx-small', 'x-small',
         'small', 'medium', 'large', 'x-large', 'xx-large' or an
-        absolute font size, e.g. 12
+        absolute font size, e.g., 12
 
     The default font property for TrueType fonts (as specified in the
     default :file:`matplotlibrc` file) is::
@@ -629,7 +630,7 @@ class FontProperties(object):
     .ttf file, by using the *fname* kwarg.
 
     The preferred usage of font sizes is to use the relative values,
-    e.g.  'large', instead of absolute font sizes, e.g. 12.  This
+    e.g.,  'large', instead of absolute font sizes, e.g., 12.  This
     approach allows all text sizes to be made larger or smaller based
     on the font manager's default font size.
 
@@ -777,7 +778,7 @@ class FontProperties(object):
                 return float(self._size)
             except ValueError:
                 pass
-        default_size = fontManager.get_default_size()
+        default_size = FontManager.get_default_size()
         return default_size * font_scalings.get(self._size)
 
     def get_file(self):
@@ -870,7 +871,7 @@ class FontProperties(object):
         """
         Set the font size.  Either an relative value of 'xx-small',
         'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'
-        or an absolute font size, e.g. 12.
+        or an absolute font size, e.g., 12.
         """
         if size is not None:
             try:
@@ -997,7 +998,10 @@ class FontManager:
         self.afmfiles = findSystemFonts(paths, fontext='afm') + \
             findSystemFonts(fontext='afm')
         self.afmlist = createFontList(self.afmfiles, fontext='afm')
-        self.defaultFont['afm'] = self.afmfiles[0]
+        if len(self.afmfiles):
+            self.defaultFont['afm'] = self.afmfiles[0]
+        else:
+            self.defaultFont['afm'] = None
 
         self.ttf_lookup_cache = {}
         self.afm_lookup_cache = {}
@@ -1008,7 +1012,8 @@ class FontManager:
         """
         return self.__default_weight
 
-    def get_default_size(self):
+    @staticmethod
+    def get_default_size():
         """
         Return the default font size.
         """
@@ -1284,11 +1289,12 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         if pipe.returncode == 0:
             for match in _fc_match_regex.finditer(output):
                 file = match.group(1)
+                file = file.decode(sys.getfilesystemencoding())
                 if os.path.splitext(file)[1][1:] in fontexts:
                     return file
         return None
 
-    _fc_match_regex = re.compile(r'\sfile:\s+"([^"]*)"')
+    _fc_match_regex = re.compile(br'\sfile:\s+"([^"]*)"')
     _fc_match_cache = {}
 
     def findfont(prop, fontext='ttf'):
@@ -1306,28 +1312,38 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         return result
 
 else:
-    if sys.version_info[0] >= 3:
-        _fmcache = os.path.join(get_configdir(), 'fontList.py3k.cache')
+    configdir = get_configdir()
+    if configdir is not None:
+        if sys.version_info[0] >= 3:
+            _fmcache = os.path.join(configdir, 'fontList.py3k.cache')
+        else:
+            _fmcache = os.path.join(configdir, 'fontList.cache')
     else:
-        _fmcache = os.path.join(get_configdir(), 'fontList.cache')
+        # Should only happen in a restricted environment (such as Google App
+        # Engine). Deal with this gracefully by not caching fonts.
+        _fmcache = None
 
     fontManager = None
 
     def _rebuild():
         global fontManager
         fontManager = FontManager()
-        pickle_dump(fontManager, _fmcache)
+        if _fmcache:
+            pickle_dump(fontManager, _fmcache)
         verbose.report("generated new fontManager")
 
-    try:
-        fontManager = pickle_load(_fmcache)
-        if (not hasattr(fontManager, '_version') or
-            fontManager._version != FontManager.__version__):
+    if _fmcache:
+        try:
+            fontManager = pickle_load(_fmcache)
+            if (not hasattr(fontManager, '_version') or
+                fontManager._version != FontManager.__version__):
+                _rebuild()
+            else:
+                fontManager.default_size = None
+                verbose.report("Using fontManager instance from %s" % _fmcache)
+        except:
             _rebuild()
-        else:
-            fontManager.default_size = None
-            verbose.report("Using fontManager instance from %s" % _fmcache)
-    except:
+    else:
         _rebuild()
 
     def findfont(prop, **kw):

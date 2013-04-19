@@ -2,41 +2,60 @@
 This module contains functions to handle markers.  Used by both the
 marker functionality of `~matplotlib.axes.Axes.plot` and
 `~matplotlib.axes.Axes.scatter`.
-"""
 
-import textwrap
+All possible markers are defined here:
 
-import numpy as np
-
-from cbook import is_math_text, is_string_like, is_numlike, iterable
-import docstring
-from matplotlib import rcParams
-from path import Path
-from transforms import IdentityTransform, Affine2D
-
-# special-purpose marker identifiers:
-(TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
- CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
-
-class MarkerStyle:
-    style_table = """
 ============================== ===============================================
 marker                         description
 ============================== ===============================================
-%s
+"."                            point
+","                            pixel
+"o"                            circle
+"v"                            triangle_down
+"^"                            triangle_up
+"<"                            triangle_left
+">"                            triangle_right
+"1"                            tri_down
+"2"                            tri_up
+"3"                            tri_left
+"4"                            tri_right
+"8"                            octagon
+"s"                            square
+"p"                            pentagon
+"*"                            star
+"h"                            hexagon1
+"H"                            hexagon2
+"+"                            plus
+"x"                            x
+"D"                            diamond
+"d"                            thin_diamond
+"|"                            vline
+"_"                            hline
+TICKLEFT                       tickleft
+TICKRIGHT                      tickright
+TICKUP                         tickup
+TICKDOWN                       tickdown
+CARETLEFT                      caretleft
+CARETRIGHT                     caretright
+CARETUP                        caretup
+CARETDOWN                      caretdown
+"None"                         nothing
+None                           nothing
+" "                            nothing
+""                             nothing
 ``'$...$'``                    render the string using mathtext.
-*verts*                        a list of (x, y) pairs used for Path vertices.
-path                           a :class:`~matplotlib.path.Path` instance.
-(*numsides*, *style*, *angle*) see below
+`verts`                        a list of (x, y) pairs used for Path vertices.
+path                           a `~matplotlib.path.Path` instance.
+(`numsides`, `style`, `angle`) see below
 ============================== ===============================================
 
-The marker can also be a tuple (*numsides*, *style*, *angle*), which
+The marker can also be a tuple (`numsides`, `style`, `angle`), which
 will create a custom, regular symbol.
 
-    *numsides*:
+    `numsides`:
       the number of sides
 
-    *style*:
+    `style`:
       the style of the regular symbol:
 
       =====   =============================================
@@ -45,56 +64,67 @@ will create a custom, regular symbol.
       0       a regular polygon
       1       a star-like symbol
       2       an asterisk
-      3       a circle (*numsides* and *angle* is ignored)
+      3       a circle (`numsides` and `angle` is ignored)
       =====   =============================================
 
-    *angle*:
+    `angle`:
       the angle of rotation of the symbol, in degrees
 
-For backward compatibility, the form (*verts*, 0) is also accepted,
-but it is equivalent to just *verts* for giving a raw set of vertices
+For backward compatibility, the form (`verts`, 0) is also accepted,
+but it is equivalent to just `verts` for giving a raw set of vertices
 that define the shape.
 """
 
-    # TODO: Automatically generate this
-    accepts = """ACCEPTS: [ %s | ``'$...$'`` | *tuple* | *Nx2 array* ]"""
+import numpy as np
 
-    markers =  {
-        '.'        : 'point',
-        ','        : 'pixel',
-        'o'        : 'circle',
-        'v'        : 'triangle_down',
-        '^'        : 'triangle_up',
-        '<'        : 'triangle_left',
-        '>'        : 'triangle_right',
-        '1'        : 'tri_down',
-        '2'        : 'tri_up',
-        '3'        : 'tri_left',
-        '4'        : 'tri_right',
-        '8'        : 'octagon',
-        's'        : 'square',
-        'p'        : 'pentagon',
-        '*'        : 'star',
-        'h'        : 'hexagon1',
-        'H'        : 'hexagon2',
-        '+'        : 'plus',
-        'x'        : 'x',
-        'D'        : 'diamond',
-        'd'        : 'thin_diamond',
-        '|'        : 'vline',
-        '_'        : 'hline',
-        TICKLEFT   : 'tickleft',
-        TICKRIGHT  : 'tickright',
-        TICKUP     : 'tickup',
-        TICKDOWN   : 'tickdown',
-        CARETLEFT  : 'caretleft',
-        CARETRIGHT : 'caretright',
-        CARETUP    : 'caretup',
-        CARETDOWN  : 'caretdown',
-        "None"       : 'nothing',
-        None       : 'nothing',
-        ' '        : 'nothing',
-        ''         : 'nothing'
+from cbook import is_math_text, is_string_like, is_numlike, iterable
+from matplotlib import rcParams
+from path import Path
+from transforms import IdentityTransform, Affine2D
+
+# special-purpose marker identifiers:
+(TICKLEFT, TICKRIGHT, TICKUP, TICKDOWN,
+ CARETLEFT, CARETRIGHT, CARETUP, CARETDOWN) = range(8)
+
+
+class MarkerStyle(object):
+
+    markers = {
+        '.': 'point',
+        ',': 'pixel',
+        'o': 'circle',
+        'v': 'triangle_down',
+        '^': 'triangle_up',
+        '<': 'triangle_left',
+        '>': 'triangle_right',
+        '1': 'tri_down',
+        '2': 'tri_up',
+        '3': 'tri_left',
+        '4': 'tri_right',
+        '8': 'octagon',
+        's': 'square',
+        'p': 'pentagon',
+        '*': 'star',
+        'h': 'hexagon1',
+        'H': 'hexagon2',
+        '+': 'plus',
+        'x': 'x',
+        'D': 'diamond',
+        'd': 'thin_diamond',
+        '|': 'vline',
+        '_': 'hline',
+        TICKLEFT: 'tickleft',
+        TICKRIGHT: 'tickright',
+        TICKUP: 'tickup',
+        TICKDOWN: 'tickdown',
+        CARETLEFT: 'caretleft',
+        CARETRIGHT: 'caretright',
+        CARETUP: 'caretup',
+        CARETDOWN: 'caretdown',
+        "None": 'nothing',
+        None: 'nothing',
+        ' ': 'nothing',
+        '': 'nothing'
     }
 
     # Just used for informational purposes.  is_filled()
@@ -102,13 +132,32 @@ that define the shape.
     filled_markers = (
         'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd')
 
-    fillstyles = ('full', 'left' , 'right' , 'bottom' , 'top', 'none')
-    _half_fillstyles = ('left' , 'right' , 'bottom' , 'top')
+    fillstyles = ('full', 'left', 'right', 'bottom', 'top', 'none')
+    _half_fillstyles = ('left', 'right', 'bottom', 'top')
 
     # TODO: Is this ever used as a non-constant?
     _point_size_reduction = 0.5
 
     def __init__(self, marker=None, fillstyle='full'):
+        """
+        MarkerStyle
+
+        Attributes
+        ----------
+        markers : list of known markes
+
+        fillstyles : list of known fillstyles
+
+        filled_markers : list of known filled markers.
+
+        Parameters
+        ----------
+        marker : string or array_like, optional, default: None
+            See the descriptions of possible markers in the module docstring.
+
+        fillstyle : string, optional, default: 'full'
+            'full', 'left", 'right', 'bottom', 'top', 'none'
+        """
         self._fillstyle = fillstyle
         self.set_marker(marker)
         self.set_fillstyle(fillstyle)
@@ -124,7 +173,7 @@ that define the shape.
         self._recache()
 
     def _recache(self):
-        self._path = Path(np.empty((0,2)))
+        self._path = Path(np.empty((0, 2)))
         self._transform = IdentityTransform()
         self._alt_path = None
         self._alt_transform = None
@@ -144,8 +193,16 @@ that define the shape.
         return self._fillstyle
 
     def set_fillstyle(self, fillstyle):
-        # TODO: Raise exception for markers where fillstyle doesn't make sense
-        assert fillstyle in self.fillstyles
+        """
+        Sets fillstyle
+
+        Parameters
+        ----------
+        fillstyle : string amongst known fillstyles
+        """
+        if fillstyle not in self.fillstyles:
+            raise ValueError("Unrecognized fillstyle %s"
+                             % ' '.join(self.fillstyles))
         self._fillstyle = fillstyle
         self._recache()
 
@@ -160,11 +217,11 @@ that define the shape.
 
     def set_marker(self, marker):
         if (iterable(marker) and len(marker) in (2, 3) and
-            marker[1] in (0, 1, 2, 3)):
+                marker[1] in (0, 1, 2, 3)):
             self._marker_function = self._set_tuple_marker
         elif isinstance(marker, np.ndarray):
             self._marker_function = self._set_vertices
-        elif marker in self.markers:
+        elif not isinstance(marker, list) and marker in self.markers:
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
         elif is_string_like(marker) and is_math_text(marker):
@@ -173,7 +230,7 @@ that define the shape.
             self._marker_function = self._set_path_marker
         else:
             try:
-                _ = Path(marker)
+                Path(marker)
                 self._marker_function = self._set_vertices
             except ValueError:
                 raise ValueError('Unrecognized marker style {}'.format(marker))
@@ -201,7 +258,8 @@ that define the shape.
 
     def _set_custom_marker(self, path):
         verts = path.vertices
-        rescale = max(np.max(np.abs(verts[:,0])), np.max(np.abs(verts[:,1])))
+        rescale = max(np.max(np.abs(verts[:, 0])),
+                      np.max(np.abs(verts[:, 1])))
         self._transform = Affine2D().scale(1.0 / rescale)
         self._path = path
 
@@ -253,7 +311,7 @@ that define the shape.
         # Font size is irrelevant here, it will be rescaled based on
         # the drawn size later
         props = FontProperties(size=1.0)
-        text = TextPath(xy=(0,0), s=self.get_marker(), fontproperties=props,
+        text = TextPath(xy=(0, 0), s=self.get_marker(), fontproperties=props,
                         usetex=rcParams['text.usetex'])
         if len(text.vertices) == 0:
             return
@@ -274,7 +332,7 @@ that define the shape.
         result = fs in self._half_fillstyles
         return result
 
-    def _set_circle(self, reduction = 1.0):
+    def _set_circle(self, reduction=1.0):
         self._transform = Affine2D().scale(0.5 * reduction)
         self._snap_threshold = 6.0
         fs = self.get_fillstyle()
@@ -282,10 +340,14 @@ that define the shape.
             self._path = Path.unit_circle()
         else:
             # build a right-half circle
-            if fs=='bottom': rotate = 270.
-            elif fs=='top': rotate = 90.
-            elif fs=='left': rotate = 180.
-            else: rotate = 0.
+            if fs == 'bottom':
+                rotate = 270.
+            elif fs == 'top':
+                rotate = 90.
+            elif fs == 'left':
+                rotate = 180.
+            else:
+                rotate = 0.
 
             self._path = self._alt_path = Path.unit_circle_righthalf()
             self._transform.rotate_deg(rotate)
@@ -306,17 +368,18 @@ that define the shape.
         self._snap_threshold = None
 
     def _set_point(self):
-        self._set_circle(reduction = self._point_size_reduction)
+        self._set_circle(reduction=self._point_size_reduction)
 
     _triangle_path = Path(
         [[0.0, 1.0], [-1.0, -1.0], [1.0, -1.0], [0.0, 1.0]],
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
     # Going down halfway looks to small.  Golden ratio is too far.
     _triangle_path_u = Path(
-        [[0.0, 1.0], [-3/5., -1/5.], [3/5., -1/5.], [0.0, 1.0]],
+        [[0.0, 1.0], [-3 / 5., -1 / 5.], [3 / 5., -1 / 5.], [0.0, 1.0]],
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
     _triangle_path_d = Path(
-        [[-3/5., -1/5.], [3/5., -1/5.], [1.0, -1.0], [-1.0, -1.0], [-3/5., -1/5.]],
+        [[-3 / 5., -1 / 5.], [3 / 5., -1 / 5.], [1.0, -1.0], [-1.0, -1.0],
+         [-3 / 5., -1 / 5.]],
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
     _triangle_path_l = Path(
         [[0.0, 1.0], [0.0, -1.0], [-1.0, -1.0], [0.0, 1.0]],
@@ -324,6 +387,7 @@ that define the shape.
     _triangle_path_r = Path(
         [[0.0, 1.0], [0.0, -1.0], [1.0, -1.0], [0.0, 1.0]],
         [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY])
+
     def _set_triangle(self, rot, skip):
         self._transform = Affine2D().scale(0.5, 0.5).rotate_deg(rot)
         self._snap_threshold = 5.0
@@ -337,18 +401,18 @@ that define the shape.
                       self._triangle_path_d,
                       self._triangle_path_r]
 
-            if fs=='top':
-                self._path = mpaths[(0+skip) % 4]
-                self._alt_path = mpaths[(2+skip) % 4]
-            elif fs=='bottom':
-                self._path = mpaths[(2+skip) % 4]
-                self._alt_path = mpaths[(0+skip) % 4]
-            elif fs=='left':
-                self._path = mpaths[(1+skip) % 4]
-                self._alt_path = mpaths[(3+skip) % 4]
+            if fs == 'top':
+                self._path = mpaths[(0 + skip) % 4]
+                self._alt_path = mpaths[(2 + skip) % 4]
+            elif fs == 'bottom':
+                self._path = mpaths[(2 + skip) % 4]
+                self._alt_path = mpaths[(0 + skip) % 4]
+            elif fs == 'left':
+                self._path = mpaths[(1 + skip) % 4]
+                self._alt_path = mpaths[(3 + skip) % 4]
             else:
-                self._path = mpaths[(3+skip) % 4]
-                self._alt_path = mpaths[(1+skip) % 4]
+                self._path = mpaths[(3 + skip) % 4]
+                self._alt_path = mpaths[(1 + skip) % 4]
 
             self._alt_transform = self._transform
 
@@ -376,13 +440,19 @@ that define the shape.
             # build a bottom filled square out of two rectangles, one
             # filled.  Use the rotation to support left, right, bottom
             # or top
-            if fs=='bottom': rotate = 0.
-            elif fs=='top': rotate = 180.
-            elif fs=='left': rotate = 270.
-            else: rotate = 90.
+            if fs == 'bottom':
+                rotate = 0.
+            elif fs == 'top':
+                rotate = 180.
+            elif fs == 'left':
+                rotate = 270.
+            else:
+                rotate = 90.
 
-            self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 0.5], [0.0, 0.5], [0.0, 0.0]])
-            self._alt_path = Path([[0.0, 0.5], [1.0, 0.5], [1.0, 1.0], [0.0, 1.0], [0.0, 0.5]])
+            self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 0.5],
+                               [0.0, 0.5], [0.0, 0.0]])
+            self._alt_path = Path([[0.0, 0.5], [1.0, 0.5], [1.0, 1.0],
+                                   [0.0, 1.0], [0.0, 0.5]])
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
 
@@ -396,12 +466,17 @@ that define the shape.
             self._path = Path.unit_rectangle()
         else:
             self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]])
-            self._alt_path = Path([[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [0.0, 0.0]])
+            self._alt_path = Path([[0.0, 0.0], [0.0, 1.0],
+                                   [1.0, 1.0], [0.0, 0.0]])
 
-            if fs=='bottom': rotate = 270.
-            elif fs=='top': rotate = 90.
-            elif fs=='left': rotate = 180.
-            else: rotate = 0.
+            if fs == 'bottom':
+                rotate = 270.
+            elif fs == 'top':
+                rotate = 90.
+            elif fs == 'left':
+                rotate = 180.
+            else:
+                rotate = 0.
 
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
@@ -424,11 +499,11 @@ that define the shape.
         else:
             verts = polypath.vertices
 
-            y = (1+np.sqrt(5))/4.
+            y = (1 + np.sqrt(5)) / 4.
             top = Path([verts[0], verts[1], verts[4], verts[0]])
             bottom = Path([verts[1], verts[2], verts[3], verts[4], verts[1]])
-            left = Path([verts[0], verts[1], verts[2], [0,-y], verts[0]])
-            right = Path([verts[0], verts[4], verts[3], [0,-y], verts[0]])
+            left = Path([verts[0], verts[1], verts[2], [0, -y], verts[0]])
+            right = Path([verts[0], verts[4], verts[3], [0, -y], verts[0]])
 
             if fs == 'top':
                 mpath, mpath_alt = top, bottom
@@ -477,7 +552,7 @@ that define the shape.
 
     def _set_hexagon1(self):
         self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 5.0
+        self._snap_threshold = None
 
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
@@ -488,7 +563,7 @@ that define the shape.
             verts = polypath.vertices
 
             # not drawing inside lines
-            x = np.abs(np.cos(5*np.pi/6.))
+            x = np.abs(np.cos(5 * np.pi / 6.))
             top = Path(np.vstack(([-x, 0], verts[(1, 0, 5), :], [x, 0])))
             bottom = Path(np.vstack(([-x, 0], verts[2:5, :], [x, 0])))
             left = Path(verts[(0, 1, 2, 3), :])
@@ -511,7 +586,7 @@ that define the shape.
 
     def _set_hexagon2(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(30)
-        self._snap_threshold = 5.0
+        self._snap_threshold = None
 
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
@@ -522,10 +597,11 @@ that define the shape.
             verts = polypath.vertices
 
             # not drawing inside lines
-            x, y = np.sqrt(3)/4, 3/4.
+            x, y = np.sqrt(3) / 4, 3 / 4.
             top = Path(verts[(1, 0, 5, 4, 1), :])
             bottom = Path(verts[(1, 2, 3, 4), :])
-            left = Path(np.vstack(([x, y], verts[(0, 1, 2), :], [-x, -y], [x, y])))
+            left = Path(np.vstack(([x, y], verts[(0, 1, 2), :],
+                                   [-x, -y], [x, y])))
             right = Path(np.vstack(([x, y], verts[(5, 4, 3), :], [-x, -y])))
 
             if fs == 'top':
@@ -554,14 +630,18 @@ that define the shape.
             self._transform.rotate_deg(22.5)
             self._path = polypath
         else:
-            x = np.sqrt(2.)/4.
+            x = np.sqrt(2.) / 4.
             half = Path([[0, -1], [0, 1], [-x, 1], [-1, x],
                          [-1, -x], [-x, -1], [0, -1]])
 
-            if fs=='bottom': rotate = 90.
-            elif fs=='top': rotate = 270.
-            elif fs=='right': rotate = 180.
-            else: rotate = 0.
+            if fs == 'bottom':
+                rotate = 90.
+            elif fs == 'top':
+                rotate = 270.
+            elif fs == 'right':
+                rotate = 180.
+            else:
+                rotate = 0.
 
             self._transform.rotate_deg(rotate)
             self._path = self._alt_path = half
@@ -570,6 +650,7 @@ that define the shape.
         self._joinstyle = 'miter'
 
     _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]])
+
     def _set_vline(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 1.0
@@ -583,6 +664,7 @@ that define the shape.
         self._path = self._line_marker_path
 
     _tickhoriz_path = Path([[0.0, 0.0], [1.0, 0.0]])
+
     def _set_tickleft(self):
         self._transform = Affine2D().scale(-1.0, 1.0)
         self._snap_threshold = 1.0
@@ -596,6 +678,7 @@ that define the shape.
         self._path = self._tickhoriz_path
 
     _tickvert_path = Path([[-0.0, 0.0], [-0.0, 1.0]])
+
     def _set_tickup(self):
         self._transform = Affine2D().scale(1.0, 1.0)
         self._snap_threshold = 1.0
@@ -612,6 +695,7 @@ that define the shape.
                        [0.0, -1.0], [0.0, 1.0]],
                       [Path.MOVETO, Path.LINETO,
                        Path.MOVETO, Path.LINETO])
+
     def _set_plus(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 1.0
@@ -624,6 +708,7 @@ that define the shape.
                      [Path.MOVETO, Path.LINETO,
                       Path.MOVETO, Path.LINETO,
                       Path.MOVETO, Path.LINETO])
+
     def _set_tri_down(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 5.0
@@ -649,6 +734,7 @@ that define the shape.
         self._path = self._tri_path
 
     _caret_path = Path([[-1.0, 1.5], [0.0, 0.0], [1.0, 1.5]])
+
     def _set_caretdown(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 3.0
@@ -681,21 +767,9 @@ that define the shape.
                     [-1.0, 1.0], [1.0, -1.0]],
                    [Path.MOVETO, Path.LINETO,
                     Path.MOVETO, Path.LINETO])
+
     def _set_x(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._x_path
-
-_styles = [(repr(x), y) for x, y in MarkerStyle.markers.items()]
-_styles.sort(key = lambda x: x[1])
-MarkerStyle.style_table = (
-    MarkerStyle.style_table %
-    '\n'.join(['%-30s %-33s' % ('``%s``' % x, y) for (x, y) in _styles]))
-
-MarkerStyle.accepts = textwrap.fill(
-    MarkerStyle.accepts %
-    ' | '.join(['``%s``' % x for (x, y) in _styles]))
-
-docstring.interpd.update(MarkerTable=MarkerStyle.style_table)
-docstring.interpd.update(MarkerAccepts=MarkerStyle.accepts)

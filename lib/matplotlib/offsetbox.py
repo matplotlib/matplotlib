@@ -74,7 +74,10 @@ def _get_packed_offsets(wd_list, total, sep, mode="fixed"):
         return total, offsets
 
     elif mode == "expand":
-        sep = (total - sum(w_list)) / (len(w_list) - 1.)
+        if len(w_list) > 1:
+            sep = (total - sum(w_list)) / (len(w_list) - 1.)
+        else:
+            sep = 0.
         offsets_ = np.add.accumulate([0] + [w + sep for w in w_list])
         offsets = offsets_[:-1]
 
@@ -1456,10 +1459,10 @@ class DraggableBase(object):
 
     """
     def __init__(self, ref_artist, use_blit=False):
-        self.canvas = self.ref_artist.figure.canvas
-
         self.ref_artist = ref_artist
         self.got_artist = False
+
+        self.canvas = self.ref_artist.figure.canvas
         self._use_blit = use_blit and self.canvas.supports_blit
 
         c2 = self.canvas.mpl_connect('pick_event', self.on_pick)

@@ -81,7 +81,7 @@ from matplotlib import ttconv
 # stack.  Thus the state must be pushed onto the stack before narrowing
 # the clip path.  This is taken care of by GraphicsContextPdf.
 #
-# 2. Sometimes it is necessary to refer to something (e.g. font,
+# 2. Sometimes it is necessary to refer to something (e.g., font,
 # image, or extended graphics state, which contains the alpha value)
 # in the page stream by a name that needs to be defined outside the
 # stream.  PdfFile provides the methods fontName, imageObject, and
@@ -93,7 +93,7 @@ from matplotlib import ttconv
 # * the alpha channel of images
 # * image compression could be improved (PDF supports png-like compression)
 # * encoding of fonts, including mathtext fonts and unicode support
-# * TTF support has lots of small TODOs, e.g. how do you know if a font
+# * TTF support has lots of small TODOs, e.g., how do you know if a font
 #   is serif/sans-serif, or symbolic/non-symbolic?
 # * draw_markers, draw_line_collection, etc.
 
@@ -1523,10 +1523,36 @@ class RendererPdf(RendererBase):
                              offsets, offsetTrans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
+        # We can only reuse the objects if the presence of fill and
+        # stroke (and the amount of alpha for each) is the same for
+        # all of them
+        can_do_optimization = True
+
+        if not len(facecolors):
+            filled = False
+        else:
+            if np.all(facecolors[:, 3] == facecolors[0, 3]):
+                filled = facecolors[0, 3] != 0.0
+            else:
+                can_do_optimization = False
+
+        if not len(edgecolors):
+            stroked = False
+        else:
+            if np.all(edgecolors[:, 3] == edgecolors[0, 3]):
+                stroked = edgecolors[0, 3] != 0.0
+            else:
+                can_do_optimization = False
+
+        if not can_do_optimization:
+            return RendererBase.draw_path_collection(
+                self, gc, master_transform, paths, all_transforms,
+                offsets, offsetTrans, facecolors, edgecolors,
+                linewidths, linestyles, antialiaseds, urls,
+                offset_position)
+
         padding = np.max(linewidths)
         path_codes = []
-        filled = len(facecolors)
-        stroked = len(edgecolors)
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
             master_transform, paths, all_transforms)):
             name = self.file.pathCollectionObject(
@@ -1596,15 +1622,15 @@ class RendererPdf(RendererBase):
         self.check_gc(gc)
         self.file.output(name, Op.shading)
 
-    def _setup_textpos(self, x, y, descent, angle, oldx=0, oldy=0, olddescent=0, oldangle=0):
+    def _setup_textpos(self, x, y, angle, oldx=0, oldy=0, oldangle=0):
         if angle == oldangle == 0:
-            self.file.output(x - oldx, (y + descent) - (oldy + olddescent), Op.textpos)
+            self.file.output(x - oldx, y - oldy, Op.textpos)
         else:
             angle = angle / 180.0 * pi
             self.file.output( cos(angle), sin(angle),
                              -sin(angle), cos(angle),
                               x,        y,         Op.textmatrix)
-            self.file.output(0, descent, Op.textpos)
+            self.file.output(0, 0, Op.textpos)
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         # TODO: fix positioning and encoding
@@ -1634,7 +1660,7 @@ class RendererPdf(RendererBase):
                 fonttype = global_fonttype
 
             if fonttype == 42 or num <= 255:
-                self._setup_textpos(ox, oy, 0, 0, oldx, oldy)
+                self._setup_textpos(ox, oy, 0, oldx, oldy)
                 oldx, oldy = ox, oy
                 if (fontname, fontsize) != prev_font:
                     self.file.output(self.file.fontName(fontname), fontsize,
@@ -1736,7 +1762,7 @@ class RendererPdf(RendererBase):
                 self.file.output(elt[1], elt[2], Op.selectfont)
             elif elt[0] == 'text':
                 curx, cury = mytrans.transform((elt[1], elt[2]))
-                self._setup_textpos(curx, cury, 0, angle, oldx, oldy)
+                self._setup_textpos(curx, cury, angle, oldx, oldy)
                 oldx, oldy = curx, cury
                 if len(elt[3]) == 1:
                     self.file.output(elt[3][0], Op.show)
@@ -1746,7 +1772,7 @@ class RendererPdf(RendererBase):
                 assert False
         self.file.output(Op.end_text)
 
-        # Then output the boxes (e.g. variable-length lines of square
+        # Then output the boxes (e.g., variable-length lines of square
         # roots).
         boxgc = self.new_gc()
         boxgc.copy_properties(gc)
@@ -1785,13 +1811,11 @@ class RendererPdf(RendererBase):
         if rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)
             l, b, w, h = font.get_str_bbox(s)
-            descent = -b * fontsize / 1000
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)
             self.track_characters(font, s)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-            descent = font.get_descent() / 64.0
 
             fonttype = rcParams['pdf.fonttype']
 
@@ -1831,7 +1855,7 @@ class RendererPdf(RendererBase):
                              self.file.fontName(prop),
                              fontsize,
                              Op.selectfont)
-            self._setup_textpos(x, y, descent, angle)
+            self._setup_textpos(x, y, angle)
             self.file.output(self.encode_string(s, fonttype), Op.show, Op.end_text)
 
         def draw_text_woven(chunks):
@@ -1852,7 +1876,6 @@ class RendererPdf(RendererBase):
             # output all the 2-byte characters.
             for mode in (1, 2):
                 newx = oldx = 0
-                olddescent = 0
                 # Output a 1-byte character chunk
                 if mode == 1:
                     self.file.output(Op.begin_text,
@@ -1862,10 +1885,9 @@ class RendererPdf(RendererBase):
 
                 for chunk_type, chunk in chunks:
                     if mode == 1 and chunk_type == 1:
-                        self._setup_textpos(newx, 0, descent, 0, oldx, 0, olddescent, 0)
+                        self._setup_textpos(newx, 0, 0, oldx, 0, 0)
                         self.file.output(self.encode_string(chunk, fonttype), Op.show)
                         oldx = newx
-                        olddescent = descent
 
                     lastgind = None
                     for c in chunk:
@@ -1998,7 +2020,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         the path, in which case it would presumably be filled.
         """
         # _linewidth > 0: in pdf a line of width 0 is drawn at minimum
-        #   possible device width, but e.g. agg doesn't draw at all
+        #   possible device width, but e.g., agg doesn't draw at all
         return (self._linewidth > 0 and self._alpha > 0 and
                 (len(self._rgb) <= 3 or self._rgb[3] != 0.0))
 

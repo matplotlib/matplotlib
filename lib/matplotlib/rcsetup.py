@@ -579,6 +579,12 @@ defaultParams = {
     'axes.color_cycle': [['b', 'g', 'r', 'c', 'm', 'y', 'k'],
                          validate_colorlist],  # cycle of plot
                                                # line colors
+    'axes.xmargin': [0, ValidateInterval(0, 1,
+                                         closedmin=True,
+                                         closedmax=True)],  # margin added to xaxis
+    'axes.ymargin': [0, ValidateInterval(0, 1,
+                                         closedmin=True,
+                                         closedmax=True)],# margin added to yaxis
 
     'polaraxes.grid': [True, validate_bool],  # display polar grid or
                                                      # not
@@ -658,6 +664,7 @@ defaultParams = {
     'figure.dpi':        [80, validate_float],   # DPI
     'figure.facecolor':  ['0.75', validate_color],  # facecolor; scalar gray
     'figure.edgecolor':  ['w', validate_color],  # edgecolor; white
+    'figure.frameon':    [True, validate_bool],
     'figure.autolayout': [False, validate_bool],
 
     'figure.subplot.left': [0.125, ValidateInterval(0, 1, closedmin=True,
@@ -677,6 +684,7 @@ defaultParams = {
     'savefig.dpi':         [100, validate_float],   # DPI
     'savefig.facecolor':   ['w', validate_color],  # facecolor; white
     'savefig.edgecolor':   ['w', validate_color],  # edgecolor; white
+    'savefig.frameon':     [True, validate_bool],
     'savefig.orientation': ['portrait', validate_orientation],  # edgecolor;
                                                                  #white
     # what to add to extensionless filenames
@@ -686,6 +694,8 @@ defaultParams = {
     # options are 'tight', or 'standard'. 'standard' validates to None.
     'savefig.bbox':       [None, validate_bbox],
     'savefig.pad_inches': [0.1, validate_float],
+    # default directory in savefig dialog box
+    'savefig.directory': ['~', unicode],
 
     # Maintain shell focus for TkAgg
     'tk.window_focus':  [False, validate_bool],

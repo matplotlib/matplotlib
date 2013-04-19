@@ -38,7 +38,7 @@ The script can take any of the usual `nosetest arguments`_, such as
 
 To run a single test from the command line, you can provide a
 dot-separated path to the module followed by the function separated by
-a colon, eg.  (this is assuming the test is installed)::
+a colon, e.g., (this is assuming the test is installed)::
 
   python tests.py matplotlib.tests.test_simplification:test_clipping
 
@@ -73,7 +73,7 @@ example, here is a test from :mod:`matplotlib.tests.test_basic`::
 Nose determines which functions are tests by searching for functions
 beginning with "test" in their name.
 
-If the test as side effects that need to be cleaned up, such as
+If the test has side effects that need to be cleaned up, such as
 creating figures using the pyplot interface, use the ``@cleanup``
 decorator::
 
@@ -122,10 +122,15 @@ it::
 The first time this test is run, there will be no baseline image to
 compare against, so the test will fail.  Copy the output images (in
 this case `result_images/test_category/spines_axes_positions.*`) to
-the `baseline_images` tree in the source directory (in this case
-`lib/matplotlib/tests/baseline_images/test_category`) and put them
-under source code revision control (with `git add`).  When rerunning
-the tests, they should now pass.
+the correct subdirectory of `baseline_images` tree in the source
+directory (in this case
+`lib/matplotlib/tests/baseline_images/test_category`).  Note carefully
+the `.*` at the end: this will copy only the images we need to include
+in the `git` repository.  The files ending in `_pdf.png` and
+`_svg.png` are converted from the `pdf` and `svg` originals on the fly
+and do not need to be in the respository.  Put these new files under
+source code revision control (with `git add`).  When rerunning the
+tests, they should now pass.
 
 There are two optional keyword arguments to the `image_comparison`
 decorator:
@@ -177,8 +182,8 @@ Using tox
 
 `Tox <http://tox.testrun.org/>`_ is a tool for running tests against
 multiple Python environments, including multiple versions of Python
-(e.g.: 2.6, 2.7, 3.2, etc.) and even different Python implementations
-altogether (e.g.: CPython, PyPy, Jython, etc.)
+(e.g., 2.6, 2.7, 3.2, etc.) and even different Python implementations
+altogether (e.g., CPython, PyPy, Jython, etc.)
 
 Testing all 4 versions of Python (2.6, 2.7, 3.1, and 3.2) requires
 having four versions of Python installed on your system and on the
@@ -210,7 +215,7 @@ parallelized version of tox called ``detox``. Give this a try:
     $ detox
 
 Tox is configured using a file called ``tox.ini``. You may need to
-edit this file if you want to add new environments to test (e.g.:
+edit this file if you want to add new environments to test (e.g.,
 ``py33``) or if you want to tweak the dependencies or the way the
 tests are run. For more info on the ``tox.ini`` file, see the `Tox
 Configuration Specification

@@ -16,6 +16,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.units as munits
 import numpy as np
+import warnings
 
 GRIDLINE_INTERPOLATION_STEPS = 180
 
@@ -412,6 +413,7 @@ class XTick(Tick):
                    linestyle=rcParams['grid.linestyle'],
                    linewidth=rcParams['grid.linewidth'],
                    alpha=rcParams['grid.alpha'],
+                   markersize=0
                    )
         l.set_transform(self.axes.get_xaxis_transform(which='grid'))
         l.get_path()._interpolation_steps = GRIDLINE_INTERPOLATION_STEPS
@@ -550,6 +552,7 @@ class YTick(Tick):
                     linestyle=rcParams['grid.linestyle'],
                     linewidth=rcParams['grid.linewidth'],
                     alpha=rcParams['grid.alpha'],
+                    markersize=0
                     )
 
         l.set_transform(self.axes.get_yaxis_transform(which='grid'))
@@ -972,11 +975,36 @@ class Axis(artist.Artist):
                 tick_tups = [ti for ti in tick_tups
                              if (ti[1] >= ilow) and (ti[1] <= ihigh)]
 
+        # so that we don't lose ticks on the end, expand out the interval ever so slightly.  The
+        # "ever so slightly" is defined to be the width of a half of a pixel.  We don't want to draw
+        # a tick that even one pixel outside of the defined axis interval.
+        if interval[0] <= interval[1]:
+            interval_expanded = interval
+        else:
+            interval_expanded = interval[1], interval[0]
+        
+        if hasattr(self, '_get_pixel_distance_along_axis'):
+            # normally, one does not want to catch all exceptions that could possibly happen, but it
+            # is not clear exactly what exceptions might arise from a user's projection (their rendition
+            # of the Axis object).  So, we catch all, with the idea that one would rather potentially
+            # lose a tick from one side of the axis or another, rather than see a stack trace.
+            try:
+               ds1 = self._get_pixel_distance_along_axis(interval_expanded[0], -0.5) 
+            except:
+               warnings.warn("Unable to find pixel distance along axis for interval padding; assuming no interval padding needed.")
+               ds1 = 0.0
+            try:
+               ds2 = self._get_pixel_distance_along_axis(interval_expanded[1], +0.5) 
+            except:
+               warnings.warn("Unable to find pixel distance along axis for interval padding; assuming no interval padding needed.")
+               ds2 = 0.0
+            interval_expanded = (interval[0] - ds1, interval[1] + ds2)
+
         ticks_to_draw = []
         for tick, loc, label in tick_tups:
             if tick is None:
                 continue
-            if not mtransforms.interval_contains(interval, loc):
+            if not mtransforms.interval_contains(interval_expanded, loc):
                 continue
             tick.update_position(loc)
             tick.set_label1(label)
@@ -1599,6 +1627,35 @@ class XAxis(Axis):
         self.offset_text_position = 'bottom'
         return offsetText
 
+    def _get_pixel_distance_along_axis(self, where, perturb):
+        """
+        Returns the amount, in data coordinates, that a single pixel corresponds to in the
+        locality given by "where", which is also given in data coordinates, and is an x coordinate.
+        "perturb" is the amount to perturb the pixel.  Usually +0.5 or -0.5.
+
+        Implementing this routine for an axis is optional; if present, it will ensure that no
+        ticks are lost due to round-off at the extreme ends of an axis.
+        """
+        
+        # Note that this routine does not work for a polar axis, because of the 1e-10 below.  To
+        # do things correctly, we need to use rmax instead of 1e-10 for a polar axis.  But
+        # since we do not have that kind of information at this point, we just don't try to 
+        # pad anything for the theta axis of a polar plot.  
+        if self.axes.name == 'polar':
+           return 0.0
+
+        #
+        # first figure out the pixel location of the "where" point.  We use 1e-10 for the
+        # y point, so that we remain compatible with log axes.
+        #
+        trans = self.axes.transData     # transformation from data coords to display coords
+        transinv = trans.inverted()     # transformation from display coords to data coords
+        pix  = trans.transform_point((where, 1e-10))
+        ptp  = transinv.transform_point((pix[0] + perturb, pix[1])) # perturb the pixel.
+        dx   = abs(ptp[0] - where)
+        
+        return dx
+
     def get_label_position(self):
         """
         Return the label position (top or bottom)
@@ -1873,6 +1930,27 @@ class YAxis(Axis):
         self._set_artist_props(offsetText)
         self.offset_text_position = 'left'
         return offsetText
+
+    def _get_pixel_distance_along_axis(self, where, perturb):
+        """
+        Returns the amount, in data coordinates, that a single pixel corresponds to in the
+        locality given by "where", which is also given in data coordinates, and is an y coordinate.
+        "perturb" is the amount to perturb the pixel.  Usually +0.5 or -0.5.
+
+        Implementing this routine for an axis is optional; if present, it will ensure that no
+        ticks are lost due to round-off at the extreme ends of an axis.
+        """
+
+        #        
+        # first figure out the pixel location of the "where" point.  We use 1e-10 for the
+        # x point, so that we remain compatible with log axes.
+        #
+        trans = self.axes.transData     # transformation from data coords to display coords
+        transinv = trans.inverted()     # transformation from display coords to data coords
+        pix  = trans.transform_point((1e-10, where))
+        ptp  = transinv.transform_point((pix[0], pix[1] + perturb)) # perturb the pixel.
+        dy   = abs(ptp[1] - where)
+        return dy
 
     def get_label_position(self):
         """

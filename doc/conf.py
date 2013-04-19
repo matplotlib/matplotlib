@@ -11,24 +11,41 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import sys, os
+import os
+import sys
+import sphinx
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-sys.path.append(os.path.abspath('sphinxext'))
+sys.path.append(os.path.abspath('.'))
 
 # General configuration
 # ---------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['matplotlib.sphinxext.mathmpl', 'math_symbol_table',
+extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
-              'sphinx.ext.doctest',
+              'sphinx.ext.doctest', 'sphinx.ext.autosummary',
               'matplotlib.sphinxext.plot_directive', 'sphinx.ext.inheritance_diagram',
-              'gen_gallery', 'gen_rst',
-              'matplotlib.sphinxext.ipython_console_highlighting', 'github']
+              'sphinxext.gen_gallery', 'sphinxext.gen_rst',
+              'matplotlib.sphinxext.ipython_console_highlighting',
+              'sphinxext.github',
+              'numpydoc']
+
+
+try:
+    import numpydoc
+except ImportError:
+    raise ImportError("No module named numpydoc - you need to install "
+                      "numpydoc to build the documentation.")
+
+
+autosummary_generate = True
+
+if sphinx.__version__ >= 1.1:
+    autodoc_docstring_signature = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -41,13 +58,18 @@ master_doc = 'contents'
 
 # General substitutions.
 project = 'Matplotlib'
-copyright = '2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the matplotlib development team'
+copyright = '2013 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the matplotlib development team'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-import matplotlib
+try:
+    import matplotlib
+except ImportError:
+    msg = "Error: matplotlib must be installed before building the documentation"
+    sys.exit(msg)
+
 version = matplotlib.__version__
 # The full version, including alpha/beta/rc tags.
 release = version
@@ -133,7 +155,9 @@ html_sidebars = {'index': 'indexsidebar.html',
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-html_additional_pages = {'index': 'index.html', 'gallery':'gallery.html', 'citing':'citing.html'}
+html_additional_pages = {'index': 'index.html',
+                         'gallery':'gallery.html',
+                         'citing': 'citing.html'}
 
 # If false, no module index is generated.
 #html_use_modindex = True
@@ -174,10 +198,10 @@ latex_logo = None
 
 # Additional stuff for the LaTeX preamble.
 latex_preamble = """
-   \usepackage{amsmath}
-   \usepackage{amsfonts}
-   \usepackage{amssymb}
-   \usepackage{txfonts}
+   \\usepackage{amsmath}
+   \\usepackage{amsfonts}
+   \\usepackage{amssymb}
+   \\usepackage{txfonts}
 """
 
 # Documents to append as an appendix to all manuals.

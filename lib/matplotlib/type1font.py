@@ -264,7 +264,7 @@ class Type1Font(object):
 
         def replace(fun):
             def replacer(tokens):
-                token, value = next(tokens)      # name, e.g. /FontMatrix
+                token, value = next(tokens)      # name, e.g., /FontMatrix
                 yield value
                 token, value = next(tokens)      # possible whitespace
                 while token == 'whitespace':
@@ -272,7 +272,7 @@ class Type1Font(object):
                     token, value = next(tokens)
                 if value != '[':                  # name/number/etc.
                     yield fun(value)
-                else:                             # array, e.g. [1 2 3]
+                else:                             # array, e.g., [1 2 3]
                     array = []
                     while value != ']':
                         array += value

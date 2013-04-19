@@ -24,7 +24,7 @@ def sankey(ax,
     w: output arrow shoulder
     inangle: input dip angle
     offset: text offset
-    **kwargs: propagated to Patch (e.g. fill=False)
+    **kwargs: propagated to Patch (e.g., fill=False)
 
     Return (patch,[intexts,outtexts]).
     """

@@ -13,7 +13,7 @@ Here are some demos of how to use the matplotlib.
 
 -- subplot_demo.py - how to do multiple axes on a single plot
 
--- vline_demo.py   - working with straight lines
+-- vline_hline_demo.py   - working with straight lines
 
 -- stock_demo.py - working with large datasets.  Click on the plot and
       launch the navigation tool; wheel mouse over the navigation

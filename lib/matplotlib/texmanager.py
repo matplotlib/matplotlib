@@ -41,7 +41,7 @@ import glob
 import os
 import shutil
 import sys
-from subprocess import Popen, PIPE, STDOUT
+import warnings
 
 from hashlib import md5
 
@@ -51,6 +51,7 @@ import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib._png import read_png
 from matplotlib.cbook import mkdirs
+from matplotlib.compat.subprocess import Popen, PIPE, STDOUT
 import matplotlib.dviread as dviread
 import re
 
@@ -63,8 +64,12 @@ else:
 
 
 def dvipng_hack_alpha():
-    p = Popen('dvipng -version', shell=True, stdin=PIPE, stdout=PIPE,
-              stderr=STDOUT, close_fds=(sys.platform != 'win32'))
+    try:
+        p = Popen(['dvipng', '-version'], stdin=PIPE, stdout=PIPE,
+                  stderr=STDOUT, close_fds=(sys.platform != 'win32'))
+    except OSError:
+        mpl.verbose.report('No dvipng was found', 'helpful')
+        return False
     stdin, stdout = p.stdin, p.stdout
     for line in stdout:
         if line.startswith(b'dvipng '):
@@ -74,7 +79,7 @@ def dvipng_hack_alpha():
             version = version.decode('ascii')
             version = distutils.version.LooseVersion(version)
             return version < distutils.version.LooseVersion('1.6')
-    mpl.verbose.report('No dvipng was found', 'helpful')
+    mpl.verbose.report('Unexpected response from dvipng -version', 'helpful')
     return False
 
 
@@ -90,16 +95,30 @@ class TexManager:
     oldcache = os.path.join(oldpath, '.tex.cache')
 
     configdir = mpl.get_configdir()
-    texcache = os.path.join(configdir, 'tex.cache')
+    if configdir is not None:
+        texcache = os.path.join(configdir, 'tex.cache')
+    else:
+        # Should only happen in a restricted environment (such as Google App
+        # Engine). Deal with this gracefully by not creating a cache directory.
+        texcache = None
 
     if os.path.exists(oldcache):
-        # FIXME raise proper warning
-        print("""\
-WARNING: found a TeX cache dir in the deprecated location "%s".
-  Moving it to the new default location "%s".""" % (oldcache, texcache),
-              file=sys.stderr)
-        shutil.move(oldcache, texcache)
-    mkdirs(texcache)
+        if texcache is not None:
+            try:
+                shutil.move(oldcache, texcache)
+            except IOError as e:
+                warnings.warn('File could not be renamed: %s' % e)
+            else:
+                warnings.warn("""\
+Found a TeX cache dir in the deprecated location "%s".
+    Moving it to the new default location "%s".""" % (oldcache, texcache))
+        else:
+            warnings.warn("""\
+Could not rename old TeX cache dir "%s": a suitable configuration
+    directory could not be found.""" % oldcache)
+
+    if texcache is not None:
+        mkdirs(texcache)
 
     _dvipng_hack_alpha = None
     #_dvipng_hack_alpha = dvipng_hack_alpha()
@@ -140,6 +159,11 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                              font_families]))
 
     def __init__(self):
+
+        if self.texcache is None:
+            raise RuntimeError(
+                ('Cannot create TexManager, as there is no cache directory '
+                 'available'))
 
         mkdirs(self.texcache)
         ff = rcParams['font.family'].lower()

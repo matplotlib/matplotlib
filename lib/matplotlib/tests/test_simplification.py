@@ -28,7 +28,7 @@ def test_clipping():
     ax.plot(t, s, linewidth=1.0)
     ax.set_ylim((-0.20, -0.28))
 
-@image_comparison(baseline_images=['overflow'], tol=1e-2, remove_text=True)
+@image_comparison(baseline_images=['overflow'], remove_text=True)
 def test_overflow():
     x = np.array([1.0,2.0,3.0,2.0e5])
     y = np.arange(len(x))
@@ -168,7 +168,7 @@ def test_throw_rendering_complexity_exceeded():
     ax = fig.add_subplot(111)
     ax.plot(xx, yy)
     try:
-        fig.savefig(io.StringIO())
+        fig.savefig(io.BytesIO())
     finally:
         rcParams['path.simplify'] = True
 

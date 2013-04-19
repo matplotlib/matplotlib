@@ -40,7 +40,7 @@ def test_BoundaryNorm():
 def test_LogNorm():
     """
     LogNorm igornoed clip, now it has the same
-    behavior as Normalize, e.g. values > vmax are bigger than 1
+    behavior as Normalize, e.g., values > vmax are bigger than 1
     without clip, with clip they are 1.
     """
     ln = mcolors.LogNorm(clip=True, vmax=5)

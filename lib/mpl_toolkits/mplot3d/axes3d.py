@@ -2360,10 +2360,12 @@ class Axes3D(Axes):
 
         self.auto_scale_xyz((minx, maxx), (miny, maxy), (minz, maxz), had_data)
 
-    def set_title(self, label, fontdict=None, **kwargs):
-        Axes.set_title(self, label, fontdict, **kwargs)
+    def set_title(self, label, fontdict=None, loc='center', **kwargs):
+        ret = Axes.set_title(self, label, fontdict=fontdict, loc=loc, **kwargs)
         (x, y) = self.title.get_position()
         self.title.set_y(0.92 * y)
+        return ret
+    set_title.__doc__ = maxes.Axes.set_title.__doc__
 
 def get_test_data(delta=0.05):
     '''

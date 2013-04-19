@@ -15,6 +15,10 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* In :class:`~matplotlib.patches.FancyArrow`, the default arrow head width,
+  ``head_width``, has been made larger to produce a visible arrow head. The new
+  value of this kwarg is ``head_width = 20 * width``.
+
 * Removed call of :meth:`~matplotlib.axes.Axes.grid` in
   :meth:`~matplotlib.pyplot.plotfile`. To draw the axes grid, set to *True*
   matplotlib.rcParams['axes.grid'] or ``axes.grid`` in ``.matplotlibrc`` or
@@ -26,6 +30,18 @@ Changes in 1.3.x
 
 * The `~matplotlib.mpl` module is now deprecated. Those who relied on this
   module should transition to simply using `import matplotlib as mpl`.
+
+* The extension of :class:`~matplotlib.widgets.MultiCursor` to both vertical
+  (default) and/or horizontal cursor implied that ``self.line`` is replaced
+  by ``self.vline`` for vertical cursors lines and ``self.hline`` is added
+  for the horizontal cursors lines.
+
+* On POSIX platforms, the :func:`~matplotlib.cbook.report_memory` function
+  raises :class:`NotImplementedError` instead of :class:`OSError` if the
+  :command:`ps` command cannot be run.
+
+* The :func:`~matplotlib.cbook.check_output` function has been moved to
+  `~matplotlib.compat.subprocess`.
 
 Changes in 1.2.x
 ================
@@ -341,7 +357,7 @@ Changes in 0.99
 
 * Axes instances no longer have a "frame" attribute. Instead, use the
   new "spines" attribute. Spines is a dictionary where the keys are
-  the names of the spines (e.g. 'left','right' and so on) and the
+  the names of the spines (e.g., 'left','right' and so on) and the
   values are the artists that draw the spines. For normal
   (rectilinear) axes, these artists are Line2D instances. For other
   axes (such as polar axes), these artists may be Patch instances.
@@ -533,7 +549,7 @@ The view intervals are now stored only in one place -- in the
 as well.  This means locators must get their limits from their
 :class:`matplotlib.axis.Axis`, which in turn looks up its limits from
 the :class:`~matplotlib.axes.Axes`.  If a locator is used temporarily
-and not assigned to an Axis or Axes, (e.g. in
+and not assigned to an Axis or Axes, (e.g., in
 :mod:`matplotlib.contour`), a dummy axis must be created to store its
 bounds.  Call :meth:`matplotlib.ticker.Locator.create_dummy_axis` to
 do so.
@@ -828,7 +844,7 @@ Changes for 0.91.0
   fonts.  Currently it simply reads pfa and pfb format files and
   stores the data in a way that is suitable for embedding in pdf
   files. In the future the class might actually parse the font to
-  allow e.g.  subsetting.
+  allow e.g.,  subsetting.
 
 * :mod:`matplotlib.FT2Font` now supports :meth:`FT_Attach_File`. In
   practice this can be used to read an afm file in addition to a
@@ -848,7 +864,7 @@ Changes for 0.91.0
   should be changed to ``${\cal R}$``.  Alternatively, you may use the
   new LaTeX-style font commands (``\mathcal``, ``\mathrm``,
   ``\mathit``, ``\mathtt``) which do affect the following group,
-  eg. ``$\mathcal{R}$``.
+  e.g., ``$\mathcal{R}$``.
 
 * Text creation commands have a new default linespacing and a new
   ``linespacing`` kwarg, which is a multiple of the maximum vertical
@@ -919,7 +935,7 @@ Changes for 0.90.1
 
     Barh now takes a **kwargs dict instead of most of the old
     arguments. This helps ensure that bar and barh are kept in sync,
-    but as a side effect you can no longer pass e.g. color as a
+    but as a side effect you can no longer pass e.g., color as a
     positional argument.
 
     ft2font.get_charmap() now returns a dict that maps character codes
@@ -1162,7 +1178,7 @@ Changes for 0.83
   - Made HOME/.matplotlib the new config dir where the matplotlibrc
     file, the ttf.cache, and the tex.cache live.  The new default
     filenames in .matplotlib have no leading dot and are not hidden.
-    Eg, the new names are matplotlibrc, tex.cache, and ttffont.cache.
+    e.g., the new names are matplotlibrc, tex.cache, and ttffont.cache.
     This is how ipython does it so it must be right.
 
     If old files are found, a warning is issued and they are moved to
@@ -1431,7 +1447,7 @@ Changes for 0.63
 
   Most of the date tick locators have a different meaning in their
   constructors.  In the prior implementation, the first argument was a
-  base and multiples of the base were ticked.  Eg
+  base and multiples of the base were ticked.  e.g.,
 
     HourLocator(5)  # old: tick every 5 minutes
 
@@ -1609,7 +1625,7 @@ Bounding boxes
 
     bbox = clickBBox = lbwh_to_bbox(left, bottom, width, height)
 
-   The Bbox has a different API than the Bound2D.  Eg, if you want to
+   The Bbox has a different API than the Bound2D.  e.g., if you want to
    get the width and height of the bbox
 
      OLD::
@@ -1757,7 +1773,7 @@ Changes for 0.50
 
     There is one important API change for application developers.
     Figure instances used subclass GUI widgets that enabled them to be
-    placed directly into figures.  Eg, FigureGTK subclassed
+    placed directly into figures.  e.g., FigureGTK subclassed
     gtk.DrawingArea.  Now the Figure class is independent of the
     backend, and FigureCanvas takes over the functionality formerly
     handled by Figure.  In order to include figures into your apps,

@@ -121,18 +121,18 @@ def gen_gallery(app, doctree):
 
     gallery_path = os.path.join(app.builder.srcdir, '_templates', 'gallery.html')
     if os.path.exists(gallery_path):
-        fh = file(gallery_path, 'r')
+        fh = open(gallery_path, 'r')
         regenerate = fh.read() != content
         fh.close()
     else:
         regenerate = True
     if regenerate:
-        fh = file(gallery_path, 'w')
+        fh = open(gallery_path, 'w')
         fh.write(content)
         fh.close()
 
     for key in app.builder.status_iterator(
-        thumbnails.iterkeys(), "generating thumbnails... ",
+        iter(thumbnails.keys()), "generating thumbnails... ",
         length=len(thumbnails)):
         image.thumbnail(key, thumbnails[key], 0.3)
 

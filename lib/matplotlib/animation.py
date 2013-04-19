@@ -20,8 +20,8 @@
 import sys
 import itertools
 import contextlib
-import subprocess
 from matplotlib.cbook import iterable, is_string_like
+from matplotlib.compat import subprocess
 from matplotlib import verbose
 from matplotlib import rcParams
 
@@ -576,7 +576,7 @@ class Animation(object):
         '''
         Saves a movie file by drawing every frame.
 
-        *filename* is the output filename, eg :file:`mymovie.mp4`
+        *filename* is the output filename, e.g., :file:`mymovie.mp4`
 
         *writer* is either an instance of :class:`MovieWriter` or a string
         key that identifies a class to use, such as 'ffmpeg' or 'mencoder'.
@@ -952,7 +952,10 @@ class FuncAnimation(TimedAnimation):
 
     *init_func* is a function used to draw a clear frame. If not given, the
     results of drawing from the first item in the frames sequence will be
-    used.
+    used. This function will be called once before the first frame. 
+
+    If blit=True, *func* and *init_func* should return an iterable of
+    drawables to clear.
     '''
     def __init__(self, fig, func, frames=None, init_func=None, fargs=None,
             save_count=None, **kwargs):

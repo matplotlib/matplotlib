@@ -97,9 +97,9 @@ backend      : %(backend)s
 # information on font properties.  The 6 font properties used for font
 # matching are given below with their default values.
 #
-# The font.family property has five values: 'serif' (e.g. Times),
-# 'sans-serif' (e.g. Helvetica), 'cursive' (e.g. Zapf-Chancery),
-# 'fantasy' (e.g. Western), and 'monospace' (e.g. Courier).  Each of
+# The font.family property has five values: 'serif' (e.g., Times),
+# 'sans-serif' (e.g., Helvetica), 'cursive' (e.g., Zapf-Chancery),
+# 'fantasy' (e.g., Western), and 'monospace' (e.g., Courier).  Each of
 # these font families has a default list of font names in decreasing
 # order of priority associated with them.
 #
@@ -250,6 +250,8 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
                                             # as list of string colorspecs:
                                             # single letter, long name, or
                                             # web-style hex
+#axes.xmargin        : 0  # x margin.  See `axes.Axes.margins`
+#axes.ymargin        : 0  # y margin See `axes.Axes.margins`
 
 #polaraxes.grid      : True    # display grid on polar axes
 #axes3d.grid         : True    # display grid on 3d axes
@@ -358,7 +360,7 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
                   # paths will never be snapped.
 
 # the default savefig params can be different from the display params
-# Eg, you may want a higher resolution, or to make the figure
+# e.g., you may want a higher resolution, or to make the figure
 # background white
 #savefig.dpi        : 100      # figure dots per inch
 #savefig.facecolor  : white    # figure facecolor when saving
@@ -366,6 +368,8 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #savefig.format     : png      # png, ps, pdf, svg
 #savefig.bbox       : standard # 'tight' or 'standard'.
 #savefig.pad_inches : 0.1      # Padding to be used when bbox is set to 'tight'
+#savefig.directory  : ~        # default directory in savefig dialog box,
+                               # leave empty to always use current working directory
 
 # tk backend params
 #tk.window_focus   : False    # Maintain shell focus for TkAgg
@@ -449,7 +453,7 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #animation.avconv_path: 'avconv'   # Path to avconv binary. Without full path
                                    # $PATH is searched
 #animation.avconv_args: ''         # Additional arguments to pass to avconv
-#animation.mencoder_path: 'mencoder' 
-			           # Path to mencoder binary. Without full path
+#animation.mencoder_path: 'mencoder'
+                                   # Path to mencoder binary. Without full path
                                    # $PATH is searched
 #animation.mencoder_args: ''       # Additional arguments to pass to mencoder

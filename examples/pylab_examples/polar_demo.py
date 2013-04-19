@@ -17,7 +17,7 @@
 #   axes([left, bottom, width, height], polar=True)
 #
 # The view limits (eg xlim and ylim) apply to the lower left and upper
-# right of the rectangular box that surrounds to polar axes.  Eg if
+# right of the rectangular box that surrounds to polar axes.  e.g., if
 # you have
 #
 #  r = arange(0,1,0.01)

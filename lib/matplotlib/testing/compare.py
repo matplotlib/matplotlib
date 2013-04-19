@@ -7,6 +7,7 @@
 from __future__ import division
 
 import matplotlib
+from matplotlib.compat import subprocess
 from matplotlib.testing.noseclasses import ImageComparisonFailure
 from matplotlib.testing import image_util, util
 from matplotlib import _png
@@ -14,11 +15,9 @@ from matplotlib import _get_configdir
 from distutils import version
 import hashlib
 import math
-import operator
 import os
 import numpy as np
 import shutil
-import subprocess
 import sys
 from functools import reduce
 
@@ -100,7 +99,10 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
 # parameters old and new to a list that can be passed to Popen to
 # convert files with that extension to png format.
 def get_cache_dir():
-   cache_dir = os.path.join(_get_configdir(), 'test_cache')
+   configdir = _get_configdir()
+   if configdir is None:
+      raise RuntimeError('Could not find a suitable configuration directory')
+   cache_dir = os.path.join(configdir, 'test_cache')
    if not os.path.exists(cache_dir):
       try:
          os.makedirs(cache_dir)
@@ -251,37 +253,21 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
    return actual_image, expected_image
 
 def calculate_rms(expectedImage, actualImage):
-   # compare the resulting image histogram functions
-   expected_version = version.LooseVersion("1.6")
-   found_version = version.LooseVersion(np.__version__)
+   # calculate the per-pixel errors, then compute the root mean square error
+   num_values = np.prod(expectedImage.shape)
+   abs_diff_image = abs(expectedImage - actualImage)
 
    # On Numpy 1.6, we can use bincount with minlength, which is much faster than
    # using histogram
+   expected_version = version.LooseVersion("1.6")
+   found_version = version.LooseVersion(np.__version__)
    if found_version >= expected_version:
-      rms = 0
-
-      for i in xrange(0, 3):
-         h1p = expectedImage[:,:,i]
-         h2p = actualImage[:,:,i]
-
-         h1h = np.bincount(h1p.ravel(), minlength=256)
-         h2h = np.bincount(h2p.ravel(), minlength=256)
-
-         rms += np.sum(np.power((h1h-h2h), 2))
+      histogram = np.bincount(abs_diff_image.ravel(), minlength=256)
    else:
-      rms = 0
-      bins = np.arange(257)
+      histogram = np.histogram(abs_diff_image, bins=np.arange(257))[0]
 
-      for i in xrange(0, 3):
-         h1p = expectedImage[:,:,i]
-         h2p = actualImage[:,:,i]
-
-         h1h = np.histogram(h1p, bins=bins)[0]
-         h2h = np.histogram(h2p, bins=bins)[0]
-
-         rms += np.sum(np.power((h1h-h2h), 2))
-
-   rms = np.sqrt(rms / (256 * 3))
+   sum_of_squares = np.sum(histogram * np.arange(len(histogram))**2)
+   rms = np.sqrt(float(sum_of_squares) / num_values)
 
    return rms
 
@@ -299,8 +285,9 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    = INPUT VARIABLES
    - expected  The filename of the expected image.
    - actual    The filename of the actual image.
-   - tol       The tolerance (a unitless float).  This is used to
-               determine the 'fuzziness' to use when comparing images.
+   - tol       The tolerance (a color value difference, where 255 is the
+               maximal difference).  The test fails if the average pixel
+               difference is greater than this value.
    - in_decorator If called from image_comparison decorator, this should be
                True. (default=False)
    '''
@@ -316,36 +303,24 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    # open the image files and remove the alpha channel (if it exists)
    expectedImage = _png.read_png_int( expected )
    actualImage = _png.read_png_int( actual )
+   expectedImage = expectedImage[:, :, :3]
+   actualImage = actualImage[:, :, :3]
 
    actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
 
-   # compare the resulting image histogram functions
-   expected_version = version.LooseVersion("1.6")
-   found_version = version.LooseVersion(np.__version__)
+   # convert to signed integers, so that the images can be subtracted without
+   # overflow
+   expectedImage = expectedImage.astype(np.int16)
+   actualImage = actualImage.astype(np.int16)
 
    rms = calculate_rms(expectedImage, actualImage)
 
    diff_image = make_test_filename(actual, 'failed-diff')
 
-   if ( (rms / 10000.0) <= tol ):
+   if rms <= tol:
       if os.path.exists(diff_image):
          os.unlink(diff_image)
       return None
-
-   # For Agg-rendered images, we can retry by ignoring pixels with
-   # differences of only 1
-   if extension == 'png':
-       # Remove differences of only 1
-       diffImage = np.abs(np.asarray(actualImage, dtype=np.int) -
-                          np.asarray(expectedImage, dtype=np.int))
-       actualImage = np.where(diffImage <= 1, expectedImage, actualImage)
-
-       rms = calculate_rms(expectedImage, actualImage)
-
-       if ( (rms / 10000.0) <= tol ):
-           if os.path.exists(diff_image):
-               os.unlink(diff_image)
-           return None
 
    save_diff_image( expected, actual, diff_image )
 
@@ -360,7 +335,7 @@ def compare_images( expected, actual, tol, in_decorator=False ):
    else:
       # old-style call from mplTest directory
       msg = "  Error: Image files did not match.\n"       \
-            "  RMS Value: " + str( rms / 10000.0 ) + "\n" \
+            "  RMS Value: " + str( rms ) + "\n" \
             "  Expected:\n    " + str( expected ) + "\n"  \
             "  Actual:\n    " + str( actual ) + "\n"      \
             "  Difference:\n    " + str( diff_image ) + "\n"      \
