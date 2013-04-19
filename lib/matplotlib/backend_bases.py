@@ -475,7 +475,7 @@ class RendererBase:
             the x location of the text in display coords
 
         *y*
-            the y location of the text in display coords
+            the y location of the text baseline in display coords
 
         *s*
             the text string
@@ -497,7 +497,7 @@ class RendererBase:
 
             if 0: bbox_artist(self, renderer)
 
-        to if 1, and then the actual bounding box will be blotted along with
+        to if 1, and then the actual bounding box will be plotted along with
         your text.
         """
 

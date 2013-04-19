@@ -852,8 +852,6 @@ class RendererSVG(RendererBase):
             _glyphs = text2path.get_glyphs_with_font(
                 font, s, glyph_map=glyph_map, return_new_glyphs_only=True)
             glyph_info, glyph_map_new, rects = _glyphs
-            y -= ((font.get_descent() / 64.0) *
-                  (prop.get_size_in_points() / text2path.FONT_SCALE))
 
             if glyph_map_new:
                 writer.start(u'defs')
@@ -953,8 +951,6 @@ class RendererSVG(RendererBase):
         if not ismath:
             font = self._get_font(prop)
             font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-            descent = font.get_descent() / 64.0
-            y -= descent
 
             fontsize = prop.get_size_in_points()
 
@@ -982,10 +978,9 @@ class RendererSVG(RendererBase):
                 # to the anchor point manually for now.
                 angle_rad = angle * np.pi / 180.
                 dir_vert = np.array([np.sin(angle_rad), np.cos(angle_rad)])
-                y += descent  # Undo inappropriate text descent handling
                 v_offset = np.dot(dir_vert, [(x - ax), (y - ay)])
-                ax = ax + (v_offset - descent) * dir_vert[0]
-                ay = ay + (v_offset - descent) * dir_vert[1]
+                ax = ax + v_offset * dir_vert[0]
+                ay = ay + v_offset * dir_vert[1]
 
                 ha_mpl_to_svg = {'left': 'start', 'right': 'end',
                                  'center': 'middle'}
