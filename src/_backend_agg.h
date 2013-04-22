@@ -60,12 +60,19 @@ typedef agg::renderer_scanline_bin_solid<renderer_base> renderer_bin;
 typedef agg::rasterizer_scanline_aa<agg::rasterizer_sl_clip_dbl> rasterizer;
 
 typedef agg::scanline_p8 scanline_p8;
+typedef agg::scanline_u8 scanline_u8;
 typedef agg::scanline_bin scanline_bin;
 typedef agg::amask_no_clip_gray8 alpha_mask_type;
 typedef agg::scanline_u8_am<alpha_mask_type> scanline_am;
 
 typedef agg::renderer_base<agg::pixfmt_gray8> renderer_base_alpha_mask_type;
 typedef agg::renderer_scanline_aa_solid<renderer_base_alpha_mask_type> renderer_alpha_mask_type;
+
+typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
+typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
+typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
+typedef agg::renderer_scanline_bin_solid<amask_ren_type>   amask_bin_renderer_type;
+
 
 // a helper class to pass agg::buffer objects around.  agg::buffer is
 // a class in the swig wrapper
@@ -218,7 +225,7 @@ public:
     renderer_alpha_mask_type rendererAlphaMask;
     scanline_am scanlineAlphaMask;
 
-    scanline_p8 slineP8;
+    scanline_u8 slineU8;
     scanline_bin slineBin;
     pixfmt pixFmt;
     renderer_base rendererBase;

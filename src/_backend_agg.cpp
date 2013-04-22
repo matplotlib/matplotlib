@@ -395,7 +395,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
     rendererBaseAlphaMask(),
     rendererAlphaMask(),
     scanlineAlphaMask(),
-    slineP8(),
+    slineU8(),
     slineBin(),
     pixFmt(),
     rendererBase(),
@@ -600,6 +600,10 @@ bool
 RendererAgg::render_clippath(const Py::Object& clippath,
                              const agg::trans_affine& clippath_trans)
 {
+	//
+	// Updates rendererBaseAlphaMask with the given clippath.
+	//
+
     typedef agg::conv_transform<PathIterator> transformed_path_t;
     typedef agg::conv_curve<transformed_path_t> curve_t;
 
@@ -642,10 +646,6 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     typedef PathSnapper<transformed_path_t>                    snap_t;
     typedef agg::conv_curve<snap_t>                            curve_t;
     typedef agg::conv_stroke<curve_t>                          stroke_t;
-    typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-    typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
-    typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
-    typedef agg::renderer_scanline_bin_solid<amask_ren_type>   amask_bin_renderer_type;
     args.verify_length(5, 6);
 
     Py::Object        gc_obj          = args[0];
@@ -706,7 +706,7 @@ RendererAgg::draw_markers(const Py::Tuple& args)
             } catch (std::overflow_error &e) {
                 throw Py::OverflowError(e.what());
             }
-            agg::render_scanlines(theRasterizer, slineP8, scanlines);
+            agg::render_scanlines(theRasterizer, slineU8, scanlines);
             fillSize = scanlines.byte_size();
             if (fillSize >= MARKER_CACHE_SIZE)
             {
@@ -725,7 +725,7 @@ RendererAgg::draw_markers(const Py::Tuple& args)
         } catch (std::overflow_error &e) {
             throw Py::OverflowError(e.what());
         }
-        agg::render_scanlines(theRasterizer, slineP8, scanlines);
+        agg::render_scanlines(theRasterizer, slineU8, scanlines);
         unsigned strokeSize = scanlines.byte_size();
         if (strokeSize >= MARKER_CACHE_SIZE)
         {
@@ -1000,7 +1000,7 @@ RendererAgg::draw_text_image(const Py::Tuple& args)
     } catch (std::overflow_error &e) {
         throw Py::OverflowError(e.what());
     }
-    agg::render_scanlines(theRasterizer, slineP8, ri);
+    agg::render_scanlines(theRasterizer, slineU8, ri);
 
     return Py::Object();
 }
@@ -1124,9 +1124,6 @@ RendererAgg::draw_image(const Py::Tuple& args)
 
         if (has_clippath)
         {
-            typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type>
-                pixfmt_amask_type;
-            typedef agg::renderer_base<pixfmt_amask_type> amask_ren_type;
             typedef agg::renderer_scanline_aa<amask_ren_type,
                                               color_span_alloc_type,
                                               span_conv>
@@ -1159,7 +1156,7 @@ RendererAgg::draw_image(const Py::Tuple& args)
             } catch (std::overflow_error &e) {
                 throw Py::OverflowError(e.what());
             }
-            agg::render_scanlines(theRasterizer, slineP8, ri);
+            agg::render_scanlines(theRasterizer, slineU8, ri);
         }
 
     }
@@ -1185,10 +1182,6 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
     typedef agg::conv_stroke<path_t>                           stroke_t;
     typedef agg::conv_dash<path_t>                             dash_t;
     typedef agg::conv_stroke<dash_t>                           stroke_dash_t;
-    typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-    typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
-    typedef agg::renderer_scanline_aa_solid<amask_ren_type>    amask_aa_renderer_type;
-    typedef agg::renderer_scanline_bin_solid<amask_ren_type>   amask_bin_renderer_type;
 
     // Render face
     if (face.first)
@@ -1212,7 +1205,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
             else
             {
                 rendererAA.color(face.second);
-                agg::render_scanlines(theRasterizer, slineP8, rendererAA);
+                agg::render_scanlines(theRasterizer, slineU8, rendererAA);
             }
         }
         else
@@ -1228,7 +1221,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
             else
             {
                 rendererBin.color(face.second);
-                agg::render_scanlines(theRasterizer, slineP8, rendererBin);
+                agg::render_scanlines(theRasterizer, slineBin, rendererBin);
             }
         }
     }
@@ -1269,13 +1262,13 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
         } catch (std::overflow_error &e) {
             throw Py::OverflowError(e.what());
         }
-        agg::render_scanlines(theRasterizer, slineP8, rs);
+        agg::render_scanlines(theRasterizer, slineU8, rs);
         try {
             theRasterizer.add_path(hatch_path_stroke);
         } catch (std::overflow_error &e) {
             throw Py::OverflowError(e.what());
         }
-        agg::render_scanlines(theRasterizer, slineP8, rs);
+        agg::render_scanlines(theRasterizer, slineU8, rs);
 
         // Put clipping back on, if originally set on entry to this
         // function
@@ -1296,7 +1289,18 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
         } catch (std::overflow_error &e) {
             throw Py::OverflowError(e.what());
         }
-        agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, sa, sg);
+
+        if (has_clippath)
+        {
+			pixfmt_amask_type pfa(pixFmt, alphaMask);
+			amask_ren_type ren(pfa);
+			agg::render_scanlines_aa(theRasterizer, slineU8, ren, sa, sg);
+        }
+        else
+        {
+		agg::render_scanlines_aa(theRasterizer, slineU8, rendererBase, sa, sg);
+        }
+
     }
 
     // Render stroke
@@ -1358,7 +1362,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
             else
             {
                 rendererAA.color(gc.color);
-                agg::render_scanlines(theRasterizer, slineP8, rendererAA);
+                agg::render_scanlines(theRasterizer, slineU8, rendererAA);
             }
         }
         else
@@ -1615,13 +1619,14 @@ RendererAgg::_draw_path_collection_generic
 
         bool do_clip = !face.first && gc.hatchpath.isNone() && !has_curves;
 
+        gc.isaa = Py::Boolean(antialiaseds[i % Naa]);
+
+        transformed_path_t tpath(path, trans);
+        nan_removed_t      nan_removed(tpath, true, has_curves);
+        clipped_t          clipped(nan_removed, do_clip, width, height);
+
         if (check_snap)
         {
-            gc.isaa = Py::Boolean(antialiaseds[i % Naa]);
-
-            transformed_path_t tpath(path, trans);
-            nan_removed_t      nan_removed(tpath, true, has_curves);
-            clipped_t          clipped(nan_removed, do_clip, width, height);
             snapped_t          snapped(clipped, gc.snap_mode,
                                        path.total_vertices(), gc.linewidth);
             if (has_curves)
@@ -1636,11 +1641,6 @@ RendererAgg::_draw_path_collection_generic
         }
         else
         {
-            gc.isaa = Py::Boolean(antialiaseds[i % Naa]);
-
-            transformed_path_t tpath(path, trans);
-            nan_removed_t      nan_removed(tpath, true, has_curves);
-            clipped_t          clipped(nan_removed, do_clip, width, height);
             if (has_curves)
             {
                 curve_t curve(clipped);
@@ -1948,19 +1948,17 @@ RendererAgg::_draw_gouraud_triangle(const double* points,
 
     if (has_clippath)
     {
-        typedef agg::pixfmt_amask_adaptor<pixfmt, alpha_mask_type> pixfmt_amask_type;
-        typedef agg::renderer_base<pixfmt_amask_type>              amask_ren_type;
         typedef agg::renderer_scanline_aa<amask_ren_type, span_alloc_t, span_gen_t>
-        amask_aa_renderer_type;
+        amask_aa_gouraud_renderer_type;
 
         pixfmt_amask_type pfa(pixFmt, alphaMask);
         amask_ren_type r(pfa);
-        amask_aa_renderer_type ren(r, span_alloc, span_gen);
+        amask_aa_gouraud_renderer_type ren(r, span_alloc, span_gen);
         agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
     }
     else
     {
-        agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, span_alloc, span_gen);
+        agg::render_scanlines_aa(theRasterizer, slineU8, rendererBase, span_alloc, span_gen);
     }
 }
 
