@@ -186,10 +186,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # get_path_collection_extents handles nan but not masked arrays
         offsets.shape = (-1, 2)                     # Make it Nx2
 
-        result = mpath.get_path_collection_extents(
-            transform.frozen(), paths, self.get_transforms(),
-            offsets, transOffset.frozen())
-        result = result.inverse_transformed(transData)
+        if paths:
+            result = mpath.get_path_collection_extents(
+                transform.frozen(), paths, self.get_transforms(),
+                offsets, transOffset.frozen())
+            result = result.inverse_transformed(transData)
+        else:
+            result = transforms.Bbox([[0, 0], [0, 0]])
         return result
 
     def get_window_extent(self, renderer):
