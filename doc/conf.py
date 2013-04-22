@@ -202,6 +202,7 @@ latex_preamble = """
    \\usepackage{amsfonts}
    \\usepackage{amssymb}
    \\usepackage{txfonts}
+   \\usepackage{enumitem}
 """
 
 # Documents to append as an appendix to all manuals.
