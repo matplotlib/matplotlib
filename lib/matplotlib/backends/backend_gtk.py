@@ -452,7 +452,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
     def print_png(self, filename, *args, **kwargs):
         return self._print_image(filename, 'png')
 
-    def _print_image(self, filename, format):
+    def _print_image(self, filename, format, *args, **kwargs):
         if self.flags() & gtk.REALIZED == 0:
             # for self.window(for pixmap) and has a side effect of altering
             # figure width,height (via configure-event?)
@@ -469,9 +469,19 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
         pixbuf.get_from_drawable(pixmap, pixmap.get_colormap(),
                                      0, 0, 0, 0, width, height)
 
+        # set the default quality, if we are writing a JPEG.
+        # http://www.pygtk.org/docs/pygtk/class-gdkpixbuf.html#method-gdkpixbuf--save
+        options = cbook.restrict_dict(kwargs, ['quality'])
+        if format in ['jpg','jpeg']:
+           if 'quality' not in options:
+              options['quality'] = rcParams['savefig.jpeg_quality']
+
+           options['quality'] = str(options['quality'])
+
+
         if is_string_like(filename):
             try:
-                pixbuf.save(filename, format)
+                pixbuf.save(filename, format, options=options)
             except gobject.GError as exc:
                 error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
         elif is_writable_file_like(filename):
@@ -479,7 +489,7 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
                 def save_callback(buf, data=None):
                     data.write(buf)
                 try:
-                    pixbuf.save_to_callback(save_callback, format, user_data=filename)
+                    pixbuf.save_to_callback(save_callback, format, user_data=filename, options=options)
                 except gobject.GError as exc:
                     error_msg_gtk('Save figure failure:\n%s' % (exc,), parent=self)
             else:

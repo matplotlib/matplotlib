@@ -1627,7 +1627,8 @@ FT2Font::get_glyph_name(const Py::Tuple & args)
         {
             throw Py::RuntimeError("Could not get glyph names.");
         }
-    }
+     }
+
     return Py::String(buffer);
 }
 PYCXX_VARARGS_METHOD_DECL(FT2Font, get_glyph_name)
