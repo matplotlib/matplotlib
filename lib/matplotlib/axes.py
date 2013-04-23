@@ -8078,13 +8078,8 @@ class Axes(martist.Artist):
         normed : boolean, optional, default: False
             If `True`, the first element of the return tuple will
             be the counts normalized to form a probability density, i.e.,
-            ``n/(len(x)`dbin)``.  In a probability density, the integral of
-            the histogram should be 1; you can verify that with a
-            trapezoidal integration of the probability density function::
-
-                pdf, bins, patches = ax.hist(...)
-                print np.sum(pdf ` np.diff(bins))
-
+            ``n/(len(x)`dbin)``, ie the integral of the histogram will sum to
+            1.
 
         weights : array_like, shape (n, ), optional, default: None
             An array of weights, of the same shape as `x`.  Each value in `x`
@@ -8147,11 +8142,7 @@ class Axes(martist.Artist):
         label : string, optional, default: ''
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
-            the label, so that the legend command will work as expected::
-
-                ax.hist(10+2*np.random.randn(1000), label='men')
-                ax.hist(12+3*np.random.randn(1000), label='women', alpha=0.5)
-                ax.legend()
+            the label, so that the legend command will work as expected.
 
         stacked : boolean, optional, default : False
             If `True`, multiple data are stacked on top of each other If
