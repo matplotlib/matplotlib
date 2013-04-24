@@ -942,7 +942,7 @@ class GraphicsContextBase:
          'dotted'  : (0, (1.0, 3.0)),
         """
 
-        if style in self.dashd.keys():
+        if style in self.dashd:
             offset, dashes = self.dashd[style]
         elif isinstance(style, tuple):
             offset, dashes = style
