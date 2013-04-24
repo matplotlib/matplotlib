@@ -270,16 +270,23 @@ class PkgConfig(object):
             os.environ['PKG_CONFIG_PATH'] = pkgconfig_path
 
     def setup_extension(self, ext, package, default_include_dirs=[],
-                        default_library_dirs=[], default_libraries=[]):
+                        default_library_dirs=[], default_libraries=[],
+                        alt_exec=None):
         """
         Add parameters to the given `ext` for the given `package`.
         """
         flag_map = {
             '-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
-        command = "pkg-config --libs --cflags " + package
+
+        executable = alt_exec
+        if self.has_pkgconfig:
+            executable = 'pkg-config {0}'.format(package)
 
         use_defaults = True
-        if self.has_pkgconfig:
+
+        if executable is not None:
+            command = "{0} --libs --cflags ".format(executable)
+
             try:
                 output = check_output(command, shell=True)
             except subprocess.CalledProcessError:
@@ -752,7 +759,8 @@ class FreeType(SetupPackage):
                 'lib/freetype2/include/freetype2'],
             default_library_dirs=[
                 'freetype2/lib'],
-            default_libraries=['freetype', 'z'])
+            default_libraries=['freetype', 'z'],
+            alt_exec='freetype-config')
 
 
 class FT2Font(SetupPackage):
