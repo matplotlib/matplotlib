@@ -50,13 +50,13 @@ class RendererMac(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         if rgbFace is not None:
-            rgbFace = tuple(rgbFace[:3])
+            rgbFace = tuple(rgbFace)
         linewidth = gc.get_linewidth()
         gc.draw_path(path, transform, linewidth, rgbFace)
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         if rgbFace is not None:
-            rgbFace = tuple(rgbFace[:3])
+            rgbFace = tuple(rgbFace)
         linewidth = gc.get_linewidth()
         gc.draw_markers(marker_path, marker_trans, path, trans, linewidth, rgbFace)
 
@@ -183,12 +183,14 @@ class GraphicsContextMac(_macosx.GraphicsContext, GraphicsContextBase):
     def set_alpha(self, alpha):
         GraphicsContextBase.set_alpha(self, alpha)
         _alpha = self.get_alpha()
-        _macosx.GraphicsContext.set_alpha(self, _alpha)
-
-    def set_foreground(self, fg, isRGB=False):
-        GraphicsContextBase.set_foreground(self, fg, isRGB)
+        _macosx.GraphicsContext.set_alpha(self, _alpha, self.get_forced_alpha())
         rgb = self.get_rgb()
-        _macosx.GraphicsContext.set_foreground(self, rgb[:3])
+        _macosx.GraphicsContext.set_foreground(self, rgb)
+
+    def set_foreground(self, fg, isRGBA=False):
+        GraphicsContextBase.set_foreground(self, fg, isRGBA)
+        rgb = self.get_rgb()
+        _macosx.GraphicsContext.set_foreground(self, rgb)
 
     def set_graylevel(self, fg):
         GraphicsContextBase.set_graylevel(self, fg)

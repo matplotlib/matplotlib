@@ -195,6 +195,7 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi) :
     _VERBOSE("GCAgg::GCAgg");
     linewidth = points_to_pixels(gc.getAttr("_linewidth")) ;
     alpha = Py::Float(gc.getAttr("_alpha"));
+    forced_alpha = Py::Boolean(gc.getAttr("_forced_alpha"));
     color = get_color(gc);
     _set_antialiased(gc);
     _set_linecap(gc);
@@ -221,12 +222,11 @@ GCAgg::get_color(const Py::Object& gc)
     _VERBOSE("GCAgg::get_color");
     Py::Tuple rgb = Py::Tuple(gc.getAttr("_rgb"));
 
-    double alpha = Py::Float(gc.getAttr("_alpha"));
-
     double r = Py::Float(rgb[0]);
     double g = Py::Float(rgb[1]);
     double b = Py::Float(rgb[2]);
-    return agg::rgba(r, g, b, alpha);
+    double a = Py::Float(rgb[3]);
+    return agg::rgba(r, g, b, a);
 }
 
 
@@ -458,7 +458,7 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R& rasterizer)
 
 
 std::pair<bool, agg::rgba>
-RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha)
+RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha, bool forced_alpha)
 {
     _VERBOSE("RendererAgg::_get_rgba_face");
     std::pair<bool, agg::rgba> face;
@@ -471,7 +471,14 @@ RendererAgg::_get_rgba_face(const Py::Object& rgbFace, double alpha)
     {
         face.first = true;
         Py::Tuple rgb = Py::Tuple(rgbFace);
-        face.second = rgb_to_color(rgb, alpha);
+        if (forced_alpha || rgb.length() < 4)
+        {
+            face.second = rgb_to_color(rgb, alpha);
+        }
+        else
+        {
+            face.second = rgb_to_color(rgb, Py::Float(rgb[3]));
+        }
     }
     return face;
 }
@@ -683,7 +690,7 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     curve_t            path_curve(path_snapped);
     path_curve.rewind(0);
 
-    facepair_t face = _get_rgba_face(face_obj, gc.alpha);
+    facepair_t face = _get_rgba_face(face_obj, gc.alpha, gc.forced_alpha);
 
     //maxim's suggestions for cached scanlines
     agg::scanline_storage_aa8 scanlines;
@@ -1401,7 +1408,7 @@ RendererAgg::draw_path(const Py::Tuple& args)
     if (args.size() == 4)
         face_obj = args[3];
 
-    facepair_t face = _get_rgba_face(face_obj, gc.alpha);
+    facepair_t face = _get_rgba_face(face_obj, gc.alpha, gc.forced_alpha);
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);

@@ -122,6 +122,7 @@ public:
 
     double linewidth;
     double alpha;
+    bool forced_alpha;
     agg::rgba color;
 
     Py::Object cliprect;
@@ -238,7 +239,7 @@ public:
 protected:
     double points_to_pixels(const Py::Object& points);
     agg::rgba rgb_to_color(const Py::SeqBase<Py::Object>& rgb, double alpha);
-    facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha);
+    facepair_t _get_rgba_face(const Py::Object& rgbFace, double alpha, bool forced_alpha);
 
     template<class R>
     void set_clipbox(const Py::Object& cliprect, R& rasterizer);

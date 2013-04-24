@@ -513,14 +513,18 @@ class RendererPgf(RendererBase):
 
         # filling
         has_fill = rgbFace is not None
-        path_is_transparent = gc.get_alpha() != 1.0
-        fill_is_transparent = has_fill and (len(rgbFace) > 3) and (rgbFace[3] != 1.0)
+
+        if gc.get_forced_alpha():
+            fillopacity = strokeopacity = gc.get_alpha()
+        else:
+            strokeopacity = gc.get_rgb()[3]
+            fillopacity = rgbFace[3] if has_fill and len(rgbFace) > 3 else 1.0
+
         if has_fill:
             writeln(self.fh, r"\definecolor{currentfill}{rgb}{%f,%f,%f}" % tuple(rgbFace[:3]))
             writeln(self.fh, r"\pgfsetfillcolor{currentfill}")
-        if has_fill and (path_is_transparent or fill_is_transparent):
-            opacity = gc.get_alpha() * 1.0 if not fill_is_transparent else rgbFace[3]
-            writeln(self.fh, r"\pgfsetfillopacity{%f}" % opacity)
+        if has_fill and fillopacity != 1.0:
+            writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
 
         # linewidth and color
         lw = gc.get_linewidth() * mpl_pt_to_in * latex_in_to_pt
@@ -528,15 +532,14 @@ class RendererPgf(RendererBase):
         writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
         writeln(self.fh, r"\definecolor{currentstroke}{rgb}{%f,%f,%f}" % stroke_rgba[:3])
         writeln(self.fh, r"\pgfsetstrokecolor{currentstroke}")
-        if gc.get_alpha() != 1.0:
-            writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % gc.get_alpha())
+        if strokeopacity != 1.0:
+            writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % strokeopacity)
 
         # line style
         dash_offset, dash_list = gc.get_dashes()
-        ls = gc.get_linestyle(None)
-        if ls == "solid":
+        if dash_list is None:
             writeln(self.fh, r"\pgfsetdash{}{0pt}")
-        elif (ls == "dashed" or ls == "dashdot" or ls == "dotted"):
+        else:
             dash_str = r"\pgfsetdash{"
             for dash in dash_list:
                 dash_str += r"{%fpt}" % dash

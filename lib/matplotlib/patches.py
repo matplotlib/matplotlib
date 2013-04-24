@@ -404,7 +404,7 @@ class Patch(artist.Artist):
         renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
 
-        gc.set_foreground(self._edgecolor, isRGB=True)
+        gc.set_foreground(self._edgecolor, isRGBA=True)
 
         lw = self._linewidth
         if self._edgecolor[3] == 0:
@@ -421,10 +421,7 @@ class Patch(artist.Artist):
         if rgbFace[3] == 0:
             rgbFace = None  # (some?) renderers expect this as no-fill signal
 
-        if self._edgecolor[3] == 0:
-            gc.set_alpha(self._facecolor[3])
-        else:
-            gc.set_alpha(self._edgecolor[3])
+        gc.set_alpha(self._alpha)
 
         if self._hatch:
             gc.set_hatch(self._hatch)
@@ -3995,7 +3992,7 @@ class FancyArrowPatch(Patch):
         renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
 
-        gc.set_foreground(self._edgecolor, isRGB=True)
+        gc.set_foreground(self._edgecolor, isRGBA=True)
 
         lw = self._linewidth
         if self._edgecolor[3] == 0:
@@ -4012,9 +4009,7 @@ class FancyArrowPatch(Patch):
         if rgbFace[3] == 0:
             rgbFace = None  # (some?) renderers expect this as no-fill signal
 
-        gc.set_alpha(self._edgecolor[3])
-        if self._edgecolor[3] == 0:
-            gc.set_alpha(self._facecolor[3])
+        gc.set_alpha(self._alpha)
 
         if self._hatch:
             gc.set_hatch(self._hatch)
