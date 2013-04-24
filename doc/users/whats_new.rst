@@ -142,7 +142,7 @@ the bottom of the text bounding box.
 
 ``savefig.jpeg_quality`` added to rcParams
 ------------------------------------------------------------------------------
-``rcParam`` value ``savefig.jpeg_quality was added so that the user can 
+``rcParam`` value ``savefig.jpeg_quality`` was added so that the user can 
 configure the default quality used when a figure is written as a JPEG.  The 
 default quality is 95; previously, the default quality was 75.  This change
 minimizes the artifacting inherent in JPEG images, particularly with images
