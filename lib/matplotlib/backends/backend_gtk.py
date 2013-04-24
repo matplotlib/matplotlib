@@ -478,7 +478,6 @@ class FigureCanvasGTK (gtk.DrawingArea, FigureCanvasBase):
 
            options['quality'] = str(options['quality'])
 
-
         if is_string_like(filename):
             try:
                 pixbuf.save(filename, format, options=options)
