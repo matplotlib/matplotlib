@@ -9,7 +9,7 @@ homebrew.
 
 Example usage::
 
-  brew install libpng freetype
+  brew install libpng freetype pkgconfig
 
 If you are using MacPorts, execute the following instead:
 
