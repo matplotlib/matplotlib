@@ -1173,7 +1173,6 @@ The current aspect ratio will be kept."""
            image = self.bitmap.ConvertToImage()
            image.SetOption(wx.IMAGE_OPTION_QUALITY,str(jpeg_quality))
          
-
         # Now that we have rendered into the bitmap, save it
         # to the appropriate file type and clean up
         if is_string_like(filename):
