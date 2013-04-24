@@ -27,7 +27,6 @@ new in matplotlib-1.3
 to configure the default margins used.  Previously they were
 hard-coded to default to 0, default value of both rcParam values is 0.
 
-
 New eventplot plot type
 -------------------------------------
 Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
@@ -51,7 +50,6 @@ Improved ``bbox_inches="tight"`` functionality
 Passing ``bbox_inches="tight"`` through to :func:`plt.save` now takes into account
 *all* artists on a figure - this was previously not the case and led to several
 corner cases which did not function as expected.
-
 
 Remember save directory
 -----------------------
@@ -141,6 +139,14 @@ text.
 If you are using a custom backend, note that the `draw_text` renderer
 method is now passed the location of the baseline, not the location of
 the bottom of the text bounding box.
+
+``savefig.jpeg_quality`` added to rcParams
+------------------------------------------------------------------------------
+``rcParam`` value ``savefig.jpeg_quality`` was added so that the user can 
+configure the default quality used when a figure is written as a JPEG.  The 
+default quality is 95; previously, the default quality was 75.  This change
+minimizes the artifacting inherent in JPEG images, particularly with images
+that have sharp changes in color as plots often do.
 
 .. _whats-new-1-2-2:
 
