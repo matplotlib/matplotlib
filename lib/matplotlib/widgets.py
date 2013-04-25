@@ -16,7 +16,7 @@ from mlab import dist
 from patches import Circle, Rectangle
 from lines import Line2D
 from transforms import blended_transform_factory
-from cbook import mplDeprecation
+from matplotlib.cbook import mplDeprecation
 
 
 class LockDraw:
