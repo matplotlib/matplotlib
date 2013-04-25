@@ -577,6 +577,11 @@ class DateLocator(ticker.Locator):
         return 1
 
     def nonsingular(self, vmin, vmax):
+        """
+        Given the proposed upper and lower extent, adjust the range
+        if it is too close to being singlular (i.e. a range of ~0).
+
+        """
         unit = self._get_unit()
         interval = self._get_interval()
         if abs(vmax - vmin) < 1e-6:
@@ -800,7 +805,7 @@ class AutoDateLocator(DateLocator):
 
     def nonsingular(self, vmin, vmax):
         # whatever is thrown at us, we can scale the unit.
-        # But default nonsigular date plots at an ~4 year period.
+        # But default nonsingular date plots at an ~4 year period.
         if vmin == vmax:
             vmin = vmin - 365 * 2
             vmax = vmax + 365 * 2
