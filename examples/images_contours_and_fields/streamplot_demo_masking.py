@@ -1,6 +1,8 @@
 """
-Demonstrate the use of the `streamplot` function using a masked array
-and NaN values.
+Demo of the streamplot function with masking.
+
+This example shows how streamlines created by the streamplot function skips
+masked regions and NaN values.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,7 +19,9 @@ U = np.ma.array(U, mask=mask)
 U[:20, :20] = np.nan
 
 plt.streamplot(X, Y, U, V, color='r')
-plt.imshow(~mask, extent=(-w, w, -w, w), alpha=0.5, interpolation='nearest')
+
+plt.imshow(~mask, extent=(-w, w, -w, w), alpha=0.5,
+           interpolation='nearest', cmap=plt.cm.gray)
 
 plt.show()
 
