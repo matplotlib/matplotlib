@@ -288,7 +288,8 @@ class PkgConfig(object):
             command = "{0} --libs --cflags ".format(executable)
 
             try:
-                output = check_output(command, shell=True)
+                output = check_output(command, shell=True,
+                                      stderr=subprocess.STDOUT)
             except subprocess.CalledProcessError:
                 pass
             else:
@@ -310,7 +311,7 @@ class PkgConfig(object):
                     dir = os.path.join(base, lib)
                     if os.path.exists(dir):
                         ext.library_dirs.append(dir)
-            ext.libraries = default_libraries
+            ext.libraries.extend(default_libraries)
             return True
 
         return False
@@ -327,6 +328,7 @@ class PkgConfig(object):
         if status == 0:
             return output
         return None
+
 
 # The PkgConfig class should be used through this singleton
 pkg_config = PkgConfig()
@@ -409,13 +411,17 @@ class SetupPackage(object):
         if version is None:
             version = pkg_config.get_version(package)
 
+            if version is None:
+                raise CheckFailed(
+                    "pkg-config information for '%s' could not be found" %
+                    package)
+
         if min_version == 'PATCH':
             raise CheckFailed(
                 "Requires patches that have not been merged upstream.")
 
         if min_version:
-            if (version is not None and
-                not is_min_version(version, min_version)):
+            if (not is_min_version(version, min_version)):
                 raise CheckFailed(
                     "Requires %s %s or later.  Found %s." %
                     (package, min_version, version))
@@ -672,8 +678,17 @@ class CXX(SetupPackage):
             return self._check_for_pkg_config(
                 'PyCXX', 'CXX/Extensions.hxx', min_version='6.2.4')
         except CheckFailed as e:
-            self.__class__.found_external = False
-            return str(e) + ' Using local copy.'
+            # Since there is no .pc file for PyCXX upstream, many
+            # distros don't package it either.  We don't necessarily
+            # need to fall back to a local build in that scenario if
+            # the header files can be found.
+            base_include_dirs = [
+                os.path.join(x, 'include') for x in get_base_dirs()]
+            if has_include_file(base_include_dirs, 'CXX/Extensions.hxx'):
+                return 'Using system CXX (version unknown, no pkg-config info)'
+            else:
+                self.__class__.found_external = False
+                return str(e) + ' Using local copy.'
 
     def add_flags(self, ext):
         if self.found_external:
