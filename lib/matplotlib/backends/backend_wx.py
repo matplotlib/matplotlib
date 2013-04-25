@@ -25,7 +25,7 @@ import warnings
 
 import numpy as np
 
-from cbook import mplDeprecation
+from matplotlib.cbook import mplDeprecation
 
 # Debugging settings here...
 # Debug level set here. If the debug level is less than 5, information

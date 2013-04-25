@@ -49,7 +49,7 @@ from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
-from cbook import mplDeprecation
+from matplotlib.cbook import mplDeprecation
 
 try:
     from PIL import Image

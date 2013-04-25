@@ -1,7 +1,7 @@
 import warnings
 
 from matplotlib import path
-from cbook import mplDeprecation
+from matplotlib.cbook import mplDeprecation
 
 def pnpoly(x, y, xyverts):
     """
