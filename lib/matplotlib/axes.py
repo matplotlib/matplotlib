@@ -4726,9 +4726,10 @@ class Axes(martist.Artist):
         columnspacing      the spacing between columns
         ================   ====================================================
 
-        .. Note:: Not all kinds of artist are supported by the legend command.
-                  See LINK (FIXME) for details.
+        .. note::
 
+           Not all kinds of artist are supported by the legend command.
+           See :ref:`plotting-guide-legend` for details.
 
         **Example:**
 
@@ -5360,10 +5361,14 @@ class Axes(martist.Artist):
           The radius of the pie, if *radius* is *None* it will be set to 1.
 
         The pie chart will probably look best if the figure and axes are
-        square.  e.g.::
+        square, or the Axes aspect is equal.  e.g.::
 
           figure(figsize=(8,8))
           ax = axes([0.1, 0.1, 0.8, 0.8])
+
+        or::
+
+          axes(aspect=1)
 
         Return value:
           If *autopct* is *None*, return the tuple (*patches*, *texts*):
@@ -7342,9 +7347,11 @@ class Axes(martist.Artist):
         """
         Create a pseudocolor plot of a 2-D array.
 
-        Note: pcolor can be very slow for large arrays; consider
-        using the similar but much faster
-        :func:`~matplotlib.pyplot.pcolormesh` instead.
+        .. note::
+
+            pcolor can be very slow for large arrays; consider
+            using the similar but much faster
+            :func:`~matplotlib.pyplot.pcolormesh` instead.
 
         Call signatures::
 
@@ -7467,14 +7474,16 @@ class Axes(martist.Artist):
 
         %(PolyCollection)s
 
-        Note: the default *antialiaseds* is False if the default
-        *edgecolors*="none" is used.  This eliminates artificial lines
-        at patch boundaries, and works regardless of the value of
-        alpha.  If *edgecolors* is not "none", then the default
-        *antialiaseds* is taken from
-        rcParams['patch.antialiased'], which defaults to *True*.
-        Stroking the edges may be preferred if *alpha* is 1, but
-        will cause artifacts otherwise.
+        .. note::
+
+            The default *antialiaseds* is False if the default
+            *edgecolors*="none" is used.  This eliminates artificial lines
+            at patch boundaries, and works regardless of the value of
+            alpha.  If *edgecolors* is not "none", then the default
+            *antialiaseds* is taken from
+            rcParams['patch.antialiased'], which defaults to *True*.
+            Stroking the edges may be preferred if *alpha* is 1, but
+            will cause artifacts otherwise.
 
         .. seealso::
 
@@ -8861,10 +8870,12 @@ class Axes(martist.Artist):
           - *Pxx* is an array of shape `(len(times), len(freqs))` of power
           - *im* is a :class:`~matplotlib.image.AxesImage` instance
 
-        Note: If *x* is real (i.e. non-complex), only the positive
-        spectrum is shown.  If *x* is complex, both positive and
-        negative parts of the spectrum are shown.  This can be
-        overridden using the *sides* keyword argument.
+        .. note::
+
+            If *x* is real (i.e. non-complex), only the positive
+            spectrum is shown.  If *x* is complex, both positive and
+            negative parts of the spectrum are shown.  This can be
+            overridden using the *sides* keyword argument.
 
         Also note that while the plot is in dB, the *Pxx* array returned is
         linear in power.

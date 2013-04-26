@@ -102,10 +102,10 @@ _backend_mod, new_figure_manager, draw_if_interactive, _show = pylab_setup()
 
 
 @docstring.copy_dedent(Artist.findobj)
-def findobj(o=None, match=None):
+def findobj(o=None, match=None, include_self=True):
     if o is None:
         o = gcf()
-    return o.findobj(match)
+    return o.findobj(match, include_self=include_self)
 
 
 def switch_backend(newbackend):
@@ -1253,7 +1253,9 @@ def title(s, *args, **kwargs):
 
 def axis(*v, **kwargs):
     """
-    Set or get the axis properties.::
+    Convenience method to get or set axis properties.
+
+    Calling with no arguments::
 
       >>> axis()
 
@@ -1754,8 +1756,8 @@ def colors():
 def colormaps():
     """
     Matplotlib provides a number of colormaps, and others can be added using
-    :func:`register_cmap`.  This function documents the built-in colormaps,
-    and will also return a list of all registered colormaps if called.
+    :func:`~matplotlib.cm.register_cmap`.  This function documents the built-in
+    colormaps, and will also return a list of all registered colormaps if called.
 
     You can set the colormap for an image, pcolor, scatter, etc,
     using a keyword argument::
@@ -2086,15 +2088,16 @@ def clim(vmin=None, vmax=None):
 
 
 def set_cmap(cmap):
-    '''
+    """
     Set the default colormap.  Applies to the current image if any.
     See help(colormaps) for more information.
 
-    *cmap* must be a :class:`colors.Colormap` instance, or
+    *cmap* must be a :class:`~matplotlib.colors.Colormap` instance, or
     the name of a registered colormap.
 
-    See :func:`register_cmap` and :func:`get_cmap`.
-    '''
+    See :func:`matplotlib.cm.register_cmap` and
+    :func:`matplotlib.cm.get_cmap`.
+    """
     cmap = cm.get_cmap(cmap)
 
     rc('image', cmap=cmap.name)

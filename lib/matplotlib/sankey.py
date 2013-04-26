@@ -297,7 +297,7 @@ class Sankey:
         """
         Append an output to a path and return its tip and label locations.
 
-        Note: *flow* is negative for an output.
+        .. note:: *flow* is negative for an output.
         """
         if angle is None:
             return [0, 0], [0, 0]

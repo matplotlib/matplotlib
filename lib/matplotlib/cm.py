@@ -102,12 +102,12 @@ def register_cmap(name=None, cmap=None, data=None, lut=None):
 
         register_cmap(name='choppy', data=choppydata, lut=128)
 
-    In the first case, *cmap* must be a :class:`colors.Colormap`
+    In the first case, *cmap* must be a :class:`matplotlib.colors.Colormap`
     instance.  The *name* is optional; if absent, the name will
-    be the :attr:`name` attribute of the *cmap*.
+    be the :attr:`~matplotlib.colors.Colormap.name` attribute of the *cmap*.
 
     In the second case, the three arguments are passed to
-    the :class:`colors.LinearSegmentedColormap` initializer,
+    the :class:`~matplotlib.colors.LinearSegmentedColormap` initializer,
     and the resulting colormap is registered.
 
     """
@@ -136,9 +136,9 @@ def get_cmap(name=None, lut=None):
     Get a colormap instance, defaulting to rc values if *name* is None.
 
     Colormaps added with :func:`register_cmap` take precedence over
-    builtin colormaps.
+    built-in colormaps.
 
-    If *name* is a :class:`colors.Colormap` instance, it will be
+    If *name* is a :class:`matplotlib.colors.Colormap` instance, it will be
     returned.
 
     If *lut* is not None it must be an integer giving the number of
@@ -163,15 +163,22 @@ def get_cmap(name=None, lut=None):
 
 class ScalarMappable:
     """
-    This is a mixin class to support scalar -> RGBA mapping.  Handles
-    normalization and colormapping
-    """
+    This is a mixin class to support scalar data to RGBA mapping.
+    The ScalarMappable makes use of data normalization before returning
+    RGBA colors from the given colormap.
 
+    """
     def __init__(self, norm=None, cmap=None):
-        """
-        *norm* is an instance of :class:`colors.Normalize` or one of
-        its subclasses, used to map luminance to 0-1. *cmap* is a
-        :mod:`cm` colormap instance, for example :data:`cm.jet`
+        r"""
+
+        Parameters
+        ----------
+        norm : :class:`matplotlib.colors.Normalize` instance
+            The normalizing object which scales data, typically into the
+            interval ``[0, 1]``.
+        cmap : str or :class:`~matplotlib.colors.Colormap` instance
+            The colormap used to map normalized data values to RGBA colors.
+
         """
 
         self.callbacksSM = cbook.CallbackRegistry()
@@ -181,8 +188,10 @@ class ScalarMappable:
         if norm is None:
             norm = colors.Normalize()
 
-        self._A = None
+        self._A = None;
+        #; The Normalization instance of this ScalarMappable.
         self.norm = norm
+        #; The Colormap instance of this ScalarMappable.
         self.cmap = get_cmap(cmap)
         self.colorbar = None
         self.update_dict = {'array': False}
