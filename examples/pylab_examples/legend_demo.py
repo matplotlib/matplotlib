@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # Thanks to Charles Twardy for this example
 #
-#See http://matplotlib.sf.net/examples/legend_demo2.py for an example
-#controlling which lines the legend uses and the order
+#See http://matplotlib.org/examples/pylab_examples/legend_demo2.html
+# for an example controlling which lines the legend uses and the order
+# they are drawn in.
 
 import numpy as np
 import matplotlib.pyplot as plt
