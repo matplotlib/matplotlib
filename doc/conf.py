@@ -105,7 +105,6 @@ default_role = 'obj'
 plot_formats = [('png', 80), ('hires.png', 200), ('pdf', 50)]
 
 # Subdirectories in 'examples/' directory of package and titles for gallery
-# TODO: Change to OrderedDict when Matplotlib drops support for Python < 2.7
 mpl_example_sections = (
     ('lines_bars_and_markers', 'Lines, bars, and markers'),
     ('shapes_and_collections', 'Shapes and collections'),
@@ -251,3 +250,9 @@ texinfo_documents = [
    'Matplotlib', "Python plotting package", 'Programming',
    1),
 ]
+
+
+################# numpydoc config ####################
+numpydoc_show_class_members = False
+
+
