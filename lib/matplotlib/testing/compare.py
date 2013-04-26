@@ -141,28 +141,16 @@ def make_external_conversion_command(cmd):
    return convert
 
 if matplotlib.checkdep_ghostscript() is not None:
-    def make_ghostscript_conversion_command():
-        # FIXME: make checkdep_ghostscript return the command
-        if sys.platform == 'win32':
-            gs = 'gswin32c'
-        else:
-            gs = 'gs'
-        cmd = [gs, '-q', '-sDEVICE=png16m', '-sOutputFile=-']
+    if sys.platform == 'win32':
+        gs = 'gswin32c'
+    else:
+        gs = 'gs'
 
-        process = util.MiniExpect(cmd)
-
-        def do_convert(old, new):
-            process.expect("GS>")
-            process.sendline("(%s) run" % old.replace('\\', '/'))
-            with open(new, 'wb') as fd:
-                process.expect(">>showpage, press <return> to continue<<", fd)
-            process.sendline('')
-
-        return do_convert
-
-    converter['pdf'] = make_ghostscript_conversion_command()
-    converter['eps'] = make_ghostscript_conversion_command()
-
+    cmd = lambda old, new: \
+        ['gs', '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
+        '-sOutputFile=' + new, old]
+    converter['pdf'] = make_external_conversion_command(cmd)
+    converter['eps'] = make_external_conversion_command(cmd)
 
 if matplotlib.checkdep_inkscape() is not None:
    cmd = lambda old, new: \
