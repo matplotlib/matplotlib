@@ -1424,12 +1424,19 @@ class BackendGtkAgg(BackendGtk):
 
 def backend_gtk3agg_internal_check(x):
     try:
-        from gi.repository import Gtk, Gdk, GObject
+        import gi
     except ImportError:
         return (False, "Requires pygobject to be installed.")
 
-    if sys.version_info[0] >= 3:
-        return (False, "gtk3agg does not work on Python 3")
+    try:
+        gi.require_version("Gtk", "3.0")
+    except ValueError:
+        return (False, "Requires gtk3 development files to be installed.")
+
+    try:
+        from gi.repository import Gtk, Gdk, GObject
+    except ImportError:
+        return (False, "Requires pygobject to be installed.")
 
     return (True, "version %s.%s.%s" % (
         Gtk.get_major_version(),
@@ -1443,6 +1450,9 @@ class BackendGtk3Agg(OptionalBackendPackage):
     def check(self):
         if 'TRAVIS' in os.environ:
             raise CheckFailed("Can't build with Travis")
+
+        if sys.version_info[0] >= 3:
+            return "gtk3agg backend does not work on Python 3"
 
         # This check needs to be performed out-of-process, because
         # importing gi and then importing regular old pygtk afterward
@@ -1467,6 +1477,16 @@ def backend_gtk3cairo_internal_check(x):
         import cairo
     except ImportError:
         return (False, "Requires cairo to be installed.")
+
+    try:
+        import gi
+    except ImportError:
+        return (False, "Requires pygobject to be installed.")
+
+    try:
+        gi.require_version("Gtk", "3.0")
+    except ValueError:
+        return (False, "Requires gtk3 development files to be installed.")
 
     try:
         from gi.repository import Gtk, Gdk, GObject
@@ -1611,7 +1631,7 @@ class BackendQt(OptionalBackendPackage):
         try:
             import pyqtconfig
         except ImportError:
-            raise CheckFailed("not found")
+            raise CheckFailed("pyqt not found")
         else:
             try:
                 qt_version = pyqtconfig.Configuration().qt_version
@@ -1641,7 +1661,7 @@ class BackendQt4(OptionalBackendPackage):
         try:
             from PyQt4 import pyqtconfig
         except ImportError:
-            raise CheckFailed("not found")
+            raise CheckFailed("PyQt4 not found")
         else:
 
             BackendAgg.force = True
@@ -1660,7 +1680,7 @@ class BackendPySide(OptionalBackendPackage):
             from PySide import __version__
             from PySide import QtCore
         except ImportError:
-            raise CheckFailed("not found")
+            raise CheckFailed("PySide not found")
         else:
             BackendAgg.force = True
 
@@ -1675,7 +1695,7 @@ class BackendCairo(OptionalBackendPackage):
         try:
             import cairo
         except ImportError:
-            raise CheckFailed("not found")
+            raise CheckFailed("cairo not found")
         else:
             return "version %s" % cairo.version
 
