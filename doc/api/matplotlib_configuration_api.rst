@@ -2,6 +2,6 @@ The top level :mod:`matplotlib` module
 ======================================
 
 .. automodule:: matplotlib
-   :members:
+   :members: rc, rcdefaults, use
    :undoc-members:
    :show-inheritance:

@@ -508,7 +508,7 @@ ul.keywordmatches li.goodmatch a {
 
 table.docutils {
     border-spacing: 2px;
-    border: collapse;
+    border-collapse: collapse;
     border-top-width: 1px;
     border-right-width: 0px;
     border-bottom-width: 1px;
@@ -535,3 +535,34 @@ table.docutils th {
 table.docutils td {
     border-width: 1px 0 1px 0;
 }
+
+#matplotlib-examples ul li{
+  font-size: large;
+}
+
+#matplotlib-examples ul li ul{
+  margin-bottom:20px;
+  overflow:hidden;
+  border-top:1px solid #ccc;
+}
+
+#matplotlib-examples ul li ul li {
+  font-size: small;
+  line-height:1.75em;
+  display:inline;
+  float: left;
+  width: 22em;
+}
+
+#overview ul li ul{
+  margin-bottom:20px;
+  overflow:hidden;
+  border-top:1px solid #ccc;
+}
+
+#overview ul li ul li {
+  display:inline;
+  float: left;
+  width: 30em;
+}
+

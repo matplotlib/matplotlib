@@ -1,6 +1,42 @@
 {% extends "layout.html" %}
 {% set title = 'matplotlib: python plotting' %}
 
+{% block extrahead %}
+<script>
+function getSnippet(id, url) {
+  var req = false;
+  // For Safari, Firefox, and other non-MS browsers
+  if (window.XMLHttpRequest) {
+    try {
+      req = new XMLHttpRequest();
+    } catch (e) {
+      req = false;
+    }
+  } else if (window.ActiveXObject) {
+    // For Internet Explorer on Windows
+    try {
+      req = new ActiveXObject("Msxml2.XMLHTTP");
+    } catch (e) {
+      try {
+        req = new ActiveXObject("Microsoft.XMLHTTP");
+      } catch (e) {
+        req = false;
+      }
+    }
+  }
+  var element = document.getElementById(id);
+  if (req) {
+    // Synchronous request, wait till we have it all
+    req.open('GET', url, false);
+    req.send(null);
+    element.innerHTML = req.responseText;
+  }
+}
+</script>
+
+ {{ super() }}
+{% endblock %}
+
 {% block body %}
 
   <h1>Introduction</h1>
@@ -132,12 +168,11 @@ changes</a> file.</p>
 
 <h1>Toolkits</h1>
 
-<p>There are several matplotlib add-on <a href="{{
-pathto('mpl_toolkits/index') }}">toolkits</a>, including the projection
-and mapping toolkit
-<a href="http://matplotlib.github.com/basemap">basemap</a>, 3d plotting with <a href="{{
-pathto('mpl_toolkits/mplot3d/index') }}">mplot3d</a>, axes and axis helpers in <a href="{{
-pathto('mpl_toolkits/axes_grid/index') }}">axes_grid</a> and more.
+<p>There are several matplotlib add-on <a href="{{ pathto('mpl_toolkits/index') }}">toolkits</a>,
+including a choice of two projection and mapping toolkits <a href="http://matplotlib.org/basemap">basemap</a> and
+<a href="http://scitools.org.uk/cartopy/docs/latest">cartopy</a>,
+3d plotting with <a href="{{ pathto('mpl_toolkits/mplot3d/index') }}">mplot3d</a>,
+axes and axis helpers in <a href="{{ pathto('mpl_toolkits/axes_grid/index') }}">axes_grid</a> and more.
  </p>
 
 <h1>Citing matplotlib</h1>
