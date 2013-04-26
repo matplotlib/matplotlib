@@ -59,6 +59,8 @@
 #tkagg = auto
 #macosx = auto
 #windowing = auto
+#gtk3cairo = auto
+#gtk3agg = auto
 
 [rc_options]
 # User-configurable options
