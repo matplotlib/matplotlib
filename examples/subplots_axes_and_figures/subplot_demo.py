@@ -12,7 +12,7 @@ y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
 y2 = np.cos(2 * np.pi * x2)
 
 plt.subplot(2, 1, 1)
-plt.plot(x1, y1, 'ko-')
+plt.plot(x1, y1, 'yo-')
 plt.title('A tale of 2 subplots')
 plt.ylabel('Damped oscillation')
 

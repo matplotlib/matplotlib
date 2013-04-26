@@ -229,11 +229,9 @@ object:
         imgplot = plt.imshow(lum_img)
         imgplot.set_cmap('spectral')
 
-There are many other colormap schemes available.  See the `list of 
-colormaps 
-<http://matplotlib.org/api/pyplot_summary.html#matplotlib.pyplot.colormaps>`_ 
-and `images of the colormaps
-<http://matplotlib.org/examples/pylab_examples/show_colormaps.html>`_.
+There are many other colormap schemes available.  See the `list and
+images of the colormaps
+<http://matplotlib.org/examples/color/colormaps_reference.html>`_.
 
 .. _`Color Bars`:
 

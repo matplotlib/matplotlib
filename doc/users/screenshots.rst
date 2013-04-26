@@ -22,7 +22,7 @@ Subplot demo
 Multiple regular axes (numrows by numcolumns) are created with the
 :func:`~matplotlib.pyplot.subplot` command.
 
-.. plot:: mpl_examples/pylab_examples/subplot_demo.py
+.. plot:: mpl_examples/subplots_axes_and_figures/subplot_demo.py
 
 .. _screenshots_histogram_demo:
 
@@ -32,7 +32,7 @@ Histograms
 The :func:`~matplotlib.pyplot.hist` command automatically generates
 histograms and will return the bin counts or probabilities
 
-.. plot:: mpl_examples/pylab_examples/histogram_demo.py
+.. plot:: mpl_examples/statistics/histogram_demo_features.py
 
 
 .. _screenshots_path_demo:
@@ -43,7 +43,7 @@ Path demo
 You can add arbitrary paths in matplotlib as of release 0.98.  See
 the :mod:`matplotlib.path`.
 
-.. plot:: mpl_examples/api/path_patch_demo.py
+.. plot:: mpl_examples/shapes_and_collections/path_patch_demo.py
 
 .. _screenshots_mplot3d_surface:
 
@@ -103,7 +103,7 @@ or more wedges out from the center of the pie, and a shadow effect.
 Take a close look at the attached code that produced this figure; nine
 lines of code.
 
-.. plot:: mpl_examples/pylab_examples/pie_demo.py
+.. plot:: mpl_examples/pie_and_polar_charts/pie_demo_features.py
 
 .. _screenshots_table_demo:
 
@@ -153,7 +153,7 @@ The :func:`~matplotlib.pyplot.fill` command lets you
 plot filled polygons.  Thanks to Andrew Straw for providing this
 function
 
-.. plot:: mpl_examples/pylab_examples/fill_demo.py
+.. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
 
 
 .. _screenshots_date_demo:
