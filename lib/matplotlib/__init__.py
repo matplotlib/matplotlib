@@ -549,6 +549,7 @@ def _get_configdir():
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
         if not os.path.exists(configdir):
+            from matplotlib.cbook import mkdirs
             mkdirs(configdir)
         if not _is_writable_dir(configdir):
             return _create_tmp_config_dir()
@@ -631,9 +632,9 @@ def get_example_data(fname):
 
 def get_py2exe_datafiles():
     datapath = get_data_path()
-    head, tail = os.path.split(datapath)
+    _, tail = os.path.split(datapath)
     d = {}
-    for root, dirs, files in os.walk(datapath):
+    for root, _, files in os.walk(datapath):
         # Need to explicitly remove cocoa_agg files or py2exe complains
         # NOTE I dont know why, but do as previous version
         if 'Matplotlib.nib' in files:
@@ -647,7 +648,7 @@ def get_py2exe_datafiles():
 
 def matplotlib_fname():
     """
-    Return the path to the rc file
+    Return the path to the rc file used by matplotlib.
 
     Search order:
 
@@ -656,9 +657,7 @@ def matplotlib_fname():
      * HOME/.matplotlib/matplotlibrc
      * MATPLOTLIBDATA/matplotlibrc
 
-
     """
-
     oldname = os.path.join(os.getcwd(), '.matplotlibrc')
     if os.path.exists(oldname):
         try:
@@ -820,13 +819,14 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
 
 
 def rc_params(fail_on_error=False):
-    'Return the default params updated from the values in the rc file'
-
+    """Return a :class:`matplotlib.RcParams` instance from the
+    default matplotlib rc file.
+    """
     fname = matplotlib_fname()
     if not os.path.exists(fname):
         # this should never happen, default in mpl-data should always be found
         message = 'could not find rc file; returning defaults'
-        ret = RcParams([ (key, default) for key, (default, converter) in \
+        ret = RcParams([(key, default) for key, (default, _) in \
                         defaultParams.iteritems() ])
         warnings.warn(message)
         return ret
@@ -835,29 +835,31 @@ def rc_params(fail_on_error=False):
 
 
 def rc_params_from_file(fname, fail_on_error=False):
-    """Load and return params from fname."""
-
+    """Return a :class:`matplotlib.RcParams` instance from the
+    contents of the given filename.
+    """
     cnt = 0
     rc_temp = {}
     with open(fname) as fd:
         for line in fd:
             cnt += 1
-            strippedline = line.split('#',1)[0].strip()
+            strippedline = line.split('#', 1)[0].strip()
             if not strippedline: continue
-            tup = strippedline.split(':',1)
-            if len(tup) !=2:
-                warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"'%\
+            tup = strippedline.split(':', 1)
+            if len(tup) != 2:
+                warnings.warn('Illegal line #%d\n\t%s\n\tin file "%s"' % \
                               (cnt, line, fname))
                 continue
             key, val = tup
             key = key.strip()
             val = val.strip()
             if key in rc_temp:
-                warnings.warn('Duplicate key in file "%s", line #%d'%(fname,cnt))
+                warnings.warn('Duplicate key in file "%s", line #%d' % \
+                              (fname, cnt))
             rc_temp[key] = (val, line, cnt)
 
-    ret = RcParams([ (key, default) for key, (default, converter) in \
-                    defaultParams.iteritems() ])
+    ret = RcParams([(key, default) for key, (default, _) in \
+                    defaultParams.iteritems()])
 
     for key in ('verbose.level', 'verbose.fileo'):
         if key in rc_temp:
@@ -1033,11 +1035,11 @@ class rc_context(object):
 
     This allows one to do::
 
-    >>> with mpl.rc_context(fname='screen.rc'):
-    ...     plt.plot(x, a)
-    ...     with mpl.rc_context(fname='print.rc'):
-    ...         plt.plot(x, b)
-    ...     plt.plot(x, c)
+        with mpl.rc_context(fname='screen.rc'):
+            plt.plot(x, a)
+            with mpl.rc_context(fname='print.rc'):
+                plt.plot(x, b)
+            plt.plot(x, c)
 
     The 'a' vs 'x' and 'c' vs 'x' plots would have settings from
     'screen.rc', while the 'b' vs 'x' plot would have settings from
@@ -1045,8 +1047,8 @@ class rc_context(object):
 
     A dictionary can also be passed to the context manager::
 
-    >>> with mpl.rc_context(rc={'text.usetex': True}, fname='screen.rc'):
-    ...     plt.plot(x, a)
+        with mpl.rc_context(rc={'text.usetex': True}, fname='screen.rc'):
+            plt.plot(x, a)
 
     The 'rc' dictionary takes precedence over the settings loaded from
     'fname'.  Passing a dictionary only is also valid.
@@ -1133,7 +1135,7 @@ def use(arg, warn=True, force=False):
         reload(sys.modules['matplotlib.backends'])
 
 def get_backend():
-    "Returns the current backend."
+    """Return the name of the current backend."""
     return rcParams['backend']
 
 def interactive(b):
