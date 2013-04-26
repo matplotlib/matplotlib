@@ -5577,7 +5577,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: mpl_examples/pylab_examples/errorbar_demo.py
+        .. plot:: mpl_examples/statistics/errorbar_demo.py
 
         """
 
@@ -6229,7 +6229,7 @@ class Axes(martist.Artist):
 
         Examples
         --------
-        .. plot:: mpl_examples/pylab_examples/scatter_demo.py
+        .. plot:: mpl_examples/shapes_and_collections/scatter_demo.py
 
         """
 
@@ -6909,7 +6909,7 @@ class Axes(martist.Artist):
 
         **Example:**
 
-        .. plot:: mpl_examples/pylab_examples/fill_demo.py
+        .. plot:: mpl_examples/lines_bars_and_markers/fill_demo.py
 
         """
         if not self._hold:
@@ -8170,7 +8170,7 @@ class Axes(martist.Artist):
 
         Examples
         --------
-        .. plot:: mpl_examples/pylab_examples/histogram_demo.py
+        .. plot:: mpl_examples/statistics/histogram_demo_features.py
 
         """
         if not self._hold:
