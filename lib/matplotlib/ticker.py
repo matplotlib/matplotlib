@@ -910,7 +910,8 @@ class Locator(TickHelper):
         """
         select a scale for the range from vmin to vmax
 
-        Normally This will be overridden.
+        Normally this method is overridden by subclasses to
+        change locator behaviour.
         """
         return mtransforms.nonsingular(vmin, vmax)
 
