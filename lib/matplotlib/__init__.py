@@ -1167,10 +1167,13 @@ for s in sys.argv[1:]:
 
 default_test_modules = [
     'matplotlib.tests.test_agg',
+    'matplotlib.tests.test_arrow_patches',
     'matplotlib.tests.test_artist',
     'matplotlib.tests.test_axes',
-    'matplotlib.tests.test_backend_svg',
+    'matplotlib.tests.test_backend_pdf',
     'matplotlib.tests.test_backend_pgf',
+    'matplotlib.tests.test_backend_qt4',
+    'matplotlib.tests.test_backend_svg',
     'matplotlib.tests.test_basic',
     'matplotlib.tests.test_bbox_tight',
     'matplotlib.tests.test_cbook',
@@ -1189,6 +1192,7 @@ default_test_modules = [
     'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_patches',
     'matplotlib.tests.test_pickle',
+    'matplotlib.tests.test_png',
     'matplotlib.tests.test_rcparams',
     'matplotlib.tests.test_scale',
     'matplotlib.tests.test_simplification',
@@ -1198,10 +1202,8 @@ default_test_modules = [
     'matplotlib.tests.test_text',
     'matplotlib.tests.test_ticker',
     'matplotlib.tests.test_tightlayout',
-    'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_transforms',
-    'matplotlib.tests.test_arrow_patches',
-    'matplotlib.tests.test_backend_qt4',
+    'matplotlib.tests.test_triangulation',
     ]
 
 
