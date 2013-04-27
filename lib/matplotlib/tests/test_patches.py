@@ -9,7 +9,8 @@ from matplotlib.patches import Polygon
 from matplotlib.patches import Rectangle
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib import patches as mpatches
+import matplotlib.patches as mpatches
+import matplotlib.collections as mcollections
 from matplotlib import path as mpath
 from matplotlib import transforms as mtrans
 
@@ -104,3 +105,36 @@ def test_clip_to_bbox():
         result_path, alpha=0.5, facecolor='green', lw=4, edgecolor='black')
 
     ax.add_patch(result_patch)
+
+
+@image_comparison(baseline_images=['patch_alpha_coloring'], remove_text=True)
+def test_patch_alpha_coloring():
+    star = mpath.Path.unit_regular_star(6)
+    circle = mpath.Path.unit_circle()
+    # concatenate the star with an internal cutout of the circle
+    verts = np.concatenate([circle.vertices, star.vertices[::-1]])
+    codes = np.concatenate([circle.codes, star.codes])
+    cut_star1 = mpath.Path(verts, codes)
+    cut_star2 = mpath.Path(verts + 1, codes)
+
+    ax = plt.axes()
+    patch = mpatches.PathPatch(cut_star1,
+                               linewidth=5, linestyle='dashdot',
+                               facecolor=(1, 0, 0, 0.5),
+                               edgecolor=(0, 0, 1, 0.75))
+    ax.add_patch(patch)
+    
+    col = mcollections.PathCollection([cut_star2],
+                                      linewidth=5, linestyles='dashdot',
+                                      facecolor=(1, 0, 0, 0.5),
+                                      edgecolor=(0, 0, 1, 0.75))
+    ax.add_collection(col)
+
+    ax.set_xlim([-1, 2])
+    ax.set_ylim([-1, 2])
+    
+
+
+if __name__=='__main__':
+    import nose
+    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
