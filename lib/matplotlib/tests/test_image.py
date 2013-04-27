@@ -5,7 +5,7 @@ from matplotlib.testing.decorators import image_comparison, knownfailureif, clea
 from matplotlib import rcParams
 import matplotlib.pyplot as plt
 from nose.tools import assert_raises
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 import io
 import os
@@ -129,8 +129,9 @@ def test_imsave():
     assert_array_equal(arr_dpi1, arr_dpi100)
 
 def test_imsave_color_alpha():
-    # The goal is to test that imsave will accept arrays with ndim=3 where
-    # the third dimension is color and alpha without raising any exceptions
+    # Test that imsave accept arrays with ndim=3 where the third dimension is
+    # color and alpha without raising any exceptions, and that the data is
+    # acceptably preserved through a save/read roundtrip.
     from numpy import random
     random.seed(1)
     data = random.rand(256, 128, 4)
@@ -141,12 +142,14 @@ def test_imsave_color_alpha():
     buff.seek(0)
     arr_buf = plt.imread(buff)
 
-    assert arr_buf.shape == data.shape
+    # Recreate the float -> uint8 -> float32 conversion of the data
+    data = (255*data).astype('uint8').astype('float32')/255
+    # Wherever alpha values were rounded down to 0, the rgb values all get set
+    # to 0 during imsave (this is reasonable behaviour).
+    # Recreate that here:
+    data[data[:, :, 3] == 0] = 0
 
-    # Unfortunately, the AGG process "flattens" the RGBA data
-    # into an equivalent RGB data with no transparency. So we
-    # Can't directly compare the arrays like we could in some
-    # other imsave tests.
+    assert_array_equal(data, arr_buf)
 
 @image_comparison(baseline_images=['image_clip'])
 def test_image_clip():
