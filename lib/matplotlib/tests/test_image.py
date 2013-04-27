@@ -235,6 +235,26 @@ def test_image_composite_background():
     ax.set_axis_bgcolor((1, 0, 0, 0.5))
     ax.set_xlim([0, 12])
 
+@image_comparison(baseline_images=['image_composite_alpha'], remove_text=True)
+def test_image_composite_alpha():
+    """
+    Tests that the alpha value is recognized and correctly applied in the
+    process of compositing images together.
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    arr = np.arange(12).reshape(4, 3)
+    ax.imshow(arr, extent=[0, 2, 15, 0], alpha=0.25)
+    ax.imshow(arr, extent=[4, 6, 15, 0], alpha=0.5)
+    ax.imshow(arr, extent=[8, 10, 15, 0])
+    ax.imshow(arr.T, extent=[0, 12, 2, 4], alpha=0.25)
+    ax.imshow(arr.T, extent=[0, 12, 6, 8], alpha=0.5)
+    ax.imshow(arr.T, extent=[0, 12, 10, 12], alpha=1.0)
+    ax.set_axis_bgcolor((0, 0, 0, 0.5))
+    ax.set_xlim([0, 12])
+    ax.set_ylim([15, 0])
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
