@@ -109,6 +109,10 @@ def test_clip_to_bbox():
 
 @image_comparison(baseline_images=['patch_alpha_coloring'], remove_text=True)
 def test_patch_alpha_coloring():
+    """
+    Test checks that the patch and collection are rendered with the specified
+    alpha values in their facecolor and edgecolor.
+    """
     star = mpath.Path.unit_regular_star(6)
     circle = mpath.Path.unit_circle()
     # concatenate the star with an internal cutout of the circle
@@ -123,7 +127,7 @@ def test_patch_alpha_coloring():
                                facecolor=(1, 0, 0, 0.5),
                                edgecolor=(0, 0, 1, 0.75))
     ax.add_patch(patch)
-    
+
     col = mcollections.PathCollection([cut_star2],
                                       linewidth=5, linestyles='dashdot',
                                       facecolor=(1, 0, 0, 0.5),
@@ -132,7 +136,75 @@ def test_patch_alpha_coloring():
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
-    
+
+
+
+@image_comparison(baseline_images=['patch_alpha_override'], remove_text=True)
+def test_patch_alpha_override():
+    """
+    Test checks that specifying an alpha attribute for a patch or collection
+    will override any alpha component of the facecolor or edgecolor.
+    """
+    star = mpath.Path.unit_regular_star(6)
+    circle = mpath.Path.unit_circle()
+    # concatenate the star with an internal cutout of the circle
+    verts = np.concatenate([circle.vertices, star.vertices[::-1]])
+    codes = np.concatenate([circle.codes, star.codes])
+    cut_star1 = mpath.Path(verts, codes)
+    cut_star2 = mpath.Path(verts + 1, codes)
+
+    ax = plt.axes()
+    patch = mpatches.PathPatch(cut_star1,
+                               linewidth=5, linestyle='dashdot',
+                               alpha=0.25,
+                               facecolor=(1, 0, 0, 0.5),
+                               edgecolor=(0, 0, 1, 0.75))
+    ax.add_patch(patch)
+
+    col = mcollections.PathCollection([cut_star2],
+                                      linewidth=5, linestyles='dashdot',
+                                      alpha=0.25,
+                                      facecolor=(1, 0, 0, 0.5),
+                                      edgecolor=(0, 0, 1, 0.75))
+    ax.add_collection(col)
+
+    ax.set_xlim([-1, 2])
+    ax.set_ylim([-1, 2])
+
+
+
+@image_comparison(baseline_images=['patch_custom_linestyle'], remove_text=True)
+def test_patch_custom_linestyle():
+    """
+    A test to check that patches and collections accept custom dash patterns
+    as linestyle and that they display correctly.
+    """
+    star = mpath.Path.unit_regular_star(6)
+    circle = mpath.Path.unit_circle()
+    # concatenate the star with an internal cutout of the circle
+    verts = np.concatenate([circle.vertices, star.vertices[::-1]])
+    codes = np.concatenate([circle.codes, star.codes])
+    cut_star1 = mpath.Path(verts, codes)
+    cut_star2 = mpath.Path(verts + 1, codes)
+
+    ax = plt.axes()
+    patch = mpatches.PathPatch(cut_star1,
+                               linewidth=5, linestyle=(0.0, (5.0, 7.0, 10.0, 7.0)),
+                               facecolor=(1, 0, 0),
+                               edgecolor=(0, 0, 1))
+    ax.add_patch(patch)
+
+    col = mcollections.PathCollection([cut_star2],
+                                      linewidth=5, linestyles=[(0.0, (5.0, 7.0, 10.0, 7.0))],
+                                      facecolor=(1, 0, 0),
+                                      edgecolor=(0, 0, 1))
+    ax.add_collection(col)
+
+    ax.set_xlim([-1, 2])
+    ax.set_ylim([-1, 2])
+
+
+
 
 
 if __name__=='__main__':
