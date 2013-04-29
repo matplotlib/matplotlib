@@ -1,3 +1,14 @@
+2013-04-25 Changed all instances of:
+
+	   from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
+	   to:
+
+	   from cbook import mplDeprecation
+
+	   and removed the import into the matplotlib namespace in __init__.py
+	   Thomas Caswell
+
+
 2013-04-15 Added 'axes.xmargin' and 'axes.ymargin' to rpParams to set default
 	   margins on auto-scaleing. - TAC
 
