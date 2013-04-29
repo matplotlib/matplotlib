@@ -12,7 +12,7 @@ import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
-from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
+from matplotlib.cbook import mplDeprecation
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init

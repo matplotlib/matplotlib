@@ -130,7 +130,6 @@ import distutils.version
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.cbook import is_string_like
 from matplotlib.compat import subprocess
 

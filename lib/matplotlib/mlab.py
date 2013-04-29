@@ -148,7 +148,7 @@ from itertools import izip
 import numpy as np
 ma = np.ma
 from matplotlib import verbose
-from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
+from matplotlib.cbook import mplDeprecation
 
 import matplotlib.cbook as cbook
 from matplotlib import docstring
