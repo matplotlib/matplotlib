@@ -4,7 +4,7 @@ import os
 import sys
 import warnings
 
-from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
+from matplotlib.cbook import mplDeprecation
 
 warnings.warn("QT3-based backends are deprecated and will be removed after"
               " the v1.2.x release. Use the equivalent QT4 backend instead.",
