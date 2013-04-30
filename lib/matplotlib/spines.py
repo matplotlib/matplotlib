@@ -323,6 +323,8 @@ class Spine(mpatches.Patch):
                 self._spine_transform = ('identity',
                                          mtransforms.IdentityTransform())
         elif position_type == 'data':
+            if self.spine_type in ('right', 'top'):
+                amount -= 1   # translate left by one to account for right/top data offset of one
             if self.spine_type in ('left', 'right'):
                 self._spine_transform = ('data',
                                          mtransforms.Affine2D().translate(
