@@ -9,7 +9,7 @@ from __future__ import division
 import matplotlib
 from matplotlib.compat import subprocess
 from matplotlib.testing.noseclasses import ImageComparisonFailure
-from matplotlib.testing import image_util, util
+from matplotlib.testing import image_util
 from matplotlib import _png
 from matplotlib import _get_configdir
 from distutils import version
