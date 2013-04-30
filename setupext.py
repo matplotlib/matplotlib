@@ -413,7 +413,7 @@ class SetupPackage(object):
 
             if version is None:
                 raise CheckFailed(
-                    "pkg-config information for '%s' could not be found" %
+                    "pkg-config information for '%s' could not be found." %
                     package)
 
         if min_version == 'PATCH':

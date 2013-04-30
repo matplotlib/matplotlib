@@ -133,7 +133,11 @@ if __name__ == '__main__':
                     message = 'yes [%s]' % result
                     print_status(package.name, message)
             except setupext.CheckFailed as e:
-                print_status(package.name, 'no  [%s]' % str(e))
+                msg = str(e).strip()
+                if len(msg):
+                    print_status(package.name, 'no  [%s]' % msg)
+                else:
+                    print_status(package.name, 'no')
                 if not package.optional:
                     required_failed.append(package)
             else:
