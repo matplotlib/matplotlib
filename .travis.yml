@@ -19,4 +19,4 @@ install:
 script:
   - mkdir ../tmp_test_dir
   - cd ../tmp_test_dir
-  - python ../matplotlib/tests.py -sv --processes=-1 --process-timeout=300
+  - python ../matplotlib/tests.py -sv
