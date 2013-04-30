@@ -147,7 +147,7 @@ if matplotlib.checkdep_ghostscript() is not None:
         gs = 'gs'
 
     cmd = lambda old, new: \
-        ['gs', '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
+        [gs, '-q', '-sDEVICE=png16m', '-dNOPAUSE', '-dBATCH',
         '-sOutputFile=' + new, old]
     converter['pdf'] = make_external_conversion_command(cmd)
     converter['eps'] = make_external_conversion_command(cmd)
