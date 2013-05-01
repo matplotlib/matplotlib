@@ -16,9 +16,8 @@ Features that are implemented
 
 TODO:
 
-  * allow save to file handle
-
   * integrate screen dpi w/ ppi and text
+
 """
 from __future__ import division
 import threading
@@ -438,7 +437,7 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         if __debug__: verbose.report('FigureCanvasAgg.draw', 'debug-annoying')
 
-        self.renderer = self.get_renderer()
+        self.renderer = self.get_renderer(cleared=True)
         # acquire a lock on the shared font cache
         RendererAgg.lock.acquire()
 
@@ -449,7 +448,7 @@ class FigureCanvasAgg(FigureCanvasBase):
 
 
 
-    def get_renderer(self):
+    def get_renderer(self, cleared=False):
         l, b, w, h = self.figure.bbox.bounds
         key = w, h, self.figure.dpi
         try: self._lastKey, self.renderer
@@ -459,6 +458,8 @@ class FigureCanvasAgg(FigureCanvasBase):
         if need_new_renderer:
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
+        elif cleared:
+            self.renderer.clear()
         return self.renderer
 
     def tostring_rgb(self):

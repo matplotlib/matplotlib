@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with matplotlib (http://matplotlib.org/) -->
+<svg height="72pt" version="1.1" viewBox="0 0 144 72" width="144pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <style type="text/css">
+*{stroke-linecap:square;stroke-linejoin:round;}
+  </style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="
+M0 72
+L144 72
+L144 0
+L0 0
+z
+" style="fill:#00ff66;opacity:0.4;"/>
+  </g>
+  <g id="patch_2">
+   <path d="
+M20 37
+L15.3647 37.7342
+L11.1832 39.8647
+L7.86475 43.1832
+L5.73415 47.3647
+L5 52
+L5.73415 56.6353
+L7.86475 60.8168
+L11.1832 64.1353
+L15.3647 66.2658
+L20 67
+L24.6353 66.2658
+L28.8168 64.1353
+L32.1353 60.8168
+L34.2658 56.6353
+L35 52
+L34.2658 47.3647
+L32.1353 43.1832
+L28.8168 39.8647
+L24.6353 37.7342
+z
+" style="fill:#ff0000;opacity:0.6;stroke:#000000;"/>
+  </g>
+ </g>
+</svg>
