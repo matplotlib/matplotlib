@@ -436,7 +436,7 @@ class PdfFile(object):
 
         revision = ''
         self.infoDict = {
-            'Creator': 'matplotlib %s, http://matplotlib.sf.net' % __version__,
+            'Creator': 'matplotlib %s, http://matplotlib.org' % __version__,
             'Producer': 'matplotlib pdf backend%s' % revision,
             'CreationDate': datetime.today()
             }

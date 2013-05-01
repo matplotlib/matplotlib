@@ -411,7 +411,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi,
     renderingBuffer.attach(pixBuffer, width, height, stride);
     pixFmt.attach(renderingBuffer);
     rendererBase.attach(pixFmt);
-    rendererBase.clear(agg::rgba(1, 1, 1, 0));
+    rendererBase.clear(agg::rgba(0, 0, 0, 0));
     rendererAA.attach(rendererBase);
     rendererBin.attach(rendererBase);
     hatchRenderingBuffer.attach(hatchBuffer, HATCH_SIZE, HATCH_SIZE,
@@ -1108,7 +1108,7 @@ RendererAgg::draw_image(const Py::Tuple& args)
         inv_mtx.invert();
 
         typedef agg::span_allocator<agg::rgba8> color_span_alloc_type;
-        typedef agg::image_accessor_clip<agg::pixfmt_rgba32>
+        typedef agg::image_accessor_clip<agg::pixfmt_rgba32_plain>
             image_accessor_type;
         typedef agg::span_interpolator_linear<> interpolator_type;
         typedef agg::span_image_filter_rgba_nn<image_accessor_type,
@@ -2388,7 +2388,7 @@ RendererAgg::clear(const Py::Tuple& args)
     _VERBOSE("RendererAgg::clear");
 
     args.verify_length(0);
-    rendererBase.clear(agg::rgba(1, 1, 1, 0));
+    rendererBase.clear(agg::rgba(0, 0, 0, 0));
 
     return Py::Object();
 }
