@@ -33,7 +33,7 @@
 #include "mplutils.h"
 
 
-typedef agg::pixfmt_rgba32 pixfmt;
+typedef agg::pixfmt_rgba32_plain pixfmt;
 typedef agg::pixfmt_rgba32_pre pixfmt_pre;
 typedef agg::renderer_base<pixfmt> renderer_base;
 typedef agg::span_interpolator_linear<> interpolator_type;
