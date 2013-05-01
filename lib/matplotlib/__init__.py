@@ -540,6 +540,7 @@ def _get_configdir():
        configuration directory.
     4. A writable directory could not be found or created; return None.
     """
+    from matplotlib.cbook import mkdirs
 
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir is not None:
@@ -559,7 +560,6 @@ def _get_configdir():
         else:
             if not _is_writable_dir(h):
                 return _create_tmp_config_dir()
-            from matplotlib.cbook import mkdirs
             mkdirs(p)
 
         return p
