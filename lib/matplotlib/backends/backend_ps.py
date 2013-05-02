@@ -41,7 +41,7 @@ from matplotlib.backends.backend_mixed import MixedModeRenderer
 
 from matplotlib.backend_bases import _has_pil
 if _has_pil:
-    import Image
+    from PIL import Image
 
 import numpy as np
 import binascii
@@ -462,13 +462,9 @@ class RendererPS(RendererBase):
             else:
                 h,w,s = im.as_rgba_str()
                 pil_im = Image.fromstring("RGBA", (w, h), s)
-                if sys.version_info[0] >= 3:
-                    c = io.StringIO()
-                else:
-                    c = cStringIO.StringIO()
+                c = io.BytesIO()
                 pil_im.save(c, format="jpeg", quality=75)
                 bits = c.getvalue()
-
 
         return h, w, bits, imagecmd
 
@@ -572,7 +568,6 @@ grestore
 
         # unflip
         im.flipud_out()
-
 
     def _convert_path(self, path, transform, clip=False, simplify=None):
         ps = []
