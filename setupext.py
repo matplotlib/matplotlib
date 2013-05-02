@@ -797,9 +797,13 @@ class Png(SetupPackage):
     name = "png"
 
     def check(self):
-        return self._check_for_pkg_config(
-            'libpng', 'png.h',
-            min_version='1.2')
+        try:
+            return self._check_for_pkg_config(
+                'libpng', 'png.h',
+                min_version='1.2')
+        except CheckFailed as e:
+            self.__class__.found_external = False
+            return str(e) + ' Using local copy.'
 
     def get_extension(self):
         sources = [
