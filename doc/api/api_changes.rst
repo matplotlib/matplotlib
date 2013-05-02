@@ -15,6 +15,10 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* Fixed a bug in setting the position for the right/top spine with data 
+  position type. Previously, it would draw the right or top spine at
+  +1 data offset.
+
 * In :class:`~matplotlib.patches.FancyArrow`, the default arrow head width,
   ``head_width``, has been made larger to produce a visible arrow head. The new
   value of this kwarg is ``head_width = 20 * width``.
