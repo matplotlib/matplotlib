@@ -1,6 +1,6 @@
 from __future__ import division
 
-import os, base64, tempfile, urllib, gzip, io, sys, codecs
+import os, base64, tempfile, urllib, gzip, io, sys, codecs, re
 
 import numpy as np
 
@@ -70,6 +70,11 @@ def escape_cdata(s):
     s = s.replace(u"<", u"&lt;")
     s = s.replace(u">", u"&gt;")
     return s
+
+_escape_xml_comment = re.compile(r'-(?=-)')
+def escape_comment(s):
+    s = escape_cdata(s)
+    return _escape_xml_comment.sub('- ', s)
 
 def escape_attrib(s):
     s = s.replace(u"&", u"&amp;")
@@ -146,7 +151,7 @@ class XMLWriter:
     def comment(self, comment):
         self.__flush()
         self.__write(self.__indentation[:len(self.__tags)])
-        self.__write(u"<!-- %s -->\n" % escape_cdata(comment))
+        self.__write(u"<!-- %s -->\n" % escape_comment(comment))
 
     ##
     # Adds character data to the output stream.
