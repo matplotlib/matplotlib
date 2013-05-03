@@ -1273,7 +1273,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     fig = Figure(figsize=figsize, dpi=dpi, frameon=False)
     canvas = FigureCanvas(fig)
     im = fig.figimage(arr, cmap=cmap, vmin=vmin, vmax=vmax, origin=origin)
-    fig.savefig(fname, dpi=dpi, format=format)
+    fig.savefig(fname, dpi=dpi, format=format, transparent=True)
 
 
 def pil_to_array( pilImage ):
