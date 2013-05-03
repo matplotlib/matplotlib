@@ -1,5 +1,7 @@
 from __future__ import print_function
 
+import numpy as np
+
 from matplotlib.testing.decorators import cleanup
 
 import matplotlib.pyplot as plt
@@ -87,6 +89,19 @@ def test_collection_transform_of_none():
     ax.add_collection(c)
     assert isinstance(c._transOffset, mtrans.IdentityTransform)
     
+
+def test_point_in_path():
+    from matplotlib.path import Path
+
+    # Test #1787
+    verts2 = [(0,0), (0,1), (1,1), (1,0), (0,0)]
+
+    path = Path(verts2, closed=True)
+    points = [(0.5,0.5), (1.5,0.5)]
+
+    assert np.all(path.contains_points(points) == [True, False])
+
+
 
 if __name__=='__main__':
     import nose
