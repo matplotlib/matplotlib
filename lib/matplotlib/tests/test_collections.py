@@ -2,9 +2,13 @@
 Tests specific to the collections module.
 """
 
-import nose.tools
+from nose.tools import assert_equal
 import numpy as np
+from numpy.testing import assert_array_equal
+
 import matplotlib.pyplot as plt
+import matplotlib.collections as mcollections
+import matplotlib.transforms as mtransforms
 from matplotlib.collections import EventCollection
 from matplotlib.testing.decorators import cleanup, image_comparison
 
@@ -81,7 +85,7 @@ def test__EventCollection__get_orientation():
     orientation
     '''
     _, coll, props = generate_EventCollection_plot()
-    nose.tools.assert_equal(props['orientation'], coll.get_orientation())
+    assert_equal(props['orientation'], coll.get_orientation())
 
 
 @cleanup
@@ -91,7 +95,7 @@ def test__EventCollection__is_horizontal():
     orientation
     '''
     _, coll, _ = generate_EventCollection_plot()
-    nose.tools.assert_equal(True, coll.is_horizontal())
+    assert_equal(True, coll.is_horizontal())
 
 
 @cleanup
@@ -100,7 +104,7 @@ def test__EventCollection__get_linelength():
     check to make sure the default linelength matches the input linelength
     '''
     _, coll, props = generate_EventCollection_plot()
-    nose.tools.assert_equal(props['linelength'], coll.get_linelength())
+    assert_equal(props['linelength'], coll.get_linelength())
 
 
 @cleanup
@@ -109,7 +113,7 @@ def test__EventCollection__get_lineoffset():
     check to make sure the default lineoffset matches the input lineoffset
     '''
     _, coll, props = generate_EventCollection_plot()
-    nose.tools.assert_equal(props['lineoffset'], coll.get_lineoffset())
+    assert_equal(props['lineoffset'], coll.get_lineoffset())
 
 
 @cleanup
@@ -118,7 +122,7 @@ def test__EventCollection__get_linestyle():
     check to make sure the default linestyle matches the input linestyle
     '''
     _, coll, _ = generate_EventCollection_plot()
-    nose.tools.assert_equal(coll.get_linestyle(), [(None, None)])
+    assert_equal(coll.get_linestyle(), [(None, None)])
 
 
 @cleanup
@@ -213,8 +217,8 @@ def test__EventCollection__switch_orientation():
     splt, coll, props = generate_EventCollection_plot()
     new_orientation = 'vertical'
     coll.switch_orientation()
-    nose.tools.assert_equal(new_orientation, coll.get_orientation())
-    nose.tools.assert_equal(False, coll.is_horizontal())
+    assert_equal(new_orientation, coll.get_orientation())
+    assert_equal(False, coll.is_horizontal())
     new_positions = coll.get_positions()
     check_segments(coll,
                    new_positions,
@@ -236,8 +240,8 @@ def test__EventCollection__switch_orientation_2x():
     coll.switch_orientation()
     coll.switch_orientation()
     new_positions = coll.get_positions()
-    nose.tools.assert_equal(props['orientation'], coll.get_orientation())
-    nose.tools.assert_equal(True, coll.is_horizontal())
+    assert_equal(props['orientation'], coll.get_orientation())
+    assert_equal(True, coll.is_horizontal())
     np.testing.assert_array_equal(props['positions'], new_positions)
     check_segments(coll,
                    new_positions,
@@ -255,8 +259,8 @@ def test__EventCollection__set_orientation():
     splt, coll, props = generate_EventCollection_plot()
     new_orientation = 'vertical'
     coll.set_orientation(new_orientation)
-    nose.tools.assert_equal(new_orientation, coll.get_orientation())
-    nose.tools.assert_equal(False, coll.is_horizontal())
+    assert_equal(new_orientation, coll.get_orientation())
+    assert_equal(False, coll.is_horizontal())
     check_segments(coll,
                    props['positions'],
                    props['linelength'],
@@ -275,7 +279,7 @@ def test__EventCollection__set_linelength():
     splt, coll, props = generate_EventCollection_plot()
     new_linelength = 15
     coll.set_linelength(new_linelength)
-    nose.tools.assert_equal(new_linelength, coll.get_linelength())
+    assert_equal(new_linelength, coll.get_linelength())
     check_segments(coll,
                    props['positions'],
                    new_linelength,
@@ -293,7 +297,7 @@ def test__EventCollection__set_lineoffset():
     splt, coll, props = generate_EventCollection_plot()
     new_lineoffset = -5.
     coll.set_lineoffset(new_lineoffset)
-    nose.tools.assert_equal(new_lineoffset, coll.get_lineoffset())
+    assert_equal(new_lineoffset, coll.get_lineoffset())
     check_segments(coll,
                    props['positions'],
                    props['linelength'],
@@ -311,7 +315,7 @@ def test__EventCollection__set_linestyle():
     splt, coll, _ = generate_EventCollection_plot()
     new_linestyle = 'dashed'
     coll.set_linestyle(new_linestyle)
-    nose.tools.assert_equal(coll.get_linestyle(), [(0, (6.0, 6.0))])
+    assert_equal(coll.get_linestyle(), [(0, (6.0, 6.0))])
     splt.set_title('EventCollection: set_linestyle')
 
 
@@ -323,7 +327,7 @@ def test__EventCollection__set_linewidth():
     splt, coll, _ = generate_EventCollection_plot()
     new_linewidth = 5
     coll.set_linewidth(new_linewidth)
-    nose.tools.assert_equal(coll.get_linewidth(), new_linewidth)
+    assert_equal(coll.get_linewidth(), new_linewidth)
     splt.set_title('EventCollection: set_linewidth')
 
 
@@ -362,10 +366,10 @@ def check_segments(coll, positions, linelength, lineoffset, orientation):
 
     # test to make sure each segment is correct
     for i, segment in enumerate(segments):
-        nose.tools.assert_equal(segment[0, pos1], lineoffset + linelength / 2.)
-        nose.tools.assert_equal(segment[1, pos1], lineoffset - linelength / 2.)
-        nose.tools.assert_equal(segment[0, pos2], positions[i])
-        nose.tools.assert_equal(segment[1, pos2], positions[i])
+        assert_equal(segment[0, pos1], lineoffset + linelength / 2.)
+        assert_equal(segment[1, pos1], lineoffset - linelength / 2.)
+        assert_equal(segment[0, pos2], positions[i])
+        assert_equal(segment[1, pos2], positions[i])
 
 
 def check_allprop(values, target):
@@ -375,7 +379,7 @@ def check_allprop(values, target):
     note: this is not a test, it is used by tests
     '''
     for value in values:
-        nose.tools.assert_equal(value, target)
+        assert_equal(value, target)
 
 
 def check_allprop_array(values, target):
@@ -387,6 +391,14 @@ def check_allprop_array(values, target):
     for value in values:
         np.testing.assert_array_equal(value, target)
 
-if __name__ == '_main_':
+
+def test_null_collection_datalim():
+    col = mcollections.PathCollection([])
+    col_data_lim = col.get_datalim(mtransforms.IdentityTransform())
+    assert_array_equal(col_data_lim.get_points(),
+                       mtransforms.Bbox([[0, 0], [0, 0]]).get_points())
+
+
+if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

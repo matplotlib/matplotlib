@@ -772,7 +772,11 @@ class Bbox(BboxBase):
         :meth:`from_bounds` and :meth:`from_extents`.
         """
         BboxBase.__init__(self, **kwargs)
-        self._points = np.asarray(points, np.float_)
+        points = np.asarray(points, np.float_)
+        if points.shape != (2, 2):
+            raise ValueError('Bbox points must be of the form ' 
+                             '"[[x0, y0], [x1, y1]]".')
+        self._points = points
         self._minpos = np.array([0.0000001, 0.0000001])
         self._ignore = True
         # it is helpful in some contexts to know if the bbox is a
