@@ -699,7 +699,7 @@ _path_module::get_path_collection_extents(const Py::Tuple& args)
 Py::Object
 _path_module::point_in_path_collection(const Py::Tuple& args)
 {
-    args.verify_length(9);
+    args.verify_length(10);
 
     //segments, trans, clipbox, colors, linewidths, antialiaseds
     double                  x                = Py::Float(args[0]);
@@ -711,6 +711,9 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
     Py::SeqBase<Py::Object> offsets_obj      = args[6];
     agg::trans_affine       offset_trans     = py_to_agg_transformation_matrix(args[7].ptr());
     bool                    filled           = Py::Boolean(args[8]);
+    std::string             offset_position  = Py::String(args[9]);
+
+    bool data_offsets = (offset_position == "data");
 
     PyArrayObject* offsets = (PyArrayObject*)PyArray_FromObject(
         offsets_obj.ptr(), PyArray_DOUBLE, 0, 2);
@@ -761,7 +764,11 @@ _path_module::point_in_path_collection(const Py::Tuple& args)
             double xo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 0);
             double yo = *(double*)PyArray_GETPTR2(offsets, i % Noffsets, 1);
             offset_trans.transform(&xo, &yo);
-            trans *= agg::trans_affine_translation(xo, yo);
+            if (data_offsets) {
+                trans = agg::trans_affine_translation(xo, yo) * trans;
+            } else {
+                trans *= agg::trans_affine_translation(xo, yo);
+            }
         }
 
         if (filled)

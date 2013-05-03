@@ -424,6 +424,24 @@ def test_hexbin_extent():
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
 
+@cleanup
+def test_hexbin_pickable():
+    # From #1973: Test that picking a hexbin collection works
+    class FauxMouseEvent:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+    fig = plt.figure()
+
+    ax = fig.add_subplot(111)
+    data = np.arange(200.)/200.
+    data.shape = 2, 100
+    x, y = data
+    hb = ax.hexbin(x, y, extent=[.1, .3, .6, .7], picker=1)
+
+    assert hb.contains(FauxMouseEvent(400, 300))[0]
+
 @image_comparison(baseline_images=['hexbin_log'],
                   remove_text=True,
                   extensions=['png'])
