@@ -46,6 +46,7 @@ import cStringIO
 import matplotlib.tight_bbox as tight_bbox
 import matplotlib.textpath as textpath
 from matplotlib.path import Path
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 try:
     from PIL import Image
@@ -351,6 +352,8 @@ class RendererBase:
         gc0 = self.new_gc()
         gc0.copy_properties(gc)
 
+        original_alpha = gc.get_alpha()
+
         if Nfacecolors == 0:
             rgbFace = None
 
@@ -371,22 +374,30 @@ class RendererBase:
                     xp, yp = transform.transform_point((0, 0))
                     xo = -(xp - xo)
                     yo = -(yp - yo)
+            if not (np.isfinite(xo) and np.isfinite(yo)):
+                continue
+            gc0.set_alpha(original_alpha)
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
-                fg = edgecolors[i % Nedgecolors]
-                if Nfacecolors == 0 and len(fg)==4:
-                    gc0.set_alpha(fg[3])
-                gc0.set_foreground(fg)
                 if Nlinewidths:
                     gc0.set_linewidth(linewidths[i % Nlinewidths])
                 if Nlinestyles:
                     gc0.set_dashes(*linestyles[i % Nlinestyles])
-            if rgbFace is not None and len(rgbFace)==4:
+                fg = edgecolors[i % Nedgecolors]
+                if len(fg) == 4:
+                    if fg[3] == 0.0:
+                        gc0.set_linewidth(0)
+                    else:
+                        gc0.set_alpha(gc0.get_alpha() * fg[3])
+                        gc0.set_foreground(fg[:3])
+                else:
+                    gc0.set_foreground(fg)
+            if rgbFace is not None and len(rgbFace) == 4:
                 if rgbFace[3] == 0:
                     rgbFace = None
                 else:
-                    gc0.set_alpha(rgbFace[3])
+                    gc0.set_alpha(gc0.get_alpha() * rgbFace[3])
                     rgbFace = rgbFace[:3]
             gc0.set_antialiased(antialiaseds[i % Naa])
             if Nurls:
@@ -2274,7 +2285,7 @@ class FigureCanvasBase(object):
         """
         str = "Using default event loop until function specific"
         str += " to this GUI is implemented"
-        warnings.warn(str,DeprecationWarning)
+        warnings.warn(str, mplDeprecation)
 
         if timeout <= 0: timeout = np.inf
         timestep = 0.01

@@ -952,8 +952,9 @@ clip_to_rect_one_step(const Polygon& polygon, Polygon& result, const Filter& fil
     }
 }
 
+template<class Path>
 void
-clip_to_rect(PathIterator& path,
+clip_to_rect(Path& path,
              double x0, double y0, double x1, double y1,
              bool inside, std::vector<Polygon>& results)
 {
@@ -1048,8 +1049,10 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
     }
 
     std::vector<Polygon> results;
+    typedef agg::conv_curve<PathIterator> curve_t;
+    curve_t curve(path);
 
-    ::clip_to_rect(path, x0, y0, x1, y1, inside, results);
+    ::clip_to_rect(curve, x0, y0, x1, y1, inside, results);
 
     npy_intp dims[2];
     dims[1] = 2;
@@ -1064,7 +1067,7 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
         for (std::vector<Polygon>::const_iterator p = results.begin(); p != results.end(); ++p)
         {
             size_t size = p->size();
-            dims[0] = p->size();
+            dims[0] = (npy_intp)size + 1;
             PyArrayObject* pyarray = (PyArrayObject*)PyArray_SimpleNew(2, dims, PyArray_DOUBLE);
             if (pyarray == NULL)
             {
@@ -1075,7 +1078,10 @@ _path_module::clip_path_to_rect(const Py::Tuple &args)
                 ((double *)pyarray->data)[2*i]   = (*p)[i].x;
                 ((double *)pyarray->data)[2*i+1] = (*p)[i].y;
             }
-            if (PyList_SetItem(py_results, p - results.begin(), (PyObject *)pyarray) != -1)
+            ((double *)pyarray->data)[2*size]   = (*p)[0].x;
+            ((double *)pyarray->data)[2*size+1] = (*p)[0].y;
+
+            if (PyList_SetItem(py_results, p - results.begin(), (PyObject *)pyarray) == -1)
             {
                 throw Py::RuntimeError("Error creating results list");
             }
@@ -1353,7 +1359,7 @@ _add_polygon(Py::List& polygons, const std::vector<double>& polygon)
     {
         return;
     }
-    npy_intp polygon_dims[] = { polygon.size() / 2, 2, 0 };
+    npy_intp polygon_dims[] = { (npy_intp)polygon.size() / 2, 2, 0 };
     PyArrayObject* polygon_array = NULL;
     polygon_array = (PyArrayObject*)PyArray_SimpleNew
                     (2, polygon_dims, PyArray_DOUBLE);

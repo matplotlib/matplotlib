@@ -440,15 +440,11 @@ Image::resize(const Py::Tuple& args, const Py::Dict& kwargs)
 
     case NEAREST:
     {
-        if (colsIn == numcols && rowsIn == numrows) {
-            memcpy(bufferOut, bufferIn, colsIn * rowsIn * 4);
-        } else {
-            typedef agg::span_image_filter_rgba_nn<img_accessor_type, interpolator_type> span_gen_type;
-            typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
-            span_gen_type sg(ia, interpolator);
-            renderer_type ri(rb, sa, sg);
-            agg::render_scanlines(ras, sl, ri);
-        }
+        typedef agg::span_image_filter_rgba_nn<img_accessor_type, interpolator_type> span_gen_type;
+        typedef agg::renderer_scanline_aa<renderer_base, span_alloc_type, span_gen_type> renderer_type;
+        span_gen_type sg(ia, interpolator);
+        renderer_type ri(rb, sa, sg);
+        agg::render_scanlines(ras, sl, ri);
     }
     break;
 
@@ -824,7 +820,7 @@ _image_module::from_images(const Py::Tuple& args)
     pixfmt pixf(*imo->rbufOut);
     renderer_base rb(pixf);
 
-    rb.clear(agg::rgba(1, 1, 1, 1));
+    rb.clear(agg::rgba(0, 0, 0, 0));
     for (size_t imnum = 0; imnum < N; imnum++)
     {
         tup = Py::Tuple(tups[imnum]);

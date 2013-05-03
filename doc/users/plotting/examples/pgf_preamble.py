@@ -7,11 +7,11 @@ pgf_with_custom_preamble = {
     "text.usetex": True,    # use inline math for ticks
     "pgf.rcfonts": False,   # don't setup fonts from rc parameters
     "pgf.preamble": [
-         r"\usepackage{units}",        # load additional packages
-         r"\usepackage{metalogo}",        # load additional packages
-         r"\usepackage{unicode-math}", # unicode math setup
-         r"\setmathfont{XITS Math}",
-         r"\setmainfont{DejaVu Serif}", # font setup via preamble
+         r"\usepackage{units}",         # load additional packages
+         r"\usepackage{metalogo}",
+         r"\usepackage{unicode-math}",  # unicode math setup
+         r"\setmathfont{xits-math.otf}",
+         r"\setmainfont{DejaVu Serif}", # serif font via preamble
          ]
 }
 mpl.rcParams.update(pgf_with_custom_preamble)

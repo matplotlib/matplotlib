@@ -99,7 +99,7 @@ to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
 """
 from __future__ import print_function
 
-__version__  = '1.2.0'
+__version__  = '1.2.1'
 __version__numpy__ = '1.4' # minimum required numpy version
 
 import os, re, shutil, subprocess, sys, warnings
@@ -121,6 +121,20 @@ if 0:
 
 if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
+
+
+class MatplotlibDeprecationWarning(UserWarning):
+    """
+    A class for issuing deprecation warnings for Matplotlib users.
+
+    In light of the fact that Python builtin DeprecationWarnings are ignored
+    by default as of Python 2.7 (see link below), this class was put in to
+    allow for the signaling of deprecation, but via UserWarnings which are not
+    ignored by default.
+
+    http://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
+    """
+    pass
 
 """
 Manage user customizations through a rc file.
@@ -719,7 +733,7 @@ See rcParams.keys() for a list of valid parameters.' % (key,))
         """
         Return sorted list of keys.
         """
-        k = dict.keys(self)
+        k = list(dict.keys(self))
         k.sort()
         return k
 
@@ -822,6 +836,20 @@ Please do not ask for support with these customizations active.
 
 # this is the instance used by the matplotlib classes
 rcParams = rc_params()
+
+if rcParams['examples.directory']:
+    # paths that are intended to be relative to matplotlib_fname()
+    # are allowed for the examples.directory parameter.
+    # However, we will need to fully qualify the path because
+    # Sphinx requires absolute paths.
+    if not os.path.isabs(rcParams['examples.directory']):
+        _basedir, _fname = os.path.split(matplotlib_fname())
+        # Sometimes matplotlib_fname() can return relative paths,
+        # Also, using realpath() guarentees that Sphinx will use
+        # the same path that matplotlib sees (in case of weird symlinks).
+        _basedir = os.path.realpath(_basedir)
+        _fullpath = os.path.join(_basedir, rcParams['examples.directory'])
+        rcParams['examples.directory'] = _fullpath
 
 rcParamsOrig = rcParams.copy()
 
@@ -1094,6 +1122,7 @@ default_test_modules = [
     'matplotlib.tests.test_triangulation',
     'matplotlib.tests.test_transforms',
     'matplotlib.tests.test_arrow_patches',
+    'matplotlib.tests.test_backend_qt4',
     ]
 
 

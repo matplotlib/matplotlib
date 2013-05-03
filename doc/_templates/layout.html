@@ -1,11 +1,44 @@
 {% extends "!layout.html" %}
 
+  <script>
+function getSnippet(id, url) {
+var req = false;
+  // For Safari, Firefox, and other non-MS browsers
+  if (window.XMLHttpRequest) {
+    try {
+      req = new XMLHttpRequest();
+    } catch (e) {
+      req = false;
+    }
+  } else if (window.ActiveXObject) {
+    // For Internet Explorer on Windows
+    try {
+      req = new ActiveXObject("Msxml2.XMLHTTP");
+    } catch (e) {
+      try {
+        req = new ActiveXObject("Microsoft.XMLHTTP");
+      } catch (e) {
+        req = false;
+      }
+    }
+  }
+ var element = document.getElementById(id);
+  if (req) {
+    // Synchronous request, wait till we have it all
+    req.open('GET', url, false);
+    req.send(null);
+    element.innerHTML = req.responseText;
+  }
+}
+</script>
 
 {% block rootrellink %}
         <li><a href="{{ pathto('index') }}">home</a>|&nbsp;</li>
+        <li><a href="http://www.matplotlib.org/downloads.html">downloads</a>|&nbsp;</li>
         <li><a href="{{ pathto('search') }}">search</a>|&nbsp;</li>
         <li><a href="{{ pathto('examples/index') }}">examples</a>|&nbsp;</li>
         <li><a href="{{ pathto('gallery') }}">gallery</a>|&nbsp;</li>
+        <li><a href="{{ pathto('citing') }}">citation</a>|&nbsp;</li>
         <li><a href="{{ pathto('contents') }}">docs</a> &raquo;</li>
 {% endblock %}
 
@@ -32,14 +65,20 @@ if ("matplotlib.sourceforge.net" == document.location.hostname ||
 <!-- End Piwik Tag -->
 <link rel="shortcut icon" href="_static/favicon.ico">
 
+<!-- The "Fork me on github" ribbon -->
+<img style="float: right; margin-bottom: -40px; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" usemap="#ribbonmap"/>
+<map name="ribbonmap">
+    <area shape="poly" coords="15,0,148,-1,148,135" href="https://github.com/matplotlib/matplotlib" title="Fork me on GitHub" />
+</map>
+
 <div style="background-color: white; text-align: left; padding: 10px 10px 15px 15px">
 <a href="{{ pathto('index') }}"><img src="{{
 pathto("_static/logo2.png", 1) }}" border="0" alt="matplotlib"/></a>
 </div>
+
 {{ super() }}
 {% endblock %}
 
 {# put the sidebar before the body #}
 {% block sidebar1 %}{{ sidebar() }}{% endblock %}
 {% block sidebar2 %}{% endblock %}
-

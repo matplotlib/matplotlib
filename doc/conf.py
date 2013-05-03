@@ -16,19 +16,19 @@ import sys, os
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
 # absolute, like shown here.
-sys.path.append(os.path.abspath('sphinxext'))
+sys.path.append(os.path.abspath('.'))
 
 # General configuration
 # ---------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['matplotlib.sphinxext.mathmpl', 'math_symbol_table',
+extensions = ['matplotlib.sphinxext.mathmpl', 'sphinxext.math_symbol_table',
               'sphinx.ext.autodoc', 'matplotlib.sphinxext.only_directives',
               'sphinx.ext.doctest',
               'matplotlib.sphinxext.plot_directive', 'sphinx.ext.inheritance_diagram',
-              'gen_gallery', 'gen_rst',
-              'matplotlib.sphinxext.ipython_console_highlighting', 'github']
+              'sphinxext.gen_gallery', 'sphinxext.gen_rst',
+              'matplotlib.sphinxext.ipython_console_highlighting', 'sphinxext.github']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -41,7 +41,7 @@ master_doc = 'contents'
 
 # General substitutions.
 project = 'Matplotlib'
-copyright = '2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the matplotlib development team'
+copyright = '2013 John Hunter, Darren Dale, Eric Firing, Michael Droettboom and the matplotlib development team'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -133,7 +133,7 @@ html_sidebars = {'index': 'indexsidebar.html',
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-html_additional_pages = {'index': 'index.html', 'gallery':'gallery.html'}
+html_additional_pages = {'index': 'index.html', 'gallery':'gallery.html', 'citing':'citing.html'}
 
 # If false, no module index is generated.
 #html_use_modindex = True
@@ -174,10 +174,10 @@ latex_logo = None
 
 # Additional stuff for the LaTeX preamble.
 latex_preamble = """
-   \usepackage{amsmath}
-   \usepackage{amsfonts}
-   \usepackage{amssymb}
-   \usepackage{txfonts}
+   \\usepackage{amsmath}
+   \\usepackage{amsfonts}
+   \\usepackage{amssymb}
+   \\usepackage{txfonts}
 """
 
 # Documents to append as an appendix to all manuals.

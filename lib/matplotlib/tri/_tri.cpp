@@ -277,7 +277,7 @@ void Triangulation::calculate_edges()
     }
 
     // Convert to python _edges array.
-    npy_intp dims[2] = {edge_set.size(), 2};
+    npy_intp dims[2] = {(npy_intp)edge_set.size(), 2};
     _edges = (PyArrayObject*)PyArray_SimpleNew(2, dims, PyArray_INT);
     int* edges_ptr = (int*)PyArray_DATA(_edges);
     for (EdgeSet::const_iterator it = edge_set.begin(); it != edge_set.end(); ++it) {
@@ -571,7 +571,7 @@ Py::Object TriContourGenerator::contour_to_segs(const Contour& contour)
     Py::List segs(contour.size());
     for (Contour::size_type i = 0; i < contour.size(); ++i) {
         const ContourLine& line = contour[i];
-        npy_intp dims[2] = {line.size(),2};
+        npy_intp dims[2] = {(npy_intp)line.size(),2};
         PyArrayObject* py_line = (PyArrayObject*)PyArray_SimpleNew(
                                                      2, dims, PyArray_DOUBLE);
         double* p = (double*)PyArray_DATA(py_line);
@@ -1113,4 +1113,3 @@ Py::Object TriModule::new_tricontourgenerator(const Py::Tuple &args)
 
     return Py::asObject(new TriContourGenerator(tri, z));
 }
-

@@ -16,6 +16,7 @@ from mlab import dist
 from patches import Circle, Rectangle
 from lines import Line2D
 from transforms import blended_transform_factory
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 class LockDraw:
     """
@@ -1149,7 +1150,7 @@ class SpanSelector(AxesWidget):
 class HorizontalSpanSelector(SpanSelector):
     def __init__(self, ax, onselect, **kwargs):
         import warnings
-        warnings.warn('Use SpanSelector instead!', DeprecationWarning)
+        warnings.warn('Use SpanSelector instead!', mplDeprecation)
         SpanSelector.__init__(self, ax, onselect, 'horizontal', **kwargs)
 
 
@@ -1433,7 +1434,7 @@ class LassoSelector(AxesWidget):
     """Selection curve of an arbitrary shape.
 
     The selected path can be used in conjunction with
-    :function:`~matplotlib.path.Path.contains_point` to select
+    :func:`~matplotlib.path.Path.contains_point` to select
     data points from an image.
 
     In contrast to :class:`Lasso`, `LassoSelector` is written with an interface

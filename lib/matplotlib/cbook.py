@@ -21,6 +21,8 @@ import traceback
 import warnings
 from weakref import ref, WeakKeyDictionary
 
+import matplotlib
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 import numpy as np
 import numpy.ma as ma
@@ -280,7 +282,7 @@ class CallbackRegistry:
             warnings.warn(
                 'CallbackRegistry no longer requires a list of callback types.'
                 ' Ignoring arguments',
-                DeprecationWarning)
+                mplDeprecation)
         self.callbacks = dict()
         self._cid = 0
         self._func_cid_map = {}
@@ -321,9 +323,10 @@ class CallbackRegistry:
             except KeyError:
                 continue
             else:
-                for key, value in self._func_cid_map.items():
-                    if value == cid:
-                        del self._func_cid_map[key]
+                for category, functions in self._func_cid_map.items():
+                    for function, value in functions.items():
+                        if value == cid:
+                            del functions[function]
                 return
 
     def process(self, s, *args, **kwargs):
@@ -570,9 +573,17 @@ def get_sample_data(fname, asfileobj=True):
     `mpl-data/sample_data` directory.  If *asfileobj* is `True`
     return a file object, otherwise just a file path.
 
+    Set the rc parameter examples.directory to the directory where we should
+    look, if sample_data files are stored in a location different than
+    default (which is 'mpl-data/sample_data` at the same level of 'matplotlib`
+    Python module files).
+
     If the filename ends in .gz, the file is implicitly ungzipped.
     """
-    root = os.path.join(os.path.dirname(__file__), "mpl-data", "sample_data")
+    if matplotlib.rcParams['examples.directory']:
+        root = matplotlib.rcParams['examples.directory']
+    else:
+        root = os.path.join(os.path.dirname(__file__), "mpl-data", "sample_data")
     path = os.path.join(root, fname)
 
     if asfileobj:
@@ -1667,7 +1678,7 @@ def less_simple_linear_interpolation(x, y, xi, extrap=False):
     # deprecated from cbook in 0.98.4
     warnings.warn('less_simple_linear_interpolation has been moved to '
                   'matplotlib.mlab -- please import it from there',
-                  DeprecationWarning)
+                  mplDeprecation)
     import matplotlib.mlab as mlab
     return mlab.less_simple_linear_interpolation(x, y, xi, extrap=extrap)
 
@@ -1679,7 +1690,7 @@ def vector_lengths(X, P=2.0, axis=None):
     """
     # deprecated from cbook in 0.98.4
     warnings.warn('vector_lengths has been moved to matplotlib.mlab -- '
-                  'please import it from there', DeprecationWarning)
+                  'please import it from there', mplDeprecation)
     import matplotlib.mlab as mlab
     return mlab.vector_lengths(X, P=2.0, axis=axis)
 
@@ -1691,7 +1702,7 @@ def distances_along_curve(X):
     """
     # deprecated from cbook in 0.98.4
     warnings.warn('distances_along_curve has been moved to matplotlib.mlab '
-                  '-- please import it from there', DeprecationWarning)
+                  '-- please import it from there', mplDeprecation)
     import matplotlib.mlab as mlab
     return mlab.distances_along_curve(X)
 
@@ -1703,7 +1714,7 @@ def path_length(X):
     """
     # deprecated from cbook in 0.98.4
     warnings.warn('path_length has been moved to matplotlib.mlab '
-                  '-- please import it from there', DeprecationWarning)
+                  '-- please import it from there', mplDeprecation)
     import matplotlib.mlab as mlab
     return mlab.path_length(X)
 
@@ -1715,7 +1726,7 @@ def is_closed_polygon(X):
     """
     # deprecated from cbook in 0.98.4
     warnings.warn('is_closed_polygon has been moved to matplotlib.mlab '
-                  '-- please import it from there', DeprecationWarning)
+                  '-- please import it from there', mplDeprecation)
     import matplotlib.mlab as mlab
     return mlab.is_closed_polygon(X)
 
@@ -1727,7 +1738,7 @@ def quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y):
     """
     # deprecated from cbook in 0.98.4
     warnings.warn('quad2cubic has been moved to matplotlib.mlab -- please '
-                  'import it from there', DeprecationWarning)
+                  'import it from there', mplDeprecation)
     import matplotlib.mlab as mlab
     return mlab.quad2cubic(q0x, q0y, q1x, q1y, q2x, q2y)
 

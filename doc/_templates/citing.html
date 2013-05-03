@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% set title = "Citing matplotlib" %}
+{% block body %}
+
+<h1>Citing matplotlib</h1>
+<p>
+If matplotlib contributes to a project that leads to a scientific publication,
+please acknowledge this fact by citing the project. You can use this
+BibTeX entry:
+</p>
+<pre>
+@Article{Hunter:2007,
+  Author    = {Hunter, J. D.},
+  Title     = {Matplotlib: A 2D graphics environment},
+  Journal   = {Computing In Science \& Engineering},
+  Volume    = {9},
+  Number    = {3},
+  Pages     = {90--95},
+  abstract  = {Matplotlib is a 2D graphics package used for Python
+  for application development, interactive scripting, and
+  publication-quality image generation across user
+  interfaces and operating systems.},
+  publisher = {IEEE COMPUTER SOC},
+  year      = 2007
+}
+</pre>
+{% endblock %}

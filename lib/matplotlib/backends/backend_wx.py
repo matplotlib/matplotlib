@@ -25,6 +25,7 @@ import warnings
 
 import numpy as np
 
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 # Debugging settings here...
 # Debug level set here. If the debug level is less than 5, information
@@ -791,7 +792,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
         Deprecated.
         """
-        warnings.warn("Printer* methods will be removed", DeprecationWarning)
+        warnings.warn("Printer* methods will be removed", mplDeprecation)
         self.printerData = wx.PrintData()
         self.printerData.SetPaperId(wx.PAPER_LETTER)
         self.printerData.SetPrintMode(wx.PRINT_MODE_PRINTER)
@@ -805,7 +806,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
     def _get_printerData(self):
         if self._printerData is None:
-            warnings.warn("Printer* methods will be removed", DeprecationWarning)
+            warnings.warn("Printer* methods will be removed", mplDeprecation)
             self._printerData = wx.PrintData()
             self._printerData.SetPaperId(wx.PAPER_LETTER)
             self._printerData.SetPrintMode(wx.PRINT_MODE_PRINTER)
@@ -814,7 +815,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
     def _get_printerPageData(self):
         if self._printerPageData is None:
-            warnings.warn("Printer* methods will be removed", DeprecationWarning)
+            warnings.warn("Printer* methods will be removed", mplDeprecation)
             self._printerPageData= wx.PageSetupDialogData()
             self._printerPageData.SetMarginBottomRight((25,25))
             self._printerPageData.SetMarginTopLeft((25,25))
@@ -833,7 +834,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         dmsg = """Width of output figure in inches.
 The current aspect ratio will be kept."""
 
-        warnings.warn("Printer* methods will be removed", DeprecationWarning)
+        warnings.warn("Printer* methods will be removed", mplDeprecation)
         dlg = wx.Dialog(self, -1, 'Page Setup for Printing' , (-1,-1))
         df = dlg.GetFont()
         df.SetWeight(wx.NORMAL)
@@ -896,7 +897,7 @@ The current aspect ratio will be kept."""
         Deprecated.
         """
 
-        warnings.warn("Printer* methods will be removed", DeprecationWarning)
+        warnings.warn("Printer* methods will be removed", mplDeprecation)
         if hasattr(self, 'printerData'):
             data = wx.PageSetupDialogData()
             data.SetPrintData(self.printerData)
@@ -920,7 +921,7 @@ The current aspect ratio will be kept."""
 
         Deprecated.
         """
-        warnings.warn("Printer* methods will be removed", DeprecationWarning)
+        warnings.warn("Printer* methods will be removed", mplDeprecation)
         po1  = PrintoutWx(self, width=self.printer_width,
                           margin=self.printer_margin)
         po2  = PrintoutWx(self, width=self.printer_width,
@@ -946,7 +947,7 @@ The current aspect ratio will be kept."""
 
         Deprecated.
         """
-        warnings.warn("Printer* methods will be removed", DeprecationWarning)
+        warnings.warn("Printer* methods will be removed", mplDeprecation)
         pdd = wx.PrintDialogData()
         # SetPrintData for 2.4 combatibility
         pdd.SetPrintData(self.printerData)
@@ -1267,7 +1268,7 @@ The current aspect ratio will be kept."""
                              [evt.AltDown, 'alt'],
                              [evt.ControlDown, 'ctrl'], ):
             if meth():
-                key = '{}+{}'.format(prefix, key)
+                key = '{0}+{1}'.format(prefix, key)
 
         return key
 

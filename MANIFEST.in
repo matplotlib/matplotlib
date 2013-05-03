@@ -1,5 +1,5 @@
 include CHANGELOG KNOWN_BUGS INSTALL
-include INTERACTIVE TODO
+include INTERACTIVE TODO CONTRIBUTING.md
 include Makefile  make.osx MANIFEST.in MANIFEST
 include matplotlibrc.template setup.cfg.template
 include __init__.py setupext.py setup.py setupegg.py

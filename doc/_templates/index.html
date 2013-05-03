@@ -3,40 +3,6 @@
 
 
 {% block body %}
-  <script>
-function getSnippet(id, url) {
-var req = false;
-  // For Safari, Firefox, and other non-MS browsers
-  if (window.XMLHttpRequest) {
-    try {
-      req = new XMLHttpRequest();
-    } catch (e) {
-      req = false;
-    }
-  } else if (window.ActiveXObject) {
-    // For Internet Explorer on Windows
-    try {
-      req = new ActiveXObject("Msxml2.XMLHTTP");
-    } catch (e) {
-      try {
-        req = new ActiveXObject("Microsoft.XMLHTTP");
-      } catch (e) {
-        req = false;
-      }
-    }
-  }
- var element = document.getElementById(id);
-  if (req) {
-    // Synchronous request, wait till we have it all
-    req.open('GET', url, false);
-    req.send(null);
-    element.innerHTML = req.responseText;
-  }
-}
-</script>
-
-  <!-- The "Fork me on github" ribbon -->
-  <a href="https://github.com/matplotlib/matplotlib"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
 
   <h1>John Hunter (1968-2012)</h1>
 
@@ -102,8 +68,9 @@ var req = false;
 
   <h1>Download</h1>
 
-  Matplotlib is available for
-<a href="https://github.com/matplotlib/matplotlib/downloads">download</a>.
+  Visit the
+  <a href="http://matplotlib.org/downloads.html">matplotlib downloads
+  page</a>.
 
   <h1>Documentation</h1>
 
@@ -140,7 +107,7 @@ var req = false;
 
 <p>Check the <a href="{{ pathto('faq/index') }}">faq</a>,
 the <a href="{{ pathto('api/index') }}">api</a> docs,
-<a href="http://sourceforge.net/mailarchive/forum.php?forum_name=matplotlib-users">mailing
+<a href="http://matplotlib.1069221.n5.nabble.com/matplotlib-users-f3.html">mailing
 list archives</a>, and join the matplotlib
 mailing <a href="http://sourceforge.net/mail/?group_id=80706">lists</a>.
 Check out the matplotlib questions
@@ -172,6 +139,18 @@ and mapping toolkit
 pathto('mpl_toolkits/mplot3d/index') }}">mplot3d</a>, axes and axis helpers in <a href="{{
 pathto('mpl_toolkits/axes_grid/index') }}">axes_grid</a> and more.
  </p>
+
+<h1>Citing matplotlib</h1>
+
+<p>
+  matplotlib is the brainchild of John Hunter (1968-2012), who has put an
+  inordinate amount of effort into producing a piece of software utilized by
+  thousands of scientists worldwide.
+
+  If matplotlib contributes to a project that leads to a scientific publication,
+  please acknowledge this fact by citing the project. You can use this
+  <a href="{{ pathto('citing') }}">ready-made citation entry</a>.
+</p>
 
   <h1>Open source</h1>
 

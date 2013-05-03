@@ -240,7 +240,7 @@ class Artist(object):
         instance used by this artist.
         """
         if self._transform is None:
-            self.set_transform(IdentityTransform())
+            self._transform = IdentityTransform()
         elif (not isinstance(self._transform, Transform)
               and hasattr(self._transform, '_as_mpl_transform')):
             self._transform = self._transform._as_mpl_transform(self.axes)
@@ -686,7 +686,10 @@ class Artist(object):
 
         ACCEPTS: string or anything printable with '%s' conversion.
         """
-        self._label = '%s' % (s, )
+        if s is not None:
+            self._label = '%s' % (s, )
+        else:
+            self._label = None
         self.pchanged()
 
     def get_zorder(self):

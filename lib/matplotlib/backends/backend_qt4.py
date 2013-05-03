@@ -208,18 +208,6 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         w,h = self.get_width_height()
         self.resize( w, h )
 
-        # JDH: Note the commented out code below does not work as
-        # expected, because according to Pierre Raybaut, The reason is
-        # that PyQt fails (silently) to call a method of this object
-        # just before detroying it. Using a lambda function will work,
-        # exactly the same as using a function (which is not bound to
-        # the object to be destroyed).
-        #
-        #QtCore.QObject.connect(self, QtCore.SIGNAL('destroyed()'),
-        #    self.close_event)
-        QtCore.QObject.connect(self, QtCore.SIGNAL('destroyed()'),
-                               lambda: self.close_event())
-
     def __timerEvent(self, event):
         # hide until we can test and fix
         self.mpl_idle_event(event)
@@ -289,15 +277,17 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         FigureCanvasBase.key_release_event( self, key )
         if DEBUG: print('key release', key)
 
-    def resizeEvent( self, event ):
-        if DEBUG: print('resize (%d x %d)' % (event.size().width(), event.size().height()))
+    def resizeEvent(self, event):
         w = event.size().width()
         h = event.size().height()
-        if DEBUG: print("FigureCanvasQtAgg.resizeEvent(", w, ",", h, ")")
+        if DEBUG:
+            print('resize (%d x %d)' % (w, h))
+            print("FigureCanvasQt.resizeEvent(%d, %d)" % (w, h))
         dpival = self.figure.dpi
         winch = w/dpival
         hinch = h/dpival
         self.figure.set_size_inches( winch, hinch )
+        FigureCanvasBase.resize_event(self)
         self.draw()
         self.update()
         QtGui.QWidget.resizeEvent(self, event)
@@ -337,7 +327,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             # prepend the ctrl, alt, super keys if appropriate (sorted in that order)
             for modifier, prefix, Qt_key in self._modifier_keys:
                 if event.key() != Qt_key and int(event.modifiers()) & modifier == modifier:
-                    key = u'{}+{}'.format(prefix, key)
+                    key = u'{0}+{1}'.format(prefix, key)
 
         return key
 
@@ -377,7 +367,14 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
             self._idle = True
         if d: QtCore.QTimer.singleShot(0, idle_draw)
 
-class FigureManagerQT( FigureManagerBase ):
+
+class MainWindow(QtGui.QMainWindow):
+    def closeEvent(self, event):
+        self.emit(QtCore.SIGNAL('closing()'))
+        QtGui.QMainWindow.closeEvent(self, event)
+
+
+class FigureManagerQT(FigureManagerBase):
     """
     Public attributes
 
@@ -387,28 +384,31 @@ class FigureManagerQT( FigureManagerBase ):
     window      : The qt.QMainWindow
     """
 
-    def __init__( self, canvas, num ):
-        if DEBUG: print('FigureManagerQT.%s' % fn_name())
-        FigureManagerBase.__init__( self, canvas, num )
+    def __init__(self, canvas, num):
+        if DEBUG:
+            print('FigureManagerQT.%s' % fn_name())
+        FigureManagerBase.__init__(self, canvas, num)
         self.canvas = canvas
-        self.window = QtGui.QMainWindow()
-        self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self.window = MainWindow()
+        self.window.connect(self.window, QtCore.SIGNAL('closing()'),
+                            canvas.close_event)
+        self.window.connect(self.window, QtCore.SIGNAL('closing()'),
+                            self._widgetclosed)
 
         self.window.setWindowTitle("Figure %d" % num)
-        image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )
-        self.window.setWindowIcon(QtGui.QIcon( image ))
+        image = os.path.join(matplotlib.rcParams['datapath'], 'images', 'matplotlib.png')
+        self.window.setWindowIcon(QtGui.QIcon(image))
 
         # Give the keyboard focus to the figure instead of the
         # manager; StrongFocus accepts both tab and click to focus and
         # will enable the canvas to process event w/o clicking.
         # ClickFocus only takes the focus is the window has been
         # clicked
-        # on. http://developer.qt.nokia.com/doc/qt-4.8/qt.html#FocusPolicy-enum
-        self.canvas.setFocusPolicy( QtCore.Qt.StrongFocus )
+        # on. http://qt-project.org/doc/qt-4.8/qt.html#FocusPolicy-enum or
+        # http://doc.qt.digia.com/qt/qt.html#FocusPolicy-enum
+        self.canvas.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.canvas.setFocus()
 
-        QtCore.QObject.connect( self.window, QtCore.SIGNAL( 'destroyed()' ),
-                            self._widgetclosed )
         self.window._destroying = False
 
         self.toolbar = self._get_toolbar(self.canvas, self.window)
@@ -424,7 +424,7 @@ class FigureManagerQT( FigureManagerBase ):
         # requested size:
         cs = canvas.sizeHint()
         sbs = self.window.statusBar().sizeHint()
-        self._status_and_tool_height = tbs_height+sbs.height()
+        self._status_and_tool_height = tbs_height + sbs.height()
         height = cs.height() + self._status_and_tool_height
         self.window.resize(cs.width(), height)
 
@@ -433,14 +433,14 @@ class FigureManagerQT( FigureManagerBase ):
         if matplotlib.is_interactive():
             self.window.show()
 
-        def notify_axes_change( fig ):
+        def notify_axes_change(fig):
             # This will be called whenever the current axes is changed
             if self.toolbar is not None:
                 self.toolbar.update()
-        self.canvas.figure.add_axobserver( notify_axes_change )
+        self.canvas.figure.add_axobserver(notify_axes_change)
 
     @QtCore.Slot()
-    def _show_message(self,s):
+    def _show_message(self, s):
         # Fixes a PySide segfault.
         self.window.statusBar().showMessage(s)
 
@@ -450,8 +450,9 @@ class FigureManagerQT( FigureManagerBase ):
         else:
             self.window.showFullScreen()
 
-    def _widgetclosed( self ):
-        if self.window._destroying: return
+    def _widgetclosed(self):
+        if self.window._destroying:
+            return
         self.window._destroying = True
         try:
             Gcf.destroy(self.num)
@@ -479,15 +480,19 @@ class FigureManagerQT( FigureManagerBase ):
     def show(self):
         self.window.show()
 
-    def destroy( self, *args ):
+    def destroy(self, *args):
         # check for qApp first, as PySide deletes it in its atexit handler
-        if QtGui.QApplication.instance() is None: return
-        if self.window._destroying: return
+        if QtGui.QApplication.instance() is None:
+            return
+        if self.window._destroying:
+            return
         self.window._destroying = True
-        QtCore.QObject.disconnect( self.window, QtCore.SIGNAL( 'destroyed()' ),
-                                   self._widgetclosed )
-        if self.toolbar: self.toolbar.destroy()
-        if DEBUG: print("destroy figure manager")
+        QtCore.QObject.disconnect(self.window, QtCore.SIGNAL('destroyed()'),
+                                  self._widgetclosed)
+        if self.toolbar:
+                self.toolbar.destroy()
+        if DEBUG:
+                print("destroy figure manager")
         self.window.close()
 
     def get_window_title(self):
@@ -619,7 +624,6 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
     def configure_subplots(self):
         self.adj_window = QtGui.QMainWindow()
         win = self.adj_window
-        win.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         win.setWindowTitle("Subplot Configuration Tool")
         image = os.path.join( matplotlib.rcParams['datapath'],'images','matplotlib.png' )

@@ -39,6 +39,7 @@
 
 #include "numpy/arrayobject.h"
 #include "agg_py_transforms.h"
+#include "file_compat.h"
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
@@ -154,7 +155,6 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
     Py_ssize_t length;
     unsigned char* pix;
     unsigned char* begin;
-    unsigned char* end;
     unsigned char tmp;
     size_t i, j;
 
@@ -165,7 +165,6 @@ BufferRegion::to_string_argb(const Py::Tuple &args)
     }
 
     pix = begin;
-    end = begin + (height * stride);
     for (i = 0; i < (size_t)height; ++i)
     {
         pix = begin + i * stride;
@@ -423,9 +422,8 @@ RendererAgg::create_alpha_buffers()
 {
     if (!alphaBuffer)
     {
-        unsigned stride(width*4);
-        alphaBuffer = new agg::int8u[NUMBYTES];
-        alphaMaskRenderingBuffer.attach(alphaBuffer, width, height, stride);
+        alphaBuffer = new agg::int8u[width * height];
+        alphaMaskRenderingBuffer.attach(alphaBuffer, width, height, width);
         rendererBaseAlphaMask.attach(pixfmtAlphaMask);
         rendererAlphaMask.attach(rendererBaseAlphaMask);
     }
@@ -443,10 +441,10 @@ RendererAgg::set_clipbox(const Py::Object& cliprect, R& rasterizer)
     double l, b, r, t;
     if (py_convert_bbox(cliprect.ptr(), l, b, r, t))
     {
-        rasterizer.clip_box(std::max(int(floor(l - 0.5)), 0),
-                            std::max(int(floor(height - b - 0.5)), 0),
-                            std::min(int(floor(r - 0.5)), int(width)),
-                            std::min(int(floor(height - t - 0.5)), int(height)));
+        rasterizer.clip_box(std::max(int(floor(l + 0.5)), 0),
+                            std::max(int(floor(height - b + 0.5)), 0),
+                            std::min(int(floor(r + 0.5)), int(width)),
+                            std::min(int(floor(height - t + 0.5)), int(height)));
     }
     else
     {
@@ -673,7 +671,7 @@ RendererAgg::draw_markers(const Py::Tuple& args)
     PathIterator path(path_obj);
     transformed_path_t path_transformed(path, trans);
     snap_t             path_snapped(path_transformed,
-                                    SNAP_TRUE,
+                                    SNAP_FALSE,
                                     path.total_vertices(),
                                     0.0);
     curve_t            path_curve(path_snapped);
@@ -746,6 +744,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
                     continue;
                 }
 
+                /* These values are correctly snapped above -- so we don't want
+                   to round here, we really only want to truncate */
                 x = floor(x);
                 y = floor(y);
 
@@ -782,6 +782,8 @@ RendererAgg::draw_markers(const Py::Tuple& args)
                     continue;
                 }
 
+                /* These values are correctly snapped above -- so we don't want
+                   to round here, we really only want to truncate */
                 x = floor(x);
                 y = floor(y);
 
@@ -1117,7 +1119,7 @@ RendererAgg::draw_image(const Py::Tuple& args)
             renderer_type_alpha ri(r, sa, spans);
 
             theRasterizer.add_path(rect2);
-            agg::render_scanlines(theRasterizer, slineP8, ri);
+            agg::render_scanlines(theRasterizer, scanlineAlphaMask, ri);
         }
         else
         {
@@ -1175,7 +1177,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_aa_renderer_type ren(r);
                 ren.color(face.second);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1191,7 +1193,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_bin_renderer_type ren(r);
                 ren.color(face.second);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1301,7 +1303,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_aa_renderer_type ren(r);
                 ren.color(gc.color);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1317,7 +1319,7 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
                 amask_ren_type r(pfa);
                 amask_bin_renderer_type ren(r);
                 ren.color(gc.color);
-                agg::render_scanlines(theRasterizer, slineP8, ren);
+                agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
             }
             else
             {
@@ -1899,7 +1901,7 @@ RendererAgg::_draw_gouraud_triangle(const double* points,
         pixfmt_amask_type pfa(pixFmt, alphaMask);
         amask_ren_type r(pfa);
         amask_aa_renderer_type ren(r, span_alloc, span_gen);
-        agg::render_scanlines(theRasterizer, slineP8, ren);
+        agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
     }
     else
     {
@@ -2029,47 +2031,43 @@ RendererAgg::write_rgba(const Py::Tuple& args)
     args.verify_length(1);
 
     FILE *fp = NULL;
-    bool close_file = false;
     Py::Object py_fileobj = Py::Object(args[0]);
-
-    #if PY3K
-    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
-    PyErr_Clear();
-    #endif
+    PyObject* py_file = NULL;
+    bool close_file = false;
 
     if (py_fileobj.isString())
     {
-        std::string fileName = Py::String(py_fileobj);
-        const char *file_name = fileName.c_str();
-        if ((fp = fopen(file_name, "wb")) == NULL)
-            throw Py::RuntimeError(
-                Printf("Could not open file %s", file_name).str());
-        if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES)
-        {
-            fclose(fp);
-            throw Py::RuntimeError(
-                Printf("Error writing to file %s", file_name).str());
+        if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"wb")) == NULL) {
+            throw Py::Exception();
         }
         close_file = true;
     }
-    #if PY3K
-    else if (fd != -1)
+    else
     {
-        if (write(fd, pixBuffer, NUMBYTES) != (ssize_t)NUMBYTES)
-        {
-            throw Py::RuntimeError("Error writing to file");
-        }
+        py_file = py_fileobj.ptr();
     }
-    #else
-    else if (PyFile_CheckExact(py_fileobj.ptr()))
+
+    if ((fp = npy_PyFile_Dup(py_file, (char *)"wb")))
     {
-        fp = PyFile_AsFile(py_fileobj.ptr());
         if (fwrite(pixBuffer, 1, NUMBYTES, fp) != NUMBYTES)
         {
+            npy_PyFile_DupClose(py_file, fp);
+
+            if (close_file) {
+                npy_PyFile_CloseFile(py_file);
+                Py_DECREF(py_file);
+            }
+
             throw Py::RuntimeError("Error writing to file");
         }
+
+        npy_PyFile_DupClose(py_file, fp);
+
+        if (close_file) {
+            npy_PyFile_CloseFile(py_file);
+            Py_DECREF(py_file);
+        }
     }
-    #endif
     else
     {
         PyObject* write_method = PyObject_GetAttrString(py_fileobj.ptr(),

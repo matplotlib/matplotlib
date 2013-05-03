@@ -271,7 +271,7 @@ class FigureCanvasGTK3 (Gtk.DrawingArea, FigureCanvasBase):
                     ]
         for key_mask, prefix in modifiers:
             if event.state & key_mask:
-                key = '{}+{}'.format(prefix, key)
+                key = '{0}+{1}'.format(prefix, key)
 
         return key
 

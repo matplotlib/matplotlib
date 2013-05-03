@@ -1,3 +1,13 @@
+2012-12-05 Added MatplotlibDeprecationWarning class for signaling deprecation.
+           Matplotlib developers can use this class as follows:
+
+           from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
+
+           In light of the fact that Python builtin DeprecationWarnings are
+           ignored by default as of Python 2.7, this class was put in to allow
+           for the signaling of deprecation, but via UserWarnings which are
+           not ignored by default. - PI
+
 2012-08-11 Fix path-closing bug in patches.Polygon, so that regardless
            of whether the path is the initial one or was subsequently
            set by set_xy(), get_xy() will return a closed path if and

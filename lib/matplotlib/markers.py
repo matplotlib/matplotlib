@@ -164,7 +164,7 @@ that define the shape.
             self._marker_function = self._set_tuple_marker
         elif isinstance(marker, np.ndarray):
             self._marker_function = self._set_vertices
-        elif marker in self.markers:
+        elif not isinstance(marker, list) and marker in self.markers:
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
         elif is_string_like(marker) and is_math_text(marker):
@@ -477,7 +477,7 @@ that define the shape.
 
     def _set_hexagon1(self):
         self._transform = Affine2D().scale(0.5)
-        self._snap_threshold = 5.0
+        self._snap_threshold = None
 
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
@@ -511,7 +511,7 @@ that define the shape.
 
     def _set_hexagon2(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(30)
-        self._snap_threshold = 5.0
+        self._snap_threshold = None
 
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)

@@ -12,6 +12,7 @@ import matplotlib.colors as colors
 from matplotlib import docstring
 import matplotlib.transforms as transforms
 from matplotlib.path import Path
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init
@@ -1268,7 +1269,7 @@ class Circle(Ellipse):
             import warnings
             warnings.warn('Circle is now scale free.  '
                           'Use CirclePolygon instead!',
-                          DeprecationWarning)
+                          mplDeprecation)
             kwargs.pop('resolution')
 
         self.radius = radius
@@ -2762,9 +2763,12 @@ class ConnectionStyle(_Style):
         def __init__(self, armA=0., armB=0., fraction=0.3, angle=None):
             """
             *armA* : minimum length of armA
+
             *armB* : minimum length of armB
+
             *fraction* : a fraction of the distance between two points that
                          will be added to armA and armB.
+
             *angle* : angle of the connecting line (if None, parallel to A
                       and B)
             """

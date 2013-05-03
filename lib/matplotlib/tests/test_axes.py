@@ -129,6 +129,7 @@ def test_polar_annotations():
     fig = plt.figure()
     ax = fig.add_subplot( 111, polar=True )
     line, = ax.plot( theta, r, color='#ee8d18', lw=3 )
+    line, = ax.plot( (0, 0), (0, 1), color="#0000ff", lw=1)
 
     ind = 800
     thisr, thistheta = r[ind], theta[ind]
@@ -215,6 +216,10 @@ def test_fill_units():
 
 @image_comparison(baseline_images=['single_point'])
 def test_single_point():
+    # Issue #1796: don't let lines.marker affect the grid
+    matplotlib.rcParams['lines.marker'] = 'o'
+    matplotlib.rcParams['axes.grid'] = True
+
     fig = plt.figure()
     plt.subplot( 211 )
     plt.plot( [0], [0], 'o' )
@@ -418,6 +423,44 @@ def test_hexbin_extent():
     x, y = data
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
+
+@image_comparison(baseline_images=['hexbin_log'],
+                  remove_text=True,
+                  extensions=['png'])
+def test_hexbin_log():
+    # Issue #1636
+    fig = plt.figure()
+
+    np.random.seed(0)
+    n = 100000
+    x = np.random.standard_normal(n)
+    y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
+    y = np.power(2, y * 0.5)
+    ax = fig.add_subplot(111)
+    ax.hexbin(x, y, yscale='log')
+
+@cleanup
+def test_inverted_limits():
+    # Test gh:1553
+    # Calling invert_xaxis prior to plotting should not disable autoscaling
+    # while still maintaining the inverted direction
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.invert_xaxis()
+    ax.plot([-5, -3, 2, 4], [1, 2, -3, 5])
+
+    assert ax.get_xlim() == (4, -5)
+    assert ax.get_ylim() == (-3, 5)
+    plt.close()
+
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.invert_yaxis()
+    ax.plot([-5, -3, 2, 4], [1, 2, -3, 5])
+
+    assert ax.get_xlim() == (-5, 4)
+    assert ax.get_ylim() == (5, -3)
+    plt.close()
 
 @image_comparison(baseline_images=['nonfinite_limits'])
 def test_nonfinite_limits():
@@ -689,6 +732,23 @@ def test_hist_log():
     ax = fig.add_subplot(111)
     ax.hist(data, fill=False, log=True)
 
+@image_comparison(baseline_images=['hist_steplog'], remove_text=True)
+def test_hist_steplog():
+    np.random.seed(0)
+    data = np.random.standard_normal(2000)
+    data += -2.0 - np.min(data)
+    data_pos = data + 2.1
+    data_big = data_pos + 30
+
+    ax = plt.subplot(3, 1, 1)
+    plt.hist(data, 100, histtype='stepfilled', log=True)
+
+    ax = plt.subplot(3, 1, 2)
+    plt.hist(data_pos, 100, histtype='stepfilled', log=True)
+
+    ax = plt.subplot(3, 1, 3)
+    plt.hist(data_big, 100, histtype='stepfilled', log=True)
+
 def contour_dat():
     x = np.linspace(-3, 5, 150)
     y = np.linspace(-3, 5, 120)
@@ -862,8 +922,8 @@ def test_errorbar():
     ax.locator_params(nbins=4)
 
     ax = axs[0,1]
-    ax.errorbar(x, y, xerr=xerr, fmt='o')
-    ax.set_title('Hor. symmetric')
+    ax.errorbar(x, y, xerr=xerr, fmt='o', alpha=0.4)
+    ax.set_title('Hor. symmetric w/ alpha')
 
     ax = axs[1,0]
     ax.errorbar(x, y, yerr=[yerr, 2*yerr], xerr=[xerr, 2*xerr], fmt='--o')
@@ -881,14 +941,26 @@ def test_errorbar():
 
     fig.suptitle('Variable errorbars')
 
-@image_comparison(baseline_images=['hist_stacked'])
-def test_hist_stacked():
+@image_comparison(baseline_images=['hist_stacked_stepfilled'])
+def test_hist_stacked_stepfilled():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="stepfilled", stacked=True)
+
+
+@image_comparison(baseline_images=['hist_offset'])
+def test_hist_offset():
     # make some data
     d1 = np.linspace(0, 10, 50)
     d2 = np.linspace(1, 3, 20)
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.hist( (d1, d2), histtype="stepfilled", stacked=True)
+    ax.hist(d1, bottom=5)
+    ax.hist(d2, bottom=15)
+
 
 @image_comparison(baseline_images=['hist_stacked_weights'])
 def test_hist_stacked_weighted():
@@ -901,6 +973,35 @@ def test_hist_stacked_weighted():
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), weights=(w1,w2), histtype="stepfilled", stacked=True)
 
+@image_comparison(baseline_images=['hist_stacked_stepfilled_alpha'])
+def test_hist_stacked_stepfilled_alpha():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="stepfilled", stacked=True, alpha=0.5)
+
+@image_comparison(baseline_images=['hist_stacked_step'])
+def test_hist_stacked_step():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist( (d1, d2), histtype="step", stacked=True)
+
+@image_comparison(baseline_images=['hist_stacked_bar'])
+def test_hist_stacked_bar():
+    # make some data
+    d = [[100, 100, 100, 100, 200, 320, 450, 80, 20, 600, 310, 800], [20, 23, 50, 11, 100, 420], [120, 120, 120, 140, 140, 150, 180], [60, 60, 60, 60, 300, 300, 5, 5, 5, 5, 10, 300], [555, 555, 555, 30, 30, 30, 30, 30, 100, 100, 100, 100, 30, 30], [30, 30, 30, 30, 400, 400, 400, 400, 400, 400, 400, 400]]
+    colors = [(0.5759849696758961, 1.0, 0.0), (0.0, 1.0, 0.350624650815206), (0.0, 1.0, 0.6549834156005998), (0.0, 0.6569064625276622, 1.0), (0.28302699607823545, 0.0, 1.0), (0.6849123462299822, 0.0, 1.0)]
+    labels = ['green', 'orange', ' yellow', 'magenta', 'black']
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist(d, bins=10, histtype='barstacked', align='mid', color=colors, label=labels)
+    ax.legend(loc='upper right', bbox_to_anchor = (1.0, 1.0), ncol=1)
+
 @image_comparison(baseline_images=['transparent_markers'], remove_text=True)
 def test_transparent_markers():
     np.random.seed(0)
@@ -910,6 +1011,82 @@ def test_transparent_markers():
     ax = fig.add_subplot(111)
     ax.plot(data, 'D', mfc='none', markersize=100)
 
+@image_comparison(baseline_images=['vertex_markers'], extensions=['png'],
+                  remove_text=True)
+def test_vertex_markers():
+    data = range(10)
+    marker_as_tuple = ((-1, -1), (1, -1), (1, 1), (-1, 1))
+    marker_as_list = [(-1, -1), (1, -1), (1, 1), (-1, 1)]
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot(data, linestyle='', marker=marker_as_tuple, mfc='k')
+    ax.plot(data[::-1], linestyle='', marker=marker_as_list, mfc='b')
+    ax.set_xlim([-1, 10])
+    ax.set_ylim([-1, 10])
+
+
 if __name__=='__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+
+
+@image_comparison(baseline_images=['vline_hline_zorder',
+                                   'errorbar_zorder'])
+def test_eb_line_zorder():
+    x = range(10)
+
+    # First illustrate basic pyplot interface, using defaults where possible.
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.plot(x, lw=10, zorder=5)
+    ax.axhline(1, color='red', lw=10, zorder=1)
+    ax.axhline(5, color='green', lw=10, zorder=10)
+    ax.axvline(7, color='m', lw=10, zorder=7)
+    ax.axvline(2, color='k', lw=10, zorder=3)
+
+    ax.set_title("axvline and axhline zorder test")
+
+    # Now switch to a more OO interface to exercise more features.
+    fig = plt.figure()
+    ax = fig.gca()
+    x = range(10)
+    y = np.zeros(10)
+    yerr = range(10)
+    ax.errorbar(x, y, yerr=yerr, zorder=5, lw=5, color='r')
+    for j in range(10):
+        ax.axhline(j, lw=5, color='k', zorder=j)
+        ax.axhline(-j, lw=5, color='k', zorder=j)
+
+    ax.set_title("errorbar zorder test")
+
+
+@image_comparison(baseline_images=['mixed_collection'], remove_text=True)
+def test_mixed_collection():
+    from matplotlib import patches
+    from matplotlib import collections
+
+    x = range(10)
+
+    # First illustrate basic pyplot interface, using defaults where possible.
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+
+    c = patches.Circle((8, 8), radius=4, facecolor='none', edgecolor='green')
+
+    # PDF can optimize this one
+    p1 = collections.PatchCollection([c], match_original=True)
+    p1.set_offsets([[0, 0], [24, 24]])
+    p1.set_linewidths([1, 5])
+
+    # PDF can't optimize this one, because the alpha of the edge changes
+    p2 = collections.PatchCollection([c], match_original=True)
+    p2.set_offsets([[48, 0], [-32, -16]])
+    p2.set_linewidths([1, 5])
+    p2.set_edgecolors([[0, 0, 0.1, 1.0], [0, 0, 0.1, 0.5]])
+
+    ax.patch.set_color('0.5')
+    ax.add_collection(p1)
+    ax.add_collection(p2)
+
+    ax.set_xlim(0, 16)
+    ax.set_ylim(0, 16)

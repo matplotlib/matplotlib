@@ -15,6 +15,26 @@ revision, see the :ref:`github-stats`.
    versions 2.4 to 2.7.  matplotlib 1.2 and later require
    versions 2.6, 2.7, and 3.1 and higher.
 
+.. contents:: Table of Contents
+
+.. _whats-new-1-2-2:
+
+new in matplotlib 1.2.2
+=======================
+
+Improved collections
+--------------------
+
+The individual items of a collection may now have different alpha
+values and be rendered correctly.  This also fixes a bug where
+collections were always filled in the PDF backend.
+
+Multiple images on same axes are correctly transparent
+------------------------------------------------------
+
+When putting multiple images onto the same axes, the background color
+of the axes will now show through correctly.
+
 .. _whats-new-1-2:
 
 new in matplotlib-1.2

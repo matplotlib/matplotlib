@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 
+import matplotlib
 from matplotlib.axes import Axes
 from matplotlib.patches import Circle
 from matplotlib.path import Path
@@ -262,25 +263,25 @@ class HammerAxes(Axes):
         Axes.set_ylim(self, -np.pi / 2.0, np.pi / 2.0)
     set_ylim = set_xlim
 
-    def format_coord(self, long, lat):
+    def format_coord(self, lon, lat):
         """
         Override this method to change how the values are displayed in
         the status bar.
 
         In this case, we want them to be displayed in degrees N/S/E/W.
         """
-        long = long * (180.0 / np.pi)
+        lon = lon * (180.0 / np.pi)
         lat = lat * (180.0 / np.pi)
         if lat >= 0.0:
             ns = 'N'
         else:
             ns = 'S'
-        if long >= 0.0:
+        if lon >= 0.0:
             ew = 'E'
         else:
             ew = 'W'
         # \u00b0 : degree symbol
-        return '%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(long), ew)
+        return '%f\u00b0%s, %f\u00b0%s' % (abs(lat), ns, abs(lon), ew)
 
     class DegreeFormatter(Formatter):
         """
@@ -385,9 +386,10 @@ class HammerAxes(Axes):
         output_dims = 2
         is_separable = False
 
-        def transform(self, ll):
+        def transform_non_affine(self, ll):
             """
-            Override the transform method to implement the custom transform.
+            Override the transform_non_affine method to implement the custom 
+            transform.
 
             The input and output are Nx2 numpy arrays.
             """
@@ -411,10 +413,25 @@ class HammerAxes(Axes):
         # differently-sized array, any transform that requires
         # changing the length of the data array must happen within
         # ``transform_path``.
-        def transform_path(self, path):
-            vertices = path.vertices
+        def transform_path_non_affine(self, path):
             ipath = path.interpolated(path._interpolation_steps)
             return Path(self.transform(ipath.vertices), ipath.codes)
+        transform_path_non_affine.__doc__ = \
+                Transform.transform_path_non_affine.__doc__
+
+        if matplotlib.__version__ < '1.2':
+            # Note: For compatibility with matplotlib v1.1 and older, you'll
+            # need to explicitly implement a ``transform`` method as well.
+            # Otherwise a ``NotImplementedError`` will be raised. This isn't
+            # necessary for v1.2 and newer, however.  
+            transform = transform_non_affine
+
+            # Similarly, we need to explicitly override ``transform_path`` if
+            # compatibility with older matplotlib versions is needed. With v1.2
+            # and newer, only overriding the ``transform_path_non_affine``
+            # method is sufficient.
+            transform_path = transform_path_non_affine
+            transform_path.__doc__ = Transform.transform_path.__doc__
 
         def inverted(self):
             return HammerAxes.InvertedHammerTransform()
@@ -425,7 +442,7 @@ class HammerAxes(Axes):
         output_dims = 2
         is_separable = False
 
-        def transform(self, xy):
+        def transform_non_affine(self, xy):
             x = xy[:, 0:1]
             y = xy[:, 1:2]
 
@@ -435,7 +452,12 @@ class HammerAxes(Axes):
             longitude = 2 * np.arctan((z*x) / (2.0 * (2.0*z*z - 1.0)))
             latitude = np.arcsin(y*z)
             return np.concatenate((longitude, latitude), 1)
-        transform.__doc__ = Transform.transform.__doc__
+        transform_non_affine.__doc__ = Transform.transform_non_affine.__doc__
+
+        # As before, we need to implement the "transform" method for 
+        # compatibility with matplotlib v1.1 and older.
+        if matplotlib.__version__ < '1.2':
+            transform = transform_non_affine
 
         def inverted(self):
             # The inverse of the inverse is the original transform... ;)

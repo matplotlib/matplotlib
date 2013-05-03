@@ -36,6 +36,7 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
 iterable = cbook.iterable
@@ -150,8 +151,7 @@ def set_default_color_cycle(clist):
 
     """
     rcParams['axes.color_cycle'] = clist
-    warnings.warn("Set rcParams['axes.color_cycle'] directly",
-                                                    DeprecationWarning)
+    warnings.warn("Set rcParams['axes.color_cycle'] directly", mplDeprecation)
 
 
 class _process_plot_var_args(object):
@@ -1376,11 +1376,11 @@ class Axes(martist.Artist):
 
         .. deprecated:: 0.98
         """
-        raise DeprecationWarning('Use get_children instead')
+        raise mplDeprecation('Use get_children instead')
 
     def get_frame(self):
         """Return the axes Rectangle frame"""
-        warnings.warn('use ax.patch instead', DeprecationWarning)
+        warnings.warn('use ax.patch instead', mplDeprecation)
         return self.patch
 
     def get_legend(self):
@@ -2334,8 +2334,8 @@ class Axes(martist.Artist):
         *which* : ['major' | 'minor' | 'both']
             Default is 'major'; apply arguments to *which* ticks.
 
-        *direction* : ['in' | 'out']
-            Puts ticks inside or outside the axes.
+        *direction* : ['in' | 'out' | 'inout']
+            Puts ticks inside the axes, outside the axes, or both.
 
         *length*
             Tick length in points.
@@ -2421,7 +2421,7 @@ class Axes(martist.Artist):
     def invert_xaxis(self):
         "Invert the x-axis."
         left, right = self.get_xlim()
-        self.set_xlim(right, left)
+        self.set_xlim(right, left, auto=None)
 
     def xaxis_inverted(self):
         """Returns *True* if the x-axis is inverted."""
@@ -2641,7 +2641,7 @@ class Axes(martist.Artist):
     def invert_yaxis(self):
         "Invert the y-axis."
         bottom, top = self.get_ylim()
-        self.set_ylim(top, bottom)
+        self.set_ylim(top, bottom, auto=None)
 
     def yaxis_inverted(self):
         """Returns *True* if the y-axis is inverted."""
@@ -3112,13 +3112,13 @@ class Axes(martist.Artist):
         disconnect to disconnect from the axes event
 
         """
-        raise DeprecationWarning('use the callbacks CallbackRegistry instance '
-                                 'instead')
+        raise mplDeprecation('use the callbacks CallbackRegistry instance '
+                             'instead')
 
     def disconnect(self, cid):
         """disconnect from the Axes event."""
-        raise DeprecationWarning('use the callbacks CallbackRegistry instance '
-                                 'instead')
+        raise mplDeprecation('use the callbacks CallbackRegistry instance '
+                             'instead')
 
     def get_children(self):
         """return a list of child artists"""
@@ -3167,10 +3167,10 @@ class Axes(martist.Artist):
         each child artist will fire a pick event if mouseevent is over
         the artist and the artist has picker set
         """
-        if len(args)>1:
-            raise DeprecationWarning('New pick API implemented -- '
-                                     'see API_CHANGES in the src distribution')
-        martist.Artist.pick(self,args[0])
+        if len(args) > 1:
+            raise mplDeprecation('New pick API implemented -- '
+                                 'see API_CHANGES in the src distribution')
+        martist.Artist.pick(self, args[0])
 
     def __pick(self, x, y, trans=None, among=None):
         """
@@ -3730,9 +3730,9 @@ class Axes(martist.Artist):
         .. plot:: mpl_examples/pylab_examples/hline_demo.py
         """
         if kwargs.get('fmt') is not None:
-            raise DeprecationWarning('hlines now uses a '
-                                     'collections.LineCollection and not a '
-                                     'list of Line2D to draw; see API_CHANGES')
+            raise mplDeprecation('hlines now uses a '
+                                 'collections.LineCollection and not a '
+                                 'list of Line2D to draw; see API_CHANGES')
 
         # We do the conversion first since not all unitized data is uniform
         # process the unit information
@@ -3810,9 +3810,9 @@ class Axes(martist.Artist):
         """
 
         if kwargs.get('fmt') is not None:
-            raise DeprecationWarning('vlines now uses a '
-                                     'collections.LineCollection and not a '
-                                     'list of Line2D to draw; see API_CHANGES')
+            raise mplDeprecation('vlines now uses a '
+                                 'collections.LineCollection and not a '
+                                 'list of Line2D to draw; see API_CHANGES')
 
         self._process_unit_info(xdata=x, ydata=[ymin, ymax], kwargs=kwargs)
 
@@ -4519,8 +4519,7 @@ class Axes(martist.Artist):
             instance. If *prop* is a dictionary, a new instance will be
             created with *prop*. If *None*, use rc settings.
 
-          *fontsize*: [ size in points | 'xx-small' | 'x-small' |
-          'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
+          *fontsize*: [ size in points | 'xx-small' | 'x-small' | 'small' | 'medium' | 'large' | 'x-large' | 'xx-large' ]
             Set the font size.  May be either a size string, relative to
             the default font size, or an absolute font size in points. This
             argument is only used if prop is not specified.
@@ -4793,11 +4792,10 @@ class Axes(martist.Artist):
         if orientation == 'vertical':
             self._process_unit_info(xdata=left, ydata=height, kwargs=kwargs)
             if log:
-                self.set_yscale('log')
+                self.set_yscale('log', nonposy='clip')
             # size width and bottom according to length of left
             if _bottom is None:
                 if self.get_yscale() == 'log':
-                    bottom = [1e-100]
                     adjust_ylim = True
                 else:
                     bottom = [0]
@@ -4809,11 +4807,10 @@ class Axes(martist.Artist):
         elif orientation == 'horizontal':
             self._process_unit_info(xdata=width, ydata=bottom, kwargs=kwargs)
             if log:
-                self.set_xscale('log')
+                self.set_xscale('log', nonposx='clip')
             # size left and height according to length of bottom
             if _left is None:
                 if self.get_xscale() == 'log':
-                    left = [1e-100]
                     adjust_xlim = True
                 else:
                     left = [0]
@@ -5321,11 +5318,12 @@ class Axes(martist.Artist):
         Optional keyword arguments:
 
           *xerr*/*yerr*: [ scalar | N, Nx1, or 2xN array-like ]
-            If a scalar number, len(N) array-like object, or an Nx1 array-like
-            object, errorbars are drawn +/- value.
+            If a scalar number, len(N) array-like object, or an Nx1
+            array-like object, errorbars are drawn at +/-value relative
+            to the data.
 
-            If a sequence of shape 2xN, errorbars are drawn at -row1 and
-            +row2
+            If a sequence of shape 2xN, errorbars are drawn at -row1
+            and +row2 relative to the data.
 
           *fmt*: '-'
             The plot format symbol. If *fmt* is *None*, only the
@@ -5442,6 +5440,10 @@ class Axes(martist.Artist):
                 lines_kw['lw']=kwargs['lw']
         if 'transform' in kwargs:
             lines_kw['transform'] = kwargs['transform']
+        if 'alpha' in kwargs:
+            lines_kw['alpha'] = kwargs['alpha']
+        if 'zorder' in kwargs:
+            lines_kw['zorder'] = kwargs['zorder']
 
         # arrays fine here, they are booleans and hence not units
         if not iterable(lolims):
@@ -5490,6 +5492,11 @@ class Axes(martist.Artist):
                 plot_kw['mew']=kwargs['mew']
             if 'transform' in kwargs:
                 plot_kw['transform'] = kwargs['transform']
+            if 'alpha' in kwargs:
+                plot_kw['alpha'] = kwargs['alpha']
+            if 'zorder' in kwargs:
+                plot_kw['zorder'] = kwargs['zorder']
+
 
         if xerr is not None:
             if (iterable(xerr) and len(xerr)==2 and
@@ -6087,7 +6094,7 @@ class Axes(martist.Artist):
             edgecolors = 'none'
             warnings.warn(
                 '''replace "faceted=False" with "edgecolors='none'"''',
-                DeprecationWarning)   #2008/04/18
+                mplDeprecation)  # 2008/04/18
 
         sym = None
         symstyle = 0
@@ -6428,17 +6435,6 @@ class Axes(martist.Artist):
         offsets = offsets[good_idxs,:]
         accum = accum[good_idxs]
 
-        if xscale=='log':
-            offsets[:,0] = 10**(offsets[:,0])
-            xmin = 10**xmin
-            xmax = 10**xmax
-            self.set_xscale('log')
-        if yscale=='log':
-            offsets[:,1] = 10**(offsets[:,1])
-            ymin = 10**ymin
-            ymax = 10**ymax
-            self.set_yscale('log')
-
         polygon = np.zeros((6, 2), float)
         polygon[:,0] = sx * np.array([ 0.5, 0.5, 0.0, -0.5, -0.5,  0.0])
         polygon[:,1] = sy * np.array([-0.5, 0.5, 1.0,  0.5, -0.5, -1.0]) / 3.0
@@ -6446,14 +6442,32 @@ class Axes(martist.Artist):
         if edgecolors=='none':
             edgecolors = 'face'
 
-        collection = mcoll.PolyCollection(
-            [polygon],
-            edgecolors = edgecolors,
-            linewidths = linewidths,
-            offsets = offsets,
-            transOffset = mtransforms.IdentityTransform(),
-            offset_position = "data"
-            )
+        if xscale == 'log' or yscale == 'log':
+            polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
+            if xscale == 'log':
+                polygons[:, :, 0] = 10.0 ** polygons[:, :, 0]
+                xmin = 10.0 ** xmin
+                xmax = 10.0 ** xmax
+                self.set_xscale(xscale)
+            if yscale == 'log':
+                polygons[:, :, 1] = 10.0 ** polygons[:, :, 1]
+                ymin = 10.0 ** ymin
+                ymax = 10.0 ** ymax
+                self.set_yscale(yscale)
+            collection = mcoll.PolyCollection(
+                polygons,
+                edgecolors=edgecolors,
+                linewidths=linewidths,
+                )
+        else:
+            collection = mcoll.PolyCollection(
+                [polygon],
+                edgecolors=edgecolors,
+                linewidths=linewidths,
+                offsets=offsets,
+                transOffset=mtransforms.IdentityTransform(),
+                offset_position="data"
+                )
 
         if isinstance(norm, mcolors.LogNorm):
             if (accum==0).any():
@@ -6864,7 +6878,7 @@ class Axes(martist.Artist):
 
         Call signature::
 
-          fill_between(y, x1, x2=0, where=None, **kwargs)
+          fill_betweenx(y, x1, x2=0, where=None, **kwargs)
 
         Create a :class:`~matplotlib.collections.PolyCollection`
         filling the regions between *x1* and *x2* where
@@ -7069,7 +7083,7 @@ class Axes(martist.Artist):
             parameter, i.e. when interpolation is one of: 'sinc',
             'lanczos' or 'blackman'
 
-        Additional kwargs are :class:`~matplotlib.artist.Artist` properties:
+        Additional kwargs are :class:`~matplotlib.artist.Artist` properties.
 
         %(Artist)s
 
@@ -7365,13 +7379,13 @@ class Axes(martist.Artist):
 
         x = X.compressed()
         y = Y.compressed()
-        
+
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform)
             and hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
-        
+
         if t and any(t.contains_branch_seperately(self.transData)):
             trans_to_data = t - self.transData
             pts = np.vstack([x, y]).T.astype(np.float)
@@ -7505,13 +7519,13 @@ class Axes(martist.Artist):
         collection.autoscale_None()
 
         self.grid(False)
-        
+
         # Transform from native to data coordinates?
         t = collection._transform
         if (not isinstance(t, mtransforms.Transform)
             and hasattr(t, '_as_mpl_transform')):
             t = t._as_mpl_transform(self.axes)
-        
+
         if t and any(t.contains_branch_seperately(self.transData)):
             trans_to_data = t - self.transData
             pts = np.vstack([X, Y]).T.astype(np.float)
@@ -8000,7 +8014,7 @@ class Axes(martist.Artist):
 
 
         if kwargs.get('width') is not None:
-            raise DeprecationWarning(
+            raise mplDeprecation(
                 'hist now uses the rwidth to give relative width '
                 'and not absolute width')
 
@@ -8093,9 +8107,7 @@ class Axes(martist.Artist):
 
         n = []
         mlast = bottom
-        # reversed order is necessary so when stacking histogram, first dataset is on top
-        # if histogram isn't stacked, this doesn't make any difference
-        for i in reversed(xrange(nx)):
+        for i in xrange(nx):
             # this will automatically overwrite bins,
             # so that each histogram uses the same bins
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
@@ -8109,6 +8121,8 @@ class Axes(martist.Artist):
                 mlast[:] = m
             n.append(m)
 
+
+
         if cumulative:
             slc = slice(None)
             if cbook.is_numlike(cumulative) and cumulative < 0:
@@ -8118,8 +8132,6 @@ class Axes(martist.Artist):
                 n = [(m * np.diff(bins))[slc].cumsum()[slc] for m in n]
             else:
                 n = [m[slc].cumsum()[slc] for m in n]
-
-        n.reverse() # put them back in the right order
 
         patches = []
 
@@ -8157,49 +8169,91 @@ class Axes(martist.Artist):
                 _barfunc = self.bar
 
             for m, c in zip(n, color):
-                patch = _barfunc(bins[:-1]+boffset, m, width,
+                if bottom is None:
+                    bottom = np.zeros(len(m), np.float)
+                if stacked:
+                    height = m - bottom
+                else :
+                    height = m
+                patch = _barfunc(bins[:-1]+boffset, height, width,
                                   align='center', log=log,
-                                  color=c)
+                                  color=c, bottom=bottom)
                 patches.append(patch)
+                if stacked:
+                    bottom[:] = m
                 boffset += dw
 
         elif histtype.startswith('step'):
-            x = np.zeros( 2*len(bins), np.float )
-            y = np.zeros( 2*len(bins), np.float )
+            # these define the perimeter of the polygon
+            x = np.zeros( 4*len(bins)-3, np.float )
+            y = np.zeros( 4*len(bins)-3, np.float )
 
-            x[0::2], x[1::2] = bins, bins
+            x[0:2*len(bins)-1:2], x[1:2*len(bins)-1:2] = bins, bins[:-1]
+            x[2*len(bins)-1:] = x[1:2*len(bins)-1][::-1]
 
-            minimum = np.min(n)
+            if log:
+                if orientation == 'horizontal':
+                    self.set_xscale('log', nonposx = 'clip')
+                    logbase = self.xaxis._scale.base
+                else:  # orientation == 'vertical'
+                    self.set_yscale('log', nonposy = 'clip')
+                    logbase = self.yaxis._scale.base
+
+                # Setting a minimum of 0 results in problems for log plots
+                if normed:
+                    # For normed data, set to log base * minimum data value
+                    # (gives 1 full tick-label unit for the lowest filled bin)
+                    ndata = np.array(n)
+                    minimum = (np.min(ndata[ndata>0])) / logbase
+                else:
+                    # For non-normed data, set the min to log base, again so that
+                    # there is 1 full tick-label unit for the lowest bin
+                    minimum = 1.0 / logbase
+
+                y[0], y[-1] = minimum, minimum
+            else:
+                minimum = np.min(bins)
 
             if align == 'left' or align == 'center':
                 x -= 0.5*(bins[1]-bins[0])
             elif align == 'right':
                 x += 0.5*(bins[1]-bins[0])
 
-            if log:
-                y[0],y[-1] = minimum, minimum
-                if orientation == 'horizontal':
-                    self.set_xscale('log')
-                else:  # orientation == 'vertical'
-                    self.set_yscale('log')
-
             # If fill kwarg is set, it will be passed to the patch collection,
             # overriding this
             fill = (histtype == 'stepfilled')
 
-            for m, c in zip(n, color):
-                y[1:-1:2], y[2::2] = m, m
+            xvals, yvals = [], []
+            for m in n:
+                # starting point for drawing polygon
+                y[0] = y[-1]
+                # top of the previous polygon becomes the bottom
+                y[2*len(bins)-1:] = y[1:2*len(bins)-1][::-1]
+                # set the top of this polygon
+                y[1:2*len(bins)-1:2], y[2:2*len(bins):2] = m, m
                 if log:
                     y[y<minimum]=minimum
                 if orientation == 'horizontal':
                     x,y = y,x
 
+                xvals.append(x.copy())
+                yvals.append(y.copy())
+
+            # add patches in reverse order so that when stacking,
+            # items lower in the stack are plottted on top of
+            # items higher in the stack
+            for x, y, c in reversed(zip(xvals, yvals, color)):
                 if fill:
                     patches.append( self.fill(x, y,
-                        closed=False, facecolor=c) )
+                                              closed=False,
+                                              facecolor=c) )
                 else:
                     patches.append( self.fill(x, y,
-                        closed=False, edgecolor=c, fill=False) )
+                                              closed=False, edgecolor=c,
+                                              fill=False) )
+
+            # we return patches, so put it back in the expected order
+            patches.reverse()
 
             # adopted from adjust_x/ylim part of the bar method
             if orientation == 'horizontal':
@@ -8716,7 +8770,7 @@ class Axes(martist.Artist):
         """
         if precision is None:
             precision = 0
-            warnings.DeprecationWarning("Use precision=0 instead of None")
+            warnings.warn("Use precision=0 instead of None", mplDeprecation)
             # 2008/10/03
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'

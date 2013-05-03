@@ -31,6 +31,7 @@ from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 from matplotlib.offsetbox import DraggableOffsetBox
 
 from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
+from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
 import legend_handler
 
 
@@ -205,7 +206,7 @@ class Legend(Artist):
         title              the legend title
         bbox_to_anchor     the bbox that the legend will be anchored.
         bbox_transform     the transform for the bbox. transAxes if None.
-        ================   =====================================================
+        ================   ====================================================
 
 
         The pad and spacing parameters are measured in font-size units.  E.g.,
@@ -278,7 +279,7 @@ class Legend(Artist):
             # counter part is None.
             if localdict[k] is not None and localdict[v] is None:
                 warnings.warn("Use '%s' instead of '%s'." % (v, k),
-                              DeprecationWarning)
+                              mplDeprecation)
                 setattr(self, v, localdict[k] * axessize_fontsize)
                 continue
 
@@ -459,14 +460,14 @@ class Legend(Artist):
             pad = 2 * (self.borderaxespad + self.borderpad) * fontsize
             self._legend_box.set_width(self.get_bbox_to_anchor().width - pad)
 
+        # update the location and size of the legend. This needs to
+        # be done in any case to clip the figure right.
+        bbox = self._legend_box.get_window_extent(renderer)
+        self.legendPatch.set_bounds(bbox.x0, bbox.y0,
+                                    bbox.width, bbox.height)
+        self.legendPatch.set_mutation_scale(fontsize)
+
         if self._drawFrame:
-            # update the location and size of the legend
-            bbox = self._legend_box.get_window_extent(renderer)
-            self.legendPatch.set_bounds(bbox.x0, bbox.y0,
-                                        bbox.width, bbox.height)
-
-            self.legendPatch.set_mutation_scale(fontsize)
-
             if self.shadow:
                 shadow = Shadow(self.legendPatch, 2, -2)
                 shadow.draw(renderer)
