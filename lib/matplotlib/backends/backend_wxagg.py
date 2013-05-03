@@ -148,7 +148,10 @@ def _convert_agg_to_wx_image(agg, bbox):
     """
     if bbox is None:
         # agg => rgb -> image
-        image = wx.EmptyImage(int(agg.width), int(agg.height))
+        if 'phoenix' in wx.PlatformInfo:
+            image = wx.Image(int(agg.width), int(agg.height))
+        else:
+            image = wx.EmptyImage(int(agg.width), int(agg.height))
         image.SetData(agg.tostring_rgb())
         return image
     else:
@@ -165,8 +168,12 @@ def _convert_agg_to_wx_bitmap(agg, bbox):
     """
     if bbox is None:
         # agg => rgba buffer -> bitmap
-        return wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
-            agg.buffer_rgba())
+        if 'phoenix' in wx.PlatformInfo:
+            return wx.Bitmap.FromBufferRGBA(int(agg.width), int(agg.height),
+                                            agg.buffer_rgba())            
+        else:
+            return wx.BitmapFromBufferRGBA(int(agg.width), int(agg.height),
+                                           agg.buffer_rgba())
     else:
         # agg => rgba buffer -> bitmap => clipped bitmap
         return _WX28_clipped_agg_as_bitmap(agg, bbox)
