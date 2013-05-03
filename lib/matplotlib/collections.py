@@ -302,7 +302,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ind = mpath.point_in_path_collection(
             mouseevent.x, mouseevent.y, pickradius,
             transform.frozen(), paths, self.get_transforms(),
-            offsets, transOffset, pickradius <= 0)
+            offsets, transOffset, pickradius <= 0,
+            self.get_offset_position())
 
         return len(ind)>0, dict(ind=ind)
 
