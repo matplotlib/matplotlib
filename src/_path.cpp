@@ -128,6 +128,7 @@ point_in_path_impl(const void* const points_, const size_t s0,
                    npy_bool* const inside_flag)
 {
     int *yflag0;
+    int *subpath_flag;
     int yflag1;
     double vtx0, vty0, vtx1, vty1;
     double tx, ty;
@@ -138,6 +139,7 @@ point_in_path_impl(const void* const points_, const size_t s0,
     const char *const points = (const char * const)points_;
 
     yflag0 = (int *)malloc(n * sizeof(int));
+    subpath_flag = (int *)malloc(n * sizeof(int));
 
     path.rewind(0);
 
@@ -151,6 +153,10 @@ point_in_path_impl(const void* const points_, const size_t s0,
         if (code != agg::path_cmd_move_to)
         {
             code = path.vertex(&x, &y);
+            if (code == agg::path_cmd_stop ||
+                (code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
+                continue;
+            }
         }
 
         sx = vtx0 = vtx1 = x;
@@ -162,7 +168,7 @@ point_in_path_impl(const void* const points_, const size_t s0,
             // get test bit for above/below X axis
             yflag0[i] = (vty0 >= ty);
 
-            inside_flag[i] = 0;
+            subpath_flag[i] = 0;
         }
 
         do
@@ -208,7 +214,7 @@ point_in_path_impl(const void* const points_, const size_t s0,
                     // tests.
                     if (((vty1 - ty) * (vtx0 - vtx1) >=
                          (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
-                        inside_flag[i] ^= 1;
+                        subpath_flag[i] ^= 1;
                     }
                 }
 
@@ -235,10 +241,10 @@ point_in_path_impl(const void* const points_, const size_t s0,
             if (yflag0[i] != yflag1) {
                 if (((vty1 - ty) * (vtx0 - vtx1) >=
                      (vtx1 - tx) * (vty0 - vty1)) == yflag1) {
-                    inside_flag[i] ^= 1;
+                    subpath_flag[i] ^= 1;
                 }
             }
-
+            inside_flag[i] |= subpath_flag[i];
             if (inside_flag[i] == 0) {
                 all_done = 0;
             }
@@ -253,6 +259,7 @@ point_in_path_impl(const void* const points_, const size_t s0,
  exit:
 
     free(yflag0);
+    free(subpath_flag);
 }
 
 inline void
