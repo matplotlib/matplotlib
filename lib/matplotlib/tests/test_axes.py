@@ -438,6 +438,24 @@ def test_hexbin_extent():
 
     ax.hexbin(x, y, extent=[.1, .3, .6, .7])
 
+@cleanup
+def test_hexbin_pickable():
+    # From #1973: Test that picking a hexbin collection works
+    class FauxMouseEvent:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+    fig = plt.figure()
+
+    ax = fig.add_subplot(111)
+    data = np.arange(200.)/200.
+    data.shape = 2, 100
+    x, y = data
+    hb = ax.hexbin(x, y, extent=[.1, .3, .6, .7], picker=1)
+
+    assert hb.contains(FauxMouseEvent(400, 300))[0]
+
 @image_comparison(baseline_images=['hexbin_log'],
                   remove_text=True,
                   extensions=['png'])
@@ -1495,6 +1513,53 @@ def test_csd_noise():
     ax1.set_ylabel('')
     ax2.set_ylabel('')
     ax3.set_ylabel('')
+
+
+@image_comparison(baseline_images=['twin_spines'], remove_text=True,
+                  extensions=['png'])
+def test_twin_spines():
+
+    def make_patch_spines_invisible(ax):
+        ax.set_frame_on(True)
+        ax.patch.set_visible(False)
+        for sp in ax.spines.itervalues():
+            sp.set_visible(False)
+
+    fig = plt.figure(figsize=(4, 3))
+    fig.subplots_adjust(right=0.75)
+
+    host = fig.add_subplot(111)
+    par1 = host.twinx()
+    par2 = host.twinx()
+
+    # Offset the right spine of par2.  The ticks and label have already been
+    # placed on the right by twinx above.
+    par2.spines["right"].set_position(("axes", 1.2))
+    # Having been created by twinx, par2 has its frame off, so the line of its
+    # detached spine is invisible.  First, activate the frame but make the patch
+    # and spines invisible.
+    make_patch_spines_invisible(par2)
+    # Second, show the right spine.
+    par2.spines["right"].set_visible(True)
+
+    p1, = host.plot([0, 1, 2], [0, 1, 2], "b-")
+    p2, = par1.plot([0, 1, 2], [0, 3, 2], "r-")
+    p3, = par2.plot([0, 1, 2], [50, 30, 15], "g-")
+
+    host.set_xlim(0, 2)
+    host.set_ylim(0, 2)
+    par1.set_ylim(0, 4)
+    par2.set_ylim(1, 65)
+
+    host.yaxis.label.set_color(p1.get_color())
+    par1.yaxis.label.set_color(p2.get_color())
+    par2.yaxis.label.set_color(p3.get_color())
+
+    tkw = dict(size=4, width=1.5)
+    host.tick_params(axis='y', colors=p1.get_color(), **tkw)
+    par1.tick_params(axis='y', colors=p2.get_color(), **tkw)
+    par2.tick_params(axis='y', colors=p3.get_color(), **tkw)
+    host.tick_params(axis='x', **tkw)
 
 
 if __name__ == '__main__':
