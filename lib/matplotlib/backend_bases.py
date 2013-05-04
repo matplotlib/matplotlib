@@ -901,8 +901,7 @@ class GraphicsContextBase:
         html hex color string, an rgb or rgba unit tuple, or a float between 0
         and 1.  In the latter case, grayscale is used.
 
-        If you know fg is rgb or rgba, set ``isRGBA=True`` for
-        efficiency.
+        If you know fg is rgba, set ``isRGBA=True`` for efficiency.
         """
         self._orig_color = fg
         if self._forced_alpha:
