@@ -249,7 +249,7 @@ class RendererSVG(RendererBase):
     FONT_SCALE = 100.0
     fontd = maxdict(50)
 
-    def __init__(self, width, height, image_dpi, svgwriter, basename=None):
+    def __init__(self, width, height, svgwriter, basename=None, image_dpi=72):
         self.width = width
         self.height = height
         self.writer = XMLWriter(svgwriter)
@@ -1175,11 +1175,11 @@ class FigureCanvasSVG(FigureCanvasBase):
             w, h = width*72, height*72
 
             if rcParams['svg.image_noscale']:
-                renderer = RendererSVG(w, h, image_dpi, svgwriter, filename)
+                renderer = RendererSVG(w, h, svgwriter, filename, image_dpi)
             else:
                 _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
                 renderer = MixedModeRenderer(self.figure,
-                    width, height, image_dpi, RendererSVG(w, h, image_dpi, svgwriter, filename),
+                    width, height, image_dpi, RendererSVG(w, h, svgwriter, filename, image_dpi),
                     bbox_inches_restore=_bbox_inches_restore)
 
             self.figure.draw(renderer)
