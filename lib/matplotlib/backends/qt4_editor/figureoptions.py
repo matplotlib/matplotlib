@@ -17,6 +17,7 @@ import os.path as osp
 import matplotlib.backends.qt4_editor.formlayout as formlayout
 from matplotlib.backends.qt4_compat import QtGui
 from matplotlib import markers
+from matplotlib.colors import rgb2hex
 
 def get_icon(name):
     import matplotlib
@@ -33,6 +34,21 @@ LINESTYLES = {
               }
 
 MARKERS = markers.MarkerStyle.markers
+
+COLORS = {'c': '#00bfbf', 'b': '#0000ff', 'w': '#ffffff', 'g': '#008000',
+          'y': '#bfbf00', 'k': '#000000', 'r': '#ff0000', 'm': '#bf00bf'}
+
+def col2hex(color):
+    # default colors and hex colors
+    if isinstance(color, basestring):
+        try:
+            chex = COLORS[color]
+        except KeyError:
+            chex = color
+    else: # rgb tuples
+        chex = rgb2hex(color)
+    return chex
+
 
 def figure_edit(axes, parent=None):
     """Edit matplotlib figure options"""
