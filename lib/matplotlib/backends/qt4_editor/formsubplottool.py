@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'subplot_conftool.ui'
 #
-# Created: Sun May  5 09:49:09 2013
+# Created: Sun May  5 20:30:44 2013
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_SubplotTool(object):
     def setupUi(self, SubplotTool):
         SubplotTool.setObjectName(_fromUtf8("SubplotTool"))
-        SubplotTool.resize(447, 241)
+        SubplotTool.resize(447, 265)
         self.horizontalLayout = QtGui.QHBoxLayout(SubplotTool)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.gridLayout = QtGui.QGridLayout()
@@ -64,7 +64,7 @@ class Ui_SubplotTool(object):
         self.slidertop.setInvertedAppearance(False)
         self.slidertop.setInvertedControls(False)
         self.slidertop.setTickPosition(QtGui.QSlider.TicksAbove)
-        self.slidertop.setTickInterval(10)
+        self.slidertop.setTickInterval(100)
         self.slidertop.setObjectName(_fromUtf8("slidertop"))
         self.hboxtop.addWidget(self.slidertop)
         self.verticalLayout.addLayout(self.hboxtop)
@@ -84,7 +84,7 @@ class Ui_SubplotTool(object):
         self.sliderbottom.setOrientation(QtCore.Qt.Horizontal)
         self.sliderbottom.setInvertedAppearance(False)
         self.sliderbottom.setTickPosition(QtGui.QSlider.TicksAbove)
-        self.sliderbottom.setTickInterval(10)
+        self.sliderbottom.setTickInterval(100)
         self.sliderbottom.setObjectName(_fromUtf8("sliderbottom"))
         self.hboxbottom.addWidget(self.sliderbottom)
         self.verticalLayout.addLayout(self.hboxbottom)
@@ -104,7 +104,7 @@ class Ui_SubplotTool(object):
         self.sliderleft.setOrientation(QtCore.Qt.Horizontal)
         self.sliderleft.setInvertedAppearance(False)
         self.sliderleft.setTickPosition(QtGui.QSlider.TicksAbove)
-        self.sliderleft.setTickInterval(10)
+        self.sliderleft.setTickInterval(100)
         self.sliderleft.setObjectName(_fromUtf8("sliderleft"))
         self.hboxleft.addWidget(self.sliderleft)
         self.verticalLayout.addLayout(self.hboxleft)
@@ -124,7 +124,7 @@ class Ui_SubplotTool(object):
         self.sliderright.setOrientation(QtCore.Qt.Horizontal)
         self.sliderright.setInvertedAppearance(False)
         self.sliderright.setTickPosition(QtGui.QSlider.TicksAbove)
-        self.sliderright.setTickInterval(10)
+        self.sliderright.setTickInterval(100)
         self.sliderright.setObjectName(_fromUtf8("sliderright"))
         self.hboxright.addWidget(self.sliderright)
         self.verticalLayout.addLayout(self.hboxright)
@@ -151,7 +151,7 @@ class Ui_SubplotTool(object):
         self.sliderhspace.setOrientation(QtCore.Qt.Horizontal)
         self.sliderhspace.setInvertedAppearance(False)
         self.sliderhspace.setTickPosition(QtGui.QSlider.TicksAbove)
-        self.sliderhspace.setTickInterval(10)
+        self.sliderhspace.setTickInterval(100)
         self.sliderhspace.setObjectName(_fromUtf8("sliderhspace"))
         self.hboxhspace.addWidget(self.sliderhspace)
         self.verticalLayout_2.addLayout(self.hboxhspace)
@@ -168,10 +168,11 @@ class Ui_SubplotTool(object):
         self.labelwspace.setObjectName(_fromUtf8("labelwspace"))
         self.hboxwspace.addWidget(self.labelwspace)
         self.sliderwspace = QtGui.QSlider(self.groupBox_2)
+        self.sliderwspace.setTracking(True)
         self.sliderwspace.setOrientation(QtCore.Qt.Horizontal)
         self.sliderwspace.setInvertedAppearance(False)
         self.sliderwspace.setTickPosition(QtGui.QSlider.TicksAbove)
-        self.sliderwspace.setTickInterval(10)
+        self.sliderwspace.setTickInterval(100)
         self.sliderwspace.setObjectName(_fromUtf8("sliderwspace"))
         self.hboxwspace.addWidget(self.sliderwspace)
         self.verticalLayout_2.addLayout(self.hboxwspace)

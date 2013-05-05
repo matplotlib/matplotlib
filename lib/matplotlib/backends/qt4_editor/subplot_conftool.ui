@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>447</width>
-    <height>241</height>
+    <height>265</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -130,7 +130,7 @@
              <enum>QSlider::TicksAbove</enum>
             </property>
             <property name="tickInterval">
-             <number>10</number>
+             <number>100</number>
             </property>
            </widget>
           </item>
@@ -172,7 +172,7 @@
              <enum>QSlider::TicksAbove</enum>
             </property>
             <property name="tickInterval">
-             <number>10</number>
+             <number>100</number>
             </property>
            </widget>
           </item>
@@ -214,7 +214,7 @@
              <enum>QSlider::TicksAbove</enum>
             </property>
             <property name="tickInterval">
-             <number>10</number>
+             <number>100</number>
             </property>
            </widget>
           </item>
@@ -256,7 +256,7 @@
              <enum>QSlider::TicksAbove</enum>
             </property>
             <property name="tickInterval">
-             <number>10</number>
+             <number>100</number>
             </property>
            </widget>
           </item>
@@ -313,7 +313,7 @@
              <enum>QSlider::TicksAbove</enum>
             </property>
             <property name="tickInterval">
-             <number>10</number>
+             <number>100</number>
             </property>
            </widget>
           </item>
@@ -345,6 +345,9 @@
           </item>
           <item>
            <widget class="QSlider" name="sliderwspace">
+            <property name="tracking">
+             <bool>true</bool>
+            </property>
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -355,7 +358,7 @@
              <enum>QSlider::TicksAbove</enum>
             </property>
             <property name="tickInterval">
-             <number>10</number>
+             <number>100</number>
             </property>
            </widget>
           </item>
