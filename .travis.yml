@@ -7,16 +7,11 @@ python:
   - 3.3
 
 install:
-  - pip install --use-mirrors nose python-dateutil
+  - pip install --use-mirrors nose python-dateutil numpy
   # This is a workaround to install the latest versions of pyparsing,
   # which are not yet available on PyPI
-  - 'if [ $TRAVIS_PYTHON_VERSION == "3.2" ]; then pip install http://sourceforge.net/projects/pyparsing/files/pyparsing/pyparsing-2.0.0/pyparsing-2.0.0.tar.gz; fi'
+  - 'if [ ${TRAVIS_PYTHON_VERSION:0:1} == "3" ]; then pip install http://sourceforge.net/projects/pyparsing/files/pyparsing/pyparsing-2.0.0/pyparsing-2.0.0.tar.gz; fi'
   - 'if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install http://sourceforge.net/projects/pyparsing/files/pyparsing/pyparsing-1.5.7/pyparsing-1.5.7.tar.gz; fi'
-  # This is a workaround to install numpy with the version of
-  # virtualenv in Travis.  If that is updated in the future, this can
-  # be simplified to 'pip install numpy'
-  - 'if [ $TRAVIS_PYTHON_VERSION == "3.2" ]; then pip install https://github.com/y-p/numpy/archive/1.6.2_with_travis_fix.tar.gz; fi'
-  - 'if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip install numpy; fi' # should be nop if pre-installed
   - if [[ $TRAVIS_PYTHON_VERSION == '2.'* ]]; then pip install --use-mirrors PIL; fi
   - sudo apt-get update && sudo apt-get install inkscape
   - python setup.py install
