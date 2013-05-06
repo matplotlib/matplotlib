@@ -22,3 +22,15 @@ def test_use14corefonts():
     plt.title(title)
     plt.text(0.5, 0.5, text, horizontalalignment='center', fontsize=24)
     plt.axhline(0.5, linewidth=0.5)
+
+
+def test_type42():
+    import io
+
+    rcParams['backend'] = 'pdf'
+    rcParams['pdf.fonttype'] = 42
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.plot([1,2,3])
+    fig.savefig(io.BytesIO())
