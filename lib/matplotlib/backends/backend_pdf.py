@@ -970,7 +970,7 @@ end"""
                      " ".join(["<%04x>" % x for x in range(start, end+1)])))
             unicode_cmap = (self._identityToUnicodeCMap %
                             (len(unicode_groups),
-                             "\n".join(unicode_bfrange)))
+                             "\n".join(unicode_bfrange))).encode('ascii')
 
             # CIDToGIDMap stream
             cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
