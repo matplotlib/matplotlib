@@ -63,10 +63,13 @@ files['shapes'] = [
     'scatter_demo.py',
     ]
 
+files['colors'] = [
+    'color_cycle_demo.py',
+    ]
+
 files['images'] = [
     'imshow_demo.py',
     ]
-
 
 files['statistics'] = [
     'errorbar_demo.py',
@@ -210,14 +213,12 @@ files['pylab'] = [
     'nan_test.py',
     'newscalarformatter_demo.py',
     'pcolor_demo.py',
-    'pcolor_demo2.py',
     'pcolor_log.py',
     'pcolor_small.py',
     'pie_demo2.py',
     'plotfile_demo.py',
     'polar_demo.py',
     'polar_legend.py',
-    'poormans_contour.py',
     'psd_demo.py',
     'psd_demo2.py',
     'psd_demo3.py',
@@ -246,7 +247,6 @@ files['pylab'] = [
     'text_rotation.py',
     'text_rotation_relative_to_line.py',
     'transoffset.py',
-    'vline_demo.py',
     'xcorr_demo.py',
     'zorder_demo.py',
     ]
@@ -257,7 +257,6 @@ files['api'] = [
     'barchart_demo.py',
     'bbox_intersect.py',
     'collections_demo.py',
-    'color_cycle.py',
     'colorbar_only.py',
     'custom_projection_example.py',
     'custom_scale_example.py',
