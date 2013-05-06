@@ -803,7 +803,7 @@ class Png(SetupPackage):
                 min_version='1.2')
         except CheckFailed as e:
             self.__class__.found_external = False
-            return str(e) + ' Using local copy.'
+            return str(e) + ' Using unknown version.'
 
     def get_extension(self):
         sources = [
