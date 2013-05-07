@@ -1072,10 +1072,12 @@ class SpanSelector(AxesWidget):
         self.buttonDown = False
         self.prev = (0, 0)
 
+        # Set useblit based on original canvas.
+        self.useblit = useblit and self.canvas.supports_blit
+
         # Reset canvas so that `new_axes` connects events.
         self.canvas = None
         self.new_axes(ax)
-        self.useblit = useblit and self.canvas.supports_blit
 
     def new_axes(self, ax):
         self.ax = ax
