@@ -243,16 +243,22 @@ def test_image_composite_alpha():
     """
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    arr = np.arange(12).reshape(4, 3)
-    ax.imshow(arr, extent=[0, 2, 15, 0], alpha=0.25)
-    ax.imshow(arr, extent=[4, 6, 15, 0], alpha=0.5)
-    ax.imshow(arr, extent=[8, 10, 15, 0])
-    ax.imshow(arr.T, extent=[0, 12, 2, 4], alpha=0.25)
-    ax.imshow(arr.T, extent=[0, 12, 6, 8], alpha=0.5)
-    ax.imshow(arr.T, extent=[0, 12, 10, 12], alpha=1.0)
-    ax.set_axis_bgcolor((0, 0, 0, 0.5))
-    ax.set_xlim([0, 12])
-    ax.set_ylim([15, 0])
+    arr = np.zeros((11, 21, 4))
+    arr[:, :, 0] = 1
+    arr[:, :, 3] = np.concatenate((np.arange(0, 1.1, 0.1), np.arange(0, 1, 0.1)[::-1]))
+    arr2 = np.zeros((21, 11, 4))
+    arr2[:, :, 0] = 1
+    arr2[:, :, 1] = 1
+    arr2[:, :, 3] = np.concatenate((np.arange(0, 1.1, 0.1), np.arange(0, 1, 0.1)[::-1]))[:, np.newaxis]
+    ax.imshow(arr, extent=[1, 2, 5, 0], alpha=0.3)
+    ax.imshow(arr, extent=[2, 3, 5, 0], alpha=0.6)
+    ax.imshow(arr, extent=[3, 4, 5, 0])
+    ax.imshow(arr2, extent=[0, 5, 1, 2])
+    ax.imshow(arr2, extent=[0, 5, 2, 3], alpha=0.6)
+    ax.imshow(arr2, extent=[0, 5, 3, 4], alpha=0.3)
+    ax.set_axis_bgcolor((0, 0.5, 0, 1))
+    ax.set_xlim([0, 5])
+    ax.set_ylim([5, 0])
 
 
 if __name__=='__main__':
