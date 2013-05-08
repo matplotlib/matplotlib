@@ -1221,7 +1221,7 @@ def rgb_to_hsv(arr):
     convert rgb values in a numpy array to hsv values
     input and output arrays should have shape (M,N,3)
     """
-    out = np.zeros_like(arr)
+    out = np.zeros(arr.shape, dtype=np.float)
     arr_max = arr.max(-1)
     ipos = arr_max > 0
     delta = arr.ptp(-1)
