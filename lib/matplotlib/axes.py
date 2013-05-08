@@ -8165,8 +8165,10 @@ class Axes(martist.Artist):
 
             if orientation == 'horizontal':
                 _barfunc = self.barh
+                bottom_kwarg = 'left'
             else:  # orientation == 'vertical'
                 _barfunc = self.bar
+                bottom_kwarg = 'bottom'
 
             for m, c in zip(n, color):
                 if bottom is None:
@@ -8176,8 +8178,8 @@ class Axes(martist.Artist):
                 else :
                     height = m
                 patch = _barfunc(bins[:-1]+boffset, height, width,
-                                  align='center', log=log,
-                                  color=c, bottom=bottom)
+                                 align='center', log=log,
+                                 color=c, **{bottom_kwarg: bottom})
                 patches.append(patch)
                 if stacked:
                     bottom[:] = m

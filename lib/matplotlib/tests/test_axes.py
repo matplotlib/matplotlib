@@ -765,7 +765,7 @@ def test_hist_steplog():
     plt.hist(data_pos, 100, histtype='stepfilled', log=True)
 
     ax = plt.subplot(3, 1, 3)
-    plt.hist(data_big, 100, histtype='stepfilled', log=True)
+    plt.hist(data_big, 100, histtype='stepfilled', log=True, orientation='horizontal')
 
 def contour_dat():
     x = np.linspace(-3, 5, 150)
