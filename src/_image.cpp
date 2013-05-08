@@ -825,7 +825,7 @@ _image_module::from_images(const Py::Tuple& args)
         Image* thisim = static_cast<Image*>(tup[0].ptr());
         ox = (long)Py::Int(tup[1]);
         oy = (long)Py::Int(tup[2]);
-        if (tup[3].ptr() == Py_None)
+        if (tup.size() <= 3 || tup[3].ptr() == Py_None)
         {
             apply_alpha = false;
         }
