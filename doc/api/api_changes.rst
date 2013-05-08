@@ -52,6 +52,12 @@ Changes in 1.3.x
   :class:`~matplotlib.patches.Patch` had ``alpha=None``, the alpha component
   of ``edgecolor`` would be applied to both the edge and face.
 
+* The optional ``isRGB`` argument to
+  :meth:`~matplotlib.backend_bases.GraphicsContextBase.set_foreground` (and
+  the other GraphicsContext classes that descend from it) has been renamed to
+  ``isRGBA``, and should now only be set to ``True`` if the ``fg`` color
+  argument is known to be an RGBA tuple.
+
 * For :class:`~matplotlib.patches.Patch`, the ``capstyle`` used is now
   ``butt``, to be consistent with the default for most other objects, and to
   avoid problems with non-solid ``linestyle`` appearing solid when using a
