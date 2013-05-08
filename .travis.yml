@@ -19,5 +19,8 @@ install:
 script:
   - mkdir ../tmp_test_dir
   - cd ../tmp_test_dir
-  - echo Testing using 4 processes
+  # The number of processes is hardcoded, because using too many causes the
+  # Travis VM to run out of memory (since so many copies of inkscape and
+  # ghostscript are running at the same time).
+  - echo Testing using 8 processes
   - python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300
