@@ -19,5 +19,5 @@ install:
 script:
   - mkdir ../tmp_test_dir
   - cd ../tmp_test_dir
-  - echo Testing using $(nproc) processes
-  - python ../matplotlib/tests.py -sv --processes=$(nproc) --process-timeout=300
+  - echo Testing using 4 processes
+  - python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300
