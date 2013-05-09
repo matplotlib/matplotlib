@@ -115,6 +115,12 @@ def test_simple():
 #    recursive_pickle(ax, 'figure')
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
+    fig = plt.figure()
+    plt.plot(range(10))
+    fig.tight_layout(pad=0.3)
+    recursive_pickle(fig)
+    pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
+
 
 @image_comparison(baseline_images=['multi_pickle'],
                   extensions=['png'], remove_text=True)
