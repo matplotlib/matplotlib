@@ -98,23 +98,7 @@ def _clip_non_positives(a):
     return a
 
 
-class LogScale(ScaleBase):
-    """
-    A standard logarithmic scale.  Care is taken so non-positive
-    values are not plotted.
-
-    For computational efficiency (to push as much as possible to Numpy
-    C code in the common cases), this scale provides different
-    transforms depending on the base of the logarithm:
-
-       - base 10 (:class:`Log10Transform`)
-       - base 2 (:class:`Log2Transform`)
-       - base e (:class:`NaturalLogTransform`)
-       - arbitrary base (:class:`LogTransform`)
-    """
-
-    name = 'log'
-
+if True:
     class LogTransformBase(Transform):
         input_dims = 1
         output_dims = 1
@@ -138,7 +122,7 @@ class LogScale(ScaleBase):
             return np.log10(a)
 
         def inverted(self):
-            return LogScale.InvertedLog10Transform()
+            return InvertedLog10Transform()
 
     class InvertedLog10Transform(Transform):
         input_dims = 1
@@ -151,7 +135,7 @@ class LogScale(ScaleBase):
             return ma.power(10.0, a) / 10.0
 
         def inverted(self):
-            return LogScale.Log10Transform()
+            return Log10Transform()
 
     class Log2Transform(LogTransformBase):
         base = 2.0
@@ -163,7 +147,7 @@ class LogScale(ScaleBase):
             return np.log2(a)
 
         def inverted(self):
-            return LogScale.InvertedLog2Transform()
+            return InvertedLog2Transform()
 
     class InvertedLog2Transform(Transform):
         input_dims = 1
@@ -176,7 +160,7 @@ class LogScale(ScaleBase):
             return ma.power(2.0, a) / 2.0
 
         def inverted(self):
-            return LogScale.Log2Transform()
+            return Log2Transform()
 
     class NaturalLogTransform(LogTransformBase):
         base = np.e
@@ -188,7 +172,7 @@ class LogScale(ScaleBase):
             return np.log(a)
 
         def inverted(self):
-            return LogScale.InvertedNaturalLogTransform()
+            return InvertedNaturalLogTransform()
 
     class InvertedNaturalLogTransform(Transform):
         input_dims = 1
@@ -201,7 +185,7 @@ class LogScale(ScaleBase):
             return ma.power(np.e, a) / np.e
 
         def inverted(self):
-            return LogScale.NaturalLogTransform()
+            return NaturalLogTransform()
 
     class LogTransform(Transform):
         input_dims = 1
@@ -224,7 +208,7 @@ class LogScale(ScaleBase):
             return np.log(a) / np.log(self.base)
 
         def inverted(self):
-            return LogScale.InvertedLogTransform(self.base)
+            return InvertedLogTransform(self.base)
 
     class InvertedLogTransform(Transform):
         input_dims = 1
@@ -240,7 +224,35 @@ class LogScale(ScaleBase):
             return ma.power(self.base, a) / self.base
 
         def inverted(self):
-            return LogScale.LogTransform(self.base)
+            return LogTransform(self.base)
+
+
+class LogScale(ScaleBase):
+    """
+    A standard logarithmic scale.  Care is taken so non-positive
+    values are not plotted.
+
+    For computational efficiency (to push as much as possible to Numpy
+    C code in the common cases), this scale provides different
+    transforms depending on the base of the logarithm:
+
+       - base 10 (:class:`Log10Transform`)
+       - base 2 (:class:`Log2Transform`)
+       - base e (:class:`NaturalLogTransform`)
+       - arbitrary base (:class:`LogTransform`)
+    """
+    name = 'log'
+
+    # compatibility shim
+    LogTransformBase = LogTransformBase
+    Log10Transform = Log10Transform
+    InvertedLog10Transform = InvertedLog10Transform
+    Log2Transform = Log2Transform
+    InvertedLog2Transform = InvertedLog2Transform
+    NaturalLogTransform = NaturalLogTransform
+    InvertedNaturalLogTransform = InvertedNaturalLogTransform
+    LogTransform = LogTransform
+    InvertedLogTransform = InvertedLogTransform
 
     def __init__(self, axis, **kwargs):
         """
@@ -308,18 +320,7 @@ class LogScale(ScaleBase):
                 vmax <= 0.0 and minpos or vmax)
 
 
-class SymmetricalLogScale(ScaleBase):
-    """
-    The symmetrical logarithmic scale is logarithmic in both the
-    positive and negative directions from the origin.
-
-    Since the values close to zero tend toward infinity, there is a
-    need to have a range around zero that is linear.  The parameter
-    *linthresh* allows the user to specify the size of this range
-    (-*linthresh*, *linthresh*).
-    """
-    name = 'symlog'
-
+if True:
     class SymmetricalLogTransform(Transform):
         input_dims = 1
         output_dims = 1
@@ -349,8 +350,8 @@ class SymmetricalLogScale(ScaleBase):
                 return log
 
         def inverted(self):
-            return SymmetricalLogScale.InvertedSymmetricalLogTransform(
-                self.base, self.linthresh, self.linscale)
+            return InvertedSymmetricalLogTransform(self.base, self.linthresh,
+                                                   self.linscale)
 
     class InvertedSymmetricalLogTransform(Transform):
         input_dims = 1
@@ -360,9 +361,7 @@ class SymmetricalLogScale(ScaleBase):
 
         def __init__(self, base, linthresh, linscale):
             Transform.__init__(self)
-            symlog = SymmetricalLogScale.SymmetricalLogTransform(base,
-                                                                 linthresh,
-                                                                 linscale)
+            symlog = SymmetricalLogTransform(base, linthresh, linscale)
             self.base = base
             self.linthresh = linthresh
             self.invlinthresh = symlog.transform(linthresh)
@@ -382,8 +381,23 @@ class SymmetricalLogScale(ScaleBase):
                 return exp
 
         def inverted(self):
-            return SymmetricalLogScale.SymmetricalLogTransform(
-                self.base, self.linthresh, self.linscale)
+            return SymmetricalLogTransform(self.base,
+                                           self.linthresh, self.linscale)
+
+class SymmetricalLogScale(ScaleBase):
+    """
+    The symmetrical logarithmic scale is logarithmic in both the
+    positive and negative directions from the origin.
+
+    Since the values close to zero tend toward infinity, there is a
+    need to have a range around zero that is linear.  The parameter
+    *linthresh* allows the user to specify the size of this range
+    (-*linthresh*, *linthresh*).
+    """
+    name = 'symlog'
+    # compatibility shim
+    SymmetricalLogTransform = SymmetricalLogTransform
+    InvertedSymmetricalLogTransform = InvertedSymmetricalLogTransform
 
     def __init__(self, axis, **kwargs):
         """
