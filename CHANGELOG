@@ -1,3 +1,7 @@
+2013-05-08 Changed behavior of hist when given stacked=True and normed=True.
+           Histograms are now stacked first, then the sum is normalized.
+           Previously, each histogram was normalized, then they were stacked.
+
 2013-04-25 Changed all instances of:
 
 	   from matplotlib import MatplotlibDeprecationWarning as mplDeprecation
@@ -13,7 +17,7 @@
 	   margins on auto-scaleing. - TAC
 
 2013-03-19 Added support for passing `linestyle` kwarg to `step` so all `plot`
-	   kwargs are passed to the underlying `plot` call.  -TAC
+      	   kwargs are passed to the underlying `plot` call.  -TAC
 
 2013-02-25 Added classes CubicTriInterpolator, UniformTriRefiner, TriAnalyzer
            to matplotlib.tri module. - GBy

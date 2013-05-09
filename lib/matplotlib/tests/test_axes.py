@@ -1072,6 +1072,17 @@ def test_hist_stacked_step():
     ax = fig.add_subplot(111)
     ax.hist( (d1, d2), histtype="step", stacked=True)
 
+
+@image_comparison(baseline_images=['hist_stacked_normed'])
+def test_hist_stacked_normed():
+    # make some data
+    d1 = np.linspace(1, 3, 20)
+    d2 = np.linspace(0, 10, 50)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.hist((d1, d2), stacked=True, normed=True)
+
+
 @image_comparison(baseline_images=['hist_stacked_bar'])
 def test_hist_stacked_bar():
     # make some data
