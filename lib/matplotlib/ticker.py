@@ -536,7 +536,7 @@ class ScalarFormatter(Formatter):
             _locs = list(self.locs) + [vmin, vmax]
         else:
             _locs = self.locs
-        locs = (np.asarray(_locs) - self.offset) / 10 ** self.orderOfMagnitude
+        locs = (np.asarray(_locs) - self.offset) / 10. ** self.orderOfMagnitude
         loc_range = np.ptp(locs)
         if len(self.locs) < 2:
             # We needed the end points only for the loc_range calculation.
@@ -559,7 +559,7 @@ class ScalarFormatter(Formatter):
             self.format = '$\mathdefault{%s}$' % self.format
 
     def pprint_val(self, x):
-        xp = (x - self.offset) / (10 ** self.orderOfMagnitude)
+        xp = (x - self.offset) / (10. ** self.orderOfMagnitude)
         if np.absolute(xp) < 1e-8:
             xp = 0
         if self._useLocale:
