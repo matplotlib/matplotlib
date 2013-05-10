@@ -1066,6 +1066,7 @@ class SpanSelector(AxesWidget):
         self.rectprops = rectprops
         self.onselect = onselect
         self.onmove_callback = onmove_callback
+        self.useblit = useblit
         self.minspan = minspan
 
         # Needed when dragging out of axes
@@ -1085,6 +1086,8 @@ class SpanSelector(AxesWidget):
             self.disconnect_events()
 
             self.canvas = ax.figure.canvas
+            # check to see if new canvas supports blitting and, if not, disable
+            self.useblit = self.useblit and self.canvas.supports_blit
             self.connect_event('motion_notify_event', self.onmove)
             self.connect_event('button_press_event', self.press)
             self.connect_event('button_release_event', self.release)
