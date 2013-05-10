@@ -1,9 +1,19 @@
 # Used to guarantee to use at least Wx2.8
 import wxversion
 wxversion.ensureMinimal('2.8')
+#wxversion.select('2.8')
+#wxversion.select('2.9.5') # 2.9.x classic
+#wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
+
 
 import wx
-import wx.aui
+print wx.VERSION_STRING
+
+if 'phoenix' in wx.PlatformInfo:
+    import wx.lib.agw.aui as aui
+else:
+    import wx.aui as aui
+
 import matplotlib as mpl
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as Canvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2Wx as Toolbar
@@ -20,23 +30,30 @@ class Plot(wx.Panel):
         sizer.Add(self.canvas,1,wx.EXPAND)
         sizer.Add(self.toolbar, 0 , wx.LEFT | wx.EXPAND)
         self.SetSizer(sizer)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        
+    def OnPaint(self, event):
+        self.canvas.draw()
+        event.Skip()
+        
 
 class PlotNotebook(wx.Panel):
     def __init__(self, parent, id = -1):
         wx.Panel.__init__(self, parent, id=id)
-        self.nb = wx.aui.AuiNotebook(self)
+        self.nb = aui.AuiNotebook(self)
         sizer = wx.BoxSizer()
         sizer.Add(self.nb, 1, wx.EXPAND)
         self.SetSizer(sizer)
 
     def add(self,name="plot"):
-       page = Plot(self.nb)
-       self.nb.AddPage(page,name)
-       return page.figure
+        page = Plot(self.nb)
+        self.nb.AddPage(page,name)
+        return page.figure
 
 
 def demo():
-    app = wx.PySimpleApp()
+    import wx.lib.mixins.inspection as wit
+    app = wit.InspectableApp()
     frame = wx.Frame(None,-1,'Plotter')
     plotter = PlotNotebook(frame)
     axes1 = plotter.add('figure 1').gca()
