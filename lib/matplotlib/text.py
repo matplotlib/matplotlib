@@ -197,6 +197,12 @@ class Text(Artist):
         self.update(kwargs)
         #self.set_bbox(dict(pad=0))
 
+    def __getstate__(self):
+        d = super(Text, self).__getstate__()
+        # remove the cached _renderer (if it exists)
+        d['_renderer'] = None
+        return d
+
     def contains(self, mouseevent):
         """Test whether the mouse event occurred in the patch.
 
