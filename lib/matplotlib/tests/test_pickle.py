@@ -116,9 +116,9 @@ def test_simple():
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
     fig = plt.figure()
+    ax = plt.axes()
     plt.plot(range(10))
-    fig.tight_layout(pad=0.3)
-    recursive_pickle(fig)
+    ax.set_yscale('log')
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
