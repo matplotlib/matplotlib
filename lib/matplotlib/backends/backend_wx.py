@@ -662,8 +662,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         wx.WXK_DELETE          : 'delete',
         wx.WXK_HOME            : 'home',
         wx.WXK_END             : 'end',
-        wx.WXK_PRIOR           : 'pageup',
-        wx.WXK_NEXT            : 'pagedown',
         wx.WXK_PAGEUP          : 'pageup',
         wx.WXK_PAGEDOWN        : 'pagedown',
         wx.WXK_NUMPAD0         : '0',
@@ -686,8 +684,6 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         wx.WXK_NUMPAD_RIGHT    : 'right',
         wx.WXK_NUMPAD_DOWN     : 'down',
         wx.WXK_NUMPAD_LEFT     : 'left',
-        wx.WXK_NUMPAD_PRIOR    : 'pageup',
-        wx.WXK_NUMPAD_NEXT     : 'pagedown',
         wx.WXK_NUMPAD_PAGEUP   : 'pageup',
         wx.WXK_NUMPAD_PAGEDOWN : 'pagedown',
         wx.WXK_NUMPAD_HOME     : 'home',
@@ -731,7 +727,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
 
 
         # Create the drawing bitmap
-        self.bitmap =wx.EmptyBitmap(w, h)
+        if 'phoenix' in wx.PlatformInfo:
+            self.bitmap =wx.Bitmap(w, h)
+        else:
+            self.bitmap =wx.EmptyBitmap(w, h)
         DEBUG_MSG("__init__() - bitmap w:%d h:%d" % (w,h), 2, self)
         # TODO: Add support for 'point' inspection and plot navigation.
         self._isDrawn = False
@@ -777,11 +776,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bmp_obj.SetBitmap(self.bitmap)
 
         if not wx.TheClipboard.IsOpened():
-           open_success = wx.TheClipboard.Open()
-           if open_success:
-              wx.TheClipboard.SetData(bmp_obj)
-              wx.TheClipboard.Close()
-              wx.TheClipboard.Flush()
+            open_success = wx.TheClipboard.Open()
+            if open_success:
+                wx.TheClipboard.SetData(bmp_obj)
+                wx.TheClipboard.Close()
+                wx.TheClipboard.Flush()
 
     def Printer_Init(self):
         """
@@ -1052,7 +1051,10 @@ The current aspect ratio will be kept."""
             bind(self, wx.EVT_TIMER, self.stop_event_loop, id=id)
 
         # Event loop handler for start/stop event loop
-        self._event_loop = wx.EventLoop()
+        if 'phoenix' in wx.PlatformInfo:
+            self.event_loop = wx.GUIEventLoop()
+        else:
+            self._event_loop = wx.EventLoop()
         self._event_loop.Run()
         timer.Stop()
 
@@ -1102,10 +1104,13 @@ The current aspect ratio will be kept."""
             if drawDC is None:
                 drawDC=wx.ClientDC(self)
 
-            drawDC.BeginDrawing()
-            drawDC.DrawBitmap(self.bitmap, 0, 0)
-            drawDC.EndDrawing()
-            #wx.GetApp().Yield()
+                if 'phoenix' in wx.PlatformInfo:
+                    drawDC.DrawBitmap(self.bitmap, 0, 0)
+                else:
+                    drawDC.BeginDrawing()
+                    drawDC.DrawBitmap(self.bitmap, 0, 0)
+                    drawDC.EndDrawing()
+                    #wx.GetApp().Yield()
         else:
             pass
 
@@ -1156,7 +1161,10 @@ The current aspect ratio will be kept."""
         width = int(math.ceil(width))
         height = int(math.ceil(height))
 
-        self.bitmap = wx.EmptyBitmap(width, height)
+        if 'phoenix' in wx.PlatformInfo:
+            self.bitmap = wx.Bitmap(width, height)
+        else:
+            self.bitmap = wx.EmptyBitmap(width, height)
         renderer = RendererWx(self.bitmap, self.figure.dpi)
 
         gc = renderer.new_gc()
@@ -1229,7 +1237,10 @@ The current aspect ratio will be kept."""
         DEBUG_MSG("_onSize()", 2, self)
         # Create a new, correctly sized bitmap
         self._width, self._height = self.GetClientSize()
-        self.bitmap =wx.EmptyBitmap(self._width, self._height)
+        if 'phoenix' in wx.PlatformInfo:
+            self.bitmap =wx.Bitmap(self._width, self._height)
+        else:
+            self.bitmap =wx.EmptyBitmap(self._width, self._height)
         self._isDrawn = False
 
         if self._width <= 1 or self._height <= 1: return # Empty figure
@@ -1246,8 +1257,10 @@ The current aspect ratio will be kept."""
         FigureCanvasBase.resize_event(self)
 
     def _get_key(self, evt):
-
-        keyval = evt.m_keyCode
+        if 'phoenix' in wx.PlatformInfo:
+            keyval = evt.KeyCode
+        else:
+            keyval = evt.m_keyCode
         if keyval in self.keyvald:
             key = self.keyvald[keyval]
         elif keyval < 256:
@@ -1420,11 +1433,11 @@ The current aspect ratio will be kept."""
 
 def _create_wx_app():
     """
-    Creates a wx.PySimpleApp instance if a wx.App has not been created.
+    Creates a wx.App instance if a wx.App has not been created.
     """
     wxapp = wx.GetApp()
     if wxapp is None:
-        wxapp = wx.PySimpleApp()
+        wxapp = wx.App()
         wxapp.SetExitOnFrameDelete(True)
         # retain a reference to the app object so it does not get garbage
         # collected and cause segmentation faults
@@ -1821,13 +1834,25 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             if text is None:
                 self.AddSeparator()
                 continue
-            self.wx_ids[text] = wx.NewId()
-            if text in ['Pan', 'Zoom']:
-               self.AddCheckTool(self.wx_ids[text], _load_bitmap(image_file + '.png'),
-                                 shortHelp=text, longHelp=tooltip_text)
+            self.wx_ids[text] = int(wx.NewId())
+            if 'phoenix' in wx.PlatformInfo:
+                if text in ['Pan', 'Zoom']:
+                    kind = wx.ITEM_CHECK
+                else:
+                    kind = wx.ITEM_NORMAL
+                self.AddTool(self.wx_ids[text], label=text,
+                             bitmap=_load_bitmap(image_file + '.png'),
+                             bmpDisabled=wx.NullBitmap,
+                             shortHelpString=text,
+                             longHelpString=tooltip_text,
+                             kind=kind)
             else:
-               self.AddSimpleTool(self.wx_ids[text], _load_bitmap(image_file + '.png'),
-                                  text, tooltip_text)
+                if text in ['Pan', 'Zoom']:
+                    self.AddCheckTool(self.wx_ids[text], _load_bitmap(image_file + '.png'),
+                                      shortHelp=text, longHelp=tooltip_text)
+                else:
+                    self.AddSimpleTool(self.wx_ids[text], _load_bitmap(image_file + '.png'),
+                                       text, tooltip_text)
             bind(self, wx.EVT_TOOL, getattr(self, callback), id=self.wx_ids[text])
 
         self.Realize()
@@ -1886,7 +1911,10 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 error_msg_wx(str(e))
 
     def set_cursor(self, cursor):
-        cursor =wx.StockCursor(cursord[cursor])
+        if 'phoenix' in wx.PlatformInfo:
+            cursor = wx.Cursor(cursord[cursor])            
+        else:
+            cursor = wx.StockCursor(cursord[cursor])
         self.canvas.SetCursor( cursor )
 
     def release(self, event):
