@@ -1442,11 +1442,13 @@ def backend_gtk3agg_internal_check(x):
     except ImportError:
         return (False, "Requires pygobject to be installed.")
 
-    return (True, "version %s.%s.%s" % (
-        Gtk.get_major_version(),
-        Gtk.get_micro_version(),
-        Gtk.get_minor_version()))
-
+    try:
+        return (True, "version %s.%s.%s" % (
+            Gtk.get_major_version(),
+            Gtk.get_micro_version(),
+            Gtk.get_minor_version()))
+    except AttributeError:
+        return (True, "version unknown")
 
 class BackendGtk3Agg(OptionalBackendPackage):
     name = "gtk3agg"
@@ -1497,11 +1499,13 @@ def backend_gtk3cairo_internal_check(x):
     except ImportError:
         return (False, "Requires pygobject to be installed.")
 
-    return (True, "version %s.%s.%s" % (
-        Gtk.get_major_version(),
-        Gtk.get_micro_version(),
-        Gtk.get_minor_version()))
-
+    try:
+        return (True, "version %s.%s.%s" % (
+            Gtk.get_major_version(),
+            Gtk.get_micro_version(),
+            Gtk.get_minor_version()))
+    except AttributeError:
+        return (True, "version unknown")
 
 class BackendGtk3Cairo(OptionalBackendPackage):
     name = "gtk3cairo"
