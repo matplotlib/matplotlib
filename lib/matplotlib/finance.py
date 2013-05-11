@@ -439,7 +439,7 @@ def plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize=4,
     return value is a list of lines added
     """
 
-    # note this code assumes if any value open, low, high, close is
+    # note this code assumes if any value open, high, low, close is
     # missing they all are missing
 
     rangeSegments = [((i, low), (i, high)) for i, low, high in zip(xrange(len(lows)), lows, highs) if low != -1]
