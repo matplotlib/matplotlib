@@ -304,7 +304,10 @@ class Patch(artist.Artist):
         artist.Artist.set_alpha(self, alpha)
         self.set_facecolor(self._original_facecolor)  # using self._fill and
                                                       # self._alpha
-        self._edgecolor = colors.colorConverter.to_rgba(
+
+        # Don't set alpha if edgecolor set to 'none' - (0.0, 0.0, 0.0, 0.0)
+        if self._edgecolor != (0.0, 0.0, 0.0, 0.0):
+            self._edgecolor = colors.colorConverter.to_rgba(
                                         self._edgecolor[:3], self._alpha)
 
     def set_linewidth(self, w):
