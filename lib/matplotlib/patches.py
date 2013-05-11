@@ -251,6 +251,7 @@ class Patch(artist.Artist):
         """
         if color is None:
             color = mpl.rcParams['patch.edgecolor']
+        self._original_edgecolor = color
         self._edgecolor = colors.colorConverter.to_rgba(color, self._alpha)
 
     def set_ec(self, color):
@@ -304,8 +305,7 @@ class Patch(artist.Artist):
         artist.Artist.set_alpha(self, alpha)
         self.set_facecolor(self._original_facecolor)  # using self._fill and
                                                       # self._alpha
-        self._edgecolor = colors.colorConverter.to_rgba(
-                                        self._edgecolor[:3], self._alpha)
+        self.set_edgecolor(self._original_edgecolor)
 
     def set_linewidth(self, w):
         """
@@ -404,7 +404,7 @@ class Patch(artist.Artist):
         renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
 
-        gc.set_foreground(self._edgecolor, isRGB=True)
+        gc.set_foreground(self._edgecolor, isRGBA=True)
 
         lw = self._linewidth
         if self._edgecolor[3] == 0:
@@ -414,7 +414,6 @@ class Patch(artist.Artist):
 
         gc.set_antialiased(self._antialiased)
         self._set_gc_clip(gc)
-        gc.set_capstyle('projecting')
         gc.set_url(self._url)
         gc.set_snap(self.get_snap())
 
@@ -422,9 +421,7 @@ class Patch(artist.Artist):
         if rgbFace[3] == 0:
             rgbFace = None  # (some?) renderers expect this as no-fill signal
 
-        gc.set_alpha(self._edgecolor[3])
-        if self._edgecolor[3] == 0:
-            gc.set_alpha(self._facecolor[3])
+        gc.set_alpha(self._alpha)
 
         if self._hatch:
             gc.set_hatch(self._hatch)
@@ -3995,7 +3992,7 @@ class FancyArrowPatch(Patch):
         renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
 
-        gc.set_foreground(self._edgecolor, isRGB=True)
+        gc.set_foreground(self._edgecolor, isRGBA=True)
 
         lw = self._linewidth
         if self._edgecolor[3] == 0:
@@ -4012,9 +4009,7 @@ class FancyArrowPatch(Patch):
         if rgbFace[3] == 0:
             rgbFace = None  # (some?) renderers expect this as no-fill signal
 
-        gc.set_alpha(self._edgecolor[3])
-        if self._edgecolor[3] == 0:
-            gc.set_alpha(self._facecolor[3])
+        gc.set_alpha(self._alpha)
 
         if self._hatch:
             gc.set_hatch(self._hatch)

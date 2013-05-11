@@ -362,8 +362,6 @@ class RendererBase:
         gc0 = self.new_gc()
         gc0.copy_properties(gc)
 
-        original_alpha = gc.get_alpha()
-
         if Nfacecolors == 0:
             rgbFace = None
 
@@ -387,7 +385,6 @@ class RendererBase:
                     yo = -(yp - yo)
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
-            gc0.set_alpha(original_alpha)
             if Nfacecolors:
                 rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
@@ -400,16 +397,12 @@ class RendererBase:
                     if fg[3] == 0.0:
                         gc0.set_linewidth(0)
                     else:
-                        gc0.set_alpha(gc0.get_alpha() * fg[3])
-                        gc0.set_foreground(fg[:3])
+                        gc0.set_foreground(fg)
                 else:
                     gc0.set_foreground(fg)
             if rgbFace is not None and len(rgbFace) == 4:
                 if rgbFace[3] == 0:
                     rgbFace = None
-                else:
-                    gc0.set_alpha(gc0.get_alpha() * rgbFace[3])
-                    rgbFace = rgbFace[:3]
             gc0.set_antialiased(antialiaseds[i % Naa])
             if Nurls:
                 gc0.set_url(urls[i % Nurls])
@@ -562,7 +555,7 @@ class RendererBase:
 
         path, transform = self._get_text_path_transform(
             x, y, s, prop, angle, ismath)
-        color = gc.get_rgb()[:3]
+        color = gc.get_rgb()
 
         gc.set_linewidth(0.0)
         self.draw_path(gc, path, transform, rgbFace=color)
@@ -702,7 +695,8 @@ class GraphicsContextBase:
         self._joinstyle = 'round'
         self._linestyle = 'solid'
         self._linewidth = 1
-        self._rgb = (0.0, 0.0, 0.0)
+        self._rgb = (0.0, 0.0, 0.0, 1.0)
+        self._orig_color = (0.0, 0.0, 0.0, 1.0)
         self._hatch = None
         self._url = None
         self._gid = None
@@ -711,6 +705,7 @@ class GraphicsContextBase:
     def copy_properties(self, gc):
         'Copy properties from gc to self'
         self._alpha = gc._alpha
+        self._forced_alpha = gc._forced_alpha
         self._antialiased = gc._antialiased
         self._capstyle = gc._capstyle
         self._cliprect = gc._cliprect
@@ -720,6 +715,7 @@ class GraphicsContextBase:
         self._linestyle = gc._linestyle
         self._linewidth = gc._linewidth
         self._rgb = gc._rgb
+        self._orig_color = gc._orig_color
         self._hatch = gc._hatch
         self._url = gc._url
         self._gid = gc._gid
@@ -781,6 +777,13 @@ class GraphicsContextBase:
         """
         return self._dashes
 
+    def get_forced_alpha(self):
+        """
+        Return whether the value given by get_alpha() should be used to
+        override any other alpha-channel values.
+        """
+        return self._forced_alpha
+
     def get_joinstyle(self):
         """
         Return the line join style as one of ('miter', 'round', 'bevel')
@@ -833,14 +836,19 @@ class GraphicsContextBase:
 
     def set_alpha(self, alpha):
         """
-        Set the alpha value used for blending - not supported on
-        all backends
+        Set the alpha value used for blending - not supported on all backends.
+        If ``alpha=None`` (the default), the alpha components of the
+        foreground and fill colors will be used to set their respective
+        transparencies (where applicable); otherwise, ``alpha`` will override
+        them.
         """
         if alpha is not None:
             self._alpha = alpha
             self._forced_alpha = True
         else:
+            self._alpha = 1.0
             self._forced_alpha = False
+        self.set_foreground(self._orig_color)
 
     def set_antialiased(self, b):
         """
@@ -890,30 +898,28 @@ class GraphicsContextBase:
         """
         self._dashes = dash_offset, dash_list
 
-    def set_foreground(self, fg, isRGB=False):
+    def set_foreground(self, fg, isRGBA=False):
         """
         Set the foreground color.  fg can be a MATLAB format string, a
         html hex color string, an rgb or rgba unit tuple, or a float between 0
         and 1.  In the latter case, grayscale is used.
 
-        If you know fg is rgb or rgba, set ``isRGB=True`` for
-        efficiency.
+        If you know fg is rgba, set ``isRGBA=True`` for efficiency.
         """
-        if isRGB:
+        self._orig_color = fg
+        if self._forced_alpha:
+            self._rgb = colors.colorConverter.to_rgba(fg, self._alpha)
+        elif isRGBA:
             self._rgb = fg
         else:
             self._rgb = colors.colorConverter.to_rgba(fg)
-        if len(self._rgb) == 4 and not self._forced_alpha:
-            self.set_alpha(self._rgb[3])
-            # Use set_alpha method here so that subclasses will
-            # be calling their own version, which may set their
-            # own attributes.
 
     def set_graylevel(self, frac):
         """
         Set the foreground color to be a gray level with *frac*
         """
-        self._rgb = (frac, frac, frac)
+        self._orig_color = frac
+        self._rgb = (frac, frac, frac, self._alpha)
 
     def set_joinstyle(self, js):
         """
@@ -942,7 +948,7 @@ class GraphicsContextBase:
          'dotted'  : (0, (1.0, 3.0)),
         """
 
-        if style in self.dashd.keys():
+        if style in self.dashd:
             offset, dashes = self.dashd[style]
         elif isinstance(style, tuple):
             offset, dashes = style

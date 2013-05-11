@@ -294,7 +294,7 @@ class RendererSVG(RendererBase):
         writer = self.writer
         default_style = generate_css({
             u'stroke-linejoin': u'round',
-            u'stroke-linecap': u'square'})
+            u'stroke-linecap': u'butt'})
         writer.start(u'defs')
         writer.start(u'style', type=u'text/css')
         writer.data(u'*{%s}\n' % default_style)
@@ -391,15 +391,21 @@ class RendererSVG(RendererBase):
         """
         attrib = {}
 
+        forced_alpha = gc.get_forced_alpha()
+
         if gc.get_hatch() is not None:
             attrib[u'fill'] = u"url(#%s)" % self._get_hatch(gc, rgbFace)
+            if rgbFace is not None and len(rgbFace) == 4 and rgbFace[3] != 1.0 and not forced_alpha:
+                attrib[u'fill-opacity'] = str(rgbFace[3])
         else:
             if rgbFace is None:
                 attrib[u'fill'] = u'none'
             elif tuple(rgbFace[:3]) != (0, 0, 0):
                 attrib[u'fill'] = rgb2hex(rgbFace)
+                if len(rgbFace) == 4 and rgbFace[3] != 1.0 and not forced_alpha:
+                    attrib[u'fill-opacity'] = str(rgbFace[3])
 
-        if gc.get_alpha() != 1.0:
+        if forced_alpha and gc.get_alpha() != 1.0:
             attrib[u'opacity'] = str(gc.get_alpha())
 
         offset, seq = gc.get_dashes()
@@ -409,12 +415,15 @@ class RendererSVG(RendererBase):
 
         linewidth = gc.get_linewidth()
         if linewidth:
-            attrib[u'stroke'] = rgb2hex(gc.get_rgb())
+            rgb = gc.get_rgb()
+            attrib[u'stroke'] = rgb2hex(rgb)
+            if not forced_alpha and rgb[3] != 1.0:
+                attrib[u'stroke-opacity'] = str(rgb[3])
             if linewidth != 1.0:
                 attrib[u'stroke-width'] = str(linewidth)
             if gc.get_joinstyle() != 'round':
                 attrib[u'stroke-linejoin'] = gc.get_joinstyle()
-            if gc.get_capstyle() != 'projecting':
+            if gc.get_capstyle() != 'butt':
                 attrib[u'stroke-linecap'] = _capstyle_d[gc.get_capstyle()]
 
         return attrib
