@@ -391,7 +391,7 @@ def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
 
     warnings.warn("This function has been deprecated in 1.3 in favor"
                   "of `plot_day_summary_ochl`,"
-                  "which maintains the natural argument order,"
+                  "which maintains the original argument order,"
                   "or `plot_day_summary_ohlc`,"
                   "which uses the open-high-low-close order."
                   "This function will be removed in 1.4", mplDeprecation)
