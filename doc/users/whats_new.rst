@@ -154,6 +154,16 @@ Wes Campaigne and Phil Elson fixed the Agg backend such that PNGs are now
 saved with the correct background color when :meth:`fig.patch.get_alpha` is
 not 1.
 
+Independent alpha values for face and edge colors
+-------------------------------------------------
+Wes Campaigne modified how :class:`~matplotlib.patches.Patch` objects are
+drawn such that (for backends supporting transparency) you can set different
+alpha values for faces and edges, by specifying their colors in RGBA format.
+Note that if you set the alpha attribute for the patch object (e.g. using
+:meth:`~matplotlib.patches.Patch.set_alpha` or the ``alpha`` keyword
+argument), that value will override the alpha components set in both the
+face and edge colors.
+
 
 .. _whats-new-1-2-2:
 

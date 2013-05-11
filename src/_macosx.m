@@ -446,6 +446,7 @@ typedef struct {
     CGContextRef cr;
     NSSize size;
     int level;
+    BOOL forced_alpha;
     CGFloat color[4];
     float dpi;
 } GraphicsContext;
@@ -512,6 +513,7 @@ GraphicsContext_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
     if (!self) return NULL;
     self->cr = NULL;
     self->level = 0;
+    self->forced_alpha = FALSE;
 
 #ifndef COMPILING_FOR_10_5
     if (ngc==0)
@@ -589,7 +591,8 @@ static PyObject*
 GraphicsContext_set_alpha (GraphicsContext* self, PyObject* args)
 {
     float alpha;
-    if (!PyArg_ParseTuple(args, "f", &alpha)) return NULL;
+    int forced = 0;
+    if (!PyArg_ParseTuple(args, "f|i", &alpha, &forced)) return NULL;
     CGContextRef cr = self->cr;
     if (!cr)
     {
@@ -597,8 +600,7 @@ GraphicsContext_set_alpha (GraphicsContext* self, PyObject* args)
         return NULL;
     }
     CGContextSetAlpha(cr, alpha);
-
-    self->color[3] = alpha;
+    self->forced_alpha = (BOOL)(forced || (alpha != 1.0));
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -832,8 +834,8 @@ GraphicsContext_set_dashes (GraphicsContext* self, PyObject* args)
 static PyObject*
 GraphicsContext_set_foreground(GraphicsContext* self, PyObject* args)
 {
-    float r, g, b;
-    if(!PyArg_ParseTuple(args, "(fff)", &r, &g, &b)) return NULL;
+    float r, g, b, a;
+    if(!PyArg_ParseTuple(args, "(ffff)", &r, &g, &b, &a)) return NULL;
 
     CGContextRef cr = self->cr;
     if (!cr)
@@ -842,13 +844,21 @@ GraphicsContext_set_foreground(GraphicsContext* self, PyObject* args)
         return NULL;
     }
 
-    CGContextSetRGBStrokeColor(cr, r, g, b, 1.0);
-    CGContextSetRGBFillColor(cr, r, g, b, 1.0);
+    if (self->forced_alpha)
+    {
+        // Transparency is applied to layer
+        // Let it override (rather than multiply with) the alpha of the
+        // stroke/fill colors
+        a = 1.0;
+    }
+
+    CGContextSetRGBStrokeColor(cr, r, g, b, a);
+    CGContextSetRGBFillColor(cr, r, g, b, a);
 
     self->color[0] = r;
     self->color[1] = g;
     self->color[2] = b;
-    self->color[3] = 1.0;
+    self->color[3] = a;
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -977,14 +987,18 @@ GraphicsContext_draw_path (GraphicsContext* self, PyObject* args)
 
     if(rgbFace)
     {
-        float r, g, b;
-        if (!PyArg_ParseTuple(rgbFace, "fff", &r, &g, &b))
+        float r, g, b, a;
+        a = 1.0;
+        if (!PyArg_ParseTuple(rgbFace, "fff|f", &r, &g, &b, &a))
             return NULL;
+        if (self->forced_alpha)
+            a = 1.0;
+
         n = _draw_path(cr, iterator, INT_MAX);
         if (n > 0)
         {
             CGContextSaveGState(cr);
-            CGContextSetRGBFillColor(cr, r, g, b, 1.0);
+            CGContextSetRGBFillColor(cr, r, g, b, a);
             CGContextDrawPath(cr, kCGPathFillStroke);
             CGContextRestoreGState(cr);
         }
@@ -1083,7 +1097,7 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
     PyObject* rgbFace;
 
     int ok;
-    float r, g, b;
+    float r, g, b, a;
 
     CGMutablePathRef marker;
     void* iterator;
@@ -1112,12 +1126,15 @@ GraphicsContext_draw_markers (GraphicsContext* self, PyObject* args)
 
     if (rgbFace)
     {
-        ok = PyArg_ParseTuple(rgbFace, "fff", &r, &g, &b);
+        a = 1.0;
+        ok = PyArg_ParseTuple(rgbFace, "fff|f", &r, &g, &b, &a);
         if (!ok)
         {
             return NULL;
         }
-        CGContextSetRGBFillColor(cr, r, g, b, 1.0);
+        if (self->forced_alpha)
+            a = 1.0;
+        CGContextSetRGBFillColor(cr, r, g, b, a);
     }
 
     ok = _get_snap(self, &mode);
