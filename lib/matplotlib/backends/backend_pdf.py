@@ -1064,7 +1064,7 @@ end"""
         self.nextAlphaState += 1
         self.alphaStates[alpha] = \
             (name, { 'Type': Name('ExtGState'),
-                     'CA': alpha, 'ca': alpha })
+                     'CA': alpha[0], 'ca': alpha[1] })
         return name
 
     def hatchPattern(self, hatch_style):
@@ -1443,11 +1443,21 @@ class RendererPdf(RendererBase):
         orig_fill = gc._fillcolor
         gc._fillcolor = fillcolor
 
+        orig_alphas = gc._effective_alphas
+
+        if gc._forced_alpha:
+            gc._effective_alphas = (gc._alpha, gc._alpha)
+        elif fillcolor is None or len(fillcolor) < 4:
+            gc._effective_alphas = (gc._rgb[3], 1.0)
+        else:
+            gc._effective_alphas = (gc._rgb[3], fillcolor[3])
+
         delta = self.gc.delta(gc)
         if delta: self.file.output(*delta)
 
         # Restore gc to avoid unwanted side effects
         gc._fillcolor = orig_fill
+        gc._effective_alphas = orig_alphas
 
     def tex_font_mapping(self, texfont):
         if self.tex_font_map is None:
@@ -2004,6 +2014,7 @@ class GraphicsContextPdf(GraphicsContextBase):
     def __init__(self, file):
         GraphicsContextBase.__init__(self)
         self._fillcolor = (0.0, 0.0, 0.0)
+        self._effective_alphas = (1.0, 1.0)
         self.file = file
         self.parent = None
 
@@ -2072,8 +2083,8 @@ class GraphicsContextPdf(GraphicsContextBase):
             offset = 0
         return [list(dash), offset, Op.setdash]
 
-    def alpha_cmd(self, alpha):
-        name = self.file.alphaState(alpha)
+    def alpha_cmd(self, alpha, forced, effective_alphas):
+        name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
     def hatch_cmd(self, hatch):
@@ -2138,7 +2149,7 @@ class GraphicsContextPdf(GraphicsContextBase):
 
     commands = (
         (('_cliprect', '_clippath'), clip_cmd), # must come first since may pop
-        (('_alpha',), alpha_cmd),
+        (('_alpha', '_forced_alpha', '_effective_alphas'), alpha_cmd),
         (('_capstyle',), capstyle_cmd),
         (('_fillcolor',), fillcolor_cmd),
         (('_joinstyle',), joinstyle_cmd),
@@ -2183,6 +2194,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         """
         GraphicsContextBase.copy_properties(self, other)
         self._fillcolor = other._fillcolor
+        self._effective_alphas = other._effective_alphas
 
     def finalize(self):
         """

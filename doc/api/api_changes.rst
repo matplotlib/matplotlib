@@ -47,6 +47,27 @@ Changes in 1.3.x
 * The :func:`~matplotlib.cbook.check_output` function has been moved to
   `~matplotlib.compat.subprocess`.
 
+* :class:`~matplotlib.patches.Patch` now fully supports using RGBA values for
+  its ``facecolor`` and ``edgecolor`` attributes, which enables faces and
+  edges to have different alpha values. If the
+  :class:`~matplotlib.patches.Patch` object's ``alpha`` attribute is set to
+  anything other than ``None``, that value will override any alpha-channel
+  value in both the face and edge colors. Previously, if
+  :class:`~matplotlib.patches.Patch` had ``alpha=None``, the alpha component
+  of ``edgecolor`` would be applied to both the edge and face.
+
+* The optional ``isRGB`` argument to
+  :meth:`~matplotlib.backend_bases.GraphicsContextBase.set_foreground` (and
+  the other GraphicsContext classes that descend from it) has been renamed to
+  ``isRGBA``, and should now only be set to ``True`` if the ``fg`` color
+  argument is known to be an RGBA tuple.
+
+* For :class:`~matplotlib.patches.Patch`, the ``capstyle`` used is now
+  ``butt``, to be consistent with the default for most other objects, and to
+  avoid problems with non-solid ``linestyle`` appearing solid when using a
+  large ``linewidth``. Previously, :class:`~matplotlib.patches.Patch` used
+  ``capstyle='projecting'``.
+
 Changes in 1.2.x
 ================
 
