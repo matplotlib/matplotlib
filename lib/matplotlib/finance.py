@@ -532,11 +532,43 @@ def candlestick_ochl(ax, opens, closes, highs, lows,  width=4,
     return value is lineCollection, barCollection
     """
 
-    candlestick_ohlc(ax, opens, closes, highs, lows, width=width,
+    candlestick_ohlc(ax, opens, highs, closes, lows, width=width,
                      colorup=colorup, colordown=colordown,
                      alpha=alpha)
 
-candlestick2 = candlestick_ochl
+
+def candlestick2(ax, opens, closes, highs, lows,  width=4,
+                 colorup='k', colordown='r',
+                 alpha=0.75,
+                 ):
+    """
+
+    Represent the open, close as a bar line and high low range as a
+    vertical line.
+
+    Preserves the original argument order.
+
+    ax          : an Axes instance to plot to
+    width       : the bar width in points
+    colorup     : the color of the lines where close >= open
+    colordown   : the color of the lines where close <  open
+    alpha       : bar transparency
+
+    return value is lineCollection, barCollection
+    """
+
+
+    warnings.warn("This function has been deprecated in 1.3 in favor"
+                  "of `candlestick_ochl`,"
+                  "which maintains the original argument order,"
+                  "or `candlestick_ohlc`,"
+                  "which uses the open-high-low-close order."
+                  "This function will be removed in 1.4", mplDeprecation)
+
+
+    candlestick_ohlc(ax, opens, highs, lows, closes, width=width,
+                     colorup=colorup, colordown=colordown,
+                     alpha=alpha)
 
 def candlestick_ohlc(ax, opens, highs, lows, closes, width=4,
                  colorup='k', colordown='r',
