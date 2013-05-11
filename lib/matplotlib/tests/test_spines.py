@@ -19,3 +19,14 @@ def test_spines_axes_positions():
     ax.xaxis.set_ticks_position('top')
     ax.spines['left'].set_color('none')
     ax.spines['bottom'].set_color('none')
+
+@image_comparison(baseline_images=['spines_data_positions'])
+def test_spines_data_positions():
+    fig = plt.figure()
+    ax = fig.add_subplot(1,1,1)
+    ax.spines['left'].set_position(('data', -1.5))
+    ax.spines['top'].set_position(('data', 0.5))
+    ax.spines['right'].set_position(('data', -0.5))
+    ax.spines['bottom'].set_position('zero')
+    ax.set_xlim([-2,2])
+    ax.set_ylim([-2,2])
