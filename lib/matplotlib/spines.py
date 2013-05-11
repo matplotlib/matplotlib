@@ -323,6 +323,11 @@ class Spine(mpatches.Patch):
                 self._spine_transform = ('identity',
                                          mtransforms.IdentityTransform())
         elif position_type == 'data':
+            if self.spine_type in ('right', 'top'):
+                # The right and top spines have a default position of 1 in
+                # axes coordinates.  When specifying the position in data
+                # coordinates, we need to calculate the position relative to 0.
+                amount -= 1
             if self.spine_type in ('left', 'right'):
                 self._spine_transform = ('data',
                                          mtransforms.Affine2D().translate(
