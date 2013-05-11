@@ -512,8 +512,33 @@ def plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize=4,
     ax.add_collection(closeCollection)
     return rangeCollection, openCollection, closeCollection
 
+def candlestick_ochl(ax, opens, closes, highs, lows,  width=4,
+                 colorup='k', colordown='r',
+                 alpha=0.75,
+                 ):
+    """
 
-def candlestick2(ax, opens, highs, lows, closes, width=4,
+    Represent the open, close as a bar line and high low range as a
+    vertical line.
+
+    Preserves the original argument order.
+
+    ax          : an Axes instance to plot to
+    width       : the bar width in points
+    colorup     : the color of the lines where close >= open
+    colordown   : the color of the lines where close <  open
+    alpha       : bar transparency
+
+    return value is lineCollection, barCollection
+    """
+
+    candlestick_ohlc(ax, opens, closes, highs, lows, width=width,
+                     colorup=colorup, colordown=colordown,
+                     alpha=alpha)
+
+candlestick2 = candlestick_ochl
+
+def candlestick_ohlc(ax, opens, highs, lows, closes, width=4,
                  colorup='k', colordown='r',
                  alpha=0.75,
                  ):
