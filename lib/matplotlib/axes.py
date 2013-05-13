@@ -4878,8 +4878,8 @@ class Axes(martist.Artist):
         -------
         :class:`matplotlib.patches.Rectangle` instances.
 
-        Note
-        ----
+        Notes
+        -----
         The optional arguments `color`, `edgecolor`, `linewidth`,
         `xerr`, and `yerr` can be either scalars or sequences of
         length equal to the number of bars.  This enables you to use
