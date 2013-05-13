@@ -721,6 +721,7 @@ class GraphicsContextBase:
         self._url = gc._url
         self._gid = gc._gid
         self._snap = gc._snap
+        self._sketch = gc._sketch
 
     def restore(self):
         """
@@ -1974,7 +1975,7 @@ class FigureCanvasBase(object):
 
             *quality*: The image quality, on a scale from 1 (worst) to
                 95 (best). The default is 95, if not given in the
-                matplotlibrc file in the savefig.jpeg_quality parameter. 
+                matplotlibrc file in the savefig.jpeg_quality parameter.
                 Values above 95 should be avoided; 100 completely
                 disables the JPEG quantization stage.
 
@@ -1994,7 +1995,7 @@ class FigureCanvasBase(object):
             options = cbook.restrict_dict(kwargs, ['quality', 'optimize',
                                                    'progressive'])
 
-            if 'quality' not in options: 
+            if 'quality' not in options:
                 options['quality'] = rcParams['savefig.jpeg_quality']
 
             return image.save(filename_or_obj, format='jpeg', **options)

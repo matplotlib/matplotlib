@@ -102,6 +102,7 @@ class Artist(object):
         self._gid = None
         self._snap = None
         self._sketch = rcParams['path.sketch']
+        self._path_effects = rcParams['path.effects']
 
     def __getstate__(self):
         d = self.__dict__.copy()
@@ -493,6 +494,16 @@ class Artist(object):
         else:
             self._sketch = (scale, length or 128.0, randomness or 16.0)
 
+    def set_path_effects(self, path_effects):
+        """
+        set path_effects, which should be a list of instances of
+        matplotlib.patheffect._Base class or its derivatives.
+        """
+        self._path_effects = path_effects
+
+    def get_path_effects(self):
+        return self._path_effects
+
     def get_figure(self):
         """
         Return the :class:`~matplotlib.figure.Figure` instance the
@@ -709,7 +720,7 @@ class Artist(object):
         store = self.eventson
         self.eventson = False
         changed = False
-            
+
         for k, v in props.iteritems():
             func = getattr(self, 'set_' + k, None)
             if func is None or not callable(func):
@@ -765,6 +776,8 @@ class Artist(object):
         self._clippath = other._clippath
         self._lod = other._lod
         self._label = other._label
+        self._sketch = other._sketch
+        self._path_effects = other._path_effects
         self.pchanged()
 
     def properties(self):

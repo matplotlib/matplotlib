@@ -891,6 +891,8 @@ public:
     inline void
     rewind(unsigned path_id)
     {
+        unsigned short seed[] = {0, 0, 0};
+        seed48(seed);
         m_has_last = false;
         m_p = 0.0;
         if (m_scale != 0.0) {

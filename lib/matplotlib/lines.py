@@ -237,8 +237,6 @@ class Line2D(Artist):
         self._invalidy = True
         self.set_data(xdata, ydata)
 
-        self.set_path_effects(path_effects)
-
     def contains(self, mouseevent):
         """
         Test whether the mouse event occurred on the line.  The pick
@@ -556,7 +554,7 @@ class Line2D(Artist):
                 funcname = self.drawStyles.get(self._drawstyle, '_draw_lines')
                 drawFunc = getattr(self, funcname)
 
-                if self.get_path_effects():
+                if self.get_path_effects() and self._linewidth:
                     affine_frozen = affine.frozen()
                     for pe in self.get_path_effects():
                         pe_renderer = pe.get_proxy_renderer(renderer)
@@ -1188,16 +1186,6 @@ class Line2D(Artist):
     def is_dashed(self):
         'return True if line is dashstyle'
         return self._linestyle in ('--', '-.', ':')
-
-    def set_path_effects(self, path_effects):
-        """
-        set path_effects, which should be a list of instances of
-        matplotlib.patheffect._Base class or its derivatives.
-        """
-        self._path_effects = path_effects
-
-    def get_path_effects(self):
-        return self._path_effects
 
 
 class VertexSelector:
