@@ -2,7 +2,8 @@
 Make a colorbar as a separate figure.
 '''
 
-from matplotlib import pyplot, mpl
+from matplotlib import pyplot
+import matplotlib as mpl
 
 # Make a figure and axes with dimensions as desired.
 fig = pyplot.figure(figsize=(8,3))
@@ -71,4 +72,3 @@ cb3 = mpl.colorbar.ColorbarBase(ax3, cmap=cmap,
 cb3.set_label('Custom extension lengths, some other units')
 
 pyplot.show()
-
