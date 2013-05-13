@@ -93,6 +93,12 @@ Andrew Dawson added the ability to add axes titles flush with the left and
 right sides of the top of the axes using a new keyword argument `loc` to
 :func:`~matplotlib.pyplot.title`.
 
+More robust boxplots
+--------------------
+Paul Hobson provided a fix to the :func:`~matplotlib.pyplot.boxplot`
+method that prevent whiskers from being drawn inside the box for 
+oddly distributed data sets.
+
 .. _whats-new-1-2:
 
 new in matplotlib-1.2
