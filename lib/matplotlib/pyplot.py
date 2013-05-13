@@ -255,6 +255,38 @@ def setp(*args, **kwargs):
     draw_if_interactive()
     return ret
 
+def xkcd():
+    """
+    Turns on `xkcd <xkcd.com>`_ sketch-style drawing mode.  This will
+    only have effect on things drawn after this function is called.
+
+    For best results, the "Humor Sans" font should be installed: it is
+    not included with matplotlib.
+
+    This function works by setting a whole slew of rcParams, so it will
+    probably override others you have set before.
+    """
+    from matplotlib import patheffects
+    rcParams['text.usetex'] = False
+    rcParams['font.family'] = 'fantasy'
+    rcParams['font.fantasy'] = ['Humor Sans', 'Comic Sans MS']
+    rcParams['font.size'] = 14.0
+    rcParams['path.sketch'] = (1, 100, 2)
+    rcParams['path.effects'] = [
+        patheffects.withStroke(linewidth=4, foreground="w")]
+    rcParams['axes.linewidth'] = 1.5
+    rcParams['lines.linewidth'] = 2.0
+    rcParams['figure.facecolor'] = 'white'
+    rcParams['grid.linewidth'] = 0.0
+    rcParams['axes.unicode_minus'] = False
+    rcParams['axes.color_cycle'] = ['b', 'r', 'c', 'm']
+    # rcParams['axes.clip'] = False
+    rcParams['xtick.major.size'] = 8
+    rcParams['xtick.major.width'] = 3
+    rcParams['ytick.major.size'] = 8
+    rcParams['ytick.major.width'] = 3
+
+
 ## Figures ##
 
 
@@ -1790,7 +1822,7 @@ def colormaps():
       for nominal data that has no inherent ordering, where color is used
       only to distinguish categories
 
-    The base colormaps are derived from those of the same name provided 
+    The base colormaps are derived from those of the same name provided
     with Matlab:
 
       =========   =======================================================
@@ -1942,14 +1974,14 @@ def colormaps():
       rainbow       spectral purple-blue-green-yellow-orange-red colormap
                     with diverging luminance
       seismic       diverging blue-white-red
-      nipy_spectral black-purple-blue-green-yellow-red-white spectrum, 
+      nipy_spectral black-purple-blue-green-yellow-red-white spectrum,
                     originally from the Neuroimaging in Python project
       terrain       mapmaker's colors, blue-green-yellow-brown-white,
                     originally from IGOR Pro
       ============= =======================================================
 
     The following colormaps are redundant and may be removed in future
-    versions.  It's recommended to use the names in the descriptions 
+    versions.  It's recommended to use the names in the descriptions
     instead, which produce identical output:
 
       =========  =======================================================
@@ -1980,11 +2012,11 @@ def colormaps():
       Color-Scale Images
       <http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m>`_
       by Carey Rappaport
-      
+
     .. [#] Changed to distinguish from ColorBrewer's *Spectral* map.
-      :func:`spectral` still works, but 
+      :func:`spectral` still works, but
       ``set_cmap('nipy_spectral')`` is recommended for clarity.
-                 
+
 
     """
     return sorted(cm.cmap_d.keys())

@@ -30,5 +30,4 @@ X = pylab.fromstring(s, pylab.uint8)
 X.shape = h, w, 3
 
 im = Image.fromstring( "RGB", (w,h), s)
-im.show()
-
+# im.show()

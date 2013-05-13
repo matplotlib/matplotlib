@@ -657,16 +657,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.cmap = other.cmap
         # self.update_dict = other.update_dict # do we need to copy this? -JJL
 
-    def set_path_effects(self, path_effects):
-        """
-        set path_effects, which should be a list of instances of
-        matplotlib.patheffect._Base class or its derivatives.
-        """
-        self._path_effects = path_effects
-
-    def get_path_effects(self):
-        return self._path_effects
-
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init

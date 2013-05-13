@@ -744,6 +744,7 @@ class LibAgg(SetupPackage):
                 'agg_vcgen_contour.cpp',
                 'agg_vcgen_dash.cpp',
                 'agg_vcgen_stroke.cpp',
+                'agg_vpgen_segmentator.cpp'
                 ]
             ext.sources.extend(
                 os.path.join('agg24', 'src', x) for x in agg_sources)

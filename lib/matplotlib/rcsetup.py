@@ -57,6 +57,10 @@ class ValidateInStrings:
                          % (self.key, s, self.valid.values()))
 
 
+def validate_any(s):
+    return s
+
+
 def validate_path_exists(s):
     """If s is a path, return s, else False"""
     if os.path.exists(s):
@@ -750,10 +754,10 @@ defaultParams = {
     'path.simplify': [True, validate_bool],
     'path.simplify_threshold': [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
     'path.snap': [True, validate_bool],
-    'agg.path.chunksize': [0, validate_int],       # 0 to disable chunking;
     'path.sketch': [None, validate_sketch],
-                                                    # recommend about 20000 to
-                                                    # enable. Experimental.
+    'path.effects': [[], validate_any],
+    'agg.path.chunksize': [0, validate_int],       # 0 to disable chunking;
+
     # key-mappings (multi-character mappings should be a list/tuple)
     'keymap.fullscreen':   [('f', 'ctrl+f'), validate_stringlist],
     'keymap.home':         [['h', 'r', 'home'], validate_stringlist],
