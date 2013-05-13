@@ -287,8 +287,11 @@ class Figure(Artist):
 
         *tight_layout*
             If *False* use *subplotpars*; if *True* adjust subplot
-            parameters using :meth:`tight_layout`.  Defaults to
-            rc ``figure.autolayout``.
+            parameters using :meth:`tight_layout` with default padding.
+            When providing a dict containing the keys `pad`, `w_pad`, `h_pad`
+            and `rect`, the default :meth:`tight_layout` paddings will be
+            overridden.
+            Defaults to rc ``figure.autolayout``.
         """
         Artist.__init__(self)
 
@@ -393,12 +396,16 @@ class Figure(Artist):
         Set whether :meth:`tight_layout` is used upon drawing.
         If None, the rcParams['figure.autolayout'] value will be set.
 
-        ACCEPTS: [True | False | None]
+        When providing a dict containing the keys `pad`, `w_pad`, `h_pad`
+        and `rect`, the default :meth:`tight_layout` paddings will be
+        overridden.
+
+        ACCEPTS: [True | False | dict | None ]
         """
         if tight is None:
             tight = rcParams['figure.autolayout']
-        tight = bool(tight)
-        self._tight = tight
+        self._tight = bool(tight)
+        self._tight_parameters = tight if isinstance(tight, dict) else {}
 
     def autofmt_xdate(self, bottom=0.2, rotation=30, ha='right'):
         """
@@ -956,7 +963,7 @@ class Figure(Artist):
 
         if self.get_tight_layout() and self.axes:
             try:
-                self.tight_layout(renderer)
+                self.tight_layout(renderer, **self._tight_parameters)
             except ValueError:
                 pass
                 # ValueError can occur when resizing a window.
