@@ -3354,6 +3354,7 @@ class Axes(martist.Artist):
             'verticalalignment': 'baseline',
             'horizontalalignment': 'left',
             'transform': self.transData,
+            'clip_on': False
             }
 
         # At some point if we feel confident that TextWithDash
@@ -3377,9 +3378,7 @@ class Axes(martist.Artist):
         self.texts.append(t)
         t._remove_method = lambda h: self.texts.remove(h)
 
-        #if t.get_clip_on():  t.set_clip_box(self.bbox)
-        if 'clip_on' in kwargs:
-            t.set_clip_box(self.bbox)
+        t.set_clip_path(self.patch)
         return t
 
     @docstring.dedent_interpd
