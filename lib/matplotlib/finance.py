@@ -55,10 +55,12 @@ stock_dt = np.dtype([('date', object),
 
 
 def parse_yahoo_historical(fh, adjusted=True, asobject=False):
-    """
-    Parse the historical data in file handle fh from yahoo finance.
+    """Parse the historical data in file handle fh from yahoo finance.
 
-    *adjusted*
+    Parameters
+    ----------
+
+    adjusted : `bool`
       If True (default) replace open, high, low, close prices with
       their adjusted values. The adjustment is by a scale factor, S =
       adjusted_close/close. Adjusted prices are actual prices
@@ -70,7 +72,7 @@ def parse_yahoo_historical(fh, adjusted=True, asobject=False):
       = True|False.
 
 
-    *asobject*
+    asobject : `bool` or :class:`None`
       If False (default for compatibility with earlier versions)
       return a list of tuples containing
 
@@ -152,14 +154,29 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None, dividends=False
     Ex:
     fh = fetch_historical_yahoo('^GSPC', (2000, 1, 1), (2001, 12, 31))
 
-    cachename is the name of the local file cache.  If None, will
-    default to the md5 hash or the url (which incorporates the ticker
-    and date range)
+    Parameters
+    ----------
+    ticker : str
+        ticker
 
-    set dividends=True to return dividends instead of price data.  With
-    this option set, parse functions will not work
+    date1 : sequence of form (year, month, day), `datetime`, or `date`
+        start date
+    date2 : sequence of form (year, month, day), `datetime`, or `date`
+        end date
 
-    a file handle is returned
+    cachename : str
+        cachename is the name of the local file cache.  If None, will
+        default to the md5 hash or the url (which incorporates the ticker
+        and date range)
+
+    dividends : `bool`
+        set dividends=True to return dividends instead of price data.  With
+        this option set, parse functions will not work
+
+    Returns
+    -------
+    file_handle : file handle
+        a file handle is returned
     """
 
     ticker = ticker.upper()
@@ -207,9 +224,7 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None, dividends=False
 
 def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
                             adjusted=True, cachename=None):
-    """
-    Get historical data for ticker between date1 and date2.  date1 and
-    date2 are datetime instances or (year, month, day) sequences.
+    """ Get historical data for ticker between date1 and date2.
 
     See :func:`parse_yahoo_historical` for explanation of output formats
     and the *asobject* and *adjusted* kwargs.
@@ -224,9 +239,21 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
     x = normpdf(bins, mu, sigma)
     plot(bins, x, color='red', lw=2)
 
-    cachename is the name of the local file cache.  If None, will
-    default to the md5 hash or the url (which incorporates the ticker
-    and date range)
+    Parameters
+    ----------
+    ticker : str
+        stock ticker
+
+    date1 : sequence of form (year, month, day), `datetime`, or `date`
+        start date
+
+    date2 : sequence of form (year, month, day), `datetime`, or `date`
+        end date
+
+    cachename : str or `None`
+        is the name of the local file cache.  If None, will
+        default to the md5 hash or the url (which incorporates the ticker
+        and date range)
     """
     # Maybe enable a warning later as part of a slow transition
     # to using None instead of False.
@@ -250,20 +277,30 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
 def plot_day_summary(ax, quotes, ticksize=3,
                      colorup='k', colordown='r',
                      ):
-    """
-    quotes is a sequence of (time, open, high, low, close, ...) sequences
+    """Plots day summary
 
-    Represent the time, open, high, low, close as a vertical line
-    ranging from low to high.  The left tick is the open and the right
-    tick is the close.
+        Represent the time, open, high, low, close as a vertical line
+        ranging from low to high.  The left tick is the open and the right
+        tick is the close.
 
-    time must be in float date format - see date2num
 
-    ax          : an Axes instance to plot to
-    ticksize    : open/close tick marker in points
-    colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open
-    return value is a list of lines added
+    Parameters
+    ----------
+    ax : `Axes`
+        an `Axes` instance to plot to
+    quotes : sequence of (time, open, high, low, close, ...) sequences
+        data to plot.  time must be in float date format - see date2num
+    ticksize : int
+        open/close tick marker in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+        the color of the lines where close <  open
+
+    Returns
+    -------
+    lines : list
+        list of lines added
     """
 
     lines = []
@@ -309,25 +346,35 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
 
     """
 
-    quotes is a sequence of (time, open, high, low, close, ...) sequences.
-    As long as the first 5 elements are these values,
-    the record can be as long as you want (eg it may store volume).
-
-    time must be in float days format - see date2num
-
     Plot the time, open, high, low, close as a vertical line ranging
     from low to high.  Use a rectangular bar to represent the
     open-close span.  If close >= open, use colorup to color the bar,
     otherwise use colordown
 
-    ax          : an Axes instance to plot to
-    width       : fraction of a day for the rectangle width
-    colorup     : the color of the rectangle where close >= open
-    colordown   : the color of the rectangle where close <  open
-    alpha       : the rectangle alpha level
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    quotes : sequence of (time, open, high, low, close, ...) sequences
+        As long as the first 5 elements are these values,
+        the record can be as long as you want (eg it may store volume).
 
-    return value is lines, patches where lines is a list of lines
-    added and patches is a list of the rectangle patches added
+        time must be in float days format - see date2num
+
+    width : float
+        fraction of a day for the rectangle width
+    colorup : color
+        the color of the rectangle where close >= open
+    colordown : color
+         the color of the rectangle where close <  open
+    alpha : float
+        the rectangle alpha level
+
+    Returns
+    -------
+    ret : tuple
+        returns (lines, patches) where lines is a list of lines
+        added and patches is a list of the rectangle patches added
 
     """
 
@@ -375,18 +422,40 @@ def candlestick(ax, quotes, width=0.2, colorup='k', colordown='r',
 def plot_day_summary2(ax, opens, closes, highs, lows, ticksize=4,
                       colorup='k', colordown='r',
                       ):
-    """
-
-    Represent the time, open, close, high, low,  as a vertical line
+    """Represent the time, open, close, high, low,  as a vertical line
     ranging from low to high.  The left tick is the open and the right
     tick is the close.
 
-    ax          : an Axes instance to plot to
-    ticksize    : size of open and close ticks in points
-    colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open
 
-    return value is a list of lines added
+    This function has been deprecated in 1.3 in favor of
+    `plot_day_summary_ochl`, which maintains the original argument
+    order, or `plot_day_summary_ohlc`, which uses the
+    open-high-low-close order.  This function will be removed in 1.4
+
+
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    opens : sequence
+        sequence of opening values
+    closes : sequence
+        sequence of closing values
+    highs : sequence
+        sequence of high values
+    lows : sequence
+        sequence of low values
+    ticksize : int
+        size of open and close ticks in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+         the color of the lines where close <  open
+
+    Returns
+    -------
+    ret : list
+        a list of lines added to the axes
     """
 
     warnings.warn("This function has been deprecated in 1.3 in favor"
@@ -403,18 +472,33 @@ def plot_day_summary_ochl(ax, opens, closes, highs, lows, ticksize=4,
                           colorup='k', colordown='r',
                           ):
 
-    """
-
-    Represent the time, open, close, high, low,  as a vertical line
+    """Represent the time, open, close, high, low,  as a vertical line
     ranging from low to high.  The left tick is the open and the right
     tick is the close.
 
-    ax          : an Axes instance to plot to
-    ticksize    : size of open and close ticks in points
-    colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    opens : sequence
+        sequence of opening values
+    closes : sequence
+        sequence of closing values
+    highs : sequence
+        sequence of high values
+    lows : sequence
+        sequence of low values
+    ticksize : int
+        size of open and close ticks in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+         the color of the lines where close <  open
 
-    return value is a list of lines added
+    Returns
+    -------
+    ret : list
+        a list of lines added to the axes
     """
 
     return plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize,
@@ -425,19 +509,35 @@ def plot_day_summary_ohlc(ax, opens, highs, lows, closes, ticksize=4,
                           colorup='k', colordown='r',
                           ):
 
-    """
-
-    Represent the time, open, high, low, close as a vertical line
+    """Represent the time, open, high, low, close as a vertical line
     ranging from low to high.  The left tick is the open and the right
     tick is the close.
 
-    ax          : an Axes instance to plot to
-    ticksize    : size of open and close ticks in points
-    colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    opens : sequence
+        sequence of opening values
+    highs : sequence
+        sequence of high values
+    lows : sequence
+        sequence of low values
+    closes : sequence
+        sequence of closing values
+    ticksize : int
+        size of open and close ticks in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+         the color of the lines where close <  open
 
-    return value is a list of lines added
+    Returns
+    -------
+    ret : list
+        a list of lines added to the axes
     """
+
 
     # note this code assumes if any value open, high, low, close is
     # missing they all are missing
@@ -516,20 +616,37 @@ def candlestick_ochl(ax, opens, closes, highs, lows,  width=4,
                  colorup='k', colordown='r',
                  alpha=0.75,
                  ):
-    """
-
-    Represent the open, close as a bar line and high low range as a
+    """Represent the open, close as a bar line and high low range as a
     vertical line.
 
     Preserves the original argument order.
 
-    ax          : an Axes instance to plot to
-    width       : the bar width in points
-    colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open
-    alpha       : bar transparency
 
-    return value is lineCollection, barCollection
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    opens : sequence
+        sequence of opening values
+    closes : sequence
+        sequence of closing values
+    highs : sequence
+        sequence of high values
+    lows : sequence
+        sequence of low values
+    ticksize : int
+        size of open and close ticks in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+        the color of the lines where close <  open
+    alpha : float
+        bar transparency
+
+    Returns
+    -------
+    ret : tuple
+        (lineCollection, barCollection)
     """
 
     candlestick_ohlc(ax, opens, highs, closes, lows, width=width,
@@ -541,20 +658,40 @@ def candlestick2(ax, opens, closes, highs, lows,  width=4,
                  colorup='k', colordown='r',
                  alpha=0.75,
                  ):
-    """
-
-    Represent the open, close as a bar line and high low range as a
+    """Represent the open, close as a bar line and high low range as a
     vertical line.
 
-    Preserves the original argument order.
+    This function has been deprecated in 1.3 in favor of
+    `candlestick_ochl`, which maintains the original argument order,
+    or `candlestick_ohlc`, which uses the open-high-low-close order.
+    This function will be removed in 1.4
 
-    ax          : an Axes instance to plot to
-    width       : the bar width in points
-    colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open
-    alpha       : bar transparency
 
-    return value is lineCollection, barCollection
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    opens : sequence
+        sequence of opening values
+    closes : sequence
+        sequence of closing values
+    highs : sequence
+        sequence of high values
+    lows : sequence
+        sequence of low values
+    ticksize : int
+        size of open and close ticks in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+        the color of the lines where close <  open
+    alpha : float
+        bar transparency
+
+    Returns
+    -------
+    ret : tuple
+        (lineCollection, barCollection)
     """
 
 
@@ -574,19 +711,35 @@ def candlestick_ohlc(ax, opens, highs, lows, closes, width=4,
                  colorup='k', colordown='r',
                  alpha=0.75,
                  ):
-    """
-
-    Represent the open, close as a bar line and high low range as a
+    """Represent the open, close as a bar line and high low range as a
     vertical line.
 
 
-    ax          : an Axes instance to plot to
-    width       : the bar width in points
-    colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open
-    alpha       : bar transparency
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    opens : sequence
+        sequence of opening values
+    closes : sequence
+        sequence of closing values
+    highs : sequence
+        sequence of high values
+    lows : sequence
+        sequence of low values
+    ticksize : int
+        size of open and close ticks in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+        the color of the lines where close <  open
+    alpha : float
+        bar transparency
 
-    return value is lineCollection, barCollection
+    Returns
+    -------
+    ret : tuple
+        (lineCollection, barCollection)
     """
 
     # note this code assumes if any value open, low, high, close is
@@ -646,17 +799,33 @@ def candlestick_ohlc(ax, opens, highs, lows, closes, width=4,
 def volume_overlay(ax, opens, closes, volumes,
                    colorup='k', colordown='r',
                    width=4, alpha=1.0):
-    """
-    Add a volume overlay to the current axes.  The opens and closes
+    """Add a volume overlay to the current axes.  The opens and closes
     are used to determine the color of the bar.  -1 is missing.  If a
     value is missing on one it must be missing on all
 
-    ax          : an Axes instance to plot to
-    width       : the bar width in points
-    colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open
-    alpha       : bar transparency
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    opens : sequence
+        a sequence of opens
+    closes : sequence
+        a sequence of closes
+    volumes : sequence
+        a sequence of volumes
+    width : int
+        the bar width in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+        the color of the lines where close <  open
+    alpha : float
+        bar transparency
 
+    Returns
+    -------
+    ret : `barCollection`
+        The `barrCollection` added to the axes
 
     """
 
@@ -700,14 +869,31 @@ def volume_overlay2(ax, closes, volumes,
     determine the color of the bar.  -1 is missing.  If a value is
     missing on one it must be missing on all
 
-    ax          : an Axes instance to plot to
-    width       : the bar width in points
-    colorup     : the color of the lines where close >= open
-    colordown   : the color of the lines where close <  open
-    alpha       : bar transparency
-
     nb: first point is not displayed - it is used only for choosing the
     right color
+
+
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    closes : sequence
+        a sequence of closes
+    volumes : sequence
+        a sequence of volumes
+    width : int
+        the bar width in points
+    colorup : color
+        the color of the lines where close >= open
+    colordown : color
+        the color of the lines where close <  open
+    alpha : float
+        bar transparency
+
+    Returns
+    -------
+    ret : `barCollection`
+        The `barrCollection` added to the axes
 
     """
 
@@ -717,16 +903,29 @@ def volume_overlay2(ax, closes, volumes,
 def volume_overlay3(ax, quotes,
                     colorup='k', colordown='r',
                     width=4, alpha=1.0):
-    """
-    Add a volume overlay to the current axes.  quotes is a list of (d,
+    """Add a volume overlay to the current axes.  quotes is a list of (d,
     open, high, low, close, volume) and close-open is used to
     determine the color of the bar
 
-    kwarg
-    width       : the bar width in points
-    colorup     : the color of the lines where close1 >= close0
-    colordown   : the color of the lines where close1 <  close0
-    alpha       : bar transparency
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    quotes : sequence of (time, open, high, low, close, ...) sequences
+        data to plot.  time must be in float date format - see date2num
+    width : int
+        the bar width in points
+    colorup : color
+        the color of the lines where close1 >= close0
+    colordown : color
+        the color of the lines where close1 <  close0
+    alpha : float
+         bar transparency
+
+    Returns
+    -------
+    ret : `barCollection`
+        The `barrCollection` added to the axes
 
 
     """
@@ -788,13 +987,27 @@ def volume_overlay3(ax, quotes,
 def index_bar(ax, vals,
               facecolor='b', edgecolor='l',
               width=4, alpha=1.0, ):
-    """
-    Add a bar collection graph with height vals (-1 is missing).
+    """Add a bar collection graph with height vals (-1 is missing).
 
-    ax          : an Axes instance to plot to
-    width       : the bar width in points
-    alpha       : bar transparency
+    Parameters
+    ----------
+    ax : `Axes`
+        an Axes instance to plot to
+    vals : sequence
+        a sequence of values
+    facecolor : color
+        the color of the bar face
+    edgecolor : color
+        the color of the bar edges
+    width : int
+        the bar width in points
+    alpha : float
+       bar transparency
 
+    Returns
+    -------
+    ret : `barCollection`
+        The `barrCollection` added to the axes
 
     """
 
