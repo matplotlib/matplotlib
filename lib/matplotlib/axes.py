@@ -865,7 +865,7 @@ class Axes(martist.Artist):
             minl = self._sharex.xaxis.get_minor_locator()
 
             # This overwrites the current formatter/locator
-            self.xaxis.set_scale(self._sharex.xaxis.get_scale())
+            self.xaxis._set_scale(self._sharex.xaxis.get_scale())
 
             # Reset the formatter/locator
             self.xaxis.set_major_formatter(majf)
@@ -873,7 +873,7 @@ class Axes(martist.Artist):
             self.xaxis.set_major_locator(majl)
             self.xaxis.set_minor_locator(minl)
         else:
-            self.xaxis.set_scale('linear')
+            self.xaxis._set_scale('linear')
 
         if self._sharey is not None:
             self.yaxis.major = self._sharey.yaxis.major
@@ -888,7 +888,7 @@ class Axes(martist.Artist):
             minl = self._sharey.yaxis.get_minor_locator()
 
             # This overwrites the current formatter/locator
-            self.yaxis.set_scale(self._sharey.yaxis.get_scale())
+            self.yaxis._set_scale(self._sharey.yaxis.get_scale())
 
             # Reset the formatter/locator
             self.yaxis.set_major_formatter(majf)
@@ -896,7 +896,7 @@ class Axes(martist.Artist):
             self.yaxis.set_major_locator(majl)
             self.yaxis.set_minor_locator(minl)
         else:
-            self.yaxis.set_scale('linear')
+            self.yaxis._set_scale('linear')
 
         self._autoscaleXon = True
         self._autoscaleYon = True
@@ -2573,7 +2573,7 @@ class Axes(martist.Artist):
         Different kwargs are accepted, depending on the scale:
         %(scale_docs)s
         """
-        self.xaxis.set_scale(value, **kwargs)
+        self.xaxis._set_scale(value, **kwargs)
         self.autoscale_view(scaley=False)
         self._update_transScale()
 
@@ -2798,7 +2798,7 @@ class Axes(martist.Artist):
         Different kwargs are accepted, depending on the scale:
         %(scale_docs)s
         """
-        self.yaxis.set_scale(value, **kwargs)
+        self.yaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False)
         self._update_transScale()
 
