@@ -1537,6 +1537,8 @@ class RendererPdf(RendererBase):
         # stroke (and the amount of alpha for each) is the same for
         # all of them
         can_do_optimization = True
+        facecolors = np.asarray(facecolors)
+        edgecolors = np.asarray(edgecolors)
 
         if not len(facecolors):
             filled = False
