@@ -1517,7 +1517,7 @@ class FigureCanvasBase(object):
         self.button_pick_id = self.mpl_connect('button_press_event', self.pick)
         self.scroll_pick_id = self.mpl_connect('scroll_event', self.pick)
         self.mouse_grabber = None  # the axes currently grabbing mouse
-        self.toolbar = None  # NavigationToolbar2 will set me
+        self.navigation = None
         if False:
             ## highlight the artists that are hit
             self.mpl_connect('motion_notify_event', self.onHilite)
@@ -2371,17 +2371,15 @@ class FigureCanvasBase(object):
         self._looping = False
 
 
-def key_press_handler(event, canvas, toolbar=None):
+def key_press_handler(event, canvas, navigation):
     """
-    Implement the default mpl key bindings for the canvas and toolbar
-    described at :ref:`key-event-handling`
+    Implement the default mpl key bindings for the canvas described at 
+    :ref:`key-event-handling`
 
     *event*
       a :class:`KeyEvent` instance
     *canvas*
       a :class:`FigureCanvasBase` instance
-    *toolbar*
-      a :class:`NavigationToolbar2` instance
 
     """
     # these bindings happen whether you are over an axes or not
@@ -2406,31 +2404,30 @@ def key_press_handler(event, canvas, toolbar=None):
     # toggle fullscreen mode (default key 'f')
     if event.key in fullscreen_keys:
         canvas.manager.full_screen_toggle()
-
     # quit the figure (defaut key 'ctrl+w')
-    if event.key in quit_keys:
+    elif event.key in quit_keys:
         Gcf.destroy_fig(canvas.figure)
+    # home or reset mnemonic  (default key 'h', 'home' and 'r')
+    elif event.key in home_keys:
+        navigation.home()
+    # forward / backward keys to enable left handed quick navigation
+    # (default key for backward: 'left', 'backspace' and 'c')
+    elif event.key in back_keys:
+        navigation.back()
+    # (default key for forward: 'right' and 'v')
+    elif event.key in forward_keys:
+        navigation.forward()
+    # pan mnemonic (default key 'p')
+    elif event.key in pan_keys:
+        navigation.pan()
+    # zoom mnemonic (default key 'o')
+    elif event.key in zoom_keys:
+        navigation.zoom()
+    # saving current figure (default key 's')
+    elif event.key in save_keys:
+        navigation.save_figure()
 
-    if toolbar is not None:
-        # home or reset mnemonic  (default key 'h', 'home' and 'r')
-        if event.key in home_keys:
-            toolbar.home()
-        # forward / backward keys to enable left handed quick navigation
-        # (default key for backward: 'left', 'backspace' and 'c')
-        elif event.key in back_keys:
-            toolbar.back()
-        # (default key for forward: 'right' and 'v')
-        elif event.key in forward_keys:
-            toolbar.forward()
-        # pan mnemonic (default key 'p')
-        elif event.key in pan_keys:
-            toolbar.pan()
-        # zoom mnemonic (default key 'o')
-        elif event.key in zoom_keys:
-            toolbar.zoom()
-        # saving current figure (default key 's')
-        elif event.key in save_keys:
-            toolbar.save_figure()
+    navigation.update_cursor(event.inaxes)
 
     if event.inaxes is None:
         return
@@ -2537,7 +2534,7 @@ class FigureManagerBase:
         Implement the default mpl key bindings defined at
         :ref:`key-event-handling`
         """
-        key_press_handler(event, self.canvas, self.canvas.toolbar)
+        key_press_handler(event, self.canvas, self.canvas.navigation)
 
     def show_popup(self, msg):
         """
@@ -2566,9 +2563,68 @@ class Cursors:
 cursors = Cursors()
 
 
-class NavigationToolbar2(object):
+class Toolbar2Base(object):
     """
-    Base class for the navigation cursor, version 2
+    Base class for navigation toolbars, version 2
+
+    Backend specific sub-classes should define:
+
+      :meth:`_init_toolbar`
+         create your toolbar widget
+
+      :meth:`set_history_buttons` (optional)
+         you can change the history back / forward buttons to
+         indicate disabled / enabled state.
+    """
+    # list of toolitems to add to the toolbar, format is:
+    # (
+    #   text, # the text of the button (often not visible to users)
+    #   tooltip_text, # the tooltip shown on hover (where possible)
+    #   image_file, # name of the image for the button (without the extension)
+    #   name_of_method, # name of the method in NavigationBase to call
+    # )
+    toolitems = (
+        ('Home', 'Reset original view', 'home', 'home'),
+        ('Back', 'Back to  previous view', 'back', 'back'),
+        ('Forward', 'Forward to next view', 'forward', 'forward'),
+        (None, None, None, None),
+        ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
+        ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
+        (None, None, None, None),
+        ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
+        ('Save', 'Save the figure', 'filesave', 'save_figure'),
+      )
+
+    def _init_toolbar(self):
+        """
+        This is where you actually build the GUI widgets (called by
+        __init__).  The icons ``home.xpm``, ``back.xpm``, ``forward.xpm``,
+        ``hand.xpm``, ``zoom_to_rect.xpm`` and ``filesave.xpm`` are standard
+        across backends (there are ppm versions in CVS also).
+
+        You just need to set the callbacks
+        
+
+        home         : self.home
+        back         : self.back
+        forward      : self.forward
+        hand         : self.pan
+        zoom_to_rect : self.zoom
+        filesave     : self.save_figure
+
+        You only need to define the last one - the others are in the base
+        class implementation.
+
+        """
+        raise NotImplementedError
+
+    def set_history_buttons(self):
+        """Enable or disable back/forward button"""
+        pass
+
+class NavigationBase(object):
+    """
+    Base class for the navigation
 
     backends must implement a canvas that handles connections for
     'button_press_event' and 'button_release_event'.  See
@@ -2582,9 +2638,6 @@ class NavigationToolbar2(object):
 
       :meth:`set_cursor`
          if you want the pointer icon to change
-
-      :meth:`_init_toolbar`
-         create your toolbar widget
 
       :meth:`draw_rubberband` (optional)
          draw the zoom to rect "rubberband" rectangle
@@ -2603,35 +2656,16 @@ class NavigationToolbar2(object):
       :meth:`set_message` (optional)
          display message
 
-      :meth:`set_history_buttons` (optional)
-         you can change the history back / forward buttons to
-         indicate disabled / enabled state.
+      :meth:`destroy` (optional)
+         clean up any toolbar/status bar widgets
 
     That's it, we'll do the rest!
     """
 
-    # list of toolitems to add to the toolbar, format is:
-    # (
-    #   text, # the text of the button (often not visible to users)
-    #   tooltip_text, # the tooltip shown on hover (where possible)
-    #   image_file, # name of the image for the button (without the extension)
-    #   name_of_method, # name of the method in NavigationToolbar2 to call
-    # )
-    toolitems = (
-        ('Home', 'Reset original view', 'home', 'home'),
-        ('Back', 'Back to  previous view', 'back', 'back'),
-        ('Forward', 'Forward to next view', 'forward', 'forward'),
-        (None, None, None, None),
-        ('Pan', 'Pan axes with left mouse, zoom with right', 'move', 'pan'),
-        ('Zoom', 'Zoom to rectangle', 'zoom_to_rect', 'zoom'),
-        (None, None, None, None),
-        ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
-        ('Save', 'Save the figure', 'filesave', 'save_figure'),
-      )
-
-    def __init__(self, canvas):
+    def __init__(self, canvas, toolbar=None):
         self.canvas = canvas
-        canvas.toolbar = self
+        canvas.navigation = self
+        self.toolbar = toolbar
         # a dict from axes index to a list of view limits
         self._views = cbook.Stack()
         self._positions = cbook.Stack()  # stack of subplot positions
@@ -2641,7 +2675,8 @@ class NavigationToolbar2(object):
         self._idRelease = None
         self._active = None
         self._lastCursor = None
-        self._init_toolbar()
+        if self.toolbar:
+            self.toolbar._init_toolbar()
         self._idDrag = self.canvas.mpl_connect(
             'motion_notify_event', self.mouse_move)
 
@@ -2653,6 +2688,14 @@ class NavigationToolbar2(object):
 
         self.mode = ''  # a mode string for the status bar
         self.set_history_buttons()
+
+    def destroy(self):
+        """Destroy status and toolbar widgets."""
+        pass
+
+    def set_history_buttons(self):
+        if self.toolbar:
+            self.toolbar.set_history_buttons()
 
     def set_message(self, s):
         """Display a message on toolbar or in status bar"""
@@ -2686,30 +2729,8 @@ class NavigationToolbar2(object):
         self.set_history_buttons()
         self._update_view()
 
-    def _init_toolbar(self):
-        """
-        This is where you actually build the GUI widgets (called by
-        __init__).  The icons ``home.xpm``, ``back.xpm``, ``forward.xpm``,
-        ``hand.xpm``, ``zoom_to_rect.xpm`` and ``filesave.xpm`` are standard
-        across backends (there are ppm versions in CVS also).
-
-        You just need to set the callbacks
-
-        home         : self.home
-        back         : self.back
-        forward      : self.forward
-        hand         : self.pan
-        zoom_to_rect : self.zoom
-        filesave     : self.save_figure
-
-        You only need to define the last one - the others are in the base
-        class implementation.
-
-        """
-        raise NotImplementedError
-
-    def mouse_move(self, event):
-        if not event.inaxes or not self._active:
+    def update_cursor(self, inaxes=False):
+        if not inaxes or not self._active:
             if self._lastCursor != cursors.POINTER:
                 self.set_cursor(cursors.POINTER)
                 self._lastCursor = cursors.POINTER
@@ -2724,6 +2745,9 @@ class NavigationToolbar2(object):
 
                 self._lastCursor = cursors.MOVE
 
+    def mouse_move(self, event):
+
+        self.update_cursor(event.inaxes)
         if event.inaxes and event.inaxes.get_navigate():
 
             try:
@@ -3124,7 +3148,3 @@ class NavigationToolbar2(object):
             a.set_navigate_mode(self._active)
 
         self.set_message(self.mode)
-
-    def set_history_buttons(self):
-        """Enable or disable back/forward button"""
-        pass
