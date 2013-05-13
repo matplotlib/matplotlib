@@ -2054,7 +2054,7 @@ class Axes(martist.Artist):
             zorder_images.sort(key=lambda x: x[0])
 
             mag = renderer.get_image_magnification()
-            ims = [(im.make_image(mag), 0, 0) for z, im in zorder_images]
+            ims = [(im.make_image(mag), 0, 0, im.get_alpha()) for z, im in zorder_images]
 
             l, b, r, t = self.bbox.extents
             width = mag * ((round(r) + 0.5) - (round(l) - 0.5))
