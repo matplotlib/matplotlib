@@ -5,7 +5,7 @@
 
    axes_grid/index.rst
    mplot3d/index.rst
-   
+
 
 ########
 Toolkits
@@ -89,8 +89,7 @@ line, mesh) tools.  Not the fastest or feature complete 3D library out
 there, but ships with matplotlib and thus may be a lighter weight
 solution for some use cases.
 
-.. image:: /_images/contourf3d_demo21.png
-
+.. plot:: mpl_examples/mplot3d/contourf3d_demo2.py
 
 .. _toolkit_axes_grid:
 
