@@ -263,6 +263,7 @@ class RendererWx(RendererBase):
         """
         Initialise a wxWindows renderer instance.
         """
+        RendererBase.__init__(self)
         DEBUG_MSG("__init__()", 1, self)
         if wx.VERSION_STRING < "2.8":
             raise RuntimeError("matplotlib no longer supports wxPython < 2.8 for the Wx backend.\nYou may, however, use the WxAgg backend.")
