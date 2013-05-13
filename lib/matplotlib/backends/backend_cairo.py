@@ -163,8 +163,11 @@ class RendererCairo(RendererBase):
                       buf, cairo.FORMAT_ARGB32, cols, rows, cols*4)
         ctx = gc.ctx
         y = self.height - y - rows
+
+        ctx.save()
         ctx.set_source_surface (surface, x, y)
         ctx.paint()
+        ctx.restore()
 
         im.flipud_out()
 
