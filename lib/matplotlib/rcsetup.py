@@ -57,6 +57,10 @@ class ValidateInStrings:
                          % (self.key, s, self.valid.values()))
 
 
+def validate_any(s):
+    return s
+
+
 def validate_path_exists(s):
     """If s is a path, return s, else False"""
     if os.path.exists(s):
@@ -258,7 +262,7 @@ def validate_colorlist(s):
 
 def validate_stringlist(s):
     'return a list'
-    if type(s) is str:
+    if type(s) in (str, unicode):
         return [v.strip() for v in s.split(',')]
     else:
         assert type(s) in [list, tuple]
@@ -426,6 +430,16 @@ def validate_bbox(s):
             return None
         raise ValueError("bbox should be 'tight' or 'standard'")
 
+def validate_sketch(s):
+    if s == 'None' or s is None:
+        return None
+    if isinstance(s, basestring):
+        result = tuple([float(v.strip()) for v in s.split(',')])
+    elif isinstance(s, (list, tuple)):
+        result = tuple([float(v) for v in s])
+    if len(result) != 3:
+        raise ValueError("path.sketch must be a tuple (scale, length, randomness)")
+    return result
 
 class ValidateInterval:
     """
@@ -499,7 +513,7 @@ defaultParams = {
 
 
     ## font props
-    'font.family':     ['sans-serif', str],       # used by text object
+    'font.family':     ['sans-serif', validate_stringlist],  # used by text object
     'font.style':      ['normal', str],
     'font.variant':    ['normal', str],
     'font.stretch':    ['normal', str],
@@ -740,9 +754,10 @@ defaultParams = {
     'path.simplify': [True, validate_bool],
     'path.simplify_threshold': [1.0 / 9.0, ValidateInterval(0.0, 1.0)],
     'path.snap': [True, validate_bool],
+    'path.sketch': [None, validate_sketch],
+    'path.effects': [[], validate_any],
     'agg.path.chunksize': [0, validate_int],       # 0 to disable chunking;
-                                                    # recommend about 20000 to
-                                                    # enable. Experimental.
+
     # key-mappings (multi-character mappings should be a list/tuple)
     'keymap.fullscreen':   [('f', 'ctrl+f'), validate_stringlist],
     'keymap.home':         [['h', 'r', 'home'], validate_stringlist],

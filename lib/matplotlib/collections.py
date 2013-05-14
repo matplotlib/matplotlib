@@ -91,6 +91,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  urls=None,
                  offset_position='screen',
                  zorder=1,
+                 path_effects=None,
                  **kwargs
                  ):
         """
@@ -123,6 +124,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             else:
                 self._uniform_offsets = offsets
 
+        self._path_effects = None
         self.update(kwargs)
         self._paths = None
 
@@ -258,11 +260,22 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if self._hatch:
             gc.set_hatch(self._hatch)
 
-        renderer.draw_path_collection(
-            gc, transform.frozen(), paths, self.get_transforms(),
-            offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
-            self._linewidths, self._linestyles, self._antialiaseds, self._urls,
-            self._offset_position)
+        if self.get_sketch_params() is not None:
+            gc.set_sketch_params(*self.get_sketch_params())
+
+        if self.get_path_effects():
+            for pe in self.get_path_effects():
+                pe.draw_path_collection(renderer,
+                    gc, transform.frozen(), paths, self.get_transforms(),
+                    offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
+                    self._linewidths, self._linestyles, self._antialiaseds, self._urls,
+                    self._offset_position)
+        else:
+            renderer.draw_path_collection(
+                gc, transform.frozen(), paths, self.get_transforms(),
+                offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),
+                self._linewidths, self._linestyles, self._antialiaseds, self._urls,
+                self._offset_position)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -641,6 +654,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.norm = other.norm
         self.cmap = other.cmap
         # self.update_dict = other.update_dict # do we need to copy this? -JJL
+
 
 # these are not available for the object inspector until after the
 # class is built so we define an initial set here for the init

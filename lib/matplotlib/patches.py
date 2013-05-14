@@ -98,8 +98,6 @@ class Patch(artist.Artist):
         self.set_fill(fill)
         self._combined_transform = transforms.IdentityTransform()
 
-        self.set_path_effects(path_effects)
-
         if len(kwargs):
             artist.setp(self, **kwargs)
 
@@ -385,16 +383,6 @@ class Patch(artist.Artist):
         'Return the current hatching pattern'
         return self._hatch
 
-    def set_path_effects(self, path_effects):
-        """
-        set path_effects, which should be a list of instances of
-        matplotlib.patheffect._Base class or its derivatives.
-        """
-        self._path_effects = path_effects
-
-    def get_path_effects(self):
-        return self._path_effects
-
     @allow_rasterization
     def draw(self, renderer):
         'Draw the :class:`Patch` to the given *renderer*.'
@@ -426,14 +414,18 @@ class Patch(artist.Artist):
         if self._hatch:
             gc.set_hatch(self._hatch)
 
+        if self.get_sketch_params() is not None:
+            gc.set_sketch_params(*self.get_sketch_params())
+
         path = self.get_path()
         transform = self.get_transform()
         tpath = transform.transform_path_non_affine(path)
         affine = transform.get_affine()
 
         if self.get_path_effects():
-            for path_effect in self.get_path_effects():
-                path_effect.draw_path(renderer, gc, tpath, affine, rgbFace)
+            if gc.get_linewidth() or rgbFace is not None:
+                for path_effect in self.get_path_effects():
+                    path_effect.draw_path(renderer, gc, tpath, affine, rgbFace)
         else:
             renderer.draw_path(gc, tpath, affine, rgbFace)
 
@@ -4013,6 +4005,9 @@ class FancyArrowPatch(Patch):
 
         if self._hatch:
             gc.set_hatch(self._hatch)
+
+        if self.get_sketch_params() is not None:
+            gc.set_sketch_params(*self.get_sketch_params())
 
         # FIXME : dpi_cor is for the dpi-dependecy of the
         # linewidth. There could be room for improvement.

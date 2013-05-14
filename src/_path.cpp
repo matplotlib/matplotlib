@@ -58,7 +58,7 @@ public:
         add_varargs_method("convert_path_to_polygons", &_path_module::convert_path_to_polygons,
                            "convert_path_to_polygons(path, trans, width, height)");
         add_varargs_method("cleanup_path", &_path_module::cleanup_path,
-                           "cleanup_path(path, trans, remove_nans, clip, snap, simplify, curves)");
+                           "cleanup_path(path, trans, remove_nans, clip, snap, simplify, curves, sketch_params)");
         add_varargs_method("convert_to_svg", &_path_module::convert_to_svg,
                            "convert_to_svg(path, trans, clip, simplify, precision)");
         initialize("Helper functions for paths");
@@ -1484,6 +1484,8 @@ _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
               const agg::rect_base<double>& rect,
               e_snap_mode snap_mode, double stroke_width,
               bool do_simplify, bool return_curves,
+              double sketch_scale, double sketch_length,
+              double sketch_randomness,
               std::vector<double>& vertices,
               std::vector<npy_uint8>& codes)
 {
@@ -1493,6 +1495,7 @@ _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
     typedef PathSnapper<clipped_t>             snapped_t;
     typedef PathSimplifier<snapped_t>          simplify_t;
     typedef agg::conv_curve<simplify_t>        curve_t;
+    typedef Sketch<curve_t>                    sketch_t;
 
     transformed_path_t tpath(path, trans);
     nan_removal_t      nan_removed(tpath, remove_nans, path.has_curves());
@@ -1503,21 +1506,22 @@ _cleanup_path(PathIterator& path, const agg::trans_affine& trans,
     vertices.reserve(path.total_vertices() * 2);
     codes.reserve(path.total_vertices());
 
-    if (return_curves)
+    if (return_curves && sketch_scale == 0.0)
     {
         __cleanup_path(simplified, vertices, codes);
     }
     else
     {
         curve_t curve(simplified);
-        __cleanup_path(curve, vertices, codes);
+        sketch_t sketch(curve, sketch_scale, sketch_length, sketch_randomness);
+        __cleanup_path(sketch, vertices, codes);
     }
 }
 
 Py::Object
 _path_module::cleanup_path(const Py::Tuple& args)
 {
-    args.verify_length(8);
+    args.verify_length(9);
 
     PathIterator path(args[0]);
     agg::trans_affine trans = py_to_agg_transformation_matrix(args[1].ptr(), false);
@@ -1572,11 +1576,23 @@ _path_module::cleanup_path(const Py::Tuple& args)
 
     bool return_curves = args[7].isTrue();
 
+    Py::Object sketch_params = args[8];
+    double sketch_scale = 0.0;
+    double sketch_length = 0.0;
+    double sketch_randomness = 0.0;
+    if (sketch_params.ptr() != Py_None) {
+        Py::Tuple sketch(sketch_params);
+        sketch_scale = Py::Float(sketch[0]);
+        sketch_length = Py::Float(sketch[1]);
+        sketch_randomness = Py::Float(sketch[2]);
+    }
+
     std::vector<double> vertices;
     std::vector<npy_uint8> codes;
 
     _cleanup_path(path, trans, remove_nans, do_clip, clip_rect, snap_mode,
-                  stroke_width, simplify, return_curves, vertices, codes);
+                  stroke_width, simplify, return_curves, sketch_scale,
+                  sketch_length, sketch_randomness, vertices, codes);
 
     npy_intp length = codes.size();
     npy_intp dims[] = { length, 2, 0 };

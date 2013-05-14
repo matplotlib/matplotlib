@@ -21,6 +21,30 @@ revision, see the :ref:`github-stats`.
 
 new in matplotlib-1.3
 =====================
+`xkcd`-style sketch plotting
+----------------------------
+
+To give your plots a sense of authority that they may be missing,
+Michael Droettboom (inspired by the work of many others in
+:ghpull:`1329`) has added an `xkcd-style <http://xkcd.com/>`_ sketch
+plotting mode.  To use it, simply call `pyplot.xkcd` before creating
+your plot.
+
+.. plot:: mpl_examples/showcase/xkcd.py
+
+Path effects on lines
+---------------------
+Thanks to Jae-Joon Lee, path effects now also work on plot lines.
+
+.. plot:: mpl_examples/pylab_examples/patheffect_demo.py
+
+Changes to font rcParams
+------------------------
+The `font.*` rcParams now affect only text objects created after the
+rcParam has been set, and will not retroactively affect already
+existing text objects.  This brings their behavior in line with most
+other rcParams.
+
 ``axes.xmargin`` and ``axes.ymargin`` added to rcParams
 -------------------------------------------------------
 ``rcParam`` values (``axes.xmargin`` and ``axes.ymargin``) were added
@@ -148,8 +172,8 @@ the bottom of the text bounding box.
 
 ``savefig.jpeg_quality`` added to rcParams
 ------------------------------------------------------------------------------
-``rcParam`` value ``savefig.jpeg_quality`` was added so that the user can 
-configure the default quality used when a figure is written as a JPEG.  The 
+``rcParam`` value ``savefig.jpeg_quality`` was added so that the user can
+configure the default quality used when a figure is written as a JPEG.  The
 default quality is 95; previously, the default quality was 75.  This change
 minimizes the artifacting inherent in JPEG images, particularly with images
 that have sharp changes in color as plots often do.

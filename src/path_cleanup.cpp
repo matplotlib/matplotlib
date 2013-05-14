@@ -16,6 +16,7 @@ class PathCleanupIterator
     typedef PathClipper<nan_removal_t>         clipped_t;
     typedef PathSnapper<clipped_t>             snapped_t;
     typedef PathSimplifier<snapped_t>          simplify_t;
+    typedef Sketch<simplify_t>                 sketch_t;
 
     Py::Object         m_path_obj;
     PathIterator       m_path_iter;
@@ -25,13 +26,15 @@ class PathCleanupIterator
     clipped_t          m_clipped;
     snapped_t          m_snapped;
     simplify_t         m_simplify;
+    sketch_t           m_sketch;
 
 public:
     PathCleanupIterator(PyObject* path, agg::trans_affine trans,
                         bool remove_nans, bool do_clip,
                         const agg::rect_base<double>& rect,
                         e_snap_mode snap_mode, double stroke_width,
-                        bool do_simplify) :
+                        bool do_simplify, double sketch_scale,
+                        double sketch_length, double sketch_randomness) :
         m_path_obj(path, true),
         m_path_iter(m_path_obj),
         m_transform(trans),
@@ -41,7 +44,8 @@ public:
         m_snapped(m_clipped, snap_mode, m_path_iter.total_vertices(),
                   stroke_width),
         m_simplify(m_snapped, do_simplify && m_path_iter.should_simplify(),
-                   m_path_iter.simplify_threshold())
+                   m_path_iter.simplify_threshold()),
+        m_sketch(m_simplify, sketch_scale, sketch_length, sketch_randomness)
     {
         Py_INCREF(path);
         m_path_iter.rewind(0);
@@ -59,14 +63,16 @@ extern "C"
     get_path_iterator(
         PyObject* path, PyObject* trans, int remove_nans, int do_clip,
         double rect[4], e_snap_mode snap_mode, double stroke_width,
-        int do_simplify)
+        int do_simplify, double sketch_scale, double sketch_length,
+        double sketch_randomness)
     {
         agg::trans_affine agg_trans = py_to_agg_transformation_matrix(trans, false);
         agg::rect_base<double> clip_rect(rect[0], rect[1], rect[2], rect[3]);
 
         PathCleanupIterator* pipeline = new PathCleanupIterator(
             path, agg_trans, remove_nans != 0, do_clip != 0,
-            clip_rect, snap_mode, stroke_width, do_simplify != 0);
+            clip_rect, snap_mode, stroke_width, do_simplify != 0,
+            sketch_scale, sketch_length, sketch_randomness);
 
         return (void*)pipeline;
     }
@@ -88,4 +94,3 @@ extern "C"
         delete pipeline_iter;
     }
 }
-

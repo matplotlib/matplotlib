@@ -199,7 +199,7 @@ class Path(object):
 
     def iter_segments(self, transform=None, remove_nans=True, clip=None,
                       snap=False, stroke_width=1.0, simplify=None,
-                      curves=True):
+                      curves=True, sketch=None):
         """
         Iterates over all of the curve segments in the path.  Each
         iteration returns a 2-tuple (*vertices*, *code*), where
@@ -233,6 +233,10 @@ class Path(object):
         *curves*: If True, curve segments will be returned as curve
          segments.  If False, all curves will be converted to line
          segments.
+
+        *sketch*: If not None, must be a 3-tuple of the form
+         (scale, length, randomness), representing the sketch
+         parameters.
         """
         vertices = self.vertices
         if not len(vertices):
@@ -247,7 +251,8 @@ class Path(object):
         STOP         = self.STOP
 
         vertices, codes = cleanup_path(self, transform, remove_nans, clip,
-                                       snap, stroke_width, simplify, curves)
+                                       snap, stroke_width, simplify, curves,
+                                       sketch)
         len_vertices = len(vertices)
 
         i = 0

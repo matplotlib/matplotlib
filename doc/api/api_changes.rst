@@ -15,7 +15,12 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
-* Fixed a bug in setting the position for the right/top spine with data 
+* The `font.*` rcParams now affect only text objects created after the
+  rcParam has been set, and will not retroactively affect already
+  existing text objects.  This brings their behavior in line with most
+  other rcParams.
+
+* Fixed a bug in setting the position for the right/top spine with data
   position type. Previously, it would draw the right or top spine at
   +1 data offset.
 
