@@ -255,37 +255,53 @@ def setp(*args, **kwargs):
     draw_if_interactive()
     return ret
 
+
 def xkcd():
     """
-    Turns on `xkcd <xkcd.com>`_ sketch-style drawing mode.  This will
-    only have effect on things drawn after this function is called.
+    Turns on `xkcd <http://xkcd.com/>`_ sketch-style drawing mode.
+    This will only have effect on things drawn after this function is
+    called.
 
     For best results, the "Humor Sans" font should be installed: it is
     not included with matplotlib.
 
-    This function works by setting a whole slew of rcParams, so it will
-    probably override others you have set before.
+    This function works by a number of rcParams, so it will probably
+    override others you have set before.
+
+    If you want the effects of this function to be temporary, it can
+    be used as a context manager, for example::
+
+        with plt.xkcd():
+            # This figure will be in XKCD-style
+            fig1 = plt.figure()
+            # ...
+
+        # This figure will be in regular style
+        fig2 = plt.figure()
     """
     from matplotlib import patheffects
-    rcParams['text.usetex'] = False
-    rcParams['font.family'] = 'fantasy'
-    rcParams['font.fantasy'] = ['Humor Sans', 'Comic Sans MS']
-    rcParams['font.size'] = 14.0
-    rcParams['path.sketch'] = (1, 100, 2)
-    rcParams['path.effects'] = [
-        patheffects.withStroke(linewidth=4, foreground="w")]
-    rcParams['axes.linewidth'] = 1.5
-    rcParams['lines.linewidth'] = 2.0
-    rcParams['figure.facecolor'] = 'white'
-    rcParams['grid.linewidth'] = 0.0
-    rcParams['axes.unicode_minus'] = False
-    rcParams['axes.color_cycle'] = ['b', 'r', 'c', 'm']
-    # rcParams['axes.clip'] = False
-    rcParams['xtick.major.size'] = 8
-    rcParams['xtick.major.width'] = 3
-    rcParams['ytick.major.size'] = 8
-    rcParams['ytick.major.width'] = 3
-
+    context = rc_context()
+    try:
+        rcParams['text.usetex'] = False
+        rcParams['font.family'] = 'Humor Sans'
+        rcParams['font.size'] = 14.0
+        rcParams['path.sketch'] = (1, 100, 2)
+        rcParams['path.effects'] = [
+            patheffects.withStroke(linewidth=4, foreground="w")]
+        rcParams['axes.linewidth'] = 1.5
+        rcParams['lines.linewidth'] = 2.0
+        rcParams['figure.facecolor'] = 'white'
+        rcParams['grid.linewidth'] = 0.0
+        rcParams['axes.unicode_minus'] = False
+        rcParams['axes.color_cycle'] = ['b', 'r', 'c', 'm']
+        rcParams['xtick.major.size'] = 8
+        rcParams['xtick.major.width'] = 3
+        rcParams['ytick.major.size'] = 8
+        rcParams['ytick.major.width'] = 3
+    except:
+        context.__exit__(*sys.exc_info())
+        raise
+    return context
 
 ## Figures ##
 
