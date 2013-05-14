@@ -6,7 +6,7 @@ with plt.xkcd():
     # http://xkcd.com/418/
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_axes((0.1, 0.2, 0.8, 0.7))
     ax.spines['right'].set_color('none')
     ax.spines['top'].set_color('none')
     plt.xticks([])
@@ -24,12 +24,16 @@ with plt.xkcd():
 
     plt.xlabel('time')
     plt.ylabel('my overall health')
+    fig.text(
+        0.5, 0.05,
+        '"Stove Ownership" from xkcd by Randall Monroe',
+        ha='center')
 
     # Based on "The Data So Far" from XKCD by Randall Monroe
     # http://xkcd.com/373/
 
     fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1)
+    ax = fig.add_axes((0.1, 0.2, 0.8, 0.7))
     ax.bar([-0.125, 1.0-0.125], [0, 100], 0.25)
     ax.spines['right'].set_color('none')
     ax.spines['top'].set_color('none')
@@ -41,5 +45,10 @@ with plt.xkcd():
     plt.yticks([])
 
     plt.title("CLAIMS OF SUPERNATURAL POWERS")
+
+    fig.text(
+        0.5, 0.05,
+        '"The Data So Far" from xkcd by Randall Monroe',
+        ha='center')
 
 plt.show()
