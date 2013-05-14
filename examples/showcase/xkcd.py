@@ -3,6 +3,9 @@ import numpy as np
 
 plt.xkcd()
 
+# Based on "Stove Ownership" from XKCD by Randall Monroe
+# http://xkcd.com/418/
+
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
 ax.spines['right'].set_color('none')
@@ -22,6 +25,9 @@ plt.plot(data)
 
 plt.xlabel('time')
 plt.ylabel('my overall health')
+
+# Based on "The Data So Far" from XKCD by Randall Monroe
+# http://xkcd.com/373/
 
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
