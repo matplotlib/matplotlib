@@ -864,7 +864,28 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             ncolors = len(self.levels)
             if self.filled:
                 ncolors -= 1
-            cmap = colors.ListedColormap(self.colors, N=ncolors)
+
+            # Handle the case where colors are given for the extended
+            # parts of the contour.
+            given_colors = self.colors
+            extend_min = self.extend in ['min', 'both']
+            extend_max = self.extend in ['max', 'both']
+            use_set_under_over = False
+            # if we are extending the lower end, and we've been given enough colors
+            # then skip the first color in the resulting cmap.
+            total_levels = ncolors + int(extend_min) + int(extend_max)
+            if len(self.colors) == total_levels and any([extend_min, extend_max]): 
+                use_set_under_over = True
+                if extend_min:
+                    given_colors = given_colors[1:]
+
+            cmap = colors.ListedColormap(given_colors, N=ncolors)
+            if use_set_under_over:
+                if extend_min:
+                    cmap.set_under(self.colors[0])
+                if extend_max:
+                    cmap.set_over(self.colors[-1])
+
         if self.filled:
             self.collections = cbook.silent_list('mcoll.PathCollection')
         else:
@@ -1172,15 +1193,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # (Colorbar needs this even for line contours.)
         self._levels = list(self.levels)
 
-        if not self.filled:
-            self.layers = self.levels
-            return
-
         if self.extend in ('both', 'min'):
             self._levels.insert(0, min(self.levels[0], self.zmin) - 1)
         if self.extend in ('both', 'max'):
             self._levels.append(max(self.levels[-1], self.zmax) + 1)
         self._levels = np.asarray(self._levels)
+
+        if not self.filled:
+            self.layers = self.levels
+            return
 
         # layer values are mid-way between levels
         self.layers = 0.5 * (self._levels[:-1] + self._levels[1:])
@@ -1526,9 +1547,7 @@ class QuadContourSet(ContourSet):
             if y.shape != z.shape:
                 raise TypeError("Shape of y does not match that of z: found "
                                 "{0} instead of {1}.".format(y.shape, z.shape))
-
         else:
-
             raise TypeError("Inputs x and y must be 1D or 2D.")
 
         return x, y, z
