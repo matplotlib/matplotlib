@@ -13,8 +13,7 @@ import matplotlib.dates as mdates
 from matplotlib.dates import DayLocator
 
 
-@image_comparison(baseline_images=['date_empty'], extensions=['png'],
-                  savefig_kwarg={'dpi': 60})
+@image_comparison(baseline_images=['date_empty'], extensions=['png'])
 def test_date_empty():
     # make sure mpl does the right thing when told to plot dates even
     # if no date data has been presented, cf
@@ -24,8 +23,7 @@ def test_date_empty():
     ax.xaxis_date()
 
 
-@image_comparison(baseline_images=['date_axhspan'], extensions=['png'],
-                  savefig_kwarg={'dpi': 60})
+@image_comparison(baseline_images=['date_axhspan'], extensions=['png'])
 def test_date_axhspan():
     # test ax hspan with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -38,8 +36,7 @@ def test_date_axhspan():
     fig.subplots_adjust(left=0.25)
 
 
-@image_comparison(baseline_images=['date_axvspan'], extensions=['png'],
-                  savefig_kwarg={'dpi': 60})
+@image_comparison(baseline_images=['date_axvspan'], extensions=['png'])
 def test_date_axvspan():
     # test ax hspan with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -53,7 +50,7 @@ def test_date_axvspan():
 
 
 @image_comparison(baseline_images=['date_axhline'],
-                  extensions=['png'], savefig_kwarg={'dpi': 60})
+                  extensions=['png'])
 def test_date_axhline():
     # test ax hline with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -67,7 +64,7 @@ def test_date_axhline():
 
 
 @image_comparison(baseline_images=['date_axvline'], tol=16,
-                  extensions=['png'], savefig_kwarg={'dpi': 60})
+                  extensions=['png'])
 def test_date_axvline():
     # test ax hline with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -104,8 +101,7 @@ def test_too_many_date_ticks():
         fig.savefig('junk.png')
 
 
-@image_comparison(baseline_images=['RRuleLocator_bounds'], extensions=['png'],
-                  savefig_kwarg={'dpi': 60})
+@image_comparison(baseline_images=['RRuleLocator_bounds'], extensions=['png'])
 def test_RRuleLocator():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -131,7 +127,7 @@ def test_RRuleLocator():
 
 
 @image_comparison(baseline_images=['DateFormatter_fractionalSeconds'],
-                  extensions=['png'], savefig_kwarg={'dpi': 60})
+                  extensions=['png'])
 def test_DateFormatter():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -266,7 +262,6 @@ def test_auto_date_locator():
         locator = _create_auto_date_locator(d1, d2)
         assert_equal(map(str, mdates.num2date(locator())),
                      expected)
-
 
 
 if __name__ == '__main__':

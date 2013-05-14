@@ -14,7 +14,8 @@ easy conversion to and from :mod:`datetime` and numeric ranges.
    and calendar differences can cause confusing differences between what
    Python and mpl give as the number of days since 0001-01-01 and what other
    software and databases yield.  For example, the `US Naval Observatory
-   <http://www.usno.navy.mil/USNO/astronomical-applications/data-services/jul-date>`_
+   <http://www.usno.navy.mil/USNO/astronomical-applications/
+data-services/jul-date>`_
    uses a calendar that switches from Julian to Gregorian in October, 1582.
    Hence, using their calculator, the number of days between 0001-01-01 and
    2006-04-01 is 732403, whereas using the Gregorian calendar via the datetime
@@ -115,8 +116,9 @@ from itertools import izip
 import warnings
 
 
-from dateutil.rrule import rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY, \
-     MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY
+from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
+                            MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
+                            SECONDLY)
 from dateutil.relativedelta import relativedelta
 import dateutil.parser
 import numpy as np
@@ -134,8 +136,9 @@ __all__ = ('date2num', 'num2date', 'drange', 'epoch2num',
            'RRuleLocator', 'AutoDateLocator', 'YearLocator',
            'MonthLocator', 'WeekdayLocator',
            'DayLocator', 'HourLocator', 'MinuteLocator',
-           'SecondLocator', 'rrule', 'MO', 'TU', 'WE', 'TH', 'FR',
-           'SA', 'SU', 'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
+           'SecondLocator', 'MicrosecondLocator',
+           'rrule', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU',
+           'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
            'HOURLY', 'MINUTELY', 'SECONDLY', 'MICROSECONDLY', 'relativedelta',
            'seconds', 'minutes', 'hours', 'weeks')
 
@@ -468,8 +471,7 @@ class AutoDateFormatter(ticker.Formatter):
            30.    : '%b %Y',
            1.0    : '%b %d %Y',
            1./24. : '%H:%M:%D',
-           1./24. : '%H:%M:%S',
-           1. / 10 * (24. * 60.): '%H:%M:%S.%f',
+           1. / (24. * 60.): '%H:%M:%S.%f',
            }
 
 
@@ -503,13 +505,11 @@ class AutoDateFormatter(ticker.Formatter):
         self._tz = tz
         self.defaultfmt = defaultfmt
         self._formatter = DateFormatter(self.defaultfmt, tz)
-        self.scaled = {
-           365.0: '%Y',
-           30.: '%b %Y',
-           1.0: '%b %d %Y',
-           1. / 24.: '%H:%M:%S',
-           1. / (24. * 60.): '%H:%M:%S.%f',
-           }
+        self.scaled = {365.0: '%Y',
+                       30.: '%b %Y',
+                       1.0: '%b %d %Y',
+                       1. / 24.: '%H:%M:%S',
+                       1. / (24. * 60.): '%H:%M:%S.%f'}
 
     def __call__(self, x, pos=0):
         scale = float(self._locator._get_unit())
@@ -579,7 +579,7 @@ class DateLocator(ticker.Locator):
     def nonsingular(self, vmin, vmax):
         """
         Given the proposed upper and lower extent, adjust the range
-        if it is too close to being singlular (i.e. a range of ~0).
+        if it is too close to being singular (i.e. a range of ~0).
 
         """
         unit = self._get_unit()
@@ -713,11 +713,11 @@ class RRuleLocator(DateLocator):
 class AutoDateLocator(DateLocator):
     """
     On autoscale, this class picks the best
-    :class:`RRuleLocator` to set the view limits and the tick
+    :class:`DateLocator` to set the view limits and the tick
     locations.
     """
     def __init__(self, tz=None, minticks=5, maxticks=None,
-        interval_multiples=False):
+                 interval_multiples=False):
         """
         *minticks* is the minimum number of ticks desired, which is used to
         select the type of ticking (yearly, monthly, etc.).
@@ -728,7 +728,7 @@ class AutoDateLocator(DateLocator):
         individual rrule frequency constants (YEARLY, MONTHLY, etc.)
         to their own maximum number of ticks.  This can be used to keep
         the number of ticks appropriate to the format chosen in
-        class:`AutoDateFormatter`. Any frequency not specified in this
+        :class:`AutoDateFormatter`. Any frequency not specified in this
         dictionary is given a default value.
 
         *tz* is a :class:`tzinfo` instance.
@@ -781,20 +781,19 @@ class AutoDateLocator(DateLocator):
                 # number of ticks for every frequency and create a
                 # dictionary for this
                 self.maxticks = dict(izip(self._freqs,
-                    [maxticks] * len(self._freqs)))
+                                          [maxticks] * len(self._freqs)))
         self.interval_multiples = interval_multiples
         self.intervald = {
-           YEARLY:   [1, 2, 4, 5, 10, 20, 40, 50, 100, 200, 400, 500,
-                      1000, 2000, 4000, 5000, 10000],
-           MONTHLY:  [1, 2, 3, 4, 6],
-           DAILY:    [1, 2, 3, 7, 14],
-           HOURLY:   [1, 2, 3, 4, 6, 12],
-           MINUTELY: [1, 5, 10, 15, 30],
-           SECONDLY: [1, 5, 10, 15, 30],
-           MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000,
-                           5000, 10000, 20000, 50000, 100000, 200000, 500000,
-                           1000000],
-           }
+            YEARLY:   [1, 2, 4, 5, 10, 20, 40, 50, 100, 200, 400, 500,
+                       1000, 2000, 4000, 5000, 10000],
+            MONTHLY:  [1, 2, 3, 4, 6],
+            DAILY:    [1, 2, 3, 7, 14],
+            HOURLY:   [1, 2, 3, 4, 6, 12],
+            MINUTELY: [1, 5, 10, 15, 30],
+            SECONDLY: [1, 5, 10, 15, 30],
+            MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000,
+                            5000, 10000, 20000, 50000, 100000, 200000, 500000,
+                            1000000]}
         self._byranges = [None, range(1, 13), range(1, 32), range(0, 24),
                           range(0, 60), range(0, 60), None]
 
@@ -822,7 +821,7 @@ class AutoDateLocator(DateLocator):
 
     def _get_unit(self):
         if self._freq in [MICROSECONDLY]:
-            return 1./MUSECONDS_PER_DAY
+            return 1. / MUSECONDS_PER_DAY
         else:
             return RRuleLocator.get_unit_generic(self._freq)
 
@@ -842,8 +841,7 @@ class AutoDateLocator(DateLocator):
         numHours = (numDays * 24.0) + delta.hours
         numMinutes = (numHours * 60.0) + delta.minutes
         numSeconds = (numMinutes * 60.0) + delta.seconds
-        numMicroseconds = (numSeconds * 1e6) + \
-                          delta.microseconds
+        numMicroseconds = (numSeconds * 1e6) + delta.microseconds
 
         nums = [numYears, numMonths, numDays, numHours, numMinutes,
                 numSeconds, numMicroseconds]
@@ -1092,12 +1090,13 @@ class SecondLocator(RRuleLocator):
 
 class MicrosecondLocator(DateLocator):
     """
-    Make ticks on occurances of each second.
+    Make ticks on occurances of each microsecond.
+
     """
     def __init__(self, interval=1, tz=None):
         """
         *interval* is the interval between each iteration.  For
-        example, if ``interval=2``, mark every second miscrosecond.
+        example, if ``interval=2``, mark every second microsecond.
 
         """
         self._interval = interval
@@ -1129,7 +1128,7 @@ class MicrosecondLocator(DateLocator):
         Return how many days a unit of the locator is; used for
         intelligent autoscaling.
         """
-        return 1./MUSECONDS_PER_DAY
+        return 1. / MUSECONDS_PER_DAY
 
     def _get_interval(self):
         """
