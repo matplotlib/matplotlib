@@ -21,11 +21,13 @@ import sys
 import warnings
 
 import matplotlib
+import matplotlib.colorbar
 from matplotlib import _pylab_helpers, interactive
 from matplotlib.cbook import dedent, silent_list, is_string_like, is_numlike
 from matplotlib import docstring
-from matplotlib.figure import Figure, figaspect
 from matplotlib.backend_bases import FigureCanvasBase
+from matplotlib.figure import Figure, figaspect
+from matplotlib.gridspec import GridSpec
 from matplotlib.image import imread as _imread
 from matplotlib.image import imsave as _imsave
 from matplotlib import rcParams, rcParamsDefault, get_backend
@@ -212,11 +214,10 @@ def rcdefaults():
     matplotlib.rcdefaults()
     draw_if_interactive()
 
+
 # The current "image" (ScalarMappable) is retrieved or set
 # only via the pyplot interface using the following two
 # functions:
-
-
 def gci():
     """
     Get the current colorable artist.  Specifically, returns the
@@ -246,9 +247,7 @@ def sci(im):
 
 
 ## Any Artist ##
-
 # (getp is simply imported)
-
 @docstring.copy(_setp)
 def setp(*args, **kwargs):
     ret = _setp(*args, **kwargs)
@@ -303,8 +302,8 @@ def xkcd():
         raise
     return context
 
-## Figures ##
 
+## Figures ##
 
 def figure(num=None,  # autoincrement if None, else integer from 1-N
            figsize=None,  # defaults to rc figure.figsize
@@ -1099,7 +1098,6 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     return ret
 
 
-from gridspec import GridSpec
 def subplot2grid(shape, loc, rowspan=1, colspan=1, **kwargs):
     """
     Create a subplot in a grid.  The grid is specified by *shape*, at
@@ -2091,7 +2089,6 @@ def _setup_pyplot_info_docstrings():
 
 ## Plotting part 1: manually generated functions and wrappers ##
 
-import matplotlib.colorbar
 def colorbar(mappable=None, cax=None, ax=None, **kw):
     if mappable is None:
         mappable = gci()
