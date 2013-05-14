@@ -137,6 +137,10 @@ public:
 
     Py::Object hatchpath;
 
+    double sketch_scale;
+    double sketch_length;
+    double sketch_randomness;
+
 protected:
     agg::rgba get_color(const Py::Object& gc);
     double points_to_pixels(const Py::Object& points);
@@ -148,6 +152,7 @@ protected:
     void _set_antialiased(const Py::Object& gc);
     void _set_snap(const Py::Object& gc);
     void _set_hatch_path(const Py::Object& gc);
+    void _set_sketch_params(const Py::Object& gc);
 };
 
 

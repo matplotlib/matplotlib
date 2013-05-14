@@ -1052,12 +1052,15 @@ class rc_context(object):
     def __init__(self, rc=None, fname=None):
         self.rcdict = rc
         self.fname = fname
-    def __enter__(self):
         self._rcparams = rcParams.copy()
         if self.fname:
             rc_file(self.fname)
         if self.rcdict:
             rcParams.update(self.rcdict)
+
+    def __enter__(self):
+        return self
+
     def __exit__(self, type, value, tb):
         rcParams.update(self._rcparams)
 
@@ -1190,6 +1193,7 @@ default_test_modules = [
     'matplotlib.tests.test_mathtext',
     'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_patches',
+    'matplotlib.tests.test_patheffects',
     'matplotlib.tests.test_pickle',
     'matplotlib.tests.test_rcparams',
     'matplotlib.tests.test_scale',

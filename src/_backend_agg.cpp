@@ -205,6 +205,7 @@ GCAgg::GCAgg(const Py::Object &gc, double dpi) :
     _set_clip_path(gc);
     _set_snap(gc);
     _set_hatch_path(gc);
+    _set_sketch_params(gc);
 }
 
 
@@ -373,6 +374,24 @@ GCAgg::_set_hatch_path(const Py::Object& gc)
     hatchpath = method.apply(Py::Tuple());
     if (hatchpath.ptr() == NULL)
         throw Py::Exception();
+}
+
+void
+GCAgg::_set_sketch_params(const Py::Object& gc)
+{
+    _VERBOSE("GCAgg::_get_sketch_params");
+
+    Py::Object method_obj = gc.getAttr("get_sketch_params");
+    Py::Callable method(method_obj);
+    Py::Object result = method.apply(Py::Tuple());
+    if (result.ptr() == Py_None) {
+        sketch_scale = 0.0;
+    } else {
+        Py::Tuple sketch_params(result);
+        sketch_scale = Py::Float(sketch_params[0]);
+        sketch_length = Py::Float(sketch_params[1]);
+        sketch_randomness = Py::Float(sketch_params[2]);
+    }
 }
 
 
@@ -1397,6 +1416,7 @@ RendererAgg::draw_path(const Py::Tuple& args)
     typedef PathSnapper<clipped_t>             snapped_t;
     typedef PathSimplifier<snapped_t>          simplify_t;
     typedef agg::conv_curve<simplify_t>        curve_t;
+    typedef Sketch<curve_t>                    sketch_t;
 
     _VERBOSE("RendererAgg::draw_path");
     args.verify_length(3, 4);
@@ -1430,10 +1450,11 @@ RendererAgg::draw_path(const Py::Tuple& args)
     snapped_t          snapped(clipped, gc.snap_mode, path.total_vertices(), snapping_linewidth);
     simplify_t         simplified(snapped, simplify, path.simplify_threshold());
     curve_t            curve(simplified);
+    sketch_t           sketch(curve, gc.sketch_scale, gc.sketch_length, gc.sketch_randomness);
 
     try
     {
-        _draw_path(curve, has_clippath, face, gc);
+        _draw_path(sketch, has_clippath, face, gc);
     }
     catch (const char* e)
     {
@@ -2102,7 +2123,6 @@ RendererAgg::write_rgba(const Py::Tuple& args)
         if ((py_file = npy_PyFile_OpenFile(py_fileobj.ptr(), (char *)"wb")) == NULL) {
             throw Py::Exception();
         }
-        close_file = true;
     }
     else
     {
