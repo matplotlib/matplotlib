@@ -33,6 +33,13 @@ simply call `pyplot.xkcd` before creating your plot.
 .. plot:: mpl_examples/showcase/xkcd.py
 
 
+Changes to font rcParams
+------------------------
+The `font.*` rcParams now affect only text objects created after the
+rcParam has been set, and will not retroactively affect already
+existing text objects.  This brings their behavior in line with most
+other rcParams.
+
 ``axes.xmargin`` and ``axes.ymargin`` added to rcParams
 -------------------------------------------------------
 ``rcParam`` values (``axes.xmargin`` and ``axes.ymargin``) were added

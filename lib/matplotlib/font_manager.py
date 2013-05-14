@@ -808,11 +808,10 @@ class FontProperties(object):
         'fantasy', or 'monospace', or a real font name.
         """
         if family is None:
-            self._family = None
-        else:
-            if is_string_like(family):
-                family = [family]
-            self._family = family
+            family = rcParams['font.family']
+        if is_string_like(family):
+            family = [family]
+        self._family = family
     set_name = set_family
 
     def set_style(self, style):
@@ -820,6 +819,8 @@ class FontProperties(object):
         Set the font style.  Values are: 'normal', 'italic' or
         'oblique'.
         """
+        if style is None:
+            style = rcParams['font.style']
         if style not in ('normal', 'italic', 'oblique', None):
             raise ValueError("style must be normal, italic or oblique")
         self._slant = style
@@ -829,6 +830,8 @@ class FontProperties(object):
         """
         Set the font variant.  Values are: 'normal' or 'small-caps'.
         """
+        if variant is None:
+            variant = rcParams['font.variant']
         if variant not in ('normal', 'small-caps', None):
             raise ValueError("variant must be normal or small-caps")
         self._variant = variant
@@ -840,14 +843,15 @@ class FontProperties(object):
         'regular', 'book', 'medium', 'roman', 'semibold', 'demibold',
         'demi', 'bold', 'heavy', 'extra bold', 'black'
         """
-        if weight is not None:
-            try:
-                weight = int(weight)
-                if weight < 0 or weight > 1000:
-                    raise ValueError()
-            except ValueError:
-                if weight not in weight_dict:
-                    raise ValueError("weight is invalid")
+        if weight is None:
+            weight = rcParams['font.weight']
+        try:
+            weight = int(weight)
+            if weight < 0 or weight > 1000:
+                raise ValueError()
+        except ValueError:
+            if weight not in weight_dict:
+                raise ValueError("weight is invalid")
         self._weight = weight
 
     def set_stretch(self, stretch):
@@ -857,14 +861,15 @@ class FontProperties(object):
         'semi-expanded', 'expanded', 'extra-expanded' or
         'ultra-expanded', or a numeric value in the range 0-1000.
         """
-        if stretch is not None:
-            try:
-                stretch = int(stretch)
-                if stretch < 0 or stretch > 1000:
-                    raise ValueError()
-            except ValueError:
-                if stretch not in stretch_dict:
-                    raise ValueError("stretch is invalid")
+        if stretch is None:
+            stretch = rcParams['font.weight']
+        try:
+            stretch = int(stretch)
+            if stretch < 0 or stretch > 1000:
+                raise ValueError()
+        except ValueError:
+            if stretch not in stretch_dict:
+                raise ValueError("stretch is invalid")
         self._stretch = stretch
 
     def set_size(self, size):
@@ -873,12 +878,13 @@ class FontProperties(object):
         'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'
         or an absolute font size, e.g., 12.
         """
-        if size is not None:
-            try:
-                size = float(size)
-            except ValueError:
-                if size is not None and size not in font_scalings:
-                    raise ValueError("size is invalid")
+        if size is None:
+            size = rcParams['font.size']
+        try:
+            size = float(size)
+        except ValueError:
+            if size is not None and size not in font_scalings:
+                raise ValueError("size is invalid")
         self._size = size
 
     def set_file(self, file):
