@@ -24,14 +24,19 @@ new in matplotlib-1.3
 `xkcd`-style sketch plotting
 ----------------------------
 
-To gives your plots a sense of authority that they may be missing,
-Michael Droettboom (inspired by the work of many others in `issue
-#1329 <https://github.com/matplotlib/matplotlib/pull/1329>`_) has
-added an `xkcd-style <xkcd.com>`_ sketch plotting mode.  To use it,
-simply call `pyplot.xkcd` before creating your plot.
+To give your plots a sense of authority that they may be missing,
+Michael Droettboom (inspired by the work of many others in
+:ghpull:`1329`) has added an `xkcd-style <http://xkcd.com/>`_ sketch
+plotting mode.  To use it, simply call `pyplot.xkcd` before creating
+your plot.
 
 .. plot:: mpl_examples/showcase/xkcd.py
 
+Path effects on lines
+---------------------
+Thanks to Jae-Joon Lee, path effects now also work on plot lines.
+
+.. plot:: mpl_examples/pylab_examples/patheffect_demo.py
 
 Changes to font rcParams
 ------------------------
