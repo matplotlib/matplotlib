@@ -78,7 +78,8 @@ def test_suptitle():
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
                   extensions=['png', 'svg'],
-                  savefig_kwarg={'facecolor': (0, 1, 0.4), 'edgecolor': 'none'})
+                  savefig_kwarg={'facecolor': (0, 1, 0.4),
+                                 'edgecolor': 'none'})
 def test_alpha():
     # We want an image which has a background color and an
     # alpha of 0.4.
@@ -91,6 +92,7 @@ def test_alpha():
                                               radius=15,
                                               alpha=0.6,
                                               facecolor='red'))
+
 
 @cleanup
 def test_too_many_figures():

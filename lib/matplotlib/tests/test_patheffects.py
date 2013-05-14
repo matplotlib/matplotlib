@@ -9,7 +9,7 @@ from matplotlib.patheffects import (Normal, Stroke, withStroke,
 @image_comparison(baseline_images=['patheffect1'], remove_text=True)
 def test_patheffect1():
     ax1 = plt.subplot(111)
-    ax1.imshow([[1,2],[2,3]])
+    ax1.imshow([[1, 2], [2, 3]])
     txt = ax1.annotate("test", (1., 1.), (0., 0),
                        arrowprops=dict(arrowstyle="->",
                                        connectionstyle="angle3", lw=2),
@@ -31,13 +31,12 @@ def test_patheffect1():
 def test_patheffect2():
 
     ax2 = plt.subplot(111)
-    arr = np.arange(25).reshape((5,5))
+    arr = np.arange(25).reshape((5, 5))
     ax2.imshow(arr)
     cntr = ax2.contour(arr, colors="k")
 
     plt.setp(cntr.collections,
              path_effects=[withStroke(linewidth=3, foreground="w")])
-
 
     clbls = ax2.clabel(cntr, fmt="%2.0f", use_clabeltext=True)
     plt.setp(clbls,
@@ -51,3 +50,8 @@ def test_patheffect3():
     p1, = ax3.plot([0, 1], [0, 1])
     leg = ax3.legend([p1], ["Line 1"], fancybox=True, loc=2)
     leg.legendPatch.set_path_effects([withSimplePatchShadow()])
+
+
+if __name__ == '__main__':
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

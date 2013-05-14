@@ -188,7 +188,7 @@ class ScalarMappable:
         if norm is None:
             norm = colors.Normalize()
 
-        self._A = None;
+        self._A = None
         #: The Normalization instance of this ScalarMappable.
         self.norm = norm
         #: The Colormap instance of this ScalarMappable.
