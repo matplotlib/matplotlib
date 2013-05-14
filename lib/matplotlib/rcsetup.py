@@ -262,7 +262,7 @@ def validate_colorlist(s):
 
 def validate_stringlist(s):
     'return a list'
-    if type(s) is str:
+    if type(s) in (str, unicode):
         return [v.strip() for v in s.split(',')]
     else:
         assert type(s) in [list, tuple]
@@ -513,7 +513,7 @@ defaultParams = {
 
 
     ## font props
-    'font.family':     ['sans-serif', str],       # used by text object
+    'font.family':     ['sans-serif', validate_stringlist],  # used by text object
     'font.style':      ['normal', str],
     'font.variant':    ['normal', str],
     'font.stretch':    ['normal', str],
