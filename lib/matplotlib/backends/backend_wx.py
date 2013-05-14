@@ -1499,28 +1499,19 @@ class FigureFrameWx(wx.Frame):
         self.canvas.SetFocus()
         self.sizer =wx.BoxSizer(wx.VERTICAL)
         self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
-        # By adding toolbar in sizer, we are able to put it at the bottom
-        # of the frame - so appearance is closer to GTK version
 
         self.toolbar = self._get_toolbar(statbar)
 
         if self.toolbar is not None:
             self.toolbar.Realize()
-            if wx.Platform == '__WXMAC__':
-                # Mac platform (OSX 10.3, MacPython) does not seem to cope with
-                # having a toolbar in a sizer. This work-around gets the buttons
-                # back, but at the expense of having the toolbar at the top
-                self.SetToolBar(self.toolbar)
-            else:
-                # On Windows platform, default window size is incorrect, so set
-                # toolbar width to figure width.
-                tw, th = self.toolbar.GetSizeTuple()
-                fw, fh = self.canvas.GetSizeTuple()
-                # By adding toolbar in sizer, we are able to put it at the bottom
-                # of the frame - so appearance is closer to GTK version.
-                # As noted above, doesn't work for Mac.
-                self.toolbar.SetSize(wx.Size(fw, th))
-                self.sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
+            # On Windows platform, default window size is incorrect, so set
+            # toolbar width to figure width.
+            tw, th = self.toolbar.GetSizeTuple()
+            fw, fh = self.canvas.GetSizeTuple()
+            # By adding toolbar in sizer, we are able to put it at the bottom
+            # of the frame - so appearance is closer to GTK version.
+            self.toolbar.SetSize(wx.Size(fw, th))
+            self.sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
         self.SetSizer(self.sizer)
         self.Fit()
 
