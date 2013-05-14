@@ -22,8 +22,7 @@ class _Base(object):
         super(_Base, self).__init__()
 
     def get_proxy_renderer(self, renderer):
-        pe_renderer = ProxyRenderer(self, renderer)
-        return pe_renderer
+        return ProxyRenderer(self, renderer)
 
     def _update_gc(self, gc, new_gc_dict):
         new_gc_dict = new_gc_dict.copy()
@@ -95,7 +94,6 @@ class _Base(object):
             path, transform = path_id
             transform = transforms.Affine2D(transform.get_matrix()).translate(xo, yo)
             self.draw_path(renderer, gc0, path, transform, rgbFace)
-
 
     def draw_tex(self, renderer, gc, x, y, s, prop, angle, ismath='TeX!'):
         self._draw_text_as_path(renderer, gc, x, y, s, prop, angle, ismath="TeX")

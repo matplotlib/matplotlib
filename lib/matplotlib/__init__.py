@@ -1188,6 +1188,7 @@ default_test_modules = [
     'matplotlib.tests.test_mathtext',
     'matplotlib.tests.test_mlab',
     'matplotlib.tests.test_patches',
+    'matplotlib.tests.test_patheffects',
     'matplotlib.tests.test_pickle',
     'matplotlib.tests.test_rcparams',
     'matplotlib.tests.test_scale',

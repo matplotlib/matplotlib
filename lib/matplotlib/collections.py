@@ -264,7 +264,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             gc.set_sketch_params(*self.get_sketch_params())
 
         if self.get_path_effects():
-            #from patheffects import PathEffectsRenderer
             for pe in self.get_path_effects():
                 pe.draw_path_collection(renderer,
                     gc, transform.frozen(), paths, self.get_transforms(),
@@ -272,7 +271,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     self._linewidths, self._linestyles, self._antialiaseds, self._urls,
                     self._offset_position)
         else:
-
             renderer.draw_path_collection(
                 gc, transform.frozen(), paths, self.get_transforms(),
                 offsets, transOffset, self.get_facecolor(), self.get_edgecolor(),

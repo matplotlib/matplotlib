@@ -1007,14 +1007,20 @@ class GraphicsContextBase:
 
     def get_sketch_params(self):
         """
-        Returns the sketch parameters, which is a tuple with three elements:
+        Returns the sketch parameters for the artist.
 
-          * *scale*: The amplitude of the wiggle perpendicular to the
+        Returns
+        -------
+        sketch_params : tuple or `None`
+
+        A 3-tuple with the following elements:
+
+          * `scale`: The amplitude of the wiggle perpendicular to the
             source line.
 
-          * *length*: The length of the wiggle along the line.
+          * `length`: The length of the wiggle along the line.
 
-          * *randomness*: The scale factor by which the length is
+          * `randomness`: The scale factor by which the length is
             shrunken or expanded.
 
         May return `None` if no sketch parameters were set.
@@ -1023,18 +1029,23 @@ class GraphicsContextBase:
 
     def set_sketch_params(self, scale=None, length=None, randomness=None):
         """
-        Sets the the sketch parameters:
+        Sets the the sketch parameters.
 
-          * *scale*: The amplitude of the wiggle perpendicular to the
-            source line.
+        Parameters
+        ----------
 
-          * *length*: The length of the wiggle along the line, in
-             pixels.
+        scale : float, optional
+            The amplitude of the wiggle perpendicular to the source
+            line, in pixels.  If scale is `None`, or not provided, no
+            sketch filter will be provided.
 
-          * *randomness*: The scale factor by which the length is
-            shrunken or expanded, in pixels.
+        length : float, optional
+             The length of the wiggle along the line, in pixels
+             (default 128.0)
 
-        If *scale* is None, no wiggling will be set.
+        randomness : float, optional
+            The scale factor by which the length is shrunken or
+            expanded (default 16.0)
         """
         if scale is None:
             self._sketch = None
