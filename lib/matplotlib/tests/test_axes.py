@@ -1,5 +1,7 @@
+from nose.tools import assert_equal 
 import numpy as np
 from numpy import ma
+
 import matplotlib
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
@@ -1318,6 +1320,12 @@ def test_mixed_collection():
 
     ax.set_xlim(0, 16)
     ax.set_ylim(0, 16)
+
+@cleanup
+def test_subplot_key_hash():
+    ax = plt.subplot(np.float64(5.5), np.int64(1), np.float64(1.2))
+    ax.twinx()
+    assert_equal((5, 1, 0, None), ax.get_subplotspec().get_geometry())
 
 
 @image_comparison(baseline_images=['specgram_freqs'], remove_text=True,
