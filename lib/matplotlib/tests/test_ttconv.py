@@ -4,6 +4,7 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
 import os.path
 
+
 @image_comparison(baseline_images=["truetype-conversion"],
                   extensions=["pdf"])
 def test_truetype_conversion():

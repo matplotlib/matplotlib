@@ -23,7 +23,6 @@ class StandardReportWithExclusions(pep8.StandardReport):
         '*/matplotlib/bezier.py',
         '*/matplotlib/cbook.py',
         '*/matplotlib/collections.py',
-        '*/matplotlib/dates.py',
         '*/matplotlib/docstring.py',
         '*/matplotlib/dviread.py',
         '*/matplotlib/finance.py',
@@ -44,7 +43,6 @@ class StandardReportWithExclusions(pep8.StandardReport):
         '*/matplotlib/stackplot.py',
         '*/matplotlib/texmanager.py',
         '*/matplotlib/text.py',
-        '*/matplotlib/ticker.py',
         '*/matplotlib/transforms.py',
         '*/matplotlib/type1font.py',
         '*/matplotlib/widgets.py',
@@ -96,11 +94,9 @@ class StandardReportWithExclusions(pep8.StandardReport):
         '*/matplotlib/tests/test_streamplot.py',
         '*/matplotlib/tests/test_subplots.py',
         '*/matplotlib/tests/test_text.py',
-        '*/matplotlib/tests/test_ticker.py',
         '*/matplotlib/tests/test_tightlayout.py',
         '*/matplotlib/tests/test_transforms.py',
         '*/matplotlib/tests/test_triangulation.py',
-        '*/matplotlib/tests/test_ttconv.py',
         '*/matplotlib/compat/subprocess.py',
         '*/matplotlib/backends/__init__.py',
         '*/matplotlib/backends/backend_agg.py',
@@ -144,7 +140,7 @@ class StandardReportWithExclusions(pep8.StandardReport):
         '*/matplotlib/projections/geo.py',
         '*/matplotlib/projections/polar.py']
 
-    #; A class attribute to store patterns which have seen exceptions.
+    #: A class attribute to store patterns which have seen exceptions.
     matched_exclusions = set()
 
     def get_file_results(self):
@@ -191,6 +187,22 @@ def test_pep8_conformance():
     pep8style.options.ignore = pep8style.options.ignore + ('E121', 'E122',
                                     'E123', 'E124', 'E125', 'E126', 'E127',
                                     'E128')
+
+    # Support for egg shared object wrappers, which are not PEP8 compliant,
+    # nor part of the matplotlib repository.
+    # DO NOT ADD FILES *IN* THE REPOSITORY TO THIS LIST.
+    pep8style.options.exclude.extend(
+                ['_delaunay.py',
+                 '_image.py',
+                 '_tri.py',
+                 '_backend_agg.py',
+                 '_tkagg.py',
+                 'ft2font.py',
+                 '_cntr.py',
+                 '_png.py',
+                 '_path.py',
+                 'ttconv.py',
+                 'pyparsing*'])
 
     # Allow users to add their own exclude list.
     extra_exclude_file = os.path.join(os.path.dirname(__file__),
