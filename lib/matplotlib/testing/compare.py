@@ -296,12 +296,13 @@ def compare_images( expected, actual, tol, in_decorator=False ):
 
    # Convert the image to png
    extension = expected.split('.')[-1]
-   if extension != 'png':
-      actual = convert(actual, False)
-      expected = convert(expected, True)
 
    if not os.path.exists(expected):
        raise IOError('Baseline image %r does not exist.' % expected)
+
+   if extension != 'png':
+      actual = convert(actual, False)
+      expected = convert(expected, True)
 
    # open the image files and remove the alpha channel (if it exists)
    expectedImage = _png.read_png_int( expected )
