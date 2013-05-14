@@ -872,6 +872,10 @@ class GraphicsContextBase:
             specifies the on-off sequence as points.  ``(None, None)`` specifies a solid line
 
         """
+        if dash_list is not None:
+            dash_list = np.asarray(dash_list)
+            if np.any(dash_list <= 0.0):
+                raise ValueError("All values in the dash list must be positive")
         self._dashes = dash_offset, dash_list
 
     def set_foreground(self, fg, isRGB=False):
