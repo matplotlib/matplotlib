@@ -1418,7 +1418,7 @@ class Figure(Artist):
                 ax.patch.set_edgecolor(cc[1])
 
     @docstring.dedent_interpd
-    def colorbar(self, mappable, cax=None, ax=None, **kw):
+    def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True, **kw):
         """
         Create a colorbar for a ScalarMappable instance, *mappable*.
 
@@ -1427,7 +1427,10 @@ class Figure(Artist):
         """
         if ax is None:
             ax = self.gca()
-        use_gridspec = kw.pop("use_gridspec", True)
+
+        # Store the value of gca so that we can set it back later on.
+        current_ax = self.gca()
+
         if cax is None:
             if use_gridspec and isinstance(ax, SubplotBase):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
@@ -1436,7 +1439,7 @@ class Figure(Artist):
         cax.hold(True)
         cb = cbar.colorbar_factory(cax, mappable, **kw)
 
-        self.sca(ax)
+        self.sca(current_ax)
         return cb
 
     def subplots_adjust(self, *args, **kwargs):
@@ -1451,17 +1454,15 @@ class Figure(Artist):
 
         """
         self.subplotpars.update(*args, **kwargs)
-        import matplotlib.axes
         for ax in self.axes:
-            if not isinstance(ax, matplotlib.axes.SubplotBase):
+            if not isinstance(ax, SubplotBase):
                 # Check if sharing a subplots axis
                 if (ax._sharex is not None and
-                    isinstance(ax._sharex,
-                               matplotlib.axes.SubplotBase)):
+                    isinstance(ax._sharex, SubplotBase)):
                     ax._sharex.update_params()
                     ax.set_position(ax._sharex.figbox)
                 elif (ax._sharey is not None and
-                      isinstance(ax._sharey, matplotlib.axes.SubplotBase)):
+                      isinstance(ax._sharey, SubplotBase)):
                     ax._sharey.update_params()
                     ax.set_position(ax._sharey.figbox)
             else:

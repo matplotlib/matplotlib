@@ -35,6 +35,7 @@ import matplotlib.lines as lines
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
+import matplotlib.transforms as mtrans
 
 from matplotlib import docstring
 
@@ -52,7 +53,8 @@ make_axes_kw_doc = '''
     *anchor*      (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal;
                   the anchor point of the colorbar axes
     *panchor*     (1.0, 0.5) if vertical; (0.5, 0.0) if horizontal;
-                  the anchor point of the colorbar parent axes
+                  the anchor point of the colorbar parent axes. If
+                  False, the parent axes' anchor will be unchanged
     ============= ====================================================
 
 '''
@@ -149,8 +151,9 @@ keyword arguments:
   *cax*
     None | axes object into which the colorbar will be drawn
   *ax*
-    None | parent axes object from which space for a new
-    colorbar axes will be stolen
+    None | parent axes object(s) from which space for a new
+    colorbar axes will be stolen. If a list of axes is given
+    they will all be resized to make room for the colorbar axes.
   *use_gridspec*
     False | If *cax* is None, a new *cax* is created as an instance of
     Axes. If *ax* is an instance of Subplot and *use_gridspec* is True,
@@ -255,6 +258,7 @@ class ColorbarBase(cm.ScalarMappable):
                  values=None,
                  boundaries=None,
                  orientation='vertical',
+                 ticklocation='auto',
                  extend='neither',
                  spacing='uniform',  # uniform or proportional
                  ticks=None,
@@ -263,6 +267,7 @@ class ColorbarBase(cm.ScalarMappable):
                  filled=True,
                  extendfrac=None,
                  extendrect=False,
+                 label='',
                  ):
         self.ax = ax
         self._patch_ax()
@@ -287,7 +292,12 @@ class ColorbarBase(cm.ScalarMappable):
         self.outline = None
         self.patch = None
         self.dividers = None
-        self.set_label('')
+
+        if ticklocation == 'auto':
+            ticklocation = 'bottom' if orientation == 'horizontal' else 'right'
+        self.ticklocation = ticklocation
+
+        self.set_label(label)
         if cbook.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
@@ -336,11 +346,14 @@ class ColorbarBase(cm.ScalarMappable):
         ax = self.ax
         if self.orientation == 'vertical':
             ax.xaxis.set_ticks([])
-            ax.yaxis.set_label_position('right')
-            ax.yaxis.set_ticks_position('right')
+            # location is either one of 'bottom' or 'top'
+            ax.yaxis.set_label_position(self.ticklocation)
+            ax.yaxis.set_ticks_position(self.ticklocation)
         else:
             ax.yaxis.set_ticks([])
-            ax.xaxis.set_label_position('bottom')
+            # location is either one of 'left' or 'right'
+            ax.xaxis.set_label_position(self.ticklocation)
+            ax.xaxis.set_ticks_position(self.ticklocation)
 
         self._set_label()
 
@@ -835,11 +848,10 @@ class Colorbar(ColorbarBase):
 
     """
     def __init__(self, ax, mappable, **kw):
-        mappable.autoscale_None()  # Ensure mappable.norm.vmin, vmax
-                             # are set when colorbar is called,
-                             # even if mappable.draw has not yet
-                             # been called.  This will not change
-                             # vmin, vmax if they are already set.
+        # Ensure the given mappable's norm has appropriate vmin and vmax set
+        # even if mappable.draw has not yet been called.
+        mappable.autoscale_None()
+
         self.mappable = mappable
         kw['cmap'] = mappable.cmap
         kw['norm'] = mappable.norm
@@ -948,47 +960,118 @@ class Colorbar(ColorbarBase):
 
 
 @docstring.Substitution(make_axes_kw_doc)
-def make_axes(parent, **kw):
+def make_axes(parents, location=None, orientation=None, fraction=0.15,
+              shrink=1.0, aspect=20, **kw):
     '''
-    Resize and reposition a parent axes, and return a child
+    Resize and reposition parent axes, and return a child
     axes suitable for a colorbar::
 
         cax, kw = make_axes(parent, **kw)
 
     Keyword arguments may include the following (with defaults):
 
-        *orientation*
-            'vertical'  or 'horizontal'
+        *location*: [**None**|'left'|'right'|'top'|'bottom']
+            The position, relative to **parents**, where the colorbar axes
+            should be created. If None, the value will either come from the
+            given **orientation**, else it will default to 'right'.
+
+        *orientation*:  [**None**|'vertical'|'horizontal']
+            The orientation of the colorbar. Typically, this keyword shouldn't
+            be used, as it can be derived from the **location** keyword.
 
     %s
 
-    All but the first of these are stripped from the input kw set.
-
-    Returns (cax, kw), the child axes and the reduced kw dictionary.
+    Returns (cax, kw), the child axes and the reduced kw dictionary to be
+    passed when creating the colorbar instance.
     '''
-    orientation = kw.setdefault('orientation', 'vertical')
-    fraction = kw.pop('fraction', 0.15)
-    shrink = kw.pop('shrink', 1.0)
-    aspect = kw.pop('aspect', 20)
-    #pb = transforms.PBox(parent.get_position())
-    pb = parent.get_position(original=True).frozen()
-    if orientation == 'vertical':
-        pad = kw.pop('pad', 0.05)
-        x1 = 1.0 - fraction
-        pb1, pbx, pbcb = pb.splitx(x1 - pad, x1)
-        pbcb = pbcb.shrunk(1.0, shrink).anchored('C', pbcb)
-        anchor = kw.pop('anchor', (0.0, 0.5))
-        panchor = kw.pop('panchor', (1.0, 0.5))
+    locations = ["left", "right", "top", "bottom"]
+    if orientation is not None and location is not None:
+        raise TypeError('position and orientation are mutually exclusive. Consider ' \
+                        'setting the position to any of %s' % ', '.join(locations))
+
+    # provide a default location
+    if location is None and orientation is None:
+        location = 'right'
+
+    # allow the user to not specify the location by specifying the orientation instead
+    if location is None:
+        location = 'right' if orientation == 'vertical' else 'bottom'
+
+    if location not in locations:
+        raise ValueError('Invalid colorbar location. Must be one of %s' % ', '.join(locations))
+
+    default_location_settings = {'left':   {'anchor': (1.0, 0.5),
+                                            'panchor': (0.0, 0.5),
+                                            'pad': 0.10,
+                                            'orientation': 'vertical'},
+                                 'right':  {'anchor': (0.0, 0.5),
+                                            'panchor': (1.0, 0.5),
+                                            'pad': 0.05,
+                                            'orientation': 'vertical'},
+                                 'top':    {'anchor': (0.5, 0.0),
+                                            'panchor': (0.5, 1.0),
+                                            'pad': 0.05,
+                                            'orientation': 'horizontal'},
+                                 'bottom': {'anchor': (0.5, 1.0),
+                                            'panchor': (0.5, 0.0),
+                                            'pad': 0.15, # backwards compat
+                                            'orientation': 'horizontal'},
+                                 }
+
+    loc_settings = default_location_settings[location]
+
+    # put appropriate values into the kw dict for passing back to
+    # the Colorbar class
+    kw['orientation'] = loc_settings['orientation']
+    kw['ticklocation'] = location
+
+    anchor = kw.pop('anchor', loc_settings['anchor'])
+    parent_anchor = kw.pop('panchor', loc_settings['panchor'])
+    pad = kw.pop('pad', loc_settings['pad'])
+
+
+    # turn parents into a list if it is not already
+    if not isinstance(parents, (list, tuple)):
+        parents = [parents]
+
+    fig = parents[0].get_figure()
+    if not all(fig is ax.get_figure() for ax in parents):
+        raise ValueError('Unable to create a colorbar axes as not all ' + \
+                         'parents share the same figure.')
+
+    # take a bounding box around all of the given axes
+    parents_bbox = mtrans.Bbox.union([ax.get_position(original=True).frozen() \
+                                         for ax in parents])
+
+    pb = parents_bbox
+    if location in ('left', 'right'):
+        if location == 'left':
+            pbcb, _, pb1 = pb.splitx(fraction, fraction + pad)
+        else:
+            pb1, _, pbcb = pb.splitx(1 - fraction - pad, 1 - fraction)
+        pbcb = pbcb.shrunk(1.0, shrink).anchored(anchor, pbcb)
     else:
-        pad = kw.pop('pad', 0.15)
-        pbcb, pbx, pb1 = pb.splity(fraction, fraction + pad)
-        pbcb = pbcb.shrunk(shrink, 1.0).anchored('C', pbcb)
-        aspect = 1.0 / aspect
-        anchor = kw.pop('anchor', (0.5, 1.0))
-        panchor = kw.pop('panchor', (0.5, 0.0))
-    parent.set_position(pb1)
-    parent.set_anchor(panchor)
-    fig = parent.get_figure()
+        if location == 'bottom':
+            pbcb, _, pb1 = pb.splity(fraction, fraction + pad)
+        else:
+            pb1, _, pbcb  = pb.splity(1 - fraction - pad, 1 - fraction)
+        pbcb = pbcb.shrunk(shrink, 1.0).anchored(anchor, pbcb)
+
+        # define the aspect ratio in terms of y's per x rather than x's per y
+        aspect = 1.0/aspect
+
+    # define a transform which takes us from old axes coordinates to
+    # new axes coordinates
+    shrinking_trans = mtrans.BboxTransform(parents_bbox, pb1)
+
+    # transform each of the axes in parents using the new transform
+    for ax in parents:
+        new_posn = shrinking_trans.transform(ax.get_position())
+        new_posn = mtrans.Bbox(new_posn)
+        ax.set_position(new_posn)
+        if parent_anchor is not False:
+            ax.set_anchor(parent_anchor)
+
     cax = fig.add_axes(pbcb)
     cax.set_aspect(aspect, anchor=anchor, adjustable='box')
     return cax, kw
@@ -1000,6 +1083,9 @@ def make_axes_gridspec(parent, **kw):
     Resize and reposition a parent axes, and return a child axes
     suitable for a colorbar. This function is similar to
     make_axes. Prmary differences are
+
+     * *make_axes_gridspec* only handles the *orientation* keyword
+       and cannot handle the "location" keyword.
 
      * *make_axes_gridspec* should only be used with a subplot parent.
 
@@ -1018,16 +1104,19 @@ def make_axes_gridspec(parent, **kw):
     Keyword arguments may include the following (with defaults):
 
         *orientation*
-            'vertical'  or 'horizontal'
+            'vertical' or 'horizontal'
 
     %s
 
     All but the first of these are stripped from the input kw set.
 
-    Returns (cax, kw), the child axes and the reduced kw dictionary.
+    Returns (cax, kw), the child axes and the reduced kw dictionary to be
+    passed when creating the colorbar instance.
     '''
 
     orientation = kw.setdefault('orientation', 'vertical')
+    kw['ticklocation'] = 'auto'
+
     fraction = kw.pop('fraction', 0.15)
     shrink = kw.pop('shrink', 1.0)
     aspect = kw.pop('aspect', 20)
@@ -1139,11 +1228,8 @@ class ColorbarPatch(Colorbar):
 
             patch = mpatches.PathPatch(mpath.Path(xy),
                                        facecolor=self.cmap(self.norm(val)),
-                                       hatch=hatch,
-                                       edgecolor='none', linewidth=0,
-                                       antialiased=False, **kw
-                                       )
-
+                                       hatch=hatch, linewidth=0,
+                                       antialiased=False, **kw)
             self.ax.add_patch(patch)
             patches.append(patch)
 
@@ -1158,12 +1244,9 @@ class ColorbarPatch(Colorbar):
             self.dividers = None
 
         if self.drawedges:
-            self.dividers = collections.LineCollection(
-                                    self._edges(X, Y),
-                                    colors=(mpl.rcParams['axes.edgecolor'],),
-                                    linewidths=(
-                                        0.5 * mpl.rcParams['axes.linewidth'],)
-                                    )
+            self.dividers = collections.LineCollection(self._edges(X, Y),
+                    colors=(mpl.rcParams['axes.edgecolor'],),
+                    linewidths=(0.5 * mpl.rcParams['axes.linewidth'],))
             self.ax.add_collection(self.dividers)
 
         self.ax.hold(_hold)
