@@ -1,14 +1,17 @@
 from __future__ import print_function
 
+import copy
+
+
 import numpy as np
 
-from matplotlib.testing.decorators import cleanup
 
 import matplotlib.pyplot as plt
-
 import matplotlib.patches as mpatches
+import matplotlib.path as mpath
 import matplotlib.transforms as mtrans
 import matplotlib.collections as mcollections
+from matplotlib.testing.decorators import image_comparison, cleanup
 
 
 @cleanup
@@ -88,19 +91,49 @@ def test_collection_transform_of_none():
                                      alpha=0.5)
     ax.add_collection(c)
     assert isinstance(c._transOffset, mtrans.IdentityTransform)
-    
+
 
 def test_point_in_path():
-    from matplotlib.path import Path
-
     # Test #1787
     verts2 = [(0,0), (0,1), (1,1), (1,0), (0,0)]
 
-    path = Path(verts2, closed=True)
+    path = mpath.Path(verts2, closed=True)
     points = [(0.5,0.5), (1.5,0.5)]
 
-    assert np.all(path.contains_points(points) == [True, False])
+    assert np.all(path.contains_points(points) == [True, False]) 
 
+
+@image_comparison(baseline_images=["clip_path_clipping"], remove_text=True)
+def test_clipping():
+    exterior = mpath.Path.unit_rectangle()
+    exterior = mpath.Path(copy.deepcopy(exterior.vertices),
+                          copy.deepcopy(exterior.codes[:]))
+    exterior.vertices *= 4
+    exterior.vertices -= 2
+    interior = mpath.Path.unit_circle()
+    interior.vertices = interior.vertices[::-1]
+    clip_path = mpath.Path(vertices=np.concatenate([exterior.vertices,
+                                                    interior.vertices]),
+                           codes=np.concatenate([exterior.codes,
+                                                 interior.codes]))
+
+    star = mpath.Path.unit_regular_star(6)
+    star.vertices *= 2.6
+
+    ax1 = plt.subplot(121)
+    col = mcollections.PathCollection([star], lw=5, edgecolor='blue',
+                                      facecolor='red', alpha=0.7, hatch='*')
+    col.set_clip_path(clip_path, ax1.transData)
+    ax1.add_collection(col)
+    
+    ax2 = plt.subplot(122, sharex=ax1, sharey=ax1)
+    patch = mpatches.PathPatch(star, lw=5, edgecolor='blue', facecolor='red',
+                               alpha=0.7, hatch='*')
+    patch.set_clip_path(clip_path, ax2.transData)
+    ax2.add_patch(patch)
+
+    ax1.set_xlim([-3, 3])
+    ax1.set_ylim([-3, 3])
 
 
 if __name__=='__main__':
