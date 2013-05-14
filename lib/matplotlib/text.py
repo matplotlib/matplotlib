@@ -179,7 +179,6 @@ class Text(Artist):
         elif is_string_like(fontproperties):
             fontproperties = FontProperties(fontproperties)
 
-        self.set_path_effects(path_effects)
         self.set_text(text)
         self.set_color(color)
         self._verticalalignment = verticalalignment
@@ -448,12 +447,6 @@ class Text(Artist):
         ret = bbox, zip(lines, whs, xs, ys)
         self.cached[key] = ret
         return ret
-
-    def set_path_effects(self, path_effects):
-        self._path_effects = path_effects
-
-    def get_path_effects(self):
-        return self._path_effects
 
     def set_bbox(self, rectprops):
         """

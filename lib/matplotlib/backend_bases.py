@@ -701,6 +701,7 @@ class GraphicsContextBase:
         self._url = None
         self._gid = None
         self._snap = None
+        self._sketch = None
 
     def copy_properties(self, gc):
         'Copy properties from gc to self'
@@ -720,6 +721,7 @@ class GraphicsContextBase:
         self._url = gc._url
         self._gid = gc._gid
         self._snap = gc._snap
+        self._sketch = gc._sketch
 
     def restore(self):
         """
@@ -1002,6 +1004,53 @@ class GraphicsContextBase:
         if self._hatch is None:
             return None
         return Path.hatch(self._hatch, density)
+
+    def get_sketch_params(self):
+        """
+        Returns the sketch parameters for the artist.
+
+        Returns
+        -------
+        sketch_params : tuple or `None`
+
+        A 3-tuple with the following elements:
+
+          * `scale`: The amplitude of the wiggle perpendicular to the
+            source line.
+
+          * `length`: The length of the wiggle along the line.
+
+          * `randomness`: The scale factor by which the length is
+            shrunken or expanded.
+
+        May return `None` if no sketch parameters were set.
+        """
+        return self._sketch
+
+    def set_sketch_params(self, scale=None, length=None, randomness=None):
+        """
+        Sets the the sketch parameters.
+
+        Parameters
+        ----------
+
+        scale : float, optional
+            The amplitude of the wiggle perpendicular to the source
+            line, in pixels.  If scale is `None`, or not provided, no
+            sketch filter will be provided.
+
+        length : float, optional
+             The length of the wiggle along the line, in pixels
+             (default 128.0)
+
+        randomness : float, optional
+            The scale factor by which the length is shrunken or
+            expanded (default 16.0)
+        """
+        if scale is None:
+            self._sketch = None
+        else:
+            self._sketch = (scale, length or 128.0, randomness or 16.0)
 
 
 class TimerBase(object):
@@ -1937,7 +1986,7 @@ class FigureCanvasBase(object):
 
             *quality*: The image quality, on a scale from 1 (worst) to
                 95 (best). The default is 95, if not given in the
-                matplotlibrc file in the savefig.jpeg_quality parameter. 
+                matplotlibrc file in the savefig.jpeg_quality parameter.
                 Values above 95 should be avoided; 100 completely
                 disables the JPEG quantization stage.
 
@@ -1957,7 +2006,7 @@ class FigureCanvasBase(object):
             options = cbook.restrict_dict(kwargs, ['quality', 'optimize',
                                                    'progressive'])
 
-            if 'quality' not in options: 
+            if 'quality' not in options:
                 options['quality'] = rcParams['savefig.jpeg_quality']
 
             return image.save(filename_or_obj, format='jpeg', **options)
