@@ -279,7 +279,8 @@ def xkcd():
         fig2 = plt.figure()
     """
     if rcParams['text.usetex']:
-        raise RuntimeError("xkcd mode is not compatible with text.usetex = True")
+        raise RuntimeError(
+            "xkcd mode is not compatible with text.usetex = True")
 
     from matplotlib import patheffects
     context = rc_context()
