@@ -101,7 +101,8 @@ backend      : %(backend)s
 # 'sans-serif' (e.g., Helvetica), 'cursive' (e.g., Zapf-Chancery),
 # 'fantasy' (e.g., Western), and 'monospace' (e.g., Courier).  Each of
 # these font families has a default list of font names in decreasing
-# order of priority associated with them.
+# order of priority associated with them.  When text.usetex is False,
+# font.family may also be one or more concrete font names.
 #
 # The font.style property has three values: normal (or roman), italic
 # or oblique.  The oblique style will be used for italic, if it is not
