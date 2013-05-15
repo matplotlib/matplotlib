@@ -15,6 +15,22 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* `Path` objects can now be marked as `readonly` by passing
+  `readonly=True` to its constructor.  The built-in path singletons,
+  obtained through `Path.unit*` class methods return readonly paths.
+  If you have code that modified these, you will need to make a
+  deepcopy first, using either::
+
+    import copy
+    path = copy.deepcopy(Path.unit_circle())
+
+    # or
+
+    path = Path.unit_circle().deepcopy()
+
+  Deep copying a `Path` always creates an editable (i.e. non-readonly)
+  `Path`.
+
 * The `font.*` rcParams now affect only text objects created after the
   rcParam has been set, and will not retroactively affect already
   existing text objects.  This brings their behavior in line with most
