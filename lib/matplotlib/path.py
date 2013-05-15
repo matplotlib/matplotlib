@@ -156,6 +156,9 @@ class Path(object):
 
     @property
     def vertices(self):
+        """
+        The list of vertices in the `Path` as an Nx2 numpy array.
+        """
         return self._vertices
 
     @vertices.setter
@@ -167,6 +170,14 @@ class Path(object):
 
     @property
     def codes(self):
+        """
+        The list of codes in the `Path` as a 1-D numpy array.  Each
+        code is one of `STOP`, `MOVETO`, `LINETO`, `CURVE3`, `CURVE4`
+        or `CLOSEPOLY`.  For codes that correspond to more than one
+        vertex (`CURVE3` and `CURVE4`), that code will be repeated so
+        that the length of `self.vertices` and `self.codes` is always
+        the same.
+        """
         return self._codes
 
     @codes.setter
@@ -178,27 +189,56 @@ class Path(object):
 
     @property
     def simplify_threshold(self):
+        """
+        The fraction of a pixel difference below which vertices will
+        be simplified out.
+        """
         return self._simplify_threshold
+
+    @simplify_threshold.setter
+    def simplify_threshold(self, threshold):
+        self._simplify_threshold = threshold
 
     @property
     def has_nonfinite(self):
+        """
+        `True` if the vertices array has nonfinite values.
+        """
         return self._has_nonfinite
 
     @property
     def should_simplify(self):
+        """
+        `True` if the vertices array should be simplified.
+        """
         return self._should_simplify
+
+    @should_simplify.setter
+    def should_simplify(self, should_simplify):
+        self._should_simplify = should_simplify
 
     @property
     def readonly(self):
+        """
+        `True` if the `Path` is read-only.
+        """
         return self._readonly
 
     def __copy__(self):
+        """
+        Returns a shallow copy of the `Path`, which will share the
+        vertices and codes with the source `Path`.
+        """
         import copy
         return copy.copy(self)
 
     copy = __copy__
 
     def __deepcopy__(self):
+        """
+        Returns a deepcopy of the `Path`.  The `Path` will not be
+        readonly, even if the source `Path` is.
+        """
         return self.__class__(
             self.vertices.copy(), self.codes.copy(),
             _interpolation_steps=self._interpolation_steps)
