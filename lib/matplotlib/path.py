@@ -1,5 +1,15 @@
 """
-Contains a class for managing paths (polylines).
+A module for dealing with the polylines used throughout matplotlib.
+
+The primary class for polyline handling in matplotlib is :class:`Path`.
+Almost all vector drawing makes use of Paths somewhere in the drawing
+pipeline.
+
+Whilst a :class:`Path` instance itself cannot be drawn, there exists
+:class:`~matplotlib.artist.Artist` subclasses which can be used for
+convenient Path visualisation - the two most frequently used of these are
+:class:`~matplotlib.patches.PathPatch` and
+:class:`~matplotlib.collections.PathCollection`.
 """
 
 from __future__ import print_function
@@ -53,9 +63,9 @@ class Path(object):
 
     Users of Path objects should not access the vertices and codes
     arrays directly.  Instead, they should use :meth:`iter_segments`
-    to get the vertex/code pairs.  This is important, since many
-    :class:`Path` objects, as an optimization, do not store a *codes*
-    at all, but have a default one provided for them by
+    or :meth:`cleaned` to get the vertex/code pairs.  This is important,
+    since many :class:`Path` objects, as an optimization, do not store a
+    *codes* at all, but have a default one provided for them by
     :meth:`iter_segments`.
 
     .. note::
@@ -73,12 +83,16 @@ class Path(object):
     LINETO    = 2    # 1 vertex
     CURVE3    = 3    # 2 vertices
     CURVE4    = 4    # 3 vertices
-    CLOSEPOLY = 0x4f # 1 vertex
+    CLOSEPOLY = 79   # 1 vertex
 
-    NUM_VERTICES = [1, 1, 1, 2,
-                    3, 1, 1, 1,
-                    1, 1, 1, 1,
-                    1, 1, 1, 1]
+    #: A dictionary mapping Path codes to the number of vertices that the
+    #: code expects.
+    NUM_VERTICES_FOR_CODE = {STOP: 1,
+                             MOVETO: 1,
+                             LINETO: 1,
+                             CURVE3: 2,
+                             CURVE4: 3,
+                             CLOSEPOLY: 1}
 
     code_type = np.uint8
 
@@ -87,29 +101,31 @@ class Path(object):
         """
         Create a new path with the given vertices and codes.
 
-        *vertices* is an Nx2 numpy float array, masked array or Python
-        sequence.
+        Parameters
+        ----------
+        vertices : array_like
+            The ``(n, 2)`` float array, masked array or sequence of pairs
+            representing the vertices of the path.
 
-        *codes* is an N-length numpy array or Python sequence of type
-        :attr:`matplotlib.path.Path.code_type`.
-
-        These two arrays must have the same length in the first
-        dimension.
-
-        If *codes* is None, *vertices* will be treated as a series of
-        line segments.
-
-        If *vertices* contains masked values, they will be converted
-        to NaNs which are then handled correctly by the Agg
-        PathIterator and other consumers of path data, such as
-        :meth:`iter_segments`.
-
-        *interpolation_steps* is used as a hint to certain projections,
-        such as Polar, that this path should be linearly interpolated
-        immediately before drawing.  This attribute is primarily an
-        implementation detail and is not intended for public use.
-
-        *readonly*, when True, makes the path immutable.
+            If *vertices* contains masked values, they will be converted
+            to NaNs which are then handled correctly by the Agg
+            PathIterator and other consumers of path data, such as
+            :meth:`iter_segments`.
+        codes : {None, array_like}, optional
+            n-length array integers representing the codes of the path.
+            If not None, codes must be the same length as vertices.
+            If None, *vertices* will be treated as a series of line segments.
+        _interpolation_steps : int, optional
+            Used as a hint to certain projections, such as Polar, that this
+            path should be linearly interpolated immediately before drawing.
+            This attribute is primarily an implementation detail and is not
+            intended for public use.
+        closed : bool, optional
+            If *codes* is None and closed is True, vertices will be treated as
+            line segments of a closed polygon.
+        readonly : bool, optional
+            Makes the path behave in an immutable way and sets the vertices
+            and codes as read-only arrays.
         """
         if ma.isMaskedArray(vertices):
             vertices = vertices.astype(np.float_).filled(np.nan)
@@ -143,6 +159,37 @@ class Path(object):
             self._readonly = True
         else:
             self._readonly = False
+
+    @classmethod
+    def _fast_from_codes_and_verts(cls, verts, codes, internals=None):
+        """
+        Creates a Path instance without the expense of calling the constructor
+
+        Use this method at your own risk...
+
+        Parameters
+        ----------
+        verts : numpy array
+        codes : numpy array (may not be None)
+        internals : dict or None
+            The attributes that the resulting path should have.
+
+        """
+        internals = internals or {}
+        pth = cls.__new__(cls)
+        pth._vertices = verts
+        pth._codes = codes
+        pth._readonly = internals.pop('_readonly', False)
+        pth._should_simplify = internals.pop('_should_simplify', True)
+        pth._simplify_threshold = internals.pop('_simplify_threshold',
+                                          rcParams['path.simplify_threshold'])
+        pth._has_nonfinite = internals.pop('_has_nonfinite', False)
+        pth._interpolation_steps = internals.pop('_interpolation_steps', 1)
+        if internals:
+            raise ValueError('Unexpected internals provided to '
+                             '_fast_from_codes_and_verts: '
+                             '{0}'.format('\n *'.join(internals.keys())))
+        return pth
 
     def _update_values(self):
         self._should_simplify = (
@@ -246,7 +293,7 @@ class Path(object):
     @classmethod
     def make_compound_path_from_polys(cls, XY):
         """
-        (static method) Make a compound path object to draw a number
+        Make a compound path object to draw a number
         of polygons with equal numbers of sides XY is a (numpolys x
         numsides x 2) numpy array of vertices.  Return object is a
         :class:`Path`
@@ -273,10 +320,7 @@ class Path(object):
 
     @classmethod
     def make_compound_path(cls, *args):
-        """
-        (staticmethod) Make a compound path from a list of Path
-        objects.
-        """
+        """Make a compound path from a list of Path objects."""
         lengths = [len(x) for x in args]
         total_length = sum(lengths)
 
@@ -313,52 +357,53 @@ class Path(object):
         Additionally, this method can provide a number of standard
         cleanups and conversions to the path.
 
-        *transform*: if not None, the given affine transformation will
-         be applied to the path.
-
-        *remove_nans*: if True, will remove all NaNs from the path and
-         insert MOVETO commands to skip over them.
-
-        *clip*: if not None, must be a four-tuple (x1, y1, x2, y2)
-         defining a rectangle in which to clip the path.
-
-        *snap*: if None, auto-snap to pixels, to reduce
-         fuzziness of rectilinear lines.  If True, force snapping, and
-         if False, don't snap.
-
-        *stroke_width*: the width of the stroke being drawn.  Needed
-         as a hint for the snapping algorithm.
-
-        *simplify*: if True, perform simplification, to remove
-         vertices that do not affect the appearance of the path.  If
-         False, perform no simplification.  If None, use the
-         should_simplify member variable.
-
-        *curves*: If True, curve segments will be returned as curve
-         segments.  If False, all curves will be converted to line
-         segments.
-
-        *sketch*: If not None, must be a 3-tuple of the form
-         (scale, length, randomness), representing the sketch
-         parameters.
+        Parameters
+        ----------
+        transform : None or :class:`~matplotlib.transforms.Transform` instance
+            If not None, the given affine transformation will
+            be applied to the path.
+        remove_nans : {False, True}, optional
+            If True, will remove all NaNs from the path and
+            insert MOVETO commands to skip over them.
+        clip : None or sequence, optional
+            If not None, must be a four-tuple (x1, y1, x2, y2)
+            defining a rectangle in which to clip the path.
+        snap : None or bool, optional
+            If None, auto-snap to pixels, to reduce
+            fuzziness of rectilinear lines.  If True, force snapping, and
+            if False, don't snap.
+        stroke_width : float, optional
+            The width of the stroke being drawn.  Needed
+             as a hint for the snapping algorithm.
+        simplify : None or bool, optional
+            If True, perform simplification, to remove
+             vertices that do not affect the appearance of the path.  If
+             False, perform no simplification.  If None, use the
+             should_simplify member variable.
+        curves : {True, False}, optional
+            If True, curve segments will be returned as curve
+            segments.  If False, all curves will be converted to line
+            segments.
+        sketch : None or sequence, optional
+            If not None, must be a 3-tuple of the form
+            (scale, length, randomness), representing the sketch
+            parameters.
         """
-        vertices = self.vertices
-        if not len(vertices):
+        if not len(self):
             return
 
-        codes        = self.codes
+        cleaned = self.cleaned(transform=transform,
+                               remove_nans=remove_nans, clip=clip,
+                               snap=snap, stroke_width=stroke_width,
+                               simplify=simplify, curves=curves,
+                               sketch=sketch)
+        vertices = cleaned.vertices
+        codes = cleaned.codes
+        len_vertices = vertices.shape[0]
 
-        NUM_VERTICES = self.NUM_VERTICES
-        MOVETO       = self.MOVETO
-        LINETO       = self.LINETO
-        CLOSEPOLY    = self.CLOSEPOLY
-        STOP         = self.STOP
-
-        vertices, codes = _path.cleanup_path(
-            self, transform, remove_nans, clip,
-            snap, stroke_width, simplify, curves,
-            sketch)
-        len_vertices = len(vertices)
+        # Cache these object lookups for performance in the loop.
+        NUM_VERTICES_FOR_CODE = self.NUM_VERTICES_FOR_CODE
+        STOP = self.STOP
 
         i = 0
         while i < len_vertices:
@@ -366,10 +411,32 @@ class Path(object):
             if code == STOP:
                 return
             else:
-                num_vertices = NUM_VERTICES[int(code) & 0xf]
+                num_vertices = NUM_VERTICES_FOR_CODE[code]
                 curr_vertices = vertices[i:i+num_vertices].flatten()
                 yield curr_vertices, code
                 i += num_vertices
+
+    def cleaned(self, transform=None, remove_nans=False, clip=None,
+                  quantize=False, simplify=False, curves=False,
+                  stroke_width=1.0, snap=False, sketch=None):
+        """
+        Cleans up the path according to the parameters returning a new
+        Path instance.
+
+        .. seealso::
+
+            See :meth:`iter_segments` for details of the keyword arguments.
+
+        Returns
+        -------
+        Path instance with cleaned up vertices and codes.
+
+        """
+        vertices, codes = cleanup_path(self, transform,
+                                       remove_nans, clip,
+                                       snap, stroke_width,
+                                       simplify, curves, sketch)
+        return Path._fast_from_codes_and_verts(vertices, codes)
 
     def transformed(self, transform):
         """
@@ -519,7 +586,7 @@ class Path(object):
     @classmethod
     def unit_rectangle(cls):
         """
-        (staticmethod) Returns a :class:`Path` of the unit rectangle
+        Return a :class:`Path` instance of the unit rectangle
         from (0, 0) to (1, 1).
         """
         if cls._unit_rectangle is None:
@@ -534,7 +601,7 @@ class Path(object):
     @classmethod
     def unit_regular_polygon(cls, numVertices):
         """
-        (staticmethod) Returns a :class:`Path` for a unit regular
+        Return a :class:`Path` instance for a unit regular
         polygon with the given *numVertices* and radius of 1.0,
         centered at (0, 0).
         """
@@ -563,7 +630,7 @@ class Path(object):
     @classmethod
     def unit_regular_star(cls, numVertices, innerCircle=0.5):
         """
-        (staticmethod) Returns a :class:`Path` for a unit regular star
+        Return a :class:`Path` for a unit regular star
         with the given numVertices and radius of 1.0, centered at (0,
         0).
         """
@@ -592,7 +659,7 @@ class Path(object):
     @classmethod
     def unit_regular_asterisk(cls, numVertices):
         """
-        (staticmethod) Returns a :class:`Path` for a unit regular
+        Return a :class:`Path` for a unit regular
         asterisk with the given numVertices and radius of 1.0,
         centered at (0, 0).
         """
@@ -603,7 +670,7 @@ class Path(object):
     @classmethod
     def unit_circle(cls):
         """
-        (staticmethod) Returns a :class:`Path` of the unit circle.
+        Return a :class:`Path` of the unit circle.
         The circle is approximated using cubic Bezier curves.  This
         uses 8 splines around the circle using the approach presented
         here:
@@ -666,7 +733,7 @@ class Path(object):
     @classmethod
     def unit_circle_righthalf(cls):
         """
-        (staticmethod) Returns a :class:`Path` of the right half
+        Return a :class:`Path` of the right half
         of a unit circle. The circle is approximated using cubic Bezier
         curves.  This uses 4 splines around the circle using the approach
         presented here:
@@ -712,7 +779,7 @@ class Path(object):
     @classmethod
     def arc(cls, theta1, theta2, n=None, is_wedge=False):
         """
-        (staticmethod) Returns an arc on the unit circle from angle
+        Return an arc on the unit circle from angle
         *theta1* to angle *theta2* (in degrees).
 
         If *n* is provided, it is the number of spline segments to make.
@@ -790,7 +857,7 @@ class Path(object):
     @classmethod
     def wedge(cls, theta1, theta2, n=None):
         """
-        (staticmethod) Returns a wedge of the unit circle from angle
+        Return a wedge of the unit circle from angle
         *theta1* to angle *theta2* (in degrees).
 
         If *n* is provided, it is the number of spline segments to make.
