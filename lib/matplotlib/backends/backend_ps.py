@@ -659,7 +659,7 @@ grestore
         color = '%1.3f,%1.3f,%1.3f'% gc.get_rgb()[:3]
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
                'monospace'  : r'{\ttfamily %s}'}.get(
-                rcParams['font.family'], r'{\rmfamily %s}')
+                rcParams['font.family'][0], r'{\rmfamily %s}')
         s = fontcmd % s
         tex = r'\color[rgb]{%s} %s' % (color, s)
 

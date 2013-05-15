@@ -278,11 +278,13 @@ def xkcd():
         # This figure will be in regular style
         fig2 = plt.figure()
     """
+    if rcParams['text.usetex']:
+        raise RuntimeError("xkcd mode is not compatible with text.usetex = True")
+
     from matplotlib import patheffects
     context = rc_context()
     try:
-        rcParams['text.usetex'] = False
-        rcParams['font.family'] = 'Humor Sans'
+        rcParams['font.family'] = ['Humor Sans', 'Comic Sans MS']
         rcParams['font.size'] = 14.0
         rcParams['path.sketch'] = (1, 100, 2)
         rcParams['path.effects'] = [
