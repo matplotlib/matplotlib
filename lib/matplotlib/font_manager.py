@@ -862,7 +862,7 @@ class FontProperties(object):
         'ultra-expanded', or a numeric value in the range 0-1000.
         """
         if stretch is None:
-            stretch = rcParams['font.weight']
+            stretch = rcParams['font.stretch']
         try:
             stretch = int(stretch)
             if stretch < 0 or stretch > 1000:
