@@ -166,13 +166,15 @@ Could not rename old TeX cache dir "%s": a suitable configuration
                  'available'))
 
         mkdirs(self.texcache)
-        ff = rcParams['font.family'].lower()
-        if ff in self.font_families:
-            self.font_family = ff
+        ff = rcParams['font.family']
+        if len(ff) == 1 and ff[0].lower() in self.font_families:
+            self.font_family = ff[0].lower()
         else:
-            mpl.verbose.report('The %s font family is not compatible with '
-                               'LaTeX. serif will be used by default.' % ff,
-                               'helpful')
+            mpl.verbose.report(
+                'font.family must be one of (%s) when text.usetex is True. '
+                'serif will be used by default.' %
+                   ', '.join(self.font_families),
+                'helpful')
             self.font_family = 'serif'
 
         fontconfig = [self.font_family]

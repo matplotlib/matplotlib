@@ -805,7 +805,9 @@ class FontProperties(object):
         """
         Change the font family.  May be either an alias (generic name
         is CSS parlance), such as: 'serif', 'sans-serif', 'cursive',
-        'fantasy', or 'monospace', or a real font name.
+        'fantasy', or 'monospace', a real font name or a list of real
+        font names.  Real font names are not supported when
+        `text.usetex` is `True`.
         """
         if family is None:
             family = rcParams['font.family']
@@ -1064,9 +1066,12 @@ class FontManager:
                 options = [x.lower() for x in options]
                 if family2 in options:
                     idx = options.index(family2)
-                    return 0.1 * (float(idx) / len(options))
+                    return ((0.1 * (float(idx) / len(options))) *
+                            (float(i) / float(len(families))))
             elif family1 == family2:
-                return 0.0
+                # The score should be weighted by where in the
+                # list the font was found.
+                return float(i) / float(len(families))
         return 1.0
 
     def score_style(self, style1, style2):
