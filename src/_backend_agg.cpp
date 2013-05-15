@@ -1253,8 +1253,22 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
         agg::span_allocator<agg::rgba8> sa;
         img_source_type img_src(hatch_img_pixf);
         span_gen_type sg(img_src, 0, 0);
-        theRasterizer.add_path(path);
-        agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, sa, sg);
+        try {
+            theRasterizer.add_path(path);
+        } catch (std::overflow_error &e) {
+            throw Py::OverflowError(e.what());
+        }
+
+        if (has_clippath)
+        {
+           pixfmt_amask_type pfa(pixFmt, alphaMask);
+           amask_ren_type ren(pfa);
+           agg::render_scanlines_aa(theRasterizer, slineP8, ren, sa, sg);
+        }
+        else
+        {
+           agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, sa, sg);
+        } 
     }
 
     // Render stroke
