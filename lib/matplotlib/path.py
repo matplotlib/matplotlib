@@ -84,7 +84,8 @@ class Path(object):
 
     code_type = np.uint8
 
-    def __init__(self, vertices, codes=None, _interpolation_steps=1, closed=False):
+    def __init__(self, vertices, codes=None, _interpolation_steps=1, closed=False,
+                 readonly=False):
         """
         Create a new path with the given vertices and codes.
 
@@ -109,6 +110,8 @@ class Path(object):
         such as Polar, that this path should be linearly interpolated
         immediately before drawing.  This attribute is primarily an
         implementation detail and is not intended for public use.
+
+        *readonly*, when True, makes the path immutable.
         """
         if ma.isMaskedArray(vertices):
             vertices = vertices.astype(np.float_).filled(np.nan)
@@ -130,14 +133,77 @@ class Path(object):
         assert vertices.ndim == 2
         assert vertices.shape[1] == 2
 
-        self.should_simplify = (rcParams['path.simplify'] and
-                                (len(vertices) >= 128 and
-                                 (codes is None or np.all(codes <= Path.LINETO))))
-        self.simplify_threshold = rcParams['path.simplify_threshold']
-        self.has_nonfinite = not np.isfinite(vertices).all()
-        self.codes = codes
-        self.vertices = vertices
+        self._vertices = vertices
+        self._codes = codes
         self._interpolation_steps = _interpolation_steps
+        self._update_values()
+
+        if readonly:
+            self._vertices.flags.writeable = False
+            if self._codes is not None:
+                self._codes.flags.writeable = False
+            self._readonly = True
+        else:
+            self._readonly = False
+
+    def _update_values(self):
+        self._should_simplify = (
+            rcParams['path.simplify'] and
+            (len(self._vertices) >= 128 and
+            (self._codes is None or np.all(self._codes <= Path.LINETO))))
+        self._simplify_threshold = rcParams['path.simplify_threshold']
+        self._has_nonfinite = not np.isfinite(self._vertices).all()
+
+    @property
+    def vertices(self):
+        return self._vertices
+
+    @vertices.setter
+    def vertices(self, vertices):
+        if self._readonly:
+            raise AttributeError("Can't set vertices on a readonly Path")
+        self._vertices = vertices
+        self._update_values()
+
+    @property
+    def codes(self):
+        return self._codes
+
+    @codes.setter
+    def codes(self, codes):
+        if self._readonly:
+            raise AttributeError("Can't set codes on a readonly Path")
+        self._codes = codes
+        self._update_values()
+
+    @property
+    def simplify_threshold(self):
+        return self._simplify_threshold
+
+    @property
+    def has_nonfinite(self):
+        return self._has_nonfinite
+
+    @property
+    def should_simplify(self):
+        return self._should_simplify
+
+    @property
+    def readonly(self):
+        return self._readonly
+
+    def __copy__(self):
+        import copy
+        return copy.copy(self)
+
+    copy = __copy__
+
+    def __deepcopy__(self):
+        return self.__class__(
+            self.vertices.copy(), self.codes.copy(),
+            _interpolation_steps=self._interpolation_steps)
+
+    deepcopy = __deepcopy__
 
     @classmethod
     def make_compound_path_from_polys(cls, XY):
@@ -420,7 +486,8 @@ class Path(object):
         if cls._unit_rectangle is None:
             cls._unit_rectangle = \
                 cls([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0], [0.0, 0.0]],
-                    [cls.MOVETO, cls.LINETO, cls.LINETO, cls.LINETO, cls.CLOSEPOLY])
+                    [cls.MOVETO, cls.LINETO, cls.LINETO, cls.LINETO, cls.CLOSEPOLY],
+                    readonly=True)
         return cls._unit_rectangle
 
     _unit_regular_polygons = WeakValueDictionary()
@@ -447,7 +514,7 @@ class Path(object):
             codes[0] = cls.MOVETO
             codes[1:-1] = cls.LINETO
             codes[-1] = cls.CLOSEPOLY
-            path = cls(verts, codes)
+            path = cls(verts, codes, readonly=True)
             if numVertices <= 16:
                 cls._unit_regular_polygons[numVertices] = path
         return path
@@ -478,7 +545,7 @@ class Path(object):
             codes[0] = cls.MOVETO
             codes[1:-1] = cls.LINETO
             codes[-1] = cls.CLOSEPOLY
-            path = cls(verts, codes)
+            path = cls(verts, codes, readonly=True)
             if numVertices <= 16:
                 cls._unit_regular_polygons[(numVertices, innerCircle)] = path
         return path
@@ -552,7 +619,7 @@ class Path(object):
             codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
-            cls._unit_circle = cls(vertices, codes)
+            cls._unit_circle = cls(vertices, codes, readonly=True)
         return cls._unit_circle
 
     _unit_circle_righthalf = None
@@ -600,7 +667,7 @@ class Path(object):
             codes[0] = cls.MOVETO
             codes[-1] = cls.CLOSEPOLY
 
-            cls._unit_circle_righthalf = cls(vertices, codes)
+            cls._unit_circle_righthalf = cls(vertices, codes, readonly=True)
         return cls._unit_circle_righthalf
 
     @classmethod
@@ -679,7 +746,7 @@ class Path(object):
         vertices[vertex_offset+2:end:3, 0] = xB
         vertices[vertex_offset+2:end:3, 1] = yB
 
-        return cls(vertices, codes)
+        return cls(vertices, codes, readonly=True)
 
     @classmethod
     def wedge(cls, theta1, theta2, n=None):

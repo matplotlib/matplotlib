@@ -83,13 +83,11 @@ def test_clip_to_bbox():
     ax.set_xlim([-18, 20])
     ax.set_ylim([-150, 100])
 
-    star = mpath.Path.unit_regular_star(8)
-    path = mpath.Path(star.vertices.copy(), star.codes)
+    path = mpath.Path.unit_regular_star(8).deepcopy()
     path.vertices *= [10, 100]
     path.vertices -= [5, 25]
 
-    circle = mpath.Path.unit_circle()
-    path2 = mpath.Path(circle.vertices.copy(), circle.codes)
+    path2 = mpath.Path.unit_circle().deepcopy()
     path2.vertices *= [10, 100]
     path2.vertices += [10, -25]
 
