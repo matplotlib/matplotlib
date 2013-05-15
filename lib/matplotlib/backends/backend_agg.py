@@ -153,8 +153,8 @@ class RendererAgg(RendererBase):
         ox, oy, width, height, descent, font_image, used_characters = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
-        xd = descent * np.sin(angle / (180.0 * np.pi))
-        yd = descent * np.cos(angle / (180.0 * np.pi))
+        xd = descent * np.sin(np.deg2rad(angle))
+        yd = descent * np.cos(np.deg2rad(angle))
         x = np.round(x + ox - xd)
         y = np.round(y - oy + yd)
         self._renderer.draw_text_image(font_image, x, y + 1, angle, gc)
@@ -231,6 +231,12 @@ class RendererAgg(RendererBase):
         if im is None:
             Z = texmanager.get_grey(s, size, self.dpi)
             Z = np.array(Z * 255.0, np.uint8)
+
+        w, h, d = self.get_text_width_height_descent(s, prop, ismath)
+        xd = d * np.sin(np.deg2rad(angle))
+        yd = d * np.cos(np.deg2rad(angle))
+        x = np.round(x - xd)
+        y = np.round(y + yd)
 
         self._renderer.draw_text_image(Z, x, y, angle, gc)
 
