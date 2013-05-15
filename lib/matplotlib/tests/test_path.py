@@ -4,5 +4,7 @@ from nose.tools import assert_raises
 def test_readonly_path():
     path = Path.unit_circle()
 
-    with assert_raises(AttributeError):
+    def modify_vertices():
         path.vertices = path.vertices * 2.0
+
+    assert_raises(AttributeError, modify_vertices)
