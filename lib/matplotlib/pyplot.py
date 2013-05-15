@@ -394,16 +394,18 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     figManager = _pylab_helpers.Gcf.get_fig_manager(num)
     if figManager is None:
-        max_num_figures = rcParams['figure.max_num_figures']
+        max_open_warning = rcParams['figure.max_open_warning']
 
-        if (max_num_figures >= 1 and
-            len(allnums) >= max_num_figures):
+        if (max_open_warning >= 1 and
+            len(allnums) >= max_open_warning):
             warnings.warn(
-                "More than %d figures have been opened.  Figures created "
-                "through the pyplot interface are retained until explicitly "
-                "closed.  (To control this warning, see the rcParam "
-                "'figure.max_num_figures'." %
-                max_num_figures, RuntimeWarning)
+                "More than %d figures have been opened. Figures "
+                "created through the pyplot interface "
+                "(`matplotlib.pyplot.figure`) are retained until "
+                "explicitly closed and may consume too much memory. "
+                "(To control this warning, see the rcParam "
+                "`figure.max_num_figures`)." %
+                max_open_warning, RuntimeWarning)
 
         if get_backend().lower() == 'ps':
             dpi = 72
