@@ -74,8 +74,7 @@ def test_bbox_inches_tight_clipping():
                            transform=ax.transData,
                            facecolor='blue', alpha=0.5)
 
-    path = mpath.Path.unit_regular_star(5)
-    path.vertices = path.vertices.copy()
+    path = mpath.Path.unit_regular_star(5).deepcopy()
     path.vertices *= 0.25
     patch.set_clip_path(path, transform=ax.transAxes)
     plt.gcf().artists.append(patch)
