@@ -1322,7 +1322,17 @@ void RendererAgg::_draw_path(path_t& path, bool has_clippath,
         } catch (std::overflow_error &e) {
             throw Py::OverflowError(e.what());
         }
-        agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, sa, sg);
+
+        if (has_clippath)
+        {
+           pixfmt_amask_type pfa(pixFmt, alphaMask);
+           amask_ren_type ren(pfa);
+           agg::render_scanlines_aa(theRasterizer, slineP8, ren, sa, sg);
+        }
+        else
+        {
+           agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, sa, sg);
+        }
     }
 
     // Render stroke
