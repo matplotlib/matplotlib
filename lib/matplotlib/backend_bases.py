@@ -1571,12 +1571,20 @@ class FigureCanvasBase(object):
         self.scroll_pick_id = self.mpl_connect('scroll_event', self.pick)
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
+        self._is_saving = False
         if False:
             ## highlight the artists that are hit
             self.mpl_connect('motion_notify_event', self.onHilite)
             ## delete the artists that are clicked on
             #self.mpl_disconnect(self.button_pick_id)
             #self.mpl_connect('button_press_event',self.onRemove)
+
+    def is_saving(self):
+        """
+        Returns `True` when the renderer is in the process of saving
+        to a file, rather than rendering for an on-screen buffer.
+        """
+        return self._is_saving
 
     def onRemove(self, ev):
         """
@@ -2205,6 +2213,7 @@ class FigureCanvasBase(object):
         else:
             _bbox_inches_restore = None
 
+        self._is_saving = True
         try:
             #result = getattr(self, method_name)(
             result = print_method(
@@ -2223,6 +2232,7 @@ class FigureCanvasBase(object):
             self.figure.set_facecolor(origfacecolor)
             self.figure.set_edgecolor(origedgecolor)
             self.figure.set_canvas(self)
+            self._is_saving = False
             #self.figure.canvas.draw() ## seems superfluous
         return result
 
@@ -2269,6 +2279,7 @@ class FigureCanvasBase(object):
         figure size or line props), will be reflected in the other
         """
         newCanvas = FigureCanvasClass(self.figure)
+        newCanvas._is_saving = self._is_saving
         return newCanvas
 
     def mpl_connect(self, s, func):
