@@ -824,14 +824,13 @@ grestore
         assert colors.shape[1] == 3
         assert colors.shape[2] == 4
 
-        points = trans.transform(points)
-
         shape = points.shape
         flat_points = points.reshape((shape[0] * shape[1], 2))
+        flat_points = trans.transform(flat_points)
         flat_colors = colors.reshape((shape[0] * shape[1], 4))
-        points_min = np.min(flat_points, axis=0) - (1 << 8)
-        points_max = np.max(flat_points, axis=0) + (1 << 8)
-        factor = float(0xffffffff) / (points_max - points_min)
+        points_min = np.min(flat_points, axis=0) - (1 << 12)
+        points_max = np.max(flat_points, axis=0) + (1 << 12)
+        factor = np.ceil(float(2 ** 32 - 1) / (points_max - points_min))
 
         xmin, ymin = points_min
         xmax, ymax = points_max
