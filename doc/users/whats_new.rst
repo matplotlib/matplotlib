@@ -45,6 +45,18 @@ rcParam has been set, and will not retroactively affect already
 existing text objects.  This brings their behavior in line with most
 other rcParams.
 
+Catch opening too many figures using pyplot
+-------------------------------------------
+Figures created through `pyplot.figure` are retained until they are
+explicitly closed.  It is therefore common for new users of matplotlib
+to run out of memory when creating a large series of figures in a
+loop without closing them.
+
+matplotlib will now display a `RuntimeWarning` when too many figures
+have been opened at once.  By default, this is displayed for 20 or
+more figures, but the exact number may be controlled using the
+``figure.max_num_figures`` rcParam.
+
 ``axes.xmargin`` and ``axes.ymargin`` added to rcParams
 -------------------------------------------------------
 ``rcParam`` values (``axes.xmargin`` and ``axes.ymargin``) were added
@@ -111,7 +123,7 @@ conversion (`mpl.rc('svg', fonttype='none')`).
 More robust boxplots
 --------------------
 Paul Hobson provided a fix to the :func:`~matplotlib.pyplot.boxplot`
-method that prevent whiskers from being drawn inside the box for 
+method that prevent whiskers from being drawn inside the box for
 oddly distributed data sets.
 
 Triangular grid interpolation

@@ -680,6 +680,7 @@ defaultParams = {
     'figure.edgecolor':  ['w', validate_color],  # edgecolor; white
     'figure.frameon':    [True, validate_bool],
     'figure.autolayout': [False, validate_bool],
+    'figure.max_open_warning': [20, validate_int],
 
     'figure.subplot.left': [0.125, ValidateInterval(0, 1, closedmin=True,
                                                        closedmax=True)],
