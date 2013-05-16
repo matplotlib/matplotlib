@@ -3,10 +3,10 @@ Example to draw a cursor and report the data coords in wx
 """
 # Used to guarantee to use at least Wx2.8
 import wxversion
-#wxversion.ensureMinimal('2.8')
+wxversion.ensureMinimal('2.8')
 #wxversion.select('2.8')
 #wxversion.select('2.9.5') # 2.9.x classic
-wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
+#wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
 
 import matplotlib
 matplotlib.use('WXAgg')
@@ -50,6 +50,7 @@ class CanvasFrame(wx.Frame):
 
         self.statusBar = wx.StatusBar(self, -1)
         self.statusBar.SetFieldsCount(1)
+        self.statusBar.SetStatusWidths([-1])
         self.SetStatusBar(self.statusBar)
 
         self.toolbar = NavigationToolbar2Wx(self.figure_canvas)

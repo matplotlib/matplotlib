@@ -23,10 +23,10 @@ from __future__ import print_function
 
 # Used to guarantee to use at least Wx2.8
 import wxversion
-#wxversion.ensureMinimal('2.8')
+wxversion.ensureMinimal('2.8')
 #wxversion.select('2.8')
 #wxversion.select('2.9.5') # 2.9.x classic
-wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
+#wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
 
 import sys, time, os, gc
 import matplotlib
@@ -67,7 +67,12 @@ class PlotPanel(wx.Panel):
         sizer.Add(self.toolbar, 0, wx.GROW)
         self.SetSizer(sizer)
         self.Fit()
-
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        
+    def OnPaint(self, event):
+        self.canvas.draw()
+        event.Skip()
+        
     def init_plot_data(self):
         a = self.fig.add_subplot(111)
 
