@@ -700,7 +700,7 @@ void ttfont_add_glyph_dependencies(struct TTFONT *font, std::vector<int>& glyph_
 
                     std::vector<int>::iterator insertion =
                         std::lower_bound(glyph_ids.begin(), glyph_ids.end(), gind);
-                    if (*insertion != gind)
+                    if (insertion == glyph_ids.end() || *insertion != gind)
                     {
                         glyph_ids.insert(insertion, gind);
                         glyph_stack.push(gind);
