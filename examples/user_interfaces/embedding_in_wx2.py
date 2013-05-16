@@ -6,10 +6,10 @@ toolbar - comment out the setA_toolbar line for no toolbar
 
 # Used to guarantee to use at least Wx2.8
 import wxversion
-#wxversion.ensureMinimal('2.8')
+wxversion.ensureMinimal('2.8')
 #wxversion.select('2.8')
 #wxversion.select('2.9.5') # 2.9.x classic
-wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
+#wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
 
 from numpy import arange, sin, pi
 
@@ -55,7 +55,11 @@ class CanvasFrame(wx.Frame):
         self.Fit()
 
         self.add_toolbar()  # comment this out for no toolbar
-
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        
+    def OnPaint(self, event):
+        self.canvas.draw()
+        event.Skip()
 
     def add_toolbar(self):
         self.toolbar = NavigationToolbar2Wx(self.canvas)
@@ -81,11 +85,6 @@ class CanvasFrame(wx.Frame):
             self.sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
         # update the axes menu on the toolbar
         self.toolbar.update()
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        
-    def OnPaint(self, event):
-        self.canvas.draw()
-        event.Skip()
 
 class App(wx.App):
 
