@@ -1,4 +1,4 @@
-from nose.tools import assert_equal, assert_true
+from nose.tools import assert_equal, assert_true, assert_raises
 from matplotlib.testing.decorators import image_comparison, cleanup
 import matplotlib.pyplot as plt
 
@@ -91,6 +91,15 @@ def test_alpha():
                                               radius=15,
                                               alpha=0.6,
                                               facecolor='red'))
+
+@cleanup
+def test_too_many_figures():
+    import warnings
+
+    with warnings.catch_warnings(record=True) as w:
+        for i in range(22):
+            fig = plt.figure()
+    assert len(w) == 1
 
 
 if __name__ == "__main__":
