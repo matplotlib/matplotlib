@@ -2014,8 +2014,11 @@ class Axes(martist.Artist):
         if self.axison and self._frameon:
             artists.extend(self.spines.itervalues())
 
-        dsu = [ (a.zorder, a) for a in artists
-                if not a.get_animated() ]
+        if self.figure.canvas.is_saving():
+            dsu = [(a.zorder, a) for a in artists]
+        else:
+            dsu = [(a.zorder, a) for a in artists
+                   if not a.get_animated()]
 
         # add images to dsu if the backend support compositing.
         # otherwise, does the manaul compositing  without adding images to dsu.
