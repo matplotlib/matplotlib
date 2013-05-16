@@ -1,6 +1,12 @@
 """
 Example to draw a cursor and report the data coords in wx
 """
+# Used to guarantee to use at least Wx2.8
+import wxversion
+#wxversion.ensureMinimal('2.8')
+#wxversion.select('2.8')
+#wxversion.select('2.9.5') # 2.9.x classic
+wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
 
 import matplotlib
 matplotlib.use('WXAgg')
@@ -11,14 +17,17 @@ from matplotlib.figure import Figure
 from numpy import arange, sin, pi
 
 import wx
+print wx.VERSION_STRING
 
 class CanvasFrame(wx.Frame):
 
     def __init__(self, ):
         wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
-
-        self.SetBackgroundColour(wx.NamedColour("WHITE"))
+        if 'phoenix' in wx.PlatformInfo:
+            self.SetBackgroundColour(wx.Colour("WHITE"))
+        else:
+            self.SetBackgroundColour(wx.NamedColour("WHITE"))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
@@ -46,9 +55,17 @@ class CanvasFrame(wx.Frame):
         self.toolbar = NavigationToolbar2Wx(self.figure_canvas)
         self.sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
         self.toolbar.Show()
-
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        
+    def OnPaint(self, event):
+        self.figure_canvas.draw()
+        event.Skip()
+        
     def ChangeCursor(self, event):
-        self.figure_canvas.SetCursor(wx.StockCursor(wx.CURSOR_BULLSEYE))
+        if 'phoenix' in wx.PlatformInfo:
+            self.figure_canvas.SetCursor(wx.Cursor(wx.CURSOR_BULLSEYE))
+        else:
+            self.figure_canvas.SetCursor(wx.StockCursor(wx.CURSOR_BULLSEYE))
 
     def UpdateStatusBar(self, event):
         if event.inaxes:

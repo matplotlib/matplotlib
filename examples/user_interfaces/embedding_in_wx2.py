@@ -6,7 +6,10 @@ toolbar - comment out the setA_toolbar line for no toolbar
 
 # Used to guarantee to use at least Wx2.8
 import wxversion
-wxversion.ensureMinimal('2.8')
+#wxversion.ensureMinimal('2.8')
+#wxversion.select('2.8')
+#wxversion.select('2.9.5') # 2.9.x classic
+wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
 
 from numpy import arange, sin, pi
 
@@ -25,6 +28,7 @@ from matplotlib.backends.backend_wx import NavigationToolbar2Wx
 from matplotlib.figure import Figure
 
 import wx
+print wx.VERSION_STRING
 
 class CanvasFrame(wx.Frame):
 
@@ -32,7 +36,10 @@ class CanvasFrame(wx.Frame):
         wx.Frame.__init__(self,None,-1,
                          'CanvasFrame',size=(550,350))
 
-        self.SetBackgroundColour(wx.NamedColour("WHITE"))
+        if 'phoenix' in wx.PlatformInfo:
+            self.SetBackgroundColour(wx.Colour("WHITE"))
+        else:
+            self.SetBackgroundColour(wx.NamedColour("WHITE"))
 
         self.figure = Figure()
         self.axes = self.figure.add_subplot(111)
@@ -61,8 +68,12 @@ class CanvasFrame(wx.Frame):
         else:
             # On Windows platform, default window size is incorrect, so set
             # toolbar width to figure width.
-            tw, th = self.toolbar.GetSizeTuple()
-            fw, fh = self.canvas.GetSizeTuple()
+            if 'phoenix' in wx.PlatformInfo:
+                tw, th = self.toolbar.GetSize()
+                fw, fh = self.canvas.GetSize()
+            else:
+                tw, th = self.toolbar.GetSizeTuple()
+                fw, fh = self.canvas.GetSizeTuple()
             # By adding toolbar in sizer, we are able to put it at the bottom
             # of the frame - so appearance is closer to GTK version.
             # As noted above, doesn't work for Mac.
@@ -70,10 +81,11 @@ class CanvasFrame(wx.Frame):
             self.sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
         # update the axes menu on the toolbar
         self.toolbar.update()
-
-
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        
     def OnPaint(self, event):
         self.canvas.draw()
+        event.Skip()
 
 class App(wx.App):
 
