@@ -23,7 +23,10 @@ from __future__ import print_function
 
 # Used to guarantee to use at least Wx2.8
 import wxversion
-wxversion.ensureMinimal('2.8')
+#wxversion.ensureMinimal('2.8')
+#wxversion.select('2.8')
+#wxversion.select('2.9.5') # 2.9.x classic
+wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
 
 import sys, time, os, gc
 import matplotlib
@@ -35,6 +38,9 @@ from matplotlib.figure import Figure
 import numpy as np
 
 import wx
+
+print(wx.VERSION_STRING)
+
 import wx.xrc as xrc
 
 ERR_TOL = 1e-5 # floating point slop for peak-detection
@@ -132,14 +138,22 @@ class MyApp(wx.App):
         # whiz button ------------------
 
         whiz_button = xrc.XRCCTRL(self.frame,"whiz_button")
-        wx.EVT_BUTTON(whiz_button, whiz_button.GetId(),
-                      self.plotpanel.OnWhiz)
+
+        if 'phoenix' in wx.PlatformInfo:
+            whiz_button.Bind(wx.EVT_BUTTON, self.plotpanel.OnWhiz)
+        else:
+            wx.EVT_BUTTON(whiz_button, whiz_button.GetId(),
+                          self.plotpanel.OnWhiz)
 
         # bang button ------------------
 
         bang_button = xrc.XRCCTRL(self.frame,"bang_button")
-        wx.EVT_BUTTON(bang_button, bang_button.GetId(),
-                      self.OnBang)
+        if 'phoenix' in wx.PlatformInfo:
+            bang_button.Bind(wx.EVT_BUTTON, self.OnBang)
+            
+        else:
+            wx.EVT_BUTTON(bang_button, bang_button.GetId(),
+                          self.OnBang)
 
         # final setup ------------------
 

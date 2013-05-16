@@ -1,9 +1,9 @@
 # Used to guarantee to use at least Wx2.8
 import wxversion
-wxversion.ensureMinimal('2.8')
+#wxversion.ensureMinimal('2.8')
 #wxversion.select('2.8')
 #wxversion.select('2.9.5') # 2.9.x classic
-#wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
+wxversion.select('2.9.6-msw-phoenix') # 2.9.x phoenix
 
 
 import wx
