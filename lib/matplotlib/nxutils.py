@@ -23,7 +23,7 @@ def pnpoly(x, y, xyverts):
         mplDeprecation)
 
     p = path.Path(xyverts)
-    return p.contains_point(x, y)
+    return p.contains_point([x, y])
 
 def points_inside_poly(xypoints, xyverts):
     """
