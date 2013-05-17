@@ -428,7 +428,7 @@ def test_axhspan_epoch():
 
 
 @image_comparison(baseline_images=['hexbin_extent'],
-                  remove_text=True)
+                  remove_text=True, extensions=['png'])
 def test_hexbin_extent():
     # this test exposes sf bug 2856228
     fig = plt.figure()
