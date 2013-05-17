@@ -1,3 +1,11 @@
+2013-05-18 Added support for arbitrary rasterization resolutions to the
+           SVG backend. Previously the resolution was hard coded to 72
+           dpi. Now the backend class takes a image_dpi argument for
+           its constructor, adjusts the image bounding box accordingly
+           and forwards a magnification factor to the image renderer.
+           The code and results now resemble those of the PDF backend.
+           - MW
+
 2012-08-11 Fix path-closing bug in patches.Polygon, so that regardless
            of whether the path is the initial one or was subsequently
            set by set_xy(), get_xy() will return a closed path if and
