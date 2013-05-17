@@ -6,6 +6,7 @@ import nose
 import matplotlib
 import matplotlib.tests
 import matplotlib.units
+from matplotlib import cbook
 from matplotlib import ticker
 from matplotlib import pyplot as plt
 from matplotlib import ft2font
@@ -281,6 +282,6 @@ def _image_directories(func):
     result_dir = os.path.abspath(os.path.join('result_images', subdir))
 
     if not os.path.exists(result_dir):
-        os.makedirs(result_dir)
+        cbook.mkdirs(result_dir)
 
     return baseline_dir, result_dir
