@@ -841,3 +841,7 @@ Here are the 0.98.4 notes from the CHANGELOG::
     off automatically when infs or NaNs are present.  Also masked
     arrays are now converted to arrays with NaNs for consistent
     handling of masks and NaNs - MGD and EF
+
+    Added support for arbitrary rasterization resolutions to the SVG 
+    backend. - MW
+  
