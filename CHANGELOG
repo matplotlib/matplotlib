@@ -1,3 +1,11 @@
+2013-05-18 Added support for arbitrary rasterization resolutions to the
+           SVG backend. Previously the resolution was hard coded to 72
+           dpi. Now the backend class takes a image_dpi argument for
+           its constructor, adjusts the image bounding box accordingly
+           and forwards a magnification factor to the image renderer.
+           The code and results now resemble those of the PDF backend.
+           - MW
+
 2013-05-08 Changed behavior of hist when given stacked=True and normed=True.
            Histograms are now stacked first, then the sum is normalized.
            Previously, each histogram was normalized, then they were stacked.
