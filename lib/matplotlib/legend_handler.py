@@ -150,13 +150,14 @@ class HandlerNpoints(HandlerBase):
         if numpoints > 1:
             # we put some pad here to compensate the size of the
             # marker
-            xdata = np.linspace(-xdescent + self._marker_pad * fontsize,
-                                width - self._marker_pad * fontsize,
+            pad = self._marker_pad * fontsize
+            xdata = np.linspace(-xdescent + pad,
+                                -xdescent + width - pad,
                                 numpoints)
             xdata_marker = xdata
         elif numpoints == 1:
-            xdata = np.linspace(-xdescent, width, 2)
-            xdata_marker = [0.5 * width - 0.5 * xdescent]
+            xdata = np.linspace(-xdescent, -xdescent+width, 2)
+            xdata_marker = [-xdescent + 0.5 * width]
 
         return xdata, xdata_marker
 
