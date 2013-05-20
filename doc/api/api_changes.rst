@@ -15,6 +15,52 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* The following items that were deprecated in version 1.2 or earlier
+  have now been removed completely.  Use the following mapping to
+  update your code:
+
+    - The Qt 3.x backends (`qt` and `qtagg`) have been removed in
+      favor of the Qt 4.x backends (`qt4` and `qt4agg`).
+
+    - The `matplotlib.nxutils` module has been removed.  Use the
+      functionality on `matplotlib.path.Path.contains_point` and
+      friends instead.
+
+    - Instead of `axes.Axes.get_frame`, use `axes.Axes.patch`.
+
+    - The following `kwargs` to the `legend` function have been
+      renamed:
+
+      - `pad` -> `borderpad`
+      - `labelsep` -> `labelspacing`
+      - `handlelen` -> `handlelength`
+      - `handletextsep` -> `handletextpad`
+      - `axespad` -> `borderaxespad`
+
+      Related to this, the following rcParams have been removed:
+
+      - `legend.pad`, `legend.labelsep`, `legend.handlelen`,
+        `legend.handletextsep` and `legend.axespad`
+
+    - For the `hist` function, instead of `width`, use `rwidth`
+      (relative width).
+
+    - On `patches.Circle`, the `resolution` kwarg has been removed.
+      For a circle made up of line segments, use
+      `patches.CirclePolygon`.
+
+    - The printing functions in the Wx backend have been removed due
+      to the burden of keeping them up-to-date.
+
+    - `mlab.liaupunov` has been removed.
+
+    - `mlab.save`, `mlab.load`, `pylab.save` and `pylab.load` have
+      been removed.  We recommend using `numpy.savetxt` and
+      `numpy.loadtxt` instead.
+
+    - `widgets.HorizontalSpanSelector` has been removed.  Use
+      `widgets.SpanSelector` instead.
+
 * The top-level functions in `matplotlib.path` that are implemented in
   C++ were never meant to be public.  Instead, users should use the
   Pythonic wrappers for them in the `path.Path` and

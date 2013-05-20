@@ -24,7 +24,7 @@
 #### CONFIGURATION BEGINS HERE
 
 # the default backend; one of GTK GTKAgg GTKCairo GTK3Agg GTK3Cairo
-# CocoaAgg FltkAgg MacOSX QtAgg Qt4Agg TkAgg WX WXAgg Agg Cairo GDK PS
+# CocoaAgg FltkAgg MacOSX Qt4Agg TkAgg WX WXAgg Agg Cairo GDK PS
 # PDF SVG Template
 # You can also deploy your own backend outside of matplotlib by
 # referring to the module name (which must be in the PYTHONPATH) as
@@ -292,18 +292,13 @@ text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
 #legend.isaxes        : True
 #legend.numpoints     : 2      # the number of points in the legend line
 #legend.fontsize      : large
-#legend.pad           : 0.0    # deprecated; the fractional whitespace inside the legend border
 #legend.borderpad     : 0.5    # border whitespace in fontsize units
 #legend.markerscale   : 1.0    # the relative size of legend markers vs. original
 # the following dimensions are in axes coords
-#legend.labelsep      : 0.010  # deprecated; the vertical space between the legend entries
 #legend.labelspacing  : 0.5    # the vertical space between the legend entries in fraction of fontsize
-#legend.handlelen     : 0.05   # deprecated; the length of the legend lines
 #legend.handlelength  : 2.     # the length of the legend lines in fraction of fontsize
 #legend.handleheight  : 0.7     # the height of the legend handle in fraction of fontsize
-#legend.handletextsep : 0.02   # deprecated; the space between the legend line and legend text
 #legend.handletextpad : 0.8    # the space between the legend line and legend text in fraction of fontsize
-#legend.axespad       : 0.02   # deprecated; the border between the axes and legend edge
 #legend.borderaxespad : 0.5   # the border between the axes and legend edge in fraction of fontsize
 #legend.columnspacing : 2.    # the border between the axes and legend edge in fraction of fontsize
 #legend.shadow        : False

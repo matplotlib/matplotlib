@@ -26,7 +26,7 @@ from matplotlib.colors import is_color_like
 # change for later versions.
 
 interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX',
-                  'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
+                  'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
                   'GTK3Cairo', 'GTK3Agg', 'WebAgg']
 
 

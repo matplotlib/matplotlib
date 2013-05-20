@@ -1366,11 +1366,6 @@ class Axes(martist.Artist):
 
         return v
 
-    def get_frame(self):
-        """Return the axes Rectangle frame"""
-        warnings.warn('use ax.patch instead', mplDeprecation)
-        return self.patch
-
     def get_legend(self):
         """
         Return the legend.Legend instance, or None if no legend is defined
@@ -8208,11 +8203,6 @@ class Axes(martist.Artist):
         if orientation not in ['horizontal', 'vertical']:
             raise ValueError(
                 "orientation kwarg %s is not recognized" % orientation)
-
-        if kwargs.get('width') is not None:
-            raise mplDeprecation(
-                'hist now uses the rwidth to give relative width '
-                'and not absolute width')
 
         if histtype == 'barstacked' and not stacked:
             stacked = True

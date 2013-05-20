@@ -166,7 +166,7 @@ outputs, and each of these capabilities is called a backend; the
 "frontend" is the user facing code, ie the plotting code, whereas the
 "backend" does all the hard work behind-the-scenes to make the
 figure.  There are two types of backends: user interface backends (for
-use in pygtk, wxpython, tkinter, qt, macosx, or fltk; also
+use in pygtk, wxpython, tkinter, qt4, macosx, or fltk; also
 referred to as "interactive backends") and hardcopy backends to
 make image files (PNG, SVG, PDF, PS; also referred to as "non-interactive
 backends").
@@ -266,8 +266,6 @@ WXAgg          Agg rendering to to a :term:`wxWidgets` canvas
 WX             Native :term:`wxWidgets` drawing to a :term:`wxWidgets` Canvas
                (not recommended) (requires wxPython_)
 TkAgg          Agg rendering to a :term:`Tk` canvas (requires TkInter_)
-QtAgg          Agg rendering to a :term:`Qt` canvas (requires PyQt_)
-               (deprecated; use Qt4Agg)
 Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_)
 FLTKAgg        Agg rendering to a :term:`FLTK` canvas (requires pyFLTK_)
                (not widely used; consider TKAgg, GTKAgg, WXAgg, or
@@ -288,7 +286,6 @@ macosx         Cocoa rendering in OSX windows
 .. _pycairo: http://www.cairographics.org/pycairo/
 .. _wxPython: http://www.wxpython.org/
 .. _TkInter: http://wiki.python.org/moin/TkInter
-.. _PyQt: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 .. _PyQt4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
 .. _pyFLTK: http://pyfltk.sourceforge.net
 
