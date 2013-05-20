@@ -21,6 +21,16 @@ revision, see the :ref:`github-stats`.
 
 new in matplotlib-1.3
 =====================
+
+Housecleaning
+-------------
+
+A number of features that were deprecated in 1.2 or earlier, or have
+not been in a working state for a long time have been removed.
+Highlights in include removing the Qt version 3 backends, and the
+FltkAgg and Emf backends.  See :ref:`changes_in_1_3` for a complete
+list.
+
 `xkcd`-style sketch plotting
 ----------------------------
 

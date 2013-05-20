@@ -1,5 +1,5 @@
 """
-MS Windows-specific helper for TkAgg and FltkAgg backends.
+MS Windows-specific helper for the TkAgg backend.
 
 With rcParams['tk.window_focus'] default of False, it is
 effectively disabled.

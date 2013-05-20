@@ -22,10 +22,6 @@ Glossary
   EPS
       Encapsulated Postscript (`EPS <http://en.wikipedia.org/wiki/Encapsulated_PostScript>`_)
 
-  FLTK
-      `FLTK <http://www.fltk.org/>`_ (pronounced "fulltick") is a cross-platform C++ GUI toolkit for
-      UNIX/Linux (X11), Microsoft Windows, and MacOS X
-
   freetype
       `freetype <http://www.freetype.org/>`_ is a font rasterization
       library used by matplotlib which supports TrueType, Type 1, and
@@ -67,11 +63,6 @@ Glossary
       starting to show its age: for example is does not have an alpha
       channel.  PDF was designed in part as a next-generation document
       format to replace postscript
-
-  pyfltk
-      `pyfltk <http://pyfltk.sourceforge.net/>`_ provides python
-      wrappers for the :term:`FLTK` widgets library for use with
-      FLTKAgg
 
   pygtk
       `pygtk <http://www.pygtk.org/>`_ provides python wrappers for
