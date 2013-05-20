@@ -10,11 +10,6 @@ import numpy as np
 from numpy import ma
 
 from matplotlib import _path
-
-# ._path import point_in_path, get_path_extents, \
-#     point_in_path_collection, get_path_collection_extents, \
-#     path_in_path, path_intersects_path, convert_path_to_polygons, \
-#     cleanup_path, points_in_path, clip_path_to_rect
 from matplotlib.cbook import simple_linear_interpolation, maxdict
 from matplotlib import rcParams
 
