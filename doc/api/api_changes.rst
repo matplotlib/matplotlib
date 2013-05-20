@@ -24,6 +24,8 @@ Changes in 1.3.x
     - The Qt 3.x backends (`qt` and `qtagg`) have been removed in
       favor of the Qt 4.x backends (`qt4` and `qt4agg`).
 
+    - The FltkAgg and Emf backends have been removed.
+
     - The `matplotlib.nxutils` module has been removed.  Use the
       functionality on `matplotlib.path.Path.contains_point` and
       friends instead.
