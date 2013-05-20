@@ -22,6 +22,7 @@ import matplotlib.artist as artist
 from matplotlib.artist import allow_rasterization
 import matplotlib.backend_bases as backend_bases
 import matplotlib.path as mpath
+from matplotlib import _path
 import matplotlib.mlab as mlab
 
 
@@ -315,7 +316,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         transform, transOffset, offsets, paths = self._prepare_points()
 
-        ind = mpath.point_in_path_collection(
+        ind = _path.point_in_path_collection(
             mouseevent.x, mouseevent.y, pickradius,
             transform.frozen(), paths, self.get_transforms(),
             offsets, transOffset, pickradius <= 0,

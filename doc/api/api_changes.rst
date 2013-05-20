@@ -15,6 +15,22 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* The top-level functions in `matplotlib.path` that are implemented in
+  C++ were never meant to be public.  Instead, users should use the
+  Pythonic wrappers for them in the `path.Path` and
+  `collections.Collection` classes.  Use the following mapping to update
+  your code:
+
+    - `point_in_path` -> `path.Path.contains_point`
+    - `get_path_extents` -> `path.Path.get_extents`
+    - `point_in_path_collection` -> `collection.Collection.contains`
+    - `path_in_path` -> `path.Path.contains_path`
+    - `path_intersects_path` -> `path.Path.intersects_path`
+    - `convert_path_to_polygons` -> `path.Path.to_polygons`
+    - `cleanup_path` -> `path.Path.cleaned`
+    - `points_in_path` -> `path.Path.contains_points`
+    - `clip_path_to_rect` -> `path.Path.clip_to_bbox`
+
 * `Path` objects can now be marked as `readonly` by passing
   `readonly=True` to its constructor.  The built-in path singletons,
   obtained through `Path.unit*` class methods return readonly paths.

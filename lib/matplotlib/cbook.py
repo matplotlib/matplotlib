@@ -1,5 +1,5 @@
 """
-A collection of utility functions and classes.  Originally, many 
+A collection of utility functions and classes.  Originally, many
 (but not all) were from the Python Cookbook -- hence the name cbook.
 
 This module is safe to import from anywhere within matplotlib;
@@ -43,6 +43,125 @@ class MatplotlibDeprecationWarning(UserWarning):
     pass
 
 mplDeprecation = MatplotlibDeprecationWarning
+
+
+def deprecated(since, message='', name='', alternative='', pending=False,
+               obj_type='function'):
+    """
+    Used to mark a function as deprecated.
+
+    Parameters
+    ------------
+    since : str
+        The release at which this API became deprecated.  This is
+        required.
+
+    message : str, optional
+        Override the default deprecation message.  The format
+        specifier `%(func)s` may be used for the name of the function,
+        and `%(alternative)s` may be used in the deprecation message
+        to insert the name of an alternative to the deprecated
+        function.  `%(obj_type)` may be used to insert a friendly name
+        for the type of object being deprecated.
+
+    name : str, optional
+        The name of the deprecated function; if not provided the name
+        is automatically determined from the passed in function,
+        though this is useful in the case of renamed functions, where
+        the new function is just assigned to the name of the
+        deprecated function.  For example::
+
+            def new_function():
+                ...
+            oldFunction = new_function
+
+    alternative : str, optional
+        An alternative function that the user may use in place of the
+        deprecated function.  The deprecation warning will tell the user about
+        this alternative if provided.
+
+    pending : bool, optional
+        If True, uses a PendingDeprecationWarning instead of a
+        DeprecationWarning.
+    """
+
+    def deprecate(func, message=message, name=name, alternative=alternative,
+                  pending=pending):
+        import functools
+        import textwrap
+
+        if isinstance(func, classmethod):
+            try:
+                func = func.__func__
+            except AttributeError:
+                # classmethods in Python2.6 and below lack the __func__
+                # attribute so we need to hack around to get it
+                method = func.__get__(None, object)
+                if hasattr(method, '__func__'):
+                    func = method.__func__
+                elif hasattr(method, 'im_func'):
+                    func = method.im_func
+                else:
+                    # Nothing we can do really...  just return the original
+                    # classmethod
+                    return func
+            is_classmethod = True
+        else:
+            is_classmethod = False
+
+        if not name:
+            name = func.__name__
+
+        altmessage = ''
+        if not message or type(message) == type(deprecate):
+            if pending:
+                message = ('The %(func)s %(obj_type)s will be deprecated in a '
+                           'future version.')
+            else:
+                message = ('The %(func)s %(obj_type)s is deprecated and may '
+                           'be removed in a future version.')
+            if alternative:
+                altmessage = '\n        Use %s instead.' % alternative
+
+        message = ((message % {
+            'func': name,
+            'name': name,
+            'alternative': alternative,
+            'obj_type': obj_type}) +
+            altmessage)
+
+        @functools.wraps(func)
+        def deprecated_func(*args, **kwargs):
+            warnings.warn(message, mplDeprecation, stacklevel=2)
+
+            return func(*args, **kwargs)
+
+        old_doc = deprecated_func.__doc__
+        if not old_doc:
+            old_doc = ''
+        old_doc = textwrap.dedent(old_doc).strip('\n')
+        altmessage = altmessage.strip()
+        if not altmessage:
+            altmessage = message.strip()
+        new_doc = (('\n.. deprecated:: %(since)s'
+                    '\n    %(message)s\n\n' %
+                    {'since': since, 'message': altmessage.strip()}) + old_doc)
+        if not old_doc:
+            # This is to prevent a spurious 'unexected unindent' warning from
+            # docutils when the original docstring was blank.
+            new_doc += r'\ '
+
+        deprecated_func.__doc__ = new_doc
+
+        if is_classmethod:
+            deprecated_func = classmethod(deprecated_func)
+        return deprecated_func
+
+    if type(message) == type(deprecate):
+        return deprecate(message)
+
+    return deprecate
+
 
 # On some systems, locale.getpreferredencoding returns None,
 # which can break unicode; and the sage project reports that
