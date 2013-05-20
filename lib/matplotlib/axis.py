@@ -18,8 +18,6 @@ import matplotlib.units as munits
 import numpy as np
 import warnings
 
-from cbook import mplDeprecation
-
 GRIDLINE_INTERPOLATION_STEPS = 180
 
 
@@ -684,15 +682,11 @@ class Axis(artist.Artist):
     def get_scale(self):
         return self._scale.name
 
+    @cbook.deprecated('1.3')
     def set_scale(self, value, **kwargs):
         """
-        Deprecated 1.3.
-
         This should be a private function (moved to _set_scale)
         """
-        warnings.warn("This function has been made private and moved"
-                        "to `_set_scale`. This wrapper function will be "
-                        "removed in 1.4", mplDeprecation)
         self._set_scale(value, **kwargs)
 
     def _set_scale(self, value, **kwargs):

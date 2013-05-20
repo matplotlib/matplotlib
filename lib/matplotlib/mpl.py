@@ -2,14 +2,13 @@
 .. note:: Deprecated in 1.3
 """
 import warnings
-from matplotlib.cbook import mplDeprecation
-warnings.warn(
-    "matplotlib.mpl is deprecated and will be removed in version 1.4."
-    "Please use `import matplotlib as mpl` instead", mplDeprecation)
+from matplotlib import cbook
+cbook.warn_deprecated(
+    '1.3', 'matplotlib.mpl', alterative='`import matplotlib as mpl`',
+    obj_type='module')
 from matplotlib import artist
 from matplotlib import axis
 from matplotlib import axes
-from matplotlib import cbook
 from matplotlib import collections
 from matplotlib import colors
 from matplotlib import colorbar
