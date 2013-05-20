@@ -164,12 +164,11 @@ others in web application servers to dynamically serve up graphs.
 To support all of these use cases, matplotlib can target different
 outputs, and each of these capabilities is called a backend; the
 "frontend" is the user facing code, ie the plotting code, whereas the
-"backend" does all the hard work behind-the-scenes to make the
-figure.  There are two types of backends: user interface backends (for
-use in pygtk, wxpython, tkinter, qt4, macosx, or fltk; also
-referred to as "interactive backends") and hardcopy backends to
-make image files (PNG, SVG, PDF, PS; also referred to as "non-interactive
-backends").
+"backend" does all the hard work behind-the-scenes to make the figure.
+There are two types of backends: user interface backends (for use in
+pygtk, wxpython, tkinter, qt4, or macosx; also referred to as
+"interactive backends") and hardcopy backends to make image files
+(PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 
 There are a two primary ways to configure your backend.  One is to set
 the ``backend`` parameter in your ``matplotlibrc`` file (see
@@ -267,9 +266,6 @@ WX             Native :term:`wxWidgets` drawing to a :term:`wxWidgets` Canvas
                (not recommended) (requires wxPython_)
 TkAgg          Agg rendering to a :term:`Tk` canvas (requires TkInter_)
 Qt4Agg         Agg rendering to a :term:`Qt4` canvas (requires PyQt4_)
-FLTKAgg        Agg rendering to a :term:`FLTK` canvas (requires pyFLTK_)
-               (not widely used; consider TKAgg, GTKAgg, WXAgg, or
-               QT4Agg instead)
 macosx         Cocoa rendering in OSX windows
                (presently lacks blocking show() behavior when matplotlib
                is in non-interactive mode)
@@ -287,7 +283,6 @@ macosx         Cocoa rendering in OSX windows
 .. _wxPython: http://www.wxpython.org/
 .. _TkInter: http://wiki.python.org/moin/TkInter
 .. _PyQt4: http://www.riverbankcomputing.co.uk/software/pyqt/intro
-.. _pyFLTK: http://pyfltk.sourceforge.net
 
 
 
