@@ -12,6 +12,8 @@ For new features that were added to matplotlib, please see
 :ref:`whats-new`.
 
 
+.. _changes_in_1_3:
+
 Changes in 1.3.x
 ================
 
@@ -60,6 +62,9 @@ Changes in 1.3.x
 
     - `widgets.HorizontalSpanSelector` has been removed.  Use
       `widgets.SpanSelector` instead.
+
+* The CocoaAgg backend has been deprecated, with the possibility for
+  deletion or resurrection in a future release.
 
 * The top-level functions in `matplotlib.path` that are implemented in
   C++ were never meant to be public.  Instead, users should use the
