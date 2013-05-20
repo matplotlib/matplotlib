@@ -76,11 +76,6 @@ def _backend_selection():
         import wx
         if wx.App.IsMainLoopRunning():
             rcParams['backend'] = 'wx' + 'Agg' * is_agg_backend
-    elif 'qt' in sys.modules and not backend == 'QtAgg':
-        import qt
-        if not qt.qApp.startingUp():
-            # The mainloop is running.
-            rcParams['backend'] = 'qtAgg'
     elif 'PyQt4.QtCore' in sys.modules and not backend == 'Qt4Agg':
         import PyQt4.QtGui
         if not PyQt4.QtGui.qApp.startingUp():

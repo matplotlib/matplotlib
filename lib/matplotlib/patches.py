@@ -1285,13 +1285,6 @@ class Circle(Ellipse):
         %(Patch)s
 
         """
-        if 'resolution' in kwargs:
-            import warnings
-            warnings.warn('Circle is now scale free.  '
-                          'Use CirclePolygon instead!',
-                          mplDeprecation)
-            kwargs.pop('resolution')
-
         self.radius = radius
         Ellipse.__init__(self, xy, radius * 2, radius * 2, **kwargs)
 

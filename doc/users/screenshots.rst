@@ -265,7 +265,7 @@ rendering of strings with the *usetex* option.
 EEG demo
 =========
 
-You can embed matplotlib into pygtk, wxpython, Tk, FLTK or Qt
+You can embed matplotlib into pygtk, wxpython, Tk, FLTK or Qt4
 applications.  Here is a screenshot of an eeg viewer called pbrain
 which is part of the NeuroImaging in Python suite `NIPY
 <http://neuroimaging.scipy.org>`_.  Pbrain is written in pygtk using

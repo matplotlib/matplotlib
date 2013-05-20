@@ -719,11 +719,6 @@ _deprecated_map = {
     }
 
 _deprecated_ignore_map = {
-    'legend.pad' :       'legend.borderpad',
-    'legend.labelsep' :       'legend.labelspacing',
-    'legend.handlelen' :       'legend.handlelength',
-    'legend.handletextsep' :       'legend.handletextpad',
-    'legend.axespad' :       'legend.borderaxespad',
     }
 
 
