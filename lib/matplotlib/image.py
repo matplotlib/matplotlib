@@ -1407,11 +1407,14 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         fig = plt.figure(figsize=(width, height), dpi=dpi)
     else:
         if extension == '.png':
-            from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+            from matplotlib.backends.backend_agg \
+                import FigureCanvasAgg as FigureCanvas
         elif extension == '.pdf':
-            from matplotlib.backends.backend_pdf import FigureCanvasPdf as FigureCanvas
+            from matplotlib.backends.backend_pdf \
+                import FigureCanvasPdf as FigureCanvas
         elif extension == '.svg':
-            from matplotlib.backends.backend_svg import FigureCanvasSVG as FigureCanvas
+            from matplotlib.backends.backend_svg \
+                import FigureCanvasSVG as FigureCanvas
         else:
             raise ValueError("Can only handle "
                              "extensions 'png', 'svg' or 'pdf'")
