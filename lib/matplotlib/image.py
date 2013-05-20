@@ -251,7 +251,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
 
         tr2 = mtransforms.Affine2D.from_values(a, c, b, d, 0, 0)
 
-        tr = (tr1 + tr2 + mtransforms.Affine2D().translate(x1, y1)).inverted().get_affine()
+        tr = (tr1 + tr2 +
+              mtransforms.Affine2D().translate(x1, y1)).inverted().get_affine()
 
         return tr
 
@@ -357,7 +358,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
             self._draw_unsampled_image(renderer, gc)
         else:
             if self._image_skew_coordinate is not None:
-                warnings.warn("Image will not be shown correctly with this backend.")
+                warnings.warn("Image will not be shown"
+                              " correctly with this backend.")
 
             im = self.make_image(renderer.get_image_magnification())
             if im is None:
@@ -418,7 +420,8 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         else:
             self._A = cbook.safe_masked_invalid(A)
 
-        if self._A.dtype != np.uint8 and not np.can_cast(self._A.dtype, np.float):
+        if (self._A.dtype != np.uint8 and
+            not np.can_cast(self._A.dtype, np.float)):
             raise TypeError("Image data can not convert to float")
 
         if (self._A.ndim not in (2, 3) or
@@ -445,9 +448,9 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
         """
         Return the interpolation method the image uses when resizing.
 
-        One of 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36', 'hanning',
-        'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', 'gaussian',
-        'bessel', 'mitchell', 'sinc', 'lanczos', or 'none'.
+        One of 'nearest', 'bilinear', 'bicubic', 'spline16', 'spline36',
+        'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom',
+        'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', or 'none'.
 
         """
         return self._interpolation
@@ -565,7 +568,8 @@ class AxesImage(_AxesImageBase):
 
     def make_image(self, magnification=1.0):
         if self._A is None:
-            raise RuntimeError('You must first set the image array or the image attribute')
+            raise RuntimeError('You must first set the image'
+                               ' array or the image attribute')
 
         # image is created in the canvas coordinate.
         x1, x2, y1, y2 = self.get_extent()
@@ -609,8 +613,10 @@ class AxesImage(_AxesImageBase):
         im.apply_translation(tx, ty)
 
         l, b, r, t = self.axes.bbox.extents
-        widthDisplay = (round(r*magnification) + 0.5) - (round(l*magnification) - 0.5)
-        heightDisplay = (round(t*magnification) + 0.5) - (round(b*magnification) - 0.5)
+        widthDisplay = ((round(r*magnification) + 0.5) -
+                        (round(l*magnification) - 0.5))
+        heightDisplay = ((round(t*magnification) + 0.5) -
+                         (round(b*magnification) - 0.5))
 
         # resize viewport to display
         rx = widthDisplay / numcols
@@ -628,7 +634,10 @@ class AxesImage(_AxesImageBase):
             if renderer.option_scale_image():
                 return True
             else:
-                warnings.warn("The backend (%s) does not support interpolation='none'. The image will be interpolated with 'nearest` mode." % renderer.__class__)
+                warnings.warn("The backend (%s) does not support "
+                              "interpolation='none'. The image will be "
+                              "interpolated with 'nearest` "
+                              "mode." % renderer.__class__)
 
         return False
 
@@ -744,7 +753,8 @@ class NonUniformImage(AxesImage):
         if len(A.shape) not in [2, 3]:
             raise TypeError("Can only plot 2D or 3D data")
         if len(A.shape) == 3 and A.shape[2] not in [1, 3, 4]:
-            raise TypeError("3D arrays must have three (RGB) or four (RGBA) color components")
+            raise TypeError("3D arrays must have three (RGB) "
+                            "or four (RGBA) color components")
         if len(A.shape) == 3 and A.shape[2] == 1:
             A.shape = A.shape[0:2]
         self._A = A
@@ -764,7 +774,8 @@ class NonUniformImage(AxesImage):
 
     def set_interpolation(self, s):
         if s is not None and not s in ('nearest', 'bilinear'):
-            raise NotImplementedError('Only nearest neighbor and bilinear interpolations are supported')
+            raise NotImplementedError('Only nearest neighbor and '
+                                      'bilinear interpolations are supported')
         AxesImage.set_interpolation(self, s)
 
     def get_extent(self):
@@ -892,7 +903,8 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
         self.is_grayscale = False
         if A.ndim == 3:
             if A.shape[2] in [3, 4]:
-                if (A[:, :, 0] == A[:, :, 1]).all() and (A[:, :, 0] == A[:, :, 2]).all():
+                if ((A[:, :, 0] == A[:, :, 1]).all() and
+                    (A[:, :, 0] == A[:, :, 2]).all()):
                     self.is_grayscale = True
             else:
                 raise ValueError("3D arrays must have RGB or RGBA as last dim")
@@ -1048,11 +1060,12 @@ class BboxImage(_AxesImageBase):
         cmap is a colors.Colormap instance
         norm is a colors.Normalize instance to map luminance to 0-1
 
-        interp_at_native is a flag that determines whether or not interpolation should
-        still be applied when the image is displayed at its native resolution.  A common
-        use case for this is when displaying an image for annotational purposes; it is
-        treated similarly to Photoshop (interpolation is only used when displaying the
-        image at non-native resolutions).
+        interp_at_native is a flag that determines whether or not
+        interpolation should still be applied when the image is
+        displayed at its native resolution.  A common use case for this
+        is when displaying an image for annotational purposes; it is
+        treated similarly to Photoshop (interpolation is only used when
+        displaying the image at non-native resolutions).
 
 
         kwargs are an optional list of Artist keyword args
@@ -1105,7 +1118,8 @@ class BboxImage(_AxesImageBase):
 
     def make_image(self, renderer, magnification=1.0):
         if self._A is None:
-            raise RuntimeError('You must first set the image array or the image attribute')
+            raise RuntimeError('You must first set the image '
+                               'array or the image attribute')
 
         if self._imcache is None:
             if self._A.dtype == np.uint8 and len(self._A.shape) == 3:
@@ -1136,7 +1150,7 @@ class BboxImage(_AxesImageBase):
 
         im.set_resample(self._resample)
 
-        l, b, r, t = self.get_window_extent(renderer).extents  #bbox.extents
+        l, b, r, t = self.get_window_extent(renderer).extents  # bbox.extents
         widthDisplay = round(r) - round(l)
         heightDisplay = round(t) - round(b)
         widthDisplay *= magnification
@@ -1144,7 +1158,8 @@ class BboxImage(_AxesImageBase):
 
         numrows, numcols = self._A.shape[:2]
 
-        if not self.interp_at_native and widthDisplay == numcols and heightDisplay == numrows:
+        if (not self.interp_at_native and
+            widthDisplay == numcols and heightDisplay == numrows):
             im.set_interpolation(0)
 
         # resize viewport to display
@@ -1226,7 +1241,9 @@ def imread(fname, format=None):
     if ext not in handlers.iterkeys():
         im = pilread(fname)
         if im is None:
-            raise ValueError('Only know how to handle extensions: %s; with PIL installed matplotlib can handle more images' % handlers.keys())
+            raise ValueError('Only know how to handle extensions: %s; '
+                             'with PIL installed matplotlib can handle '
+                             'more images' % handlers.keys())
         return im
 
     handler = handlers[ext]
@@ -1258,8 +1275,9 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     Keyword arguments:
       *vmin*/*vmax*: [ None | scalar ]
         *vmin* and *vmax* set the color scaling for the image by fixing the
-        values that map to the colormap color limits. If either *vmin* or *vmax*
-        is None, that limit is determined from the *arr* min/max value.
+        values that map to the colormap color limits. If either *vmin*
+        or *vmax* is None, that limit is determined from the *arr*
+        min/max value.
       *cmap*:
         cmap is a colors.Colormap instance, eg cm.jet.
         If None, default to the rc image.cmap value.
@@ -1395,13 +1413,15 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         elif extension == '.svg':
             from matplotlib.backends.backend_svg import FigureCanvasSVG as FigureCanvas
         else:
-            raise ValueError("Can only handle extensions 'png', 'svg' or 'pdf'")
+            raise ValueError("Can only handle "
+                             "extensions 'png', 'svg' or 'pdf'")
 
         from matplotlib.figure import Figure
         fig = Figure(figsize=(width, height), dpi=dpi)
         canvas = FigureCanvas(fig)
 
-    ax = fig.add_axes([0, 0, 1, 1], aspect='auto', frameon=False, xticks=[], yticks=[])
+    ax = fig.add_axes([0, 0, 1, 1], aspect='auto',
+                      frameon=False, xticks=[], yticks=[])
 
     basename, ext = os.path.splitext(basename)
     ax.imshow(im, aspect='auto', resample=True, interpolation='bilinear')
