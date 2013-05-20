@@ -4,6 +4,16 @@ import os, sys
 def fn_name(): return sys._getframe(1).f_code.co_name
 
 try:
+    import gi
+except ImportError:
+    raise ImportError("Gtk3 backend requires pygobject to be installed.")
+
+try:
+    gi.require_version("Gtk", "3.0")
+except ValueError:
+    raise ImportError("Gtk3 backend gtk3 development files to be installed.")
+
+try:
     from gi.repository import Gtk, Gdk, GObject
 except ImportError:
     raise ImportError("GTK3 backend requires pygobject to be installed.")
