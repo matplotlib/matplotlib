@@ -18,8 +18,7 @@ Changes in 1.3.x
 ================
 
 * The following items that were deprecated in version 1.2 or earlier
-  have now been removed completely.  Use the following mapping to
-  update your code:
+  have now been removed completely.
 
     - The Qt 3.x backends (`qt` and `qtagg`) have been removed in
       favor of the Qt 4.x backends (`qt4` and `qt4agg`).
