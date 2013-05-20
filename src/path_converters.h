@@ -866,10 +866,10 @@ public:
         if (m_has_last) {
             // We want the "cursor" along the sine wave to move at a
             // random rate.
-            float _drand48 = rand() / float(RAND_MAX);
-            float _M_PI = 3.14159265358979323846;
-            m_p += pow(m_randomness, _drand48 * 2.0 - 1.0);
-            double r = sin(m_p / (m_length / (_M_PI * 2.0))) * m_scale;
+            double d_rand = rand() / double(RAND_MAX);
+            double d_M_PI = 3.14159265358979323846;
+            m_p += pow(m_randomness, d_rand * 2.0 - 1.0);
+            double r = sin(m_p / (m_length / (d_M_PI * 2.0))) * m_scale;
             double den = m_last_x - *x;
             double num = m_last_y - *y;
             double len = num*num + den*den;
