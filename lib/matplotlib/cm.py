@@ -189,9 +189,9 @@ class ScalarMappable:
             norm = colors.Normalize()
 
         self._A = None;
-        #; The Normalization instance of this ScalarMappable.
+        #: The Normalization instance of this ScalarMappable.
         self.norm = norm
-        #; The Colormap instance of this ScalarMappable.
+        #: The Colormap instance of this ScalarMappable.
         self.cmap = get_cmap(cmap)
         self.colorbar = None
         self.update_dict = {'array': False}

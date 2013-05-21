@@ -104,6 +104,15 @@ Changes in 1.3.x
   existing text objects.  This brings their behavior in line with most
   other rcParams.
 
+* To support XKCD style plots, the :func:`matplotlib.path.cleanup_path`
+  method's signature was updated to require a sketch argument. Users of
+  :func:`matplotlib.path.cleanup_path` are encouraged to use the new
+  :meth:`~matplotlib.path.Path.cleaned` Path method.
+
+* The list at ``Path.NUM_VERTICES`` was replaced by a dictionary mapping
+  Path codes to the number of expected vertices at
+  :attr:`~matplotlib.path.Path.NUM_VERTICES_FOR_CODE`.
+
 * Fixed a bug in setting the position for the right/top spine with data
   position type. Previously, it would draw the right or top spine at
   +1 data offset.
