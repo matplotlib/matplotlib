@@ -991,10 +991,13 @@ class Axis(artist.Artist):
             interval_expanded = interval[1], interval[0]
 
         if hasattr(self, '_get_pixel_distance_along_axis'):
-            # normally, one does not want to catch all exceptions that could possibly happen, but it
-            # is not clear exactly what exceptions might arise from a user's projection (their rendition
-            # of the Axis object).  So, we catch all, with the idea that one would rather potentially
-            # lose a tick from one side of the axis or another, rather than see a stack trace.
+            # normally, one does not want to catch all exceptions that
+            # could possibly happen, but it is not clear exactly what
+            # exceptions might arise from a user's projection (their
+            # rendition of the Axis object).  So, we catch all, with
+            # the idea that one would rather potentially lose a tick
+            # from one side of the axis or another, rather than see a
+            # stack trace.
             try:
                ds1 = self._get_pixel_distance_along_axis(interval_expanded[0], -0.5)
             except:
@@ -1005,7 +1008,8 @@ class Axis(artist.Artist):
             except:
                warnings.warn("Unable to find pixel distance along axis for interval padding; assuming no interval padding needed.")
                ds2 = 0.0
-            interval_expanded = (interval[0] - ds1, interval[1] + ds2)
+            interval_expanded = (interval_expanded[0] - ds1,
+                                 interval_expanded[1] + ds2)
 
         ticks_to_draw = []
         for tick, loc, label in tick_tups:
