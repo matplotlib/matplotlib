@@ -36,8 +36,10 @@ and Emf backends.  See :ref:`changes_in_1_3` for a complete list.
 To give your plots a sense of authority that they may be missing,
 Michael Droettboom (inspired by the work of many others in
 :ghpull:`1329`) has added an `xkcd-style <http://xkcd.com/>`_ sketch
-plotting mode.  To use it, simply call `pyplot.xkcd` before creating
-your plot.
+plotting mode.  To use it, simply call :func:`matplotlib.pyplot.xkcd`
+before creating your plot. For really fine control, it is also possible
+to modify each artist's sketch parameters individually with
+:meth:`matplotlib.artist.Artist.set_sketch_params`.
 
 .. plot:: mpl_examples/showcase/xkcd.py
 
