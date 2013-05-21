@@ -165,26 +165,27 @@ class Path(object):
         """
         Creates a Path instance without the expense of calling the constructor
 
-        Use this method at your own risk...
-
         Parameters
         ----------
         verts : numpy array
         codes : numpy array (may not be None)
         internals : dict or None
             The attributes that the resulting path should have.
+            Allowed keys are ``readonly``, ``should_simplify``,
+            ``simplify_threshold``, ``has_nonfinite`` and
+            ``interpolation_steps``.
 
         """
         internals = internals or {}
         pth = cls.__new__(cls)
         pth._vertices = verts
         pth._codes = codes
-        pth._readonly = internals.pop('_readonly', False)
-        pth._should_simplify = internals.pop('_should_simplify', True)
-        pth._simplify_threshold = internals.pop('_simplify_threshold',
+        pth._readonly = internals.pop('readonly', False)
+        pth.should_simplify = internals.pop('should_simplify', True)
+        pth.simplify_threshold = internals.pop('simplify_threshold',
                                           rcParams['path.simplify_threshold'])
-        pth._has_nonfinite = internals.pop('_has_nonfinite', False)
-        pth._interpolation_steps = internals.pop('_interpolation_steps', 1)
+        pth._has_nonfinite = internals.pop('has_nonfinite', False)
+        pth._interpolation_steps = internals.pop('interpolation_steps', 1)
         if internals:
             raise ValueError('Unexpected internals provided to '
                              '_fast_from_codes_and_verts: '
@@ -436,7 +437,11 @@ class Path(object):
                                        remove_nans, clip,
                                        snap, stroke_width,
                                        simplify, curves, sketch)
-        return Path._fast_from_codes_and_verts(vertices, codes)
+        internals = {'should_simplify': self.should_simplify and not simplify,
+                     'has_nonfinite': self.has_nonfinite and not remove_nans,
+                     'simplify_threshold': self.simplify_threshold,
+                     'interpolation_steps': self._interpolation_steps}
+        return Path._fast_from_codes_and_verts(vertices, codes, internals)
 
     def transformed(self, transform):
         """
