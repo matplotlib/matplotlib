@@ -433,10 +433,10 @@ class Path(object):
         Path instance with cleaned up vertices and codes.
 
         """
-        vertices, codes = cleanup_path(self, transform,
-                                       remove_nans, clip,
-                                       snap, stroke_width,
-                                       simplify, curves, sketch)
+        vertices, codes = _path.cleanup_path(self, transform,
+                                             remove_nans, clip,
+                                             snap, stroke_width,
+                                             simplify, curves, sketch)
         internals = {'should_simplify': self.should_simplify and not simplify,
                      'has_nonfinite': self.has_nonfinite and not remove_nans,
                      'simplify_threshold': self.simplify_threshold,
