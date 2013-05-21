@@ -1,4 +1,4 @@
-from nose.tools import assert_equal 
+from nose.tools import assert_equal
 import numpy as np
 from numpy import ma
 
@@ -904,6 +904,7 @@ def test_log_scales():
     ax = plt.gca()
     plt.plot(np.log(np.linspace(0.1, 100)))
     ax.set_yscale('log', basey=5.5)
+    ax.invert_yaxis()
     ax.set_xscale('log', basex=9.0)
 
 
@@ -971,7 +972,7 @@ def test_boxplot():
                   remove_text=True, extensions=['png'],
                   savefig_kwarg={'dpi': 40})
 def test_boxplot_no_weird_whisker():
-    x = np.array([3, 9000, 150, 88, 350, 200000, 1400, 960], 
+    x = np.array([3, 9000, 150, 88, 350, 200000, 1400, 960],
                 dtype=np.float64)
     ax1 = plt.axes()
     ax1.boxplot(x)
