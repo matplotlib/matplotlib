@@ -149,7 +149,6 @@ class Line2D(Artist):
                  pickradius=5,
                  drawstyle=None,
                  markevery=None,
-                 path_effects = None,
                  **kwargs
                  ):
         """
