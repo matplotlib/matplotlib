@@ -78,13 +78,12 @@ def warn_deprecated(
         since, message='', name='', alternative='', pending=False,
         obj_type='attribute'):
     """
-    Used display deprecation warning in a standard way.
+    Used to display deprecation warning in a standard way.
 
     Parameters
     ------------
     since : str
-        The release at which this API became deprecated.  This is
-        required.
+        The release at which this API became deprecated.
 
     message : str, optional
         Override the default deprecation message.  The format
