@@ -63,6 +63,21 @@ installs.
 .. _screenshots_ellipse_demo:
 
 
+Streamplot
+==========
+
+The :meth:`~matplotlib.pyplot.streamplot` function plots the streamlines of
+a vector field. In addition to simply plotting the streamlines, it allows you
+to map the colors and/or line widths of streamlines to a separate parameter,
+such as the speed or local intensity of the vector field.
+
+.. plot:: mpl_examples/images_contours_and_fields/streamplot_demo_features.py
+
+This feature complements the :meth:`~matplotlib.pyplot.quiver` function for
+plotting vector fields. Thanks to Tom Flannaghan and Tony Yu for adding the
+streamplot function.
+
+
 Ellipses
 ========
 
