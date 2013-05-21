@@ -250,7 +250,7 @@ def setp(*args, **kwargs):
     return ret
 
 
-def xkcd():
+def xkcd(scale=1, length=100, randomness=2):
     """
     Turns on `xkcd <http://xkcd.com/>`_ sketch-style drawing mode.
     This will only have effect on things drawn after this function is
@@ -258,6 +258,15 @@ def xkcd():
 
     For best results, the "Humor Sans" font should be installed: it is
     not included with matplotlib.
+
+    Parameters
+    ----------
+    scale: float, optional
+        The amplitude of the wiggle perpendicular to the source line.
+    length: float, optional
+        The length of the wiggle along the line.
+    randomness: float, optional
+        The scale factor by which the length is shrunken or expanded.
 
     This function works by a number of rcParams, so it will probably
     override others you have set before.
@@ -282,7 +291,7 @@ def xkcd():
     try:
         rcParams['font.family'] = ['Humor Sans', 'Comic Sans MS']
         rcParams['font.size'] = 14.0
-        rcParams['path.sketch'] = (1, 100, 2)
+        rcParams['path.sketch'] = (scale, length, randomness)
         rcParams['path.effects'] = [
             patheffects.withStroke(linewidth=4, foreground="w")]
         rcParams['axes.linewidth'] = 1.5
