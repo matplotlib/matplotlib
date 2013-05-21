@@ -158,7 +158,6 @@ class Text(Artist):
                  rotation=None,
                  linespacing=None,
                  rotation_mode=None,
-                 path_effects=None,
                  **kwargs
                  ):
         """

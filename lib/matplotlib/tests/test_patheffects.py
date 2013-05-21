@@ -13,9 +13,8 @@ def test_patheffect1():
     txt = ax1.annotate("test", (1., 1.), (0., 0),
                        arrowprops=dict(arrowstyle="->",
                                        connectionstyle="angle3", lw=2),
-                       size=20, ha="center")
-
-    txt.set_path_effects([withStroke(linewidth=3,
+                       size=20, ha="center",
+                       path_effects=[withStroke(linewidth=3,
                                      foreground="w")])
     txt.arrow_patch.set_path_effects([Stroke(linewidth=5,
                                              foreground="w"),
