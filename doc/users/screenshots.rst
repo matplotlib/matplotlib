@@ -103,7 +103,7 @@ command, which includes customizations such as error bars:
 It's also simple to create stacked bars
 (`bar_stacked.py <mpl_examples/pylab_examples/bar_stacked.html>`_),
 candlestick bars
-(`bar_stacked.py <mpl_examples/pylab_examples/finance_demo.html>`_),
+(`finance_demo.py <mpl_examples/pylab_examples/finance_demo.html>`_),
 and horizontal bar charts
 (`barh_demo.py <mpl_examples/lines_bars_and_markers/barh_demo.html>`_).
 
@@ -296,3 +296,11 @@ For examples of how to embed matplotlib in different toolkits, see:
    * :ref:`user_interfaces-mpl_with_glade`
    * :ref:`user_interfaces-embedding_in_qt`
    * :ref:`user_interfaces-embedding_in_tk`
+
+XKCD-style sketch plots
+=======================
+
+matplotlib supports plotting in the style of `xkcd
+<http://www.xkcd.com/>`.
+
+.. plot:: mpl_examples/showcase/xkcd.py
