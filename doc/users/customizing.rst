@@ -18,21 +18,31 @@ locations, in the following order:
 
 1. :file:`matplotlibrc` in the current working directory, usually used for
    specific customizations that you do not want to apply elsewhere.
-2. :file:`.matplotlib/matplotlibrc`, for the user's default customizations. See
-   :ref:`locating-matplotlib-config-dir`.
-3. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where :file:`{INSTALL}`
-   is something like :file:`/usr/lib/python2.5/site-packages` on Linux, and
-   maybe :file:`C:\\Python25\\Lib\\site-packages` on Windows. Every time you
-   install matplotlib, this file will be overwritten, so if you want your
-   customizations to be saved, please move this file to your :file:`.matplotlib`
-   directory.
+
+2. It next looks in a user-specific place, depending on your platform:
+
+   - On Linux, it looks in :file:`.config/matplotlib/matplotlibrc` (or
+     `$XDG_CONFIG_HOME/matplotlib/matplotlibrc` if you've customized
+     your environment.
+
+   - On other platforms, it looks in :file:`.matplotlib/matplotlibrc`.
+
+   See :ref:`locating-matplotlib-config-dir`.
+
+3. :file:`{INSTALL}/matplotlib/mpl-data/matplotlibrc`, where
+   :file:`{INSTALL}` is something like
+   :file:`/usr/lib/python2.5/site-packages` on Linux, and maybe
+   :file:`C:\\Python25\\Lib\\site-packages` on Windows. Every time you
+   install matplotlib, this file will be overwritten, so if you want
+   your customizations to be saved, please move this file to your
+   user-specific matplotlib directory.
 
 To display where the currently active :file:`matplotlibrc` file was
 loaded from, one can do the following::
 
   >>> import matplotlib
   >>> matplotlib.matplotlib_fname()
-  '/home/foo/.matplotlib/matplotlibrc'
+  '/home/foo/.config/matplotlib/matplotlibrc'
 
 See below for a sample :ref:`matplotlibrc file<matplotlibrc-sample>`.
 
