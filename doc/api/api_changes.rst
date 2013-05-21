@@ -122,16 +122,25 @@ Changes in 1.3.x
   value of this kwarg is ``head_width = 20 * width``.
 
 * Removed call of :meth:`~matplotlib.axes.Axes.grid` in
-  :meth:`~matplotlib.pyplot.plotfile`. To draw the axes grid, set to *True*
-  matplotlib.rcParams['axes.grid'] or ``axes.grid`` in ``.matplotlibrc`` or
-  explicitly call :meth:`~matplotlib.axes.Axes.grid`
+  :meth:`~matplotlib.pyplot.plotfile`. To draw the axes grid, set the
+  ``axes.grid`` rcParam to *True*, or explicitly call
+  :meth:`~matplotlib.axes.Axes.grid`.
+
+* It is now posible to provide ``number of levels + 1`` colors in the case of
+  `extend='both'` for contourf (or just ``number of levels`` colors for an
+  extend value ``min`` or ``max``) such that the resulting colormap's
+  ``set_under`` and ``set_over`` are defined appropriately. Any other number
+  of colors will continue to behave as before (if more colors are provided
+  than levels, the colors will be unused). A similar change has been applied
+  to contour, where ``extend='both'`` would expect ``number of levels + 2``
+  colors.
 
 * A new keyword *extendrect* in :meth:`~matplotlib.pyplot.colorbar` and
   :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the shape
   of colorbar extensions.
 
 * The `~matplotlib.mpl` module is now deprecated. Those who relied on this
-  module should transition to simply using `import matplotlib as mpl`.
+  module should transition to simply using ``import matplotlib as mpl``.
 
 * The extension of :class:`~matplotlib.widgets.MultiCursor` to both vertical
   (default) and/or horizontal cursor implied that ``self.line`` is replaced
@@ -142,8 +151,8 @@ Changes in 1.3.x
   raises :class:`NotImplementedError` instead of :class:`OSError` if the
   :command:`ps` command cannot be run.
 
-* The :func:`~matplotlib.cbook.check_output` function has been moved to
-  `~matplotlib.compat.subprocess`.
+* The :func:`matplotlib.cbook.check_output` function has been moved to
+  :func:`matplotlib.compat.subprocess`.
 
 * :class:`~matplotlib.patches.Patch` now fully supports using RGBA values for
   its ``facecolor`` and ``edgecolor`` attributes, which enables faces and
