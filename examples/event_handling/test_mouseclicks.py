@@ -5,7 +5,6 @@ import matplotlib
 #matplotlib.use("WxAgg")
 #matplotlib.use("TkAgg")
 #matplotlib.use("GTKAgg")
-#matplotlib.use("QtAgg")
 #matplotlib.use("Qt4Agg")
 #matplotlib.use("CocoaAgg")
 #matplotlib.use("MacOSX")

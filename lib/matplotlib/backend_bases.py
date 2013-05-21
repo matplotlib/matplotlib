@@ -1920,7 +1920,6 @@ class FigureCanvasBase(object):
         return int(self.figure.bbox.width), int(self.figure.bbox.height)
 
     filetypes = {
-        'emf': 'Enhanced Metafile',
         'eps': 'Encapsulated Postscript',
         'pdf': 'Portable Document Format',
         'pgf': 'LaTeX PGF Figure',
@@ -1941,11 +1940,6 @@ class FigureCanvasBase(object):
     # if the backend has not already been loaded earlier on.  Simple trigger:
     # >>> import matplotlib.tests.test_spines
     # >>> list(matplotlib.tests.test_spines.test_spines_axes_positions())[0][0]()
-
-    def print_emf(self, *args, **kwargs):
-        from backends.backend_emf import FigureCanvasEMF  # lazy import
-        emf = self.switch_backends(FigureCanvasEMF)
-        return emf.print_emf(*args, **kwargs)
 
     def print_eps(self, *args, **kwargs):
         from backends.backend_ps import FigureCanvasPS  # lazy import

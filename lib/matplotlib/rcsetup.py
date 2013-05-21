@@ -20,13 +20,13 @@ import warnings
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
 from matplotlib.colors import is_color_like
 
-#interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'fltkagg', 'qtagg', 'qt4agg',
+#interactive_bk = ['gtk', 'gtkagg', 'gtkcairo', 'qt4agg',
 #                  'tkagg', 'wx', 'wxagg', 'cocoaagg', 'webagg']
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
 
-interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'FltkAgg', 'MacOSX',
-                  'QtAgg', 'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
+interactive_bk = ['GTK', 'GTKAgg', 'GTKCairo', 'MacOSX',
+                  'Qt4Agg', 'TkAgg', 'WX', 'WXAgg', 'CocoaAgg',
                   'GTK3Cairo', 'GTK3Agg', 'WebAgg']
 
 

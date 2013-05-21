@@ -31,7 +31,6 @@ from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
 from matplotlib.offsetbox import DraggableOffsetBox
 
 from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
-from matplotlib.cbook import mplDeprecation
 import legend_handler
 
 
@@ -139,13 +138,6 @@ class Legend(Artist):
                  scatteryoffsets=None,
                  prop=None,          # properties for the legend texts
                  fontsize=None,        # keyword to set font size directly
-
-                 # the following dimensions are in axes coords
-                 pad=None,            # deprecated; use borderpad
-                 labelsep=None,       # deprecated; use labelspacing
-                 handlelen=None,      # deprecated; use handlelength
-                 handletextsep=None,  # deprecated; use handletextpad
-                 axespad=None,        # deprecated; use borderaxespad
 
                  # spacing & pad defined as a fraction of the font-size
                  borderpad=None,      # the whitespace inside the legend border
@@ -264,13 +256,6 @@ class Legend(Artist):
                 value = localdict[name]
             setattr(self, name, value)
 
-        # Take care the deprecated keywords
-        deprecated_kwds = {"pad": "borderpad",
-                           "labelsep": "labelspacing",
-                           "handlelen": "handlelength",
-                           "handletextsep": "handletextpad",
-                           "axespad": "borderaxespad"}
-
         # convert values of deprecated keywords (ginve in axes coords)
         # to new vaules in a fraction of the font size
 
@@ -278,16 +263,8 @@ class Legend(Artist):
         bbox = parent.bbox
         axessize_fontsize = min(bbox.width, bbox.height) / self._fontsize
 
-        for k, v in deprecated_kwds.iteritems():
-            # use deprecated value if not None and if their newer
-            # counter part is None.
-            if localdict[k] is not None and localdict[v] is None:
-                warnings.warn("Use '%s' instead of '%s'." % (v, k),
-                              mplDeprecation)
-                setattr(self, v, localdict[k] * axessize_fontsize)
-                continue
-
-            # Otherwise, use new keywords
+        for v in ['borderpad', 'labelspacing', 'handlelength',
+                  'handletextpad', 'borderaxespad']:
             if localdict[v] is None:
                 setattr(self, v, rcParams["legend." + v])
             else:

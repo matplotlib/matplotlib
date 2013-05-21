@@ -250,7 +250,6 @@ class Game(object):
 
         if event.key == 'g':
             #self.ax.clear()
-            #self.ax.grid() # seems to be necessary for qt backend
             self.on = not self.on
         if event.key == 't':
             self.inst = not self.inst

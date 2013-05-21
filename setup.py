@@ -79,7 +79,6 @@ mpl_packages = [
     setupext.BackendTkAgg(),
     setupext.BackendWxAgg(),
     setupext.BackendGtk(),
-    setupext.BackendQt(),
     setupext.BackendAgg(),
     setupext.BackendCairo(),
     'Optional LaTeX dependencies',
