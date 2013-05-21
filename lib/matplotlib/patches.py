@@ -64,7 +64,6 @@ class Patch(artist.Artist):
                  antialiased=None,
                  hatch=None,
                  fill=True,
-                 path_effects=None,
                  **kwargs):
         """
         The following kwarg properties are supported
