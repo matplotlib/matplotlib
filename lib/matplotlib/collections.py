@@ -91,7 +91,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  urls=None,
                  offset_position='screen',
                  zorder=1,
-                 path_effects=None,
                  **kwargs
                  ):
         """
