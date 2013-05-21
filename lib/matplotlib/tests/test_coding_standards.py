@@ -1,5 +1,6 @@
 from fnmatch import fnmatch
 import os
+import sys
 
 from nose.tools import assert_equal
 import pep8
@@ -177,6 +178,11 @@ def test_pep8_conformance():
 #    ".pep8_test_exclude.txt" file in the same directory as this test.
 #    The file should be a line separated list of filenames/directories
 #    as can be passed to the "pep8" tool's exclude list.
+
+    # Only run this test with Python 2 - the 2to3 tool generates non pep8
+    # compliant code.
+    if sys.version_info[0] != 2:
+        return
 
     # to get a list of bad files, rather than the specific errors, add
     # "reporter=pep8.FileReport" to the StyleGuide constructor.
