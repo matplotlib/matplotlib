@@ -25,6 +25,12 @@ from Foundation import *
 from AppKit import *
 from PyObjCTools import NibClassBuilder, AppHelper
 
+from matplotlib import cbook
+cbook.warn_deprecated(
+    '1.3',
+    message="The CocoaAgg backend is not a fully-functioning backend. "
+            "It may be removed in matplotlib 1.4.")
+
 import matplotlib
 from matplotlib.figure import Figure
 from matplotlib.backend_bases import FigureManagerBase, FigureCanvasBase
@@ -292,4 +298,3 @@ def WMEnable(name='Python'):
         print('SetFrontProcess', (err, psn), file=sys.stderr)
         return False
     return True
-

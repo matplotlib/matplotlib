@@ -127,7 +127,7 @@ class PatchRC(traits.HasTraits):
    antialiased     = flexible_true_trait
 
 timezones = 'UTC', 'US/Central', 'ES/Eastern' # fixme: and many more
-backends = ('GTKAgg', 'Cairo', 'FltkAgg', 'GDK', 'GTK', 'Agg',
+backends = ('GTKAgg', 'Cairo', 'GDK', 'GTK', 'Agg',
            'GTKCairo', 'PS', 'SVG', 'Template', 'TkAgg',
            'WX')
 
@@ -192,6 +192,3 @@ if doprint:
    print()
    print('Patch')
    p.print_traits()
-
-
-

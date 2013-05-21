@@ -1621,36 +1621,6 @@ class Windowing(OptionalBackendPackage):
         return ext
 
 
-class BackendQt(OptionalBackendPackage):
-    name = "qtagg"
-
-    def convert_qt_version(self, version):
-        version = '%x' % version
-        temp = []
-        while len(version) > 0:
-            version, chunk = version[:-2], version[-2:]
-            temp.insert(0, str(int(chunk, 16)))
-        return '.'.join(temp)
-
-    def check(self):
-        try:
-            import pyqtconfig
-        except ImportError:
-            raise CheckFailed("pyqt not found")
-        else:
-            try:
-                qt_version = pyqtconfig.Configuration().qt_version
-                qt_version = self.convert_qt_version(qt_version)
-            except AttributeError:
-                qt_version = "<unknown>"
-
-            BackendAgg.force = True
-
-            return ("Qt: %s, PyQt: %s" %
-                    (qt_version,
-                     pyqtconfig.Configuration().pyqt_version_str))
-
-
 class BackendQt4(OptionalBackendPackage):
     name = "qt4agg"
 

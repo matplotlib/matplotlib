@@ -89,11 +89,6 @@ if i > indStart:
         print("# PyQt4 version: %s, Qt version %x" % \
             (PyQt4.pyqtconfig.Configuration().pyqt_version_str,
              PyQt4.pyqtconfig.Configuration().qt_version))
-    elif backend.startswith("qt"):
-        import pyqtconfig
-        print("# pyqt version: %s, qt version: %x" % \
-            (pyqtconfig.Configuration().pyqt_version_str,
-             pyqtconfig.Configuration().qt_version))
     elif backend.startswith("wx"):
         import wx
         print("# wxPython version: %s" % wx.__version__)
