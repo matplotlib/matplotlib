@@ -37,7 +37,6 @@ import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
-from matplotlib.cbook import mplDeprecation
 from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
 
 iterable = cbook.iterable
@@ -1062,8 +1061,8 @@ class Axes(martist.Artist):
             the option 'normal' for aspect is deprecated. Use 'auto' instead.
         """
         if aspect == 'normal':
-            warnings.warn("Use 'auto' instead of 'normal' for aspect. Will "
-                          "be removed in 1.4.x", mplDeprecation)
+            cbook.warn_deprecated(
+                '1.2', name='normal', alternative='auto', obj_type='aspect')
             self._aspect = 'auto'
 
         elif aspect in ('equal', 'auto'):
@@ -1365,11 +1364,6 @@ class Axes(martist.Artist):
         self.set_ylim([v[2], v[3]], emit=emit, auto=False)
 
         return v
-
-    def get_frame(self):
-        """Return the axes Rectangle frame"""
-        warnings.warn('use ax.patch instead', mplDeprecation)
-        return self.patch
 
     def get_legend(self):
         """
@@ -6281,9 +6275,8 @@ class Axes(martist.Artist):
         faceted = kwargs.pop('faceted', None)
         edgecolors = kwargs.get('edgecolors', None)
         if faceted is not None:
-            warnings.warn("The faceted option is deprecated. "
-                          "Please use edgecolor instead. Will "
-                          "be removed in 1.4", mplDeprecation)
+            cbook.warn_deprecated(
+                '1.2', 'faceted', alternative='edgecolor', obj_type='option')
             if faceted:
                 edgecolors = None
             else:
@@ -7505,8 +7498,8 @@ class Axes(martist.Artist):
         vmin = kwargs.pop('vmin', None)
         vmax = kwargs.pop('vmax', None)
         if 'shading' in kwargs:
-            warnings.warn("Use edgecolors instead of shading. "
-                          "Will be removed in 1.4", mplDeprecation)
+            cbook.warn_deprecated(
+                '1.2', 'shading', alternative='edgecolors', obj_type='option')
         shading = kwargs.pop('shading', 'flat')
 
         X, Y, C = self._pcolorargs('pcolor', *args)
@@ -8208,11 +8201,6 @@ class Axes(martist.Artist):
         if orientation not in ['horizontal', 'vertical']:
             raise ValueError(
                 "orientation kwarg %s is not recognized" % orientation)
-
-        if kwargs.get('width') is not None:
-            raise mplDeprecation(
-                'hist now uses the rwidth to give relative width '
-                'and not absolute width')
 
         if histtype == 'barstacked' and not stacked:
             stacked = True

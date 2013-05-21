@@ -16,7 +16,6 @@ from mlab import dist
 from patches import Circle, Rectangle
 from lines import Line2D
 from transforms import blended_transform_factory
-from matplotlib.cbook import mplDeprecation
 
 
 class LockDraw:
@@ -1206,14 +1205,6 @@ class SpanSelector(AxesWidget):
 
         self.update()
         return False
-
-
-# For backwards compatibility only!
-class HorizontalSpanSelector(SpanSelector):
-    def __init__(self, ax, onselect, **kwargs):
-        import warnings
-        warnings.warn('Use SpanSelector instead!', mplDeprecation)
-        SpanSelector.__init__(self, ax, onselect, 'horizontal', **kwargs)
 
 
 class RectangleSelector(AxesWidget):

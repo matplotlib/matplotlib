@@ -9,12 +9,10 @@ from weakref import WeakValueDictionary
 import numpy as np
 from numpy import ma
 
-from matplotlib._path import point_in_path, get_path_extents, \
-    point_in_path_collection, get_path_collection_extents, \
-    path_in_path, path_intersects_path, convert_path_to_polygons, \
-    cleanup_path, points_in_path, clip_path_to_rect
+from matplotlib import _path
 from matplotlib.cbook import simple_linear_interpolation, maxdict
 from matplotlib import rcParams
+
 
 class Path(object):
     """
@@ -356,9 +354,10 @@ class Path(object):
         CLOSEPOLY    = self.CLOSEPOLY
         STOP         = self.STOP
 
-        vertices, codes = cleanup_path(self, transform, remove_nans, clip,
-                                       snap, stroke_width, simplify, curves,
-                                       sketch)
+        vertices, codes = _path.cleanup_path(
+            self, transform, remove_nans, clip,
+            snap, stroke_width, simplify, curves,
+            sketch)
         len_vertices = len(vertices)
 
         i = 0
@@ -398,7 +397,7 @@ class Path(object):
         """
         if transform is not None:
             transform = transform.frozen()
-        result = point_in_path(point[0], point[1], radius, self, transform)
+        result = _path.point_in_path(point[0], point[1], radius, self, transform)
         return result
 
     def contains_points(self, points, transform=None, radius=0.0):
@@ -414,7 +413,7 @@ class Path(object):
         """
         if transform is not None:
             transform = transform.frozen()
-        result = points_in_path(points, radius, self, transform)
+        result = _path.points_in_path(points, radius, self, transform)
         return result
 
     def contains_path(self, path, transform=None):
@@ -426,7 +425,7 @@ class Path(object):
         """
         if transform is not None:
             transform = transform.frozen()
-        return path_in_path(self, None, path, transform)
+        return _path.path_in_path(self, None, path, transform)
 
     def get_extents(self, transform=None):
         """
@@ -444,7 +443,7 @@ class Path(object):
             if not transform.is_affine:
                 path = self.transformed(transform)
                 transform = None
-        return Bbox(get_path_extents(path, transform))
+        return Bbox(_path.get_path_extents(path, transform))
 
     def intersects_path(self, other, filled=True):
         """
@@ -454,7 +453,7 @@ class Path(object):
         That is, if one path completely encloses the other,
         :meth:`intersects_path` will return True.
         """
-        return path_intersects_path(self, other, filled)
+        return _path.path_intersects_path(self, other, filled)
 
     def intersects_bbox(self, bbox, filled=True):
         """
@@ -514,7 +513,7 @@ class Path(object):
 
         # Deal with the case where there are curves and/or multiple
         # subpaths (using extension code)
-        return convert_path_to_polygons(self, transform, width, height)
+        return _path.convert_path_to_polygons(self, transform, width, height)
 
     _unit_rectangle = None
     @classmethod
@@ -833,12 +832,11 @@ class Path(object):
         to the outside of the box.
         """
         # Use make_compound_path_from_polys
-        verts = clip_path_to_rect(self, bbox, inside)
+        verts = _path.clip_path_to_rect(self, bbox, inside)
         paths = [Path(poly) for poly in verts]
         return self.make_compound_path(*paths)
 
 
-_get_path_collection_extents = get_path_collection_extents
 def get_path_collection_extents(
         master_transform, paths, transforms, offsets, offset_transform):
     """
@@ -869,8 +867,9 @@ def get_path_collection_extents(
     from transforms import Bbox
     if len(paths) == 0:
         raise ValueError("No paths provided")
-    return Bbox.from_extents(*_get_path_collection_extents(
+    return Bbox.from_extents(*_path.get_path_collection_extents(
         master_transform, paths, transforms, offsets, offset_transform))
+
 
 def get_paths_extents(paths, transforms=[]):
     """
@@ -887,5 +886,28 @@ def get_paths_extents(paths, transforms=[]):
     from transforms import Bbox, Affine2D
     if len(paths) == 0:
         raise ValueError("No paths provided")
-    return Bbox.from_extents(*_get_path_collection_extents(
+    return Bbox.from_extents(*_path.get_path_collection_extents(
         Affine2D(), paths, transforms, [], Affine2D()))
+
+
+def _define_deprecated_functions(ns):
+    from cbook import deprecated
+
+    # The C++ functions are not meant to be used directly.
+    # Users should use the more pythonic wrappers in the Path
+    # class instead.
+    for func, alternative in [
+            ('point_in_path', 'path.Path.contains_point'),
+            ('get_path_extents', 'path.Path.get_extents'),
+            ('point_in_path_collection', 'collection.Collection.contains'),
+            ('path_in_path', 'path.Path.contains_path'),
+            ('path_intersects_path', 'path.Path.intersects_path'),
+            ('convert_path_to_polygons', 'path.Path.to_polygons'),
+            ('cleanup_path', 'path.Path.cleaned'),
+            ('points_in_path', 'path.Path.contains_points'),
+            ('clip_path_to_rect', 'path.Path.clip_to_bbox')]:
+        ns[func] = deprecated(
+            since='1.3', alternative=alternative)(getattr(_path, func))
+
+
+_define_deprecated_functions(locals())
