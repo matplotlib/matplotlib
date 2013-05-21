@@ -1697,15 +1697,12 @@ def pstoeps(tmpfile, bbox=None, rotated=False):
             # eps file is not modified.
             line = tmph.readline()
             while line:
-                if line.startswith(b'%%Trailer'):
-                    write(b'%%Trailer\n')
+                if line.startswith(b'%%EOF'):
                     write(b'cleartomark\n')
                     write(b'countdictstack\n')
                     write(b'exch sub { end } repeat\n')
                     write(b'restore\n')
-                    if rcParams['ps.usedistiller'] == 'xpdf':
-                        # remove extraneous "end" operator:
-                        line = tmph.readline()
+                    write(b'%%EOF\n')
                 elif line.startswith(b'%%PageBoundingBox'):
                     pass
                 else:
