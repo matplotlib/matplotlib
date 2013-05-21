@@ -30,6 +30,17 @@ not been in a working state for a long time have been removed.
 Highlights include removing the Qt version 3 backends, and the FltkAgg
 and Emf backends.  See :ref:`changes_in_1_3` for a complete list.
 
+New setup script
+----------------
+
+matplotlib 1.3 includes an entirely rewritten setup script.  We now
+ship fewer dependencies with the tarballs and installers themselves.
+Notably, `pytz`, `dateutil` and `pyparsing` are no longer included
+with matplotlib.  You can either install them manually first, or let
+`pip` install them as depdencies along with matplotlib.  It is now
+possible to not include certain subcomponents, such as the unit test
+data, in the install.  See `setup.cfg.template` for more information.
+
 `xkcd`-style sketch plotting
 ----------------------------
 
@@ -48,7 +59,7 @@ Michael Droettboom, Phil Elson and others have developed a new
 backend, WebAgg, to display figures in a web browser.  It works with
 animations as well as being fully interactive.
 
-.. image:: _static/webagg_screenshot.png
+.. image:: /_static/webagg_screenshot.png
 
 Future versions of matplotlib will integrate this backend with the
 IPython notebook for a fully web browser based plotting frontend.

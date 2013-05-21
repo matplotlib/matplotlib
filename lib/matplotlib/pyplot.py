@@ -1264,8 +1264,6 @@ def box(on=None):
 
 def title(s, *args, **kwargs):
     """
-    title(label, fontdict=None, loc='center', **kwargs)
-
     Set a title of the current axes.
 
     Set one of the three available axes titles. The available titles are
