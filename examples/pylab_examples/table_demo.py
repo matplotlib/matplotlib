@@ -1,57 +1,9 @@
-#!/usr/bin/env python
-import matplotlib
+"""
+Demo of table function to display a table within a plot.
+"""
+import numpy as np
+import matplotlib.pyplot as plt
 
-from pylab import *
-from matplotlib.colors import colorConverter
-
-
-#Some simple functions to generate colours.
-def pastel(colour, weight=2.4):
-    """ Convert colour into a nice pastel shade"""
-    rgb = asarray(colorConverter.to_rgb(colour))
-    # scale colour
-    maxc = max(rgb)
-    if maxc < 1.0 and maxc > 0:
-        # scale colour
-        scale = 1.0 / maxc
-        rgb = rgb * scale
-    # now decrease saturation
-    total = sum(rgb)
-    slack = 0
-    for x in rgb:
-        slack += 1.0 - x
-
-    # want to increase weight from total to weight
-    # pick x s.t.  slack * x == weight - total
-    # x = (weight - total) / slack
-    x = (weight - total) / slack
-
-    rgb = [c + (x * (1.0-c)) for c in rgb]
-
-    return rgb
-
-def get_colours(n):
-    """ Return n pastel colours. """
-    base = asarray([[1,0,0], [0,1,0], [0,0,1]])
-
-    if n <= 3:
-        return base[0:n]
-
-    # how many new colours to we need to insert between
-    # red and green and between green and blue?
-    needed = (((n - 3) + 1) / 2, (n - 3) / 2)
-
-    colours = []
-    for start in (0, 1):
-        for x in linspace(0, 1, needed[start]+2):
-            colours.append((base[start] * (1.0 - x)) +
-                           (base[start+1] * x))
-
-    return [pastel(c) for c in colours[0:n]]
-
-
-
-axes([0.2, 0.2, 0.7, 0.6])   # leave room below the axes for the table
 
 data = [[  66386,  174296,   75131,  577908,   32015],
         [  58230,  381139,   78045,   99308,  160454],
@@ -59,34 +11,45 @@ data = [[  66386,  174296,   75131,  577908,   32015],
         [  78415,   81858,  150656,  193263,   69638],
         [ 139361,  331509,  343164,  781380,   52269]]
 
-colLabels = ('Freeze', 'Wind', 'Flood', 'Quake', 'Hail')
-rowLabels = ['%d year' % x for x in (100, 50, 20, 10, 5)]
+columns = ('Freeze', 'Wind', 'Flood', 'Quake', 'Hail')
+rows = ['%d year' % x for x in (100, 50, 20, 10, 5)]
 
-# Get some pastel shades for the colours
-colours = get_colours(len(colLabels))
-colours.reverse()
-rows = len(data)
+values = np.arange(0, 2500, 500)
+value_increment = 1000
 
-ind = arange(len(colLabels)) + 0.3  # the x locations for the groups
-cellText = []
-width = 0.4     # the width of the bars
-yoff = array([0.0] * len(colLabels)) # the bottom values for stacked bar chart
-for row in range(rows):
-    bar(ind, data[row], width, bottom=yoff, color=colours[row])
-    yoff = yoff + data[row]
-    cellText.append(['%1.1f' % (x/1000.0) for x in yoff])
+# Get some pastel shades for the colors
+colors = plt.cm.BuPu(np.linspace(0, 0.5, len(columns)))
+n_rows = len(data)
+
+index = np.arange(len(columns)) + 0.3
+bar_width = 0.4
+
+# Initialize the vertical-offset for the stacked bar chart.
+y_offset = np.array([0.0] * len(columns))
+
+# Plot bars and create text labels for the table
+cell_text = []
+for row in range(n_rows):
+    plt.bar(index, data[row], bar_width, bottom=y_offset, color=colors[row])
+    y_offset = y_offset + data[row]
+    cell_text.append(['%1.1f' % (x/1000.0) for x in y_offset])
+# Reverse colors and text labels to display the last value at the top.
+colors = colors[::-1]
+cell_text.reverse()
 
 # Add a table at the bottom of the axes
-colours.reverse()
-cellText.reverse()
-the_table = table(cellText=cellText,
-                  rowLabels=rowLabels, rowColours=colours,
-                  colLabels=colLabels,
-                  loc='bottom')
-ylabel("Loss $1000's")
-vals = arange(0, 2500, 500)
-yticks(vals*1000, ['%d' % val for val in vals])
-xticks([])
-title('Loss by Disaster')
+the_table = plt.table(cellText=cell_text,
+                      rowLabels=rows,
+                      rowColours=colors,
+                      colLabels=columns,
+                      loc='bottom')
 
-show()
+# Adjust layout to make room for the table:
+plt.subplots_adjust(left=0.2, bottom=0.2)
+
+plt.ylabel("Loss in ${0}'s".format(value_increment))
+plt.yticks(values * value_increment, ['%d' % val for val in values])
+plt.xticks([])
+plt.title('Loss by Disaster')
+
+plt.show()
