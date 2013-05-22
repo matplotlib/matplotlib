@@ -26,7 +26,8 @@ def test_LinearLocator():
 
 def test_MultipleLocator():
     loc = mticker.MultipleLocator(base=3.147)
-    test_value = np.array([-9.441, -6.294, -3.147, 0., 3.147, 6.294, 9.441, 12.588])
+    test_value = np.array([-9.441, -6.294, -3.147, 0., 3.147, 6.294,
+                           9.441, 12.588])
     assert_almost_equal(loc.tick_values(-7, 10), test_value)
 
 
@@ -35,8 +36,9 @@ def test_LogLocator():
 
     assert_raises(ValueError, loc.tick_values, 0, 1000)
 
-    test_value = np.array([1.00000000e-05, 1.00000000e-03, 1.00000000e-01, 1.00000000e+01,
-                           1.00000000e+03, 1.00000000e+05, 1.00000000e+07, 1.000000000e+09])
+    test_value = np.array([1.00000000e-05, 1.00000000e-03, 1.00000000e-01,
+                           1.00000000e+01, 1.00000000e+03, 1.00000000e+05,
+                           1.00000000e+07, 1.000000000e+09])
     assert_almost_equal(loc.tick_values(0.001, 1.1e5), test_value)
 
     loc = mticker.LogLocator(base=2)
