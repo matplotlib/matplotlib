@@ -3180,7 +3180,8 @@ class Axes(martist.Artist):
 
     @docstring.dedent_interpd
     def set_title(self, label, fontdict=None, loc="center", **kwargs):
-        """Set a title for the axes.
+        """
+        Set a title for the axes.
 
         Set one of the three available axes titles. The available titles
         are positioned above the axes in the center, flush with the left
@@ -3190,12 +3191,15 @@ class Axes(martist.Artist):
         ----------
         label : str
             Text to use for the title
+
         fontdict : dict
             A dictionary controlling the appearance of the title text,
-            the default `fontdict` is:
-            {'fontsize': rcParams['axes.titlesize'],
-             'verticalalignment': 'baseline',
-             'horizontalalignment': loc}
+            the default `fontdict` is::
+
+               {'fontsize': rcParams['axes.titlesize'],
+                'verticalalignment': 'baseline',
+                'horizontalalignment': loc}
+
         loc : {'center', 'left', 'right'}, str, optional
             Which title to set, defaults to 'center'
 
@@ -3209,7 +3213,6 @@ class Axes(martist.Artist):
         Other keyword arguments are text properties, see
         :class:`~matplotlib.text.Text` for a list of valid text
         properties.
-
         """
         try:
             title = {'left': self._left_title,
@@ -3304,7 +3307,7 @@ class Axes(martist.Artist):
         coordinates.
 
         Parameters
-        -----------
+        ----------
         s : string
             text
 
@@ -3322,6 +3325,7 @@ class Axes(martist.Artist):
         Other parameters
         ----------------
         kwargs : `~matplotlib.text.Text` properties.
+            Other miscellaneous text parameters.
 
         Examples
         --------
@@ -3345,7 +3349,6 @@ class Axes(martist.Artist):
         properties.  For example::
 
             >>> text(x, y, s, bbox=dict(facecolor='red', alpha=0.5))
-
         """
         default = {
             'verticalalignment': 'baseline',
@@ -4634,7 +4637,7 @@ class Axes(martist.Artist):
         Users can specify any arbitrary location for the legend using the
         *bbox_to_anchor* keyword argument. bbox_to_anchor can be an instance
         of BboxBase(or its derivatives) or a tuple of 2 or 4 floats.
-        For example,
+        For example::
 
            loc = 'upper right', bbox_to_anchor = (0.5, 0.5)
 
@@ -4646,7 +4649,6 @@ class Axes(martist.Artist):
 
         The loc itslef can be a 2-tuple giving x,y of the lower-left corner of
         the legend in axes coords (*bbox_to_anchor* is ignored).
-
 
         Keyword arguments:
 
@@ -8070,6 +8072,7 @@ class Axes(martist.Artist):
             If an integer is given, `bins + 1` bin edges are returned,
             consistently with :func:`numpy.histogram` for numpy version >=
             1.3.
+
             Unequally spaced bins are supported if `bins` is a sequence.
 
         range : tuple, optional, default: None
@@ -8158,7 +8161,7 @@ class Axes(martist.Artist):
 
         Returns
         -------
-        (n, bins, patches) or ([n0, n1, ...], bins, [patches0, patches1,...])
+        tuple : (n, bins, patches) or ([n0, n1, ...], bins, [patches0, patches1,...])
 
         Other Parameters
         ----------------
@@ -8173,7 +8176,7 @@ class Axes(martist.Artist):
         Until numpy release 1.5, the underlying numpy histogram function was
         incorrect with `normed`=`True` if bin sizes were unequal.  MPL
         inherited that error.  It is now corrected within MPL when using
-        earlier numpy versions
+        earlier numpy versions.
 
         Examples
         --------

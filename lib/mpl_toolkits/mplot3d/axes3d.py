@@ -464,7 +464,7 @@ class Axes3D(Axes):
         .. versionchanged :: 1.1.0
             Function signature was changed to better match the 2D version.
             *tight* is now explicitly a kwarg and placed first.
-            
+
         .. versionchanged :: 1.2.1
             This is now fully functional.
 
@@ -668,7 +668,7 @@ class Axes3D(Axes):
         Set 3D z limits.
 
         See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation
-        
+
         """
         if 'zmin' in kw:
             bottom = kw.pop('zmin')
@@ -752,7 +752,7 @@ class Axes3D(Axes):
     # We need to slightly redefine these to pass scalez=False
     # to their calls of autoscale_view.
     def set_xscale(self, value, **kwargs) :
-        self.xaxis.set_scale(value, **kwargs)
+        self.xaxis._set_scale(value, **kwargs)
         self.autoscale_view(scaley=False, scalez=False)
         self._update_transScale()
     set_xscale.__doc__ = maxes.Axes.set_xscale.__doc__ + """
@@ -762,7 +762,7 @@ class Axes3D(Axes):
         """
 
     def set_yscale(self, value, **kwargs) :
-        self.yaxis.set_scale(value, **kwargs)
+        self.yaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scalez=False)
         self._update_transScale()
     set_yscale.__doc__ = maxes.Axes.set_yscale.__doc__ + """
@@ -793,7 +793,7 @@ class Axes3D(Axes):
         .. versionadded :: 1.1.0
             This function was added, but not tested. Please report any bugs.
         """
-        self.zaxis.set_scale(value, **kwargs)
+        self.zaxis._set_scale(value, **kwargs)
         self.autoscale_view(scalex=False, scaley=False)
         self._update_transScale()
 
@@ -1035,9 +1035,9 @@ class Axes3D(Axes):
             self.zaxis.minor = self._sharez.zaxis.minor
             z0, z1 = self._sharez.get_zlim()
             self.set_zlim(z0, z1, emit=False, auto=None)
-            self.zaxis.set_scale(self._sharez.zaxis.get_scale())
+            self.zaxis._set_scale(self._sharez.zaxis.get_scale())
         else:
-            self.zaxis.set_scale('linear')
+            self.zaxis._set_scale('linear')
 
         self._autoscaleZon = True
         self._zmargin = 0
