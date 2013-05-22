@@ -12,6 +12,7 @@ from matplotlib.testing.noseclasses import ImageComparisonFailure
 from matplotlib.testing import image_util
 from matplotlib import _png
 from matplotlib import _get_configdir
+from matplotlib import cbook
 from distutils import version
 import hashlib
 import math
@@ -105,7 +106,7 @@ def get_cache_dir():
    cache_dir = os.path.join(configdir, 'test_cache')
    if not os.path.exists(cache_dir):
       try:
-         os.makedirs(cache_dir)
+         cbook.mkdirs(cache_dir)
       except IOError:
          return None
    if not os.access(cache_dir, os.W_OK):
