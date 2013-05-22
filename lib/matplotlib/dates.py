@@ -10,15 +10,15 @@ easy conversion to and from :mod:`datetime` and numeric ranges.
 
 .. note::
 
-   Like Python's datetime, mpl uses the Gregorian calendar for all conversions
-   between dates and floating point numbers. This practice is not universal,
-   and calendar differences can cause confusing differences between what
-   Python and mpl give as the number of days since 0001-01-01 and what other
-   software and databases yield.  For example, the `US Naval Observatory
-   <http://www.usno.navy.mil/USNO/astronomical-applications/data-services/jul-date>`_
-   uses a calendar that switches from Julian to Gregorian in October, 1582.
-   Hence, using their calculator, the number of days between 0001-01-01 and
-   2006-04-01 is 732403, whereas using the Gregorian calendar via the datetime
+   Like Python's datetime, mpl uses the Gregorian calendar for all
+   conversions between dates and floating point numbers. This practice
+   is not universal, and calendar differences can cause confusing
+   differences between what Python and mpl give as the number of days
+   since 0001-01-01 and what other software and databases yield.  For
+   example, the US Naval Observatory uses a calendar that switches
+   from Julian to Gregorian in October, 1582.  Hence, using their
+   calculator, the number of days between 0001-01-01 and 2006-04-01 is
+   732403, whereas using the Gregorian calendar via the datetime
    module we find::
 
      In [31]:date(2006,4,1).toordinal() - date(1,1,1).toordinal()
