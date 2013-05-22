@@ -9,7 +9,6 @@ Copyright (c) 2010, Bartosz Telenczuk
 BSD License
 """
 import matplotlib.pyplot as plt; plt.rcdefaults()
-from mpltools import style; style.use('gallery')
 
 import numpy as np
 import matplotlib.pyplot as plt

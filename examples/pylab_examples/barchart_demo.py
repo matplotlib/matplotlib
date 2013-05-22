@@ -1,44 +1,43 @@
-
-#!/usr/bin/env python
+"""
+Bar chart demo with pairs of bars grouped for easy comparison.
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 
-N = 5
-menMeans = (20, 35, 30, 35, 27)
-menStd =   (2, 3, 4, 1, 2)
 
-ind = np.arange(N)  # the x locations for the groups
-width = 0.35       # the width of the bars
+n_groups = 5
 
+means_men = (20, 35, 30, 35, 27)
+std_men = (2, 3, 4, 1, 2)
 
-plt.subplot(111)
-rects1 = plt.bar(ind, menMeans, width,
-                    color='r',
-                    yerr=menStd,
-                    error_kw=dict(elinewidth=6, ecolor='pink'))
+means_women = (25, 32, 34, 20, 25)
+std_women = (3, 5, 2, 3, 3)
 
-womenMeans = (25, 32, 34, 20, 25)
-womenStd =   (3, 5, 2, 3, 3)
-rects2 = plt.bar(ind+width, womenMeans, width,
-                    color='y',
-                    yerr=womenStd,
-                    error_kw=dict(elinewidth=6, ecolor='yellow'))
+index = np.arange(n_groups)
+bar_width = 0.35
 
-# add some
+opacity = 0.4
+error_config = {'ecolor': '0.3'}
+
+rects1 = plt.bar(index, means_men, bar_width,
+                 alpha=opacity,
+                 color='b',
+                 yerr=std_men,
+                 error_kw=error_config,
+                 label='Men')
+
+rects2 = plt.bar(index + bar_width, means_women, bar_width,
+                 alpha=opacity,
+                 color='r',
+                 yerr=std_women,
+                 error_kw=error_config,
+                 label='Women')
+
+plt.xlabel('Group')
 plt.ylabel('Scores')
 plt.title('Scores by group and gender')
-plt.xticks(ind+width, ('G1', 'G2', 'G3', 'G4', 'G5') )
+plt.xticks(index + bar_width, ('A', 'B', 'C', 'D', 'E'))
+plt.legend()
 
-plt.legend( (rects1[0], rects2[0]), ('Men', 'Women') )
-
-def autolabel(rects):
-    # attach some text labels
-    for rect in rects:
-        height = rect.get_height()
-        plt.text(rect.get_x()+rect.get_width()/2., 1.05*height, '%d'%int(height),
-                ha='center', va='bottom')
-
-autolabel(rects1)
-autolabel(rects2)
-
+plt.tight_layout()
 plt.show()
