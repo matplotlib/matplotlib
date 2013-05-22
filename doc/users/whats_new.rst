@@ -68,6 +68,14 @@ rcParam has been set, and will not retroactively affect already
 existing text objects.  This brings their behavior in line with most
 other rcParams.
 
+Easier creation of colormap and normalizer for levels with colors
+-----------------------------------------------------------------
+Phil Elson added the :func:`matplotlib.colors.from_levels_and_colors`
+function to easily create a colormap and normalizer for representation
+of discrete colors for plot types such as
+:func:`matplotlib.pyplot.pcolormesh`, with a similar interface to that of
+contourf.
+
 Catch opening too many figures using pyplot
 -------------------------------------------
 Figures created through `pyplot.figure` are retained until they are

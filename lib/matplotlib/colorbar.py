@@ -853,8 +853,8 @@ class Colorbar(ColorbarBase):
         mappable.autoscale_None()
 
         self.mappable = mappable
-        kw['cmap'] = mappable.cmap
-        kw['norm'] = mappable.norm
+        kw['cmap'] = cmap = mappable.cmap
+        kw['norm'] = norm = mappable.norm
 
         if isinstance(mappable, contour.ContourSet):
             CS = mappable
@@ -869,6 +869,9 @@ class Colorbar(ColorbarBase):
             if not CS.filled:
                 self.add_lines(CS)
         else:
+            if getattr(cmap, 'colorbar_extend', False) is not False:
+                kw.setdefault('extend', cmap.colorbar_extend)
+            
             if isinstance(mappable, martist.Artist):
                 kw['alpha'] = mappable.get_alpha()
 

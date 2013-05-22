@@ -99,6 +99,10 @@ Changes in 1.3.x
   Deep copying a `Path` always creates an editable (i.e. non-readonly)
   `Path`.
 
+* matplotlib.colors.normalize and matplotlib.colors.no_norm have been
+  deprecated in favour of matplotlib.colors.Normalize and
+  matplotlib.colors.NoNorm respectively.
+
 * The `font.*` rcParams now affect only text objects created after the
   rcParam has been set, and will not retroactively affect already
   existing text objects.  This brings their behavior in line with most
