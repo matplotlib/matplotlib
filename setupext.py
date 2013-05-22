@@ -648,8 +648,12 @@ class Numpy(SetupPackage):
     def add_flags(self, ext):
         import numpy
 
+        # Ensure that PY_ARRAY_UNIQUE_SYMBOL is uniquely defined for
+        # each extension
+        array_api_name = 'MPL_' + ext.name.replace('.', '_') + '_ARRAY_API'
+
         ext.include_dirs.append(numpy.get_include())
-        ext.define_macros.append(('PY_ARRAY_UNIQUE_SYMBOL', 'MPL_ARRAY_API'))
+        ext.define_macros.append(('PY_ARRAY_UNIQUE_SYMBOL', array_api_name))
 
 
 class CXX(SetupPackage):
