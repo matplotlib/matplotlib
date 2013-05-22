@@ -50,7 +50,7 @@ Michael Droettboom, Phil Elson and others have developed a new
 backend, WebAgg, to display figures in a web browser.  It works with
 animations as well as being fully interactive.
 
-.. image:: _static/webagg_screenshot.png
+.. image:: /_static/webagg_screenshot.png
 
 Future versions of matplotlib will integrate this backend with the
 IPython notebook for a fully web browser based plotting frontend.
