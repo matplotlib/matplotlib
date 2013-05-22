@@ -1068,7 +1068,7 @@ class Figure(Artist):
           *scatterpoints*: integer
             The number of points in the legend line, default is 4
 
-          *scatteroffsets*: list of floats
+          *scatteryoffsets*: list of floats
             a list of yoffsets for scatter symbols in legend
 
           *markerscale*: [ *None* | scalar ]

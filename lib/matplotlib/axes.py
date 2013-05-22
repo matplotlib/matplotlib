@@ -4532,7 +4532,7 @@ class Axes(martist.Artist):
           *scatterpoints*: integer
             The number of points in the legend for scatter plot
 
-          *scatteroffsets*: list of floats
+          *scatteryoffsets*: list of floats
             a list of yoffsets for scatter symbols in legend
 
           *markerscale*: [ *None* | scalar ]
