@@ -205,10 +205,11 @@ class Formatter(TickHelper):
         """
         some classes may want to replace a hyphen for minus with the
         proper unicode symbol as described `here
-        <http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&group_id=80706&atid=560720>`_.
+        <http://sourceforge.net/tracker/index.php?func=detail&aid=1962574&
+group_id=80706&atid=560720>`_.
         The default is to do nothing
 
-        Note, if you use this method, eg in :meth`format_data` or
+        Note, if you use this method, e.g., in :meth:`format_data` or
         call, you probably don't want to use it for
         :meth:`format_data_short` since the toolbar uses this for
         interactive coord reporting and I doubt we can expect GUIs
@@ -794,7 +795,7 @@ class EngFormatter(Formatter):
          18: "E",
          21: "Z",
          24: "Y"
-      }
+    }
 
     def __init__(self, unit="", places=None):
         self.unit = unit
@@ -865,12 +866,10 @@ class Locator(TickHelper):
     the Axis data and view limits
     """
 
-    # some automatic tick locators can generate so many ticks they
-    # kill the machine when you try and render them, see eg sf bug
-    # report
-    # https://sourceforge.net/tracker/index.php?func=detail&aid=2715172&group_id=80706&atid=560720.
+    # Some automatic tick locators can generate so many ticks they
+    # kill the machine when you try and render them.
     # This parameter is set to cause locators to raise an error if too
-    # many ticks are generated
+    # many ticks are generated.
     MAXTICKS = 1000
 
     def tick_values(self, vmin, vmax):

@@ -359,6 +359,7 @@ class SymmetricalLogTransform(Transform):
         return InvertedSymmetricalLogTransform(self.base, self.linthresh,
                                                self.linscale)
 
+
 class InvertedSymmetricalLogTransform(Transform):
     input_dims = 1
     output_dims = 1
