@@ -1269,6 +1269,6 @@ def colorbar_factory(cax, mappable, **kwargs):
         cb = Colorbar(cax, mappable, **kwargs)
 
     mappable.callbacksSM.connect('changed', cb.on_mappable_changed)
-    mappable.set_colorbar(cb, cax)
+    mappable.colorbar = cb
 
     return cb
