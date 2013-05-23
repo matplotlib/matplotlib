@@ -193,12 +193,14 @@ class ScalarMappable:
         self.norm = norm
         #: The Colormap instance of this ScalarMappable.
         self.cmap = get_cmap(cmap)
+        #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
         self.update_dict = {'array': False}
 
+    @cbook.deprecated('1.3', alternative='the colorbar attribute')
     def set_colorbar(self, im, ax):
-        'set the colorbar image and axes associated with mappable'
-        self.colorbar = im, ax
+        """set the colorbar and axes instances associated with mappable"""
+        self.colorbar = im
 
     def to_rgba(self, x, alpha=None, bytes=False):
         """
