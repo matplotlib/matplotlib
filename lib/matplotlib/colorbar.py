@@ -501,12 +501,10 @@ class ColorbarBase(cm.ScalarMappable):
             self.dividers.remove()
             self.dividers = None
         if self.drawedges:
-            self.dividers = collections.LineCollection(
-                                    self._edges(X, Y),
+            linewidths = (0.5 * mpl.rcParams['axes.linewidth'],)
+            self.dividers = collections.LineCollection(self._edges(X, Y),
                                     colors=(mpl.rcParams['axes.edgecolor'],),
-                                    linewidths=(
-                                    0.5 * mpl.rcParams['axes.linewidth'],)
-                                    )
+                                    linewidths=linewidths)
             self.ax.add_collection(self.dividers)
 
     def add_lines(self, levels, colors, linewidths, erase=True):
@@ -725,9 +723,9 @@ class ColorbarBase(cm.ScalarMappable):
             y = np.linspace(0, 1, N)
         else:
             automin = automax = 1. / (N - 1.)
-            extendlength = self._get_extension_lengths(
-                                self.extendfrac,
-                                automin, automax, default=0.05)
+            extendlength = self._get_extension_lengths(self.extendfrac,
+                                                       automin, automax,
+                                                       default=0.05)
             if self.extend == 'both':
                 y = np.zeros(N + 2, 'd')
                 y[0] = 0. - extendlength[0]
@@ -986,19 +984,23 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     '''
     locations = ["left", "right", "top", "bottom"]
     if orientation is not None and location is not None:
-        raise TypeError('position and orientation are mutually exclusive. Consider ' \
-                        'setting the position to any of %s' % ', '.join(locations))
+        msg = ('position and orientation are mutually exclusive. '
+               'Consider setting the position to any of '
+               '{0}'.format(', '.join(locations)))
+        raise TypeError(msg)
 
     # provide a default location
     if location is None and orientation is None:
         location = 'right'
 
-    # allow the user to not specify the location by specifying the orientation instead
+    # allow the user to not specify the location by specifying the
+    # orientation instead
     if location is None:
         location = 'right' if orientation == 'vertical' else 'bottom'
 
     if location not in locations:
-        raise ValueError('Invalid colorbar location. Must be one of %s' % ', '.join(locations))
+        raise ValueError('Invalid colorbar location. Must be one '
+                         'of %s' % ', '.join(locations))
 
     default_location_settings = {'left':   {'anchor': (1.0, 0.5),
                                             'panchor': (0.0, 0.5),
@@ -1014,7 +1016,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
                                             'orientation': 'horizontal'},
                                  'bottom': {'anchor': (0.5, 1.0),
                                             'panchor': (0.5, 0.0),
-                                            'pad': 0.15, # backwards compat
+                                            'pad': 0.15,  # backwards compat
                                             'orientation': 'horizontal'},
                                  }
 
@@ -1029,19 +1031,18 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     parent_anchor = kw.pop('panchor', loc_settings['panchor'])
     pad = kw.pop('pad', loc_settings['pad'])
 
-
     # turn parents into a list if it is not already
     if not isinstance(parents, (list, tuple)):
         parents = [parents]
 
     fig = parents[0].get_figure()
     if not all(fig is ax.get_figure() for ax in parents):
-        raise ValueError('Unable to create a colorbar axes as not all ' + \
+        raise ValueError('Unable to create a colorbar axes as not all '
                          'parents share the same figure.')
 
     # take a bounding box around all of the given axes
-    parents_bbox = mtrans.Bbox.union([ax.get_position(original=True).frozen() \
-                                         for ax in parents])
+    parents_bbox = mtrans.Bbox.union([ax.get_position(original=True).frozen()
+                                      for ax in parents])
 
     pb = parents_bbox
     if location in ('left', 'right'):
@@ -1054,11 +1055,11 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         if location == 'bottom':
             pbcb, _, pb1 = pb.splity(fraction, fraction + pad)
         else:
-            pb1, _, pbcb  = pb.splity(1 - fraction - pad, 1 - fraction)
+            pb1, _, pbcb = pb.splity(1 - fraction - pad, 1 - fraction)
         pbcb = pbcb.shrunk(shrink, 1.0).anchored(anchor, pbcb)
 
         # define the aspect ratio in terms of y's per x rather than x's per y
-        aspect = 1.0/aspect
+        aspect = 1.0 / aspect
 
     # define a transform which takes us from old axes coordinates to
     # new axes coordinates

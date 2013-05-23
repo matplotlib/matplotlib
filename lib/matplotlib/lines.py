@@ -613,12 +613,13 @@ class Line2D(Artist):
                 if self.get_path_effects():
                     affine_frozen = affine.frozen()
                     for pe in self.get_path_effects():
-                        pe.draw_markers(renderer, gc, marker_path, marker_trans,
-                                        subsampled, affine_frozen, rgbaFace)
+                        pe.draw_markers(renderer, gc, marker_path,
+                                        marker_trans, subsampled,
+                                        affine_frozen, rgbaFace)
                 else:
-                    renderer.draw_markers(
-                        gc, marker_path, marker_trans, subsampled, affine.frozen(),
-                        rgbaFace)
+                    renderer.draw_markers(gc, marker_path, marker_trans,
+                                          subsampled, affine.frozen(),
+                                          rgbaFace)
 
                 alt_marker_path = marker.get_alt_path()
                 if alt_marker_path:

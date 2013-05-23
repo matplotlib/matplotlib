@@ -29,9 +29,12 @@ if __name__ == '__main__':
         os.remove('MANIFEST')
 
 try:
-    from setuptools.core import setup
+    from setuptools import setup
 except ImportError:
-    from distutils.core import setup
+    try:
+        from setuptools.core import setup
+    except ImportError:
+        from distutils.core import setup
 
 import setupext
 from setupext import print_line, print_raw, print_message, print_status
