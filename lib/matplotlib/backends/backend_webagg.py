@@ -428,18 +428,19 @@ class WebAggApplication(tornado.web.Application):
 
 
     class MPLInterfaceJS(tornado.web.RequestHandler):
-        def get(self, fignum):
+        def get(self):
             with open(os.path.join(WebAggApplication._mpl_dirs['web_backend'],
                                    'mpl_interface.js')) as fd:
                 tpl = fd.read()
 
-            fignum = int(fignum)
-            manager = Gcf.get_fig_manager(fignum)
+            manager = Gcf.get_fig_manager(1)
+            canvas = manager.canvas
 
             t = tornado.template.Template(tpl)
             self.write(t.generate(
                 toolitems=NavigationToolbar2WebAgg.toolitems,
-                canvas=manager.canvas))
+                canvas=canvas))
+
 
     class Download(tornado.web.RequestHandler):
         def get(self, fignum, fmt):
@@ -553,7 +554,7 @@ class WebAggApplication(tornado.web.Application):
             (url_prefix + r'/([0-9]+)', self.SingleFigurePage,
              {'url_prefix': url_prefix}),
 
-            (url_prefix + r'/([0-9]+)/mpl_interface.js', self.MPLInterfaceJS),
+            (url_prefix + r'/mpl_interface.js', self.MPLInterfaceJS),
 
             # Sends images and events to the browser, and receives
             # events from the browser
