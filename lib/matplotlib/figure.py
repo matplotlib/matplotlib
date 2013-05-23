@@ -339,6 +339,14 @@ class Figure(Artist):
         self.clf()
         self._cachedRenderer = None
 
+    # TODO: I'd like to dynamically add the _repr_html_ method
+    # to the figure in the right context, but then IPython doesn't
+    # use it, for some reason.
+
+    def _repr_html_(self):
+        from matplotlib.backends import backend_webagg
+        return backend_webagg.ipython_inline_display(self)
+
     def show(self, warn=True):
         """
         If using a GUI backend with pyplot, display the figure window.

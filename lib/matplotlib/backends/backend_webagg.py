@@ -10,6 +10,8 @@ import json
 import os
 import random
 import socket
+import threading
+import types
 
 import numpy as np
 
@@ -29,6 +31,15 @@ from matplotlib.backends import backend_agg
 from matplotlib import backend_bases
 from matplotlib._pylab_helpers import Gcf
 from matplotlib import _png
+
+# TODO: This should really only be set for the IPython notebook, but
+# I'm not sure how to detect that.
+try:
+    __IPYTHON__
+except:
+    _in_ipython = False
+else:
+    _in_ipython = True
 
 
 def draw_if_interactive():
@@ -57,7 +68,30 @@ class Show(backend_bases.ShowBase):
 
         WebAggApplication.start()
 
-show = Show()
+
+if not _in_ipython:
+    show = Show()
+else:
+    def show():
+        class RawHTML(object):
+            def __init__(self, content):
+                self._content = content
+
+            def _repr_html_(self):
+                return self._content
+
+        result = []
+        import matplotlib._pylab_helpers as pylab_helpers
+        for manager in pylab_helpers.Gcf().get_all_fig_managers():
+            result.append(ipython_inline_display(manager.canvas.figure))
+        return RawHTML('\n'.join(result))
+
+
+class ServerThread(threading.Thread):
+    def run(self):
+        tornado.ioloop.IOLoop.instance().start()
+
+server_thread = ServerThread()
 
 
 def new_figure_manager(num, *args, **kwargs):
@@ -126,6 +160,16 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
         # Set to True when a drawing is in progress to prevent redraw
         # messages from piling up.
         self._pending_draw = None
+
+        # TODO: I'd like to dynamically add the _repr_html_ method
+        # to the figure in the right context, but then IPython doesn't
+        # use it, for some reason.
+
+        # Add the _repr_html_ member to the figure for IPython inline
+        # support
+        # if _in_ipython:
+        #     self.figure._repr_html_ = types.MethodType(
+        #         ipython_inline_display, self.figure, self.figure.__class__)
 
     def show(self):
         # show the figure window
@@ -199,7 +243,7 @@ class FigureCanvasWebAgg(backend_agg.FigureCanvasAgg):
             self._png_is_old = False
         return self._png_buffer.getvalue()
 
-    def get_renderer(self, cleared=False):
+    def get_renderer(self, cleared=None):
         # Mirrors super.get_renderer, but caches the old one
         # so that we can do things such as prodce a diff image
         # in get_diff_image
@@ -436,6 +480,8 @@ class WebAggApplication(tornado.web.Application):
             manager = Gcf.get_fig_manager(1)
             canvas = manager.canvas
 
+            self.set_header('Content-Type', 'application/javascript')
+
             t = tornado.template.Template(tpl)
             self.write(t.generate(
                 toolitems=NavigationToolbar2WebAgg.toolitems,
@@ -624,3 +670,27 @@ class WebAggApplication(tornado.web.Application):
             print("Server stopped")
 
         cls.started = True
+
+
+def ipython_inline_display(figure):
+    import matplotlib._pylab_helpers as pylab_helpers
+
+    WebAggApplication.initialize()
+    if not server_thread.is_alive():
+        server_thread.start()
+
+    with open(os.path.join(
+            WebAggApplication._mpl_dirs['web_backend'],
+            'ipython_inline_figure.html')) as fd:
+        tpl = fd.read()
+
+    fignum = figure.number
+    manager = pylab_helpers.Gcf.get_fig_manager(fignum)
+
+    t = tornado.template.Template(tpl)
+    return t.generate(
+        prefix=WebAggApplication.url_prefix,
+        fig_id=fignum,
+        toolitems=NavigationToolbar2WebAgg.toolitems,
+        canvas=figure.canvas,
+        port=WebAggApplication.port)
