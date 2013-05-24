@@ -824,6 +824,6 @@ def colorbar(mappable, cax=None, ax=None, **kw):
         cb.update_bruteforce(m)
 
     cbid = mappable.callbacksSM.connect('changed', on_changed)
-    mappable.set_colorbar(cb, cax)
+    mappable.colorbar = cb
     ax.figure.sca(ax)
     return cb
