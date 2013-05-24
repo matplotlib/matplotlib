@@ -117,6 +117,14 @@ Changes in 1.3.x
   position type. Previously, it would draw the right or top spine at
   +1 data offset.
 
+* The ScalarMappable class' set_colorbar is now deprecated. Instead, the
+  :attr:`matplotlib.cm.ScalarMappable.colorbar` attribute should be used.
+  In previous matplotlib versions this attribute was an undocumented tuple
+  of ``(colorbar_instance, colorbar_axes)`` but is now just
+  ``colorbar_instance``. To get the colorbar axes it is possible to just use
+  the :attr:`~matplotlib.colorbar.ColorbarBase.ax` attribute on a colorbar
+  isntance.
+
 * In :class:`~matplotlib.patches.FancyArrow`, the default arrow head width,
   ``head_width``, has been made larger to produce a visible arrow head. The new
   value of this kwarg is ``head_width = 20 * width``.
