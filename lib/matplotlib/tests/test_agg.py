@@ -1,11 +1,8 @@
 from __future__ import print_function
-
 import os
 import tempfile
 
-
 from numpy.testing import assert_array_almost_equal
-
 
 from matplotlib.image import imread
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
@@ -102,7 +99,8 @@ def report_memory(i):
 ##     avgMem = (end - start) / float(N)
 ##     print 'Average memory consumed per loop: %1.4f\n' % (avgMem)
 
-##     #TODO: Verify the expected mem usage and approximate tolerance that should be used
+##     #TODO: Verify the expected mem usage and approximate tolerance that
+##     # should be used
 ##     #self.checkClose( 0.32, avgMem, absTol = 0.1 )
 
 ##     # w/o text and w/o write_png: Average memory consumed per loop: 0.02
