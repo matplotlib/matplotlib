@@ -889,7 +889,6 @@ class FileChooserDialog(Gtk.FileChooserDialog):
             filename = self.get_filename()
             break
 
-        self.hide()
         return filename, self.ext
 
 class DialogLineprops:
