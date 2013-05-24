@@ -16,7 +16,6 @@ class StandardReportWithExclusions(pep8.StandardReport):
         '*/matplotlib/_mathtext_data.py',
         '*/matplotlib/_pylab_helpers.py',
         '*/matplotlib/afm.py',
-        '*/matplotlib/animation.py',
         '*/matplotlib/artist.py',
         '*/matplotlib/axes.py',
         '*/matplotlib/axis.py',
