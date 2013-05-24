@@ -269,6 +269,7 @@ class ColorbarBase(cm.ScalarMappable):
                  extendrect=False,
                  label='',
                  ):
+        #: The axes that this colorbar lives in.
         self.ax = ax
         self._patch_ax()
         if cmap is None:
