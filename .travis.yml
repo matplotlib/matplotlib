@@ -1,29 +1,18 @@
 language: python
 
-python:
-  - 2.6
-  - 2.7
-  - 3.2
-  - 3.3
+env:
+  - TOXENV=py26
+  - TOXENV=py27
+  - TOXENV=py32
+  - TOXENV=py33
 
 install:
-  - pip install -q --use-mirrors nose python-dateutil numpy pep8
-  # This is a workaround to install the latest versions of pyparsing,
-  # which are not yet available on PyPI
-  - 'if [ ${TRAVIS_PYTHON_VERSION:0:1} == "3" ]; then pip -q install http://sourceforge.net/projects/pyparsing/files/pyparsing/pyparsing-2.0.0/pyparsing-2.0.0.tar.gz; fi'
-  - 'if [ ${TRAVIS_PYTHON_VERSION:0:1} == "2" ]; then pip -q install http://sourceforge.net/projects/pyparsing/files/pyparsing/pyparsing-1.5.7/pyparsing-1.5.7.tar.gz; fi'
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.'* ]]; then pip -q install --use-mirrors PIL; fi
+  - pip install -q --use-mirrors tox
   - sudo apt-get update && sudo apt-get -qq install inkscape
-  - python setup.py install
 
 script:
-  - mkdir ../tmp_test_dir
-  - cd ../tmp_test_dir
   # The number of processes is hardcoded, because using too many causes the
   # Travis VM to run out of memory (since so many copies of inkscape and
   # ghostscript are running at the same time).
   - echo Testing using 8 processes
-  # Generate the font caches in a single process before starting the
-  # multiple processes
-  - python -c "from matplotlib import font_manager"
-  - python ../matplotlib/tests.py -sv --processes=8 --process-timeout=300
+  - tox -- --processes=8 --process-timeout=300
