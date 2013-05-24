@@ -1,17 +1,14 @@
 from __future__ import print_function
+# cpickle is faster, pickle gives better exceptions
+import cPickle as pickle
+#import pickle
+from io import BytesIO
 
+from nose.tools import assert_equal, assert_not_equal
 import numpy as np
 
 from matplotlib.testing.decorators import cleanup, image_comparison
 import matplotlib.pyplot as plt
-
-from nose.tools import assert_equal, assert_not_equal
-
-# cpickle is faster, pickle gives better exceptions
-import cPickle as pickle
-#import pickle
-
-from io import BytesIO
 
 
 def depth_getter(obj,
@@ -44,9 +41,10 @@ def depth_getter(obj,
 
     if isinstance(obj, (list, tuple)):
         for i, item in enumerate(obj):
-            depth_getter(item, current_depth=current_depth+1,
+            depth_getter(item, current_depth=current_depth + 1,
                          depth_stack=depth_stack,
-                         nest_info='list/tuple item #%s in (%s)' % (i, nest_info))
+                         nest_info=('list/tuple item #%s in '
+                                    '(%s)' % (i, nest_info)))
     else:
         if isinstance(obj, dict):
             state = obj
@@ -60,13 +58,10 @@ def depth_getter(obj,
             state = {}
 
         for key, value in state.iteritems():
-            depth_getter(value, current_depth=current_depth+1,
+            depth_getter(value, current_depth=current_depth + 1,
                          depth_stack=depth_stack,
-                         nest_info='attribute "%s" in (%s)' % (key, nest_info))
-
-        # for instancemethod picklability (and some other issues), uncommenting
-        # the following may be helpful
-#        print([(name, dobj.__class__) for name, dobj in state.iteritems()], ': ', nest_info, ';', type(obj))
+                         nest_info=('attribute "%s" in '
+                                    '(%s)' % (key, nest_info)))
 
     return depth_stack
 
@@ -90,7 +85,8 @@ def recursive_pickle(top_obj):
             pickle.dump(obj, BytesIO(), pickle.HIGHEST_PROTOCOL)
         except Exception, err:
             print(obj)
-            print('Failed to pickle %s. \n Type: %s. Traceback follows:' % (location, type(obj)))
+            print('Failed to pickle %s. \n Type: %s. Traceback '
+                  'follows:' % (location, type(obj)))
             raise
 
 
@@ -114,7 +110,7 @@ def test_simple():
 #    ax = plt.subplot(121, projection='hammer')
 #    recursive_pickle(ax, 'figure')
 #    pickle.dump(ax, BytesIO(), pickle.HIGHEST_PROTOCOL)
-    
+
     plt.figure()
     plt.bar(left=range(10), height=range(10))
     pickle.dump(plt.gca(), BytesIO(), pickle.HIGHEST_PROTOCOL)
@@ -138,7 +134,7 @@ def test_complete():
     data = u = v = np.linspace(0, 10, 80).reshape(10, 8)
     v = np.sin(v * -0.6)
 
-    plt.subplot(3,3,1)
+    plt.subplot(331)
     plt.plot(range(10))
 
     plt.subplot(3, 3, 2)
@@ -147,7 +143,6 @@ def test_complete():
 
     plt.subplot(3, 3, 3)
     plt.pcolormesh(data)
-
 
     plt.subplot(3, 3, 4)
     plt.imshow(data)

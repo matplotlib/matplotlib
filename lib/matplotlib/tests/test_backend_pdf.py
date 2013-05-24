@@ -1,8 +1,10 @@
 # -*- encoding: utf-8 -*-
+import io
 
 from matplotlib import rcParams
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison, knownfailureif
+
 
 @image_comparison(baseline_images=['pdf_use14corefonts'], extensions=['pdf'])
 def test_use14corefonts():
@@ -24,11 +26,14 @@ def test_use14corefonts():
 
 
 def test_type42():
-    import io
-
     rcParams['pdf.fonttype'] = 42
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.plot([1,2,3])
+    ax.plot([1, 2, 3])
     fig.savefig(io.BytesIO())
+
+
+if __name__ == "__main__":
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
