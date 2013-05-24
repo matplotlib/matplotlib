@@ -80,9 +80,15 @@ from sphinx.util.compat import Directive
 matplotlib.use('Agg')
 
 # Our own
-from IPython import Config, InteractiveShell
-from IPython.core.profiledir import ProfileDir
-from IPython.utils import io
+try:
+    from IPython import Config, InteractiveShell
+    from IPython.core.profiledir import ProfileDir
+    from IPython.utils import io
+except ImportError:
+    raise ImportError(
+        "Unable to import the necessary objects from IPython. "
+        "You may need to install or upgrade your IPython installation.")
+
 
 #-----------------------------------------------------------------------------
 # Globals
