@@ -1,21 +1,27 @@
 from __future__ import print_function
-import numpy as np
-from numpy.testing.utils import assert_array_equal
-import matplotlib.cbook as cbook
-import matplotlib.colors as mcolors
-from nose.tools import assert_equal, raises
+
 from datetime import datetime
 
-def test_is_string_like():
-    y = np.arange( 10 )
-    assert_equal( cbook.is_string_like( y ), False )
-    y.shape = 10, 1
-    assert_equal( cbook.is_string_like( y ), False )
-    y.shape = 1, 10
-    assert_equal( cbook.is_string_like( y ), False )
+from nose.tools import assert_equal, raises
+import numpy as np
+from numpy.testing.utils import assert_array_equal
 
-    assert cbook.is_string_like( "hello world" )
-    assert_equal( cbook.is_string_like(10), False )
+import matplotlib.cbook as cbook
+import matplotlib.colors as mcolors
+from matplotlib.cbook import delete_masked_points as dmp
+
+
+def test_is_string_like():
+    y = np.arange(10)
+    assert_equal(cbook.is_string_like(y), False)
+    y.shape = 10, 1
+    assert_equal(cbook.is_string_like(y), False)
+    y.shape = 1, 10
+    assert_equal(cbook.is_string_like(y), False)
+
+    assert cbook.is_string_like("hello world")
+    assert_equal(cbook.is_string_like(10), False)
+
 
 def test_restrict_dict():
     d = {'foo': 'bar', 1: 2}
@@ -27,18 +33,17 @@ def test_restrict_dict():
     assert_equal(d3, {'foo': 'bar'})
     d4 = cbook.restrict_dict(d, {})
     assert_equal(d4, {})
-    d5 = cbook.restrict_dict(d, set(['foo',2]))
+    d5 = cbook.restrict_dict(d, set(['foo', 2]))
     assert_equal(d5, {'foo': 'bar'})
     # check that d was not modified
     assert_equal(d, {'foo': 'bar', 1: 2})
 
-from matplotlib.cbook import delete_masked_points as dmp
 
 class Test_delete_masked_points:
     def setUp(self):
         self.mask1 = [False, False, True, True, False, False]
-        self.arr0 = np.arange(1.0,7.0)
-        self.arr1 = [1,2,3,np.nan,np.nan,6]
+        self.arr0 = np.arange(1.0, 7.0)
+        self.arr1 = [1, 2, 3, np.nan, np.nan, 6]
         self.arr2 = np.array(self.arr1)
         self.arr3 = np.ma.array(self.arr2, mask=self.mask1)
         self.arr_s = ['a', 'b', 'c', 'd', 'e', 'f']

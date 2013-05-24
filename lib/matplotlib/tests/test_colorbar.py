@@ -22,10 +22,10 @@ def _get_cmap_norms():
     clevs = [-5., -2.5, -.5, .5, 1.5, 3.5]
     # Define norms for the color maps.
     norms = dict()
-    norms['neither'] = BoundaryNorm(clevs, len(clevs)-1)
-    norms['min'] = BoundaryNorm([-10]+clevs[1:], len(clevs)-1)
-    norms['max'] = BoundaryNorm(clevs[:-1]+[10], len(clevs)-1)
-    norms['both'] = BoundaryNorm([-10]+clevs[1:-1]+[10], len(clevs)-1)
+    norms['neither'] = BoundaryNorm(clevs, len(clevs) - 1)
+    norms['min'] = BoundaryNorm([-10] + clevs[1:], len(clevs) - 1)
+    norms['max'] = BoundaryNorm(clevs[:-1] + [10], len(clevs) - 1)
+    norms['both'] = BoundaryNorm([-10] + clevs[1:-1] + [10], len(clevs) - 1)
     return cmap, norms
 
 
@@ -46,7 +46,7 @@ def _colorbar_extension_shape(spacing):
         norm = norms[extension_type]
         boundaries = values = norm.boundaries
         # Create a subplot.
-        cax = fig.add_subplot(4, 1, i+1)
+        cax = fig.add_subplot(4, 1, i + 1)
         # Turn off text and ticks.
         for item in cax.get_xticklabels() + cax.get_yticklabels() +\
                 cax.get_xticklines() + cax.get_yticklines():
@@ -78,7 +78,7 @@ def _colorbar_extension_length(spacing):
         boundaries = values = norm.boundaries
         for j, extendfrac in enumerate((None, 'auto', 0.1)):
             # Create a subplot.
-            cax = fig.add_subplot(12, 1, i*3+j+1)
+            cax = fig.add_subplot(12, 1, i*3 + j + 1)
             # Turn off text and ticks.
             for item in cax.get_xticklabels() + cax.get_yticklabels() +\
                     cax.get_xticklines() + cax.get_yticklines():
@@ -128,19 +128,19 @@ def test_colorbar_positioning():
     data = np.arange(1200).reshape(30, 40)
     levels = [0, 200, 400, 600, 800, 1000, 1200]
 
+    # -------------------
     plt.figure()
     plt.contourf(data, levels=levels)
     plt.colorbar(orientation='horizontal', use_gridspec=False)
 
-
     locations = ['left', 'right', 'top', 'bottom']
     plt.figure()
     for i, location in enumerate(locations):
-        plt.subplot(2, 2, i+1)
+        plt.subplot(2, 2, i + 1)
         plt.contourf(data, levels=levels)
         plt.colorbar(location=location, use_gridspec=False)
 
-
+    # -------------------
     plt.figure()
     # make some other data (random integers)
     data_2nd = np.array([[2, 3, 2, 3], [1.5, 2, 2, 3], [2, 3, 3, 4]])
@@ -149,13 +149,16 @@ def test_colorbar_positioning():
 
     color_mappable = plt.contourf(data, levels=levels, extend='both')
     # test extend frac here
-    hatch_mappable = plt.contourf(data_2nd, levels=[1, 2, 3], colors='none', hatches=['/', 'o', '+'], extend='max')
+    hatch_mappable = plt.contourf(data_2nd, levels=[1, 2, 3], colors='none',
+                                  hatches=['/', 'o', '+'], extend='max')
     plt.contour(hatch_mappable, colors='black')
 
-    plt.colorbar(color_mappable, location='left', label='variable 1', use_gridspec=False)
-    plt.colorbar(hatch_mappable, location='right', label='variable 2', use_gridspec=False)
+    plt.colorbar(color_mappable, location='left', label='variable 1',
+                 use_gridspec=False)
+    plt.colorbar(hatch_mappable, location='right', label='variable 2',
+                 use_gridspec=False)
 
-
+    # -------------------
     plt.figure()
     ax1 = plt.subplot(211, anchor='NE', aspect='equal')
     plt.contourf(data, levels=levels)
@@ -164,9 +167,12 @@ def test_colorbar_positioning():
     ax3 = plt.subplot(224)
     plt.contourf(data, levels=levels)
 
-    plt.colorbar(ax=[ax2, ax3, ax1], location='right', pad=0.0, shrink=0.5, panchor=False, use_gridspec=False)
-    plt.colorbar(ax=[ax2, ax3, ax1], location='left', shrink=0.5, panchor=False, use_gridspec=False)
-    plt.colorbar(ax=[ax1], location='bottom', panchor=False, anchor=(0.8, 0.5), shrink=0.6, use_gridspec=False)
+    plt.colorbar(ax=[ax2, ax3, ax1], location='right', pad=0.0, shrink=0.5,
+                 panchor=False, use_gridspec=False)
+    plt.colorbar(ax=[ax2, ax3, ax1], location='left', shrink=0.5,
+                 panchor=False, use_gridspec=False)
+    plt.colorbar(ax=[ax1], location='bottom', panchor=False,
+                 anchor=(0.8, 0.5), shrink=0.6, use_gridspec=False)
 
 
 @image_comparison(baseline_images=['cbar_with_subplots_adjust'],
@@ -188,6 +194,6 @@ def test_gridspec_make_colorbar():
     plt.subplots_adjust(top=0.95, right=0.95, bottom=0.2, hspace=0.25)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
