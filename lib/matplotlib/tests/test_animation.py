@@ -48,6 +48,6 @@ def check_save_animation(writer, extension='mp4'):
     anim.save(F.name, fps=30, writer=writer)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import nose
-    nose.runmodule()
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
