@@ -62,6 +62,7 @@ class StandardReportWithExclusions(pep8.StandardReport):
         '*/matplotlib/tri/tripcolor.py',
         '*/matplotlib/tri/triplot.py',
         '*/matplotlib/tests/test_axes.py',
+        '*/matplotlib/tests/test_bbox_tight.py',
         '*/matplotlib/tests/test_dates.py',
         '*/matplotlib/tests/test_delaunay.py',
         '*/matplotlib/tests/test_dviread.py',
