@@ -60,25 +60,25 @@ if QT_API in (QT_API_PYQT, QT_API_PYQTv2):
     try:
         QtCore.Slot = QtCore.pyqtSlot
     except AttributeError:
-        QtCore.Slot = pyqtSignature # Not a perfect match but
-                                    # works in simple cases
+        QtCore.Slot = pyqtSignature  # Not a perfect match but
+                                     # works in simple cases
     QtCore.Property = QtCore.pyqtProperty
     __version__ = QtCore.PYQT_VERSION_STR
 
-    try :
-        if sip.getapi("QString") > 1 :
+    try:
+        if sip.getapi("QString") > 1:
             # Use new getSaveFileNameAndFilter()
             _get_save = QtGui.QFileDialog.getSaveFileNameAndFilter
-        else :
+        else:
             # Use old getSaveFileName()
             _getSaveFileName = QtGui.QFileDialog.getSaveFileName
-    except (AttributeError, KeyError) :
+    except (AttributeError, KeyError):
         # call to getapi() can fail in older versions of sip
         _getSaveFileName = QtGui.QFileDialog.getSaveFileName
 
-else: # can only be pyside
+else:  # can only be pyside
     from PySide import QtCore, QtGui, __version__, __version_info__
-    if __version_info__ < (1,0,3):
+    if __version_info__ < (1, 0, 3):
         raise ImportError(
             "Matplotlib backend_qt4 and backend_qt4agg require PySide >=1.0.3")
 
@@ -89,4 +89,3 @@ if _getSaveFileName is None:
 
     def _getSaveFileName(self, msg, start, filters, selectedFilter):
         return _get_save(self, msg, start, filters, selectedFilter)[0]
-
