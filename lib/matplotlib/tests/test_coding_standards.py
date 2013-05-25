@@ -119,7 +119,6 @@ if HAS_PEP8:
             '*/matplotlib/backends/backend_pdf.py',
             '*/matplotlib/backends/backend_pgf.py',
             '*/matplotlib/backends/backend_ps.py',
-            '*/matplotlib/backends/backend_qt4.py',
             '*/matplotlib/backends/backend_qt4agg.py',
             '*/matplotlib/backends/backend_svg.py',
             '*/matplotlib/backends/backend_template.py',
