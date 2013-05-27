@@ -145,6 +145,18 @@ def test_pathclip():
     plt.savefig(os.path.join(result_dir, "pgf_pathclip.pdf"))
 
 
+# test mixed mode rendering
+@switch_backend('pgf')
+def test_mixedmode():
+    if not check_for('xelatex'):
+        raise SkipTest('xelatex + pgf is required')
+
+    Y, X = np.ogrid[-1:1:40j, -1:1:40j]
+    plt.figure()
+    plt.pcolor(X**2 + Y**2).set_rasterized(True)
+    compare_figure('pgf_mixedmode.pdf')
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s','--with-doctest'], exit=False)
