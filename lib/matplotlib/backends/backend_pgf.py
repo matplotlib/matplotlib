@@ -13,6 +13,7 @@ import weakref
 import matplotlib as mpl
 from matplotlib.backend_bases import RendererBase, GraphicsContextBase,\
     FigureManagerBase, FigureCanvasBase
+from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.text import Text
 from matplotlib.path import Path
@@ -738,7 +739,7 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    def _print_pgf_to_fh(self, fh):
+    def _print_pgf_to_fh(self, fh, *args, **kwargs):
         header_text = r"""%% Creator: Matplotlib, PGF backend
 %%
 %% To include the figure in your LaTeX document, write
@@ -767,6 +768,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
         # get figure size in inch
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
+        dpi = self.figure.get_dpi()
 
         # create pgfpicture environment and write the pgf code
         fh.write(header_text)
@@ -777,7 +779,10 @@ class FigureCanvasPgf(FigureCanvasBase):
         writeln(fh, r"\begin{pgfpicture}")
         writeln(fh, r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}" % (w, h))
         writeln(fh, r"\pgfusepath{use as bounding box}")
-        renderer = RendererPgf(self.figure, fh)
+        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+        renderer = MixedModeRenderer(self.figure, w, h, dpi,
+                                     RendererPgf(self.figure, fh),
+                                     bbox_inches_restore=_bbox_inches_restore)
         self.figure.draw(renderer)
 
         # end the pgfpicture environment
@@ -796,14 +801,14 @@ class FigureCanvasPgf(FigureCanvasBase):
         # figure out where the pgf is to be written to
         if is_string_like(fname_or_fh):
             with codecs.open(fname_or_fh, "w", encoding="utf-8") as fh:
-                self._print_pgf_to_fh(fh)
+                self._print_pgf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
             raise ValueError("saving pgf to a stream is not supported, " +
                              "consider using the pdf option of the pgf-backend")
         else:
             raise ValueError("filename must be a path")
 
-    def _print_pdf_to_fh(self, fh):
+    def _print_pdf_to_fh(self, fh, *args, **kwargs):
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
 
         try:
@@ -814,7 +819,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             fname_pdf = os.path.join(tmpdir, "figure.pdf")
 
             # print figure to pgf and compile it with latex
-            self.print_pgf(fname_pgf)
+            self.print_pgf(fname_pgf, *args, **kwargs)
 
             latex_preamble = get_preamble()
             latex_fontspec = get_fontspec()
@@ -856,13 +861,13 @@ class FigureCanvasPgf(FigureCanvasBase):
         # figure out where the pdf is to be written to
         if is_string_like(fname_or_fh):
             with open(fname_or_fh, "wb") as fh:
-                self._print_pdf_to_fh(fh)
+                self._print_pdf_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
-            self._print_pdf_to_fh(fname_or_fh)
+            self._print_pdf_to_fh(fname_or_fh, *args, **kwargs)
         else:
             raise ValueError("filename must be a path or a file-like object")
 
-    def _print_png_to_fh(self, fh):
+    def _print_png_to_fh(self, fh, *args, **kwargs):
         converter = make_pdf_to_png_converter()
 
         try:
@@ -871,7 +876,7 @@ class FigureCanvasPgf(FigureCanvasBase):
             fname_pdf = os.path.join(tmpdir, "figure.pdf")
             fname_png = os.path.join(tmpdir, "figure.png")
             # create pdf and try to convert it to png
-            self.print_pdf(fname_pdf)
+            self.print_pdf(fname_pdf, *args, **kwargs)
             converter(fname_pdf, fname_png, dpi=self.figure.dpi)
             # copy file contents to target
             with open(fname_png, "rb") as fh_src:
@@ -888,9 +893,9 @@ class FigureCanvasPgf(FigureCanvasBase):
         """
         if is_string_like(fname_or_fh):
             with open(fname_or_fh, "wb") as fh:
-                self._print_png_to_fh(fh)
+                self._print_png_to_fh(fh, *args, **kwargs)
         elif is_writable_file_like(fname_or_fh):
-            self._print_png_to_fh(fname_or_fh)
+            self._print_png_to_fh(fname_or_fh, *args, **kwargs)
         else:
             raise ValueError("filename must be a path or a file-like object")
 
