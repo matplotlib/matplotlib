@@ -189,7 +189,7 @@ def deprecated(since, message='', name='', alternative='', pending=False,
             name = func.__name__
 
         message = _generate_deprecation_message(
-            since, message, name, alternative, pending, 'function')
+            since, message, name, alternative, pending, obj_type)
 
         @functools.wraps(func)
         def deprecated_func(*args, **kwargs):
