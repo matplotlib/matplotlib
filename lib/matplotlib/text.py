@@ -118,10 +118,13 @@ def _get_textbox(text, renderer):
     theta = np.deg2rad(text.get_rotation())
     tr = mtransforms.Affine2D().rotate(-theta)
 
-    for t, wh, x, y in text._get_layout(renderer)[1]:
+    _, parts, d = text._get_layout(renderer)
+
+    for t, wh, x, y in parts:
         w, h = wh
 
         xt1, yt1 = tr.transform_point((x, y))
+        yt1 -= d
         xt2, yt2 = xt1 + w, yt1 + h
 
         projected_xs.extend([xt1, xt2])
@@ -327,9 +330,7 @@ class Text(Artist):
             else:
                 w, h, d = 0, 0, 0
 
-            h, d = lp_h, lp_bl
-
-            whs[i] = w, h
+            whs[i] = w, lp_h
 
             # For general multiline text, we will have a fixed spacing
             # between the "baseline" of the upper line and "top" of
@@ -340,15 +341,13 @@ class Text(Artist):
             # text net-height(excluding baseline) is larger than that
             # of a "l" (e.g., use of superscripts), which seems
             # what TeX does.
-
             d_yoffset = max(0, (h - d) - (lp_h - lp_bl))
-            if d_yoffset:
-                d += d_yoffset
 
-            baseline = (h - d) - thisy
-            horizLayout[i] = thisx, thisy - d, w, h
+            baseline = (lp_h - lp_bl) - thisy
+            horizLayout[i] = thisx, thisy - max(d, lp_bl), w, lp_h
             thisy -= offsety + d_yoffset
             width = max(width, w)
+            descent = lp_bl
 
         ymin = horizLayout[-1][1]
         ymax = horizLayout[0][1] + horizLayout[0][3]
@@ -372,7 +371,7 @@ class Text(Artist):
         cornersHoriz = np.array(
             [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)],
             np.float_)
-        cornersHoriz[:,1] -= d
+        cornersHoriz[:,1] -= descent
 
         # now rotate the bbox
         cornersRotated = M.transform(cornersHoriz)
@@ -443,7 +442,7 @@ class Text(Artist):
 
         xs, ys = xys[:, 0], xys[:, 1]
 
-        ret = bbox, zip(lines, whs, xs, ys)
+        ret = bbox, zip(lines, whs, xs, ys), descent
         self.cached[key] = ret
         return ret
 
@@ -509,8 +508,7 @@ class Text(Artist):
             posx, posy = trans.transform_point((posx, posy))
 
             x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
-            self._bbox_patch.set_bounds(0., 0.,
-                                        w_box, h_box)
+            self._bbox_patch.set_bounds(0., 0., w_box, h_box)
             theta = np.deg2rad(self.get_rotation())
             tr = mtransforms.Affine2D().rotate(theta)
             tr = tr.translate(posx + x_box, posy + y_box)
@@ -526,8 +524,7 @@ class Text(Artist):
         """
 
         x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
-        self._bbox_patch.set_bounds(0., 0.,
-                                    w_box, h_box)
+        self._bbox_patch.set_bounds(0., 0., w_box, h_box)
         theta = np.deg2rad(self.get_rotation())
         tr = mtransforms.Affine2D().rotate(theta)
         tr = tr.translate(posx + x_box, posy + y_box)
@@ -550,7 +547,7 @@ class Text(Artist):
 
         renderer.open_group('text', self.get_gid())
 
-        bbox, info = self._get_layout(renderer)
+        bbox, info, descent = self._get_layout(renderer)
         trans = self.get_transform()
 
         # don't use self.get_position here, which refers to text position
@@ -575,40 +572,28 @@ class Text(Artist):
             bbox_artist(self, renderer, self._bbox)
         angle = self.get_rotation()
 
-        if rcParams['text.usetex']:
-            for line, wh, x, y in info:
-                if not np.isfinite(x) or not np.isfinite(y):
-                    continue
+        for line, wh, x, y in info:
+            if not np.isfinite(x) or not np.isfinite(y):
+                continue
 
-                x = x + posx
-                y = y + posy
-                if renderer.flipy():
-                    y = canvash - y
-                clean_line, ismath = self.is_math_text(line)
+            x = x + posx
+            y = y + posy
+            if renderer.flipy():
+                y = canvash - y
+            clean_line, ismath = self.is_math_text(line)
 
-                if self.get_path_effects():
-                    for path_effect in self.get_path_effects():
+            if self.get_path_effects():
+                for path_effect in self.get_path_effects():
+                    if rcParams['text.usetex']:
                         path_effect.draw_tex(renderer, gc, x, y, clean_line,
                                              self._fontproperties, angle)
-                else:
+                    else:
+                        path_effect.draw_text(renderer, gc, x, y, clean_line,
+                                             self._fontproperties, angle)
+            else:
+                if rcParams['text.usetex']:
                     renderer.draw_tex(gc, x, y, clean_line,
                                       self._fontproperties, angle, mtext=self)
-        else:
-            for line, wh, x, y in info:
-                if not np.isfinite(x) or not np.isfinite(y):
-                    continue
-
-                x = x + posx
-                y = y + posy
-                if renderer.flipy():
-                    y = canvash - y
-                clean_line, ismath = self.is_math_text(line)
-
-                if self.get_path_effects():
-                    for path_effect in self.get_path_effects():
-                        path_effect.draw_text(renderer, gc, x, y, clean_line,
-                                              self._fontproperties, angle,
-                                              ismath=ismath)
                 else:
                     renderer.draw_text(gc, x, y, clean_line,
                                        self._fontproperties, angle,
@@ -768,7 +753,7 @@ class Text(Artist):
         if self._renderer is None:
             raise RuntimeError('Cannot get window extent w/o renderer')
 
-        bbox, info = self._get_layout(self._renderer)
+        bbox, info, descent = self._get_layout(self._renderer)
         x, y = self.get_position()
         x, y = self.get_transform().transform_point((x, y))
         bbox = bbox.translated(x, y)
@@ -1997,8 +1982,7 @@ class Annotation(Text, _AnnotationBase):
             posx, posy = self._x, self._y
 
             x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
-            self._bbox_patch.set_bounds(0., 0.,
-                                        w_box, h_box)
+            self._bbox_patch.set_bounds(0., 0., w_box, h_box)
             theta = np.deg2rad(self.get_rotation())
             tr = mtransforms.Affine2D().rotate(theta)
             tr = tr.translate(posx + x_box, posy + y_box)
