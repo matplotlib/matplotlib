@@ -369,7 +369,7 @@ class FigureCanvasQT(QtGui.QWidget, FigureCanvasBase):
             # in that order)
             for modifier, prefix, Qt_key in self._modifier_keys:
                 if (event.key() != Qt_key and
-                    int(event.modifiers()) & modifier == modifier):
+                        int(event.modifiers()) & modifier == modifier):
                     key = u'{0}+{1}'.format(prefix, key)
 
         return key
