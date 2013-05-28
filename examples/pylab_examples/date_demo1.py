@@ -14,7 +14,7 @@ This example requires an active internet connection since it uses
 yahoo finance to get the data for plotting
 """
 
-from pylab import figure, show
+import matplotlib.pyplot as plt
 from matplotlib.finance import quotes_historical_yahoo
 from matplotlib.dates import YearLocator, MonthLocator, DateFormatter
 import datetime
@@ -33,8 +33,7 @@ if len(quotes) == 0:
 dates = [q[0] for q in quotes]
 opens = [q[1] for q in quotes]
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot_date(dates, opens, '-')
 
 # format the ticks
@@ -50,4 +49,4 @@ ax.fmt_ydata = price
 ax.grid(True)
 
 fig.autofmt_xdate()
-show()
+plt.show()

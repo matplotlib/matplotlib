@@ -10,8 +10,7 @@ b = np.arange(0,3,.02)
 c = np.exp(a)
 d = c[::-1]
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 plt.plot(a,c,'k--',a,d,'k:',a,c+d,'k')
 plt.legend(('Model length', 'Data length', 'Total message length'),
            'upper center', shadow=True)

@@ -7,7 +7,7 @@ controlling major and minor ticks
 """
 from __future__ import print_function
 import datetime
-from pylab import figure, show
+import matplotlib.pyplot as plt
 from matplotlib.dates import MONDAY
 from matplotlib.finance import quotes_historical_yahoo
 from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
@@ -32,8 +32,7 @@ if len(quotes) == 0:
 dates = [q[0] for q in quotes]
 opens = [q[1] for q in quotes]
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot_date(dates, opens, '-')
 ax.xaxis.set_major_locator(months)
 ax.xaxis.set_major_formatter(monthsFmt)
@@ -45,4 +44,4 @@ ax.grid(True)
 
 fig.autofmt_xdate()
 
-show()
+plt.show()

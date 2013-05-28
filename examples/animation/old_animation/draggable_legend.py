@@ -1,13 +1,12 @@
 import matplotlib.pyplot as plt
 
-
-ax = plt.subplot(111)
+fig, ax = plt.subplots()
 ax.plot([1,2,3], label="test")
 
 l = ax.legend()
 d1 = l.draggable()
 
-xy = 1, 2        
+xy = 1, 2
 txt = ax.annotate("Test", xy, xytext=(-30, 30),
                   textcoords="offset points",
                   bbox=dict(boxstyle="round",fc=(0.2, 1, 1)),

@@ -22,8 +22,7 @@ def get_stats():
 # interactive mode, you'll need to use a GUI event handler/timer.
 ion()
 
-fig = figure(1)
-ax = subplot(111)
+fig, ax = plt.subplots()
 ind = arange(1,4)
 pm, pc, pn = bar(ind, get_stats())
 centers = ind + 0.5*pm.get_width()

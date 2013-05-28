@@ -13,6 +13,7 @@ import gobject
 import matplotlib
 matplotlib.use('GTKAgg')
 import numpy as np
+import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 
 
@@ -62,11 +63,8 @@ class Scope:
         return True
 
 
-from pylab import figure, show
-
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 scope = Scope(ax)
 gobject.idle_add(scope.update)
 
-show()
+plt.show()

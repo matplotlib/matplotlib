@@ -16,8 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 canvas = fig.canvas
 
 fig.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs

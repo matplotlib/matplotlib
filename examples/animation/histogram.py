@@ -9,8 +9,7 @@ import matplotlib.patches as patches
 import matplotlib.path as path
 import matplotlib.animation as animation
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 
 # histogram our data with numpy
 data = np.random.randn(1000)
