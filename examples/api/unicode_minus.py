@@ -11,8 +11,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 matplotlib.rcParams['axes.unicode_minus'] = False
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot(10*np.random.randn(100), 10*np.random.randn(100), 'o')
 ax.set_title('Using hypen instead of unicode minus')
 plt.show()

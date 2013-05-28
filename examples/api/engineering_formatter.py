@@ -7,7 +7,7 @@ import numpy as np
 
 from matplotlib.ticker import EngFormatter
 
-ax = plt.subplot(111)
+fig, ax = plt.subplots()
 ax.set_xscale('log')
 formatter = EngFormatter(unit='Hz', places=1)
 ax.xaxis.set_major_formatter(formatter)

@@ -11,7 +11,6 @@ just make up some data for little Johnny Doe...
 import numpy as np
 import matplotlib.pyplot as plt
 import pylab
-from matplotlib.patches import Polygon
 from matplotlib.ticker import MaxNLocator
 
 
@@ -28,8 +27,8 @@ testMeta = ['laps', 'sec', 'min:sec', 'sec', '']
 scores = ['7', '48', '12:52', '17', '14']
 rankings = np.round(np.random.uniform(0, 1, numTests)*100, 0)
 
-fig = plt.figure(figsize=(9,7))
-ax1 = fig.add_subplot(111)
+
+fig, ax1 = plt.subplots(figsize=(9,7))
 plt.subplots_adjust(left=0.115, right=0.88)
 fig.canvas.set_window_title('Eldorado K-8 Fitness Chart')
 pos = np.arange(numTests)+0.5    #Center bars on the Y-axis ticks

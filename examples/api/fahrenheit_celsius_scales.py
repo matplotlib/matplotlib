@@ -4,9 +4,8 @@ Show how to display two scales on the left and right y axis -- Fahrenheit and Ce
 
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-ax1 = fig.add_subplot(111)     # the Fahrenheit scale
-ax2 = ax1.twinx()              # the Celsius scale
+fig, ax1 = plt.subplots()  # ax1 is the Fahrenheit scale
+ax2 = ax1.twinx()          # ax2 is the Celsius scale
 
 def Tc(Tf):
     return (5./9.)*(Tf-32)

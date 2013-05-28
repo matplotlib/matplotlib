@@ -29,8 +29,7 @@ A simple example of the recommended style is::
     import numpy as np
     import matplotlib.pyplot as plt
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111) # or add_axes
+    fig, ax = plt.subplots()
     ax.plot(np.random.rand(10))
     ax.set_xlabel('some x data')
     ax.set_ylabel('some y data')

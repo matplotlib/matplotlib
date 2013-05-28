@@ -17,7 +17,7 @@ t1 = arange(0.0, 5.0, 0.1)
 t2 = arange(0.0, 5.0, 0.02)
 
 
-subplot(111)
+fig, ax = plt.subplots()
 plot(t1, f(t1), 'bo', t2, f(t2), 'k')
 text(3.0, 0.6, 'f(t) = exp(-t) sin(2 pi t)')
 ttext = title('Fun with text!')
