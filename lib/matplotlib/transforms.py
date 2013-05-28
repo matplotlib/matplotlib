@@ -774,7 +774,7 @@ class Bbox(BboxBase):
         BboxBase.__init__(self, **kwargs)
         points = np.asarray(points, np.float_)
         if points.shape != (2, 2):
-            raise ValueError('Bbox points must be of the form ' 
+            raise ValueError('Bbox points must be of the form '
                              '"[[x0, y0], [x1, y1]]".')
         self._points = points
         self._minpos = np.array([0.0000001, 0.0000001])
@@ -803,6 +803,16 @@ class Bbox(BboxBase):
         (1, 1).
         """
         return Bbox(Bbox._unit_values.copy())
+
+    _null_values = np.array([[np.inf, np.inf], [-np.inf, -np.inf]], np.float_)
+
+    @staticmethod
+    def null():
+        """
+        (staticmethod) Create a new null :class:`Bbox` from (inf, inf) to
+        (-inf, -inf).
+        """
+        return Bbox(Bbox._null_values.copy())
 
     @staticmethod
     def from_bounds(x0, y0, width, height):
