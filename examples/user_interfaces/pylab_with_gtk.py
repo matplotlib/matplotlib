@@ -8,7 +8,7 @@ matplotlib.use('GTKAgg')
 import matplotlib.pyplot as plt
 
 
-ax = plt.subplot(111)
+fig, ax = plt.subplots()
 plt.plot([1,2,3], 'ro-', label='easy as 1 2 3')
 plt.plot([1,4,9], 'gs--', label='easy as 1 2 3 squared')
 plt.legend()

@@ -3,8 +3,7 @@ Make a "broken" horizontal bar plot, ie one with gaps
 """
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.broken_barh([ (110, 30), (150, 10) ] , (10, 9), facecolors='blue')
 ax.broken_barh([ (10, 50), (100, 20),  (130, 10)] , (20, 9),
                 facecolors=('red', 'yellow', 'green'))

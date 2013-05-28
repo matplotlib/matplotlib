@@ -3,18 +3,19 @@
 
 from __future__ import print_function
 
-import os, sys
-from pylab import *
+import os
+import matplotlib.pyplot as plt
+import numpy as np
 
 files = []
-figure(figsize=(5,5))
-ax = subplot(111)
+
+fig, ax = plt.subplots(figsize=(5,5))
 for i in range(50):  # 50 frames
-    cla()
-    imshow(rand(5,5), interpolation='nearest')
+    plt.cla()
+    plt.imshow(np.random.rand(5,5), interpolation='nearest')
     fname = '_tmp%03d.png'%i
     print('Saving frame', fname)
-    savefig(fname)
+    plt.savefig(fname)
     files.append(fname)
 
 print('Making movie animation.mpg - this make take a while')
