@@ -11,12 +11,14 @@ except ImportError:
 try:
     gi.require_version("Gtk", "3.0")
 except ValueError:
-    raise ImportError("Gtk3 backend gtk3 development files to be installed.")
+    raise ImportError(
+        "Gtk3 backend requires the GObject introspection bindings for Gtk 3 "
+        "to be installed.")
 
 try:
     from gi.repository import Gtk, Gdk, GObject
 except ImportError:
-    raise ImportError("GTK3 backend requires pygobject to be installed.")
+    raise ImportError("Gtk3 backend requires pygobject to be installed.")
 
 import matplotlib
 from matplotlib._pylab_helpers import Gcf
