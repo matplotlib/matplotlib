@@ -1,12 +1,14 @@
-"""
-Tests for the colors module.
-"""
-
 from __future__ import print_function
+from nose.tools import assert_raises
 import numpy as np
 from numpy.testing.utils import assert_array_equal, assert_array_almost_equal
+
+
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
+import matplotlib.pyplot as plt
+from matplotlib.testing.decorators import image_comparison
+
 
 def test_colormap_endian():
     """
@@ -23,6 +25,7 @@ def test_colormap_endian():
         #print(anative.dtype.isnative, aforeign.dtype.isnative)
         assert_array_equal(cmap(anative), cmap(aforeign))
 
+
 def test_BoundaryNorm():
     """
     Github issue #1258: interpolation was failing with numpy
@@ -36,7 +39,8 @@ def test_BoundaryNorm():
     ncolors = len(boundaries)
     bn = mcolors.BoundaryNorm(boundaries, ncolors)
     assert_array_equal(bn(vals), expected)
-    
+
+
 def test_LogNorm():
     """
     LogNorm igornoed clip, now it has the same
@@ -45,6 +49,7 @@ def test_LogNorm():
     """
     ln = mcolors.LogNorm(clip=True, vmax=5)
     assert_array_equal(ln([1, 6]), [0, 1.0])
+
 
 def test_Normalize():
     norm = mcolors.Normalize()
@@ -74,6 +79,7 @@ def _inverse_tester(norm_instance, vals):
     """
     assert_array_almost_equal(norm_instance.inverse(norm_instance(vals)), vals)
 
+
 def _scalar_tester(norm_instance, vals):
     """
     Checks if scalars and arrays are handled the same way.
@@ -82,6 +88,7 @@ def _scalar_tester(norm_instance, vals):
     scalar_result = [norm_instance(float(v)) for v in vals]
     assert_array_almost_equal(scalar_result, norm_instance(vals))
 
+
 def _mask_tester(norm_instance, vals):
     """
     Checks mask handling
@@ -89,3 +96,80 @@ def _mask_tester(norm_instance, vals):
     masked_array = np.ma.array(vals)
     masked_array[0] = np.ma.masked
     assert_array_equal(masked_array.mask, norm_instance(masked_array).mask)
+
+
+@image_comparison(baseline_images=['levels_and_colors'],
+                  extensions=['png'])
+def test_cmap_and_norm_from_levels_and_colors():
+    data = np.linspace(-2, 4, 49).reshape(7, 7)
+    levels = [-1, 2, 2.5, 3]
+    colors = ['red', 'green', 'blue', 'yellow', 'black']
+    extend = 'both'
+    cmap, norm = mcolors.from_levels_and_colors(levels, colors, extend=extend)
+
+    ax = plt.axes()
+    m = plt.pcolormesh(data, cmap=cmap, norm=norm)
+    plt.colorbar(m)
+
+    # Hide the axes labels (but not the colorbar ones, as they are useful)
+    for lab in ax.get_xticklabels() + ax.get_yticklabels():
+        lab.set_visible(False)
+
+
+def test_cmap_and_norm_from_levels_and_colors2():
+    levels = [-1, 2, 2.5, 3]
+    colors = ['red', (0, 1, 0), 'blue', (0.5, 0.5, 0.5), (0.0, 0.0, 0.0, 1.0)]
+    clr = mcolors.colorConverter.to_rgba_array(colors)
+    bad = (0.1, 0.1, 0.1, 0.1)
+    no_color = (0.0, 0.0, 0.0, 0.0)
+
+    # Define the test values which are of interest.
+    # Note: levels are lev[i] <= v < lev[i+1]
+    tests = [('both', None, {-2: clr[0],
+                             -1: clr[1],
+                             2: clr[2],
+                             2.25: clr[2],
+                             3: clr[4],
+                             3.5: clr[4],
+                             np.ma.array(1, mask=True): bad}),
+
+             ('min', -1, {-2: clr[0],
+                          -1: clr[1],
+                          2: clr[2],
+                          2.25: clr[2],
+                          3: no_color,
+                          3.5: no_color,
+                          np.ma.array(1, mask=True): bad}),
+
+             ('max', -1, {-2: no_color,
+                          -1: clr[0],
+                          2: clr[1],
+                          2.25: clr[1],
+                          3: clr[3],
+                          3.5: clr[3],
+                          np.ma.array(1, mask=True): bad}),
+
+             ('neither', -2, {-2: no_color,
+                              -1: clr[0],
+                              2: clr[1],
+                              2.25: clr[1],
+                              3: no_color,
+                              3.5: no_color,
+                              np.ma.array(1, mask=True): bad}),
+             ]
+
+    for extend, i1, cases in tests:
+        cmap, norm = mcolors.from_levels_and_colors(levels, colors[0:i1],
+                                                    extend=extend)
+        cmap.set_bad(bad)
+        for d_val, expected_color in sorted(cases.items()):
+            assert_array_equal(expected_color, cmap(norm([d_val]))[0],
+                               'Wih extend={0!r} and data '
+                               'value={1!r}'.format(extend, d_val))
+
+    assert_raises(ValueError, mcolors.from_levels_and_colors, levels, colors)
+
+
+if __name__ == '__main__':
+    import nose
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
