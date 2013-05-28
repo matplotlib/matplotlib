@@ -94,9 +94,9 @@ class TexManager:
         oldpath = mpl.get_data_path()
     oldcache = os.path.join(oldpath, '.tex.cache')
 
-    configdir = mpl.get_configdir()
-    if configdir is not None:
-        texcache = os.path.join(configdir, 'tex.cache')
+    cachedir = mpl.get_cachedir()
+    if cachedir is not None:
+        texcache = os.path.join(cachedir, 'tex.cache')
     else:
         # Should only happen in a restricted environment (such as Google App
         # Engine). Deal with this gracefully by not creating a cache directory.
