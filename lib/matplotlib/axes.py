@@ -7316,13 +7316,35 @@ class Axes(martist.Artist):
 
         return im
 
-    def _pcolorargs(self, funcname, *args):
+    @staticmethod
+    def _pcolorargs(funcname, *args, **kw):
+        # This takes one kwarg, allmatch.
+        # If allmatch is True, then the incoming X, Y, C must
+        # have matching dimensions, taking into account that
+        # X and Y can be 1-D rather than 2-D.  This perfect
+        # match is required for Gouroud shading.  For flat
+        # shading, X and Y specify boundaries, so we need
+        # one more boundary than color in each direction.
+        # For convenience, and consistent with Matlab, we
+        # discard the last row and/or column of C if necessary
+        # to meet this condition.  This is done if allmatch
+        # is False.
+
+        allmatch = kw.pop("allmatch", False)
+
         if len(args) == 1:
             C = args[0]
             numRows, numCols = C.shape
-            X, Y = np.meshgrid(np.arange(numCols + 1), np.arange(numRows + 1))
-        elif len(args) == 3:
+            if allmatch:
+                X, Y = np.meshgrid(np.arange(numCols), np.arange(numRows))
+            else:
+                X, Y = np.meshgrid(np.arange(numCols + 1),
+                                   np.arange(numRows + 1))
+            return X, Y, C
+
+        if len(args) == 3:
             X, Y, C = args
+            numRows, numCols = C.shape
         else:
             raise TypeError(
                 'Illegal arguments to %s; see help(%s)' % (funcname, funcname))
@@ -7339,6 +7361,17 @@ class Axes(martist.Artist):
             raise TypeError(
                 'Incompatible X, Y inputs to %s; see help(%s)' % (
                 funcname, funcname))
+        if allmatch:
+            if not (Nx == numCols and Ny == numRows):
+                raise TypeError('Dimensions of C %s are incompatible with'
+                                ' X (%d) and/or Y (%d); see help(%s)' % (
+                                    C.shape, Nx, Ny, funcname))
+        else:
+            if not (numCols in (Nx, Nx-1) and numRows in (Ny, Ny-1)):
+                raise TypeError('Dimensions of C %s are incompatible with'
+                                ' X (%d) and/or Y (%d); see help(%s)' % (
+                                    C.shape, Nx, Ny, funcname))
+            C = C[:Ny-1, :Nx-1]
         return X, Y, C
 
     @docstring.dedent_interpd
@@ -7439,7 +7472,7 @@ class Axes(martist.Artist):
 
           x = np.arange(5)
           y = np.arange(3)
-          X, Y = meshgrid(x,y)
+          X, Y = np.meshgrid(x, y)
 
         is equivalent to::
 
@@ -7453,9 +7486,9 @@ class Axes(martist.Artist):
 
         so if you have::
 
-          C = rand( len(x), len(y))
+          C = rand(len(x), len(y))
 
-        then you need::
+        then you need to transpose C::
 
           pcolor(X, Y, C.T)
 
@@ -7504,7 +7537,7 @@ class Axes(martist.Artist):
                 '1.2', 'shading', alternative='edgecolors', obj_type='option')
         shading = kwargs.pop('shading', 'flat')
 
-        X, Y, C = self._pcolorargs('pcolor', *args)
+        X, Y, C = self._pcolorargs('pcolor', *args, allmatch=False)
         Ny, Nx = X.shape
 
         # convert to MA, if necessary.
@@ -7515,7 +7548,7 @@ class Axes(martist.Artist):
         xymask = (mask[0:-1, 0:-1] + mask[1:, 1:] +
                   mask[0:-1, 1:] + mask[1:, 0:-1])
         # don't plot if C or any of the surrounding vertices are masked.
-        mask = ma.getmaskarray(C)[0:Ny - 1, 0:Nx - 1] + xymask
+        mask = ma.getmaskarray(C) + xymask
 
         newaxis = np.newaxis
         compress = np.compress
@@ -7693,15 +7726,13 @@ class Axes(martist.Artist):
         antialiased = kwargs.pop('antialiased', False)
         kwargs.setdefault('edgecolors', 'None')
 
-        X, Y, C = self._pcolorargs('pcolormesh', *args)
+        allmatch = (shading == 'gouraud')
+
+        X, Y, C = self._pcolorargs('pcolormesh', *args, allmatch=allmatch)
         Ny, Nx = X.shape
 
         # convert to one dimensional arrays
-        if shading != 'gouraud':
-            C = ma.ravel(C[0:Ny - 1, 0:Nx - 1])  # data point in each cell is
-                                                 # value at lower left corner
-        else:
-            C = C.ravel()
+        C = C.ravel()
         X = X.ravel()
         Y = Y.ravel()
 
