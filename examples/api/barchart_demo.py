@@ -11,8 +11,7 @@ menStd =   (2, 3, 4, 1, 2)
 ind = np.arange(N)  # the x locations for the groups
 width = 0.35       # the width of the bars
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 rects1 = ax.bar(ind, menMeans, width, color='r', yerr=menStd)
 
 womenMeans = (25, 32, 34, 20, 25)

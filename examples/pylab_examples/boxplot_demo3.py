@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-import matplotlib.transforms as mtransforms
 import numpy as np
 
 def fakeBootStrapper(n):
@@ -34,8 +33,7 @@ med2, CI2 = fakeBootStrapper(2)
 medians = [None, None, med1, med2]
 conf_intervals = [None, None, CI1, CI2]
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 pos = np.array(range(len(treatments)))+1
 bp = ax.boxplot(treatments, sym='k+', positions=pos,
                 notch=1, bootstrap=5000,

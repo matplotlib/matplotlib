@@ -10,6 +10,7 @@ NBLITS = 1000
 import matplotlib
 matplotlib.use('WXAgg')
 matplotlib.rcParams['toolbar'] = 'None'
+import matplotlib.pyplot as plt
 
 import wx
 import sys
@@ -24,8 +25,8 @@ if '--no-accel' in sys.argv:
     matplotlib.backends.backend_wxagg._use_accelerator(False)
 
 
-ax = p.subplot(111)
-canvas = ax.figure.canvas
+fig, ax = plt.subplots()
+canvas = fig.canvas
 
 
 p.subplots_adjust(left=0.3, bottom=0.3) # check for flipy bugs
