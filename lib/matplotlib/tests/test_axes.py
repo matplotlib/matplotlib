@@ -1,4 +1,6 @@
 from nose.tools import assert_equal
+from nose.tools import assert_raises
+
 import numpy as np
 from numpy import ma
 
@@ -293,7 +295,6 @@ def test_shaped_data():
     plt.plot( y2 )
 
     plt.subplot( 413 )
-    from nose.tools import assert_raises
     assert_raises(ValueError,plt.plot, (y1,y2))
 
     plt.subplot( 414 )
@@ -662,6 +663,20 @@ def test_pcolormesh():
     ax = fig.add_subplot(133)
     ax.pcolormesh(Qx,Qz,Z, shading="gouraud")
 
+def test_pcolorargs():
+    n = 12
+    x = np.linspace(-1.5, 1.5, n)
+    y = np.linspace(-1.5, 1.5, n*2)
+    X, Y = np.meshgrid(x, y)
+    Z = np.sqrt(X**2 + Y**2)/5
+
+    _, ax = plt.subplots()
+    assert_raises(TypeError, ax.pcolormesh, y, x, Z)
+    assert_raises(TypeError, ax.pcolormesh, X, Y, Z.T)
+    assert_raises(TypeError, ax.pcolormesh, x, y, Z[:-1, :-1],
+                  shading="gouraud")
+    assert_raises(TypeError, ax.pcolormesh, X, Y, Z[:-1, :-1],
+                  shading="gouraud")
 
 @image_comparison(baseline_images=['canonical'])
 def test_canonical():
