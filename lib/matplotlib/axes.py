@@ -7363,12 +7363,14 @@ class Axes(martist.Artist):
                 funcname, funcname))
         if allmatch:
             if not (Nx == numCols and Ny == numRows):
-                raise TypeError('Dimensions of C are incompatible with'
-                                ' X and/or Y; see help(%s)' % (funcname,))
+                raise TypeError('Dimensions of C %s are incompatible with'
+                                ' X (%d) and/or Y (%d); see help(%s)' % (
+                                    C.shape, Nx, Ny, funcname))
         else:
             if not (numCols in (Nx, Nx-1) and numRows in (Ny, Ny-1)):
-                raise TypeError('Dimensions of C are incompatible with'
-                                ' X and/or Y; see help(%s)' % (funcname,))
+                raise TypeError('Dimensions of C %s are incompatible with'
+                                ' X (%d) and/or Y (%d); see help(%s)' % (
+                                    C.shape, Nx, Ny, funcname))
             C = C[:Ny-1, :Nx-1]
         return X, Y, C
 
