@@ -1308,7 +1308,6 @@ class FIFOBuffer:
         x, y = self.asarrays()
         self.dataLim.update_from_data(x, y, True)
 
-        self.dataLim.update_numerix(x, y, True)
 
 def movavg(x,n):
     """
