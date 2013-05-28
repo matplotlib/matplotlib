@@ -253,7 +253,7 @@ class MovieWriter(object):
 class FileMovieWriter(MovieWriter):
     '`MovieWriter` subclass that handles writing to a file.'
     def __init__(self, *args, **kwargs):
-        MovieWriter.__init__(self, *args)
+        MovieWriter.__init__(self, *args, **kwargs)
         self.frame_format = rcParams['animation.frame_format']
 
     def setup(self, fig, outfile, dpi, frame_prefix='_tmp', clear_temp=True):
