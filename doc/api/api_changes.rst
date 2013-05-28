@@ -17,6 +17,11 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* On Linux, the user-specific `matplotlibrc` configuration file is now
+  located in `~/.config/matplotlib/matplotlibrc` to conform to the
+  `XDG Base Directory Specification
+  <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+
 * The following items that were deprecated in version 1.2 or earlier
   have now been removed completely.
 

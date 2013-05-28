@@ -51,7 +51,7 @@ except NameError:
 import matplotlib
 from matplotlib import afm
 from matplotlib import ft2font
-from matplotlib import rcParams, get_configdir
+from matplotlib import rcParams, get_cachedir
 from matplotlib.cbook import is_string_like
 import matplotlib.cbook as cbook
 from matplotlib.compat import subprocess
@@ -1323,12 +1323,12 @@ if USE_FONTCONFIG and sys.platform != 'win32':
         return result
 
 else:
-    configdir = get_configdir()
-    if configdir is not None:
+    cachedir = get_cachedir()
+    if cachedir is not None:
         if sys.version_info[0] >= 3:
-            _fmcache = os.path.join(configdir, 'fontList.py3k.cache')
+            _fmcache = os.path.join(cachedir, 'fontList.py3k.cache')
         else:
-            _fmcache = os.path.join(configdir, 'fontList.cache')
+            _fmcache = os.path.join(cachedir, 'fontList.cache')
     else:
         # Should only happen in a restricted environment (such as Google App
         # Engine). Deal with this gracefully by not caching fonts.

@@ -11,7 +11,7 @@ from matplotlib.compat import subprocess
 from matplotlib.testing.noseclasses import ImageComparisonFailure
 from matplotlib.testing import image_util
 from matplotlib import _png
-from matplotlib import _get_configdir
+from matplotlib import _get_cachedir
 from matplotlib import cbook
 from distutils import version
 import hashlib
@@ -100,10 +100,10 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
 # parameters old and new to a list that can be passed to Popen to
 # convert files with that extension to png format.
 def get_cache_dir():
-   configdir = _get_configdir()
-   if configdir is None:
+   cachedir = _get_cachedir()
+   if cachedir is None:
       raise RuntimeError('Could not find a suitable configuration directory')
-   cache_dir = os.path.join(configdir, 'test_cache')
+   cache_dir = os.path.join(cachedir, 'test_cache')
    if not os.path.exists(cache_dir):
       try:
          cbook.mkdirs(cache_dir)

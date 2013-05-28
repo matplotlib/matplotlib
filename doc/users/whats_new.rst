@@ -66,6 +66,15 @@ animations as well as being fully interactive.
 Future versions of matplotlib will integrate this backend with the
 IPython notebook for a fully web browser based plotting frontend.
 
+XDG base directory support
+--------------------------
+On Linux, matplotlib now uses the `XDG base directory specification
+<http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`
+to find the `matplotlibrc` configuration file.  `matplotlibrc` should
+now be kept in `~/.config/matplotlib`, rather than `~/.matplotlib`.  If
+your configuration is found in the old location, it will still be used,
+but a warning will be displayed.
+
 Path effects on lines
 ---------------------
 Thanks to Jae-Joon Lee, path effects now also work on plot lines.
