@@ -146,19 +146,6 @@ if not hasattr(sys, 'argv'):  # for modpython
     sys.argv = ['modpython']
 
 
-"""
-Manage user customizations through a rc file.
-
-The default file location is given in the following order
-
-  - environment variable MATPLOTLIBRC
-
-  - HOME/.matplotlib/matplotlibrc if HOME is defined
-
-  - PATH/matplotlibrc where PATH is the return value of
-    get_data_path()
-"""
-
 import sys, os, tempfile
 
 if sys.version_info[0] >= 3:
@@ -525,21 +512,25 @@ def _create_tmp_config_dir():
 
 get_home = verbose.wrap('$HOME=%s', _get_home, always=False)
 
-def _get_configdir():
+def _get_xdg_config_dir():
     """
-    Return the string representing the configuration directory.
-
-    The directory is chosen as follows:
-
-    1. If the MPLCONFIGDIR environment variable is supplied, choose that. Else,
-       choose the '.matplotlib' subdirectory of the user's home directory (and
-       create it if necessary).
-    2. If the chosen directory exists and is writable, use that as the
-       configuration directory.
-    3. If possible, create a temporary directory, and use it as the
-       configuration directory.
-    4. A writable directory could not be found or created; return None.
+    Returns the XDG configuration directory, according to the `XDG
+    base directory spec
+    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
     """
+    return os.environ.get('XDG_CONFIG_HOME', os.path.join(get_home(), '.config'))
+
+
+def _get_xdg_cache_dir():
+    """
+    Returns the XDG cache directory, according to the `XDG
+    base directory spec
+    <http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`_.
+    """
+    return os.environ.get('XDG_CACHE_HOME', os.path.join(get_home(), '.cache'))
+
+
+def _get_config_or_cache_dir(xdg_base):
     from matplotlib.cbook import mkdirs
 
     configdir = os.environ.get('MPLCONFIGDIR')
@@ -547,26 +538,63 @@ def _get_configdir():
         if not os.path.exists(configdir):
             from matplotlib.cbook import mkdirs
             mkdirs(configdir)
+
         if not _is_writable_dir(configdir):
             return _create_tmp_config_dir()
         return configdir
 
     h = get_home()
-    if h is not None:
-        p = os.path.join(h, '.matplotlib')
+    p = os.path.join(h, '.matplotlib')
+    if (sys.platform.startswith('linux') and
+        not os.path.exists(p)):
+        p = _get_xdg_config_dir()
 
-        if os.path.exists(p):
-            if not _is_writable_dir(p):
-                return _create_tmp_config_dir()
-        else:
-            if not _is_writable_dir(h):
-                return _create_tmp_config_dir()
-            mkdirs(p)
+    if os.path.exists(p):
+        if not _is_writable_dir(p):
+            return _create_tmp_config_dir()
+    else:
+        if not _is_writable_dir(h):
+            return _create_tmp_config_dir()
+        mkdirs(p)
 
-        return p
+    return p
 
-    return _create_tmp_config_dir()
+
+def _get_configdir():
+    """
+    Return the string representing the configuration directory.
+
+    The directory is chosen as follows:
+
+    1. If the MPLCONFIGDIR environment variable is supplied, choose that.
+
+    2a. On Linux, if `$HOME/.matplotlib` exists, choose that, but warn that
+        that is the old location.  Barring that, follow the XDG specification
+        and look first in `$XDG_CONFIG_HOME`, if defined, or `$HOME/.config`.
+
+    2b. On other platforms, choose `$HOME/.matplotlib`.
+
+    3. If the chosen directory exists and is writable, use that as the
+       configuration directory.
+    4. If possible, create a temporary directory, and use it as the
+       configuration directory.
+    5. A writable directory could not be found or created; return None.
+    """
+    return _get_config_or_cache_dir(_get_xdg_config_dir())
+
 get_configdir = verbose.wrap('CONFIGDIR=%s', _get_configdir, always=False)
+
+
+def _get_cachedir():
+    """
+    Return the location of the cache directory.
+
+    The procedure used to find the directory is the same as for
+    _get_config_dir, except using `$XDG_CONFIG_HOME`/`~/.cache` instead.
+    """
+    return _get_config_or_cache_dir(_get_xdg_cache_dir())
+
+get_cachedir = verbose.wrap('CACHEDIR=%s', _get_cachedir, always=False)
 
 
 def _get_data_path():
@@ -643,50 +671,36 @@ def get_py2exe_datafiles():
 
 def matplotlib_fname():
     """
-    Return the path to the rc file used by matplotlib.
+    Get the location of the config file.
 
-    Search order:
+    The file location is determined in the following order
 
-     * current working dir
-     * environ var MATPLOTLIBRC
-     * HOME/.matplotlib/matplotlibrc
-     * MATPLOTLIBDATA/matplotlibrc
+    - `$PWD/matplotlibrc`
 
+    - environment variable `MATPLOTLIBRC`
+
+    - `$MPLCONFIGDIR/matplotlib`
+
+    - On Linux,
+
+          - `$HOME/.matplotlib/matplotlibrc`, if it exists
+
+          - or `$XDG_CONFIG_HOME/matplotlib/matplotlibrc` (if
+            $XDG_CONFIG_HOME is defined)
+
+          - or `$HOME/.config/matplotlib/matplotlibrc` (if
+            $XDG_CONFIG_HOME is not defined)
+
+    - On other platforms,
+
+         - `$HOME/.matplotlib/matplotlibrc` if `$HOME` is defined.
+
+    - Lastly, it looks in `$MATPLOTLIBDATA/matplotlibrc` for a
+      system-defined copy.
     """
-    oldname = os.path.join(os.getcwd(), '.matplotlibrc')
-    if os.path.exists(oldname):
-        try:
-            shutil.move('.matplotlibrc', 'matplotlibrc')
-        except IOError as e:
-            warnings.warn('File could not be renamed: %s' % e)
-        else:
-            warnings.warn("""\
-Old rc filename ".matplotlibrc" found in working dir and and renamed to new
-    default rc file name "matplotlibrc" (no leading ".").""")
-
-    home = get_home()
-    configdir = get_configdir()
-    if home:
-        oldname = os.path.join(home, '.matplotlibrc')
-        if os.path.exists(oldname):
-            if configdir is not None:
-                newname = os.path.join(configdir, 'matplotlibrc')
-
-                try:
-                    shutil.move(oldname, newname)
-                except IOError as e:
-                    warnings.warn('File could not be renamed: %s' % e)
-                else:
-                    warnings.warn("""\
-Old rc filename "%s" found and renamed to new default rc file name "%s"."""
-                              % (oldname, newname))
-            else:
-                warnings.warn("""\
-Could not rename old rc file "%s": a suitable configuration directory could not
-    be found.""" % oldname)
-
     fname = os.path.join(os.getcwd(), 'matplotlibrc')
-    if os.path.exists(fname): return fname
+    if os.path.exists(fname):
+        return fname
 
     if 'MATPLOTLIBRC' in os.environ:
         path =  os.environ['MATPLOTLIBRC']
@@ -695,15 +709,28 @@ Could not rename old rc file "%s": a suitable configuration directory could not
             if os.path.exists(fname):
                 return fname
 
+    configdir = _get_configdir()
     if configdir is not None:
         fname = os.path.join(configdir, 'matplotlibrc')
         if os.path.exists(fname):
+            if (sys.platform.startswith('linux') and
+                fname == os.path.join(
+                    get_home(), '.matplotlib', 'matplotlibrc')):
+                warnings.warn(
+                    "Found matplotlib configuration in ~/.matplotlib. "
+                    "To conform with the XDG base directory standard, "
+                    "this configuration location has been deprecated "
+                    "on Linux, and the new location is now %r.  Please "
+                    "move your configuration there to ensure that "
+                    "matplotlib will continue to find it in the future." %
+                    _get_xdg_config_dir())
             return fname
 
-    path =  get_data_path() # guaranteed to exist or raise
+    path = get_data_path()  # guaranteed to exist or raise
     fname = os.path.join(path, 'matplotlibrc')
     if not os.path.exists(fname):
         warnings.warn('Could not find matplotlibrc; using defaults')
+
     return fname
 
 
