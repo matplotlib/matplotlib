@@ -1,10 +1,7 @@
-"""
-Tests specific to the patches module.
-"""
-
 import numpy as np
 from numpy.testing import assert_array_equal
 from numpy.testing import assert_almost_equal
+
 from matplotlib.patches import Polygon
 from matplotlib.patches import Rectangle
 from matplotlib.testing.decorators import image_comparison
@@ -16,15 +13,14 @@ from matplotlib import transforms as mtrans
 
 
 def test_Polygon_close():
-    """
-    Github issue #1018 identified a bug in the Polygon handling
-    of the closed attribute; the path was not getting closed
-    when set_xy was used to set the vertices.
-    """
+    #: Github issue #1018 identified a bug in the Polygon handling
+    #: of the closed attribute; the path was not getting closed
+    #: when set_xy was used to set the vertices.
+
     # open set of vertices:
-    xy = [[0,0], [0,1], [1,1]]
+    xy = [[0, 0], [0, 1], [1, 1]]
     # closed set:
-    xyclosed = xy + [[0,0]]
+    xyclosed = xy + [[0, 0]]
 
     # start with open path and close it:
     p = Polygon(xy, closed=True)
@@ -136,13 +132,11 @@ def test_patch_alpha_coloring():
     ax.set_ylim([-1, 2])
 
 
-
 @image_comparison(baseline_images=['patch_alpha_override'], remove_text=True)
 def test_patch_alpha_override():
-    """
-    Test checks that specifying an alpha attribute for a patch or collection
-    will override any alpha component of the facecolor or edgecolor.
-    """
+    #: Test checks that specifying an alpha attribute for a patch or
+    #: collection will override any alpha component of the facecolor
+    #: or edgecolor.
     star = mpath.Path.unit_regular_star(6)
     circle = mpath.Path.unit_circle()
     # concatenate the star with an internal cutout of the circle
@@ -170,13 +164,11 @@ def test_patch_alpha_override():
     ax.set_ylim([-1, 2])
 
 
-
-@image_comparison(baseline_images=['patch_custom_linestyle'], remove_text=True)
+@image_comparison(baseline_images=['patch_custom_linestyle'],
+                  remove_text=True)
 def test_patch_custom_linestyle():
-    """
-    A test to check that patches and collections accept custom dash patterns
-    as linestyle and that they display correctly.
-    """
+    #: A test to check that patches and collections accept custom dash
+    #: patterns as linestyle and that they display correctly.
     star = mpath.Path.unit_regular_star(6)
     circle = mpath.Path.unit_circle()
     # concatenate the star with an internal cutout of the circle
@@ -187,24 +179,21 @@ def test_patch_custom_linestyle():
 
     ax = plt.axes()
     patch = mpatches.PathPatch(cut_star1,
-                               linewidth=5, linestyle=(0.0, (5.0, 7.0, 10.0, 7.0)),
-                               facecolor=(1, 0, 0),
-                               edgecolor=(0, 0, 1))
+                   linewidth=5, linestyle=(0.0, (5.0, 7.0, 10.0, 7.0)),
+                   facecolor=(1, 0, 0),
+                   edgecolor=(0, 0, 1))
     ax.add_patch(patch)
 
     col = mcollections.PathCollection([cut_star2],
-                                      linewidth=5, linestyles=[(0.0, (5.0, 7.0, 10.0, 7.0))],
-                                      facecolor=(1, 0, 0),
-                                      edgecolor=(0, 0, 1))
+                  linewidth=5, linestyles=[(0.0, (5.0, 7.0, 10.0, 7.0))],
+                  facecolor=(1, 0, 0),
+                  edgecolor=(0, 0, 1))
     ax.add_collection(col)
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
 
 
-
-
-
-if __name__=='__main__':
+if __name__ == '__main__':
     import nose
-    nose.runmodule(argv=['-s','--with-doctest'], exit=False)
+    nose.runmodule(argv=['-s', '--with-doctest'], exit=False)
