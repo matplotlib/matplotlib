@@ -508,6 +508,12 @@ class Colormap(object):
         self._i_bad = N + 2
         self._isinit = False
 
+        #: When this colormap exists on a scalar mappable and colorbar_extend
+        #: is not False, colorbar creation will pick up ``colorbar_extend`` as
+        #: the default value for the ``extend`` keyword in the
+        #: :class:`matplotlib.colorbar.Colorbar` constructor.
+        self.colorbar_extend = False
+
     def __call__(self, X, alpha=None, bytes=False):
         """
         Parameters
@@ -832,7 +838,7 @@ class ListedColormap(Colormap):
 class Normalize(object):
     """
     A class which, when called, can normalize data into
-    the ``[0, 1]`` interval.
+    the ``[0.0, 1.0]`` interval.
 
     """
     def __init__(self, vmin=None, vmax=None, clip=False):
@@ -1212,8 +1218,12 @@ class NoNorm(Normalize):
         return value
 
 # compatibility with earlier class names that violated convention:
-normalize = Normalize
-no_norm = NoNorm
+normalize = cbook.deprecated('1.3', alternative='Normalize',
+                             name='normalize',
+                             obj_type='class alias')(Normalize)
+no_norm = cbook.deprecated('1.3', alternative='NoNorm',
+                           name='no_norm',
+                           obj_type='class alias')(NoNorm)
 
 
 def rgb_to_hsv(arr):
@@ -1405,3 +1415,71 @@ class LightSource(object):
         hsv[:, :, 1:] = np.where(hsv[:, :, 1:] > 1., 1, hsv[:, :, 1:])
         # convert modified hsv back to rgb.
         return hsv_to_rgb(hsv)
+
+
+def from_levels_and_colors(levels, colors, extend='neither'):
+    """
+    A helper routine to generate a cmap and a norm instance which
+    behave similar to contourf's levels and colors arguments.
+
+    Parameters
+    ----------
+    levels : sequence of numbers
+        The quantization levels used to construct the :class:`BoundaryNorm`.
+        Values ``v`` are quantizized to level ``i`` if
+        ``lev[i] <= v < lev[i+1]``.
+    colors : sequence of colors
+        The fill color to use for each level. If `extend` is "neither" there
+        must be ``n_level - 1`` colors. For an `extend` of "min" or "max" add
+        one extra color, and for an `extend` of "both" add two colors.
+    extend : {'neither', 'min', 'max', 'both'}, optional
+        The behaviour when a value falls out of range of the given levels.
+        See :func:`~matplotlib.pyplot.contourf` for details.
+
+    Returns
+    -------
+    (cmap, norm) : tuple containing a :class:`Colormap` and a \
+                   :class:`Normalize` instance
+    """
+    colors_i0 = 0
+    colors_i1 = None
+
+    if extend == 'both':
+        colors_i0 = 1
+        colors_i1 = -1
+        extra_colors = 2
+    elif extend == 'min':
+        colors_i0 = 1
+        extra_colors = 1
+    elif extend == 'max':
+        colors_i1 = -1
+        extra_colors = 1
+    elif extend == 'neither':
+        extra_colors = 0
+    else:
+        raise ValueError('Unexpected value for extend: {0!r}'.format(extend))
+
+    n_data_colors = len(levels) - 1
+    n_expected_colors = n_data_colors + extra_colors
+    if len(colors) != n_expected_colors:
+        raise ValueError('With extend == {0!r} and n_levels == {1!r} expected'
+                         ' n_colors == {2!r}. Got {3!r}.'
+                         ''.format(extend, len(levels), n_expected_colors,
+                                   len(colors)))
+
+    cmap = ListedColormap(colors[colors_i0:colors_i1], N=n_data_colors)
+
+    if extend in ['min', 'both']:
+        cmap.set_under(colors[0])
+    else:
+        cmap.set_under('none')
+
+    if extend in ['max', 'both']:
+        cmap.set_over(colors[-1])
+    else:
+        cmap.set_over('none')
+
+    cmap.colorbar_extend = extend
+
+    norm = BoundaryNorm(levels, ncolors=n_data_colors)
+    return cmap, norm
