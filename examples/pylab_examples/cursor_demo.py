@@ -68,7 +68,7 @@ class SnaptoCursor:
 
 t = arange(0.0, 1.0, 0.01)
 s = sin(2*2*pi*t)
-ax = subplot(111)
+fig, ax = subplots()
 
 cursor = Cursor(ax)
 #cursor = SnaptoCursor(ax, t, s)

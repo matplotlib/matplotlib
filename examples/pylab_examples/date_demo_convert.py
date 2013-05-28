@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import datetime
-from matplotlib.pyplot import figure, show
+import matplotlib.pyplot as plt
 from matplotlib.dates import DayLocator, HourLocator, DateFormatter, drange
 from numpy import arange
 
@@ -12,8 +12,7 @@ dates = drange(date1, date2, delta)
 
 y = arange( len(dates)*1.0)
 
-fig = figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot_date(dates, y*y)
 
 # this is superfluous, since the autoscaler should get it right, but
@@ -31,4 +30,4 @@ ax.xaxis.set_major_formatter( DateFormatter('%Y-%m-%d') )
 ax.fmt_xdata = DateFormatter('%Y-%m-%d %H:%M:%S')
 fig.autofmt_xdate()
 
-show()
+plt.show()

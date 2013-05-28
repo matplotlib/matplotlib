@@ -11,8 +11,7 @@ import matplotlib.font_manager as fm
 
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.plot([1,2,3])
 
 if sys.platform == 'win32':

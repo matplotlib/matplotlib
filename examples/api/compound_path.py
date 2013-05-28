@@ -23,8 +23,7 @@ path = Path(vertices, codes)
 
 pathpatch = PathPatch(path, facecolor='None', edgecolor='green')
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 ax.add_patch(pathpatch)
 ax.set_title('A compound path')
 

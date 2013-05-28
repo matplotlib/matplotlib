@@ -5,8 +5,7 @@ matplotlib.use('GTKAgg')
 
 import matplotlib.pyplot as plt
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
+fig, ax = plt.subplots()
 line, = ax.plot(np.random.rand(10))
 ax.set_ylim(0, 1)
 

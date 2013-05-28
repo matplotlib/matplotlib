@@ -1203,6 +1203,7 @@ class FIFOBuffer:
 
       mlab seems like the wrong place for this class.
     """
+    @cbook.deprecated('1.3', name='FIFOBuffer', obj_type='class')
     def __init__(self, nmax):
         """
         Buffer up to *nmax* points.
