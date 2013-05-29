@@ -19,7 +19,7 @@ womenMeans = (25, 32, 34, 20, 25)
 womenStd =   (3, 5, 2, 3, 3)
 rects2 = ax.bar(ind+width, womenMeans, width, color='y', yerr=womenStd)
 
-# add some
+# add some text for labels, title and axes ticks
 ax.set_ylabel('Scores')
 ax.set_title('Scores by group and gender')
 ax.set_xticks(ind+width)
