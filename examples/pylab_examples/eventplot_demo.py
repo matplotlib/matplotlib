@@ -5,6 +5,8 @@ the plot is shown in both horizontal and vertical orientations'''
 
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib
+matplotlib.rcParams['font.size'] = 8.0
 
 # set the random seed
 np.random.seed(0)
@@ -31,14 +33,12 @@ fig = plt.figure()
 ax1 = fig.add_subplot(221)
 ax1.eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
               linelengths=linelengths1)
-ax1.set_title('horizontal eventplot 1')
 
 
 # create a vertical plot
 ax2 = fig.add_subplot(223)
 ax2.eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
               linelengths=linelengths1, orientation='vertical')
-ax2.set_title('vertical eventplot 1')
 
 # create another set of random data.
 # the gamma distribution is only used fo aesthetic purposes
@@ -55,13 +55,11 @@ linelengths2 = 1
 ax1 = fig.add_subplot(222)
 ax1.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
               linelengths=linelengths2)
-ax1.set_title('horizontal eventplot 2')
 
 
 # create a vertical plot
 ax2 = fig.add_subplot(224)
 ax2.eventplot(data2, colors=colors2, lineoffsets=lineoffsets2,
               linelengths=linelengths2, orientation='vertical')
-ax2.set_title('vertical eventplot 2')
 
 plt.show()

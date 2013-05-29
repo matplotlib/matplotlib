@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -193,20 +193,20 @@ Q43.5938 10.2031 46 14.2969
 z
 " id="STIXGeneral-Regular-32"/>
    </defs>
-   <g transform="translate(178.98 36.12)scale(0.12 -0.12)">
-    <use transform="translate(0.0 97.273125)scale(0.7)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(41.1879931641 97.273125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(92.4538031006 97.273125)scale(0.7)" xlink:href="#STIXGeneral-Italic-79"/>
-    <use transform="translate(123.533798828 118.8790625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(13.0 3.7996875)scale(0.7)" xlink:href="#STIXGeneral-Italic-6b"/>
-    <use transform="translate(54.1879931641 3.7996875)scale(0.7)" xlink:href="#STIXGeneral-Regular-2b"/>
-    <use transform="translate(105.453803101 3.7996875)scale(0.7)" xlink:href="#STIXGeneral-Regular-31"/>
+   <g transform="translate(178.98 30.72)scale(0.12 -0.12)">
+    <use transform="translate(0.0 52.273125)scale(0.7)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(41.1879931641 52.273125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(92.4538031006 52.273125)scale(0.7)" xlink:href="#STIXGeneral-Italic-79"/>
+    <use transform="translate(123.533798828 73.8790625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(13.0 -41.2003125)scale(0.7)" xlink:href="#STIXGeneral-Italic-6b"/>
+    <use transform="translate(54.1879931641 -41.2003125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2b"/>
+    <use transform="translate(105.453803101 -41.2003125)scale(0.7)" xlink:href="#STIXGeneral-Regular-31"/>
     <path d="
-M0 57.8575
-L0 64.1075
-L154.207 64.1075
-L154.207 57.8575
-L0 57.8575
+M0 12.8575
+L0 19.1075
+L154.207 19.1075
+L154.207 12.8575
+L0 12.8575
 z
 "/>
    </g>

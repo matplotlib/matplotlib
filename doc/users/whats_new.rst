@@ -16,34 +16,18 @@ revision, see the :ref:`github-stats`.
    versions 2.6, 2.7, and 3.1 and higher.
 
 .. contents:: Table of Contents
+   :depth: 3
 
 .. _whats-new-1-3:
 
 new in matplotlib-1.3
 =====================
 
-Housecleaning
--------------
-
-A number of features that were deprecated in 1.2 or earlier, or have
-not been in a working state for a long time have been removed.
-Highlights include removing the Qt version 3 backends, and the FltkAgg
-and Emf backends.  See :ref:`changes_in_1_3` for a complete list.
-
-New setup script
-----------------
-
-matplotlib 1.3 includes an entirely rewritten setup script.  We now
-ship fewer dependencies with the tarballs and installers themselves.
-Notably, `pytz`, `dateutil` and `pyparsing` are no longer included
-with matplotlib.  You can either install them manually first, or let
-`pip` install them as depdencies along with matplotlib.  It is now
-possible to not include certain subcomponents, such as the unit test
-data, in the install.  See `setup.cfg.template` for more information.
+New plotting features
+---------------------
 
 `xkcd`-style sketch plotting
-----------------------------
-
+````````````````````````````
 To give your plots a sense of authority that they may be missing,
 Michael Droettboom (inspired by the work of many others in
 :ghpull:`1329`) has added an `xkcd-style <http://xkcd.com/>`_ sketch
@@ -54,173 +38,156 @@ to modify each artist's sketch parameters individually with
 
 .. plot:: mpl_examples/showcase/xkcd.py
 
-WebAgg backend
---------------
-
-Michael Droettboom, Phil Elson and others have developed a new
-backend, WebAgg, to display figures in a web browser.  It works with
-animations as well as being fully interactive.
-
-.. image:: /_static/webagg_screenshot.png
-
-Future versions of matplotlib will integrate this backend with the
-IPython notebook for a fully web browser based plotting frontend.
-
-XDG base directory support
---------------------------
-On Linux, matplotlib now uses the `XDG base directory specification
-<http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`
-to find the `matplotlibrc` configuration file.  `matplotlibrc` should
-now be kept in `~/.config/matplotlib`, rather than `~/.matplotlib`.  If
-your configuration is found in the old location, it will still be used,
-but a warning will be displayed.
-
-Path effects on lines
----------------------
-Thanks to Jae-Joon Lee, path effects now also work on plot lines.
-
-.. plot:: mpl_examples/pylab_examples/patheffect_demo.py
-
-Changes to font rcParams
-------------------------
-The `font.*` rcParams now affect only text objects created after the
-rcParam has been set, and will not retroactively affect already
-existing text objects.  This brings their behavior in line with most
-other rcParams.
-
-Easier creation of colormap and normalizer for levels with colors
------------------------------------------------------------------
-Phil Elson added the :func:`matplotlib.colors.from_levels_and_colors`
-function to easily create a colormap and normalizer for representation
-of discrete colors for plot types such as
-:func:`matplotlib.pyplot.pcolormesh`, with a similar interface to that of
-contourf.
-
-Catch opening too many figures using pyplot
--------------------------------------------
-Figures created through `pyplot.figure` are retained until they are
-explicitly closed.  It is therefore common for new users of matplotlib
-to run out of memory when creating a large series of figures in a
-loop without closing them.
-
-matplotlib will now display a `RuntimeWarning` when too many figures
-have been opened at once.  By default, this is displayed for 20 or
-more figures, but the exact number may be controlled using the
-``figure.max_num_figures`` rcParam.
-
-``axes.xmargin`` and ``axes.ymargin`` added to rcParams
--------------------------------------------------------
-``rcParam`` values (``axes.xmargin`` and ``axes.ymargin``) were added
-to configure the default margins used.  Previously they were
-hard-coded to default to 0, default value of both rcParam values is 0.
-
 New eventplot plot type
--------------------------------------
+```````````````````````
 Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
 create multiple rows or columns of identical line segments
 
-New EventCollection collections class
--------------------------------------
-Todd Jennings created the new :class:`~matplotlib.collections.EventCollection`
-class that allows for plotting and manipulating rows or columns of identical
-line segments
+.. plot:: mpl_examples/pylab_examples/eventplot_demo.py
+
+As part of this feature, there is a new
+:class:`~matplotlib.collections.EventCollection` class that allows for
+plotting and manipulating rows or columns of identical line segments.
+
+Triangular grid interpolation
+`````````````````````````````
+Geoffroy Billotey and Ian Thomas added classes to perform
+interpolation within triangular grids:
+(:class:`~matplotlib.tri.LinearTriInterpolator` and
+:class:`~matplotlib.tri.CubicTriInterpolator`) and a utility class to
+find the triangles in which points lie
+(:class:`~matplotlib.tri.TrapezoidMapTriFinder`).  A helper class to
+perform mesh refinement and smooth contouring was also added
+(:class:`~matplotlib.tri.UniformTriRefiner`).  Finally, a class
+implementing some basic tools for triangular mesh improvement was
+added (:class:`~matplotlib.tri.TriAnalyzer`).
+
+.. plot:: mpl_examples/pylab_examples/tricontour_smooth_user.py
 
 Baselines for stackplot
------------------------
-Till Stensitzki added non-zero baselines to :func:`~matplotlib.pyplot.stackplot`.
-They may be symmetric or weighted.
+```````````````````````
+Till Stensitzki added non-zero baselines to
+:func:`~matplotlib.pyplot.stackplot`.  They may be symmetric or
+weighted.
 
 .. plot:: mpl_examples/pylab_examples/stackplot_demo2.py
 
-Improved ``bbox_inches="tight"`` functionality
-----------------------------------------------
-Passing ``bbox_inches="tight"`` through to :func:`plt.save` now takes into account
-*all* artists on a figure - this was previously not the case and led to several
-corner cases which did not function as expected.
-
-Remember save directory
------------------------
-Martin Spacek made the save figure dialog remember the last directory saved
-to. The default is configurable with the new `savefig.directory` setting
-in `matplotlibrc`.
-
-Initialize a rotated rectangle
-------------------------------
-Damon McDougall extended the :class:`~matplotlib.patches.Rectangle` constructor
-to accept an `angle` kwarg, specifying the rotation of a rectangle in degrees.
-
 Rectangular colorbar extensions
--------------------------------
+```````````````````````````````
 Andrew Dawson added a new keyword argument *extendrect* to
 :meth:`~matplotlib.pyplot.colorbar` to optionally make colorbar
 extensions rectangular instead of triangular.
 
-Examples now use subplots()
----------------------------
-For the sake of brevity and clarity, most of the :ref:`examples
-<examples-index>` now use the newer :func:`~matplotlib.pyplot.subplots`, which
-creates a figure and one (or multiple) axes object(s) in one call. The old way
-involved a call to :func:`~matplotlib.pyplot.figure`, followed by one (or
-multiple) :func:`~matplotlib.pyplot.subplot` calls.
-
-Calling subplot() without arguments
------------------------------------
-A call to :func:`~matplotlib.pyplot.subplot` without any arguments now
-acts the same as `subplot(111)` or `subplot(1,1,1)` -- it creates one axes for
-the whole figure. This was already the behavior for both
-:func:`~matplotlib.pyplot.axes` and :func:`~matplotlib.pyplot.subplots`, and
-now this consistency is shared with :func:`~matplotlib.pyplot.subplot`.
-
-Anchored text support
----------------------
-The `svg` and `pgf` backends are now able to save text alignment information
-to their output formats. This allows to edit text elements in saved figures,
-using Inkscape for example, while preserving their intended position. For
-`svg` please note that you'll have to disable the default text-to-path
-conversion (`mpl.rc('svg', fonttype='none')`).
-
 More robust boxplots
---------------------
+````````````````````
 Paul Hobson provided a fix to the :func:`~matplotlib.pyplot.boxplot`
 method that prevent whiskers from being drawn inside the box for
 oddly distributed data sets.
 
-Triangular grid interpolation
------------------------------
-Geoffroy Billotey and Ian Thomas added classes to perform interpolation within
-triangular grids: (:class:`~matplotlib.tri.LinearTriInterpolator` and
-:class:`~matplotlib.tri.CubicTriInterpolator`) and a utility class to find
-the triangles in which points lie (
-:class:`~matplotlib.tri.TrapezoidMapTriFinder`).
-A helper class to perform mesh refinement and smooth contouring was also added
-(:class:`~matplotlib.tri.UniformTriRefiner`).
-Finally, a class implementing some basic tools for triangular mesh improvement
-was added (:class:`~matplotlib.tri.TriAnalyzer`).
+Calling subplot() without arguments
+```````````````````````````````````
+A call to :func:`~matplotlib.pyplot.subplot` without any arguments now
+acts the same as `subplot(111)` or `subplot(1,1,1)` -- it creates one
+axes for the whole figure. This was already the behavior for both
+:func:`~matplotlib.pyplot.axes` and
+:func:`~matplotlib.pyplot.subplots`, and now this consistency is
+shared with :func:`~matplotlib.pyplot.subplot`.
 
-.. plot:: mpl_examples/pylab_examples/tricontour_smooth_user.py
+Drawing
+-------
+
+Independent alpha values for face and edge colors
+`````````````````````````````````````````````````
+Wes Campaigne modified how :class:`~matplotlib.patches.Patch` objects are
+drawn such that (for backends supporting transparency) you can set different
+alpha values for faces and edges, by specifying their colors in RGBA format.
+Note that if you set the alpha attribute for the patch object (e.g. using
+:meth:`~matplotlib.patches.Patch.set_alpha` or the ``alpha`` keyword
+argument), that value will override the alpha components set in both the
+face and edge colors.
+
+Path effects on lines
+`````````````````````
+Thanks to Jae-Joon Lee, path effects now also work on plot lines.
+
+.. plot:: mpl_examples/pylab_examples/patheffect_demo.py
+
+Easier creation of colormap and normalizer for levels with colors
+`````````````````````````````````````````````````````````````````
+Phil Elson added the :func:`matplotlib.colors.from_levels_and_colors`
+function to easily create a colormap and normalizer for representation
+of discrete colors for plot types such as
+:func:`matplotlib.pyplot.pcolormesh`, with a similar interface to that
+of :func:`contourf`.
+
+Full control of the background color
+````````````````````````````````````
+Wes Campaigne and Phil Elson fixed the Agg backend such that PNGs are
+now saved with the correct background color when
+:meth:`fig.patch.get_alpha` is not 1.
+
+Improved ``bbox_inches="tight"`` functionality
+``````````````````````````````````````````````
+Passing ``bbox_inches="tight"`` through to :func:`plt.save` now takes
+into account *all* artists on a figure - this was previously not the
+case and led to several corner cases which did not function as
+expected.
+
+Initialize a rotated rectangle
+``````````````````````````````
+Damon McDougall extended the :class:`~matplotlib.patches.Rectangle`
+constructor to accept an `angle` kwarg, specifying the rotation of a
+rectangle in degrees.
+
+Text
+----
+
+Anchored text support
+`````````````````````
+The `svg` and `pgf` backends are now able to save text alignment
+information to their output formats. This allows to edit text elements
+in saved figures, using Inkscape for example, while preserving their
+intended position. For `svg` please note that you'll have to disable
+the default text-to-path conversion (``mpl.rc('svg',
+fonttype='none')``).
+
+Better vertical text alignment and multi-line text
+``````````````````````````````````````````````````
+The vertical alignment of text is now consistent across backends.  You
+may see small differences in text placement, particularly with rotated
+text.
+
+If you are using a custom backend, note that the `draw_text` renderer
+method is now passed the location of the baseline, not the location of
+the bottom of the text bounding box.
+
+Multi-line text will now leave enough room for the height of very tall
+or very low text, such as superscripts and subscripts.
 
 Left and right side axes titles
--------------------------------
-Andrew Dawson added the ability to add axes titles flush with the left and
-right sides of the top of the axes using a new keyword argument `loc` to
-:func:`~matplotlib.pyplot.title`.
+```````````````````````````````
+Andrew Dawson added the ability to add axes titles flush with the left
+and right sides of the top of the axes using a new keyword argument
+`loc` to :func:`~matplotlib.pyplot.title`.
 
 Improved manual contour plot label positioning
-----------------------------------------------
+``````````````````````````````````````````````
+Brian Mattern modified the manual contour plot label positioning code
+to interpolate along line segments and find the actual closest point
+on a contour to the requested position. Previously, the closest path
+vertex was used, which, in the case of straight contours was sometimes
+quite distant from the requested location. Much more precise label
+positioning is now possible.
 
-Brian Mattern modified the manual contour plot label positioning code to
-interpolate along line segments and find the actual closest point on a
-contour to the requested position. Previously, the closest path vertex was
-used, which, in the case of straight contours was sometimes quite distant
-from the requested location. Much more precise label positioning is now
-possible.
+Configuration (rcParams)
+------------------------
 
 Quickly find rcParams
----------------------
+`````````````````````
 Phil Elson made it easier to search for rcParameters by passing a
 valid regular expression to :func:`matplotlib.RcParams.find_all`.
-:class:`matplotlib.RcParams` now also has a pretty repr and str representation
-so that search results are printed prettily:
+:class:`matplotlib.RcParams` now also has a pretty repr and str
+representation so that search results are printed prettily:
 
     >>> import matplotlib
     >>> print(matplotlib.rcParams.find_all('\.size'))
@@ -230,41 +197,114 @@ so that search results are printed prettily:
               'ytick.major.size': 4,
               'ytick.minor.size': 2})
 
-Better vertical text alignment
-------------------------------
+``axes.xmargin`` and ``axes.ymargin`` added to rcParams
+```````````````````````````````````````````````````````
+``rcParam`` values (``axes.xmargin`` and ``axes.ymargin``) were added
+to configure the default margins used.  Previously they were
+hard-coded to default to 0, default value of both rcParam values is 0.
 
-The vertical alignment of text is now consistent across backends.  You
-may see small differences in text placement, particularly with rotated
-text.
-
-If you are using a custom backend, note that the `draw_text` renderer
-method is now passed the location of the baseline, not the location of
-the bottom of the text bounding box.
+Changes to font rcParams
+````````````````````````
+The `font.*` rcParams now affect only text objects created after the
+rcParam has been set, and will not retroactively affect already
+existing text objects.  This brings their behavior in line with most
+other rcParams.
 
 ``savefig.jpeg_quality`` added to rcParams
-------------------------------------------------------------------------------
-``rcParam`` value ``savefig.jpeg_quality`` was added so that the user can
-configure the default quality used when a figure is written as a JPEG.  The
-default quality is 95; previously, the default quality was 75.  This change
-minimizes the artifacting inherent in JPEG images, particularly with images
-that have sharp changes in color as plots often do.
+``````````````````````````````````````````
+rcParam value ``savefig.jpeg_quality`` was added so that the user can
+configure the default quality used when a figure is written as a JPEG.
+The default quality is 95; previously, the default quality was 75.
+This change minimizes the artifacting inherent in JPEG images,
+particularly with images that have sharp changes in color as plots
+often do.
 
-Full control of the background color
-------------------------------------
-Wes Campaigne and Phil Elson fixed the Agg backend such that PNGs are now
-saved with the correct background color when :meth:`fig.patch.get_alpha` is
-not 1.
+Backends
+--------
 
-Independent alpha values for face and edge colors
--------------------------------------------------
-Wes Campaigne modified how :class:`~matplotlib.patches.Patch` objects are
-drawn such that (for backends supporting transparency) you can set different
-alpha values for faces and edges, by specifying their colors in RGBA format.
-Note that if you set the alpha attribute for the patch object (e.g. using
-:meth:`~matplotlib.patches.Patch.set_alpha` or the ``alpha`` keyword
-argument), that value will override the alpha components set in both the
-face and edge colors.
+WebAgg backend
+``````````````
+Michael Droettboom, Phil Elson and others have developed a new
+backend, WebAgg, to display figures in a web browser.  It works with
+animations as well as being fully interactive.
 
+.. image:: /_static/webagg_screenshot.png
+
+Future versions of matplotlib will integrate this backend with the
+IPython notebook for a fully web browser based plotting frontend.
+
+Remember save directory
+```````````````````````
+Martin Spacek made the save figure dialog remember the last directory
+saved to. The default is configurable with the new `savefig.directory`
+rcParam in `matplotlibrc`.
+
+Documentation and examples
+--------------------------
+
+Numpydoc docstrings
+```````````````````
+Nelle Varoquaux has started an ongoing project to convert matplotlib's
+docstrings to numpydoc format.  See `MEP10
+<https://github.com/matplotlib/matplotlib/wiki/Mep10>`_ for more
+information.
+
+Example reorganization
+``````````````````````
+Tony Yu has begun work reorganizing the examples into more meaningful
+categories.  The new gallery page is the fruit of this ongoing work.
+See `MEP12 <https://github.com/matplotlib/matplotlib/wiki/MEP12>`_ for
+more information.
+
+Examples now use subplots()
+```````````````````````````
+For the sake of brevity and clarity, most of the :ref:`examples
+<examples-index>` now use the newer
+:func:`~matplotlib.pyplot.subplots`, which creates a figure and one
+(or multiple) axes object(s) in one call. The old way involved a call
+to :func:`~matplotlib.pyplot.figure`, followed by one (or multiple)
+:func:`~matplotlib.pyplot.subplot` calls.
+
+Infrastructure
+--------------
+
+Housecleaning
+`````````````
+A number of features that were deprecated in 1.2 or earlier, or have
+not been in a working state for a long time have been removed.
+Highlights include removing the Qt version 3 backends, and the FltkAgg
+and Emf backends.  See :ref:`changes_in_1_3` for a complete list.
+
+New setup script
+````````````````
+matplotlib 1.3 includes an entirely rewritten setup script.  We now
+ship fewer dependencies with the tarballs and installers themselves.
+Notably, `pytz`, `dateutil` and `pyparsing` are no longer included
+with matplotlib.  You can either install them manually first, or let
+`pip` install them as dependencies along with matplotlib.  It is now
+possible to not include certain subcomponents, such as the unit test
+data, in the install.  See `setup.cfg.template` for more information.
+
+XDG base directory support
+``````````````````````````
+On Linux, matplotlib now uses the `XDG base directory specification
+<http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html>`
+to find the `matplotlibrc` configuration file.  `matplotlibrc` should
+now be kept in `~/.config/matplotlib`, rather than `~/.matplotlib`.
+If your configuration is found in the old location, it will still be
+used, but a warning will be displayed.
+
+Catch opening too many figures using pyplot
+```````````````````````````````````````````
+Figures created through `pyplot.figure` are retained until they are
+explicitly closed.  It is therefore common for new users of matplotlib
+to run out of memory when creating a large series of figures in a loop
+without closing them.
+
+matplotlib will now display a `RuntimeWarning` when too many figures
+have been opened at once.  By default, this is displayed for 20 or
+more figures, but the exact number may be controlled using the
+``figure.max_num_figures`` rcParam.
 
 .. _whats-new-1-2-2:
 
@@ -1152,6 +1192,5 @@ Here are the 0.98.4 notes from the CHANGELOG::
     arrays are now converted to arrays with NaNs for consistent
     handling of masks and NaNs - MGD and EF
 
-    Added support for arbitrary rasterization resolutions to the SVG 
+    Added support for arbitrary rasterization resolutions to the SVG
     backend. - MW
-  

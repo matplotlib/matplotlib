@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -247,15 +247,15 @@ Q7 42.5938 15.5 46
 z
 " id="STIXGeneral-Regular-72"/>
    </defs>
-   <g transform="translate(167.88 32.28)scale(0.12 -0.12)">
-    <use transform="translate(0.0 19.703125)" xlink:href="#STIXGeneral-Regular-7b"/>
-    <use transform="translate(47.9999847412 19.703125)" xlink:href="#STIXGeneral-Regular-62"/>
-    <use transform="translate(97.9999694824 19.703125)" xlink:href="#STIXGeneral-Regular-72"/>
-    <use transform="translate(131.299957275 19.703125)" xlink:href="#STIXGeneral-Regular-61"/>
-    <use transform="translate(175.699951172 19.703125)" xlink:href="#STIXGeneral-Regular-63"/>
-    <use transform="translate(220.099945068 19.703125)" xlink:href="#STIXGeneral-Regular-65"/>
-    <use transform="translate(264.499938965 19.703125)" xlink:href="#STIXGeneral-Regular-73"/>
-    <use transform="translate(303.399932861 19.703125)" xlink:href="#STIXGeneral-Regular-7d"/>
+   <g transform="translate(167.88 30.31125)scale(0.12 -0.12)">
+    <use transform="translate(0.0 0.703125)" xlink:href="#STIXGeneral-Regular-7b"/>
+    <use transform="translate(47.9999847412 0.703125)" xlink:href="#STIXGeneral-Regular-62"/>
+    <use transform="translate(97.9999694824 0.703125)" xlink:href="#STIXGeneral-Regular-72"/>
+    <use transform="translate(131.299957275 0.703125)" xlink:href="#STIXGeneral-Regular-61"/>
+    <use transform="translate(175.699951172 0.703125)" xlink:href="#STIXGeneral-Regular-63"/>
+    <use transform="translate(220.099945068 0.703125)" xlink:href="#STIXGeneral-Regular-65"/>
+    <use transform="translate(264.499938965 0.703125)" xlink:href="#STIXGeneral-Regular-73"/>
+    <use transform="translate(303.399932861 0.703125)" xlink:href="#STIXGeneral-Regular-7d"/>
    </g>
   </g>
  </g>
