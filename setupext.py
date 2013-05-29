@@ -695,7 +695,7 @@ class CXX(SetupPackage):
                 return str(e) + ' Using local copy.'
 
     def add_flags(self, ext):
-        if self.found_external:
+        if self.found_external and not 'sdist' in sys.argv:
             support_dir = os.path.normpath(
                    os.path.join(
                        sys.prefix,
