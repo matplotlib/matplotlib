@@ -1284,6 +1284,7 @@ def is_opentype_cff_font(filename):
     return False
 
 fontManager = None
+_fmcache = None
 
 # The experimental fontconfig-based backend.
 if USE_FONTCONFIG and sys.platform != 'win32':
@@ -1329,10 +1330,6 @@ else:
             _fmcache = os.path.join(cachedir, 'fontList.py3k.cache')
         else:
             _fmcache = os.path.join(cachedir, 'fontList.cache')
-    else:
-        # Should only happen in a restricted environment (such as Google App
-        # Engine). Deal with this gracefully by not caching fonts.
-        _fmcache = None
 
     fontManager = None
 
