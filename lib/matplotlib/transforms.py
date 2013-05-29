@@ -794,17 +794,13 @@ class Bbox(BboxBase):
             self._check(self._points)
             TransformNode.invalidate(self)
 
-    _unit_values = np.array([[0.0, 0.0], [1.0, 1.0]], np.float_)
-
     @staticmethod
     def unit():
         """
         (staticmethod) Create a new unit :class:`Bbox` from (0, 0) to
         (1, 1).
         """
-        return Bbox(Bbox._unit_values.copy())
-
-    _null_values = np.array([[np.inf, np.inf], [-np.inf, -np.inf]], np.float_)
+        return Bbox(np.array([[0.0, 0.0], [1.0, 1.0]], np.float))
 
     @staticmethod
     def null():
@@ -812,7 +808,7 @@ class Bbox(BboxBase):
         (staticmethod) Create a new null :class:`Bbox` from (inf, inf) to
         (-inf, -inf).
         """
-        return Bbox(Bbox._null_values.copy())
+        return Bbox(np.array([[np.inf, np.inf], [-np.inf, -np.inf]], np.float))
 
     @staticmethod
     def from_bounds(x0, y0, width, height):
