@@ -17,6 +17,14 @@ For new features that were added to matplotlib, please see
 Changes in 1.3.x
 ================
 
+* Data limits on a plot now start from a point of having "null"
+  limits, rather than limits in the range (0, 1).  This has an effect
+  on artists that only control limits in one direction, such as
+  `axvline` and `axhline`, since their limits will not longer also
+  include the range (0, 1).  This fixes some problems where the
+  computed limits would be dependent on the order in which artists
+  were added to the axes.
+
 * On Linux, the user-specific `matplotlibrc` configuration file is now
   located in `~/.config/matplotlib/matplotlibrc` to conform to the
   `XDG Base Directory Specification
