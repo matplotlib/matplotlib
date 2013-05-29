@@ -1610,6 +1610,17 @@ def test_twin_spines():
     host.tick_params(axis='x', **tkw)
 
 
+@cleanup
+def test_vline_limit():
+    fig = plt.figure()
+    ax = fig.gca()
+    ax.axvline(0.5)
+    ax.plot([-0.1, 0, 0.2, 0.1])
+    (ymin, ymax) = ax.get_ylim()
+    assert ymin == -0.1
+    assert ymax == 0.25
+
+
 if __name__ == '__main__':
     import nose
     nose.runmodule(argv=['-s', '--with-doctest'], exit=False)

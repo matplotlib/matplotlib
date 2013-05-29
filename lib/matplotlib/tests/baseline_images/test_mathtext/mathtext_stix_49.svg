@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -141,13 +141,13 @@ Q43.5938 10.2031 46 14.2969
 z
 " id="STIXGeneral-Regular-32"/>
    </defs>
-   <g transform="translate(178.26 33.42)scale(0.12 -0.12)">
-    <use transform="translate(0.0 15.328125)scale(0.856034044715)" xlink:href="#STIXSizeOneSym-Regular-28"/>
-    <use transform="translate(65.0724945068 75.6453125)scale(0.7)" xlink:href="#STIXGeneral-Italic-6e"/>
-    <use transform="translate(40.0724945068 2.203125)scale(0.7)" xlink:href="#STIXGeneral-Italic-6b"/>
-    <use transform="translate(71.1524902344 2.203125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2f"/>
-    <use transform="translate(90.6124816895 2.203125)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(138.112471008 15.328125)scale(0.856034044715)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+   <g transform="translate(178.26 28.26)scale(0.12 -0.12)">
+    <use transform="translate(0.0 -27.671875)scale(0.856034044715)" xlink:href="#STIXSizeOneSym-Regular-28"/>
+    <use transform="translate(65.0724945068 32.6453125)scale(0.7)" xlink:href="#STIXGeneral-Italic-6e"/>
+    <use transform="translate(40.0724945068 -40.796875)scale(0.7)" xlink:href="#STIXGeneral-Italic-6b"/>
+    <use transform="translate(71.1524902344 -40.796875)scale(0.7)" xlink:href="#STIXGeneral-Regular-2f"/>
+    <use transform="translate(90.6124816895 -40.796875)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(138.112471008 -27.671875)scale(0.856034044715)" xlink:href="#STIXSizeOneSym-Regular-29"/>
    </g>
   </g>
  </g>

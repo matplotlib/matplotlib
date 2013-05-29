@@ -235,7 +235,7 @@ class RendererAgg(RendererBase):
         w, h, d = self.get_text_width_height_descent(s, prop, ismath)
         xd = d * np.sin(np.deg2rad(angle))
         yd = d * np.cos(np.deg2rad(angle))
-        x = np.round(x - xd)
+        x = np.round(x + xd)
         y = np.round(y + yd)
 
         self._renderer.draw_text_image(Z, x, y, angle, gc)

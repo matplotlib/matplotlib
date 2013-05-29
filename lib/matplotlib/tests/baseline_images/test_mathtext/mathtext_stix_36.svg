@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -97,24 +97,24 @@ L44.4062 65.2969
 z
 " id="STIXGeneral-Italic-59"/>
    </defs>
-   <g transform="translate(185.64 36.84)scale(0.12 -0.12)">
-    <use transform="translate(0.0 118.2921875)scale(0.7)" xlink:href="#STIXGeneral-Italic-58"/>
-    <use transform="translate(2.0 55.04671875)scale(0.49)" xlink:href="#STIXGeneral-Italic-58"/>
-    <use transform="translate(3.0 1.17625)scale(0.49)" xlink:href="#STIXGeneral-Italic-59"/>
+   <g transform="translate(185.64 27.24)scale(0.12 -0.12)">
+    <use transform="translate(0.0 38.2921875)scale(0.7)" xlink:href="#STIXGeneral-Italic-58"/>
+    <use transform="translate(2.0 -24.95328125)scale(0.49)" xlink:href="#STIXGeneral-Italic-58"/>
+    <use transform="translate(3.0 -78.82375)scale(0.49)" xlink:href="#STIXGeneral-Italic-59"/>
     <path d="
-M0 93.2922
-L0 99.5422
-L42.77 99.5422
-L42.77 93.2922
-L0 93.2922
+M0 13.2922
+L0 19.5422
+L42.77 19.5422
+L42.77 13.2922
+L0 13.2922
 z
 "/>
     <path d="
-M2 37.5467
-L2 41.9217
-L31.939 41.9217
-L31.939 37.5467
-L2 37.5467
+M2 -42.4533
+L2 -38.0783
+L31.939 -38.0783
+L31.939 -42.4533
+L2 -42.4533
 z
 "/>
    </g>

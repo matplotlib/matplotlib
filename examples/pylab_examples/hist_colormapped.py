@@ -13,7 +13,7 @@ N, bins, patches = ax.hist(np.random.rand(Ntotal), 20)
 # we need to normalize the data to 0..1 for the full
 # range of the colormap
 fracs = N.astype(float)/N.max()
-norm = colors.normalize(fracs.min(), fracs.max())
+norm = colors.Normalize(fracs.min(), fracs.max())
 
 for thisfrac, thispatch in zip(fracs, patches):
     color = cm.jet(norm(thisfrac))

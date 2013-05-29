@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -341,29 +341,29 @@ Q35.6875 -11.2812 34.125 -16.3281
 Q32.5625 -21.3906 31 -21.5781
 Q29.5 -21.5781 29.5 -19.5781" id="Cmmi10-b0"/>
    </defs>
-   <g transform="translate(167.7 37.02)scale(0.12 -0.12)">
-    <use transform="translate(0.0 40.18875)" xlink:href="#Cmmi10-b0"/>
-    <use transform="translate(69.267578125 40.18875)" xlink:href="#Cmr10-3d"/>
-    <use transform="translate(153.326171875 107.031875)scale(0.7)" xlink:href="#Cmmi10-78"/>
-    <use transform="translate(205.573242188 107.031875)scale(0.7)" xlink:href="#Cmr10-3d"/>
-    <use transform="translate(264.414257813 134.36140625)scale(0.49)" xlink:href="#Cmr10-36"/>
-    <use transform="translate(264.414257813 78.76828125)scale(0.49)" xlink:href="#Cmr10-38"/>
-    <use transform="translate(208.326171875 15.5075)scale(0.7)" xlink:href="#Cmmi10-79"/>
-    <use transform="translate(310.164257812 40.18875)" xlink:href="#Cmmi10-b1"/>
+   <g transform="translate(167.7 32.22)scale(0.12 -0.12)">
+    <use transform="translate(0.0 0.18875)" xlink:href="#Cmmi10-b0"/>
+    <use transform="translate(69.267578125 0.18875)" xlink:href="#Cmr10-3d"/>
+    <use transform="translate(153.326171875 67.031875)scale(0.7)" xlink:href="#Cmmi10-78"/>
+    <use transform="translate(205.573242188 67.031875)scale(0.7)" xlink:href="#Cmr10-3d"/>
+    <use transform="translate(264.414257813 94.36140625)scale(0.49)" xlink:href="#Cmr10-36"/>
+    <use transform="translate(264.414257813 38.76828125)scale(0.49)" xlink:href="#Cmr10-38"/>
+    <use transform="translate(208.326171875 -24.4925)scale(0.7)" xlink:href="#Cmmi10-79"/>
+    <use transform="translate(310.164257812 0.18875)" xlink:href="#Cmmi10-b1"/>
     <path d="
-M264.414 115.782
-L264.414 120.157
-L288.914 120.157
-L288.914 115.782
-L264.414 115.782
+M264.414 75.7819
+L264.414 80.1569
+L288.914 80.1569
+L288.914 75.7819
+L264.414 75.7819
 z
 "/>
     <path d="
-M153.326 52.6888
-L153.326 58.9388
-L297.664 58.9388
-L297.664 52.6888
-L153.326 52.6888
+M153.326 12.6888
+L153.326 18.9388
+L297.664 18.9388
+L297.664 12.6888
+L153.326 12.6888
 z
 "/>
    </g>

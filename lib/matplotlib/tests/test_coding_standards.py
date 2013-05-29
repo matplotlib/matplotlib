@@ -97,8 +97,6 @@ class StandardReportWithExclusions(pep8.StandardReport):
         '*/matplotlib/tests/test_triangulation.py',
         '*/matplotlib/compat/subprocess.py',
         '*/matplotlib/backends/__init__.py',
-        '*/matplotlib/backends/_backend_gdk.py',
-        '*/matplotlib/backends/_gtkagg.py',
         '*/matplotlib/backends/backend_agg.py',
         '*/matplotlib/backends/backend_cairo.py',
         '*/matplotlib/backends/backend_cocoaagg.py',
@@ -203,6 +201,8 @@ def test_pep8_conformance():
                  '_png.py',
                  '_path.py',
                  'ttconv.py',
+                 '_gtkagg.py',
+                 '_backend_gdk.py',
                  'pyparsing*'])
 
     # Allow users to add their own exclude list.
