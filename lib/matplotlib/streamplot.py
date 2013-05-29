@@ -119,7 +119,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
     if use_multicolor_lines:
         if norm is None:
-            norm = mcolors.normalize(color.min(), color.max())
+            norm = mcolors.Normalize(color.min(), color.max())
         if cmap is None:
             cmap = cm.get_cmap(matplotlib.rcParams['image.cmap'])
         else:
