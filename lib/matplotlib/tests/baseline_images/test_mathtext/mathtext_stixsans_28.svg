@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -183,29 +183,29 @@ Q36.7969 11.2031 36.7969 15.7969
 Q36.7969 20 34.6875 22.9531
 Q32.5938 25.9062 27.5938 28.5938" id="STIXGeneral-Regular-1d7ea"/>
    </defs>
-   <g transform="translate(169.08 37.14)scale(0.12 -0.12)">
-    <use transform="translate(0.0 41.31)" xlink:href="#STIXNonUnicode-Italic-e1da"/>
-    <use transform="translate(65.4199859619 41.31)" xlink:href="#STIXGeneral-Regular-3d"/>
-    <use transform="translate(139.430609131 108.3340625)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d639"/>
-    <use transform="translate(183.754605713 108.3340625)scale(0.7)" xlink:href="#STIXGeneral-Regular-3d"/>
-    <use transform="translate(235.562041931 135.4809375)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e8"/>
-    <use transform="translate(235.562041931 79.7959375)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7ea"/>
-    <use transform="translate(187.430609131 16.1490625)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d63a"/>
-    <use transform="translate(281.312034454 41.31)" xlink:href="#STIXNonUnicode-Italic-e1db"/>
+   <g transform="translate(169.08 32.22)scale(0.12 -0.12)">
+    <use transform="translate(0.0 0.31)" xlink:href="#STIXNonUnicode-Italic-e1da"/>
+    <use transform="translate(65.4199859619 0.31)" xlink:href="#STIXGeneral-Regular-3d"/>
+    <use transform="translate(139.430609131 67.3340625)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d639"/>
+    <use transform="translate(183.754605713 67.3340625)scale(0.7)" xlink:href="#STIXGeneral-Regular-3d"/>
+    <use transform="translate(235.562041931 94.4809375)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e8"/>
+    <use transform="translate(235.562041931 38.7959375)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7ea"/>
+    <use transform="translate(187.430609131 -24.8509375)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d63a"/>
+    <use transform="translate(281.312034454 0.31)" xlink:href="#STIXNonUnicode-Italic-e1db"/>
     <path d="
-M235.562 117.292
-L235.562 121.667
-L260.062 121.667
-L260.062 117.292
-L235.562 117.292
+M235.562 76.2919
+L235.562 80.6669
+L260.062 80.6669
+L260.062 76.2919
+L235.562 76.2919
 z
 "/>
     <path d="
-M139.431 54.1069
-L139.431 60.3569
-L268.812 60.3569
-L268.812 54.1069
-L139.431 54.1069
+M139.431 13.1069
+L139.431 19.3569
+L268.812 19.3569
+L268.812 13.1069
+L139.431 13.1069
 z
 "/>
    </g>

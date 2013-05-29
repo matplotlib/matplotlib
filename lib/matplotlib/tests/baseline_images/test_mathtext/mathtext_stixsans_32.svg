@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -116,19 +116,19 @@ Q36.7969 11.2031 36.7969 15.7969
 Q36.7969 20 34.6875 22.9531
 Q32.5938 25.9062 27.5938 28.5938" id="STIXGeneral-Regular-1d7ea"/>
    </defs>
-   <g transform="translate(177.78 35.16)scale(0.12 -0.12)">
-    <use transform="translate(0.0 88.684375)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d639"/>
-    <use transform="translate(33.7399978638 79.17203125)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
-    <use transform="translate(68.7399871826 88.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7ea"/>
-    <use transform="translate(103.739976501 88.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7ea"/>
-    <use transform="translate(138.73996582 88.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7ea"/>
-    <use transform="translate(70.0 16.21421875)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d63a"/>
+   <g transform="translate(177.78 30.24)scale(0.12 -0.12)">
+    <use transform="translate(0.0 47.684375)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d639"/>
+    <use transform="translate(33.7399978638 38.17203125)scale(0.49)" xlink:href="#STIXGeneral-Regular-1d7e4"/>
+    <use transform="translate(68.7399871826 47.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7ea"/>
+    <use transform="translate(103.739976501 47.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7ea"/>
+    <use transform="translate(138.73996582 47.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7ea"/>
+    <use transform="translate(70.0 -24.78578125)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d63a"/>
     <path d="
-M0 54.172
-L0 60.422
-L173.74 60.422
-L173.74 54.172
-L0 54.172
+M0 13.172
+L0 19.422
+L173.74 19.422
+L173.74 13.172
+L0 13.172
 z
 "/>
    </g>

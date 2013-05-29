@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -155,17 +155,17 @@ Q10.8906 14.9844 10.7969 11.1875
 Q10.7969 7.42188 12.4219 4.46875
 Q14.0625 1.51562 17.4844 1.51562" id="Cmmi10-62"/>
    </defs>
-   <g transform="translate(182.22 35.04)scale(0.12 -0.12)">
-    <use transform="translate(32.0 103.06875)scale(0.7)" xlink:href="#Cmmi10-61"/>
-    <use transform="translate(0.0 18.53125)scale(0.7)" xlink:href="#Cmmi10-62"/>
-    <use transform="translate(30.0439453125 18.53125)scale(0.7)" xlink:href="#Cmmi10-3d"/>
-    <use transform="translate(65.0439453125 18.53125)scale(0.7)" xlink:href="#Cmr10-32"/>
+   <g transform="translate(182.22 27.36)scale(0.12 -0.12)">
+    <use transform="translate(32.0 39.06875)scale(0.7)" xlink:href="#Cmmi10-61"/>
+    <use transform="translate(0.0 -45.46875)scale(0.7)" xlink:href="#Cmmi10-62"/>
+    <use transform="translate(30.0439453125 -45.46875)scale(0.7)" xlink:href="#Cmmi10-3d"/>
+    <use transform="translate(65.0439453125 -45.46875)scale(0.7)" xlink:href="#Cmr10-32"/>
     <path d="
-M0 77.2812
-L0 83.5312
-L100.044 83.5312
-L100.044 77.2812
-L0 77.2812
+M0 13.2812
+L0 19.5312
+L100.044 19.5312
+L100.044 13.2812
+L0 13.2812
 z
 "/>
    </g>

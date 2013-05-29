@@ -230,8 +230,8 @@ so that search results are printed prettily:
               'ytick.major.size': 4,
               'ytick.minor.size': 2})
 
-Better vertical text alignment
-------------------------------
+Better vertical text alignment and multi-line text
+--------------------------------------------------
 
 The vertical alignment of text is now consistent across backends.  You
 may see small differences in text placement, particularly with rotated
@@ -240,6 +240,9 @@ text.
 If you are using a custom backend, note that the `draw_text` renderer
 method is now passed the location of the baseline, not the location of
 the bottom of the text bounding box.
+
+Multi-line text will now leave enough room for the height of very tall
+or very low text, such as superscripts and subscripts.
 
 ``savefig.jpeg_quality`` added to rcParams
 ------------------------------------------------------------------------------
@@ -1152,6 +1155,5 @@ Here are the 0.98.4 notes from the CHANGELOG::
     arrays are now converted to arrays with NaNs for consistent
     handling of masks and NaNs - MGD and EF
 
-    Added support for arbitrary rasterization resolutions to the SVG 
+    Added support for arbitrary rasterization resolutions to the SVG
     backend. - MW
-  

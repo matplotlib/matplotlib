@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -241,15 +241,15 @@ L3.40625 39.5938
 z
 " id="STIXGeneral-Italic-66"/>
    </defs>
-   <g transform="translate(172.98 34.38)scale(0.12 -0.12)">
-    <use transform="translate(159.390625 46.078125)scale(0.989725818373)" xlink:href="#STIXSizeThreeSym-Regular-302"/>
-    <use transform="translate(0.0 21.125)" xlink:href="#STIXGeneral-Italic-61"/>
-    <use transform="translate(50.0999908447 21.125)" xlink:href="#STIXGeneral-Italic-62"/>
-    <use transform="translate(100.099975586 21.125)" xlink:href="#STIXGeneral-Italic-63"/>
-    <use transform="translate(279.499969482 50.84375)scale(0.836986071443)" xlink:href="#STIXSizeThreeSym-Regular-303"/>
-    <use transform="translate(144.499969482 21.125)" xlink:href="#STIXGeneral-Italic-64"/>
-    <use transform="translate(194.499954224 21.125)" xlink:href="#STIXGeneral-Italic-65"/>
-    <use transform="translate(238.89994812 21.125)" xlink:href="#STIXGeneral-Italic-66"/>
+   <g transform="translate(172.98 31.86)scale(0.12 -0.12)">
+    <use transform="translate(159.390625 25.078125)scale(0.989725818373)" xlink:href="#STIXSizeThreeSym-Regular-302"/>
+    <use transform="translate(0.0 0.125)" xlink:href="#STIXGeneral-Italic-61"/>
+    <use transform="translate(50.0999908447 0.125)" xlink:href="#STIXGeneral-Italic-62"/>
+    <use transform="translate(100.099975586 0.125)" xlink:href="#STIXGeneral-Italic-63"/>
+    <use transform="translate(279.499969482 29.84375)scale(0.836986071443)" xlink:href="#STIXSizeThreeSym-Regular-303"/>
+    <use transform="translate(144.499969482 0.125)" xlink:href="#STIXGeneral-Italic-64"/>
+    <use transform="translate(194.499954224 0.125)" xlink:href="#STIXGeneral-Italic-65"/>
+    <use transform="translate(238.89994812 0.125)" xlink:href="#STIXGeneral-Italic-66"/>
    </g>
   </g>
  </g>
