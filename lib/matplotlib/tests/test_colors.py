@@ -122,7 +122,7 @@ def test_cmap_and_norm_from_levels_and_colors2():
     clr = mcolors.colorConverter.to_rgba_array(colors)
     bad = (0.1, 0.1, 0.1, 0.1)
     no_color = (0.0, 0.0, 0.0, 0.0)
-    masked_value = np.inf
+    masked_value = 'masked_value'
 
     # Define the test values which are of interest.
     # Note: levels are lev[i] <= v < lev[i+1]
@@ -163,10 +163,12 @@ def test_cmap_and_norm_from_levels_and_colors2():
         cmap, norm = mcolors.from_levels_and_colors(levels, colors[0:i1],
                                                     extend=extend)
         cmap.set_bad(bad)
-        for d_val, expected_color in sorted(cases.items()):
+        for d_val, expected_color in cases.items():
             if d_val == masked_value:
-                d_val = np.ma.array(1, mask=True)
-            assert_array_equal(expected_color, cmap(norm([d_val]))[0],
+                d_val = np.ma.array([1], mask=True)
+            else:
+                d_val = [d_val]
+            assert_array_equal(expected_color, cmap(norm(d_val))[0],
                                'Wih extend={0!r} and data '
                                'value={1!r}'.format(extend, d_val))
 
