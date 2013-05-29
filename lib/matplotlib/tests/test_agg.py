@@ -25,7 +25,8 @@ def test_repeated_save_with_alpha():
 
     # The target color is fig.patch.get_facecolor()
 
-    _, img_fname = tempfile.mkstemp(suffix='.png')
+    img_fd, img_fname = tempfile.mkstemp(suffix='.png')
+    os.close(img_fd)
     try:
         fig.savefig(img_fname,
                     facecolor=fig.get_facecolor(),
