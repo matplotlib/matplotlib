@@ -522,7 +522,7 @@ class Axes(martist.Artist):
         self.bbox = mtransforms.TransformedBbox(self._position,
                                                 fig.transFigure)
         # these will be updated later as data is added
-        self.dataLim = mtransforms.Bbox.unit()
+        self.dataLim = mtransforms.Bbox.null()
         self.viewLim = mtransforms.Bbox.unit()
         self.transScale = mtransforms.TransformWrapper(
             mtransforms.IdentityTransform())
@@ -1625,12 +1625,15 @@ class Axes(martist.Artist):
         # Collections are deliberately not supported (yet); see
         # the TODO note in artists.py.
         self.dataLim.ignore(True)
+        self.dataLim.set_points(mtransforms.Bbox.null().get_points())
         self.ignore_existing_data_limits = True
+
         for line in self.lines:
             self._update_line_limits(line)
 
         for p in self.patches:
             self._update_patch_limits(p)
+
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
@@ -8290,14 +8293,6 @@ class Axes(martist.Artist):
         else:
             w = [None]*nx
 
-        # Save autoscale state for later restoration; turn autoscaling
-        # off so we can do it all a single time at the end, instead
-        # of having it done by bar or fill and then having to be redone.
-        _saved_autoscalex = self.get_autoscalex_on()
-        _saved_autoscaley = self.get_autoscaley_on()
-        self.set_autoscalex_on(False)
-        self.set_autoscaley_on(False)
-
         # Save the datalimits for the same reason:
         _saved_bounds = self.dataLim.bounds
 
@@ -8355,6 +8350,14 @@ class Axes(martist.Artist):
         patches = []
 
         if histtype.startswith('bar'):
+            # Save autoscale state for later restoration; turn autoscaling
+            # off so we can do it all a single time at the end, instead
+            # of having it done by bar or fill and then having to be redone.
+            _saved_autoscalex = self.get_autoscalex_on()
+            _saved_autoscaley = self.get_autoscaley_on()
+            self.set_autoscalex_on(False)
+            self.set_autoscaley_on(False)
+
             totwidth = np.diff(bins)
 
             if rwidth is not None:
@@ -8403,6 +8406,10 @@ class Axes(martist.Artist):
                 if stacked:
                     bottom[:] = m
                 boffset += dw
+
+            self.set_autoscalex_on(_saved_autoscalex)
+            self.set_autoscaley_on(_saved_autoscaley)
+            self.autoscale_view()
 
         elif histtype.startswith('step'):
             # these define the perimeter of the polygon
@@ -8467,11 +8474,11 @@ class Axes(martist.Artist):
             for x, y, c in reversed(zip(xvals, yvals, color)):
                 if fill:
                     patches.append(self.fill(x, y,
-                                             closed=False,
+                                             closed=True,
                                              facecolor=c))
                 else:
                     patches.append(self.fill(x, y,
-                                             closed=False, edgecolor=c,
+                                             closed=True, edgecolor=c,
                                              fill=False))
 
             # we return patches, so put it back in the expected order
@@ -8528,10 +8535,6 @@ class Axes(martist.Artist):
             else:
                 self.update_datalim(
                     [(0, bins[0]), (0, bins[-1])], updatex=False)
-
-        self.set_autoscalex_on(_saved_autoscalex)
-        self.set_autoscaley_on(_saved_autoscaley)
-        self.autoscale_view()
 
         if nx == 1:
             return n[0], bins, cbook.silent_list('Patch', patches[0])
