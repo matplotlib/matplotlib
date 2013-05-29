@@ -90,7 +90,7 @@ if 1:
 
     vmax, vmin = np.max(ZS), np.min(ZS)
     import matplotlib.colors
-    norm = matplotlib.colors.normalize(vmax=vmax, vmin=vmin)
+    norm = matplotlib.colors.Normalize(vmax=vmax, vmin=vmin)
 
     for ax, z in zip(grid2, ZS):
         im = ax.imshow(z, norm=norm,
