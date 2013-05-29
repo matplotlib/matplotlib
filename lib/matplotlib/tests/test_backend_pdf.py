@@ -2,7 +2,7 @@
 
 from matplotlib import rcParams
 from matplotlib import pyplot as plt
-from matplotlib.testing.decorators import image_comparison, knownfailureif
+from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
 
 @image_comparison(baseline_images=['pdf_use14corefonts'], extensions=['pdf'])
 def test_use14corefonts():
@@ -19,10 +19,12 @@ def test_use14corefonts():
 
     plt.figure()
     plt.title(title)
-    plt.text(0.5, 0.5, text, horizontalalignment='center', fontsize=24)
+    plt.text(0.5, 0.5, text, horizontalalignment='center',
+             verticalalignment='bottom',
+             fontsize=24)
     plt.axhline(0.5, linewidth=0.5)
 
-
+@cleanup
 def test_type42():
     import io
 
