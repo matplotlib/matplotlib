@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -130,21 +130,21 @@ L48 45.2969
 z
 " id="STIXGeneral-Italic-1d63a"/>
    </defs>
-   <g transform="translate(174.54 35.16)scale(0.12 -0.12)">
-    <use transform="translate(0.0 85.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-24"/>
-    <use transform="translate(34.9999893188 85.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e3"/>
-    <use transform="translate(69.9999786377 85.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e2"/>
-    <use transform="translate(104.999967957 85.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e2"/>
-    <use transform="translate(139.999957275 85.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2e"/>
-    <use transform="translate(158.349580994 85.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e2"/>
-    <use transform="translate(193.349570312 85.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e2"/>
-    <use transform="translate(97.0 16.0578125)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d63a"/>
+   <g transform="translate(174.54 30.24)scale(0.12 -0.12)">
+    <use transform="translate(0.0 44.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-24"/>
+    <use transform="translate(34.9999893188 44.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e3"/>
+    <use transform="translate(69.9999786377 44.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e2"/>
+    <use transform="translate(104.999967957 44.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e2"/>
+    <use transform="translate(139.999957275 44.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2e"/>
+    <use transform="translate(158.349580994 44.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e2"/>
+    <use transform="translate(193.349570312 44.1078125)scale(0.7)" xlink:href="#STIXGeneral-Regular-1d7e2"/>
+    <use transform="translate(97.0 -24.9421875)scale(0.7)" xlink:href="#STIXGeneral-Italic-1d63a"/>
     <path d="
-M0 54.0156
-L0 60.2656
-L228.35 60.2656
-L228.35 54.0156
-L0 54.0156
+M0 13.0156
+L0 19.2656
+L228.35 19.2656
+L228.35 13.0156
+L0 13.0156
 z
 "/>
    </g>

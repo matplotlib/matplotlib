@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -201,16 +201,16 @@ Q11.0781 -14.4062 8.79688 -14.4062
 Q8.6875 -14.3594 8.59375 -14.3281
 Q8.5 -14.3125 8.40625 -14.3125" id="Cmmi10-79"/>
    </defs>
-   <g transform="translate(151.32 32.46)scale(0.12 -0.12)">
-    <use transform="translate(0.0 21.609375)" xlink:href="#Cmmi10-78"/>
-    <use transform="translate(74.638671875 21.609375)" xlink:href="#Cmsy10-c3"/>
-    <use transform="translate(180.869140625 21.609375)" xlink:href="#Cmmi10-79"/>
-    <use transform="translate(256.23046875 21.609375)" xlink:href="#Cmmi10-78"/>
-    <use transform="translate(313.310546875 21.609375)" xlink:href="#Cmsy10-38"/>
-    <use transform="translate(368.828125 21.609375)" xlink:href="#Cmmi10-79"/>
-    <use transform="translate(444.189453125 21.609375)" xlink:href="#Cmmi10-78"/>
-    <use transform="translate(501.26953125 21.609375)" xlink:href="#Cmsy10-a1"/>
-    <use transform="translate(578.955078125 21.609375)" xlink:href="#Cmmi10-79"/>
+   <g transform="translate(151.32 30.286875)scale(0.12 -0.12)">
+    <use transform="translate(0.0 0.609375)" xlink:href="#Cmmi10-78"/>
+    <use transform="translate(74.638671875 0.609375)" xlink:href="#Cmsy10-c3"/>
+    <use transform="translate(180.869140625 0.609375)" xlink:href="#Cmmi10-79"/>
+    <use transform="translate(256.23046875 0.609375)" xlink:href="#Cmmi10-78"/>
+    <use transform="translate(313.310546875 0.609375)" xlink:href="#Cmsy10-38"/>
+    <use transform="translate(368.828125 0.609375)" xlink:href="#Cmmi10-79"/>
+    <use transform="translate(444.189453125 0.609375)" xlink:href="#Cmmi10-78"/>
+    <use transform="translate(501.26953125 0.609375)" xlink:href="#Cmsy10-a1"/>
+    <use transform="translate(578.955078125 0.609375)" xlink:href="#Cmmi10-79"/>
    </g>
   </g>
  </g>

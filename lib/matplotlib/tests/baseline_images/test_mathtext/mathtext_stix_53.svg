@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -164,7 +164,7 @@ L103.203 155.203
 z
 " id="STIXSizeOneSym-Regular-221a"/>
    </defs>
-   <g transform="translate(78.3 30.31125)scale(0.12 -0.12)">
+   <g transform="translate(78.3 44.484375)scale(0.12 -0.12)">
     <use transform="translate(0.0 50.109375)scale(1.06112804878)" xlink:href="#STIXSizeThreeSym-Regular-221a"/>
     <use transform="translate(126.690490723 -0.203125)" xlink:href="#STIXGeneral-Regular-31"/>
     <use transform="translate(191.130471802 -0.203125)" xlink:href="#STIXGeneral-Regular-2b"/>

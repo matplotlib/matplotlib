@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -208,41 +208,41 @@ Q43.5938 10.2031 46 14.2969
 z
 " id="STIXGeneral-Regular-32"/>
    </defs>
-   <g transform="translate(144.0 35.1)scale(0.12 -0.12)">
-    <use transform="translate(0.0 24.86875)scale(0.955538617886)" xlink:href="#STIXSizeOneSym-Regular-28"/>
-    <use transform="translate(44.6939849854 95.784375)scale(0.7)" xlink:href="#STIXGeneral-Italic-70"/>
-    <use transform="translate(44.6939849854 9.11875)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(92.4739807129 24.86875)scale(0.955538617886)" xlink:href="#STIXSizeOneSym-Regular-29"/>
-    <use transform="translate(137.167965698 49.8875)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(181.567959595 80.753125)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(225.386698914 49.8875)" xlink:href="#STIXGeneral-Italic-79"/>
-    <use transform="translate(269.78669281 80.753125)scale(0.7)" xlink:href="#STIXGeneral-Italic-70"/>
-    <use transform="translate(305.066688538 80.753125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2212"/>
-    <use transform="translate(353.016677856 80.753125)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
-    <use transform="translate(396.835417175 49.8875)" xlink:href="#STIXGeneral-Regular-2212"/>
-    <use transform="translate(505.335401917 87.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-31"/>
-    <use transform="translate(465.335401917 9.11875)scale(0.7)" xlink:href="#STIXGeneral-Regular-31"/>
-    <use transform="translate(500.335391235 9.11875)scale(0.7)" xlink:href="#STIXGeneral-Regular-2212"/>
-    <use transform="translate(548.285380554 9.11875)scale(0.7)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(646.865376282 87.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-31"/>
-    <use transform="translate(591.865376282 1.7075)scale(0.7)" xlink:href="#STIXGeneral-Regular-31"/>
-    <use transform="translate(626.865365601 1.7075)scale(0.7)" xlink:href="#STIXGeneral-Regular-2212"/>
-    <use transform="translate(674.815354919 1.7075)scale(0.7)" xlink:href="#STIXGeneral-Italic-78"/>
-    <use transform="translate(705.895350647 23.3134375)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
+   <g transform="translate(144.0 29.22)scale(0.12 -0.12)">
+    <use transform="translate(0.0 -24.13125)scale(0.955538617886)" xlink:href="#STIXSizeOneSym-Regular-28"/>
+    <use transform="translate(44.6939849854 46.784375)scale(0.7)" xlink:href="#STIXGeneral-Italic-70"/>
+    <use transform="translate(44.6939849854 -39.88125)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(92.4739807129 -24.13125)scale(0.955538617886)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+    <use transform="translate(137.167965698 0.8875)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(181.567959595 31.753125)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(225.386698914 0.8875)" xlink:href="#STIXGeneral-Italic-79"/>
+    <use transform="translate(269.78669281 31.753125)scale(0.7)" xlink:href="#STIXGeneral-Italic-70"/>
+    <use transform="translate(305.066688538 31.753125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(353.016677856 31.753125)scale(0.7)" xlink:href="#STIXGeneral-Regular-32"/>
+    <use transform="translate(396.835417175 0.8875)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(505.335401917 38.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-31"/>
+    <use transform="translate(465.335401917 -39.88125)scale(0.7)" xlink:href="#STIXGeneral-Regular-31"/>
+    <use transform="translate(500.335391235 -39.88125)scale(0.7)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(548.285380554 -39.88125)scale(0.7)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(646.865376282 38.684375)scale(0.7)" xlink:href="#STIXGeneral-Regular-31"/>
+    <use transform="translate(591.865376282 -47.2925)scale(0.7)" xlink:href="#STIXGeneral-Regular-31"/>
+    <use transform="translate(626.865365601 -47.2925)scale(0.7)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(674.815354919 -47.2925)scale(0.7)" xlink:href="#STIXGeneral-Italic-78"/>
+    <use transform="translate(705.895350647 -25.6865625)scale(0.49)" xlink:href="#STIXGeneral-Regular-32"/>
     <path d="
-M465.335 62.6844
-L465.335 68.9344
-L579.365 68.9344
-L579.365 62.6844
-L465.335 62.6844
+M465.335 13.6844
+L465.335 19.9344
+L579.365 19.9344
+L579.365 13.6844
+L465.335 13.6844
 z
 "/>
     <path d="
-M591.865 62.6844
-L591.865 68.9344
-L736.568 68.9344
-L736.568 62.6844
-L591.865 62.6844
+M591.865 13.6844
+L591.865 19.9344
+L736.568 19.9344
+L736.568 13.6844
+L591.865 13.6844
 z
 "/>
    </g>

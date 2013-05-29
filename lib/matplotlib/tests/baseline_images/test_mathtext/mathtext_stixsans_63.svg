@@ -5,7 +5,7 @@
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
-*{stroke-linecap:square;stroke-linejoin:round;}
+*{stroke-linecap:butt;stroke-linejoin:round;}
   </style>
  </defs>
  <g id="figure_1">
@@ -101,15 +101,15 @@ L38.2031 103.594
 Q22 83.7969 22 45.0938
 Q22 6.40625 38.2031 -13.4062" id="STIXSizeOneSym-Regular-28"/>
    </defs>
-   <g transform="translate(168.48 32.46)scale(0.12 -0.12)">
-    <use transform="translate(0.0 13.171875)scale(0.730055894309)" xlink:href="#STIXSizeOneSym-Regular-28"/>
-    <use transform="translate(34.1640014648 22.703125)" xlink:href="#STIXNonUnicode-Italic-e1e5"/>
-    <use transform="translate(77.5639953613 13.171875)scale(0.730055894309)" xlink:href="#STIXSizeOneSym-Regular-28"/>
-    <use transform="translate(111.727996826 22.703125)" xlink:href="#STIXGeneral-Regular-1d7e3"/>
-    <use transform="translate(161.727981567 22.703125)" xlink:href="#STIXGeneral-Regular-2212"/>
-    <use transform="translate(230.227966309 22.703125)" xlink:href="#STIXNonUnicode-Italic-e1e5"/>
-    <use transform="translate(273.627960205 13.171875)scale(0.730055894309)" xlink:href="#STIXSizeOneSym-Regular-29"/>
-    <use transform="translate(307.79196167 13.171875)scale(0.730055894309)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+   <g transform="translate(168.48 30.166875)scale(0.12 -0.12)">
+    <use transform="translate(0.0 -8.828125)scale(0.730055894309)" xlink:href="#STIXSizeOneSym-Regular-28"/>
+    <use transform="translate(34.1640014648 0.703125)" xlink:href="#STIXNonUnicode-Italic-e1e5"/>
+    <use transform="translate(77.5639953613 -8.828125)scale(0.730055894309)" xlink:href="#STIXSizeOneSym-Regular-28"/>
+    <use transform="translate(111.727996826 0.703125)" xlink:href="#STIXGeneral-Regular-1d7e3"/>
+    <use transform="translate(161.727981567 0.703125)" xlink:href="#STIXGeneral-Regular-2212"/>
+    <use transform="translate(230.227966309 0.703125)" xlink:href="#STIXNonUnicode-Italic-e1e5"/>
+    <use transform="translate(273.627960205 -8.828125)scale(0.730055894309)" xlink:href="#STIXSizeOneSym-Regular-29"/>
+    <use transform="translate(307.79196167 -8.828125)scale(0.730055894309)" xlink:href="#STIXSizeOneSym-Regular-29"/>
    </g>
   </g>
  </g>

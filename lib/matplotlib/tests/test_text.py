@@ -83,6 +83,18 @@ def test_multiline():
     ax = plt.subplot(1, 1, 1)
     ax.set_title("multiline\ntext alignment")
 
+    plt.text(0.2, 0.5, "TpTpTp\n$M$\nTpTpTp", size=20,
+             ha="center", va="top")
+
+    plt.text(0.5, 0.5, "TpTpTp\n$M^{M^{M^{M}}}$\nTpTpTp", size=20,
+             ha="center", va="top")
+
+    plt.text(0.8, 0.5, "TpTpTp\n$M_{q_{q_{q}}}$\nTpTpTp", size=20,
+             ha="center", va="top")
+
+    plt.xlim(0, 1)
+    plt.ylim(0, 0.8)
+
     ax.set_xticks([])
     ax.set_yticks([])
 
@@ -166,7 +178,8 @@ def test_alignment():
     x = 0.1
     for rotation in (0, 30):
         for alignment in ('top', 'bottom', 'baseline', 'center'):
-            ax.text(x, 0.5, alignment + " Tj", va=alignment, rotation=rotation)
+            ax.text(x, 0.5, alignment + " Tj", va=alignment, rotation=rotation,
+                    bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
             ax.text(x, 1.0, r'$\sum_{i=0}^{j}$', va=alignment, rotation=rotation)
             x += 0.1
 
