@@ -122,7 +122,7 @@ def test_cmap_and_norm_from_levels_and_colors2():
     clr = mcolors.colorConverter.to_rgba_array(colors)
     bad = (0.1, 0.1, 0.1, 0.1)
     no_color = (0.0, 0.0, 0.0, 0.0)
-    masked_value = 'masked value'
+    masked_value = np.inf
 
     # Define the test values which are of interest.
     # Note: levels are lev[i] <= v < lev[i+1]
